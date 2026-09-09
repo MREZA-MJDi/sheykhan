@@ -2,57 +2,48 @@
 'title',
 'description' => null,
 'eyebrow' => null,
-'breadcrumbs' => [],
+'align' => 'right',
 ])
 
-<section
-    {{ $attributes->class([
-        'border-b border-gray-100 bg-white',
+@php
+    $alignClass = match ($align) {
+        'center' => 'text-center items-center',
+        'left' => 'text-left items-start',
+        default => 'text-right items-start',
+    };
+@endphp
+
+<header
+    {{ $attributes->merge([
+        'class' => "flex flex-col {$alignClass} gap-3",
     ]) }}
+    dir="rtl"
 >
-    <x-layout.container>
+    @if($eyebrow)
+        <span class="text-sm font-semibold text-[var(--color-brand-600)]">
+            {{ $eyebrow }}
+        </span>
+    @endif
 
-        <div class="py-10 sm:py-12 lg:py-14">
+    <div class="min-w-0">
+        <h1
+            class="text-2xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-3xl lg:text-4xl"
+        >
+            {{ $title }}
+        </h1>
 
-            @if(count($breadcrumbs))
-                <div class="mb-7">
-                    <x-navigation.breadcrumbs :items="$breadcrumbs" />
-                </div>
-            @endif
+        @if($description)
+            <p
+                class="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-text-secondary)] sm:text-base"
+            >
+                {{ $description }}
+            </p>
+        @endif
+    </div>
 
-            <div class="max-w-3xl">
-
-                @if($eyebrow)
-                    <span class="mb-3 block text-sm font-medium text-gray-500">
-                        {{ $eyebrow }}
-                    </span>
-                @endif
-
-                <h1
-                    class="text-2xl font-bold tracking-tight text-gray-950
-                           sm:text-3xl lg:text-4xl"
-                >
-                    {{ $title }}
-                </h1>
-
-                @if($description)
-                    <p
-                        class="mt-4 max-w-2xl text-sm leading-7 text-gray-500
-                               sm:text-base"
-                    >
-                        {{ $description }}
-                    </p>
-                @endif
-
-                @isset($actions)
-                    <div class="mt-6 flex flex-wrap items-center gap-3">
-                        {{ $actions }}
-                    </div>
-                @endisset
-
-            </div>
-
+    @if($slot->isNotEmpty())
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+            {{ $slot }}
         </div>
-
-    </x-layout.container>
-</section>
+    @endif
+</header>

@@ -1,4 +1,7 @@
-import Alpine from 'alpinejs';
+import Alpine from 'alpinejs'
+import collapse from '@alpinejs/collapse'
+
+import './bootstrap'
 
 /*
 |--------------------------------------------------------------------------
@@ -10,12 +13,20 @@ import Alpine from 'alpinejs';
 |
 */
 
-window.Alpine = Alpine;
+window.Alpine = Alpine
 
 /*
 |--------------------------------------------------------------------------
-| Alpine
+| Alpine Plugins
 |--------------------------------------------------------------------------
 */
 
-Alpine.start();
+Alpine.plugin(collapse)
+
+/*
+|--------------------------------------------------------------------------
+| Start Alpine
+|--------------------------------------------------------------------------
+*/
+
+Alpine.start()

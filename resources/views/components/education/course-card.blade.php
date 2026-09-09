@@ -1,99 +1,286 @@
 @props([
-    'title' => 'دوره آموزشی',
-    'description' => 'توضیحات دوره در این بخش نمایش داده می‌شود.',
-    'image' => null,
-    'category' => null,
-    'teacher' => null,
-    'lessons' => null,
-    'duration' => null,
-    'price' => null,
-    'level' => null,
-    'href' => '#',
+'title',
+'description' => null,
+'image' => null,
+'imageAlt' => null,
+'teacher' => null,
+'grade' => null,
+'subject' => null,
+'level' => null,
+'sessions' => null,
+'duration' => null,
+'price' => null,
+'oldPrice' => null,
+'discount' => null,
+'href' => '#',
+'progress' => null,
+'status' => null,
+'featured' => false,
 ])
 
-<article class="fz-surface-interactive group flex h-full flex-col overflow-hidden">
+@php
+    $levelVariant = match ($level) {
+        'مقدماتی' => 'success',
+        'متوسط' => 'info',
+        'پیشرفته' => 'warning',
+        default => 'brand',
+    };
+@endphp
 
-    <a href="{{ $href }}" class="block">
-
-        <div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
-
-            @if($image)
-                <img
-                    src="{{ $image }}"
-                    alt="{{ $title }}"
-                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
+<article
+    {{ $attributes->merge([
+        'class' => '
+            group
+            flex
+            h-full
+            flex-col
+            overflow-hidden
+            rounded-2xl
+            border
+            border-[var(--color-border)]
+            bg-[var(--color-surface)]
+            shadow-[var(--shadow-xs)]
+            transition-all
+            duration-200
+            hover:-translate-y-1
+            hover:border-[var(--color-brand-200)]
+            hover:shadow-[var(--shadow-md)]
+        ',
+    ]) }}
+    dir="rtl"
+>
+    {{-- Image / Header --}}
+    <a
+        href="{{ $href }}"
+        class="relative block overflow-hidden bg-[var(--color-neutral-100)]"
+        aria-label="{{ $title }}"
+    >
+        @if($image)
+            <img
+                src="{{ $image }}"
+                alt="{{ $imageAlt ?: $title }}"
+                loading="lazy"
+                class="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            >
+        @else
+            <div class="flex aspect-[16/10] items-center justify-center bg-[var(--color-brand-50)]">
+                <svg
+                    class="h-12 w-12 text-[var(--color-brand-300)]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
                 >
-            @else
-                <div class="flex h-full items-center justify-center text-[var(--color-text-subtle)]">
-                    <svg class="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M4 5h16v14H4z"/>
-                        <path d="m4 15 4-4 3 3 3-4 6 6"/>
-                    </svg>
-                </div>
-            @endif
-
-            @if($category)
-                <span class="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-[var(--color-primary-700)] shadow-sm backdrop-blur">
-                    {{ $category }}
-                </span>
-            @endif
-
-        </div>
-
-    </a>
-
-    <div class="flex flex-1 flex-col p-5">
-
-        @if($level)
-            <span class="mb-2 text-xs font-medium text-[var(--color-text-muted)]">
-                سطح {{ $level }}
-            </span>
-        @endif
-
-        <h3 class="text-lg font-bold text-[var(--color-text)]">
-            <a href="{{ $href }}" class="transition-colors hover:text-[var(--color-primary-600)]">
-                {{ $title }}
-            </a>
-        </h3>
-
-        <p class="mt-2 line-clamp-2 text-sm leading-7 text-[var(--color-text-muted)]">
-            {{ $description }}
-        </p>
-
-        @if($teacher)
-            <div class="mt-4 flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="8" r="3"/>
-                    <path d="M5 20c.8-4 3-6 7-6s6.2 2 7 6"/>
+                    <path d="M4.5 5.25A2.25 2.25 0 0 1 6.75 3h10.5a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 17.25 21H6.75A2.25 2.25 0 0 1 4.5 18.75V5.25Z" />
+                    <path d="m8 14 2.5-2.5 2 2 1.5-1.5 2.5 2.5" />
                 </svg>
-
-                <span>{{ $teacher }}</span>
             </div>
         @endif
 
-        <div class="mt-auto pt-5">
+        {{-- Featured --}}
+        @if($featured)
+            <div class="absolute right-4 top-4">
+                <x-ui.badge variant="warning" size="sm">
+                    ویژه
+                </x-ui.badge>
+            </div>
+        @endif
 
-            <div class="flex flex-wrap items-center gap-4 border-t border-[var(--color-border)] pt-4 text-xs text-[var(--color-text-muted)]">
+        {{-- Discount --}}
+        @if($discount)
+            <div class="absolute left-4 top-4">
+                <x-ui.badge variant="danger" size="sm">
+                    {{ $discount }}٪ تخفیف
+                </x-ui.badge>
+            </div>
+        @endif
+    </a>
 
-                @if($lessons)
-                    <span>{{ $lessons }} درس</span>
+    {{-- Content --}}
+    <div class="flex flex-1 flex-col p-5">
+
+        {{-- Meta --}}
+        <div class="flex flex-wrap items-center gap-2">
+            @if($grade)
+                <x-ui.badge
+                    variant="brand"
+                    size="sm"
+                >
+                    {{ $grade }}
+                </x-ui.badge>
+            @endif
+
+            @if($subject)
+                <x-ui.badge
+                    variant="neutral"
+                    size="sm"
+                >
+                    {{ $subject }}
+                </x-ui.badge>
+            @endif
+
+            @if($level)
+                <x-ui.badge
+                    :variant="$levelVariant"
+                    size="sm"
+                >
+                    {{ $level }}
+                </x-ui.badge>
+            @endif
+        </div>
+
+        {{-- Title --}}
+        <a
+            href="{{ $href }}"
+            class="mt-4 block"
+        >
+            <h3
+                class="line-clamp-2 text-lg font-extrabold leading-8 text-[var(--color-text-primary)] transition-colors duration-200 group-hover:text-[var(--color-brand-700)]"
+            >
+                {{ $title }}
+            </h3>
+        </a>
+
+        {{-- Description --}}
+        @if($description)
+            <p class="mt-2 line-clamp-2 text-sm leading-6 text-[var(--color-text-secondary)]">
+                {{ $description }}
+            </p>
+        @endif
+
+        {{-- Teacher --}}
+        @if($teacher)
+            <div class="mt-5 flex items-center gap-3">
+                @if(is_array($teacher))
+                    <x-ui.avatar
+                        :src="$teacher['avatar'] ?? null"
+                        :name="$teacher['name'] ?? null"
+                        size="sm"
+                    />
+
+                    <div class="min-w-0">
+                        <p class="text-xs text-[var(--color-text-muted)]">
+                            مدرس
+                        </p>
+
+                        <p class="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                            {{ $teacher['name'] ?? '' }}
+                        </p>
+                    </div>
+                @else
+                    <x-ui.avatar
+                        :name="$teacher"
+                        size="sm"
+                    />
+
+                    <div class="min-w-0">
+                        <p class="text-xs text-[var(--color-text-muted)]">
+                            مدرس
+                        </p>
+
+                        <p class="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                            {{ $teacher }}
+                        </p>
+                    </div>
+                @endif
+            </div>
+        @endif
+
+        {{-- Course facts --}}
+        @if($sessions || $duration)
+            <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--color-border)] pt-4">
+                @if($sessions)
+                    <div class="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+                        <svg
+                            class="h-4 w-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            aria-hidden="true"
+                        >
+                            <path d="M5.25 5.25A2.25 2.25 0 0 1 7.5 3h9A2.25 2.25 0 0 1 18.75 5.25v13.5A2.25 2.25 0 0 1 16.5 21h-9a2.25 2.25 0 0 1-2.25-2.25V5.25Z" />
+                            <path d="M8.25 7.5h7.5M8.25 11h7.5" />
+                        </svg>
+
+                        <span>{{ $sessions }} جلسه</span>
+                    </div>
                 @endif
 
                 @if($duration)
-                    <span>{{ $duration }}</span>
-                @endif
+                    <div class="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+                        <svg
+                            class="h-4 w-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            aria-hidden="true"
+                        >
+                            <circle cx="12" cy="12" r="8.75" />
+                            <path d="M12 7.5v5l3 1.75" />
+                        </svg>
 
-                @if($price !== null)
-                    <span class="ms-auto font-bold text-[var(--color-primary-600)]">
-                        {{ $price }}
-                    </span>
+                        <span>{{ $duration }}</span>
+                    </div>
                 @endif
-
             </div>
+        @endif
 
+        {{-- Progress --}}
+        @if($progress !== null)
+            <div class="mt-5">
+                <x-ui.progress
+                    :value="$progress"
+                    label="پیشرفت دوره"
+                    size="sm"
+                />
+            </div>
+        @endif
+
+        {{-- Footer --}}
+        <div class="mt-auto pt-6">
+            <div class="flex items-end justify-between gap-4">
+
+                {{-- Price --}}
+                <div class="min-w-0">
+                    @if($oldPrice)
+                        <div class="text-xs text-[var(--color-text-muted)] line-through">
+                            {{ $oldPrice }}
+                        </div>
+                    @endif
+
+                    @if($price)
+                        <div class="mt-1 text-base font-extrabold text-[var(--color-text-primary)]">
+                            {{ $price }}
+                        </div>
+                    @else
+                        <div class="text-sm font-semibold text-[var(--color-success-700)]">
+                            رایگان
+                        </div>
+                    @endif
+                </div>
+
+                {{-- CTA --}}
+                <x-ui.button
+                    :href="$href"
+                    size="sm"
+                >
+                    {{ $progress !== null ? 'ادامه یادگیری' : 'مشاهده دوره' }}
+
+                    <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        aria-hidden="true"
+                    >
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </x-ui.button>
+            </div>
         </div>
-
     </div>
-
 </article>

@@ -1,263 +1,168 @@
-﻿<!DOCTYPE html>
-<html lang="fa" dir="rtl">
+﻿<footer
+    class="border-t border-[var(--color-border)] bg-[var(--color-surface)]"
+    dir="rtl"
+>
+    <div class="container-farzin py-14 lg:py-16">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body>
-
-<footer class="bg-white border-t border-gray-100">
-
-    <div class="container px-6 py-14 mx-auto">
-
-        <!-- CTA -->
-        <div class="text-center">
-
-            <h2 class="text-2xl font-bold text-gray-900">
+        {{-- CTA --}}
+        <div class="rounded-3xl bg-[var(--color-brand-50)] px-6 py-10 text-center sm:px-10">
+            <h2 class="text-2xl font-extrabold text-[var(--color-text-primary)] sm:text-3xl">
                 مسیر یادگیریت رو از همین امروز شروع کن
             </h2>
 
-            <p class="max-w-xl mx-auto mt-3 leading-7 text-gray-500">
-                با دوره‌های تخصصی فرزین مهارت‌هات رو توسعه بده و یک قدم
-                به آینده حرفه‌ای خودت نزدیک‌تر شو.
+            <p class="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[var(--color-text-secondary)] sm:text-base">
+                با دوره‌های تخصصی فرزین، برای آزمون‌های تیزهوشان و مسیر تحصیلی آینده‌ات آماده‌تر شو.
             </p>
 
-            <div class="flex flex-col mt-7 sm:flex-row sm:items-center sm:justify-center">
-
+            <div class="mt-7">
                 <a
-                    href="#"
-                    class="inline-flex items-center justify-center px-6 py-3 text-sm font-medium
-                           text-white transition-all duration-300
-                           bg-gray-900 rounded-xl
-                           hover:bg-gray-800">
-
+                    href="{{ route('courses.index') }}"
+                    class="ui-button ui-button-primary ui-button-lg"
+                >
                     مشاهده دوره‌ها
 
                     <svg
-                        class="w-4 h-4 mr-2"
+                        class="h-4.5 w-4.5"
+                        viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24">
-
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 19l-7-7 7-7" />
-
+                        stroke-width="2"
+                        aria-hidden="true"
+                    >
+                        <path d="m9 18 6-6-6-6"></path>
                     </svg>
-
                 </a>
-
             </div>
-
         </div>
 
+        {{-- Links --}}
+        <div class="mt-14 grid grid-cols-2 gap-10 md:grid-cols-4">
 
-        <!-- Footer Links -->
-        <div class="grid grid-cols-2 gap-8 mt-14 sm:grid-cols-2 md:grid-cols-4">
-
-            <!-- Courses -->
             <div>
-
-                <h3 class="text-sm font-semibold text-gray-900">
-                    دوره‌ها
+                <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
+                    آموزش
                 </h3>
 
-                <div class="flex flex-col items-start mt-5 space-y-4">
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                <div class="mt-5 space-y-3.5">
+                    <a href="{{ route('courses.index') }}" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         همه دوره‌ها
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        دوره‌های برنامه‌نویسی
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        تیزهوشان
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        دوره‌های طراحی
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        کلاس‌های تقویتی
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        دوره‌های تخصصی
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        آزمون‌ها
                     </a>
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        دوره‌های جدید
-                    </a>
-
                 </div>
-
             </div>
 
-
-            <!-- Farzin -->
             <div>
-
-                <h3 class="text-sm font-semibold text-gray-900">
+                <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
                     فرزین
                 </h3>
 
-                <div class="flex flex-col items-start mt-5 space-y-4">
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                <div class="mt-5 space-y-3.5">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         درباره فرزین
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                    <a href="{{ route('teachers.index') }}" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         اساتید
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        مقالات
-                    </a>
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         تماس با ما
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         سوالات متداول
                     </a>
-
                 </div>
-
             </div>
 
-
-            <!-- Resources -->
             <div>
-
-                <h3 class="text-sm font-semibold text-gray-900">
-                    منابع آموزشی
+                <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
+                    دانش‌آموز
                 </h3>
 
-                <div class="flex flex-col items-start mt-5 space-y-4">
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        وبلاگ
+                <div class="mt-5 space-y-3.5">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        پنل دانش‌آموز
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        آموزش‌های رایگان
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        برنامه درسی
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        راهنمای یادگیری
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        آزمون‌ها
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        پرسش‌های متداول
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        پیشرفت تحصیلی
                     </a>
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        پشتیبانی
-                    </a>
-
                 </div>
-
             </div>
 
-
-            <!-- Contact -->
             <div>
-
-                <h3 class="text-sm font-semibold text-gray-900">
+                <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
                     ارتباط با ما
                 </h3>
 
-                <div class="flex flex-col items-start mt-5 space-y-4">
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        تماس با پشتیبانی
+                <div class="mt-5 space-y-3.5">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
+                        پشتیبانی
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         قوانین و مقررات
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         حریم خصوصی
                     </a>
 
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
+                    <a href="#" class="block text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-brand-600)]">
                         اینستاگرام
                     </a>
-
-                    <a href="#"
-                       class="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900">
-                        تلگرام
-                    </a>
-
                 </div>
-
             </div>
-
         </div>
 
+        {{-- Bottom --}}
+        <div class="mt-12 border-t border-[var(--color-border)] pt-7">
+            <div class="flex flex-col items-center justify-between gap-5 sm:flex-row">
 
-        <!-- Divider -->
-        <hr class="my-10 border-gray-200">
-
-
-        <!-- Bottom -->
-        <div class="flex flex-col items-center justify-between gap-5 sm:flex-row">
-
-            <!-- Logo -->
-            <a href="#" class="flex items-center gap-3">
-
-                <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-900 text-white font-bold">
-                    ف
-                </div>
-
-                <div class="text-right leading-tight">
-
-                    <span class="block text-sm font-bold text-gray-900">
-                        فرزین
+                <a
+                    href="{{ route('home') }}"
+                    class="flex items-center gap-3"
+                >
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-brand-600)] text-sm font-black text-white">
+                        ف
                     </span>
 
-                    <span class="block text-xs text-gray-500">
-                        مرکز آموزش تخصصی
-                    </span>
+                    <div class="leading-tight">
+                        <div class="text-sm font-extrabold text-[var(--color-text-primary)]">
+                            فرزین
+                        </div>
 
-                </div>
+                        <div class="text-xs text-[var(--color-text-muted)]">
+                            مرکز آموزش تخصصی
+                        </div>
+                    </div>
+                </a>
 
-            </a>
-
-
-            <!-- Copyright -->
-            <p class="text-sm text-gray-500">
-                © تمامی حقوق برای فرزین محفوظ است.
-            </p>
-
+                <p class="text-center text-xs text-[var(--color-text-muted)] sm:text-right">
+                    © تمامی حقوق برای فرزین محفوظ است.
+                </p>
+            </div>
         </div>
 
     </div>
-
 </footer>
-
-</body>
-</html>

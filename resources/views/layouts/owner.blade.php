@@ -1,11 +1,11 @@
 ﻿<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1"
     >
 
     <meta
@@ -14,50 +14,371 @@
     >
 
     <title>
-        @yield('title', 'مدیریت آموزشگاه | فرزین')
+        @hasSection('title')
+            @yield('title') | پنل مدیریت فرزین
+        @else
+            پنل مدیریت | فرزین
+        @endif
     </title>
 
+    <meta
+        name="description"
+        content="@yield('description', 'پنل مدیریت آموزشگاه فرزین')"
+    >
+
+    <link
+        rel="icon"
+        href="{{ asset('favicon.ico') }}"
+    >
+
     @vite([
-        'resources/css/app.css',
-        'resources/js/app.js',
+    'resources/css/app.css',
+    'resources/js/app.js',
     ])
 
-    @stack('styles')
+    @stack('head')
 </head>
 
-<body class="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
+<body class="min-h-screen bg-[var(--color-background)] text-[var(--color-text-primary)]">
+<div
+    x-data="{ sidebarOpen: false }"
+    class="min-h-screen"
+>
 
-    <div class="flex min-h-screen">
+    {{-- Mobile overlay --}}
+    <div
+        x-show="sidebarOpen"
+        x-cloak
+        x-transition:enter="transition-opacity duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click="sidebarOpen = false"
+        class="fixed inset-0 z-[var(--z-modal-backdrop)] bg-slate-950/40 backdrop-blur-sm lg:hidden"
+        aria-hidden="true"
+    ></div>
 
-        <x-navigation.sidebar title="مدیریت آموزشگاه">
-            @yield('sidebar')
-        </x-navigation.sidebar>
+    {{-- Desktop Sidebar --}}
+    <aside
+        class="fixed inset-y-0 right-0 z-[var(--z-fixed)] hidden w-[var(--sidebar-width)] border-l border-[var(--color-border)] bg-[var(--color-surface)] lg:flex"
+    >
+        <x-navigation.sidebar
+            title="پنل مدیریت"
+            :items="[
+                        [
+                            'label' => 'داشبورد',
+                            'url' => '#',
+                            'route' => 'owner.dashboard',
+                        ],
+                        [
+                            'label' => 'دانش‌آموزان',
+                            'url' => '#',
+                            'route' => 'owner.students.*',
+                        ],
+                        [
+                            'label' => 'اساتید',
+                            'url' => '#',
+                            'route' => 'owner.teachers.*',
+                        ],
+                        [
+                            'label' => 'دوره‌ها',
+                            'url' => '#',
+                            'route' => 'owner.courses.*',
+                        ],
+                        [
+                            'label' => 'کلاس‌ها',
+                            'url' => '#',
+                            'route' => 'owner.classes.*',
+                        ],
+                        [
+                            'label' => 'آزمون‌ها',
+                            'url' => '#',
+                            'route' => 'owner.exams.*',
+                        ],
+                        [
+                            'label' => 'تکالیف',
+                            'url' => '#',
+                            'route' => 'owner.assignments.*',
+                        ],
+                        [
+                            'label' => 'برنامه آموزشی',
+                            'url' => '#',
+                            'route' => 'owner.schedule',
+                        ],
+                        [
+                            'label' => 'گزارش‌ها',
+                            'url' => '#',
+                            'route' => 'owner.reports',
+                        ],
+                        [
+                            'label' => 'تنظیمات',
+                            'url' => '#',
+                            'route' => 'owner.settings',
+                        ],
+                    ]"
+        />
+    </aside>
 
-        <div class="min-w-0 flex-1">
+    {{-- Mobile Sidebar --}}
+    <aside
+        x-show="sidebarOpen"
+        x-cloak
+        x-transition:enter="transform transition duration-300 ease-[var(--ease-emphasized)]"
+        x-transition:enter-start="translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        x-transition:leave="transform transition duration-200 ease-[var(--ease-standard)]"
+        x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="translate-x-full"
+        class="fixed inset-y-0 right-0 z-[var(--z-modal)] flex w-[min(88vw,380px)] lg:hidden"
+    >
+        <x-navigation.sidebar
+            title="پنل مدیریت"
+            :items="[
+                        [
+                            'label' => 'داشبورد',
+                            'url' => '#',
+                            'route' => 'owner.dashboard',
+                        ],
+                        [
+                            'label' => 'دانش‌آموزان',
+                            'url' => '#',
+                            'route' => 'owner.students.*',
+                        ],
+                        [
+                            'label' => 'اساتید',
+                            'url' => '#',
+                            'route' => 'owner.teachers.*',
+                        ],
+                        [
+                            'label' => 'دوره‌ها',
+                            'url' => '#',
+                            'route' => 'owner.courses.*',
+                        ],
+                        [
+                            'label' => 'کلاس‌ها',
+                            'url' => '#',
+                            'route' => 'owner.classes.*',
+                        ],
+                        [
+                            'label' => 'آزمون‌ها',
+                            'url' => '#',
+                            'route' => 'owner.exams.*',
+                        ],
+                        [
+                            'label' => 'تکالیف',
+                            'url' => '#',
+                            'route' => 'owner.assignments.*',
+                        ],
+                        [
+                            'label' => 'برنامه آموزشی',
+                            'url' => '#',
+                            'route' => 'owner.schedule',
+                        ],
+                        [
+                            'label' => 'گزارش‌ها',
+                            'url' => '#',
+                            'route' => 'owner.reports',
+                        ],
+                        [
+                            'label' => 'تنظیمات',
+                            'url' => '#',
+                            'route' => 'owner.settings',
+                        ],
+                    ]"
+        />
+    </aside>
 
-            <header class="sticky top-0 z-[var(--z-sticky)] flex h-16 items-center justify-between border-b border-[var(--color-border)] bg-white/95 px-4 backdrop-blur sm:px-6">
+    {{-- Main area --}}
+    <div class="min-h-screen lg:pr-[var(--sidebar-width)]">
 
-                <div class="min-w-0">
-                    <h1 class="truncate text-base font-bold sm:text-lg">
-                        @yield('header-title', 'مدیریت آموزشگاه')
-                    </h1>
+        {{-- Topbar --}}
+        <header
+            class="sticky top-0 z-[var(--z-sticky)] border-b border-[var(--color-border)] bg-white/95 backdrop-blur"
+        >
+            <div class="container-farzin">
+                <div class="flex min-h-[var(--header-height)] items-center justify-between gap-4">
+
+                    {{-- Mobile menu --}}
+                    <button
+                        type="button"
+                        @click="sidebarOpen = true"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] lg:hidden"
+                        aria-label="باز کردن منوی پنل"
+                        :aria-expanded="sidebarOpen.toString()"
+                    >
+                        <svg
+                            class="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            aria-hidden="true"
+                        >
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                    </button>
+
+                    {{-- Heading --}}
+                    <div class="min-w-0 flex-1">
+                        @hasSection('page-heading')
+                            <h1 class="truncate text-base font-extrabold text-[var(--color-text-primary)] sm:text-lg">
+                                @yield('page-heading')
+                            </h1>
+                        @else
+                            <h1 class="text-base font-extrabold text-[var(--color-text-primary)] sm:text-lg">
+                                پنل مدیریت
+                            </h1>
+                        @endif
+                    </div>
+
+                    {{-- Actions --}}
+                    <div class="flex items-center gap-2">
+
+                        {{-- Search --}}
+                        <button
+                            type="button"
+                            class="hidden h-10 w-10 items-center justify-center rounded-xl text-[var(--color-text-muted)] transition-colors duration-200 hover:bg-[var(--color-neutral-100)] hover:text-[var(--color-text-primary)] sm:flex"
+                            aria-label="جستجو"
+                        >
+                            <svg
+                                class="h-5 w-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                                aria-hidden="true"
+                            >
+                                <circle cx="11" cy="11" r="7" />
+                                <path d="m20 20-3.5-3.5" />
+                            </svg>
+                        </button>
+
+                        {{-- Notifications --}}
+                        <button
+                            type="button"
+                            class="relative flex h-10 w-10 items-center justify-center rounded-xl text-[var(--color-text-muted)] transition-colors duration-200 hover:bg-[var(--color-neutral-100)] hover:text-[var(--color-text-primary)]"
+                            aria-label="اعلان‌ها"
+                        >
+                            <svg
+                                class="h-5 w-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                                aria-hidden="true"
+                            >
+                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                                <path d="M10 21h4" />
+                            </svg>
+
+                            <span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--color-danger-500)]"></span>
+                        </button>
+
+                        {{-- User --}}
+                        <button
+                            type="button"
+                            class="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors duration-200 hover:bg-[var(--color-neutral-100)]"
+                        >
+                            <x-ui.avatar
+                                name="مدیر"
+                                size="sm"
+                            />
+
+                            <span class="hidden text-right sm:block">
+                                        <span class="block text-xs text-[var(--color-text-muted)]">
+                                            خوش آمدی
+                                        </span>
+
+                                        <span class="block max-w-32 truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                                            مدیر آموزشگاه
+                                        </span>
+                                    </span>
+
+                            <svg
+                                class="hidden h-4 w-4 text-[var(--color-text-muted)] sm:block"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                aria-hidden="true"
+                            >
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </button>
+
+                    </div>
                 </div>
+            </div>
+        </header>
 
-                <div class="flex items-center gap-2">
-                    @yield('header-actions')
-                </div>
+        {{-- Content --}}
+        <main
+            id="main-content"
+            class="min-h-[calc(100vh-var(--header-height))]"
+        >
+            <x-layout.section spacing="default">
+                <x-layout.container>
 
-            </header>
+                    @hasSection('page-header')
+                        @yield('page-header')
+                    @endif
 
-            <main class="min-w-0 p-4 sm:p-6 lg:p-8">
-                @yield('content')
-            </main>
+                    @yield('content')
 
-        </div>
+                </x-layout.container>
+            </x-layout.section>
+        </main>
 
     </div>
 
-    @stack('scripts')
+    {{-- Global Toast --}}
+    <div
+        id="toast-container"
+        class="pointer-events-none fixed inset-x-4 top-4 z-[var(--z-toast)] flex flex-col items-center gap-3 sm:inset-x-auto sm:right-4 sm:items-end"
+        aria-live="polite"
+        aria-atomic="true"
+    >
+        @if(session('success'))
+            <div class="pointer-events-auto">
+                <x-feedback.toast
+                    type="success"
+                    :message="session('success')"
+                />
+            </div>
+        @endif
 
+        @if(session('error'))
+            <div class="pointer-events-auto">
+                <x-feedback.toast
+                    type="danger"
+                    :message="session('error')"
+                />
+            </div>
+        @endif
+
+        @if(session('warning'))
+            <div class="pointer-events-auto">
+                <x-feedback.toast
+                    type="warning"
+                    :message="session('warning')"
+                />
+            </div>
+        @endif
+
+        @if(session('info'))
+            <div class="pointer-events-auto">
+                <x-feedback.toast
+                    type="info"
+                    :message="session('info')"
+                />
+            </div>
+        @endif
+    </div>
+
+</div>
+
+@stack('scripts')
 </body>
 </html>

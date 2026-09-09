@@ -1,15 +1,47 @@
 ﻿@props([
-    'text',
+'text',
+'position' => 'top',
 ])
 
-<div
-    class="relative inline-flex group"
+@php
+    $positions = [
+        'top' => 'bottom-full right-1/2 mb-2 translate-x-1/2',
+        'bottom' => 'top-full right-1/2 mt-2 translate-x-1/2',
+        'left' => 'right-full top-1/2 ml-2 -translate-y-1/2',
+        'right' => 'left-full top-1/2 mr-2 -translate-y-1/2',
+    ];
+
+    $positionClass = $positions[$position] ?? $positions['top'];
+@endphp
+
+<span
+    x-data="{ show: false }"
+    class="relative inline-flex"
+    dir="rtl"
 >
-    {{ $slot }}
+    <span
+        @mouseenter="show = true"
+        @mouseleave="show = false"
+        @focusin="show = true"
+        @focusout="show = false"
+        @keydown.escape="show = false"
+        class="inline-flex"
+    >
+        {{ $slot }}
+    </span>
 
     <span
-        class="pointer-events-none absolute bottom-full right-1/2 z-[var(--z-dropdown)] mb-2 hidden -translate-y-1/2 translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs text-white shadow-lg group-hover:block"
+        x-show="show"
+        x-cloak
+        x-transition:enter="transition duration-150 ease-out"
+        x-transition:enter-start="translate-y-1 opacity-0"
+        x-transition:enter-end="translate-y-0 opacity-100"
+        x-transition:leave="transition duration-100 ease-in"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        role="tooltip"
+        class="pointer-events-none absolute {{ $positionClass }} z-[var(--z-popover)] w-max max-w-60 rounded-lg bg-[var(--color-neutral-900)] px-3 py-2 text-xs font-medium leading-5 text-white shadow-[var(--shadow-md)]"
     >
         {{ $text }}
     </span>
-</div>
+</span>

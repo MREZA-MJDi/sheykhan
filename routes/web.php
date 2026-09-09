@@ -4,37 +4,86 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Public
+| Public Website
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('pages.home');
-})->name('home');
+// Home
+Route::view('/', 'pages.home')
+    ->name('home');
+
+// About
+Route::view('/about', 'pages.about')
+    ->name('about');
+
+// Courses
+Route::prefix('courses')
+    ->name('courses.')
+    ->group(function () {
+        Route::view('/', 'pages.courses.index')
+            ->name('index');
+
+        Route::get('/{course}', function (string $course) {
+            return view('pages.courses.show', [
+                'course' => $course,
+            ]);
+        })->name('show');
+    });
+
+// Teachers
+Route::prefix('teachers')
+    ->name('teachers.')
+    ->group(function () {
+        Route::view('/', 'pages.teachers.index')
+            ->name('index');
+
+        Route::get('/{teacher}', function (string $teacher) {
+            return view('pages.teachers.show', [
+                'teacher' => $teacher,
+            ]);
+        })->name('show');
+    });
+
+// Blog
+Route::prefix('blog')
+    ->name('blog.')
+    ->group(function () {
+        Route::view('/', 'pages.blog.index')
+            ->name('index');
+
+        Route::get('/{slug}', function (string $slug) {
+            return view('pages.blog.show', [
+                'slug' => $slug,
+            ]);
+        })->name('show');
+    });
 
 
-Route::get('/courses', function () {
-    return view('pages.courses.index');
-})->name('courses.index');
+/*
+|--------------------------------------------------------------------------
+| Authentication UI
+|--------------------------------------------------------------------------
+|
+| فعلاً فقط Viewها را برای تست Frontend نمایش می‌دهیم.
+| بعداً این Routeها به Controller / Auth flow واقعی متصل می‌شوند.
+|
+*/
 
+Route::prefix('auth')
+    ->name('auth.')
+    ->group(function () {
+        Route::view('/login', 'pages.auth.login')
+            ->name('login');
 
-Route::get('/courses/{course}', function (string $course) {
-    return view('pages.courses.show', [
-        'course' => $course,
-    ]);
-})->name('courses.show');
+        Route::view('/register', 'pages.auth.register')
+            ->name('register');
 
+        Route::view('/forgot-password', 'pages.auth.forgot-password')
+            ->name('forgot-password');
 
-Route::get('/teachers', function () {
-    return view('pages.teachers.index');
-})->name('teachers.index');
-
-
-Route::get('/teachers/{teacher}', function (string $teacher) {
-    return view('pages.teachers.show', [
-        'teacher' => $teacher,
-    ]);
-})->name('teachers.show');
+        Route::view('/verify-otp', 'pages.auth.verify-otp')
+            ->name('verify-otp');
+    });
 
 
 /*
@@ -43,6 +92,5 @@ Route::get('/teachers/{teacher}', function (string $teacher) {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/ui-test', function () {
-    return view('pages.ui-test');
-})->name('ui.test');
+Route::view('/ui-test', 'pages.design-system')
+    ->name('ui.test');

@@ -4,20 +4,20 @@
 
 @php
     $sizes = [
-        'sm' => 'max-w-4xl',
+        'sm' => 'max-w-3xl',
         'default' => 'max-w-7xl',
-        'lg' => 'max-w-[1440px]',
+        'lg' => 'max-w-[90rem]',
         'full' => 'max-w-none',
     ];
 
-    $maxWidth = $sizes[$size] ?? $sizes['default'];
+    $sizeClass = $sizes[$size] ?? $sizes['default'];
 @endphp
 
 <div
-    {{ $attributes->class([
-        'w-full mx-auto px-4 sm:px-6 lg:px-8',
-        $maxWidth,
+    {{ $attributes->merge([
+        'class' => "mx-auto w-full {$sizeClass} px-4 sm:px-6 lg:px-8",
     ]) }}
+    dir="rtl"
 >
     {{ $slot }}
 </div>

@@ -1,33 +1,70 @@
 ﻿@props([
-    'type' => 'text',
-    'label' => null,
-    'error' => null,
-    'hint' => null,
+'label' => null,
+'hint' => null,
+'error' => null,
+'required' => false,
 ])
 
-<div class="w-full">
+@php
+    $inputId = $attributes->get('id') ?? $attributes->get('name') ?? 'input-' . uniqid();
+
+    $inputClasses = collect([
+        'ui-input',
+        $error
+            ? 'border-[var(--color-danger-500)] focus:border-[var(--color-danger-500)] focus:ring-[color-mix(in_srgb,var(--color-danger-200)_70%,transparent)]'
+            : null,
+        $attributes->get('class'),
+    ])->filter()->implode(' ');
+@endphp
+
+<div
+    class="ui-field"
+    dir="rtl"
+>
     @if($label)
         <label
-            @if($attributes->has('id')) for="{{ $attributes->get('id') }}" @endif
-            class="mb-2 block text-sm font-medium text-[var(--color-slate-700)]"
+            for="{{ $inputId }}"
+            class="ui-label"
         >
             {{ $label }}
+
+            @if($required)
+                <span
+                    class="mr-1 text-[var(--color-danger-600)]"
+                    aria-hidden="true"
+                >
+                    *
+                </span>
+            @endif
         </label>
     @endif
 
     <input
-        type="{{ $type }}"
-        {{ $attributes->merge([
-            'class' => 'block w-full min-h-11 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none fz-transition placeholder:text-[var(--color-text-subtle)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)] ' . ($error ? 'border-[var(--color-danger-400)] focus:border-[var(--color-danger-400)] focus:ring-red-50' : ''),
+        id="{{ $inputId }}"
+        @required($required)
+        {{ $attributes->except('class')->merge([
+            'class' => $inputClasses,
         ]) }}
+        @if($error)
+        aria-invalid="true"
+        aria-describedby="{{ $inputId }}-error"
+        @elseif($hint)
+        aria-describedby="{{ $inputId }}-hint"
+        @endif
     >
 
     @if($error)
-        <p class="mt-1.5 text-xs font-medium text-[var(--color-danger-600)]">
+        <p
+            id="{{ $inputId }}-error"
+            class="text-xs font-medium leading-5 text-[var(--color-danger-600)]"
+        >
             {{ $error }}
         </p>
     @elseif($hint)
-        <p class="mt-1.5 text-xs text-[var(--color-text-muted)]">
+        <p
+            id="{{ $inputId }}-hint"
+            class="text-xs leading-5 text-[var(--color-text-muted)]"
+        >
             {{ $hint }}
         </p>
     @endif

@@ -1,306 +1,202 @@
-@layer base {
+/* ========================================
+   Farzin - Base
+   ======================================== */
 
-    /* ======================================================================
-       Font
-       ====================================================================== */
+/* Vazirmatn */
+@font-face {
+    font-family: "Vazirmatn";
+    src: url("../fonts/webfonts/Vazirmatn-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
 
-    @font-face {
-        font-family: 'Vazirmatn';
-        src: url('../fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-    }
+@font-face {
+    font-family: "Vazirmatn";
+    src: url("../fonts/webfonts/Vazirmatn-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
 
-    @font-face {
-        font-family: 'Vazirmatn';
-        src: url('../fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');
-        font-weight: 500;
-        font-style: normal;
-        font-display: swap;
-    }
+@font-face {
+    font-family: "Vazirmatn";
+    src: url("../fonts/webfonts/Vazirmatn-SemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
 
-    @font-face {
-        font-family: 'Vazirmatn';
-        src: url('../fonts/webfonts/Vazirmatn-SemiBold.woff2') format('woff2');
-        font-weight: 600;
-        font-style: normal;
-        font-display: swap;
-    }
+@font-face {
+    font-family: "Vazirmatn";
+    src: url("../fonts/webfonts/Vazirmatn-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
 
-    @font-face {
-        font-family: 'Vazirmatn';
-        src: url('../fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
-        font-weight: 700;
-        font-style: normal;
-        font-display: swap;
-    }
+@font-face {
+    font-family: "Vazirmatn";
+    src: url("../fonts/webfonts/Vazirmatn-ExtraBold.woff2") format("woff2");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
 
-    @font-face {
-        font-family: 'Vazirmatn';
-        src: url('../fonts/webfonts/Vazirmatn-ExtraBold.woff2') format('woff2');
-        font-weight: 800;
-        font-style: normal;
-        font-display: swap;
-    }
+html {
+    direction: rtl;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
 
-    @font-face {
-        font-family: 'Vazirmatn';
-        src: url('../fonts/webfonts/Vazirmatn-Black.woff2') format('woff2');
-        font-weight: 900;
-        font-style: normal;
-        font-display: swap;
-    }
+body {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+}
 
-    /* ======================================================================
-       Document
-       ====================================================================== */
+img,
+svg,
+video,
+canvas {
+    display: block;
+    max-width: 100%;
+}
 
-    html {
-        direction: rtl;
-        scroll-behavior: smooth;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+img {
+    height: auto;
+}
 
-    body {
-        min-height: 100vh;
-        margin: 0;
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
 
-        direction: rtl;
+button,
+[role="button"] {
+    cursor: pointer;
+}
 
-        background: var(--color-background);
-        color: var(--color-text-primary);
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+    cursor: not-allowed;
+}
 
-        font-family: var(--font-sans);
-        font-size: var(--text-md);
-        font-weight: var(--font-weight-regular);
-        line-height: var(--leading-normal);
-    }
+a {
+    color: inherit;
+    text-decoration: none;
+}
 
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+}
 
-    /* ======================================================================
-       Reset
-       ====================================================================== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--color-text-primary);
+    font-weight: 700;
+    line-height: 1.4;
+}
 
-    *,
-    *::before,
-    *::after {
-        box-sizing: border-box;
-    }
+h1 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+}
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    ul,
-    ol {
-        margin: 0;
-    }
+h2 {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+}
 
-    ul,
-    ol {
-        padding: 0;
-        list-style: none;
-    }
+h3 {
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+}
 
-    button,
-    input,
-    textarea,
-    select {
-        font: inherit;
-    }
+h4 {
+    font-size: 1.125rem;
+}
 
-    button {
-        border: 0;
-    }
+h5 {
+    font-size: 1rem;
+}
 
-    img,
-    svg,
-    video,
-    canvas {
-        display: block;
-        max-width: 100%;
-    }
+h6 {
+    font-size: 0.9375rem;
+}
 
-    img {
-        height: auto;
-    }
+p {
+    color: var(--color-text-secondary);
+}
 
-    a {
-        color: inherit;
-        text-decoration: none;
-    }
+::selection {
+    background: var(--color-brand-100);
+    color: var(--color-brand-900);
+}
 
+:focus-visible {
+    outline: 3px solid color-mix(
+        in srgb,
+        var(--color-brand-500) 30%,
+        transparent
+    );
+    outline-offset: 2px;
+}
 
-    /* ======================================================================
-       Typography
-       ====================================================================== */
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+}
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        color: var(--color-text-primary);
-        font-weight: var(--font-weight-bold);
-        line-height: var(--leading-tight);
-        letter-spacing: var(--tracking-tight);
-    }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    margin: 0;
+}
 
-    h1 {
-        font-size: var(--text-5xl);
-        font-weight: var(--font-weight-extrabold);
-    }
+input[type="number"] {
+    appearance: textfield;
+}
 
-    h2 {
-        font-size: var(--text-4xl);
-        font-weight: var(--font-weight-extrabold);
-    }
+hr {
+    height: 1px;
+    margin: 1.5rem 0;
+    border: 0;
+    background: var(--color-border);
+}
 
-    h3 {
-        font-size: var(--text-3xl);
-        font-weight: var(--font-weight-bold);
-    }
+[hidden] {
+    display: none !important;
+}
 
-    h4 {
-        font-size: var(--text-2xl);
-    }
-
-    h5 {
-        font-size: var(--text-xl);
-    }
-
-    h6 {
-        font-size: var(--text-lg);
-    }
-
-    p {
-        color: var(--color-text-secondary);
-        line-height: var(--leading-relaxed);
-    }
-
-    strong,
-    b {
-        font-weight: var(--font-weight-bold);
-    }
-
-
-    /* ======================================================================
-       Forms
-       ====================================================================== */
-
-    input,
-    textarea,
-    select {
-        direction: rtl;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-        color: var(--color-text-muted);
-    }
-
-    textarea {
-        resize: vertical;
-    }
-
-
-    /* ======================================================================
-       Selection
-       ====================================================================== */
-
-    ::selection {
-        background: var(--color-brand-100);
-        color: var(--color-brand-900);
-    }
-
-
-    /* ======================================================================
-       Focus
-       ====================================================================== */
-
-    :focus-visible {
-        outline: 2px solid var(--color-brand-500);
-        outline-offset: 3px;
-    }
-
-
-    /* ======================================================================
-       Scrollbar
-       ====================================================================== */
-
-    html {
-        scrollbar-width: thin;
-        scrollbar-color:
-            var(--color-gray-300)
-            var(--color-background);
-    }
-
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: var(--color-background);
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: var(--color-gray-300);
-        border-radius: var(--radius-full);
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--color-gray-400);
-    }
-
-
-    /* ======================================================================
-       Motion
-       ====================================================================== */
-
-    @media (prefers-reduced-motion: reduce) {
-        html {
-            scroll-behavior: auto;
-        }
-
-        *,
-        *::before,
-        *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-            scroll-behavior: auto !important;
-        }
-    }
-
-
-    /* ======================================================================
-       Mobile Typography
-       ====================================================================== */
-
-    @media (max-width: 768px) {
-        h1 {
-            font-size: var(--text-4xl);
-        }
-
-        h2 {
-            font-size: var(--text-3xl);
-        }
-
-        h3 {
-            font-size: var(--text-2xl);
-        }
-
-        body {
-            font-size: var(--text-sm);
-        }
-    }
+html,
+body {
+    overflow-x: hidden;
 }
