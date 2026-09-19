@@ -234,7 +234,11 @@ final class TeacherDashboardService
             ->whereIn('course_sections.course_id', $courseIds)
             ->whereBetween('progress.last_watched_at', [$from, $to])
             ->groupBy(DB::raw('DATE(progress.last_watched_at)'))
-            ->selectRaw('DATE(progress.last_watched_at) as day, AVG(progress.progress_percent) as value')
+            ->selectRaw(
+                'DATE(progress.last_watched_at) as day,
+                 SUM(progress.progress_percent) as total_value,
+                 COUNT(progress.progress_percent) as item_count'
+            )
             ->get();
 
         $weeklyAverages = [];
@@ -244,8 +248,8 @@ final class TeacherDashboardService
             $weekKey = $date->format('o-W');
 
             $weeklyAverages[$weekKey] ??= ['sum' => 0.0, 'count' => 0];
-            $weeklyAverages[$weekKey]['sum'] += (float) $row->value;
-            $weeklyAverages[$weekKey]['count']++;
+            $weeklyAverages[$weekKey]['sum'] += (float) $row->total_value;
+            $weeklyAverages[$weekKey]['count'] += (int) $row->item_count;
         }
 
         $labels = [];
