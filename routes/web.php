@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
@@ -22,4 +23,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
 Route::middleware(['auth', 'role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->name('dashboard');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/media/{media}/download', [MediaController::class, 'download'])
+        ->name('media.download');
 });
