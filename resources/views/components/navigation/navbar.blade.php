@@ -2,12 +2,8 @@
     <nav x-data="{ isOpen: false }" class="relative">
         <x-layout.container size="wide">
             <div class="flex min-h-18 items-center justify-between gap-4 py-2">
-
                 <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-3" aria-label="شیخان">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-slate-900)] text-lg font-black text-white shadow-sm">
-                        ش
-                    </div>
-
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-slate-900)] text-lg font-black text-white shadow-sm">ش</div>
                     <div class="leading-tight">
                         <span class="block text-base font-black text-[var(--color-text)] sm:text-lg">شیخان</span>
                         <span class="block text-[11px] text-[var(--color-text-muted)] sm:text-xs">آموزش، رشد، آینده</span>
@@ -24,10 +20,7 @@
                         <a
                             href="{{ $item['url'] ?? route($item['route']) }}"
                             @if(request()->routeIs($item['route'])) aria-current="page" @endif
-                            class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition
-                                {{ request()->routeIs($item['route'])
-                                    ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
-                                    : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
+                            class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs($item['route']) ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
                         >
                             {{ $item['label'] }}
                         </a>
@@ -36,25 +29,43 @@
 
                 <div class="hidden items-center gap-3 lg:flex">
                     @auth
-                        @php
-                            $dashboardUrl = route('home');
+                        <div x-data="{ accountOpen: false }" class="relative">
+                            <button
+                                type="button"
+                                @click="accountOpen = !accountOpen"
+                                :aria-expanded="accountOpen.toString()"
+                                class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                                <span class="max-w-28 truncate">{{ auth()->user()->name }}</span>
+                                <svg class="h-4 w-4 transition" :class="accountOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
+                                </svg>
+                            </button>
 
-                            if (auth()->user()->hasRole('academy-owner')) {
-                                $dashboardUrl = route('owner.dashboard');
-                            } elseif (auth()->user()->hasRole('teacher')) {
-                                $dashboardUrl = route('teacher.dashboard');
-                            } elseif (auth()->user()->hasRole('student')) {
-                                $dashboardUrl = route('student.dashboard');
-                            } elseif (auth()->user()->hasRole('parent')) {
-                                $dashboardUrl = route('parent.dashboard');
-                            }
-                        @endphp
+                            <div
+                                x-cloak
+                                x-show="accountOpen"
+                                x-transition
+                                @click.outside="accountOpen = false"
+                                class="absolute end-0 top-[calc(100%+0.6rem)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-[var(--shadow-lg)]"
+                            >
+                                <a href="{{ route('dashboard') }}" class="block rounded-xl px-4 py-3 transition hover:bg-[var(--color-background-soft)]">
+                                    <div class="text-sm font-bold text-[var(--color-text)]">داشبورد من</div>
+                                    <div class="mt-1 text-xs text-[var(--color-text-muted)]">ورود به فضای نقش شما</div>
+                                </a>
 
-                        <a href="{{ $dashboardUrl }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-md">
-                            حساب کاربری
-                        </a>
+                                <div class="my-1 h-px bg-[var(--color-border)]"></div>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex w-full items-center rounded-xl px-4 py-3 text-sm font-bold text-[var(--color-danger-600)] transition hover:bg-[var(--color-danger-50)]">
+                                        خروج از حساب
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     @else
-                        <a href="{{ Route::has('login') ? route('login') : route('courses.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-md">
+                        <a href="{{ route('login') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-md">
                             ورود / ثبت‌نام
                         </a>
                     @endauth
@@ -71,7 +82,6 @@
                     <svg x-show="!isOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
                     </svg>
-
                     <svg x-show="isOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" d="m6 6 12 12M18 6 6 18" />
                     </svg>
@@ -96,10 +106,7 @@
                         <a
                             href="{{ $item['url'] }}"
                             @click="isOpen = false"
-                            class="rounded-xl px-4 py-3 text-sm font-semibold transition
-                                {{ request()->routeIs($item['route'])
-                                    ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]'
-                                    : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
+                            class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs($item['route']) ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
                         >
                             {{ $item['label'] }}
                         </a>
@@ -108,25 +115,18 @@
 
                 <div class="mt-3 border-t border-[var(--color-border)] pt-3">
                     @auth
-                        @php
-                            $dashboardUrl = route('home');
-
-                            if (auth()->user()->hasRole('academy-owner')) {
-                                $dashboardUrl = route('owner.dashboard');
-                            } elseif (auth()->user()->hasRole('teacher')) {
-                                $dashboardUrl = route('teacher.dashboard');
-                            } elseif (auth()->user()->hasRole('student')) {
-                                $dashboardUrl = route('student.dashboard');
-                            } elseif (auth()->user()->hasRole('parent')) {
-                                $dashboardUrl = route('parent.dashboard');
-                            }
-                        @endphp
-
-                        <a href="{{ $dashboardUrl }}" @click="isOpen = false" class="flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
-                            ورود به حساب کاربری
+                        <a href="{{ route('dashboard') }}" @click="isOpen = false" class="flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
+                            ورود به داشبورد
                         </a>
+
+                        <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                            @csrf
+                            <button type="submit" @click="isOpen = false" class="flex min-h-11 w-full items-center justify-center rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-bold text-[var(--color-danger-600)]">
+                                خروج از حساب
+                            </button>
+                        </form>
                     @else
-                        <a href="{{ Route::has('login') ? route('login') : route('courses.index') }}" @click="isOpen = false" class="flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
+                        <a href="{{ route('login') }}" @click="isOpen = false" class="flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
                             ورود / ثبت‌نام
                         </a>
                     @endauth
