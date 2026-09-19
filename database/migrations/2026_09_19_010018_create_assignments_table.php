@@ -9,6 +9,7 @@ return new class extends Migration {
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('course_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('classroom_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('teacher_id')->constrained('users')->restrictOnDelete();
             $table->string('title');
             $table->longText('instructions')->nullable();
@@ -16,7 +17,7 @@ return new class extends Migration {
             $table->decimal('max_score', 8, 2)->nullable();
             $table->string('status')->default('draft')->index();
             $table->timestamps();
-            $table->index(['course_id','teacher_id']);
+            $table->index(['course_id','classroom_id','teacher_id']);
         });
     }
 
