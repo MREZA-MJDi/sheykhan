@@ -55,14 +55,25 @@ final class CourseLearningProgressService
         });
 
         $studentSummary = $students->map(function (User $student) use ($lessons, $progress) {
-            $values = $lessons->map(function ($lesson) use ($student, $progress) {
-                return (float) ($progress[$student->id . ':' . $lesson->id]->progress_percent ?? 0);
+            $rows = $lessons->map(function ($lesson) use ($student, $progress) {
+                return $progress[$student->id . ':' . $lesson->id] ?? null;
             });
+
+            $values = $rows->map(
+                fn ($row) => (float) ($row?->progress_percent ?? 0)
+            );
+
+            $lastActivity = $rows
+                ->filter(fn ($row) => $row?->last_watched_at)
+                ->sortByDesc('last_watched_at')
+                ->first();
 
             return [
                 'student' => $student,
                 'progress' => round((float) ($values->avg() ?? 0)),
                 'completed_lessons' => $values->filter(fn ($value) => $value >= 100)->count(),
+                'watched_lessons' => $values->filter(fn ($value) => $value > 0)->count(),
+                'last_activity_at' => $lastActivity?->last_watched_at,
             ];
         });
 
