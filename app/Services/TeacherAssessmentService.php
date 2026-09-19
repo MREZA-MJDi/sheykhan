@@ -31,7 +31,7 @@ final class TeacherAssessmentService
         return $submission->refresh();
     }
 
-    public function gradeExamAttempt(ExamAttempt $attempt, int $teacherId): ExamAttempt
+    public function gradeExamAttemptAutomatically(ExamAttempt $attempt, int $teacherId): ExamAttempt
     {
         $attempt->loadMissing(['exam.questions', 'answers.question']);
 
@@ -41,12 +41,13 @@ final class TeacherAssessmentService
 
         return DB::transaction(function () use ($attempt): ExamAttempt {
             $total = 0.0;
+            $requiresManualReview = false;
 
             foreach ($attempt->answers as $answer) {
                 $question = $answer->question;
 
                 if (!$question || $question->correct_answer === null) {
-                    $total += (float) ($answer->score ?? 0);
+                    $requiresManualReview = true;
                     continue;
                 }
 
@@ -56,6 +57,49 @@ final class TeacherAssessmentService
                 $answer->update([
                     'is_correct' => $correct,
                     'score' => $score,
+                ]);
+
+                $total += $score;
+            }
+
+            $attempt->update([
+                'score' => $total,
+                'status' => $requiresManualReview ? 'needs_review' : 'graded',
+            ]);
+
+            return $attempt->refresh();
+        });
+    }
+
+    public function gradeExamAttemptManually(
+        ExamAttempt $attempt,
+        array $scores,
+        int $teacherId
+    ): ExamAttempt {
+        $attempt->loadMissing(['exam.questions', 'answers.question']);
+
+        if ($attempt->exam?->teacher_id !== $teacherId) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return DB::transaction(function () use ($attempt, $scores): ExamAttempt {
+            $total = 0.0;
+
+            foreach ($attempt->answers as $answer) {
+                if (!array_key_exists($answer->id, $scores) || $scores[$answer->id] === null || $scores[$answer->id] === '') {
+                    $total += (float) ($answer->score ?? 0);
+                    continue;
+                }
+
+                $question = $answer->question;
+                $score = min(
+                    (float) $scores[$answer->id],
+                    (float) ($question?->score ?? $scores[$answer->id])
+                );
+
+                $answer->update([
+                    'score' => $score,
+                    'is_correct' => null,
                 ]);
 
                 $total += $score;
