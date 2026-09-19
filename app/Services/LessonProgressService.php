@@ -82,7 +82,6 @@ final class LessonProgressService
 
             if ($isComplete) {
                 $progress->completed_at ??= now();
-                $progress->progress_percent = 100;
             }
 
             $progress->save();
