@@ -8,23 +8,23 @@
     <title>@yield('title', 'پنل دانش‌آموز | شیخان')</title>
 
     @vite([
-        'resources/css/app.css',
-        'resources/js/app.js',
+        'resources/css/student-parent.css',
+        'resources/js/student-parent.js',
     ])
 
     @stack('styles')
 </head>
 
-<body class="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
+<body class="learner-shell">
     <div class="flex min-h-screen">
         <x-navigation.sidebar title="پنل دانش‌آموز">
             @yield('sidebar')
         </x-navigation.sidebar>
 
         <div class="min-w-0 flex-1">
-            <header class="sticky top-0 z-[var(--z-sticky)] flex h-16 items-center justify-between border-b border-[var(--color-border)] bg-white/95 px-4 backdrop-blur sm:px-6">
+            <header class="learner-topbar sticky top-0 z-[var(--z-sticky)] flex h-16 items-center justify-between border-b px-4 sm:px-6">
                 <div class="min-w-0">
-                    <h1 class="truncate text-base font-bold sm:text-lg">
+                    <h1 class="truncate text-base font-bold text-[var(--color-text)] sm:text-lg">
                         @yield('header-title', 'پنل دانش‌آموز')
                     </h1>
                 </div>
@@ -34,7 +34,7 @@
                 </div>
             </header>
 
-            <main class="min-w-0 p-4 sm:p-6 lg:p-8">
+            <main class="min-w-0 p-4 sm:p-6 lg:p-8 learner-page-enter">
                 @yield('content')
             </main>
         </div>
