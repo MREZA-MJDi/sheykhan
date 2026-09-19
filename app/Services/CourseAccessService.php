@@ -46,7 +46,7 @@ final class CourseAccessService
 
     private function studentCanAccess(User $user, Course $course): bool
     {
-        if ($course->access_type === 'free') {
+        if ($course->isFree()) {
             return true;
         }
 
@@ -55,15 +55,16 @@ final class CourseAccessService
 
     private function parentCanAccess(User $user, Course $course): bool
     {
-        return $user->children()
-            ->get()
-            ->contains(function (User $child) use ($course): bool {
-                if ($course->access_type === 'free') {
-                    return true;
-                }
+        if ($course->isFree()) {
+            return $user->children()->exists();
+        }
 
-                return $this->isPaidEnrollment($child, $course);
-            });
+        return $user->children()
+            ->whereHas('enrollments', fn ($query) => $query
+                ->where('course_id', $course->id)
+                ->where('status', 'active')
+                ->where('paid_amount', '>', 0))
+            ->exists();
     }
 
     private function isAcademyOwner(User $user, Course $course): bool
