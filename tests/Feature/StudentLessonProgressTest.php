@@ -3,17 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
-use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class StudentLessonProgressTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_enrolled_student_can_report_video_progress(): void
+    public function test_enrolled_student_tracks_unique_watched_video_segments(): void
     {
         $this->seed();
 
@@ -23,24 +21,43 @@ class StudentLessonProgressTest extends TestCase
 
         $this->actingAs($student)
             ->postJson(route('student.lessons.progress.store', $lesson), [
-                'seconds_watched' => 450,
+                'from_seconds' => 0,
+                'to_seconds' => 450,
             ])
             ->assertOk()
             ->assertJsonPath('progress_percent', 50);
 
+        // Replaying an already watched range must not increase unique coverage.
         $this->actingAs($student)
             ->postJson(route('student.lessons.progress.store', $lesson), [
-                'seconds_watched' => 900,
-                'completed' => true,
+                'from_seconds' => 0,
+                'to_seconds' => 450,
             ])
             ->assertOk()
-            ->assertJsonPath('progress_percent', 100)
-            ->assertJsonPath('completed', true);
+            ->assertJsonPath('seconds_watched', 450);
+
+        // A very large jump is treated as a seek; it only accepts a small heartbeat tail.
+        $this->actingAs($student)
+            ->postJson(route('student.lessons.progress.store', $lesson), [
+                'from_seconds' => 450,
+                'to_seconds' => 900,
+            ])
+            ->assertOk()
+            ->assertJsonPath('progress_percent', 50.56)
+            ->assertJsonPath('seconds_watched', 455)
+            ->assertJsonPath('completed', false);
+
+        $this->actingAs($student)
+            ->postJson(route('student.lessons.progress.store', $lesson), [
+                'from_seconds' => 455,
+                'to_seconds' => 900,
+                'completed' => true,
+            ])
+            ->assertOk();
 
         $this->assertDatabaseHas('lesson_progress', [
             'lesson_id' => $lesson->id,
             'user_id' => $student->id,
-            'progress_percent' => 100,
             'seconds_watched' => 900,
         ]);
     }
@@ -58,13 +75,15 @@ class StudentLessonProgressTest extends TestCase
 
         $this->actingAs($student)
             ->postJson(route('student.lessons.progress.store', $freeLesson), [
-                'seconds_watched' => 100,
+                'from_seconds' => 0,
+                'to_seconds' => 100,
             ])
             ->assertOk();
 
         $this->actingAs($student)
             ->postJson(route('student.lessons.progress.store', $paidLesson), [
-                'seconds_watched' => 100,
+                'from_seconds' => 0,
+                'to_seconds' => 100,
             ])
             ->assertForbidden();
 
