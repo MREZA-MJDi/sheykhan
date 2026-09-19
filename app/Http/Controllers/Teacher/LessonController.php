@@ -56,9 +56,10 @@ class LessonController extends Controller
 
     public function destroy(
         Lesson $lesson,
-        TeacherCourseContentService $content
+        TeacherCourseContentService $content,
+        \App\Services\MediaService $mediaService
     ): RedirectResponse {
-        $content->deleteLesson(request()->user(), $lesson);
+        $content->deleteLesson(request()->user(), $lesson, $mediaService);
 
         return back()->with('success', 'درس حذف شد.');
     }
