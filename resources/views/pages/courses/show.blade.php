@@ -26,7 +26,7 @@
                         <span>{{ $course->duration_minutes > 0 ? floor($course->duration_minutes / 60) . ' ساعت' : 'مدت زمان متغیر' }}</span>
                     </div>
 
-                    <div class="mt-10 prose prose-slate max-w-none leading-8">
+                    <div class="mt-10 max-w-none leading-8 text-[var(--color-text-secondary)]">
                         {!! nl2br(e($course->description)) !!}
                     </div>
                 </div>
