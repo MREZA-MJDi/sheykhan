@@ -1,48 +1,25 @@
 <?php
 
+use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
+use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Parent\DashboardController as ParentDashboard;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Public
-|--------------------------------------------------------------------------
-*/
+Route::view('/', 'pages.home')->name('home');
 
-Route::get('/', function () {
-    return view('pages.home');
-})->name('home');
+Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
+    Route::get('/dashboard', OwnerDashboard::class)->name('dashboard');
+});
 
+Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+    Route::get('/dashboard', TeacherDashboard::class)->name('dashboard');
+});
 
-Route::get('/courses', function () {
-    return view('pages.courses.index');
-})->name('courses.index');
+Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/dashboard', StudentDashboard::class)->name('dashboard');
+});
 
-
-Route::get('/courses/{course}', function (string $course) {
-    return view('pages.courses.show', [
-        'course' => $course,
-    ]);
-})->name('courses.show');
-
-
-Route::get('/teachers', function () {
-    return view('pages.teachers.index');
-})->name('teachers.index');
-
-
-Route::get('/teachers/{teacher}', function (string $teacher) {
-    return view('pages.teachers.show', [
-        'teacher' => $teacher,
-    ]);
-})->name('teachers.show');
-
-
-/*
-|--------------------------------------------------------------------------
-| Frontend / UI Test
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/ui-test', function () {
-    return view('pages.ui-test');
-})->name('ui.test');
+Route::middleware(['auth', 'role:parent'])->prefix('parent')->name('parent.')->group(function () {
+    Route::get('/dashboard', ParentDashboard::class)->name('dashboard');
+});
