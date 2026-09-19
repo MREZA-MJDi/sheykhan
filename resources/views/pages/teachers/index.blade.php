@@ -1,14 +1,15 @@
 @extends('layouts.app')
 
 @section('title', 'مدرس‌ها | شیخان')
-@section('description', 'مدرس‌های تاییدشده شیخان و تخصص‌های آموزشی آن‌ها.')
+@section('description', 'مدرس‌های تاییدشده و فعال شیخان.')
 
 @section('content')
     <x-layout.section spacing="lg">
-        <x-layout.container size="2xl">
-            <x-layout.page-header
-                title="مدرس‌های شیخان"
-                description="مدرس‌های تاییدشده و فعال پلتفرم."
+        <x-layout.container size="wide">
+            <x-layout.section-heading
+                eyebrow="مدرس‌های شیخان"
+                title="مدرس‌های تاییدشده"
+                description="مدرس‌های فعال پلتفرم را ببین و مسیرهای آموزشی آن‌ها را بررسی کن."
             />
 
             <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -22,15 +23,20 @@
                         :href="route('teachers.index')"
                     />
                 @empty
-                    <div class="sm:col-span-2 xl:col-span-4 rounded-2xl border border-dashed border-[var(--color-border)] p-12 text-center text-[var(--color-text-muted)]">
-                        هنوز مدرس تاییدشده‌ای برای نمایش وجود ندارد.
+                    <div class="sm:col-span-2 xl:col-span-4">
+                        <x-ui.empty-state
+                            title="مدرس تاییدشده‌ای پیدا نشد"
+                            description="به‌محض ثبت و تایید مدرس، اطلاعات او اینجا نمایش داده می‌شود."
+                        />
                     </div>
                 @endforelse
             </div>
 
-            <div class="mt-10">
-                <x-navigation.pagination :paginator="$teachers" />
-            </div>
+            @if($teachers->hasPages())
+                <div class="mt-10 flex justify-center">
+                    <x-navigation.pagination :paginator="$teachers" />
+                </div>
+            @endif
         </x-layout.container>
     </x-layout.section>
 @endsection
