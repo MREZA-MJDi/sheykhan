@@ -74,7 +74,7 @@
             <div class="owner-live-list">
                 @forelse($upcomingLiveClasses as $item)
                     <article class="owner-live-row">
-                        <div class="owner-pill">{{ IlluminateSupportCarbon::parse($item->scheduled_at)->format('m/d H:i') }}</div>
+                        <div class="owner-pill">{{ \Illuminate\Support\Carbon::parse($item->scheduled_at)->format('m/d H:i') }}</div>
                         <div>
                             <div class="owner-row-title">{{ $item->title }}</div>
                             <div class="owner-row-meta">{{ $item->course_title }} · {{ $item->teacher_name }}</div>
