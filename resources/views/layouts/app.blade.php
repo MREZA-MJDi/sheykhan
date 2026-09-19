@@ -18,7 +18,6 @@
 <body class="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
     <div id="app" class="min-h-screen">
         <x-navigation.navbar />
-        <x-navigation.mobile-nav />
 
         <main id="main-content" class="min-h-[calc(100vh-4rem)]">
             @yield('content')
