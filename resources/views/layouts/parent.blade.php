@@ -22,17 +22,7 @@
         </x-navigation.sidebar>
 
         <div class="min-w-0 flex-1">
-            <header class="learner-topbar sticky top-0 z-[var(--z-sticky)] flex h-16 items-center justify-between border-b px-4 sm:px-6">
-                <div class="min-w-0">
-                    <h1 class="truncate text-base font-bold text-[var(--color-text)] sm:text-lg">
-                        @yield('header-title', 'پنل والدین')
-                    </h1>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    @yield('header-actions')
-                </div>
-            </header>
+            <x-navigation.panel-topbar title="@yield('header-title', 'پنل والدین')" />
 
             <main class="min-w-0 p-4 sm:p-6 lg:p-8 learner-page-enter">
                 @yield('content')
