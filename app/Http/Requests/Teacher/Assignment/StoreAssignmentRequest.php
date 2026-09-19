@@ -17,7 +17,6 @@ class StoreAssignmentRequest extends FormRequest
         return [
             'course_id' => ['required', 'integer', 'exists:courses,id'],
             'classroom_id' => ['nullable', 'integer', 'exists:classrooms,id'],
-            'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
             'title' => ['required', 'string', 'max:255'],
             'instructions' => ['nullable', 'string'],
             'due_at' => ['nullable', 'date'],
