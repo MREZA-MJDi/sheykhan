@@ -126,6 +126,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])
         ->middleware('permission:exams.manage')
         ->name('exam-attempts.grade');
+    Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])
+        ->middleware('permission:exams.manage')
+        ->name('exam-attempts.grade-manual');
 
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->name('live-classes.index');
     Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->name('live-classes.create');
