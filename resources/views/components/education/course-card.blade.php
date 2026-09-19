@@ -11,12 +11,9 @@
     'href' => '#',
 ])
 
-<article class="fz-surface-interactive group flex h-full flex-col overflow-hidden">
-
+<article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[var(--color-primary-200)] hover:shadow-[var(--shadow-lg)]">
     <a href="{{ $href }}" class="block">
-
         <div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
-
             @if($image)
                 <img
                     src="{{ $image }}"
@@ -26,7 +23,7 @@
                 >
             @else
                 <div class="flex h-full items-center justify-center text-[var(--color-text-subtle)]">
-                    <svg class="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <svg class="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                         <path d="M4 5h16v14H4z"/>
                         <path d="m4 15 4-4 3 3 3-4 6 6"/>
                     </svg>
@@ -38,13 +35,10 @@
                     {{ $category }}
                 </span>
             @endif
-
         </div>
-
     </a>
 
     <div class="flex flex-1 flex-col p-5">
-
         @if($level)
             <span class="mb-2 text-xs font-medium text-[var(--color-text-muted)]">
                 سطح {{ $level }}
@@ -63,19 +57,16 @@
 
         @if($teacher)
             <div class="mt-4 flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                     <circle cx="12" cy="8" r="3"/>
                     <path d="M5 20c.8-4 3-6 7-6s6.2 2 7 6"/>
                 </svg>
-
                 <span>{{ $teacher }}</span>
             </div>
         @endif
 
         <div class="mt-auto pt-5">
-
-            <div class="flex flex-wrap items-center gap-4 border-t border-[var(--color-border)] pt-4 text-xs text-[var(--color-text-muted)]">
-
+            <div class="flex flex-wrap items-center gap-3 border-t border-[var(--color-border)] pt-4 text-xs text-[var(--color-text-muted)]">
                 @if($lessons)
                     <span>{{ $lessons }} درس</span>
                 @endif
@@ -89,11 +80,7 @@
                         {{ $price }}
                     </span>
                 @endif
-
             </div>
-
         </div>
-
     </div>
-
 </article>
