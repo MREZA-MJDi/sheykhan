@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('seo_meta', function (Blueprint $table) {
+        Schema::create('seo_metas', function (Blueprint $table) {
             $table->id();
             $table->string('seoable_type');
             $table->unsignedBigInteger('seoable_id');
@@ -24,5 +24,5 @@ return new class extends Migration {
         });
     }
 
-    public function down(): void { Schema::dropIfExists('seo_meta'); }
+    public function down(): void { Schema::dropIfExists('seo_metas'); }
 };
