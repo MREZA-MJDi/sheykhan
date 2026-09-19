@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Academy;
 use App\Models\Course;
+use App\Models\Role;
+use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +19,6 @@ final class OwnerWorkspaceService
             ->withCount([
                 'users as member_count',
                 'courses as course_count',
-            ])
-            ->withCount([
                 'users as teacher_count' => fn ($query) => $query
                     ->where('academy_user.role', 'teacher')
                     ->where('academy_user.status', 'active'),
@@ -69,6 +69,41 @@ final class OwnerWorkspaceService
             ->get();
 
         return compact('teachers', 'courses');
+    }
+
+    public function createTeacher(User $owner, Academy $academy, array $data): User
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        return DB::transaction(function () use ($academy, $data): User {
+            $teacher = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+            ]);
+
+            $roleId = Role::where('slug', 'teacher')->value('id');
+            abort_unless($roleId, 500, 'نقش مدرس در سیستم تعریف نشده است.');
+
+            $teacher->roles()->attach($roleId);
+
+            TeacherProfile::create([
+                'user_id' => $teacher->id,
+                'bio' => null,
+                'specialization' => $data['specialization'] ?? null,
+                'education' => null,
+                'experience_years' => $data['experience_years'] ?? 0,
+                'is_verified' => true,
+            ]);
+
+            $academy->users()->attach($teacher->id, [
+                'role' => 'teacher',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+
+            return $teacher;
+        });
     }
 
     public function assignTeacher(User $owner, Academy $academy, int $teacherId, int $courseId): void
