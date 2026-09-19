@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->boolean('is_featured')->default(false);
             $table->timestamps();
             $table->index(['mediable_type','mediable_id']);
-            $table->unique(['media_id','mediable_type','mediable_id','collection']);
+            $table->unique(['media_id','mediable_type','mediable_id','collection'], 'media_attach_unique');
         });
     }
 
