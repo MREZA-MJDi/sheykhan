@@ -160,7 +160,12 @@ function initExamBuilder() {
     };
 
     addButton?.addEventListener('click', addQuestion);
-    addQuestion();
+
+    if (Number(examBuilder.dataset.existingQuestions || 0) > 0) {
+        syncQuestionNames();
+    } else {
+        addQuestion();
+    }
 }
 
 function initSectionReorder() {
