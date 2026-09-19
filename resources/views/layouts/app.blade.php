@@ -9,17 +9,17 @@
     <meta name="description" content="@yield('description', 'شیخان؛ پلتفرم یکپارچه آموزش آنلاین، کلاس، تمرین، آزمون و پیگیری پیشرفت.')">
 
     @vite([
-        'resources/css/app.css',
-        'resources/js/app.js',
+        'resources/css/home.css',
+        'resources/js/home.js',
     ])
 
     @stack('styles')
 </head>
-<body class="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
+<body class="sheykhan-site">
     <div id="app" class="min-h-screen">
         <x-navigation.navbar />
 
-        <main id="main-content" class="min-h-[calc(100vh-4rem)]">
+        <main id="main-content" class="min-h-[calc(100vh-4rem)] home-noise">
             @yield('content')
         </main>
 
