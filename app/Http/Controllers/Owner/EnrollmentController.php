@@ -35,9 +35,12 @@ class EnrollmentController extends Controller
 
         if ($course->isFree()) {
             $paidAmount = 0;
+        } else {
+            $paidAmount = $paidAmount ?? $price;
+            abort_unless($paidAmount > 0, 422, 'برای دوره پولی، مبلغ ثبت‌نام باید بیشتر از صفر باشد.');
         }
 
-        $enrollment = $course->enrollments()->updateOrCreate(
+        $course->enrollments()->updateOrCreate(
             ['student_id' => $student->id],
             [
                 'classroom_id' => $classroom?->id,
