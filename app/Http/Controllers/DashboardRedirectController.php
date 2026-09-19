@@ -1,9 +1,9 @@
 <?php
 
-namespace AppHttpControllers;
+namespace App\Http\Controllers;
 
-use AppServicesDashboardRedirector;
-use IlluminateHttpRedirectResponse;
+use App\Services\DashboardRedirector;
+use Illuminate\Http\RedirectResponse;
 
 class DashboardRedirectController extends Controller
 {
