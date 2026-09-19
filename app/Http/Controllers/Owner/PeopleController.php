@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\AssignTeacherCourseRequest;
+use App\Http\Requests\Owner\EnrollStudentRequest;
+use App\Http\Requests\Owner\StoreTeacherRequest;
 use App\Models\Academy;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +23,20 @@ class PeopleController extends Controller
             ...$people,
             ...$options,
         ]);
+    }
+
+    public function storeTeacher(
+        StoreTeacherRequest $request,
+        Academy $academy,
+        OwnerWorkspaceService $workspace
+    ): RedirectResponse {
+        $workspace->createTeacher(
+            $request->user(),
+            $academy,
+            $request->validated()
+        );
+
+        return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.');
     }
 
     public function assignTeacher(
