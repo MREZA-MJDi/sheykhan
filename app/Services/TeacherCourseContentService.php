@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\User;
+use App\Services\MediaService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -144,12 +145,18 @@ final class TeacherCourseContentService
 
     public function updateLesson(User $teacher, Lesson $lesson, array $data): Lesson
     {
-        $this->assertLessonOwner($teacher, $lesson);
+        $course = $this->assertLessonOwner($teacher, $lesson);
+        $targetSectionId = (int) ($data['course_section_id'] ?? $lesson->course_section_id);
+
+        $targetSection = CourseSection::query()
+            ->whereKey($targetSectionId)
+            ->where('course_id', $course->id)
+            ->firstOrFail();
 
         $status = $data['status'] ?? $lesson->status;
 
         $lesson->update([
-            'course_section_id' => $data['course_section_id'] ?? $lesson->course_section_id,
+            'course_section_id' => $targetSection->id,
             'title' => $data['title'] ?? $lesson->title,
             'slug' => $data['slug'] ?? $lesson->slug,
             'type' => $data['type'] ?? $lesson->type,
@@ -167,9 +174,22 @@ final class TeacherCourseContentService
         return $lesson->refresh();
     }
 
-    public function deleteLesson(User $teacher, Lesson $lesson): void
+    public function deleteLesson(User $teacher, Lesson $lesson, MediaService $mediaService): void
     {
         $this->assertLessonOwner($teacher, $lesson);
-        $lesson->delete();
+
+        DB::transaction(function () use ($lesson, $mediaService): void {
+            $lesson->load('media');
+
+            foreach ($lesson->media as $media) {
+                $mediaService->detach($media, $lesson);
+
+                if ($media->attachments()->doesntExist()) {
+                    $mediaService->delete($media);
+                }
+            }
+
+            $lesson->delete();
+        });
     }
 }
