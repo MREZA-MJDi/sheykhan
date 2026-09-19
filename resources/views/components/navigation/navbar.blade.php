@@ -1,200 +1,137 @@
-﻿<!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<header class="home-glass-nav sticky top-0 z-[var(--z-sticky)] border-b border-[var(--color-border)]">
+    <nav x-data="{ isOpen: false }" class="relative">
+        <x-layout.container size="wide">
+            <div class="flex min-h-18 items-center justify-between gap-4 py-2">
+                <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-3" aria-label="شیخان">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-slate-900)] text-lg font-black text-white shadow-sm">ش</div>
+                    <div class="leading-tight">
+                        <span class="block text-base font-black text-[var(--color-text)] sm:text-lg">شیخان</span>
+                        <span class="block text-[11px] text-[var(--color-text-muted)] sm:text-xs">آموزش، رشد، آینده</span>
+                    </div>
+                </a>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فرزین | آموزش تخصصی</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="//unpkg.com/alpinejs" defer></script>
-</head>
-
-<body class="bg-gray-50">
-
-<nav x-data="{ isOpen: false }"
-     class="relative bg-white shadow-sm border-b border-gray-100">
-
-    <div class="container mx-auto px-6 py-4 md:flex md:justify-between md:items-center">
-
-        <!-- Logo + Mobile Button -->
-        <div class="flex items-center justify-between">
-
-            <!-- Logo -->
-            <a href="#"
-               class="flex items-center gap-3">
-
-                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 text-white font-bold text-lg">
-                    ف
+                <div class="hidden items-center gap-1 lg:flex">
+                    @foreach([
+                        ['route' => 'home', 'label' => 'خانه'],
+                        ['route' => 'courses.*', 'url' => route('courses.index'), 'label' => 'دوره‌ها'],
+                        ['route' => 'teachers.*', 'url' => route('teachers.index'), 'label' => 'مدرس‌ها'],
+                        ['route' => 'blog.*', 'url' => route('blog.index'), 'label' => 'مقالات'],
+                    ] as $item)
+                        <a
+                            href="{{ $item['url'] ?? route($item['route']) }}"
+                            @if(request()->routeIs($item['route'])) aria-current="page" @endif
+                            class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs($item['route']) ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
+                        >
+                            {{ $item['label'] }}
+                        </a>
+                    @endforeach
                 </div>
 
-                <div class="leading-tight">
-                        <span class="block text-lg font-bold text-gray-900">
-                            فرزین
-                        </span>
+                <div class="hidden items-center gap-3 lg:flex">
+                    @auth
+                        <div x-data="{ accountOpen: false }" class="relative">
+                            <button
+                                type="button"
+                                @click="accountOpen = !accountOpen"
+                                :aria-expanded="accountOpen.toString()"
+                                class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                                <span class="max-w-28 truncate">{{ auth()->user()->name }}</span>
+                                <svg class="h-4 w-4 transition" :class="accountOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
+                                </svg>
+                            </button>
 
-                    <span class="block text-xs text-gray-500">
-                            مرکز آموزش تخصصی
-                        </span>
+                            <div
+                                x-cloak
+                                x-show="accountOpen"
+                                x-transition
+                                @click.outside="accountOpen = false"
+                                class="absolute end-0 top-[calc(100%+0.6rem)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-[var(--shadow-lg)]"
+                            >
+                                <a href="{{ route('dashboard') }}" class="block rounded-xl px-4 py-3 transition hover:bg-[var(--color-background-soft)]">
+                                    <div class="text-sm font-bold text-[var(--color-text)]">داشبورد من</div>
+                                    <div class="mt-1 text-xs text-[var(--color-text-muted)]">ورود به فضای نقش شما</div>
+                                </a>
+
+                                <div class="my-1 h-px bg-[var(--color-border)]"></div>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex w-full items-center rounded-xl px-4 py-3 text-sm font-bold text-[var(--color-danger-600)] transition hover:bg-[var(--color-danger-50)]">
+                                        خروج از حساب
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-md">
+                            ورود / ثبت‌نام
+                        </a>
+                    @endauth
                 </div>
-
-            </a>
-
-            <!-- Mobile Menu Button -->
-            <div class="flex lg:hidden">
 
                 <button
-                    x-cloak
-                    @click="isOpen = !isOpen"
                     type="button"
-                    class="text-gray-600 hover:text-gray-900 focus:outline-none"
-                    aria-label="باز کردن منو">
-
-                    <!-- Open -->
-                    <svg
-                        x-show="!isOpen"
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="w-6 h-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2">
-
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M4 8h16M4 16h16" />
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-border)] bg-white text-[var(--color-text)] lg:hidden"
+                    @click="isOpen = !isOpen"
+                    :aria-expanded="isOpen.toString()"
+                    aria-controls="site-mobile-navigation"
+                    aria-label="باز کردن منو"
+                >
+                    <svg x-show="!isOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
                     </svg>
-
-                    <!-- Close -->
-                    <svg
-                        x-show="isOpen"
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="w-6 h-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2">
-
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M6 18L18 6M6 6l12 12" />
+                    <svg x-show="isOpen" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" d="m6 6 12 12M18 6 6 18" />
                     </svg>
-
                 </button>
-
             </div>
 
-        </div>
+            <div
+                id="site-mobile-navigation"
+                x-cloak
+                x-show="isOpen"
+                x-transition
+                @click.outside="isOpen = false"
+                class="border-t border-[var(--color-border)] py-4 lg:hidden"
+            >
+                <div class="grid gap-1">
+                    @foreach([
+                        ['route' => 'home', 'url' => route('home'), 'label' => 'خانه'],
+                        ['route' => 'courses.*', 'url' => route('courses.index'), 'label' => 'دوره‌ها'],
+                        ['route' => 'teachers.*', 'url' => route('teachers.index'), 'label' => 'مدرس‌ها'],
+                        ['route' => 'blog.*', 'url' => route('blog.index'), 'label' => 'مقالات'],
+                    ] as $item)
+                        <a
+                            href="{{ $item['url'] }}"
+                            @click="isOpen = false"
+                            class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs($item['route']) ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
+                        >
+                            {{ $item['label'] }}
+                        </a>
+                    @endforeach
+                </div>
 
+                <div class="mt-3 border-t border-[var(--color-border)] pt-3">
+                    @auth
+                        <a href="{{ route('dashboard') }}" @click="isOpen = false" class="flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
+                            ورود به داشبورد
+                        </a>
 
-        <!-- Navigation -->
-        <div
-            x-cloak
-            :class="[isOpen ? 'translate-x-0 opacity-100' : 'opacity-0 -translate-x-full']"
-            class="absolute inset-x-0 z-20 w-full px-6 py-5
-                       transition-all duration-300 ease-in-out
-                       bg-white border-b border-gray-100
-                       md:mt-0 md:p-0 md:relative md:border-0
-                       md:bg-transparent md:w-auto md:opacity-100
-                       md:translate-x-0 md:flex md:items-center">
-
-            <!-- Links -->
-            <div class="flex flex-col md:flex-row md:items-center md:mx-6">
-
-                <a
-                    href="#"
-                    class="my-2 text-gray-700 transition-colors duration-300
-                               hover:text-gray-950 md:mx-4 md:my-0">
-
-                    خانه
-                </a>
-
-                <a
-                    href="#"
-                    class="my-2 text-gray-700 transition-colors duration-300
-                               hover:text-gray-950 md:mx-4 md:my-0">
-
-                    دوره‌ها
-                </a>
-
-                <a
-                    href="#"
-                    class="my-2 text-gray-700 transition-colors duration-300
-                               hover:text-gray-950 md:mx-4 md:my-0">
-
-                    اساتید
-                </a>
-
-                <a
-                    href="#"
-                    class="my-2 text-gray-700 transition-colors duration-300
-                               hover:text-gray-950 md:mx-4 md:my-0">
-
-                    مقالات
-                </a>
-
-                <a
-                    href="#"
-                    class="my-2 text-gray-700 transition-colors duration-300
-                               hover:text-gray-950 md:mx-4 md:my-0">
-
-                    درباره فرزین
-                </a>
-
-                <a
-                    href="#"
-                    class="my-2 text-gray-700 transition-colors duration-300
-                               hover:text-gray-950 md:mx-4 md:my-0">
-
-                    تماس با ما
-                </a>
-
+                        <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                            @csrf
+                            <button type="submit" @click="isOpen = false" class="flex min-h-11 w-full items-center justify-center rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-bold text-[var(--color-danger-600)]">
+                                خروج از حساب
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" @click="isOpen = false" class="flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
+                            ورود / ثبت‌نام
+                        </a>
+                    @endauth
+                </div>
             </div>
-
-
-            <!-- Account -->
-            <div class="flex items-center justify-center md:mr-4 md:block">
-
-                <a
-                    href="#"
-                    class="flex items-center justify-center gap-2
-                               px-4 py-2.5
-                               rounded-xl
-                               bg-gray-900
-                               text-white
-                               text-sm font-medium
-                               transition-all duration-300
-                               hover:bg-gray-800">
-
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="1.8">
-
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0" />
-
-                    </svg>
-
-                    ورود / ثبت‌نام
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</nav>
-
-</body>
-
-</html>
+        </x-layout.container>
+    </nav>
+</header>

@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Academy;
+use App\Models\Course;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+final class CourseManagementService
+{
+    public function __construct(
+        private readonly CourseCatalogService $catalog,
+    ) {
+    }
+
+    public function accessibleAcademies(User $user)
+    {
+        return Academy::query()
+            ->where('status', 'active')
+            ->where(function ($query) use ($user): void {
+                $query
+                    ->where('owner_id', $user->id)
+                    ->orWhereHas('users', function ($membership) use ($user): void {
+                        $membership
+                            ->whereKey($user->id)
+                            ->wherePivot('status', 'active')
+                            ->whereIn('academy_user.role', ['owner', 'teacher']);
+                    });
+            })
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function canManage(User $user, Course $course): bool
+    {
+        if (!$user->hasPermission('courses.manage')) {
+            return false;
+        }
+
+        if ($course->academy?->owner_id === $user->id) {
+            return true;
+        }
+
+        return $course->teachers()->whereKey($user->id)->exists();
+    }
+
+    public function create(User $user, array $data): Course
+    {
+        $academy = $this->resolveAcademy($user, (int) $data['academy_id']);
+
+        return DB::transaction(function () use ($user, $academy, $data): Course {
+            $course = $academy->courses()->create([
+                'created_by' => $user->id,
+                'title' => $data['title'],
+                'slug' => $data['slug'],
+                'level' => $data['level'] ?? null,
+                'status' => $data['status'] ?? 'draft',
+                'access_type' => $data['access_type'],
+                'short_description' => $data['short_description'] ?? null,
+                'description' => $data['description'] ?? null,
+                'duration_minutes' => $data['duration_minutes'] ?? 0,
+                'price' => $data['access_type'] === 'free' ? 0 : $data['price'],
+                'published_at' => ($data['status'] ?? 'draft') === 'published'
+                    ? ($data['published_at'] ?? now())
+                    : null,
+            ]);
+
+            if ($user->hasRole('teacher')) {
+                $course->teachers()->syncWithoutDetaching([
+                    $user->id => ['is_primary' => true],
+                ]);
+            }
+
+            $this->catalog->clearPublicCache();
+
+            return $course;
+        });
+    }
+
+    public function update(User $user, Course $course, array $data): Course
+    {
+        abort_unless($this->canManage($user, $course), 403);
+
+        $academyId = array_key_exists('academy_id', $data)
+            ? (int) $data['academy_id']
+            : $course->academy_id;
+
+        $academy = $this->resolveAcademy($user, $academyId);
+
+        return DB::transaction(function () use ($user, $course, $academy, $data): Course {
+            $accessType = $data['access_type'] ?? $course->access_type;
+
+            $course->update([
+                'academy_id' => $academy->id,
+                'title' => $data['title'] ?? $course->title,
+                'slug' => $data['slug'] ?? $course->slug,
+                'level' => $data['level'] ?? null,
+                'status' => $data['status'] ?? $course->status,
+                'access_type' => $accessType,
+                'short_description' => $data['short_description'] ?? null,
+                'description' => $data['description'] ?? null,
+                'duration_minutes' => $data['duration_minutes'] ?? 0,
+                'price' => $accessType === 'free'
+                    ? 0
+                    : ($data['price'] ?? $course->price),
+                'published_at' => ($data['status'] ?? $course->status) === 'published'
+                    ? ($data['published_at'] ?? $course->published_at ?? now())
+                    : null,
+            ]);
+
+            if ($user->hasRole('teacher')) {
+                $course->teachers()->syncWithoutDetaching([
+                    $user->id => ['is_primary' => true],
+                ]);
+            }
+
+            $this->catalog->clearPublicCache();
+
+            return $course->refresh();
+        });
+    }
+
+    public function coursesFor(User $user)
+    {
+        if ($user->hasRole('academy-owner')) {
+            return Course::query()
+                ->whereHas('academy', fn ($query) => $query->where('owner_id', $user->id))
+                ->withCount('sections')
+                ->with('academy:id,name')
+                ->latest()
+                ->get();
+        }
+
+        return $user->taughtCourses()
+            ->withCount('sections')
+            ->with('academy:id,name')
+            ->latest()
+            ->get();
+    }
+
+    private function resolveAcademy(User $user, int $academyId): Academy
+    {
+        $academy = $this->accessibleAcademies($user)
+            ->firstWhere('id', $academyId);
+
+        if (!$academy) {
+            throw ValidationException::withMessages([
+                'academy_id' => 'این آموزشگاه برای حساب شما قابل مدیریت نیست.',
+            ]);
+        }
+
+        return $academy;
+    }
+}

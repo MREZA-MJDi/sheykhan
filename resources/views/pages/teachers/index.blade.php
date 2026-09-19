@@ -1,20 +1,42 @@
 @extends('layouts.app')
 
-@section('title', 'مدرس‌ها | فرزین')
+@section('title', 'مدرس‌ها | شیخان')
+@section('description', 'مدرس‌های تاییدشده و فعال شیخان.')
 
 @section('content')
     <x-layout.section spacing="lg">
-        <x-layout.container size="2xl">
-            <x-layout.page-header
-                title="مدرس‌های فرزین"
-                description="مدرس‌های متخصص و باتجربه فرزین."
+        <x-layout.container size="wide">
+            <x-layout.section-heading
+                eyebrow="مدرس‌های شیخان"
+                title="مدرس‌های تاییدشده"
+                description="مدرس‌های فعال پلتفرم را ببین و مسیرهای آموزشی آن‌ها را بررسی کن."
             />
 
-            <div class="mt-10 rounded-2xl border border-[var(--color-border)] bg-white p-8 text-center shadow-sm">
-                <p class="text-[var(--color-text-muted)]">
-                    صفحه مدرس‌ها در مرحله بعدی تکمیل می‌شود.
-                </p>
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                @forelse ($teachers as $teacher)
+                    <x-education.teacher-card
+                        :name="$teacher->name"
+                        :role="$teacher->teacherProfile?->specialization ?: 'مدرس'"
+                        :avatar="$teacher->teacherProfile?->media->first()?->url()"
+                        :bio="$teacher->teacherProfile?->bio"
+                        :courses="$teacher->courses_count"
+                        :href="route('teachers.index')"
+                    />
+                @empty
+                    <div class="sm:col-span-2 xl:col-span-4">
+                        <x-ui.empty-state
+                            title="مدرس تاییدشده‌ای پیدا نشد"
+                            description="به‌محض ثبت و تایید مدرس، اطلاعات او اینجا نمایش داده می‌شود."
+                        />
+                    </div>
+                @endforelse
             </div>
+
+            @if($teachers->hasPages())
+                <div class="mt-10 flex justify-center">
+                    <x-navigation.pagination :paginator="$teachers" />
+                </div>
+            @endif
         </x-layout.container>
     </x-layout.section>
 @endsection

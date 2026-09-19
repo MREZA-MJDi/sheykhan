@@ -16,5 +16,6 @@
     },
     "dependencies": {
         "alpinejs": "^3.17.2"
-    }
+    },
+    "name": "sheykhan"
 }

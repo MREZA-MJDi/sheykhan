@@ -1,63 +1,22 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="csrf-token"
-        content="{{ csrf_token() }}"
-    >
-
-    <title>
-        @yield('title', 'پنل دانش‌آموز | فرزین')
-    </title>
-
-    @vite([
-        'resources/css/app.css',
-        'resources/js/app.js',
-    ])
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'پنل دانش‌آموز | شیخان')</title>
+    @vite(['resources/css/student.css', 'resources/js/student.js'])
     @stack('styles')
 </head>
+<body class="student-shell">
+    <div class="role-layout">
+        <x-navigation.student-sidebar />
 
-<body class="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
-
-    <div class="flex min-h-screen">
-
-        <x-navigation.sidebar title="پنل دانش‌آموز">
-            @yield('sidebar')
-        </x-navigation.sidebar>
-
-        <div class="min-w-0 flex-1">
-
-            <header class="sticky top-0 z-[var(--z-sticky)] flex h-16 items-center justify-between border-b border-[var(--color-border)] bg-white/95 px-4 backdrop-blur sm:px-6">
-
-                <div class="min-w-0">
-                    <h1 class="truncate text-base font-bold sm:text-lg">
-                        @yield('header-title', 'پنل دانش‌آموز')
-                    </h1>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    @yield('header-actions')
-                </div>
-
-            </header>
-
-            <main class="min-w-0 p-4 sm:p-6 lg:p-8">
-                @yield('content')
-            </main>
-
+        <div class="role-content">
+            <x-navigation.panel-topbar role="student" title="@yield('header-title', 'پنل دانش‌آموز')" />
+            <main class="role-main">@yield('content')</main>
         </div>
-
     </div>
-
     @stack('scripts')
-
 </body>
 </html>
