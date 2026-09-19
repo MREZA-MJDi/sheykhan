@@ -45,22 +45,36 @@ class StudentLessonProgressTest extends TestCase
         ]);
     }
 
-    public function test_student_without_course_access_cannot_report_progress(): void
+    public function test_student_without_enrollment_can_preview_free_lesson_but_not_paid_lesson(): void
     {
         $this->seed();
 
         $student = User::where('email', 'student3@sheykhan.test')->firstOrFail();
         $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
-        $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
+        $lessons = $course->sections()->firstOrFail()->lessons()->orderBy('sort_order')->get();
+
+        $freeLesson = $lessons->first();
+        $paidLesson = $lessons->get(1);
 
         $this->actingAs($student)
-            ->postJson(route('student.lessons.progress.store', $lesson), [
+            ->postJson(route('student.lessons.progress.store', $freeLesson), [
+                'seconds_watched' => 100,
+            ])
+            ->assertOk();
+
+        $this->actingAs($student)
+            ->postJson(route('student.lessons.progress.store', $paidLesson), [
                 'seconds_watched' => 100,
             ])
             ->assertForbidden();
 
+        $this->assertDatabaseHas('lesson_progress', [
+            'lesson_id' => $freeLesson->id,
+            'user_id' => $student->id,
+        ]);
+
         $this->assertDatabaseMissing('lesson_progress', [
-            'lesson_id' => $lesson->id,
+            'lesson_id' => $paidLesson->id,
             'user_id' => $student->id,
         ]);
     }
