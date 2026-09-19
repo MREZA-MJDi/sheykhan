@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\StoreClassroomRequest;
 use App\Http\Requests\Owner\UpdateClassroomRequest;
+use App\Http\Requests\Owner\UpdateClassroomStatusRequest;
 use App\Models\Academy;
 use App\Models\Classroom;
 use App\Services\OwnerWorkspaceService;
@@ -91,5 +92,19 @@ class ClassroomController extends Controller
         return redirect()
             ->route('owner.classrooms.index', $academy)
             ->with('success', 'کلاس با موفقیت به‌روزرسانی شد.');
+    }
+
+    public function updateStatus(
+        UpdateClassroomStatusRequest $request,
+        Academy $academy,
+        int $classroom,
+        OwnerWorkspaceService $workspace
+    ): RedirectResponse {
+        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+
+        $item = $academy->classrooms()->findOrFail($classroom);
+        $item->update(['status' => $request->validated('status')]);
+
+        return back()->with('success', 'وضعیت کلاس به‌روزرسانی شد.');
     }
 }
