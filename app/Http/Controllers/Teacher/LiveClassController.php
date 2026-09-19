@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\StoreLiveClassRequest;
+use App\Http\Requests\Teacher\UpdateLiveClassRequest;
 use App\Models\LiveClass;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
@@ -35,11 +36,7 @@ class LiveClassController extends Controller
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedByCourse(
-                $request->user(),
-                (int) $classroomId,
-                $course->id
-            );
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, $course->id);
         }
 
         $payload = $request->safe()->except('course_id');
@@ -49,5 +46,42 @@ class LiveClassController extends Controller
 
         return redirect()->route('teacher.live-classes.index')
             ->with('success', 'جلسه آنلاین ثبت شد.');
+    }
+
+    public function edit(
+        LiveClass $liveClass,
+        TeacherWorkspaceService $workspace
+    ): View {
+        abort_unless($liveClass->teacher_id === request()->user()->id, 403);
+
+        return view('teacher.live-classes.form', [
+            'courses' => $workspace->courses(request()->user()),
+            'classrooms' => $workspace->classrooms(request()->user()),
+            'liveClass' => $liveClass,
+        ]);
+    }
+
+    public function update(
+        UpdateLiveClassRequest $request,
+        LiveClass $liveClass,
+        TeacherWorkspaceService $workspace
+    ): RedirectResponse {
+        $workspace->updateLiveClass(
+            $request->user(),
+            $liveClass,
+            $request->validated()
+        );
+
+        return redirect()->route('teacher.live-classes.index')
+            ->with('success', 'جلسه آنلاین به‌روزرسانی شد.');
+    }
+
+    public function cancel(
+        LiveClass $liveClass,
+        TeacherWorkspaceService $workspace
+    ): RedirectResponse {
+        $workspace->cancelLiveClass(request()->user(), $liveClass);
+
+        return back()->with('success', 'جلسه آنلاین لغو شد.');
     }
 }
