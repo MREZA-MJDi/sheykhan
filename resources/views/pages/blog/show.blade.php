@@ -40,7 +40,7 @@
                 @endif
 
                 <div class="mt-10 rounded-3xl border border-[var(--color-border)] bg-white p-6 sm:p-10">
-                    <div class="prose prose-slate max-w-none leading-8">
+                    <div class="max-w-none leading-8 text-[var(--color-text-secondary)]">
                         {!! nl2br(e($post->content)) !!}
                     </div>
                 </div>
