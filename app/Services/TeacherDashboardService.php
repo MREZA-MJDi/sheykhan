@@ -88,7 +88,10 @@ final class TeacherDashboardService
             ->limit(6)
             ->get();
 
-        $chart = $this->weeklyChart($teacher->id, $courseIds, $weekStart, $weekEnd);
+        $chart = [
+            ...$this->weeklyChart($teacher->id, $courseIds, $weekStart, $weekEnd),
+            'month' => $this->monthlyChart($teacher->id, $courseIds),
+        ];
 
         $activities = Assignment::query()
             ->where('teacher_id', $teacher->id)
@@ -205,6 +208,42 @@ final class TeacherDashboardService
         }
 
         return compact('labels', 'values');
+    }
+
+    private function monthlyChart(int $teacherId, $courseIds): array
+    {
+        $from = now()->subDays(30)->startOfDay();
+        $to = now()->endOfDay();
+
+        $rows = DB::table('lesson_progress as progress')
+            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
+            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
+            ->join('course_teacher as ct', function ($join) use ($teacherId): void {
+                $join->on('ct.course_id', '=', 'course_sections.course_id')
+                    ->where('ct.teacher_id', '=', $teacherId);
+            })
+            ->whereIn('course_sections.course_id', $courseIds)
+            ->whereBetween('progress.last_watched_at', [$from, $to])
+            ->groupBy(DB::raw('WEEK(progress.last_watched_at)'))
+            ->selectRaw('WEEK(progress.last_watched_at) as week_number, AVG(progress.progress_percent) as value')
+            ->pluck('value', 'week_number');
+
+        $labels = [];
+        $values = [];
+
+        for ($index = 3; $index >= 0; $index--) {
+            $date = now()->subWeeks($index);
+            $week = (int) $date->format('W');
+            $labels[] = $this->faDigits('هفته ' . (4 - $index));
+            $values[] = round((float) ($rows[$week] ?? 0));
+        }
+
+        while (count($values) < 7) {
+            array_unshift($values, $values[0] ?? 0);
+            array_unshift($labels, '');
+        }
+
+        return ['labels' => $labels, 'values' => $values];
     }
 
     private function todaySessions(User $teacher, $classrooms, $courseIds)
