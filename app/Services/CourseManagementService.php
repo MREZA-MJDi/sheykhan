@@ -10,6 +10,11 @@ use Illuminate\Validation\ValidationException;
 
 final class CourseManagementService
 {
+    public function __construct(
+        private readonly CourseCatalogService $catalog,
+    ) {
+    }
+
     public function accessibleAcademies(User $user)
     {
         return Academy::query()
@@ -68,6 +73,8 @@ final class CourseManagementService
                 ]);
             }
 
+            $this->catalog->clearPublicCache();
+
             return $course;
         });
     }
@@ -108,6 +115,8 @@ final class CourseManagementService
                     $user->id => ['is_primary' => true],
                 ]);
             }
+
+            $this->catalog->clearPublicCache();
 
             return $course->refresh();
         });
