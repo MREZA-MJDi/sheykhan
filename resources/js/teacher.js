@@ -25,6 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const values = dataset.values || [];
             bars.forEach((bar, index) => {
                 bar.style.height = String(values[index] || 0) + '%';
+
+                const label = bar.querySelector('small');
+                if (label && dataset.labels) {
+                    label.textContent = dataset.labels[index] || '';
+                }
             });
         });
     });
