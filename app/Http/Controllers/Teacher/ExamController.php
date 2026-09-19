@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
+use App\Http\Requests\Teacher\Exam\UpdateExamRequest;
 use App\Models\Exam;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +24,11 @@ class ExamController extends Controller
         return view('teacher.exams.form', [
             'courses' => $workspace->courses(request()->user()),
             'classrooms' => $workspace->classrooms(request()->user()),
-            'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
+            'exam' => new Exam([
+                'status' => 'draft',
+                'duration_minutes' => 60,
+                'attempts_allowed' => 1,
+            ]),
         ]);
     }
 
@@ -47,19 +52,42 @@ class ExamController extends Controller
 
         $exam = $course->exams()->create($payload);
 
-        foreach ($request->validated('questions', []) as $index => $question) {
-            $exam->questions()->create([
-                'type' => $question['type'] ?? 'text',
-                'question' => $question['question'],
-                'options' => $question['options'] ?? null,
-                'correct_answer' => $question['correct_answer'] ?? null,
-                'score' => $question['score'] ?? 1,
-                'sort_order' => $index,
-            ]);
-        }
+        $this->syncQuestions($exam, $request->validated('questions', []));
 
         return redirect()->route('teacher.exams.index')
             ->with('success', 'آزمون با موفقیت ساخته شد.');
+    }
+
+    public function edit(
+        Exam $exam,
+        TeacherWorkspaceService $workspace
+    ): View {
+        abort_unless($exam->teacher_id === request()->user()->id, 403);
+
+        return view('teacher.exams.form', [
+            'courses' => $workspace->courses(request()->user()),
+            'classrooms' => $workspace->classrooms(request()->user()),
+            'exam' => $exam->load('questions'),
+        ]);
+    }
+
+    public function update(
+        UpdateExamRequest $request,
+        Exam $exam,
+        TeacherWorkspaceService $workspace
+    ): RedirectResponse {
+        try {
+            $workspace->updateExam(
+                $request->user(),
+                $exam,
+                $request->validated()
+            );
+        } catch (\LogicException $exception) {
+            return back()->withInput()->withErrors(['exam' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('teacher.exams.index')
+            ->with('success', 'آزمون و سؤال‌های آن به‌روزرسانی شد.');
     }
 
     public function attempts(Exam $exam): View
@@ -74,5 +102,19 @@ class ExamController extends Controller
                     ->latest('submitted_at'),
             ]),
         ]);
+    }
+
+    private function syncQuestions(Exam $exam, array $questions): void
+    {
+        foreach ($questions as $index => $question) {
+            $exam->questions()->create([
+                'type' => $question['type'] ?? 'text',
+                'question' => $question['question'],
+                'options' => $question['options'] ?? null,
+                'correct_answer' => $question['correct_answer'] ?? null,
+                'score' => $question['score'] ?? 1,
+                'sort_order' => $index,
+            ]);
+        }
     }
 }
