@@ -13,7 +13,7 @@
         <x-navigation.parent-sidebar />
 
         <div class="role-content">
-            <x-navigation.panel-topbar role="parent" title="@yield('header-title', 'پنل والد')" />
+            <x-navigation.panel-topbar role="parent" />
             <main class="role-main">@yield('content')</main>
         </div>
     </div>
