@@ -206,7 +206,7 @@ function initSectionReorder() {
             }
         });
 
-        handle.addEventListener('dragover', (event) => {
+        item.addEventListener('dragover', (event) => {
             event.preventDefault();
 
             const dragging = list.querySelector('.is-dragging');
