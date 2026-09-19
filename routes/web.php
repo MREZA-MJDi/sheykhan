@@ -58,6 +58,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/media/{media}/download', [MediaController::class, 'download'])
         ->name('media.download');
+    Route::get('/media/{media}/stream', [MediaController::class, 'stream'])
+        ->name('media.stream');
 });
 
 Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
@@ -160,6 +162,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', StudentDashboard::class)->name('dashboard');
+    Route::post('/lessons/{lesson}/progress', [\App\Http\Controllers\Student\LessonProgressController::class, 'store'])
+        ->middleware('throttle:60,1')
+        ->name('lessons.progress.store');
 });
 
 Route::middleware(['auth', 'role:parent'])->prefix('parent')->name('parent.')->group(function () {
