@@ -1,17 +1,17 @@
 <?php
 
-use AppHttpControllersAuthController;
-use AppHttpControllersDashboardRedirectController;
-use AppHttpControllersHomeController;
-use AppHttpControllersMediaController;
-use AppHttpControllersOwnerDashboardController as OwnerDashboard;
-use AppHttpControllersParentPortalDashboardController as ParentDashboard;
-use AppHttpControllersPublicSiteBlogController;
-use AppHttpControllersPublicSiteCourseController;
-use AppHttpControllersPublicSiteTeacherController;
-use AppHttpControllersStudentDashboardController as StudentDashboard;
-use AppHttpControllersTeacherDashboardController as TeacherDashboard;
-use IlluminateSupportFacadesRoute;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardRedirectController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
+use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
+use App\Http\Controllers\PublicSite\BlogController;
+use App\Http\Controllers\PublicSite\CourseController;
+use App\Http\Controllers\PublicSite\TeacherController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
@@ -37,7 +37,6 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
-
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/media/{media}/download', [MediaController::class, 'download'])
