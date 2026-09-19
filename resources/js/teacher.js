@@ -314,6 +314,40 @@ function initMediaUploadUX() {
     });
 }
 
+function initCourseScopedClassrooms() {
+    document.querySelectorAll('[data-course-scope-select]').forEach((courseSelect) => {
+        const targetId = courseSelect.dataset.classroomTarget;
+        const classroomSelect = document.getElementById(targetId);
+
+        if (!classroomSelect) return;
+
+        const sync = () => {
+            const courseId = String(courseSelect.value || '');
+            const currentValue = String(classroomSelect.value || '');
+
+            [...classroomSelect.options].forEach((option) => {
+                if (!option.dataset.courseId) {
+                    option.hidden = false;
+                    return;
+                }
+
+                option.hidden = String(option.dataset.courseId) !== courseId;
+            });
+
+            const selectedOption = [...classroomSelect.options].find(
+                (option) => !option.hidden && String(option.value) === currentValue
+            );
+
+            if (!selectedOption && classroomSelect.value) {
+                classroomSelect.value = '';
+            }
+        };
+
+        courseSelect.addEventListener('change', sync);
+        sync();
+    });
+}
+
 function initConfirmForms() {
     document.querySelectorAll('[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (event) => {
@@ -336,5 +370,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initSectionReorder();
     initLessonReorder();
     initMediaUploadUX();
+    initCourseScopedClassrooms();
     initConfirmForms();
 });
