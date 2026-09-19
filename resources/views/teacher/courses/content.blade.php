@@ -9,7 +9,24 @@
             <h3 class="text-base font-black">{{ $section->title }}</h3>
             <div class="mt-4 grid gap-3">
                 @forelse($section->lessons as $lesson)
-                    <article class="rounded-xl border border-slate-200 bg-slate-50 p-4"><div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"><div><strong class="text-sm">{{ $lesson->title }}</strong><p class="mt-1 text-[10px] text-slate-500">{{ $lesson->type }} · {{ $lesson->status }} · {{ $lesson->duration_seconds }} ثانیه</p></div><div class="flex flex-wrap gap-2">@if($lesson->media->isNotEmpty())<span class="rounded-full bg-emerald-50 px-2 py-1 text-[9px] text-emerald-700">{{ $lesson->media->count() }} فایل</span>@endif</div></div></article>
+                    <article class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                                <strong class="text-sm">{{ $lesson->title }}</strong>
+                                <p class="mt-1 text-[10px] text-slate-500">{{ $lesson->type }} · {{ $lesson->status }} · {{ $lesson->duration_seconds }} ثانیه</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 items-center">
+                                @if($lesson->media->isNotEmpty())
+                                    <span class="rounded-full bg-emerald-50 px-2 py-1 text-[9px] text-emerald-700">{{ $lesson->media->count() }} فایل</span>
+                                @endif
+                                <form method="POST" action="{{ route('teacher.lessons.media.store',$lesson) }}" enctype="multipart/form-data" class="flex flex-wrap gap-2">
+                                    @csrf
+                                    <input type="file" name="media" class="max-w-[220px] rounded-lg border border-slate-200 bg-white px-2 py-2 text-[9px]">
+                                    <button class="rounded-lg bg-slate-900 px-3 py-2 text-[9px] font-black text-white">آپلود فایل</button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
                 @empty
                     <div class="rounded-xl bg-slate-50 p-5 text-center text-xs text-slate-500">در این سرفصل هنوز درسی وجود ندارد.</div>
                 @endforelse
