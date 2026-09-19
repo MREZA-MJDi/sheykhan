@@ -33,6 +33,8 @@ final class OwnerDashboardService
                 ],
                 'teacherReports' => collect(),
                 'recentCourses' => collect(),
+                'courseReports' => collect(),
+                'recentEnrollments' => collect(),
                 'upcomingLiveClasses' => collect(),
             ];
         }
