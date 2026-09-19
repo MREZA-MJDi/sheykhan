@@ -25,6 +25,8 @@ use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Teacher\ExamAttemptController as TeacherExamAttemptController;
 use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
 use App\Http\Controllers\Teacher\LiveClassController as TeacherLiveClassController;
+use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
+use App\Http\Controllers\Teacher\LessonMediaController as TeacherLessonMediaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -89,6 +91,10 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::post('/courses/{course}/media', [TeacherCourseMediaController::class, 'store'])->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [TeacherCourseMediaController::class, 'destroy'])->name('courses.media.destroy');
     Route::get('/courses/{course}/progress', CourseLearningProgressController::class)->name('courses.progress');
+    Route::get('/courses/{course}/content', [TeacherLessonController::class, 'index'])->name('courses.content');
+    Route::post('/lessons', [TeacherLessonController::class, 'store'])->name('lessons.store');
+    Route::patch('/lessons/{lesson}', [TeacherLessonController::class, 'update'])->name('lessons.update');
+    Route::post('/lessons/{lesson}/media', [TeacherLessonMediaController::class, 'store'])->name('lessons.media.store');
 
     Route::get('/classrooms', [TeacherClassroomController::class, 'index'])->name('classrooms.index');
     Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->name('classrooms.create');
@@ -103,6 +109,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->name('assignments.index');
     Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->name('assignments.create');
     Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->name('assignments.store');
+    Route::get('/assignments/{assignment}/submissions', [TeacherAssignmentController::class, 'submissions'])->name('assignments.submissions');
     Route::patch('/assignments/{assignment}/submissions/{submission}', [TeacherAssignmentSubmissionController::class, 'update'])
         ->middleware('permission:assignments.manage')
         ->name('assignments.submissions.update');
@@ -110,6 +117,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/exams', [TeacherExamController::class, 'index'])->name('exams.index');
     Route::get('/exams/create', [TeacherExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [TeacherExamController::class, 'store'])->name('exams.store');
+    Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->name('exams.attempts');
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])
         ->middleware('permission:exams.manage')
         ->name('exam-attempts.grade');
