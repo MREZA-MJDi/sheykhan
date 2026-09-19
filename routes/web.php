@@ -68,6 +68,9 @@ Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.
 
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->name('people.index');
     Route::get('/academy/{academy}/classrooms', [\App\Http\Controllers\Owner\ClassroomController::class, 'index'])->name('classrooms.index');
+    Route::get('/academy/{academy}/classrooms/create', [\App\Http\Controllers\Owner\ClassroomController::class, 'create'])->name('classrooms.create');
+    Route::post('/academy/{academy}/classrooms', [\App\Http\Controllers\Owner\ClassroomController::class, 'store'])->name('classrooms.store');
+    Route::get('/academy/{academy}/classrooms/{classroom}/edit', [\App\Http\Controllers\Owner\ClassroomController::class, 'edit'])->name('classrooms.edit');
     Route::patch('/academy/{academy}/classrooms/{classroom}', [\App\Http\Controllers\Owner\ClassroomController::class, 'update'])->name('classrooms.update');
     Route::get('/reports', [\App\Http\Controllers\Owner\ReportController::class, 'index'])->name('reports.index');
     Route::post('/academy/{academy}/people/store-teacher', [OwnerPeopleController::class, 'storeTeacher'])
@@ -76,7 +79,10 @@ Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.
     Route::post('/academy/{academy}/people/assign-teacher', [OwnerPeopleController::class, 'assignTeacher'])
         ->middleware('permission:teachers.manage')
         ->name('people.assign-teacher');
-    Route::post('/academy/{academy}/people/enroll-student', [\App\Http\Controllers\Owner\EnrollmentController::class, 'store'])
+    Route::delete('/academy/{academy}/people/teachers/{teacher}/courses/{course}', [OwnerPeopleController::class, 'detachTeacher'])
+        ->middleware('permission:teachers.manage')
+        ->name('people.detach-teacher');
+    Route::post('/academy/{academy}/people/enroll-student', [OwnerPeopleController::class, 'enrollStudent'])
         ->middleware('permission:enrollments.manage')
         ->name('people.enroll-student');
 
