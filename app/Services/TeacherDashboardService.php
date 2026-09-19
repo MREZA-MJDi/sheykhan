@@ -88,8 +88,10 @@ final class TeacherDashboardService
             ->limit(6)
             ->get();
 
+        $weekChart = $this->weeklyChart($teacher->id, $courseIds, $weekStart, $weekEnd);
+
         $chart = [
-            ...$this->weeklyChart($teacher->id, $courseIds, $weekStart, $weekEnd),
+            'week' => $weekChart,
             'month' => $this->monthlyChart($teacher->id, $courseIds),
         ];
 
@@ -346,9 +348,7 @@ final class TeacherDashboardService
             'todaySessions' => collect(),
             'upcomingClasses' => collect(),
             'chart' => [
-                'labels' => [],
-                'values' => [],
-                'week' => [],
+                'week' => ['labels' => [], 'values' => []],
                 'month' => ['labels' => [], 'values' => []],
             ],
             'activities' => collect(),
