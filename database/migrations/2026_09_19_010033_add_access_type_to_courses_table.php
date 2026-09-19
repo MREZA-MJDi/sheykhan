@@ -1,0 +1,26 @@
+<?php
+
+use IlluminateDatabaseMigrationsMigration;
+use IlluminateDatabaseSchemaBlueprint;
+use IlluminateSupportFacadesSchema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('courses', function (Blueprint $table): void {
+            $table->string('access_type')->default('paid')->after('status')->index();
+        });
+
+        Schema::table('courses', function (Blueprint $table): void {
+            $table->check("access_type in ('free', 'paid')");
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('courses', function (Blueprint $table): void {
+            $table->dropColumn('access_type');
+        });
+    }
+};
