@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\StoreClassroomRequest;
+use App\Http\Requests\Teacher\UpdateClassroomRequest;
 use App\Models\Classroom;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +23,7 @@ class ClassroomController extends Controller
     {
         return view('teacher.classrooms.form', [
             'courses' => $workspace->courses(request()->user()),
-            'classroom' => new Classroom(),
+            'classroom' => new Classroom(['status' => 'active']),
         ]);
     }
 
@@ -57,5 +58,58 @@ class ClassroomController extends Controller
         return view('teacher.classrooms.show', [
             'classroom' => $workspace->classroomDetails(request()->user(), $classroom),
         ]);
+    }
+
+    public function edit(
+        Classroom $classroom,
+        TeacherWorkspaceService $workspace
+    ): View {
+        $classroom = $workspace->classroomOwnedBy(request()->user(), $classroom->id);
+
+        return view('teacher.classrooms.form', [
+            'courses' => $workspace->courses(request()->user()),
+            'classroom' => $classroom,
+        ]);
+    }
+
+    public function update(
+        UpdateClassroomRequest $request,
+        Classroom $classroom,
+        TeacherWorkspaceService $workspace
+    ): RedirectResponse {
+        try {
+            $workspace->updateClassroom(
+                $request->user(),
+                $classroom,
+                $request->validated()
+            );
+        } catch (\LogicException $exception) {
+            return back()->withInput()->withErrors(['classroom' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('teacher.classrooms.show', $classroom)
+            ->with('success', 'تنظیمات کلاس به‌روزرسانی شد.');
+    }
+
+    public function archive(
+        Classroom $classroom,
+        TeacherWorkspaceService $workspace
+    ): RedirectResponse {
+        try {
+            $workspace->updateClassroom(request()->user(), $classroom, [
+                'course_id' => $classroom->course_id,
+                'title' => $classroom->title,
+                'code' => $classroom->code,
+                'description' => $classroom->description,
+                'capacity' => $classroom->capacity,
+                'starts_at' => $classroom->starts_at,
+                'ends_at' => $classroom->ends_at,
+                'status' => 'archived',
+            ]);
+        } catch (\LogicException $exception) {
+            return back()->withErrors(['classroom' => $exception->getMessage()]);
+        }
+
+        return back()->with('success', 'کلاس آرشیو شد.');
     }
 }
