@@ -156,6 +156,8 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/exams', [TeacherExamController::class, 'index'])->name('exams.index');
     Route::get('/exams/create', [TeacherExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [TeacherExamController::class, 'store'])->name('exams.store');
+    Route::get('/exams/{exam}/edit', [TeacherExamController::class, 'edit'])->name('exams.edit');
+    Route::patch('/exams/{exam}', [TeacherExamController::class, 'update'])->name('exams.update');
     Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->name('exams.attempts');
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])
         ->middleware('permission:exams.manage')
