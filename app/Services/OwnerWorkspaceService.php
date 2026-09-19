@@ -106,7 +106,40 @@ final class OwnerWorkspaceService
         });
     }
 
-    public function assignTeacher(User $owner, Academy $academy, int $teacherId, int $courseId): void
+    public function assignTeacher(
+        User $owner,
+        Academy $academy,
+        int $teacherId,
+        int $courseId,
+        bool $isPrimary = false
+    ): void {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $isTeacher = $academy->users()
+            ->whereKey($teacherId)
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
+            ->exists();
+
+        $course = $academy->courses()->findOrFail($courseId);
+
+        abort_unless($isTeacher, 422, 'این کاربر مدرس فعال این آموزشگاه نیست.');
+
+        DB::transaction(function () use ($course, $teacherId, $isPrimary): void {
+            if ($isPrimary) {
+                $course->teachers()->updateExistingPivot(
+                    $course->teachers()->pluck('users.id')->all(),
+                    ['is_primary' => false]
+                );
+            }
+
+            $course->teachers()->syncWithoutDetaching([
+                $teacherId => ['is_primary' => $isPrimary],
+            ]);
+        });
+    }
+
+    public function detachTeacher(User $owner, Academy $academy, int $teacherId, int $courseId): void
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
@@ -118,12 +151,159 @@ final class OwnerWorkspaceService
 
         $course = $academy->courses()->findOrFail($courseId);
 
-        if (!$isTeacher) {
-            abort(422, 'این کاربر مدرس فعال این آموزشگاه نیست.');
+        abort_unless($isTeacher, 422, 'این کاربر مدرس فعال این آموزشگاه نیست.');
+
+        $course->teachers()->detach($teacherId);
+    }
+
+    public function createClassroom(User $owner, Academy $academy, array $data): App\Models\Classroom
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $course = $academy->courses()->findOrFail((int) $data['course_id']);
+        $teacherIds = $this->scopedTeacherIds($academy, $data['teacher_ids'] ?? []);
+
+        $classroom = DB::transaction(function () use ($academy, $course, $teacherIds, $data) {
+            $classroom = $course->classrooms()->create([
+                'academy_id' => $academy->id,
+                'course_id' => $course->id,
+                'title' => $data['title'],
+                'code' => $data['code'],
+                'description' => $data['description'] ?? null,
+                'capacity' => $data['capacity'] ?? null,
+                'status' => $data['status'] ?? 'active',
+                'starts_at' => $data['starts_at'] ?? null,
+                'ends_at' => $data['ends_at'] ?? null,
+            ]);
+
+            if ($teacherIds !== []) {
+                $classroom->teachers()->sync($teacherIds);
+            }
+
+            return $classroom;
+        });
+
+        return $classroom;
+    }
+
+    public function updateClassroom(User $owner, Academy $academy, int $classroomId, array $data): App\Models\Classroom
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $classroom = $academy->classrooms()->findOrFail($classroomId);
+        $course = $academy->courses()->findOrFail((int) ($data['course_id'] ?? $classroom->course_id));
+        $teacherIds = $this->scopedTeacherIds($academy, $data['teacher_ids'] ?? []);
+
+        DB::transaction(function () use ($classroom, $course, $teacherIds, $data): void {
+            $classroom->update([
+                'academy_id' => $course->academy_id,
+                'course_id' => $course->id,
+                'title' => $data['title'],
+                'code' => $data['code'],
+                'description' => $data['description'] ?? null,
+                'capacity' => $data['capacity'] ?? null,
+                'status' => $data['status'] ?? $classroom->status,
+                'starts_at' => $data['starts_at'] ?? null,
+                'ends_at' => $data['ends_at'] ?? null,
+            ]);
+
+            $classroom->teachers()->sync($teacherIds);
+        });
+
+        return $classroom->refresh();
+    }
+
+    public function enrollStudent(User $owner, Academy $academy, array $data): void
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $student = $academy->users()
+            ->whereKey((int) $data['student_id'])
+            ->wherePivot('role', 'student')
+            ->wherePivot('status', 'active')
+            ->firstOrFail();
+
+        $course = $academy->courses()->findOrFail((int) $data['course_id']);
+
+        DB::transaction(function () use ($student, $course, $data): void {
+            $existing = $course->enrollments()
+                ->where('student_id', $student->id)
+                ->first();
+
+            $classroom = null;
+            if (!empty($data['classroom_id'])) {
+                $classroom = $course->classrooms()
+                    ->where('status', 'active')
+                    ->findOrFail((int) $data['classroom_id']);
+
+                if ($classroom->capacity !== null) {
+                    $current = $classroom->students()
+                        ->wherePivot('status', 'active')
+                        ->whereKeyNot($student->id)
+                        ->count();
+
+                    abort_unless(
+                        $current < (int) $classroom->capacity,
+                        422,
+                        'ظرفیت این کلاس تکمیل شده است.'
+                    );
+                }
+            }
+
+            $paidAmount = $course->isFree()
+                ? 0
+                : (float) ($data['paid_amount'] ?? $course->price);
+
+            abort_unless(
+                $course->isFree() || $paidAmount > 0,
+                422,
+                'برای دوره پولی، مبلغ ثبت‌نام باید بیشتر از صفر باشد.'
+            );
+
+            if ($existing?->classroom_id && $existing->classroom_id !== $classroom?->id) {
+                $previousClassroom = \App\Models\Classroom::find($existing->classroom_id);
+
+                $previousClassroom?->students()->updateExistingPivot(
+                    $student->id,
+                    ['status' => 'inactive']
+                );
+            }
+
+            $course->enrollments()->updateOrCreate(
+                ['student_id' => $student->id],
+                [
+                    'classroom_id' => $classroom?->id,
+                    'status' => 'active',
+                    'paid_amount' => $paidAmount,
+                    'started_at' => $existing?->started_at ?? now(),
+                    'completed_at' => null,
+                ]
+            );
+
+            if ($classroom) {
+                $classroom->students()->syncWithoutDetaching([
+                    $student->id => [
+                        'status' => 'active',
+                        'enrolled_at' => now(),
+                        'completed_at' => null,
+                    ],
+                ]);
+            }
+        });
+    }
+
+    private function scopedTeacherIds(Academy $academy, array $teacherIds): array
+    {
+        if ($teacherIds === []) {
+            return [];
         }
 
-        $course->teachers()->syncWithoutDetaching([
-            $teacherId => ['is_primary' => false],
-        ]);
+        return $academy->users()
+            ->whereIn('users.id', array_map('intval', $teacherIds))
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
+            ->pluck('users.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 }
