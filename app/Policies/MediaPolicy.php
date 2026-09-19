@@ -139,6 +139,10 @@ class MediaPolicy
             return true;
         }
 
+        if ($user->enrollments()->where('course_id', $course->id)->where('status', 'active')->exists()) {
+            return true;
+        }
+
         if ($user->classroomsAsStudent()->where('course_id', $course->id)->exists()) {
             return true;
         }
