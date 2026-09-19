@@ -134,7 +134,7 @@ class MediaPolicy
 
     private function lessonMediaAccess(User $user, Lesson $lesson, Course $course, Media $media): bool
     {
-        if (!$this->courseAccess($user, $course)) {
+        if (!$this->courseAccessService()->canAccessLesson($user, $lesson)) {
             return false;
         }
 
