@@ -82,9 +82,9 @@
             <div
                 id="role-sidebar-navigation"
                 x-cloak
-                x-show="open || window.innerWidth >= 1024"
+                x-show="open"
                 x-transition
-                class="flex-1 overflow-y-auto px-3 py-4 sm:px-4 lg:block"
+                class="hidden flex-1 overflow-y-auto px-3 py-4 sm:px-4 lg:!block"
             >
                 <div class="mb-3 px-3 text-[10px] font-black tracking-wider text-[var(--color-text-muted)]">
                     منوی اصلی
