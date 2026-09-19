@@ -1,5 +1,5 @@
 ﻿@props([
-'title' => 'فرزین',
+'title' => 'شیخان',
 'open' => false,
 ])
 
@@ -13,7 +13,7 @@
         type="button"
         @click="open = !open"
         :aria-expanded="open"
-        aria-controls="farzin-mobile-navigation"
+        aria-controls="sheykhan-mobile-navigation"
         aria-label="باز کردن منوی سایت"
         class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-border)] bg-white text-[var(--color-text)] shadow-sm transition-all duration-300 hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)]"
     >
@@ -71,7 +71,7 @@
 
     {{-- Drawer --}}
     <aside
-        id="farzin-mobile-navigation"
+        id="sheykhan-mobile-navigation"
         x-show="open"
         x-cloak
         x-transition:enter="transition ease-[var(--ease-emphasized)] duration-300"
