@@ -1,14 +1,13 @@
 <?php
 
-namespace AppHttpControllers;
+namespace App\Http\Controllers;
 
-use AppHttpRequestsAuthLoginRequest;
-use AppHttpRequestsAuthRegisterRequest;
-use AppServicesAuthService;
-use AppServicesDashboardRedirector;
-use IlluminateHttpRedirectResponse;
-use IlluminateSupportFacadesAuth;
-use IlluminateViewView;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Services\AuthService;
+use App\Services\DashboardRedirector;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
