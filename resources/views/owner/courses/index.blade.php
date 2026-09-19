@@ -77,7 +77,9 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <a href="{{ route('owner.courses.edit', $course) }}" class="text-sm font-black text-[var(--color-brand-600)] hover:text-[var(--color-brand-700)]">مدیریت دوره ←</a>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <a href="{{ route('owner.courses.edit', $course) }}" class="rounded-lg border border-[var(--color-border)] px-3 py-2 text-[10px] font-black">مدیریت</a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
