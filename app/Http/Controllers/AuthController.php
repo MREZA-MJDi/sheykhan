@@ -26,7 +26,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request): RedirectResponse
     {
         $user = $this->auth->login(
-            $request->validatedOnly(['email', 'password']),
+            $request->safe()->only(['email', 'password']),
             $request->boolean('remember'),
         );
 
