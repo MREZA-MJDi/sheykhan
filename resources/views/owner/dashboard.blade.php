@@ -4,82 +4,110 @@
 @section('header-title', 'مدیریت آموزشگاه')
 
 @section('content')
-    <div class="space-y-6 panel-page-enter">
-        <div class="rounded-[1.75rem] border border-[var(--color-border)] bg-[linear-gradient(135deg,#ffffff,#f4f6ff)] p-6 shadow-sm sm:p-8">
-            <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-                <div>
-                    <p class="text-xs font-black text-[var(--color-brand-600)]">مرکز کنترل آموزشگاه</p>
-                    <h2 class="mt-3 max-w-2xl text-2xl font-black leading-tight text-[var(--color-text)] sm:text-4xl">
-                        همه‌چیز را از ساختار آموزش تا قیمت‌گذاری دوره‌ها کنترل کن.
-                    </h2>
-                    <p class="mt-4 max-w-2xl text-sm leading-8 text-[var(--color-text-secondary)]">
-                        دوره بساز، رایگان یا پولی بودن را مشخص کن، قیمت بگذار و فایل‌های آموزشی خصوصی را مدیریت کن.
-                    </p>
-                </div>
+<div class="owner-dashboard dashboard-fade-in">
+    @php($academy = $academies->first())
 
-                <a href="{{ route('owner.courses.create') }}"
-                   class="inline-flex min-h-12 items-center justify-center rounded-xl bg-[var(--color-brand-600)] px-5 text-sm font-black text-white shadow-[0_10px_24px_rgba(83,98,223,.16)] transition hover:-translate-y-0.5 hover:bg-[var(--color-brand-700)]">
-                    + ساخت دوره جدید
-                </a>
+    <section class="owner-hero">
+        <div class="owner-hero-copy">
+            <span class="owner-kicker">مرکز کنترل آموزشگاه</span>
+            <h2>{{ $academy?->name ?? 'آموزشگاه شما' }} را از یک صفحه مدیریت کن.</h2>
+            <p>
+                وضعیت دوره‌ها، مدرس‌ها، دانش‌آموزان، کلاس‌ها و عملکرد آموزشی در یک داشبورد واقعی و قابل پیگیری.
+            </p>
+            <div class="owner-hero-actions">
+                @if($academy)
+                    <a href="{{ route('owner.academy.edit', $academy) }}" class="owner-btn">تنظیمات آموزشگاه</a>
+                    <a href="{{ route('owner.people.index', $academy) }}" class="owner-btn ghost">مدیریت اعضا</a>
+                @endif
             </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div class="panel-card panel-stat p-5">
-                <div class="text-xs font-semibold text-[var(--color-text-muted)]">کل دوره‌ها</div>
-                <div class="mt-2 text-3xl font-black">{{ $courseCount }}</div>
-            </div>
-
-            <div class="panel-card panel-stat p-5">
-                <div class="text-xs font-semibold text-[var(--color-text-muted)]">منتشرشده</div>
-                <div class="mt-2 text-3xl font-black">{{ $publishedCount }}</div>
-            </div>
-
-            <div class="panel-card panel-stat p-5">
-                <div class="text-xs font-semibold text-[var(--color-text-muted)]">رایگان</div>
-                <div class="mt-2 text-3xl font-black">{{ $freeCount }}</div>
-            </div>
-
-            <div class="panel-card panel-stat p-5">
-                <div class="text-xs font-semibold text-[var(--color-text-muted)]">پولی</div>
-                <div class="mt-2 text-3xl font-black">{{ $paidCount }}</div>
+        <div class="owner-hero-art" aria-hidden="true">
+            <div class="owner-orb one"></div>
+            <div class="owner-orb two"></div>
+            <div class="owner-hero-stat">
+                <small>فروش ثبت‌شده</small>
+                <strong>{{ number_format($metrics['sales'], 0, '.', ',') }}</strong>
+                <span>تومان در ثبت‌نام‌های فعال</span>
             </div>
         </div>
+    </section>
 
-        <section class="panel-card overflow-hidden">
-            <div class="flex items-center justify-between gap-4 border-b border-[var(--color-border)] px-5 py-4 sm:px-6">
-                <div>
-                    <h3 class="font-black">آخرین دوره‌ها</h3>
-                    <p class="mt-1 text-xs text-[var(--color-text-muted)]">دسترسی و وضعیت انتشار هر دوره را سریع ببین.</p>
-                </div>
-                <a href="{{ route('owner.courses.index') }}" class="text-xs font-black text-[var(--color-brand-600)]">مشاهده همه ←</a>
+    <section class="owner-stats">
+        <article class="owner-stat-card"><span>دوره‌ها</span><strong>{{ $metrics['courses'] }}</strong><small>{{ $metrics['published'] }} دوره منتشرشده</small></article>
+        <article class="owner-stat-card"><span>مدرس‌ها</span><strong>{{ $metrics['teachers'] }}</strong><small>عضو فعال آموزشگاه</small></article>
+        <article class="owner-stat-card"><span>دانش‌آموزان</span><strong>{{ $metrics['students'] }}</strong><small>عضو فعال آموزشگاه</small></article>
+        <article class="owner-stat-card"><span>کلاس‌ها</span><strong>{{ $metrics['classrooms'] }}</strong><small>{{ $metrics['pendingReviews'] }} مورد نیازمند بررسی</small></article>
+    </section>
+
+    <div class="owner-grid">
+        <section class="dashboard-panel owner-panel">
+            <div class="owner-panel-head">
+                <div><h3>گزارش مدرس‌ها</h3><p>تعداد دوره، دانش‌آموز، فروش و میانگین پیشرفت</p></div>
+                @if($academy)<a href="{{ route('owner.people.index', $academy) }}" class="owner-link">اعضا ←</a>@endif
             </div>
 
-            <div class="divide-y divide-[var(--color-border)]">
-                @forelse($courses->take(5) as $course)
-                    <div class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-                        <div class="min-w-0">
-                            <div class="truncate text-sm font-bold">{{ $course->title }}</div>
-                            <div class="mt-1 text-xs text-[var(--color-text-muted)]">{{ $course->academy?->name }}</div>
+            <div class="owner-teacher-list">
+                @forelse($teacherReports as $teacher)
+                    <article class="owner-teacher-row">
+                        <div class="owner-avatar">{{ mb_substr($teacher->name, 0, 1) }}</div>
+                        <div>
+                            <div class="owner-row-title">{{ $teacher->name }}</div>
+                            <div class="owner-row-meta">{{ $teacher->course_count }} دوره · {{ $teacher->student_count }} دانش‌آموز · {{ $teacher->pending_reviews }} بررسی</div>
+                            <div class="owner-progress"><span style="width:{{ min(100, max(0, $teacher->progress_average)) }}%"></span></div>
                         </div>
-
-                        <div class="flex items-center gap-2">
-                            <span class="rounded-full px-2.5 py-1 text-[10px] font-bold {{ $course->isFree() ? 'bg-[var(--color-success-50)] text-[var(--color-success-700)]' : 'bg-[var(--color-warning-50)] text-[var(--color-warning-700)]' }}">
-                                {{ $course->isFree() ? 'رایگان' : number_format((float) $course->price, 0, '.', ',') . ' تومان' }}
-                            </span>
-
-                            <a href="{{ route('owner.courses.edit', $course) }}" class="rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-soft)]">
-                                مدیریت
-                            </a>
+                        <div class="owner-teacher-metric">
+                            <strong>{{ $teacher->progress_average }}٪</strong>
+                            <small>{{ number_format((float)$teacher->sales, 0, '.', ',') }} تومان</small>
                         </div>
-                    </div>
+                    </article>
                 @empty
-                    <div class="px-6 py-12 text-center">
-                        <p class="text-sm font-bold">هنوز دوره‌ای وجود ندارد.</p>
-                        <p class="mt-1 text-xs text-[var(--color-text-muted)]">اولین دوره را از همین صفحه بساز.</p>
-                    </div>
+                    <div class="owner-empty">هنوز مدرس فعالی در آموزشگاه ثبت نشده است.</div>
+                @endforelse
+            </div>
+        </section>
+
+        <section class="dashboard-panel owner-panel">
+            <div class="owner-panel-head">
+                <div><h3>جلسات آنلاین آینده</h3><p>برنامه هفت روز بعد</p></div>
+            </div>
+            <div class="owner-live-list">
+                @forelse($upcomingLiveClasses as $item)
+                    <article class="owner-live-row">
+                        <div class="owner-pill">{{ IlluminateSupportCarbon::parse($item->scheduled_at)->format('m/d H:i') }}</div>
+                        <div>
+                            <div class="owner-row-title">{{ $item->title }}</div>
+                            <div class="owner-row-meta">{{ $item->course_title }} · {{ $item->teacher_name }}</div>
+                        </div>
+                        <span class="owner-pill success">{{ $item->classroom_title ?? 'آنلاین' }}</span>
+                    </article>
+                @empty
+                    <div class="owner-empty">جلسه آنلاین آینده‌ای ثبت نشده است.</div>
                 @endforelse
             </div>
         </section>
     </div>
+
+    <section class="dashboard-panel owner-panel">
+        <div class="owner-panel-head">
+            <div><h3>آخرین دوره‌ها</h3><p>وضعیت انتشار و تعداد دانش‌آموز فعال</p></div>
+            <a href="{{ route('owner.courses.index') }}" class="owner-link">همه دوره‌ها ←</a>
+        </div>
+
+        <div class="owner-course-list">
+            @forelse($recentCourses as $course)
+                <article class="owner-course-row">
+                    <div>
+                        <div class="owner-row-title">{{ $course->title }}</div>
+                        <div class="owner-row-meta">{{ $course->academy?->name }} · {{ $course->active_students_count }} دانش‌آموز</div>
+                    </div>
+                    <span class="owner-pill {{ $course->status === 'published' ? 'success' : '' }}">{{ $course->status === 'published' ? 'منتشرشده' : 'پیش‌نویس' }}</span>
+                    <a href="{{ route('owner.courses.edit', $course) }}" class="owner-pill">مدیریت</a>
+                </article>
+            @empty
+                <div class="owner-empty">دوره‌ای هنوز ثبت نشده است.</div>
+            @endforelse
+        </div>
+    </section>
+</div>
 @endsection
