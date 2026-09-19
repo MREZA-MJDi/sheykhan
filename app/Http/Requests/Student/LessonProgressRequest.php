@@ -14,7 +14,8 @@ class LessonProgressRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'seconds_watched' => ['required', 'numeric', 'min:0'],
+            'from_seconds' => ['nullable', 'numeric', 'min:0'],
+            'to_seconds' => ['required', 'numeric', 'min:0'],
             'completed' => ['sometimes', 'boolean'],
         ];
     }
