@@ -120,6 +120,30 @@ final class TeacherCourseContentService
         });
     }
 
+    public function reorderLessons(User $teacher, CourseSection $section, array $ids): void
+    {
+        $this->assertSectionOwner($teacher, $section);
+
+        $allowed = $section->lessons()->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $ordered = array_values(array_unique(array_map('intval', $ids)));
+
+        if (
+            count($allowed) !== count($ordered)
+            || array_diff($allowed, $ordered)
+            || array_diff($ordered, $allowed)
+        ) {
+            throw new \InvalidArgumentException('ترتیب درس‌ها معتبر نیست.');
+        }
+
+        DB::transaction(function () use ($section, $ordered): void {
+            foreach ($ordered as $index => $lessonId) {
+                $section->lessons()
+                    ->whereKey($lessonId)
+                    ->update(['sort_order' => $index]);
+            }
+        });
+    }
+
     public function createLesson(User $teacher, CourseSection $section, array $data): Lesson
     {
         $this->assertSectionOwner($teacher, $section);
