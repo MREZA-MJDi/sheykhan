@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-[var(--z-sticky)] border-b border-[var(--color-border)] bg-white/90 backdrop-blur-xl">
+<header class="home-glass-nav sticky top-0 z-[var(--z-sticky)] border-b border-[var(--color-border)]">
     <nav x-data="{ isOpen: false }" class="relative">
         <x-layout.container size="wide">
             <div class="flex min-h-18 items-center justify-between gap-4 py-2">
