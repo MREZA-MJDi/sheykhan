@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Http\Controllers\Teacher;
@@ -40,7 +41,10 @@ class CourseController extends Controller
         abort_unless($service->canManage(request()->user(), $course), 403);
 
         return view('teacher.courses.form', [
-            'course' => $course->load('academy'),
+            'course' => $course->load([
+                'academy',
+                'media' => fn ($query) => $query->orderByPivot('sort_order'),
+            ]),
             'academies' => $service->accessibleAcademies(request()->user()),
         ]);
     }
