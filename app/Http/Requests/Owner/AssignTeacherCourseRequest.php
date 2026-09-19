@@ -16,6 +16,7 @@ class AssignTeacherCourseRequest extends FormRequest
         return [
             'teacher_id' => ['required', 'integer', 'exists:users,id'],
             'course_id' => ['required', 'integer', 'exists:courses,id'],
+            'is_primary' => ['sometimes', 'boolean'],
         ];
     }
 }
