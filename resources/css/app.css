@@ -1,6 +1,8 @@
 @import 'tailwindcss' source(none);
-
-@plugin '@tailwindcss/typography';
+@import './tokens.css';
+@import './base.css';
+@import './components.css';
+@import './utilities.css';
 
 @source '../../resources/views';
 
@@ -45,9 +47,9 @@
 @utility no-spinner {
     appearance: textfield;
 
-&::-webkit-outer-spin-button,
-&::-webkit-inner-spin-button {
-     appearance: none;
-     margin: 0;
- }
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        appearance: none;
+        margin: 0;
+    }
 }
