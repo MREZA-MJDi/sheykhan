@@ -44,11 +44,11 @@ final class TeacherWorkspaceService
     public function students(User $teacher): Collection
     {
         $classroomIds = $teacher->classroomsAsTeacher()->pluck('classrooms.id');
-        if ($classroomIds->isEmpty()) {
+        $courseIds = $teacher->taughtCourses()->pluck('courses.id');
+
+        if ($classroomIds->isEmpty() && $courseIds->isEmpty()) {
             return collect();
         }
-
-        $courseIds = $teacher->taughtCourses()->pluck('courses.id');
 
         return User::query()
             ->where(function ($query) use ($classroomIds, $courseIds): void {
