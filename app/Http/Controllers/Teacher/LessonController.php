@@ -6,64 +6,60 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Lesson\StoreLessonRequest;
 use App\Http\Requests\Teacher\Lesson\UpdateLessonRequest;
 use App\Models\Course;
+use App\Models\CourseSection;
 use App\Models\Lesson;
+use App\Services\TeacherCourseContentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class LessonController extends Controller
 {
-    public function index(Course $course): View
-    {
-        $course->load([
-            'sections.lessons.media',
-        ]);
+    public function index(
+        Course $course,
+        TeacherCourseContentService $content
+    ): View {
+        $sections = $content->sectionsFor(request()->user(), $course);
 
-        abort_unless(
-            $course->teachers()->whereKey(request()->user()->id)->exists(),
-            403
-        );
-
-        return view('teacher.courses.content', compact('course'));
+        return view('teacher.courses.content', compact('course', 'sections'));
     }
 
-    public function store(StoreLessonRequest $request): RedirectResponse
-    {
-        $section = request()->user()
-            ->taughtCourses()
-            ->whereHas('sections', fn ($query) => $query->whereKey($request->validated('course_section_id')))
-            ->firstOrFail()
-            ->sections()
-            ->whereKey($request->validated('course_section_id'))
-            ->firstOrFail();
+    public function store(
+        StoreLessonRequest $request,
+        TeacherCourseContentService $content
+    ): RedirectResponse {
+        $section = CourseSection::query()->findOrFail(
+            (int) $request->validated('course_section_id')
+        );
 
-        $data = $request->validated();
-        $data['published_at'] = ($data['status'] ?? 'draft') === 'published'
-            ? ($data['published_at'] ?? now())
-            : null;
-
-        $section->lessons()->create($data);
+        $content->createLesson(
+            $request->user(),
+            $section,
+            $request->validated()
+        );
 
         return back()->with('success', 'درس با موفقیت اضافه شد.');
     }
 
     public function update(
         UpdateLessonRequest $request,
-        Lesson $lesson
+        Lesson $lesson,
+        TeacherCourseContentService $content
     ): RedirectResponse {
-        $course = $lesson->section->course;
-
-        abort_unless(
-            $course->teachers()->whereKey($request->user()->id)->exists(),
-            403
+        $content->updateLesson(
+            $request->user(),
+            $lesson,
+            $request->validated()
         );
 
-        $data = $request->validated();
-        $data['published_at'] = ($data['status'] ?? $lesson->status) === 'published'
-            ? ($data['published_at'] ?? $lesson->published_at ?? now())
-            : null;
-
-        $lesson->update($data);
-
         return back()->with('success', 'درس به‌روزرسانی شد.');
+    }
+
+    public function destroy(
+        Lesson $lesson,
+        TeacherCourseContentService $content
+    ): RedirectResponse {
+        $content->deleteLesson(request()->user(), $lesson);
+
+        return back()->with('success', 'درس حذف شد.');
     }
 }
