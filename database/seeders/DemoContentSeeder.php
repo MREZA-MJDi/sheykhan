@@ -12,14 +12,15 @@ use App\Models\CourseEnrollment;
 use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\LiveClass;
+use App\Models\Media;
 use App\Models\ParentProfile;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DemoContentSeeder extends Seeder
 {
@@ -358,6 +359,5 @@ SVG;
                 'is_featured' => true,
             ],
         ]);
-    }
     }
 }
