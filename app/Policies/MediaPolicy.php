@@ -23,15 +23,15 @@ class MediaPolicy
             return false;
         }
 
-        return $this->canAccessMedia($user, $media, true);
+        return $this->canAccessMedia($user, $media);
     }
 
     public function stream(User $user, Media $media): bool
     {
-        return $this->canAccessMedia($user, $media, false);
+        return $this->canAccessMedia($user, $media);
     }
 
-    private function canAccessMedia(User $user, Media $media, bool $forDownload): bool
+    private function canAccessMedia(User $user, Media $media): bool
     {
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
             return true;
