@@ -13,7 +13,12 @@
 @endphp
 
 @section('content')
-<div class="teacher-builder">
+<div
+    class="teacher-builder"
+    data-course-builder
+    data-course-id="{{ $course->id }}"
+    data-reorder-url="{{ route('teacher.courses.sections.reorder', $course) }}"
+>
     @if(session('success'))
         <div class="teacher-builder-alert success">{{ session('success') }}</div>
     @endif
