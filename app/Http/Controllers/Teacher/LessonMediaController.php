@@ -25,6 +25,13 @@ class LessonMediaController extends Controller
         );
 
         $validated = $request->validated();
+        $course = $lesson->section->course;
+
+        if ($validated['access'] === 'paid' && $course->isFree()) {
+            return back()->withErrors([
+                'access' => 'فایل پولی فقط برای دوره‌ای قابل استفاده است که مدل دسترسی آن پولی باشد.',
+            ]);
+        }
 
         $media->upload(
             $request->file('media'),
