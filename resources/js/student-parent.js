@@ -27,7 +27,6 @@ function bootPanel() {
         }
     });
 }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
