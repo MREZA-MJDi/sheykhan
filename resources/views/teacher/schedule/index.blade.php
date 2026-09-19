@@ -50,8 +50,8 @@
                                         <option value="{{ $dayValue }}" @selected($schedule->weekday === $dayValue)>{{ $dayLabel }}</option>
                                     @endforeach
                                 </select>
-                                <input type="time" name="start_time" value="{{ $schedule->start_time }}" class="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs">
-                                <input type="time" name="end_time" value="{{ $schedule->end_time }}" class="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs">
+                                <input type="time" name="start_time" value="{{ substr((string) $schedule->start_time, 0, 5) }}" class="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs">
+                                <input type="time" name="end_time" value="{{ substr((string) $schedule->end_time, 0, 5) }}" class="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs">
                                 <input name="room" value="{{ $schedule->room }}" placeholder="اتاق" class="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs">
                                 <input name="meeting_url" value="{{ $schedule->meeting_url }}" placeholder="لینک آنلاین" class="rounded-lg border border-slate-200 bg-white px-2 py-2 text-xs sm:col-span-2">
                                 <button class="rounded-lg bg-slate-900 px-3 py-2 text-[10px] font-black text-white">ذخیره</button>
