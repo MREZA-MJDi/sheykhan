@@ -1,8 +1,8 @@
 <?php
 
-namespace AppHttpRequestsAuth;
+namespace App\Http\Requests\Auth;
 
-use IlluminateFoundationHttpFormRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
