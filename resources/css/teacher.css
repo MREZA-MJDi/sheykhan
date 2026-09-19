@@ -237,3 +237,22 @@
 
 @media(max-width:900px){.teacher-detail-grid{grid-template-columns:1fr}.teacher-student-grid,.teacher-class-grid{grid-template-columns:1fr}.teacher-detail-stats{grid-template-columns:repeat(2,1fr)}.teacher-learning-row{grid-template-columns:32px minmax(0,1fr) 90px}.teacher-learning-row>small{display:none}.teacher-enrollment-grid{grid-template-columns:repeat(2,1fr)}.teacher-progress-insights{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.teacher-detail-hero,.teacher-list-hero{align-items:stretch;flex-direction:column}.teacher-detail-hero-actions{width:100%}.teacher-detail-hero-actions .teacher-builder-btn{flex:1}.teacher-detail-stats{gap:8px}.teacher-detail-stats article{padding:13px}.teacher-progress-header{align-items:flex-start;flex-direction:column}.teacher-enrollment-grid{grid-template-columns:1fr}.teacher-learning-row{grid-template-columns:30px minmax(0,1fr)}.teacher-learning-progress{grid-column:2}.teacher-learning-row>small{display:block;grid-column:2;text-align:right}}
+
+.teacher-course-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.teacher-course-card{padding:18px;border:1px solid var(--teacher-border);border-radius:20px;background:#fff;box-shadow:0 8px 24px rgba(35,45,80,.04)}
+.teacher-course-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.teacher-course-card-top h3{margin:5px 0 0;font-size:14px}
+.teacher-course-card-desc{min-height:42px;margin:12px 0 0;color:#7f8798;font-size:9px;line-height:1.9}
+.teacher-course-card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.teacher-course-card-meta span{padding:6px 8px;border-radius:9px;background:#f5f6f9;color:#7d8697;font-size:7px;font-weight:800}
+.teacher-course-card-meta .free{background:#eaf8ee;color:#2e8d49}.teacher-course-card-meta .premium{background:#fff2e1;color:#ae6b1d}
+.teacher-course-card-actions{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:7px;margin-top:14px;padding-top:13px;border-top:1px solid #eef0f4}
+.teacher-course-card-actions a{display:flex;align-items:center;justify-content:center;min-height:34px;border-radius:9px;background:#f4f5f8;color:#667083;font-size:7px;font-weight:900;text-decoration:none}
+.teacher-course-card-actions a.primary{background:#eef0ff;color:#5b5ce8}
+.teacher-exam-help{margin-top:4px;color:#9299a8;font-size:8px}.teacher-question-list{display:grid;gap:12px;padding:15px}
+.teacher-question-card{border:1px solid #edf0f4;border-radius:18px;background:#fbfcfe;overflow:hidden}
+.teacher-question-card-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid #edf0f4}
+.teacher-question-number{font-size:9px;font-weight:900;color:#565f72}.teacher-question-card-head button{border:0;background:#fff0f1;color:#ab4a55;border-radius:8px;padding:6px 8px;font-family:inherit;font-size:7px;font-weight:900;cursor:pointer}
+.teacher-editor-grid.exam{padding:14px}.teacher-exam-builder{display:grid;gap:15px;min-width:0}
+
+@media(max-width:760px){.teacher-course-grid{grid-template-columns:1fr}.teacher-course-card-actions{grid-template-columns:1fr}.teacher-course-card-actions a{min-height:38px}}
