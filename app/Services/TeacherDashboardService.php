@@ -345,7 +345,12 @@ final class TeacherDashboardService
             ],
             'todaySessions' => collect(),
             'upcomingClasses' => collect(),
-            'chart' => ['labels' => [], 'values' => []],
+            'chart' => [
+                'labels' => [],
+                'values' => [],
+                'week' => [],
+                'month' => ['labels' => [], 'values' => []],
+            ],
             'activities' => collect(),
             'courseProgress' => collect(),
             'calendarEvents' => [],
