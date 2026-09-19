@@ -107,21 +107,21 @@
             <button class="owner-submit owner-submit-wide">ثبت‌نام / بروزرسانی ثبت‌نام</button>
         </form>
 
-        <script type="application/json" data-owner-classrooms>
-            @json(
-                $courses->flatMap(
-                    fn ($course) => $course->classrooms->map(
-                        fn ($classroom) => [
-                            'id' => $classroom->id,
-                            'course_id' => $course->id,
-                            'title' => $classroom->title,
-                            'status' => $classroom->status,
-                            'capacity' => $classroom->capacity,
-                        ]
-                    )
-                )->values()
-            )
-        </script>
+        @php
+            $ownerClassrooms = $courses->flatMap(function ($course) {
+                return $course->classrooms->map(function ($classroom) use ($course) {
+                    return [
+                        'id' => $classroom->id,
+                        'course_id' => $course->id,
+                        'title' => $classroom->title,
+                        'status' => $classroom->status,
+                        'capacity' => $classroom->capacity,
+                    ];
+                });
+            })->values()->all();
+        @endphp
+
+        <script type="application/json" data-owner-classrooms>{!! json_encode($ownerClassrooms, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
     </section>
 
     <section class="dashboard-panel owner-admin-card">
