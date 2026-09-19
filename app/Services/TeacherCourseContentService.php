@@ -6,7 +6,6 @@ use App\Models\Course;
 use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\User;
-use App\Services\MediaService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
