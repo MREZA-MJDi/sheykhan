@@ -1,0 +1,339 @@
+@import 'tailwindcss' source(none);
+
+@source '../../resources/views';
+
+@theme {
+    --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+    --color-brand-50: #f5f7ff;
+    --color-brand-100: #e9edff;
+    --color-brand-200: #d5dcff;
+    --color-brand-500: #6879f5;
+    --color-brand-600: #5362df;
+    --color-brand-700: #454fc2;
+    --color-brand-800: #39439c;
+    --color-brand-950: #1f254f;
+
+    --color-primary-50: var(--color-brand-50);
+    --color-primary-100: var(--color-brand-100);
+    --color-primary-200: var(--color-brand-200);
+    --color-primary-500: var(--color-brand-500);
+    --color-primary-600: var(--color-brand-600);
+    --color-primary-700: var(--color-brand-700);
+    --color-primary-800: var(--color-brand-800);
+
+    --color-accent-50: #eff8ff;
+    --color-accent-100: #d1e9ff;
+    --color-accent-500: #2e90fa;
+    --color-accent-600: #1570ef;
+    --color-accent-700: #175cd3;
+
+    --color-slate-50: #f8f9fb;
+    --color-slate-100: #f1f3f6;
+    --color-slate-200: #e5e7eb;
+    --color-slate-300: #d0d5dd;
+    --color-slate-400: #98a2b3;
+    --color-slate-500: #667085;
+    --color-slate-600: #475467;
+    --color-slate-700: #344054;
+    --color-slate-800: #1d2939;
+    --color-slate-900: #101828;
+    --color-slate-950: #080b12;
+
+    --color-background: #fbfcff;
+    --color-background-soft: #f6f8fc;
+    --color-background-muted: #eef2f7;
+    --color-surface: #ffffff;
+    --color-text: #101828;
+    --color-text-primary: #101828;
+    --color-text-secondary: #475467;
+    --color-text-tertiary: #667085;
+    --color-text-muted: #98a2b3;
+    --color-text-inverse: #ffffff;
+    --color-border: #e5e7eb;
+    --color-border-light: #f1f3f6;
+    --color-border-brand: var(--color-brand-200);
+
+    --radius-xl: 1.125rem;
+    --radius-2xl: 1.5rem;
+    --radius-3xl: 2rem;
+    --radius-full: 9999px;
+
+    --shadow-sm: 0 1px 3px rgba(16, 24, 40, .06), 0 1px 2px rgba(16, 24, 40, .03);
+    --shadow-md: 0 10px 30px rgba(16, 24, 40, .08);
+    --shadow-lg: 0 18px 45px rgba(31, 37, 79, .10);
+    --shadow-xl: 0 30px 70px rgba(31, 37, 79, .14);
+
+    --z-sticky: 30;
+    --z-overlay: 40;
+    --z-modal: 50;
+}
+
+@layer base {
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('../fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('../fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');
+        font-weight: 500;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('../fonts/webfonts/Vazirmatn-SemiBold.woff2') format('woff2');
+        font-weight: 600;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('../fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
+        font-weight: 700;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('../fonts/webfonts/Vazirmatn-ExtraBold.woff2') format('woff2');
+        font-weight: 800;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('../fonts/webfonts/Vazirmatn-Black.woff2') format('woff2');
+        font-weight: 900;
+        font-display: swap;
+    }
+
+    html {
+        direction: rtl;
+        scroll-behavior: smooth;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+            radial-gradient(circle at 90% -10%, rgba(104, 121, 245, .09), transparent 30rem),
+            radial-gradient(circle at 0% 28%, rgba(46, 144, 250, .045), transparent 28rem),
+            var(--color-background);
+        color: var(--color-text);
+        font-family: var(--font-sans);
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    img,
+    svg,
+    video,
+    canvas {
+        display: block;
+        max-width: 100%;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+        font: inherit;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    ::selection {
+        background: var(--color-brand-100);
+        color: var(--color-brand-800);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-brand-500);
+        outline-offset: 3px;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd2df;
+        border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #aeb8ca;
+    }
+}
+
+@layer components {
+    .home-noise {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .home-noise::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: .035;
+        z-index: -1;
+        background-image:
+            radial-gradient(rgba(16, 24, 40, .9) .5px, transparent .5px);
+        background-size: 7px 7px;
+        mask-image: linear-gradient(to bottom, black, transparent 82%);
+    }
+
+    .home-glass-nav {
+        background: color-mix(in srgb, white 82%, transparent);
+        box-shadow: 0 10px 35px rgba(31, 37, 79, .055);
+        backdrop-filter: blur(22px);
+    }
+
+    .home-section-divider {
+        position: relative;
+    }
+
+    .home-section-divider::before {
+        content: "";
+        position: absolute;
+        inset-inline: 8%;
+        top: 0;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(83, 98, 223, .16),
+            transparent
+        );
+    }
+
+    .home-feature-card {
+        position: relative;
+        overflow: hidden;
+        transition:
+            transform 260ms cubic-bezier(.2, 0, 0, 1),
+            box-shadow 260ms cubic-bezier(.2, 0, 0, 1),
+            border-color 260ms cubic-bezier(.2, 0, 0, 1);
+    }
+
+    .home-feature-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -30% -55% auto;
+        width: 12rem;
+        height: 12rem;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(104, 121, 245, .16), transparent 68%);
+        pointer-events: none;
+        transition: transform 320ms cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .home-feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(83, 98, 223, .18);
+    }
+
+    .home-feature-card:hover::after {
+        transform: scale(1.18);
+    }
+
+    .home-hero-orb {
+        animation: home-float 7s ease-in-out infinite;
+    }
+
+    .home-hero-pulse {
+        animation: home-pulse 5s ease-in-out infinite;
+    }
+
+    .home-reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+            opacity 700ms cubic-bezier(.16, 1, .3, 1),
+            transform 700ms cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .home-reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .home-reveal[data-delay="1"] {
+        transition-delay: 80ms;
+    }
+
+    .home-reveal[data-delay="2"] {
+        transition-delay: 160ms;
+    }
+
+    .home-reveal[data-delay="3"] {
+        transition-delay: 240ms;
+    }
+}
+
+@keyframes home-float {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(0, -10px, 0); }
+}
+
+@keyframes home-pulse {
+    0%, 100% { opacity: .8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.04); }
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: .95rem;
+    }
+
+    .home-reveal {
+        transform: translateY(16px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+
+    .home-reveal {
+        opacity: 1;
+        transform: none;
+    }
+}
