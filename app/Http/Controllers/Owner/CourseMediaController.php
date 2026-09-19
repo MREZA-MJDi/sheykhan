@@ -20,14 +20,26 @@ class CourseMediaController extends Controller
     ): RedirectResponse {
         abort_unless($courses->canManage($request->user(), $course), 403);
 
+        $validated = $request->validated();
+
+        if ($validated['access'] === 'paid' && $course->isFree()) {
+            return back()->withErrors([
+                'access' => 'فایل پولی فقط برای دوره‌ای قابل استفاده است که مدل دسترسی آن پولی باشد.',
+            ]);
+        }
+
         $media->upload(
             $request->file('media'),
             $course,
             [
                 'disk' => 'local',
                 'directory' => 'courses/' . $course->id,
-                'collection' => $request->string('collection')->toString() ?: 'course-assets',
+                'collection' => $validated['collection'] ?? 'course-assets',
                 'visibility' => 'private',
+                'metadata' => [
+                    'access' => $validated['access'],
+                    'downloadable' => (bool) ($validated['downloadable'] ?? true),
+                ],
             ],
         );
 
