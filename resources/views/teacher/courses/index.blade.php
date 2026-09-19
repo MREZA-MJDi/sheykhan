@@ -62,7 +62,11 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <a href="{{ route('teacher.courses.edit', $course) }}" class="text-sm font-black text-[var(--color-brand-600)] hover:text-[var(--color-brand-700)]">مدیریت دوره ←</a>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <a href="{{ route('teacher.courses.content', $course) }}" class="rounded-lg bg-[var(--color-brand-50)] px-3 py-2 text-[10px] font-black text-[var(--color-brand-600)]">محتوا</a>
+                                        <a href="{{ route('teacher.courses.progress', $course) }}" class="rounded-lg bg-[var(--color-slate-100)] px-3 py-2 text-[10px] font-black text-[var(--color-text-secondary)]">پیشرفت</a>
+                                        <a href="{{ route('teacher.courses.edit', $course) }}" class="rounded-lg border border-[var(--color-border)] px-3 py-2 text-[10px] font-black">تنظیمات</a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
