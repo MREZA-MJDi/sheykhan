@@ -114,6 +114,14 @@ final class TeacherWorkspaceService
             ->firstOrFail();
     }
 
+    public function classroomOwnedByCourse(User $teacher, int $classroomId, int $courseId): Classroom
+    {
+        return $teacher->classroomsAsTeacher()
+            ->whereKey($classroomId)
+            ->where('classrooms.course_id', $courseId)
+            ->firstOrFail();
+    }
+
     public function classroomDetails(User $teacher, Classroom $classroom): Classroom
     {
         $classroom = $this->classroomOwnedBy($teacher, $classroom->id);
