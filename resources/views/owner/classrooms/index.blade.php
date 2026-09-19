@@ -1,18 +1,76 @@
 @extends('layouts.owner')
+
 @section('title','کلاس‌های آموزشگاه | شیخان')
 @section('header-title','کلاس‌های آموزشگاه')
+
 @section('content')
-<div class="grid gap-5">
-    <div><p class="text-xs font-black text-[var(--panel-primary)]">نظارت</p><h2 class="mt-1 text-2xl font-black">{{ $academy->name }}</h2><p class="mt-2 text-sm text-slate-500">کلاس‌ها، مدرس‌ها و ظرفیت را از دید مدیریت آموزشگاه ببین.</p></div>
-    <div class="grid gap-4 md:grid-cols-2">
+<div class="owner-page">
+    @if(session('success'))
+        <div class="owner-alert owner-alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if($errors->any())
+        <div class="owner-alert owner-alert-danger">
+            <ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+        </div>
+    @endif
+
+    <div class="owner-page-head">
+        <div>
+            <span class="owner-eyebrow">نظارت آموزشی</span>
+            <h1>{{ $academy->name }}</h1>
+            <p>کلاس‌ها، مدرس‌ها، ظرفیت و زمان‌بندی را از یک نقطه مدیریت کن.</p>
+        </div>
+        <a href="{{ route('owner.classrooms.create', $academy) }}" class="owner-page-action owner-page-action-primary">+ کلاس جدید</a>
+    </div>
+
+    <section class="owner-mini-stats">
+        <article><span>کل کلاس‌ها</span><strong>{{ $classrooms->count() }}</strong></article>
+        <article><span>فعال</span><strong>{{ $classrooms->where('status','active')->count() }}</strong></article>
+        <article><span>آرشیو</span><strong>{{ $classrooms->where('status','archived')->count() }}</strong></article>
+        <article><span>دانش‌آموز ثبت‌شده</span><strong>{{ $classrooms->sum('students_count') }}</strong></article>
+    </section>
+
+    <div class="owner-classroom-grid">
         @forelse($classrooms as $classroom)
-            <article class="dashboard-panel p-5">
-                <div class="flex items-start justify-between gap-3"><div><h3 class="text-sm font-black">{{ $classroom->title }}</h3><p class="mt-1 text-xs text-slate-500">{{ $classroom->course?->title }}</p></div><span class="rounded-full {{ $classroom->status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500' }} px-2.5 py-1 text-[10px]">{{ $classroom->status }}</span></div>
-                <div class="mt-4 grid grid-cols-2 gap-2"><div class="rounded-xl bg-slate-50 p-3"><span class="text-[9px] text-slate-500">مدرس</span><strong class="mt-1 block text-xs">{{ $classroom->teachers->pluck('name')->join('، ') ?: 'بدون مدرس' }}</strong></div><div class="rounded-xl bg-slate-50 p-3"><span class="text-[9px] text-slate-500">دانش‌آموز</span><strong class="mt-1 block text-sm">{{ $classroom->students_count }}</strong></div></div>
-                <form method="POST" action="{{ route('owner.classrooms.update',[$academy,$classroom->id]) }}" class="mt-4 flex gap-2">@csrf @method('PATCH')<input type="hidden" name="status" value="{{ $classroom->status === 'active' ? 'archived' : 'active' }}"><button class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold">{{ $classroom->status === 'active' ? 'آرشیو کلاس' : 'فعال‌سازی' }}</button></form>
+            <article class="dashboard-panel owner-classroom-card">
+                <div class="owner-card-head">
+                    <div>
+                        <span class="owner-eyebrow">{{ $classroom->code }}</span>
+                        <h2>{{ $classroom->title }}</h2>
+                        <p>{{ $classroom->course?->title }}</p>
+                    </div>
+                    <span class="owner-status {{ $classroom->status === 'active' ? 'is-success' : 'is-muted' }}">{{ $classroom->status === 'active' ? 'فعال' : 'آرشیو' }}</span>
+                </div>
+
+                <div class="owner-classroom-metrics">
+                    <div><span>مدرس</span><strong>{{ $classroom->teachers->count() }}</strong><small>{{ $classroom->teachers->pluck('name')->join('، ') ?: 'بدون مدرس' }}</small></div>
+                    <div><span>دانش‌آموز</span><strong>{{ $classroom->students_count }}</strong><small>{{ $classroom->capacity ? 'ظرفیت ' . $classroom->capacity : 'بدون ظرفیت مشخص' }}</small></div>
+                </div>
+
+                <div class="owner-classroom-schedule">
+                    <span>برنامه</span>
+                    <strong>
+                        @if($classroom->starts_at)
+                            {{ $classroom->starts_at->format('Y/m/d H:i') }}
+                        @else
+                            بدون زمان شروع
+                        @endif
+                    </strong>
+                </div>
+
+                <div class="owner-classroom-actions">
+                    <a href="{{ route('owner.classrooms.edit', [$academy, $classroom]) }}" class="owner-page-action">ویرایش</a>
+                    <form method="POST" action="{{ route('owner.classrooms.status', [$academy, $classroom]) }}" data-confirm="{{ $classroom->status === 'active' ? 'این کلاس آرشیو شود؟' : 'این کلاس دوباره فعال شود؟' }}">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="{{ $classroom->status === 'active' ? 'archived' : 'active' }}">
+                        <button class="owner-remove-btn" type="submit">{{ $classroom->status === 'active' ? 'آرشیو' : 'فعال‌سازی' }}</button>
+                    </form>
+                </div>
             </article>
         @empty
-            <div class="dashboard-panel p-10 text-center text-sm text-slate-500 md:col-span-2">کلاسی در آموزشگاه ثبت نشده است.</div>
+            <div class="dashboard-panel owner-empty-card">کلاسی در این آموزشگاه ثبت نشده است.</div>
         @endforelse
     </div>
 </div>
