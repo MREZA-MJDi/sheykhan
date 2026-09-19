@@ -46,4 +46,20 @@ class AssignmentController extends Controller
         return redirect()->route('teacher.assignments.index')
             ->with('success', 'تکلیف با موفقیت ساخته شد.');
     }
+
+    public function submissions(
+        Assignment $assignment,
+        TeacherWorkspaceService $workspace
+    ): View {
+        abort_unless($assignment->teacher_id === request()->user()->id, 403);
+
+        return view('teacher.assignments.submissions', [
+            'assignment' => $assignment->load([
+                'classroom:id,title',
+                'submissions' => fn ($query) => $query
+                    ->with('student:id,name')
+                    ->latest('submitted_at'),
+            ]),
+        ]);
+    }
 }
