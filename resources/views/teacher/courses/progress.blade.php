@@ -1,39 +1,115 @@
 @extends('layouts.teacher')
-@section('title','پیشرفت دانش‌آموزان | شیخان')
-@section('header-title','پیشرفت دانش‌آموزان')
-@section('content')
-<div class="grid gap-5">
-    <div class="dashboard-panel p-5 sm:p-7"><span class="text-xs font-black text-[var(--panel-primary)]">مانیتور یادگیری</span><h2 class="mt-1 text-2xl font-black">{{ $course->title }}</h2><p class="mt-2 text-sm text-slate-500">دقیقاً ببین هر دانش‌آموز کدام درس را دیده، چند درصد جلو رفته و آخرین مشاهده چه زمانی بوده است.</p></div>
 
-    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <div class="overflow-x-auto">
-            <table class="min-w-[860px] w-full text-right">
-                <thead class="bg-slate-50 text-[10px] font-black text-slate-500">
-                    <tr><th class="px-4 py-4">دانش‌آموز</th>@foreach($lessons as $lesson)<th class="px-3 py-4 text-center">{{ $loop->iteration }}</th>@endforeach<th class="px-4 py-4">میانگین</th></tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                @forelse($students as $student)
+@section('title','گزارش یادگیری | شیخان')
+@section('header-title','گزارش یادگیری')
+
+@section('content')
+<div class="teacher-progress-page">
+    <section class="teacher-list-hero">
+        <div>
+            <span class="teacher-kicker">LEARNING ANALYTICS</span>
+            <h2>{{ $course->title }}</h2>
+            <p>مشاهده کن هر دانش‌آموز چه مقدار از درس‌ها را دیده، آخرین فعالیتش چه زمانی بوده و کدام محتوا هنوز شروع نشده است.</p>
+        </div>
+        <a href="{{ route('teacher.courses.content', $course) }}" class="teacher-builder-btn primary">ویرایش محتوا</a>
+    </section>
+
+    <section class="teacher-progress-matrix">
+        <div class="teacher-progress-header">
+            <div>
+                <span class="teacher-kicker">STUDENTS × LESSONS</span>
+                <h3>نقشه‌ی مشاهده</h3>
+            </div>
+            <div class="teacher-progress-legend">
+                <span><i class="seen"></i> شروع شده</span>
+                <span><i class="done"></i> کامل</span>
+                <span><i class="none"></i> دیده نشده</span>
+            </div>
+        </div>
+
+        <div class="teacher-progress-table-wrap">
+            <table class="teacher-progress-table">
+                <thead>
                     <tr>
-                        <td class="px-4 py-4"><strong class="text-xs">{{ $student->name }}</strong></td>
+                        <th class="student-col">دانش‌آموز</th>
                         @foreach($lessons as $lesson)
-                            @php($row = $progress[$student->id . ':' . $lesson->id] ?? null)
-                            <td class="px-3 py-4 text-center">
-                                <div class="mx-auto flex w-14 flex-col items-center gap-1">
-                                    <span class="text-[10px] font-black">{{ round((float)($row->progress_percent ?? 0)) }}٪</span>
-                                    <span class="text-[8px] {{ ($row?->progress_percent ?? 0) >= 100 ? 'text-emerald-600' : (($row?->progress_percent ?? 0) > 0 ? 'text-indigo-600' : 'text-slate-400') }}">{{ ($row?->progress_percent ?? 0) >= 100 ? 'کامل' : (($row?->progress_percent ?? 0) > 0 ? 'در حال مشاهده' : 'ندیده') }}</span>
-                                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100"><span class="block h-full rounded-full bg-[var(--panel-primary)]" style="width:{{ min(100,max(0,(float)($row->progress_percent ?? 0))) }}%"></span></div>
-                                </div>
-                            </td>
+                            <th title="{{ $lesson->title }}">درس {{ $loop->iteration }}</th>
                         @endforeach
-                        @php($summary = $studentSummary->firstWhere('student.id',$student->id))
-                        <td class="px-4 py-4 text-center"><strong class="text-xs">{{ $summary['progress'] ?? 0 }}٪</strong><div class="mt-1 text-[9px] text-slate-500">{{ $summary['completed_lessons'] ?? 0 }} درس کامل</div></td>
+                        <th>میانگین</th>
+                        <th>آخرین فعالیت</th>
                     </tr>
-                @empty
-                    <tr><td colspan="{{ $lessons->count()+2 }}" class="px-5 py-12 text-center text-sm text-slate-500">دانش‌آموزی برای این دوره ثبت نشده است.</td></tr>
-                @endforelse
+                </thead>
+                <tbody>
+                    @forelse($students as $student)
+                        @php($summary = $studentSummary->firstWhere('student.id', $student->id))
+                        <tr>
+                            <td class="student-col">
+                                <a href="{{ route('teacher.students.show', $student) }}">
+                                    <span class="teacher-student-card-avatar">{{ mb_substr($student->name, 0, 1) }}</span>
+                                    <span><strong>{{ $student->name }}</strong><small>{{ $student->email }}</small></span>
+                                </a>
+                            </td>
+
+                            @foreach($lessons as $lesson)
+                                @php
+                                    $row = $progress[$student->id . ':' . $lesson->id] ?? null;
+                                    $value = min(100, max(0, (float)($row?->progress_percent ?? 0)));
+                                @endphp
+                                <td>
+                                    <div class="teacher-progress-cell">
+                                        <span class="teacher-progress-percent">{{ round($value) }}٪</span>
+                                        <div class="teacher-progress-track"><i style="width:{{ $value }}%"></i></div>
+                                        <small class="{{ $value >= 100 ? 'done' : ($value > 0 ? 'seen' : 'none') }}">
+                                            {{ $value >= 100 ? 'کامل' : ($value > 0 ? 'درحال مشاهده' : 'ندیده') }}
+                                        </small>
+                                    </div>
+                                </td>
+                            @endforeach
+
+                            <td>
+                                <strong class="teacher-matrix-average">{{ $summary['progress'] ?? 0 }}٪</strong>
+                                <small class="teacher-matrix-sub">{{ $summary['watched_lessons'] ?? 0 }} از {{ $lessons->count() }} شروع</small>
+                            </td>
+
+                            <td>
+                                <span class="teacher-matrix-last">
+                                    {{ !empty($summary['last_activity_at']) ? IlluminateSupportCarbon::parse($summary['last_activity_at'])->format('Y/m/d H:i') : 'هنوز فعالیتی نیست' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ $lessons->count() + 3 }}" class="teacher-detail-empty large">
+                                هنوز دانش‌آموز فعالی برای این دوره ثبت نشده است.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+    </section>
+
+    <section class="teacher-progress-insights">
+        <article>
+            <span class="teacher-kicker">LESSONS</span>
+            <strong>{{ $lessons->count() }}</strong>
+            <small>درس در دوره</small>
+        </article>
+        <article>
+            <span class="teacher-kicker">STUDENTS</span>
+            <strong>{{ $students->count() }}</strong>
+            <small>دانش‌آموز فعال</small>
+        </article>
+        <article>
+            <span class="teacher-kicker">COMPLETIONS</span>
+            <strong>{{ $studentSummary->sum('completed_lessons') }}</strong>
+            <small>تکمیل ثبت‌شده</small>
+        </article>
+        <article>
+            <span class="teacher-kicker">WATCHED</span>
+            <strong>{{ $studentSummary->sum('watched_lessons') }}</strong>
+            <small>درس با حداقل یک مشاهده</small>
+        </article>
+    </section>
 </div>
 @endsection
