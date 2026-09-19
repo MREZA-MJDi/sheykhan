@@ -20,12 +20,7 @@ final class LessonProgressService
 
         $course = $lesson->section?->course;
 
-        if (
-            !$course
-            || !$course->isPublished()
-            || $lesson->status !== 'published'
-            || !app(CourseAccessService::class)->canAccess($student, $course)
-        ) {
+        if (!app(CourseAccessService::class)->canAccessLesson($student, $lesson)) {
             throw new AccessDeniedHttpException('دسترسی به این درس مجاز نیست.');
         }
 
