@@ -91,16 +91,16 @@ class DemoContentSeeder extends Seeder
             StudentProfile::updateOrCreate(
                 ['user_id' => $student->id],
                 [
-                    'student_code' => 'SH-' . str_pad((string) ($index + 1), 4, '0', STR_PAD_LEFT),
+                    'student_number' => 'SH-' . str_pad((string) ($index + 1), 4, '0', STR_PAD_LEFT),
                     'grade' => $index === 0 ? 'هفتم' : ($index === 1 ? 'هشتم' : 'نهم'),
-                    'field' => $index === 2 ? 'ریاضی' : 'عمومی',
+                    'school_name' => 'مدرسه نمونه شیخان',
                 ]
             );
         }
 
         ParentProfile::updateOrCreate(
             ['user_id' => $parent->id],
-            ['phone' => '09120000000']
+            ['occupation' => 'والد', 'relation_default' => 'مادر']
         );
 
         $academy = Academy::updateOrCreate(
