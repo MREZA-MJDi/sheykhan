@@ -7,7 +7,7 @@ use App\Models\User;
 
 class PlatformStatsService
 {
-    public function public(): array
+    public function overview(): array
     {
         return [
             'courses' => Course::query()->published()->count(),
