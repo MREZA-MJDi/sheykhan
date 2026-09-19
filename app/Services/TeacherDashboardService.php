@@ -217,6 +217,13 @@ final class TeacherDashboardService
         $from = now()->subDays(30)->startOfDay();
         $to = now()->endOfDay();
 
+        /*
+         * Keep the dashboard query portable across MySQL and SQLite.
+         * The feature tests use an in-memory SQLite database, which does not
+         * provide MySQL's WEEK() function. We therefore aggregate by day in
+         * SQL (DATE() is supported by both drivers) and roll those daily
+         * averages up into ISO weeks in PHP.
+         */
         $rows = DB::table('lesson_progress as progress')
             ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
             ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
@@ -226,18 +233,33 @@ final class TeacherDashboardService
             })
             ->whereIn('course_sections.course_id', $courseIds)
             ->whereBetween('progress.last_watched_at', [$from, $to])
-            ->groupBy(DB::raw('WEEK(progress.last_watched_at)'))
-            ->selectRaw('WEEK(progress.last_watched_at) as week_number, AVG(progress.progress_percent) as value')
-            ->pluck('value', 'week_number');
+            ->groupBy(DB::raw('DATE(progress.last_watched_at)'))
+            ->selectRaw('DATE(progress.last_watched_at) as day, AVG(progress.progress_percent) as value')
+            ->get();
+
+        $weeklyAverages = [];
+
+        foreach ($rows as $row) {
+            $date = Carbon::parse($row->day);
+            $weekKey = $date->format('o-W');
+
+            $weeklyAverages[$weekKey] ??= ['sum' => 0.0, 'count' => 0];
+            $weeklyAverages[$weekKey]['sum'] += (float) $row->value;
+            $weeklyAverages[$weekKey]['count']++;
+        }
 
         $labels = [];
         $values = [];
 
         for ($index = 3; $index >= 0; $index--) {
             $date = now()->subWeeks($index);
-            $week = (int) $date->format('W');
+            $weekKey = $date->format('o-W');
+            $bucket = $weeklyAverages[$weekKey] ?? null;
+
             $labels[] = $this->faDigits('هفته ' . (4 - $index));
-            $values[] = round((float) ($rows[$week] ?? 0));
+            $values[] = $bucket && $bucket['count'] > 0
+                ? round($bucket['sum'] / $bucket['count'])
+                : 0;
         }
 
         while (count($values) < 7) {
