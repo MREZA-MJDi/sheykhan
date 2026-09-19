@@ -3,7 +3,7 @@
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
-use App\Http\Controllers\Parent\DashboardController as ParentDashboard;
+use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'pages.home')->name('home');
