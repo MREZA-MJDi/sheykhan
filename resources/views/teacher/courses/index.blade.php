@@ -1,85 +1,66 @@
 @extends('layouts.teacher')
 
 @section('title', 'دوره‌های من | شیخان')
+@section('header-title', 'دوره‌های من')
 
 @section('content')
-    <div class="space-y-6 panel-page-enter">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <p class="text-xs font-bold text-[var(--color-brand-600)]">مدرس</p>
-                <h1 class="mt-2 text-2xl font-black text-[var(--color-text)]">دوره‌های من</h1>
-                <p class="mt-2 text-sm leading-7 text-[var(--color-text-secondary)]">
-                    دوره‌های آموزشی، قیمت‌گذاری و فایل‌های آموزشی خودت را مدیریت کن.
-                </p>
-            </div>
-
-            <a href="{{ route('teacher.courses.create') }}"
-               class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-brand-600)] px-4 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--color-brand-700)]">
-                + ساخت دوره
-            </a>
+<div class="teacher-detail-page">
+    <section class="teacher-list-hero">
+        <div>
+            <span class="teacher-kicker">MY COURSES</span>
+            <h2>دوره‌های من</h2>
+            <p>از ساختار دوره و قیمت‌گذاری تا محتوای درس، فایل‌ها و گزارش یادگیری از همین‌جا مدیریت می‌شوند.</p>
         </div>
+        <a href="{{ route('teacher.courses.create') }}" class="teacher-builder-btn primary" style="background:#5b5ce8;color:#fff">+ ساخت دوره</a>
+    </section>
 
-        @if(session('success'))
-            <div class="rounded-2xl border border-[var(--color-success-100)] bg-[var(--color-success-50)] px-4 py-3 text-sm font-semibold text-[var(--color-success-700)]">
-                {{ session('success') }}
+    @if(session('success'))
+        <div class="teacher-builder-alert success">{{ session('success') }}</div>
+    @endif
+
+    <section class="teacher-detail-stats">
+        <article><span>دوره فعال</span><strong>{{ $courses->where('status','published')->count() }}</strong></article>
+        <article><span>دانش‌آموز</span><strong>{{ $courses->sum('active_students_count') }}</strong></article>
+        <article><span>سرفصل</span><strong>{{ $courses->sum('sections_count') }}</strong></article>
+        <article><span>دوره کل</span><strong>{{ $courses->count() }}</strong></article>
+    </section>
+
+    <section class="teacher-course-grid">
+        @forelse($courses as $course)
+            <article class="teacher-course-card">
+                <div class="teacher-course-card-top">
+                    <div>
+                        <span class="teacher-kicker">{{ $course->academy?->name }}</span>
+                        <h3>{{ $course->title }}</h3>
+                    </div>
+                    <span class="teacher-content-status {{ $course->status === 'published' ? 'published' : ($course->status === 'draft' ? 'draft' : 'archived') }}">
+                        {{ $course->status === 'published' ? 'منتشر' : ($course->status === 'draft' ? 'پیش‌نویس' : 'آرشیو') }}
+                    </span>
+                </div>
+
+                <p class="teacher-course-card-desc">{{ $course->short_description ?: 'برای این دوره هنوز توضیح کوتاهی ثبت نشده است.' }}</p>
+
+                <div class="teacher-course-card-meta">
+                    <span>{{ $course->sections_count }} سرفصل</span>
+                    <span>{{ $course->active_students_count }} دانش‌آموز</span>
+                    @if($course->isFree())
+                        <span class="free">رایگان</span>
+                    @else
+                        <span class="premium">{{ number_format((float)$course->price, 0, '.', ',') }} تومان</span>
+                    @endif
+                </div>
+
+                <div class="teacher-course-card-actions">
+                    <a class="primary" href="{{ route('teacher.courses.content', $course) }}">ساخت محتوای دوره</a>
+                    <a href="{{ route('teacher.courses.progress', $course) }}">گزارش یادگیری</a>
+                    <a href="{{ route('teacher.courses.edit', $course) }}">تنظیمات دوره</a>
+                </div>
+            </article>
+        @empty
+            <div class="teacher-detail-panel teacher-detail-empty large">
+                هنوز دوره‌ای به شما اختصاص داده نشده است.
             </div>
-        @endif
-
-        <section class="panel-card overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[700px] text-right">
-                    <thead class="border-b border-[var(--color-border)] bg-[var(--color-background-soft)]">
-                        <tr>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">دوره</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">آموزشگاه</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">دسترسی</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">وضعیت</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">عملیات</th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="divide-y divide-[var(--color-border)]">
-                        @forelse($courses as $course)
-                            <tr class="transition hover:bg-[var(--color-background-soft)]">
-                                <td class="px-5 py-4">
-                                    <div class="font-bold text-[var(--color-text)]">{{ $course->title }}</div>
-                                    <div class="mt-1 text-xs text-[var(--color-text-muted)]">{{ $course->sections_count }} بخش</div>
-                                </td>
-                                <td class="px-5 py-4 text-sm text-[var(--color-text-secondary)]">{{ $course->academy?->name }}</td>
-                                <td class="px-5 py-4">
-                                    @if($course->isFree())
-                                        <span class="rounded-full bg-[var(--color-success-50)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-success-700)]">رایگان</span>
-                                    @else
-                                        <div>
-                                            <span class="rounded-full bg-[var(--color-warning-50)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-warning-700)]">پولی</span>
-                                            <div class="mt-1 text-xs font-bold text-[var(--color-text)]">{{ number_format((float) $course->price, 0, '.', ',') }} تومان</div>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td class="px-5 py-4">
-                                    <span class="rounded-full px-2.5 py-1 text-[11px] font-bold {{ $course->status === 'published' ? 'bg-[var(--color-success-50)] text-[var(--color-success-700)]' : 'bg-[var(--color-slate-100)] text-[var(--color-text-muted)]' }}">
-                                        {{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : 'آرشیو') }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-4">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <a href="{{ route('teacher.courses.content', $course) }}" class="rounded-lg bg-[var(--color-brand-50)] px-3 py-2 text-[10px] font-black text-[var(--color-brand-600)]">محتوا</a>
-                                        <a href="{{ route('teacher.courses.progress', $course) }}" class="rounded-lg bg-[var(--color-slate-100)] px-3 py-2 text-[10px] font-black text-[var(--color-text-secondary)]">پیشرفت</a>
-                                        <a href="{{ route('teacher.courses.edit', $course) }}" class="rounded-lg border border-[var(--color-border)] px-3 py-2 text-[10px] font-black">تنظیمات</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-5 py-16 text-center">
-                                    <div class="text-sm font-bold">هنوز دوره‌ای نداری.</div>
-                                    <p class="mt-1 text-xs text-[var(--color-text-muted)]">اولین دوره را بساز و محتوای آن را اضافه کن.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
+        @endforelse
+    </section>
+</div>
 @endsection
