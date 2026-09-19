@@ -14,22 +14,23 @@ class Course extends Model
 {
     use HasFactory, HasMedia, HasSeoMeta;
 
-    protected $fillable = [
+    protected $fillable=[
         'academy_id','created_by','title','slug','short_description','description',
         'level','status','price','duration_minutes','published_at'
     ];
 
-    protected $casts = ['price'=>'decimal:2','published_at'=>'datetime'];
+    protected $casts=['price'=>'decimal:2','published_at'=>'datetime'];
 
     public function academy(): BelongsTo { return $this->belongsTo(Academy::class); }
-    public function creator(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
+    public function creator(): BelongsTo { return $this->belongsTo(User::class,'created_by'); }
 
     public function teachers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'course_teacher', 'course_id', 'teacher_id')
+        return $this->belongsToMany(User::class,'course_teacher','course_id','teacher_id')
             ->withPivot('is_primary')->withTimestamps();
     }
 
+    public function enrollments(): HasMany { return $this->hasMany(CourseEnrollment::class); }
     public function sections(): HasMany { return $this->hasMany(CourseSection::class)->orderBy('sort_order'); }
     public function classrooms(): HasMany { return $this->hasMany(Classroom::class); }
     public function assignments(): HasMany { return $this->hasMany(Assignment::class); }
