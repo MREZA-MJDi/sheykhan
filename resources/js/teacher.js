@@ -48,50 +48,107 @@ function initExamBuilder() {
     const template = examBuilder.querySelector('[data-exam-question-template]');
     const addButton = examBuilder.querySelector('[data-exam-add-question]');
 
-    const serializeOptions = (item, index) => {
+    const syncQuestion = (item, index) => {
+        item.querySelector('.teacher-question-number')?.replaceChildren(
+            document.createTextNode('سؤال ' + (index + 1))
+        );
+
+        item.querySelectorAll('[data-name]').forEach((field) => {
+            const key = field.dataset.name;
+            field.name = key ? `questions[${index}][${key}]` : '';
+        });
+
+        const typeField = item.querySelector('[data-name="type"]');
         const optionsField = item.querySelector('[data-name="options_text"]');
-        if (!optionsField) return;
+        const singleAnswerField = item.querySelector('[data-name="correct_answer"]');
+        const multiAnswerField = item.querySelector('[data-correct-options-text]');
+        const optionsLabel = item.querySelector('[data-options-field]');
+        const singleAnswerLabel = item.querySelector('[data-single-answer-field]');
+        const multiAnswerLabel = item.querySelector('[data-multiple-answer-field]');
 
-        item.querySelectorAll('[data-option-hidden]').forEach((node) => node.remove());
+        item.querySelectorAll('[data-exam-correct-hidden]').forEach((node) => node.remove());
 
-        optionsField.value
-            .split('\n')
-            .map((value) => value.trim())
-            .filter(Boolean)
-            .forEach((value, optionIndex) => {
-                const hidden = document.createElement('input');
-                hidden.type = 'hidden';
-                hidden.dataset.optionHidden = '1';
-                hidden.name = `questions[${index}][options][${optionIndex}]`;
-                hidden.value = value;
-                item.appendChild(hidden);
-            });
+        const serializeOptions = () => {
+            item.querySelectorAll('[data-exam-option-hidden]').forEach((node) => node.remove());
+
+            if (!optionsField || typeField?.value === 'text') return;
+
+            optionsField.value
+                .split('\\n')
+                .map((value) => value.trim())
+                .filter(Boolean)
+                .forEach((value, optionIndex) => {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.dataset.examOptionHidden = '1';
+                    hidden.name = `questions[${index}][options][${optionIndex}]`;
+                    hidden.value = value;
+                    item.appendChild(hidden);
+                });
+        };
+
+        const serializeCorrectAnswer = () => {
+            item.querySelectorAll('[data-exam-correct-hidden]').forEach((node) => node.remove());
+
+            const type = typeField?.value || 'text';
+
+            if (type === 'multiple' || type === 'checkbox') {
+                if (singleAnswerField) singleAnswerField.name = '';
+
+                if (multiAnswerField) {
+                    multiAnswerField.name = '';
+
+                    multiAnswerField.value
+                        .split('\\n')
+                        .map((value) => value.trim())
+                        .filter(Boolean)
+                        .forEach((value, answerIndex) => {
+                            const hidden = document.createElement('input');
+                            hidden.type = 'hidden';
+                            hidden.dataset.examCorrectHidden = '1';
+                            hidden.name = `questions[${index}][correct_answer][${answerIndex}]`;
+                            hidden.value = value;
+                            item.appendChild(hidden);
+                        });
+                }
+            } else if (type === 'single') {
+                if (singleAnswerField) {
+                    singleAnswerField.name = `questions[${index}][correct_answer]`;
+                }
+                if (multiAnswerField) multiAnswerField.name = '';
+            } else {
+                if (singleAnswerField) singleAnswerField.name = '';
+                if (multiAnswerField) multiAnswerField.name = '';
+            }
+        };
+
+        const syncType = () => {
+            const type = typeField?.value || 'text';
+            const objective = type !== 'text';
+            const multi = type === 'multiple' || type === 'checkbox';
+
+            optionsLabel?.classList.toggle('hidden', !objective);
+            singleAnswerLabel?.classList.toggle('hidden', !('single' === type));
+            multiAnswerLabel?.classList.toggle('hidden', !multi);
+
+            serializeOptions();
+            serializeCorrectAnswer();
+        };
+
+        optionsField?.addEventListener('input', serializeOptions);
+        multiAnswerField?.addEventListener('input', serializeCorrectAnswer);
+        typeField?.addEventListener('change', syncType);
+
+        item.querySelector('[data-exam-remove-question]')?.addEventListener('click', () => {
+            item.remove();
+            syncQuestionNames();
+        });
+
+        syncType();
     };
 
     const syncQuestionNames = () => {
-        container?.querySelectorAll('[data-exam-question]').forEach((item, index) => {
-            item.querySelectorAll('[data-name]').forEach((field) => {
-                field.name = `questions[${index}][${field.dataset.name}]`;
-            });
-
-            const optionsField = item.querySelector('[data-name="options_text"]');
-            const typeField = item.querySelector('[data-name="type"]');
-
-            optionsField?.addEventListener('input', () => serializeOptions(item, index));
-
-            typeField?.addEventListener('change', () => {
-                const label = optionsField?.closest('label');
-                if (label) label.classList.toggle('hidden', typeField.value === 'text');
-            });
-
-            item.querySelector('[data-exam-remove-question]')?.addEventListener('click', () => {
-                item.remove();
-                syncQuestionNames();
-            });
-
-            serializeOptions(item, index);
-            typeField?.dispatchEvent(new Event('change'));
-        });
+        container?.querySelectorAll('[data-exam-question]').forEach(syncQuestion);
     };
 
     const addQuestion = () => {
