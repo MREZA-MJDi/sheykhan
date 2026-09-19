@@ -16,4 +16,12 @@ class MediaController extends Controller
 
         return $mediaService->download($media);
     }
+
+    public function stream(Media $media, MediaService $mediaService)
+    {
+        abort_unless($media->status === 'active', 404);
+        Gate::forUser(auth()->user())->authorize('stream', $media);
+
+        return $mediaService->stream($media);
+    }
 }
