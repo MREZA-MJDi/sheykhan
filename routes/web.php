@@ -70,6 +70,9 @@ Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.
     Route::get('/academy/{academy}/classrooms', [\App\Http\Controllers\Owner\ClassroomController::class, 'index'])->name('classrooms.index');
     Route::patch('/academy/{academy}/classrooms/{classroom}', [\App\Http\Controllers\Owner\ClassroomController::class, 'update'])->name('classrooms.update');
     Route::get('/reports', [\App\Http\Controllers\Owner\ReportController::class, 'index'])->name('reports.index');
+    Route::post('/academy/{academy}/people/store-teacher', [OwnerPeopleController::class, 'storeTeacher'])
+        ->middleware('permission:teachers.manage')
+        ->name('people.store-teacher');
     Route::post('/academy/{academy}/people/assign-teacher', [OwnerPeopleController::class, 'assignTeacher'])
         ->middleware('permission:teachers.manage')
         ->name('people.assign-teacher');
