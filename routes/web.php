@@ -70,6 +70,9 @@ Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.
     Route::post('/academy/{academy}/people/assign-teacher', [OwnerPeopleController::class, 'assignTeacher'])
         ->middleware('permission:teachers.manage')
         ->name('people.assign-teacher');
+    Route::post('/academy/{academy}/people/enroll-student', [\App\Http\Controllers\Owner\EnrollmentController::class, 'store'])
+        ->middleware('permission:enrollments.manage')
+        ->name('people.enroll-student');
 
     Route::get('/courses', [OwnerCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/create', [OwnerCourseController::class, 'create'])->name('courses.create');
@@ -100,6 +103,8 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->name('classrooms.create');
     Route::post('/classrooms', [TeacherClassroomController::class, 'store'])->name('classrooms.store');
     Route::get('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'edit'])->name('classrooms.attendance.edit');
+    Route::get('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule.index');
+    Route::post('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('schedule.store');
     Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->name('classrooms.attendance.store');
 
     Route::get('/students', fn (\App\Services\TeacherWorkspaceService $workspace) => view('teacher.students.index', [
