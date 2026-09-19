@@ -49,16 +49,19 @@ class StudentLessonProgressTest extends TestCase
 
         $this->actingAs($student)
             ->postJson(route('student.lessons.progress.store', $lesson), [
-                'from_seconds' => 455,
+                'from_seconds' => 895,
                 'to_seconds' => 900,
                 'completed' => true,
             ])
-            ->assertOk();
+            ->assertOk()
+            ->assertJsonPath('seconds_watched', 455)
+            ->assertJsonPath('completed', false);
 
         $this->assertDatabaseHas('lesson_progress', [
             'lesson_id' => $lesson->id,
             'user_id' => $student->id,
-            'seconds_watched' => 900,
+            'seconds_watched' => 455,
+            'last_position_seconds' => 900,
         ]);
     }
 
