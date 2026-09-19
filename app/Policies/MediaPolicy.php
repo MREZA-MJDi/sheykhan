@@ -19,6 +19,20 @@ class MediaPolicy
 {
     public function download(User $user, Media $media): bool
     {
+        if (($media->metadata['downloadable'] ?? true) === false) {
+            return false;
+        }
+
+        return $this->canAccessMedia($user, $media, true);
+    }
+
+    public function stream(User $user, Media $media): bool
+    {
+        return $this->canAccessMedia($user, $media, false);
+    }
+
+    private function canAccessMedia(User $user, Media $media, bool $forDownload): bool
+    {
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
             return true;
         }
@@ -30,14 +44,17 @@ class MediaPolicy
                 return true;
             }
 
-            if ($model instanceof Course && $this->courseAccess($user, $model)) {
+            if ($model instanceof Course && $this->courseMediaAccess($user, $model, $media)) {
                 return true;
             }
 
             if ($model instanceof Lesson) {
                 $model->loadMissing('section.course');
 
-                if ($model->section?->course && $this->courseAccess($user, $model->section->course)) {
+                if (
+                    $model->section?->course
+                    && $this->lessonMediaAccess($user, $model, $model->section->course, $media)
+                ) {
                     return true;
                 }
             }
@@ -115,6 +132,46 @@ class MediaPolicy
         return false;
     }
 
+    private function lessonMediaAccess(User $user, Lesson $lesson, Course $course, Media $media): bool
+    {
+        if (!$this->courseAccess($user, $course)) {
+            return false;
+        }
+
+        $access = $media->metadata['access'] ?? 'course';
+
+        if ($access === 'paid'
+            && !$this->isCourseManager($user, $course)
+            && !$this->courseAccessService()->isPaidEnrollment($user, $course)
+        ) {
+            return false;
+        }
+
+        if (
+            $access === 'free'
+            && !$course->isFree()
+            && !$lesson->is_free
+            && !$this->isCourseManager($user, $course)
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function courseMediaAccess(User $user, Course $course, Media $media): bool
+    {
+        if (!$this->courseAccess($user, $course)) {
+            return false;
+        }
+
+        $access = $media->metadata['access'] ?? 'course';
+
+        return $access !== 'paid'
+            || $this->isCourseManager($user, $course)
+            || $this->courseAccessService()->isPaidEnrollment($user, $course);
+    }
+
     private function academyMember(User $user, Academy $academy): bool
     {
         return $academy->owner_id === $user->id
@@ -164,7 +221,18 @@ class MediaPolicy
 
     private function courseAccess(User $user, Course $course): bool
     {
-        return app(CourseAccessService::class)->canAccess($user, $course);
+        return $this->courseAccessService()->canAccess($user, $course);
+    }
+
+    private function courseAccessService(): CourseAccessService
+    {
+        return app(CourseAccessService::class);
+    }
+
+    private function isCourseManager(User $user, Course $course): bool
+    {
+        return $course->academy?->owner_id === $user->id
+            || $course->teachers()->whereKey($user->id)->exists();
     }
 
     private function isParentOf(User $user, int $studentId): bool
