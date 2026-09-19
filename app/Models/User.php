@@ -14,8 +14,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name','email','password'];
-    protected $hidden = ['password','remember_token'];
+    protected $fillable=['name','email','password'];
+    protected $hidden=['password','remember_token'];
 
     protected function casts(): array
     {
@@ -27,8 +27,7 @@ class User extends Authenticatable
     public function academies(): BelongsToMany
     {
         return $this->belongsToMany(Academy::class)
-            ->withPivot(['role','status','joined_at'])
-            ->withTimestamps();
+            ->withPivot(['role','status','joined_at'])->withTimestamps();
     }
 
     public function teacherProfile(): HasOne { return $this->hasOne(TeacherProfile::class); }
@@ -36,16 +35,18 @@ class User extends Authenticatable
     public function parentProfile(): HasOne { return $this->hasOne(ParentProfile::class); }
 
     public function createdCourses(): HasMany { return $this->hasMany(Course::class,'created_by'); }
+
     public function taughtCourses(): BelongsToMany
     {
         return $this->belongsToMany(Course::class,'course_teacher','teacher_id','course_id')
             ->withPivot('is_primary')->withTimestamps();
     }
 
+    public function enrollments(): HasMany { return $this->hasMany(CourseEnrollment::class,'student_id'); }
+
     public function classroomsAsTeacher(): BelongsToMany
     {
-        return $this->belongsToMany(Classroom::class,'classroom_teacher','teacher_id','classroom_id')
-            ->withTimestamps();
+        return $this->belongsToMany(Classroom::class,'classroom_teacher','teacher_id','classroom_id')->withTimestamps();
     }
 
     public function classroomsAsStudent(): BelongsToMany
@@ -76,15 +77,11 @@ class User extends Authenticatable
 
     public function hasPermission(string $permission): bool
     {
-        return $this->roles()
-            ->whereHas('permissions', fn ($query) => $query->where('name',$permission))
-            ->exists();
+        return $this->roles()->whereHas('permissions', fn($query) => $query->where('name',$permission))->exists();
     }
 
     public function hasAnyPermission(array $permissions): bool
     {
-        return $this->roles()
-            ->whereHas('permissions', fn ($query) => $query->whereIn('name',$permissions))
-            ->exists();
+        return $this->roles()->whereHas('permissions', fn($query) => $query->whereIn('name',$permissions))->exists();
     }
 }
