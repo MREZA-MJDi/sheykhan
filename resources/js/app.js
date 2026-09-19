@@ -2,20 +2,14 @@ import Alpine from 'alpinejs';
 
 /*
 |--------------------------------------------------------------------------
-| Farzin - Application
+| Sheykhan - Application
 |--------------------------------------------------------------------------
 |
-| Alpine is the UI interaction layer for the Farzin frontend.
+| Alpine is the UI interaction layer for the Sheykhan frontend.
 | Business logic must NOT live here.
 |
 */
 
 window.Alpine = Alpine;
-
-/*
-|--------------------------------------------------------------------------
-| Alpine
-|--------------------------------------------------------------------------
-*/
 
 Alpine.start();
