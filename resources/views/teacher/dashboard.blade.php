@@ -154,8 +154,8 @@
                 <div class="teacher-chart-main">
                     <div class="teacher-chart-lines"><i></i><i></i><i></i><i></i><i></i></div>
                     <div class="teacher-bars" data-teacher-bars>
-                        @foreach(($chart['week'] ?? []) as $index => $value)
-                            <div class="teacher-bar" style="height:{{ $value }}%"><small>{{ $chart['labels'][$index] ?? '' }}</small></div>
+                        @foreach(($chart['week']['values'] ?? []) as $index => $value)
+                            <div class="teacher-bar" style="height:{{ $value }}%"><small>{{ $chart['week']['labels'][$index] ?? '' }}</small></div>
                         @endforeach
                     </div>
                 </div>
