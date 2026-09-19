@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\Academy;
 use App\Models\Course;
+use App\Models\ParentProfile;
 use App\Models\Role;
+use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -104,6 +106,90 @@ final class OwnerWorkspaceService
 
             return $teacher;
         });
+    }
+
+    public function createStudent(User $owner, Academy $academy, array $data): User
+    {
+        return $this->createMember(
+            $owner,
+            $academy,
+            $data,
+            'student',
+            'student',
+            StudentProfile::class,
+            [
+                'student_number' => $data['student_number'] ?? null,
+                'birth_date' => $data['birth_date'] ?? null,
+                'grade' => $data['grade'] ?? null,
+                'school_name' => $data['school_name'] ?? null,
+                'bio' => null,
+            ],
+        );
+    }
+
+    public function createParent(User $owner, Academy $academy, array $data): User
+    {
+        return $this->createMember(
+            $owner,
+            $academy,
+            $data,
+            'parent',
+            'parent',
+            ParentProfile::class,
+            [
+                'occupation' => $data['occupation'] ?? null,
+                'relation_default' => $data['relation_default'] ?? null,
+            ],
+        );
+    }
+
+    public function linkParentStudent(
+        User $owner,
+        Academy $academy,
+        int $parentId,
+        int $studentId,
+        ?string $relation
+    ): void {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $parent = $academy->users()
+            ->whereKey($parentId)
+            ->wherePivot('role', 'parent')
+            ->wherePivot('status', 'active')
+            ->firstOrFail();
+
+        $student = $academy->users()
+            ->whereKey($studentId)
+            ->wherePivot('role', 'student')
+            ->wherePivot('status', 'active')
+            ->firstOrFail();
+
+        $parent->children()->syncWithoutDetaching([
+            $student->id => ['relation' => $relation],
+        ]);
+    }
+
+    public function detachParentStudent(
+        User $owner,
+        Academy $academy,
+        int $parentId,
+        int $studentId
+    ): void {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $parent = $academy->users()
+            ->whereKey($parentId)
+            ->wherePivot('role', 'parent')
+            ->wherePivot('status', 'active')
+            ->firstOrFail();
+
+        $student = $academy->users()
+            ->whereKey($studentId)
+            ->wherePivot('role', 'student')
+            ->wherePivot('status', 'active')
+            ->firstOrFail();
+
+        $parent->children()->detach($student->id);
     }
 
     public function assignTeacher(
@@ -298,6 +384,47 @@ final class OwnerWorkspaceService
                     ],
                 ]);
             }
+        });
+    }
+
+    private function createMember(
+        User $owner,
+        Academy $academy,
+        array $data,
+        string $roleSlug,
+        string $academyRole,
+        string $profileClass,
+        array $profileData
+    ): User {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        return DB::transaction(function () use (
+            $academy,
+            $data,
+            $roleSlug,
+            $academyRole,
+            $profileClass,
+            $profileData
+        ): User {
+            $member = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+            ]);
+
+            $roleId = Role::where('slug', $roleSlug)->value('id');
+            abort_unless($roleId, 500, 'نقش کاربر در سیستم تعریف نشده است.');
+
+            $member->roles()->attach($roleId);
+            $profileClass::create(array_merge(['user_id' => $member->id], $profileData));
+
+            $academy->users()->attach($member->id, [
+                'role' => $academyRole,
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+
+            return $member;
         });
     }
 
