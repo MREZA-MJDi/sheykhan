@@ -155,3 +155,85 @@
     .teacher-lesson-type{width:36px;height:36px}
     .teacher-lesson-actions{grid-column:2}
 }
+
+
+/* ==========================================================================
+   Teacher classroom / student / analytics workspace
+   ========================================================================== */
+
+.teacher-detail-page{display:grid;gap:17px;min-width:0;color:#182033}
+.teacher-detail-hero,.teacher-list-hero{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px;border:1px solid var(--teacher-border);border-radius:24px;background:#fff;box-shadow:0 8px 25px rgba(35,45,80,.05)}
+.teacher-detail-hero{background:linear-gradient(115deg,#1e2342,#34386c);color:#fff;border:0}
+.teacher-detail-hero.student{background:linear-gradient(115deg,#182032,#313b58)}
+.teacher-detail-hero h2,.teacher-list-hero h2{margin:5px 0 0;font-size:25px}
+.teacher-detail-hero p,.teacher-list-hero p{margin:5px 0 0;font-size:10px;line-height:1.9;color:#778094}
+.teacher-detail-hero p{color:rgba(255,255,255,.68)}
+.teacher-detail-hero-actions{display:flex;flex-wrap:wrap;gap:8px}
+.teacher-detail-hero .teacher-builder-btn.primary{color:#1f2450}
+.teacher-detail-hero .teacher-builder-btn.ghost{border-color:rgba(255,255,255,.15)}
+.teacher-list-count{display:inline-flex;align-items:center;min-height:38px;padding:0 13px;border-radius:12px;background:#eef0ff;color:#5b5ce8;font-size:10px;font-weight:900}
+.teacher-detail-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.teacher-detail-stats article,.teacher-progress-insights article{padding:16px 18px;border:1px solid var(--teacher-border);border-radius:18px;background:#fff}
+.teacher-detail-stats span,.teacher-progress-insights small{display:block;color:#8890a0;font-size:8px}
+.teacher-detail-stats strong,.teacher-progress-insights strong{display:block;margin-top:5px;font-size:20px}
+.teacher-detail-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);gap:15px}
+.teacher-detail-panel{min-width:0;overflow:hidden;border:1px solid var(--teacher-border);border-radius:20px;background:#fff;box-shadow:0 8px 25px rgba(35,45,80,.05)}
+.teacher-detail-panel>header{display:flex;align-items:center;justify-content:space-between;padding:17px 18px;border-bottom:1px solid #edf0f4}
+.teacher-detail-panel h3{margin:4px 0 0;font-size:14px}
+.teacher-detail-empty{padding:24px;text-align:center;color:#969eaf;font-size:9px}
+.teacher-detail-empty.large{padding:42px 20px}
+.teacher-roster{display:grid}
+.teacher-roster-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 17px;border-top:1px solid #f0f2f5;text-decoration:none;color:inherit}
+.teacher-roster-row:first-child{border-top:0}
+.teacher-roster-row:hover{background:#fbfcfe}
+.teacher-roster-avatar,.teacher-student-card-avatar{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#eef0ff;color:#5b5ce8;font-size:11px;font-weight:900}
+.teacher-roster-copy{min-width:0}.teacher-roster-copy strong{display:block;font-size:9px}.teacher-roster-copy small{display:block;margin-top:3px;color:#8b93a2;font-size:7px}
+.teacher-roster-arrow{color:#a3aaba;font-size:11px}
+.teacher-schedule-list,.teacher-mini-list{padding:8px 16px 14px}
+.teacher-schedule-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px solid #f0f2f5}
+.teacher-schedule-row:last-child{border-bottom:0}
+.teacher-schedule-row span{color:#7f8799;font-size:8px}.teacher-schedule-row strong{font-size:9px}
+.teacher-student-identity{display:flex;align-items:center;gap:12px}
+.teacher-student-avatar{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);font-size:14px;font-weight:900;color:#fff}
+.teacher-student-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.teacher-student-card{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:11px;padding:16px;border:1px solid var(--teacher-border);border-radius:18px;background:#fff;box-shadow:0 8px 20px rgba(35,45,80,.04);text-decoration:none;color:inherit;transition:.2s}
+.teacher-student-card:hover{transform:translateY(-2px);box-shadow:0 15px 28px rgba(35,45,80,.08)}
+.teacher-student-card-avatar{width:42px;height:42px}.teacher-student-card>div{min-width:0}.teacher-student-card strong{display:block;font-size:11px}.teacher-student-card small{display:block;margin-top:3px;color:#8890a0;font-size:7px}
+.teacher-student-card-stats{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.teacher-student-card-stats span{padding:6px 8px;border-radius:9px;background:#f6f7fa;color:#81899a;font-size:7px}.teacher-student-card-stats b{color:#252b3d}
+.teacher-mini-list a{display:block;padding:11px 3px;border-bottom:1px solid #f0f2f5;text-decoration:none;color:inherit}.teacher-mini-list a:last-child{border-bottom:0}.teacher-mini-list strong{display:block;font-size:9px}.teacher-mini-list small{display:block;margin-top:3px;color:#8a92a2;font-size:7px}
+.teacher-learning-feed{padding:8px 14px 14px;display:grid}
+.teacher-learning-row{display:grid;grid-template-columns:32px minmax(0,1fr) 110px 88px;align-items:center;gap:10px;padding:11px 3px;border-bottom:1px solid #f0f2f5}
+.teacher-learning-row:last-child{border-bottom:0}
+.teacher-learning-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#eef0ff;color:#5b5ce8;font-size:10px;font-weight:900}
+.teacher-learning-row>div:nth-child(2){min-width:0}.teacher-learning-row strong{display:block;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.teacher-learning-row div:nth-child(2) small{display:block;margin-top:2px;color:#8b93a3;font-size:7px}
+.teacher-learning-progress{display:grid;gap:5px}.teacher-learning-progress strong{font-size:8px;text-align:left}.teacher-learning-progress>span{display:block;height:5px;border-radius:99px;overflow:hidden;background:#edf0f5}.teacher-learning-progress i{display:block;height:100%;border-radius:inherit;background:#6264e9}
+.teacher-learning-row>small{color:#8d95a5;font-size:7px;text-align:left}
+.teacher-enrollment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:15px}
+.teacher-enrollment-grid article{padding:13px;border:1px solid #edf0f4;border-radius:14px;background:#fbfcfd}
+.teacher-enrollment-grid span{display:block;font-size:9px;font-weight:900}.teacher-enrollment-grid small{display:block;margin-top:5px;color:#8b93a4;font-size:7px}.teacher-enrollment-grid a{display:inline-flex;margin-top:9px;color:#5b5ce8;font-size:8px;font-weight:900;text-decoration:none}
+.teacher-class-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.teacher-class-card{padding:17px;border:1px solid var(--teacher-border);border-radius:20px;background:#fff;box-shadow:0 8px 22px rgba(35,45,80,.04)}
+.teacher-class-card-head{display:flex;justify-content:space-between;gap:10px}.teacher-class-card h3{margin:4px 0 0;font-size:13px}.teacher-class-card p{margin:4px 0 0;color:#8991a1;font-size:8px}
+.teacher-class-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.teacher-class-metrics div{padding:10px;border-radius:12px;background:#f8f9fc}.teacher-class-metrics span{display:block;color:#929aab;font-size:7px}.teacher-class-metrics strong{display:block;margin-top:4px;font-size:15px}
+.teacher-class-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}.teacher-class-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:0 9px;border-radius:9px;background:#f3f4f8;color:#5c6577;font-size:8px;font-weight:900;text-decoration:none}.teacher-class-actions a:first-child{background:#eef0ff;color:#5b5ce8}
+
+.teacher-progress-page{display:grid;gap:15px;min-width:0}
+.teacher-progress-matrix{border:1px solid var(--teacher-border);border-radius:20px;background:#fff;overflow:hidden;box-shadow:0 8px 24px rgba(35,45,80,.05)}
+.teacher-progress-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:18px;border-bottom:1px solid #edf0f4}.teacher-progress-header h3{margin:4px 0 0;font-size:15px}
+.teacher-progress-legend{display:flex;flex-wrap:wrap;gap:10px;color:#8a92a2;font-size:7px}.teacher-progress-legend span{display:inline-flex;align-items:center;gap:4px}.teacher-progress-legend i{width:7px;height:7px;border-radius:50%;background:#dfe2e8}.teacher-progress-legend i.seen{background:#6264e9}.teacher-progress-legend i.done{background:#48aa67}.teacher-progress-legend i.none{background:#dfe2e8}
+.teacher-progress-table-wrap{overflow:auto}
+.teacher-progress-table{width:100%;min-width:980px;border-collapse:collapse}
+.teacher-progress-table th,.teacher-progress-table td{padding:11px 9px;border-bottom:1px solid #f0f2f5;text-align:center;font-size:7px;vertical-align:middle}
+.teacher-progress-table th{background:#fbfcfe;color:#939bab;font-weight:900;position:sticky;top:0;z-index:2}
+.teacher-progress-table .student-col{text-align:right;min-width:180px;position:sticky;right:0;z-index:3;background:#fff}
+.teacher-progress-table thead .student-col{background:#fbfcfe}
+.teacher-progress-table .student-col a{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit}
+.teacher-progress-table .student-col a>span:last-child{min-width:0}
+.teacher-progress-table .student-col strong{display:block;font-size:8px}.teacher-progress-table .student-col small{display:block;margin-top:2px;color:#939bab;font-size:6px}
+.teacher-progress-cell{display:grid;gap:4px;min-width:54px}.teacher-progress-percent{font-size:8px;font-weight:900}.teacher-progress-track{height:5px;border-radius:99px;overflow:hidden;background:#edf0f5}.teacher-progress-track i{display:block;height:100%;border-radius:inherit;background:#6264e9}.teacher-progress-cell small{font-size:6px;color:#9aa1b0}.teacher-progress-cell small.seen{color:#5c62d9}.teacher-progress-cell small.done{color:#43a662}
+.teacher-matrix-average{font-size:10px}.teacher-matrix-sub{display:block;margin-top:3px;color:#9199aa;font-size:6px}.teacher-matrix-last{white-space:nowrap;color:#81899a;font-size:7px}
+.teacher-progress-insights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+
+@media(max-width:900px){.teacher-detail-grid{grid-template-columns:1fr}.teacher-student-grid,.teacher-class-grid{grid-template-columns:1fr}.teacher-detail-stats{grid-template-columns:repeat(2,1fr)}.teacher-learning-row{grid-template-columns:32px minmax(0,1fr) 90px}.teacher-learning-row>small{display:none}.teacher-enrollment-grid{grid-template-columns:repeat(2,1fr)}.teacher-progress-insights{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.teacher-detail-hero,.teacher-list-hero{align-items:stretch;flex-direction:column}.teacher-detail-hero-actions{width:100%}.teacher-detail-hero-actions .teacher-builder-btn{flex:1}.teacher-detail-stats{gap:8px}.teacher-detail-stats article{padding:13px}.teacher-progress-header{align-items:flex-start;flex-direction:column}.teacher-enrollment-grid{grid-template-columns:1fr}.teacher-learning-row{grid-template-columns:30px minmax(0,1fr)}.teacher-learning-progress{grid-column:2}.teacher-learning-row>small{display:block;grid-column:2;text-align:right}}
