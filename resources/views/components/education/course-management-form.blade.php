@@ -257,18 +257,32 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route($routePrefix . '.media.store', $course) }}" enctype="multipart/form-data" class="flex flex-col gap-2 sm:min-w-[24rem] sm:flex-row">
+                <form method="POST" action="{{ route($routePrefix . '.media.store', $course) }}" enctype="multipart/form-data" class="grid gap-2 sm:min-w-[30rem] sm:grid-cols-2">
                     @csrf
                     <input type="hidden" name="collection" value="course-assets">
+
                     <input
                         type="file"
                         name="media"
                         required
-                        class="min-h-11 flex-1 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs"
+                        class="min-h-11 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs sm:col-span-2"
                         accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.mov,.zip"
                     >
-                    <button type="submit" class="min-h-11 rounded-xl bg-[var(--color-slate-900)] px-4 text-xs font-black text-white">
-                        آپلود
+
+                    <select name="access" class="min-h-11 rounded-xl border border-[var(--color-border)] bg-white px-3 text-xs">
+                        <option value="course">طبق دسترسی دوره</option>
+                        <option value="free">رایگان / پیش‌نمایش</option>
+                        <option value="paid" @disabled($course->isFree())>نیازمند پرداخت{{ $course->isFree() ? ' (دوره رایگان)' : '' }}</option>
+                    </select>
+
+                    <label class="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-3 text-xs">
+                        <input type="hidden" name="downloadable" value="0">
+                        <input type="checkbox" name="downloadable" value="1" checked>
+                        <span>دانلود برای دانش‌آموز فعال باشد</span>
+                    </label>
+
+                    <button type="submit" class="min-h-11 rounded-xl bg-[var(--color-slate-900)] px-4 text-xs font-black text-white sm:col-span-2">
+                        آپلود فایل
                     </button>
                 </form>
             </div>
