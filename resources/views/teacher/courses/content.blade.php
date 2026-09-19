@@ -306,7 +306,7 @@
                                             <select name="access">
                                                 <option value="course">طبق دسترسی دوره</option>
                                                 <option value="free">رایگان / پیش‌نمایش</option>
-                                                <option value="paid">نیازمند پرداخت</option>
+                                                <option value="paid" @disabled($course->isFree())>نیازمند پرداخت{{ $course->isFree() ? ' (دوره رایگان)' : '' }}</option>
                                             </select>
                                         </label>
 
