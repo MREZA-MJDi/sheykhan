@@ -223,6 +223,63 @@ function initSectionReorder() {
     });
 }
 
+function initLessonReorder() {
+    document.querySelectorAll('[data-lesson-list]').forEach((list) => {
+        const items = [...list.querySelectorAll('[data-lesson-card]')];
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+        const reorderUrl = list.dataset.lessonReorderUrl;
+
+        items.forEach((item) => {
+            const handle = item.querySelector('[data-lesson-id] .teacher-lesson-drag') || item.querySelector('.teacher-lesson-drag');
+            if (!handle) return;
+
+            handle.addEventListener('dragstart', () => {
+                item.classList.add('is-dragging');
+            });
+
+            handle.addEventListener('dragend', async () => {
+                item.classList.remove('is-dragging');
+
+                if (!csrf || !reorderUrl) return;
+
+                const ids = [...list.querySelectorAll('[data-lesson-id]')]
+                    .map((node) => Number(node.dataset.lessonId));
+
+                try {
+                    const response = await fetch(reorderUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ ids }),
+                    });
+
+                    if (!response.ok) throw new Error('lesson reorder failed');
+                } catch {
+                    window.location.reload();
+                }
+            });
+
+            item.addEventListener('dragover', (event) => {
+                event.preventDefault();
+
+                const dragging = list.querySelector('.is-dragging');
+                if (!dragging || dragging === item) return;
+
+                const rect = item.getBoundingClientRect();
+                const after = event.clientY > rect.top + rect.height / 2;
+
+                item.parentNode.insertBefore(
+                    dragging,
+                    after ? item.nextSibling : item
+                );
+            });
+        });
+    });
+}
+
 function initMediaUploadUX() {
     document.querySelectorAll('[data-media-type]').forEach((select) => {
         const form = select.closest('form');
@@ -277,6 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDashboardChart();
     initExamBuilder();
     initSectionReorder();
+    initLessonReorder();
     initMediaUploadUX();
     initConfirmForms();
 });
