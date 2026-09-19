@@ -15,6 +15,10 @@ final class CourseAccessService
             return true;
         }
 
+        if (!$course->isPublished()) {
+            return false;
+        }
+
         if ($user->hasRole('student')) {
             return $this->studentCanAccess($user, $course);
         }
