@@ -36,7 +36,7 @@ final class CourseAccessService
         return $user->enrollments()
             ->where('course_id', $course->id)
             ->where('status', 'active')
-            ->where('paid_amount', '>=', $course->price)
+            ->where('paid_amount', '>', 0)
             ->exists();
     }
 
