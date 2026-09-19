@@ -319,6 +319,27 @@
         border-color:color-mix(in srgb,var(--panel-primary) 12%,var(--panel-border));
     }
 
+    .panel-card {
+        border:1px solid var(--panel-border);
+        border-radius:var(--panel-radius);
+        background:rgba(255,255,255,.96);
+        box-shadow:var(--panel-shadow-soft);
+        transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .panel-card:hover {
+        transform:translateY(-2px);
+        border-color:color-mix(in srgb,var(--panel-primary) 12%,var(--panel-border));
+        box-shadow:var(--panel-shadow);
+    }
+
+    .panel-stat { position:relative; overflow:hidden; }
+
+    .panel-page-enter,
+    .dashboard-fade-in {
+        animation:dashboard-enter .55s cubic-bezier(.16,1,.3,1) both;
+    }
+
     @keyframes dashboard-enter {
         from { opacity:0; transform:translateY(10px); }
         to { opacity:1; transform:none; }
