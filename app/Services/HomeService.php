@@ -19,7 +19,7 @@ class HomeService
             'courseCards' => $this->courses->featuredCards(),
             'liveClassCards' => $this->liveClasses->upcomingCards(),
             'teacherCards' => $this->teachers->featuredCards(),
-            'stats' => $this->stats->public(),
+            'stats' => $this->stats->overview(),
             'latestPosts' => $this->blog->latest(),
         ];
     }
