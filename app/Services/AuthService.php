@@ -1,14 +1,14 @@
 <?php
 
-namespace AppServices;
+namespace App\Services;
 
-use AppModelsParentProfile;
-use AppModelsRole;
-use AppModelsStudentProfile;
-use AppModelsUser;
-use IlluminateSupportFacadesAuth;
-use IlluminateSupportFacadesDB;
-use IlluminateValidationValidationException;
+use App\Models\ParentProfile;
+use App\Models\Role;
+use App\Models\StudentProfile;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 final class AuthService
 {
@@ -31,11 +31,9 @@ final class AuthService
     public function register(array $data): User
     {
         return DB::transaction(function () use ($data): User {
-            $roleSlug = $data['account_type'] ?? 'student';
-
-            if (!in_array($roleSlug, ['student', 'parent'], true)) {
-                $roleSlug = 'student';
-            }
+            $roleSlug = in_array($data['account_type'] ?? null, ['student', 'parent'], true)
+                ? $data['account_type']
+                : 'student';
 
             $role = Role::query()
                 ->where('slug', $roleSlug)
@@ -50,15 +48,11 @@ final class AuthService
             $user->roles()->attach($role->id);
 
             if ($roleSlug === 'student') {
-                StudentProfile::create([
-                    'user_id' => $user->id,
-                ]);
+                StudentProfile::create(['user_id' => $user->id]);
             }
 
             if ($roleSlug === 'parent') {
-                ParentProfile::create([
-                    'user_id' => $user->id,
-                ]);
+                ParentProfile::create(['user_id' => $user->id]);
             }
 
             Auth::login($user);
