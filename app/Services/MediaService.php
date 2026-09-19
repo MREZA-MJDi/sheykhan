@@ -133,4 +133,28 @@ class MediaService
             ['Content-Type' => $media->mime_type ?: 'application/octet-stream'],
         );
     }
+
+    public function stream(Media $media)
+    {
+        abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
+
+        if ($media->disk !== 'local') {
+            return Storage::disk($media->disk)->response(
+                $media->path,
+                $media->original_name,
+                ['Content-Type' => $media->mime_type ?: 'application/octet-stream'],
+                'inline',
+            );
+        }
+
+        return response()->file(
+            Storage::disk($media->disk)->path($media->path),
+            [
+                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . str_replace('"', '', $media->original_name) . '"',
+                'Accept-Ranges' => 'bytes',
+                'Cache-Control' => 'private, no-store, max-age=0',
+            ],
+        );
+    }
 }
