@@ -13,6 +13,7 @@ use App\Models\Lesson;
 use App\Models\LiveClass;
 use App\Models\Media;
 use App\Models\User;
+use App\Services\CourseAccessService;
 
 class MediaPolicy
 {
@@ -163,37 +164,7 @@ class MediaPolicy
 
     private function courseAccess(User $user, Course $course): bool
     {
-        $course->loadMissing('academy');
-
-        if ($this->academyOwner($user, $course->academy)) {
-            return true;
-        }
-
-        if ($course->teachers()->whereKey($user->id)->exists()) {
-            return true;
-        }
-
-        if (
-            $user->enrollments()
-                ->where('course_id', $course->id)
-                ->where('status', 'active')
-                ->exists()
-        ) {
-            return true;
-        }
-
-        if ($user->classroomsAsStudent()->where('course_id', $course->id)->exists()) {
-            return true;
-        }
-
-        return $user->children()
-            ->with('classroomsAsStudent')
-            ->get()
-            ->contains(
-                fn (User $child) => $child->classroomsAsStudent->contains(
-                    fn (Classroom $classroom) => $classroom->course_id === $course->id
-                )
-            );
+        return app(CourseAccessService::class)->canAccess($user, $course);
     }
 
     private function isParentOf(User $user, int $studentId): bool
