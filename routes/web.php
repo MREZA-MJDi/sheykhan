@@ -72,6 +72,7 @@ Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.
     Route::post('/academy/{academy}/classrooms', [\App\Http\Controllers\Owner\ClassroomController::class, 'store'])->name('classrooms.store');
     Route::get('/academy/{academy}/classrooms/{classroom}/edit', [\App\Http\Controllers\Owner\ClassroomController::class, 'edit'])->name('classrooms.edit');
     Route::patch('/academy/{academy}/classrooms/{classroom}', [\App\Http\Controllers\Owner\ClassroomController::class, 'update'])->name('classrooms.update');
+    Route::patch('/academy/{academy}/classrooms/{classroom}/status', [\App\Http\Controllers\Owner\ClassroomController::class, 'updateStatus'])->name('classrooms.status');
     Route::get('/reports', [\App\Http\Controllers\Owner\ReportController::class, 'index'])->name('reports.index');
     Route::post('/academy/{academy}/people/store-teacher', [OwnerPeopleController::class, 'storeTeacher'])
         ->middleware('permission:teachers.manage')
