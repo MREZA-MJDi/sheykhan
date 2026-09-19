@@ -35,6 +35,33 @@ final class CourseAccessService
         return $this->canAccess($user, $course);
     }
 
+    public function canAccessLesson(User $user, \App\Models\Lesson $lesson): bool
+    {
+        $lesson->loadMissing('section.course');
+
+        $course = $lesson->section?->course;
+
+        if (!$course || !$course->isPublished() || $lesson->status !== 'published') {
+            return false;
+        }
+
+        if ($this->isAcademyOwner($user, $course) || $this->isAssignedTeacher($user, $course)) {
+            return true;
+        }
+
+        if ($lesson->is_free) {
+            if ($user->hasRole('student')) {
+                return true;
+            }
+
+            if ($user->hasRole('parent')) {
+                return $user->children()->exists();
+            }
+        }
+
+        return $this->canAccess($user, $course);
+    }
+
     public function isPaidEnrollment(User $user, Course $course): bool
     {
         return $user->enrollments()
