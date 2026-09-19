@@ -10,9 +10,7 @@ class CourseCatalogService
     public function paginate(int $perPage = 12): LengthAwarePaginator
     {
         return Course::query()
-            ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
+            ->published()
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
             ->with([
                 'academy:id,name',
@@ -22,10 +20,40 @@ class CourseCatalogService
                     ->where('visibility', 'public')
                     ->orderByPivot('sort_order'),
             ])
-            ->withCount('enrollments')
             ->latest('published_at')
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    public function featuredCards(int $limit = 3): array
+    {
+        return Course::query()
+            ->published()
+            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->with([
+                'academy:id,name',
+                'teachers:id,name',
+                'sections.lessons:id,course_section_id',
+                'media' => fn ($query) => $query
+                    ->where('visibility', 'public')
+                    ->orderByPivot('sort_order'),
+            ])
+            ->latest('published_at')
+            ->limit($limit)
+            ->get()
+            ->map(fn (Course $course) => [
+                'title' => $course->title,
+                'description' => $course->short_description ?: $course->description,
+                'category' => $course->academy?->name,
+                'teacher' => $course->teachers->first()?->name,
+                'lessons' => $course->sections->sum(fn ($section) => $section->lessons->count()),
+                'duration' => $this->formatDuration($course->duration_minutes),
+                'price' => $this->formatPrice($course->price),
+                'level' => $course->level,
+                'image' => $course->media->first()?->url(),
+                'href' => route('courses.show', $course),
+            ])
+            ->all();
     }
 
     public function findPublished(Course $course): Course
@@ -41,12 +69,36 @@ class CourseCatalogService
         ]);
 
         abort_unless(
-            $course->status === 'published'
-            && $course->published_at?->isPast()
+            $course->isPublished()
             && $course->academy?->status === 'active',
             404
         );
 
         return $course;
+    }
+
+    private function formatDuration(int $minutes): string
+    {
+        if ($minutes <= 0) {
+            return 'مدت زمان متغیر';
+        }
+
+        $hours = intdiv($minutes, 60);
+        $remaining = $minutes % 60;
+
+        if ($hours > 0 && $remaining > 0) {
+            return $hours . ' ساعت و ' . $remaining . ' دقیقه';
+        }
+
+        return $hours > 0 ? $hours . ' ساعت' : $remaining . ' دقیقه';
+    }
+
+    private function formatPrice(float|int|string $price): string
+    {
+        $amount = (float) $price;
+
+        return $amount <= 0
+            ? 'رایگان'
+            : number_format($amount, 0, '.', ',') . ' تومان';
     }
 }
