@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Owner\Course;
 
+use App\Models\Academy;
 use App\Models\Course;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,7 +11,12 @@ class UpdateCourseRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasPermission('courses.manage') ?? false;
+        /** @var Course|null $course */
+        $course = $this->route('course');
+
+        return $course
+            && ($this->user()?->hasPermission('courses.manage') ?? false)
+            && app(\App\Services\CourseManagementService::class)->canManage($this->user(), $course);
     }
 
     protected function prepareForValidation(): void
@@ -27,10 +33,19 @@ class UpdateCourseRequest extends FormRequest
         $academyId = $this->integer('academy_id') ?: $course?->academy_id;
 
         return [
-            'academy_id' => ['sometimes', 'required', 'integer', 'exists:academies,id'],
+            'academy_id' => [
+                'sometimes',
+                'required',
+                'integer',
+                Rule::in($this->accessibleAcademyIds()),
+            ],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'slug' => [
-                'sometimes', 'required', 'string', 'max:255', 'alpha_dash',
+                'sometimes',
+                'required',
+                'string',
+                'max:255',
+                'alpha_dash',
                 Rule::unique('courses', 'slug')
                     ->where(fn ($query) => $query->where('academy_id', $academyId))
                     ->ignore($course?->id),
@@ -50,6 +65,7 @@ class UpdateCourseRequest extends FormRequest
     {
         return [
             'academy_id.required' => 'انتخاب آموزشگاه الزامی است.',
+            'academy_id.in' => 'این آموزشگاه برای حساب شما قابل مدیریت نیست.',
             'academy_id.exists' => 'آموزشگاه انتخاب‌شده معتبر نیست.',
             'title.required' => 'عنوان دوره الزامی است.',
             'slug.required' => 'شناسه دوره الزامی است.',
@@ -62,5 +78,29 @@ class UpdateCourseRequest extends FormRequest
             'duration_minutes.min' => 'مدت زمان نمی‌تواند منفی باشد.',
             'published_at.date' => 'تاریخ انتشار معتبر نیست.',
         ];
+    }
+
+    private function accessibleAcademyIds(): array
+    {
+        $user = $this->user();
+
+        if (!$user) {
+            return [];
+        }
+
+        return Academy::query()
+            ->where('status', 'active')
+            ->where(function ($query) use ($user): void {
+                $query
+                    ->where('owner_id', $user->id)
+                    ->orWhereHas('users', function ($membership) use ($user): void {
+                        $membership
+                            ->whereKey($user->id)
+                            ->wherePivot('status', 'active')
+                            ->whereIn('academy_user.role', ['owner', 'teacher']);
+                    });
+            })
+            ->pluck('id')
+            ->all();
     }
 }
