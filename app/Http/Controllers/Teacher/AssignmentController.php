@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Assignment\StoreAssignmentRequest;
+use App\Http\Requests\Teacher\Assignment\UpdateAssignmentRequest;
 use App\Models\Assignment;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
@@ -35,11 +36,7 @@ class AssignmentController extends Controller
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedByCourse(
-                $request->user(),
-                (int) $classroomId,
-                $course->id
-            );
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, $course->id);
         }
 
         $payload = $request->safe()->except('course_id');
@@ -49,6 +46,47 @@ class AssignmentController extends Controller
 
         return redirect()->route('teacher.assignments.index')
             ->with('success', 'تکلیف با موفقیت ساخته شد.');
+    }
+
+    public function edit(
+        Assignment $assignment,
+        TeacherWorkspaceService $workspace
+    ): View {
+        abort_unless($assignment->teacher_id === request()->user()->id, 403);
+
+        return view('teacher.assignments.form', [
+            'courses' => $workspace->courses(request()->user()),
+            'classrooms' => $workspace->classrooms(request()->user()),
+            'assignment' => $assignment,
+        ]);
+    }
+
+    public function update(
+        UpdateAssignmentRequest $request,
+        Assignment $assignment,
+        TeacherWorkspaceService $workspace
+    ): RedirectResponse {
+        $workspace->updateAssignment(
+            $request->user(),
+            $assignment,
+            $request->validated()
+        );
+
+        return redirect()->route('teacher.assignments.index')
+            ->with('success', 'تکلیف به‌روزرسانی شد.');
+    }
+
+    public function destroy(
+        Assignment $assignment,
+        TeacherWorkspaceService $workspace
+    ): RedirectResponse {
+        try {
+            $workspace->deleteAssignment(request()->user(), $assignment);
+        } catch (\LogicException $exception) {
+            return back()->withErrors(['assignment' => $exception->getMessage()]);
+        }
+
+        return back()->with('success', 'تکلیف حذف شد.');
     }
 
     public function submissions(
