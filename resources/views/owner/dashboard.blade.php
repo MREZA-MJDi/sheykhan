@@ -142,7 +142,7 @@
     </section>
 
     <section class="owner-section">
-        <div class="owner-section-head"><div><span class="owner-eyebrow">ثبت‌نام‌های اخیر</span><h2>ورودی‌های جدید</h2></div><a href="{{ route('owner.people.index', $academies->first()) }}" class="owner-link {{ $academies->isEmpty() ? 'pointer-events-none opacity-40' : '' }}">مدیریت اعضا ←</a></div>
+        <div class="owner-section-head"><div><span class="owner-eyebrow">ثبت‌نام‌های اخیر</span><h2>ورودی‌های جدید</h2></div><a href="{{ $academies->first() ? route('owner.people.index', $academies->first()) : '#' }}" class="owner-link {{ $academies->isEmpty() ? 'pointer-events-none opacity-40' : '' }}">مدیریت اعضا ←</a></div>
         <div class="owner-enrollment-list">
             @forelse($recentEnrollments as $enrollment)
                 <article><span class="owner-avatar">{{ mb_substr($enrollment->student_name, 0, 1) }}</span><div><strong>{{ $enrollment->student_name }}</strong><small>{{ $enrollment->course_title }}</small></div><div class="owner-enrollment-price">{{ number_format((float) $enrollment->paid_amount, 0, '.', ',') }} تومان</div></article>
