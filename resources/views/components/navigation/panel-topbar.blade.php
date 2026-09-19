@@ -1,5 +1,5 @@
 @props([
-    'title' => 'پنل شیخان',
+    'title' => null,
     'role' => 'owner',
 ])
 
@@ -10,6 +10,7 @@
         'student' => 'پنل دانش‌آموز',
         'parent' => 'پنل والد',
     ];
+    $title ??= trim(view()->yieldContent('header-title', $roleLabels[$role] ?? 'پنل شیخان'));
 @endphp
 
 <header class="role-topbar">
