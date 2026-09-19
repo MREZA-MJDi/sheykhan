@@ -285,6 +285,51 @@ final class TeacherWorkspaceService
         $assignment->delete();
     }
 
+    public function updateExam(User $teacher, Exam $exam, array $data): Exam
+    {
+        abort_unless($exam->teacher_id === $teacher->id, 403);
+
+        if ($exam->attempts()->exists()) {
+            throw new \LogicException('این آزمون پاسخ ثبت‌شده دارد و ساختار آن دیگر قابل ویرایش نیست.');
+        }
+
+        $course = $this->courseOwnedBy($teacher, (int) $data['course_id']);
+        $classroomId = $data['classroom_id'] ?? null;
+
+        if ($classroomId) {
+            $this->classroomOwnedByCourse($teacher, (int) $classroomId, $course->id);
+        }
+
+        DB::transaction(function () use ($exam, $course, $classroomId, $data): void {
+            $exam->update([
+                'course_id' => $course->id,
+                'classroom_id' => $classroomId,
+                'title' => $data['title'],
+                'description' => $data['description'] ?? null,
+                'duration_minutes' => $data['duration_minutes'] ?? 0,
+                'starts_at' => $data['starts_at'] ?? null,
+                'ends_at' => $data['ends_at'] ?? null,
+                'attempts_allowed' => $data['attempts_allowed'] ?? 1,
+                'status' => $data['status'],
+            ]);
+
+            $exam->questions()->delete();
+
+            foreach ($data['questions'] ?? [] as $index => $question) {
+                $exam->questions()->create([
+                    'type' => $question['type'] ?? 'text',
+                    'question' => $question['question'],
+                    'options' => $question['options'] ?? null,
+                    'correct_answer' => $question['correct_answer'] ?? null,
+                    'score' => $question['score'] ?? 1,
+                    'sort_order' => $index,
+                ]);
+            }
+        });
+
+        return $exam->refresh();
+    }
+
     public function updateLiveClass(User $teacher, LiveClass $liveClass, array $data): LiveClass
     {
         abort_unless($liveClass->teacher_id === $teacher->id, 403);
