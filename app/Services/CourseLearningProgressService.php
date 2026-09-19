@@ -33,9 +33,12 @@ final class CourseLearningProgressService
             ->unique('id')
             ->values();
 
+        $lessonIds = $lessons->pluck('id')->all();
+        $studentIds = $students->pluck('id')->all();
+
         $progressRows = DB::table('lesson_progress')
-            ->whereIn('lesson_id', $lessons->modelKeys())
-            ->whereIn('user_id', $students->modelKeys())
+            ->whereIn('lesson_id', $lessonIds)
+            ->whereIn('user_id', $studentIds)
             ->get([
                 'lesson_id',
                 'user_id',
