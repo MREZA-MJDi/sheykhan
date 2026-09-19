@@ -49,4 +49,10 @@ class Course extends Model
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
     }
+
+    public function isPublished(): bool
+    {
+        return $this->status === 'published'
+            && $this->published_at?->isPast();
+    }
 }
