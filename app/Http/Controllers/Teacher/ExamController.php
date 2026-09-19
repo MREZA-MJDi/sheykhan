@@ -57,4 +57,18 @@ class ExamController extends Controller
         return redirect()->route('teacher.exams.index')
             ->with('success', 'آزمون با موفقیت ساخته شد.');
     }
+
+    public function attempts(Exam $exam): View
+    {
+        abort_unless($exam->teacher_id === request()->user()->id, 403);
+
+        return view('teacher.exams.attempts', [
+            'exam' => $exam->load([
+                'questions',
+                'attempts' => fn ($query) => $query
+                    ->with(['student:id,name', 'answers.question'])
+                    ->latest('submitted_at'),
+            ]),
+        ]);
+    }
 }
