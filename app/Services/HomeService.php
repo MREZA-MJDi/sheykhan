@@ -2,10 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\BlogPost;
-use App\Models\Course;
-use App\Models\User;
-
 class HomeService
 {
     public function __construct(
