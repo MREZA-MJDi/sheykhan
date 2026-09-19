@@ -161,15 +161,29 @@ class MediaPolicy
 
     private function courseMediaAccess(User $user, Course $course, Media $media): bool
     {
-        if (!$this->courseAccess($user, $course)) {
+        $access = $media->metadata['access'] ?? 'course';
+
+        if ($this->isCourseManager($user, $course)) {
+            return true;
+        }
+
+        if (!$course->isPublished()) {
             return false;
         }
 
-        $access = $media->metadata['access'] ?? 'course';
+        if ($access === 'free') {
+            if ($user->hasRole('student')) {
+                return true;
+            }
 
-        return $access !== 'paid'
-            || $this->isCourseManager($user, $course)
-            || $this->courseAccessService()->isPaidEnrollment($user, $course);
+            return $user->hasRole('parent') && $user->children()->exists();
+        }
+
+        if ($access === 'paid') {
+            return $this->courseAccessService()->isPaidEnrollment($user, $course);
+        }
+
+        return $this->courseAccess($user, $course);
     }
 
     private function academyMember(User $user, Academy $academy): bool
