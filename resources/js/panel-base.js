@@ -1,5 +1,4 @@
-function bootPanel() {
-
+export function bootPanel() {
     const openButton = document.querySelector('[data-role-menu-open]');
 
     openButton?.addEventListener('click', () => {
@@ -14,7 +13,10 @@ function bootPanel() {
         if (!document.body.classList.contains('role-menu-open')) return;
 
         const sidebar = document.querySelector('.role-sidebar');
-        if (!sidebar || sidebar.contains(event.target) || openButton?.contains(event.target)) return;
+
+        if (!sidebar || sidebar.contains(event.target) || openButton?.contains(event.target)) {
+            return;
+        }
 
         document.body.classList.remove('role-menu-open');
         openButton?.setAttribute('aria-expanded', 'false');
