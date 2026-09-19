@@ -121,7 +121,11 @@
                     </details>
                 </header>
 
-                <div class="teacher-builder-lessons">
+                <div
+                    class="teacher-builder-lessons"
+                    data-lesson-list
+                    data-lesson-reorder-url="{{ route('teacher.sections.lessons.reorder', $section) }}"
+                >
                     @forelse($section->lessons as $lesson)
                         @php
                             $videos = $lesson->media->filter(fn ($media) => $media->collection === 'video');
@@ -129,8 +133,9 @@
                             $previewVideo = $videos->first();
                         @endphp
 
-                        <article class="teacher-lesson-card" data-lesson-card>
+                        <article class="teacher-lesson-card" data-lesson-card data-lesson-id="{{ $lesson->id }}">
                             <div class="teacher-lesson-main">
+                                <div class="teacher-lesson-drag" draggable="true" title="جابجایی درس">⋮⋮</div>
                                 <div class="teacher-lesson-type type-{{ $lesson->type }}">
                                     @switch($lesson->type)
                                         @case('video')▶@break
