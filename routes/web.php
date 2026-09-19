@@ -108,9 +108,16 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::delete('/courses/{course}/media/{media}', [TeacherCourseMediaController::class, 'destroy'])->name('courses.media.destroy');
     Route::get('/courses/{course}/progress', CourseLearningProgressController::class)->name('courses.progress');
     Route::get('/courses/{course}/content', [TeacherLessonController::class, 'index'])->name('courses.content');
+    Route::post('/courses/{course}/sections', [\App\Http\Controllers\Teacher\CourseSectionController::class, 'store'])->name('courses.sections.store');
+    Route::post('/courses/{course}/sections/reorder', [\App\Http\Controllers\Teacher\CourseSectionController::class, 'reorder'])->name('courses.sections.reorder');
     Route::post('/lessons', [TeacherLessonController::class, 'store'])->name('lessons.store');
     Route::patch('/lessons/{lesson}', [TeacherLessonController::class, 'update'])->name('lessons.update');
+    Route::delete('/lessons/{lesson}', [TeacherLessonController::class, 'destroy'])->name('lessons.destroy');
     Route::post('/lessons/{lesson}/media', [TeacherLessonMediaController::class, 'store'])->name('lessons.media.store');
+    Route::delete('/lessons/{lesson}/media/{media}', [TeacherLessonMediaController::class, 'destroy'])->name('lessons.media.destroy');
+    Route::get('/lessons/{lesson}/media/{media}/stream', [TeacherLessonMediaController::class, 'stream'])->name('lessons.media.stream');
+    Route::patch('/sections/{section}', [\App\Http\Controllers\Teacher\CourseSectionController::class, 'update'])->name('sections.update');
+    Route::delete('/sections/{section}', [\App\Http\Controllers\Teacher\CourseSectionController::class, 'destroy'])->name('sections.destroy');
 
     Route::get('/classrooms', [TeacherClassroomController::class, 'index'])->name('classrooms.index');
     Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->name('classrooms.create');
