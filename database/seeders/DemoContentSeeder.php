@@ -238,6 +238,47 @@ class DemoContentSeeder extends Seeder
                 );
             }
 
+            $courseLessons = $section->lessons()->orderBy('sort_order')->get();
+
+            $demoProgress = [
+                $students->get(0)?->id => [
+                    0 => [80, 720, now()->subHours(3)],
+                    1 => [100, 1200, now()->subDay()],
+                ],
+                $students->get(1)?->id => [
+                    0 => [25, 225, now()->subHours(6)],
+                ],
+            ];
+
+            foreach ($demoProgress as $studentId => $lessonProgress) {
+                if (!$studentId) {
+                    continue;
+                }
+
+                foreach ($lessonProgress as $lessonIndex => [$percent, $seconds, $watchedAt]) {
+                    $lesson = $courseLessons->get($lessonIndex);
+
+                    if (!$lesson) {
+                        continue;
+                    }
+
+                    DB::table('lesson_progress')->updateOrInsert(
+                        [
+                            'lesson_id' => $lesson->id,
+                            'user_id' => $studentId,
+                        ],
+                        [
+                            'progress_percent' => $percent,
+                            'seconds_watched' => $seconds,
+                            'completed_at' => $percent >= 100 ? $watchedAt : null,
+                            'last_watched_at' => $watchedAt,
+                            'updated_at' => now(),
+                            'created_at' => now(),
+                        ]
+                    );
+                }
+            }
+
             $this->attachDemoImage($course, "course-{$course->id}.svg", 'courses');
             $courses->push($course);
         }
