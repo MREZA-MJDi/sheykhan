@@ -20,8 +20,8 @@
         @endif
 
         <div class="role-sidebar-label mt-6">نظارت</div>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>کلاس‌ها</span><small>در حال توسعه</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>گزارش مالی</span><small>Dashboard</small></span>
+        <a href="{{ $academy ? route('owner.classrooms.index',$academy) : '#' }}" class="role-nav-link {{ request()->routeIs('owner.classrooms.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>کلاس‌ها</span></a>
+        <a href="{{ route('owner.reports.index') }}" class="role-nav-link {{ request()->routeIs('owner.reports.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>گزارش‌ها</span></a>
     </nav>
 
     <div class="role-sidebar-footer">
