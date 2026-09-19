@@ -15,6 +15,7 @@
                     <div class="flex flex-wrap gap-2">
                         <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px]">{{ $exam->submitted_attempts_count }} ارسال</span>
                         <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] text-emerald-700">{{ $exam->graded_attempts_count }} تصحیح‌شده</span>
+                        <a href="{{ route('teacher.exams.edit',$exam) }}" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold">ویرایش آزمون</a>
                         <a href="{{ route('teacher.exams.attempts',$exam) }}" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold">مشاهده نتایج</a>
                     </div>
                 </div>
