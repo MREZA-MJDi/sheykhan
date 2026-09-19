@@ -44,7 +44,21 @@
 
                     <div class="mt-3 border-t border-[var(--color-border)] pt-3 lg:mt-0 lg:border-0 lg:pt-0">
                         @auth
-                            <a href="#" class="flex items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
+                            @php
+                                $dashboardUrl = route('home');
+
+                                if (auth()->user()->hasRole('academy-owner')) {
+                                    $dashboardUrl = route('owner.dashboard');
+                                } elseif (auth()->user()->hasRole('teacher')) {
+                                    $dashboardUrl = route('teacher.dashboard');
+                                } elseif (auth()->user()->hasRole('student')) {
+                                    $dashboardUrl = route('student.dashboard');
+                                } elseif (auth()->user()->hasRole('parent')) {
+                                    $dashboardUrl = route('parent.dashboard');
+                                }
+                            @endphp
+
+                            <a href="{{ $dashboardUrl }}" class="flex items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
                                 حساب کاربری
                             </a>
                         @else
