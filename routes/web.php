@@ -112,6 +112,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/courses/{course}/content', [TeacherLessonController::class, 'index'])->name('courses.content');
     Route::post('/courses/{course}/sections', [\App\Http\Controllers\Teacher\CourseSectionController::class, 'store'])->name('courses.sections.store');
     Route::post('/courses/{course}/sections/reorder', [\App\Http\Controllers\Teacher\CourseSectionController::class, 'reorder'])->name('courses.sections.reorder');
+    Route::post('/sections/{section}/lessons/reorder', [TeacherLessonController::class, 'reorder'])->name('sections.lessons.reorder');
     Route::post('/lessons', [TeacherLessonController::class, 'store'])->name('lessons.store');
     Route::patch('/lessons/{lesson}', [TeacherLessonController::class, 'update'])->name('lessons.update');
     Route::delete('/lessons/{lesson}', [TeacherLessonController::class, 'destroy'])->name('lessons.destroy');
