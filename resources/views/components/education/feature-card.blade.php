@@ -5,21 +5,23 @@
     'href' => null,
 ])
 
-<article class="group h-full rounded-2xl border border-[var(--color-border)] bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[var(--color-primary-200)] hover:shadow-[var(--shadow-lg)]">
-    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
+<article {{ $attributes->class([
+    'home-feature-card home-card h-full p-5 sm:p-6',
+]) }}>
+    <div class="relative z-[1] flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
         {!! $icon !!}
     </div>
 
-    <h3 class="mt-5 text-lg font-bold text-[var(--color-text)]">
+    <h3 class="relative z-[1] mt-5 text-lg font-black text-[var(--color-text)]">
         {{ $title }}
     </h3>
 
-    <p class="mt-2 text-sm leading-7 text-[var(--color-text-muted)]">
+    <p class="relative z-[1] mt-2 text-sm leading-7 text-[var(--color-text-secondary)]">
         {{ $description }}
     </p>
 
     @if($href)
-        <a href="{{ $href }}" class="mt-5 inline-flex text-sm font-bold text-[var(--color-primary-600)]">
+        <a href="{{ $href }}" class="relative z-[1] mt-5 inline-flex text-sm font-black text-[var(--color-primary-600)]">
             بیشتر بدانید ←
         </a>
     @endif
