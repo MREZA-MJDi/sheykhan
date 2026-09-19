@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\Storage;
 
 class Media extends Model
 {
@@ -19,22 +19,8 @@ class Media extends Model
 
     protected $casts = ['metadata' => 'array'];
 
-    public function uploader(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'uploaded_by');
-    }
-
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(MediaAttachment::class);
-    }
-
-    public function academies(): MorphToMany
-    {
-        return $this->morphedByMany(Academy::class, 'mediable', 'media_attachments')
-            ->withPivot(['collection','sort_order','is_featured'])
-            ->withTimestamps();
-    }
+    public function uploader(): BelongsTo { return $this->belongsTo(User::class, 'uploaded_by'); }
+    public function attachments(): HasMany { return $this->hasMany(MediaAttachment::class); }
 
     public function url(): ?string
     {
@@ -42,6 +28,6 @@ class Media extends Model
             return null;
         }
 
-        return \Storage::disk($this->disk)->url($this->path);
+        return Storage::disk($this->disk)->url($this->path);
     }
 }
