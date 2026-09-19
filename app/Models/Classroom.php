@@ -18,15 +18,23 @@ class Classroom extends Model
 
     public function academy(): BelongsTo { return $this->belongsTo(Academy::class); }
     public function course(): BelongsTo { return $this->belongsTo(Course::class); }
+
     public function teachers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'classroom_teacher', 'classroom_id', 'teacher_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'classroom_teacher', 'classroom_id', 'teacher_id')
+            ->withTimestamps();
     }
+
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'classroom_student', 'classroom_id', 'student_id')
-            ->withPivot(['status','enrolled_at','completed_at'])->withTimestamps();
+            ->withPivot(['status','enrolled_at','completed_at'])
+            ->withTimestamps();
     }
+
     public function schedules(): HasMany { return $this->hasMany(ClassSchedule::class); }
     public function attendance(): HasMany { return $this->hasMany(Attendance::class); }
+    public function assignments(): HasMany { return $this->hasMany(Assignment::class); }
+    public function exams(): HasMany { return $this->hasMany(Exam::class); }
+    public function liveClasses(): HasMany { return $this->hasMany(LiveClass::class); }
 }
