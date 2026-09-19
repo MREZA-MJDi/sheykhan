@@ -24,6 +24,12 @@ class StoreExamRequest extends FormRequest
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'attempts_allowed' => ['sometimes', 'integer', 'min:1', 'max:255'],
             'status' => ['sometimes', Rule::in(['draft', 'published', 'closed'])],
+            'questions' => ['nullable', 'array', 'max:100'],
+            'questions.*.type' => ['required_with:questions', Rule::in(['text', 'single', 'multiple', 'checkbox'])],
+            'questions.*.question' => ['required_with:questions', 'string', 'max:5000'],
+            'questions.*.options' => ['nullable', 'array'],
+            'questions.*.correct_answer' => ['nullable'],
+            'questions.*.score' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ];
     }
 
