@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Academy;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -27,12 +28,29 @@ final class OwnerDashboardService
                     'sales' => 0,
                     'published' => 0,
                     'pendingReviews' => 0,
+                    'pendingExams' => 0,
+                    'activeEnrollments' => 0,
                 ],
                 'teacherReports' => collect(),
                 'recentCourses' => collect(),
                 'upcomingLiveClasses' => collect(),
             ];
         }
+
+        $academies = Academy::query()
+            ->whereIn('id', $academyIds)
+            ->withCount([
+                'courses as course_count',
+                'users as member_count',
+                'users as teacher_count' => fn ($query) => $query
+                    ->where('academy_user.role', 'teacher')
+                    ->where('academy_user.status', 'active'),
+                'users as student_count' => fn ($query) => $query
+                    ->where('academy_user.role', 'student')
+                    ->where('academy_user.status', 'active'),
+            ])
+            ->orderBy('name')
+            ->get();
 
         $courseIds = Course::query()
             ->whereIn('academy_id', $academyIds)
@@ -70,11 +88,20 @@ final class OwnerDashboardService
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', now())
                 ->count(),
+            'activeEnrollments' => DB::table('course_enrollments')
+                ->whereIn('course_id', $courseIds)
+                ->where('status', 'active')
+                ->count(),
             'pendingReviews' => DB::table('assignment_submissions as submissions')
                 ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
                 ->whereIn('assignments.course_id', $courseIds)
                 ->whereNotNull('submissions.submitted_at')
                 ->whereNull('submissions.graded_at')
+                ->count(),
+            'pendingExams' => DB::table('exam_attempts as attempts')
+                ->join('exams', 'exams.id', '=', 'attempts.exam_id')
+                ->whereIn('exams.course_id', $courseIds)
+                ->where('attempts.status', 'needs_review')
                 ->count(),
         ];
 
@@ -127,7 +154,7 @@ final class OwnerDashboardService
 
         return [
             'owner' => $owner,
-            'academies' => $academyIds,
+            'academies' => $academies,
             'metrics' => $metrics,
             'teacherReports' => $teacherReports,
             'recentCourses' => Course::query()
@@ -139,6 +166,8 @@ final class OwnerDashboardService
                 ->latest()
                 ->limit(6)
                 ->get(),
+            'courseReports' => $this->courseReports($courseIds),
+            'recentEnrollments' => $this->recentEnrollments($courseIds),
             'upcomingLiveClasses' => DB::table('live_classes')
                 ->join('courses', 'courses.id', '=', 'live_classes.course_id')
                 ->leftJoin('classrooms', 'classrooms.id', '=', 'live_classes.classroom_id')
@@ -157,5 +186,56 @@ final class OwnerDashboardService
                     'teachers.name as teacher_name',
                 ]),
         ];
+    }
+
+    private function courseReports($courseIds)
+    {
+        if ($courseIds->isEmpty()) {
+            return collect();
+        }
+
+        $sales = DB::table('course_enrollments')
+            ->whereIn('course_id', $courseIds)
+            ->where('status', 'active')
+            ->groupBy('course_id')
+            ->select('course_id', DB::raw('COALESCE(SUM(paid_amount), 0) AS sales'))
+            ->pluck('sales', 'course_id');
+
+        return Course::query()
+            ->whereIn('id', $courseIds)
+            ->with('teachers:id,name')
+            ->withCount([
+                'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
+            ])
+            ->latest()
+            ->limit(8)
+            ->get()
+            ->map(function (Course $course) use ($sales) {
+                $course->setAttribute('sales', (float) ($sales[$course->id] ?? 0));
+
+                return $course;
+            });
+    }
+
+    private function recentEnrollments($courseIds)
+    {
+        if ($courseIds->isEmpty()) {
+            return collect();
+        }
+
+        return DB::table('course_enrollments as enrollments')
+            ->join('courses', 'courses.id', '=', 'enrollments.course_id')
+            ->join('users as students', 'students.id', '=', 'enrollments.student_id')
+            ->whereIn('enrollments.course_id', $courseIds)
+            ->orderByDesc('enrollments.created_at')
+            ->limit(8)
+            ->get([
+                'enrollments.id',
+                'enrollments.status',
+                'enrollments.paid_amount',
+                'enrollments.created_at',
+                'courses.title as course_title',
+                'students.name as student_name',
+            ]);
     }
 }
