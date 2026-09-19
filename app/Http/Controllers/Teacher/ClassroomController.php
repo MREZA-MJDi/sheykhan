@@ -46,7 +46,16 @@ class ClassroomController extends Controller
 
         $classroom->teachers()->syncWithoutDetaching([$request->user()->id]);
 
-        return redirect()->route('teacher.classrooms.index')
+        return redirect()->route('teacher.classrooms.show', $classroom)
             ->with('success', 'کلاس با موفقیت ساخته شد.');
+    }
+
+    public function show(
+        Classroom $classroom,
+        TeacherWorkspaceService $workspace
+    ): View {
+        return view('teacher.classrooms.show', [
+            'classroom' => $workspace->classroomDetails(request()->user(), $classroom),
+        ]);
     }
 }
