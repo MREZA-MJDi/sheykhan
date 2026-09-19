@@ -193,6 +193,15 @@ final class OwnerWorkspaceService
         $classroom = $academy->classrooms()->findOrFail($classroomId);
         $course = $academy->courses()->findOrFail((int) ($data['course_id'] ?? $classroom->course_id));
         $teacherIds = $this->scopedTeacherIds($academy, $data['teacher_ids'] ?? []);
+        $activeStudentCount = $classroom->students()->wherePivot('status', 'active')->count();
+
+        if ($course->id !== $classroom->course_id && $activeStudentCount > 0) {
+            abort(422, 'کلاسی که دانش‌آموز فعال دارد، نمی‌تواند به دوره دیگری منتقل شود.');
+        }
+
+        if (($data['capacity'] ?? null) !== null && (int) $data['capacity'] < $activeStudentCount) {
+            abort(422, 'ظرفیت جدید کلاس نمی‌تواند کمتر از تعداد دانش‌آموزان فعال باشد.');
+        }
 
         DB::transaction(function () use ($classroom, $course, $teacherIds, $data): void {
             $classroom->update([
@@ -294,16 +303,26 @@ final class OwnerWorkspaceService
 
     private function scopedTeacherIds(Academy $academy, array $teacherIds): array
     {
+        $teacherIds = array_values(array_unique(array_map('intval', $teacherIds)));
+
         if ($teacherIds === []) {
             return [];
         }
 
-        return $academy->users()
-            ->whereIn('users.id', array_map('intval', $teacherIds))
+        $resolved = $academy->users()
+            ->whereIn('users.id', $teacherIds)
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'active')
             ->pluck('users.id')
             ->map(fn ($id) => (int) $id)
             ->all();
+
+        abort_unless(
+            count($resolved) === count($teacherIds),
+            422,
+            'یکی از مدرس‌های انتخاب‌شده عضو فعال این آموزشگاه نیست.'
+        );
+
+        return $resolved;
     }
 }
