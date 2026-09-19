@@ -48,15 +48,23 @@ final class TeacherWorkspaceService
             return collect();
         }
 
+        $courseIds = $teacher->taughtCourses()->pluck('courses.id');
+
         return User::query()
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active'))
             ->with('studentProfile')
             ->withCount([
-                'lessonProgress as progress_items_count',
-                'assignmentSubmissions',
-                'examAttempts',
+                'lessonProgress as progress_items_count' => fn ($query) => $query
+                    ->whereHas('lesson.section', fn ($section) => $section
+                        ->whereIn('course_id', $courseIds)),
+                'assignmentSubmissions as assignment_submissions_count' => fn ($query) => $query
+                    ->whereHas('assignment', fn ($assignment) => $assignment
+                        ->where('teacher_id', $teacher->id)),
+                'examAttempts as exam_attempts_count' => fn ($query) => $query
+                    ->whereHas('exam', fn ($exam) => $exam
+                        ->where('teacher_id', $teacher->id)),
             ])
             ->orderBy('name')
             ->get();
