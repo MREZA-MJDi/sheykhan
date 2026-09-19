@@ -331,7 +331,7 @@
     </x-layout.section>
 
     <section class="px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
-        <div class="container-farzin overflow-hidden rounded-[2rem] bg-[var(--color-primary-600)]">
+        <div class="container-site overflow-hidden rounded-[2rem] bg-[var(--color-primary-600)]">
             <div class="relative px-6 py-14 text-center text-white sm:px-12 sm:py-20">
                 <div class="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl"></div>
                 <div class="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-3xl"></div>
