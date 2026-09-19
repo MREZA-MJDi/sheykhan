@@ -1,15 +1,17 @@
 <?php
 
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\MediaController;
-use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
-use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
-use App\Http\Controllers\PublicSite\BlogController;
-use App\Http\Controllers\PublicSite\CourseController;
-use App\Http\Controllers\PublicSite\TeacherController;
-use App\Http\Controllers\Student\DashboardController as StudentDashboard;
-use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
-use Illuminate\Support\Facades\Route;
+use AppHttpControllersAuthController;
+use AppHttpControllersDashboardRedirectController;
+use AppHttpControllersHomeController;
+use AppHttpControllersMediaController;
+use AppHttpControllersOwnerDashboardController as OwnerDashboard;
+use AppHttpControllersParentPortalDashboardController as ParentDashboard;
+use AppHttpControllersPublicSiteBlogController;
+use AppHttpControllersPublicSiteCourseController;
+use AppHttpControllersPublicSiteTeacherController;
+use AppHttpControllersStudentDashboardController as StudentDashboard;
+use AppHttpControllersTeacherDashboardController as TeacherDashboard;
+use IlluminateSupportFacadesRoute;
 
 Route::get('/', HomeController::class)->name('home');
 
@@ -20,6 +22,27 @@ Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.ind
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])
+        ->middleware('throttle:6,1')
+        ->name('login.store');
+
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:6,1')
+        ->name('register.store');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/media/{media}/download', [MediaController::class, 'download'])
+        ->name('media.download');
+});
 
 Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->name('dashboard');
@@ -35,9 +58,4 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
 Route::middleware(['auth', 'role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->name('dashboard');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::get('/media/{media}/download', [MediaController::class, 'download'])
-        ->name('media.download');
 });
