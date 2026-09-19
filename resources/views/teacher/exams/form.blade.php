@@ -27,7 +27,7 @@
             <div class="teacher-editor-grid exam">
                 <label>
                     <span>دوره</span>
-                    <select name="course_id" required>
+                    <select name="course_id" required data-course-scope-select data-classroom-target="exam-classroom">
                         @foreach($courses as $course)
                             <option value="{{ $course->id }}">{{ $course->title }}</option>
                         @endforeach
@@ -36,10 +36,10 @@
 
                 <label>
                     <span>کلاس</span>
-                    <select name="classroom_id">
+                    <select name="classroom_id" id="exam-classroom">
                         <option value="">عمومی دوره</option>
                         @foreach($classrooms as $classroom)
-                            <option value="{{ $classroom->id }}">{{ $classroom->title }}</option>
+                            <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}">{{ $classroom->title }}</option>
                         @endforeach
                     </select>
                 </label>
