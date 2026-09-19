@@ -49,7 +49,11 @@ class CourseMediaController extends Controller
 
         abort_unless($attached, 404);
 
-        $mediaService->delete($media);
+        $mediaService->detach($media, $course);
+
+        if ($media->attachments()->doesntExist()) {
+            $mediaService->delete($media);
+        }
 
         return back()->with('success', 'فایل حذف شد.');
     }
