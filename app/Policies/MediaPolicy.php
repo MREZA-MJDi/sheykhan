@@ -33,8 +33,10 @@ class MediaPolicy
                 return true;
             }
 
-            if ($model instanceof Lesson && $model->relationLoaded('section') && $model->section?->course) {
-                if ($this->courseAccess($user, $model->section->course)) {
+            if ($model instanceof Lesson) {
+                $model->loadMissing('section.course');
+
+                if ($model->section?->course && $this->courseAccess($user, $model->section->course)) {
                     return true;
                 }
             }
@@ -44,6 +46,8 @@ class MediaPolicy
             }
 
             if ($model instanceof Assignment) {
+                $model->loadMissing(['course', 'classroom']);
+
                 if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
                     return true;
                 }
@@ -54,16 +58,28 @@ class MediaPolicy
             }
 
             if ($model instanceof AssignmentSubmission) {
-                if ($model->student_id === $user->id || $model->graded_by === $user->id) {
+                $model->loadMissing(['assignment.course', 'assignment.classroom']);
+
+                if (
+                    $model->student_id === $user->id
+                    || $model->graded_by === $user->id
+                    || $model->assignment?->teacher_id === $user->id
+                ) {
                     return true;
                 }
 
-                if ($model->assignment?->teacher_id === $user->id) {
+                if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
+                    return true;
+                }
+
+                if ($model->assignment?->classroom && $this->classroomAccess($user, $model->assignment->classroom)) {
                     return true;
                 }
             }
 
             if ($model instanceof Exam) {
+                $model->loadMissing(['course', 'classroom']);
+
                 if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
                     return true;
                 }
@@ -73,11 +89,18 @@ class MediaPolicy
                 }
             }
 
-            if ($model instanceof ExamAttempt && $model->student_id === $user->id) {
-                return true;
+            if ($model instanceof ExamAttempt) {
+                if (
+                    $model->student_id === $user->id
+                    || $this->isParentOf($user, $model->student_id)
+                ) {
+                    return true;
+                }
             }
 
             if ($model instanceof LiveClass) {
+                $model->loadMissing(['course', 'classroom']);
+
                 if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
                     return true;
                 }
@@ -94,7 +117,7 @@ class MediaPolicy
     private function academyMember(User $user, Academy $academy): bool
     {
         return $academy->owner_id === $user->id
-            || $user->academies()->whereKey($academy->id)->exists();
+            || $user->academies()->whereKey($academy->id)->wherePivot('status', 'active')->exists();
     }
 
     private function academyOwner(User $user, Academy $academy): bool
@@ -103,11 +126,14 @@ class MediaPolicy
             || $user->academies()
                 ->whereKey($academy->id)
                 ->wherePivot('role', 'owner')
+                ->wherePivot('status', 'active')
                 ->exists();
     }
 
     private function classroomAccess(User $user, Classroom $classroom): bool
     {
+        $classroom->loadMissing('academy');
+
         if ($this->academyOwner($user, $classroom->academy)) {
             return true;
         }
@@ -116,21 +142,29 @@ class MediaPolicy
             return true;
         }
 
-        if ($user->classroomsAsStudent()->whereKey($classroom->id)->exists()) {
+        if (
+            $user->classroomsAsStudent()
+                ->whereKey($classroom->id)
+                ->wherePivot('status', 'active')
+                ->exists()
+        ) {
             return true;
         }
 
-        foreach ($user->children()->with('classroomsAsStudent')->get() as $child) {
-            if ($child->classroomsAsStudent->contains('id', $classroom->id)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $user->children()
+            ->with('classroomsAsStudent')
+            ->get()
+            ->contains(
+                fn (User $child) => $child->classroomsAsStudent->contains(
+                    fn (Classroom $childClassroom) => $childClassroom->id === $classroom->id
+                )
+            );
     }
 
     private function courseAccess(User $user, Course $course): bool
     {
+        $course->loadMissing('academy');
+
         if ($this->academyOwner($user, $course->academy)) {
             return true;
         }
@@ -139,7 +173,12 @@ class MediaPolicy
             return true;
         }
 
-        if ($user->enrollments()->where('course_id', $course->id)->where('status', 'active')->exists()) {
+        if (
+            $user->enrollments()
+                ->where('course_id', $course->id)
+                ->where('status', 'active')
+                ->exists()
+        ) {
             return true;
         }
 
@@ -147,12 +186,18 @@ class MediaPolicy
             return true;
         }
 
-        foreach ($user->children()->with('classroomsAsStudent')->get() as $child) {
-            if ($child->classroomsAsStudent->contains('course_id', $course->id)) {
-                return true;
-            }
-        }
+        return $user->children()
+            ->with('classroomsAsStudent')
+            ->get()
+            ->contains(
+                fn (User $child) => $child->classroomsAsStudent->contains(
+                    fn (Classroom $classroom) => $classroom->course_id === $course->id
+                )
+            );
+    }
 
-        return false;
+    private function isParentOf(User $user, int $studentId): bool
+    {
+        return $user->children()->whereKey($studentId)->exists();
     }
 }
