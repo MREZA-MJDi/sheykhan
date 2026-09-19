@@ -17,11 +17,17 @@ class UpdateCourseRequest extends FormRequest
     {
         /** @var Course|null $course */
         $course = $this->route('course');
+        $academyId = $this->integer('academy_id') ?: $course?->academy_id;
 
         return [
             'academy_id' => ['sometimes', 'required', 'integer', 'exists:academies,id'],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'slug' => ['sometimes', 'required', 'string', 'max:255', 'alpha_dash'],
+            'slug' => [
+                'sometimes', 'required', 'string', 'max:255', 'alpha_dash',
+                Rule::unique('courses', 'slug')
+                    ->where(fn ($query) => $query->where('academy_id', $academyId))
+                    ->ignore($course?->id),
+            ],
             'level' => ['nullable', 'string', 'max:100'],
             'status' => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
             'short_description' => ['nullable', 'string', 'max:500'],
@@ -40,6 +46,7 @@ class UpdateCourseRequest extends FormRequest
             'title.required' => 'عنوان دوره الزامی است.',
             'slug.required' => 'شناسه دوره الزامی است.',
             'slug.alpha_dash' => 'شناسه دوره فقط باید شامل حروف، عدد، خط تیره و زیرخط باشد.',
+            'slug.unique' => 'این شناسه دوره در این آموزشگاه قبلاً استفاده شده است.',
             'short_description.max' => 'خلاصه دوره نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد.',
             'duration_minutes.min' => 'مدت زمان نمی‌تواند منفی باشد.',
             'price.min' => 'قیمت نمی‌تواند منفی باشد.',
