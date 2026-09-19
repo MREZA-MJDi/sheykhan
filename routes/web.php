@@ -126,9 +126,14 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->name('classrooms.create');
     Route::post('/classrooms', [TeacherClassroomController::class, 'store'])->name('classrooms.store');
     Route::get('/classrooms/{classroom}', [TeacherClassroomController::class, 'show'])->name('classrooms.show');
+    Route::get('/classrooms/{classroom}/edit', [TeacherClassroomController::class, 'edit'])->name('classrooms.edit');
+    Route::patch('/classrooms/{classroom}', [TeacherClassroomController::class, 'update'])->name('classrooms.update');
+    Route::patch('/classrooms/{classroom}/archive', [TeacherClassroomController::class, 'archive'])->name('classrooms.archive');
     Route::get('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'edit'])->name('classrooms.attendance.edit');
     Route::get('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule.index');
     Route::post('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('schedule.store');
+    Route::patch('/schedule/{schedule}', [\App\Http\Controllers\Teacher\ScheduleController::class, 'update'])->name('schedule.update');
+    Route::delete('/schedule/{schedule}', [\App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->name('schedule.destroy');
     Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->name('classrooms.attendance.store');
 
     Route::get('/students', fn (\App\Services\TeacherWorkspaceService $workspace) => view('teacher.students.index', [
@@ -140,6 +145,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->name('assignments.index');
     Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->name('assignments.create');
     Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->name('assignments.store');
+    Route::get('/assignments/{assignment}/edit', [TeacherAssignmentController::class, 'edit'])->name('assignments.edit');
+    Route::patch('/assignments/{assignment}', [TeacherAssignmentController::class, 'update'])->name('assignments.update');
+    Route::delete('/assignments/{assignment}', [TeacherAssignmentController::class, 'destroy'])->name('assignments.destroy');
     Route::get('/assignments/{assignment}/submissions', [TeacherAssignmentController::class, 'submissions'])->name('assignments.submissions');
     Route::patch('/assignments/{assignment}/submissions/{submission}', [TeacherAssignmentSubmissionController::class, 'update'])
         ->middleware('permission:assignments.manage')
@@ -159,6 +167,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->name('live-classes.index');
     Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->name('live-classes.create');
     Route::post('/live-classes', [TeacherLiveClassController::class, 'store'])->name('live-classes.store');
+    Route::get('/live-classes/{liveClass}/edit', [TeacherLiveClassController::class, 'edit'])->name('live-classes.edit');
+    Route::patch('/live-classes/{liveClass}', [TeacherLiveClassController::class, 'update'])->name('live-classes.update');
+    Route::patch('/live-classes/{liveClass}/cancel', [TeacherLiveClassController::class, 'cancel'])->name('live-classes.cancel');
 });
 
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
