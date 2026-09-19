@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\BlogPost;
 use App\Models\Course;
 use App\Models\LiveClass;
-use App\Models\TeacherProfile;
 use App\Models\User;
 
 class HomeService
@@ -18,6 +17,7 @@ class HomeService
             ->where('published_at', '<=', now())
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
             ->with([
+                'academy:id,name',
                 'teachers:id,name',
                 'sections.lessons:id,course_section_id',
                 'media' => fn ($query) => $query
@@ -44,25 +44,23 @@ class HomeService
             ->limit(3)
             ->get();
 
-        $teachers = TeacherProfile::query()
-            ->where('is_verified', true)
-            ->whereHas('user', fn ($query) => $query->where('status', 'active'))
+        $teachers = User::query()
+            ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
+            ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true))
             ->with([
-                'user:id,name',
-                'media' => fn ($query) => $query
+                'teacherProfile.media' => fn ($query) => $query
                     ->where('visibility', 'public')
                     ->orderByPivot('sort_order'),
             ])
             ->withCount([
-                'user as courses_count' => fn ($query) => $query
-                    ->whereHas('taughtCourses', fn ($courseQuery) => $courseQuery
-                        ->where('status', 'published')
-                        ->whereNotNull('published_at')
-                        ->where('published_at', '<=', now())),
+                'taughtCourses as courses_count' => fn ($query) => $query
+                    ->where('status', 'published')
+                    ->whereNotNull('published_at')
+                    ->where('published_at', '<=', now()),
             ])
             ->latest()
             ->limit(4)
-            ->get();
+            ->get(['id', 'name']);
 
         $stats = [
             'courses' => Course::query()
@@ -83,7 +81,12 @@ class HomeService
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
-            ->with('category:id,name')
+            ->with([
+                'category:id,name',
+                'media' => fn ($query) => $query
+                    ->where('visibility', 'public')
+                    ->orderByPivot('sort_order'),
+            ])
             ->latest('published_at')
             ->limit(3)
             ->get(['id', 'category_id', 'title', 'slug', 'excerpt', 'published_at']);
@@ -91,23 +94,7 @@ class HomeService
         return compact('courses', 'liveClasses', 'teachers', 'stats', 'latestPosts');
     }
 
-    public function courseCardData(Course $course): array
-    {
-        return [
-            'title' => $course->title,
-            'description' => $course->short_description ?: $course->description,
-            'category' => $course->academy?->name,
-            'teacher' => $course->teachers->first()?->name,
-            'lessons' => $course->sections->sum(fn ($section) => $section->lessons->count()),
-            'duration' => $this->formatDuration($course->duration_minutes),
-            'price' => $this->formatPrice($course->price),
-            'level' => $course->level,
-            'image' => $course->media->first()?->url(),
-            'href' => route('courses.show', $course),
-        ];
-    }
-
-    private function formatDuration(int $minutes): string
+    public function formatDuration(int $minutes): string
     {
         if ($minutes <= 0) {
             return 'مدت زمان متغیر';
@@ -125,7 +112,7 @@ class HomeService
             : $remaining . ' دقیقه';
     }
 
-    private function formatPrice(float|int|string $price): string
+    public function formatPrice(float|int|string $price): string
     {
         $amount = (float) $price;
 
