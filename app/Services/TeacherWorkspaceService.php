@@ -203,6 +203,123 @@ final class TeacherWorkspaceService
         ];
     }
 
+    public function updateClassroom(User $teacher, Classroom $classroom, array $data): Classroom
+    {
+        $classroom = $this->classroomOwnedBy($teacher, $classroom->id);
+        $activeStudents = $classroom->students()->wherePivot('status', 'active')->count();
+
+        if (($data['capacity'] ?? null) !== null && (int) $data['capacity'] < $activeStudents) {
+            throw new \LogicException('ظرفیت کلاس نمی‌تواند کمتر از تعداد دانش‌آموزان فعال باشد.');
+        }
+
+        $course = $this->courseOwnedBy($teacher, (int) $data['course_id']);
+
+        if ($classroom->course_id !== $course->id && $activeStudents > 0) {
+            throw new \LogicException('کلاس دارای دانش‌آموز فعال است و فعلاً نمی‌تواند به دوره دیگری منتقل شود.');
+        }
+
+        $classroom->update([
+            'academy_id' => $course->academy_id,
+            'course_id' => $course->id,
+            'title' => $data['title'],
+            'code' => $data['code'],
+            'description' => $data['description'] ?? null,
+            'capacity' => $data['capacity'] ?? null,
+            'status' => $data['status'] ?? $classroom->status,
+            'starts_at' => $data['starts_at'] ?? null,
+            'ends_at' => $data['ends_at'] ?? null,
+        ]);
+
+        return $classroom->refresh();
+    }
+
+    public function updateSchedule(User $teacher, \App\Models\ClassSchedule $schedule, array $data): \App\Models\ClassSchedule
+    {
+        $classroom = $schedule->classroom()->firstOrFail();
+        $this->classroomOwnedBy($teacher, $classroom->id);
+
+        $schedule->update($data);
+
+        return $schedule->refresh();
+    }
+
+    public function deleteSchedule(User $teacher, \App\Models\ClassSchedule $schedule): void
+    {
+        $classroom = $schedule->classroom()->firstOrFail();
+        $this->classroomOwnedBy($teacher, $classroom->id);
+        $schedule->delete();
+    }
+
+    public function updateAssignment(User $teacher, Assignment $assignment, array $data): Assignment
+    {
+        abort_unless($assignment->teacher_id === $teacher->id, 403);
+
+        $course = $this->courseOwnedBy($teacher, (int) $data['course_id']);
+        $classroomId = $data['classroom_id'] ?? null;
+
+        if ($classroomId) {
+            $this->classroomOwnedByCourse($teacher, (int) $classroomId, $course->id);
+        }
+
+        $assignment->update([
+            'course_id' => $course->id,
+            'classroom_id' => $classroomId,
+            'title' => $data['title'],
+            'instructions' => $data['instructions'] ?? null,
+            'due_at' => $data['due_at'] ?? null,
+            'max_score' => $data['max_score'] ?? null,
+            'status' => $data['status'] ?? $assignment->status,
+        ]);
+
+        return $assignment->refresh();
+    }
+
+    public function deleteAssignment(User $teacher, Assignment $assignment): void
+    {
+        abort_unless($assignment->teacher_id === $teacher->id, 403);
+
+        if ($assignment->submissions()->exists()) {
+            throw new \LogicException('تکلیفی که پاسخ دانش‌آموز دارد حذف نمی‌شود؛ آن را ببندید.');
+        }
+
+        $assignment->delete();
+    }
+
+    public function updateLiveClass(User $teacher, LiveClass $liveClass, array $data): LiveClass
+    {
+        abort_unless($liveClass->teacher_id === $teacher->id, 403);
+
+        $course = $this->courseOwnedBy($teacher, (int) $data['course_id']);
+        $classroomId = $data['classroom_id'] ?? null;
+
+        if ($classroomId) {
+            $this->classroomOwnedByCourse($teacher, (int) $classroomId, $course->id);
+        }
+
+        $liveClass->update([
+            'course_id' => $course->id,
+            'classroom_id' => $classroomId,
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'provider' => $data['provider'] ?? null,
+            'meeting_url' => $data['meeting_url'] ?? null,
+            'scheduled_at' => $data['scheduled_at'],
+            'duration_minutes' => $data['duration_minutes'],
+            'status' => $data['status'],
+        ]);
+
+        return $liveClass->refresh();
+    }
+
+    public function cancelLiveClass(User $teacher, LiveClass $liveClass): LiveClass
+    {
+        abort_unless($liveClass->teacher_id === $teacher->id, 403);
+
+        $liveClass->update(['status' => 'cancelled']);
+
+        return $liveClass->refresh();
+    }
+
     public function markAttendance(User $teacher, Classroom $classroom, array $attendance, string $attendanceDate): void
     {
         $this->classroomOwnedBy($teacher, $classroom->id);
