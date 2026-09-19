@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Parent;
+namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
 use Illuminate\View\View;
