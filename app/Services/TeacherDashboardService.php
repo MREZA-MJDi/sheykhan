@@ -155,10 +155,10 @@ final class TeacherDashboardService
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
             })
-            ->leftJoin('lesson_progress as progress', function ($join): void {
-                $join->on('progress.user_id', '=', 'enrollments.student_id')
-                    ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-                    ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
+            ->leftJoin('lesson_progress as progress', 'progress.user_id', '=', 'enrollments.student_id')
+            ->leftJoin('lessons', 'lessons.id', '=', 'progress.lesson_id')
+            ->leftJoin('course_sections', function ($join): void {
+                $join->on('course_sections.id', '=', 'lessons.course_section_id')
                     ->on('course_sections.course_id', '=', 'courses.id');
             })
             ->where('ct.teacher_id', $teacherId)
@@ -174,6 +174,7 @@ final class TeacherDashboardService
             ->map(function ($row) {
                 $row->student_count = (int) $row->student_count;
                 $row->progress_average = round((float) $row->progress_average);
+
                 return $row;
             });
     }
