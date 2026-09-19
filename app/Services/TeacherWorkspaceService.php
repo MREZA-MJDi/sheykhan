@@ -114,7 +114,7 @@ final class TeacherWorkspaceService
             ->firstOrFail();
     }
 
-    public function markAttendance(User $teacher, Classroom $classroom, array $attendance): void
+    public function markAttendance(User $teacher, Classroom $classroom, array $attendance, string $attendanceDate): void
     {
         $this->classroomOwnedBy($teacher, $classroom->id);
 
@@ -133,7 +133,7 @@ final class TeacherWorkspaceService
                     [
                         'classroom_id' => $classroom->id,
                         'student_id' => $studentId,
-                        'attendance_date' => request()->date('attendance_date', today()->toDateString()),
+                        'attendance_date' => $attendanceDate,
                     ],
                     [
                         'marked_by' => $teacher->id,
