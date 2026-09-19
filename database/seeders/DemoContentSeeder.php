@@ -233,6 +233,7 @@ class DemoContentSeeder extends Seeder
                 );
             }
 
+            $this->attachDemoImage($course, "course-{$course->id}.svg", 'courses');
             $courses->push($course);
         }
 
@@ -300,9 +301,63 @@ class DemoContentSeeder extends Seeder
         );
 
         $post->tags()->syncWithoutDetaching([$tag->id]);
+        $this->attachDemoImage($post, 'blog-learning.svg', 'featured');
 
         $parent->children()->syncWithoutDetaching([
             $students->first()->id => ['relation' => 'mother'],
         ]);
+    }
+
+    private function attachDemoImage(object $model, string $fileName, string $collection): void
+    {
+        $directory = 'demo';
+        $path = $directory . '/' . $fileName;
+        $storage = Storage::disk('public');
+
+        if (!$storage->exists($path)) {
+            $title = e($model->title ?? 'شیخان');
+            $svg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
+    <defs>
+        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stop-color="#5362df"/>
+            <stop offset="100%" stop-color="#303878"/>
+        </linearGradient>
+    </defs>
+    <rect width="1200" height="675" fill="url(#g)"/>
+    <circle cx="980" cy="120" r="220" fill="#ffffff" opacity=".08"/>
+    <circle cx="180" cy="560" r="300" fill="#ffffff" opacity=".06"/>
+    <text x="90" y="510" fill="#fff" font-family="Vazirmatn, Arial, sans-serif" font-size="54" font-weight="700">$title</text>
+    <text x="90" y="570" fill="#dbe0ff" font-family="Vazirmatn, Arial, sans-serif" font-size="28">Sheykhan Education Platform</text>
+</svg>
+SVG;
+            $storage->put($path, $svg);
+        }
+
+        $media = Media::updateOrCreate(
+            ['disk' => 'public', 'path' => $path],
+            [
+                'uploaded_by' => User::where('email', 'owner@sheykhan.test')->value('id'),
+                'original_name' => $fileName,
+                'file_name' => $fileName,
+                'mime_type' => 'image/svg+xml',
+                'extension' => 'svg',
+                'size' => $storage->size($path),
+                'checksum' => hash('sha256', $storage->get($path)),
+                'visibility' => 'public',
+                'collection' => $collection,
+                'metadata' => ['demo' => true],
+                'status' => 'active',
+            ]
+        );
+
+        $model->media()->syncWithoutDetaching([
+            $media->id => [
+                'collection' => $collection,
+                'sort_order' => 0,
+                'is_featured' => true,
+            ],
+        ]);
+    }
     }
 }
