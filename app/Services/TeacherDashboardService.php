@@ -151,8 +151,15 @@ final class TeacherDashboardService
     {
         return DB::table('course_teacher as ct')
             ->join('courses', 'courses.id', '=', 'ct.course_id')
+            ->leftJoin('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.course_id', '=', 'courses.id')
+                    ->where('enrollments.status', '=', 'active');
+            })
             ->leftJoin('lesson_progress as progress', function ($join): void {
-                $join->join('lessons', 'lessons.id', '=', 'progress.lesson_id');
+                $join->on('progress.user_id', '=', 'enrollments.student_id')
+                    ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
+                    ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
+                    ->on('course_sections.course_id', '=', 'courses.id');
             })
             ->where('ct.teacher_id', $teacherId)
             ->whereIn('ct.course_id', $courseIds)
@@ -161,9 +168,14 @@ final class TeacherDashboardService
             ->get([
                 'ct.course_id',
                 'courses.title',
-                DB::raw('0 as student_count'),
-                DB::raw('0 as progress_average'),
-            ]);
+                DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
+                DB::raw('COALESCE(AVG(progress.progress_percent), 0) AS progress_average'),
+            ])
+            ->map(function ($row) {
+                $row->student_count = (int) $row->student_count;
+                $row->progress_average = round((float) $row->progress_average);
+                return $row;
+            });
     }
 
     private function weeklyChart(int $teacherId, $courseIds, Carbon $from, Carbon $to): array
