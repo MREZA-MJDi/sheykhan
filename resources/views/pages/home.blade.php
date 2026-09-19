@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'شیخان | آموزش، رشد، آینده')
-@section('description', 'شیخان؛ پلتفرم یکپارچه آموزش آنلاین، کلاس، تمرین، آزمون و پیگیری پیشرفت.')
+@section('title', 'شیخان | مسیر یادگیری برای آینده')
+@section('description', 'شیخان؛ پلتفرم یکپارچه آموزش آنلاین، کلاس، تمرین، آزمون و پیگیری پیشرفت برای دانش‌آموز، مدرس، والد و آموزشگاه.')
 
 @section('content')
     @php
@@ -11,252 +11,315 @@
         ]);
 
         $heroCourse = $courseCards[0] ?? null;
+
+        $paths = [
+            [
+                'title' => 'یادگیری آنلاین',
+                'description' => 'دوره و درس را مرحله‌به‌مرحله جلو ببر و مسیرت را خودت بساز.',
+                'href' => route('courses.index'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="15" rx="3"/><path d="m10 9 5 2.5-5 2.5V9Z"/><path d="M8 22h8"/></svg>',
+            ],
+            [
+                'title' => 'کلاس و تعامل',
+                'description' => 'کلاس‌های آموزشی و جلسه‌های آنلاین را در یک محیط منظم دنبال کن.',
+                'href' => route('courses.index'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v13H6.5A2.5 2.5 0 0 0 4 19.5v-13Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M8 8h8M8 11h5"/></svg>',
+            ],
+            [
+                'title' => 'تمرین و آزمون',
+                'description' => 'یادگیری را با تکلیف، آزمون و بازخورد به نتیجه قابل اندازه‌گیری تبدیل کن.',
+                'href' => route('courses.index'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h10a2 2 0 0 1 2 2v16H5V5a2 2 0 0 1 2-2Z"/><path d="m8.5 12 2 2 5-5"/><path d="M8 7h8"/></svg>',
+            ],
+            [
+                'title' => 'پیشرفت آموزشی',
+                'description' => 'دانش‌آموز، والد و مدرس هرکدام تصویر روشن‌تری از مسیر یادگیری دارند.',
+                'href' => route('teachers.index'),
+                'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5M4 19h16"/><path d="m7 15 3-3 3 2 5-6"/></svg>',
+            ],
+        ];
     @endphp
 
     {{-- Hero --}}
-    <section class="relative isolate overflow-hidden border-b border-[var(--color-border)] bg-[var(--color-background)]">
-        <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-            <div class="absolute -right-36 -top-36 h-[28rem] w-[28rem] rounded-full bg-[var(--color-primary-100)] opacity-70 blur-3xl"></div>
-            <div class="absolute -bottom-44 -left-36 h-[30rem] w-[30rem] rounded-full bg-[var(--color-accent-100)] opacity-40 blur-3xl"></div>
-        </div>
-
+    <section class="home-noise relative overflow-hidden">
         <x-layout.container size="wide">
-            <div class="grid min-h-[min(760px,calc(100vh-5rem))] items-center gap-12 py-14 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
-
-                <div class="max-w-3xl">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3 py-1.5 text-xs font-bold text-[var(--color-primary-700)]">
+            <div class="home-hero-grid grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[1fr_0.92fr] lg:gap-16 lg:py-24">
+                <div class="max-w-3xl home-reveal" data-delay="1">
+                    <span class="inline-flex items-center gap-2 rounded-full border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3.5 py-2 text-xs font-bold text-[var(--color-primary-700)]">
                         <span class="h-1.5 w-1.5 rounded-full bg-[var(--color-primary-600)]"></span>
-                        محیط یکپارچه آموزش و یادگیری
-                    </div>
+                        یک مسیر، برای تمام نقش‌های یادگیری
+                    </span>
 
-                    <h1 class="mt-6 max-w-3xl text-balance text-4xl font-black tracking-tight text-[var(--color-text)] sm:text-5xl lg:text-6xl xl:text-7xl">
-                        مسیر یادگیریت را
-                        <span class="text-[var(--color-primary-600)]">خودت بساز.</span>
+                    <h1 class="mt-7 max-w-3xl text-4xl font-black leading-[1.15] tracking-tight text-[var(--color-text)] sm:text-5xl lg:text-[4.25rem]">
+                        یادگیری‌ای که فقط
+                        <span class="text-[var(--color-primary-600)]">شروع نمی‌شود؛</span>
+                        جلو می‌رود.
                     </h1>
 
-                    <p class="mt-6 max-w-2xl text-pretty text-base leading-8 text-[var(--color-text-muted)] sm:text-lg">
-                        دوره، کلاس آنلاین، تمرین، آزمون و پیشرفت آموزشی در یک تجربه یکپارچه برای دانش‌آموز،
-                        مدرس، والد و آموزشگاه.
+                    <p class="mt-6 max-w-2xl text-base leading-8 text-[var(--color-text-secondary)] sm:text-lg">
+                        شیخان، فضای یکپارچه‌ای برای دوره، کلاس، تمرین، آزمون و پیگیری پیشرفت است؛
+                        تا دانش‌آموز، مدرس، والد و آموزشگاه هرکدام تجربه‌ای متناسب با نقش خود داشته باشند.
                     </p>
 
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                        <x-ui.button href="{{ route('courses.index') }}" variant="primary" size="lg">
+                        <x-ui.button href="{{ route('courses.index') }}" variant="primary" size="xl">
                             کشف دوره‌ها
                             <span aria-hidden="true">←</span>
                         </x-ui.button>
 
-                        <x-ui.button href="{{ route('teachers.index') }}" variant="outline" size="lg">
+                        <x-ui.button href="{{ route('teachers.index') }}" variant="outline" size="xl">
                             آشنایی با مدرس‌ها
                         </x-ui.button>
                     </div>
 
-                    <div class="mt-10 grid max-w-2xl grid-cols-3 divide-x divide-x-reverse divide-[var(--color-border)] border-y border-[var(--color-border)] py-5">
-                        <x-education.stat-card
-                            :value="$fa($stats['courses']) . '+'"
-                            label="دوره منتشرشده"
-                        />
-                        <div class="px-4 sm:px-6">
-                            <div class="text-2xl font-black tracking-tight text-[var(--color-text)] sm:text-3xl">
-                                {{ $fa($stats['teachers']) }}+
-                            </div>
-                            <div class="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">
-                                مدرس تاییدشده
-                            </div>
+                    <div class="mt-10 grid max-w-2xl grid-cols-3 gap-3">
+                        <div class="home-stat rounded-2xl border border-[var(--color-border)] bg-white/80 p-4 sm:p-5">
+                            <div class="text-2xl font-black text-[var(--color-text)] sm:text-3xl">{{ $fa($stats['courses']) }}+</div>
+                            <div class="mt-1 text-xs font-semibold text-[var(--color-text-muted)] sm:text-sm">دوره منتشرشده</div>
                         </div>
-                        <div class="px-4 sm:px-6">
-                            <div class="text-2xl font-black tracking-tight text-[var(--color-text)] sm:text-3xl">
-                                {{ $fa($stats['students']) }}+
-                            </div>
-                            <div class="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">
-                                دانش‌آموز
-                            </div>
+                        <div class="home-stat rounded-2xl border border-[var(--color-border)] bg-white/80 p-4 sm:p-5">
+                            <div class="text-2xl font-black text-[var(--color-text)] sm:text-3xl">{{ $fa($stats['teachers']) }}+</div>
+                            <div class="mt-1 text-xs font-semibold text-[var(--color-text-muted)] sm:text-sm">مدرس تاییدشده</div>
+                        </div>
+                        <div class="home-stat rounded-2xl border border-[var(--color-border)] bg-white/80 p-4 sm:p-5">
+                            <div class="text-2xl font-black text-[var(--color-text)] sm:text-3xl">{{ $fa($stats['students']) }}+</div>
+                            <div class="mt-1 text-xs font-semibold text-[var(--color-text-muted)] sm:text-sm">دانش‌آموز</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="relative mx-auto w-full max-w-xl">
-                    <div class="absolute inset-x-10 top-10 h-72 rounded-full bg-[var(--color-primary-100)] blur-3xl"></div>
+                <div class="relative mx-auto w-full max-w-xl home-reveal" data-delay="2">
+                    <div class="pointer-events-none absolute -inset-8 rounded-[3rem] bg-[radial-gradient(circle_at_center,rgba(104,121,245,.18),transparent_68%)] blur-2xl"></div>
 
-                    <div class="relative rounded-[2rem] border border-[var(--color-border)] bg-white p-3 shadow-[var(--shadow-xl)] sm:p-4">
-                        <div class="overflow-hidden rounded-[1.5rem] bg-[var(--color-slate-900)] p-5 text-white sm:p-6">
-                            <div class="flex items-start justify-between gap-4">
+                    <div class="home-hero-card relative p-4 text-white sm:p-5 lg:p-6">
+                        <span class="home-hero-ring right-[-6rem] top-[-5rem]"></span>
+
+                        <div class="relative">
+                            <div class="flex items-center justify-between gap-4">
                                 <div>
-                                    <div class="text-xs text-white/60">شیخان</div>
-                                    <div class="mt-1 text-lg font-bold">مسیر بعدی تو</div>
+                                    <div class="text-[11px] font-medium text-white/45">شیخان / مسیر یادگیری</div>
+                                    <div class="mt-1 text-lg font-bold sm:text-xl">امروز چه چیزی جلو می‌رود؟</div>
                                 </div>
-                                <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/10 font-black">
+                                <div class="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-sm font-black shadow-inner">
                                     ش
                                 </div>
                             </div>
 
                             @if($heroCourse)
-                                <div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                                    <div class="relative aspect-[16/8] overflow-hidden bg-white/10">
+                                <div class="mt-7 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.07]">
+                                    <div class="relative aspect-[16/8] overflow-hidden bg-white/5">
                                         @if($heroCourse['image'])
-                                            <img
-                                                src="{{ $heroCourse['image'] }}"
-                                                alt="{{ $heroCourse['title'] }}"
-                                                class="h-full w-full object-cover"
-                                            >
+                                            <img src="{{ $heroCourse['image'] }}" alt="{{ $heroCourse['title'] }}" class="h-full w-full object-cover opacity-90" loading="eager">
+                                            <div class="absolute inset-0 bg-gradient-to-t from-[#0d1223] via-transparent to-transparent"></div>
                                         @else
-                                            <div class="flex h-full items-center justify-center text-white/50">
-                                                <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5v-13Z"/>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m7 16 3-3 2.5 2 2.5-4 2 3"/>
-                                                </svg>
-                                            </div>
+                                            <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(104,121,245,.42),transparent_35%),linear-gradient(135deg,#111a35,#1f2a5d)]"></div>
                                         @endif
+                                        <div class="absolute inset-x-4 bottom-4 flex items-end justify-between gap-4">
+                                            <div>
+                                                <div class="text-[11px] text-white/55">{{ $heroCourse['category'] ?? 'دوره آموزشی' }}</div>
+                                                <div class="mt-1 max-w-sm text-lg font-black sm:text-xl">{{ $heroCourse['title'] }}</div>
+                                            </div>
+                                            @if($heroCourse['level'])
+                                                <span class="rounded-full border border-white/15 bg-black/20 px-3 py-1.5 text-[11px] font-bold text-white/80 backdrop-blur">
+                                                    {{ $heroCourse['level'] }}
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     <div class="p-5">
-                                        <div class="flex items-center justify-between gap-3">
-                                            <span class="text-xs text-white/60">{{ $heroCourse['category'] ?? 'آموزش' }}</span>
-                                            <span class="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-bold text-white/80">
-                                                {{ $heroCourse['level'] ?: 'عمومی' }}
-                                            </span>
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="rounded-2xl bg-white/5 p-3">
+                                                <div class="text-[10px] text-white/40">درس‌ها</div>
+                                                <div class="mt-1 text-sm font-bold">{{ $heroCourse['lessons'] }}</div>
+                                            </div>
+                                            <div class="rounded-2xl bg-white/5 p-3">
+                                                <div class="text-[10px] text-white/40">زمان</div>
+                                                <div class="mt-1 text-sm font-bold">{{ $heroCourse['duration'] }}</div>
+                                            </div>
+                                            <div class="rounded-2xl bg-white/5 p-3">
+                                                <div class="text-[10px] text-white/40">قیمت</div>
+                                                <div class="mt-1 text-sm font-bold">{{ $heroCourse['price'] }}</div>
+                                            </div>
                                         </div>
 
-                                        <h2 class="mt-3 text-xl font-black">{{ $heroCourse['title'] }}</h2>
-
-                                        <p class="mt-2 line-clamp-2 text-sm leading-7 text-white/60">
-                                            {{ $heroCourse['description'] }}
-                                        </p>
-
-                                        <div class="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/60">
-                                            <span>{{ $heroCourse['lessons'] }} درس</span>
-                                            <span>{{ $heroCourse['duration'] }}</span>
-                                            <span class="ms-auto font-bold text-white">{{ $heroCourse['price'] }}</span>
-                                        </div>
-
-                                        <x-ui.button
-                                            href="{{ $heroCourse['href'] }}"
-                                            variant="secondary"
-                                            size="md"
-                                            block
-                                            class="mt-5"
-                                        >
-                                            مشاهده دوره
+                                        <x-ui.button href="{{ $heroCourse['href'] }}" variant="secondary" size="lg" block class="mt-4">
+                                            ورود به دوره
+                                            <span aria-hidden="true">←</span>
                                         </x-ui.button>
                                     </div>
                                 </div>
                             @else
-                                <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-7 text-center">
-                                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 font-black">ش</div>
-                                    <h2 class="mt-4 text-xl font-bold">مسیر یادگیری آماده است</h2>
-                                    <p class="mt-2 text-sm leading-7 text-white/60">
-                                        اولین دوره‌ات را از کاتالوگ انتخاب کن.
+                                <div class="mt-7 rounded-[1.5rem] border border-white/10 bg-white/[0.07] p-7">
+                                    <div class="text-sm font-bold">اولین مسیرت را بساز.</div>
+                                    <p class="mt-2 text-sm leading-7 text-white/55">
+                                        از بین دوره‌های شیخان موضوعی را انتخاب کن و یادگیری را شروع کن.
                                     </p>
-                                    <x-ui.button href="{{ route('courses.index') }}" variant="secondary" size="md" class="mt-5">
+                                    <x-ui.button href="{{ route('courses.index') }}" variant="secondary" size="lg" class="mt-5">
                                         مشاهده دوره‌ها
                                     </x-ui.button>
                                 </div>
                             @endif
-                        </div>
 
-                        <div class="grid grid-cols-3 gap-2 p-1 pt-4 sm:gap-3 sm:p-2 sm:pt-4">
-                            <div class="rounded-xl bg-[var(--color-slate-100)] px-3 py-4 text-center">
-                                <div class="text-xs text-[var(--color-text-muted)]">آموزش</div>
-                                <div class="mt-1 font-bold text-[var(--color-text)]">دوره</div>
-                            </div>
-                            <div class="rounded-xl bg-[var(--color-primary-50)] px-3 py-4 text-center">
-                                <div class="text-xs text-[var(--color-text-muted)]">تعامل</div>
-                                <div class="mt-1 font-bold text-[var(--color-text)]">کلاس</div>
-                            </div>
-                            <div class="rounded-xl bg-[var(--color-accent-50)] px-3 py-4 text-center">
-                                <div class="text-xs text-[var(--color-text-muted)]">ارزیابی</div>
-                                <div class="mt-1 font-bold text-[var(--color-text)]">آزمون</div>
+                            <div class="mt-4 grid grid-cols-3 gap-2">
+                                <div class="rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-center">
+                                    <div class="text-[10px] text-white/40">یادگیری</div>
+                                    <div class="mt-1 text-xs font-bold">دوره</div>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-center">
+                                    <div class="text-[10px] text-white/40">تعامل</div>
+                                    <div class="mt-1 text-xs font-bold">کلاس</div>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-center">
+                                    <div class="text-[10px] text-white/40">ارزیابی</div>
+                                    <div class="mt-1 text-xs font-bold">آزمون</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </x-layout.container>
     </section>
 
-    {{-- Featured courses --}}
+    {{-- Learning paths --}}
+    <section class="home-trust-strip">
+        <x-layout.container size="wide">
+            <div class="grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
+                @foreach($paths as $path)
+                    <a href="{{ $path['href'] }}" class="group flex min-h-28 items-center gap-4 border-b border-[rgba(83,98,223,.08)] px-1 py-5 sm:border-l sm:px-5 lg:min-h-24 lg:border-b-0 lg:first:border-r-0">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--color-primary-600)] shadow-sm transition group-hover:-translate-y-0.5 group-hover:shadow-md">
+                            {!! $path['icon'] !!}
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-sm font-bold text-[var(--color-text)]">{{ $path['title'] }}</span>
+                            <span class="mt-1 block text-xs leading-6 text-[var(--color-text-muted)]">{{ $path['description'] }}</span>
+                        </span>
+                    </a>
+                @endforeach
+            </div>
+        </x-layout.container>
+    </section>
+
+    {{-- How it works --}}
     <x-layout.section spacing="lg">
         <x-layout.container size="wide">
             <x-layout.section-heading
-                eyebrow="یادگیری"
-                title="دوره‌های منتخب"
-                description="دوره‌های منتشرشده‌ای که همین حالا می‌توانی واردشان شوی."
-                href="{{ route('courses.index') }}"
-                link-label="مشاهده همه"
+                eyebrow="چطور کار می‌کند؟"
+                title="از انتخاب تا پیشرفت، همه‌چیز در یک مسیر"
+                description="شیخان فقط محل دیدن محتوا نیست؛ هر مرحله از یادگیری به مرحله بعدی متصل می‌شود."
+                center
             />
 
-            <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                @forelse ($courseCards as $course)
-                    <x-education.course-card
-                        :title="$course['title']"
-                        :description="$course['description']"
-                        :category="$course['category']"
-                        :teacher="$course['teacher']"
-                        :lessons="$course['lessons']"
-                        :duration="$course['duration']"
-                        :price="$course['price']"
-                        :level="$course['level']"
-                        :image="$course['image']"
-                        :href="$course['href']"
-                    />
-                @empty
-                    <div class="sm:col-span-2 xl:col-span-3">
-                        <x-ui.empty-state title="هنوز دوره‌ای منتشر نشده" description="به‌محض انتشار دوره، این بخش به‌صورت خودکار به‌روزرسانی می‌شود." />
+            <div class="relative mt-14 grid gap-10 md:grid-cols-3">
+                <div class="home-step-line"></div>
+
+                @foreach([
+                    ['number' => '۰۱', 'title' => 'مسیرت را پیدا کن', 'description' => 'دوره، کلاس یا موضوع آموزشی مناسب خودت را از بین محتوای منتشرشده انتخاب کن.'],
+                    ['number' => '۰۲', 'title' => 'یاد بگیر و تمرین کن', 'description' => 'درس‌ها را جلو ببر، در کلاس‌ها حاضر شو و با تمرین و آزمون دانسته‌ها را محک بزن.'],
+                    ['number' => '۰۳', 'title' => 'پیشرفتت را ببین', 'description' => 'نتیجه فعالیت‌ها و قدم‌های بعدی را در فضای متناسب با نقش خودت دنبال کن.'],
+                ] as $step)
+                    <div class="relative text-center home-reveal" data-delay="{{ $loop->iteration }}">
+                        <div class="home-step-number mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[var(--color-primary-200)] bg-white text-sm font-black text-[var(--color-primary-700)]">
+                            {{ $step['number'] }}
+                        </div>
+                        <h3 class="mt-6 text-xl font-black text-[var(--color-text)]">{{ $step['title'] }}</h3>
+                        <p class="mx-auto mt-3 max-w-sm text-sm leading-7 text-[var(--color-text-secondary)]">{{ $step['description'] }}</p>
                     </div>
-                @endforelse
+                @endforeach
             </div>
         </x-layout.container>
     </x-layout.section>
 
+    {{-- Courses --}}
+    <section class="home-muted-section">
+        <x-layout.section spacing="lg">
+            <x-layout.container size="wide">
+                <x-layout.section-heading
+                    eyebrow="دوره‌ها"
+                    title="موضوع مورد علاقه‌ات را پیدا کن"
+                    description="دوره‌های منتشرشده با اطلاعات واقعی از سیستم آموزشی شیخان."
+                    href="{{ route('courses.index') }}"
+                    link-label="مشاهده همه دوره‌ها"
+                />
+
+                <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    @forelse($courseCards as $course)
+                        <x-education.course-card
+                            :title="$course['title']"
+                            :description="$course['description']"
+                            :category="$course['category']"
+                            :teacher="$course['teacher']"
+                            :lessons="$course['lessons']"
+                            :duration="$course['duration']"
+                            :price="$course['price']"
+                            :level="$course['level']"
+                            :image="$course['image']"
+                            :href="$course['href']"
+                        />
+                    @empty
+                        <div class="md:col-span-2 xl:col-span-3">
+                            <x-ui.empty-state title="هنوز دوره‌ای منتشر نشده" description="به‌محض انتشار دوره، این بخش به‌صورت خودکار به‌روزرسانی می‌شود." />
+                        </div>
+                    @endforelse
+                </div>
+            </x-layout.container>
+        </x-layout.section>
+    </section>
+
     {{-- Live classes --}}
     @if(count($liveClassCards))
-        <section class="border-y border-[var(--color-border)] bg-[var(--color-background-soft)]">
-            <x-layout.section spacing="lg">
-                <x-layout.container size="wide">
-                    <x-layout.section-heading
-                        eyebrow="تعامل زنده"
-                        title="کلاس‌های آنلاین پیش‌رو"
-                        description="جلسه‌های زمان‌بندی‌شده از داده واقعی کلاس‌های شیخان."
-                    />
+        <x-layout.section spacing="lg" class="home-section-divider">
+            <x-layout.container size="wide">
+                <x-layout.section-heading
+                    eyebrow="جلسه‌های زنده"
+                    title="کلاس آنلاین بعدی را از دست نده"
+                    description="جلسه‌های زمان‌بندی‌شده بر اساس داده‌های واقعی کلاس‌های شیخان."
+                />
 
-                    <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                        @foreach ($liveClassCards as $class)
-                            <x-education.live-class-card
-                                :title="$class['title']"
-                                :course="$class['course']"
-                                :teacher="$class['teacher']"
-                                :date="$class['date']"
-                                :time="$class['time']"
-                                :status="$class['status']"
-                                :href="$class['href']"
-                            />
-                        @endforeach
-                    </div>
-                </x-layout.container>
-            </x-layout.section>
-        </section>
+                <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    @foreach($liveClassCards as $class)
+                        <x-education.live-class-card
+                            :title="$class['title']"
+                            :course="$class['course']"
+                            :teacher="$class['teacher']"
+                            :date="$class['date']"
+                            :time="$class['time']"
+                            :status="$class['status']"
+                            :href="$class['href']"
+                        />
+                    @endforeach
+                </div>
+            </x-layout.container>
+        </x-layout.section>
     @endif
 
     {{-- Teachers --}}
-    <x-layout.section spacing="lg">
+    <x-layout.section spacing="lg" class="home-section-divider">
         <x-layout.container size="wide">
-            <x-layout.section-heading
-                eyebrow="مدرس‌ها"
-                title="آدم‌های پشت تجربه یادگیری"
-                description="مدرس‌های تاییدشده و فعال، با تخصص واقعی و محتوای آموزشی قابل پیگیری."
-                href="{{ route('teachers.index') }}"
-                link-label="همه مدرس‌ها"
-            />
+            <div class="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
+                <x-layout.section-heading
+                    eyebrow="مدرس‌ها"
+                    title="پشت هر مسیر، یک آدم واقعی است."
+                    description="مدرس‌های تاییدشده و فعال شیخان را بشناس و مسیرهای آموزشی‌شان را ببین."
+                />
+                <div class="flex lg:justify-end">
+                    <x-ui.button href="{{ route('teachers.index') }}" variant="outline" size="lg">
+                        همه مدرس‌ها
+                        <span aria-hidden="true">←</span>
+                    </x-ui.button>
+                </div>
+            </div>
 
             <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                @forelse ($teacherCards as $teacher)
+                @forelse($teacherCards as $teacher)
                     <x-education.teacher-card
                         :name="$teacher['name']"
                         :role="$teacher['role']"
                         :avatar="$teacher['avatar']"
                         :bio="$teacher['bio']"
                         :courses="$teacher['courses']"
-                        href="{{ route('teachers.index') }}"
+                        :href="route('teachers.index')"
                     />
                 @empty
                     <div class="sm:col-span-2 xl:col-span-4">
@@ -267,57 +330,72 @@
         </x-layout.container>
     </x-layout.section>
 
-    {{-- Product pillars --}}
-    <section class="border-y border-[var(--color-border)] bg-[var(--color-background-soft)]">
+    {{-- Roles --}}
+    <section class="home-dark-section text-white">
         <x-layout.section spacing="lg">
             <x-layout.container size="wide">
-                <x-layout.section-heading
-                    eyebrow="شیخان"
-                    title="یک پلتفرم؛ چند نقش؛ یک مسیر یادگیری"
-                    description="هر کاربر محیط خودش را دارد و داده‌های آموزشی در یک هسته مشترک مدیریت می‌شوند."
-                    center
-                />
+                <div class="relative grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+                    <div class="home-reveal" data-delay="1">
+                        <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/65">
+                            برای هر نقش، یک تجربه
+                        </span>
 
-                <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    <x-education.feature-card
-                        title="یادگیری آنلاین"
-                        description="دوره، درس، ویدئو و محتوای آموزشی در یک مسیر ساختاریافته."
-                        icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="m9 6 9 6-9 6V6Z"/><rect x="3" y="4" width="18" height="16" rx="3"/></svg>'
-                    />
-                    <x-education.feature-card
-                        title="کلاس و تعامل"
-                        description="کلاس‌های آموزشگاهی، زمان‌بندی، حضور و کلاس زنده."
-                        icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v12H6.5A2.5 2.5 0 0 0 4 18.5v-12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>'
-                    />
-                    <x-education.feature-card
-                        title="آزمون و تمرین"
-                        description="تکلیف، آزمون، تلاش‌های دانش‌آموز و نتیجه قابل پیگیری."
-                        icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="m8 12 2.5 2.5L16 9"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 3h12a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-2-2-2 2V5a2 2 0 0 1 2-2Z"/></svg>'
-                    />
-                    <x-education.feature-card
-                        title="پایش پیشرفت"
-                        description="والد، دانش‌آموز و مدرس هرکدام نمای مناسب نقش خودشان را دارند."
-                        icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5M4 19h16"/><path stroke-linecap="round" stroke-linejoin="round" d="m7 15 3-3 3 2 5-6"/></svg>'
-                    />
+                        <h2 class="mt-5 max-w-xl text-3xl font-black leading-tight text-white sm:text-4xl">
+                            یک هسته آموزشی،
+                            چهار تجربه متفاوت.
+                        </h2>
+
+                        <p class="mt-5 max-w-xl text-sm leading-8 text-white/55 sm:text-base">
+                            ساختار شیخان اجازه می‌دهد آموزشگاه، مدرس، دانش‌آموز و والد بدون قاطی‌شدن مسئولیت‌ها،
+                            از محیط مخصوص خودشان استفاده کنند.
+                        </p>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <x-education.feature-card
+                            title="مدیریت آموزشگاه"
+                            description="مدیریت دوره‌ها، کلاس‌ها، مدرس‌ها و ساختار آموزشی در یک محیط مستقل."
+                            icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10 12 4l8 6"/><path d="M6 9v10h12V9"/><path d="M9 19v-6h6v6"/></svg>'
+                            class="border-white/10 bg-white/[.06] text-white shadow-none hover:border-white/15 hover:bg-white/[.08]"
+                        />
+                        <x-education.feature-card
+                            title="پنل مدرس"
+                            description="ساخت درس، مدیریت کلاس و پیگیری تکلیف، آزمون و حضور دانش‌آموزان."
+                            icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7" r="3"/><path d="M5 20c.8-4 3-6 7-6s6.2 2 7 6"/><path d="M16.5 4.5 19 7l-2.5 2.5"/></svg>'
+                            class="border-white/10 bg-white/[.06] text-white shadow-none hover:border-white/15 hover:bg-white/[.08]"
+                        />
+                        <x-education.feature-card
+                            title="پنل دانش‌آموز"
+                            description="مسیر یادگیری، کلاس‌ها، تمرین‌ها و آزمون‌ها در یک فضای شخصی."
+                            icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m12 3 8 4v6c0 4.4-3.1 6.9-8 8-4.9-1.1-8-3.6-8-8V7l8-4Z"/><path d="m9 12 2 2 4-4"/></svg>'
+                            class="border-white/10 bg-white/[.06] text-white shadow-none hover:border-white/15 hover:bg-white/[.08]"
+                        />
+                        <x-education.feature-card
+                            title="پنل والد"
+                            description="دیدن وضعیت فرزند، کلاس‌ها، عملکرد و نشانه‌های مهم پیشرفت تحصیلی."
+                            icon='<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3.5 20c.6-3.4 2.4-5 5.5-5s4.9 1.6 5.5 5"/><path d="M16 11a3 3 0 1 0-2.2-5"/><path d="M16.5 15c2.2.2 3.6 1.8 4 5"/></svg>'
+                            class="border-white/10 bg-white/[.06] text-white shadow-none hover:border-white/15 hover:bg-white/[.08]"
+                        />
+                    </div>
                 </div>
             </x-layout.container>
         </x-layout.section>
     </section>
 
-    {{-- Latest blog --}}
+    {{-- Blog --}}
     @if($latestPosts->isNotEmpty())
-        <x-layout.section spacing="lg">
+        <x-layout.section spacing="lg" class="home-section-divider">
             <x-layout.container size="wide">
                 <x-layout.section-heading
-                    eyebrow="محتوا"
-                    title="تازه‌های وبلاگ"
-                    description="مقالات منتشرشده از سیستم محتوایی شیخان."
+                    eyebrow="مرکز محتوا"
+                    title="فکر کن، یاد بگیر، بهتر شو."
+                    description="مقاله‌ها و محتوای منتشرشده از سیستم محتوایی شیخان."
                     href="{{ route('blog.index') }}"
-                    link-label="همه مقالات"
+                    link-label="مشاهده همه مقالات"
                 />
 
                 <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    @foreach ($latestPosts as $post)
+                    @foreach($latestPosts as $post)
                         <x-education.post-card
                             :title="$post->title"
                             :excerpt="$post->excerpt"
@@ -332,71 +410,22 @@
         </x-layout.section>
     @endif
 
-    {{-- Journey --}}
-    <section class="overflow-hidden bg-[var(--color-slate-950)] text-white">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
-                <div class="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-                    <div>
-                        <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/70">
-                            مسیر یادگیری
-                        </span>
-
-                        <h2 class="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                            یادگیری را از «دیدن»
-                            به «پیشرفت» تبدیل کن.
-                        </h2>
-
-                        <p class="mt-5 max-w-xl text-sm leading-8 text-white/60 sm:text-base">
-                            ساختار شیخان طوری طراحی شده که محتوا، کلاس، تمرین، آزمون و گزارش از هم جدا نیستند؛
-                            هرکدام بخشی از یک مسیر واحد هستند.
-                        </p>
-
-                        <div class="mt-7">
-                            <x-ui.button href="{{ route('courses.index') }}" variant="secondary" size="lg">
-                                شروع از دوره‌ها
-                            </x-ui.button>
-                        </div>
-                    </div>
-
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        @foreach ([
-                            ['number' => '۰۱', 'title' => 'کشف', 'description' => 'موضوع و سطح مناسب را پیدا کن.'],
-                            ['number' => '۰۲', 'title' => 'یادگیری', 'description' => 'درس‌ها را طبق مسیر جلو ببر.'],
-                            ['number' => '۰۳', 'title' => 'تمرین', 'description' => 'مهارتت را با فعالیت و آزمون محک بزن.'],
-                            ['number' => '۰۴', 'title' => 'پیشرفت', 'description' => 'عملکردت را ببین و قدم بعدی را انتخاب کن.'],
-                        ] as $step)
-                            <div class="rounded-2xl border border-white/10 bg-white/5 p-5 sm:p-6">
-                                <div class="text-xs font-bold text-white/40">{{ $step['number'] }}</div>
-                                <h3 class="mt-3 text-lg font-bold text-white">{{ $step['title'] }}</h3>
-                                <p class="mt-2 text-sm leading-7 text-white/50">{{ $step['description'] }}</p>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </x-layout.container>
-        </x-layout.section>
-    </section>
-
-    {{-- Final CTA --}}
+    {{-- CTA --}}
     <x-layout.section spacing="lg">
         <x-layout.container size="wide">
-            <div class="relative overflow-hidden rounded-[2rem] border border-[var(--color-primary-200)] bg-[var(--color-primary-600)] px-6 py-14 text-white sm:px-10 sm:py-16 lg:px-16">
-                <div class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl"></div>
-                <div class="pointer-events-none absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-black/10 blur-3xl"></div>
-
+            <div class="home-cta rounded-[2rem] px-6 py-12 text-white sm:px-10 sm:py-14 lg:px-16">
                 <div class="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                     <div>
-                        <div class="text-sm font-bold text-white/60">شروع مسیر</div>
-                        <h2 class="mt-3 max-w-2xl text-3xl font-black sm:text-4xl">
-                            آماده‌ای یادگیری را جدی‌تر شروع کنی؟
+                        <div class="text-sm font-bold text-white/60">قدم بعدی</div>
+                        <h2 class="mt-3 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
+                            مسیر یادگیریت را از همین امروز شروع کن.
                         </h2>
                         <p class="mt-4 max-w-2xl text-sm leading-8 text-white/70 sm:text-base">
-                            اولین قدم می‌تواند فقط انتخاب یک دوره مناسب باشد.
+                            یک دوره مناسب پیدا کن، مدرس‌ها را ببین و اولین قدم را ساده بردار.
                         </p>
                     </div>
 
-                    <div class="flex flex-col gap-3 sm:flex-row lg:shrink-0">
+                    <div class="flex flex-col gap-3 sm:flex-row">
                         <x-ui.button href="{{ route('courses.index') }}" variant="secondary" size="lg">
                             مشاهده دوره‌ها
                         </x-ui.button>
