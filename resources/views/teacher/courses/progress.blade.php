@@ -20,6 +20,7 @@
                             <td class="px-3 py-4 text-center">
                                 <div class="mx-auto flex w-14 flex-col items-center gap-1">
                                     <span class="text-[10px] font-black">{{ round((float)($row->progress_percent ?? 0)) }}٪</span>
+                                    <span class="text-[8px] {{ ($row?->progress_percent ?? 0) >= 100 ? 'text-emerald-600' : (($row?->progress_percent ?? 0) > 0 ? 'text-indigo-600' : 'text-slate-400') }}">{{ ($row?->progress_percent ?? 0) >= 100 ? 'کامل' : (($row?->progress_percent ?? 0) > 0 ? 'در حال مشاهده' : 'ندیده') }}</span>
                                     <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100"><span class="block h-full rounded-full bg-[var(--panel-primary)]" style="width:{{ min(100,max(0,(float)($row->progress_percent ?? 0))) }}%"></span></div>
                                 </div>
                             </td>
