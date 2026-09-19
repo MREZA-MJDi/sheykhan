@@ -51,9 +51,15 @@ final class TeacherWorkspaceService
         $courseIds = $teacher->taughtCourses()->pluck('courses.id');
 
         return User::query()
-            ->whereHas('classroomsAsStudent', fn ($query) => $query
-                ->whereIn('classrooms.id', $classroomIds)
-                ->where('classroom_student.status', 'active'))
+            ->where(function ($query) use ($classroomIds, $courseIds): void {
+                $query
+                    ->whereHas('classroomsAsStudent', fn ($classroomQuery) => $classroomQuery
+                        ->whereIn('classrooms.id', $classroomIds)
+                        ->where('classroom_student.status', 'active'))
+                    ->orWhereHas('enrollments', fn ($enrollmentQuery) => $enrollmentQuery
+                        ->whereIn('course_id', $courseIds)
+                        ->where('status', 'active'));
+            })
             ->with('studentProfile')
             ->withCount([
                 'lessonProgress as progress_items_count' => fn ($query) => $query
@@ -147,16 +153,19 @@ final class TeacherWorkspaceService
     {
         $classroomIds = $teacher->classroomsAsTeacher()->pluck('classrooms.id');
 
+        $courseIds = $teacher->taughtCourses()->pluck('courses.id');
+
         abort_if(
-            $classroomIds->isEmpty()
-            || !$student->classroomsAsStudent()
+            !$student->classroomsAsStudent()
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active')
+                ->exists()
+            && !$student->enrollments()
+                ->whereIn('course_id', $courseIds)
+                ->where('status', 'active')
                 ->exists(),
             404
         );
-
-        $courseIds = $teacher->taughtCourses()->pluck('courses.id');
 
         $enrollments = $student->enrollments()
             ->whereIn('course_id', $courseIds)
