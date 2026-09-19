@@ -11,10 +11,6 @@ return new class extends Migration
         Schema::table('courses', function (Blueprint $table): void {
             $table->string('access_type')->default('paid')->after('status')->index();
         });
-
-        Schema::table('courses', function (Blueprint $table): void {
-            $table->check("access_type in ('free', 'paid')");
-        });
     }
 
     public function down(): void
