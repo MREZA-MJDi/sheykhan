@@ -1,13 +1,25 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
-use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
-use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
+use App\Http\Controllers\PublicSite\BlogController;
+use App\Http\Controllers\PublicSite\CourseController;
+use App\Http\Controllers\PublicSite\TeacherController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'pages.home')->name('home');
+Route::get('/', HomeController::class)->name('home');
+
+Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+
+Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
+
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::middleware(['auth', 'role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->name('dashboard');
