@@ -11,22 +11,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MediaService
 {
-    public function upload(
-        UploadedFile $file,
-        ?Model $attachable = null,
-        array $options = []
-    ): Media {
+    public function upload(UploadedFile $file, ?Model $attachable = null, array $options = []): Media
+    {
         $disk = $options['disk'] ?? config('filesystems.default', 'local');
         $directory = trim($options['directory'] ?? 'media', '/');
         $collection = $options['collection'] ?? 'default';
         $visibility = $options['visibility'] ?? 'private';
 
-        $extension = strtolower(
-            $file->getClientOriginalExtension()
-            ?: $file->extension()
-            ?: ''
-        );
-
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: '');
         $fileName = (string) Str::uuid().($extension ? '.'.$extension : '');
         $path = $file->storeAs($directory, $fileName, $disk);
 
@@ -59,13 +51,10 @@ class MediaService
         return $media;
     }
 
-    public function attach(
-        Media $media,
-        Model $attachable,
-        string $collection = 'default',
-        int $sortOrder = 0,
-        bool $isFeatured = false
-    ): void {
+    public function attach(Media $media, Model $attachable, string $collection = 'default', int $sortOrder = 0, bool $isFeatured = false): void
+    {
+        abort_unless(method_exists($attachable, 'media'), 500, 'The attachable model must use the HasMedia trait.');
+
         $attachable->media()->syncWithoutDetaching([
             $media->id => [
                 'collection' => $collection,
@@ -77,22 +66,21 @@ class MediaService
 
     public function detach(Media $media, Model $attachable): void
     {
+        abort_unless(method_exists($attachable, 'media'), 500, 'The attachable model must use the HasMedia trait.');
         $attachable->media()->detach($media->id);
     }
 
-    public function replace(
-        Media $oldMedia,
-        UploadedFile $newFile,
-        ?Model $attachable = null,
-        array $options = []
-    ): Media {
+    public function replace(Media $oldMedia, UploadedFile $newFile, ?Model $attachable = null, array $options = []): Media
+    {
         $newMedia = $this->upload($newFile, $attachable, $options);
 
         if ($attachable) {
             $this->detach($oldMedia, $attachable);
         }
 
-        $this->delete($oldMedia);
+        if ($oldMedia->attachments()->doesntExist()) {
+            $this->delete($oldMedia);
+        }
 
         return $newMedia;
     }
@@ -119,9 +107,7 @@ class MediaService
         return Storage::disk($media->disk)->download(
             $media->path,
             $media->original_name,
-            [
-                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
-            ]
+            ['Content-Type' => $media->mime_type ?: 'application/octet-stream'],
         );
     }
 }
