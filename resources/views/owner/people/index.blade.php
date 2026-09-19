@@ -6,6 +6,18 @@
     <div class="dashboard-panel p-5 sm:p-7"><p class="text-xs font-black text-[var(--panel-primary)]">People</p><h2 class="mt-1 text-2xl font-black">{{ $academy->name }}</h2><p class="mt-2 text-sm text-slate-500">اعضای فعال آموزشگاه و اتصال مدرس‌ها به دوره‌ها.</p></div>
 
     <section class="dashboard-panel p-5 sm:p-7">
+        <div><h3 class="text-base font-black">ساخت حساب مدرس</h3><p class="mt-1 text-xs text-slate-500">حساب و پروفایل مدرس در همان آموزشگاه ساخته می‌شود.</p></div>
+        <form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-4 sm:grid-cols-2">@csrf
+            <input name="name" placeholder="نام و نام خانوادگی" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <input name="email" type="email" placeholder="ایمیل" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <input name="password" type="password" placeholder="رمز عبور" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <input name="password_confirmation" type="password" placeholder="تکرار رمز عبور" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <input name="specialization" placeholder="تخصص" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <input name="experience_years" type="number" min="0" placeholder="سابقه (سال)" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <button class="rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white sm:col-span-2">ساخت حساب مدرس</button>
+        </form>
+    </section>
+    <section class="dashboard-panel p-5 sm:p-7">
         <div><h3 class="text-base font-black">اختصاص مدرس به دوره</h3><p class="mt-1 text-xs text-slate-500">مدرس فقط بعد از این اتصال می‌تواند محتوای دوره را مدیریت کند.</p></div>
         <form method="POST" action="{{ route('owner.people.assign-teacher',$academy) }}" class="mt-5 grid gap-4 sm:grid-cols-3">@csrf
             <select name="teacher_id" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@foreach($teachers as $teacher)<option value="{{ $teacher->id }}">{{ $teacher->name }}</option>@endforeach</select>
