@@ -23,6 +23,25 @@ class LessonController extends Controller
         return view('teacher.courses.content', compact('course', 'sections'));
     }
 
+    public function reorder(
+        \Illuminate\Http\Request $request,
+        CourseSection $section,
+        TeacherCourseContentService $content
+    ): \Illuminate\Http\JsonResponse {
+        $data = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer'],
+        ]);
+
+        try {
+            $content->reorderLessons(request()->user(), $section, $data['ids']);
+        } catch (\InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        }
+
+        return response()->json(['message' => 'ترتیب درس‌ها ذخیره شد.']);
+    }
+
     public function store(
         StoreLessonRequest $request,
         TeacherCourseContentService $content
