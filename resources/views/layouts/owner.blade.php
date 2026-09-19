@@ -13,7 +13,7 @@
         <x-navigation.owner-sidebar />
 
         <div class="role-content">
-            <x-navigation.panel-topbar role="owner" title="@yield('header-title', 'مدیریت آموزشگاه')" />
+            <x-navigation.panel-topbar role="owner" title="{{ trim($__env->yieldContent('header-title', 'مدیریت آموزشگاه')) }}" />
             <main class="role-main">@yield('content')</main>
         </div>
     </div>
