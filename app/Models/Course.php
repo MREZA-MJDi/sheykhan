@@ -17,7 +17,7 @@ class Course extends Model
 
     protected $fillable = [
         'academy_id','created_by','title','slug','short_description','description',
-        'level','status','price','duration_minutes','published_at'
+        'level','status','access_type','price','duration_minutes','published_at'
     ];
 
     protected $casts = [
@@ -54,5 +54,15 @@ class Course extends Model
     {
         return $this->status === 'published'
             && $this->published_at?->isPast();
+    }
+
+    public function isFree(): bool
+    {
+        return $this->access_type === 'free';
+    }
+
+    public function requiresPayment(): bool
+    {
+        return $this->access_type === 'paid';
     }
 }
