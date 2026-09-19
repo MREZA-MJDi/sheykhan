@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\StoreClassroomRequest;
+use App\Http\Requests\Owner\UpdateClassroomRequest;
 use App\Models\Academy;
+use App\Models\Classroom;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -15,7 +18,7 @@ class ClassroomController extends Controller
         abort_unless($workspace->canManageAcademy(request()->user(), $academy), 403);
 
         $classrooms = $academy->classrooms()
-            ->with(['course:id,title', 'teachers:id,name', 'students:id,name'])
+            ->with(['course:id,title', 'teachers:id,name'])
             ->withCount('students')
             ->latest()
             ->get();
@@ -23,17 +26,70 @@ class ClassroomController extends Controller
         return view('owner.classrooms.index', compact('academy', 'classrooms'));
     }
 
-    public function update(Academy $academy, int $classroom, OwnerWorkspaceService $workspace): RedirectResponse
+    public function create(Academy $academy, OwnerWorkspaceService $workspace): View
     {
         abort_unless($workspace->canManageAcademy(request()->user(), $academy), 403);
 
-        $item = $academy->classrooms()->findOrFail($classroom);
-        $status = request()->string('status')->toString();
+        $options = $workspace->courseTeacherOptions(request()->user(), $academy);
 
-        abort_unless(in_array($status, ['active', 'archived'], true), 422);
+        return view('owner.classrooms.form', [
+            'academy' => $academy,
+            'classroom' => new Classroom(['status' => 'active']),
+            ...$options,
+        ]);
+    }
 
-        $item->update(['status' => $status]);
+    public function store(
+        StoreClassroomRequest $request,
+        Academy $academy,
+        OwnerWorkspaceService $workspace
+    ): RedirectResponse {
+        $workspace->createClassroom(
+            $request->user(),
+            $academy,
+            $request->validated(),
+        );
 
-        return back()->with('success', 'وضعیت کلاس به‌روزرسانی شد.');
+        return redirect()
+            ->route('owner.classrooms.index', $academy)
+            ->with('success', 'کلاس با موفقیت ساخته شد.');
+    }
+
+    public function edit(
+        Academy $academy,
+        int $classroom,
+        OwnerWorkspaceService $workspace
+    ): View {
+        abort_unless($workspace->canManageAcademy(request()->user(), $academy), 403);
+
+        $item = $academy->classrooms()
+            ->with('teachers:id,name')
+            ->findOrFail($classroom);
+
+        $options = $workspace->courseTeacherOptions(request()->user(), $academy);
+
+        return view('owner.classrooms.form', [
+            'academy' => $academy,
+            'classroom' => $item,
+            ...$options,
+        ]);
+    }
+
+    public function update(
+        UpdateClassroomRequest $request,
+        Academy $academy,
+        int $classroom,
+        OwnerWorkspaceService $workspace
+    ): RedirectResponse {
+        $workspace->updateClassroom(
+            $request->user(),
+            $academy,
+            $classroom,
+            $request->validated(),
+        );
+
+        return redirect()
+            ->route('owner.classrooms.index', $academy)
+            ->with('success', 'کلاس با موفقیت به‌روزرسانی شد.');
     }
 }
