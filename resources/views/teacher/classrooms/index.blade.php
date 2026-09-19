@@ -3,13 +3,20 @@
 @section('header-title','کلاس‌های من')
 @section('content')
 <div class="teacher-detail-page">
+    @if($errors->any())
+        <div class="teacher-builder-alert danger">@foreach($errors->all() as $error)<span>{{ $error }}</span>@endforeach</div>
+    @endif
+    @if(session('success'))
+        <div class="teacher-builder-alert success">{{ session('success') }}</div>
+    @endif
+
     <section class="teacher-list-hero">
         <div>
             <span class="teacher-kicker">CLASSROOMS</span>
             <h2>کلاس‌های تحت مدیریت</h2>
-            <p>هر کلاس را مثل یک workspace مستقل مدیریت کن؛ roster، حضور و غیاب و برنامه از یک نقطه.</p>
+            <p>هر کلاس یک workspace مستقل برای roster، حضور و غیاب، برنامه و پیگیری یادگیری است.</p>
         </div>
-        <a href="{{ route('teacher.classrooms.create') }}" class="teacher-builder-btn primary">+ ایجاد کلاس</a>
+        <a href="{{ route('teacher.classrooms.create') }}" class="teacher-builder-btn primary" style="background:#5b5ce8;color:#fff">+ ایجاد کلاس</a>
     </section>
 
     <section class="teacher-class-grid">
@@ -22,7 +29,7 @@
                         <p>{{ $classroom->course?->title }}</p>
                     </div>
                     <span class="teacher-content-status {{ $classroom->status === 'active' ? 'published' : 'draft' }}">
-                        {{ $classroom->status === 'active' ? 'فعال' : $classroom->status }}
+                        {{ $classroom->status === 'active' ? 'فعال' : 'آرشیو' }}
                     </span>
                 </div>
 
@@ -34,9 +41,17 @@
 
                 <div class="teacher-class-actions">
                     <a href="{{ route('teacher.classrooms.show', $classroom) }}">ورود به کلاس</a>
+                    <a href="{{ route('teacher.classrooms.edit', $classroom) }}">ویرایش</a>
                     <a href="{{ route('teacher.classrooms.attendance.edit', $classroom) }}">حضور و غیاب</a>
-                    <a href="{{ route('teacher.courses.progress', $classroom->course) }}">پیشرفت دوره</a>
                 </div>
+
+                @if($classroom->status === 'active')
+                    <form method="POST" action="{{ route('teacher.classrooms.archive', $classroom) }}" data-confirm="این کلاس آرشیو شود؟" class="mt-2 text-left">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="teacher-builder-delete">آرشیو کلاس</button>
+                    </form>
+                @endif
             </article>
         @empty
             <div class="teacher-detail-panel teacher-detail-empty large">هنوز کلاسی ساخته نشده است.</div>
