@@ -1,8 +1,6 @@
 import { bootPanel } from './panel-base.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    bootPanel();
-
+function initDashboardChart() {
     const dashboard = document.querySelector('[data-teacher-dashboard]');
     if (!dashboard) return;
 
@@ -17,33 +15,58 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets = { week: { values: [] }, month: { values: [] } };
     }
 
+    const render = (key) => {
+        const dataset = datasets[key] || {};
+        const values = dataset.values || [];
+
+        bars.forEach((bar, index) => {
+            bar.style.height = String(Math.max(0, Math.min(100, values[index] || 0))) + '%';
+
+            const label = bar.querySelector('small');
+            if (label && dataset.labels) {
+                label.textContent = dataset.labels[index] || '';
+            }
+        });
+    };
+
     buttons.forEach((button) => {
         button.addEventListener('click', () => {
             buttons.forEach((item) => item.classList.remove('active'));
             button.classList.add('active');
-
-            const dataset = datasets[button.dataset.teacherRange] || {};
-            const values = dataset.values || [];
-
-            bars.forEach((bar, index) => {
-                bar.style.height = String(values[index] || 0) + '%';
-
-                const label = bar.querySelector('small');
-
-                if (label && dataset.labels) {
-                    label.textContent = dataset.labels[index] || '';
-                }
-            });
+            render(button.dataset.teacherRange);
         });
     });
 
-    const examBuilder = document.querySelector('[data-exam-builder]');
+    render('week');
+}
 
+function initExamBuilder() {
+    const examBuilder = document.querySelector('[data-exam-builder]');
     if (!examBuilder) return;
 
     const container = examBuilder.querySelector('[data-exam-questions]');
     const template = examBuilder.querySelector('[data-exam-question-template]');
     const addButton = examBuilder.querySelector('[data-exam-add-question]');
+
+    const serializeOptions = (item, index) => {
+        const optionsField = item.querySelector('[data-name="options_text"]');
+        if (!optionsField) return;
+
+        item.querySelectorAll('[data-option-hidden]').forEach((node) => node.remove());
+
+        optionsField.value
+            .split('\n')
+            .map((value) => value.trim())
+            .filter(Boolean)
+            .forEach((value, optionIndex) => {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.dataset.optionHidden = '1';
+                hidden.name = `questions[${index}][options][${optionIndex}]`;
+                hidden.value = value;
+                item.appendChild(hidden);
+            });
+    };
 
     const syncQuestionNames = () => {
         container?.querySelectorAll('[data-exam-question]').forEach((item, index) => {
@@ -54,34 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const optionsField = item.querySelector('[data-name="options_text"]');
             const typeField = item.querySelector('[data-name="type"]');
 
-            const serializeOptions = () => {
-                if (!optionsField) return;
-
-                const values = optionsField.value
-                    .split('\n')
-                    .map((value) => value.trim())
-                    .filter(Boolean);
-
-                item.querySelectorAll('[data-option-hidden]').forEach((node) => node.remove());
-
-                values.forEach((value, optionIndex) => {
-                    const hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.dataset.optionHidden = '1';
-                    hidden.name = `questions[${index}][options][${optionIndex}]`;
-                    hidden.value = value;
-                    item.appendChild(hidden);
-                });
-            };
-
-            optionsField?.addEventListener('input', serializeOptions);
+            optionsField?.addEventListener('input', () => serializeOptions(item, index));
 
             typeField?.addEventListener('change', () => {
                 const label = optionsField?.closest('label');
-
-                if (!label) return;
-
-                label.classList.toggle('hidden', typeField.value === 'text');
+                if (label) label.classList.toggle('hidden', typeField.value === 'text');
             });
 
             item.querySelector('[data-exam-remove-question]')?.addEventListener('click', () => {
@@ -89,14 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 syncQuestionNames();
             });
 
-            serializeOptions();
+            serializeOptions(item, index);
             typeField?.dispatchEvent(new Event('change'));
         });
     };
 
     const addQuestion = () => {
         const fragment = template?.content?.cloneNode(true);
-
         if (!fragment) return;
 
         container.appendChild(fragment);
@@ -105,4 +104,122 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addButton?.addEventListener('click', addQuestion);
     addQuestion();
+}
+
+function initSectionReorder() {
+    const list = document.querySelector('[data-section-list]');
+    if (!list) return;
+
+    const items = [...list.querySelectorAll('[data-section-item]')];
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    items.forEach((item) => {
+        const handle = item.querySelector('[draggable="true"]');
+        if (!handle) return;
+
+        handle.addEventListener('dragstart', () => {
+            item.classList.add('is-dragging');
+        });
+
+        handle.addEventListener('dragend', async () => {
+            item.classList.remove('is-dragging');
+
+            const courseId = list.closest('[data-course-builder]')?.dataset.courseId;
+            const reorderUrl = list.closest('[data-course-builder]')?.dataset.reorderUrl;
+
+            if (!courseId || !reorderUrl || !csrf) return;
+
+            const ids = [...list.querySelectorAll('[data-section-id]')]
+                .map((node) => Number(node.dataset.sectionId));
+
+            try {
+                const response = await fetch(reorderUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ ids }),
+                });
+
+                if (!response.ok) throw new Error('reorder failed');
+            } catch {
+                window.location.reload();
+            }
+        });
+
+        handle.addEventListener('dragover', (event) => {
+            event.preventDefault();
+
+            const dragging = list.querySelector('.is-dragging');
+            if (!dragging || dragging === item) return;
+
+            const rect = item.getBoundingClientRect();
+            const after = event.clientY > rect.top + rect.height / 2;
+
+            item.parentNode.insertBefore(
+                dragging,
+                after ? item.nextSibling : item
+            );
+        });
+    });
+}
+
+function initMediaUploadUX() {
+    document.querySelectorAll('[data-media-type]').forEach((select) => {
+        const form = select.closest('form');
+        const fileInput = form?.querySelector('[data-media-file]');
+        const downloadCheckbox = form?.querySelector('[data-media-downloadable]');
+
+        if (!form || !fileInput) return;
+
+        const sync = () => {
+            const type = select.value;
+
+            if (type === 'video') {
+                fileInput.accept = 'video/mp4,video/webm,video/quicktime';
+                if (downloadCheckbox) {
+                    downloadCheckbox.checked = false;
+                    downloadCheckbox.disabled = true;
+                }
+            } else if (type === 'pdf') {
+                fileInput.accept = 'application/pdf';
+                if (downloadCheckbox) downloadCheckbox.disabled = false;
+            } else if (type === 'thumbnail') {
+                fileInput.accept = 'image/jpeg,image/png,image/webp';
+                if (downloadCheckbox) downloadCheckbox.disabled = false;
+            } else {
+                fileInput.accept = '.pdf,.zip,.jpg,.jpeg,.png,.webp';
+                if (downloadCheckbox) downloadCheckbox.disabled = false;
+            }
+        };
+
+        select.addEventListener('change', sync);
+        sync();
+    });
+}
+
+function initConfirmForms() {
+    document.querySelectorAll('[data-confirm]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            const message = form.dataset.confirm || 'آیا از انجام این عملیات مطمئن هستید؟';
+
+            if (!window.confirm(message)) {
+                event.preventDefault();
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    bootPanel();
+
+    document.documentElement.classList.add('teacher-ready');
+
+    initDashboardChart();
+    initExamBuilder();
+    initSectionReorder();
+    initMediaUploadUX();
+    initConfirmForms();
 });
