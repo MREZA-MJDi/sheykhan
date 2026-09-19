@@ -18,7 +18,8 @@ class LessonProgressController extends Controller
         $saved = $progress->saveVideoProgress(
             $request->user(),
             $lesson,
-            (float) $request->validated('seconds_watched'),
+            $request->validated('from_seconds'),
+            (float) $request->validated('to_seconds'),
             (bool) $request->boolean('completed')
         );
 
@@ -26,6 +27,7 @@ class LessonProgressController extends Controller
             'success' => true,
             'progress_percent' => (float) $saved->progress_percent,
             'seconds_watched' => (int) $saved->seconds_watched,
+            'last_position_seconds' => (int) $saved->last_position_seconds,
             'completed' => $saved->completed_at !== null,
             'last_watched_at' => optional($saved->last_watched_at)->toIso8601String(),
         ]);
