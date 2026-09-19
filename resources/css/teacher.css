@@ -256,3 +256,8 @@
 .teacher-editor-grid.exam{padding:14px}.teacher-exam-builder{display:grid;gap:15px;min-width:0}
 
 @media(max-width:760px){.teacher-course-grid{grid-template-columns:1fr}.teacher-course-card-actions{grid-template-columns:1fr}.teacher-course-card-actions a{min-height:38px}}
+
+.teacher-lesson-card.is-dragging{opacity:.55}
+.teacher-lesson-drag{display:grid;place-items:center;min-height:42px;color:#b7bdca;font-size:13px;cursor:grab;user-select:none}
+.teacher-lesson-main{grid-template-columns:28px 42px minmax(0,1fr) auto}
+@media(max-width:760px){.teacher-lesson-main{grid-template-columns:28px 36px minmax(0,1fr)}}
