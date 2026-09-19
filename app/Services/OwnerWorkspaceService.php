@@ -239,7 +239,7 @@ final class OwnerWorkspaceService
                 if ($classroom->capacity !== null) {
                     $current = $classroom->students()
                         ->wherePivot('status', 'active')
-                        ->whereKeyNot($student->id)
+                        ->where('users.id', '<>', $student->id)
                         ->count();
 
                     abort_unless(
