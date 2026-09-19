@@ -12,6 +12,13 @@ class StoreCourseRequest extends FormRequest
         return $this->user()?->hasPermission('courses.manage') ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('access_type') === 'free') {
+            $this->merge(['price' => 0]);
+        }
+    }
+
     public function rules(): array
     {
         $academyId = $this->integer('academy_id');
@@ -25,10 +32,11 @@ class StoreCourseRequest extends FormRequest
             ],
             'level' => ['nullable', 'string', 'max:100'],
             'status' => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
+            'access_type' => ['required', Rule::in(['free', 'paid'])],
             'short_description' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'duration_minutes' => ['sometimes', 'integer', 'min:0'],
-            'price' => ['sometimes', 'numeric', 'min:0', 'max:999999999999.99'],
+            'price' => ['required_if:access_type,paid', 'nullable', 'numeric', 'min:0.01', 'max:999999999999.99'],
             'published_at' => ['nullable', 'date'],
         ];
     }
@@ -42,9 +50,12 @@ class StoreCourseRequest extends FormRequest
             'slug.required' => 'شناسه دوره الزامی است.',
             'slug.alpha_dash' => 'شناسه دوره فقط باید شامل حروف، عدد، خط تیره و زیرخط باشد.',
             'slug.unique' => 'این شناسه دوره در این آموزشگاه قبلاً استفاده شده است.',
+            'access_type.required' => 'مشخص‌کردن رایگان یا پولی بودن دوره الزامی است.',
+            'access_type.in' => 'نوع دسترسی دوره معتبر نیست.',
+            'price.required_if' => 'برای دوره پولی، قیمت را وارد کنید.',
+            'price.min' => 'قیمت دوره پولی باید بیشتر از صفر باشد.',
             'short_description.max' => 'خلاصه دوره نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد.',
             'duration_minutes.min' => 'مدت زمان نمی‌تواند منفی باشد.',
-            'price.min' => 'قیمت نمی‌تواند منفی باشد.',
             'published_at.date' => 'تاریخ انتشار معتبر نیست.',
         ];
     }
