@@ -1,9 +1,9 @@
 <?php
 
-namespace AppServices;
+namespace App\Services;
 
-use AppModelsUser;
-use IlluminateHttpRedirectResponse;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 
 final class DashboardRedirector
 {
@@ -20,10 +20,8 @@ final class DashboardRedirector
 
     public function redirect(User $user): RedirectResponse
     {
-        $route = $this->routeName($user);
+        $defaultUrl = route($this->routeName($user));
 
-        return route($route) !== null
-            ? redirect()->route($route)
-            : redirect()->route('home');
+        return redirect()->intended($defaultUrl);
     }
 }
