@@ -76,7 +76,7 @@ Route::middleware(['auth','role:academy-owner'])->prefix('owner')->name('owner.'
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
 });
 
-Route::middleware(['auth','role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', TeacherDashboard::class)->name('dashboard');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/create', [TeacherCourseController::class, 'create'])->name('courses.create');
