@@ -7,12 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void
-    {
-        Schema::table('academies', function (Blueprint $table): void {
-            $table->unique('owner_id', 'academies_owner_id_unique');
-        });
-
-        Schema::table('course_enrollments', function (Blueprint $table): void {
+    {        Schema::table('course_enrollments', function (Blueprint $table): void {
             $table->decimal('price_amount', 14, 2)->default(0)->after('paid_amount');
             $table->string('payment_status', 24)->default('unpaid')->after('status')->index();
             $table->index(['course_id', 'status', 'classroom_id'], 'course_enrollments_owner_lookup');
@@ -123,10 +118,6 @@ return new class extends Migration {
         Schema::table('course_enrollments', function (Blueprint $table): void {
             $table->dropIndex('course_enrollments_owner_lookup');
             $table->dropColumn(['price_amount', 'payment_status']);
-        });
-
-        Schema::table('academies', function (Blueprint $table): void {
-            $table->dropUnique('academies_owner_id_unique');
         });
     }
 };
