@@ -40,7 +40,19 @@ class CourseMediaController extends Controller
                 'exception' => $exception,
             ]);
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'آپلود فایل انجام نشد. فایل را بررسی و دوباره تلاش کنید.',
+                ], 422);
+            }
+
             return back()->with('error', 'آپلود فایل انجام نشد. فایل را بررسی و دوباره تلاش کنید.');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'فایل با موفقیت آپلود شد.',
+            ]);
         }
 
         return back()->with('success', 'فایل با موفقیت آپلود شد.');
