@@ -65,7 +65,11 @@ final class OwnerWorkspaceService
 
     public function createTeacher(User $owner, Academy $academy, array $data): User
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        abort_unless(
+            $this->canManageAcademy($owner, $academy)
+            && $owner->hasPermission('teachers.manage'),
+            403
+        );
 
         return DB::transaction(function () use ($academy, $data): User {
             $teacher = User::create([
