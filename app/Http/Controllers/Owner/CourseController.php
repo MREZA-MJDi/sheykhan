@@ -37,7 +37,7 @@ class CourseController extends Controller
 
     public function show(Course $course, CourseManagementService $service): View
     {
-        abort_unless($service->canManage(request()->user(), $course), 403);
+        abort_unless($service->canView(request()->user(), $course), 403);
 
         $course->load([
             'academy:id,name',
