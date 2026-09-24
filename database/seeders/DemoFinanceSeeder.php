@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\\CourseEnrollment;
-use App\Models\\FinancialTransaction;
-use Illuminate\Database\\Seeder;
+use App\Models\CourseEnrollment;
+use App\Models\FinancialTransaction;
+use Illuminate\Database\Seeder;
 
 class DemoFinanceSeeder extends Seeder
 {
