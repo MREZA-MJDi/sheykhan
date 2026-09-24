@@ -96,7 +96,7 @@ class UpdateCourseRequest extends FormRequest
                     ->orWhereHas('users', function ($membership) use ($user): void {
                         $membership
                             ->whereKey($user->id)
-                            ->wherePivot('status', 'active')
+                            ->where('academy_user.status', 'active')
                             ->whereIn('academy_user.role', ['owner', 'teacher']);
                     });
             })
