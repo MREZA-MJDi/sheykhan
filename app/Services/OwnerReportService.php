@@ -159,14 +159,6 @@ final class OwnerReportService
                 : null;
         });
 
-        $classroomReports = DB::table('classrooms')
-            ->whereIn('classrooms.id', $classroomIds)
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($classroom) {
-                return $classroom;
-            });
-
         $classroomReports = \App\Models\Classroom::query()
             ->whereIn('id', $classroomIds)
             ->with('course:id,title')
