@@ -56,6 +56,8 @@ final class CourseManagementService
 
     public function create(User $user, array $data): Course
     {
+        abort_unless($user->hasPermission('courses.manage'), 403);
+
         $academy = $this->resolveAcademy($user, (int) $data['academy_id']);
 
         return DB::transaction(function () use ($user, $academy, $data): Course {
