@@ -151,7 +151,7 @@ class OwnerEnrollmentTest extends TestCase
 
         $studentRole = Role::create([
             'name' => 'دانش‌آموز',
-            'slug' => 'student-' . Str::lower(Str::random(6)),
+            'slug' => 'student',
             'description' => 'Student',
         ]);
         $student->roles()->attach($studentRole->id);
