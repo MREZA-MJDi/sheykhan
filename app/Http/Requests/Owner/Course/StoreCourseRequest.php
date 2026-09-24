@@ -43,7 +43,14 @@ class StoreCourseRequest extends FormRequest
             'short_description' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'duration_minutes' => ['sometimes', 'integer', 'min:0'],
-            'price' => ['required_if:access_type,paid', 'nullable', 'numeric', 'min:0.01', 'max:999999999999.99'],
+            'price' => [
+                Rule::requiredIf(fn () => $this->input('access_type') === 'paid'),
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:999999999999.99',
+                Rule::when($this->input('access_type') === 'paid', ['min:0.01']),
+            ],
             'published_at' => ['nullable', 'date'],
         ];
     }
