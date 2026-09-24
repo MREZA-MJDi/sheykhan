@@ -6,9 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\Course\StoreCourseRequest;
 use App\Http\Requests\Owner\Course\UpdateCourseRequest;
 use App\Models\Course;
-use App\Models\Lesson;
-use App\Models\LessonProgress;
 use App\Services\CourseManagementService;
+use App\Services\OwnerLearningAnalyticsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -35,7 +34,7 @@ class CourseController extends Controller
             ->with('success', 'دوره با موفقیت ساخته شد.');
     }
 
-    public function show(Course $course, CourseManagementService $service): View
+    public function show(Course $course, CourseManagementService $service, OwnerLearningAnalyticsService $analytics): View
     {
         abort_unless($service->canView(request()->user(), $course), 403);
 
@@ -68,52 +67,7 @@ class CourseController extends Controller
             'liveClasses',
         ]);
 
-        /*
-         * Calculate course progress as the average of each active student's
-         * progress across all published lessons in this course.
-         *
-         * This intentionally:
-         * - includes active students with no progress records as 0%;
-         * - ignores draft/unpublished lessons;
-         * - avoids averaging lesson_progress rows directly, which would
-         *   overweight students/lessons with more progress records.
-         */
-        $activeStudentIds = $course->enrollments()
-            ->where('status', 'active')
-            ->pluck('student_id');
-
-        $totalLessons = Lesson::query()
-            ->whereHas('section', fn ($query) => $query->where('course_id', $course->id))
-            ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
-            ->count();
-
-        $averageProgress = 0.0;
-
-        if ($activeStudentIds->isNotEmpty() && $totalLessons > 0) {
-            $progressByStudent = LessonProgress::query()
-                ->join('lessons', 'lessons.id', '=', 'lesson_progress.lesson_id')
-                ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-                ->where('course_sections.course_id', $course->id)
-                ->whereIn('lesson_progress.user_id', $activeStudentIds)
-                ->where('lessons.status', 'published')
-                ->whereNotNull('lessons.published_at')
-                ->where('lessons.published_at', '<=', now())
-                ->groupBy('lesson_progress.user_id')
-                ->selectRaw('lesson_progress.user_id, SUM(lesson_progress.progress_percent) as progress_sum')
-                ->pluck('progress_sum', 'lesson_progress.user_id');
-
-            $averageProgress = $activeStudentIds->avg(
-                fn ($studentId) => min(
-                    100,
-                    max(
-                        0,
-                        ((float) ($progressByStudent[$studentId] ?? 0) / $totalLessons)
-                    )
-                )
-            );
-        }
+        $averageProgress = (float) ($analytics->courseProgress([$course->id])->get($course->id) ?? 0);
 
         return view('owner.courses.show', [
             'course' => $course,
