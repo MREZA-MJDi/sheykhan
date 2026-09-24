@@ -28,16 +28,19 @@ final class OwnerEnrollmentService
         );
 
         return DB::transaction(function () use ($owner, $academy, $data, $requestHash): CourseEnrollment {
-            $key = IdempotencyKey::query()->firstOrCreate(
-                ['key' => $data['idempotency_key']],
-                [
-                    'scope' => self::IDEMPOTENCY_SCOPE,
-                    'user_id' => $owner->id,
-                    'request_hash' => $requestHash,
-                ]
-            );
+            DB::table('idempotency_keys')->insertOrIgnore([
+                'key' => $data['idempotency_key'],
+                'scope' => self::IDEMPOTENCY_SCOPE,
+                'user_id' => $owner->id,
+                'request_hash' => $requestHash,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-            $key = IdempotencyKey::query()->whereKey($key->id)->lockForUpdate()->firstOrFail();
+            $key = IdempotencyKey::query()
+                ->where('key', $data['idempotency_key'])
+                ->lockForUpdate()
+                ->firstOrFail();
 
             if (
                 $key->scope !== self::IDEMPOTENCY_SCOPE
@@ -51,12 +54,16 @@ final class OwnerEnrollmentService
 
             if ($key->resource_id) {
                 $existing = CourseEnrollment::query()
-                    ->with(['student','course','classroom'])
+                    ->with(['student', 'course', 'classroom'])
                     ->find($key->resource_id);
 
                 if ($existing) {
                     return $existing;
                 }
+
+                throw ValidationException::withMessages([
+                    'idempotency_key' => 'نتیجه عملیات قبلی دیگر در دسترس نیست و این درخواست قابل تکرار نیست.',
+                ]);
             }
 
             $course = $academy->courses()
@@ -72,8 +79,8 @@ final class OwnerEnrollmentService
 
             $student = $academy->users()
                 ->whereKey((int) $data['student_id'])
-                ->wherePivot('role','student')
-                ->wherePivot('status','active')
+                ->wherePivot('role', 'student')
+                ->wherePivot('status', 'active')
                 ->first();
 
             if (!$student) {
@@ -86,7 +93,7 @@ final class OwnerEnrollmentService
 
             if (!empty($data['classroom_id'])) {
                 $classroom = $course->classrooms()
-                    ->where('academy_id',$academy->id)
+                    ->where('academy_id', $academy->id)
                     ->whereKey((int) $data['classroom_id'])
                     ->lockForUpdate()
                     ->first();
@@ -120,8 +127,8 @@ final class OwnerEnrollmentService
             }
 
             $enrollment = CourseEnrollment::query()
-                ->where('course_id',$course->id)
-                ->where('student_id',$student->id)
+                ->where('course_id', $course->id)
+                ->where('student_id', $student->id)
                 ->lockForUpdate()
                 ->first();
 
@@ -138,7 +145,7 @@ final class OwnerEnrollmentService
                         'resource_id' => $enrollment->id,
                     ]);
 
-                    return $enrollment->fresh(['student','course','classroom']);
+                    return $enrollment->fresh(['student', 'course', 'classroom']);
                 }
 
                 if ($paidAmount < $oldPaidAmount) {
@@ -151,12 +158,12 @@ final class OwnerEnrollmentService
             if ($classroom && $classroom->capacity !== null) {
                 $alreadyInClass = $classroom->students()
                     ->whereKey($student->id)
-                    ->wherePivot('status','active')
+                    ->wherePivot('status', 'active')
                     ->exists();
 
                 if (!$alreadyInClass) {
                     $activeStudents = $classroom->students()
-                        ->wherePivot('status','active')
+                        ->wherePivot('status', 'active')
                         ->count();
 
                     if ($activeStudents >= $classroom->capacity) {
@@ -182,7 +189,7 @@ final class OwnerEnrollmentService
                     'status' => 'active',
                     'price_amount' => $price,
                     'paid_amount' => $paidAmount,
-                    'payment_status' => $this->paymentStatus($price,$paidAmount),
+                    'payment_status' => $this->paymentStatus($price, $paidAmount),
                     'started_at' => $enrollment->started_at ?: now(),
                     'completed_at' => null,
                 ]);
@@ -194,7 +201,7 @@ final class OwnerEnrollmentService
                     'status' => 'active',
                     'price_amount' => $price,
                     'paid_amount' => $paidAmount,
-                    'payment_status' => $this->paymentStatus($price,$paidAmount),
+                    'payment_status' => $this->paymentStatus($price, $paidAmount),
                     'started_at' => now(),
                 ]);
             }
@@ -202,9 +209,9 @@ final class OwnerEnrollmentService
             if ($classroom) {
                 $classroom->students()->syncWithoutDetaching([
                     $student->id => [
-                        'status'=>'active',
-                        'enrolled_at'=>now(),
-                        'completed_at'=>null,
+                        'status' => 'active',
+                        'enrolled_at' => now(),
+                        'completed_at' => null,
                     ],
                 ]);
             }
@@ -221,9 +228,12 @@ final class OwnerEnrollmentService
                     'status' => 'completed',
                     'amount' => $difference,
                     'currency' => 'IRT',
-                    'reference' => 'enrollment-'.$enrollment->id.'-'.Str::uuid(),
+                    'reference' => 'enrollment-' . $enrollment->id . '-' . Str::uuid(),
                     'description' => 'ثبت پرداخت ثبت‌نام دوره',
-                    'metadata' => ['course_id'=>$course->id,'source'=>'owner_enrollment'],
+                    'metadata' => [
+                        'course_id' => $course->id,
+                        'source' => 'owner_enrollment',
+                    ],
                     'occurred_at' => now(),
                 ]);
             }
@@ -234,14 +244,14 @@ final class OwnerEnrollmentService
             ]);
 
             Log::info('Owner enrollment completed', [
-                'academy_id'=>$academy->id,
-                'enrollment_id'=>$enrollment->id,
-                'student_id'=>$student->id,
-                'course_id'=>$course->id,
-                'amount_delta'=>$difference,
+                'academy_id' => $academy->id,
+                'enrollment_id' => $enrollment->id,
+                'student_id' => $student->id,
+                'course_id' => $course->id,
+                'amount_delta' => $difference,
             ]);
 
-            return $enrollment->fresh(['student','course','classroom']);
+            return $enrollment->fresh(['student', 'course', 'classroom']);
         }, 3);
     }
 
