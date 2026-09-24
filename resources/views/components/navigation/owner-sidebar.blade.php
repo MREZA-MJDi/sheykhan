@@ -18,7 +18,7 @@
     <div class="owner-sidebar-academy-links">
         <a href="{{ route('owner.people.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.people.*') && $currentAcademyId !== null && (int) $currentAcademyId === (int) $academy->getKey() ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>اعضا</span></a>
         <a href="{{ route('owner.academy.edit',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.academy.*') && $currentAcademyId !== null && (int) $currentAcademyId === (int) $academy->getKey() ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>تنظیمات</span></a>
-        <a href="{{ route('owner.classrooms.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.classrooms.*') && (int)request()->route('academy') === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>کلاس‌ها</span></a>
+        <a href="{{ route('owner.classrooms.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.classrooms.*') && $currentAcademyId !== null && (int) $currentAcademyId === (int) $academy->getKey() ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>کلاس‌ها</span></a>
     </div>
 </div>
 @empty
