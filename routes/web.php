@@ -93,7 +93,7 @@ Route::middleware(['auth','role:teacher'])->prefix('teacher')->name('teacher.')-
     Route::get('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'edit'])->name('classrooms.attendance.edit');
     Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->name('classrooms.attendance.store');
     Route::get('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule.index');
-    Route::post('/schedule', [App\Http\ControllersTeacherScheduleController::class, 'store'])->name('schedule.store');
+    Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('schedule.store');
     Route::get('/students', fn (\App\Services\TeacherWorkspaceService $workspace) => view('teacher.students.index', ['students' => $workspace->students(request()->user())]))->name('students.index');
     Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->name('assignments.index');
     Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->name('assignments.create');
