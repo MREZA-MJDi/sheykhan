@@ -1,0 +1,160 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Academy;
+use App\Models\Course;
+use App\Models\CourseEnrollment;
+use App\Models\CourseSection;
+use App\Models\Lesson;
+use App\Models\LessonProgress;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
+use Tests\TestCase;
+
+class OwnerReportingAndCourseShowTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_owner_with_course_view_permission_can_open_course_without_manage_permission(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['courses.view']);
+
+        $this->actingAs($owner)
+            ->get(route('owner.courses.show', $course))
+            ->assertOk()
+            ->assertViewHas('averageProgress', 0.0);
+    }
+
+    public function test_course_progress_is_student_weighted_and_missing_progress_counts_as_zero(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['courses.view']);
+
+        $firstStudent = User::factory()->create(['email' => 'student-one@test.local']);
+        $secondStudent = User::factory()->create(['email' => 'student-two@test.local']);
+
+        CourseEnrollment::create([
+            'course_id' => $course->id,
+            'student_id' => $firstStudent->id,
+            'classroom_id' => null,
+            'status' => 'active',
+            'paid_amount' => 0,
+            'started_at' => now(),
+        ]);
+
+        CourseEnrollment::create([
+            'course_id' => $course->id,
+            'student_id' => $secondStudent->id,
+            'classroom_id' => null,
+            'status' => 'active',
+            'paid_amount' => 0,
+            'started_at' => now(),
+        ]);
+
+        $section = CourseSection::create([
+            'course_id' => $course->id,
+            'title' => 'بخش اول',
+            'description' => null,
+            'sort_order' => 1,
+        ]);
+
+        $lessonOne = Lesson::create([
+            'course_section_id' => $section->id,
+            'title' => 'درس اول',
+            'slug' => 'lesson-one-' . Str::random(6),
+            'type' => 'video',
+            'status' => 'published',
+            'published_at' => now(),
+            'sort_order' => 1,
+        ]);
+
+        $lessonTwo = Lesson::create([
+            'course_section_id' => $section->id,
+            'title' => 'درس دوم',
+            'slug' => 'lesson-two-' . Str::random(6),
+            'type' => 'video',
+            'status' => 'published',
+            'published_at' => now(),
+            'sort_order' => 2,
+        ]);
+
+        LessonProgress::create([
+            'lesson_id' => $lessonOne->id,
+            'user_id' => $firstStudent->id,
+            'progress_percent' => 100,
+        ]);
+
+        LessonProgress::create([
+            'lesson_id' => $lessonTwo->id,
+            'user_id' => $firstStudent->id,
+            'progress_percent' => 100,
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.courses.show', $course))
+            ->assertOk()
+            ->assertViewHas('averageProgress', 50.0);
+    }
+
+    public function test_owner_reports_use_report_analytics_data_contract(): void
+    {
+        [$owner, $academy] = $this->ownerWorkspace(['reports.view']);
+
+        $this->actingAs($owner)
+            ->get(route('owner.reports.index'))
+            ->assertOk()
+            ->assertViewHas('academy')
+            ->assertViewHas('courseReports')
+            ->assertViewHas('classroomReports')
+            ->assertViewHas('recentEnrollments')
+            ->assertViewHas('metrics', fn (array $metrics) => array_key_exists('attendance_rate', $metrics)
+                && array_key_exists('exam_average', $metrics)
+                && array_key_exists('pending_reviews', $metrics));
+    }
+
+    private function ownerWorkspace(array $permissions): array
+    {
+        $owner = User::factory()->create(['email' => 'owner-' . Str::random(8) . '@test.local']);
+
+        $role = Role::create([
+            'name' => 'مدیر آموزشگاه',
+            'slug' => 'academy-owner',
+            'description' => 'Owner',
+        ]);
+
+        $permissionIds = [];
+        foreach ($permissions as $permissionName) {
+            $permissionIds[] = Permission::create([
+                'name' => $permissionName,
+                'label' => $permissionName,
+                'group' => 'owner',
+            ])->id;
+        }
+
+        $role->permissions()->attach($permissionIds);
+        $owner->roles()->attach($role->id);
+
+        $academy = Academy::create([
+            'owner_id' => $owner->id,
+            'name' => 'آکادمی تست',
+            'slug' => 'academy-' . Str::random(8),
+            'status' => 'active',
+        ]);
+
+        $course = Course::create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'ریاضی تست',
+            'slug' => 'math-' . Str::random(8),
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'published_at' => now(),
+        ]);
+
+        return [$owner, $academy, $course];
+    }
+}
