@@ -2,7 +2,7 @@
 @section('title','تنظیمات آموزشگاه | شیخان')
 @section('header-title','تنظیمات آموزشگاه')
 @section('content')
-<div class="mx-auto max-w-4xl"><section class="dashboard-panel p-5 sm:p-7"><div class="mb-6"><p class="text-xs font-black text-[var(--panel-primary)]">Academy</p><h1 class="mt-1 text-2xl font-black">اطلاعات آموزشگاه</h1><p class="mt-2 text-sm text-slate-500">هر Owner فقط یک Academy دارد و همین workspace مدیریت می‌شود.</p></div>
+<div class="mx-auto max-w-4xl"><section class="dashboard-panel p-5 sm:p-7"><div class="mb-6"><p class="text-xs font-black text-[var(--panel-primary)]">Academy</p><h1 class="mt-1 text-2xl font-black">اطلاعات آموزشگاه</h1><p class="mt-2 text-sm text-slate-500">این آموزشگاه مستقل از سایر آموزشگاه‌های این حساب مدیریت می‌شود.</p></div>
 <form method="POST" action="{{ route('owner.academy.update',$academy) }}" class="grid gap-5 sm:grid-cols-2">@csrf @method('PATCH')
 @foreach([['name','نام آموزشگاه','text'],['slug','Slug','text'],['code','کد آموزشگاه','text'],['phone','تلفن','text'],['email','ایمیل','email'],['city','شهر','text'],['province','استان','text'],['website','وب‌سایت','url']] as [$field,$label,$type])<label class="grid gap-1"><span class="text-xs font-bold">{{ $label }}</span><input name="{{ $field }}" type="{{ $type }}" value="{{ old($field,$academy->{$field}) }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error :field="$field"/></label>@endforeach
 <label class="grid gap-1 sm:col-span-2"><span class="text-xs font-bold">آدرس</span><input name="address" value="{{ old('address',$academy->address) }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="address"/></label>
