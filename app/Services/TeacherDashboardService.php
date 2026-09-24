@@ -226,9 +226,18 @@ final class TeacherDashboardService
             })
             ->whereIn('course_sections.course_id', $courseIds)
             ->whereBetween('progress.last_watched_at', [$from, $to])
-            ->groupBy(DB::raw('WEEK(progress.last_watched_at)'))
-            ->selectRaw('WEEK(progress.last_watched_at) as week_number, AVG(progress.progress_percent) as value')
-            ->pluck('value', 'week_number');
+            ->get([
+                'progress.last_watched_at',
+                'progress.progress_percent',
+            ]);
+
+        $weekly = [];
+
+        foreach ($rows as $row) {
+            $week = (int) Carbon::parse($row->last_watched_at)->format('W');
+            $weekly[$week]['sum'] = ($weekly[$week]['sum'] ?? 0) + (float) $row->progress_percent;
+            $weekly[$week]['count'] = ($weekly[$week]['count'] ?? 0) + 1;
+        }
 
         $labels = [];
         $values = [];
@@ -237,7 +246,9 @@ final class TeacherDashboardService
             $date = now()->subWeeks($index);
             $week = (int) $date->format('W');
             $labels[] = $this->faDigits('هفته ' . (4 - $index));
-            $values[] = round((float) ($rows[$week] ?? 0));
+            $values[] = isset($weekly[$week])
+                ? round($weekly[$week]['sum'] / max(1, $weekly[$week]['count']))
+                : 0;
         }
 
         while (count($values) < 7) {
