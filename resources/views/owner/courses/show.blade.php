@@ -25,6 +25,15 @@
         </div>
     </div>
 
+    <div class="course-readiness-strip {{ $course->status }}">
+        <div class="course-readiness-icon">{{ $course->status === 'published' ? '✓' : ($course->status === 'archived' ? '!' : '•') }}</div>
+        <div class="min-w-0">
+            <strong>{{ match($course->status){'published'=>'این دوره منتشرشده است','archived'=>'این دوره آرشیو شده است',default=>'این دوره هنوز پیش‌نویس است'} }}</strong>
+            <p>{{ $course->status === 'published' ? 'اطلاعات زیر وضعیت فعلی دوره را نشان می‌دهد.' : 'قبل از ارائه به دانش‌آموزها، اطلاعات و محتوای دوره را بررسی کن.' }}</p>
+        </div>
+        <span class="course-readiness-tag">{{ $course->isFree() ? 'رایگان' : 'پولی' }}</span>
+    </div>
+
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="خلاصه دوره">
         @foreach([
             ['دانش‌آموز فعال',$course->active_students_count,'ثبت‌نام فعال'],
@@ -105,6 +114,7 @@
                     <div class="course-detail-row"><span>وضعیت</span><strong>{{ match($course->status){'published'=>'منتشرشده','archived'=>'آرشیو',default=>'پیش‌نویس'} }}</strong></div>
                     <div class="course-detail-row"><span>دسترسی</span><strong>{{ $course->isFree() ? 'رایگان' : number_format((float)$course->price,0,'.',',').' تومان' }}</strong></div>
                     <div class="course-detail-row"><span>کلاس آنلاین</span><strong>{{ number_format($course->live_classes_count) }}</strong></div>
+                    <div class="course-detail-row"><span>رسانه خصوصی</span><strong>{{ number_format($course->media->count()) }} فایل</strong></div>
                 </div>
             </section>
         </aside>
