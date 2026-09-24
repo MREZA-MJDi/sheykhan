@@ -2,27 +2,35 @@
 
 namespace App\Services;
 
-use App\Models\\Academy;
-use App\Models\\Course;
-use App\Models\\CourseEnrollment;
-use App\Models\\User;
-use Illuminate\Support\Facades\\DB;
+use App\Models\Academy;
+use App\Models\Course;
+use App\Models\CourseEnrollment;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 final class OwnerReportService
 {
     public function build(User $owner): array
     {
-        $academy = Academy::query()->where('owner_id', $owner->id)->first();
+        abort_unless($owner->hasRole('academy-owner'), 403);
 
-        if (!$academy) {
+        $academies = $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        if ($academies->isEmpty()) {
             return $this->empty($owner);
         }
 
-        $courseIds = $academy->courses()->pluck('id')->all();
-        $classroomIds = $academy->classrooms()->pluck('id')->all();
+        $academyIds = $academies->pluck('id');
+        $academy = $academies->count() === 1 ? $academies->first() : null;
+
+        $courseIds = DB::table('courses')->whereIn('academy_id', $academyIds)->pluck('id')->all();
+        $classroomIds = DB::table('classrooms')->whereIn('academy_id', $academyIds)->pluck('id')->all();
 
         $teacherIds = DB::table('academy_user')
-            ->where('academy_id', $academy->id)
+            ->whereIn('academy_id', $academyIds)
             ->where('role', 'teacher')
             ->where('status', 'active')
             ->distinct()
@@ -30,7 +38,7 @@ final class OwnerReportService
             ->all();
 
         $studentIds = DB::table('academy_user')
-            ->where('academy_id', $academy->id)
+            ->whereIn('academy_id', $academyIds)
             ->where('role', 'student')
             ->where('status', 'active')
             ->distinct()
@@ -38,20 +46,20 @@ final class OwnerReportService
             ->all();
 
         $parentsCount = DB::table('academy_user')
-            ->where('academy_id', $academy->id)
+            ->whereIn('academy_id', $academyIds)
             ->where('role', 'parent')
             ->where('status', 'active')
             ->distinct()
             ->count('user_id');
 
         $revenue = DB::table('financial_transactions')
-            ->where('academy_id', $academy->id)
+            ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
             ->where('type', 'enrollment_payment')
             ->sum('amount');
 
         $refunds = DB::table('financial_transactions')
-            ->where('academy_id', $academy->id)
+            ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
             ->where('type', 'refund')
             ->sum('amount');
@@ -75,7 +83,7 @@ final class OwnerReportService
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
             })
-            ->where('courses.academy_id', $academy->id)
+            ->whereIn('courses.academy_id', $academyIds)
             ->whereIn('ct.teacher_id', $teacherIds)
             ->groupBy('ct.teacher_id', 'users.name')
             ->select([
@@ -151,7 +159,16 @@ final class OwnerReportService
                 : null;
         });
 
-        $classroomReports = $academy->classrooms()
+        $classroomReports = DB::table('classrooms')
+            ->whereIn('classrooms.id', $classroomIds)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($classroom) {
+                return $classroom;
+            });
+
+        $classroomReports = \App\Models\Classroom::query()
+            ->whereIn('id', $classroomIds)
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query->where('classroom_student.status', 'active'),
@@ -181,6 +198,7 @@ final class OwnerReportService
         return [
             'owner' => $owner,
             'academy' => $academy,
+            'academies' => $academies,
             'metrics' => [
                 'courses' => count($courseIds),
                 'published' => Course::query()->whereIn('id', $courseIds)->published()->count(),
@@ -189,12 +207,12 @@ final class OwnerReportService
                 'parents' => $parentsCount,
                 'classrooms' => count($classroomIds),
                 'enrollments' => CourseEnrollment::query()->whereIn('course_id', $courseIds)->where('status', 'active')->count(),
-                'attendance_rate' => $attendance?->total ? round(((int)$attendance->attended / (int)$attendance->total)*100,1) : null,
-                'exam_average' => $examAverage !== null ? round((float)$examAverage,1) : null,
-                'revenue' => (float)$revenue - (float)$refunds,
+                'attendance_rate' => $attendance?->total ? round(((int) $attendance->attended / (int) $attendance->total) * 100, 1) : null,
+                'exam_average' => $examAverage !== null ? round((float) $examAverage, 1) : null,
+                'revenue' => (float) $revenue - (float) $refunds,
                 'pending_reviews' => (int) DB::table('assignment_submissions as submissions')
-                    ->join('assignments','assignments.id','=','submissions.assignment_id')
-                    ->whereIn('assignments.course_id',$courseIds)
+                    ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+                    ->whereIn('assignments.course_id', $courseIds)
                     ->whereNotNull('submissions.submitted_at')
                     ->whereNull('submissions.graded_at')
                     ->count(),
@@ -203,8 +221,8 @@ final class OwnerReportService
             'courseReports' => $courseReports,
             'classroomReports' => $classroomReports,
             'recentEnrollments' => CourseEnrollment::query()
-                ->whereIn('course_id',$courseIds)
-                ->with(['student:id,name,email','course:id,title'])
+                ->whereIn('course_id', $courseIds)
+                ->with(['student:id,name,email', 'course:id,title'])
                 ->latest()
                 ->limit(8)
                 ->get(),
@@ -214,17 +232,26 @@ final class OwnerReportService
     private function empty(User $owner): array
     {
         return [
-            'owner'=>$owner,
-            'academy'=>null,
-            'metrics'=>[
-                'courses'=>0,'published'=>0,'teachers'=>0,'students'=>0,'parents'=>0,
-                'classrooms'=>0,'enrollments'=>0,'attendance_rate'=>null,'exam_average'=>null,
-                'revenue'=>0,'pending_reviews'=>0,
+            'owner' => $owner,
+            'academy' => null,
+            'academies' => collect(),
+            'metrics' => [
+                'courses' => 0,
+                'published' => 0,
+                'teachers' => 0,
+                'students' => 0,
+                'parents' => 0,
+                'classrooms' => 0,
+                'enrollments' => 0,
+                'attendance_rate' => null,
+                'exam_average' => null,
+                'revenue' => 0,
+                'pending_reviews' => 0,
             ],
-            'teacherReports'=>collect(),
-            'courseReports'=>collect(),
-            'classroomReports'=>collect(),
-            'recentEnrollments'=>collect(),
+            'teacherReports' => collect(),
+            'courseReports' => collect(),
+            'classroomReports' => collect(),
+            'recentEnrollments' => collect(),
         ];
     }
 }
