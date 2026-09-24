@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Owner;
 
-use App\Http\Controllers\\Controller;
-use App\Http\Requests\Owner\Course\\StoreCourseRequest;
-use App\Http\Requests\Owner\Course\\UpdateCourseRequest;
-use App\Models\\Course;
-use App\Services\\CourseManagementService;
-use Illuminate\Http\\RedirectResponse;
-use Illuminate\View\\View;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\Course\StoreCourseRequest;
+use App\Http\Requests\Owner\Course\UpdateCourseRequest;
+use App\Models\Course;
+use App\Services\CourseManagementService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class CourseController extends Controller
 {
