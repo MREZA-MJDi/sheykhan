@@ -1,4 +1,7 @@
+import Alpine from 'alpinejs';
 import { bootPanel } from './panel-base.js';
+
+window.Alpine = Alpine;
 
 document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
@@ -23,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (submitter) {
                 submitter.disabled = true;
-                submitter.setAttribute('aria-busy','true');
+                submitter.setAttribute('aria-busy', 'true');
                 submitter.dataset.originalText = submitter.textContent;
                 submitter.textContent = 'در حال ثبت...';
             }
@@ -42,13 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const matches = option.dataset.courseId === selectedCourse;
                 option.hidden = !matches;
                 option.disabled = !matches;
+
                 if (matches) visible += 1;
             });
 
             const selected = classroomSelect.selectedOptions[0];
             if (selected?.disabled) classroomSelect.value = '';
 
-            classroomSelect.closest('form')?.querySelector('[data-no-classrooms]')
+            classroomSelect
+                .closest('form')
+                ?.querySelector('[data-no-classrooms]')
                 ?.toggleAttribute('hidden', visible > 0);
         };
 
@@ -60,12 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('pageshow', () => {
     document.querySelectorAll('form[data-submitted="true"]').forEach((form) => {
         form.dataset.submitted = 'false';
+
         form.querySelectorAll('button[aria-busy="true"]').forEach((button) => {
             button.disabled = false;
             button.removeAttribute('aria-busy');
+
             if (button.dataset.originalText) {
                 button.textContent = button.dataset.originalText;
             }
         });
     });
 });
+
+Alpine.start();
