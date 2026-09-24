@@ -23,31 +23,25 @@ class Academy extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot(['role','status','joined_at'])->withTimestamps();
+        return $this->belongsToMany(User::class)->withPivot(['role','status','joined_at'])->withTimestamps();
     }
 
     public function teachers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
-            ->wherePivot('role','teacher')
-            ->withPivot(['status','joined_at']);
+        return $this->belongsToMany(User::class)->wherePivot('role','teacher')->withPivot(['status','joined_at']);
     }
 
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
-            ->wherePivot('role','student')
-            ->withPivot(['status','joined_at']);
+        return $this->belongsToMany(User::class)->wherePivot('role','student')->withPivot(['status','joined_at']);
     }
 
     public function parents(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
-            ->wherePivot('role','parent')
-            ->withPivot(['status','joined_at']);
+        return $this->belongsToMany(User::class)->wherePivot('role','parent')->withPivot(['status','joined_at']);
     }
 
     public function courses(): HasMany { return $this->hasMany(Course::class); }
     public function classrooms(): HasMany { return $this->hasMany(Classroom::class); }
+    public function financialTransactions(): HasMany { return $this->hasMany(FinancialTransaction::class); }
 }

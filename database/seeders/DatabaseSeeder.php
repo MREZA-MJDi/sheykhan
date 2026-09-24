@@ -1,19 +1,17 @@
 <?php
 
-namespace Database\Seeders;
+namespace DatabaseSeeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use IlluminateDatabaseSeeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     public function run(): void
     {
         $this->call([
             RolePermissionSeeder::class,
             DemoContentSeeder::class,
+            DemoFinanceSeeder::class,
         ]);
     }
 }
