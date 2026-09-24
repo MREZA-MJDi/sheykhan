@@ -61,12 +61,26 @@ function syncAjaxUploadForm(form) {
             return;
         }
 
-        if (maxBytes && file.size > maxBytes) {
+        const extension = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : '';
+        const maxBytes = maxSizes[extension] || 0;
+
+        if (!maxBytes) {
+            input.value = '';
+            if (preview) preview.hidden = true;
+            setStatus('فرمت فایل پشتیبانی نمی‌شود.', 'error');
+            resetProgress();
+            return;
+        }
+
+        if (file.size > maxBytes) {
             input.value = '';
             if (preview) preview.hidden = true;
             setStatus(`حجم فایل ${formatUploadSize(file.size)} است؛ حداکثر مجاز ${formatUploadSize(maxBytes)} است.`, 'error');
+            resetProgress();
             return;
         }
+
+        form.dataset.maxBytes = String(maxBytes);
 
         const wrapper = form.closest('[data-media-uploader]');
         const previewImage = wrapper?.querySelector('[data-preview-image]');
