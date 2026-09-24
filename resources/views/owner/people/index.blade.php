@@ -58,7 +58,8 @@
                     <label class="people-field"><span>سابقه <small>سال</small></span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="people-input" inputmode="numeric"></label>
                 </div>
                 <label class="people-toggle">
-                    <input type="checkbox" name="is_public" value="1" @checked(old('is_public', true))>
+                    <input type="hidden" name="is_public" value="0">
+                    <input type="checkbox" name="is_public" value="1" @checked((bool) old('is_public', true))>
                     <span class="people-toggle-check">✓</span>
                     <span><strong>نمایش در لیست مدرس‌های سایت</strong><small>این فقط نمایش عمومی پروفایل است و به عضویت فعال ربطی ندارد.</small></span>
                 </label>
