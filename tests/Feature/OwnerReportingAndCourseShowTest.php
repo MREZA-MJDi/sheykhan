@@ -10,6 +10,7 @@ use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use App\Models\FinancialTransaction;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -208,6 +209,70 @@ class OwnerReportingAndCourseShowTest extends TestCase
 
         $this->assertSame(50.0, (float) $analytics->courseProgress([$course->id])->get($course->id));
         $this->assertSame(80.0, (float) $analytics->courseExamAverages([$course->id])->get($course->id));
+    }
+
+    public function test_owner_report_teacher_sales_use_financial_ledger_net_of_refunds(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['reports.view']);
+
+        $teacher = User::factory()->create(['email' => 'ledger-teacher-' . Str::random(6) . '@test.local']);
+        $student = User::factory()->create(['email' => 'ledger-student-' . Str::random(6) . '@test.local']);
+
+        $academy->users()->attach($teacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $course->teachers()->attach($teacher->id, ['is_primary' => true]);
+
+        $academy->users()->attach($student->id, [
+            'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $enrollment = CourseEnrollment::create([
+            'course_id' => $course->id,
+            'student_id' => $student->id,
+            'status' => 'active',
+            'paid_amount' => 200000,
+            'started_at' => now(),
+        ]);
+
+        FinancialTransaction::create([
+            'academy_id' => $academy->id,
+            'enrollment_id' => $enrollment->id,
+            'user_id' => $student->id,
+            'recorded_by' => $owner->id,
+            'type' => 'enrollment_payment',
+            'status' => 'completed',
+            'amount' => 200000,
+            'currency' => 'IRT',
+            'reference' => 'test-payment-' . Str::uuid(),
+            'description' => 'test payment',
+            'occurred_at' => now(),
+        ]);
+
+        FinancialTransaction::create([
+            'academy_id' => $academy->id,
+            'enrollment_id' => $enrollment->id,
+            'user_id' => $student->id,
+            'recorded_by' => $owner->id,
+            'type' => 'refund',
+            'status' => 'completed',
+            'amount' => 25000,
+            'currency' => 'IRT',
+            'reference' => 'test-refund-' . Str::uuid(),
+            'description' => 'test refund',
+            'occurred_at' => now(),
+        ]);
+
+        $report = app(\App\Services\OwnerReportService::class)->build($owner);
+        $teacherReport = $report['teacherReports']->first();
+
+        $this->assertNotNull($teacherReport);
+        $this->assertEquals(175000.0, (float) $teacherReport->enrollment_sales);
     }
 
     private function ownerWorkspace(array $permissions): array
