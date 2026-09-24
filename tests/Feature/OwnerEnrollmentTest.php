@@ -12,7 +12,7 @@ use App\ModelsRole;
 use App\ModelsUser;
 use Illuminate\FoundationTestingRefreshDatabase;
 use Illuminate\SupportStr;
-use TestsTestCase;
+use Tests\TestCase;
 
 class OwnerEnrollmentTest extends TestCase
 {

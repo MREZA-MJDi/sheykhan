@@ -9,7 +9,7 @@ use App\ModelsRole;
 use App\ModelsUser;
 use Illuminate\FoundationTestingRefreshDatabase;
 use Illuminate\SupportStr;
-use TestsTestCase;
+use Tests\TestCase;
 
 class OwnerCourseAccessTest extends TestCase
 {
