@@ -11,7 +11,14 @@ final class CourseLearningProgressService
 {
     public function forTeacher(User $teacher, Course $course): array
     {
-        if (!$course->teachers()->whereKey($teacher->id)->exists()) {
+        $activeMembership = DB::table('academy_user')
+            ->where('academy_id', $course->academy_id)
+            ->where('user_id', $teacher->id)
+            ->where('role', 'teacher')
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$activeMembership || !$course->teachers()->whereKey($teacher->id)->exists()) {
             throw new AccessDeniedHttpException('این دوره برای مدرس شما قابل مشاهده نیست.');
         }
 
