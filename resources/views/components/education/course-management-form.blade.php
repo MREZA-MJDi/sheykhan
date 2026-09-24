@@ -210,7 +210,7 @@
     }"
     class="course-form-shell space-y-6"
 >
-    <form method="POST" action="{{ $action }}" class="space-y-6" @submit="syncPrice(); return syncPublishedAt()">
+    <form method="POST" action="{{ $action }}" class="space-y-6" @submit="syncPrice(); if (!syncPublishedAt()) $event.preventDefault()">
         @csrf
         @if($method !== 'POST') @method($method) @endif
 
@@ -389,10 +389,10 @@
                         </div>
                     </div>
                     <div class="course-upload-specs mt-4">
-                        <span><b>حداکثر:</b> ۵۰۰ مگابایت</span>
-                        <span><b>ویدیو:</b> MP4 / WebM / MOV</span>
-                        <span><b>فایل:</b> PDF / ZIP</span>
-                        <span><b>تصویر:</b> JPG / PNG / WEBP</span>
+                        <span><b>ویدیو:</b> حداکثر ۵۰۰ مگابایت</span>
+                        <span><b>ZIP:</b> حداکثر ۲۰۰ مگابایت</span>
+                        <span><b>PDF:</b> حداکثر ۵۰ مگابایت</span>
+                        <span><b>تصویر:</b> حداکثر ۱۰ مگابایت</span>
                     </div>
                 </div>
 
@@ -419,12 +419,12 @@
                     <div class="course-upload-progress" data-upload-progress hidden>
                         <div class="course-upload-progress-head">
                             <span>در حال آپلود</span>
-                            <strong data-upload-status>۰٪</strong>
+                            <strong data-upload-percent>۰٪</strong>
                         </div>
                         <div class="course-progress-track"><span data-upload-progress-bar></span></div>
                     </div>
 
-                    <p class="course-upload-status" data-upload-status aria-live="polite"></p>
+                    <p class="course-upload-status" data-upload-message aria-live="polite"></p>
                     <button type="submit" class="course-action-btn primary">آپلود فایل</button>
                 </form>
             </div>
