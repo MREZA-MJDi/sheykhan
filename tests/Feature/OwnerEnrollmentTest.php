@@ -163,12 +163,6 @@ class OwnerEnrollmentTest extends TestCase
             'status' => 'active',
         ]);
 
-        $academy->users()->attach($owner->id, [
-            'role' => 'owner',
-            'status' => 'active',
-            'joined_at' => now(),
-        ]);
-
         $academy->users()->attach($student->id, [
             'role' => 'student',
             'status' => 'active',
