@@ -1,13 +1,13 @@
 <?php
 
-namespace AppHttpControllersOwner;
+namespace App\Http\Controllers\Owner;
 
-use AppHttpControllersController;
-use AppHttpRequestsOwnerUpdateClassroomStatusRequest;
-use AppModelsAcademy;
-use AppServicesOwnerWorkspaceService;
-use IlluminateHttpRedirectResponse;
-use IlluminateViewView;
+use App\Http\ControllersController;
+use App\Http\Requests\OwnerUpdateClassroomStatusRequest;
+use App\ModelsAcademy;
+use App\ServicesOwnerWorkspaceService;
+use Illuminate\HttpRedirectResponse;
+use Illuminate\ViewView;
 
 class ClassroomController extends Controller
 {

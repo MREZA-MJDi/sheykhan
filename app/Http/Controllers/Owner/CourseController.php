@@ -1,14 +1,14 @@
 <?php
 
-namespace AppHttpControllersOwner;
+namespace App\Http\Controllers\Owner;
 
-use AppHttpControllersController;
-use AppHttpRequestsOwnerCourseStoreCourseRequest;
-use AppHttpRequestsOwnerCourseUpdateCourseRequest;
-use AppModelsCourse;
-use AppServicesCourseManagementService;
-use IlluminateHttpRedirectResponse;
-use IlluminateViewView;
+use App\Http\ControllersController;
+use App\Http\Requests\Owner\CourseStoreCourseRequest;
+use App\Http\Requests\Owner\CourseUpdateCourseRequest;
+use App\ModelsCourse;
+use App\ServicesCourseManagementService;
+use Illuminate\HttpRedirectResponse;
+use Illuminate\ViewView;
 
 class CourseController extends Controller
 {

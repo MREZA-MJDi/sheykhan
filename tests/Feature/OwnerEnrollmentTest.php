@@ -1,17 +1,17 @@
 <?php
 
-namespace TestsFeature;
+namespace Tests\Feature;
 
-use AppModelsAcademy;
-use AppModelsClassroom;
-use AppModelsCourse;
-use AppModelsCourseEnrollment;
-use AppModelsFinancialTransaction;
-use AppModelsPermission;
-use AppModelsRole;
-use AppModelsUser;
-use IlluminateFoundationTestingRefreshDatabase;
-use IlluminateSupportStr;
+use App\ModelsAcademy;
+use App\ModelsClassroom;
+use App\ModelsCourse;
+use App\ModelsCourseEnrollment;
+use App\ModelsFinancialTransaction;
+use App\ModelsPermission;
+use App\ModelsRole;
+use App\ModelsUser;
+use Illuminate\FoundationTestingRefreshDatabase;
+use Illuminate\SupportStr;
 use TestsTestCase;
 
 class OwnerEnrollmentTest extends TestCase

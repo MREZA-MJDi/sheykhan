@@ -1,12 +1,12 @@
 <?php
 
-namespace AppServices;
+namespace App\Services;
 
-use AppModelsAcademy;
-use AppModelsCourse;
-use AppModelsCourseEnrollment;
-use AppModelsUser;
-use IlluminateSupportFacadesDB;
+use App\ModelsAcademy;
+use App\ModelsCourse;
+use App\ModelsCourseEnrollment;
+use App\ModelsUser;
+use Illuminate\Support\FacadesDB;
 
 final class OwnerReportService
 {

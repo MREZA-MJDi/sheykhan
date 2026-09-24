@@ -1,14 +1,14 @@
 <?php
 
-namespace TestsFeature;
+namespace Tests\Feature;
 
-use AppModelsAcademy;
-use AppModelsCourse;
-use AppModelsPermission;
-use AppModelsRole;
-use AppModelsUser;
-use IlluminateFoundationTestingRefreshDatabase;
-use IlluminateSupportStr;
+use App\ModelsAcademy;
+use App\ModelsCourse;
+use App\ModelsPermission;
+use App\ModelsRole;
+use App\ModelsUser;
+use Illuminate\FoundationTestingRefreshDatabase;
+use Illuminate\SupportStr;
 use TestsTestCase;
 
 class OwnerCourseAccessTest extends TestCase

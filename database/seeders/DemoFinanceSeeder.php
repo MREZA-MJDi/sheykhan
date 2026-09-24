@@ -1,10 +1,10 @@
 <?php
 
-namespace DatabaseSeeders;
+namespace Database\Seeders;
 
-use AppModelsCourseEnrollment;
-use AppModelsFinancialTransaction;
-use IlluminateDatabaseSeeder;
+use App\ModelsCourseEnrollment;
+use App\ModelsFinancialTransaction;
+use Illuminate\DatabaseSeeder;
 
 class DemoFinanceSeeder extends Seeder
 {

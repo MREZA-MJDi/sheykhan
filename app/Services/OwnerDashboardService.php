@@ -1,10 +1,10 @@
 <?php
 
-namespace AppServices;
+namespace App\Services;
 
-use AppModelsCourse;
-use AppModelsUser;
-use IlluminateSupportFacadesDB;
+use App\ModelsCourse;
+use App\ModelsUser;
+use Illuminate\Support\FacadesDB;
 
 final class OwnerDashboardService
 {

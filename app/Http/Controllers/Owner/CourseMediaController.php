@@ -1,15 +1,15 @@
 <?php
 
-namespace AppHttpControllersOwner;
+namespace App\Http\Controllers\Owner;
 
-use AppHttpControllersController;
-use AppHttpRequestsOwnerCourseCourseMediaRequest;
-use AppModelsCourse;
-use AppModelsMedia;
-use AppServicesCourseManagementService;
-use AppServicesMediaService;
-use IlluminateHttpRedirectResponse;
-use IlluminateSupportFacadesLog;
+use App\Http\ControllersController;
+use App\Http\Requests\Owner\CourseCourseMediaRequest;
+use App\ModelsCourse;
+use App\ModelsMedia;
+use App\ServicesCourseManagementService;
+use App\ServicesMediaService;
+use Illuminate\HttpRedirectResponse;
+use Illuminate\Support\FacadesLog;
 use Throwable;
 
 class CourseMediaController extends Controller

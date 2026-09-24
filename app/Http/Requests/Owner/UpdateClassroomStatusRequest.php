@@ -1,9 +1,9 @@
 <?php
 
-namespace AppHttpRequestsOwner;
+namespace App\Http\Requests\Owner;
 
-use IlluminateFoundationHttpFormRequest;
-use IlluminateValidationRule;
+use Illuminate\Foundation\HttpFormRequest;
+use Illuminate\ValidationRule;
 
 class UpdateClassroomStatusRequest extends FormRequest
 {
