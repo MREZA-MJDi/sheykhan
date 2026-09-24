@@ -6,6 +6,7 @@ use App\Models\Academy;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 final class CourseManagementService
@@ -38,7 +39,8 @@ final class CourseManagementService
             return true;
         }
 
-        return $course->teachers()->whereKey($user->id)->exists();
+        return $this->isActiveTeacherMember($user, (int) $course->academy_id)
+            && $course->teachers()->whereKey($user->id)->exists();
     }
 
     public function canManage(User $user, Course $course): bool
@@ -51,7 +53,8 @@ final class CourseManagementService
             return true;
         }
 
-        return $course->teachers()->whereKey($user->id)->exists();
+        return $this->isActiveTeacherMember($user, (int) $course->academy_id)
+            && $course->teachers()->whereKey($user->id)->exists();
     }
 
     public function create(User $user, array $data): Course
@@ -187,10 +190,24 @@ final class CourseManagementService
         }
 
         return $user->taughtCourses()
+            ->whereHas('academy.users', fn ($query) => $query
+                ->where('users.id', $user->id)
+                ->where('academy_user.role', 'teacher')
+                ->where('academy_user.status', 'active'))
             ->withCount('sections')
             ->with('academy:id,name')
             ->latest()
             ->get();
+    }
+
+    private function isActiveTeacherMember(User $user, int $academyId): bool
+    {
+        return DB::table('academy_user')
+            ->where('academy_id', $academyId)
+            ->where('user_id', $user->id)
+            ->where('role', 'teacher')
+            ->where('status', 'active')
+            ->exists();
     }
 
     private function uniqueSlug(
