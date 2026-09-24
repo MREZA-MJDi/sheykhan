@@ -18,16 +18,32 @@
 
     <section class="grid gap-3 sm:grid-cols-3" aria-label="آمار دوره‌ها">
         @foreach([
-            ['کل دوره‌ها', $stats['total'], 'همه دوره‌های ثبت‌شده'],
-            ['منتشرشده', $stats['published'], 'دوره‌های قابل ارائه'],
-            ['رایگان', $stats['free'], 'بدون نیاز به پرداخت'],
-        ] as [$label,$value,$hint])
-            <article class="course-stat">
-                <span>{{ $label }}</span>
+            ['کل دوره‌ها', $stats['total'], 'همه دوره‌های ثبت‌شده', 'all'],
+            ['منتشرشده', $stats['published'], 'آماده ارائه', 'published'],
+            ['رایگان', $stats['free'], 'بدون نیاز به پرداخت', 'free'],
+        ] as [$label,$value,$hint,$tone])
+            <article class="course-stat {{ $tone }}">
+                <div class="flex items-start justify-between gap-3">
+                    <span>{{ $label }}</span>
+                    <i aria-hidden="true"></i>
+                </div>
                 <strong>{{ number_format($value) }}</strong>
                 <small>{{ $hint }}</small>
             </article>
         @endforeach
+    </section>
+
+    <section class="course-status-guide">
+        <div>
+            <span class="course-guide-kicker">راهنمای وضعیت</span>
+            <strong>رنگ‌ها را ساده نگه داشتیم؛ هر رنگ یک معنی دارد.</strong>
+        </div>
+        <div class="course-guide-items">
+            <span><i class="published"></i>منتشرشده</span>
+            <span><i class="draft"></i>پیش‌نویس</span>
+            <span><i class="archived"></i>آرشیو</span>
+            <span><i class="paid"></i>پولی</span>
+        </div>
     </section>
 
     <section class="panel-card overflow-hidden">
