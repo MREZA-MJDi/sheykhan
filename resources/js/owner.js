@@ -21,11 +21,22 @@ function formatUploadSize(bytes) {
 function syncAjaxUploadForm(form) {
     const input = form.querySelector('input[type="file"][name="media"]');
     const preview = form.closest('[data-media-uploader]')?.querySelector('[data-upload-preview]');
-    const status = form.closest('[data-media-uploader]')?.querySelector('[data-upload-status]');
+    const status = form.closest('[data-media-uploader]')?.querySelector('[data-upload-message]');
+    const percentLabel = form.closest('[data-media-uploader]')?.querySelector('[data-upload-percent]');
     const progressWrap = form.closest('[data-media-uploader]')?.querySelector('[data-upload-progress]');
     const progressBar = form.closest('[data-media-uploader]')?.querySelector('[data-upload-progress-bar]');
     const submit = form.querySelector('button[type="submit"]');
-    const maxBytes = Number(form.dataset.maxBytes || 0);
+    const maxSizes = {
+        jpg: 10 * 1024 * 1024,
+        jpeg: 10 * 1024 * 1024,
+        png: 10 * 1024 * 1024,
+        webp: 10 * 1024 * 1024,
+        pdf: 50 * 1024 * 1024,
+        zip: 200 * 1024 * 1024,
+        mp4: 500 * 1024 * 1024,
+        webm: 500 * 1024 * 1024,
+        mov: 500 * 1024 * 1024
+    };
 
     if (!input || form.dataset.ajaxUploader === 'bound') return;
     form.dataset.ajaxUploader = 'bound';
@@ -103,6 +114,7 @@ function syncAjaxUploadForm(form) {
             return;
         }
 
+        const maxBytes = Number(form.dataset.maxBytes || 0);
         if (maxBytes && file.size > maxBytes) {
             setStatus(`حجم فایل بیشتر از ${formatUploadSize(maxBytes)} است.`, 'error');
             return;
@@ -133,7 +145,8 @@ function syncAjaxUploadForm(form) {
 
             const percent = Math.round((event.loaded / event.total) * 100);
             if (progressBar) progressBar.style.width = `${percent}%`;
-            setStatus(`در حال آپلود… ${percent}٪ · ${formatUploadSize(event.loaded)} از ${formatUploadSize(event.total)}`, '');
+            if (percentLabel) percentLabel.textContent = `${percent}٪`;
+            setStatus(`در حال آپلود · ${formatUploadSize(event.loaded)} از ${formatUploadSize(event.total)}`, '');
         });
 
         xhr.addEventListener('load', () => {
@@ -151,6 +164,7 @@ function syncAjaxUploadForm(form) {
             } catch (_) {}
 
             form.dataset.uploading = 'false';
+            form.dataset.submitted = 'false';
             if (submit) {
                 submit.disabled = false;
                 submit.removeAttribute('aria-busy');
@@ -158,10 +172,12 @@ function syncAjaxUploadForm(form) {
             }
             setStatus(message, 'error');
             if (progressWrap) progressWrap.hidden = true;
+            if (percentLabel) percentLabel.textContent = '۰٪';
         });
 
         xhr.addEventListener('error', () => {
             form.dataset.uploading = 'false';
+            form.dataset.submitted = 'false';
             if (submit) {
                 submit.disabled = false;
                 submit.removeAttribute('aria-busy');
@@ -173,6 +189,7 @@ function syncAjaxUploadForm(form) {
 
         xhr.addEventListener('abort', () => {
             form.dataset.uploading = 'false';
+            form.dataset.submitted = 'false';
             if (submit) {
                 submit.disabled = false;
                 submit.removeAttribute('aria-busy');
