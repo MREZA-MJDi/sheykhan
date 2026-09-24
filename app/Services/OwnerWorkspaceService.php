@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Academy;
-use App\Models\Course;
 use App\Models\Role;
 use App\Models\TeacherProfile;
 use App\Models\User;
@@ -12,21 +11,20 @@ use Illuminate\Support\Facades\DB;
 
 final class OwnerWorkspaceService
 {
-    public function academy(User $owner): ?Academy
-    {
-        return $owner->ownedAcademy()->first();
-    }
-
     public function academies(User $owner): Collection
     {
-        $academy = $this->academy($owner);
+        abort_unless($owner->hasRole('academy-owner'), 403);
 
-        return $academy ? collect([$academy]) : collect();
+        return $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
     }
 
     public function canManageAcademy(User $owner, Academy $academy): bool
     {
-        return $owner->hasRole('academy-owner') && $academy->owner_id === $owner->id;
+        return $owner->hasRole('academy-owner')
+            && (int) $academy->owner_id === (int) $owner->id;
     }
 
     public function people(User $owner, Academy $academy): array
@@ -35,7 +33,7 @@ final class OwnerWorkspaceService
 
         $members = $academy->users()
             ->wherePivot('status', 'active')
-            ->select('users.id','users.name','users.email')
+            ->select('users.id', 'users.name', 'users.email')
             ->get()
             ->groupBy(fn (User $user) => $user->pivot->role);
 
@@ -51,18 +49,18 @@ final class OwnerWorkspaceService
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
         $teachers = $academy->users()
-            ->wherePivot('role','teacher')
-            ->wherePivot('status','active')
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
             ->orderBy('users.name')
-            ->get(['users.id','users.name']);
+            ->get(['users.id', 'users.name']);
 
         $courses = $academy->courses()
             ->with('classrooms:id,academy_id,course_id,title,status,capacity')
-            ->select('id','title')
+            ->select('id', 'title')
             ->orderBy('title')
             ->get();
 
-        return compact('teachers','courses');
+        return compact('teachers', 'courses');
     }
 
     public function createTeacher(User $owner, Academy $academy, array $data): User
@@ -76,10 +74,10 @@ final class OwnerWorkspaceService
                 'password' => $data['password'],
             ]);
 
-            $roleId = Role::query()->where('slug','teacher')->value('id');
+            $roleId = Role::query()->where('slug', 'teacher')->value('id');
             abort_unless($roleId, 500, 'نقش مدرس در سیستم تعریف نشده است.');
 
-            $teacher->roles()->attach($roleId);
+            $teacher->roles()->syncWithoutDetaching([$roleId]);
 
             TeacherProfile::create([
                 'user_id' => $teacher->id,
@@ -90,8 +88,12 @@ final class OwnerWorkspaceService
                 'is_verified' => true,
             ]);
 
-            $academy->users()->attach($teacher->id, [
-                'role'=>'teacher','status'=>'active','joined_at'=>now(),
+            $academy->users()->syncWithoutDetaching([
+                $teacher->id => [
+                    'role' => 'teacher',
+                    'status' => 'active',
+                    'joined_at' => now(),
+                ],
             ]);
 
             return $teacher;
@@ -104,8 +106,8 @@ final class OwnerWorkspaceService
 
         $isTeacher = $academy->users()
             ->whereKey($teacherId)
-            ->wherePivot('role','teacher')
-            ->wherePivot('status','active')
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
             ->exists();
 
         abort_unless($isTeacher, 422, 'این کاربر مدرس فعال این آموزشگاه نیست.');
