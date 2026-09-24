@@ -48,17 +48,23 @@ return new class extends Migration {
             $table->index(['enrollment_id', 'type', 'status'], 'financial_transactions_enrollment');
         });
 
-        DB::table('course_enrollments')
-            ->select(['id', 'course_id', 'student_id', 'paid_amount'])
-            ->orderBy('id')
+        DB::table('course_enrollments as enrollments')
+            ->join('courses', 'courses.id', '=', 'enrollments.course_id')
+            ->select([
+                'enrollments.id',
+                'enrollments.course_id',
+                'enrollments.student_id',
+                'enrollments.paid_amount',
+                'enrollments.created_at',
+                'courses.price',
+                'courses.academy_id',
+            ])
+            ->orderBy('enrollments.id')
             ->chunkById(500, function ($enrollments): void {
-                $courseIds = $enrollments->pluck('course_id')->filter()->unique()->values();
-                $prices = DB::table('courses')
-                    ->whereIn('id', $courseIds)
-                    ->pluck('price', 'id');
+                $financialRows = [];
 
                 foreach ($enrollments as $enrollment) {
-                    $price = (float) ($prices[$enrollment->course_id] ?? 0);
+                    $price = (float) ($enrollment->price ?? 0);
                     $paid = (float) $enrollment->paid_amount;
                     $paymentStatus = $price <= 0
                         ? 'paid'
@@ -71,43 +77,35 @@ return new class extends Migration {
                             'payment_status' => $paymentStatus,
                         ]);
 
-                    if ($paid <= 0) {
+                    if ($paid <= 0 || !$enrollment->academy_id) {
                         continue;
                     }
 
-                    $academyId = DB::table('courses')
-                        ->where('id', $enrollment->course_id)
-                        ->value('academy_id');
+                    $createdAt = $enrollment->created_at ?? now();
 
-                    if (!$academyId) {
-                        continue;
-                    }
-
-                    $createdAt = DB::table('course_enrollments')
-                        ->where('id', $enrollment->id)
-                        ->value('created_at') ?: now();
-
-                    DB::table('financial_transactions')->updateOrInsert(
-                        ['reference' => 'legacy-enrollment-' . $enrollment->id],
-                        [
-                            'academy_id' => $academyId,
-                            'enrollment_id' => $enrollment->id,
-                            'user_id' => $enrollment->student_id,
-                            'recorded_by' => null,
-                            'type' => 'enrollment_payment',
-                            'status' => 'completed',
-                            'amount' => $paid,
-                            'currency' => 'IRT',
-                            'idempotency_key' => null,
-                            'description' => 'ثبت تراکنش تاریخی ثبت‌نام',
-                            'metadata' => json_encode(['source' => 'legacy_enrollment_backfill'], JSON_UNESCAPED_UNICODE),
-                            'occurred_at' => $createdAt,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]
-                    );
+                    $financialRows[] = [
+                        'academy_id' => $enrollment->academy_id,
+                        'enrollment_id' => $enrollment->id,
+                        'user_id' => $enrollment->student_id,
+                        'recorded_by' => null,
+                        'type' => 'enrollment_payment',
+                        'status' => 'completed',
+                        'amount' => $paid,
+                        'currency' => 'IRT',
+                        'reference' => 'legacy-enrollment-' . $enrollment->id,
+                        'idempotency_key' => null,
+                        'description' => 'ثبت تراکنش تاریخی ثبت‌نام',
+                        'metadata' => json_encode(['source' => 'legacy_enrollment_backfill'], JSON_UNESCAPED_UNICODE),
+                        'occurred_at' => $createdAt,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
                 }
-            });
+
+                if ($financialRows !== []) {
+                    DB::table('financial_transactions')->insertOrIgnore($financialRows);
+                }
+            }, 'enrollments.id', 'id');
     }
 
     public function down(): void
