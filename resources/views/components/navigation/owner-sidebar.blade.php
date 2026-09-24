@@ -1,5 +1,5 @@
 @php
-    $academies = auth()->user()->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
+    $academies = auth()->user()->ownedAcademies()->orderBy('status')->orderBy('name')->get();
     $currentAcademyRoute = request()->route('academy');
     $currentAcademyId = is_object($currentAcademyRoute) && method_exists($currentAcademyRoute, 'getKey')
         ? $currentAcademyRoute->getKey()
@@ -14,7 +14,10 @@
 <div class="role-sidebar-label mt-6">آموزشگاه‌های من</div>
 @forelse($academies as $academy)
 <div class="owner-sidebar-academy">
-    <div class="owner-sidebar-academy-name" title="{{ $academy->name }}">{{ $academy->name }}</div>
+    <div class="owner-sidebar-academy-name" title="{{ $academy->name }}">
+        <span>{{ $academy->name }}</span>
+        <small class="owner-sidebar-status {{ $academy->status }}">{{ match($academy->status){'active'=>'فعال','suspended'=>'تعلیق','inactive'=>'غیرفعال',default=>$academy->status} }}</small>
+    </div>
     <div class="owner-sidebar-academy-links">
         <a href="{{ route('owner.people.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.people.*') && $currentAcademyId !== null && (int) $currentAcademyId === (int) $academy->getKey() ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>اعضا</span></a>
         <a href="{{ route('owner.academy.edit',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.academy.*') && $currentAcademyId !== null && (int) $currentAcademyId === (int) $academy->getKey() ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>تنظیمات</span></a>
@@ -22,7 +25,7 @@
     </div>
 </div>
 @empty
-<div class="owner-sidebar-empty">هنوز آموزشگاه فعالی ندارید.</div>
+<div class="owner-sidebar-empty">هنوز آموزشگاهی ثبت نشده است.</div>
 @endforelse
 <div class="role-sidebar-label mt-6">نظارت</div>
 <a href="{{ route('owner.reports.index') }}" class="role-nav-link {{ request()->routeIs('owner.reports.*')?'is-active':'' }}"><span class="role-nav-icon"></span><span>گزارش‌ها</span></a>
