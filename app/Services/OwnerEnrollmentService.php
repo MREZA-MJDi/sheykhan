@@ -11,7 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Str;
 use Illuminate\Validation\ValidationException;
 
 final class OwnerEnrollmentService
@@ -20,11 +20,15 @@ final class OwnerEnrollmentService
 
     public function enroll(User $owner, Academy $academy, array $data): CourseEnrollment
     {
-        abort_unless($owner->hasRole('academy-owner') && $academy->owner_id === $owner->id, 403);
+        abort_unless($owner->hasRole('academy-owner') && (int) $academy->owner_id === (int) $owner->id, 403);
 
+        $hashPayload = array_merge($data, ['academy_id' => $academy->id]);
         $requestHash = hash(
             'sha256',
-            json_encode(Arr::sortRecursive($data), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            json_encode(
+                Arr::sortRecursive($hashPayload),
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            )
         );
 
         return DB::transaction(function () use ($owner, $academy, $data, $requestHash): CourseEnrollment {
@@ -229,6 +233,7 @@ final class OwnerEnrollmentService
                     'amount' => $difference,
                     'currency' => 'IRT',
                     'reference' => 'enrollment-' . $enrollment->id . '-' . Str::uuid(),
+                    'idempotency_key' => $data['idempotency_key'],
                     'description' => 'ثبت پرداخت ثبت‌نام دوره',
                     'metadata' => [
                         'course_id' => $course->id,
@@ -257,8 +262,13 @@ final class OwnerEnrollmentService
 
     private function paymentStatus(float $price, float $paidAmount): string
     {
-        if ($price <= 0) return 'paid';
-        if ($paidAmount >= $price) return 'paid';
+        if ($price <= 0) {
+            return 'paid';
+        }
+
+        if ($paidAmount >= $price) {
+            return 'paid';
+        }
 
         return $paidAmount > 0 ? 'partial' : 'unpaid';
     }
