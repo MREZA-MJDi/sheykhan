@@ -64,7 +64,7 @@ final class CourseManagementService
             $course = $academy->courses()->create([
                 'created_by' => $user->id,
                 'title' => $data['title'],
-                'slug' => $data['slug'],
+                'slug' => $this->uniqueSlug($academy, $data['title'], $data['slug'] ?? null),
                 'level' => $data['level'] ?? null,
                 'status' => $data['status'] ?? 'draft',
                 'access_type' => $data['access_type'],
@@ -93,20 +93,33 @@ final class CourseManagementService
     {
         abort_unless($this->canManage($user, $course), 403);
 
-        $academyId = array_key_exists('academy_id', $data)
+        $requestedAcademyId = array_key_exists('academy_id', $data)
             ? (int) $data['academy_id']
             : $course->academy_id;
 
-        $academy = $this->resolveAcademy($user, $academyId);
+        if ($requestedAcademyId !== (int) $course->academy_id) {
+            throw ValidationException::withMessages([
+                'academy_id' => 'آموزشگاه یک دوره ساخته‌شده قابل جابه‌جایی نیست.',
+            ]);
+        }
+
+        $academy = $this->resolveAcademy($user, (int) $course->academy_id);
 
         return DB::transaction(function () use ($user, $course, $academy, $data): Course {
             $accessType = $data['access_type'] ?? $course->access_type;
             $status = $data['status'] ?? $course->status;
 
             $course->update([
-                'academy_id' => $academy->id,
+                'academy_id' => $course->academy_id,
                 'title' => $data['title'] ?? $course->title,
-                'slug' => $data['slug'] ?? $course->slug,
+                'slug' => blank($data['slug'] ?? null)
+                    ? $course->slug
+                    : $this->uniqueSlug(
+                        $academy,
+                        $data['title'] ?? $course->title,
+                        $data['slug'],
+                        $course->id
+                    ),
                 'level' => $data['level'] ?? null,
                 'status' => $status,
                 'access_type' => $accessType,
@@ -178,6 +191,33 @@ final class CourseManagementService
             ->with('academy:id,name')
             ->latest()
             ->get();
+    }
+
+    private function uniqueSlug(
+        Academy $academy,
+        string $title,
+        ?string $requestedSlug = null,
+        ?int $ignoreCourseId = null,
+    ): string {
+        $base = Str::slug(Str::transliterate($requestedSlug ?: $title));
+
+        if ($base === '') {
+            $base = 'course-' . Str::lower(Str::random(10));
+        }
+
+        $slug = $base;
+        $suffix = 2;
+
+        while (
+            $academy->courses()
+                ->when($ignoreCourseId !== null, fn ($query) => $query->where('courses.id', '!=', $ignoreCourseId))
+                ->where('slug', $slug)
+                ->exists()
+        ) {
+            $slug = $base . '-' . $suffix++;
+        }
+
+        return $slug;
     }
 
     private function resolveAcademy(User $user, int $academyId): Academy
