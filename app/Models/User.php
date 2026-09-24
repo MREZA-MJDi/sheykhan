@@ -22,17 +22,21 @@ class User extends Authenticatable
         return ['email_verified_at' => 'datetime', 'password' => 'hashed'];
     }
 
-    public function roles(): BelongsToMany { return $this->belongsToMany(Role::class); }
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
 
     public function academies(): BelongsToMany
     {
         return $this->belongsToMany(Academy::class)
-            ->withPivot(['role', 'status', 'joined_at'])->withTimestamps();
+            ->withPivot(['role', 'status', 'joined_at'])
+            ->withTimestamps();
     }
 
-    public function ownedAcademy(): HasOne
+    public function ownedAcademies(): HasMany
     {
-        return $this->hasOne(Academy::class, 'owner_id');
+        return $this->hasMany(Academy::class, 'owner_id');
     }
 
     public function teacherProfile(): HasOne { return $this->hasOne(TeacherProfile::class); }
@@ -43,7 +47,8 @@ class User extends Authenticatable
     public function taughtCourses(): BelongsToMany
     {
         return $this->belongsToMany(Course::class, 'course_teacher', 'teacher_id', 'course_id')
-            ->withPivot('is_primary')->withTimestamps();
+            ->withPivot('is_primary')
+            ->withTimestamps();
     }
 
     public function enrollments(): HasMany { return $this->hasMany(CourseEnrollment::class, 'student_id'); }
@@ -52,13 +57,15 @@ class User extends Authenticatable
 
     public function classroomsAsTeacher(): BelongsToMany
     {
-        return $this->belongsToMany(Classroom::class, 'classroom_teacher', 'teacher_id', 'classroom_id')->withTimestamps();
+        return $this->belongsToMany(Classroom::class, 'classroom_teacher', 'teacher_id', 'classroom_id')
+            ->withTimestamps();
     }
 
     public function classroomsAsStudent(): BelongsToMany
     {
         return $this->belongsToMany(Classroom::class, 'classroom_student', 'student_id', 'classroom_id')
-            ->withPivot(['status', 'enrolled_at', 'completed_at'])->withTimestamps();
+            ->withPivot(['status', 'enrolled_at', 'completed_at'])
+            ->withTimestamps();
     }
 
     public function lessonProgress(): HasMany { return $this->hasMany(LessonProgress::class); }
@@ -68,24 +75,39 @@ class User extends Authenticatable
 
     public function children(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'parent_student', 'parent_id', 'student_id')->withPivot('relation')->withTimestamps();
+        return $this->belongsToMany(User::class, 'parent_student', 'parent_id', 'student_id')
+            ->withPivot('relation')
+            ->withTimestamps();
     }
 
     public function parents(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'parent_student', 'student_id', 'parent_id')->withPivot('relation')->withTimestamps();
+        return $this->belongsToMany(User::class, 'parent_student', 'student_id', 'parent_id')
+            ->withPivot('relation')
+            ->withTimestamps();
     }
 
-    public function hasRole(string $role): bool { return $this->roles()->where('slug', $role)->exists(); }
-    public function hasAnyRole(array $roles): bool { return $this->roles()->whereIn('slug', $roles)->exists(); }
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('slug', $role)->exists();
+    }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->roles()->whereIn('slug', $roles)->exists();
+    }
 
     public function hasPermission(string $permission): bool
     {
-        return $this->roles()->whereHas('permissions', fn ($query) => $query->where('name', $permission))->exists();
+        return $this->roles()
+            ->whereHas('permissions', fn ($query) => $query->where('name', $permission))
+            ->exists();
     }
 
     public function hasAnyPermission(array $permissions): bool
     {
-        return $this->roles()->whereHas('permissions', fn ($query) => $query->whereIn('name', $permissions))->exists();
+        return $this->roles()
+            ->whereHas('permissions', fn ($query) => $query->whereIn('name', $permissions))
+            ->exists();
     }
 }
