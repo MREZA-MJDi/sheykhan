@@ -1,4 +1,4 @@
-@php($academy = auth()->user()->ownedAcademy()->first())
+@php($academies = auth()->user()->ownedAcademies()->where('status', 'active')->orderBy('name')->get())
 <aside class="role-sidebar owner-sidebar">
 <div class="role-sidebar-brand"><a href="{{ route('owner.dashboard') }}" class="role-brand"><span class="role-brand-mark">ش</span><span><strong>شیخان</strong><small>مدیریت آموزشگاه</small></span></a></div>
 <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
