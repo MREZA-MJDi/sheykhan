@@ -20,7 +20,7 @@ final class CourseManagementService
                 $query->where('owner_id', $user->id)
                     ->orWhereHas('users', function ($membership) use ($user): void {
                         $membership->whereKey($user->id)
-                            ->wherePivot('status', 'active')
+                            ->where('academy_user.status', 'active')
                             ->where('academy_user.role', 'teacher');
                     });
             })
