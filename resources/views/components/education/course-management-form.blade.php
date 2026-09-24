@@ -199,6 +199,16 @@
                         </div>
                     </div>
 
+                    <div class="course-status-preview" :class="status">
+                        <div class="course-status-preview-dot"></div>
+                        <div>
+                            <strong x-text="status === 'published' ? 'منتشرشده' : (status === 'archived' ? 'آرشیو' : 'پیش‌نویس')"></strong>
+                            <span x-show="status === 'published'">این دوره در وضعیت ارائه قرار می‌گیرد.</span>
+                            <span x-show="status === 'draft'">دوره هنوز برای انتشار آماده‌سازی می‌شود.</span>
+                            <span x-show="status === 'archived'">دوره نگهداری می‌شود اما فعال نیست.</span>
+                        </div>
+                    </div>
+
                     <label class="course-field mt-5">
                         <span class="course-label">وضعیت <b>*</b></span>
                         <select name="status" x-model="status" class="course-input">
