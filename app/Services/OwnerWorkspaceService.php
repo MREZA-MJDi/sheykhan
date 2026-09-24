@@ -106,7 +106,11 @@ final class OwnerWorkspaceService
 
     public function assignTeacher(User $owner, Academy $academy, int $teacherId, int $courseId): void
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        abort_unless(
+            $this->canManageAcademy($owner, $academy)
+            && $owner->hasPermission('teachers.manage'),
+            403
+        );
 
         $isTeacher = $academy->users()
             ->whereKey($teacherId)
