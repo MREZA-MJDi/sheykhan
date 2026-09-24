@@ -67,6 +67,7 @@ class StoreCourseRequest extends FormRequest
             'access_type.required' => 'مشخص‌کردن رایگان یا پولی بودن دوره الزامی است.',
             'access_type.in' => 'نوع دسترسی دوره معتبر نیست.',
             'price.required_if' => 'برای دوره پولی، قیمت را وارد کنید.',
+            'price.required' => 'برای دوره پولی، قیمت را وارد کنید.',
             'price.min' => 'قیمت دوره پولی باید بیشتر از صفر باشد.',
             'short_description.max' => 'خلاصه دوره نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد.',
             'duration_minutes.min' => 'مدت زمان نمی‌تواند منفی باشد.',
