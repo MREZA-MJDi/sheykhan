@@ -8,6 +8,8 @@ use App\Models\CourseEnrollment;
 use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
+use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -113,6 +115,99 @@ class OwnerReportingAndCourseShowTest extends TestCase
             ->assertViewHas('metrics', fn (array $metrics) => array_key_exists('attendance_rate', $metrics)
                 && array_key_exists('exam_average', $metrics)
                 && array_key_exists('pending_reviews', $metrics));
+    }
+
+
+    public function test_shared_analytics_uses_latest_exam_attempt_per_student(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['courses.view']);
+
+        $studentOne = User::factory()->create(['email' => 'analytics-one@test.local']);
+        $studentTwo = User::factory()->create(['email' => 'analytics-two@test.local']);
+        $teacher = User::factory()->create(['email' => 'analytics-teacher@test.local']);
+
+        CourseEnrollment::create([
+            'course_id' => $course->id,
+            'student_id' => $studentOne->id,
+            'status' => 'active',
+            'paid_amount' => 0,
+            'started_at' => now(),
+        ]);
+
+        CourseEnrollment::create([
+            'course_id' => $course->id,
+            'student_id' => $studentTwo->id,
+            'status' => 'active',
+            'paid_amount' => 0,
+            'started_at' => now(),
+        ]);
+
+        $section = CourseSection::create([
+            'course_id' => $course->id,
+            'title' => 'بخش تحلیل',
+            'sort_order' => 1,
+        ]);
+
+        $lesson = Lesson::create([
+            'course_section_id' => $section->id,
+            'title' => 'درس تحلیل',
+            'slug' => 'analytics-' . Str::random(6),
+            'type' => 'video',
+            'status' => 'published',
+            'published_at' => now(),
+            'sort_order' => 1,
+        ]);
+
+        LessonProgress::create([
+            'lesson_id' => $lesson->id,
+            'user_id' => $studentOne->id,
+            'progress_percent' => 100,
+        ]);
+
+        $exam = Exam::create([
+            'course_id' => $course->id,
+            'classroom_id' => null,
+            'teacher_id' => $teacher->id,
+            'title' => 'آزمون تحلیل',
+            'duration_minutes' => 30,
+            'attempts_allowed' => 3,
+            'status' => 'published',
+        ]);
+
+        ExamAttempt::create([
+            'exam_id' => $exam->id,
+            'student_id' => $studentOne->id,
+            'attempt_number' => 1,
+            'started_at' => now()->subMinutes(30),
+            'submitted_at' => now()->subMinutes(20),
+            'score' => 50,
+            'status' => 'submitted',
+        ]);
+
+        ExamAttempt::create([
+            'exam_id' => $exam->id,
+            'student_id' => $studentOne->id,
+            'attempt_number' => 2,
+            'started_at' => now()->subMinutes(15),
+            'submitted_at' => now()->subMinutes(5),
+            'score' => 90,
+            'status' => 'submitted',
+        ]);
+
+        ExamAttempt::create([
+            'exam_id' => $exam->id,
+            'student_id' => $studentTwo->id,
+            'attempt_number' => 1,
+            'started_at' => now()->subMinutes(10),
+            'submitted_at' => now()->subMinutes(2),
+            'score' => 70,
+            'status' => 'submitted',
+        ]);
+
+        $analytics = app(\App\Services\OwnerLearningAnalyticsService::class);
+
+        $this->assertSame(50.0, (float) $analytics->courseProgress([$course->id])->get($course->id));
+        $this->assertSame(80.0, (float) $analytics->courseExamAverages([$course->id])->get($course->id));
     }
 
     private function ownerWorkspace(array $permissions): array
