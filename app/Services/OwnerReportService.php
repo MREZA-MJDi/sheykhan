@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\ModelsAcademy;
-use App\ModelsCourse;
-use App\ModelsCourseEnrollment;
-use App\ModelsUser;
-use Illuminate\Support\FacadesDB;
+use App\Models\\Academy;
+use App\Models\\Course;
+use App\Models\\CourseEnrollment;
+use App\Models\\User;
+use Illuminate\Support\Facades\\DB;
 
 final class OwnerReportService
 {

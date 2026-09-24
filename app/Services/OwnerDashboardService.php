@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\ModelsCourse;
-use App\ModelsUser;
-use Illuminate\Support\FacadesDB;
+use App\Models\\Course;
+use App\Models\\User;
+use Illuminate\Support\Facades\\DB;
 
 final class OwnerDashboardService
 {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Owner;
 
-use Illuminate\Foundation\HttpFormRequest;
-use Illuminate\ValidationRule;
+use Illuminate\Foundation\Http\\FormRequest;
+use Illuminate\Validation\\Rule;
 
 class UpdateClassroomStatusRequest extends FormRequest
 {

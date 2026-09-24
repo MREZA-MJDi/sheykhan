@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Owner;
 
-use App\Http\ControllersController;
-use App\Http\Requests\OwnerUpdateClassroomStatusRequest;
-use App\ModelsAcademy;
-use App\ServicesOwnerWorkspaceService;
-use Illuminate\HttpRedirectResponse;
-use Illuminate\ViewView;
+use App\Http\Controllers\\Controller;
+use App\Http\Requests\Owner\\UpdateClassroomStatusRequest;
+use App\Models\\Academy;
+use App\Services\\OwnerWorkspaceService;
+use Illuminate\Http\\RedirectResponse;
+use Illuminate\View\\View;
 
 class ClassroomController extends Controller
 {

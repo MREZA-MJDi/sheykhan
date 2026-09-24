@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Owner;
 
-use App\Http\ControllersController;
-use App\Http\Requests\Owner\CourseCourseMediaRequest;
-use App\ModelsCourse;
-use App\ModelsMedia;
-use App\ServicesCourseManagementService;
-use App\ServicesMediaService;
-use Illuminate\HttpRedirectResponse;
-use Illuminate\Support\FacadesLog;
+use App\Http\Controllers\\Controller;
+use App\Http\Requests\Owner\Course\\CourseMediaRequest;
+use App\Models\\Course;
+use App\Models\\Media;
+use App\Services\\CourseManagementService;
+use App\Services\\MediaService;
+use Illuminate\Http\\RedirectResponse;
+use Illuminate\Support\Facades\\Log;
 use Throwable;
 
 class CourseMediaController extends Controller

@@ -2,16 +2,16 @@
 
 namespace Tests\Feature;
 
-use App\ModelsAcademy;
-use App\ModelsClassroom;
-use App\ModelsCourse;
-use App\ModelsCourseEnrollment;
-use App\ModelsFinancialTransaction;
-use App\ModelsPermission;
-use App\ModelsRole;
-use App\ModelsUser;
-use Illuminate\FoundationTestingRefreshDatabase;
-use Illuminate\SupportStr;
+use App\Models\\Academy;
+use App\Models\\Classroom;
+use App\Models\\Course;
+use App\Models\\CourseEnrollment;
+use App\Models\\FinancialTransaction;
+use App\Models\\Permission;
+use App\Models\\Role;
+use App\Models\\User;
+use Illuminate\Foundation\\TestingRefreshDatabase;
+use Illuminate\Support\\Str;
 use Tests\TestCase;
 
 class OwnerEnrollmentTest extends TestCase

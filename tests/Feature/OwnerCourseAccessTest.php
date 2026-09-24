@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\ModelsAcademy;
-use App\ModelsCourse;
-use App\ModelsPermission;
-use App\ModelsRole;
-use App\ModelsUser;
-use Illuminate\FoundationTestingRefreshDatabase;
-use Illuminate\SupportStr;
+use App\Models\\Academy;
+use App\Models\\Course;
+use App\Models\\Permission;
+use App\Models\\Role;
+use App\Models\\User;
+use Illuminate\Foundation\\TestingRefreshDatabase;
+use Illuminate\Support\\Str;
 use Tests\TestCase;
 
 class OwnerCourseAccessTest extends TestCase
