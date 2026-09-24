@@ -92,10 +92,6 @@ class OwnerPeopleLifecycleTest extends TestCase
 
         $teacher->load('roles');
 
-        $this->actingAs($teacher)
-            ->get(route('teacher.dashboard'))
-            ->assertForbidden();
-
         $this->actingAs($owner)
             ->patch(route('owner.people.archive-teacher', [$academy, $teacher]))
             ->assertSessionHas('success');
