@@ -98,6 +98,10 @@ final class OwnerDashboardService
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
             })
+            ->leftJoin('financial_transactions as transactions', function ($join): void {
+                $join->on('transactions.enrollment_id', '=', 'enrollments.id')
+                    ->where('transactions.status', '=', 'completed');
+            })
             ->whereIn('courses.academy_id', $academyIds)
             ->whereIn('ct.teacher_id', $teacherIds)
             ->groupBy('ct.teacher_id', 'users.name')
@@ -106,7 +110,7 @@ final class OwnerDashboardService
                 'users.name',
                 DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
-                DB::raw('COALESCE(SUM(enrollments.paid_amount),0) AS sales'),
+                DB::raw("COALESCE(SUM(CASE WHEN transactions.type = 'enrollment_payment' THEN transactions.amount WHEN transactions.type = 'refund' THEN -transactions.amount ELSE 0 END),0) AS sales"),
             ])
             ->orderByDesc('student_count')
             ->get();
