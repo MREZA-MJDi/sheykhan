@@ -35,7 +35,7 @@ class TeacherDirectoryService
     {
         return User::query()
             ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
-            ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true))
+            ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
             ->with([
                 'teacherProfile:id,user_id,bio,specialization',
                 'teacherProfile.media' => fn ($query) => $query
