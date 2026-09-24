@@ -15,9 +15,10 @@ class StoreCourseRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->input('access_type') === 'free') {
-            $this->merge(['price' => 0]);
-        }
+        $this->merge([
+            'slug' => blank($this->input('slug')) ? null : trim((string) $this->input('slug')),
+            'price' => $this->input('access_type') === 'free' ? 0 : $this->input('price'),
+        ]);
     }
 
     public function rules(): array
@@ -30,7 +31,7 @@ class StoreCourseRequest extends FormRequest
             ],
             'title' => ['required', 'string', 'max:255'],
             'slug' => [
-                'required',
+                'nullable',
                 'string',
                 'max:255',
                 'alpha_dash',
@@ -61,7 +62,7 @@ class StoreCourseRequest extends FormRequest
             'academy_id.required' => 'انتخاب آموزشگاه الزامی است.',
             'academy_id.in' => 'این آموزشگاه برای حساب شما قابل مدیریت نیست.',
             'title.required' => 'عنوان دوره الزامی است.',
-            'slug.required' => 'شناسه دوره الزامی است.',
+            'slug.alpha_dash' => 'شناسه دوره فقط باید شامل حروف، عدد، خط تیره و زیرخط باشد.',
             'slug.alpha_dash' => 'شناسه دوره فقط باید شامل حروف، عدد، خط تیره و زیرخط باشد.',
             'slug.unique' => 'این شناسه دوره در این آموزشگاه قبلاً استفاده شده است.',
             'access_type.required' => 'مشخص‌کردن رایگان یا پولی بودن دوره الزامی است.',
