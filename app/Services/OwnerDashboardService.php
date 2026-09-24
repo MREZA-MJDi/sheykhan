@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 final class OwnerDashboardService
 {
+    public function __construct(private readonly OwnerLearningAnalyticsService $analytics) {}
+
     public function build(User $owner): array
     {
         abort_unless($owner->hasRole('academy-owner'), 403);
@@ -109,18 +111,7 @@ final class OwnerDashboardService
             ->orderByDesc('student_count')
             ->get();
 
-        $teacherProgress = DB::table('lesson_progress as progress')
-            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->join('course_teacher as ct', 'ct.course_id', '=', 'course_sections.course_id')
-            ->whereIn('course_sections.course_id', $courseIds)
-            ->whereIn('ct.teacher_id', $teacherIds)
-            ->groupBy('ct.teacher_id')
-            ->select(
-                'ct.teacher_id',
-                DB::raw('ROUND(AVG(progress.progress_percent),1) AS progress_average')
-            )
-            ->pluck('progress_average', 'ct.teacher_id');
+        $teacherProgress = $this->analytics->teacherProgress($courseIds, $teacherIds);
 
         $teacherPending = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
