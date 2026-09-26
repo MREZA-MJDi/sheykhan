@@ -99,6 +99,9 @@ return [
 
     'key' => env('APP_KEY'),
 
+    // Blind-index key for national-id lookup. Keep this stable across deployments.
+    'national_id_hmac_key' => env('NATIONAL_ID_HMAC_KEY'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
