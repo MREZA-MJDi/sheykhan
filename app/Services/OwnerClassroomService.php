@@ -176,13 +176,22 @@ final class OwnerClassroomService
             'grade:id,title',
             'academicYear:id,title,is_current',
             'teachers:id,name',
-            'students' => fn ($query) => $query
-                ->wherePivot('status', 'active')
-                ->select('users.id', 'users.name', 'users.email'),
             'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
         ]);
 
-        $activeStudentCount = $classroom->students->count();
+        $activeStudentCount = $classroom->students()
+            ->wherePivot('status', 'active')
+            ->count();
+
+        $visibleStudents = $classroom->students()
+            ->wherePivot('status', 'active')
+            ->select('users.id', 'users.name', 'users.email')
+            ->orderBy('users.name')
+            ->limit(8)
+            ->get();
+
+        $classroom->setRelation('students', $visibleStudents);
+        $classroom->setAttribute('active_students_total', $activeStudentCount);
 
         $attendance = DB::table('attendances')
             ->where('classroom_id', $classroom->id)
