@@ -12,7 +12,10 @@ return new class extends Migration {
             $t->string('title');$t->string('description')->nullable();$t->string('resource_type',32)->default('document')->index();
             $t->string('visibility',32)->default('enrolled_students')->index();$t->timestamp('release_at')->nullable()->index();
             $t->boolean('downloadable')->default(true);$t->string('status',32)->default('draft')->index();$t->unsignedInteger('sort_order')->default(0);$t->timestamps();
-            $t->index(['academy_id','course_id','classroom_id','status']);
+            $t->index(
+                ['academy_id','course_id','classroom_id','status'],
+                'learning_resources_scope_status_idx'
+            );
         });
     }
     public function down(): void { Schema::dropIfExists('learning_resources'); Schema::dropIfExists('course_grade'); }
