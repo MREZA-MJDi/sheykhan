@@ -121,18 +121,19 @@ final class OwnerClassroomService
         }
 
         return DB::transaction(function () use ($academy, $classroom, $data): Classroom {
+            $classroom = Classroom::query()
+                ->whereKey($classroom->id)
+                ->where('academy_id', $academy->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $classroom->loadCount([
+                'students as active_students_count' => fn ($query) => $query
+                    ->where('classroom_student.status', 'active'),
+            ]);
+
             $course = $academy->courses()->findOrFail((int) $data['course_id']);
             $teacherIds = $this->validatedTeacherIds($academy, $course, $data['teacher_ids']);
-
-            if (
-                $data['capacity'] !== null
-                && $classroom->active_students_count === null
-            ) {
-                $classroom->loadCount([
-                    'students as active_students_count' => fn ($query) => $query
-                        ->where('classroom_student.status', 'active'),
-                ]);
-            }
 
             if (
                 $data['capacity'] !== null
