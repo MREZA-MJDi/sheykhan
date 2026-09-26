@@ -675,7 +675,7 @@ class PlatformDataSeeder extends Seeder
         ];
 
         foreach ($achievementData as $index => [$student, $type, $school]) {
-            Achievement::firstOrCreate(
+            $achievement = Achievement::firstOrCreate(
                 ['academy_id' => $academy->id, 'student_id' => $student->id, 'title' => 'افتخارآفرین شماره ' . ($index + 1)],
                 [
                     'display_name' => $student->name,
@@ -683,13 +683,20 @@ class PlatformDataSeeder extends Seeder
                     'school_name' => $school,
                     'grade_id' => $student->studentProfile?->grade_id,
                     'academic_year_id' => $year->id,
-                    'description' => 'نمونه رکورد برای نمایش بخش افتخارآفرینان آکادمی شیخان.',
+                    'description' => 'رکورد اولیه برای نمایش بخش افتخارآفرینان آکادمی شیخان.',
                     'status' => 'published',
                     'is_featured' => true,
                     'published_at' => now()->subDays($index),
                     'created_by' => $owner->id,
                 ]
             );
+            $achievement->media()->syncWithoutDetaching([
+                $this->media('achievement-' . ($index + 1), $owner->id, 'image/svg+xml', 'svg', 'achievements', 'public')->id => [
+                    'collection' => 'featured',
+                    'sort_order' => 0,
+                    'is_featured' => true,
+                ],
+            ]);
         }
 
         foreach ([
