@@ -125,7 +125,7 @@
                                 </p>
                             </div>
 
-                            <a href="{{ route('owner.classrooms.show', [$academy ?? $classroom->academy_id, $classroom]) }}"
+                            <a href="{{ route('owner.classrooms.show', [$classroom->academy, $classroom]) }}"
                                class="owner-pill">
                                 جزئیات
                             </a>
