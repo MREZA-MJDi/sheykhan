@@ -88,7 +88,6 @@ final class OwnerReportService
                 'users.name',
                 DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
-                DB::raw('COALESCE(SUM(enrollments.paid_amount), 0) AS enrollment_sales'),
             ])
             ->orderByDesc('student_count')
             ->get();
