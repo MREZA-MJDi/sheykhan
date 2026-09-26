@@ -360,32 +360,17 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('audit_logs');
-        Schema::dropIfExists('student_onboardings');
-        Schema::dropIfExists('academy_contents');
-        Schema::dropIfExists('academy_content_categories');
-        Schema::dropIfExists('testimonials');
-        Schema::dropIfExists('achievements');
-        Schema::dropIfExists('legal_consents');
-        Schema::dropIfExists('legal_documents');
-        Schema::dropIfExists('protected_files');
-        Schema::dropIfExists('product_downloads');
-        Schema::dropIfExists('product_entitlements');
-        Schema::dropIfExists('payments');
-        Schema::dropIfExists('order_items');
-        Schema::dropIfExists('orders');
-        Schema::dropIfExists('product_files');
-        Schema::dropIfExists('products');
-        Schema::dropIfExists('product_categories');
-        Schema::dropIfExists('learning_resources');
-        Schema::dropIfExists('course_grade');
-        Schema::dropIfExists('academic_years');
-        Schema::dropIfExists('academic_grades');
+        foreach ([
+            'audit_logs','student_onboardings','academy_contents','academy_content_categories',
+            'testimonials','achievements','legal_consents','legal_documents','protected_files',
+            'product_downloads','product_entitlements','payments','order_items','orders',
+            'product_files','products','product_categories','learning_resources','course_grade',
+        ] as $table) {
+            Schema::dropIfExists($table);
+        }
 
         Schema::table('live_classes', function (Blueprint $table) {
-            $table->dropColumn([
-                'scheduled_end_at','started_at','ended_at','recording_released_at','recording_visibility'
-            ]);
+            $table->dropColumn(['scheduled_end_at','started_at','ended_at','recording_released_at','recording_visibility']);
         });
         Schema::table('course_enrollments', function (Blueprint $table) {
             $table->dropColumn(['academic_year_id','registered_by','registration_source']);
@@ -394,11 +379,12 @@ return new class extends Migration
             $table->dropColumn(['grade_id','academic_year_id']);
         });
         Schema::table('student_profiles', function (Blueprint $table) {
-            $table->dropColumn([
-                'grade_id','national_id_lookup','national_id_encrypted','registration_source',
-                'registered_by','onboarded_at','status'
-            ]);
+            $table->dropColumn(['grade_id','national_id_lookup','national_id_encrypted','registration_source','registered_by','onboarded_at','status']);
         });
+
+        Schema::dropIfExists('academic_years');
+        Schema::dropIfExists('academic_grades');
+
         Schema::table('users', function (Blueprint $table) {
             $table->dropUnique('users_email_unique');
             $table->string('email')->nullable(false)->change();
