@@ -12,8 +12,18 @@ class CourseEnrollment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_id','student_id','classroom_id','status','payment_status',
-        'price_amount','paid_amount','started_at','completed_at',
+        'course_id',
+        'student_id',
+        'classroom_id',
+        'academic_year_id',
+        'registered_by',
+        'registration_source',
+        'status',
+        'payment_status',
+        'price_amount',
+        'paid_amount',
+        'started_at',
+        'completed_at',
     ];
 
     protected $casts = [
@@ -23,9 +33,30 @@ class CourseEnrollment extends Model
         'completed_at' => 'datetime',
     ];
 
-    public function course(): BelongsTo { return $this->belongsTo(Course::class); }
-    public function student(): BelongsTo { return $this->belongsTo(User::class, 'student_id'); }
-    public function classroom(): BelongsTo { return $this->belongsTo(Classroom::class); }
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
+
+    public function classroom(): BelongsTo
+    {
+        return $this->belongsTo(Classroom::class);
+    }
+
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function registeredBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'registered_by');
+    }
 
     public function financialTransactions(): HasMany
     {

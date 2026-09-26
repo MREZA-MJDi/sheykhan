@@ -53,6 +53,22 @@ class RolePermissionSeeder extends Seeder
             ['name'=>'blog.manage','label'=>'مدیریت وبلاگ','group'=>'blog'],
             ['name'=>'seo.manage','label'=>'مدیریت SEO','group'=>'seo'],
             ['name'=>'settings.manage','label'=>'مدیریت تنظیمات','group'=>'settings'],
+
+            ['name'=>'resources.view','label'=>'مشاهده منابع آموزشی','group'=>'resources'],
+            ['name'=>'resources.manage','label'=>'مدیریت منابع آموزشی','group'=>'resources'],
+            ['name'=>'products.view','label'=>'مشاهده محصولات','group'=>'products'],
+            ['name'=>'products.manage','label'=>'مدیریت محصولات','group'=>'products'],
+            ['name'=>'orders.view','label'=>'مشاهده سفارش‌ها','group'=>'orders'],
+            ['name'=>'orders.manage','label'=>'مدیریت سفارش‌ها','group'=>'orders'],
+            ['name'=>'payments.view','label'=>'مشاهده پرداخت‌ها','group'=>'payments'],
+            ['name'=>'achievements.view','label'=>'مشاهده افتخارآفرینان','group'=>'achievements'],
+            ['name'=>'achievements.manage','label'=>'مدیریت افتخارآفرینان','group'=>'achievements'],
+            ['name'=>'testimonials.view','label'=>'مشاهده رضایتمندی','group'=>'testimonials'],
+            ['name'=>'testimonials.manage','label'=>'مدیریت رضایتمندی','group'=>'testimonials'],
+            ['name'=>'legal.manage','label'=>'مدیریت اسناد حقوقی','group'=>'legal'],
+            ['name'=>'content.manage','label'=>'مدیریت محتوای آکادمی','group'=>'content'],
+            ['name'=>'onboarding.manage','label'=>'مدیریت ثبت‌نام دانش‌آموزان قدیمی','group'=>'onboarding'],
+            ['name'=>'audit.view','label'=>'مشاهده گزارش فعالیت‌ها','group'=>'audit'],
         ];
 
         foreach ($permissions as $permission) {
@@ -75,7 +91,7 @@ class RolePermissionSeeder extends Seeder
                 'attendance.view','attendance.manage',
                 'live_classes.view','live_classes.manage',
                 'reports.view',
-                'media.view','media.upload','media.download',
+                'media.view','media.upload','media.download','resources.view','resources.manage',
             ],
 
             'student' => [
@@ -87,7 +103,7 @@ class RolePermissionSeeder extends Seeder
                 'attendance.view',
                 'live_classes.view',
                 'reports.view',
-                'media.view','media.download',
+                'media.view','media.download','resources.view',
             ],
 
             'parent' => [

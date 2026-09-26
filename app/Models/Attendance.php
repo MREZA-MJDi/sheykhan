@@ -10,7 +10,15 @@ class Attendance extends Model
     use HasFactory;
     protected $fillable=['classroom_id','student_id','marked_by','attendance_date','status','note'];
     protected $casts=['attendance_date'=>'date'];
+
+    /**
+     * @return BelongsTo
+     */
     public function classroom(): BelongsTo { return $this->belongsTo(Classroom::class); }
+
+    /**
+     * @return BelongsTo
+     */
     public function student(): BelongsTo { return $this->belongsTo(User::class,'student_id'); }
     public function marker(): BelongsTo { return $this->belongsTo(User::class,'marked_by'); }
 }
