@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 final class OwnerDashboardService
 {
-    public function __construct(private readonly OwnerLearningAnalyticsService $analytics) {}
+    public function __construct(private readonly OwnerLearningAnalyticsService $analytics)
+    {
+    }
 
     public function build(User $owner): array
     {
@@ -57,13 +59,13 @@ final class OwnerDashboardService
 
         $classroomCount = (clone $classroomBase)->count();
 
-        $revenue = (float) DB::table('financial_transactions')
+        $revenue = (float)DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
             ->where('type', 'enrollment_payment')
             ->sum('amount');
 
-        $refunds = (float) DB::table('financial_transactions')
+        $refunds = (float)DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
             ->where('type', 'refund')
@@ -233,8 +235,8 @@ final class OwnerDashboardService
                 ->pluck('pending_reviews', 'assignments.teacher_id');
 
         $teacherReports = $teacherReports->map(function ($report) use ($teacherProgress, $teacherPending) {
-            $report->progress_average = (float) ($teacherProgress[$report->teacher_id] ?? 0);
-            $report->pending_reviews = (int) ($teacherPending[$report->teacher_id] ?? 0);
+            $report->progress_average = (float)($teacherProgress[$report->teacher_id] ?? 0);
+            $report->pending_reviews = (int)($teacherPending[$report->teacher_id] ?? 0);
 
             return $report;
         });
@@ -264,7 +266,7 @@ final class OwnerDashboardService
                 ->whereIn('academy_id', $academyIds)
                 ->with('academy:id,name')
                 ->withCount([
-                    'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
+                    'enrollments as active_students_count' => fn($query) => $query->where('status', 'active'),
                 ])
                 ->latest()
                 ->limit(6)
