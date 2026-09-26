@@ -10,10 +10,14 @@ final class OwnerDashboardService
 {
     public function build(User $owner): array
     {
-        $academyIds = DB::table('academies')
-            ->where('owner_id', $owner->id)
+        abort_unless($owner->hasRole('academy-owner'), 403);
+
+        $academies = $owner->ownedAcademies()
             ->where('status', 'active')
-            ->pluck('id');
+            ->orderBy('name')
+            ->get();
+
+        $academyIds = $academies->pluck('id');
 
         if ($academyIds->isEmpty()) {
             return [
@@ -52,6 +56,18 @@ final class OwnerDashboardService
             ->distinct()
             ->pluck('user_id');
 
+        $revenue = (float) DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->where('type', 'enrollment_payment')
+            ->sum('amount');
+
+        $refunds = (float) DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->where('type', 'refund')
+            ->sum('amount');
+
         $metrics = [
             'courses' => $courseIds->count(),
             'teachers' => $teacherIds->count(),
@@ -60,15 +76,10 @@ final class OwnerDashboardService
                 ->whereIn('academy_id', $academyIds)
                 ->where('status', 'active')
                 ->count(),
-            'sales' => (float) DB::table('course_enrollments')
-                ->whereIn('course_id', $courseIds)
-                ->where('status', 'active')
-                ->sum('paid_amount'),
+            'sales' => $revenue - $refunds,
             'published' => Course::query()
                 ->whereIn('id', $courseIds)
-                ->where('status', 'published')
-                ->whereNotNull('published_at')
-                ->where('published_at', '<=', now())
+                ->published()
                 ->count(),
             'pendingReviews' => DB::table('assignment_submissions as submissions')
                 ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
@@ -93,7 +104,7 @@ final class OwnerDashboardService
                 'users.name',
                 DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
-                DB::raw('COALESCE(SUM(enrollments.paid_amount), 0) AS sales'),
+                DB::raw('COALESCE(SUM(enrollments.paid_amount),0) AS sales'),
             ])
             ->orderByDesc('student_count')
             ->get();
@@ -105,7 +116,10 @@ final class OwnerDashboardService
             ->whereIn('course_sections.course_id', $courseIds)
             ->whereIn('ct.teacher_id', $teacherIds)
             ->groupBy('ct.teacher_id')
-            ->select('ct.teacher_id', DB::raw('ROUND(AVG(progress.progress_percent), 1) AS progress_average'))
+            ->select(
+                'ct.teacher_id',
+                DB::raw('ROUND(AVG(progress.progress_percent),1) AS progress_average')
+            )
             ->pluck('progress_average', 'ct.teacher_id');
 
         $teacherPending = DB::table('assignment_submissions as submissions')
@@ -115,7 +129,10 @@ final class OwnerDashboardService
             ->whereNotNull('submissions.submitted_at')
             ->whereNull('submissions.graded_at')
             ->groupBy('assignments.teacher_id')
-            ->select('assignments.teacher_id', DB::raw('COUNT(*) AS pending_reviews'))
+            ->select(
+                'assignments.teacher_id',
+                DB::raw('COUNT(*) AS pending_reviews')
+            )
             ->pluck('pending_reviews', 'assignments.teacher_id');
 
         $teacherReports = $teacherReports->map(function ($report) use ($teacherProgress, $teacherPending) {
@@ -127,7 +144,7 @@ final class OwnerDashboardService
 
         return [
             'owner' => $owner,
-            'academies' => $academyIds,
+            'academies' => $academies,
             'metrics' => $metrics,
             'teacherReports' => $teacherReports,
             'recentCourses' => Course::query()

@@ -121,10 +121,6 @@ class DemoContentSeeder extends Seeder
             ]
         );
 
-        $academy->users()->syncWithoutDetaching([
-            $owner->id => ['role' => 'owner', 'status' => 'active', 'joined_at' => now()],
-        ]);
-
         foreach ($teachers as $teacher) {
             $academy->users()->syncWithoutDetaching([
                 $teacher->id => ['role' => 'teacher', 'status' => 'active', 'joined_at' => now()],

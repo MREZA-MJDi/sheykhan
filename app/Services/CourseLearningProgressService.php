@@ -34,8 +34,8 @@ final class CourseLearningProgressService
             ->values();
 
         $progressRows = DB::table('lesson_progress')
-            ->whereIn('lesson_id', $lessons->modelKeys())
-            ->whereIn('user_id', $students->modelKeys())
+            ->whereIn('lesson_id', $lessons->pluck('id'))
+            ->whereIn('user_id', $students->pluck('id'))
             ->get([
                 'lesson_id',
                 'user_id',

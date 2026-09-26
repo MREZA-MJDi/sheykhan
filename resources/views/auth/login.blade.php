@@ -62,13 +62,33 @@
 </div>
 
 <div class="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4">
-    <div class="text-xs font-black text-[var(--color-text)]">حساب‌های تست</div>
-    <div class="mt-2 grid gap-1 text-xs leading-6 text-[var(--color-text-muted)]">
-        <span>مدیر: <b dir="ltr">owner@sheykhan.test</b></span>
-        <span>مدرس: <b dir="ltr">teacher1@sheykhan.test</b></span>
-        <span>دانش‌آموز: <b dir="ltr">student1@sheykhan.test</b></span>
-        <span>والد: <b dir="ltr">parent@sheykhan.test</b></span>
+    <div class="flex items-center justify-between gap-3">
+        <div class="text-xs font-black text-[var(--color-text)]">حساب‌های تست</div>
+        <span class="rounded-full bg-[var(--color-primary-50)] px-2.5 py-1 text-[10px] font-bold text-[var(--color-primary-700)]">Demo</span>
     </div>
-    <p class="mt-2 text-xs text-[var(--color-text-muted)]">رمز همه: <b dir="ltr">password</b></p>
+
+    <div class="mt-3 grid gap-2 text-xs text-[var(--color-text-secondary)]">
+        <div class="grid grid-cols-[72px_1fr] items-center gap-2">
+            <span class="font-bold text-[var(--color-text)]">مالک</span>
+            <code dir="ltr" class="rounded-lg bg-white px-2.5 py-1.5 text-left text-[11px]">owner@sheykhan.test</code>
+        </div>
+        <div class="grid grid-cols-[72px_1fr] items-center gap-2">
+            <span class="font-bold text-[var(--color-text)]">مدرس</span>
+            <code dir="ltr" class="rounded-lg bg-white px-2.5 py-1.5 text-left text-[11px]">teacher1@sheykhan.test</code>
+        </div>
+        <div class="grid grid-cols-[72px_1fr] items-center gap-2">
+            <span class="font-bold text-[var(--color-text)]">دانش‌آموز</span>
+            <code dir="ltr" class="rounded-lg bg-white px-2.5 py-1.5 text-left text-[11px]">student1@sheykhan.test</code>
+        </div>
+        <div class="grid grid-cols-[72px_1fr] items-center gap-2">
+            <span class="font-bold text-[var(--color-text)]">والد</span>
+            <code dir="ltr" class="rounded-lg bg-white px-2.5 py-1.5 text-left text-[11px]">parent@sheykhan.test</code>
+        </div>
+    </div>
+
+    <div class="mt-3 rounded-xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-xs text-[var(--color-text-secondary)]">
+        <span class="font-bold text-[var(--color-text)]">رمز عبور همه نقش‌ها:</span>
+        <code dir="ltr" class="ms-1 font-black text-[var(--color-primary-700)]">password</code>
+    </div>
 </div>
 @endsection
