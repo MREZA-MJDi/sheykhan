@@ -21,9 +21,10 @@ class UpdateCourseRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->input('access_type') === 'free') {
-            $this->merge(['price' => 0]);
-        }
+        $this->merge([
+            'slug' => blank($this->input('slug')) ? null : trim((string) $this->input('slug')),
+            'price' => $this->input('access_type') === 'free' ? 0 : $this->input('price'),
+        ]);
     }
 
     public function rules(): array
@@ -37,12 +38,12 @@ class UpdateCourseRequest extends FormRequest
                 'sometimes',
                 'required',
                 'integer',
-                Rule::in($this->accessibleAcademyIds()),
+                Rule::in([$course?->academy_id]),
             ],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'slug' => [
                 'sometimes',
-                'required',
+                'nullable',
                 'string',
                 'max:255',
                 'alpha_dash',
@@ -56,7 +57,17 @@ class UpdateCourseRequest extends FormRequest
             'short_description' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'duration_minutes' => ['sometimes', 'integer', 'min:0'],
-            'price' => ['sometimes', 'required_if:access_type,paid', 'nullable', 'numeric', 'min:0.01', 'max:999999999999.99'],
+            'price' => [
+                Rule::requiredIf(fn () => $this->input('access_type') === 'paid'),
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:999999999999.99',
+                Rule::when(
+                    ($this->input('access_type') ?? $course?->access_type) === 'paid',
+                    ['min:0.01']
+                ),
+            ],
             'published_at' => ['nullable', 'date'],
         ];
     }
@@ -65,14 +76,13 @@ class UpdateCourseRequest extends FormRequest
     {
         return [
             'academy_id.required' => 'انتخاب آموزشگاه الزامی است.',
-            'academy_id.in' => 'این آموزشگاه برای حساب شما قابل مدیریت نیست.',
+            'academy_id.in' => 'آموزشگاه یک دوره ساخته‌شده قابل جابه‌جایی نیست.',
             'academy_id.exists' => 'آموزشگاه انتخاب‌شده معتبر نیست.',
             'title.required' => 'عنوان دوره الزامی است.',
-            'slug.required' => 'شناسه دوره الزامی است.',
             'slug.alpha_dash' => 'شناسه دوره فقط باید شامل حروف، عدد، خط تیره و زیرخط باشد.',
             'slug.unique' => 'این شناسه دوره در این آموزشگاه قبلاً استفاده شده است.',
             'access_type.in' => 'نوع دسترسی دوره معتبر نیست.',
-            'price.required_if' => 'برای دوره پولی، قیمت را وارد کنید.',
+            'price.required' => 'برای دوره پولی، قیمت را وارد کنید.',
             'price.min' => 'قیمت دوره پولی باید بیشتر از صفر باشد.',
             'short_description.max' => 'خلاصه دوره نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد.',
             'duration_minutes.min' => 'مدت زمان نمی‌تواند منفی باشد.',
@@ -96,7 +106,7 @@ class UpdateCourseRequest extends FormRequest
                     ->orWhereHas('users', function ($membership) use ($user): void {
                         $membership
                             ->whereKey($user->id)
-                            ->wherePivot('status', 'active')
+                            ->where('academy_user.status', 'active')
                             ->whereIn('academy_user.role', ['owner', 'teacher']);
                     });
             })

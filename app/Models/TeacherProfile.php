@@ -12,7 +12,7 @@ class TeacherProfile extends Model
     use HasFactory, HasMedia;
 
     protected $fillable = [
-        'user_id','bio','specialization','education','experience_years','is_verified'
+        'user_id','bio','specialization','education','experience_years','is_verified','is_public'
     ];
 
     protected $casts = ['is_verified' => 'boolean'];

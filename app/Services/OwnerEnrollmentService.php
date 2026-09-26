@@ -20,7 +20,7 @@ final class OwnerEnrollmentService
 
     public function enroll(User $owner, Academy $academy, array $data): CourseEnrollment
     {
-        abort_unless($owner->hasRole('academy-owner') && (int) $academy->owner_id === (int) $owner->id, 403);
+        abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission('enrollments.manage') && (int) $academy->owner_id === (int) $owner->id, 403);
 
         $hashPayload = array_merge($data, ['academy_id' => $academy->id]);
         $requestHash = hash(

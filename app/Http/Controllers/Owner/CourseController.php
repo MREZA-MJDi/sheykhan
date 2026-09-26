@@ -7,6 +7,7 @@ use App\Http\Requests\Owner\Course\StoreCourseRequest;
 use App\Http\Requests\Owner\Course\UpdateCourseRequest;
 use App\Models\Course;
 use App\Services\CourseManagementService;
+use App\Services\OwnerLearningAnalyticsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -33,9 +34,9 @@ class CourseController extends Controller
             ->with('success', 'دوره با موفقیت ساخته شد.');
     }
 
-    public function show(Course $course, CourseManagementService $service): View
+    public function show(Course $course, CourseManagementService $service, OwnerLearningAnalyticsService $analytics): View
     {
-        abort_unless($service->canManage(request()->user(), $course), 403);
+        abort_unless($service->canView(request()->user(), $course), 403);
 
         $course->load([
             'academy:id,name',
@@ -66,17 +67,11 @@ class CourseController extends Controller
             'liveClasses',
         ]);
 
-        $averageProgress = (float) $course->enrollments()
-            ->where('status', 'active')
-            ->join('lesson_progress', 'lesson_progress.user_id', '=', 'course_enrollments.student_id')
-            ->join('lessons', 'lessons.id', '=', 'lesson_progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->where('course_sections.course_id', $course->id)
-            ->avg('lesson_progress.progress_percent');
+        $averageProgress = (float) ($analytics->courseProgress([$course->id])->get($course->id) ?? 0);
 
         return view('owner.courses.show', [
             'course' => $course,
-            'averageProgress' => round($averageProgress, 1),
+            'averageProgress' => round((float) $averageProgress, 1),
         ]);
     }
 

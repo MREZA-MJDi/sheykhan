@@ -20,6 +20,7 @@ class StoreTeacherRequest extends FormRequest
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'specialization' => ['nullable', 'string', 'max:255'],
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:80'],
+            'is_public' => ['sometimes', 'boolean'],
         ];
     }
 

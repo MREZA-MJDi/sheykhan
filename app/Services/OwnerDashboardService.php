@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 final class OwnerDashboardService
 {
+    public function __construct(private readonly OwnerLearningAnalyticsService $analytics) {}
+
     public function build(User $owner): array
     {
-        abort_unless($owner->hasRole('academy-owner'), 403);
+        abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission('dashboard.view'), 403);
 
         $academies = $owner->ownedAcademies()
             ->where('status', 'active')
@@ -96,6 +98,10 @@ final class OwnerDashboardService
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
             })
+            ->leftJoin('financial_transactions as transactions', function ($join): void {
+                $join->on('transactions.enrollment_id', '=', 'enrollments.id')
+                    ->where('transactions.status', '=', 'completed');
+            })
             ->whereIn('courses.academy_id', $academyIds)
             ->whereIn('ct.teacher_id', $teacherIds)
             ->groupBy('ct.teacher_id', 'users.name')
@@ -104,23 +110,12 @@ final class OwnerDashboardService
                 'users.name',
                 DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
-                DB::raw('COALESCE(SUM(enrollments.paid_amount),0) AS sales'),
+                DB::raw("COALESCE(SUM(CASE WHEN transactions.type = 'enrollment_payment' THEN transactions.amount WHEN transactions.type = 'refund' THEN -transactions.amount ELSE 0 END),0) AS sales"),
             ])
             ->orderByDesc('student_count')
             ->get();
 
-        $teacherProgress = DB::table('lesson_progress as progress')
-            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->join('course_teacher as ct', 'ct.course_id', '=', 'course_sections.course_id')
-            ->whereIn('course_sections.course_id', $courseIds)
-            ->whereIn('ct.teacher_id', $teacherIds)
-            ->groupBy('ct.teacher_id')
-            ->select(
-                'ct.teacher_id',
-                DB::raw('ROUND(AVG(progress.progress_percent),1) AS progress_average')
-            )
-            ->pluck('progress_average', 'ct.teacher_id');
+        $teacherProgress = $this->analytics->teacherProgress($courseIds, $teacherIds);
 
         $teacherPending = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
