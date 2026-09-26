@@ -79,7 +79,7 @@ final class OwnerDashboardService
             )
             ->first();
 
-        $classrooms = Classroom::query()
+        $allClassrooms = Classroom::query()
             ->whereIn('id', $classroomIds)
             ->with([
                 'academy:id,name',
@@ -92,9 +92,9 @@ final class OwnerDashboardService
             ])
             ->orderByRaw('CASE WHEN starts_at IS NULL THEN 1 ELSE 0 END')
             ->orderBy('starts_at')
-            ->limit(8)
             ->get();
 
+        $classrooms = $allClassrooms->take(8)->values();
         $classroomIdsForView = $classrooms->pluck('id');
 
         $attendanceByClassroom = DB::table('attendances')
@@ -205,10 +205,10 @@ final class OwnerDashboardService
                     ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
                     : null,
                 'liveNow' => $liveNowByClassroom->count(),
-                'capacityAlerts' => $classrooms
+                'capacityAlerts' => $allClassrooms
                     ->filter(fn (Classroom $classroom) => $classroom->occupancy_percent !== null && $classroom->occupancy_percent >= 90)
                     ->count(),
-                'classroomsWithoutTeacher' => $classrooms
+                'classroomsWithoutTeacher' => $allClassrooms
                     ->filter(fn (Classroom $classroom) => $classroom->teachers->isEmpty())
                     ->count(),
             ],
