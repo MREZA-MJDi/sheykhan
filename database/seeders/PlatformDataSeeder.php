@@ -704,7 +704,7 @@ class PlatformDataSeeder extends Seeder
             ['display_name' => 'آرین محمدی', 'role' => 'student', 'text' => 'جلسات ضبط‌شده کمک می‌کند هر زمان لازم شد دوباره مرور کنم.'],
             ['display_name' => 'حسین حسینی', 'role' => 'parent', 'text' => 'گزارش پیشرفت و آزمون‌ها برای ما خیلی کاربردی است.'],
         ] as $index => $data) {
-            Testimonial::firstOrCreate(
+            $testimonial = Testimonial::firstOrCreate(
                 ['academy_id' => $academy->id, 'display_name' => $data['display_name']],
                 [
                     'user_id' => $students->get($index % $students->count())->id,
@@ -716,6 +716,19 @@ class PlatformDataSeeder extends Seeder
                     'published_at' => now()->subDays(2 - $index),
                 ]
             );
+
+            $image = $this->media('testimonial-' . $index . '-image', $owner->id, 'image/svg+xml', 'svg', 'testimonials', 'public');
+            $testimonial->media()->syncWithoutDetaching([
+                $image->id => ['collection' => 'image', 'sort_order' => 0, 'is_featured' => true],
+            ]);
+
+            $audio = $this->media('testimonial-' . $index . '-audio', $owner->id, 'audio/mpeg', 'mp3', 'testimonials', 'private');
+            $video = $this->media('testimonial-' . $index . '-video', $owner->id, 'video/mp4', 'mp4', 'testimonials', 'private');
+
+            $testimonial->media()->syncWithoutDetaching([
+                $audio->id => ['collection' => 'audio', 'sort_order' => 1, 'is_featured' => false],
+                $video->id => ['collection' => 'video', 'sort_order' => 2, 'is_featured' => false],
+            ]);
         }
 
         $legalDocs = LegalDocument::query()->whereIn('code', ['purchase-terms', 'copyright'])->get();
