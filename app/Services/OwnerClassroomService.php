@@ -345,10 +345,13 @@ final class OwnerClassroomService
                     && $start->lte($now)
                     && $end->gte($now);
             }),
-            'upcomingLiveClasses' => $liveClasses
-                ->filter(fn ($item) => Carbon::parse($item->scheduled_at)->gte($now))
-                ->take(4)
-                ->values(),
+            'upcomingLiveClasses' => DB::table('live_classes')
+                ->where('classroom_id', $classroom->id)
+                ->whereIn('status', ['scheduled', 'live'])
+                ->where('scheduled_at', '>=', $now)
+                ->orderBy('scheduled_at')
+                ->limit(4)
+                ->get(),
             'recentAssignments' => $assignments->take(5),
             'recentExams' => $exams->take(5),
         ];
