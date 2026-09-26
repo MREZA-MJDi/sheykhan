@@ -28,7 +28,7 @@ class CourseCatalogService
 
     public function featuredCards(int $limit = 3): array
     {
-        return Cache::store('file')->remember(
+        return Cache::remember(
             "public:home:courses:{$limit}",
             now()->addMinutes(5),
             fn () => Course::query()
@@ -84,7 +84,7 @@ class CourseCatalogService
 
     public function clearPublicCache(): void
     {
-        Cache::store('file')->forget('public:home:courses:3');
+        Cache::forget('public:home:courses:3');
         Cache::store('file')->forget('public:home:courses:6');
     }
 

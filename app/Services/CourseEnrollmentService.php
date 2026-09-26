@@ -14,17 +14,26 @@ final class CourseEnrollmentService
         abort_unless($student->hasRole('student'), 403);
         abort_unless($course->isPublished() && $course->isFree(), 422);
 
-        return CourseEnrollment::updateOrCreate(
-            [
-                'course_id' => $course->id,
-                'student_id' => $student->id,
-            ],
-            [
-                'status' => 'active',
-                'paid_amount' => 0,
-                'started_at' => now(),
-            ]
-        );
+        return DB::transaction(function () use ($student, $course): CourseEnrollment {
+            // Serialize enrollment attempts for the same course. The database
+            // unique index remains the final guard against duplicates.
+            $course->newQuery()
+                ->whereKey($course->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            return CourseEnrollment::updateOrCreate(
+                [
+                    'course_id' => $course->id,
+                    'student_id' => $student->id,
+                ],
+                [
+                    'status' => 'active',
+                    'paid_amount' => 0,
+                    'started_at' => now(),
+                ]
+            );
+        });
     }
 
     public function grantPaidAccess(
@@ -36,6 +45,11 @@ final class CourseEnrollmentService
         abort_unless($course->isPublished() && $course->requiresPayment(), 422);
 
         return DB::transaction(function () use ($student, $course, $paidAmount): CourseEnrollment {
+            $course->newQuery()
+                ->whereKey($course->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
             return CourseEnrollment::updateOrCreate(
                 [
                     'course_id' => $course->id,
