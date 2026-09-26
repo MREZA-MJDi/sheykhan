@@ -75,8 +75,6 @@ class RolePermissionSeeder extends Seeder
             Permission::updateOrCreate(['name'=>$permission['name']], $permission);
         }
 
-        $all = collect($permissions)->pluck('name')->all();
-
         $rolePermissions = [
             // Academy Owner is an academy-scoped operator, not a platform super-admin.
             // Keep platform-only capabilities explicit so adding a future route does not
