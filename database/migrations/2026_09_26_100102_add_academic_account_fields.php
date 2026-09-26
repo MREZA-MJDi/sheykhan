@@ -29,7 +29,15 @@ return new class extends Migration {
             $t->timestamp('ended_at')->nullable()->after('started_at'); $t->timestamp('recording_released_at')->nullable()->after('ended_at');
             $t->string('recording_visibility',32)->default('enrolled')->index()->after('recording_released_at');
         });
-        Schema::table('course_enrollments', function(Blueprint $t){ $t->dropUnique(['course_id','student_id']); $t->unique(['course_id','student_id','academic_year_id'],'course_enrollments_course_student_year_unique'); });
+        // MySQL may be using the existing (course_id, student_id) unique index to satisfy
+        // the course_id foreign key because course_id is the leftmost indexed column.
+        // Drop that FK before replacing the unique index, then restore it afterwards.
+        Schema::table('course_enrollments', function(Blueprint $t){
+            $t->dropForeign(['course_id']);
+            $t->dropUnique(['course_id','student_id']);
+            $t->unique(['course_id','student_id','academic_year_id'],'course_enrollments_course_student_year_unique');
+            $t->foreign('course_id')->references('id')->on('courses')->cascadeOnDelete();
+        });
     }
     public function down(): void {
         Schema::table('course_enrollments',function(Blueprint $t){$t->dropUnique('course_enrollments_course_student_year_unique');$t->unique(['course_id','student_id']);$t->dropIndex(['student_id','academic_year_id','status']);$t->dropIndex(['registration_source']);$t->dropForeign(['academic_year_id']);$t->dropForeign(['registered_by']);$t->dropColumn(['academic_year_id','registered_by','registration_source']);});
