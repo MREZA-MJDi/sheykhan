@@ -28,16 +28,21 @@ final class OwnerDashboardService
             return $this->empty($owner);
         }
 
-        $courseIds = Course::query()
+        $courseCount = Course::query()
             ->whereIn('academy_id', $academyIds)
-            ->pluck('id');
+            ->count();
 
-        $teacherIds = DB::table('academy_user')
+        $publishedCourseCount = Course::query()
+            ->whereIn('academy_id', $academyIds)
+            ->published()
+            ->count();
+
+        $teacherCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
             ->where('role', 'teacher')
             ->where('status', 'active')
             ->distinct()
-            ->pluck('user_id');
+            ->count('user_id');
 
         $studentCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
@@ -51,7 +56,6 @@ final class OwnerDashboardService
             ->where('status', 'active');
 
         $classroomCount = (clone $classroomBase)->count();
-        $classroomIds = (clone $classroomBase)->pluck('id');
 
         $revenue = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
@@ -67,17 +71,20 @@ final class OwnerDashboardService
 
         $pendingReviews = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-            ->whereIn('assignments.course_id', $courseIds)
+            ->join('courses', 'courses.id', '=', 'assignments.course_id')
+            ->whereIn('courses.academy_id', $academyIds)
             ->whereNotNull('submissions.submitted_at')
             ->whereNull('submissions.graded_at')
             ->count();
 
         $attendanceToday = DB::table('attendances')
-            ->whereIn('classroom_id', $classroomIds)
-            ->whereDate('attendance_date', today())
+            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->where('classrooms.status', 'active')
+            ->whereDate('attendances.attendance_date', today())
             ->selectRaw(
                 'COUNT(*) AS total,
-                 SUM(CASE WHEN status IN (\'present\', \'late\') THEN 1 ELSE 0 END) AS attended'
+                 SUM(CASE WHEN attendances.status IN (\'present\', \'late\') THEN 1 ELSE 0 END) AS attended'
             )
             ->first();
 
@@ -113,9 +120,11 @@ final class OwnerDashboardService
         $now = now();
 
         $liveNowClasses = LiveClass::query()
-            ->whereIn('classroom_id', $classroomIds)
             ->whereIn('status', ['scheduled', 'live'])
             ->where('scheduled_at', '<=', $now)
+            ->whereHas('classroom', fn ($query) => $query
+                ->whereIn('academy_id', $academyIds)
+                ->where('status', 'active'))
             ->with([
                 'course:id,title',
                 'teacher:id,name',
@@ -135,9 +144,11 @@ final class OwnerDashboardService
             ->keyBy('classroom_id');
 
         $upcomingLiveClasses = LiveClass::query()
-            ->whereIn('classroom_id', $classroomIds)
             ->whereIn('status', ['scheduled', 'live'])
             ->whereBetween('scheduled_at', [$now, $now->copy()->addDays(7)])
+            ->whereHas('classroom', fn ($query) => $query
+                ->whereIn('academy_id', $academyIds)
+                ->where('status', 'active'))
             ->with([
                 'course:id,title',
                 'teacher:id,name',
@@ -189,7 +200,6 @@ final class OwnerDashboardService
                     ->where('enrollments.status', '=', 'active');
             })
             ->whereIn('courses.academy_id', $academyIds)
-            ->whereIn('ct.teacher_id', $teacherIds)
             ->groupBy('ct.teacher_id', 'users.name')
             ->select([
                 'ct.teacher_id',
@@ -204,13 +214,14 @@ final class OwnerDashboardService
 
         $dashboardTeacherIds = $teacherReports->pluck('teacher_id')->map(fn ($id) => (int) $id)->all();
 
-        $teacherProgress = $this->analytics->teacherProgress($courseIds, $dashboardTeacherIds);
+        $teacherProgress = $this->analytics->teacherProgressForAcademies($academyIds, $dashboardTeacherIds);
 
         $teacherPending = empty($dashboardTeacherIds)
             ? collect()
             : DB::table('assignment_submissions as submissions')
                 ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-                ->whereIn('assignments.course_id', $courseIds)
+                ->join('courses', 'courses.id', '=', 'assignments.course_id')
+                ->whereIn('courses.academy_id', $academyIds)
                 ->whereIn('assignments.teacher_id', $dashboardTeacherIds)
                 ->whereNotNull('submissions.submitted_at')
                 ->whereNull('submissions.graded_at')
@@ -232,15 +243,12 @@ final class OwnerDashboardService
             'owner' => $owner,
             'academies' => $academies,
             'metrics' => [
-                'courses' => $courseIds->count(),
-                'teachers' => $teacherIds->count(),
+                'courses' => $courseCount,
+                'teachers' => $teacherCount,
                 'students' => $studentCount,
                 'classrooms' => $classroomCount,
                 'sales' => $revenue - $refunds,
-                'published' => Course::query()
-                    ->whereIn('id', $courseIds)
-                    ->published()
-                    ->count(),
+                'published' => $publishedCourseCount,
                 'pendingReviews' => (int) $pendingReviews,
                 'todayAttendanceRate' => $attendanceToday?->total
                     ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
@@ -253,7 +261,7 @@ final class OwnerDashboardService
             'classrooms' => $classrooms,
             'upcomingLiveClasses' => $upcomingLiveClasses,
             'recentCourses' => Course::query()
-                ->whereIn('id', $courseIds)
+                ->whereIn('academy_id', $academyIds)
                 ->with('academy:id,name')
                 ->withCount([
                     'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
