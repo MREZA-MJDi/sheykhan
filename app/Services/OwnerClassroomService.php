@@ -188,10 +188,6 @@ final class OwnerClassroomService
             ->selectRaw("COUNT(*) AS total, SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended")
             ->first();
 
-        $pendingAssignments = DB::table('assignments')
-            ->where('classroom_id', $classroom->id)
-            ->whereHas ? 0 : 0;
-        
         $classroom->setAttribute('active_students_count', $activeStudentCount);
         $classroom->setAttribute(
             'capacity_remaining',
