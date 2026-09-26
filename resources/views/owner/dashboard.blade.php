@@ -4,7 +4,6 @@
 @section('header-title','داشبورد آموزشگاه')
 
 @section('content')
-@php($academy = $academies->first())
 @php
     $executionLabels = [
         'running' => 'در حال اجرا',
@@ -22,7 +21,7 @@
             <h1>
                 {{ $academies->count() > 1
                     ? 'وضعیت آموزشگاه‌ها را از یک صفحه مدیریت کن.'
-                    : (($academy?->name ?? 'آموزشگاه شما').' را از یک صفحه مدیریت کن.') }}
+                    : (($academies->first()?->name ?? 'آموزشگاه شما').' را از یک صفحه مدیریت کن.') }}
             </h1>
             <p>
                 اینجا تصویر واقعی عملیات آموزشی امروز را می‌بینی: کلاس‌های در حال اجرا، ظرفیت،
@@ -30,9 +29,9 @@
             </p>
 
             <div class="owner-hero-actions">
-                @if($academy)
-                    <a href="{{ route('owner.classrooms.index',$academy) }}" class="owner-btn">مدیریت کلاس‌ها</a>
-                    <a href="{{ route('owner.people.index',$academy) }}" class="owner-btn ghost">مدیریت اعضا</a>
+                @if($academies->isNotEmpty())
+                    <a href="{{ route('owner.classrooms.index',$academies->first()) }}" class="owner-btn">مدیریت کلاس‌ها</a>
+                    <a href="{{ route('owner.people.index',$academies->first()) }}" class="owner-btn ghost">مدیریت اعضا</a>
                 @endif
                 <a href="{{ route('owner.reports.index') }}" class="owner-btn ghost">گزارش‌ها</a>
             </div>
@@ -104,8 +103,8 @@
                     <h2>کلاس‌های امروز</h2>
                     <p>تصویر اجرایی کلاس‌ها از داده‌های واقعی سیستم</p>
                 </div>
-                @if($academy)
-                    <a href="{{ route('owner.classrooms.index',$academy) }}" class="owner-link">همه کلاس‌ها ←</a>
+                @if($academies->isNotEmpty())
+                    <a href="{{ route('owner.classrooms.index',$academies->first()) }}" class="owner-link">همه کلاس‌ها ←</a>
                 @endif
             </div>
 
