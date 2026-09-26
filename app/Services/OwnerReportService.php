@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Academy;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
@@ -29,31 +28,28 @@ final class OwnerReportService
         $academyIds = $academies->pluck('id');
         $academy = $academies->count() === 1 ? $academies->first() : null;
 
-        $courseIds = DB::table('courses')
+        $courseCount = DB::table('courses')
             ->whereIn('academy_id', $academyIds)
-            ->pluck('id')
-            ->all();
+            ->count();
 
-        $classroomIds = DB::table('classrooms')
+        $publishedCourseCount = Course::query()
             ->whereIn('academy_id', $academyIds)
-            ->pluck('id')
-            ->all();
+            ->published()
+            ->count();
 
-        $teacherIds = DB::table('academy_user')
+        $teacherCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
             ->where('role', 'teacher')
             ->where('status', 'active')
             ->distinct()
-            ->pluck('user_id')
-            ->all();
+            ->count('user_id');
 
-        $studentIds = DB::table('academy_user')
+        $studentCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
             ->where('role', 'student')
             ->where('status', 'active')
             ->distinct()
-            ->pluck('user_id')
-            ->all();
+            ->count('user_id');
 
         $parentsCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
@@ -61,6 +57,10 @@ final class OwnerReportService
             ->where('status', 'active')
             ->distinct()
             ->count('user_id');
+
+        $classroomCount = DB::table('classrooms')
+            ->whereIn('academy_id', $academyIds)
+            ->count();
 
         $revenue = DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
@@ -75,13 +75,14 @@ final class OwnerReportService
             ->sum('amount');
 
         $attendance = DB::table('attendances')
-            ->whereIn('classroom_id', $classroomIds)
+            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->whereIn('classrooms.academy_id', $academyIds)
             ->selectRaw(
-                "COUNT(*) AS total, SUM(CASE WHEN status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended"
+                "COUNT(*) AS total, SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended"
             )
             ->first();
 
-        $examAverage = $this->analytics->overallExamAverage($courseIds);
+        $examAverage = $this->analytics->overallExamAverageForAcademies($academyIds);
 
         $teacherReports = DB::table('course_teacher as ct')
             ->join('users', 'users.id', '=', 'ct.teacher_id')
@@ -91,7 +92,6 @@ final class OwnerReportService
                     ->where('enrollments.status', '=', 'active');
             })
             ->whereIn('courses.academy_id', $academyIds)
-            ->whereIn('ct.teacher_id', $teacherIds)
             ->groupBy('ct.teacher_id', 'users.name')
             ->select([
                 'ct.teacher_id',
@@ -108,13 +108,14 @@ final class OwnerReportService
             ->map(fn ($id) => (int) $id)
             ->all();
 
-        $teacherProgress = $this->analytics->teacherProgress($courseIds, $teacherPageIds);
+        $teacherProgress = $this->analytics->teacherProgressForAcademies($academyIds, $teacherPageIds);
 
         $teacherPending = empty($teacherPageIds)
             ? collect()
             : DB::table('assignment_submissions as submissions')
                 ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-                ->whereIn('assignments.course_id', $courseIds)
+                ->join('courses', 'courses.id', '=', 'assignments.course_id')
+                ->whereIn('courses.academy_id', $academyIds)
                 ->whereIn('assignments.teacher_id', $teacherPageIds)
                 ->whereNotNull('submissions.submitted_at')
                 ->whereNull('submissions.graded_at')
@@ -132,7 +133,7 @@ final class OwnerReportService
         );
 
         $courseReports = Course::query()
-            ->whereIn('id', $courseIds)
+            ->whereIn('academy_id', $academyIds)
             ->withCount([
                 'enrollments as active_student_count' => fn ($query) => $query->where('status', 'active'),
                 'sections',
@@ -163,7 +164,7 @@ final class OwnerReportService
         );
 
         $classroomReports = Classroom::query()
-            ->whereIn('id', $classroomIds)
+            ->whereIn('academy_id', $academyIds)
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query->where('classroom_student.status', 'active'),
@@ -201,19 +202,27 @@ final class OwnerReportService
             })
         );
 
+        $pendingReviews = DB::table('assignment_submissions as submissions')
+            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->join('courses', 'courses.id', '=', 'assignments.course_id')
+            ->whereIn('courses.academy_id', $academyIds)
+            ->whereNotNull('submissions.submitted_at')
+            ->whereNull('submissions.graded_at')
+            ->count();
+
         return [
             'owner' => $owner,
             'academy' => $academy,
             'academies' => $academies,
             'metrics' => [
-                'courses' => count($courseIds),
-                'published' => Course::query()->whereIn('id', $courseIds)->published()->count(),
-                'teachers' => count($teacherIds),
-                'students' => count($studentIds),
+                'courses' => $courseCount,
+                'published' => $publishedCourseCount,
+                'teachers' => $teacherCount,
+                'students' => $studentCount,
                 'parents' => $parentsCount,
-                'classrooms' => count($classroomIds),
+                'classrooms' => $classroomCount,
                 'enrollments' => CourseEnrollment::query()
-                    ->whereIn('course_id', $courseIds)
+                    ->whereHas('course', fn ($query) => $query->whereIn('academy_id', $academyIds))
                     ->where('status', 'active')
                     ->count(),
                 'attendance_rate' => $attendance?->total
@@ -221,18 +230,13 @@ final class OwnerReportService
                     : null,
                 'exam_average' => $examAverage !== null ? round((float) $examAverage, 1) : null,
                 'revenue' => (float) $revenue - (float) $refunds,
-                'pending_reviews' => (int) DB::table('assignment_submissions as submissions')
-                    ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-                    ->whereIn('assignments.course_id', $courseIds)
-                    ->whereNotNull('submissions.submitted_at')
-                    ->whereNull('submissions.graded_at')
-                    ->count(),
+                'pending_reviews' => (int) $pendingReviews,
             ],
             'teacherReports' => $teacherReports,
             'courseReports' => $courseReports,
             'classroomReports' => $classroomReports,
             'recentEnrollments' => CourseEnrollment::query()
-                ->whereIn('course_id', $courseIds)
+                ->whereHas('course', fn ($query) => $query->whereIn('academy_id', $academyIds))
                 ->with(['student:id,name,email', 'course:id,title'])
                 ->latest()
                 ->limit(8)
