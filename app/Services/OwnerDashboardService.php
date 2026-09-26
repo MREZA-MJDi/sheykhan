@@ -39,17 +39,19 @@ final class OwnerDashboardService
             ->distinct()
             ->pluck('user_id');
 
-        $studentIds = DB::table('academy_user')
+        $studentCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
             ->where('role', 'student')
             ->where('status', 'active')
             ->distinct()
-            ->pluck('user_id');
+            ->count('user_id');
 
-        $classroomIds = Classroom::query()
+        $classroomBase = Classroom::query()
             ->whereIn('academy_id', $academyIds)
-            ->where('status', 'active')
-            ->pluck('id');
+            ->where('status', 'active');
+
+        $classroomCount = (clone $classroomBase)->count();
+        $classroomIds = (clone $classroomBase)->pluck('id');
 
         $revenue = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
@@ -79,8 +81,7 @@ final class OwnerDashboardService
             )
             ->first();
 
-        $allClassrooms = Classroom::query()
-            ->whereIn('id', $classroomIds)
+        $classrooms = (clone $classroomBase)
             ->with([
                 'academy:id,name',
                 'course:id,title',
@@ -92,9 +93,9 @@ final class OwnerDashboardService
             ])
             ->orderByRaw('CASE WHEN starts_at IS NULL THEN 1 ELSE 0 END')
             ->orderBy('starts_at')
+            ->limit(8)
             ->get();
 
-        $classrooms = $allClassrooms->take(8)->values();
         $classroomIdsForView = $classrooms->pluck('id');
 
         $attendanceByClassroom = DB::table('attendances')
@@ -109,26 +110,42 @@ final class OwnerDashboardService
             ->get()
             ->keyBy('classroom_id');
 
-        $liveWindow = LiveClass::query()
+        $now = now();
+
+        $liveNowClasses = LiveClass::query()
             ->whereIn('classroom_id', $classroomIds)
             ->whereIn('status', ['scheduled', 'live'])
-            ->whereBetween('scheduled_at', [now()->subDay(), now()->addDays(7)])
+            ->where('scheduled_at', '<=', $now)
+            ->with([
+                'course:id,title',
+                'teacher:id,name',
+                'classroom:id,title',
+            ])
+            ->orderByDesc('scheduled_at')
+            ->limit(32)
+            ->get();
+
+        $liveNowByClassroom = $liveNowClasses
+            ->filter(function (LiveClass $liveClass) use ($now): bool {
+                $start = Carbon::parse($liveClass->scheduled_at);
+                $end = $start->copy()->addMinutes((int) ($liveClass->duration_minutes ?? 60));
+
+                return $start->lte($now) && $end->gte($now);
+            })
+            ->keyBy('classroom_id');
+
+        $upcomingLiveClasses = LiveClass::query()
+            ->whereIn('classroom_id', $classroomIds)
+            ->whereIn('status', ['scheduled', 'live'])
+            ->whereBetween('scheduled_at', [$now, $now->copy()->addDays(7)])
             ->with([
                 'course:id,title',
                 'teacher:id,name',
                 'classroom:id,title',
             ])
             ->orderBy('scheduled_at')
+            ->limit(8)
             ->get();
-
-        $liveNowByClassroom = $liveWindow
-            ->filter(function (LiveClass $liveClass): bool {
-                $start = Carbon::parse($liveClass->scheduled_at);
-                $end = $start->copy()->addMinutes((int) ($liveClass->duration_minutes ?? 60));
-
-                return $start->lte(now()) && $end->gte(now());
-            })
-            ->keyBy('classroom_id');
 
         $classrooms->each(function (Classroom $classroom) use ($attendanceByClassroom, $liveNowByClassroom): void {
             $attendance = $attendanceByClassroom->get($classroom->id);
@@ -145,6 +162,24 @@ final class OwnerDashboardService
                 ? min(100, round(($classroom->active_students_count / $classroom->capacity) * 100, 1))
                 : null;
         });
+
+        $activeStudentCounts = DB::table('classroom_student')
+            ->where('status', 'active')
+            ->groupBy('classroom_id')
+            ->select('classroom_id', DB::raw('COUNT(*) AS active_students_count'));
+
+        $capacityAlerts = DB::query()
+            ->from('classrooms as classrooms')
+            ->leftJoinSub($activeStudentCounts, 'student_counts', 'student_counts.classroom_id', '=', 'classrooms.id')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->where('classrooms.status', 'active')
+            ->whereNotNull('classrooms.capacity')
+            ->whereRaw('COALESCE(student_counts.active_students_count, 0) >= (classrooms.capacity * 0.9)')
+            ->count();
+
+        $classroomsWithoutTeacher = (clone $classroomBase)
+            ->doesntHave('teachers')
+            ->count();
 
         $teacherReports = DB::table('course_teacher as ct')
             ->join('users', 'users.id', '=', 'ct.teacher_id')
@@ -163,22 +198,28 @@ final class OwnerDashboardService
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
             ])
             ->orderByDesc('student_count')
+            ->orderBy('users.name')
+            ->limit(8)
             ->get();
 
-        $teacherProgress = $this->analytics->teacherProgress($courseIds, $teacherIds);
+        $dashboardTeacherIds = $teacherReports->pluck('teacher_id')->map(fn ($id) => (int) $id)->all();
 
-        $teacherPending = DB::table('assignment_submissions as submissions')
-            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-            ->whereIn('assignments.course_id', $courseIds)
-            ->whereIn('assignments.teacher_id', $teacherIds)
-            ->whereNotNull('submissions.submitted_at')
-            ->whereNull('submissions.graded_at')
-            ->groupBy('assignments.teacher_id')
-            ->select(
-                'assignments.teacher_id',
-                DB::raw('COUNT(*) AS pending_reviews')
-            )
-            ->pluck('pending_reviews', 'assignments.teacher_id');
+        $teacherProgress = $this->analytics->teacherProgress($courseIds, $dashboardTeacherIds);
+
+        $teacherPending = empty($dashboardTeacherIds)
+            ? collect()
+            : DB::table('assignment_submissions as submissions')
+                ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+                ->whereIn('assignments.course_id', $courseIds)
+                ->whereIn('assignments.teacher_id', $dashboardTeacherIds)
+                ->whereNotNull('submissions.submitted_at')
+                ->whereNull('submissions.graded_at')
+                ->groupBy('assignments.teacher_id')
+                ->select(
+                    'assignments.teacher_id',
+                    DB::raw('COUNT(*) AS pending_reviews')
+                )
+                ->pluck('pending_reviews', 'assignments.teacher_id');
 
         $teacherReports = $teacherReports->map(function ($report) use ($teacherProgress, $teacherPending) {
             $report->progress_average = (float) ($teacherProgress[$report->teacher_id] ?? 0);
@@ -193,8 +234,8 @@ final class OwnerDashboardService
             'metrics' => [
                 'courses' => $courseIds->count(),
                 'teachers' => $teacherIds->count(),
-                'students' => $studentIds->count(),
-                'classrooms' => $classroomIds->count(),
+                'students' => $studentCount,
+                'classrooms' => $classroomCount,
                 'sales' => $revenue - $refunds,
                 'published' => Course::query()
                     ->whereIn('id', $courseIds)
@@ -205,19 +246,12 @@ final class OwnerDashboardService
                     ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
                     : null,
                 'liveNow' => $liveNowByClassroom->count(),
-                'capacityAlerts' => $allClassrooms
-                    ->filter(fn (Classroom $classroom) => $classroom->occupancy_percent !== null && $classroom->occupancy_percent >= 90)
-                    ->count(),
-                'classroomsWithoutTeacher' => $allClassrooms
-                    ->filter(fn (Classroom $classroom) => $classroom->teachers->isEmpty())
-                    ->count(),
+                'capacityAlerts' => $capacityAlerts,
+                'classroomsWithoutTeacher' => $classroomsWithoutTeacher,
             ],
             'teacherReports' => $teacherReports,
             'classrooms' => $classrooms,
-            'upcomingLiveClasses' => $liveWindow
-                ->filter(fn (LiveClass $liveClass) => Carbon::parse($liveClass->scheduled_at)->gte(now()))
-                ->take(8)
-                ->values(),
+            'upcomingLiveClasses' => $upcomingLiveClasses,
             'recentCourses' => Course::query()
                 ->whereIn('id', $courseIds)
                 ->with('academy:id,name')
