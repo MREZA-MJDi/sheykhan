@@ -97,7 +97,7 @@ class PlatformDataSeeder extends Seeder
                 ]);
             }
 
-            $academy = Academy::updateOrCreate(
+            $academy = Academy::firstOrCreate(
                 ['slug' => 'sheykhan-academy'],
                 [
                     'owner_id' => $owner->id,
@@ -141,7 +141,7 @@ class PlatformDataSeeder extends Seeder
             ];
 
             foreach ($courseDefinitions as $definition) {
-                $course = Course::updateOrCreate(
+                $course = Course::firstOrCreate(
                     ['academy_id' => $academy->id, 'slug' => $definition['slug']],
                     [
                         'created_by' => $owner->id,
@@ -160,7 +160,7 @@ class PlatformDataSeeder extends Seeder
                 $course->teachers()->syncWithoutDetaching([$definition['teacher']->id => ['is_primary' => true]]);
                 $courses->push($course);
 
-                $section = CourseSection::updateOrCreate(
+                $section = CourseSection::firstOrCreate(
                     ['course_id' => $course->id, 'sort_order' => 1],
                     ['title' => 'بخش اول: شروع مسیر', 'description' => 'مفاهیم پایه و شروع مسیر آموزشی.']
                 );
@@ -173,7 +173,7 @@ class PlatformDataSeeder extends Seeder
                 ];
 
                 foreach ($lessonTitles as $index => $title) {
-                    $lesson = Lesson::updateOrCreate(
+                    $lesson = Lesson::firstOrCreate(
                         ['course_section_id' => $section->id, 'slug' => $course->slug . '-lesson-' . ($index + 1)],
                         [
                             'title' => $title,
@@ -188,7 +188,7 @@ class PlatformDataSeeder extends Seeder
                         ]
                     );
 
-                    LessonProgress::updateOrCreate(
+                    LessonProgress::firstOrCreate(
                         ['lesson_id' => $lesson->id, 'user_id' => $students->get($index % 2)->id],
                         [
                             'progress_percent' => $index === 0 ? 100 : 55,
@@ -208,7 +208,7 @@ class PlatformDataSeeder extends Seeder
 
             $classrooms = collect();
             foreach ($classroomDefinitions as $definition) {
-                $classroom = Classroom::updateOrCreate(
+                $classroom = Classroom::firstOrCreate(
                     ['academy_id' => $academy->id, 'code' => $definition['code']],
                     [
                         'course_id' => $definition['course']->id,
@@ -232,7 +232,7 @@ class PlatformDataSeeder extends Seeder
                         ],
                     ]);
 
-                    CourseEnrollment::updateOrCreate(
+                    CourseEnrollment::firstOrCreate(
                         ['course_id' => $definition['course']->id, 'student_id' => $student->id],
                         [
                             'classroom_id' => $classroom->id,
@@ -245,13 +245,13 @@ class PlatformDataSeeder extends Seeder
                         ]
                     );
 
-                    Attendance::updateOrCreate(
+                    Attendance::firstOrCreate(
                         ['classroom_id' => $classroom->id, 'student_id' => $student->id, 'attendance_date' => now()->subDays(3)->toDateString()],
                         ['marked_by' => $definition['teacher']->id, 'status' => 'present']
                     );
                 }
 
-                ClassSchedule::updateOrCreate(
+                ClassSchedule::firstOrCreate(
                     ['classroom_id' => $classroom->id, 'weekday' => 2],
                     ['start_time' => '17:00', 'end_time' => '18:30', 'room' => 'کلاس آنلاین', 'meeting_url' => 'https://example.com/sheykhan/' . $definition['code']]
                 );
@@ -282,11 +282,11 @@ class PlatformDataSeeder extends Seeder
             ['code' => '11', 'title' => 'پایه یازدهم', 'sort_order' => 11],
             ['code' => '12', 'title' => 'پایه دوازدهم', 'sort_order' => 12],
         ] as $data) {
-            $grade = AcademicGrade::updateOrCreate(['code' => $data['code']], $data);
+            $grade = AcademicGrade::firstOrCreate(['code' => $data['code']], $data);
             $grades[$data['code']] = $grade;
         }
 
-        AcademicYear::updateOrCreate(
+        AcademicYear::firstOrCreate(
             ['title' => '1405-1406'],
             ['start_date' => '2026-09-23', 'end_date' => '2027-09-22', 'is_current' => true]
         );
@@ -296,7 +296,7 @@ class PlatformDataSeeder extends Seeder
 
     private function user(string $email, string $name, string $key, string $roleSlug): User
     {
-        $user = User::updateOrCreate(
+        $user = User::firstOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
@@ -317,7 +317,7 @@ class PlatformDataSeeder extends Seeder
     {
         $user = $this->user($email, $name, 'student-' . $number, 'student');
 
-        StudentProfile::updateOrCreate(
+        StudentProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
                 'student_number' => $number,
@@ -374,7 +374,7 @@ class PlatformDataSeeder extends Seeder
                 $recordingMediaId = $media->id;
             }
 
-            LiveClass::updateOrCreate(
+            LiveClass::firstOrCreate(
                 ['course_id' => $courses->get($data['course'])->id, 'title' => $data['title']],
                 [
                     'classroom_id' => $classrooms->get($data['classroom'])->id,
@@ -399,7 +399,7 @@ class PlatformDataSeeder extends Seeder
     private function seedAssignments($courses, $classrooms, $teachers, $students): void
     {
         foreach ($courses as $index => $course) {
-            $assignment = Assignment::updateOrCreate(
+            $assignment = Assignment::firstOrCreate(
                 ['course_id' => $course->id, 'title' => 'تکلیف جلسه اول - ' . $course->title],
                 [
                     'classroom_id' => $classrooms->get($index)->id,
@@ -413,7 +413,7 @@ class PlatformDataSeeder extends Seeder
 
             $student = $students->filter(fn (User $s) => $s->classroomsAsStudent()->whereKey($classrooms->get($index)->id)->exists())->first();
             if ($student) {
-                AssignmentSubmission::updateOrCreate(
+                AssignmentSubmission::firstOrCreate(
                     ['assignment_id' => $assignment->id, 'student_id' => $student->id],
                     [
                         'content' => 'پاسخ تمرین آماده و ارسال شد.',
@@ -431,7 +431,7 @@ class PlatformDataSeeder extends Seeder
     private function seedExams($courses, $classrooms, $teachers, $students): void
     {
         foreach ($courses as $index => $course) {
-            $exam = Exam::updateOrCreate(
+            $exam = Exam::firstOrCreate(
                 ['course_id' => $course->id, 'title' => 'آزمون میان‌ترم - ' . $course->title],
                 [
                     'classroom_id' => $classrooms->get($index)->id,
@@ -451,7 +451,7 @@ class PlatformDataSeeder extends Seeder
                 ['text' => 'پاسخ درست مسئله کدام است؟', 'correct' => 'b'],
                 ['text' => 'بهترین روش حل کدام است؟', 'correct' => 'c'],
             ] as $qIndex => $q) {
-                $questions[] = Question::updateOrCreate(
+                $questions[] = Question::firstOrCreate(
                     ['exam_id' => $exam->id, 'sort_order' => $qIndex + 1],
                     [
                         'type' => 'multiple_choice',
@@ -466,7 +466,7 @@ class PlatformDataSeeder extends Seeder
 
             $student = $students->filter(fn (User $s) => $s->classroomsAsStudent()->whereKey($classrooms->get($index)->id)->exists())->first();
             if ($student) {
-                $attempt = ExamAttempt::updateOrCreate(
+                $attempt = ExamAttempt::firstOrCreate(
                     ['exam_id' => $exam->id, 'student_id' => $student->id, 'attempt_number' => 1],
                     [
                         'started_at' => now()->subDay(),
@@ -477,7 +477,7 @@ class PlatformDataSeeder extends Seeder
                 );
 
                 foreach ($questions as $qIndex => $question) {
-                    ExamAnswer::updateOrCreate(
+                    ExamAnswer::firstOrCreate(
                         ['exam_attempt_id' => $attempt->id, 'question_id' => $question->id],
                         [
                             'answer' => $qIndex === 0 ? 'a' : 'b',
@@ -495,7 +495,7 @@ class PlatformDataSeeder extends Seeder
         foreach ($courses as $index => $course) {
             $media = $this->media('course-resource-' . ($index + 1), $owner->id, 'application/pdf', 'pdf', 'learning-resources', 'private');
 
-            LearningResource::updateOrCreate(
+            LearningResource::firstOrCreate(
                 ['academy_id' => $academy->id, 'course_id' => $course->id, 'title' => 'جزوه جلسه اول - ' . $course->title],
                 [
                     'classroom_id' => $classrooms->get($index)->id,
@@ -516,9 +516,9 @@ class PlatformDataSeeder extends Seeder
     private function seedShop(Academy $academy, User $owner, $students): void
     {
         $categories = [
-            'books' => ProductCategory::updateOrCreate(['slug' => 'books'], ['name' => 'کتابخانه', 'description' => 'تألیفات و ترجمه‌ها', 'sort_order' => 1, 'is_active' => true]),
-            'booklets' => ProductCategory::updateOrCreate(['slug' => 'booklets'], ['name' => 'جزوه', 'description' => 'جزوه‌های آموزشی آکادمی', 'sort_order' => 2, 'is_active' => true]),
-            'exams' => ProductCategory::updateOrCreate(['slug' => 'exams'], ['name' => 'آزمون', 'description' => 'آزمون‌های استاندارد', 'sort_order' => 3, 'is_active' => true]),
+            'books' => ProductCategory::firstOrCreate(['slug' => 'books'], ['name' => 'کتابخانه', 'description' => 'تألیفات و ترجمه‌ها', 'sort_order' => 1, 'is_active' => true]),
+            'booklets' => ProductCategory::firstOrCreate(['slug' => 'booklets'], ['name' => 'جزوه', 'description' => 'جزوه‌های آموزشی آکادمی', 'sort_order' => 2, 'is_active' => true]),
+            'exams' => ProductCategory::firstOrCreate(['slug' => 'exams'], ['name' => 'آزمون', 'description' => 'آزمون‌های استاندارد', 'sort_order' => 3, 'is_active' => true]),
         ];
 
         $products = [
@@ -528,7 +528,7 @@ class PlatformDataSeeder extends Seeder
         ];
 
         foreach ($products as $data) {
-            $product = Product::updateOrCreate(
+            $product = Product::firstOrCreate(
                 ['slug' => $data['slug']],
                 [
                     'academy_id' => $academy->id,
@@ -550,13 +550,13 @@ class PlatformDataSeeder extends Seeder
 
             $media = $this->media('product-' . $data['slug'], $owner->id, 'application/pdf', 'pdf', 'products', 'private');
 
-            ProductFile::updateOrCreate(
+            ProductFile::firstOrCreate(
                 ['product_id' => $product->id, 'media_id' => $media->id],
                 ['version' => '1.0', 'is_primary' => true, 'is_preview' => false, 'requires_watermark' => true]
             );
 
             $student = $students->first();
-            $order = Order::updateOrCreate(
+            $order = Order::firstOrCreate(
                 ['order_number' => 'SHK-' . str_pad((string) $product->id, 6, '0', STR_PAD_LEFT)],
                 [
                     'buyer_id' => $student->id,
@@ -572,7 +572,7 @@ class PlatformDataSeeder extends Seeder
                 ]
             );
 
-            $item = OrderItem::updateOrCreate(
+            $item = OrderItem::firstOrCreate(
                 ['order_id' => $order->id, 'product_id' => $product->id],
                 [
                     'beneficiary_id' => $student->id,
@@ -583,7 +583,7 @@ class PlatformDataSeeder extends Seeder
                 ]
             );
 
-            Payment::updateOrCreate(
+            Payment::firstOrCreate(
                 ['order_id' => $order->id, 'gateway' => 'seed-bank'],
                 [
                     'amount' => $data['price'],
@@ -597,7 +597,7 @@ class PlatformDataSeeder extends Seeder
                 ]
             );
 
-            $entitlement = ProductEntitlement::updateOrCreate(
+            $entitlement = ProductEntitlement::firstOrCreate(
                 ['order_item_id' => $item->id],
                 [
                     'user_id' => $student->id,
@@ -610,12 +610,12 @@ class PlatformDataSeeder extends Seeder
             );
 
             $file = $product->files()->first();
-            ProductDownload::updateOrCreate(
+            ProductDownload::firstOrCreate(
                 ['entitlement_id' => $entitlement->id, 'product_file_id' => $file->id],
                 ['ip_address' => '127.0.0.1', 'user_agent' => 'Seeder', 'downloaded_at' => now()->subDay()]
             );
 
-            ProtectedFile::updateOrCreate(
+            ProtectedFile::firstOrCreate(
                 ['product_file_id' => $file->id, 'entitlement_id' => $entitlement->id],
                 [
                     'source_checksum' => $file->media->checksum,
@@ -641,14 +641,14 @@ class PlatformDataSeeder extends Seeder
         ];
 
         foreach ($categorySeeds as $categoryData) {
-            $category = AcademyContentCategory::updateOrCreate(
+            $category = AcademyContentCategory::firstOrCreate(
                 ['academy_id' => $academy->id, 'slug' => $categoryData['slug']],
                 ['title' => $categoryData['title'], 'sort_order' => array_search($categoryData['slug'], array_column($categorySeeds, 'slug'), true) + 1, 'is_active' => true]
             );
 
             for ($i = 1; $i <= 3; $i++) {
                 foreach (['article', 'video'] as $type) {
-                    AcademyContent::updateOrCreate(
+                    AcademyContent::firstOrCreate(
                         ['academy_id' => $academy->id, 'slug' => $categoryData['slug'] . '-' . $type . '-' . $i],
                         [
                             'category_id' => $category->id,
@@ -675,7 +675,7 @@ class PlatformDataSeeder extends Seeder
         ];
 
         foreach ($achievementData as $index => [$student, $type, $school]) {
-            Achievement::updateOrCreate(
+            Achievement::firstOrCreate(
                 ['academy_id' => $academy->id, 'student_id' => $student->id, 'title' => 'افتخارآفرین شماره ' . ($index + 1)],
                 [
                     'display_name' => $student->name,
@@ -697,7 +697,7 @@ class PlatformDataSeeder extends Seeder
             ['display_name' => 'آرین محمدی', 'role' => 'student', 'text' => 'جلسات ضبط‌شده کمک می‌کند هر زمان لازم شد دوباره مرور کنم.'],
             ['display_name' => 'حسین حسینی', 'role' => 'parent', 'text' => 'گزارش پیشرفت و آزمون‌ها برای ما خیلی کاربردی است.'],
         ] as $index => $data) {
-            Testimonial::updateOrCreate(
+            Testimonial::firstOrCreate(
                 ['academy_id' => $academy->id, 'display_name' => $data['display_name']],
                 [
                     'user_id' => $students->get($index % $students->count())->id,
@@ -713,7 +713,7 @@ class PlatformDataSeeder extends Seeder
 
         $legalDocs = LegalDocument::query()->whereIn('code', ['purchase-terms', 'copyright'])->get();
         foreach ($legalDocs as $document) {
-            LegalConsent::updateOrCreate(
+            LegalConsent::firstOrCreate(
                 ['user_id' => $students->first()->id, 'document_id' => $document->id],
                 [
                     'order_id' => Order::query()->first()?->id,
@@ -730,15 +730,15 @@ class PlatformDataSeeder extends Seeder
 
     private function seedBlog(User $owner): void
     {
-        $category = BlogCategory::updateOrCreate(
+        $category = BlogCategory::firstOrCreate(
             ['slug' => 'learning'],
             ['name' => 'یادگیری', 'description' => 'مقالات آموزشی و مهارت مطالعه']
         );
 
         $tags = collect([
-            BlogTag::updateOrCreate(['slug' => 'study-skills'], ['name' => 'مهارت مطالعه']),
-            BlogTag::updateOrCreate(['slug' => 'gifted'], ['name' => 'تیزهوشان']),
-            BlogTag::updateOrCreate(['slug' => 'exam-prep'], ['name' => 'آمادگی آزمون']),
+            BlogTag::firstOrCreate(['slug' => 'study-skills'], ['name' => 'مهارت مطالعه']),
+            BlogTag::firstOrCreate(['slug' => 'gifted'], ['name' => 'تیزهوشان']),
+            BlogTag::firstOrCreate(['slug' => 'exam-prep'], ['name' => 'آمادگی آزمون']),
         ]);
 
         $posts = [
@@ -748,7 +748,7 @@ class PlatformDataSeeder extends Seeder
         ];
 
         foreach ($posts as $postData) {
-            $post = BlogPost::updateOrCreate(
+            $post = BlogPost::firstOrCreate(
                 ['slug' => $postData['slug']],
                 [
                     'category_id' => $category->id,
@@ -770,7 +770,7 @@ class PlatformDataSeeder extends Seeder
         foreach ([
             [$academy, 'آکادمی شیخان | آموزش آنلاین', 'آکادمی شیخان؛ آموزش آنلاین، آزمون و محتوای آموزشی.'],
         ] as [$entity, $title, $description]) {
-            SeoMeta::updateOrCreate(
+            SeoMeta::firstOrCreate(
                 ['seoable_type' => get_class($entity), 'seoable_id' => $entity->id],
                 ['title' => $title, 'description' => $description, 'keywords' => 'آکادمی شیخان, آموزش آنلاین, تیزهوشان', 'robots' => 'index,follow', 'og_title' => $title, 'og_description' => $description]
             );
@@ -782,13 +782,13 @@ class PlatformDataSeeder extends Seeder
             'academy.default_currency' => ['value' => 'IRR', 'type' => 'string', 'group' => 'commerce', 'is_public' => false],
         ];
         foreach ($settings as $key => $data) {
-            Setting::updateOrCreate(['key' => $key], $data);
+            Setting::firstOrCreate(['key' => $key], $data);
         }
     }
 
     private function seedOnboardingAndAudit(Academy $academy, User $owner, $grades, $students): void
     {
-        StudentOnboarding::updateOrCreate(
+        StudentOnboarding::firstOrCreate(
             ['academy_id' => $academy->id, 'national_id_lookup' => hash_hmac('sha256', '0012345678', config('app.key'))],
             [
                 'admin_id' => $owner->id,
@@ -826,7 +826,7 @@ class PlatformDataSeeder extends Seeder
             $storage->put($path, $contents);
         }
 
-        return Media::updateOrCreate(
+        return Media::firstOrCreate(
             ['disk' => $disk, 'path' => $path],
             [
                 'uploaded_by' => $uploadedBy,
