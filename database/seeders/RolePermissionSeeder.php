@@ -78,7 +78,29 @@ class RolePermissionSeeder extends Seeder
         $all = collect($permissions)->pluck('name')->all();
 
         $rolePermissions = [
-            'academy-owner' => $all,
+            // Academy Owner is an academy-scoped operator, not a platform super-admin.
+            // Keep platform-only capabilities explicit so adding a future route does not
+            // silently grant the Owner access to it.
+            'academy-owner' => [
+                'dashboard.view',
+                'academy.view','academy.manage',
+                'courses.view','courses.manage',
+                'lessons.view',
+                'classrooms.view','classrooms.manage',
+                'enrollments.view','enrollments.manage',
+                'students.view','students.manage',
+                'teachers.view','teachers.manage',
+                'parents.view',
+                'assignments.view',
+                'exams.view',
+                'attendance.view',
+                'live_classes.view',
+                'reports.view',
+                'media.view','media.upload','media.download','media.manage',
+                'resources.view',
+                'payments.view',
+                'audit.view',
+            ],
 
             'teacher' => [
                 'dashboard.view','academy.view',
