@@ -648,7 +648,7 @@ class PlatformDataSeeder extends Seeder
 
             for ($i = 1; $i <= 3; $i++) {
                 foreach (['article', 'video'] as $type) {
-                    AcademyContent::firstOrCreate(
+                    $content = AcademyContent::firstOrCreate(
                         ['academy_id' => $academy->id, 'slug' => $categoryData['slug'] . '-' . $type . '-' . $i],
                         [
                             'category_id' => $category->id,
@@ -664,6 +664,23 @@ class PlatformDataSeeder extends Seeder
                             'created_by' => $owner->id,
                         ]
                     );
+
+                    $media = $this->media(
+                        'academy-content-' . $categoryData['slug'] . '-' . $type . '-' . $i,
+                        $owner->id,
+                        $type === 'video' ? 'video/mp4' : 'image/svg+xml',
+                        $type === 'video' ? 'mp4' : 'svg',
+                        'academy-content',
+                        $type === 'video' ? 'private' : 'public'
+                    );
+
+                    $content->media()->syncWithoutDetaching([
+                        $media->id => [
+                            'collection' => $type,
+                            'sort_order' => 0,
+                            'is_featured' => true,
+                        ],
+                    ]);
                 }
             }
         }
