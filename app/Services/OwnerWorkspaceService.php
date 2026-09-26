@@ -32,16 +32,17 @@ final class OwnerWorkspaceService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $members = $academy->users()
+        $base = fn (string $role, string $pageName) => $academy->users()
             ->wherePivot('status', 'active')
+            ->wherePivot('role', $role)
             ->select('users.id', 'users.name', 'users.email')
-            ->get()
-            ->groupBy(fn (User $user) => $user->pivot->role);
+            ->orderBy('users.name')
+            ->paginate(25, ['*'], $pageName);
 
         return [
-            'teachers' => $members->get('teacher', collect()),
-            'students' => $members->get('student', collect()),
-            'parents' => $members->get('parent', collect()),
+            'teachers' => $base('teacher', 'teachers_page'),
+            'students' => $base('student', 'students_page'),
+            'parents' => $base('parent', 'parents_page'),
         ];
     }
 
