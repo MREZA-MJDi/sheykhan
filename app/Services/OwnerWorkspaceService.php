@@ -8,6 +8,7 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 final class OwnerWorkspaceService
 {
@@ -110,7 +111,11 @@ final class OwnerWorkspaceService
             ->wherePivot('status', 'active')
             ->exists();
 
-        abort_unless($isTeacher, 422, 'این کاربر مدرس فعال این آموزشگاه نیست.');
+        if (!$isTeacher) {
+            throw ValidationException::withMessages([
+                'teacher_id' => 'این کاربر مدرس فعال این آموزشگاه نیست.',
+            ]);
+        }
 
         $course = $academy->courses()->findOrFail($courseId);
 
