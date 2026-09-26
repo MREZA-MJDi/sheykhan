@@ -7,6 +7,7 @@ class AcademicYear extends Model {
  use HasFactory;
  protected $fillable=['title','start_date','end_date','is_current'];
  protected $casts=['start_date'=>'date','end_date'=>'date','is_current'=>'boolean'];
- public function classrooms(): HasMany { return $this->hasMany(Classroom::class); }
- public function enrollments(): HasMany { return $this->hasMany(CourseEnrollment::class); }
+ public function classrooms(): HasMany{return $this->hasMany(Classroom::class);}
+ public function enrollments(): HasMany{return $this->hasMany(CourseEnrollment::class);}
+ public function achievements(): HasMany{return $this->hasMany(Achievement::class);}
 }
