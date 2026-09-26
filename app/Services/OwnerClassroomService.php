@@ -211,6 +211,13 @@ final class OwnerClassroomService
             ->limit(8)
             ->get();
 
+        $liveCandidates = DB::table('live_classes')
+            ->where('classroom_id', $classroom->id)
+            ->whereIn('status', ['scheduled', 'live'])
+            ->where('scheduled_at', '<=', $now)
+            ->orderByDesc('scheduled_at')
+            ->get();
+
         $assignments = DB::table('assignments')
             ->where('classroom_id', $classroom->id)
             ->orderByDesc('created_at')
@@ -330,7 +337,7 @@ final class OwnerClassroomService
                     : null,
             ],
             'activities' => $activities,
-            'liveNow' => $liveClasses->first(function ($item) use ($now) {
+            'liveNow' => $liveCandidates->first(function ($item) use ($now) {
                 $start = Carbon::parse($item->scheduled_at);
                 $end = $start->copy()->addMinutes((int) ($item->duration_minutes ?? 60));
 
