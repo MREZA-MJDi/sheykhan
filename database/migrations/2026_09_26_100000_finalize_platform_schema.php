@@ -8,6 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
+
+        Schema::create('academic_grades', function (Blueprint $table) {
+            $table->id();
+            $table->string('code', 32)->unique();
+            $table->string('title', 120);
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->boolean('is_active')->default(true)->index();
+            $table->timestamps();
+        });
+
+        Schema::create('academic_years', function (Blueprint $table) {
+            $table->id();
+            $table->string('title', 50)->unique();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->boolean('is_current')->default(false)->index();
+            $table->timestamps();
+        });
+
         Schema::table('users', function (Blueprint $table) {
             $table->dropUnique('users_email_unique');
             $table->string('email')->nullable()->change();
@@ -45,24 +64,6 @@ return new class extends Migration
             $table->timestamp('ended_at')->nullable();
             $table->timestamp('recording_released_at')->nullable();
             $table->string('recording_visibility', 32)->default('enrolled')->index();
-        });
-
-        Schema::create('academic_grades', function (Blueprint $table) {
-            $table->id();
-            $table->string('code', 32)->unique();
-            $table->string('title', 120);
-            $table->unsignedInteger('sort_order')->default(0);
-            $table->boolean('is_active')->default(true)->index();
-            $table->timestamps();
-        });
-
-        Schema::create('academic_years', function (Blueprint $table) {
-            $table->id();
-            $table->string('title', 50)->unique();
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->boolean('is_current')->default(false)->index();
-            $table->timestamps();
         });
 
         Schema::create('course_grade', function (Blueprint $table) {
