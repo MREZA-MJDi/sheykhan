@@ -14,7 +14,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable=['name','email','password'];
+    protected $fillable=['name','email','password','mobile','status'];
     protected $hidden=['password','remember_token'];
 
     protected function casts(): array
@@ -23,65 +23,29 @@ class User extends Authenticatable
     }
 
     public function roles(): BelongsToMany { return $this->belongsToMany(Role::class); }
-
-    public function academies(): BelongsToMany
-    {
-        return $this->belongsToMany(Academy::class)
-            ->withPivot(['role','status','joined_at'])->withTimestamps();
-    }
-
+    public function academies(): BelongsToMany { return $this->belongsToMany(Academy::class)->withPivot(['role','status','joined_at'])->withTimestamps(); }
     public function teacherProfile(): HasOne { return $this->hasOne(TeacherProfile::class); }
     public function studentProfile(): HasOne { return $this->hasOne(StudentProfile::class); }
     public function parentProfile(): HasOne { return $this->hasOne(ParentProfile::class); }
-
     public function createdCourses(): HasMany { return $this->hasMany(Course::class,'created_by'); }
-
-    public function taughtCourses(): BelongsToMany
-    {
-        return $this->belongsToMany(Course::class,'course_teacher','teacher_id','course_id')
-            ->withPivot('is_primary')->withTimestamps();
-    }
-
+    public function taughtCourses(): BelongsToMany { return $this->belongsToMany(Course::class,'course_teacher','teacher_id','course_id')->withPivot('is_primary')->withTimestamps(); }
     public function enrollments(): HasMany { return $this->hasMany(CourseEnrollment::class,'student_id'); }
-
-    public function classroomsAsTeacher(): BelongsToMany
-    {
-        return $this->belongsToMany(Classroom::class,'classroom_teacher','teacher_id','classroom_id')->withTimestamps();
-    }
-
-    public function classroomsAsStudent(): BelongsToMany
-    {
-        return $this->belongsToMany(Classroom::class,'classroom_student','student_id','classroom_id')
-            ->withPivot(['status','enrolled_at','completed_at'])->withTimestamps();
-    }
-
+    public function classroomsAsTeacher(): BelongsToMany { return $this->belongsToMany(Classroom::class,'classroom_teacher','teacher_id','classroom_id')->withTimestamps(); }
+    public function classroomsAsStudent(): BelongsToMany { return $this->belongsToMany(Classroom::class,'classroom_student','student_id','classroom_id')->withPivot(['status','enrolled_at','completed_at'])->withTimestamps(); }
     public function lessonProgress(): HasMany { return $this->hasMany(LessonProgress::class); }
     public function assignmentSubmissions(): HasMany { return $this->hasMany(AssignmentSubmission::class,'student_id'); }
     public function examAttempts(): HasMany { return $this->hasMany(ExamAttempt::class,'student_id'); }
     public function attendance(): HasMany { return $this->hasMany(Attendance::class,'student_id'); }
-
-    public function children(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class,'parent_student','parent_id','student_id')
-            ->withPivot('relation')->withTimestamps();
-    }
-
-    public function parents(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class,'parent_student','student_id','parent_id')
-            ->withPivot('relation')->withTimestamps();
-    }
-
+    public function orders(): HasMany { return $this->hasMany(Order::class,'buyer_id'); }
+    public function productEntitlements(): HasMany { return $this->hasMany(ProductEntitlement::class); }
+    public function testimonials(): HasMany { return $this->hasMany(Testimonial::class); }
+    public function achievements(): HasMany { return $this->hasMany(Achievement::class,'student_id'); }
+    public function onboardings(): HasMany { return $this->hasMany(StudentOnboarding::class,'student_id'); }
+    public function auditLogs(): HasMany { return $this->hasMany(AuditLog::class,'actor_id'); }
+    public function children(): BelongsToMany { return $this->belongsToMany(User::class,'parent_student','parent_id','student_id')->withPivot('relation')->withTimestamps(); }
+    public function parents(): BelongsToMany { return $this->belongsToMany(User::class,'parent_student','student_id','parent_id')->withPivot('relation')->withTimestamps(); }
     public function hasRole(string $role): bool { return $this->roles()->where('slug',$role)->exists(); }
     public function hasAnyRole(array $roles): bool { return $this->roles()->whereIn('slug',$roles)->exists(); }
-
-    public function hasPermission(string $permission): bool
-    {
-        return $this->roles()->whereHas('permissions', fn($query) => $query->where('name',$permission))->exists();
-    }
-
-    public function hasAnyPermission(array $permissions): bool
-    {
-        return $this->roles()->whereHas('permissions', fn($query) => $query->whereIn('name',$permissions))->exists();
-    }
+    public function hasPermission(string $permission): bool { return $this->roles()->whereHas('permissions', fn($query) => $query->where('name',$permission))->exists(); }
+    public function hasAnyPermission(array $permissions): bool { return $this->roles()->whereHas('permissions', fn($query) => $query->whereIn('name',$permissions))->exists(); }
 }
