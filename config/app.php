@@ -101,7 +101,7 @@ return [
 
     // Blind-index key for national-id lookup. Keep this stable across deployments.
     // Dedicated key is preferred; APP_KEY keeps existing local environments bootable.
-    'national_id_hmac_key' => env('NATIONAL_ID_HMAC_KEY', env('APP_KEY')),
+    'national_id_hmac_key' => env('NATIONAL_ID_HMAC_KEY') ?: env('APP_KEY'),
 
     'previous_keys' => [
         ...array_filter(
