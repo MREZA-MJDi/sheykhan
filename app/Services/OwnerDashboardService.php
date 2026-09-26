@@ -82,6 +82,7 @@ final class OwnerDashboardService
         $classrooms = Classroom::query()
             ->whereIn('id', $classroomIds)
             ->with([
+                'academy:id,name',
                 'course:id,title',
                 'teachers:id,name',
             ])
@@ -135,8 +136,8 @@ final class OwnerDashboardService
                 ? round(((int) $attendance->attended / (int) $attendance->total) * 100, 1)
                 : null;
 
-            $classroom->execution_status = $this->classroomStatus($classroom);
             $classroom->live_now = $liveNowByClassroom->get($classroom->id);
+            $classroom->execution_status = $this->classroomStatus($classroom);
             $classroom->capacity_remaining = $classroom->capacity === null
                 ? null
                 : max(0, (int) $classroom->capacity - (int) $classroom->active_students_count);
