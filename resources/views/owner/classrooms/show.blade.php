@@ -145,8 +145,8 @@
                         <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">دانش‌آموز فعالی در کلاس نیست.</div>
                     @endforelse
                 </div>
-                @if($classroom->students->count() > 8)
-                    <p class="mt-3 text-[9px] text-slate-400">و {{ $classroom->students->count() - 8 }} دانش‌آموز دیگر…</p>
+                @if($classroom->active_students_total > $classroom->students->count())
+                    <p class="mt-3 text-[9px] text-slate-400">و {{ $classroom->active_students_total - $classroom->students->count() }} دانش‌آموز دیگر…</p>
                 @endif
             </section>
         </div>
