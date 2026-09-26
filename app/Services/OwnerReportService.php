@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 final class OwnerReportService
 {
+    public function __construct(private readonly OwnerLearningAnalyticsService $analytics) {}
+
     public function build(User $owner): array
     {
         abort_unless($owner->hasRole('academy-owner'), 403);
@@ -69,12 +71,7 @@ final class OwnerReportService
             ->selectRaw("COUNT(*) AS total, SUM(CASE WHEN status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended")
             ->first();
 
-        $examAverage = DB::table('exam_attempts as attempts')
-            ->join('exams', 'exams.id', '=', 'attempts.exam_id')
-            ->whereIn('exams.course_id', $courseIds)
-            ->whereNotNull('attempts.submitted_at')
-            ->whereNotNull('attempts.score')
-            ->avg('attempts.score');
+        $examAverage = $this->analytics->overallExamAverage($courseIds);
 
         $teacherReports = DB::table('course_teacher as ct')
             ->join('users', 'users.id', '=', 'ct.teacher_id')
@@ -96,15 +93,7 @@ final class OwnerReportService
             ->orderByDesc('student_count')
             ->get();
 
-        $teacherProgress = DB::table('lesson_progress as progress')
-            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->join('course_teacher as ct', 'ct.course_id', '=', 'course_sections.course_id')
-            ->whereIn('course_sections.course_id', $courseIds)
-            ->whereIn('ct.teacher_id', $teacherIds)
-            ->groupBy('ct.teacher_id')
-            ->select('ct.teacher_id', DB::raw('ROUND(AVG(progress.progress_percent), 1) AS progress_average'))
-            ->pluck('progress_average', 'ct.teacher_id');
+        $teacherProgress = $this->analytics->teacherProgress($courseIds, $teacherIds);
 
         $teacherPending = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
@@ -135,22 +124,9 @@ final class OwnerReportService
             ->orderByDesc('updated_at')
             ->get();
 
-        $courseProgress = DB::table('lesson_progress as progress')
-            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->whereIn('course_sections.course_id', $courseIds)
-            ->groupBy('course_sections.course_id')
-            ->select('course_sections.course_id', DB::raw('ROUND(AVG(progress.progress_percent), 1) AS progress_average'))
-            ->pluck('progress_average', 'course_id');
+        $courseProgress = $this->analytics->courseProgress($courseIds);
 
-        $courseExamAverages = DB::table('exam_attempts as attempts')
-            ->join('exams', 'exams.id', '=', 'attempts.exam_id')
-            ->whereIn('exams.course_id', $courseIds)
-            ->whereNotNull('attempts.submitted_at')
-            ->whereNotNull('attempts.score')
-            ->groupBy('exams.course_id')
-            ->select('exams.course_id', DB::raw('ROUND(AVG(attempts.score), 1) AS exam_average'))
-            ->pluck('exam_average', 'course_id');
+        $courseExamAverages = $this->analytics->courseExamAverages($courseIds);
 
         $courseReports->each(function (Course $course) use ($courseProgress, $courseExamAverages): void {
             $course->progress_average = (float) ($courseProgress[$course->id] ?? 0);
