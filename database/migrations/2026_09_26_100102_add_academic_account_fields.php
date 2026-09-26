@@ -31,11 +31,15 @@ return new class extends Migration {
         });
         // MySQL may be using the existing (course_id, student_id) unique index to satisfy
         // the course_id foreign key because course_id is the leftmost indexed column.
-        // Drop that FK before replacing the unique index, then restore it afterwards.
+        // Replace the index in separate ALTER TABLE statements so the dependency order is explicit.
         Schema::table('course_enrollments', function(Blueprint $t){
             $t->dropForeign(['course_id']);
+        });
+        Schema::table('course_enrollments', function(Blueprint $t){
             $t->dropUnique(['course_id','student_id']);
             $t->unique(['course_id','student_id','academic_year_id'],'course_enrollments_course_student_year_unique');
+        });
+        Schema::table('course_enrollments', function(Blueprint $t){
             $t->foreign('course_id')->references('id')->on('courses')->cascadeOnDelete();
         });
     }
