@@ -208,6 +208,7 @@ final class OwnerDashboardService
                 'users.name',
                 DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
+                DB::raw('COALESCE(SUM(enrollments.paid_amount),0) AS sales'),
             ])
             ->orderByDesc('student_count')
             ->orderBy('users.name')
