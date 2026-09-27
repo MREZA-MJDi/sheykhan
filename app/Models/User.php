@@ -198,35 +198,50 @@ class User extends Authenticatable
 
     public function hasRole(string $role): bool
     {
-        return $this->roles()
-            ->where('slug', $role)
-            ->exists();
+        return in_array($role, $this->roleSlugs(), true);
     }
 
     public function hasAnyRole(array $roles): bool
     {
-        return $this->roles()
-            ->whereIn('slug', $roles)
-            ->exists();
+        return (bool) array_intersect($roles, $this->roleSlugs());
     }
 
     public function hasPermission(string $permission): bool
     {
-        return $this->roles()
-            ->whereHas(
-                'permissions',
-                fn ($query) => $query->where('name', $permission)
-            )
-            ->exists();
+        return in_array($permission, $this->permissionNames(), true);
     }
 
     public function hasAnyPermission(array $permissions): bool
     {
-        return $this->roles()
-            ->whereHas(
-                'permissions',
-                fn ($query) => $query->whereIn('name', $permissions)
-            )
-            ->exists();
+        return (bool) array_intersect($permissions, $this->permissionNames());
+    }
+
+    /**
+     * Load roles/permissions once per authenticated user instance.
+     * Middleware, FormRequest and services can call authorization methods
+     * repeatedly without generating a query for every check.
+     */
+    private function roleSlugs(): array
+    {
+        $this->loadMissing('roles:id,slug');
+
+        return $this->roles
+            ->pluck('slug')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function permissionNames(): array
+    {
+        $this->loadMissing('roles.permissions:id,name');
+
+        return $this->roles
+            ->flatMap(fn (Role $role) => $role->permissions->pluck('name'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }

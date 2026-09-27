@@ -10,9 +10,9 @@
 <div class="owner-sidebar-academy">
     <div class="owner-sidebar-academy-name" title="{{ $academy->name }}">{{ $academy->name }}</div>
     <div class="owner-sidebar-academy-links">
-        <a href="{{ route('owner.people.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.people.*') && (int)request()->route('academy') === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>اعضا</span></a>
-        <a href="{{ route('owner.academy.edit',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.academy.*') && (int)request()->route('academy') === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>تنظیمات</span></a>
-        <a href="{{ route('owner.classrooms.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.classrooms.*') && (int)request()->route('academy') === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>کلاس‌ها</span></a>
+        <a href="{{ route('owner.people.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.people.*') && (int)(request()->route('academy') instanceof \App\Models\Academy ? request()->route('academy')->id : request()->route('academy')) === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>اعضا</span></a>
+        <a href="{{ route('owner.academy.edit',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.academy.*') && (int)(request()->route('academy') instanceof \App\Models\Academy ? request()->route('academy')->id : request()->route('academy')) === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>تنظیمات</span></a>
+        <a href="{{ route('owner.classrooms.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.classrooms.*') && (int)(request()->route('academy') instanceof \App\Models\Academy ? request()->route('academy')->id : request()->route('academy')) === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>کلاس‌ها</span></a>
     </div>
 </div>
 @empty

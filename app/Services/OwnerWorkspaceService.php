@@ -8,6 +8,7 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 final class OwnerWorkspaceService
 {
@@ -31,16 +32,17 @@ final class OwnerWorkspaceService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $members = $academy->users()
+        $base = fn (string $role, string $pageName) => $academy->users()
             ->wherePivot('status', 'active')
+            ->wherePivot('role', $role)
             ->select('users.id', 'users.name', 'users.email')
-            ->get()
-            ->groupBy(fn (User $user) => $user->pivot->role);
+            ->orderBy('users.name')
+            ->paginate(25, ['*'], $pageName);
 
         return [
-            'teachers' => $members->get('teacher', collect()),
-            'students' => $members->get('student', collect()),
-            'parents' => $members->get('parent', collect()),
+            'teachers' => $base('teacher', 'teachers_page'),
+            'students' => $base('student', 'students_page'),
+            'parents' => $base('parent', 'parents_page'),
         ];
     }
 
@@ -110,7 +112,11 @@ final class OwnerWorkspaceService
             ->wherePivot('status', 'active')
             ->exists();
 
-        abort_unless($isTeacher, 422, 'این کاربر مدرس فعال این آموزشگاه نیست.');
+        if (!$isTeacher) {
+            throw ValidationException::withMessages([
+                'teacher_id' => 'این کاربر مدرس فعال این آموزشگاه نیست.',
+            ]);
+        }
 
         $course = $academy->courses()->findOrFail($courseId);
 

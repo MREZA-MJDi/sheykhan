@@ -10,11 +10,12 @@
 </head>
 <body class="owner-shell">
 <div class="role-layout">
-<x-navigation.owner-sidebar />
-<div class="role-content">
-<x-navigation.panel-topbar role="owner" title="@yield('header-title','مدیریت آموزشگاه')" />
-<main class="role-main"><x-owner.feedback />@yield('content')</main>
-</div>
+    <x-navigation.owner-sidebar/>
+    <div class="role-content">
+        <x-navigation.panel-topbar role="owner"/>
+        <main class="role-main">
+            <x-owner.feedback/>@yield('content')</main>
+    </div>
 </div>
 @stack('scripts')
 </body>
