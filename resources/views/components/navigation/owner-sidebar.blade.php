@@ -1,4 +1,10 @@
-@php($academies = auth()->user()->ownedAcademies()->where('status', 'active')->orderBy('name')->get())
+@php
+    $academies = auth()->user()->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
+    $routeAcademy = request()->route('academy');
+    $routeAcademyId = $routeAcademy instanceof \App\Models\Academy
+        ? $routeAcademy->getKey()
+        : $routeAcademy;
+@endphp
 <aside class="role-sidebar owner-sidebar">
 <div class="role-sidebar-brand"><a href="{{ route('owner.dashboard') }}" class="role-brand"><span class="role-brand-mark">ش</span><span><strong>شیخان</strong><small>مدیریت آموزشگاه</small></span></a></div>
 <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
@@ -10,7 +16,7 @@
 <div class="owner-sidebar-academy">
     <div class="owner-sidebar-academy-name" title="{{ $academy->name }}">{{ $academy->name }}</div>
     <div class="owner-sidebar-academy-links">
-        <a href="{{ route('owner.people.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.people.*') && (int)request()->route('academy') === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>اعضا</span></a>
+        <a href="{{ route('owner.people.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.people.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>اعضا</span></a>
         <a href="{{ route('owner.academy.edit',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.academy.*') && (int)request()->route('academy') === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>تنظیمات</span></a>
         <a href="{{ route('owner.classrooms.index',$academy) }}" class="role-nav-link {{ request()->routeIs('owner.classrooms.*') && (int)request()->route('academy') === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>کلاس‌ها</span></a>
     </div>
