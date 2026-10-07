@@ -311,7 +311,7 @@ class StudentBackendSecurityTest extends TestCase
         $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $otherStudent = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
         $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
-        $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
+        $lesson = $course->sections()->firstOrFail()->lessons()->orderBy('sort_order')->skip(1)->firstOrFail();
 
         $student->enrollments()->where('course_id', $course->id)->update(['paid_amount' => max(1, (int) $course->price)]);
         $otherStudent->enrollments()->where('course_id', $course->id)->update(['paid_amount' => max(1, (int) $course->price)]);
