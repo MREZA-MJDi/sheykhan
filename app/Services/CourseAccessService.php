@@ -19,6 +19,13 @@ final class CourseAccessService
             return false;
         }
 
+        if (
+            $user->hasAnyRole(['student', 'parent'])
+            && !$this->academyMember($user, $course->academy_id)
+        ) {
+            return false;
+        }
+
         if ($user->hasRole('student')) {
             return $this->studentCanAccess($user, $course);
         }
@@ -86,5 +93,13 @@ final class CourseAccessService
     private function isAssignedTeacher(User $user, Course $course): bool
     {
         return $course->teachers()->whereKey($user->id)->exists();
+    }
+
+    private function academyMember(User $user, int $academyId): bool
+    {
+        return $user->academies()
+            ->whereKey($academyId)
+            ->wherePivot('status', 'active')
+            ->exists();
     }
 }
