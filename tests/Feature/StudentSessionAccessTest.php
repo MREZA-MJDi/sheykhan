@@ -53,6 +53,12 @@ class StudentSessionAccessTest extends TestCase
         $inside = User::where('email', 'student1@sheykhan.test')->firstOrFail();
         $outside = User::where('email', 'student3@sheykhan.test')->firstOrFail();
 
+        // Same course, different classroom: recording access must still be isolated.
+        $outside->enrollments()->updateOrCreate(
+            ['course_id' => $course->id],
+            ['status' => 'active', 'started_at' => now()]
+        );
+
         $released = $this->makeSession($course, $classroom, 'ضبط منتشرشده', now()->subDay(), 'completed', now()->subHour());
         $unreleased = $this->makeSession($course, $classroom, 'ضبط منتشرنشده', now()->subDay(), 'completed', now()->addHour());
 
@@ -66,7 +72,8 @@ class StudentSessionAccessTest extends TestCase
 
         $this->actingAs($outside)
             ->get(route('media.download', $released->recording))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('این عملیات برای حساب شما مجاز نیست.');
     }
 
     private function makeSession(
