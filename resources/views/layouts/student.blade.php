@@ -14,9 +14,43 @@
 
         <div class="role-content">
             <x-navigation.panel-topbar role="student" title="@yield('header-title', 'پنل دانش‌آموز')" />
-            <main class="role-main">@yield('content')</main>
+
+            <main class="role-main">
+                @if(session('success'))
+                    <div class="student-alert student-alert-success" role="status" aria-live="polite">
+                        <span class="student-alert-icon" aria-hidden="true">✓</span>
+                        <div>
+                            <strong>انجام شد</strong>
+                            <span>{{ session('success') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="student-alert student-alert-danger" role="alert" aria-live="assertive">
+                        <span class="student-alert-icon" aria-hidden="true">!</span>
+                        <div>
+                            <strong>نیاز به توجه</strong>
+                            <span>{{ session('error') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="student-alert student-alert-danger" role="alert" aria-live="assertive">
+                        <span class="student-alert-icon" aria-hidden="true">!</span>
+                        <div>
+                            <strong>اطلاعات بررسی نشد</strong>
+                            <span>{{ $errors->first() }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @yield('content')
+            </main>
         </div>
     </div>
+
     @stack('scripts')
 </body>
 </html>
