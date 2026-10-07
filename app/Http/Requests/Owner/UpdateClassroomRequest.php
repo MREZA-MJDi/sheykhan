@@ -15,7 +15,8 @@ class UpdateClassroomRequest extends FormRequest
 
     public function rules(): array
     {
-        $academyId = (int) $this->route('academy');
+        $academy = $this->route('academy');
+        $academyId = $academy instanceof \App\Models\Academy ? (int) $academy->id : (int) $academy;
         $classroomId = (int) $this->route('classroom');
 
         return [
