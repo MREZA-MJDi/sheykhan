@@ -166,25 +166,30 @@ final class TeacherWorkspaceService
                 ->all();
 
             $allowedStudentIds = array_fill_keys($studentIds, true);
+            $rows = [];
 
             foreach ($attendance as $studentId => $status) {
                 if (!isset($allowedStudentIds[(int) $studentId])) {
                     continue;
                 }
 
-                DB::table('attendances')->updateOrInsert(
-                    [
-                        'classroom_id' => $classroom->id,
-                        'student_id' => $studentId,
-                        'attendance_date' => $attendanceDate,
-                    ],
-                    [
-                        'marked_by' => $teacher->id,
-                        'status' => $status,
-                        'note' => null,
-                        'updated_at' => now(),
-                        'created_at' => now(),
-                    ]
+                $rows[] = [
+                    'classroom_id' => $classroom->id,
+                    'student_id' => (int) $studentId,
+                    'attendance_date' => $attendanceDate,
+                    'marked_by' => $teacher->id,
+                    'status' => $status,
+                    'note' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            if ($rows) {
+                DB::table('attendances')->upsert(
+                    $rows,
+                    ['classroom_id', 'student_id', 'attendance_date'],
+                    ['marked_by', 'status', 'note', 'updated_at'],
                 );
             }
         });
