@@ -44,15 +44,17 @@ final class CourseAccessService
     {
         return $user->enrollments()
             ->where('course_id', $course->id)
-            ->where('status', 'active')
-            ->where('paid_amount', '>', 0)
+            ->fullyPaid()
             ->exists();
     }
 
     private function studentCanAccess(User $user, Course $course): bool
     {
         if ($course->isFree()) {
-            return true;
+            return $user->enrollments()
+                ->active()
+                ->where('course_id', $course->id)
+                ->exists();
         }
 
         return $this->isPaidEnrollment($user, $course);
@@ -67,8 +69,7 @@ final class CourseAccessService
         return $user->children()
             ->whereHas('enrollments', fn ($query) => $query
                 ->where('course_id', $course->id)
-                ->where('status', 'active')
-                ->where('paid_amount', '>', 0))
+                ->fullyPaid())
             ->exists();
     }
 
