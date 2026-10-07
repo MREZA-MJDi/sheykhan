@@ -15,6 +15,7 @@ use App\Models\LiveClass;
 use App\Models\Question;
 use App\Models\User;
 use App\Services\MediaService;
+use App\Services\CourseAccessService;
 use App\Services\StudentAccessService;
 use App\Services\StudentAssignmentService;
 use App\Services\StudentCourseService;
@@ -71,6 +72,8 @@ class StudentBackendSecurityTest extends TestCase
 
         $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $this->assertTrue($student->hasPermission('achievements.view'));
+        $this->assertTrue($student->hasPermission('media.view'));
+        $this->assertFalse($student->hasPermission('media.download'));
     }
 
     public function test_paid_course_access_requires_a_real_payment_and_does_not_leak_into_any_student_service(): void
@@ -87,6 +90,7 @@ class StudentBackendSecurityTest extends TestCase
             ->update(['paid_amount' => 0]);
 
         $this->assertFalse(app(StudentAccessService::class)->course($student, $course));
+        $this->assertFalse(app(CourseAccessService::class)->canDownload($student, $course));
         $this->assertNotContains($course->id, app(StudentAccessService::class)->enrolledCourseIds($student)->all());
 
         $this->assertFalse(app(StudentCourseService::class)->query($student)->whereKey($course->id)->exists());
