@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Support\PersianUi;
 
 class ProductCatalogService
 {
@@ -72,6 +73,6 @@ class ProductCatalogService
 
     private function formatPrice(int|float|string $price): string
     {
-        return number_format((float) $price, 0, '.', ',') . ' تومان';
+        return PersianUi::money($price);
     }
 }
