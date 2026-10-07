@@ -44,7 +44,9 @@ class CourseCatalogService
                     'academy:id,name',
                     'teachers:id,name',
                     'grades:id,title',
-                    'sections.lessons:id,course_section_id',
+                    'sections.lessons' => fn ($query) => $query
+                        ->select('id', 'course_section_id', 'title', 'is_free', 'sort_order')
+                        ->orderBy('sort_order'),
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
                         ->orderByPivot('sort_order'),
