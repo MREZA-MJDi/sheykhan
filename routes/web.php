@@ -56,7 +56,7 @@ Route::middleware(['auth','active'])->group(function () {
     Route::get('/media/{media}/download', [MediaController::class, 'download'])->name('media.download');
 });
 
-Route::middleware(['auth','role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
+Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
@@ -81,7 +81,7 @@ Route::middleware(['auth','role:academy-owner'])->prefix('owner')->name('owner.'
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
 });
 
-Route::middleware(['auth','role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth','active','role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', TeacherDashboard::class)->name('dashboard');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/create', [TeacherCourseController::class, 'create'])->name('courses.create');
@@ -119,9 +119,9 @@ Route::middleware(['auth','role:teacher'])->prefix('teacher')->name('teacher.')-
     Route::post('/live-classes', [TeacherLiveClassController::class, 'store'])->name('live-classes.store');
 });
 
-Route::middleware(['auth','role:student'])->prefix('student')->name('student.')->group(function () {
+Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', StudentDashboard::class)->name('dashboard');
 });
-Route::middleware(['auth','role:parent'])->prefix('parent')->name('parent.')->group(function () {
+Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->name('dashboard');
 });
