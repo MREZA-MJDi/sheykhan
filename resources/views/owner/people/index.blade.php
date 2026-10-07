@@ -44,7 +44,7 @@
 
     <form method="POST" action="{{ route('owner.people.legacy-students.store', $academy) }}" class="mt-5 grid gap-4 md:grid-cols-2" data-confirm="اطلاعات دانش‌آموز ثبت و به‌روزرسانی شود؟">
         @csrf
-        <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) IlluminateSupportStr::uuid()) }}">
+        <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) \Illuminate\Support\Str::uuid()) }}">
 
         <label class="grid gap-1">
             <span class="text-xs font-bold">نام و نام خانوادگی</span>
