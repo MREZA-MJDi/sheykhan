@@ -114,7 +114,7 @@ final class StudentDashboardService
                         'is_future' => $isFuture,
                         'lamp' => $recordingReady ? 'روشن' : 'خاموش',
                         'available' => $recordingReady,
-                        'href' => $recordingReady ? route('media.download', $session->recording) : null,
+                        'href' => $recordingReady ? route('media.view', $session->recording) : null,
                     ];
                 });
 
