@@ -52,7 +52,7 @@ class LearningSeeder extends Seeder
             $section=CourseSection::firstOrCreate(['course_id'=>$course->id,'sort_order'=>1],['title'=>'بخش اول: شروع مسیر','description'=>'مفاهیم پایه و شروع مسیر آموزشی.']);
             foreach(['آشنایی با مسیر یادگیری','مفاهیم کلیدی','حل نمونه سؤال','جمع‌بندی و تکلیف'] as $i=>$title){
                 $lesson=Lesson::firstOrCreate(['course_section_id'=>$section->id,'slug'=>$d['slug'].'-lesson-'.($i+1)],[
-                    'title'=>$title,'type'=>'video','summary'=>'ویدئوی آموزشی برای تست پنل دانش‌آموز.','content'=>'محتوای درس نمونه قابل ویرایش از پنل.',
+                    'title'=>$title,'type'=>'video','summary'=>'ویدئوی آموزشی در مسیر یادگیری.','content'=>'محتوای درس قابل ویرایش و انتشار از پنل.',
                     'duration_seconds'=>1200+($i*300),'is_free'=>$i===0,'status'=>'published','published_at'=>now()->subDays(15-$i),'sort_order'=>$i+1
                 ]);
                 $student=$students->values()->get($i%$students->count());
@@ -73,7 +73,7 @@ class LearningSeeder extends Seeder
         foreach($classroomDefs as $d){
             $c=Classroom::firstOrCreate(['academy_id'=>$academy->id,'code'=>$d['code']],[
                 'course_id'=>$courses->get($d['course'])->id,'grade_id'=>$grades[$d['grade']]->id,'academic_year_id'=>$year->id,
-                'title'=>$d['title'],'description'=>'کلاس فعال نمونه برای تست پنل مدرس و دانش‌آموز.','capacity'=>20,'status'=>'active','starts_at'=>now()->subMonth(),'ends_at'=>now()->addMonths(8)
+                'title'=>$d['title'],'description'=>'کلاس فعال آموزشی آکادمی برای پیگیری یادگیری.','capacity'=>20,'status'=>'active','starts_at'=>now()->subMonth(),'ends_at'=>now()->addMonths(8)
             ]);
             $c->teachers()->syncWithoutDetaching([$teachers[$d['teacher']]->id]);
             foreach($d['students'] as $email){
@@ -113,10 +113,10 @@ class LearningSeeder extends Seeder
                 'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'instructions'=>'حل تمرین‌های مشخص‌شده و ارسال راه‌حل.','due_at'=>now()->addDays(7),'max_score'=>100,'status'=>'published'
             ]);
             AssignmentSubmission::firstOrCreate(['assignment_id'=>$assignment->id,'student_id'=>$student->id],[
-                'content'=>'پاسخ نمونه برای تست.','submitted_at'=>now()->subDay(),'score'=>92,'feedback'=>'پاسخ خوب است.','graded_at'=>now()->subHours(12),'graded_by'=>$teacher->id
+                'content'=>'پاسخ ثبت‌شده دانش‌آموز برای این تکلیف.','submitted_at'=>now()->subDay(),'score'=>92,'feedback'=>'پاسخ خوب است.','graded_at'=>now()->subHours(12),'graded_by'=>$teacher->id
             ]);
             $exam=Exam::firstOrCreate(['course_id'=>$course->id,'title'=>'آزمون دوره '.($i+1)],[
-                'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'description'=>'آزمون نمونه برای تست کامل.','duration_minutes'=>45,
+                'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'description'=>'آزمون دوره برای ارزیابی یادگیری.','duration_minutes'=>45,
                 'starts_at'=>now()->subDay(),'ends_at'=>now()->addDay(),'attempts_allowed'=>2,'status'=>'published'
             ]);
             $questions=collect();
@@ -133,7 +133,7 @@ class LearningSeeder extends Seeder
 
         $media=SeedMedia::make('math-handout',$owner->id,'application/pdf','pdf','learning-resources','private');
         LearningResource::firstOrCreate(
-            ['academy_id'=>$academy->id,'course_id'=>$courses->first()->id,'title'=>'جزوه نمونه ریاضی'],
+            ['academy_id'=>$academy->id,'course_id'=>$courses->first()->id,'title'=>'جزوه ریاضی'],
             ['classroom_id'=>$classrooms->first()->id,'lesson_id'=>$courses->first()->sections->first()->lessons->first()->id,'media_id'=>$media->id,'uploaded_by'=>$owner->id,
              'description'=>'جزوه قابل مدیریت از پنل.','resource_type'=>'pdf','visibility'=>'enrolled_students','release_at'=>now()->subDay(),'downloadable'=>true,'status'=>'published','sort_order'=>1]
         );
