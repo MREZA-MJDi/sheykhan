@@ -92,3 +92,20 @@ class StudentCourseAccessSecurityTest extends TestCase
             ->assertNotFound();
     }
 }
+
+
+    public function test_removed_academy_membership_loses_protected_course_access(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+
+        $this->assertTrue(app(StudentAccessService::class)->course($student, $course));
+
+        $student->academies()->updateExistingPivot($course->academy_id, ['status' => 'suspended']);
+
+        $this->assertFalse(
+            app(StudentAccessService::class)->course($student->fresh(), $course)
+        );
+    }
