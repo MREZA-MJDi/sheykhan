@@ -31,8 +31,8 @@ final class StudentDashboardService
             return $item;
         });
 
-        $assignmentItems = $courseIds->isEmpty()
-            ? collect()
+        $assignmentQuery = $courseIds->isEmpty()
+            ? null
             : DB::table('assignments')
                 ->leftJoin('assignment_submissions as submissions', function ($join) use ($student): void {
                     $join->on('submissions.assignment_id', '=', 'assignments.id')
@@ -40,6 +40,28 @@ final class StudentDashboardService
                 })
                 ->whereIn('assignments.course_id', $courseIds)
                 ->where('assignments.status', 'published')
+                ->where(function ($query) use ($student): void {
+                    $query->whereNull('assignments.classroom_id')
+                        ->orWhereExists(function ($membership) use ($student): void {
+                            $membership->selectRaw('1')
+                                ->from('classroom_student')
+                                ->whereColumn(
+                                    'classroom_student.classroom_id',
+                                    'assignments.classroom_id'
+                                )
+                                ->where('classroom_student.student_id', $student->id)
+                                ->where('classroom_student.status', 'active');
+                        });
+                });
+
+        $pendingAssignments = $assignmentQuery
+            ? (clone $assignmentQuery)
+                ->whereNull('submissions.id')
+                ->count('assignments.id')
+            : 0;
+
+        $assignmentItems = $assignmentQuery
+            ? (clone $assignmentQuery)
                 ->orderByRaw('CASE WHEN submissions.id IS NULL THEN 0 ELSE 1 END')
                 ->orderBy('assignments.due_at')
                 ->limit(6)
@@ -50,7 +72,8 @@ final class StudentDashboardService
                     'submissions.submitted_at',
                     'submissions.score',
                     'submissions.graded_at',
-                ]);
+                ])
+            : collect();
 
         $upcomingLive = $courseIds->isEmpty()
             ? collect()
@@ -174,7 +197,7 @@ final class StudentDashboardService
             'courses' => $courses,
             'overallProgress' => round($overallProgress),
             'activeCourseCount' => $courses->count(),
-            'pendingAssignments' => $assignmentItems->whereNull('submitted_at')->count(),
+            'pendingAssignments' => $pendingAssignments,
             'upcomingLiveClasses' => $upcomingLive,
             'assignments' => $assignmentItems,
             'recentResults' => $recentResults,
