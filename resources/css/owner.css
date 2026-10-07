@@ -169,6 +169,8 @@ select.course-input{padding-inline-end:36px}
 @media(max-width:700px){.course-upload-preview{grid-template-columns:72px minmax(0,1fr)}.course-upload-preview-media{width:72px;height:54px}.course-upload-specs{gap:5px}}
 
  
+.owner-pill.banner{background:#f4f2ff;color:#5b4fc4;border-color:#e2ddff}.owner-pill.banner:hover{background:#eeebff;border-color:#d7d0ff}
+
 /* Home banner management */
 .banner-page{max-width:1500px;margin:0 auto}
 .banner-page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:4px 0}
