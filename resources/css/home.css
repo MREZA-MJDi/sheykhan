@@ -2960,3 +2960,39 @@
 .sheykhan-site > #app > footer .bg-\[var\(--color-slate-900\)\] {
     background: linear-gradient(145deg, #171c35, #2f3471) !important;
 }
+
+
+.home-meta-signal {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 25px;
+    padding: .3rem .45rem;
+    border-radius: .65rem;
+    background: #f6f7f8;
+    color: var(--home-muted);
+    font-size: .64rem;
+}
+
+.home-meta-signal i {
+    width: 1.2rem;
+    height: 1.2rem;
+    display: grid;
+    place-items: center;
+    border-radius: .4rem;
+    background: var(--home-primary-soft);
+    color: var(--home-primary);
+    font-size: .62rem;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.edu-card:hover .home-meta-signal {
+    background: #f2f5f4;
+}
+
+@media (max-width: 640px) {
+    .home-meta-signal {
+        font-size: .6rem;
+    }
+}
