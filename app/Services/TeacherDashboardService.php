@@ -13,8 +13,17 @@ final class TeacherDashboardService
 {
     public function build(User $teacher): array
     {
-        $courseIds = $teacher->taughtCourses()->pluck('courses.id');
+        $activeAcademyIds = $teacher->academies()
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
+            ->pluck('academies.id');
+
+        $courseIds = $teacher->taughtCourses()
+            ->whereIn('courses.academy_id', $activeAcademyIds)
+            ->pluck('courses.id');
+
         $classrooms = $teacher->classroomsAsTeacher()
+            ->whereIn('classrooms.academy_id', $activeAcademyIds)
             ->where('classrooms.status', 'active')
             ->with([
                 'course:id,title',
@@ -354,6 +363,8 @@ final class TeacherDashboardService
                 'studentCount' => $studentCount,
                 'weeklySessions' => 0,
                 'monthlySales' => 0,
+                'pendingAssignmentReviews' => 0,
+                'pendingExamReviews' => 0,
                 'pendingReviews' => 0,
             ],
             'todaySessions' => collect(),
