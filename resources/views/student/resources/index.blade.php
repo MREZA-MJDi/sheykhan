@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="student-resource-actions">
-                        <a class="student-action" href="{{ route('student.resources.view', $resource)">
+                        <a class="student-action" href="{{ route('student.resources.view', $resource) }}"
                             مشاهده
                         </a>
 
