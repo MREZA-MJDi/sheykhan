@@ -1,7 +1,4 @@
-import Alpine from 'alpinejs';
 import { bootPanel } from './panel-base.js';
-
-window.Alpine = Alpine;
 
 function formatUploadSize(bytes) {
     if (!Number.isFinite(bytes) || bytes <= 0) return '۰ بایت';
