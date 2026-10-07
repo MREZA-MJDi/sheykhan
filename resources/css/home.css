@@ -216,3 +216,42 @@
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
     .home-reveal { opacity: 1; transform: none; }
 }
+
+
+/* Public content extensions */
+.home-product-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:1.25rem}
+.home-product-card{overflow:hidden;border:1px solid var(--home-line);border-radius:1.35rem;background:var(--home-surface);padding:1rem}
+.home-product-card img{width:100%;height:180px;object-fit:cover;border-radius:1rem;margin-bottom:.8rem}
+.home-product-card span,.home-academy-card>span,.home-achievement-card span{font-size:.75rem;color:var(--home-accent);font-weight:800}
+.home-product-card h3{margin:.35rem 0 .6rem;font-size:1rem}
+.home-product-card strong{font-size:.9rem}
+.home-academy-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1rem}
+.home-academy-card{border:1px solid var(--home-line);border-radius:1.4rem;padding:1.2rem;background:var(--home-surface)}
+.home-academy-card h3{margin:.5rem 0 1rem;font-size:1rem;line-height:1.8}
+.home-academy-card p{color:var(--home-muted);font-size:.85rem;line-height:1.9}
+.home-academy-item{display:grid;grid-template-columns:auto 1fr;gap:.3rem .55rem;border-top:1px solid var(--home-line);padding:.75rem 0}
+.home-academy-item b{font-size:.7rem;color:var(--home-accent)}
+.home-academy-item strong{font-size:.82rem;line-height:1.7}
+.home-academy-item small{grid-column:2;color:var(--home-muted)}
+.home-achievement-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.home-achievement-card{display:grid;grid-template-columns:110px 1fr;gap:1rem;align-items:center;border:1px solid var(--home-line);border-radius:1.4rem;background:var(--home-surface);padding:1rem}
+.home-achievement-card img{width:110px;height:130px;object-fit:cover;border-radius:1rem}
+.home-achievement-card h3{margin:.25rem 0;font-size:1rem}
+.home-achievement-card p{margin:.2rem 0;color:var(--home-muted);font-size:.82rem}
+.home-achievement-card small{color:var(--home-muted)}
+.home-heading-dark span,.home-heading-dark p{color:rgba(255,255,255,.62)}
+.home-testimonial-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.home-testimonial-card{border:1px solid rgba(255,255,255,.12);border-radius:1.4rem;background:rgba(255,255,255,.05);padding:1.25rem;color:#fff}
+.home-testimonial-card img{width:52px;height:52px;border-radius:50%;object-fit:cover;margin-bottom:1rem}
+.home-testimonial-card p{line-height:2;font-size:.9rem;color:rgba(255,255,255,.84)}
+.home-testimonial-card strong{display:block;margin-top:1rem}
+.home-testimonial-card span{display:block;color:rgba(255,255,255,.55);font-size:.75rem;margin-top:.2rem}
+@media (max-width:1100px){
+ .home-academy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .home-product-strip,.home-achievement-grid,.home-testimonial-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:680px){
+ .home-academy-grid,.home-product-strip,.home-achievement-grid,.home-testimonial-grid{grid-template-columns:1fr}
+ .home-achievement-card{grid-template-columns:90px 1fr}
+ .home-achievement-card img{width:90px;height:110px}
+}
