@@ -31,6 +31,7 @@
                         <article
                             x-show="active === {{ $index }}"
                             x-transition.opacity.duration.450ms
+                            x-cloak
                             class="home-banner-slide"
                             aria-roledescription="slide"
                             aria-label="{{ $index + 1 }} از {{ $homeBanners->count() }}"
