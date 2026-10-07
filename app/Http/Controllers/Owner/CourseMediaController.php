@@ -27,10 +27,10 @@ class CourseMediaController extends Controller
                 $request->file('media'),
                 $course,
                 [
-                    'disk' => 'local',
+                    'disk' => 'public',
                     'directory' => 'courses/' . $course->id,
                     'collection' => $request->string('collection')->toString() ?: 'course-assets',
-                    'visibility' => 'private',
+                    'visibility' => 'public',
                 ],
             );
         } catch (Throwable $exception) {
