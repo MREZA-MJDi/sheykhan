@@ -96,7 +96,7 @@ class StudentSessionAccessTest extends TestCase
             'status' => 'active',
         ]);
 
-        return LiveClass::create([
+        $session = LiveClass::create([
             'course_id' => $course->id,
             'classroom_id' => $classroom->id,
             'teacher_id' => User::where('email', 'teacher1@sheykhan.test')->value('id'),
@@ -108,5 +108,15 @@ class StudentSessionAccessTest extends TestCase
             'duration_minutes' => 90,
             'status' => $status,
         ]);
+
+        $media->attachments()->create([
+            'mediable_type' => LiveClass::class,
+            'mediable_id' => $session->id,
+            'collection' => 'recording',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        return $session;
     }
 }
