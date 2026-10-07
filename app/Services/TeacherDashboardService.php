@@ -335,6 +335,7 @@ final class TeacherDashboardService
 
         Assignment::query()
             ->where('teacher_id', $teacher->id)
+            ->whereIn('course_id', $courseIds)
             ->whereNotNull('due_at')
             ->whereBetween('due_at', [$from, $to])
             ->get(['due_at', 'title'])
@@ -360,7 +361,7 @@ final class TeacherDashboardService
                 'activeClasses' => $classrooms->count(),
                 'studentCount' => $studentCount,
                 'weeklySessions' => 0,
-                 'pendingAssignmentReviews' => 0,
+                'pendingAssignmentReviews' => 0,
                 'pendingExamReviews' => 0,
                 'pendingReviews' => 0,
             ],
