@@ -47,19 +47,20 @@ final class TeacherDashboardService
 
         $weekStart = now()->startOfWeek(Carbon::SATURDAY);
         $weekEnd = now()->endOfWeek(Carbon::FRIDAY);
-        $monthStart = now()->startOfMonth();
-
         $weeklyProgress = $this->progressAverage($teacher->id, $courseIds);
-        $pendingAssignmentReviews = Assignment::query()
-            ->where('teacher_id', $teacher->id)
-            ->whereHas('submissions', fn ($query) => $query
-                ->whereNotNull('submitted_at')
-                ->whereNull('graded_at'))
+        $pendingAssignmentReviews = DB::table('assignment_submissions as submissions')
+            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->where('assignments.teacher_id', $teacher->id)
+            ->whereIn('assignments.course_id', $courseIds)
+            ->whereNotNull('submissions.submitted_at')
+            ->whereNull('submissions.graded_at')
             ->count();
 
         $pendingExamReviews = ExamAttempt::query()
             ->where('status', 'submitted')
-            ->whereHas('exam', fn ($query) => $query->where('teacher_id', $teacher->id))
+            ->whereHas('exam', fn ($query) => $query
+                ->where('teacher_id', $teacher->id)
+                ->whereIn('course_id', $courseIds))
             ->count();
 
         $weeklySessions = LiveClass::query()
@@ -73,15 +74,9 @@ final class TeacherDashboardService
             ->whereIn('course_id', $courseIds)
             ->where('teacher_id', $teacher->id)
             ->whereBetween('scheduled_at', [$weekStart, $weekEnd])
-            ->where('scheduled_at', '<', now())
+            ->whereNotNull('ended_at')
             ->where('status', '!=', 'cancelled')
             ->count();
-
-        $monthlySales = (float) DB::table('course_enrollments')
-            ->whereIn('course_id', $courseIds)
-            ->where('status', 'active')
-            ->where('created_at', '>=', $monthStart)
-            ->sum('paid_amount');
 
         $todaySessions = $this->todaySessions($teacher, $classrooms, $courseIds);
         $upcomingClasses = LiveClass::query()
@@ -106,6 +101,7 @@ final class TeacherDashboardService
 
         $activities = Assignment::query()
             ->where('teacher_id', $teacher->id)
+            ->whereIn('course_id', $courseIds)
             ->with('classroom:id,title')
             ->withCount([
                 'submissions as submitted_count' => fn ($query) => $query->whereNotNull('submitted_at'),
@@ -129,7 +125,8 @@ final class TeacherDashboardService
                 'activeClasses' => count($classroomIds),
                 'studentCount' => $studentCount,
                 'weeklySessions' => $weeklySessions,
-                'monthlySales' => $monthlySales,
+                'pendingAssignmentReviews' => $pendingAssignmentReviews,
+                'pendingExamReviews' => $pendingExamReviews,
                 'pendingReviews' => $pendingAssignmentReviews + $pendingExamReviews,
             ],
             'todaySessions' => $todaySessions,
@@ -326,6 +323,7 @@ final class TeacherDashboardService
         LiveClass::query()
             ->whereIn('course_id', $courseIds)
             ->where('teacher_id', $teacher->id)
+            ->whereIn('course_id', $courseIds)
             ->whereBetween('scheduled_at', [$from, $to])
             ->get(['scheduled_at', 'title'])
             ->each(function ($event) use (&$events): void {
@@ -362,8 +360,7 @@ final class TeacherDashboardService
                 'activeClasses' => $classrooms->count(),
                 'studentCount' => $studentCount,
                 'weeklySessions' => 0,
-                'monthlySales' => 0,
-                'pendingAssignmentReviews' => 0,
+                 'pendingAssignmentReviews' => 0,
                 'pendingExamReviews' => 0,
                 'pendingReviews' => 0,
             ],
