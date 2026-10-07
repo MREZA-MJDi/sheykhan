@@ -27,6 +27,112 @@
 <label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی</span><input name="paid_amount" type="number" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="paid_amount"/></label>
 <button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$students->count() || !$courses->count())>ثبت‌نام دانش‌آموز</button></form></section>
 </div>
+
+<section class="dashboard-panel p-5 sm:p-7">
+    <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="text-xs font-black text-[var(--panel-primary)]">مهاجرت تدریجی اطلاعات</p>
+            <h2 class="mt-1 text-base font-black">ورود دانش‌آموز قدیمی</h2>
+            <p class="mt-1 text-xs leading-6 text-slate-500">
+                با نام، کد ملی و پایه، دانش‌آموز را پیدا یا ایجاد کن. کد ملی خام در سیستم ذخیره نمی‌شود و عملیات قابل پیگیری است.
+            </p>
+        </div>
+        <span class="rounded-full bg-emerald-50 px-3 py-1.5 text-[9px] font-black text-emerald-700">
+            امن · بدون SQL
+        </span>
+    </div>
+
+    <form method="POST" action="{{ route('owner.people.legacy-students.store', $academy) }}" class="mt-5 grid gap-4 md:grid-cols-2" data-confirm="اطلاعات دانش‌آموز ثبت و به‌روزرسانی شود؟">
+        @csrf
+        <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) IlluminateSupportStr::uuid()) }}">
+
+        <label class="grid gap-1">
+            <span class="text-xs font-bold">نام و نام خانوادگی</span>
+            <input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="name">
+            <x-owner.field-error field="name"/>
+        </label>
+
+        <label class="grid gap-1">
+            <span class="text-xs font-bold">کد ملی</span>
+            <input name="national_id" value="{{ old('national_id') }}" required inputmode="numeric" maxlength="10" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="off">
+            <span class="text-[9px] text-slate-400">فقط برای تطبیق هویت؛ مقدار خام ذخیره نمی‌شود.</span>
+            <x-owner.field-error field="national_id"/>
+        </label>
+
+        <label class="grid gap-1">
+            <span class="text-xs font-bold">پایه تحصیلی</span>
+            <select name="grade_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                <option value="">انتخاب پایه</option>
+                @foreach($grades as $grade)
+                    <option value="{{ $grade->id }}" @selected((string) old('grade_id') === (string) $grade->id)>{{ $grade->title }}</option>
+                @endforeach
+            </select>
+            <x-owner.field-error field="grade_id"/>
+        </label>
+
+        <label class="grid gap-1">
+            <span class="text-xs font-bold">موبایل <span class="font-normal text-slate-400">(اختیاری)</span></span>
+            <input name="mobile" value="{{ old('mobile') }}" inputmode="tel" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="tel">
+            <x-owner.field-error field="mobile"/>
+        </label>
+
+        <label class="grid gap-1 md:col-span-2">
+            <span class="text-xs font-bold">نام مدرسه <span class="font-normal text-slate-400">(اختیاری)</span></span>
+            <input name="school_name" value="{{ old('school_name') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <x-owner.field-error field="school_name"/>
+        </label>
+
+        <label class="grid gap-1 md:col-span-2">
+            <span class="text-xs font-bold">یادداشت اپراتور <span class="font-normal text-slate-400">(اختیاری)</span></span>
+            <textarea name="notes" rows="3" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">{{ old('notes') }}</textarea>
+            <x-owner.field-error field="notes"/>
+        </label>
+
+        <button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white md:col-span-2">
+            ثبت / به‌روزرسانی دانش‌آموز قدیمی
+        </button>
+    </form>
+</section>
+
+<section class="dashboard-panel p-5 sm:p-7">
+    <div class="flex items-center justify-between gap-3">
+        <div>
+            <h2 class="font-black">آخرین عملیات مهاجرت</h2>
+            <p class="mt-1 text-xs text-slate-500">سابقه ثبت دانش‌آموزان قدیمی در این آموزشگاه.</p>
+        </div>
+        <span class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $onboardings->total() }}</span>
+    </div>
+
+    <div class="mt-4 grid gap-2">
+        @forelse($onboardings as $entry)
+            <article class="flex flex-col gap-2 rounded-xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <strong class="text-xs">{{ $entry->student?->name ?? $entry->entered_name }}</strong>
+                    <p class="mt-1 text-[9px] text-slate-500">
+                        پایه {{ $entry->requestedGrade?->title ?? '—' }}
+                        · ثبت توسط {{ $entry->admin?->name ?? '—' }}
+                    </p>
+                </div>
+                <div class="text-[9px] text-slate-500">
+                    {{ optional($entry->activated_at)->format('Y/m/d H:i') }}
+                    <span class="mx-1">·</span>
+                    <span class="font-bold text-emerald-700">{{ $entry->status === 'activated' ? 'فعال' : $entry->status }}</span>
+                </div>
+            </article>
+        @empty
+            <div class="rounded-xl bg-slate-50 p-5 text-center text-xs text-slate-500">
+                هنوز عملیات مهاجرتی ثبت نشده است.
+            </div>
+        @endforelse
+    </div>
+
+    @if($onboardings->hasPages())
+        <div class="mt-4 border-t border-slate-100 pt-3 text-xs">
+            {{ $onboardings->withQueryString()->links() }}
+        </div>
+    @endif
+</section>
+
 <div class="grid gap-4 xl:grid-cols-3">
 @foreach([['مدرس‌ها',$teachers],['دانش‌آموزان',$students],['والدین',$parents]] as [$title,$items])
 <section class="dashboard-panel p-5">
