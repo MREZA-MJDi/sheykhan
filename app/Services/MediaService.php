@@ -143,7 +143,7 @@ class MediaService
 
         abort_unless($disk->exists($media->path), 404);
 
-        $name = str_replace(["\\r", "\\n"], '', (string) ($media->original_name ?: basename($media->path)));
+        $name = str_replace(["\r", "\n"], '', (string) ($media->original_name ?: basename($media->path)));
         $fallback = preg_replace('/[^A-Za-z0-9._-]/', '_', $name) ?: 'download';
 
         return response()->stream(
