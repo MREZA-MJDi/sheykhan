@@ -146,20 +146,8 @@ class MediaService
 
         $name = str_replace(["\r", "\n"], '', (string) ($media->original_name ?: basename($media->path)));
 
-        return response()->streamDownload(
-            function () use ($disk, $media): void {
-                $stream = $disk->readStream($media->path);
-
-                if (!is_resource($stream)) {
-                    abort(404);
-                }
-
-                try {
-                    fpassthru($stream);
-                } finally {
-                    fclose($stream);
-                }
-            },
+        return $disk->download(
+            $media->path,
             $name,
             [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
