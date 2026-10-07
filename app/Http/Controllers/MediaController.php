@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MediaController extends Controller
 {
-    public function public(Media $media): Response
+    public function servePublic(Media $media): Response
     {
         abort_unless($media->status === 'active' && $media->visibility === 'public', 404);
         abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
