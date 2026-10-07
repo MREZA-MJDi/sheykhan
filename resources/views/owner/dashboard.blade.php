@@ -279,6 +279,13 @@
                                 >
                                     تنظیمات
                                 </a>
+
+                                <a
+                                    href="{{ route('owner.academy.banners.edit', $academy) }}"
+                                    class="owner-pill banner justify-center"
+                                >
+                                    بنرها
+                                </a>
                             </div>
                         </article>
                     @endforeach
