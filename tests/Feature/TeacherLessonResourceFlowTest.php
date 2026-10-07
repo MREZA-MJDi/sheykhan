@@ -69,7 +69,7 @@ class TeacherLessonResourceFlowTest extends TestCase
         $this->seed();
 
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
-        $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
         $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
 
         $media = $course->media()->firstOrFail();
