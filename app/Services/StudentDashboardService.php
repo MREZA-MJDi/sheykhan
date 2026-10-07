@@ -27,10 +27,18 @@ final class StudentDashboardService
             ->get();
 
         $progress = $this->progressByCourse($student->id, $courseIds);
+        $lessonStats = $this->lessonStatsByCourse($student->id, $courseIds);
+        $nextLessons = $this->nextLessonsByCourse($student->id, $courseIds);
+        $learningActivity = $this->learningActivity($student->id, $courseIds);
 
-        $courses = $enrollments->map(function ($enrollment) use ($progress) {
+        $courses = $enrollments->map(function ($enrollment) use ($progress, $lessonStats, $nextLessons) {
             $item = $enrollment->course;
+            $stats = $lessonStats->get((int) $item->id);
+
             $item->learning_progress = (float) ($progress[$item->id] ?? 0);
+            $item->total_lessons = (int) ($stats?->total_lessons ?? 0);
+            $item->completed_lessons = (int) ($stats?->completed_lessons ?? 0);
+            $item->next_lesson = $nextLessons->get((int) $item->id);
 
             return $item;
         });
@@ -230,6 +238,125 @@ final class StudentDashboardService
             'recentResults' => $recentResults,
             'resources' => $resources,
             'sessions' => $sessions,
+            'nextLesson' => $courses->firstWhere('next_lesson', '!=', null)?->next_lesson ?? null,
+            'nextLiveClass' => $upcomingLive->first(),
+            'completedLessonsCount' => (int) $courses->sum('completed_lessons'),
+            'totalLessonsCount' => (int) $courses->sum('total_lessons'),
+            'studyMinutesLast7Days' => $learningActivity['study_minutes_last_7_days'],
+            'studyStreak' => $learningActivity['study_streak'],
+            'studyDates' => $learningActivity['study_dates'],
+        ];
+    }
+
+    private function lessonStatsByCourse(int $studentId, $courseIds)
+    {
+        if ($courseIds->isEmpty()) {
+            return collect();
+        }
+
+        return DB::table('course_sections')
+            ->join('lessons', 'lessons.course_section_id', '=', 'course_sections.id')
+            ->leftJoin('lesson_progress as progress', function ($join) use ($studentId): void {
+                $join->on('progress.lesson_id', '=', 'lessons.id')
+                    ->where('progress.user_id', '=', $studentId);
+            })
+            ->whereIn('course_sections.course_id', $courseIds)
+            ->where('lessons.status', 'published')
+            ->where(fn ($query) => $query->whereNull('lessons.published_at')->orWhere('lessons.published_at', '<=', now()))
+            ->groupBy('course_sections.course_id')
+            ->select('course_sections.course_id')
+            ->selectRaw('COUNT(lessons.id) as total_lessons')
+            ->selectRaw('SUM(CASE WHEN COALESCE(progress.progress_percent, 0) >= 100 THEN 1 ELSE 0 END) as completed_lessons')
+            ->get()
+            ->keyBy(fn ($row) => (int) $row->course_id);
+    }
+
+    private function nextLessonsByCourse(int $studentId, $courseIds)
+    {
+        if ($courseIds->isEmpty()) {
+            return collect();
+        }
+
+        return DB::table('course_sections')
+            ->join('lessons', 'lessons.course_section_id', '=', 'course_sections.id')
+            ->leftJoin('lesson_progress as progress', function ($join) use ($studentId): void {
+                $join->on('progress.lesson_id', '=', 'lessons.id')
+                    ->where('progress.user_id', '=', $studentId);
+            })
+            ->whereIn('course_sections.course_id', $courseIds)
+            ->where('lessons.status', 'published')
+            ->where(fn ($query) => $query->whereNull('lessons.published_at')->orWhere('lessons.published_at', '<=', now()))
+            ->where(fn ($query) => $query->whereNull('progress.progress_percent')->orWhere('progress.progress_percent', '<', 100))
+            ->orderBy('course_sections.course_id')
+            ->orderBy('course_sections.sort_order')
+            ->orderBy('lessons.sort_order')
+            ->get([
+                'course_sections.course_id',
+                'lessons.id',
+                'lessons.title',
+                'lessons.type',
+                'lessons.duration_seconds',
+            ])
+            ->groupBy(fn ($row) => (int) $row->course_id)
+            ->map(fn ($lessons) => $lessons->first());
+    }
+
+    private function learningActivity(int $studentId, $courseIds): array
+    {
+        if ($courseIds->isEmpty()) {
+            return [
+                'study_minutes_last_7_days' => 0,
+                'study_streak' => 0,
+                'study_dates' => [],
+            ];
+        }
+
+        $rows = DB::table('lesson_progress')
+            ->join('lessons', 'lessons.id', '=', 'lesson_progress.lesson_id')
+            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
+            ->where('lesson_progress.user_id', $studentId)
+            ->whereIn('course_sections.course_id', $courseIds)
+            ->whereNotNull('lesson_progress.last_watched_at')
+            ->where('lesson_progress.last_watched_at', '>=', now()->subDays(13)->startOfDay())
+            ->orderByDesc('lesson_progress.last_watched_at')
+            ->get([
+                'lesson_progress.seconds_watched',
+                'lesson_progress.last_watched_at',
+            ]);
+
+        $studyDates = $rows
+            ->map(fn ($row) => Carbon::parse($row->last_watched_at)->toDateString())
+            ->unique()
+            ->values();
+
+        $recentCutoff = now()->subDays(6)->startOfDay();
+        $studySeconds = $rows
+            ->filter(fn ($row) => Carbon::parse($row->last_watched_at)->greaterThanOrEqualTo($recentCutoff))
+            ->sum(fn ($row) => (int) $row->seconds_watched);
+
+        $anchor = Carbon::today();
+        if (!$studyDates->contains($anchor->toDateString())) {
+            $yesterday = $anchor->copy()->subDay();
+            if (!$studyDates->contains($yesterday->toDateString())) {
+                return [
+                    'study_minutes_last_7_days' => (int) floor($studySeconds / 60),
+                    'study_streak' => 0,
+                    'study_dates' => $studyDates->all(),
+                ];
+            }
+            $anchor = $yesterday;
+        }
+
+        $streak = 0;
+        while ($studyDates->contains($anchor->toDateString())) {
+            $streak++;
+            $anchor->subDay();
+        }
+
+        return [
+            'study_minutes_last_7_days' => (int) floor($studySeconds / 60),
+            'study_streak' => $streak,
+            'study_dates' => $studyDates->all(),
         ];
     }
 
