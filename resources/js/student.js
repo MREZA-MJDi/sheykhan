@@ -189,10 +189,19 @@ document.addEventListener('DOMContentLoaded', () => {
             question.classList.toggle('is-current', index === current);
 
             const dot = dots[index];
-            if (!dot) return;
-            dot.classList.toggle('is-answered', isAnswered);
-            dot.classList.toggle('is-current', index === current);
-            dot.classList.toggle('is-flagged', flagged.has(String(question.dataset.questionNumber)));
+            if (dot) {
+                dot.classList.toggle('is-answered', isAnswered);
+                dot.classList.toggle('is-current', index === current);
+                dot.classList.toggle('is-flagged', flagged.has(String(question.dataset.questionNumber)));
+            }
+
+            const flagButton = question.querySelector('[data-flag-question]');
+            const isFlagged = flagged.has(String(question.dataset.questionNumber));
+            flagButton?.classList.toggle('is-flagged', isFlagged);
+            flagButton?.setAttribute('aria-pressed', isFlagged ? 'true' : 'false');
+            if (flagButton) {
+                flagButton.textContent = isFlagged ? '★ نشان‌گذاری‌شده' : '☆ نشان‌گذاری';
+            }
         });
 
         exam.querySelectorAll('[data-answered-count]').forEach((node) => {
