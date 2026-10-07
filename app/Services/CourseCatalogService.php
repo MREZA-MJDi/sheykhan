@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Course;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
+use App\Support\PersianUi;
 
 class CourseCatalogService
 {
@@ -37,6 +38,7 @@ class CourseCatalogService
                 ->with([
                     'academy:id,name',
                     'teachers:id,name',
+                    'grades:id,title',
                     'sections.lessons:id,course_section_id',
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
@@ -50,7 +52,8 @@ class CourseCatalogService
                     'description' => $course->short_description ?: $course->description,
                     'category' => $course->academy?->name,
                     'teacher' => $course->teachers->first()?->name,
-                    'lessons' => $course->sections->sum(fn ($section) => $section->lessons->count()),
+                    'lessons' => PersianUi::digits($course->sections->sum(fn ($section) => $section->lessons->count())),
+                    'grades' => $course->grades->pluck('title')->values()->all(),
                     'duration' => $this->formatDuration($course->duration_minutes),
                     'price' => $this->formatPrice($course->price, $course->isFree()),
                     'level' => $course->level,
@@ -98,10 +101,10 @@ class CourseCatalogService
         $remaining = $minutes % 60;
 
         if ($hours > 0 && $remaining > 0) {
-            return $hours . ' ساعت و ' . $remaining . ' دقیقه';
+            return PersianUi::digits($hours) . ' ساعت و ' . PersianUi::digits($remaining) . ' دقیقه';
         }
 
-        return $hours > 0 ? $hours . ' ساعت' : $remaining . ' دقیقه';
+        return $hours > 0 ? PersianUi::digits($hours) . ' ساعت' : PersianUi::digits($remaining) . ' دقیقه';
     }
 
     private function formatPrice(float|int|string $price, bool $isFree): string
@@ -110,6 +113,6 @@ class CourseCatalogService
             return 'رایگان';
         }
 
-        return number_format((float) $price, 0, '.', ',') . ' تومان';
+        return PersianUi::money($price);
     }
 }
