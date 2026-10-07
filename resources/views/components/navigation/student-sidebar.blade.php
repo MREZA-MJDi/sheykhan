@@ -10,7 +10,9 @@
     </div>
 
     <nav class="role-sidebar-nav" aria-label="منوی دانش‌آموز">
-        <div class="role-sidebar-label">یادگیری</div>
+        <div class="role-sidebar-label">مرکز یادگیری</div>
+        <a href="{{ route('student.dashboard') }}" class="role-nav-link {{ request()->routeIs('student.dashboard') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>خانه یادگیری</span></a>
+        <div class="role-sidebar-label mt-6">یادگیری</div>
         <a href="{{ route('student.courses.index') }}" class="role-nav-link {{ request()->routeIs('student.courses.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>دوره‌های من</span></a>
         <a href="{{ route('student.live-classes.index') }}" class="role-nav-link {{ request()->routeIs('student.live-classes.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>کلاس‌های من</span></a>
         <a href="{{ route('student.assignments.index') }}" class="role-nav-link {{ request()->routeIs('student.assignments.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>تکالیف</span></a>
