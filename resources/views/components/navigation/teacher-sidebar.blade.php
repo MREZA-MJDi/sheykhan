@@ -17,11 +17,11 @@
         <div class="role-sidebar-label mt-6">ارزیابی</div>
         <a href="{{ route('teacher.assignments.index') }}" class="role-nav-link {{ request()->routeIs('teacher.assignments.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>تکالیف</span></a>
         <a href="{{ route('teacher.exams.index') }}" class="role-nav-link {{ request()->routeIs('teacher.exams.*') || request()->routeIs('teacher.exam-attempts.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>آزمون‌ها</span></a>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>حضور و غیاب</span><small>از کلاس</small></span>
+        <a href="{{ route('teacher.classrooms.index') }}" class="role-nav-link {{ request()->routeIs('teacher.classrooms.attendance.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حضور و غیاب</span></a>
 
         <div class="role-sidebar-label mt-6">پیگیری</div>
         <a href="{{ route('teacher.students.index') }}" class="role-nav-link {{ request()->routeIs('teacher.students.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>دانش‌آموزان</span></a>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>گزارش عملکرد</span><small>Dashboard</small></span>
+        <a href="{{ route('teacher.dashboard') }}#teacher-progress-title" class="role-nav-link"><span class="role-nav-icon"></span><span>گزارش عملکرد</span></a>
     </nav>
 
     <div class="role-sidebar-footer">
