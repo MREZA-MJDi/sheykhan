@@ -23,7 +23,6 @@ return new class extends Migration
 
         Schema::table('users', function (Blueprint $table) {
             $table->unique(['legacy_source', 'legacy_id'], 'users_legacy_source_id_unique');
-            $table->index(['legacy_source', 'legacy_id'], 'users_legacy_lookup_index');
         });
     }
 
