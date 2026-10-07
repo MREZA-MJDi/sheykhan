@@ -87,6 +87,7 @@ class RolePermissionSeeder extends Seeder
                 'classrooms.view','classrooms.manage',
                 'enrollments.view','enrollments.manage',
                 'students.view','students.manage',
+                'onboarding.manage',
                 'teachers.view','teachers.manage',
                 'parents.view',
                 'assignments.view',
