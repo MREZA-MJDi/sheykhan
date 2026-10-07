@@ -118,7 +118,7 @@
                             <article class="parent-row">
                                 <div class="parent-date">
                                     <strong>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</strong>
-                                    <small>{{ \App\Support\PersianUi::date($item->scheduled_at) }}</small>
+                                    <small>{{ \App\Support\PersianUi::date($item->scheduled_at instanceof \Carbon\CarbonInterface ? $item->scheduled_at : \Carbon\Carbon::parse($item->scheduled_at)) }}</small>
                                 </div>
 
                                 <div class="min-w-0">
@@ -168,7 +168,7 @@
                                     <span class="parent-row-meta">
                                         {{ $result->student_name }}
                                         ·
-                                        {{ \App\Support\PersianUi::date($result->graded_at) }}
+                                        {{ \App\Support\PersianUi::date($result->graded_at instanceof \Carbon\CarbonInterface ? $result->graded_at : \Carbon\Carbon::parse($result->graded_at)) }}
                                     </span>
                                 </div>
 
