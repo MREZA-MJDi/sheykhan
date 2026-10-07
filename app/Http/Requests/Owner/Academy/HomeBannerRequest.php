@@ -19,7 +19,7 @@ class HomeBannerRequest extends FormRequest
             'banners.*.title' => ['nullable', 'string', 'max:255'],
             'banners.*.description' => ['nullable', 'string', 'max:700'],
             'banners.*.cta_label' => ['nullable', 'string', 'max:80'],
-            'banners.*.cta_url' => ['nullable', 'string', 'max:2048'],
+            'banners.*.cta_url' => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\\/\\/|\\/|#)/i'],
             'banners.*.is_active' => ['nullable', 'boolean'],
             'banners.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:5120'],
         ];
