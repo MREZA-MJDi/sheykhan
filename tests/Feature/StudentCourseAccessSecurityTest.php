@@ -91,9 +91,6 @@ class StudentCourseAccessSecurityTest extends TestCase
             ->get(route('student.lessons.show', $paidLesson))
             ->assertNotFound();
     }
-}
-
-
     public function test_removed_academy_membership_loses_protected_course_access(): void
     {
         $this->seed();
@@ -109,3 +106,6 @@ class StudentCourseAccessSecurityTest extends TestCase
             app(StudentAccessService::class)->course($student->fresh(), $course)
         );
     }
+
+
+}
