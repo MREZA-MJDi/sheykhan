@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 final class ParentDashboardService
 {
@@ -123,6 +124,28 @@ final class ParentDashboardService
                 'live_classes.course_id',
                 'courses.title as course_title',
             ])
+            ->selectSub(function ($query) use ($childIds): void {
+                $query->from('course_enrollments')
+                    ->whereIn('student_id', $childIds)
+                    ->where('status', 'active')
+                    ->whereColumn('course_id', 'live_classes.course_id')
+                    ->where(function ($scope): void {
+                        $scope->where('paid_amount', '>', 0)
+                            ->orWhereExists(function ($free): void {
+                                $free->selectRaw('1')
+                                    ->from('courses')
+                                    ->whereColumn('courses.id', 'live_classes.course_id')
+                                    ->where('courses.access_type', 'free');
+                            });
+                    })
+                    ->where(function ($classroom): void {
+                        $classroom->whereNull('live_classes.classroom_id')
+                            ->orWhereColumn('course_enrollments.classroom_id', 'live_classes.classroom_id');
+                    })
+                    ->orderBy('student_id')
+                    ->limit(1)
+                    ->select('student_id');
+            }, 'student_id')
             ->orderBy('live_classes.scheduled_at')
             ->limit(8)
             ->get();
@@ -145,8 +168,18 @@ final class ParentDashboardService
             'parent' => $parent,
             'children' => $children,
             'overallProgress' => round((float) $progress->avg() ),
-            'upcomingLiveClasses' => $upcomingLiveClasses,
-            'recentResults' => $recentResults,
+            'upcomingLiveClasses' => $upcomingLiveClasses->map(function ($item) {
+                $item->scheduled_at = $item->scheduled_at instanceof \Carbon\CarbonInterface
+                    ? $item->scheduled_at
+                    : Carbon::parse($item->scheduled_at);
+                return $item;
+            }),
+            'recentResults' => $recentResults->map(function ($item) {
+                $item->graded_at = $item->graded_at instanceof \Carbon\CarbonInterface
+                    ? $item->graded_at
+                    : Carbon::parse($item->graded_at);
+                return $item;
+            }),
         ];
     }
 }
