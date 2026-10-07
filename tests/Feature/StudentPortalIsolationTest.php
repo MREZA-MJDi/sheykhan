@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Assignment;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use App\Models\Lesson;
 use App\Models\LessonNote;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +20,7 @@ class StudentPortalIsolationTest extends TestCase
         $this->seed();
 
         $owner = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $other = User::where('email', 'student.ava@sheykhan.test')->firstOrFail();
+        $other = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
 
         $assignment = Assignment::whereHas('submissions', fn ($query) => $query->where('student_id', $owner->id))
             ->firstOrFail();
@@ -40,7 +41,7 @@ class StudentPortalIsolationTest extends TestCase
         $this->seed();
 
         $owner = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $other = User::where('email', 'student.ava@sheykhan.test')->firstOrFail();
+        $other = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
 
         $attempt = ExamAttempt::where('student_id', $owner->id)->firstOrFail();
         $exam = Exam::findOrFail($attempt->exam_id);
@@ -58,10 +59,10 @@ class StudentPortalIsolationTest extends TestCase
         $this->seed();
 
         $owner = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $other = User::where('email', 'student.ava@sheykhan.test')->firstOrFail();
+        $other = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
 
         $note = LessonNote::firstOrCreate(
-            ['lesson_id' => $owner->lessonProgress()->firstOrFail()->lesson_id, 'user_id' => $owner->id],
+            ['lesson_id' => Lesson::query()->firstOrFail()->id, 'user_id' => $owner->id],
             ['content' => 'private note']
         );
 
