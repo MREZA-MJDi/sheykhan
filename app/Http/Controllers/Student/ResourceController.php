@@ -24,7 +24,7 @@ class ResourceController extends Controller
         MediaService $media,
     ) {
         abort_unless($resources->canAccess(request()->user(), $resource), 404);
-        abort_unless($resource->downloadable, 403);
+        abort_if(!$resource->downloadable, 403, 'این محتوا فقط برای مشاهده ارائه شده و امکان دانلود آن فعال نیست.');
         abort_unless($resource->media && $resource->media->status === 'active', 404);
 
         return $media->download($resource->media);
