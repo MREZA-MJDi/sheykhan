@@ -32,7 +32,7 @@ final class StudentLearningResourceService
                 'media:id,original_name,mime_type,size,status',
             ])
             ->whereIn('academy_id', $academyIds)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'published'])
             ->where(function (Builder $query): void {
                 $query->whereNull('release_at')
                     ->orWhere('release_at', '<=', now());
