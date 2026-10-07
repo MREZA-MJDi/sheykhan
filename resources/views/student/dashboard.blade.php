@@ -478,7 +478,7 @@
 
                             @if($occurredAt)
                                 <span class="student-row-meta">
-                                    {{ \App\Support\PersianUi::date($gradedAt) }}
+                                    {{ \App\Support\PersianUi::date($occurredAt) }}
                                 </span>
                             @else
                                 <span class="student-row-meta">
