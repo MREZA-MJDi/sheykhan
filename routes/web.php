@@ -18,6 +18,7 @@ use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Student\ResourceController as StudentResourceController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
 use App\Http\Controllers\Teacher\AssignmentSubmissionController as TeacherAssignmentSubmissionController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
@@ -124,6 +125,8 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
 
 Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', StudentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/resources', [StudentResourceController::class, 'index'])->middleware('permission:dashboard.view')->name('resources.index');
+    Route::get('/resources/{resource}/download', [StudentResourceController::class, 'download'])->middleware('permission:dashboard.view')->name('resources.download');
 });
 Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
