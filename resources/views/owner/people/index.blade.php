@@ -133,6 +133,10 @@
     @endif
 </section>
 
+<div class="mb-2 flex items-center gap-2">
+    <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-black text-emerald-700">عضو فعال</span>
+    <span class="text-[10px] text-slate-400">افراد فعال آموزشگاه</span>
+</div>
 <div class="grid gap-4 xl:grid-cols-3">
 @foreach([['مدرس‌ها',$teachers],['دانش‌آموزان',$students],['والدین',$parents]] as [$title,$items])
 <section class="dashboard-panel p-5">
@@ -158,5 +162,32 @@
 </section>
 @endforeach
 </div>
+
+<section class="dashboard-panel p-5">
+    <div class="flex items-center justify-between gap-3">
+        <div>
+            <h2 class="font-black">مدرس‌های آرشیوشده</h2>
+            <p class="mt-1 text-xs text-slate-500">سابقه مدرس حفظ شده و با «آرشیوشده» از اعضای فعال جدا شده است.</p>
+        </div>
+        <span class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $archivedTeachers->total() }}</span>
+    </div>
+    <div class="mt-4 grid gap-2">
+        @forelse($archivedTeachers as $teacher)
+            <div class="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <strong class="text-xs">{{ $teacher->name }}</strong>
+                    <span class="mt-1 block text-[9px] text-slate-500">{{ $teacher->email }}</span>
+                </div>
+                <span class="rounded-full bg-amber-50 px-2.5 py-1 text-[9px] font-black text-amber-700">آرشیوشده</span>
+            </div>
+        @empty
+            <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">مدرس آرشیوشده‌ای وجود ندارد.</div>
+        @endforelse
+    </div>
+    @if($archivedTeachers->hasPages())
+        <div class="mt-4 border-t border-slate-100 pt-3 text-xs">{{ $archivedTeachers->withQueryString()->links() }}</div>
+    @endif
+</section>
+
 </div>
 @endsection
