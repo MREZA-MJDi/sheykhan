@@ -15,8 +15,8 @@ class TeacherLearningProgressTest extends TestCase
     {
         $this->seed();
 
-        $teacherOne = User::where('email', 'teacher1@sheykhan.test')->firstOrFail();
-        $teacherTwo = User::where('email', 'teacher2@sheykhan.test')->firstOrFail();
+        $teacherOne = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $teacherTwo = User::where('email', 'teacher.science@sheykhan.test')->firstOrFail();
 
         $teacherOneCourse = Course::whereHas('teachers', fn ($query) => $query->whereKey($teacherOne->id))
             ->firstOrFail();
