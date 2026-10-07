@@ -29,7 +29,27 @@
 </div>
 <div class="grid gap-4 xl:grid-cols-3">
 @foreach([['مدرس‌ها',$teachers],['دانش‌آموزان',$students],['والدین',$parents]] as [$title,$items])
-<section class="dashboard-panel p-5"><div class="flex items-center justify-between gap-3"><h2 class="font-black">{{ $title }}</h2><span class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $items->count() }}</span></div><div class="mt-4 grid gap-2">@forelse($items as $person)<div class="rounded-xl bg-slate-50 p-3"><strong class="text-xs">{{ $person->name }}</strong><span class="mt-1 block text-[9px] text-slate-500">{{ $person->email }}</span></div>@empty<div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">عضوی نیست.</div>@endforelse</div></section>
+<section class="dashboard-panel p-5">
+    <div class="flex items-center justify-between gap-3">
+        <h2 class="font-black">{{ $title }}</h2>
+        <span class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $items->total() }}</span>
+    </div>
+    <div class="mt-4 grid gap-2">
+        @forelse($items as $person)
+            <div class="rounded-xl bg-slate-50 p-3">
+                <strong class="text-xs">{{ $person->name }}</strong>
+                <span class="mt-1 block text-[9px] text-slate-500">{{ $person->email }}</span>
+            </div>
+        @empty
+            <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">عضوی نیست.</div>
+        @endforelse
+    </div>
+    @if($items->hasPages())
+        <div class="mt-4 border-t border-slate-100 pt-3 text-xs">
+            {{ $items->withQueryString()->links() }}
+        </div>
+    @endif
+</section>
 @endforeach
 </div>
 </div>

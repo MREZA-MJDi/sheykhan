@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Academy;
+use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\User;
@@ -28,24 +28,28 @@ final class OwnerReportService
         $academyIds = $academies->pluck('id');
         $academy = $academies->count() === 1 ? $academies->first() : null;
 
-        $courseIds = DB::table('courses')->whereIn('academy_id', $academyIds)->pluck('id')->all();
-        $classroomIds = DB::table('classrooms')->whereIn('academy_id', $academyIds)->pluck('id')->all();
+        $courseCount = DB::table('courses')
+            ->whereIn('academy_id', $academyIds)
+            ->count();
 
-        $teacherIds = DB::table('academy_user')
+        $publishedCourseCount = Course::query()
+            ->whereIn('academy_id', $academyIds)
+            ->published()
+            ->count();
+
+        $teacherCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
             ->where('role', 'teacher')
             ->where('status', 'active')
             ->distinct()
-            ->pluck('user_id')
-            ->all();
+            ->count('user_id');
 
-        $studentIds = DB::table('academy_user')
+        $studentCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
             ->where('role', 'student')
             ->where('status', 'active')
             ->distinct()
-            ->pluck('user_id')
-            ->all();
+            ->count('user_id');
 
         $parentsCount = DB::table('academy_user')
             ->whereIn('academy_id', $academyIds)
@@ -53,6 +57,10 @@ final class OwnerReportService
             ->where('status', 'active')
             ->distinct()
             ->count('user_id');
+
+        $classroomCount = DB::table('classrooms')
+            ->whereIn('academy_id', $academyIds)
+            ->count();
 
         $revenue = DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
@@ -67,11 +75,14 @@ final class OwnerReportService
             ->sum('amount');
 
         $attendance = DB::table('attendances')
-            ->whereIn('classroom_id', $classroomIds)
-            ->selectRaw("COUNT(*) AS total, SUM(CASE WHEN status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended")
+            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->selectRaw(
+                "COUNT(*) AS total, SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended"
+            )
             ->first();
 
-        $examAverage = $this->analytics->overallExamAverage($courseIds);
+        $examAverage = $this->analytics->overallExamAverageForAcademies($academyIds);
 
         $teacherReports = DB::table('course_teacher as ct')
             ->join('users', 'users.id', '=', 'ct.teacher_id')
@@ -81,39 +92,48 @@ final class OwnerReportService
                     ->where('enrollments.status', '=', 'active');
             })
             ->whereIn('courses.academy_id', $academyIds)
-            ->whereIn('ct.teacher_id', $teacherIds)
             ->groupBy('ct.teacher_id', 'users.name')
             ->select([
                 'ct.teacher_id',
                 'users.name',
                 DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
-                DB::raw('COALESCE(SUM(enrollments.paid_amount), 0) AS enrollment_sales'),
             ])
             ->orderByDesc('student_count')
-            ->get();
+            ->orderBy('users.name')
+            ->paginate(25, ['*'], 'teachers_page');
 
-        $teacherProgress = $this->analytics->teacherProgress($courseIds, $teacherIds);
+        $teacherPageIds = $teacherReports->getCollection()
+            ->pluck('teacher_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
-        $teacherPending = DB::table('assignment_submissions as submissions')
-            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-            ->whereIn('assignments.course_id', $courseIds)
-            ->whereIn('assignments.teacher_id', $teacherIds)
-            ->whereNotNull('submissions.submitted_at')
-            ->whereNull('submissions.graded_at')
-            ->groupBy('assignments.teacher_id')
-            ->select('assignments.teacher_id', DB::raw('COUNT(*) AS pending_reviews'))
-            ->pluck('pending_reviews', 'assignments.teacher_id');
+        $teacherProgress = $this->analytics->teacherProgressForAcademies($academyIds, $teacherPageIds);
 
-        $teacherReports = $teacherReports->map(function ($report) use ($teacherProgress, $teacherPending) {
-            $report->progress_average = (float) ($teacherProgress[$report->teacher_id] ?? 0);
-            $report->pending_reviews = (int) ($teacherPending[$report->teacher_id] ?? 0);
+        $teacherPending = empty($teacherPageIds)
+            ? collect()
+            : DB::table('assignment_submissions as submissions')
+                ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+                ->join('courses', 'courses.id', '=', 'assignments.course_id')
+                ->whereIn('courses.academy_id', $academyIds)
+                ->whereIn('assignments.teacher_id', $teacherPageIds)
+                ->whereNotNull('submissions.submitted_at')
+                ->whereNull('submissions.graded_at')
+                ->groupBy('assignments.teacher_id')
+                ->select('assignments.teacher_id', DB::raw('COUNT(*) AS pending_reviews'))
+                ->pluck('pending_reviews', 'assignments.teacher_id');
 
-            return $report;
-        });
+        $teacherReports->setCollection(
+            $teacherReports->getCollection()->map(function ($report) use ($teacherProgress, $teacherPending) {
+                $report->progress_average = (float) ($teacherProgress[$report->teacher_id] ?? 0);
+                $report->pending_reviews = (int) ($teacherPending[$report->teacher_id] ?? 0);
+
+                return $report;
+            })
+        );
 
         $courseReports = Course::query()
-            ->whereIn('id', $courseIds)
+            ->whereIn('academy_id', $academyIds)
             ->withCount([
                 'enrollments as active_student_count' => fn ($query) => $query->where('status', 'active'),
                 'sections',
@@ -122,74 +142,101 @@ final class OwnerReportService
                 'liveClasses',
             ])
             ->orderByDesc('updated_at')
-            ->get();
+            ->paginate(25, ['*'], 'courses_page');
 
-        $courseProgress = $this->analytics->courseProgress($courseIds);
+        $coursePageIds = $courseReports->getCollection()
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
-        $courseExamAverages = $this->analytics->courseExamAverages($courseIds);
+        $courseProgress = $this->analytics->courseProgress($coursePageIds);
+        $courseExamAverages = $this->analytics->courseExamAverages($coursePageIds);
 
-        $courseReports->each(function (Course $course) use ($courseProgress, $courseExamAverages): void {
-            $course->progress_average = (float) ($courseProgress[$course->id] ?? 0);
-            $course->exam_average = isset($courseExamAverages[$course->id])
-                ? (float) $courseExamAverages[$course->id]
-                : null;
-        });
+        $courseReports->setCollection(
+            $courseReports->getCollection()->map(function (Course $course) use ($courseProgress, $courseExamAverages): Course {
+                $course->progress_average = (float) ($courseProgress[$course->id] ?? 0);
+                $course->exam_average = isset($courseExamAverages[$course->id])
+                    ? (float) $courseExamAverages[$course->id]
+                    : null;
 
-        $classroomReports = \App\Models\Classroom::query()
-            ->whereIn('id', $classroomIds)
+                return $course;
+            })
+        );
+
+        $classroomReports = Classroom::query()
+            ->whereIn('academy_id', $academyIds)
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query->where('classroom_student.status', 'active'),
                 'teachers as teacher_count',
             ])
             ->latest()
-            ->get();
+            ->paginate(25, ['*'], 'classrooms_page');
 
-        $attendanceByClassroom = DB::table('attendances')
-            ->whereIn('classroom_id', $classroomIds)
-            ->groupBy('classroom_id')
-            ->select(
-                'classroom_id',
-                DB::raw('COUNT(*) AS attendance_total'),
-                DB::raw("SUM(CASE WHEN status IN ('present', 'late') THEN 1 ELSE 0 END) AS attendance_attended")
-            )
-            ->get()
-            ->keyBy('classroom_id');
+        $classroomPageIds = $classroomReports->getCollection()
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
-        $classroomReports->each(function ($classroom) use ($attendanceByClassroom): void {
-            $item = $attendanceByClassroom->get($classroom->id);
-            $classroom->attendance_rate = $item && (int) $item->attendance_total > 0
-                ? round(((int) $item->attendance_attended / (int) $item->attendance_total) * 100, 1)
-                : null;
-        });
+        $attendanceByClassroom = empty($classroomPageIds)
+            ? collect()
+            : DB::table('attendances')
+                ->whereIn('classroom_id', $classroomPageIds)
+                ->groupBy('classroom_id')
+                ->select(
+                    'classroom_id',
+                    DB::raw('COUNT(*) AS attendance_total'),
+                    DB::raw("SUM(CASE WHEN status IN ('present', 'late') THEN 1 ELSE 0 END) AS attendance_attended")
+                )
+                ->get()
+                ->keyBy('classroom_id');
+
+        $classroomReports->setCollection(
+            $classroomReports->getCollection()->map(function ($classroom) use ($attendanceByClassroom) {
+                $item = $attendanceByClassroom->get($classroom->id);
+                $classroom->attendance_rate = $item && (int) $item->attendance_total > 0
+                    ? round(((int) $item->attendance_attended / (int) $item->attendance_total) * 100, 1)
+                    : null;
+
+                return $classroom;
+            })
+        );
+
+        $pendingReviews = DB::table('assignment_submissions as submissions')
+            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->join('courses', 'courses.id', '=', 'assignments.course_id')
+            ->whereIn('courses.academy_id', $academyIds)
+            ->whereNotNull('submissions.submitted_at')
+            ->whereNull('submissions.graded_at')
+            ->count();
 
         return [
             'owner' => $owner,
             'academy' => $academy,
             'academies' => $academies,
             'metrics' => [
-                'courses' => count($courseIds),
-                'published' => Course::query()->whereIn('id', $courseIds)->published()->count(),
-                'teachers' => count($teacherIds),
-                'students' => count($studentIds),
+                'courses' => $courseCount,
+                'published' => $publishedCourseCount,
+                'teachers' => $teacherCount,
+                'students' => $studentCount,
                 'parents' => $parentsCount,
-                'classrooms' => count($classroomIds),
-                'enrollments' => CourseEnrollment::query()->whereIn('course_id', $courseIds)->where('status', 'active')->count(),
-                'attendance_rate' => $attendance?->total ? round(((int) $attendance->attended / (int) $attendance->total) * 100, 1) : null,
+                'classrooms' => $classroomCount,
+                'enrollments' => CourseEnrollment::query()
+                    ->whereHas('course', fn ($query) => $query->whereIn('academy_id', $academyIds))
+                    ->where('status', 'active')
+                    ->count(),
+                'attendance_rate' => $attendance?->total
+                    ? round(((int) $attendance->attended / (int) $attendance->total) * 100, 1)
+                    : null,
                 'exam_average' => $examAverage !== null ? round((float) $examAverage, 1) : null,
                 'revenue' => (float) $revenue - (float) $refunds,
-                'pending_reviews' => (int) DB::table('assignment_submissions as submissions')
-                    ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-                    ->whereIn('assignments.course_id', $courseIds)
-                    ->whereNotNull('submissions.submitted_at')
-                    ->whereNull('submissions.graded_at')
-                    ->count(),
+                'pending_reviews' => (int) $pendingReviews,
             ],
             'teacherReports' => $teacherReports,
             'courseReports' => $courseReports,
             'classroomReports' => $classroomReports,
             'recentEnrollments' => CourseEnrollment::query()
-                ->whereIn('course_id', $courseIds)
+                ->whereHas('course', fn ($query) => $query->whereIn('academy_id', $academyIds))
                 ->with(['student:id,name,email', 'course:id,title'])
                 ->latest()
                 ->limit(8)
