@@ -8,6 +8,7 @@ use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -20,7 +21,7 @@ final class AuthService
             ? User::query()->whereRaw('LOWER(email) = ?', [Str::lower($identifier)])->first()
             : User::query()->where('mobile', $this->normalizeMobile($identifier))->first();
 
-        if (!$user || $user->status !== 'active' || $user->deleted_at !== null || !Auth::validate(['email' => $user->email, 'password' => $credentials['password'] ?? ''])) {
+        if (!$user || $user->status !== 'active' || $user->deleted_at !== null || !Hash::check((string) ($credentials['password'] ?? ''), (string) $user->password)) {
             throw ValidationException::withMessages([
                 'identifier' => 'اطلاعات ورود صحیح نیست یا این حساب فعال نیست.',
             ]);
