@@ -21,7 +21,7 @@ class StudentSessionAccessTest extends TestCase
 
         $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
         $classroom = $course->classrooms()->firstOrFail();
-        $student = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
 
         $future = $this->makeSession($course, $classroom, 'جلسه آینده', now()->addDay(), 'scheduled', now()->addDays(2));
         $unreleased = $this->makeSession($course, $classroom, 'جلسه برگزارشده بدون انتشار', now()->subDay(), 'completed', now()->addHour());
@@ -50,7 +50,7 @@ class StudentSessionAccessTest extends TestCase
         $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
         $classroom = $course->classrooms()->firstOrFail();
 
-        $inside = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $inside = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $outside = User::where('email', 'student3@sheykhan.test')->firstOrFail();
 
         // Same course, different classroom: recording access must still be isolated.
