@@ -21,14 +21,22 @@ final class TeacherAssessmentService
             throw new AccessDeniedHttpException();
         }
 
-        $submission->update([
-            'score' => $score,
-            'feedback' => $feedback,
-            'graded_at' => now(),
-            'graded_by' => $teacherId,
-        ]);
+        return DB::transaction(function () use ($assignment, $submission, $score, $feedback, $teacherId): AssignmentSubmission {
+            $lockedSubmission = AssignmentSubmission::query()
+                ->whereKey($submission->id)
+                ->where('assignment_id', $assignment->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        return $submission->refresh();
+            $lockedSubmission->update([
+                'score' => $score,
+                'feedback' => $feedback,
+                'graded_at' => now(),
+                'graded_by' => $teacherId,
+            ]);
+
+            return $lockedSubmission->refresh();
+        });
     }
 
     public function gradeExamAttemptAutomatically(ExamAttempt $attempt, int $teacherId): ExamAttempt
@@ -40,6 +48,12 @@ final class TeacherAssessmentService
         }
 
         return DB::transaction(function () use ($attempt): ExamAttempt {
+            $attempt = ExamAttempt::query()
+                ->whereKey($attempt->id)
+                ->lockForUpdate()
+                ->with(['exam.questions', 'answers.question'])
+                ->firstOrFail();
+
             $total = 0.0;
             $requiresManualReview = false;
 
@@ -83,6 +97,12 @@ final class TeacherAssessmentService
         }
 
         return DB::transaction(function () use ($attempt, $scores): ExamAttempt {
+            $attempt = ExamAttempt::query()
+                ->whereKey($attempt->id)
+                ->lockForUpdate()
+                ->with(['exam.questions', 'answers.question'])
+                ->firstOrFail();
+
             $total = 0.0;
 
             foreach ($attempt->answers as $answer) {
