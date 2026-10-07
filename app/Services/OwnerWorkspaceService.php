@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Academy;
+use App\Models\AcademicGrade;
+use App\Models\StudentOnboarding;
 use App\Models\Role;
 use App\Models\TeacherProfile;
 use App\Models\User;
@@ -43,6 +45,20 @@ final class OwnerWorkspaceService
             'teachers' => $base('teacher', 'teachers_page'),
             'students' => $base('student', 'students_page'),
             'parents' => $base('parent', 'parents_page'),
+            'grades' => AcademicGrade::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('title')
+                ->get(['id', 'title']),
+            'onboardings' => StudentOnboarding::query()
+                ->where('academy_id', $academy->id)
+                ->with([
+                    'student:id,name,email,mobile',
+                    'requestedGrade:id,title',
+                    'admin:id,name',
+                ])
+                ->latest('activated_at')
+                ->paginate(15, ['*'], 'onboardings_page'),
         ];
     }
 
