@@ -8,6 +8,7 @@ use App\Models\Media;
 use App\Models\User;
 use App\Services\StudentLearningResourceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -111,7 +112,7 @@ class StudentLearningResourceAccessTest extends TestCase
             'sort_order' => 1,
         ]);
 
-        $this->assertTrue(IlluminateSupportFacadesGate::forUser($student)->allows('view', $media));
+        $this->assertTrue(Gate::forUser($student)->allows('view', $media));
         $this->assertFalse(IlluminateSupportFacadesGate::forUser($student)->allows('download', $media));
         $this->assertFalse(IlluminateSupportFacadesGate::forUser($otherStudent)->allows('view', $media));
         $this->assertFalse(IlluminateSupportFacadesGate::forUser($otherStudent)->allows('download', $media));
@@ -135,7 +136,7 @@ class StudentLearningResourceAccessTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_view_only_resource_returns_friendly_forbidden_message_when_download_is_attempted(): void
+    public function test_student_resource_download_is_forbidden_even_when_marked_view_only(): void
     {
         $this->seed();
 
@@ -161,7 +162,7 @@ class StudentLearningResourceAccessTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.resources.download', $resource))
             ->assertForbidden()
-            ->assertSee('این محتوا فقط برای مشاهده ارائه شده و امکان دانلود آن فعال نیست.');
+            ->assertSee('فایل‌های آموزشی محافظت‌شده');
     }
 
     public function test_unreleased_resource_is_not_visible_or_downloadable(): void
