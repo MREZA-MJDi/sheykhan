@@ -295,5 +295,3 @@ window.addEventListener('pageshow', () => {
         });
     });
 });
-
-Alpine.start();
