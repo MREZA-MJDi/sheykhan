@@ -4,15 +4,17 @@
     'category' => null,
     'image' => null,
     'description' => null,
-    'href' => '#',
+    'href' => null,
 ])
 
 <article class="edu-card group flex h-full min-w-0 flex-col">
-    <a
-        href="{{ $href }}"
-        class="block"
-        aria-label="مشاهده {{ $title }}"
-    >
+    @if($href)
+        <a
+            href="{{ $href }}"
+            class="block"
+            aria-label="مشاهده {{ $title }}"
+        >
+    @endif
         <div class="relative aspect-[4/3] overflow-hidden bg-[var(--color-slate-100)]">
             @if($image)
                 <img
@@ -36,13 +38,19 @@
                 </span>
             @endif
         </div>
-    </a>
+    @if($href)
+        </a>
+    @endif
 
     <div class="flex flex-1 flex-col p-5">
         <h3 class="line-clamp-2 min-h-[3.5rem] text-base font-black leading-7 text-[var(--color-text)]">
-            <a href="{{ $href }}" class="transition-colors hover:text-[var(--color-primary-600)]">
+            @if($href)
+                <a href="{{ $href }}" class="transition-colors hover:text-[var(--color-primary-600)]">
+                    {{ $title }}
+                </a>
+            @else
                 {{ $title }}
-            </a>
+            @endif
         </h3>
 
         @if($description)
