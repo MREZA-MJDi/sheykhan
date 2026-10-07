@@ -19,7 +19,7 @@ class StudentSessionAccessTest extends TestCase
     {
         $this->seed();
 
-        $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
         $classroom = $course->classrooms()->firstOrFail();
         $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
 
@@ -47,7 +47,7 @@ class StudentSessionAccessTest extends TestCase
         Storage::fake('local');
         $this->seed();
 
-        $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
         $classroom = $course->classrooms()->firstOrFail();
 
         $inside = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
