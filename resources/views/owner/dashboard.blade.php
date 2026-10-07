@@ -258,7 +258,7 @@
                                 </span>
                             </div>
 
-                            <div class="mt-5 grid grid-cols-3 gap-2">
+                            <div class="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
                                 <a
                                     href="{{ route('owner.people.index', $academy) }}"
                                     class="owner-pill justify-center"
