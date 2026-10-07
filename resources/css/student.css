@@ -1087,3 +1087,14 @@
         transform: translateY(0);
     }
 }
+
+
+/* Student learning resources */
+.student-resource-list{display:grid;gap:12px}
+.student-resource{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border:1px solid var(--panel-border);border-radius:18px;background:var(--panel-surface)}
+.student-resource>div{min-width:0;display:grid;gap:5px}
+.student-resource strong{font-size:1rem}
+.student-resource span,.student-resource p{color:var(--panel-muted);font-size:.86rem;margin:0}
+.student-resource .student-action{flex:0 0 auto}
+.student-pagination{display:flex;justify-content:center;margin-top:20px}
+@media (max-width:640px){.student-resource{align-items:flex-start;flex-direction:column}.student-resource .student-action{width:100%;text-align:center}}
