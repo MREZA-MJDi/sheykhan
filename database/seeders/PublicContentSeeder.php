@@ -29,7 +29,7 @@ class PublicContentSeeder extends Seeder
      'excerpt'=>'محتوای رسمی آکادمی شیخان.','body'=>'این رکورد توسط Seeder ایجاد شده و از پنل قابل ویرایش و انتشار است.',
      'video_duration_seconds'=>$type==='video'?240:null,'status'=>'published','is_featured'=>$i===1,'sort_order'=>$i,'published_at'=>now()->subDays($i),'created_by'=>$owner->id
     ]);
-    $media=SeedMedia::make('academy-content-'.$c[0].'-'.$type.'-'.$i,$owner->id,$type==='video'?'video/mp4':'image/svg+xml',$type==='video'?'mp4':'svg','academy-content',$type==='video'?'private':'public');
+    $media=SeedMedia::make('academy-content-'.$c[0].'-'.$type.'-'.$i,$owner->id,$type==='video'?'video/mp4':'image/svg+xml',$type==='video'?'mp4':'svg','academy-content','public');
     $content->media()->syncWithoutDetaching([$media->id=>['collection'=>$type,'sort_order'=>0,'is_featured'=>true]]);
    }
   }
