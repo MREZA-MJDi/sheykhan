@@ -33,6 +33,15 @@ class CourseController extends Controller
             ? $access->canAccess($request->user(), $course)
             : false;
 
+        if ($canAccessContent) {
+            $course->load([
+                'sections.lessons.media' => fn ($query) => $query
+                    ->where('status', 'active')
+                    ->where('visibility', 'private')
+                    ->orderByPivot('sort_order'),
+            ]);
+        }
+
         return view('pages.courses.show', [
             'course' => $course,
             'canAccessContent' => $canAccessContent,
