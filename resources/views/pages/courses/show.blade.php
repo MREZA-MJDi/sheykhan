@@ -14,6 +14,9 @@
             <div class="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
                 <div>
                     <div class="flex flex-wrap items-center gap-2">
+                        @foreach($course->grades as $grade)
+                            <span class="rounded-full bg-[var(--color-slate-100)] px-3 py-1.5 text-xs font-bold text-[var(--color-text-muted)]">{{ $grade->title }}</span>
+                        @endforeach
                         @if($course->academy)
                             <span class="rounded-full bg-[var(--color-primary-50)] px-3 py-1.5 text-xs font-bold text-[var(--color-primary-700)]">
                                 {{ $course->academy->name }}
@@ -45,9 +48,9 @@
                                 <strong class="text-[var(--color-text)]">{{ $course->teachers->first()->name }}</strong>
                             </span>
                         @endif
-                        <span>{{ $course->sections->sum(fn ($section) => $section->lessons->count()) }} درس</span>
+                        <span>{{ \App\Support\PersianUi::digits($course->sections->sum(fn ($section) => $section->lessons->count())) }} درس</span>
                         <span>•</span>
-                        <span>{{ $course->duration_minutes > 0 ? floor($course->duration_minutes / 60) . ' ساعت' : 'مدت زمان متغیر' }}</span>
+                        <span>{{ $course->duration_minutes > 0 ? \App\Support\PersianUi::digits(floor($course->duration_minutes / 60)) . ' ساعت' : 'مدت زمان متغیر' }}</span>
                     </div>
 
                     @if($course->description)
@@ -86,7 +89,7 @@
                         </div>
 
                         <div class="mt-2 text-2xl font-black text-[var(--color-primary-600)]">
-                            {{ $course->isFree() ? 'رایگان' : number_format((float) $course->price, 0, '.', ',') . ' تومان' }}
+                            {{ $course->isFree() ? 'رایگان' : \App\Support\PersianUi::money($course->price) }}
                         </div>
 
                         @auth
@@ -109,11 +112,11 @@
                         <div class="mt-5 space-y-3 border-t border-[var(--color-border)] pt-5 text-sm text-[var(--color-text-muted)]">
                             <div class="flex items-center justify-between gap-4">
                                 <span>سرفصل</span>
-                                <strong class="text-[var(--color-text)]">{{ $course->sections->count() }} بخش</strong>
+                                <strong class="text-[var(--color-text)]">{{ \App\Support\PersianUi::digits($course->sections->count()) }} بخش</strong>
                             </div>
                             <div class="flex items-center justify-between gap-4">
                                 <span>درس</span>
-                                <strong class="text-[var(--color-text)]">{{ $course->sections->sum(fn ($section) => $section->lessons->count()) }}</strong>
+                                <strong class="text-[var(--color-text)]">{{ \App\Support\PersianUi::digits($course->sections->sum(fn ($section) => $section->lessons->count())) }}</strong>
                             </div>
                         </div>
                     </div>
@@ -160,7 +163,7 @@
                                                 <div class="flex shrink-0 items-center gap-2">
                                                     @if($lesson->duration_seconds > 0)
                                                         <span class="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-muted)]">
-                                                            {{ ceil($lesson->duration_seconds / 60) }} دقیقه
+                                                            {{ \App\Support\PersianUi::digits(ceil($lesson->duration_seconds / 60)) }} دقیقه
                                                         </span>
                                                     @endif
 
