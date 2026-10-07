@@ -28,6 +28,7 @@ final class StudentLearningResourceService
                 'course:id,title',
                 'classroom:id,title',
                 'lesson:id,title,course_section_id',
+                'academy:id',
                 'media:id,original_name,mime_type,size,status',
             ])
             ->whereIn('academy_id', $academyIds)
@@ -70,7 +71,26 @@ final class StudentLearningResourceService
             return false;
         }
 
-        $resource->loadMissing(['lesson.section', 'classroom', 'course']);
+        $resource->loadMissing(['academy:id', 'lesson.section.course', 'classroom', 'course']);
+
+        if (!$student->academies()
+            ->whereKey($resource->academy_id)
+            ->wherePivot('status', 'active')
+            ->exists()) {
+            return false;
+        }
+
+        if ($resource->course && $resource->course->academy_id !== $resource->academy_id) {
+            return false;
+        }
+
+        if ($resource->classroom && $resource->classroom->academy_id !== $resource->academy_id) {
+            return false;
+        }
+
+        if ($resource->lesson?->section?->course && $resource->lesson->section->course->academy_id !== $resource->academy_id) {
+            return false;
+        }
 
         if ($resource->course_id && $student->enrollments()
             ->where('course_id', $resource->course_id)
