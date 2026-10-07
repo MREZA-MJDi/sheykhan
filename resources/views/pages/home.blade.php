@@ -10,7 +10,84 @@
             '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
         ]);
         $heroCourse = $courseCards[0] ?? null;
+        $homeBanners = $homeBanners ?? collect();
     @endphp
+
+    {{-- Lightweight visual banner slider --}}
+    @if($homeBanners->isNotEmpty())
+        <section
+            class="home-banner-slider"
+            x-data="{ active: 0, count: {{ $homeBanners->count() }}, timer: null, paused: false }"
+            x-init="timer = setInterval(() => { if (!paused) active = (active + 1) % count }, 5200)"
+            @mouseenter="paused = true"
+            @mouseleave="paused = false"
+            @focusin="paused = true"
+            @focusout="paused = false"
+            aria-label="بنرهای منتخب آموزشگاه‌ها"
+        >
+            <x-layout.container size="wide">
+                <div class="home-banner-track">
+                    @foreach($homeBanners as $index => $banner)
+                        <article
+                            x-show="active === {{ $index }}"
+                            x-transition.opacity.duration.450ms
+                            class="home-banner-slide"
+                            aria-roledescription="slide"
+                            aria-label="{{ $index + 1 }} از {{ $homeBanners->count() }}"
+                        >
+                            <img
+                                src="{{ $banner['image'] }}"
+                                alt="{{ $banner['title'] ?: ($banner['academy'] ? 'بنر ' . $banner['academy'] : 'بنر شیخان') }}"
+                                @if($index === 0) fetchpriority="high" @else loading="lazy" @endif
+                            >
+                            <div class="home-banner-shade"></div>
+
+                            <div class="home-banner-content">
+                                <div class="home-banner-meta">
+                                    <span>{{ $banner['academy'] ?: 'شیخان' }}</span>
+                                    <b>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</b>
+                                </div>
+
+                                @if($banner['title'])
+                                    <h2>{{ $banner['title'] }}</h2>
+                                @endif
+
+                                @if($banner['description'])
+                                    <p>{{ $banner['description'] }}</p>
+                                @endif
+
+                                @if($banner['ctaLabel'] && $banner['ctaUrl'])
+                                    <a href="{{ $banner['ctaUrl'] }}" class="home-banner-cta">
+                                        <span>{{ $banner['ctaLabel'] }}</span>
+                                        <i aria-hidden="true">←</i>
+                                    </a>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+
+                    @if($homeBanners->count() > 1)
+                        <div class="home-banner-controls">
+                            <button type="button" @click="active = (active - 1 + count) % count" aria-label="بنر قبلی">→</button>
+                            <div class="home-banner-dots" role="tablist" aria-label="انتخاب بنر">
+                                @foreach($homeBanners as $index => $banner)
+                                    <button
+                                        type="button"
+                                        @click="active = {{ $index }}"
+                                        :aria-selected="active === {{ $index }} ? 'true' : 'false'"
+                                        class="home-banner-dot"
+                                        :class="active === {{ $index }} ? 'is-active' : ''"
+                                        aria-label="بنر {{ $index + 1 }}"
+                                    ></button>
+                                @endforeach
+                            </div>
+                            <button type="button" @click="active = (active + 1) % count" aria-label="بنر بعدی">←</button>
+                        </div>
+                    @endif
+                </div>
+            </x-layout.container>
+        </section>
+    @endif
 
     {{-- Hero --}}
     <section class="home-hero">
@@ -138,6 +215,7 @@
                         :grades="$course['grades'] ?? []"
                         :image="$course['image']"
                         :href="$course['href']"
+                        :previewLessons="$course['previewLessons'] ?? []"
                     />
                 @empty
                     <div class="home-empty-state">
