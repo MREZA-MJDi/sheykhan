@@ -32,6 +32,19 @@ class MediaController extends Controller
         ]);
     }
 
+    public function view(Media $media, MediaService $mediaService): StreamedResponse
+    {
+        abort_unless($media->status === 'active', 404);
+
+        try {
+            Gate::forUser(auth()->user())->authorize('view', $media);
+        } catch (AuthorizationException) {
+            abort(403, 'دسترسی این فایل برای حساب شما فعال نیست.');
+        }
+
+        return $mediaService->inline($media);
+    }
+
     public function download(Media $media, MediaService $mediaService): StreamedResponse
     {
         abort_unless($media->status === 'active', 404);
