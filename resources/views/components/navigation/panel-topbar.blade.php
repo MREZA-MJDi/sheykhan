@@ -34,7 +34,9 @@
         <a href="{{ route('home') }}" class="role-topbar-site">مشاهده سایت</a>
 
         <div class="role-user-chip">
-            <span class="role-user-avatar">{{ mb_substr(auth()->user()->name ?? 'ش', 0, 1) }}</span>
+            <span class="role-user-avatar role-user-avatar-image">
+                <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+            </span>
             <span class="role-user-copy">
                 <strong>{{ auth()->user()->name ?? 'کاربر' }}</strong>
                 <small>{{ $roleLabels[$role] ?? 'کاربر' }}</small>
