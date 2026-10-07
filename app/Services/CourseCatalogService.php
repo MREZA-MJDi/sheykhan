@@ -23,7 +23,9 @@ class CourseCatalogService
                     ->where('visibility', 'public')
                     ->orderByPivot('sort_order'),
             ])
-            ->latest('published_at')
+            ->latest('published_at');
+
+        return $query
             ->paginate($perPage)
             ->withQueryString();
     }
