@@ -8,24 +8,35 @@ use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 final class AuthService
 {
     public function login(array $credentials, bool $remember = false): User
     {
-        if (!Auth::attempt($credentials, $remember)) {
+        $identifier = trim((string) ($credentials['identifier'] ?? ''));
+        $user = filter_var($identifier, FILTER_VALIDATE_EMAIL)
+            ? User::query()->whereRaw('LOWER(email) = ?', [Str::lower($identifier)])->first()
+            : User::query()->where('mobile', $this->normalizeMobile($identifier))->first();
+
+        if (!$user || $user->status !== 'active' || $user->deleted_at !== null || !Auth::validate(['email' => $user->email, 'password' => $credentials['password'] ?? ''])) {
             throw ValidationException::withMessages([
-                'email' => 'ایمیل یا رمز عبور واردشده صحیح نیست.',
+                'identifier' => 'اطلاعات ورود صحیح نیست یا این حساب فعال نیست.',
             ]);
         }
 
-        /** @var User $user */
-        $user = Auth::user();
+        Auth::login($user, $remember);
 
         request()->session()->regenerate();
 
         return $user;
+    }
+
+    private function normalizeMobile(string $value): string
+    {
+        $digits = strtr($value, ['۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
+        return preg_replace('/\D+/', '', $digits) ?? '';
     }
 
     public function register(array $data): User
