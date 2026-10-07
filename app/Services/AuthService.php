@@ -37,7 +37,17 @@ final class AuthService
     private function normalizeMobile(string $value): string
     {
         $digits = strtr($value, ['۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
-        return preg_replace('/\D+/', '', $digits) ?? '';
+        $digits = preg_replace('/\D+/', '', $digits) ?? '';
+
+        if (str_starts_with($digits, '0098')) {
+            return '0' . substr($digits, 4);
+        }
+
+        if (str_starts_with($digits, '98') && strlen($digits) === 12) {
+            return '0' . substr($digits, 2);
+        }
+
+        return $digits;
     }
 
     public function register(array $data): User
