@@ -195,6 +195,11 @@ final class StudentDashboardService
             ->where('progress.user_id', $studentId)
             ->whereIn('course_sections.course_id', $courseIds)
             ->groupBy('course_sections.course_id')
-            ->pluck(DB::raw('AVG(progress.progress_percent)'), 'course_sections.course_id');
+            ->select('course_sections.course_id')
+            ->selectRaw('AVG(progress.progress_percent) as progress_average')
+            ->get()
+            ->mapWithKeys(fn ($row) => [
+                (int) $row->course_id => (float) $row->progress_average,
+            ]);
     }
 }
