@@ -99,7 +99,6 @@
                                     :category="$product->category?->name"
                                     :image="$media?->url()"
                                     :description="$product->description ?? null"
-                                    href="#"
                                 />
                             @endforeach
                         </div>
