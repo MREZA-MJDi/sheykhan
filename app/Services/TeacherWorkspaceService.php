@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Exam;
 use App\Models\LiveClass;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -60,6 +61,44 @@ final class TeacherWorkspaceService
             ])
             ->orderBy('name')
             ->get();
+    }
+
+    public function studentsPaginated(
+        User $teacher,
+        int $perPage = 20,
+        string $sort = 'name',
+        string $direction = 'asc'
+    ): LengthAwarePaginator {
+        $classroomIds = $teacher->classroomsAsTeacher()->pluck('classrooms.id');
+
+        if ($classroomIds->isEmpty()) {
+            return new LengthAwarePaginator([], 0, $perPage);
+        }
+
+        $allowedSorts = [
+            'name' => 'name',
+            'progress' => 'progress_items_count',
+            'assignments' => 'assignment_submissions_count',
+            'exams' => 'exam_attempts_count',
+        ];
+
+        $sortColumn = $allowedSorts[$sort] ?? $allowedSorts['name'];
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+
+        return User::query()
+            ->whereHas('classroomsAsStudent', fn ($query) => $query
+                ->whereIn('classrooms.id', $classroomIds)
+                ->where('classroom_student.status', 'active'))
+            ->with('studentProfile')
+            ->withCount([
+                'lessonProgress as progress_items_count',
+                'assignmentSubmissions',
+                'examAttempts',
+            ])
+            ->orderBy($sortColumn, $direction)
+            ->orderBy('users.id')
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     public function assignments(User $teacher): Collection
