@@ -24,13 +24,19 @@
                         @endif
                     </div>
 
-                    @if($resource->downloadable)
-                        <a class="student-action" href="{{ route('student.resources.download', $resource) }}">
-                            دانلود
+                    <div class="student-resource-actions">
+                        <a class="student-action" href="{{ route('student.resources.view', $resource)">
+                            مشاهده
                         </a>
-                    @else
-                        <span class="student-status">فقط مشاهده</span>
-                    @endif
+
+                        @if($resource->downloadable)
+                            <a class="student-action" href="{{ route('student.resources.download', $resource) }}">
+                                دانلود
+                            </a>
+                        @else
+                            <span class="student-status">فقط مشاهده</span>
+                        @endif
+                    </div>
                 </article>
             @empty
                 <div class="student-empty">
