@@ -26,10 +26,10 @@
         @csrf
 
         <div>
-            <label for="email" class="mb-2 block text-sm font-bold text-[var(--color-text)]">ایمیل</label>
-            <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" autofocus required
+            <label for="identifier" class="mb-2 block text-sm font-bold text-[var(--color-text)]">ایمیل یا شماره موبایل</label>
+            <input id="identifier" name="identifier" type="text" value="{{ old('identifier') }}" autocomplete="username" autofocus required
                    class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                   placeholder="you@example.com">
+                   placeholder="ایمیل یا ۰۹۱۲...">
         </div>
 
         <div>
