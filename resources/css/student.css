@@ -2496,3 +2496,86 @@
         transition:none;
     }
 }
+
+
+.student-v2-achievements{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:9px;
+}
+.student-v2-achievement{
+    min-width:0;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;
+    gap:9px;
+    padding:12px;
+    border:1px solid #e8e5d9;
+    border-radius:16px;
+    background:linear-gradient(145deg,#fff,#fffaf0);
+}
+.student-v2-achievement-mark{
+    width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    border-radius:11px;
+    background:var(--sv2-gold-soft);
+    color:var(--sv2-gold);
+    font-size:13px;
+}
+.student-v2-achievement-copy{min-width:0}
+.student-v2-achievement-copy strong{
+    display:block;
+    overflow:hidden;
+    color:var(--sv2-ink);
+    font-size:9px;
+    font-weight:900;
+    line-height:1.7;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.student-v2-achievement-copy span{
+    display:block;
+    margin-top:2px;
+    overflow:hidden;
+    color:#8a93a4;
+    font-size:7px;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.student-v2-achievement small{
+    color:#98907f;
+    font-size:6px;
+    white-space:nowrap;
+}
+.student-v2-achievement-empty{
+    grid-column:1/-1;
+    padding:22px;
+    border:1px dashed #e5dfce;
+    border-radius:17px;
+    background:#fffaf1;
+    text-align:center;
+}
+.student-v2-achievement-empty > span{
+    width:32px;
+    height:32px;
+    display:grid;
+    place-items:center;
+    margin:0 auto 6px;
+    border-radius:10px;
+    background:var(--sv2-gold-soft);
+    color:var(--sv2-gold);
+}
+.student-v2-achievement-empty strong{
+    font-size:8px;
+    font-weight:900;
+}
+.student-v2-achievement-empty p{
+    margin-top:3px;
+    color:#958c7a;
+    font-size:7px;
+}
+@media(max-width:900px){
+    .student-v2-achievements{grid-template-columns:1fr}
+}
