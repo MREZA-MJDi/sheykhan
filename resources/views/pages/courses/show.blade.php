@@ -281,7 +281,7 @@
                                                     </strong>
 
                                                     <p class="mt-1 text-xs leading-6 text-[var(--color-success-700)]/80">
-                                                        این حساب می‌تواند محتوای محافظت‌شده دوره را مشاهده و دریافت کند.
+                                                        این حساب می‌تواند محتوای محافظت‌شده دوره را فقط در همین فضای امن مشاهده کند.
                                                     </p>
                                                 </div>
                                             </div>
@@ -441,7 +441,14 @@
                                                             </span>
                                                         @endif
 
-                                                        @if($canAccessContent)
+                                                        @if($lesson->is_free)
+                                                            <a
+                                                                href="{{ route('courses.lessons.preview', [$course, $lesson]) }}"
+                                                                class="inline-flex min-h-9 items-center gap-2 rounded-xl bg-[var(--color-success-50)] px-3 text-[11px] font-black text-[var(--color-success-700)] transition hover:bg-[var(--color-success-100)]"
+                                                            >
+                                                                پیش‌نمایش
+                                                            </a>
+                                                        @elseif($canAccessContent)
                                                             <span
                                                                 class="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-success-50)] text-[var(--color-success-700)]"
                                                                 title="دسترسی فعال"
@@ -492,7 +499,7 @@
                                                                     class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-xs font-black text-[var(--color-primary-600)] transition hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
                                                                 >
                                                                     <span>مشاهده فایل</span>
-                                                                    <span aria-hidden="true">↓</span>
+                                                                    <span aria-hidden="true">→</span>
                                                                 </a>
                                                             @endforeach
                                                         </div>
