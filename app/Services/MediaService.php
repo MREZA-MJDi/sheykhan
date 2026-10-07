@@ -123,6 +123,20 @@ class MediaService
         return Storage::disk($media->disk)->url($media->path);
     }
 
+    public function inline(Media $media): StreamedResponse
+    {
+        abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
+
+        return Storage::disk($media->disk)->response(
+            $media->path,
+            $media->original_name,
+            [
+                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+                'Content-Disposition' => 'inline',
+            ],
+        );
+    }
+
     public function download(Media $media): StreamedResponse
     {
         abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
