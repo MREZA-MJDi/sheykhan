@@ -32,6 +32,11 @@ final class CourseAccessService
 
     public function canDownload(User $user, Course $course): bool
     {
+        // Purchasing a protected course grants learning access, not file download rights.
+        if ($user->hasRole('student')) {
+            return false;
+        }
+
         return $this->canAccess($user, $course);
     }
 
