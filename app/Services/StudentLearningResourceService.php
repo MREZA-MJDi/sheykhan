@@ -85,6 +85,7 @@ final class StudentLearningResourceService
             'academy:id',
             'course:id,academy_id,status,access_type,published_at',
             'classroom:id,academy_id,course_id,status',
+            'classroom.course:id,academy_id,status,published_at,access_type',
             'lesson.section.course',
             'media:id,disk,path,original_name,mime_type,size,status,visibility',
         ]);
