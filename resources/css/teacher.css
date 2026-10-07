@@ -1,4 +1,4 @@
-@import './panel-base.css';
+.teacher-shell{--panel-primary:#5b5ce8;--panel-primary-soft:#eef0ff;--color-primary-50:#eef0ff;--color-primary-100:#e4e7ff;--color-primary-200:#d2d7ff;--color-primary-300:#b8c0ff;--color-primary-400:#8793f0;--color-primary-500:#5b5ce8;--color-primary-600:#5b5ce8;--color-primary-700:#4748c9;--color-primary-800:#3536a6;--color-primary-900:#2b2c86;--teacher-muted:#7d879b;--teacher-border:#e8ebf2;--teacher-success:#53b36d}
 
 .teacher-shell{--panel-primary:#5b5ce8;--panel-primary-soft:#eef0ff;--teacher-muted:#7d879b;--teacher-border:#e8ebf2;--teacher-success:#53b36d}
 .teacher-dashboard{min-width:0;display:grid;gap:18px;color:#182033}.teacher-dashboard button,.teacher-dashboard input{font-family:Vazirmatn,Tahoma,Arial,sans-serif}
