@@ -27,6 +27,16 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertArrayHasKey('resources', $payload);
         $this->assertArrayHasKey('recentResults', $payload);
         $this->assertArrayHasKey('pendingAssignments', $payload);
+        $this->assertArrayHasKey('nextLesson', $payload);
+        $this->assertArrayHasKey('nextLiveClass', $payload);
+        $this->assertArrayHasKey('completedLessonsCount', $payload);
+        $this->assertArrayHasKey('totalLessonsCount', $payload);
+        $this->assertArrayHasKey('studyMinutesLast7Days', $payload);
+        $this->assertArrayHasKey('studyStreak', $payload);
+        $this->assertArrayHasKey('studyWeek', $payload);
+        $this->assertArrayHasKey('achievements', $payload);
+        $this->assertArrayHasKey('achievementCount', $payload);
+        $this->assertCount(7, $payload['studyWeek']);
 
         $course = $payload['courses']->firstWhere('slug', 'math-foundation-7');
 
