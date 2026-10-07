@@ -74,6 +74,21 @@ final class StudentDashboardService
                     'submissions.score',
                     'submissions.graded_at',
                 ])
+                ->map(function ($assignment): object {
+                    if ($assignment->due_at !== null) {
+                        $assignment->due_at = Carbon::parse($assignment->due_at);
+                    }
+
+                    if ($assignment->submitted_at !== null) {
+                        $assignment->submitted_at = Carbon::parse($assignment->submitted_at);
+                    }
+
+                    if ($assignment->graded_at !== null) {
+                        $assignment->graded_at = Carbon::parse($assignment->graded_at);
+                    }
+
+                    return $assignment;
+                })
             : collect();
 
         $upcomingLive = $courseIds->isEmpty()
