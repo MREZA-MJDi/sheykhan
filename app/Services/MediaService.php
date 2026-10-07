@@ -145,39 +145,14 @@ class MediaService
         abort_unless($disk->exists($media->path), 404);
 
         $name = str_replace(["\r", "\n"], '', (string) ($media->original_name ?: basename($media->path)));
-        $fallback = preg_replace('/[^A-Za-z0-9._-]/', '_', $name) ?: 'download';
 
-        if (method_exists($disk, 'path')) {
-            $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($disk->path($media->path));
-            $response->headers->set('Content-Type', $media->mime_type ?: 'application/octet-stream');
-            $response->headers->set('X-Content-Type-Options', 'nosniff');
-            $response->setContentDisposition('attachment', $name, $fallback);
-
-            return $response;
-        }
-
-        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(
-            function () use ($disk, $media): void {
-                $stream = $disk->readStream($media->path);
-
-                if (!is_resource($stream)) {
-                    abort(404);
-                }
-
-                try {
-                    fpassthru($stream);
-                } finally {
-                    fclose($stream);
-                }
-            },
-            200,
+        return $disk->download(
+            $media->path,
+            $name,
             [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
                 'X-Content-Type-Options' => 'nosniff',
             ],
         );
-        $response->setContentDisposition('attachment', $name, $fallback);
-
-        return $response;
     }
 }
