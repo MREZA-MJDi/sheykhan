@@ -41,10 +41,7 @@ class AppServiceProvider extends ServiceProvider
                         );
                     } else {
                         $query->orderByRaw(
-                            "CASE WHEN code REGEXP '^[0-9]+
-    }
-}
- THEN CAST(code AS UNSIGNED) ELSE 999999 END"
+                            "CASE WHEN code REGEXP '^[0-9]+$' THEN CAST(code AS UNSIGNED) ELSE 999999 END"
                         );
                     }
 
