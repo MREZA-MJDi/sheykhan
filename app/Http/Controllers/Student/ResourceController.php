@@ -18,6 +18,17 @@ class ResourceController extends Controller
         ]);
     }
 
+    public function view(
+        LearningResource $resource,
+        StudentLearningResourceService $resources,
+        MediaService $media,
+    ) {
+        abort_unless($resources->canAccess(request()->user(), $resource), 404);
+        abort_unless($resource->media && $resource->media->status === 'active', 404);
+
+        return $media->inline($resource->media);
+    }
+
     public function download(
         LearningResource $resource,
         StudentLearningResourceService $resources,
