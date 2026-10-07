@@ -17,8 +17,20 @@ use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
+use App\Http\Controllers\Student\AchievementController as StudentAchievementController;
+use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
+use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
+use App\Http\Controllers\Student\CourseController as StudentCourseController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Student\ExamController as StudentExamController;
+use App\Http\Controllers\Student\LessonController as StudentLessonController;
+use App\Http\Controllers\Student\LessonProgressController as StudentLessonProgressController;
+use App\Http\Controllers\Student\LiveClassController as StudentLiveClassController;
+use App\Http\Controllers\Student\NoteController as StudentNoteController;
+use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ResourceController as StudentResourceController;
+use App\Http\Controllers\Student\ResultController as StudentResultController;
+use App\Http\Controllers\Student\SecurityController as StudentSecurityController;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
 use App\Http\Controllers\Teacher\AssignmentSubmissionController as TeacherAssignmentSubmissionController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
@@ -136,6 +148,38 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
 
 Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', StudentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+
+    Route::get('/courses', [StudentCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
+    Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->middleware('permission:courses.view')->name('courses.show');
+    Route::get('/lessons/{lesson}', [StudentLessonController::class, 'show'])->middleware('permission:lessons.view')->name('lessons.show');
+    Route::patch('/lessons/{lesson}/progress', [StudentLessonProgressController::class, 'update'])->middleware(['permission:lessons.progress','throttle:30,1'])->name('lessons.progress.update');
+
+    Route::get('/assignments', [StudentAssignmentController::class, 'index'])->middleware('permission:assignments.view')->name('assignments.index');
+    Route::get('/assignments/{assignment}', [StudentAssignmentController::class, 'show'])->middleware('permission:assignments.view')->name('assignments.show');
+    Route::post('/assignments/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->middleware(['permission:assignments.submit','throttle:10,1'])->name('assignments.submit');
+
+    Route::get('/exams', [StudentExamController::class, 'index'])->middleware('permission:exams.view')->name('exams.index');
+    Route::get('/exams/{exam}', [StudentExamController::class, 'show'])->middleware('permission:exams.view')->name('exams.show');
+    Route::post('/exams/{exam}/start', [StudentExamController::class, 'start'])->middleware(['permission:exams.attempt','throttle:10,1'])->name('exams.start');
+    Route::get('/exams/{exam}/attempts/{attempt}', [StudentExamController::class, 'attempt'])->middleware('permission:exams.view')->name('exams.attempt');
+    Route::post('/exam-attempts/{attempt}/submit', [StudentExamController::class, 'submit'])->middleware(['permission:exams.attempt','throttle:10,1'])->name('exam-attempts.submit');
+    Route::get('/exams/{exam}/result', [StudentExamController::class, 'result'])->middleware('permission:exams.view')->name('exams.result');
+
+    Route::get('/live-classes', [StudentLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
+    Route::get('/live-classes/{liveClass}/join', [StudentLiveClassController::class, 'join'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('live-classes.join');
+
+    Route::get('/attendance', [StudentAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
+    Route::get('/results', [StudentResultController::class, 'index'])->middleware('permission:results.view')->name('results.index');
+    Route::get('/achievements', [StudentAchievementController::class, 'index'])->middleware('permission:achievements.view')->name('achievements.index');
+
+    Route::get('/notes', [StudentNoteController::class, 'index'])->middleware('permission:notes.view')->name('notes.index');
+    Route::post('/lessons/{lesson}/notes', [StudentNoteController::class, 'store'])->middleware(['permission:notes.manage','throttle:20,1'])->name('lessons.notes.store');
+    Route::delete('/notes/{note}', [StudentNoteController::class, 'destroy'])->middleware('permission:notes.manage')->name('notes.destroy');
+
+    Route::get('/profile', [StudentProfileController::class, 'edit'])->middleware('permission:profile.view')->name('profile.edit');
+    Route::patch('/profile', [StudentProfileController::class, 'update'])->middleware(['permission:profile.manage','throttle:10,1'])->name('profile.update');
+    Route::patch('/profile/password', [StudentSecurityController::class, 'updatePassword'])->middleware(['permission:profile.security','throttle:6,1'])->name('profile.password.update');
+
     Route::get('/resources', [StudentResourceController::class, 'index'])->middleware('permission:resources.view')->name('resources.index');
     Route::get('/resources/{resource}/view', [StudentResourceController::class, 'view'])->middleware('permission:resources.view')->name('resources.view');
     Route::get('/resources/{resource}/download', [StudentResourceController::class, 'download'])->middleware('permission:resources.view')->name('resources.download');
