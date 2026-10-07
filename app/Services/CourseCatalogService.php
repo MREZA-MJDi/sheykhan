@@ -9,11 +9,12 @@ use App\Support\PersianUi;
 
 class CourseCatalogService
 {
-    public function paginate(int $perPage = 12): LengthAwarePaginator
+    public function paginate(int $perPage = 12, ?int $gradeId = null): LengthAwarePaginator
     {
-        return Course::query()
+        $query = Course::query()
             ->published()
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->when($gradeId, fn ($query) => $query->whereHas('grades', fn ($grades) => $grades->whereKey($gradeId)))
             ->with([
                 'academy:id,name',
                 'teachers:id,name',
@@ -22,7 +23,9 @@ class CourseCatalogService
                     ->where('visibility', 'public')
                     ->orderByPivot('sort_order'),
             ])
-            ->latest('published_at')
+            ->latest('published_at');
+
+        return $query
             ->paginate($perPage)
             ->withQueryString();
     }

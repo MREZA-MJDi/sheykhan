@@ -14,6 +14,7 @@ class LoginRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'identifier' => trim((string) $this->input('identifier')),
             'email' => strtolower(trim((string) $this->input('email'))),
         ]);
     }
@@ -21,7 +22,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'identifier' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
             'remember' => ['nullable', 'boolean'],
         ];
@@ -30,8 +31,7 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'ایمیل را وارد کنید.',
-            'email.email' => 'فرمت ایمیل صحیح نیست.',
+            'identifier.required' => 'ایمیل یا شماره موبایل را وارد کنید.',
             'password.required' => 'رمز عبور را وارد کنید.',
         ];
     }

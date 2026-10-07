@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsurePermission;
+use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureActiveTeacherMembership;
 use Illuminate\Foundation\Application;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureRole::class,
             'permission' => EnsurePermission::class,
+            'active' => EnsureActiveUser::class,
             'active-teacher' => EnsureActiveTeacherMembership::class,
         ]);
     })

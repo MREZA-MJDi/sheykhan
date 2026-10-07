@@ -68,7 +68,7 @@
             <div class="teacher-stat-icon">ت</div>
             <div class="teacher-stat-copy">
                 <span>فروش دوره‌های من</span>
-                <strong>{{ number_format($metrics['monthlySales'], 0, '.', ',') }}</strong>
+                <strong>{{ \App\Support\PersianUi::money($metrics['monthlySales']) }}</strong>
                 <small>تومان · این ماه</small>
             </div>
         </article>
@@ -114,8 +114,8 @@
                 @forelse($upcomingClasses as $item)
                     <article class="teacher-upcoming-item">
                         <div class="teacher-time-box">
-                            <strong>{{ $item->scheduled_at->format('H:i') }}</strong>
-                            <small>{{ $item->scheduled_at->format('m/d') }}</small>
+                            <strong>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</strong>
+                            <small>{{ \App\Support\PersianUi::date($item->scheduled_at) }}</small>
                         </div>
                         <div>
                             <div class="teacher-upcoming-title">{{ $item->title }}</div>
@@ -232,9 +232,9 @@
                     <tr>
                         <td>{{ $activity->title }}</td>
                         <td>{{ $activity->classroom?->title ?? 'عمومی دوره' }}</td>
-                        <td>{{ $activity->due_at?->format('Y/m/d H:i') ?? 'بدون موعد' }}</td>
-                        <td>{{ $activity->submitted_count }}</td>
-                        <td><span class="teacher-activity-pill">{{ $activity->pending_review_count }} مورد</span></td>
+                        <td>{{ $activity->due_at ? \App\Support\PersianUi::date($activity->due_at).' '.\App\Support\PersianUi::time($activity->due_at) : 'بدون موعد' }}</td>
+                        <td>{{ \App\Support\PersianUi::digits($activity->submitted_count) }}</td>
+                        <td><span class="teacher-activity-pill">{{ \App\Support\PersianUi::digits($activity->pending_review_count) }} مورد</span></td>
                     </tr>
                 @empty
                     <tr><td colspan="5">هنوز تکلیفی ثبت نشده است.</td></tr>
