@@ -13,7 +13,10 @@ final class StudentDashboardService
     {
         $enrollments = $student->enrollments()
             ->where('status', 'active')
-            ->with('course:id,title,slug,level,access_type,price')
+            ->with([
+                'course:id,academy_id,title,slug,level,access_type,price',
+                'course.academy:id,name',
+            ])
             ->latest('started_at')
             ->get();
 
@@ -115,17 +118,52 @@ final class StudentDashboardService
                     ];
                 });
 
-        $recentResults = DB::table('assignment_submissions as submissions')
+        $assignmentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->where('submissions.student_id', $student->id)
             ->whereNotNull('submissions.graded_at')
-            ->orderByDesc('submissions.graded_at')
-            ->limit(5)
             ->get([
                 'assignments.title',
                 'submissions.score',
-                'submissions.graded_at',
-            ]);
+                'submissions.graded_at as occurred_at',
+            ])
+            ->map(function ($result): object {
+                $result->type = 'assignment';
+                $result->status_label = 'تصحیح‌شده';
+                return $result;
+            });
+
+        $examResults = DB::table('exam_attempts as attempts')
+            ->join('exams', 'exams.id', '=', 'attempts.exam_id')
+            ->where('attempts.student_id', $student->id)
+            ->whereNotNull('attempts.submitted_at')
+            ->get([
+                'exams.title',
+                'attempts.score',
+                'attempts.submitted_at as occurred_at',
+                'attempts.status',
+            ])
+            ->map(function ($result): object {
+                $result->type = 'exam';
+                $result->status_label = $result->status === 'graded'
+                    ? 'تصحیح‌شده'
+                    : 'در انتظار بررسی';
+                if ($result->status !== 'graded') {
+                    $result->score = null;
+                }
+                return $result;
+            });
+
+        $recentResults = $assignmentResults
+            ->concat($examResults)
+            ->sortByDesc('occurred_at')
+            ->take(6)
+            ->values();
+
+        $resources = app(StudentLearningResourceService::class)
+            ->query($student)
+            ->limit(4)
+            ->get();
 
         $overallProgress = (float) ($progress->avg() ?? 0);
 
@@ -139,6 +177,7 @@ final class StudentDashboardService
             'upcomingLiveClasses' => $upcomingLive,
             'assignments' => $assignmentItems,
             'recentResults' => $recentResults,
+            'resources' => $resources,
             'sessions' => $sessions,
         ];
     }
