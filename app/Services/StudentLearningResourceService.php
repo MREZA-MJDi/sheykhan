@@ -23,8 +23,8 @@ final class StudentLearningResourceService
 
         return LearningResource::query()
             ->with([
-                'course:id,academy_id,title',
-                'classroom:id,academy_id,title,course_id',
+                'course:id,academy_id,title,status,published_at,access_type',
+                'classroom:id,academy_id,title,course_id,status',
                 'lesson:id,title,course_section_id',
                 'academy:id',
                 'media:id,disk,path,original_name,mime_type,size,status',
@@ -84,7 +84,7 @@ final class StudentLearningResourceService
         $resource->loadMissing([
             'academy:id',
             'course:id,academy_id,status,access_type,published_at',
-            'classroom:id,academy_id,course_id',
+            'classroom:id,academy_id,course_id,status',
             'lesson.section.course',
             'media:id,disk,path,original_name,mime_type,size,status,visibility',
         ]);
@@ -120,10 +120,20 @@ final class StudentLearningResourceService
         }
 
         if ($resource->classroom_id) {
-            return $student->classroomsAsStudent()
-                ->whereKey($resource->classroom_id)
-                ->wherePivot('status', 'active')
-                ->exists();
+            $classroomCourse = $resource->classroom?->course;
+
+            if (
+                !$classroomCourse
+                || !$classroomCourse->isPublished()
+                || !$student->classroomsAsStudent()
+                    ->whereKey($resource->classroom_id)
+                    ->wherePivot('status', 'active')
+                    ->exists()
+            ) {
+                return false;
+            }
+
+            return app(StudentAccessService::class)->course($student, $classroomCourse);
         }
 
         if ($lessonCourse) {
