@@ -70,10 +70,12 @@ class LessonController extends Controller
             if ($lesson->status === 'published') {
                 LearningResource::query()
                     ->where('lesson_id', $lesson->id)
-                    ->update([
-                        'status' => 'active',
-                        'release_at' => DB::raw("COALESCE(release_at, NOW())"),
-                    ]);
+                    ->whereNull('release_at')
+                    ->update(['release_at' => now()]);
+
+                LearningResource::query()
+                    ->where('lesson_id', $lesson->id)
+                    ->update(['status' => 'active']);
             } else {
                 LearningResource::query()
                     ->where('lesson_id', $lesson->id)
