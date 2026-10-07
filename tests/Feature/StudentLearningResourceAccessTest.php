@@ -66,7 +66,9 @@ class StudentLearningResourceAccessTest extends TestCase
 
         $this->actingAs($studentInClass)
             ->get(route('student.resources.download', $resource))
-            ->assertDownload('class-notes.pdf');
+            ->assertOk()
+            ->assertStreamed()
+            ->assertStreamedContent('student-resource-fixture');
 
         $this->actingAs($studentOutsideClass)
             ->get(route('student.resources.download', $resource))
