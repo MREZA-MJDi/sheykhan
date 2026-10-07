@@ -38,7 +38,10 @@ class MediaPolicy
 
             if ($model instanceof Assignment) {
                 $model->loadMissing(['course', 'classroom']);
-                if ($model->classroom && $this->classroomAccess($user, $model->classroom)) return true;
+                if ($model->classroom) {
+                    return $this->classroomAccess($user, $model->classroom);
+                }
+
                 if ($model->course && $this->courseAccess($user, $model->course)) return true;
             }
 
