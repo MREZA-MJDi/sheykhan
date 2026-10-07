@@ -50,7 +50,7 @@ class TeacherLessonResourceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.resources.download', $resource))
             ->assertForbidden()
-            ->assertSee('فقط برای مشاهده ارائه شده');
+            ->assertSee('فایل‌های آموزشی محافظت‌شده');
 
         $this->assertDatabaseHas('media', [
             'id' => $resource->media_id,
