@@ -37,7 +37,12 @@ final class StudentLearningResourceService
             ->where(function (Builder $query) use ($courseIds, $classroomIds): void {
                 $query->where(fn (Builder $scope) => $scope
                     ->whereNotNull('classroom_id')
-                    ->whereIn('classroom_id', $classroomIds))
+                    ->whereIn('classroom_id', $classroomIds)
+                    ->whereHas('classroom.course', fn (Builder $course) => $course
+                        ->whereIn('id', $courseIds)
+                        ->where('status', 'published')
+                        ->whereNotNull('published_at')
+                        ->where('published_at', '<=', now())))
                     ->orWhere(fn (Builder $scope) => $scope
                         ->whereNull('classroom_id')
                         ->whereNotNull('course_id')
