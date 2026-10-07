@@ -25,11 +25,11 @@
 
             <div class="mt-5 flex flex-wrap gap-2">
                 <span class="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold text-white/80">
-                    {{ AppSupportPersianUi::digits($childrenCount) }} فرزند
+                    {{ \App\Support\PersianUi::digits($childrenCount) }} فرزند
                 </span>
 
                 <span class="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold text-white/80">
-                    میانگین پیشرفت {{ AppSupportPersianUi::digits($progress) }}٪
+                    میانگین پیشرفت {{ \App\Support\PersianUi::digits($progress) }}٪
                 </span>
             </div>
 
@@ -75,17 +75,17 @@
                             <div class="parent-child-stats">
                                 <div class="parent-child-stat">
                                     <span>پیشرفت</span>
-                                    <strong>{{ AppSupportPersianUi::digits($child->dashboard_progress) }}٪</strong>
+                                    <strong>{{ \App\Support\PersianUi::digits($child->dashboard_progress) }}٪</strong>
                                 </div>
 
                                 <div class="parent-child-stat">
                                     <span>دوره فعال</span>
-                                    <strong>{{ AppSupportPersianUi::digits($child->dashboard_courses) }}</strong>
+                                    <strong>{{ \App\Support\PersianUi::digits($child->dashboard_courses) }}</strong>
                                 </div>
 
                                 <div class="parent-child-stat">
                                     <span>تکالیف در انتظار</span>
-                                    <strong>{{ AppSupportPersianUi::digits($child->dashboard_pending) }}</strong>
+                                    <strong>{{ \App\Support\PersianUi::digits($child->dashboard_pending) }}</strong>
                                 </div>
 
                                 <div class="parent-child-stat">
@@ -117,8 +117,8 @@
 
                             <article class="parent-row">
                                 <div class="parent-date">
-                                    <strong>{{ AppSupportPersianUi::time($item->scheduled_at) }}</strong>
-                                    <small>{{ AppSupportPersianUi::date($item->scheduled_at) }}</small>
+                                    <strong>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</strong>
+                                    <small>{{ \App\Support\PersianUi::date($item->scheduled_at) }}</small>
                                 </div>
 
                                 <div class="min-w-0">
@@ -159,7 +159,7 @@
                         @forelse($recentResults as $result)
                             <article class="parent-row">
                                 <div class="parent-date">
-                                    <strong>{{ AppSupportPersianUi::digits($result->score ?? 0) }}</strong>
+                                    <strong>{{ \App\Support\PersianUi::digits($result->score ?? 0) }}</strong>
                                     <small>نمره</small>
                                 </div>
 
@@ -168,7 +168,7 @@
                                     <span class="parent-row-meta">
                                         {{ $result->student_name }}
                                         ·
-                                        {{ AppSupportPersianUi::date($result->graded_at) }}
+                                        {{ \App\Support\PersianUi::date($result->graded_at) }}
                                     </span>
                                 </div>
 
