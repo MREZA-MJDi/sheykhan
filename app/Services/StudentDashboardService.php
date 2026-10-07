@@ -211,7 +211,7 @@ final class StudentDashboardService
             ->limit(4)
             ->get();
 
-        $overallProgress = (float) ($progress->avg() ?? 0);
+        $overallProgress = (float) ($courses->avg('learning_progress') ?? 0);
 
         return [
             'student' => $student,
@@ -234,14 +234,18 @@ final class StudentDashboardService
             return collect();
         }
 
-        return DB::table('lesson_progress as progress')
-            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->where('progress.user_id', $studentId)
+        return DB::table('course_sections')
+            ->join('lessons', 'lessons.course_section_id', '=', 'course_sections.id')
+            ->leftJoin('lesson_progress as progress', function ($join) use ($studentId): void {
+                $join->on('progress.lesson_id', '=', 'lessons.id')
+                    ->where('progress.user_id', '=', $studentId);
+            })
             ->whereIn('course_sections.course_id', $courseIds)
+            ->where('lessons.status', 'published')
+            ->where(fn ($query) => $query->whereNull('lessons.published_at')->orWhere('lessons.published_at', '<=', now()))
             ->groupBy('course_sections.course_id')
             ->select('course_sections.course_id')
-            ->selectRaw('AVG(progress.progress_percent) as progress_average')
+            ->selectRaw('AVG(COALESCE(progress.progress_percent, 0)) as progress_average')
             ->get()
             ->mapWithKeys(fn ($row) => [
                 (int) $row->course_id => (float) $row->progress_average,

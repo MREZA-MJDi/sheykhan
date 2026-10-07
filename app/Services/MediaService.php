@@ -9,7 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use LogicException;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class MediaService
@@ -123,7 +123,7 @@ class MediaService
         return Storage::disk($media->disk)->url($media->path);
     }
 
-    public function inline(Media $media): StreamedResponse
+    public function inline(Media $media): Response
     {
         abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
 
@@ -133,11 +133,12 @@ class MediaService
             [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
                 'Content-Disposition' => 'inline',
+                'X-Content-Type-Options' => 'nosniff',
             ],
         );
     }
 
-    public function download(Media $media): StreamedResponse
+    public function download(Media $media): Response
     {
         $disk = Storage::disk($media->disk);
 

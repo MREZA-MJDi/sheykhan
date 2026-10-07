@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\LearningResource;
 use App\Services\MediaService;
 use App\Services\StudentLearningResourceService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ResourceController extends Controller

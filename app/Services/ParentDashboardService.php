@@ -26,11 +26,13 @@ final class ParentDashboardService
 
         $childIds = $children->pluck('id');
 
-        $progress = DB::table('lesson_progress as progress')
-            ->join('users', 'users.id', '=', 'progress.user_id')
-            ->whereIn('progress.user_id', $childIds)
-            ->groupBy('progress.user_id')
-            ->pluck(DB::raw('AVG(progress.progress_percent)'), 'progress.user_id');
+        $progress = DB::table('lesson_progress')
+            ->whereIn('user_id', $childIds)
+            ->groupBy('user_id')
+            ->select('user_id')
+            ->selectRaw('AVG(progress_percent) as progress_average')
+            ->get()
+            ->mapWithKeys(fn ($row) => [(int) $row->user_id => (float) $row->progress_average]);
 
         $enrollmentCounts = DB::table('course_enrollments')
             ->whereIn('student_id', $childIds)
@@ -40,25 +42,6 @@ final class ParentDashboardService
 
         $pendingAssignments = DB::table('users as students')
             ->whereIn('students.id', $childIds)
-            ->whereExists(function ($query): void {
-                $query->selectRaw('1')
-                    ->from('assignments')
-                    ->where('assignments.status', 'published')
-                    ->whereExists(function ($enrollments): void {
-                        $enrollments->selectRaw('1')
-                            ->from('course_enrollments')
-                            ->whereColumn('course_enrollments.student_id', 'students.id')
-                            ->whereColumn('course_enrollments.course_id', 'assignments.course_id')
-                            ->where('course_enrollments.status', 'active');
-                    })
-                    ->whereNotExists(function ($submissions): void {
-                        $submissions->selectRaw('1')
-                            ->from('assignment_submissions')
-                            ->whereColumn('assignment_submissions.assignment_id', 'assignments.id')
-                            ->whereColumn('assignment_submissions.student_id', 'students.id')
-                            ->whereNotNull('assignment_submissions.submitted_at');
-                    });
-            })
             ->select('students.id')
             ->selectSub(function ($query): void {
                 $query->from('assignments')
@@ -68,7 +51,26 @@ final class ParentDashboardService
                             ->from('course_enrollments')
                             ->whereColumn('course_enrollments.student_id', 'students.id')
                             ->whereColumn('course_enrollments.course_id', 'assignments.course_id')
-                            ->where('course_enrollments.status', 'active');
+                            ->where('course_enrollments.status', 'active')
+                            ->where(function ($paid): void {
+                                $paid->where('course_enrollments.paid_amount', '>', 0)
+                                    ->orWhereExists(function ($free): void {
+                                        $free->selectRaw('1')
+                                            ->from('courses')
+                                            ->whereColumn('courses.id', 'assignments.course_id')
+                                            ->where('courses.access_type', 'free');
+                                    });
+                            });
+                    })
+                    ->where(function ($classroom): void {
+                        $classroom->whereNull('assignments.classroom_id')
+                            ->orWhereExists(function ($membership): void {
+                                $membership->selectRaw('1')
+                                    ->from('classroom_student')
+                                    ->whereColumn('classroom_student.classroom_id', 'assignments.classroom_id')
+                                    ->whereColumn('classroom_student.student_id', 'students.id')
+                                    ->where('classroom_student.status', 'active');
+                            });
                     })
                     ->whereNotExists(function ($submissions): void {
                         $submissions->selectRaw('1')
@@ -99,20 +101,31 @@ final class ParentDashboardService
                     ->whereIn('course_enrollments.student_id', $childIds)
                     ->where('course_enrollments.status', 'active')
                     ->whereColumn('course_enrollments.course_id', 'live_classes.course_id')
+                    ->where(function ($scope): void {
+                        $scope->where('course_enrollments.paid_amount', '>', 0)
+                            ->orWhereExists(function ($free): void {
+                                $free->selectRaw('1')
+                                    ->from('courses')
+                                    ->whereColumn('courses.id', 'live_classes.course_id')
+                                    ->where('courses.access_type', 'free');
+                            });
+                    })
                     ->where(function ($classroomQuery): void {
                         $classroomQuery
                             ->whereNull('live_classes.classroom_id')
                             ->orWhereColumn('course_enrollments.classroom_id', 'live_classes.classroom_id');
                     });
             })
-            ->orderBy('live_classes.scheduled_at')
-            ->limit(8)
-            ->get([
+            ->select([
                 'live_classes.id',
                 'live_classes.title',
                 'live_classes.scheduled_at',
+                'live_classes.course_id',
                 'courses.title as course_title',
-            ]);
+            ])
+            ->orderBy('live_classes.scheduled_at')
+            ->limit(8)
+            ->get();
 
         $recentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
@@ -131,7 +144,7 @@ final class ParentDashboardService
         return [
             'parent' => $parent,
             'children' => $children,
-            'overallProgress' => round((float) ($progress->avg() ?? 0)),
+            'overallProgress' => round((float) $progress->avg() ),
             'upcomingLiveClasses' => $upcomingLiveClasses,
             'recentResults' => $recentResults,
         ];

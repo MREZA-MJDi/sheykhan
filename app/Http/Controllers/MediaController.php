@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Media;
 use App\Services\MediaService;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class MediaController extends Controller
 {
@@ -23,16 +22,18 @@ class MediaController extends Controller
             return response()->file($disk->path($media->path), [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
                 'Cache-Control' => 'public, max-age=31536000, immutable',
+                'X-Content-Type-Options' => 'nosniff',
             ]);
         }
 
         return $disk->response($media->path, $media->original_name, [
             'Content-Type' => $media->mime_type ?: 'application/octet-stream',
             'Cache-Control' => 'public, max-age=31536000, immutable',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
-    public function view(Media $media, MediaService $mediaService): StreamedResponse
+    public function view(Media $media, MediaService $mediaService): Response
     {
         abort_unless($media->status === 'active', 404);
 
@@ -45,9 +46,10 @@ class MediaController extends Controller
         return $mediaService->inline($media);
     }
 
-    public function download(Media $media, MediaService $mediaService): StreamedResponse
+    public function download(Media $media, MediaService $mediaService): Response
     {
         abort_unless($media->status === 'active', 404);
+
         try {
             Gate::forUser(auth()->user())->authorize('download', $media);
         } catch (AuthorizationException) {

@@ -23,7 +23,7 @@ class TeacherLessonResourceFlowTest extends TestCase
 
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
         $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
 
         $response = $this->actingAs($teacher)->post(

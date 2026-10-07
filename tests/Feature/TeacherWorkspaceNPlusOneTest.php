@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\User;
 use App\Services\TeacherWorkspaceService;
@@ -38,6 +39,8 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
             }
         });
 
+        $before = Attendance::count();
+
         app(TeacherWorkspaceService::class)->markAttendance(
             $teacher,
             $classroom,
@@ -48,6 +51,6 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
         // One ownership lookup + one batched membership lookup + one
         // existence lookup per upsert. No per-student membership lookup.
         $this->assertLessThanOrEqual(4, $selects);
-        $this->assertDatabaseCount('attendances', 2);
+        $this->assertDatabaseCount('attendances', $before + 2);
     }
 }

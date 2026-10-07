@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Academy;
+use App\Models\Achievement;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Classroom;
@@ -25,6 +26,38 @@ class MediaPolicy
     public function download(User $user, Media $media): bool
     {
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
+            return true;
+        }
+
+        if (Achievement::query()
+            ->where('media_id', $media->id)
+            ->where('student_id', $user->id)
+            ->where('status', 'published')
+            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
+            ->exists()
+        ) {
+            return true;
+        }
+
+        if (LiveClass::query()
+            ->where('recording_media_id', $media->id)
+            ->whereIn('status', ['completed', 'published'])
+            ->whereNotNull('recording_released_at')
+            ->where('recording_released_at', '<=', now())
+            ->with(['course', 'classroom'])
+            ->get()
+            ->contains(function (LiveClass $liveClass) use ($user, $media): bool {
+                if (!$liveClass->isRecordingAvailable()) {
+                    return false;
+                }
+
+                if ($liveClass->classroom) {
+                    return $this->classroomAccess($user, $liveClass->classroom);
+                }
+
+                return $liveClass->course && $this->courseAccess($user, $liveClass->course);
+            })
+        ) {
             return true;
         }
 

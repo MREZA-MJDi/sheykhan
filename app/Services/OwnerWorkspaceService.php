@@ -88,7 +88,10 @@ final class OwnerWorkspaceService
             ->orderBy('title')
             ->get();
 
-        return compact('teachers', 'courses');
+        return [
+            'teacherOptions' => $teachers,
+            'courseOptions' => $courses,
+        ];
     }
 
     public function createTeacher(User $owner, Academy $academy, array $data): User
