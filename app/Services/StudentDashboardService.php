@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\LiveClass;
 use App\Models\User;
+use App\Services\StudentAccessService;
 use App\Support\PersianUi;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -12,16 +13,18 @@ final class StudentDashboardService
 {
     public function build(User $student): array
     {
+        $access = app(StudentAccessService::class);
+        $courseIds = $access->enrolledCourseIds($student);
+
         $enrollments = $student->enrollments()
             ->where('status', 'active')
+            ->whereIn('course_id', $courseIds)
             ->with([
                 'course:id,academy_id,title,slug,level,access_type,price',
                 'course.academy:id,name',
             ])
             ->latest('started_at')
             ->get();
-
-        $courseIds = $enrollments->pluck('course_id');
 
         $progress = $this->progressByCourse($student->id, $courseIds);
 
@@ -161,6 +164,7 @@ final class StudentDashboardService
         $assignmentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->where('submissions.student_id', $student->id)
+            ->whereIn('assignments.course_id', $courseIds)
             ->whereNotNull('submissions.graded_at')
             ->get([
                 'assignments.title',
@@ -179,6 +183,7 @@ final class StudentDashboardService
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
             ->where('attempts.student_id', $student->id)
+            ->whereIn('exams.course_id', $courseIds)
             ->whereNotNull('attempts.submitted_at')
             ->get([
                 'exams.title',
