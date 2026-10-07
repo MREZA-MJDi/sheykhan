@@ -83,6 +83,66 @@
         </section>
 
 
+        <section class="student-actions" aria-label="دسترسی سریع">
+            <a class="student-action" href="{{ route('student.courses.index') }}">
+                <span class="student-action-icon" aria-hidden="true">↗</span>
+                <span class="student-action-copy">
+                    <strong>دوره‌های من</strong>
+                    <span>{{ \App\Support\PersianUi::digits($activeCourseCount) }} مسیر فعال</span>
+                </span>
+                <span class="student-status primary">فعال</span>
+            </a>
+
+            <a class="student-action" href="{{ route('student.assignments.index') }}">
+                <span class="student-action-icon" aria-hidden="true">✓</span>
+                <span class="student-action-copy">
+                    <strong>تکالیف</strong>
+                    <span>موارد نیازمند پیگیری</span>
+                </span>
+                @if($pendingAssignments > 0)
+                    <span class="student-status warning">{{ \App\Support\PersianUi::digits($pendingAssignments) }}</span>
+                @else
+                    <span class="student-status success">صفر</span>
+                @endif
+            </a>
+
+            <a class="student-action" href="{{ route('student.exams.index') }}">
+                <span class="student-action-icon" aria-hidden="true">?</span>
+                <span class="student-action-copy">
+                    <strong>آزمون‌ها</strong>
+                    <span>آزمون‌های دوره‌های فعال</span>
+                </span>
+                <span class="student-status">مشاهده</span>
+            </a>
+
+            <a class="student-action" href="{{ route('student.live-classes.index') }}">
+                <span class="student-action-icon" aria-hidden="true">●</span>
+                <span class="student-action-copy">
+                    <strong>کلاس‌های من</strong>
+                    <span>جلسه‌های پیش‌رو و ضبط‌ها</span>
+                </span>
+                <span class="student-status">برنامه</span>
+            </a>
+
+            <a class="student-action" href="{{ route('student.results.index') }}">
+                <span class="student-action-icon" aria-hidden="true">↗</span>
+                <span class="student-action-copy">
+                    <strong>نمرات و عملکرد</strong>
+                    <span>نتیجه‌های ثبت‌شده</span>
+                </span>
+                <span class="student-status primary">{{ \App\Support\PersianUi::digits($resultsCount) }}</span>
+            </a>
+
+            <a class="student-action" href="{{ route('student.profile.edit') }}">
+                <span class="student-action-icon" aria-hidden="true">ش</span>
+                <span class="student-action-copy">
+                    <strong>حساب من</strong>
+                    <span>اطلاعات و امنیت حساب</span>
+                </span>
+                <span class="student-status">حساب</span>
+            </a>
+        </section>
+
         {{-- =========================================================
             MAIN DASHBOARD
         ========================================================== --}}
@@ -407,12 +467,8 @@
                         </div>
 
                         <div class="student-resource-actions">
-                            <a class="student-action" href="{{ route('student.resources.view', $resource) }}">مشاهده</a>
-                            @if($resource->downloadable)
-                                <a class="student-action" href="{{ route('student.resources.view', $resource) }}" target="_blank" rel="noopener">مشاهده</a>
-                            @else
-                                <span class="student-status">فقط مشاهده</span>
-                            @endif
+                            <a class="student-action" href="{{ route('student.resources.view', $resource) }}">مشاهده امن</a>
+                            <span class="student-status">بدون دانلود</span>
                         </div>
                     </article>
                 @empty
