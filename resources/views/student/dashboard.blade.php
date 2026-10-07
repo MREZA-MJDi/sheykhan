@@ -353,7 +353,7 @@
                     <article class="student-list-row">
                         <div class="student-date">
                             <strong>
-                                {{ $assignment->due_at ? AppSupportPersianUi::date($assignment->due_at) : '—' }}
+                                {{ $assignment->due_at ? \App\Support\PersianUi::date($assignment->due_at) : '—' }}
                             </strong>
                             <small>موعد</small>
                         </div>
@@ -364,7 +364,7 @@
                                 @if($assignment->submitted_at)
                                     تحویل‌شده
                                     @if($assignment->score !== null)
-                                        · نمره {{ AppSupportPersianUi::digits($assignment->score) }}
+                                        · نمره {{ \App\Support\PersianUi::digits($assignment->score) }}
                                     @endif
                                 @else
                                     تحویل نشده
@@ -455,8 +455,8 @@
             <div class="student-list">
                 @forelse($recentResults as $result)
                     @php
-                        $score = $result->score ?? 0;
-                        $gradedAt = $result->graded_at;
+                        $score = $result->score;
+                        $occurredAt = $result->occurred_at ?? null;
                     @endphp
 
                     <article class="student-list-row">
