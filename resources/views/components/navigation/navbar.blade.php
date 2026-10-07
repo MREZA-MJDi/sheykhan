@@ -11,20 +11,23 @@
                 </a>
 
                 <div class="hidden items-center gap-1 lg:flex">
-                    @foreach([
-                        ['route' => 'home', 'label' => 'خانه'],
-                        ['route' => 'courses.*', 'url' => route('courses.index'), 'label' => 'دوره‌ها'],
-                        ['route' => 'teachers.*', 'url' => route('teachers.index'), 'label' => 'مدرس‌ها'],
-                        ['route' => 'blog.*', 'url' => route('blog.index'), 'label' => 'مقالات'],
-                    ] as $item)
-                        <a
-                            href="{{ $item['url'] ?? route($item['route']) }}"
-                            @if(request()->routeIs($item['route'])) aria-current="page" @endif
-                            class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs($item['route']) ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
-                        >
-                            {{ $item['label'] }}
-                        </a>
-                    @endforeach
+                    <a href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('home') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">خانه</a>
+
+                    <div x-data="{ coursesOpen: false }" class="relative">
+                        <button type="button" @click="coursesOpen = !coursesOpen" @click.outside="coursesOpen = false" :aria-expanded="coursesOpen.toString()" class="inline-flex items-center gap-1 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('courses.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">
+                            دوره‌ها
+                            <svg class="h-3.5 w-3.5 transition" :class="coursesOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div x-cloak x-show="coursesOpen" x-transition class="absolute end-0 top-[calc(100%+0.5rem)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-[var(--shadow-lg)]">
+                            <a href="{{ route('courses.index') }}" class="block rounded-xl px-4 py-3 text-sm font-bold hover:bg-[var(--color-background-soft)]">همه دوره‌ها</a>
+                            @foreach(($navigationGrades ?? collect()) as $grade)
+                                <a href="{{ route('courses.index', ['grade' => $grade->id]) }}" class="block rounded-xl px-4 py-2.5 text-sm font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]">{{ $grade->title }}</a>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <a href="{{ route('teachers.index') }}" @if(request()->routeIs('teachers.*')) aria-current="page" @endif class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('teachers.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مدرس‌ها</a>
+                    <a href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('blog.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مقالات</a>
                 </div>
 
                 <div class="hidden items-center gap-3 lg:flex">
@@ -97,20 +100,18 @@
                 class="border-t border-[var(--color-border)] py-4 lg:hidden"
             >
                 <div class="grid gap-1">
-                    @foreach([
-                        ['route' => 'home', 'url' => route('home'), 'label' => 'خانه'],
-                        ['route' => 'courses.*', 'url' => route('courses.index'), 'label' => 'دوره‌ها'],
-                        ['route' => 'teachers.*', 'url' => route('teachers.index'), 'label' => 'مدرس‌ها'],
-                        ['route' => 'blog.*', 'url' => route('blog.index'), 'label' => 'مقالات'],
-                    ] as $item)
-                        <a
-                            href="{{ $item['url'] }}"
-                            @click="isOpen = false"
-                            class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs($item['route']) ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}"
-                        >
-                            {{ $item['label'] }}
-                        </a>
-                    @endforeach
+                    <a href="{{ route('home') }}" @click="isOpen = false" class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('home') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">خانه</a>
+                    <details class="rounded-xl {{ request()->routeIs('courses.*') ? 'bg-[var(--color-primary-50)]' : '' }}">
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-3 text-sm font-semibold text-[var(--color-text-muted)]">دوره‌ها</summary>
+                        <div class="grid gap-1 px-2 pb-2">
+                            <a href="{{ route('courses.index') }}" @click="isOpen = false" class="rounded-lg px-3 py-2 text-sm font-bold hover:bg-white">همه دوره‌ها</a>
+                            @foreach(($navigationGrades ?? collect()) as $grade)
+                                <a href="{{ route('courses.index', ['grade' => $grade->id]) }}" @click="isOpen = false" class="rounded-lg px-3 py-2 text-sm text-[var(--color-text-muted)] hover:bg-white">{{ $grade->title }}</a>
+                            @endforeach
+                        </div>
+                    </details>
+                    <a href="{{ route('teachers.index') }}" @click="isOpen = false" class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('teachers.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مدرس‌ها</a>
+                    <a href="{{ route('blog.index') }}" @click="isOpen = false" class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('blog.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مقالات</a>
                 </div>
 
                 <div class="mt-3 border-t border-[var(--color-border)] pt-3">
