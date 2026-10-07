@@ -1,17 +1,10 @@
 <?php
 
-use Illuminate\\Database\\Migrations\\Migration;
-use Illuminate\\Database\\Schema\\Blueprint;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Schema;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * The verified legacy WordPress/Tutor student identities.
-     *
-     * Only legacy_source + legacy_id are used as identity; current Laravel
-     * auto-increment IDs are intentionally ignored.
-     */
     private const VERIFIED_LEGACY_IDS = [
         8, 58, 101, 109, 110, 112, 113, 114, 115, 116, 117, 118, 119,
         120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132,
@@ -56,9 +49,6 @@ return new class extends Migration {
                         ->delete();
                 }
 
-                // Do not hard-delete legacy identities here: other legacy
-                // relations may exist. Block them until a dependency audit
-                // explicitly authorizes physical deletion.
                 DB::table('users')
                     ->whereIn('id', $excludedIds)
                     ->update([
@@ -96,14 +86,16 @@ return new class extends Migration {
             if (Schema::hasColumn('student_profiles', 'status')) {
                 DB::table('student_profiles')
                     ->whereIn('user_id', $verifiedUsers)
-                    ->update(['status' => 'active', 'updated_at' => now()]);
+                    ->update([
+                        'status' => 'active',
+                        'updated_at' => now(),
+                    ]);
             }
         });
     }
 
     public function down(): void
     {
-        // Intentionally non-destructive. The legacy import is source data and
-        // must not be silently restored/deleted by a migration rollback.
+        // Intentionally non-destructive.
     }
 };
