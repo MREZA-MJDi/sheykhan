@@ -4,38 +4,49 @@ document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
 
     const dashboard = document.querySelector('[data-teacher-dashboard]');
-    if (!dashboard) return;
 
-    const buttons = dashboard.querySelectorAll('[data-teacher-range]');
-    const bars = dashboard.querySelectorAll('[data-teacher-bars] .teacher-bar');
+    if (dashboard) {
+        const buttons = dashboard.querySelectorAll('[data-teacher-range]');
+        const bars = dashboard.querySelectorAll('[data-teacher-bars] .teacher-bar');
 
-    let datasets = { week: { values: [] }, month: { values: [] } };
+        let datasets = {};
 
-    try {
-        datasets = JSON.parse(dashboard.dataset.chart || '{}');
-    } catch {
-        datasets = { week: { values: [] }, month: { values: [] } };
-    }
+        try {
+            datasets = JSON.parse(dashboard.dataset.chart || '{}');
+        } catch {
+            datasets = {};
+        }
 
-    buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-            buttons.forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
+        const applyChart = (range) => {
+            const dataset = datasets[range] || {};
+            const values = Array.isArray(dataset.values) ? dataset.values : [];
+            const labels = Array.isArray(dataset.labels) ? dataset.labels : [];
 
-            const dataset = datasets[button.dataset.teacherRange] || {};
-            const values = dataset.values || [];
+            buttons.forEach((button) => {
+                button.classList.toggle('active', button.dataset.teacherRange === range);
+                button.setAttribute('aria-pressed', button.dataset.teacherRange === range ? 'true' : 'false');
+            });
 
             bars.forEach((bar, index) => {
-                bar.style.height = String(values[index] || 0) + '%';
+                const value = Math.max(0, Math.min(100, Number(values[index]) || 0));
+                bar.style.height = value + '%';
 
                 const label = bar.querySelector('small');
 
-                if (label && dataset.labels) {
-                    label.textContent = dataset.labels[index] || '';
+                if (label) {
+                    label.textContent = labels[index] || '';
                 }
             });
+        };
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                applyChart(button.dataset.teacherRange || 'week');
+            });
         });
-    });
+
+        applyChart(buttons[0]?.dataset.teacherRange || 'week');
+    }
 
     const examBuilder = document.querySelector('[data-exam-builder]');
 
@@ -45,64 +56,105 @@ document.addEventListener('DOMContentLoaded', () => {
     const template = examBuilder.querySelector('[data-exam-question-template]');
     const addButton = examBuilder.querySelector('[data-exam-add-question]');
 
-    const syncQuestionNames = () => {
-        container?.querySelectorAll('[data-exam-question]').forEach((item, index) => {
-            item.querySelectorAll('[data-name]').forEach((field) => {
-                field.name = `questions[${index}][${field.dataset.name}]`;
+    if (!container || !template || !addButton) return;
+
+    const serializeOptions = (item, index) => {
+        const optionsField = item.querySelector('[data-name="options_text"]');
+
+        if (!optionsField) return;
+
+        item.querySelectorAll('[data-option-hidden]').forEach((node) => node.remove());
+
+        optionsField.value
+            .split('\n')
+            .map((value) => value.trim())
+            .filter(Boolean)
+            .forEach((value, optionIndex) => {
+                const hidden = document.createElement('input');
+
+                hidden.type = 'hidden';
+                hidden.dataset.optionHidden = '1';
+                hidden.name = `questions[${index}][options][${optionIndex}]`;
+                hidden.value = value;
+
+                item.appendChild(hidden);
             });
+    };
 
-            const optionsField = item.querySelector('[data-name="options_text"]');
-            const typeField = item.querySelector('[data-name="type"]');
+    const syncQuestion = (item, index) => {
+        item.querySelectorAll('[data-name]').forEach((field) => {
+            field.name = `questions[${index}][${field.dataset.name}]`;
+        });
 
-            const serializeOptions = () => {
-                if (!optionsField) return;
+        const optionsField = item.querySelector('[data-name="options_text"]');
+        const typeField = item.querySelector('[data-name="type"]');
 
-                const values = optionsField.value
-                    .split('\n')
-                    .map((value) => value.trim())
-                    .filter(Boolean);
+        if (optionsField && typeField) {
+            const wrapper = optionsField.closest('label');
 
-                item.querySelectorAll('[data-option-hidden]').forEach((node) => node.remove());
+            if (wrapper) {
+                wrapper.classList.toggle('hidden', typeField.value === 'text');
+            }
+        }
 
-                values.forEach((value, optionIndex) => {
-                    const hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.dataset.optionHidden = '1';
-                    hidden.name = `questions[${index}][options][${optionIndex}]`;
-                    hidden.value = value;
-                    item.appendChild(hidden);
-                });
-            };
+        serializeOptions(item, index);
+    };
 
-            optionsField?.addEventListener('input', serializeOptions);
-
-            typeField?.addEventListener('change', () => {
-                const label = optionsField?.closest('label');
-
-                if (!label) return;
-
-                label.classList.toggle('hidden', typeField.value === 'text');
-            });
-
-            item.querySelector('[data-exam-remove-question]')?.addEventListener('click', () => {
-                item.remove();
-                syncQuestionNames();
-            });
-
-            serializeOptions();
-            typeField?.dispatchEvent(new Event('change'));
+    const syncQuestions = () => {
+        container.querySelectorAll('[data-exam-question]').forEach((item, index) => {
+            syncQuestion(item, index);
         });
     };
 
-    const addQuestion = () => {
-        const fragment = template?.content?.cloneNode(true);
+    container.addEventListener('input', (event) => {
+        const field = event.target.closest('[data-name="options_text"]');
 
-        if (!fragment) return;
+        if (!field) return;
+
+        const item = field.closest('[data-exam-question]');
+
+        if (!item) return;
+
+        const index = Array.from(container.querySelectorAll('[data-exam-question]')).indexOf(item);
+
+        serializeOptions(item, index);
+    });
+
+    container.addEventListener('change', (event) => {
+        const typeField = event.target.closest('[data-name="type"]');
+
+        if (!typeField) return;
+
+        syncQuestions();
+    });
+
+    container.addEventListener('click', (event) => {
+        const removeButton = event.target.closest('[data-exam-remove-question]');
+
+        if (!removeButton) return;
+
+        event.preventDefault();
+
+        const item = removeButton.closest('[data-exam-question]');
+
+        if (!item) return;
+
+        item.remove();
+        syncQuestions();
+    });
+
+    const addQuestion = () => {
+        const fragment = template.content.cloneNode(true);
 
         container.appendChild(fragment);
-        syncQuestionNames();
+        syncQuestions();
+
+        const questions = container.querySelectorAll('[data-exam-question]');
+        questions[questions.length - 1]
+            ?.querySelector('[data-name="question"]')
+            ?.focus();
     };
 
-    addButton?.addEventListener('click', addQuestion);
+    addButton.addEventListener('click', addQuestion);
     addQuestion();
 });
