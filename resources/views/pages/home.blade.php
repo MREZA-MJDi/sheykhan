@@ -135,6 +135,7 @@
                         :duration="$course['duration']"
                         :price="$course['price']"
                         :level="$course['level']"
+                        :grades="$course['grades'] ?? []"
                         :image="$course['image']"
                         :href="$course['href']"
                     />
