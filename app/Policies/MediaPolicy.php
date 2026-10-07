@@ -15,6 +15,7 @@ use App\Models\LiveClass;
 use App\Models\Media;
 use App\Models\User;
 use App\Services\CourseAccessService;
+use App\Services\StudentAccessService;
 
 class MediaPolicy
 {
@@ -217,6 +218,10 @@ class MediaPolicy
 
     private function courseAccess(User $user, Course $course): bool
     {
+        if ($user->hasRole('student')) {
+            return app(StudentAccessService::class)->course($user, $course);
+        }
+
         return app(CourseAccessService::class)->canAccess($user, $course);
     }
 
