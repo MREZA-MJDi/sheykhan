@@ -49,6 +49,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+Route::get('/courses/{course}/lessons/{lesson}/preview', [CourseController::class, 'preview'])->name('courses.lessons.preview');
 Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
