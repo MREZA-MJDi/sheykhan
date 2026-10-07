@@ -136,7 +136,7 @@ class RolePermissionSeeder extends Seeder
                 'notes.view','notes.manage',
                 'profile.view','profile.manage','profile.security',
                 'achievements.view',
-                'media.view','media.download','resources.view',
+                'media.view','resources.view',
             ],
 
             'parent' => [
