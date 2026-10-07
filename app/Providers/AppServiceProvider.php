@@ -31,12 +31,28 @@ class AppServiceProvider extends ServiceProvider
             $view->with('navigationGrades', Cache::remember(
                 'public:navigation:grades',
                 now()->addMinutes(30),
-                fn () => AcademicGrade::query()
-                    ->where('is_active', true)
-                    ->orderByRaw('CASE WHEN code REGEXP \'^[0-9]+$\' THEN CAST(code AS UNSIGNED) ELSE 999999 END')
-                    ->orderBy('sort_order')
-                    ->orderBy('title')
-                    ->get(['id', 'title'])
+                function () {
+                    $query = AcademicGrade::query()
+                        ->where('is_active', true);
+
+                    if ($query->getConnection()->getDriverName() === 'sqlite') {
+                        $query->orderByRaw(
+                            "CASE WHEN code GLOB '[0-9]*' AND code NOT GLOB '*[^0-9]*' THEN CAST(code AS INTEGER) ELSE 999999 END"
+                        );
+                    } else {
+                        $query->orderByRaw(
+                            "CASE WHEN code REGEXP '^[0-9]+
+    }
+}
+ THEN CAST(code AS UNSIGNED) ELSE 999999 END"
+                        );
+                    }
+
+                    return $query
+                        ->orderBy('sort_order')
+                        ->orderBy('title')
+                        ->get(['id', 'title']);
+                }
             ));
         });
     }
