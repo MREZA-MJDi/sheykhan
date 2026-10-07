@@ -1,484 +1,144 @@
 import Alpine from 'alpinejs';
 
-window.Alpine = Alpine;
-Alpine.start();
+window.Alpine = window.Alpine || Alpine;
 
-/**
- * =========================================================
- * SHEYKHAN PUBLIC HOME
- * Vanilla JS interaction layer
- * =========================================================
- */
+if (!window.__sheykhanAlpineBooted) {
+    Alpine.start();
+    window.__sheykhanAlpineBooted = true;
+}
 
 (() => {
     'use strict';
 
     const ready = (callback) => {
         if (document.readyState === 'loading') {
-            document.addEventListener(
-                'DOMContentLoaded',
-                callback,
-                { once: true }
-            );
-        } else {
-            callback();
+            document.addEventListener('DOMContentLoaded', callback, { once: true });
+            return;
+        }
+
+        callback();
+    };
+
+    const safeSelector = (selector) => {
+        try {
+            return document.querySelector(selector);
+        } catch {
+            return null;
         }
     };
 
     ready(() => {
+        const root = document.querySelector('#main-content');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Reveal on scroll
-        |--------------------------------------------------------------------------
-        */
+        if (!root) return;
 
-        const revealElements = document.querySelectorAll(
-            '#main-content .home-reveal, .home-reveal'
-        );
+        const revealElements = root.querySelectorAll('.home-reveal');
 
-        if (revealElements.length) {
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(
+                (entries, instance) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return;
 
-            if (!('IntersectionObserver' in window)) {
+                        entry.target.classList.add('is-visible');
+                        instance.unobserve(entry.target);
+                    });
+                },
+                {
+                    rootMargin: '0px 0px -8% 0px',
+                    threshold: 0.08,
+                }
+            );
 
-                revealElements.forEach((element) => {
-                    element.classList.add('is-visible');
-                });
-
-            } else {
-
-                const revealObserver = new IntersectionObserver(
-                    (entries, observer) => {
-
-                        entries.forEach((entry) => {
-
-                            if (!entry.isIntersecting) {
-                                return;
-                            }
-
-                            entry.target.classList.add('is-visible');
-
-                            observer.unobserve(entry.target);
-                        });
-
-                    },
-                    {
-                        root: null,
-                        rootMargin: '0px 0px -8% 0px',
-                        threshold: 0.08,
-                    }
-                );
-
-                revealElements.forEach((element) => {
-                    revealObserver.observe(element);
-                });
-            }
+            revealElements.forEach((element) => observer.observe(element));
+        } else {
+            revealElements.forEach((element) => element.classList.add('is-visible'));
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Smooth anchor navigation
-        |--------------------------------------------------------------------------
-        */
-
-        const anchorLinks = document.querySelectorAll(
-            'a[href^="#"]'
-        );
-
-        anchorLinks.forEach((link) => {
-
+        root.querySelectorAll('a[href^="#"]').forEach((link) => {
             link.addEventListener('click', (event) => {
-
                 const href = link.getAttribute('href');
 
-                if (!href || href === '#') {
-                    return;
-                }
+                if (!href || href === '#') return;
 
-                const target = document.querySelector(href);
+                const target = safeSelector(href);
 
-                if (!target) {
-                    return;
-                }
+                if (!target) return;
 
                 event.preventDefault();
 
                 target.scrollIntoView({
-                    behavior: 'smooth',
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                        ? 'auto'
+                        : 'smooth',
                     block: 'start',
                 });
+
+                if (history.replaceState) {
+                    history.replaceState(null, '', href);
+                }
             });
-
         });
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Hero feature card micro interaction
-        |--------------------------------------------------------------------------
-        */
-
-        const heroCard = document.querySelector(
-            '.home-feature-course'
-        );
-
-        if (heroCard) {
-
-            heroCard.addEventListener(
-                'mouseenter',
-                () => {
-                    heroCard.dataset.hovered = 'true';
-                }
-            );
-
-            heroCard.addEventListener(
-                'mouseleave',
-                () => {
-                    delete heroCard.dataset.hovered;
-                }
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Prevent image layout jump
-        |--------------------------------------------------------------------------
-        */
-
-        const lazyImages = document.querySelectorAll(
-            'img[loading="lazy"]'
-        );
-
-        lazyImages.forEach((image) => {
-
-            image.addEventListener(
-                'error',
-                () => {
-
-                    image.classList.add(
-                        'home-image-error'
-                    );
-
-                    image.style.visibility = 'hidden';
-
-                },
-                { once: true }
-            );
-
+        root.querySelectorAll('img[loading="lazy"]').forEach((image) => {
+            image.addEventListener('error', () => {
+                image.classList.add('home-image-error');
+                image.setAttribute('data-image-failed', 'true');
+            }, { once: true });
         });
 
+        root.querySelectorAll('[data-home-keyboard-action]').forEach((element) => {
+            element.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Counter animation
-        |--------------------------------------------------------------------------
-        */
-
-        const counters = document.querySelectorAll(
-            '.home-proof strong'
-        );
-
-        const parsePersianNumber = (value) => {
-
-            if (!value) {
-                return null;
-            }
-
-            const normalized = value
-                .replace(/[۰-۹]/g, (digit) =>
-                    '۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)
-                )
-                .replace(/[٬,]/g, '');
-
-            const match = normalized.match(
-                /[\d]+/
-            );
-
-            if (!match) {
-                return null;
-            }
-
-            const number = Number(match[0]);
-
-            return Number.isFinite(number)
-                ? number
-                : null;
-        };
-
-        const toPersianDigits = (value) => {
-
-            return String(value).replace(
-                /\d/g,
-                (digit) =>
-                    '۰۱۲۳۴۵۶۷۸۹'[digit]
-            );
-        };
-
-        const animateCounter = (
-            element,
-            target
-        ) => {
-
-            if (!Number.isFinite(target)) {
-                return;
-            }
-
-            if (target > 100000) {
-                return;
-            }
-
-            const suffix = element.textContent.includes('+')
-                ? '+'
-                : '';
-
-            const duration = 1100;
-            const start = performance.now();
-
-            const update = (now) => {
-
-                const progress = Math.min(
-                    (now - start) / duration,
-                    1
-                );
-
-                const eased =
-                    1 -
-                    Math.pow(
-                        1 - progress,
-                        3
-                    );
-
-                const current = Math.round(
-                    target * eased
-                );
-
-                element.textContent =
-                    toPersianDigits(current) +
-                    suffix;
-
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            };
-
-            requestAnimationFrame(update);
-        };
-
-        if (
-            counters.length &&
-            'IntersectionObserver' in window
-        ) {
-
-            const counterObserver =
-                new IntersectionObserver(
-                    (entries, observer) => {
-
-                        entries.forEach((entry) => {
-
-                            if (!entry.isIntersecting) {
-                                return;
-                            }
-
-                            const target =
-                                parsePersianNumber(
-                                    entry.target.textContent
-                                );
-
-                            animateCounter(
-                                entry.target,
-                                target
-                            );
-
-                            observer.unobserve(
-                                entry.target
-                            );
-                        });
-
-                    },
-                    {
-                        threshold: .5,
-                    }
-                );
-
-            counters.forEach((counter) => {
-                counterObserver.observe(counter);
+                event.preventDefault();
+                element.click();
             });
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Card keyboard accessibility
-        |--------------------------------------------------------------------------
-        */
-
-        const interactiveCards =
-            document.querySelectorAll(
-                '.home-store-card, .home-feature-course'
-            );
-
-        interactiveCards.forEach((card) => {
-
-            card.addEventListener(
-                'keydown',
-                (event) => {
-
-                    if (
-                        event.key !== 'Enter' &&
-                        event.key !== ' '
-                    ) {
-                        return;
-                    }
-
-                    if (
-                        event.currentTarget.tagName
-                        !== 'A'
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-
-                    event.currentTarget.click();
-                }
-            );
-
         });
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Horizontal scroll support
-        |
-        | Useful for future mobile course/product rails.
-        |--------------------------------------------------------------------------
-        */
-
-        const horizontalRails =
-            document.querySelectorAll(
-                '[data-home-horizontal]'
-            );
-
-        horizontalRails.forEach((rail) => {
-
-            let isDown = false;
+        root.querySelectorAll('[data-home-horizontal]').forEach((rail) => {
+            let active = false;
             let startX = 0;
-            let scrollLeft = 0;
+            let startScroll = 0;
 
-            rail.addEventListener(
-                'pointerdown',
-                (event) => {
+            rail.addEventListener('pointerdown', (event) => {
+                if (event.pointerType === 'touch') return;
 
-                    isDown = true;
+                active = true;
+                startX = event.clientX;
+                startScroll = rail.scrollLeft;
+                rail.setPointerCapture?.(event.pointerId);
+            });
 
-                    startX =
-                        event.clientX;
+            rail.addEventListener('pointermove', (event) => {
+                if (!active) return;
 
-                    scrollLeft =
-                        rail.scrollLeft;
+                rail.scrollLeft = startScroll - (event.clientX - startX);
+            });
 
-                    rail.setPointerCapture(
-                        event.pointerId
-                    );
-                }
-            );
-
-            rail.addEventListener(
-                'pointermove',
-                (event) => {
-
-                    if (!isDown) {
-                        return;
-                    }
-
-                    const distance =
-                        event.clientX -
-                        startX;
-
-                    rail.scrollLeft =
-                        scrollLeft -
-                        distance;
-                }
-            );
-
-            const stopDrag = () => {
-                isDown = false;
+            const stop = () => {
+                active = false;
             };
 
-            rail.addEventListener(
-                'pointerup',
-                stopDrag
-            );
-
-            rail.addEventListener(
-                'pointercancel',
-                stopDrag
-            );
-
-            rail.addEventListener(
-                'pointerleave',
-                stopDrag
-            );
-
+            rail.addEventListener('pointerup', stop);
+            rail.addEventListener('pointercancel', stop);
         });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Scroll state
-        |--------------------------------------------------------------------------
-        */
 
         const updateScrollState = () => {
-
             document.documentElement.toggleAttribute(
                 'data-home-scrolled',
                 window.scrollY > 24
             );
-
         };
 
         updateScrollState();
 
-        window.addEventListener(
-            'scroll',
-            updateScrollState,
-            {
-                passive: true,
-            }
-        );
+        window.addEventListener('scroll', updateScrollState, { passive: true });
 
+        window.addEventListener('pageshow', () => {
+            document.documentElement.removeAttribute('data-home-loading');
+        });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Back/forward browser navigation
-        |--------------------------------------------------------------------------
-        */
-
-        window.addEventListener(
-            'pageshow',
-            () => {
-                document.documentElement
-                    .removeAttribute(
-                        'data-home-loading'
-                    );
-            }
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Page loaded
-        |--------------------------------------------------------------------------
-        */
-
-        document.documentElement
-            .removeAttribute(
-                'data-home-loading'
-            );
-
+        document.documentElement.removeAttribute('data-home-loading');
     });
-
 })();
