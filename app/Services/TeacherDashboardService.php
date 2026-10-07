@@ -277,10 +277,12 @@ final class TeacherDashboardService
                     $end = Carbon::parse($schedule->end_time);
                     $now = now();
 
-                    $status = $now->between(
-                        now()->copy()->setTimeFrom($start),
-                        now()->copy()->setTimeFrom($end)
-                    ) ? 'در حال برگزاری' : 'شروع نشده';
+                    $startAt = now()->copy()->setTimeFrom($start);
+                    $endAt = now()->copy()->setTimeFrom($end);
+
+                    $status = $now->gt($endAt)
+                        ? 'پایان یافته'
+                        : ($now->gte($startAt) ? 'در حال برگزاری' : 'شروع نشده');
 
                     return [
                         'time' => $this->faDigits($start->format('H:i')),
@@ -301,11 +303,16 @@ final class TeacherDashboardService
             ->orderBy('scheduled_at')
             ->get()
             ->map(function (LiveClass $item) {
+                $ended = $item->ended_at !== null
+                    || ($item->scheduled_end_at !== null && $item->scheduled_end_at->isPast());
+
                 return [
                     'time' => $this->faDigits($item->scheduled_at->format('H:i')),
                     'title' => $item->title,
                     'meta' => $item->classroom?->title ?? $item->course?->title,
-                    'status' => $item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده',
+                    'status' => $ended
+                        ? 'پایان یافته'
+                        : ($item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده'),
                     'type' => 'online',
                 ];
             });
