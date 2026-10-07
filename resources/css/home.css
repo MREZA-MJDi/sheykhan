@@ -2463,7 +2463,7 @@
     filter: saturate(1.04) contrast(1.01);
 }
 
-.edu-card .text-[var\(--color-primary-600\)\] {
+.edu-card [class~="text-[var(--color-primary-600)]"] {
     color: var(--home-primary);
 }
 
@@ -2582,7 +2582,7 @@
         #fff;
 }
 
-.home-live-grid .edu-card .bg-[var\(--color-primary-50\)\] {
+.home-live-grid .edu-card [class~="bg-[var(--color-primary-50)]"] {
     background: var(--home-teal-soft);
     color: var(--home-teal);
 }
