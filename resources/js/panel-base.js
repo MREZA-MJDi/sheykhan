@@ -1,24 +1,17 @@
 import Alpine from 'alpinejs';
 
-let alpineBooted = false;
+const ALPINE_BOOT_FLAG = '__sheykhanAlpineBooted';
 
 function bootAlpine() {
-    if (alpineBooted) return;
+    if (window[ALPINE_BOOT_FLAG]) return;
 
-    window.Alpine = window.Alpine || Alpine;
+    const alpine = window.Alpine || Alpine;
+    window.Alpine = alpine;
 
-    if (!window.Alpine?.start) return;
+    if (!alpine || typeof alpine.start !== 'function') return;
 
-    /*
-     * Start Alpine exactly once per document.
-     * Public and panel layouts can each load their own entrypoint,
-     * so the guard prevents duplicate initialization errors.
-     */
-    if (!window.Alpine.started) {
-        window.Alpine.start();
-    }
-
-    alpineBooted = true;
+    alpine.start();
+    window[ALPINE_BOOT_FLAG] = true;
 }
 
 export function bootPanel() {
@@ -41,10 +34,7 @@ export function bootPanel() {
     document.addEventListener('click', (event) => {
         if (!document.body.classList.contains('role-menu-open')) return;
 
-        if (
-            sidebar.contains(event.target) ||
-            openButton.contains(event.target)
-        ) {
+        if (sidebar.contains(event.target) || openButton.contains(event.target)) {
             return;
         }
 
