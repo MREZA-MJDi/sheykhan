@@ -10,13 +10,16 @@
         $author = $post->author;
 
         $publishedDate = $post->published_at
-            ? \App\Support\PersianUi::digits($post->published_at->format('Y/m/d'))
+            ? \App\Support\PersianUi::date($post->published_at)
             : null;
 
         $readingText = null;
 
         if ($post->content) {
-            $wordCount = str_word_count(strip_tags((string) $post->content));
+            $plainContent = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $post->content)));
+            preg_match_all('/\p{L}+/u', $plainContent, $matches);
+
+            $wordCount = count($matches[0] ?? []);
 
             if ($wordCount > 0) {
                 $readingMinutes = max(1, (int) ceil($wordCount / 180));
