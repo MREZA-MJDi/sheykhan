@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,32 @@ class CourseEnrollment extends Model
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Temporary source of truth until a real gateway/webhook is connected.
+     *
+     * Access requires an active enrollment that is explicitly marked paid
+     * and has a positive paid amount. When a price snapshot exists, the
+     * recorded payment must cover that snapshot so partial payments never
+     * unlock protected learning content.
+     */
+    public function scopeFullyPaid(Builder $query): Builder
+    {
+        return $query
+            ->where('status', 'active')
+            ->where('payment_status', 'paid')
+            ->where('paid_amount', '>', 0)
+            ->where(function (Builder $amount): void {
+                $amount
+                    ->whereNull('price_amount')
+                    ->orWhereColumn('paid_amount', '>=', 'price_amount');
+            });
+    }
 
     public function course(): BelongsTo
     {
