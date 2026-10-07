@@ -72,7 +72,26 @@ class CourseCatalogService
         $course->load([
             'academy:id,name,slug,owner_id',
             'teachers:id,name',
-            'sections.lessons.media',
+            'sections.lessons' => fn ($query) => $query
+                ->where('status', 'published')
+                ->where(fn ($query) => $query
+                    ->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now())
+                )
+                ->select([
+                    'id',
+                    'course_section_id',
+                    'title',
+                    'slug',
+                    'type',
+                    'summary',
+                    'duration_seconds',
+                    'is_free',
+                    'status',
+                    'published_at',
+                    'sort_order',
+                ])
+                ->orderBy('sort_order'),
             'grades:id,title',
             'media' => fn ($query) => $query
                 ->where('visibility', 'public')
