@@ -488,10 +488,10 @@
                                                         <div class="flex flex-wrap gap-2">
                                                             @foreach($lesson->media as $media)
                                                                 <a
-                                                                    href="{{ route('media.download', $media) }}"
+                                                                    href="{{ route('media.view', $media) }}" target="_blank" rel="noopener"
                                                                     class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2 text-xs font-black text-[var(--color-primary-600)] transition hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
                                                                 >
-                                                                    <span>دانلود فایل</span>
+                                                                    <span>مشاهده فایل</span>
                                                                     <span aria-hidden="true">↓</span>
                                                                 </a>
                                                             @endforeach
