@@ -32,9 +32,9 @@ class RoleDashboardAccessTest extends TestCase
 
     public function test_student_cannot_open_teacher_or_owner_dashboards(): void
     {
-        $this->seedDemo();
+        $this->seed();
 
-        $student = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
 
         $this->actingAs($student)
             ->get(route('teacher.dashboard'))
