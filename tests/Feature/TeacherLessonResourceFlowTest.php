@@ -21,8 +21,8 @@ class TeacherLessonResourceFlowTest extends TestCase
         Storage::fake('local');
         $this->seed();
 
-        $teacher = User::where('email', 'teacher1@sheykhan.test')->firstOrFail();
-        $student = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
         $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
 
@@ -68,7 +68,7 @@ class TeacherLessonResourceFlowTest extends TestCase
     {
         $this->seed();
 
-        $teacher = User::where('email', 'teacher1@sheykhan.test')->firstOrFail();
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
         $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
 
