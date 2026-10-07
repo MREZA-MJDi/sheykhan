@@ -24,15 +24,15 @@
                         <div class="mt-6 flex flex-wrap items-center gap-3 text-sm">
                             <span class="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 font-semibold text-[var(--color-text-muted)]">
                                 <strong class="font-black text-[var(--color-text)]">
-                                    {{ AppSupportPersianUi::digits($teachers->total()) }}
+                                    {{ \App\Support\PersianUi::digits($teachers->total()) }}
                                 </strong>
                                 مدرس
                             </span>
 
                             @if($teachers->hasPages())
                                 <span class="text-[var(--color-text-subtle)]">
-                                    صفحه {{ AppSupportPersianUi::digits($teachers->currentPage()) }}
-                                    از {{ AppSupportPersianUi::digits($teachers->lastPage()) }}
+                                    صفحه {{ \App\Support\PersianUi::digits($teachers->currentPage()) }}
+                                    از {{ \App\Support\PersianUi::digits($teachers->lastPage()) }}
                                 </span>
                             @endif
                         </div>
