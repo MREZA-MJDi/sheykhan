@@ -44,7 +44,6 @@ final class ParentDashboardService
                 $query->selectRaw('1')
                     ->from('assignments')
                     ->where('assignments.status', 'published')
-                    ->whereNull('assignments.deleted_at')
                     ->whereExists(function ($enrollments): void {
                         $enrollments->selectRaw('1')
                             ->from('course_enrollments')
@@ -64,7 +63,6 @@ final class ParentDashboardService
             ->selectSub(function ($query): void {
                 $query->from('assignments')
                     ->where('assignments.status', 'published')
-                    ->whereNull('assignments.deleted_at')
                     ->whereExists(function ($enrollments): void {
                         $enrollments->selectRaw('1')
                             ->from('course_enrollments')
