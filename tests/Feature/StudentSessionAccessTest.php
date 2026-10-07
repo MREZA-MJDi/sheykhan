@@ -39,7 +39,7 @@ class StudentSessionAccessTest extends TestCase
 
         $this->assertTrue($byId[$released->id]['available']);
         $this->assertSame('روشن', $byId[$released->id]['lamp']);
-        $this->assertSame(route('media.download', $released->recording), $byId[$released->id]['href']);
+        $this->assertSame(route('media.view', $released->recording), $byId[$released->id]['href']);
     }
 
     public function test_recording_download_requires_release_and_student_scope(): void
