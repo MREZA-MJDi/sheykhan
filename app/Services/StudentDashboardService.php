@@ -308,6 +308,7 @@ final class StudentDashboardService
                 'study_minutes_last_7_days' => 0,
                 'study_streak' => 0,
                 'study_dates' => [],
+                'study_week' => $this->emptyStudyWeek(),
             ];
         }
 
@@ -342,6 +343,7 @@ final class StudentDashboardService
                     'study_minutes_last_7_days' => (int) floor($studySeconds / 60),
                     'study_streak' => 0,
                     'study_dates' => $studyDates->all(),
+                    'study_week' => $this->studyWeek($rows),
                 ];
             }
             $anchor = $yesterday;
@@ -357,7 +359,62 @@ final class StudentDashboardService
             'study_minutes_last_7_days' => (int) floor($studySeconds / 60),
             'study_streak' => $streak,
             'study_dates' => $studyDates->all(),
+            'study_week' => $this->studyWeek($rows),
         ];
+    }
+
+    private function emptyStudyWeek(): array
+    {
+        $week = [];
+
+        for ($offset = 6; $offset >= 0; $offset--) {
+            $date = now()->startOfDay()->subDays($offset);
+
+            $week[] = [
+                'date' => $date->toDateString(),
+                'label' => PersianUi::digits($date->day),
+                'weekday' => $this->persianWeekday($date->dayOfWeek),
+                'minutes' => 0,
+            ];
+        }
+
+        return $week;
+    }
+
+    private function studyWeek($rows): array
+    {
+        $minutesByDate = collect($rows)
+            ->groupBy(fn ($row) => Carbon::parse($row->last_watched_at)->toDateString())
+            ->map(fn ($items) => (int) floor($items->sum(fn ($row) => (int) $row->seconds_watched) / 60));
+
+        $week = [];
+
+        for ($offset = 6; $offset >= 0; $offset--) {
+            $date = now()->startOfDay()->subDays($offset);
+            $key = $date->toDateString();
+
+            $week[] = [
+                'date' => $key,
+                'label' => PersianUi::digits($date->day),
+                'weekday' => $this->persianWeekday($date->dayOfWeek),
+                'minutes' => (int) ($minutesByDate[$key] ?? 0),
+            ];
+        }
+
+        return $week;
+    }
+
+    private function persianWeekday(int $dayOfWeek): string
+    {
+        return [
+            0 => 'ی',
+            1 => 'د',
+            2 => 'س',
+            3 => 'چ',
+            4 => 'پ',
+            5 => 'ج',
+            6 => 'ش',
+        ][$dayOfWeek] ?? '';
     }
 
     private function progressByCourse(int $studentId, $courseIds)
