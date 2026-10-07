@@ -65,14 +65,74 @@ class StudentLearningResourceAccessTest extends TestCase
         );
 
         $this->actingAs($studentInClass)
-            ->get(route('student.resources.download', $resource))
+            ->get(route('student.resources.view', $resource))
             ->assertOk()
             ->assertStreamed()
             ->assertStreamedContent('student-resource-fixture');
 
+        $this->actingAs($studentInClass)
+            ->get(route('student.resources.download', $resource))
+            ->assertForbidden()
+            ->assertSee('فایل‌های آموزشی محافظت‌شده');
+
+        $this->actingAs($studentOutsideClass)
+            ->get(route('student.resources.view', $resource))
+            ->assertNotFound();
+
         $this->actingAs($studentOutsideClass)
             ->get(route('student.resources.download', $resource))
             ->assertNotFound();
+    }
+
+    public function test_paid_student_can_view_protected_media_but_cannot_download_it_and_other_students_are_denied(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $otherStudent = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
+
+        $student->enrollments()->where('course_id', $course->id)->update([
+            'status' => 'active',
+            'paid_amount' => max(1, (int) $course->price),
+        ]);
+
+        $otherStudent->enrollments()->updateOrCreate(
+            ['course_id' => $course->id],
+            ['status' => 'active', 'paid_amount' => 0, 'started_at' => now()],
+        );
+
+        $media = $this->makeMedia('paid-lesson.pdf', 'application/pdf');
+
+        $media->attachments()->create([
+            'mediable_type' => Course::class,
+            'mediable_id' => $course->id,
+            'collection' => 'course-assets',
+            'sort_order' => 1,
+        ]);
+
+        $this->assertTrue(IlluminateSupportFacadesGate::forUser($student)->allows('view', $media));
+        $this->assertFalse(IlluminateSupportFacadesGate::forUser($student)->allows('download', $media));
+        $this->assertFalse(IlluminateSupportFacadesGate::forUser($otherStudent)->allows('view', $media));
+        $this->assertFalse(IlluminateSupportFacadesGate::forUser($otherStudent)->allows('download', $media));
+
+        $this->actingAs($student)
+            ->get(route('media.view', $media))
+            ->assertOk()
+            ->assertStreamed()
+            ->assertStreamedContent('student-resource-fixture');
+
+        $this->actingAs($student)
+            ->get(route('media.download', $media))
+            ->assertForbidden();
+
+        $this->actingAs($otherStudent)
+            ->get(route('media.view', $media))
+            ->assertForbidden();
+
+        $this->actingAs($otherStudent)
+            ->get(route('media.download', $media))
+            ->assertForbidden();
     }
 
     public function test_view_only_resource_returns_friendly_forbidden_message_when_download_is_attempted(): void
