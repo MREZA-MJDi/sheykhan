@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\FinancialTransaction;
 use App\Models\Lesson;
 use App\Models\User;
 use App\Services\StudentAccessService;
@@ -66,6 +67,31 @@ class StudentCourseAccessSecurityTest extends TestCase
 
         $enrollment->update([
             'paid_amount' => $course->price,
+        ]);
+
+        $this->assertTrue(
+            $access->course($student->fresh(), $course)
+        );
+
+        $enrollment->financialTransactions()->delete();
+
+        $this->assertFalse(
+            $access->course($student->fresh(), $course)
+        );
+
+        FinancialTransaction::create([
+            'academy_id' => $course->academy_id,
+            'enrollment_id' => $enrollment->id,
+            'user_id' => $student->id,
+            'recorded_by' => null,
+            'type' => 'enrollment_payment',
+            'status' => 'completed',
+            'amount' => $course->price,
+            'currency' => 'IRT',
+            'reference' => 'test-enrollment-payment-' . $enrollment->id,
+            'description' => 'test payment evidence',
+            'metadata' => ['source' => 'security_test'],
+            'occurred_at' => now(),
         ]);
 
         $this->assertTrue(
