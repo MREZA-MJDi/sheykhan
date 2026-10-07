@@ -11,15 +11,14 @@
 
     <nav class="role-sidebar-nav" aria-label="منوی دانش‌آموز">
         <div class="role-sidebar-label">یادگیری</div>
-        <a href="{{ route('student.dashboard') }}" class="role-nav-link is-active"><span class="role-nav-icon"></span><span>داشبورد</span></a>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>دوره‌های من</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>کلاس‌ها و جلسات</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>تمرین‌ها</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>آزمون‌ها</span><small>به‌زودی</small></span>
+        <a href="{{ route('student.dashboard') }}#student-courses" class="role-nav-link {{ request()->routeIs('student.dashboard') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>دوره‌های من</span></a>
+        <a href="{{ route('student.dashboard') }}#student-sessions" class="role-nav-link"><span class="role-nav-icon"></span><span>کلاس‌ها و جلسات</span></a>
+        <a href="{{ route('student.dashboard') }}#student-assignments" class="role-nav-link"><span class="role-nav-icon"></span><span>تمرین‌ها</span></a>
+        <a href="{{ route('student.dashboard') }}#student-results" class="role-nav-link"><span class="role-nav-icon"></span><span>آزمون‌ها و نتایج</span></a>
+        <a href="{{ route('student.resources.index') }}" class="role-nav-link {{ request()->routeIs('student.resources.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>جزوه‌ها و فایل‌ها</span></a>
 
         <div class="role-sidebar-label mt-6">حساب من</div>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>نمرات و عملکرد</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>پروفایل</span><small>به‌زودی</small></span>
+        <a href="{{ route('student.dashboard') }}#student-results" class="role-nav-link"><span class="role-nav-icon"></span><span>نمرات و عملکرد</span></a>
     </nav>
 
     <div class="role-sidebar-footer">
