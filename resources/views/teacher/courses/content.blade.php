@@ -21,8 +21,13 @@
                                 @endif
                                 <form method="POST" action="{{ route('teacher.lessons.media.store',$lesson) }}" enctype="multipart/form-data" class="flex flex-wrap gap-2">
                                     @csrf
-                                    <input type="file" name="media" class="max-w-[220px] rounded-lg border border-slate-200 bg-white px-2 py-2 text-[9px]">
-                                    <button class="rounded-lg bg-slate-900 px-3 py-2 text-[9px] font-black text-white">آپلود فایل</button>
+                                    <input type="file" name="media" class="max-w-[220px] rounded-lg border border-slate-200 bg-white px-2 py-2 text-[9px]" required>
+                                    <input type="hidden" name="downloadable" value="0">
+                                    <label class="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-2 text-[9px]">
+                                        <input type="checkbox" name="downloadable" value="1" checked>
+                                        قابل دانلود
+                                    </label>
+                                    <button class="rounded-lg bg-slate-900 px-3 py-2 text-[9px] font-black text-white">آپلود و انتشار برای دانش‌آموزان</button>
                                 </form>
                             </div>
                         </div>
