@@ -546,35 +546,45 @@
                     <i>↗</i>
                 </a>
 
-                <a href="{{ route('student.exams.index') }}">
-                    <b>آزمون‌ها</b>
-                    <span>دانسته‌هایت را قبل از فراموش شدن محک بزن</span>
-                    <i>↗</i>
-                </a>
+                @if(auth()->user()->hasPermission('exams.view'))
+                    <a href="{{ route('student.exams.index') }}">
+                        <b>آزمون‌ها</b>
+                        <span>دانسته‌هایت را قبل از فراموش شدن محک بزن</span>
+                        <i>↗</i>
+                    </a>
+                @endif
 
-                <a href="{{ route('student.attendance.index') }}">
-                    <b>حضور و غیاب</b>
-                    <span>نظم حضورت بخشی از مسیر پیشرفت توست</span>
-                    <i>↗</i>
-                </a>
+                @if(auth()->user()->hasPermission('attendance.view'))
+                    <a href="{{ route('student.attendance.index') }}">
+                        <b>حضور و غیاب</b>
+                        <span>نظم حضورت بخشی از مسیر پیشرفت توست</span>
+                        <i>↗</i>
+                    </a>
+                @endif
 
-                <a href="{{ route('student.achievements.index') }}">
-                    <b>دستاوردها</b>
-                    <span>موفقیت‌هایی که ارزش ثبت و دیدن دارند</span>
-                    <i>↗</i>
-                </a>
+                @if(auth()->user()->hasPermission('achievements.view'))
+                    <a href="{{ route('student.achievements.index') }}">
+                        <b>دستاوردها</b>
+                        <span>موفقیت‌هایی که ارزش ثبت و دیدن دارند</span>
+                        <i>↗</i>
+                    </a>
+                @endif
 
-                <a href="{{ route('student.notes.index') }}">
-                    <b>یادداشت‌های من</b>
-                    <span>چیزهایی که نباید از یادگیری‌ات گم شوند</span>
-                    <i>↗</i>
-                </a>
+                @if(auth()->user()->hasPermission('notes.view'))
+                    <a href="{{ route('student.notes.index') }}">
+                        <b>یادداشت‌های من</b>
+                        <span>چیزهایی که نباید از یادگیری‌ات گم شوند</span>
+                        <i>↗</i>
+                    </a>
+                @endif
 
-                <a href="{{ route('student.profile.edit') }}">
-                    <b>حساب و امنیت</b>
-                    <span>اطلاعات حساب و تنظیمات شخصی</span>
-                    <i>↗</i>
-                </a>
+                @if(auth()->user()->hasPermission('profile.view'))
+                    <a href="{{ route('student.profile.edit') }}">
+                        <b>حساب و امنیت</b>
+                        <span>اطلاعات حساب و تنظیمات شخصی</span>
+                        <i>↗</i>
+                    </a>
+                @endif
             </div>
         </section>
     </div>
