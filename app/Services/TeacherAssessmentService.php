@@ -137,15 +137,35 @@ final class TeacherAssessmentService
     private function matches($expected, $actual, ?string $type): bool
     {
         if (in_array($type, ['multiple', 'checkbox'], true)) {
-            $expected = array_values(array_unique((array) $expected));
-            $actual = array_values(array_unique((array) $actual));
-
-            sort($expected);
-            sort($actual);
+            $expected = $this->normalizeChoiceList($expected);
+            $actual = $this->normalizeChoiceList($actual);
 
             return $expected === $actual;
         }
 
         return mb_strtolower(trim((string) $expected)) === mb_strtolower(trim((string) $actual));
+    }
+
+    private function normalizeChoiceList(mixed $value): array
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $value = $decoded;
+            } else {
+                $value = preg_split('/\s*[,،]\s*/u', $value, -1, PREG_SPLIT_NO_EMPTY);
+            }
+        }
+
+        $value = is_array($value) ? $value : [$value];
+        $value = array_map(
+            static fn ($item) => trim((string) $item),
+            $value
+        );
+        $value = array_values(array_unique(array_filter($value, static fn ($item) => $item !== '')));
+        sort($value);
+
+        return $value;
     }
 }
