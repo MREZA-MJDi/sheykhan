@@ -98,11 +98,12 @@ final class StudentDashboardService
                 ->limit(24)
                 ->get()
                 ->map(function (LiveClass $session): array {
-                    $recordingReady = $session->isRecordingAvailable()
+                    $isFuture = $session->scheduled_at->isFuture();
+
+                    $recordingReady = !$isFuture
+                        && $session->isRecordingAvailable()
                         && $session->recording?->status === 'active'
                         && $session->recording?->visibility === 'private';
-
-                    $isFuture = $session->scheduled_at->isFuture();
 
                     return [
                         'id' => $session->id,
