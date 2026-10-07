@@ -17,6 +17,11 @@ use App\Services\CourseAccessService;
 
 class MediaPolicy
 {
+    public function view(User $user, Media $media): bool
+    {
+        return $this->download($user, $media);
+    }
+
     public function download(User $user, Media $media): bool
     {
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
