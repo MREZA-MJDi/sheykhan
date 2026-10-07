@@ -12,28 +12,60 @@
    ========================================================= */
 
 :root {
-    --home-primary: #5667e8;
-    --home-primary-dark: #3d4bb6;
-    --home-primary-soft: #eef0ff;
-    --home-primary-light: #f5f6ff;
+    /* Home palette: serious indigo + fresh teal + human coral/gold accents. */
+    --home-primary: #5b5bd6;
+    --home-primary-dark: #37358f;
+    --home-primary-soft: #efefff;
+    --home-primary-light: #f8f7ff;
 
-    --home-ink: #111827;
-    --home-ink-soft: #344054;
-    --home-muted: #667085;
-    --home-muted-light: #98a2b3;
+    --home-teal: #0e9f9a;
+    --home-teal-soft: #e8faf8;
+    --home-coral: #ed6c5f;
+    --home-coral-soft: #fff0ed;
+    --home-gold: #c99632;
+    --home-gold-soft: #fff8df;
 
-    --home-border: #e7eaf0;
-    --home-border-dark: #d7dce6;
+    --home-ink: #121827;
+    --home-ink-soft: #3f4b61;
+    --home-muted: #687387;
+    --home-muted-light: #9aa4b5;
 
-    --home-bg: #ffffff;
-    --home-bg-soft: #f8f9fc;
-    --home-bg-alt: #f4f6fb;
+    --home-border: #e4e8ee;
+    --home-border-dark: #d0d6e0;
 
-    --home-dark: #0b1020;
-    --home-dark-2: #121a32;
-    --home-dark-3: #1b2850;
+    --home-bg: #fbfaf7;
+    --home-bg-soft: #f4f5f2;
+    --home-bg-alt: #eef1f3;
+
+    --home-dark: #0c1020;
+    --home-dark-2: #151b35;
+    --home-dark-3: #24305d;
 
     --home-white: #ffffff;
+
+    /* Keep shared UI components on the same visual language on Home. */
+    --color-primary-50: #efefff;
+    --color-primary-100: #e4e4ff;
+    --color-primary-200: #d1d1ff;
+    --color-primary-300: #b1b2fb;
+    --color-primary-400: #7d7de6;
+    --color-primary-500: #5b5bd6;
+    --color-primary-600: #4f4fc5;
+    --color-primary-700: #37358f;
+    --color-primary-800: #2d2a73;
+    --color-primary-900: #211f55;
+    --color-accent-50: #e8faf8;
+    --color-accent-500: #0e9f9a;
+    --color-accent-600: #0b817d;
+    --color-accent-700: #08645f;
+    --color-text: #121827;
+    --color-text-secondary: #4a566b;
+    --color-text-muted: #6d788a;
+    --color-text-subtle: #9aa4b5;
+    --color-text-tertiary: #7b8596;
+    --color-border: #e4e8ee;
+    --color-border-strong: #d0d6e0;
+    --color-background-soft: #f4f5f2;
 
     --home-radius-sm: .75rem;
     --home-radius-md: 1rem;
@@ -41,9 +73,9 @@
     --home-radius-xl: 1.8rem;
     --home-radius-2xl: 2.4rem;
 
-    --home-shadow-sm: 0 6px 20px rgba(16, 24, 40, .05);
-    --home-shadow-md: 0 15px 40px rgba(16, 24, 40, .08);
-    --home-shadow-lg: 0 30px 80px rgba(16, 24, 40, .12);
+    --home-shadow-sm: 0 8px 24px rgba(18, 24, 39, .055);
+    --home-shadow-md: 0 18px 44px rgba(18, 24, 39, .085);
+    --home-shadow-lg: 0 32px 90px rgba(18, 24, 39, .12);
 
     --home-container: 1380px;
 
@@ -2152,5 +2184,737 @@
     .home-reveal {
         opacity: 1;
         transform: none;
+    }
+}
+
+
+/* =========================================================
+   HOME VISUAL SYSTEM — POLISHED SKIN
+========================================================= */
+
+.home-section {
+    position: relative;
+    isolation: isolate;
+}
+
+.home-section > .container,
+.home-section > [class*="container"] {
+    position: relative;
+    z-index: 2;
+}
+
+/* Quiet depth behind the content, not a flat white wall. */
+.home-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--home-primary) 5%, transparent), transparent 22rem),
+        radial-gradient(circle at 6% 82%, color-mix(in srgb, var(--home-teal) 4%, transparent), transparent 20rem);
+}
+
+.home-soft {
+    background:
+        linear-gradient(180deg, rgba(244,245,242,.78), rgba(251,250,247,.96));
+    border-block-color: #e7e9e5;
+}
+
+/* Hero gets the strongest visual treatment. */
+.home-hero {
+    background:
+        radial-gradient(circle at 82% 12%, rgba(91,91,214,.14), transparent 28rem),
+        radial-gradient(circle at 8% 84%, rgba(14,159,154,.09), transparent 23rem),
+        radial-gradient(circle at 54% 45%, rgba(237,108,95,.035), transparent 30rem),
+        linear-gradient(180deg, #fbfbff 0%, #fbfaf7 100%);
+}
+
+.home-hero::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 34%;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(91,91,214,.025));
+}
+
+.home-hero h1 span {
+    background: linear-gradient(100deg, var(--home-primary), var(--home-teal) 78%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.home-eyebrow {
+    border-color: rgba(91,91,214,.16);
+    background: rgba(255,255,255,.76);
+    box-shadow: 0 8px 24px rgba(91,91,214,.06);
+    backdrop-filter: blur(12px);
+}
+
+.home-eyebrow i {
+    background: var(--home-coral);
+    box-shadow: 0 0 0 5px rgba(237,108,95,.11);
+}
+
+/* Hero visual: glossy glass, restrained glow, real hierarchy. */
+.home-hero-glow {
+    background:
+        radial-gradient(circle at 35% 32%, rgba(91,91,214,.28), transparent 48%),
+        radial-gradient(circle at 72% 72%, rgba(14,159,154,.18), transparent 42%);
+}
+
+.home-hero-panel {
+    border-color: rgba(255,255,255,.12);
+    background:
+        radial-gradient(circle at 84% 16%, rgba(125,125,230,.22), transparent 22rem),
+        radial-gradient(circle at 8% 86%, rgba(14,159,154,.12), transparent 17rem),
+        linear-gradient(145deg, #0a0f20 0%, #151a36 52%, #303884 100%);
+    box-shadow:
+        0 38px 100px rgba(24, 28, 68, .22),
+        inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.home-hero-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .26;
+    background-image: radial-gradient(rgba(255,255,255,.65) .55px, transparent .55px);
+    background-size: 10px 10px;
+    mask-image: linear-gradient(135deg, rgba(0,0,0,.9), transparent 75%);
+}
+
+.home-mark {
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.045));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.home-feature-course {
+    border-color: rgba(255,255,255,.12);
+    background: rgba(255,255,255,.065);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.05),
+        0 18px 50px rgba(0,0,0,.10);
+}
+
+.home-feature-course:hover {
+    background: rgba(255,255,255,.095);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 26px 60px rgba(0,0,0,.18);
+}
+
+.home-feature-label {
+    background: rgba(9,14,29,.42);
+    border-color: rgba(255,255,255,.18);
+}
+
+.home-feature-meta span,
+.home-hero-bottom span {
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.09);
+}
+
+.home-arrow {
+    background: linear-gradient(145deg, rgba(91,91,214,.30), rgba(14,159,154,.12));
+    border: 1px solid rgba(255,255,255,.10);
+}
+
+/* Path navigation becomes a true visual index. */
+.home-paths {
+    background: rgba(255,255,255,.78);
+    border-block-color: #e8e8e4;
+    backdrop-filter: blur(14px);
+}
+
+.home-path-grid {
+    overflow: hidden;
+    border-inline: 1px solid #ecece8;
+}
+
+.home-path-grid a {
+    min-height: 146px;
+    padding: 1.35rem 1.5rem 1.55rem;
+    border-inline-start-color: #ecece8;
+}
+
+.home-path-grid a:hover {
+    background:
+        radial-gradient(circle at 90% 12%, rgba(91,91,214,.07), transparent 8rem),
+        #fbfbf9;
+}
+
+.home-path-grid b {
+    margin-top: .8rem;
+    color: var(--home-ink);
+    font-size: 1rem;
+}
+
+.home-path-grid > a > span:not(.home-path-icon) {
+    color: var(--home-muted);
+}
+
+.home-path-grid i {
+    left: auto;
+    right: 1.4rem;
+    bottom: 1.2rem;
+    color: var(--home-primary);
+}
+
+.home-path-icon {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    border-radius: .9rem;
+    background: var(--home-primary-soft);
+    color: var(--home-primary);
+    font-size: .68rem;
+    font-weight: 900;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 8px 18px rgba(91,91,214,.07);
+}
+
+.home-path-icon.is-teal {
+    background: var(--home-teal-soft);
+    color: var(--home-teal);
+}
+
+.home-path-icon.is-coral {
+    background: var(--home-coral-soft);
+    color: var(--home-coral);
+}
+
+.home-path-icon.is-gold {
+    background: var(--home-gold-soft);
+    color: var(--home-gold);
+}
+
+/* Section titles use a readable signal line. */
+.home-heading > div > span {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.home-heading > div > span::before {
+    content: "";
+    width: .42rem;
+    height: .42rem;
+    border-radius: 999px;
+    background: var(--home-coral);
+    box-shadow: 0 0 0 .25rem rgba(237,108,95,.08);
+}
+
+.home-heading h2 {
+    text-wrap: balance;
+}
+
+.home-heading p {
+    max-width: 52rem;
+}
+
+/* Educational cards: depth, edge cue, readable metadata. */
+.edu-card {
+    position: relative;
+    overflow: hidden;
+    border-color: #e3e7ec;
+    background:
+        linear-gradient(180deg, #ffffff 0%, #fcfcfa 100%);
+    box-shadow:
+        0 10px 26px rgba(18,24,39,.045),
+        inset 0 1px 0 rgba(255,255,255,.96);
+}
+
+.edu-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--home-primary), var(--home-teal), var(--home-coral));
+    opacity: .75;
+    transform: scaleX(.42);
+    transform-origin: right;
+    transition: transform .35s var(--home-ease), opacity .35s ease;
+}
+
+.edu-card:hover::before {
+    transform: scaleX(1);
+    opacity: 1;
+}
+
+.edu-card:hover {
+    border-color: #d9dde8;
+    box-shadow:
+        0 22px 48px rgba(18,24,39,.09),
+        0 0 0 1px rgba(91,91,214,.03);
+}
+
+.edu-card img {
+    transition: transform .7s var(--home-ease), filter .35s ease;
+}
+
+.edu-card:hover img {
+    filter: saturate(1.04) contrast(1.01);
+}
+
+.edu-card .text-[var\(--color-primary-600\)\] {
+    color: var(--home-primary);
+}
+
+/* Course card-specific discovery signals. */
+.home-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 30px;
+    padding: .38rem .65rem;
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 999px;
+    background: rgba(255,255,255,.88);
+    color: var(--home-primary-dark);
+    font-size: .64rem;
+    font-weight: 900;
+    box-shadow: 0 8px 22px rgba(18,24,39,.08);
+    backdrop-filter: blur(12px);
+}
+
+.home-card-badge.is-free {
+    color: var(--home-teal);
+    background: rgba(240,253,250,.91);
+}
+
+.home-badge-dot {
+    width: .42rem;
+    height: .42rem;
+    border-radius: 50%;
+    background: var(--home-coral);
+}
+
+.home-course-lessons {
+    margin-top: 1rem;
+    padding: .8rem .85rem .15rem;
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #f6f7f5, #fbfbfa);
+    border: 1px solid #edf0ec;
+}
+
+.home-course-lessons-label {
+    display: block;
+    margin-bottom: .5rem;
+    color: var(--home-muted-light);
+    font-size: .64rem;
+    font-weight: 900;
+}
+
+.home-course-lessons-list {
+    display: grid;
+    gap: .42rem;
+}
+
+.home-course-lessons-list span {
+    display: flex;
+    align-items: center;
+    gap: .42rem;
+    min-width: 0;
+    padding: .42rem 0;
+    border-top: 1px solid #ecefe9;
+    color: var(--home-ink-soft);
+    font-size: .67rem;
+    font-weight: 700;
+    line-height: 1.65;
+}
+
+.home-course-lessons-list span:first-child {
+    border-top: 0;
+}
+
+.home-course-lessons-list i {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 1.25rem;
+    display: grid;
+    place-items: center;
+    border-radius: .45rem;
+    background: var(--home-primary-soft);
+    color: var(--home-primary);
+    font-style: normal;
+    font-size: .55rem;
+}
+
+.home-course-lessons-list span.is-preview i {
+    background: var(--home-teal-soft);
+    color: var(--home-teal);
+}
+
+/* Teacher cards feel like profiles, not generic boxes. */
+.home-teacher-avatar {
+    position: relative;
+    box-shadow:
+        0 0 0 5px rgba(91,91,214,.055),
+        0 14px 30px rgba(91,91,214,.08);
+}
+
+.home-teacher-card:hover .home-teacher-avatar {
+    box-shadow:
+        0 0 0 6px rgba(14,159,154,.08),
+        0 18px 36px rgba(14,159,154,.11);
+}
+
+.home-teacher-card h3 {
+    letter-spacing: -.02em;
+}
+
+.home-teacher-card small {
+    padding-top: .6rem;
+    border-top: 1px dashed #e5e8ec;
+}
+
+/* Live classes = status-focused, not decorative. */
+.home-live-grid .edu-card {
+    background:
+        radial-gradient(circle at 92% 9%, rgba(14,159,154,.055), transparent 9rem),
+        #fff;
+}
+
+.home-live-grid .edu-card .bg-[var\(--color-primary-50\)\] {
+    background: var(--home-teal-soft);
+    color: var(--home-teal);
+}
+
+/* Blog section */
+.home-blog {
+    background:
+        radial-gradient(circle at 8% 18%, rgba(237,108,95,.055), transparent 18rem),
+        linear-gradient(180deg, #fbfaf7 0%, #f7f7f4 100%);
+    border-block: 1px solid #e7e9e4;
+}
+
+.home-post-card {
+    min-width: 0;
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e2e6ea;
+    border-radius: var(--home-radius-xl);
+    background: rgba(255,255,255,.82);
+    box-shadow: 0 10px 30px rgba(18,24,39,.045);
+    backdrop-filter: blur(10px);
+    transition: transform .35s var(--home-ease), border-color .35s ease, box-shadow .35s ease;
+}
+
+.home-post-card:hover {
+    transform: translateY(-5px);
+    border-color: #d7d8e9;
+    box-shadow: 0 24px 52px rgba(18,24,39,.09);
+}
+
+.home-post-media {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, #eceefe, #edf9f7);
+}
+
+.home-post-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .7s var(--home-ease), filter .35s ease;
+}
+
+.home-post-card:hover .home-post-media img {
+    transform: scale(1.045);
+    filter: saturate(1.05);
+}
+
+.home-post-placeholder {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    background:
+        radial-gradient(circle at 25% 22%, rgba(91,91,214,.34), transparent 34%),
+        radial-gradient(circle at 82% 82%, rgba(14,159,154,.24), transparent 34%),
+        linear-gradient(135deg, #151a39, #4e4fb7);
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.home-post-index {
+    position: absolute;
+    left: 1rem;
+    bottom: .9rem;
+    min-width: 2.1rem;
+    min-height: 2.1rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: .75rem;
+    background: rgba(11,16,32,.45);
+    color: #fff;
+    font-size: .65rem;
+    font-weight: 900;
+    backdrop-filter: blur(12px);
+}
+
+.home-post-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.home-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .6rem;
+    color: var(--home-muted);
+    font-size: .66rem;
+    font-weight: 700;
+}
+
+.home-post-meta span {
+    color: var(--home-primary);
+}
+
+.home-post-meta time {
+    padding-inline-start: .6rem;
+    border-inline-start: 1px solid #e6e9ed;
+}
+
+.home-post-body h3 {
+    margin: .65rem 0 0;
+    color: var(--home-ink);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    font-weight: 900;
+}
+
+.home-post-body h3 a {
+    transition: color .2s ease;
+}
+
+.home-post-body h3 a:hover {
+    color: var(--home-primary);
+}
+
+.home-post-body p {
+    margin: .6rem 0 0;
+    color: var(--home-muted);
+    font-size: .77rem;
+    line-height: 2;
+}
+
+.home-post-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #eaedf0;
+    color: var(--home-primary);
+    font-size: .72rem;
+    font-weight: 900;
+}
+
+.home-post-link i {
+    width: 2.2rem;
+    height: 2.2rem;
+    display: grid;
+    place-items: center;
+    border-radius: .75rem;
+    background: var(--home-primary-soft);
+    color: var(--home-primary);
+    font-style: normal;
+    transition: transform .25s var(--home-ease), background .2s ease;
+}
+
+.home-post-card:hover .home-post-link i {
+    transform: translateX(-4px);
+    background: var(--home-teal-soft);
+    color: var(--home-teal);
+}
+
+/* Store and academy get their own accents so the long Home page has rhythm. */
+.home-store-card {
+    background:
+        radial-gradient(circle at 88% 10%, rgba(91,91,214,.08), transparent 10rem),
+        linear-gradient(145deg, #fff, #f8f8f5);
+}
+
+.home-store-card b {
+    display: inline-flex;
+    width: 2.4rem;
+    height: 2.4rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: .8rem;
+    background: var(--home-gold-soft);
+    color: var(--home-gold);
+}
+
+.home-store-card i {
+    color: var(--home-primary);
+}
+
+.home-product-card {
+    background: linear-gradient(180deg, #fff, #fbfbf8);
+}
+
+.home-product-card strong {
+    color: var(--home-teal);
+}
+
+.home-academy-card {
+    position: relative;
+    background:
+        linear-gradient(180deg, #fff, #fafaf7);
+}
+
+.home-academy-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--home-primary), transparent);
+    opacity: .5;
+}
+
+.home-academy-item b {
+    padding-top: .1rem;
+    color: var(--home-teal);
+}
+
+.home-achievement-card {
+    background: rgba(255,255,255,.84);
+    box-shadow: 0 12px 32px rgba(18,24,39,.05);
+}
+
+.home-achievement-card:hover {
+    box-shadow: 0 22px 48px rgba(18,24,39,.09);
+}
+
+.home-achievement-card img {
+    box-shadow: 0 14px 30px rgba(18,24,39,.08);
+}
+
+/* Dark sections get colored lights instead of flat navy. */
+.home-dark {
+    background:
+        radial-gradient(circle at 10% 14%, rgba(91,91,214,.18), transparent 20rem),
+        radial-gradient(circle at 88% 88%, rgba(14,159,154,.10), transparent 22rem),
+        linear-gradient(135deg, #090e1c 0%, #11182f 54%, #202b57 100%);
+}
+
+.home-dark::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(120deg, transparent 25%, rgba(255,255,255,.025) 48%, transparent 62%);
+    transform: translateX(-12%);
+}
+
+.home-role-grid article {
+    background:
+        linear-gradient(160deg, rgba(255,255,255,.065), rgba(255,255,255,.035));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.055);
+}
+
+.home-role-grid article:hover {
+    background:
+        linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.045));
+}
+
+.home-role-grid b {
+    color: #7fd2ce;
+}
+
+.home-why-copy > span {
+    color: #b4b6ff;
+}
+
+.home-why-copy em {
+    color: #72d3ce;
+}
+
+/* Testimonials: subtle quote framing. */
+.home-testimonial-card {
+    position: relative;
+    background:
+        linear-gradient(160deg, rgba(255,255,255,.065), rgba(255,255,255,.028));
+}
+
+.home-testimonial-card::before {
+    content: "“";
+    position: absolute;
+    top: .35rem;
+    left: 1rem;
+    color: rgba(255,255,255,.08);
+    font-family: Georgia, serif;
+    font-size: 5rem;
+    line-height: 1;
+}
+
+.home-testimonial-card p {
+    position: relative;
+    z-index: 1;
+}
+
+/* CTA */
+.home-cta {
+    background:
+        radial-gradient(circle at 88% 14%, rgba(255,255,255,.16), transparent 16rem),
+        radial-gradient(circle at 10% 90%, rgba(14,159,154,.16), transparent 14rem),
+        linear-gradient(135deg, #37358f 0%, #5b5bd6 55%, #0e9f9a 130%);
+    box-shadow:
+        0 32px 78px rgba(55,53,143,.22),
+        inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+/* Small screens preserve hierarchy rather than shrinking everything. */
+@media (max-width: 640px) {
+    .home-path-grid {
+        border-inline: 0;
+    }
+
+    .home-path-grid a {
+        min-height: 132px;
+    }
+
+    .home-card-badge {
+        min-height: 28px;
+        padding-inline: .55rem;
+        font-size: .6rem;
+    }
+
+    .home-course-lessons {
+        padding-inline: .7rem;
+    }
+
+    .home-post-body {
+        padding: 1rem;
+    }
+
+    .home-post-body h3 {
+        font-size: 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .edu-card::before {
+        transition: none;
+        transform: scaleX(1);
     }
 }
