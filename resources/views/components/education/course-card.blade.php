@@ -9,6 +9,7 @@
     'price' => null,
     'level' => null,
     'grades' => [],
+    'previewLessons' => [],
     'href' => '#',
 ])
 
@@ -36,11 +37,18 @@
                 </div>
             @endif
 
-            @if($category)
-                <span class="absolute right-4 top-4 rounded-full border border-white/60 bg-white/90 px-3 py-1.5 text-[11px] font-extrabold text-[var(--color-primary-700)] shadow-sm backdrop-blur">
-                    {{ $category }}
-                </span>
-            @endif
+            <div class="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
+                @if($category)
+                    <span class="home-card-badge">
+                        <span class="home-badge-dot"></span>
+                        {{ $category }}
+                    </span>
+                @endif
+
+                @if($price === 'رایگان')
+                    <span class="home-card-badge is-free">پیش‌نمایش رایگان</span>
+                @endif
+            </div>
         </div>
     </a>
 
@@ -87,6 +95,20 @@
                     </svg>
                 </span>
                 <span class="truncate">{{ $teacher }}</span>
+            </div>
+        @endif
+
+        @if($previewLessons)
+            <div class="home-course-lessons">
+                <span class="home-course-lessons-label">داخل این مسیر</span>
+                <div class="home-course-lessons-list">
+                    @foreach(array_slice($previewLessons, 0, 3) as $previewLesson)
+                        <span class="{{ $previewLesson['is_free'] ? 'is-preview' : '' }}">
+                            <i aria-hidden="true">✓</i>
+                            {{ $previewLesson['title'] }}
+                        </span>
+                    @endforeach
+                </div>
             </div>
         @endif
 
