@@ -4,87 +4,432 @@
 @section('header-title', 'داشبورد دانش‌آموز')
 
 @section('content')
-<div class="student-dashboard">
-    <section class="student-welcome">
-        <span class="student-kicker">فضای اختصاصی دانش‌آموز</span>
-        <h2>سلام {{ $student->name }} 👋</h2>
-        <p>دوره‌ها، جلسات، تکالیف و نتیجه‌های خودت را از یک مسیر امن و یکپارچه دنبال کن.</p>
-    </section>
+    @php
+        $progress = max(0, min(100, (float) $overallProgress));
+        $coursesCount = $courses->count();
+        $sessionsCount = $sessions->count();
+        $resultsCount = $recentResults->count();
+    @endphp
 
-    <section class="student-stats" aria-label="خلاصه وضعیت">
-        <article class="student-stat"><span>دوره‌های فعال</span><strong>{{ \App\Support\PersianUi::digits($activeCourseCount) }}</strong></article>
-        <article class="student-stat"><span>میانگین پیشرفت</span><strong>{{ \App\Support\PersianUi::digits($overallProgress) }}٪</strong></article>
-        <article class="student-stat"><span>تکالیف در انتظار</span><strong>{{ \App\Support\PersianUi::digits($pendingAssignments) }}</strong></article>
-    </section>
+    <div class="student-dashboard">
 
-    <div class="student-grid">
-        <section class="student-panel">
-            <div class="student-panel-head">
-                <div><span class="student-kicker" style="color:var(--panel-primary)">یادگیری من</span><h3>دوره‌های فعال</h3></div>
-                <span class="student-row-meta">{{ \App\Support\PersianUi::digits($courses->count()) }} دوره</span>
+        {{-- =========================================================
+            WELCOME
+        ========================================================== --}}
+        <section class="student-welcome" aria-labelledby="student-welcome-title">
+            <div class="student-welcome-copy">
+                <span class="student-kicker">
+                    فضای اختصاصی دانش‌آموز
+                </span>
+
+                <h1 id="student-welcome-title">
+                    سلام {{ $student->name }} 👋
+                </h1>
+
+                <p>
+                    دوره‌ها، جلسات، تکالیف و نتیجه‌های خودت را از یک مسیر امن و یکپارچه دنبال کن.
+                </p>
             </div>
-            <div class="student-course-list">
-                @forelse($courses as $course)
-                    <article class="student-course">
-                        <div>
-                            <div class="student-course-title">{{ $course->title }}</div>
-                            <div class="student-course-meta">{{ $course->level ?: 'دوره آموزشی' }}</div>
-                        </div>
-                        <div class="student-progress">
-                            <strong>{{ \App\Support\PersianUi::digits(round($course->learning_progress)) }}٪</strong>
-                            <div class="student-progress-track"><span style="width:{{ min(100,max(0,$course->learning_progress)) }}%"></span></div>
-                        </div>
-                    </article>
-                @empty
-                    <div class="student-empty">هنوز دوره فعالی برای حساب شما ثبت نشده است.</div>
-                @endforelse
+
+            <div class="student-welcome-decoration" aria-hidden="true">
+                <span class="student-welcome-orb one"></span>
+                <span class="student-welcome-orb two"></span>
             </div>
         </section>
 
-        <section class="student-panel">
-            <div class="student-panel-head">
-                <div><span class="student-kicker" style="color:var(--panel-primary)">چراغ جلسات</span><h3>جلسات کلاس</h3></div>
-                <span class="student-row-meta">خصوصی</span>
-            </div>
-            <div class="student-list">
-                @forelse($sessions as $session)
-                    <article class="student-session {{ $session['available'] ? 'is-open' : 'is-locked' }}">
-                        <div class="student-session-head">
-                            <span class="student-lamp {{ $session['available'] ? 'on' : 'off' }}"></span>
-                            <strong>{{ $session['lamp'] === 'روشن' ? 'چراغ روشن' : 'چراغ خاموش' }}</strong>
-                            <span>{{ $session['date'] }}</span>
-                        </div>
-                        <div class="student-row-title">{{ $session['title'] }}</div>
-                        <div class="student-row-meta">{{ $session['course'] }} · {{ $session['time'] }}</div>
-                        @if($session['available'])
-                            <a class="student-session-action" href="{{ $session['href'] }}">مشاهده جلسه ←</a>
-                        @elseif($session['is_future'])
-                            <span class="student-session-action disabled">جلسه هنوز برگزار نشده</span>
-                        @else
-                            <span class="student-session-action disabled">ویدئو هنوز منتشر نشده</span>
-                        @endif
-                    </article>
-                @empty
-                    <div class="student-empty">هنوز جلسه‌ای برای دوره‌های شما ثبت نشده است.</div>
-                @endforelse
-            </div>
-        </section>
-    </div>
 
-    <section class="student-panel">
-        <div class="student-panel-head">
-            <div><span class="student-kicker" style="color:var(--panel-primary)">پیگیری</span><h3>آخرین نتیجه‌ها</h3></div>
-        </div>
-        <div class="student-list">
-            @forelse($recentResults as $result)
-                <div class="student-list-row">
-                    <div class="student-date"><strong>{{ \App\Support\PersianUi::digits($result->score ?? 0) }}</strong><small>نمره</small></div>
-                    <div><div class="student-row-title">{{ $result->title }}</div><span class="student-row-meta">{{ \App\Support\PersianUi::date($result->graded_at) }}</span></div>
+        {{-- =========================================================
+            QUICK STATS
+        ========================================================== --}}
+        <section
+            class="student-stats"
+            aria-label="خلاصه وضعیت آموزشی"
+        >
+            <article class="student-stat">
+                <span>دوره‌های فعال</span>
+
+                <strong>
+                    {{ \App\Support\PersianUi::digits($activeCourseCount) }}
+                </strong>
+
+                <small>
+                    مسیرهای آموزشی در حال پیگیری
+                </small>
+            </article>
+
+            <article class="student-stat">
+                <span>میانگین پیشرفت</span>
+
+                <strong>
+                    {{ \App\Support\PersianUi::digits($progress) }}٪
+                </strong>
+
+                <small>
+                    برآیند پیشرفت دوره‌های فعال
+                </small>
+            </article>
+
+            <article class="student-stat">
+                <span>تکالیف در انتظار</span>
+
+                <strong>
+                    {{ \App\Support\PersianUi::digits($pendingAssignments) }}
+                </strong>
+
+                <small>
+                    مواردی که نیاز به پیگیری دارند
+                </small>
+            </article>
+        </section>
+
+
+        {{-- =========================================================
+            MAIN DASHBOARD
+        ========================================================== --}}
+        <div class="student-grid">
+
+            {{-- =====================================================
+                ACTIVE COURSES
+            ====================================================== --}}
+            <section
+                class="student-panel dashboard-panel"
+                aria-labelledby="student-courses-title"
+            >
+                <div class="student-panel-head">
+                    <div>
+                        <span class="student-kicker" style="color: var(--panel-primary)">
+                            یادگیری من
+                        </span>
+
+                        <h2 id="student-courses-title">
+                            دوره‌های فعال
+                        </h2>
+
+                        <p>
+                            مسیرهایی که در حال حاضر در آن‌ها مشغول یادگیری هستی.
+                        </p>
+                    </div>
+
+                    <span class="student-status primary">
+                        {{ \App\Support\PersianUi::digits($coursesCount) }} دوره
+                    </span>
                 </div>
-            @empty
-                <div class="student-empty">هنوز نتیجه‌ای ثبت نشده است.</div>
-            @endforelse
+
+                <div class="student-course-list">
+                    @forelse($courses as $course)
+                        @php
+                            $courseProgress = max(
+                                0,
+                                min(100, (float) ($course->learning_progress ?? 0))
+                            );
+                        @endphp
+
+                        <article class="student-course">
+
+                            <div class="student-course-main">
+                                <div class="student-course-title">
+                                    {{ $course->title }}
+                                </div>
+
+                                <div class="student-course-meta">
+                                    {{ $course->level ?: 'دوره آموزشی' }}
+                                </div>
+
+                                @if($course->academy?->name ?? null)
+                                    <div class="student-course-badges">
+                                        <span class="student-course-badge">
+                                            {{ $course->academy->name }}
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div
+                                class="student-progress"
+                                aria-label="پیشرفت {{ $course->title }}"
+                            >
+                                <div class="student-progress-label">
+                                    <span>پیشرفت</span>
+
+                                    <strong>
+                                        {{ \App\Support\PersianUi::digits(round($courseProgress)) }}٪
+                                    </strong>
+                                </div>
+
+                                <div
+                                    class="student-progress-track"
+                                    role="progressbar"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="{{ round($courseProgress) }}"
+                                    aria-label="پیشرفت دوره {{ $course->title }}"
+                                >
+                                    <span
+                                        style="width: {{ $courseProgress }}%"
+                                    ></span>
+                                </div>
+                            </div>
+
+                        </article>
+                    @empty
+                        <div class="student-empty">
+                            <div class="student-empty-icon" aria-hidden="true">
+                                <svg
+                                    width="21"
+                                    height="21"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13Z"
+                                    />
+                                </svg>
+                            </div>
+
+                            <strong>
+                                هنوز دوره فعالی برای حساب شما ثبت نشده است.
+                            </strong>
+
+                            <span>
+                                پس از ثبت‌نام در یک دوره، مسیر یادگیری و میزان پیشرفت آن از اینجا قابل پیگیری خواهد بود.
+                            </span>
+                        </div>
+                    @endforelse
+                </div>
+            </section>
+
+
+            {{-- =====================================================
+                SESSIONS
+            ====================================================== --}}
+            <section
+                class="student-panel dashboard-panel"
+                aria-labelledby="student-sessions-title"
+            >
+                <div class="student-panel-head">
+                    <div>
+                        <span class="student-kicker" style="color: var(--panel-primary)">
+                            چراغ جلسات
+                        </span>
+
+                        <h2 id="student-sessions-title">
+                            جلسات کلاس
+                        </h2>
+
+                        <p>
+                            جلسه‌های برگزارشده و برنامه‌ریزی‌شده دوره‌های تو.
+                        </p>
+                    </div>
+
+                    <span class="student-status">
+                        {{ \App\Support\PersianUi::digits($sessionsCount) }} جلسه
+                    </span>
+                </div>
+
+                <div class="student-session-list">
+                    @forelse($sessions as $session)
+                        @php
+                            $available = (bool) ($session['available'] ?? false);
+                            $isFuture = (bool) ($session['is_future'] ?? false);
+                            $lampOn = ($session['lamp'] ?? '') === 'روشن';
+                        @endphp
+
+                        <article
+                            class="student-session {{ $available ? 'is-open' : 'is-locked' }}"
+                            aria-label="{{ $session['title'] }}"
+                        >
+                            <div class="student-session-head">
+                                <span
+                                    class="student-lamp {{ $lampOn ? 'on' : 'off' }}"
+                                    aria-hidden="true"
+                                ></span>
+
+                                <strong>
+                                    {{ $lampOn ? 'چراغ روشن' : 'چراغ خاموش' }}
+                                </strong>
+
+                                <span>
+                                    {{ $session['date'] ?? 'بدون تاریخ' }}
+                                </span>
+                            </div>
+
+                            <div class="student-row-title">
+                                {{ $session['title'] }}
+                            </div>
+
+                            <div class="student-row-meta">
+                                {{ $session['course'] ?? 'دوره آموزشی' }}
+
+                                @if(!empty($session['time']))
+                                    <span aria-hidden="true"> · </span>
+                                    {{ $session['time'] }}
+                                @endif
+                            </div>
+
+                            @if($available)
+                                <a
+                                    class="student-session-action"
+                                    href="{{ $session['href'] }}"
+                                    aria-label="مشاهده جلسه {{ $session['title'] }}"
+                                >
+                                    <span>مشاهده جلسه</span>
+                                    <span aria-hidden="true">←</span>
+                                </a>
+                            @elseif($isFuture)
+                                <span
+                                    class="student-session-action disabled"
+                                    aria-disabled="true"
+                                >
+                                    جلسه هنوز برگزار نشده
+                                </span>
+                            @else
+                                <span
+                                    class="student-session-action disabled"
+                                    aria-disabled="true"
+                                >
+                                    ویدئو هنوز منتشر نشده
+                                </span>
+                            @endif
+                        </article>
+                    @empty
+                        <div class="student-empty">
+                            <div class="student-empty-icon" aria-hidden="true">
+                                <svg
+                                    width="21"
+                                    height="21"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                >
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <path
+                                        stroke-linecap="round"
+                                        d="M12 8v4l2.5 1.5"
+                                    />
+                                </svg>
+                            </div>
+
+                            <strong>
+                                هنوز جلسه‌ای برای دوره‌های شما ثبت نشده است.
+                            </strong>
+
+                            <span>
+                                جلسه‌های گذشته و برنامه‌ریزی‌شده از همین بخش قابل پیگیری خواهند بود.
+                            </span>
+                        </div>
+                    @endforelse
+                </div>
+            </section>
+
         </div>
-    </section>
-</div>
+
+
+        {{-- =========================================================
+            RECENT RESULTS
+        ========================================================== --}}
+        <section
+            class="student-panel dashboard-panel"
+            aria-labelledby="student-results-title"
+        >
+            <div class="student-panel-head">
+                <div>
+                    <span class="student-kicker" style="color: var(--panel-primary)">
+                        پیگیری
+                    </span>
+
+                    <h2 id="student-results-title">
+                        آخرین نتیجه‌ها
+                    </h2>
+
+                    <p>
+                        نمره‌ها و نتیجه‌های اخیر ثبت‌شده برای حساب شما.
+                    </p>
+                </div>
+
+                <span class="student-status">
+                    {{ \App\Support\PersianUi::digits($resultsCount) }} نتیجه
+                </span>
+            </div>
+
+            <div class="student-list">
+                @forelse($recentResults as $result)
+                    @php
+                        $score = $result->score ?? 0;
+                        $gradedAt = $result->graded_at;
+                    @endphp
+
+                    <article class="student-list-row">
+
+                        <div class="student-date">
+                            <strong>
+                                {{ \App\Support\PersianUi::digits($score) }}
+                            </strong>
+
+                            <small>
+                                نمره
+                            </small>
+                        </div>
+
+                        <div class="student-row-content">
+                            <div class="student-row-title">
+                                {{ $result->title }}
+                            </div>
+
+                            @if($gradedAt)
+                                <span class="student-row-meta">
+                                    {{ \App\Support\PersianUi::date($gradedAt) }}
+                                </span>
+                            @else
+                                <span class="student-row-meta">
+                                    تاریخ ثبت نتیجه مشخص نیست
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="student-score">
+                            ثبت‌شده
+                        </div>
+
+                    </article>
+                @empty
+                    <div class="student-empty">
+                        <div class="student-empty-icon" aria-hidden="true">
+                            <svg
+                                width="21"
+                                height="21"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M6 4h12v16H6z"
+                                />
+                                <path
+                                    stroke-linecap="round"
+                                    d="M9 8h6M9 12h6M9 16h4"
+                                />
+                            </svg>
+                        </div>
+
+                        <strong>
+                            هنوز نتیجه‌ای ثبت نشده است.
+                        </strong>
+
+                        <span>
+                            نتیجه آزمون‌ها و تکالیف پس از ثبت و ارزیابی در این قسمت نمایش داده می‌شوند.
+                        </span>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
+    </div>
 @endsection
