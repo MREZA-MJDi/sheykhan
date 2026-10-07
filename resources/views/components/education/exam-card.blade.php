@@ -8,46 +8,42 @@
     'href' => '#',
 ])
 
-<article class="fz-surface-interactive p-5">
-
+<article class="fz-surface-interactive min-w-0 p-5">
     <div class="flex items-start justify-between gap-4">
-
-        <div>
+        <div class="min-w-0">
             @if($course)
-                <p class="text-xs text-[var(--color-text-muted)]">
-                    {{ $course }}
-                </p>
+                <p class="text-xs font-semibold text-[var(--color-text-muted)]">{{ $course }}</p>
             @endif
 
-            <h3 class="mt-1 text-lg font-bold">
-                <a href="{{ $href }}" class="hover:text-[var(--color-primary-600)]">
+            <h3 class="mt-1 truncate text-lg font-black text-[var(--color-text)]">
+                <a href="{{ $href }}" class="transition-colors hover:text-[var(--color-primary-600)]">
                     {{ $title }}
                 </a>
             </h3>
         </div>
 
         @if($status)
-            <x-ui.badge variant="warning">
-                {{ $status }}
-            </x-ui.badge>
+            <x-ui.badge variant="warning">{{ $status }}</x-ui.badge>
         @endif
-
     </div>
 
-    <div class="mt-5 flex flex-wrap gap-4 text-sm text-[var(--color-text-muted)]">
-
+    <div class="mt-5 flex flex-wrap gap-2">
         @if($questions)
-            <span>{{ $questions }} سؤال</span>
+            <span class="rounded-full bg-[var(--color-background-soft)] px-3 py-1.5 text-xs font-bold text-[var(--color-text-muted)]">
+                {{ $questions }} سؤال
+            </span>
         @endif
 
         @if($duration)
-            <span>{{ $duration }}</span>
+            <span class="rounded-full bg-[var(--color-background-soft)] px-3 py-1.5 text-xs font-bold text-[var(--color-text-muted)]">
+                {{ $duration }}
+            </span>
         @endif
 
         @if($date)
-            <span>{{ $date }}</span>
+            <span class="rounded-full bg-[var(--color-background-soft)] px-3 py-1.5 text-xs font-bold text-[var(--color-text-muted)]">
+                {{ $date }}
+            </span>
         @endif
-
     </div>
-
 </article>
