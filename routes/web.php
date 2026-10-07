@@ -106,7 +106,16 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->middleware('permission:attendance.manage')->name('classrooms.attendance.store');
     Route::get('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->middleware('permission:live_classes.view')->name('schedule.index');
     Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->middleware('permission:live_classes.manage')->name('schedule.store');
-    Route::get('/students', fn (\App\Services\TeacherWorkspaceService $workspace) => view('teacher.students.index', ['students' => $workspace->students(request()->user())]))->middleware('permission:students.view')->name('students.index');
+    Route::get('/students', function (\App\Services\TeacherWorkspaceService $workspace) {
+        $sort = request()->string('sort')->toString() ?: 'name';
+        $direction = request()->string('direction')->toString() ?: 'asc';
+
+        return view('teacher.students.index', [
+            'students' => $workspace->studentsPaginated(request()->user(), 20, $sort, $direction),
+            'studentSort' => in_array($sort, ['name', 'progress', 'assignments', 'exams'], true) ? $sort : 'name',
+            'studentDirection' => $direction === 'desc' ? 'desc' : 'asc',
+        ]);
+    })->middleware('permission:students.view')->name('students.index');
     Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->middleware('permission:assignments.view')->name('assignments.index');
     Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->middleware('permission:assignments.manage')->name('assignments.create');
     Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->middleware('permission:assignments.manage')->name('assignments.store');
