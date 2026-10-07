@@ -92,6 +92,7 @@
                 ACTIVE COURSES
             ====================================================== --}}
             <section
+                id="student-courses"
                 class="student-panel dashboard-panel"
                 aria-labelledby="student-courses-title"
             >
@@ -211,6 +212,7 @@
                 SESSIONS
             ====================================================== --}}
             <section
+                id="student-sessions"
                 class="student-panel dashboard-panel"
                 aria-labelledby="student-sessions-title"
             >
@@ -333,10 +335,100 @@
         </div>
 
 
+        <section
+            id="student-assignments"
+            class="student-panel dashboard-panel"
+            aria-labelledby="student-assignments-title"
+        >
+            <div class="student-panel-head">
+                <div>
+                    <span class="student-kicker" style="color: var(--panel-primary)">پیگیری</span>
+                    <h2 id="student-assignments-title">تکالیف من</h2>
+                    <p>تکالیف منتشرشده دوره‌های فعال و وضعیت تحویل آن‌ها.</p>
+                </div>
+            </div>
+
+            <div class="student-list">
+                @forelse($assignments as $assignment)
+                    <article class="student-list-row">
+                        <div class="student-date">
+                            <strong>
+                                {{ $assignment->due_at ? AppSupportPersianUi::date($assignment->due_at) : '—' }}
+                            </strong>
+                            <small>موعد</small>
+                        </div>
+
+                        <div class="student-row-content">
+                            <div class="student-row-title">{{ $assignment->title }}</div>
+                            <span class="student-row-meta">
+                                @if($assignment->submitted_at)
+                                    تحویل‌شده
+                                    @if($assignment->score !== null)
+                                        · نمره {{ AppSupportPersianUi::digits($assignment->score) }}
+                                    @endif
+                                @else
+                                    تحویل نشده
+                                @endif
+                            </span>
+                        </div>
+
+                        <div class="student-score">
+                            {{ $assignment->submitted_at ? ($assignment->graded_at ? 'ارزیابی‌شده' : 'ارسال‌شده') : 'در انتظار اقدام' }}
+                        </div>
+                    </article>
+                @empty
+                    <div class="student-empty">
+                        <strong>تکلیف فعالی برای شما ثبت نشده است.</strong>
+                        <span>با انتشار تکلیف جدید، وضعیت آن در همین بخش نمایش داده می‌شود.</span>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
+        <section
+            class="student-panel dashboard-panel"
+            aria-labelledby="student-resources-title"
+        >
+            <div class="student-panel-head">
+                <div>
+                    <span class="student-kicker" style="color: var(--panel-primary)">منابع آموزشی</span>
+                    <h2 id="student-resources-title">جزوه‌ها و فایل‌های من</h2>
+                    <p>محتوایی که برای دوره‌ها یا کلاس‌های شما منتشر شده است.</p>
+                </div>
+                <a class="student-action" href="{{ route('student.resources.index') }}">مشاهده همه</a>
+            </div>
+
+            <div class="student-resource-list">
+                @forelse($resources as $resource)
+                    <article class="student-resource">
+                        <div>
+                            <strong>{{ $resource->title }}</strong>
+                            <span>{{ $resource->course?->title ?? $resource->classroom?->title ?? $resource->lesson?->title ?? 'منبع آموزشی' }}</span>
+                        </div>
+
+                        <div class="student-resource-actions">
+                            <a class="student-action" href="{{ route('student.resources.view', $resource) }}">مشاهده</a>
+                            @if($resource->downloadable)
+                                <a class="student-action" href="{{ route('student.resources.download', $resource) }}">دانلود</a>
+                            @else
+                                <span class="student-status">فقط مشاهده</span>
+                            @endif
+                        </div>
+                    </article>
+                @empty
+                    <div class="student-empty">
+                        <strong>هنوز منبع آموزشی منتشر نشده است.</strong>
+                        <span>پس از انتشار، منابع مرتبط با دوره‌ها و کلاس‌های شما اینجا ظاهر می‌شوند.</span>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
         {{-- =========================================================
             RECENT RESULTS
         ========================================================== --}}
         <section
+            id="student-results"
             class="student-panel dashboard-panel"
             aria-labelledby="student-results-title"
         >
@@ -396,7 +488,7 @@
                         </div>
 
                         <div class="student-score">
-                            ثبت‌شده
+                            {{ $result->status_label ?? 'ثبت‌شده' }}
                         </div>
 
                     </article>
