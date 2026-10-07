@@ -409,7 +409,7 @@
                         <div class="student-resource-actions">
                             <a class="student-action" href="{{ route('student.resources.view', $resource) }}">مشاهده</a>
                             @if($resource->downloadable)
-                                <a class="student-action" href="{{ route('student.resources.download', $resource) }}">دانلود</a>
+                                <a class="student-action" href="{{ route('student.resources.view', $resource) }}" target="_blank" rel="noopener">مشاهده</a>
                             @else
                                 <span class="student-status">فقط مشاهده</span>
                             @endif
