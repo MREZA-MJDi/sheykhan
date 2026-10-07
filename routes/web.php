@@ -16,6 +16,7 @@ use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
+use App\Http\Controllers\PublicSite\StoreController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Teacher\AssignmentController as TeacherAssignmentController;
 use App\Http\Controllers\Teacher\AssignmentSubmissionController as TeacherAssignmentSubmissionController;
@@ -36,6 +37,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
 Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
+Route::get('/store', [StoreController::class, 'index'])->name('store.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
