@@ -119,13 +119,14 @@ final class TeacherWorkspaceService
         $this->classroomOwnedBy($teacher, $classroom->id);
 
         DB::transaction(function () use ($teacher, $classroom, $attendance): void {
-            foreach ($attendance as $studentId => $status) {
-                $studentExists = $classroom->students()
-                    ->whereKey($studentId)
-                    ->wherePivot('status', 'active')
-                    ->exists();
+            $studentIds = $classroom->students()
+                ->wherePivot('status', 'active')
+                ->whereKey(array_keys($attendance))
+                ->pluck('users.id')
+                ->all();
 
-                if (!$studentExists) {
+            foreach ($attendance as $studentId => $status) {
+                if (!in_array((int) $studentId, $studentIds, true)) {
                     continue;
                 }
 
