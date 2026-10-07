@@ -145,14 +145,23 @@ class MediaService
         abort_unless($disk->exists($media->path), 404);
 
         $name = str_replace(["\r", "\n"], '', (string) ($media->original_name ?: basename($media->path)));
+        $fallback = preg_replace('/[^A-Za-z0-9._-]/', '_', $name) ?: 'download';
 
-        return $disk->download(
+        $response = $disk->response(
             $media->path,
             $name,
             [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
                 'X-Content-Type-Options' => 'nosniff',
             ],
+            'attachment',
         );
+
+        $response->headers->set(
+            'Content-Disposition',
+            'attachment; filename="' . $fallback . '"',
+        );
+
+        return $response;
     }
 }
