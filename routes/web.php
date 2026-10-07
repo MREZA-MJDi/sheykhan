@@ -136,6 +136,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
 Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', StudentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/resources', [StudentResourceController::class, 'index'])->middleware('permission:dashboard.view')->name('resources.index');
+    Route::get('/resources/{resource}/view', [StudentResourceController::class, 'view'])->middleware('permission:dashboard.view')->name('resources.view');
     Route::get('/resources/{resource}/download', [StudentResourceController::class, 'download'])->middleware('permission:dashboard.view')->name('resources.download');
 });
 Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
