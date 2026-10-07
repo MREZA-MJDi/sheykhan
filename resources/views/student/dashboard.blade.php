@@ -486,6 +486,48 @@
         </div>
 
         {{-- =======================================================
+            ACHIEVEMENTS / RECOGNITION
+        ======================================================== --}}
+        <section class="student-v2-section" aria-labelledby="student-achievements-title">
+            <div class="student-v2-section-head">
+                <div>
+                    <span>رشد و افتخار</span>
+                    <h2 id="student-achievements-title">موفقیت‌هایت را ببین</h2>
+                    <p>هر دستاورد واقعی بخشی از مسیر توست؛ کوچک یا بزرگ، ثبتش می‌کنیم.</p>
+                </div>
+                <a href="{{ route('student.achievements.index') }}" class="student-v2-section-link">
+                    {{ \App\Support\PersianUi::digits($achievementCount ?? 0) }} دستاورد
+                    <span aria-hidden="true">←</span>
+                </a>
+            </div>
+
+            <div class="student-v2-achievements">
+                @forelse($achievements as $achievement)
+                    <article class="student-v2-achievement">
+                        <div class="student-v2-achievement-mark">★</div>
+                        <div class="student-v2-achievement-copy">
+                            <strong>{{ $achievement->title ?: $achievement->display_name }}</strong>
+                            <span>{{ $achievement->school_name ?: $achievement->achievement_type }}</span>
+                        </div>
+                        <small>
+                            @if($achievement->published_at)
+                                {{ \App\Support\PersianUi::date($achievement->published_at) }}
+                            @else
+                                ثبت‌شده
+                            @endif
+                        </small>
+                    </article>
+                @empty
+                    <div class="student-v2-achievement-empty">
+                        <span>★</span>
+                        <strong>هنوز دستاوردی ثبت نشده است.</strong>
+                        <p>این قسمت برای موفقیت‌های واقعی توست؛ نه عددهای ساختگی.</p>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
+        {{-- =======================================================
             RESOURCES / FULL NAV
         ======================================================== --}}
         <section class="student-v2-section student-v2-explore" aria-labelledby="student-explore-title">
