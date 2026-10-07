@@ -86,7 +86,7 @@ final class StudentLearningResourceService
             'course:id,academy_id,status,access_type,published_at',
             'classroom:id,academy_id,course_id',
             'lesson.section.course',
-            'media:id,status',
+            'media:id,disk,path,original_name,mime_type,size,status,visibility',
         ]);
 
         if (!$resource->media || $resource->media->status !== 'active') {
