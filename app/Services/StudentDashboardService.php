@@ -126,7 +126,14 @@ final class StudentDashboardService
                     'live_classes.title',
                     'live_classes.scheduled_at',
                     'courses.title as course_title',
-                ]);
+                ])
+                ->map(function ($class): object {
+                    $class->scheduled_at = $class->scheduled_at
+                        ? Carbon::parse($class->scheduled_at)
+                        : null;
+
+                    return $class;
+                });
 
         $sessions = $courseIds->isEmpty()
             ? collect()
