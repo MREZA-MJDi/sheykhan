@@ -55,7 +55,11 @@ class MediaPolicy
                 $model->loadMissing(['course', 'classroom']);
 
                 if ($model->classroom) {
-                    return $this->classroomAccess($user, $model->classroom);
+                    if ($this->classroomAccess($user, $model->classroom)) {
+                        return true;
+                    }
+
+                    continue;
                 }
 
                 if ($model->course && $this->courseAccess($user, $model->course)) {
@@ -75,7 +79,11 @@ class MediaPolicy
                 }
 
                 if ($model->assignment?->classroom) {
-                    return $this->classroomAccess($user, $model->assignment->classroom);
+                    if ($this->classroomAccess($user, $model->assignment->classroom)) {
+                        return true;
+                    }
+
+                    continue;
                 }
 
                 if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
