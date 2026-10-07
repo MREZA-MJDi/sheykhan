@@ -9,10 +9,7 @@
 
 <div {{ $attributes->class([$center ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl']) }}>
     @if($eyebrow)
-        <div class="mb-3 inline-flex items-center gap-2 text-xs font-bold tracking-[0.12em] text-[var(--color-primary-600)]">
-            <span class="h-1.5 w-1.5 rounded-full bg-[var(--color-primary-600)]"></span>
-            {{ $eyebrow }}
-        </div>
+        <span class="ui-eyebrow mb-3">{{ $eyebrow }}</span>
     @endif
 
     <div class="{{ $center ? '' : 'flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between' }}">
@@ -31,7 +28,7 @@
         @if($href && $linkLabel)
             <a
                 href="{{ $href }}"
-                class="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-[var(--color-primary-600)] transition hover:text-[var(--color-primary-700)]"
+                class="inline-flex shrink-0 items-center gap-2 text-sm font-black text-[var(--color-primary-600)] transition hover:text-[var(--color-primary-700)]"
             >
                 <span>{{ $linkLabel }}</span>
                 <span aria-hidden="true">←</span>
