@@ -157,15 +157,18 @@ final class TeacherWorkspaceService
     {
         $this->classroomOwnedBy($teacher, $classroom->id);
 
-        DB::transaction(function () use ($teacher, $classroom, $attendance): void {
+        DB::transaction(function () use ($teacher, $classroom, $attendance, $attendanceDate): void {
             $studentIds = $classroom->students()
                 ->wherePivot('status', 'active')
                 ->whereKey(array_keys($attendance))
                 ->pluck('users.id')
+                ->map(fn ($id) => (int) $id)
                 ->all();
 
+            $allowedStudentIds = array_fill_keys($studentIds, true);
+
             foreach ($attendance as $studentId => $status) {
-                if (!in_array((int) $studentId, $studentIds, true)) {
+                if (!isset($allowedStudentIds[(int) $studentId])) {
                     continue;
                 }
 
