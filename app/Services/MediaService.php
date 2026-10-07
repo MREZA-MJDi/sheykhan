@@ -145,25 +145,8 @@ class MediaService
         abort_unless($disk->exists($media->path), 404);
 
         $name = str_replace(["\r", "\n"], '', (string) ($media->original_name ?: basename($media->path)));
-        $fallback = preg_replace('/[^A-Za-z0-9._-]/', '_', $name) ?: 'download';
 
-        if (method_exists($disk, 'path')) {
-            $response = response()->download(
-                $disk->path($media->path),
-                $name,
-                [
-                    'Content-Type' => $media->mime_type ?: 'application/octet-stream',
-                    'X-Content-Type-Options' => 'nosniff',
-                ],
-            );
-            $response->headers->set(
-                'Content-Disposition',
-                'attachment; filename="' . $fallback . '"; filename*=UTF-8\'\'' . rawurlencode($name)
-            );
-            return $response;
-        }
-
-        $response = response()->stream(
+        return response()->streamDownload(
             function () use ($disk, $media): void {
                 $stream = $disk->readStream($media->path);
 
@@ -177,17 +160,11 @@ class MediaService
                     fclose($stream);
                 }
             },
-            200,
+            $name,
             [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
-                'Content-Disposition' => 'attachment; filename="' . $fallback . '"; filename*=UTF-8\'\'' . rawurlencode($name),
                 'X-Content-Type-Options' => 'nosniff',
             ],
         );
-        $response->headers->set(
-            'Content-Disposition',
-            'attachment; filename="' . $fallback . '"; filename*=UTF-8\'\'' . rawurlencode($name)
-        );
-        return $response;
     }
 }
