@@ -13,7 +13,8 @@
         <x-navigation.student-sidebar />
 
         <div class="role-content">
-            <x-navigation.panel-topbar role="student" title="@yield('header-title', 'پنل دانش‌آموز')" />
+            @php($studentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل دانش‌آموز')))
+            <x-navigation.panel-topbar role="student" :title="$studentHeaderTitle" />
 
             <main class="role-main">
                 @if(session('success'))
