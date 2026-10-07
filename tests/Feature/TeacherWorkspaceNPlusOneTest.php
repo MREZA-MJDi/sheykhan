@@ -17,7 +17,7 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
     {
         $this->seed();
 
-        $teacher = User::where('email', 'teacher1@sheykhan.test')->firstOrFail();
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $classroom = Classroom::query()
             ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
             ->firstOrFail();
