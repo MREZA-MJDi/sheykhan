@@ -70,6 +70,7 @@ class CourseCatalogService
             'academy:id,name,slug,owner_id',
             'teachers:id,name',
             'sections.lessons.media',
+            'grades:id,title',
             'media' => fn ($query) => $query
                 ->where('visibility', 'public')
                 ->orderByPivot('sort_order'),
