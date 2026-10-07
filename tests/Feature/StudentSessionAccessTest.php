@@ -63,6 +63,10 @@ class StudentSessionAccessTest extends TestCase
         $unreleased = $this->makeSession($course, $classroom, 'ضبط منتشرنشده', now()->subDay(), 'completed', now()->addHour());
 
         $this->actingAs($inside)
+            ->get(route('media.view', $released->recording))
+            ->assertOk();
+
+        $this->actingAs($inside)
             ->get(route('media.download', $released->recording))
             ->assertOk();
 
@@ -70,8 +74,17 @@ class StudentSessionAccessTest extends TestCase
             ->get(route('media.download', $unreleased->recording))
             ->assertForbidden();
 
+        $this->actingAs($inside)
+            ->get(route('media.view', $unreleased->recording))
+            ->assertForbidden();
+
         $this->actingAs($outside)
             ->get(route('media.download', $released->recording))
+            ->assertForbidden()
+            ->assertSee('دسترسی این فایل برای حساب شما فعال نیست.');
+
+        $this->actingAs($outside)
+            ->get(route('media.view', $released->recording))
             ->assertForbidden()
             ->assertSee('دسترسی این فایل برای حساب شما فعال نیست.');
     }
