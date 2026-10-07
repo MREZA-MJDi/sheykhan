@@ -5,13 +5,21 @@
     'icon' => null,
 ])
 
-<div {{ $attributes->class(['home-stat']) }}>
+<article {{ $attributes->class(['ui-stat']) }}>
     <div class="flex items-start justify-between gap-4">
         <div>
-            <div class="text-2xl font-black tracking-tight text-[var(--color-text)] sm:text-3xl">{{ $value }}</div>
-            <div class="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">{{ $label }}</div>
+            <div class="text-2xl font-black tracking-tight text-[var(--color-text)] sm:text-3xl">
+                {{ $value }}
+            </div>
+
+            <div class="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">
+                {{ $label }}
+            </div>
+
             @if($caption)
-                <p class="mt-2 text-xs leading-6 text-[var(--color-text-muted)]">{{ $caption }}</p>
+                <p class="mt-2 text-xs leading-6 text-[var(--color-text-muted)]">
+                    {{ $caption }}
+                </p>
             @endif
         </div>
 
@@ -21,4 +29,4 @@
             </div>
         @endif
     </div>
-</div>
+</article>
