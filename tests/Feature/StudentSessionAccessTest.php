@@ -51,7 +51,7 @@ class StudentSessionAccessTest extends TestCase
         $classroom = $course->classrooms()->firstOrFail();
 
         $inside = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $outside = User::where('email', 'student3@sheykhan.test')->firstOrFail();
+        $outside = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
 
         // Same course, different classroom: recording access must still be isolated.
         $outside->enrollments()->updateOrCreate(
@@ -85,7 +85,7 @@ class StudentSessionAccessTest extends TestCase
         \DateTimeInterface $releasedAt,
     ): LiveClass {
         $path = 'recordings/' . str()->uuid() . '.mp4';
-        Storage::disk('local')->put($path, 'demo-recording');
+        Storage::disk('local')->put($path, 'seed-fixture-recording');
 
         $media = Media::create([
             'uploaded_by' => User::where('email', 'owner@sheykhan.test')->value('id'),
@@ -106,7 +106,7 @@ class StudentSessionAccessTest extends TestCase
         $session = LiveClass::create([
             'course_id' => $course->id,
             'classroom_id' => $classroom->id,
-            'teacher_id' => User::where('email', 'teacher1@sheykhan.test')->value('id'),
+            'teacher_id' => User::where('email', 'teacher.math@sheykhan.test')->value('id'),
             'recording_media_id' => $media->id,
             'title' => $title,
             'provider' => 'internal',
