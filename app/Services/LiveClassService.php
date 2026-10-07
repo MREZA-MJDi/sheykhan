@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LiveClass;
+use App\Support\PersianUi;
 
 class LiveClassService
 {
@@ -24,7 +25,7 @@ class LiveClassService
                 'course' => $class->course?->title,
                 'teacher' => $class->teacher?->name,
                 'date' => $this->formatDate($class->scheduled_at),
-                'time' => $class->scheduled_at->format('H:i'),
+                'time' => PersianUi::time($class->scheduled_at),
                 'status' => $class->status === 'live' ? 'در حال برگزاری' : 'به‌زودی',
                 'href' => $class->course
                     ? route('courses.show', $class->course)
@@ -47,6 +48,6 @@ class LiveClassService
             return 'فردا';
         }
 
-        return $date->format('Y/m/d');
+        return PersianUi::date($date);
     }
 }
