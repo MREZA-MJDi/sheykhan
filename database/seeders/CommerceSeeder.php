@@ -26,7 +26,7 @@ class CommerceSeeder extends Seeder
    ['book-smart-thinking','کتاب تفکر هوشمند','books',320000,'book'],['booklet-math-7','جزوه جامع ریاضی هفتم','booklets',180000,'booklet'],['exam-gifted-9-1','آزمون جامع تیزهوشان نهم شماره ۱','exams',95000,'exam']
   ] as $x){
    [$slug,$title,$cat,$price,$type]=$x;
-   $product=Product::firstOrCreate(['slug'=>$slug],['academy_id'=>$academy->id,'category_id'=>$categories[$cat]->id,'created_by'=>$owner->id,'title'=>$title,'subtitle'=>'محصول آموزشی قابل مدیریت از پنل.','description'=>'رکورد تست چرخه کامل فروش، رضایت و دسترسی.','product_type'=>$type,'delivery_type'=>'download','price'=>$price,'currency'=>'IRR','status'=>'published','is_featured'=>true,'published_at'=>now()->subDays(5)]);
+   $product=Product::firstOrCreate(['slug'=>$slug],['academy_id'=>$academy->id,'category_id'=>$categories[$cat]->id,'created_by'=>$owner->id,'title'=>$title,'subtitle'=>'محصول آموزشی قابل مدیریت از پنل.','description'=>'چرخه فروش، رضایت و دسترسی محصول.','product_type'=>$type,'delivery_type'=>'download','price'=>$price,'currency'=>'IRR','status'=>'published','is_featured'=>true,'published_at'=>now()->subDays(5)]);
    $media=SeedMedia::make('product-'.$slug,$owner->id,'application/pdf','pdf','products','private');
    $file=ProductFile::firstOrCreate(['product_id'=>$product->id,'media_id'=>$media->id],['version'=>'1.0','is_primary'=>true,'is_preview'=>false,'requires_watermark'=>true]);
    $order=Order::firstOrCreate(['order_number'=>'SHK-SEED-'.str_pad((string)$product->id,6,'0',STR_PAD_LEFT)],['buyer_id'=>$student->id,'status'=>'paid','currency'=>'IRR','subtotal'=>$price,'discount'=>0,'total'=>$price,'billing_name'=>$student->name,'billing_mobile'=>$student->mobile,'legal_consent_completed'=>true,'paid_at'=>now()->subDays(3)]);
