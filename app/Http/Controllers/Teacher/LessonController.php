@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Lesson\StoreLessonRequest;
 use App\Http\Requests\Teacher\Lesson\UpdateLessonRequest;
 use App\Models\Course;
+use App\Models\LearningResource;
+use Illuminate\Support\Facades\DB;
 use App\Models\Lesson;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -62,7 +64,22 @@ class LessonController extends Controller
             ? ($data['published_at'] ?? $lesson->published_at ?? now())
             : null;
 
-        $lesson->update($data);
+        DB::transaction(function () use ($lesson, $data): void {
+            $lesson->update($data);
+
+            if ($lesson->status === 'published') {
+                LearningResource::query()
+                    ->where('lesson_id', $lesson->id)
+                    ->update([
+                        'status' => 'active',
+                        'release_at' => DB::raw("COALESCE(release_at, NOW())"),
+                    ]);
+            } else {
+                LearningResource::query()
+                    ->where('lesson_id', $lesson->id)
+                    ->update(['status' => 'draft']);
+            }
+        });
 
         return back()->with('success', 'درس به‌روزرسانی شد.');
     }
