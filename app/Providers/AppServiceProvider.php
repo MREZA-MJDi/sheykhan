@@ -33,7 +33,9 @@ class AppServiceProvider extends ServiceProvider
                 now()->addMinutes(30),
                 fn () => AcademicGrade::query()
                     ->where('is_active', true)
+                    ->orderByRaw('CASE WHEN code REGEXP \'^[0-9]+$\' THEN CAST(code AS UNSIGNED) ELSE 999999 END')
                     ->orderBy('sort_order')
+                    ->orderBy('title')
                     ->get(['id', 'title'])
             ));
         });
