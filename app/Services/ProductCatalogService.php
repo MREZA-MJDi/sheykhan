@@ -5,9 +5,27 @@ namespace App\Services;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductCatalogService
 {
+    public function paginate(?string $category = null, int $perPage = 12): LengthAwarePaginator
+    {
+        return Product::query()
+            ->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->when($category, fn ($query) => $query->whereHas('category', fn ($q) => $q->where('slug', $category)))
+            ->with([
+                'category:id,name,slug',
+                'media' => fn ($query) => $query->where('visibility', 'public')->orderByPivot('sort_order'),
+            ])
+            ->orderByDesc('is_featured')
+            ->orderByDesc('published_at')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
     public function featuredCards(int $limit = 3): array
     {
         return Cache::remember("public:home:products:{$limit}", now()->addMinutes(5), function () use ($limit) {
