@@ -38,7 +38,7 @@ class StudentLearningResourceAccessTest extends TestCase
         ]);
 
         $studentInClass = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $studentOutsideClass = User::where('email', 'student3@sheykhan.test')->firstOrFail();
+        $studentOutsideClass = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
 
         // Keep the second student enrolled in the same course but outside
         // the target classroom so the test exercises classroom isolation.
