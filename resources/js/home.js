@@ -1,38 +1,21 @@
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
 document.addEventListener('DOMContentLoaded', () => {
-    const sections = document.querySelectorAll('#main-content section');
-
-    sections.forEach((section, index) => {
-        section.classList.add('home-reveal');
-        section.dataset.delay = String(Math.min(index, 3));
-    });
+    const elements = document.querySelectorAll('#main-content .home-reveal');
 
     if (!('IntersectionObserver' in window)) {
-        sections.forEach((section) => section.classList.add('is-visible'));
+        elements.forEach((element) => element.classList.add('is-visible'));
         return;
     }
 
-    const observer = new IntersectionObserver(
-        (entries, currentObserver) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) {
-                    return;
-                }
+    const observer = new IntersectionObserver((entries, instance) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            instance.unobserve(entry.target);
+        });
+    }, {
+        rootMargin: '0px 0px -8% 0px',
+        threshold: 0.08,
+    });
 
-                entry.target.classList.add('is-visible');
-                currentObserver.unobserve(entry.target);
-            });
-        },
-        {
-            rootMargin: '0px 0px -10% 0px',
-            threshold: 0.08,
-        },
-    );
-
-    sections.forEach((section) => observer.observe(section));
+    elements.forEach((element) => observer.observe(element));
 });
-
-Alpine.start();
