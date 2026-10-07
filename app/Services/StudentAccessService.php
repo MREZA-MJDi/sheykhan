@@ -19,14 +19,14 @@ final class StudentAccessService
         }
 
         return $student->enrollments()
-            ->where('status', 'active')
+            ->active()
             ->whereHas('course', fn ($course) => $course
                 ->where('status', 'published')
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', now()))
             ->where(function ($query): void {
-                $query->where('paid_amount', '>', 0)
-                    ->orWhereHas('course', fn ($course) => $course->where('access_type', 'free'));
+                $query->whereHas('course', fn ($course) => $course->where('access_type', 'free'))
+                    ->orWhere(fn ($paid) => $paid->fullyPaid());
             })
             ->whereHas('course.academy', function ($academy) use ($student): void {
                 $academy->whereExists(function ($membership) use ($student): void {
@@ -50,15 +50,17 @@ final class StudentAccessService
             return false;
         }
 
-        $query = $student->enrollments()
-            ->where('course_id', $course->id)
-            ->where('status', 'active');
-
-        if (!$course->isFree()) {
-            $query->where('paid_amount', '>', 0);
+        if ($course->isFree()) {
+            return $student->enrollments()
+                ->active()
+                ->where('course_id', $course->id)
+                ->exists();
         }
 
-        return $query->exists();
+        return $student->enrollments()
+            ->where('course_id', $course->id)
+            ->fullyPaid()
+            ->exists();
     }
 
     public function lesson(User $student, Lesson $lesson): bool
@@ -70,10 +72,24 @@ final class StudentAccessService
         $lesson->loadMissing('section.course');
         $course = $lesson->section?->course;
 
-        return $course
-            && $lesson->status === 'published'
-            && (!$lesson->published_at || $lesson->published_at->isPast())
-            && $this->course($student, $course);
+        if (
+            !$course
+            || !$course->isPublished()
+            || $lesson->status !== 'published'
+            || ($lesson->published_at && $lesson->published_at->isFuture())
+            || !$this->academyMember($student, $course->academy_id)
+        ) {
+            return false;
+        }
+
+        // A published lesson explicitly marked free is the only preview path
+        // that can bypass paid enrollment. The course itself must still be
+        // published and belong to the student's active academy membership.
+        if ($lesson->is_free) {
+            return true;
+        }
+
+        return $this->course($student, $course);
     }
 
     public function assignment(User $student, Assignment $assignment): bool
