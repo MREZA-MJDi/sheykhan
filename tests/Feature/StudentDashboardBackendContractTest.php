@@ -44,6 +44,13 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertTrue($course->relationLoaded('academy'));
         $this->assertSame('آکادمی شیخان', $course->academy->name);
 
+        if ($payload['nextLiveClass']) {
+            $this->assertInstanceOf(
+                \Illuminate\Support\Carbon::class,
+                $payload['nextLiveClass']->scheduled_at
+            );
+        }
+
         foreach ($payload['recentResults'] as $result) {
             $this->assertNotNull($result->occurred_at);
             $this->assertNotSame('', $result->status_label ?? '');
