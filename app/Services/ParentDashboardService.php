@@ -38,18 +38,50 @@ final class ParentDashboardService
             ->groupBy('student_id')
             ->pluck(DB::raw('COUNT(*)'), 'student_id');
 
-        $pendingAssignments = DB::table('assignments')
-            ->join('course_enrollments', 'course_enrollments.course_id', '=', 'assignments.course_id')
-            ->leftJoin('assignment_submissions as submissions', function ($join): void {
-                $join->on('submissions.assignment_id', '=', 'assignments.id')
-                    ->on('submissions.student_id', '=', 'course_enrollments.student_id');
+        $pendingAssignments = DB::table('users as students')
+            ->whereIn('students.id', $childIds)
+            ->whereExists(function ($query): void {
+                $query->selectRaw('1')
+                    ->from('assignments')
+                    ->where('assignments.status', 'published')
+                    ->whereNull('assignments.deleted_at')
+                    ->whereExists(function ($enrollments): void {
+                        $enrollments->selectRaw('1')
+                            ->from('course_enrollments')
+                            ->whereColumn('course_enrollments.student_id', 'students.id')
+                            ->whereColumn('course_enrollments.course_id', 'assignments.course_id')
+                            ->where('course_enrollments.status', 'active');
+                    })
+                    ->whereNotExists(function ($submissions): void {
+                        $submissions->selectRaw('1')
+                            ->from('assignment_submissions')
+                            ->whereColumn('assignment_submissions.assignment_id', 'assignments.id')
+                            ->whereColumn('assignment_submissions.student_id', 'students.id')
+                            ->whereNotNull('assignment_submissions.submitted_at');
+                    });
             })
-            ->whereIn('course_enrollments.student_id', $childIds)
-            ->where('course_enrollments.status', 'active')
-            ->where('assignments.status', 'published')
-            ->whereNull('submissions.submitted_at')
-            ->groupBy('course_enrollments.student_id')
-            ->pluck(DB::raw('COUNT(DISTINCT assignments.id)'), 'course_enrollments.student_id');
+            ->select('students.id')
+            ->selectSub(function ($query): void {
+                $query->from('assignments')
+                    ->where('assignments.status', 'published')
+                    ->whereNull('assignments.deleted_at')
+                    ->whereExists(function ($enrollments): void {
+                        $enrollments->selectRaw('1')
+                            ->from('course_enrollments')
+                            ->whereColumn('course_enrollments.student_id', 'students.id')
+                            ->whereColumn('course_enrollments.course_id', 'assignments.course_id')
+                            ->where('course_enrollments.status', 'active');
+                    })
+                    ->whereNotExists(function ($submissions): void {
+                        $submissions->selectRaw('1')
+                            ->from('assignment_submissions')
+                            ->whereColumn('assignment_submissions.assignment_id', 'assignments.id')
+                            ->whereColumn('assignment_submissions.student_id', 'students.id')
+                            ->whereNotNull('assignment_submissions.submitted_at');
+                    })
+                    ->selectRaw('COUNT(*)');
+            }, 'pending_count')
+            ->pluck('pending_count', 'students.id');
 
         $children = $children->map(function (User $child) use ($progress, $enrollmentCounts, $pendingAssignments) {
             $child->dashboard_progress = round((float) ($progress[$child->id] ?? 0));
@@ -60,12 +92,21 @@ final class ParentDashboardService
         });
 
         $upcomingLiveClasses = DB::table('live_classes')
-            ->join('course_enrollments', 'course_enrollments.course_id', '=', 'live_classes.course_id')
             ->join('courses', 'courses.id', '=', 'live_classes.course_id')
-            ->whereIn('course_enrollments.student_id', $childIds)
-            ->where('course_enrollments.status', 'active')
             ->whereBetween('live_classes.scheduled_at', [now(), now()->addDays(7)])
             ->where('live_classes.status', 'scheduled')
+            ->whereExists(function ($query) use ($childIds): void {
+                $query->selectRaw('1')
+                    ->from('course_enrollments')
+                    ->whereIn('course_enrollments.student_id', $childIds)
+                    ->where('course_enrollments.status', 'active')
+                    ->whereColumn('course_enrollments.course_id', 'live_classes.course_id')
+                    ->where(function ($classroomQuery): void {
+                        $classroomQuery
+                            ->whereNull('live_classes.classroom_id')
+                            ->orWhereColumn('course_enrollments.classroom_id', 'live_classes.classroom_id');
+                    });
+            })
             ->orderBy('live_classes.scheduled_at')
             ->limit(8)
             ->get([
@@ -73,7 +114,6 @@ final class ParentDashboardService
                 'live_classes.title',
                 'live_classes.scheduled_at',
                 'courses.title as course_title',
-                'course_enrollments.student_id',
             ]);
 
         $recentResults = DB::table('assignment_submissions as submissions')
