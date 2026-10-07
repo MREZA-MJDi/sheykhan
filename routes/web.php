@@ -48,13 +48,15 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register.store');
 });
 
-Route::middleware('auth')->group(function () {
+Route::get('/media/{media}/public', [MediaController::class, 'servePublic'])->name('media.public');
+
+Route::middleware(['auth','active'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/media/{media}/download', [MediaController::class, 'download'])->name('media.download');
 });
 
-Route::middleware(['auth','role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
+Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
@@ -82,47 +84,47 @@ Route::middleware(['auth','role:academy-owner'])->prefix('owner')->name('owner.'
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
 });
 
-Route::middleware(['auth','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
-    Route::get('/dashboard', TeacherDashboard::class)->name('dashboard');
-    Route::get('/courses', [TeacherCourseController::class, 'index'])->name('courses.index');
-    Route::get('/courses/create', [TeacherCourseController::class, 'create'])->name('courses.create');
-    Route::post('/courses', [TeacherCourseController::class, 'store'])->name('courses.store');
-    Route::get('/courses/{course}/edit', [TeacherCourseController::class, 'edit'])->name('courses.edit');
-    Route::patch('/courses/{course}', [TeacherCourseController::class, 'update'])->name('courses.update');
-    Route::post('/courses/{course}/media', [TeacherCourseMediaController::class, 'store'])->name('courses.media.store');
-    Route::delete('/courses/{course}/media/{media}', [TeacherCourseMediaController::class, 'destroy'])->name('courses.media.destroy');
-    Route::get('/courses/{course}/progress', CourseLearningProgressController::class)->name('courses.progress');
-    Route::get('/courses/{course}/content', [TeacherLessonController::class, 'index'])->name('courses.content');
-    Route::post('/lessons', [TeacherLessonController::class, 'store'])->name('lessons.store');
-    Route::patch('/lessons/{lesson}', [TeacherLessonController::class, 'update'])->name('lessons.update');
-    Route::post('/lessons/{lesson}/media', [TeacherLessonMediaController::class, 'store'])->name('lessons.media.store');
-    Route::get('/classrooms', [TeacherClassroomController::class, 'index'])->name('classrooms.index');
-    Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->name('classrooms.create');
-    Route::post('/classrooms', [TeacherClassroomController::class, 'store'])->name('classrooms.store');
-    Route::get('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'edit'])->name('classrooms.attendance.edit');
-    Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->name('classrooms.attendance.store');
-    Route::get('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule.index');
-    Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('schedule.store');
-    Route::get('/students', fn (\App\Services\TeacherWorkspaceService $workspace) => view('teacher.students.index', ['students' => $workspace->students(request()->user())]))->name('students.index');
-    Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->name('assignments.index');
-    Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->name('assignments.create');
-    Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->name('assignments.store');
-    Route::get('/assignments/{assignment}/submissions', [TeacherAssignmentController::class, 'submissions'])->name('assignments.submissions');
+Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+    Route::get('/dashboard', TeacherDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/courses', [TeacherCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
+    Route::get('/courses/create', [TeacherCourseController::class, 'create'])->middleware('permission:courses.manage')->name('courses.create');
+    Route::post('/courses', [TeacherCourseController::class, 'store'])->middleware('permission:courses.manage')->name('courses.store');
+    Route::get('/courses/{course}/edit', [TeacherCourseController::class, 'edit'])->middleware('permission:courses.manage')->name('courses.edit');
+    Route::patch('/courses/{course}', [TeacherCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
+    Route::post('/courses/{course}/media', [TeacherCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
+    Route::delete('/courses/{course}/media/{media}', [TeacherCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
+    Route::get('/courses/{course}/progress', CourseLearningProgressController::class)->middleware('permission:courses.view')->name('courses.progress');
+    Route::get('/courses/{course}/content', [TeacherLessonController::class, 'index'])->middleware('permission:lessons.view')->name('courses.content');
+    Route::post('/lessons', [TeacherLessonController::class, 'store'])->middleware('permission:lessons.manage')->name('lessons.store');
+    Route::patch('/lessons/{lesson}', [TeacherLessonController::class, 'update'])->middleware('permission:lessons.manage')->name('lessons.update');
+    Route::post('/lessons/{lesson}/media', [TeacherLessonMediaController::class, 'store'])->middleware('permission:media.upload')->name('lessons.media.store');
+    Route::get('/classrooms', [TeacherClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
+    Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->middleware('permission:classrooms.view')->name('classrooms.create');
+    Route::post('/classrooms', [TeacherClassroomController::class, 'store'])->middleware('permission:classrooms.view')->name('classrooms.store');
+    Route::get('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'edit'])->middleware('permission:attendance.view')->name('classrooms.attendance.edit');
+    Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->middleware('permission:attendance.manage')->name('classrooms.attendance.store');
+    Route::get('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->middleware('permission:live_classes.view')->name('schedule.index');
+    Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->middleware('permission:live_classes.manage')->name('schedule.store');
+    Route::get('/students', fn (\App\Services\TeacherWorkspaceService $workspace) => view('teacher.students.index', ['students' => $workspace->students(request()->user())]))->middleware('permission:students.view')->name('students.index');
+    Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->middleware('permission:assignments.view')->name('assignments.index');
+    Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->middleware('permission:assignments.manage')->name('assignments.create');
+    Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->middleware('permission:assignments.manage')->name('assignments.store');
+    Route::get('/assignments/{assignment}/submissions', [TeacherAssignmentController::class, 'submissions'])->middleware('permission:assignments.view')->name('assignments.submissions');
     Route::patch('/assignments/{assignment}/submissions/{submission}', [TeacherAssignmentSubmissionController::class, 'update'])->middleware('permission:assignments.manage')->name('assignments.submissions.update');
-    Route::get('/exams', [TeacherExamController::class, 'index'])->name('exams.index');
-    Route::get('/exams/create', [TeacherExamController::class, 'create'])->name('exams.create');
-    Route::post('/exams', [TeacherExamController::class, 'store'])->name('exams.store');
-    Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->name('exams.attempts');
+    Route::get('/exams', [TeacherExamController::class, 'index'])->middleware('permission:exams.view')->name('exams.index');
+    Route::get('/exams/create', [TeacherExamController::class, 'create'])->middleware('permission:exams.manage')->name('exams.create');
+    Route::post('/exams', [TeacherExamController::class, 'store'])->middleware('permission:exams.manage')->name('exams.store');
+    Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->middleware('permission:exams.view')->name('exams.attempts');
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])->middleware('permission:exams.manage')->name('exam-attempts.grade');
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
-    Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->name('live-classes.index');
-    Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->name('live-classes.create');
-    Route::post('/live-classes', [TeacherLiveClassController::class, 'store'])->name('live-classes.store');
+    Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
+    Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->middleware('permission:live_classes.manage')->name('live-classes.create');
+    Route::post('/live-classes', [TeacherLiveClassController::class, 'store'])->middleware('permission:live_classes.manage')->name('live-classes.store');
 });
 
-Route::middleware(['auth','role:student'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/dashboard', StudentDashboard::class)->name('dashboard');
+Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/dashboard', StudentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
 });
-Route::middleware(['auth','role:parent'])->prefix('parent')->name('parent.')->group(function () {
-    Route::get('/dashboard', ParentDashboard::class)->name('dashboard');
+Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
+    Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
 });
