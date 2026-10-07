@@ -37,7 +37,7 @@ class StudentLearningResourceAccessTest extends TestCase
             'sort_order' => 1,
         ]);
 
-        $studentInClass = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $studentInClass = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $studentOutsideClass = User::where('email', 'student3@sheykhan.test')->firstOrFail();
 
         // Keep the second student enrolled in the same course but outside
@@ -64,7 +64,7 @@ class StudentLearningResourceAccessTest extends TestCase
         $this->seed();
 
         $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
-        $student = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $media = $course->media()->firstOrFail();
 
         $resource = LearningResource::create([
@@ -92,7 +92,7 @@ class StudentLearningResourceAccessTest extends TestCase
 
         $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
         $media = $course->media()->firstOrFail();
-        $student = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
 
         $resource = LearningResource::create([
             'academy_id' => $course->academy_id,
