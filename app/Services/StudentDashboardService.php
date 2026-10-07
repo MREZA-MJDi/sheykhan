@@ -80,6 +80,16 @@ final class StudentDashboardService
                 ->whereIn('course_id', $courseIds)
                 ->where('status', '!=', 'cancelled')
                 ->whereBetween('scheduled_at', [now()->subDays(60), now()->addDays(60)])
+                ->where(function ($query) use ($student): void {
+                    $query->whereNull('classroom_id')
+                        ->orWhereExists(function ($membership) use ($student): void {
+                            $membership->selectRaw('1')
+                                ->from('classroom_student')
+                                ->whereColumn('classroom_student.classroom_id', 'live_classes.classroom_id')
+                                ->where('classroom_student.student_id', $student->id)
+                                ->where('classroom_student.status', 'active');
+                        });
+                })
                 ->with(['course:id,title', 'classroom:id,title', 'recording:id,disk,path,visibility,status'])
                 ->orderByDesc('scheduled_at')
                 ->limit(24)
