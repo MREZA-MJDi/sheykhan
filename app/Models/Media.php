@@ -28,6 +28,10 @@ class Media extends Model
             return null;
         }
 
+        if ($this->disk === 'local') {
+            return route('media.public', $this);
+        }
+
         return Storage::disk($this->disk)->url($this->path);
     }
 }
