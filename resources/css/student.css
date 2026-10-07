@@ -1178,3 +1178,128 @@
         padding: 11px 12px;
     }
 }
+
+
+/* =========================================================
+   DETAIL / FORM / EXAM UI
+========================================================= */
+
+.student-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 16px;
+}
+
+.student-detail-actions > .student-welcome-action,
+.student-form > .student-welcome-action {
+    border: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.student-lesson-content {
+    margin-top: 18px;
+    padding: 20px;
+    border: 1px solid var(--student-border);
+    border-radius: var(--student-radius-md);
+    background: var(--student-surface-soft);
+    color: var(--student-text-secondary);
+    font-size: 11px;
+    line-height: 2.25;
+    white-space: pre-line;
+}
+
+.student-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.student-form label {
+    color: var(--student-text);
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.student-input,
+.student-form textarea,
+.student-form input[type="file"] {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--student-border-strong);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--student-text);
+    font: inherit;
+    font-size: 10px;
+    outline: none;
+}
+
+.student-form textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.9;
+}
+
+.student-input:focus,
+.student-form textarea:focus,
+.student-form input[type="file"]:focus {
+    border-color: var(--panel-primary);
+    box-shadow: 0 0 0 3px rgba(13, 143, 202, .08);
+}
+
+.student-profile-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 2px 0 3px;
+}
+
+.student-question-options {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.student-question-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--student-border);
+    border-radius: 12px;
+    background: var(--student-surface-soft);
+    color: var(--student-text);
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.student-question-option:hover {
+    border-color: rgba(13,143,202,.22);
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+.student-question-option input {
+    accent-color: var(--panel-primary);
+}
+
+@media (max-width: 600px) {
+    .student-detail-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .student-detail-actions > * {
+        width: 100%;
+    }
+
+    .student-lesson-content {
+        padding: 15px;
+        font-size: 10px;
+    }
+}
