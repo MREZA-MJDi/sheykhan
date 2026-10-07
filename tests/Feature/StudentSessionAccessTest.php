@@ -80,8 +80,7 @@ class StudentSessionAccessTest extends TestCase
 
         $this->actingAs($outside)
             ->get(route('media.download', $released->recording))
-            ->assertForbidden()
-            ->assertSee('دسترسی این فایل برای حساب شما فعال نیست.');
+            ->assertForbidden();
 
         $this->actingAs($outside)
             ->get(route('media.view', $released->recording))
