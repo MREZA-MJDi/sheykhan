@@ -16,7 +16,16 @@ class MediaController extends Controller
         abort_unless($media->status === 'active' && $media->visibility === 'public', 404);
         abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
 
-        return response(Storage::disk($media->disk)->get($media->path), 200, [
+        $disk = Storage::disk($media->disk);
+
+        if (method_exists($disk, 'path')) {
+            return response()->file($disk->path($media->path), [
+                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+                'Cache-Control' => 'public, max-age=31536000, immutable',
+            ]);
+        }
+
+        return $disk->response($media->path, $media->original_name, [
             'Content-Type' => $media->mime_type ?: 'application/octet-stream',
             'Cache-Control' => 'public, max-age=31536000, immutable',
         ]);
