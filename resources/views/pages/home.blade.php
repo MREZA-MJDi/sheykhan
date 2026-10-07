@@ -149,6 +149,66 @@
         </x-layout.container>
     </section>
 
+    {{-- Latest articles --}}
+    <section class="home-section home-blog">
+        <x-layout.container size="wide">
+            <div class="home-heading">
+                <div>
+                    <span>مجله شیخان</span>
+                    <h2>محتوا را فقط نخوان؛ از آن چیزی یاد بگیر.</h2>
+                    <p>یادداشت‌ها و مطالب منتشرشده برای دانش‌آموز، والد و مسیر یادگیری بهتر.</p>
+                </div>
+                <a href="{{ route('blog.index') }}">رفتن به مجله <i>←</i></a>
+            </div>
+
+            <div class="home-post-grid">
+                @forelse($latestPosts as $post)
+                    @php
+                        $postImage = $post->media?->first()?->url();
+                        $postDate = $post->published_at;
+                        $postCategory = $post->category?->name;
+                    @endphp
+
+                    <article class="home-post-card">
+                        <a href="{{ route('blog.show', $post->slug) }}" class="home-post-media" aria-label="مطالعه {{ $post->title }}">
+                            @if($postImage)
+                                <img src="{{ $postImage }}" alt="{{ $post->title }}" loading="lazy">
+                            @else
+                                <div class="home-post-placeholder" aria-hidden="true">
+                                    <span>ش</span>
+                                </div>
+                            @endif
+                            <span class="home-post-index">{{ $loop->iteration < 10 ? '۰' . $loop->iteration : $fa($loop->iteration) }}</span>
+                        </a>
+
+                        <div class="home-post-body">
+                            <div class="home-post-meta">
+                                @if($postCategory)<span>{{ $postCategory }}</span>@endif
+                                @if($postDate)<time datetime="{{ $postDate->toDateString() }}">{{ \App\Support\PersianUi::date($postDate) }}</time>@endif
+                            </div>
+
+                            <h3><a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a></h3>
+
+                            @if($post->excerpt)
+                                <p>{{ \Illuminate\Support\Str::limit($post->excerpt, 125) }}</p>
+                            @endif
+
+                            <a href="{{ route('blog.show', $post->slug) }}" class="home-post-link">
+                                <span>مطالعه مطلب</span>
+                                <i aria-hidden="true">←</i>
+                            </a>
+                        </div>
+                    </article>
+                @empty
+                    <div class="home-empty-state">
+                        <strong>هنوز مطلبی منتشر نشده است.</strong>
+                        <span>به‌محض انتشار، جدیدترین مطالب اینجا دیده می‌شوند.</span>
+                    </div>
+                @endforelse
+            </div>
+        </x-layout.container>
+    </section>
+
     {{-- Why Sheykhan --}}
     <section class="home-section home-dark">
         <x-layout.container size="wide">
