@@ -50,7 +50,7 @@ Route::middleware('guest')->group(function () {
 
 Route::get('/media/{media}/public', [MediaController::class, 'servePublic'])->name('media.public');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth','active'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/media/{media}/download', [MediaController::class, 'download'])->name('media.download');
