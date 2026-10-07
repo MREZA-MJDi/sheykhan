@@ -130,7 +130,7 @@ final class StudentOnboardingService
             if ($normalizedMobile) {
                 $mobileOwner = User::query()
                     ->where('mobile', $normalizedMobile)
-                    ->when($student, fn ($query) => $query->whereKeyNot($student->id))
+                    ->when($student, fn ($query) => $query->where('users.id', '!=', $student->id))
                     ->first();
 
                 if ($mobileOwner) {
