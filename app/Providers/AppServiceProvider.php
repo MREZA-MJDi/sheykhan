@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Gate;
+use App\Models\Media;
+use App\Policies\MediaPolicy;
 use App\Models\AcademicGrade;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Media::class, MediaPolicy::class);
+
         View::composer('components.navigation.navbar', function ($view): void {
             $view->with('navigationGrades', Cache::remember(
                 'public:navigation:grades',
