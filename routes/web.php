@@ -54,6 +54,7 @@ Route::get('/media/{media}/public', [MediaController::class, 'servePublic'])->na
 Route::middleware(['auth','active'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/media/{media}/view', [MediaController::class, 'view'])->name('media.view');
     Route::get('/media/{media}/download', [MediaController::class, 'download'])->name('media.download');
 });
 
