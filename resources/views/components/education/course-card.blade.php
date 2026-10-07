@@ -115,11 +115,15 @@
         <div class="mt-auto pt-5">
             <div class="flex flex-wrap items-center gap-3 border-t border-[var(--color-border)] pt-4 text-xs font-semibold text-[var(--color-text-muted)]">
                 @if($lessons)
-                    <span>{{ $lessons }} درس</span>
+                    <span class="home-meta-signal"><i aria-hidden="true">◫</i>{{ $lessons }} درس</span>
                 @endif
 
                 @if($duration)
-                    <span>{{ $duration }}</span>
+                    <span class="home-meta-signal"><i aria-hidden="true">◷</i>{{ $duration }}</span>
+                @endif
+
+                @if($price)
+                    <span class="home-meta-signal"><i aria-hidden="true">₮</i>{{ $price }}</span>
                 @endif
 
                 <span class="ms-auto font-black text-[var(--color-primary-600)]">
