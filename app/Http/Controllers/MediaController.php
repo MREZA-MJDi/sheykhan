@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Media;
 use App\Services\MediaService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
@@ -34,7 +35,11 @@ class MediaController extends Controller
     public function download(Media $media, MediaService $mediaService): StreamedResponse
     {
         abort_unless($media->status === 'active', 404);
-        Gate::forUser(auth()->user())->authorize('download', $media);
+        try {
+            Gate::forUser(auth()->user())->authorize('download', $media);
+        } catch (AuthorizationException) {
+            abort(403, 'دسترسی این فایل برای حساب شما فعال نیست. ممکن است این محتوا نیاز به خرید یا عضویت در کلاس مرتبط داشته باشد.');
+        }
 
         return $mediaService->download($media);
     }
