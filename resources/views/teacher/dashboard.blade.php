@@ -29,7 +29,7 @@
 
                 <p>
                     میانگین پیشرفت دانش‌آموزان دوره‌های شما
-                    <strong>{{ AppSupportPersianUi::digits($progress) }}٪</strong>
+                    <strong>{{ \App\Support\PersianUi::digits($progress) }}٪</strong>
                     است. وضعیت کلاس‌ها، ارزیابی‌ها و جلسات را از همین‌جا دنبال کن.
                 </p>
 
@@ -52,7 +52,7 @@
 
                 <div class="teacher-visual-card teacher-visual-main">
                     <span>میانگین پیشرفت</span>
-                    <strong>{{ AppSupportPersianUi::digits($progress) }}٪</strong>
+                    <strong>{{ \App\Support\PersianUi::digits($progress) }}٪</strong>
 
                     <div class="teacher-track">
                         <span style="width: {{ $progress }}%"></span>
@@ -61,7 +61,7 @@
 
                 <div class="teacher-visual-card teacher-visual-small">
                     <span>بررسی در انتظار</span>
-                    <strong>{{ AppSupportPersianUi::digits($pendingReviews) }}</strong>
+                    <strong>{{ \App\Support\PersianUi::digits($pendingReviews) }}</strong>
                 </div>
             </div>
         </section>
@@ -71,7 +71,7 @@
                 <div class="teacher-stat-icon" aria-hidden="true">ک</div>
                 <div class="teacher-stat-copy">
                     <span>کلاس‌های فعال</span>
-                    <strong>{{ AppSupportPersianUi::digits($metrics['activeClasses'] ?? 0) }}</strong>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['activeClasses'] ?? 0) }}</strong>
                     <small>کلاس‌های تحت مدیریت شما</small>
                 </div>
             </article>
@@ -80,7 +80,7 @@
                 <div class="teacher-stat-icon" aria-hidden="true">د</div>
                 <div class="teacher-stat-copy">
                     <span>دانش‌آموزان</span>
-                    <strong>{{ AppSupportPersianUi::digits($metrics['studentCount'] ?? 0) }}</strong>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['studentCount'] ?? 0) }}</strong>
                     <small>دانش‌آموز فعال در کلاس‌ها</small>
                 </div>
             </article>
@@ -89,8 +89,8 @@
                 <div class="teacher-stat-icon" aria-hidden="true">ج</div>
                 <div class="teacher-stat-copy">
                     <span>جلسات این هفته</span>
-                    <strong>{{ AppSupportPersianUi::digits($metrics['weeklySessions'] ?? 0) }}</strong>
-                    <small>{{ AppSupportPersianUi::digits($completedSessions ?? 0) }} جلسه برگزار شده</small>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['weeklySessions'] ?? 0) }}</strong>
+                    <small>{{ \App\Support\PersianUi::digits($completedSessions ?? 0) }} جلسه برگزار شده</small>
                 </div>
             </article>
 
@@ -98,7 +98,7 @@
                 <div class="teacher-stat-icon" aria-hidden="true">ت</div>
                 <div class="teacher-stat-copy">
                     <span>فروش دوره‌ها</span>
-                    <strong>{{ AppSupportPersianUi::money($metrics['monthlySales'] ?? 0) }}</strong>
+                    <strong>{{ \App\Support\PersianUi::money($metrics['monthlySales'] ?? 0) }}</strong>
                     <small>تومان · این ماه</small>
                 </div>
             </article>
@@ -166,8 +166,8 @@
                     @forelse($upcomingClasses as $item)
                         <article class="teacher-upcoming-item">
                             <div class="teacher-time-box">
-                                <strong>{{ AppSupportPersianUi::time($item->scheduled_at) }}</strong>
-                                <small>{{ AppSupportPersianUi::date($item->scheduled_at) }}</small>
+                                <strong>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</strong>
+                                <small>{{ \App\Support\PersianUi::date($item->scheduled_at) }}</small>
                             </div>
 
                             <div class="min-w-0">
@@ -255,9 +255,9 @@
                                 <strong>{{ $course->title }}</strong>
 
                                 <small>
-                                    {{ AppSupportPersianUi::digits($course->student_count) }} دانش‌آموز
+                                    {{ \App\Support\PersianUi::digits($course->student_count) }} دانش‌آموز
                                     ·
-                                    میانگین {{ AppSupportPersianUi::digits($courseValue) }}٪
+                                    میانگین {{ \App\Support\PersianUi::digits($courseValue) }}٪
                                 </small>
 
                                 <div class="teacher-progress-track">
@@ -274,14 +274,14 @@
                     <div>
                         <span class="teacher-panel-label">عملیات ضروری</span>
                         <h2 id="teacher-attention-title">نیازمند پیگیری</h2>
-                        <p>{{ AppSupportPersianUi::digits($pendingReviews) }} مورد برای بررسی</p>
+                        <p>{{ \App\Support\PersianUi::digits($pendingReviews) }} مورد برای بررسی</p>
                     </div>
                 </div>
 
                 <div class="teacher-upcoming-list">
                     <a href="{{ route('teacher.assignments.index') }}" class="teacher-upcoming-item">
                         <div class="teacher-time-box">
-                            <strong>{{ AppSupportPersianUi::digits($pendingAssignmentReviews) }}</strong>
+                            <strong>{{ \App\Support\PersianUi::digits($pendingAssignmentReviews) }}</strong>
                             <small>تکلیف</small>
                         </div>
 
@@ -295,7 +295,7 @@
 
                     <a href="{{ route('teacher.exams.index') }}" class="teacher-upcoming-item">
                         <div class="teacher-time-box">
-                            <strong>{{ AppSupportPersianUi::digits($pendingExamReviews) }}</strong>
+                            <strong>{{ \App\Support\PersianUi::digits($pendingExamReviews) }}</strong>
                             <small>آزمون</small>
                         </div>
 
@@ -309,7 +309,7 @@
 
                     <a href="{{ route('teacher.classrooms.index') }}" class="teacher-upcoming-item">
                         <div class="teacher-time-box">
-                            <strong>{{ AppSupportPersianUi::digits($metrics['activeClasses'] ?? 0) }}</strong>
+                            <strong>{{ \App\Support\PersianUi::digits($metrics['activeClasses'] ?? 0) }}</strong>
                             <small>کلاس</small>
                         </div>
 
@@ -359,21 +359,21 @@
 
                                 <td>
                                     @if($activity->due_at)
-                                        {{ AppSupportPersianUi::date($activity->due_at) }}
+                                        {{ \App\Support\PersianUi::date($activity->due_at) }}
                                         ·
-                                        {{ AppSupportPersianUi::time($activity->due_at) }}
+                                        {{ \App\Support\PersianUi::time($activity->due_at) }}
                                     @else
                                         بدون موعد
                                     @endif
                                 </td>
 
                                 <td>
-                                    {{ AppSupportPersianUi::digits($activity->submitted_count) }}
+                                    {{ \App\Support\PersianUi::digits($activity->submitted_count) }}
                                 </td>
 
                                 <td>
                                     <span class="teacher-activity-pill">
-                                        {{ AppSupportPersianUi::digits($activity->pending_review_count) }}
+                                        {{ \App\Support\PersianUi::digits($activity->pending_review_count) }}
                                         مورد
                                     </span>
                                 </td>
