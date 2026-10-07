@@ -92,6 +92,24 @@ class StudentBackendSecurityTest extends TestCase
         $this->assertFalse(app(StudentCourseService::class)->query($student)->whereKey($course->id)->exists());
     }
 
+    public function test_paid_course_is_not_leaked_into_student_dashboard(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $course->update(['access_type' => 'paid']);
+        $student->enrollments()
+            ->where('course_id', $course->id)
+            ->update(['paid_amount' => 0]);
+
+        $payload = app(\App\Services\StudentDashboardService::class)->build($student);
+
+        $this->assertNotContains($course->id, $payload['courses']->pluck('id')->all());
+        $this->assertSame(0, $payload['activeCourseCount']);
+    }
+
     public function test_assignment_submission_is_student_owned_classroom_scoped_and_attachment_safe(): void
     {
         Storage::fake('local');
