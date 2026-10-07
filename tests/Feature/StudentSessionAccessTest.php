@@ -42,7 +42,7 @@ class StudentSessionAccessTest extends TestCase
         $this->assertSame(route('media.view', $released->recording), $byId[$released->id]['href']);
     }
 
-    public function test_recording_download_requires_release_and_student_scope(): void
+    public function test_recording_view_requires_release_and_student_scope_and_download_stays_disabled(): void
     {
         Storage::fake('local');
         $this->seed();
@@ -68,7 +68,7 @@ class StudentSessionAccessTest extends TestCase
 
         $this->actingAs($inside)
             ->get(route('media.download', $released->recording))
-            ->assertOk();
+            ->assertForbidden();
 
         $this->actingAs($inside)
             ->get(route('media.download', $unreleased->recording))
