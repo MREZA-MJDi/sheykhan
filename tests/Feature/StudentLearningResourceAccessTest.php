@@ -39,12 +39,51 @@ class StudentLearningResourceAccessTest extends TestCase
 
         $studentInClass = User::where('email', 'student1@sheykhan.test')->firstOrFail();
         $studentOutsideClass = User::where('email', 'student3@sheykhan.test')->firstOrFail();
+
+        // Keep the second student enrolled in the same course but outside
+        // the target classroom so the test exercises classroom isolation.
+        $studentOutsideClass->enrollments()->updateOrCreate(
+            ['course_id' => $course->id],
+            ['status' => 'active', 'started_at' => now()]
+        );
+
         $service = app(StudentLearningResourceService::class);
 
         $this->assertTrue($service->canAccess($studentInClass, $resource));
         $this->assertFalse($service->canAccess($studentOutsideClass, $resource));
         $this->assertTrue($service->query($studentInClass)->whereKey($resource->id)->exists());
         $this->assertFalse($service->query($studentOutsideClass)->whereKey($resource->id)->exists());
+
+        $this->actingAs($studentOutsideClass)
+            ->get(route('student.resources.download', $resource))
+            ->assertNotFound();
+    }
+
+    public function test_view_only_resource_returns_friendly_forbidden_message_when_download_is_attempted(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'web-programming-foundation')->firstOrFail();
+        $student = User::where('email', 'student1@sheykhan.test')->firstOrFail();
+        $media = $course->media()->firstOrFail();
+
+        $resource = LearningResource::create([
+            'academy_id' => $course->academy_id,
+            'course_id' => $course->id,
+            'media_id' => $media->id,
+            'uploaded_by' => User::where('email', 'owner@sheykhan.test')->value('id'),
+            'title' => 'محتوای فقط مشاهده',
+            'resource_type' => 'document',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => false,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.resources.download', $resource))
+            ->assertForbidden()
+            ->assertSee('این محتوا فقط برای مشاهده ارائه شده و امکان دانلود آن فعال نیست.');
     }
 
     public function test_unreleased_resource_is_not_visible_or_downloadable(): void
