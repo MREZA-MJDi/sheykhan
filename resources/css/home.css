@@ -2918,3 +2918,45 @@
         transform: scaleX(1);
     }
 }
+
+
+/* =========================================================
+   PUBLIC CHROME — NAV + FOOTER
+========================================================= */
+
+.home-glass-nav {
+    background: rgba(251,250,247,.78);
+    border-bottom-color: rgba(228,232,238,.78) !important;
+    box-shadow: 0 6px 24px rgba(18,24,39,.025);
+    backdrop-filter: blur(18px) saturate(135%);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+}
+
+.home-glass-nav a:hover {
+    background: rgba(91,91,214,.065);
+}
+
+.home-glass-nav .bg-\[var\(--color-slate-900\)\] {
+    background: linear-gradient(145deg, #171c35, #2f3471) !important;
+    box-shadow: 0 10px 22px rgba(18,24,39,.10);
+}
+
+.sheykhan-site > #app > footer {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(91,91,214,.055), transparent 17rem),
+        linear-gradient(180deg, #fbfaf7 0%, #f2f3ef 100%);
+}
+
+.sheykhan-site > #app > footer::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(91,91,214,.34), rgba(14,159,154,.34), transparent);
+}
+
+.sheykhan-site > #app > footer .bg-\[var\(--color-slate-900\)\] {
+    background: linear-gradient(145deg, #171c35, #2f3471) !important;
+}
