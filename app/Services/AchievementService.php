@@ -15,7 +15,7 @@ class AchievementService
                 ->where('is_featured', true)
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', now())
-                ->with(['media:id,disk,path,visibility', 'grade:id,name'])
+                ->with(['media:id,disk,path,visibility', 'grade:id,title'])
                 ->orderByDesc('published_at')
                 ->limit($limit)
                 ->get()
@@ -25,7 +25,7 @@ class AchievementService
                     'type' => $achievement->achievement_type,
                     'title' => $achievement->title,
                     'image' => $achievement->media?->url(),
-                    'grade' => $achievement->grade?->name,
+                    'grade' => $achievement->grade?->title,
                 ])
                 ->all()
         );
