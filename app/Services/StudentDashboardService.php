@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\LiveClass;
 use App\Models\User;
+use App\Support\PersianUi;
 use Illuminate\Support\Facades\DB;
 
 final class StudentDashboardService
@@ -72,6 +74,37 @@ final class StudentDashboardService
                     'courses.title as course_title',
                 ]);
 
+        $sessions = $courseIds->isEmpty()
+            ? collect()
+            : LiveClass::query()
+                ->whereIn('course_id', $courseIds)
+                ->where('status', '!=', 'cancelled')
+                ->whereBetween('scheduled_at', [now()->subDays(60), now()->addDays(60)])
+                ->with(['course:id,title', 'classroom:id,title', 'recording:id,disk,path,visibility,status'])
+                ->orderByDesc('scheduled_at')
+                ->limit(24)
+                ->get()
+                ->map(function (LiveClass $session): array {
+                    $recordingReady = $session->isRecordingAvailable()
+                        && $session->recording?->status === 'active'
+                        && $session->recording?->visibility === 'private';
+
+                    $isFuture = $session->scheduled_at->isFuture();
+
+                    return [
+                        'id' => $session->id,
+                        'title' => $session->title,
+                        'course' => $session->course?->title,
+                        'classroom' => $session->classroom?->title,
+                        'date' => PersianUi::date($session->scheduled_at),
+                        'time' => PersianUi::time($session->scheduled_at),
+                        'is_future' => $isFuture,
+                        'lamp' => $recordingReady ? 'روشن' : 'خاموش',
+                        'available' => $recordingReady,
+                        'href' => $recordingReady ? route('media.download', $session->recording) : null,
+                    ];
+                });
+
         $recentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->where('submissions.student_id', $student->id)
@@ -96,6 +129,7 @@ final class StudentDashboardService
             'upcomingLiveClasses' => $upcomingLive,
             'assignments' => $assignmentItems,
             'recentResults' => $recentResults,
+            'sessions' => $sessions,
         ];
     }
 
