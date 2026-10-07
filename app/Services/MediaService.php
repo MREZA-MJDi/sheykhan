@@ -139,12 +139,29 @@ class MediaService
 
     public function download(Media $media): StreamedResponse
     {
-        abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
+        $disk = Storage::disk($media->disk);
 
-        return Storage::disk($media->disk)->download(
-            $media->path,
+        abort_unless($disk->exists($media->path), 404);
+
+        return response()->streamDownload(
+            function () use ($disk, $media): void {
+                $stream = $disk->readStream($media->path);
+
+                if (!is_resource($stream)) {
+                    abort(404);
+                }
+
+                try {
+                    fpassthru($stream);
+                } finally {
+                    fclose($stream);
+                }
+            },
             $media->original_name,
-            ['Content-Type' => $media->mime_type ?: 'application/octet-stream'],
+            [
+                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+                'X-Content-Type-Options' => 'nosniff',
+            ],
         );
     }
 }
