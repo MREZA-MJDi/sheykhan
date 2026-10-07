@@ -1,591 +1,269 @@
 @extends('layouts.student')
 
 @section('title', 'داشبورد دانش‌آموز | شیخان')
-@section('header-title', 'خانه یادگیری من')
+@section('header-title', 'داشبورد دانش‌آموز')
 
 @section('content')
-    @php
-        $progress = max(0, min(100, (float) $overallProgress));
-        $coursesCount = $courses->count();
-        $sessionsCount = $sessions->count();
-        $resultsCount = $recentResults->count();
-        $completedLessons = (int) ($completedLessonsCount ?? 0);
-        $totalLessons = max(0, (int) ($totalLessonsCount ?? 0));
-        $completionRate = $totalLessons > 0
-            ? (int) round(($completedLessons / $totalLessons) * 100)
-            : $progress;
-        $studyMinutes = (int) ($studyMinutesLast7Days ?? 0);
-        $studyStreak = (int) ($studyStreak ?? 0);
-        $studyWeek = $studyWeek ?? [];
+@php
+    $progress = max(0, min(100, (float) $overallProgress));
+    $today = now()->startOfDay();
+    $todayClasses = collect($upcomingLiveClasses ?? [])->filter(
+        fn ($class) => $class->scheduled_at && $class->scheduled_at->isSameDay($today)
+    )->values();
+    $nextAssignment = collect($assignments ?? [])->first(fn ($item) => empty($item->submitted_at));
+    $latestResult = collect($recentResults ?? [])->first();
+    $topCourse = collect($courses ?? [])->sortByDesc('learning_progress')->first();
+    $activeCourses = $courses->count();
+    $sessionCount = $sessions->count();
+    $resourceCount = $resources->count();
+    $pending = (int) ($pendingAssignments ?? 0);
+    $completedLessons = (int) ($completedLessonsCount ?? 0);
+    $totalLessons = (int) ($totalLessonsCount ?? 0);
+    $studyMinutes = (int) ($studyMinutesLast7Days ?? 0);
+    $studyStreak = (int) ($studyStreak ?? 0);
+    $monthStart = now()->startOfMonth();
+    $daysInMonth = $monthStart->daysInMonth;
+    $firstWeekday = $monthStart->dayOfWeek;
+    $maxStudy = max(1, collect($studyWeek ?? [])->max('minutes'));
+@endphp
 
-        $nextAssignment = collect($assignments ?? [])
-            ->first(fn ($assignment) => empty($assignment->submitted_at));
-
-        $latestResult = $recentResults->first();
-        $topCourse = $courses
-            ->sortByDesc('learning_progress')
-            ->first();
-
-        $focusType = 'learning';
-        $focusTitle = 'یک قدم از مسیرت را جلو ببر';
-        $focusText = 'با ادامه‌ی یک درس، مسیر یادگیری امروزت را شروع کن.';
-        $focusHref = route('student.courses.index');
-        $focusLabel = 'رفتن به دوره‌های من';
-
-        if ($nextAssignment) {
-            $focusType = 'task';
-            $focusTitle = 'یک کار نیمه‌تمام داری';
-            $focusText = 'تکلیف «' . $nextAssignment->title . '» هنوز تحویل نشده است.';
-            $focusHref = route('student.assignments.show', $nextAssignment->id);
-            $focusLabel = 'انجام تکلیف';
-        } elseif ($nextLesson) {
-            $focusType = 'lesson';
-            $focusTitle = 'بهترین قدم بعدی مشخص است';
-            $focusText = 'درس «' . $nextLesson->title . '» ادامه‌ی طبیعی مسیر یادگیری توست.';
-            $focusHref = route('student.lessons.show', $nextLesson->id);
-            $focusLabel = 'ادامه درس';
-        } elseif ($nextLiveClass) {
-            $focusType = 'class';
-            $focusTitle = 'برای کلاس بعدی آماده شو';
-            $focusText = 'جلسه «' . $nextLiveClass->title . '» به‌زودی برگزار می‌شود.';
-            $focusHref = route('student.live-classes.index');
-            $focusLabel = 'دیدن برنامه کلاس';
-        }
-
-        $maxStudyMinutes = max(1, collect($studyWeek)->max('minutes'));
-    @endphp
-
-    <div class="student-dashboard-v2">
-        {{-- =======================================================
-            HEADER / MOTIVATION
-        ======================================================== --}}
-        <section class="student-v2-hero" aria-labelledby="student-dashboard-title">
-            <div class="student-v2-hero-grid">
-                <div class="student-v2-hero-copy">
-                    <span class="student-v2-eyebrow">
-                        مرکز فرماندهی یادگیری
-                    </span>
-
-                    <h1 id="student-dashboard-title">
-                        سلام {{ $student->name }}،
-                        <span>امروز فقط یک قدم.</span>
-                    </h1>
-
-                    <p>
-                        لازم نیست همه‌چیز را یک‌جا انجام بدهی.
-                        شیخان اینجاست تا قدم بعدی را روشن کند و مسیر پیشرفتت را قابل دیدن نگه دارد.
-                    </p>
-
-                    <div class="student-v2-hero-actions">
-                        <a href="{{ $focusHref }}" class="student-v2-primary-action">
-                            <span>{{ $focusLabel }}</span>
-                            <i aria-hidden="true">←</i>
-                        </a>
-
-                        <a href="{{ route('student.courses.index') }}" class="student-v2-ghost-action">
-                            دیدن مسیرهای یادگیری
-                        </a>
-                    </div>
-
-                    <div class="student-v2-hero-signals">
-                        <span>
-                            <b>{{ \App\Support\PersianUi::digits($studyStreak) }}</b>
-                            روز پشت‌سرهم
-                        </span>
-                        <span>
-                            <b>{{ \App\Support\PersianUi::digits($studyMinutes) }}</b>
-                            دقیقه مطالعه در ۷ روز
-                        </span>
-                        <span>
-                            <b>{{ \App\Support\PersianUi::digits($completedLessons) }}</b>
-                            درس کامل‌شده
-                        </span>
-                    </div>
-                </div>
-
-                <div class="student-v2-hero-focus">
-                    <div class="student-v2-focus-orb"></div>
-
-                    <div class="student-v2-focus-card is-{{ $focusType }}">
-                        <div class="student-v2-focus-top">
-                            <span>تمرکز امروز</span>
-                            <b>{{ \App\Support\PersianUi::digits($completionRate) }}٪</b>
-                        </div>
-
-                        <div
-                            class="student-v2-progress-ring"
-                            style="--ring-progress: {{ $completionRate }}%;"
-                            aria-label="درصد تکمیل مسیر یادگیری"
-                        >
-                            <div>
-                                <strong>{{ \App\Support\PersianUi::digits($completionRate) }}٪</strong>
-                                <span>پیشرفت</span>
-                            </div>
-                        </div>
-
-                        <strong class="student-v2-focus-title">{{ $focusTitle }}</strong>
-                        <p>{{ $focusText }}</p>
-
-                        <a href="{{ $focusHref }}" class="student-v2-focus-link">
-                            {{ $focusLabel }}
-                            <span aria-hidden="true">←</span>
-                        </a>
-                    </div>
-                </div>
+<div class="student-dashboard-ui">
+    <section class="student-ui-hero">
+        <div class="student-ui-hero-copy">
+            <span class="student-ui-eyebrow">خانه یادگیری من</span>
+            <h2>سلام {{ $student->name }} 👋</h2>
+            <p>
+                مسیر یادگیری‌ات از همین‌جا ادامه پیدا می‌کند؛
+                {{ AppSupportPersianUi::digits($activeCourses) }} دوره فعال،
+                {{ AppSupportPersianUi::digits($pending) }} کار باز
+                و {{ AppSupportPersianUi::digits($progress) }}٪ پیشرفت داری.
+            </p>
+            <div class="student-ui-hero-actions">
+                @if($nextAssignment)
+                    <a href="{{ route('student.assignments.show', $nextAssignment->id) }}" class="student-ui-primary">
+                        ادامه تکلیف <span>←</span>
+                    </a>
+                @elseif($topCourse?->next_lesson)
+                    <a href="{{ route('student.lessons.show', $topCourse->next_lesson->id) }}" class="student-ui-primary">
+                        ادامه یادگیری <span>←</span>
+                    </a>
+                @else
+                    <a href="{{ route('student.courses.index') }}" class="student-ui-primary">
+                        دیدن دوره‌های من <span>←</span>
+                    </a>
+                @endif
+                <a href="{{ route('student.courses.index') }}" class="student-ui-secondary">مسیرهای یادگیری</a>
             </div>
-        </section>
-
-        {{-- =======================================================
-            SIGNAL CARDS
-        ======================================================== --}}
-        <section class="student-v2-stats" aria-label="تصویر کلی پیشرفت">
-            <article class="student-v2-stat">
-                <div class="student-v2-stat-icon is-indigo" aria-hidden="true">◉</div>
-                <div>
-                    <span>دوره‌های فعال</span>
-                    <strong>{{ \App\Support\PersianUi::digits($coursesCount) }}</strong>
-                    <small>مسیرهایی که اکنون دنبال می‌کنی</small>
-                </div>
-            </article>
-
-            <article class="student-v2-stat">
-                <div class="student-v2-stat-icon is-teal" aria-hidden="true">↗</div>
-                <div>
-                    <span>میانگین پیشرفت</span>
-                    <strong>{{ \App\Support\PersianUi::digits($progress) }}٪</strong>
-                    <small>برآیند دوره‌های فعال تو</small>
-                </div>
-            </article>
-
-            <article class="student-v2-stat">
-                <div class="student-v2-stat-icon is-coral" aria-hidden="true">✓</div>
-                <div>
-                    <span>کارهای باز</span>
-                    <strong>{{ \App\Support\PersianUi::digits($pendingAssignments) }}</strong>
-                    <small>تکلیف نیازمند اقدام</small>
-                </div>
-            </article>
-
-            <article class="student-v2-stat">
-                <div class="student-v2-stat-icon is-gold" aria-hidden="true">★</div>
-                <div>
-                    <span>آخرین نتیجه</span>
-                    <strong>{{ $latestResult?->score === null ? '—' : \App\Support\PersianUi::digits($latestResult->score) }}</strong>
-                    <small>{{ $latestResult?->title ?: 'هنوز نتیجه‌ای ثبت نشده' }}</small>
-                </div>
-            </article>
-        </section>
-
-        {{-- =======================================================
-            NEXT MOVE / PATH
-        ======================================================== --}}
-        <section class="student-v2-section" aria-labelledby="student-next-move-title">
-            <div class="student-v2-section-head">
-                <div>
-                    <span>قدم بعدی</span>
-                    <h2 id="student-next-move-title">از اینجا ادامه بده</h2>
-                    <p>سه چیزی که همین حالا بیشترین ارزش را برای مسیرت دارند.</p>
-                </div>
-                <span class="student-v2-section-index">۰۱</span>
+            <div class="student-ui-hero-meta">
+                <span><b>{{ AppSupportPersianUi::digits($studyStreak) }}</b> روز پیوسته</span>
+                <span><b>{{ AppSupportPersianUi::digits($studyMinutes) }}</b> دقیقه در ۷ روز</span>
+                <span><b>{{ AppSupportPersianUi::digits($completedLessons) }}</b> درس کامل</span>
             </div>
-
-            <div class="student-v2-next-grid">
-                <a href="{{ $nextLesson ? route('student.lessons.show', $nextLesson->id) : route('student.courses.index') }}" class="student-v2-next-card is-learning">
-                    <div class="student-v2-next-icon">→</div>
-                    <div class="student-v2-next-copy">
-                        <span>ادامه یادگیری</span>
-                        <strong>{{ $nextLesson?->title ?: 'اولین درس دوره‌ات را شروع کن' }}</strong>
-                        <p>
-                            {{ $topCourse?->title ?: 'دوره‌های فعال تو' }}
-                        </p>
-                    </div>
-                    <i aria-hidden="true">←</i>
-                </a>
-
-                <a href="{{ $nextAssignment ? route('student.assignments.show', $nextAssignment->id) : route('student.assignments.index') }}" class="student-v2-next-card is-task">
-                    <div class="student-v2-next-icon">✓</div>
-                    <div class="student-v2-next-copy">
-                        <span>کار بعدی</span>
-                        <strong>{{ $nextAssignment?->title ?: 'تکلیف جدیدی منتظر تو نیست' }}</strong>
-                        <p>
-                            {{ $nextAssignment ? 'این مورد هنوز تحویل نشده است.' : 'وضعیت تکالیف تو مرتب است.' }}
-                        </p>
-                    </div>
-                    <i aria-hidden="true">←</i>
-                </a>
-
-                <a href="{{ route('student.live-classes.index') }}" class="student-v2-next-card is-class">
-                    <div class="student-v2-next-icon">●</div>
-                    <div class="student-v2-next-copy">
-                        <span>کلاس بعدی</span>
-                        <strong>{{ $nextLiveClass?->title ?: 'برنامه‌ای برای کلاس بعدی نیست' }}</strong>
-                        <p>
-                            @if($nextLiveClass)
-                                {{ \App\Support\PersianUi::date($nextLiveClass->scheduled_at) }}
-                                ·
-                                {{ \App\Support\PersianUi::time($nextLiveClass->scheduled_at) }}
-                            @else
-                                برنامه کلاس‌ها را بررسی کن.
-                            @endif
-                        </p>
-                    </div>
-                    <i aria-hidden="true">←</i>
-                </a>
-            </div>
-        </section>
-
-        {{-- =======================================================
-            LEARNING PATH
-        ======================================================== --}}
-        <section class="student-v2-section" aria-labelledby="student-learning-path-title">
-            <div class="student-v2-section-head">
-                <div>
-                    <span>مسیر یادگیری</span>
-                    <h2 id="student-learning-path-title">دوره‌هایت را مثل یک مسیر ببین</h2>
-                    <p>هر دوره از یک «شروع» به یک «قدم بعدی» تبدیل شده است؛ فقط ادامه بده.</p>
-                </div>
-
-                <a href="{{ route('student.courses.index') }}" class="student-v2-section-link">
-                    همه دوره‌ها <span aria-hidden="true">←</span>
-                </a>
-            </div>
-
-            <div class="student-v2-course-path">
-                @forelse($courses as $index => $course)
-                    @php
-                        $courseProgress = max(0, min(100, (float) ($course->learning_progress ?? 0)));
-                        $courseTotal = (int) ($course->total_lessons ?? 0);
-                        $courseCompleted = (int) ($course->completed_lessons ?? 0);
-                        $lesson = $course->next_lesson;
-                    @endphp
-
-                    <article class="student-v2-course-card">
-                        <div class="student-v2-course-top">
-                            <div class="student-v2-course-number">{{ \App\Support\PersianUi::digits($index + 1) }}</div>
-                            <div class="student-v2-course-heading">
-                                <span>{{ $course->academy?->name ?: 'آموزش شیخان' }}</span>
-                                <h3>{{ $course->title }}</h3>
-                            </div>
-                            <span class="student-v2-course-percent">
-                                {{ \App\Support\PersianUi::digits(round($courseProgress)) }}٪
-                            </span>
-                        </div>
-
-                        <div class="student-v2-course-progress">
-                            <div class="student-v2-course-progress-track">
-                                <span style="width: {{ $courseProgress }}%"></span>
-                            </div>
-                            <div class="student-v2-course-progress-meta">
-                                <span>{{ \App\Support\PersianUi::digits($courseCompleted) }} از {{ \App\Support\PersianUi::digits($courseTotal) }} درس کامل شده</span>
-                                <span>{{ $course->level ?: 'مسیر آموزشی' }}</span>
-                            </div>
-                        </div>
-
-                        <div class="student-v2-course-next">
-                            <div>
-                                <span>قدم بعدی</span>
-                                <strong>{{ $lesson?->title ?: 'این دوره فعلاً درس ناتمامی ندارد.' }}</strong>
-                            </div>
-
-                            @if($lesson)
-                                <a href="{{ route('student.lessons.show', $lesson->id) }}">
-                                    ادامه
-                                    <span aria-hidden="true">←</span>
-                                </a>
-                            @else
-                                <a href="{{ route('student.courses.show', $course->id) }}">
-                                    مشاهده دوره
-                                    <span aria-hidden="true">←</span>
-                                </a>
-                            @endif
-                        </div>
-                    </article>
-                @empty
-                    <div class="student-v2-empty-path">
-                        <div class="student-v2-empty-icon">+</div>
-                        <strong>هنوز مسیر یادگیری فعالی نداری.</strong>
-                        <p>اولین دوره را انتخاب کن؛ بعد از آن داشبورد قدم بعدی را برایت روشن می‌کند.</p>
-                        <a href="{{ route('courses.index') }}">پیدا کردن دوره مناسب <span>←</span></a>
-                    </div>
-                @endforelse
-            </div>
-        </section>
-
-        {{-- =======================================================
-            ACTIVITY + SCHEDULE
-        ======================================================== --}}
-        <div class="student-v2-two-col">
-            <section class="student-v2-panel" aria-labelledby="student-activity-title">
-                <div class="student-v2-panel-head">
-                    <div>
-                        <span>ریتم یادگیری</span>
-                        <h2 id="student-activity-title">این هفته چه‌قدر جلو رفتی؟</h2>
-                    </div>
-                    <div class="student-v2-mini-stat">
-                        <strong>{{ \App\Support\PersianUi::digits($studyMinutes) }}</strong>
-                        <span>دقیقه</span>
-                    </div>
-                </div>
-
-                <div class="student-v2-week-chart" aria-label="فعالیت هفت روز اخیر">
-                    @foreach($studyWeek as $day)
-                        @php
-                            $height = $day['minutes'] > 0
-                                ? max(12, (int) round(($day['minutes'] / $maxStudyMinutes) * 100))
-                                : 5;
-                        @endphp
-                        <div class="student-v2-week-day">
-                            <span class="student-v2-week-value">
-                                {{ $day['minutes'] > 0 ? \App\Support\PersianUi::digits($day['minutes']) : '۰' }}
-                            </span>
-                            <div class="student-v2-week-bar">
-                                <span class="{{ $day['minutes'] > 0 ? 'has-data' : '' }}" style="height: {{ $height }}%"></span>
-                            </div>
-                            <small>{{ $day['weekday'] }}</small>
-                            <b>{{ $day['label'] }}</b>
-                        </div>
-                    @endforeach
-                </div>
-
-                <div class="student-v2-streak">
-                    <span class="student-v2-streak-mark">🔥</span>
-                    <div>
-                        <strong>
-                            {{ $studyStreak > 0
-                                ? 'ریتمت را حفظ کردی.'
-                                : 'امروز فرصت خوبی برای شروع دوباره است.' }}
-                        </strong>
-                        <p>
-                            {{ $studyStreak > 0
-                                ? 'هر روز یک قدم کوچک، مسیر بزرگ‌تری می‌سازد.'
-                                : 'یک درس کوتاه را شروع کن تا دوباره ریتم یادگیری شکل بگیرد.' }}
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="student-v2-panel" aria-labelledby="student-schedule-title">
-                <div class="student-v2-panel-head">
-                    <div>
-                        <span>تقویم عمل</span>
-                        <h2 id="student-schedule-title">آنچه نزدیک است</h2>
-                    </div>
-                    <a href="{{ route('student.live-classes.index') }}" class="student-v2-panel-link">همه برنامه</a>
-                </div>
-
-                <div class="student-v2-schedule-list">
-                    @forelse($upcomingLiveClasses as $class)
-                        <a href="{{ route('student.live-classes.index') }}" class="student-v2-schedule-item">
-                            <div class="student-v2-schedule-time">
-                                <strong>{{ \App\Support\PersianUi::time($class->scheduled_at) }}</strong>
-                                <small>{{ \App\Support\PersianUi::date($class->scheduled_at) }}</small>
-                            </div>
-                            <div class="student-v2-schedule-copy">
-                                <strong>{{ $class->title }}</strong>
-                                <span>{{ $class->course_title }}</span>
-                            </div>
-                            <i aria-hidden="true">←</i>
-                        </a>
-                    @empty
-                        <div class="student-v2-schedule-empty">
-                            <span>●</span>
-                            <strong>جلسه‌ی پیش‌رو ثبت نشده است.</strong>
-                            <p>برنامه کلاس‌ها را هر زمان بخواهی می‌توانی بررسی کنی.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </section>
         </div>
+        <div class="student-ui-hero-art">
+            <div class="student-ui-hero-glow"></div>
+            <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+            <span class="student-ui-hero-badge">شیخان · مسیر تو</span>
+        </div>
+    </section>
 
-        {{-- =======================================================
-            TASKS / RESULTS
-        ======================================================== --}}
-        <div class="student-v2-two-col">
-            <section class="student-v2-panel" aria-labelledby="student-tasks-title">
-                <div class="student-v2-panel-head">
-                    <div>
-                        <span>عملیات</span>
-                        <h2 id="student-tasks-title">تکلیف‌ها را از دست نده</h2>
-                    </div>
-                    <a href="{{ route('student.assignments.index') }}" class="student-v2-panel-link">همه تکلیف‌ها</a>
+    <section class="student-ui-kpis" aria-label="خلاصه وضعیت یادگیری">
+        <article>
+            <span>دوره‌های فعال</span>
+            <strong>{{ AppSupportPersianUi::digits($activeCourses) }}</strong>
+            <small>دوره‌ای که اکنون دنبال می‌کنی</small>
+            <i class="student-ui-kpi-icon is-blue">◉</i>
+        </article>
+        <article>
+            <span>جلسات کلاس</span>
+            <strong>{{ AppSupportPersianUi::digits($sessionCount) }}</strong>
+            <small>جلسات ثبت‌شده در مسیرهای تو</small>
+            <i class="student-ui-kpi-icon is-green">◎</i>
+        </article>
+        <article>
+            <span>تکالیف من</span>
+            <strong>{{ AppSupportPersianUi::digits($pending) }}</strong>
+            <small>مورد نیازمند اقدام</small>
+            <i class="student-ui-kpi-icon is-purple">✓</i>
+        </article>
+        <article>
+            <span>پیشرفت کلی</span>
+            <strong>{{ AppSupportPersianUi::digits($progress) }}٪</strong>
+            <small>{{ AppSupportPersianUi::digits($completedLessons) }} از {{ AppSupportPersianUi::digits($totalLessons) }} درس کامل</small>
+            <i class="student-ui-kpi-icon is-gold">↗</i>
+        </article>
+    </section>
+
+    <section class="student-ui-quick">
+        <div class="student-ui-section-title">
+            <div><span>دسترسی سریع</span><h2>Quick Links</h2></div>
+            <a href="{{ route('student.dashboard') }}">خانه <span>←</span></a>
+        </div>
+        <div class="student-ui-quick-grid">
+            @php
+                $quickLinks = [
+                    ['route'=>'student.courses.index','label'=>'دوره‌های من','icon'=>'▣','permission'=>'courses.view'],
+                    ['route'=>'student.live-classes.index','label'=>'کلاس‌های من','icon'=>'◷','permission'=>'live_classes.view'],
+                    ['route'=>'student.assignments.index','label'=>'تکالیف من','icon'=>'✓','permission'=>'assignments.view'],
+                    ['route'=>'student.exams.index','label'=>'آزمون‌ها','icon'=>'▤','permission'=>'exams.view'],
+                    ['route'=>'student.results.index','label'=>'نتایج','icon'=>'↗','permission'=>'results.view'],
+                    ['route'=>'student.resources.index','label'=>'جزوه‌ها و فایل‌های من','icon'=>'▤','permission'=>'resources.view'],
+                    ['route'=>'student.notes.index','label'=>'یادداشت‌ها','icon'=>'✎','permission'=>'notes.view'],
+                    ['route'=>'student.profile.edit','label'=>'حساب کاربری','icon'=>'○','permission'=>'profile.view'],
+                ];
+            @endphp
+            @foreach($quickLinks as $link)
+                @if($student->hasPermission($link['permission']))
+                    <a href="{{ route($link['route']) }}">
+                        <i>{{ $link['icon'] }}</i>
+                        <span>{{ $link['label'] }}</span>
+                    </a>
+                @endif
+            @endforeach
+        </div>
+    </section>
+
+    <div class="student-ui-main-grid">
+        <div class="student-ui-main-column">
+            <section class="student-ui-panel">
+                <div class="student-ui-panel-head">
+                    <div><span>مسیر یادگیری</span><h2>دوره‌های فعال</h2></div>
+                    <a href="{{ route('student.courses.index') }}">مشاهده همه <span>←</span></a>
                 </div>
 
-                <div class="student-v2-task-list">
-                    @forelse($assignments as $assignment)
-                        <a href="{{ route('student.assignments.show', $assignment->id) }}" class="student-v2-task-item">
-                            <div class="student-v2-task-date">
-                                <strong>
-                                    {{ $assignment->due_at ? \App\Support\PersianUi::date($assignment->due_at) : '—' }}
-                                </strong>
-                                <small>موعد</small>
+                <div class="student-ui-course-list">
+                    @forelse($courses->take(4) as $course)
+                        @php
+                            $courseProgress = max(0, min(100, (float) ($course->learning_progress ?? 0)));
+                            $next = $course->next_lesson;
+                        @endphp
+                        <article class="student-ui-course">
+                            <div class="student-ui-course-index">{{ AppSupportPersianUi::digits($loop->iteration) }}</div>
+                            <div class="student-ui-course-copy">
+                                <small>{{ $course->academy?->name ?: 'آموزش شیخان' }}</small>
+                                <h3>{{ $course->title }}</h3>
+                                <div class="student-ui-progress"><span style="width:{{ $courseProgress }}%"></span></div>
+                                <p>{{ AppSupportPersianUi::digits(round($courseProgress)) }}٪ پیشرفت · {{ $next?->title ?: 'مسیر در حال پیگیری' }}</p>
                             </div>
-                            <div class="student-v2-task-copy">
-                                <strong>{{ $assignment->title }}</strong>
-                                <span>
-                                    @if($assignment->submitted_at)
-                                        {{ $assignment->graded_at ? 'تصحیح‌شده' : 'ارسال‌شده' }}
-                                    @else
-                                        در انتظار اقدام
-                                    @endif
-                                </span>
-                            </div>
-                            <b class="{{ $assignment->submitted_at ? 'is-done' : 'is-open' }}">
-                                {{ $assignment->submitted_at ? '✓' : '→' }}
-                            </b>
-                        </a>
-                    @empty
-                        <div class="student-v2-schedule-empty">
-                            <span>✓</span>
-                            <strong>فعلاً کاری عقب نمانده است.</strong>
-                            <p>وقتی تکلیف جدید منتشر شود، همین‌جا اولویت آن را می‌بینی.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </section>
-
-            <section class="student-v2-panel" aria-labelledby="student-results-title-v2">
-                <div class="student-v2-panel-head">
-                    <div>
-                        <span>بازخورد</span>
-                        <h2 id="student-results-title-v2">آخرین نتیجه‌های تو</h2>
-                    </div>
-                    <a href="{{ route('student.results.index') }}" class="student-v2-panel-link">مشاهده همه</a>
-                </div>
-
-                <div class="student-v2-results-list">
-                    @forelse($recentResults as $result)
-                        <article class="student-v2-result-item">
-                            <div class="student-v2-result-score">
-                                @if($result->score !== null)
-                                    {{ \App\Support\PersianUi::digits($result->score) }}
-                                @else
-                                    —
-                                @endif
-                            </div>
-                            <div>
-                                <strong>{{ $result->title }}</strong>
-                                <span>{{ $result->status_label ?? 'ثبت‌شده' }}</span>
-                            </div>
-                            <small>
-                                @if($result->occurred_at)
-                                    {{ \App\Support\PersianUi::date($result->occurred_at) }}
-                                @else
-                                    —
-                                @endif
-                            </small>
+                            <a href="{{ $next ? route('student.lessons.show', $next->id) : route('student.courses.show', $course->id) }}">
+                                {{ $next ? 'ادامه' : 'مشاهده' }} <span>←</span>
+                            </a>
                         </article>
                     @empty
-                        <div class="student-v2-schedule-empty">
-                            <span>◎</span>
-                            <strong>هنوز نتیجه‌ای برای نمایش نداریم.</strong>
-                            <p>نمره‌ها و بازخوردها بعد از ثبت و ارزیابی اینجا ظاهر می‌شوند.</p>
-                        </div>
+                        <div class="student-ui-empty">هنوز دوره فعالی برای نمایش وجود ندارد.</div>
+                    @endforelse
+                </div>
+            </section>
+
+            <div class="student-ui-split">
+                <section class="student-ui-panel">
+                    <div class="student-ui-panel-head">
+                        <div><span>ریتم مطالعه</span><h2>فعالیت این هفته</h2></div>
+                        <strong>{{ AppSupportPersianUi::digits($studyMinutes) }} دقیقه</strong>
+                    </div>
+                    <div class="student-ui-chart">
+                        @foreach(($studyWeek ?? []) as $day)
+                            @php $height = $day['minutes'] ? max(10, round(($day['minutes'] / $maxStudy) * 100)) : 5; @endphp
+                            <div>
+                                <b>{{ $day['minutes'] ? AppSupportPersianUi::digits($day['minutes']) : '۰' }}</b>
+                                <span><i style="height:{{ $height }}%"></i></span>
+                                <small>{{ $day['weekday'] }}</small>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="student-ui-panel">
+                    <div class="student-ui-panel-head">
+                        <div><span>عملیات نزدیک</span><h2>تکالیف من</h2></div>
+                        <a href="{{ route('student.assignments.index') }}">همه <span>←</span></a>
+                    </div>
+                    <div class="student-ui-task-list">
+                        @forelse($assignments->take(4) as $assignment)
+                            <a href="{{ route('student.assignments.show', $assignment->id) }}">
+                                <div><strong>{{ $assignment->title }}</strong><small>{{ $assignment->due_at ? AppSupportPersianUi::date($assignment->due_at) : 'بدون موعد' }}</small></div>
+                                <b class="{{ $assignment->submitted_at ? 'done' : '' }}">{{ $assignment->submitted_at ? '✓' : '→' }}</b>
+                            </a>
+                        @empty
+                            <div class="student-ui-empty">تکلیف بازی برای نمایش نیست.</div>
+                        @endforelse
+                    </div>
+                </section>
+            </div>
+
+            <section class="student-ui-panel">
+                <div class="student-ui-panel-head">
+                    <div><span>بازخورد</span><h2>آخرین نتیجه‌ها</h2></div>
+                    <a href="{{ route('student.results.index') }}">همه نتایج <span>←</span></a>
+                </div>
+                <div class="student-ui-results">
+                    @forelse($recentResults as $result)
+                        <article>
+                            <strong>{{ $result->score === null ? '—' : AppSupportPersianUi::digits($result->score) }}</strong>
+                            <div><b>{{ $result->title }}</b><span>{{ $result->status_label ?? 'ثبت‌شده' }}</span></div>
+                            <small>{{ $result->occurred_at ? AppSupportPersianUi::date($result->occurred_at) : '—' }}</small>
+                        </article>
+                    @empty
+                        <div class="student-ui-empty">هنوز نتیجه‌ای برای نمایش نداریم.</div>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="student-ui-panel">
+                <div class="student-ui-panel-head">
+                    <div><span>منابع</span><h2>جزوه‌ها و فایل‌های من</h2></div>
+                    <a href="{{ route('student.resources.index') }}">مشاهده همه <span>←</span></a>
+                </div>
+                <div class="student-ui-resource-grid">
+                    @forelse($resources as $resource)
+                        <a href="{{ route('student.resources.view', $resource->id) }}">
+                            <i>▤</i><div><b>{{ $resource->title }}</b><span>{{ $resource->course?->title ?? 'منبع آموزشی' }}</span></div><em>↗</em>
+                        </a>
+                    @empty
+                        <div class="student-ui-empty">هنوز منبع آموزشی اختصاصی برایت ثبت نشده است.</div>
                     @endforelse
                 </div>
             </section>
         </div>
 
-        {{-- =======================================================
-            ACHIEVEMENTS / RECOGNITION
-        ======================================================== --}}
-        <section class="student-v2-section" aria-labelledby="student-achievements-title">
-            <div class="student-v2-section-head">
-                <div>
-                    <span>رشد و افتخار</span>
-                    <h2 id="student-achievements-title">موفقیت‌هایت را ببین</h2>
-                    <p>هر دستاورد واقعی بخشی از مسیر توست؛ کوچک یا بزرگ، ثبتش می‌کنیم.</p>
+        <aside class="student-ui-rail">
+            <section class="student-ui-calendar">
+                <div class="student-ui-rail-head"><h2>تقویم</h2><span>{{ AppSupportPersianUi::date(now()) }}</span></div>
+                <div class="student-ui-calendar-month">{{ now()->format('F Y') }}</div>
+                <div class="student-ui-calendar-week"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span></div>
+                <div class="student-ui-calendar-days">
+                    @for($i=0;$i<$firstWeekday;$i++)<i></i>@endfor
+                    @for($day=1;$day<=$daysInMonth;$day++)
+                        <span class="{{ $day === now()->day ? 'today' : '' }}">{{ AppSupportPersianUi::digits($day) }}</span>
+                    @endfor
                 </div>
-                <a href="{{ route('student.achievements.index') }}" class="student-v2-section-link">
-                    {{ \App\Support\PersianUi::digits($achievementCount ?? 0) }} دستاورد
-                    <span aria-hidden="true">←</span>
-                </a>
-            </div>
+            </section>
 
-            <div class="student-v2-achievements">
-                @forelse($achievements as $achievement)
-                    <article class="student-v2-achievement">
-                        <div class="student-v2-achievement-mark">★</div>
-                        <div class="student-v2-achievement-copy">
-                            <strong>{{ $achievement->title ?: $achievement->display_name }}</strong>
-                            <span>{{ $achievement->school_name ?: $achievement->achievement_type }}</span>
-                        </div>
-                        <small>
-                            @if($achievement->published_at)
-                                {{ \App\Support\PersianUi::date($achievement->published_at) }}
-                            @else
-                                ثبت‌شده
-                            @endif
-                        </small>
-                    </article>
+            <section class="student-ui-rail-panel">
+                <div class="student-ui-rail-head"><h2>برنامه امروز</h2><a href="{{ route('student.live-classes.index') }}">جدول</a></div>
+                @forelse($todayClasses as $class)
+                    <a class="student-ui-schedule" href="{{ route('student.live-classes.index') }}">
+                        <time>{{ AppSupportPersianUi::time($class->scheduled_at) }}</time>
+                        <div><b>{{ $class->title }}</b><span>{{ $class->course_title }}</span></div>
+                        <i>→</i>
+                    </a>
                 @empty
-                    <div class="student-v2-achievement-empty">
-                        <span>★</span>
-                        <strong>هنوز دستاوردی ثبت نشده است.</strong>
-                        <p>این قسمت برای موفقیت‌های واقعی توست؛ نه عددهای ساختگی.</p>
-                    </div>
+                    <div class="student-ui-rail-empty">امروز جلسه کلاسی ثبت نشده است.</div>
                 @endforelse
-            </div>
-        </section>
+            </section>
 
-        {{-- =======================================================
-            RESOURCES / FULL NAV
-        ======================================================== --}}
-        <section class="student-v2-section student-v2-explore" aria-labelledby="student-explore-title">
-            <div class="student-v2-section-head">
-                <div>
-                    <span>ابزارهای رشد</span>
-                    <h2 id="student-explore-title">چیزهای بیشتری برای بهتر شدن داری</h2>
-                    <p>این قسمت‌ها برای زمانی هستند که می‌خواهی از «انجام دادن» به «بهتر شدن» برسی.</p>
-                </div>
-            </div>
+            <section class="student-ui-rail-panel">
+                <div class="student-ui-rail-head"><h2>یادآورها</h2></div>
+                <a class="student-ui-reminder" href="{{ route('student.assignments.index') }}"><i>◷</i><div><b>{{ AppSupportPersianUi::digits($pending) }} تکلیف باز</b><span>قبل از موعد بررسی کن</span></div><em>→</em></a>
+                <a class="student-ui-reminder" href="{{ route('student.results.index') }}"><i>◎</i><div><b>آخرین نتیجه</b><span>{{ $latestResult?->title ?: 'هنوز نتیجه‌ای ثبت نشده' }}</span></div><em>→</em></a>
+                <a class="student-ui-reminder" href="{{ route('student.courses.index') }}"><i>✓</i><div><b>پیشرفت {{ AppSupportPersianUi::digits($progress) }}٪</b><span>مسیرت را ادامه بده</span></div><em>→</em></a>
+            </section>
 
-            <div class="student-v2-explore-grid">
-                <a href="{{ route('student.resources.index') }}">
-                    <b>جزوه و منابع</b>
-                    <span>منابع امن مرتبط با دوره‌ها و کلاس‌ها</span>
-                    <i>↗</i>
-                </a>
-
-                @if(auth()->user()->hasPermission('exams.view'))
-                    <a href="{{ route('student.exams.index') }}">
-                        <b>آزمون‌ها</b>
-                        <span>دانسته‌هایت را قبل از فراموش شدن محک بزن</span>
-                        <i>↗</i>
-                    </a>
-                @endif
-
-                @if(auth()->user()->hasPermission('attendance.view'))
-                    <a href="{{ route('student.attendance.index') }}">
-                        <b>حضور و غیاب</b>
-                        <span>نظم حضورت بخشی از مسیر پیشرفت توست</span>
-                        <i>↗</i>
-                    </a>
-                @endif
-
-                @if(auth()->user()->hasPermission('achievements.view'))
-                    <a href="{{ route('student.achievements.index') }}">
-                        <b>دستاوردها</b>
-                        <span>موفقیت‌هایی که ارزش ثبت و دیدن دارند</span>
-                        <i>↗</i>
-                    </a>
-                @endif
-
-                @if(auth()->user()->hasPermission('notes.view'))
-                    <a href="{{ route('student.notes.index') }}">
-                        <b>یادداشت‌های من</b>
-                        <span>چیزهایی که نباید از یادگیری‌ات گم شوند</span>
-                        <i>↗</i>
-                    </a>
-                @endif
-
-                @if(auth()->user()->hasPermission('profile.view'))
-                    <a href="{{ route('student.profile.edit') }}">
-                        <b>حساب و امنیت</b>
-                        <span>اطلاعات حساب و تنظیمات شخصی</span>
-                        <i>↗</i>
-                    </a>
-                @endif
-            </div>
-        </section>
+            <section class="student-ui-rail-profile">
+                <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+                <div><span>حساب دانش‌آموز</span><strong>{{ $student->name }}</strong><small>{{ $student->studentProfile?->school_name ?: 'دانش‌آموز شیخان' }}</small></div>
+            </section>
+        </aside>
     </div>
+</div>
 @endsection
