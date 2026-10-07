@@ -7,6 +7,7 @@ use App\Models\LearningResource;
 use App\Models\Lesson;
 use App\Models\Media;
 use App\Models\User;
+use Database\Seeders\Support\SeedMedia;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -72,7 +73,7 @@ class TeacherLessonResourceFlowTest extends TestCase
         $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
         $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
 
-        $media = $course->media()->firstOrFail();
+        $media = SeedMedia::make('teacher-existing-resource', $teacher->id, 'application/pdf', 'pdf', 'learning-resources', 'private');
 
         $resource = LearningResource::create([
             'academy_id' => $course->academy_id,
