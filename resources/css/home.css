@@ -125,7 +125,7 @@
     .home-heading > a { flex: none; color: var(--home-primary); font-size: .82rem; font-weight: 800; }
     .home-heading > a i { font-style: normal; margin-inline-start: .35rem; }
     .home-course-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1.2rem; }
-    .home-live-grid, .home-post-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1.2rem; }
+    .home-live-grid, .home-post-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 1.2rem; }
     .home-empty-state { grid-column: 1 / -1; display: grid; place-items: center; min-height: 180px; border: 1px dashed #d8deea; border-radius: 1.5rem; color: #7b879a; text-align: center; }
     .home-empty-state span { display: block; margin-top: .4rem; font-size: .8rem; }
 
