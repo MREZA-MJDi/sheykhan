@@ -10,20 +10,15 @@ class RoleDashboardAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function seedDemo(): void
+        public function test_each_role_reaches_only_its_own_dashboard(): void
     {
         $this->seed();
-    }
-
-    public function test_each_role_reaches_only_its_own_dashboard(): void
-    {
-        $this->seedDemo();
 
         $accounts = [
             ['owner@sheykhan.test', 'owner.dashboard'],
-            ['teacher1@sheykhan.test', 'teacher.dashboard'],
-            ['student1@sheykhan.test', 'student.dashboard'],
-            ['parent@sheykhan.test', 'parent.dashboard'],
+            ['teacher.math@sheykhan.test', 'teacher.dashboard'],
+            ['student.armin@sheykhan.test', 'student.dashboard'],
+            ['parent.armin@sheykhan.test', 'parent.dashboard'],
         ];
 
         foreach ($accounts as [$email, $route]) {
