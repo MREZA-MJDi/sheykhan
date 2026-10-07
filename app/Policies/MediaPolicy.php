@@ -54,8 +54,8 @@ class MediaPolicy
             if ($model instanceof Assignment) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
-                    return true;
+                if ($model->classroom) {
+                    return $this->classroomAccess($user, $model->classroom);
                 }
 
                 if ($model->course && $this->courseAccess($user, $model->course)) {
@@ -74,11 +74,11 @@ class MediaPolicy
                     return true;
                 }
 
-                if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
-                    return true;
+                if ($model->assignment?->classroom) {
+                    return $this->classroomAccess($user, $model->assignment->classroom);
                 }
 
-                if ($model->assignment?->classroom && $this->classroomAccess($user, $model->assignment->classroom)) {
+                if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
                     return true;
                 }
             }
@@ -86,8 +86,8 @@ class MediaPolicy
             if ($model instanceof Exam) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
-                    return true;
+                if ($model->classroom) {
+                    return $this->classroomAccess($user, $model->classroom);
                 }
 
                 if ($model->course && $this->courseAccess($user, $model->course)) {
