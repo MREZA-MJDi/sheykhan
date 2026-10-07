@@ -11,10 +11,13 @@ use Illuminate\View\View;
 
 class CourseController extends Controller
 {
-    public function index(CourseCatalogService $service): View
+    public function index(Request $request, CourseCatalogService $service): View
     {
+        $gradeId = $request->integer('grade');
+
         return view('pages.courses.index', [
-            'courses' => $service->paginate(),
+            'courses' => $service->paginate(12, $gradeId > 0 ? $gradeId : null),
+            'selectedGradeId' => $gradeId > 0 ? $gradeId : null,
         ]);
     }
 
