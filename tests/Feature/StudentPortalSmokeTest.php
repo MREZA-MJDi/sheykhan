@@ -47,5 +47,13 @@ class StudentPortalSmokeTest extends TestCase
                 ->get(route($routeName, $parameters))
                 ->assertOk();
         }
+
+        $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('خانه یادگیری من')
+            ->assertSee('قدم بعدی')
+            ->assertSee('ریتم یادگیری')
+            ->assertDontSee("@yield('header-title'");
     }
 }
