@@ -15,9 +15,14 @@ class PublicCourseSecurityTest extends TestCase
     {
         $this->seed();
 
-        $course = app(CourseCatalogService::class)->findPublished(
-            Course::where('slug', 'math-foundation-7')->firstOrFail()
-        );
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update([
+            'status' => 'published',
+            'published_at' => now()->subDay(),
+        ]);
+        $course->academy()->update(['status' => 'active']);
+
+        $course = app(CourseCatalogService::class)->findPublished($course);
 
         $lesson = $course->sections
             ->flatMap(fn ($section) => $section->lessons)
@@ -33,9 +38,14 @@ class PublicCourseSecurityTest extends TestCase
     {
         $this->seed();
 
-        $response = $this->get(route('courses.show', [
-            'course' => Course::where('slug', 'math-foundation-7')->firstOrFail(),
-        ]));
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update([
+            'status' => 'published',
+            'published_at' => now()->subDay(),
+        ]);
+        $course->academy()->update(['status' => 'active']);
+
+        $response = $this->get(route('courses.show', ['course' => $course]));
 
         $response->assertOk();
         $response->assertDontSee('دانلود فایل');
