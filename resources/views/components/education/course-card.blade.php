@@ -8,6 +8,7 @@
     'duration' => null,
     'price' => null,
     'level' => null,
+    'grades' => [],
     'href' => '#',
 ])
 
@@ -41,10 +42,14 @@
 
     <div class="flex flex-1 flex-col p-5 sm:p-6">
         <div class="flex items-center justify-between gap-3">
-            @if($level)
-                <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-tertiary)]">
-                    سطح {{ $level }}
-                </span>
+            @if($grades)
+                <div class="flex flex-wrap gap-1.5">
+                    @foreach($grades as $grade)
+                        <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-tertiary)]">{{ $grade }}</span>
+                    @endforeach
+                </div>
+            @elseif($level)
+                <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-tertiary)]">سطح {{ $level }}</span>
             @endif
 
             @if($price !== null)
