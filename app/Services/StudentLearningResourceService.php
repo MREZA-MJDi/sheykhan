@@ -59,7 +59,7 @@ final class StudentLearningResourceService
                 ->orWhereHas('classroom', fn (Builder $classroom) => $classroom->whereColumn('classrooms.academy_id', 'learning_resources.academy_id')))
             ->where(fn (Builder $query) => $query
                 ->whereNull('lesson_id')
-                ->orWhereHas('lesson.section.course:id,academy_id,status,access_type,published_at', fn (Builder $course) => $course->whereColumn('courses.academy_id', 'learning_resources.academy_id')))
+                ->orWhereHas('lesson.section.course', fn (Builder $course) => $course->whereColumn('courses.academy_id', 'learning_resources.academy_id')))
             ->where(fn (Builder $query) => $query->whereNull('release_at')->orWhere('release_at', '<=', now()))
             ->orderBy('sort_order')
             ->orderByDesc('created_at');
