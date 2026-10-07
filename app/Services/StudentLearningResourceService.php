@@ -16,7 +16,7 @@ final class StudentLearningResourceService
             ->pluck('academies.id');
 
         $courseIds = $student->enrollments()
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'published'])
             ->pluck('course_id');
 
         $classroomIds = $student->classroomsAsStudent()
@@ -65,7 +65,7 @@ final class StudentLearningResourceService
     public function canAccess(User $student, LearningResource $resource): bool
     {
         if (
-            $resource->status !== 'active'
+            !in_array($resource->status, ['active', 'published'], true)
             || ($resource->release_at && $resource->release_at->isFuture())
         ) {
             return false;
