@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\LiveClass;
 use App\Models\User;
 use App\Support\PersianUi;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 final class StudentDashboardService
@@ -152,6 +153,9 @@ final class StudentDashboardService
                 'submissions.graded_at as occurred_at',
             ])
             ->map(function ($result): object {
+                $result->occurred_at = $result->occurred_at
+                    ? Carbon::parse($result->occurred_at)
+                    : null;
                 $result->type = 'assignment';
                 $result->status_label = 'تصحیح‌شده';
                 return $result;
@@ -168,6 +172,9 @@ final class StudentDashboardService
                 'attempts.status',
             ])
             ->map(function ($result): object {
+                $result->occurred_at = $result->occurred_at
+                    ? Carbon::parse($result->occurred_at)
+                    : null;
                 $result->type = 'exam';
                 $result->status_label = $result->status === 'graded'
                     ? 'تصحیح‌شده'
