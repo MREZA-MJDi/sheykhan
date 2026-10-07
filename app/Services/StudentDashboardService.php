@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Achievement;
 use App\Models\LiveClass;
 use App\Models\User;
 use App\Services\StudentAccessService;
@@ -224,6 +225,28 @@ final class StudentDashboardService
             ->limit(4)
             ->get();
 
+        $achievements = Achievement::query()
+            ->where('student_id', $student->id)
+            ->where('status', 'published')
+            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
+            ->latest('published_at')
+            ->latest('id')
+            ->limit(3)
+            ->get([
+                'id',
+                'title',
+                'display_name',
+                'achievement_type',
+                'school_name',
+                'published_at',
+            ]);
+
+        $achievementCount = Achievement::query()
+            ->where('student_id', $student->id)
+            ->where('status', 'published')
+            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
+            ->count();
+
         $overallProgress = (float) ($courses->avg('learning_progress') ?? 0);
 
         return [
@@ -245,6 +268,8 @@ final class StudentDashboardService
             'studyMinutesLast7Days' => $learningActivity['study_minutes_last_7_days'],
             'studyStreak' => $learningActivity['study_streak'],
             'studyDates' => $learningActivity['study_dates'],
+            'achievements' => $achievements,
+            'achievementCount' => $achievementCount,
         ];
     }
 
