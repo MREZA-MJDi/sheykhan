@@ -110,6 +110,10 @@
                         </p>
                     </div>
 
+                    <a class="student-action" href="{{ route('student.resources.index') }}">
+                        منابع آموزشی
+                    </a>
+
                     <span class="student-status primary">
                         {{ \App\Support\PersianUi::digits($coursesCount) }} دوره
                     </span>
