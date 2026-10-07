@@ -239,9 +239,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (remaining <= 0) {
             window.clearInterval(timerId);
+            if (submitted || !form) return;
+
+            submitted = true;
+            try {
+                sessionStorage.removeItem(storageKey);
+            } catch {}
+
             submitButton?.setAttribute('disabled', 'disabled');
             submitButton?.classList.add('is-disabled');
-            saveState?.querySelector('span')?.replaceChildren(document.createTextNode('زمان آزمون تمام شده است'));
+            saveState?.querySelector('span')?.replaceChildren(document.createTextNode('زمان تمام شد؛ برگه در حال تحویل است…'));
+
+            // The server remains the source of truth and will reject late submissions.
+            form.submit();
         }
     };
 
