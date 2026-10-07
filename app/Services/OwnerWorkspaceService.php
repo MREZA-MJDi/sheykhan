@@ -8,6 +8,7 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 final class OwnerWorkspaceService
 {
@@ -31,30 +32,17 @@ final class OwnerWorkspaceService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $members = $academy->users()
+        $base = fn (string $role, string $pageName) => $academy->users()
+            ->wherePivot('status', 'active')
+            ->wherePivot('role', $role)
             ->select('users.id', 'users.name', 'users.email')
-            ->whereIn('academy_user.status', ['active', 'archived'])
-            ->get()
-            ->groupBy(fn (User $user) => $user->pivot->role);
-
-        $teachers = $members->get('teacher', collect());
-        $activeTeachers = $teachers->filter(fn (User $teacher) => $teacher->pivot->status === 'active')->values();
-        $archivedTeachers = $teachers->filter(fn (User $teacher) => $teacher->pivot->status === 'archived')->values();
-
-        $teachers->load('teacherProfile:id,user_id,is_verified,is_public');
+            ->orderBy('users.name')
+            ->paginate(25, ['*'], $pageName);
 
         return [
-            'teachers' => $activeTeachers,
-            'archivedTeachers' => $archivedTeachers,
-            'students' => $members->get('student', collect())->filter(fn (User $student) => $student->pivot->status === 'active')->values(),
-            'parents' => $members->get('parent', collect())->filter(fn (User $parent) => $parent->pivot->status === 'active')->values(),
-            'memberStats' => [
-                'activeTeachers' => $activeTeachers->count(),
-                'archivedTeachers' => $archivedTeachers->count(),
-                'publicTeachers' => $teachers->filter(fn (User $teacher) => (bool) $teacher->teacherProfile?->is_public)->count(),
-                'students' => $members->get('student', collect())->filter(fn (User $student) => $student->pivot->status === 'active')->count(),
-                'parents' => $members->get('parent', collect())->filter(fn (User $parent) => $parent->pivot->status === 'active')->count(),
-            ],
+            'teachers' => $base('teacher', 'teachers_page'),
+            'students' => $base('student', 'students_page'),
+            'parents' => $base('parent', 'parents_page'),
         ];
     }
 
@@ -79,11 +67,7 @@ final class OwnerWorkspaceService
 
     public function createTeacher(User $owner, Academy $academy, array $data): User
     {
-        abort_unless(
-            $this->canManageAcademy($owner, $academy)
-            && $owner->hasPermission('teachers.manage'),
-            403
-        );
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
 
         return DB::transaction(function () use ($academy, $data): User {
             $teacher = User::create([
@@ -104,7 +88,6 @@ final class OwnerWorkspaceService
                 'education' => null,
                 'experience_years' => $data['experience_years'] ?? 0,
                 'is_verified' => true,
-                'is_public' => (bool) ($data['is_public'] ?? true),
             ]);
 
             $academy->users()->syncWithoutDetaching([
@@ -121,11 +104,7 @@ final class OwnerWorkspaceService
 
     public function assignTeacher(User $owner, Academy $academy, int $teacherId, int $courseId): void
     {
-        abort_unless(
-            $this->canManageAcademy($owner, $academy)
-            && $owner->hasPermission('teachers.manage'),
-            403
-        );
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
 
         $isTeacher = $academy->users()
             ->whereKey($teacherId)
@@ -133,106 +112,16 @@ final class OwnerWorkspaceService
             ->wherePivot('status', 'active')
             ->exists();
 
-        abort_unless($isTeacher, 422, 'این کاربر مدرس فعال این آموزشگاه نیست.');
+        if (!$isTeacher) {
+            throw ValidationException::withMessages([
+                'teacher_id' => 'این کاربر مدرس فعال این آموزشگاه نیست.',
+            ]);
+        }
 
         $course = $academy->courses()->findOrFail($courseId);
 
         $course->teachers()->syncWithoutDetaching([
             $teacherId => ['is_primary' => false],
         ]);
-    }
-
-    public function archiveTeacher(User $owner, Academy $academy, User $teacher): void
-    {
-        abort_unless(
-            $this->canManageAcademy($owner, $academy)
-            && $owner->hasPermission('teachers.manage'),
-            403
-        );
-
-        DB::transaction(function () use ($academy, $teacher): void {
-            $membership = DB::table('academy_user')
-                ->where('academy_id', $academy->id)
-                ->where('user_id', $teacher->id)
-                ->where('role', 'teacher')
-                ->lockForUpdate()
-                ->first();
-
-            abort_unless($membership, 404, 'این مدرس عضو این آموزشگاه نیست.');
-
-            if ($membership->status === 'archived') {
-                return;
-            }
-
-            DB::table('academy_user')
-                ->where('academy_id', $academy->id)
-                ->where('user_id', $teacher->id)
-                ->where('role', 'teacher')
-                ->update([
-                    'status' => 'archived',
-                    'updated_at' => now(),
-                ]);
-        });
-    }
-
-    public function restoreTeacher(User $owner, Academy $academy, User $teacher): void
-    {
-        abort_unless(
-            $this->canManageAcademy($owner, $academy)
-            && $owner->hasPermission('teachers.manage'),
-            403
-        );
-
-        DB::transaction(function () use ($academy, $teacher): void {
-            $membership = DB::table('academy_user')
-                ->where('academy_id', $academy->id)
-                ->where('user_id', $teacher->id)
-                ->where('role', 'teacher')
-                ->lockForUpdate()
-                ->first();
-
-            abort_unless($membership, 404, 'این مدرس عضو این آموزشگاه نیست.');
-
-            if ($membership->status === 'active') {
-                return;
-            }
-
-            DB::table('academy_user')
-                ->where('academy_id', $academy->id)
-                ->where('user_id', $teacher->id)
-                ->where('role', 'teacher')
-                ->update([
-                    'status' => 'active',
-                    'joined_at' => $membership->joined_at ?: now(),
-                    'updated_at' => now(),
-                ]);
-        });
-    }
-
-    public function updateTeacherPublicVisibility(
-        User $owner,
-        Academy $academy,
-        User $teacher,
-        bool $isPublic
-    ): void {
-        abort_unless(
-            $this->canManageAcademy($owner, $academy)
-            && $owner->hasPermission('teachers.manage'),
-            403
-        );
-
-        abort_unless(
-            $academy->users()
-                ->whereKey($teacher->id)
-                ->wherePivot('role', 'teacher')
-                ->exists(),
-            404,
-            'این مدرس عضو این آموزشگاه نیست.'
-        );
-
-        $teacher->teacherProfile()->updateOrCreate(
-            ['user_id' => $teacher->id],
-            ['is_public' => $isPublic]
-        );
     }
 }
