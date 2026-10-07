@@ -79,6 +79,8 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
+    Route::get('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'edit'])->middleware('permission:academy.view')->name('academy.banners.edit');
+    Route::patch('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'update'])->middleware('permission:academy.manage')->name('academy.banners.update');
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->middleware('permission:academy.view')->name('people.index');
     Route::get('/academy/{academy}/classrooms', [OwnerClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
     Route::get('/academy/{academy}/classrooms/create', [OwnerClassroomController::class, 'create'])->middleware('permission:classrooms.manage')->name('classrooms.create');
