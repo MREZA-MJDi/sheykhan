@@ -45,7 +45,8 @@ class CourseEnrollment extends Model
      * Access requires an active enrollment that is explicitly marked paid
      * and has a positive paid amount. When a price snapshot exists, the
      * recorded payment must cover that snapshot so partial payments never
-     * unlock protected learning content.
+     * unlock protected learning content. A completed financial ledger entry
+     * is also required as the temporary payment evidence.
      */
     public function scopeFullyPaid(Builder $query): Builder
     {
@@ -53,6 +54,9 @@ class CourseEnrollment extends Model
             ->where('status', 'active')
             ->where('payment_status', 'paid')
             ->where('paid_amount', '>', 0)
+            ->whereHas('financialTransactions', fn (Builder $transaction) => $transaction
+                ->where('status', 'completed')
+                ->where('amount', '>', 0))
             ->where(function (Builder $amount): void {
                 $amount
                     ->whereNull('price_amount')
