@@ -30,8 +30,8 @@
                         </a>
 
                         @if($resource->downloadable)
-                            <a class="student-action" href="{{ route('student.resources.download', $resource) }}">
-                                دانلود
+                            <a class="student-action" href="{{ route('student.resources.view', $resource) }}" target="_blank" rel="noopener">
+                                مشاهده
                             </a>
                         @else
                             <span class="student-status">فقط مشاهده</span>
