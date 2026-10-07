@@ -113,9 +113,9 @@ class StudentLearningResourceAccessTest extends TestCase
         ]);
 
         $this->assertTrue(Gate::forUser($student)->allows('view', $media));
-        $this->assertFalse(IlluminateSupportFacadesGate::forUser($student)->allows('download', $media));
-        $this->assertFalse(IlluminateSupportFacadesGate::forUser($otherStudent)->allows('view', $media));
-        $this->assertFalse(IlluminateSupportFacadesGate::forUser($otherStudent)->allows('download', $media));
+        $this->assertFalse(Gate::forUser($student)->allows('download', $media));
+        $this->assertFalse(Gate::forUser($otherStudent)->allows('view', $media));
+        $this->assertFalse(Gate::forUser($otherStudent)->allows('download', $media));
 
         $this->actingAs($student)
             ->get(route('media.view', $media))
