@@ -21,15 +21,34 @@ class MediaPolicy
 {
     public function view(User $user, Media $media): bool
     {
-        return $this->download($user, $media);
-    }
-
-    public function download(User $user, Media $media): bool
-    {
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
             return true;
         }
 
+        return $this->canAccessProtectedMedia($user, $media);
+    }
+
+    public function download(User $user, Media $media): bool
+    {
+        // Protected educational media is view-only for students.
+        // A purchase grants content access, not a file download capability.
+        if ($media->visibility === 'public') {
+            return true;
+        }
+
+        if ($user->hasRole('student')) {
+            return false;
+        }
+
+        if ($media->uploaded_by === $user->id) {
+            return true;
+        }
+
+        return $this->canAccessProtectedMedia($user, $media);
+    }
+
+    private function canAccessProtectedMedia(User $user, Media $media): bool
+    {
         if (Achievement::query()
             ->where('media_id', $media->id)
             ->where('student_id', $user->id)
