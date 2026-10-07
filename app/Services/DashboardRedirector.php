@@ -20,8 +20,9 @@ final class DashboardRedirector
 
     public function redirect(User $user): RedirectResponse
     {
-        $defaultUrl = route($this->routeName($user));
-
-        return redirect()->intended($defaultUrl);
+        // Login is the role entry point. Do not replay an arbitrary pre-login
+        // protected URL after authentication; send the user to the dashboard
+        // that belongs to the authenticated role.
+        return redirect()->route($this->routeName($user));
     }
 }
