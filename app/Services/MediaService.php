@@ -133,6 +133,9 @@ class MediaService
             [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
                 'Content-Disposition' => 'inline',
+                'Cache-Control' => 'private, no-store, max-age=0',
+                'Pragma' => 'no-cache',
+                'Referrer-Policy' => 'no-referrer',
                 'X-Content-Type-Options' => 'nosniff',
             ],
         );
@@ -151,6 +154,9 @@ class MediaService
             $name,
             [
                 'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+                'Cache-Control' => 'private, no-store, max-age=0',
+                'Pragma' => 'no-cache',
+                'Referrer-Policy' => 'no-referrer',
                 'X-Content-Type-Options' => 'nosniff',
             ],
         );
