@@ -1,4 +1,5 @@
-@import './panel-base.css';
+.student-shell{--panel-primary:#0d8fca;--panel-primary-dark:#08729f;--panel-primary-soft:#e9f8ff;--color-primary-50:#e9f8ff;--color-primary-100:#d8f2ff;--color-primary-200:#b9e8fb;--color-primary-300:#8fdbf5;--color-primary-400:#53c4e9;--color-primary-500:#0d9dcc;--color-primary-600:#0d8fca;--color-primary-700:#08729f;--color-primary-800:#075d83;--color-primary-900:#064d6d;
+
 
 /* =========================================================
    STUDENT DESIGN TOKENS
