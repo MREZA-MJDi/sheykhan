@@ -1,42 +1,164 @@
 @extends('layouts.teacher')
-@section('title','نتایج آزمون | شیخان')
-@section('header-title','نتایج آزمون')
-@section('content')
-<div class="grid gap-5">
-    <div class="dashboard-panel p-5"><p class="text-xs font-black text-[var(--panel-primary)]">آزمون</p><h2 class="mt-1 text-2xl font-black">{{ $exam->title }}</h2><p class="mt-2 text-sm text-slate-500">{{ $exam->questions->count() }} سؤال · {{ $exam->duration_minutes }} دقیقه</p></div>
-    <div class="grid gap-4">
-        @forelse($exam->attempts as $attempt)
-            <article class="dashboard-panel p-5">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"><div><h3 class="text-sm font-black">{{ $attempt->student?->name }}</h3><p class="mt-1 text-[10px] text-slate-500">ارسال: {{ $attempt->submitted_at?->format('Y/m/d H:i') ?? 'در حال انجام' }}</p><p class="mt-2 text-xs">وضعیت: {{ $attempt->status }} · نمره: {{ $attempt->score ?? '—' }}</p></div>
-                @if(in_array($attempt->status, ['submitted','pending_review','needs_review'], true))
-                    <div class="flex flex-wrap gap-2">
-                        <form method="POST" action="{{ route('teacher.exam-attempts.grade',$attempt) }}">@csrf<button class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold">تصحیح خودکار</button></form>
-                        <a href="#attempt-{{ $attempt->id }}" class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">تصحیح دستی</a>
-                    </div>
-                @endif</div>
-                @if($attempt->answers->isNotEmpty())
-                    <div class="mt-5 grid gap-2">@foreach($attempt->answers as $answer)<div class="rounded-xl bg-slate-50 p-3 text-xs"><strong>سؤال {{ $loop->iteration }}:</strong> {{ is_array($answer->answer) ? implode('، ', $answer->answer) : $answer->answer }} @if($answer->is_correct !== null)<span class="{{ $answer->is_correct ? 'text-emerald-600' : 'text-rose-600' }}"> · {{ $answer->is_correct ? 'صحیح' : 'غلط' }}</span>@endif</div>@endforeach</div>
-                @endif
 
-                @if(in_array($attempt->status, ['submitted','pending_review','needs_review'], true))
-                    <form id="attempt-{{ $attempt->id }}" method="POST" action="{{ route('teacher.exam-attempts.grade-manual',$attempt) }}" class="mt-5 rounded-2xl border border-slate-200 p-4">
-                        @csrf @method('PATCH')
-                        <div class="grid gap-3">
-                            @foreach($attempt->answers as $answer)
-                                <label class="grid gap-2 rounded-xl bg-slate-50 p-3">
-                                    <span class="text-xs font-bold">سؤال {{ $loop->iteration }} · سقف {{ $answer->question?->score ?? '—' }}</span>
-                                    <span class="text-[10px] leading-6 text-slate-600">{{ is_array($answer->answer) ? implode('، ', $answer->answer) : ($answer->answer ?: 'بدون پاسخ') }}</span>
-                                    <input type="number" min="0" max="{{ $answer->question?->score ?? 999999 }}" step="0.01" name="answers[{{ $answer->id }}]" value="{{ $answer->score }}" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs">
-                                </label>
-                            @endforeach
+@section('title','نتایج آزمون | شیخان')
+@section('header-title','تصحیح آزمون')
+
+@section('content')
+    <div class="teacher-exam-review">
+        <section class="teacher-exam-review-hero">
+            <div>
+                <span>بررسی و بازخورد</span>
+                <h1>{{ $exam->title }}</h1>
+                <p>
+                    پاسخ‌های دانش‌آموزان این آزمون را بررسی کن؛ پاسخ‌های تستی قابل تصحیح خودکار هستند و سؤال‌های تشریحی برای بازبینی دستی می‌آیند.
+                </p>
+            </div>
+
+            <div class="teacher-exam-review-summary">
+                <div>
+                    <strong>{{ $exam->questions->count() }}</strong>
+                    <span>سؤال</span>
+                </div>
+                <div>
+                    <strong>{{ $exam->attempts->count() }}</strong>
+                    <span>تلاش</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="teacher-exam-attempt-list">
+            @forelse($exam->attempts as $attempt)
+                @php
+                    $isReview = in_array($attempt->status, ['submitted','pending_review','needs_review'], true);
+                    $statusLabel = match($attempt->status) {
+                        'graded' => 'تصحیح‌شده',
+                        'pending_review', 'needs_review' => 'نیازمند بررسی',
+                        'submitted' => 'ارسال‌شده',
+                        default => 'در حال انجام',
+                    };
+                    $statusTone = $attempt->status === 'graded'
+                        ? 'success'
+                        : ($isReview ? 'warning' : 'muted');
+                @endphp
+
+                <article class="teacher-exam-attempt-card" id="attempt-{{ $attempt->id }}">
+                    <header class="teacher-exam-attempt-head">
+                        <div class="teacher-exam-student">
+                            <span class="teacher-exam-student-avatar">
+                                {{ mb_substr($attempt->student?->name ?? 'د', 0, 1) }}
+                            </span>
+                            <div>
+                                <strong>{{ $attempt->student?->name ?: 'دانش‌آموز' }}</strong>
+                                <span>
+                                    تلاش {{ AppSupportPersianUi::digits($attempt->attempt_number) }}
+                                    ·
+                                    {{ $attempt->submitted_at ? AppSupportPersianUi::date($attempt->submitted_at) : 'هنوز تحویل نشده' }}
+                                </span>
+                            </div>
                         </div>
-                        <button class="mt-4 rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ثبت نمره‌های دستی</button>
-                    </form>
-                @endif
-            </article>
-        @empty
-            <div class="dashboard-panel p-10 text-center text-sm text-slate-500">هنوز تلاشی برای این آزمون ثبت نشده است.</div>
-        @endforelse
+
+                        <div class="teacher-exam-attempt-meta">
+                            <span class="teacher-exam-review-status {{ $statusTone }}">{{ $statusLabel }}</span>
+                            <span class="teacher-exam-score-chip">
+                                {{ $attempt->score === null ? '—' : AppSupportPersianUi::digits($attempt->score) }}
+                            </span>
+                        </div>
+                    </header>
+
+                    <div class="teacher-exam-answer-paper">
+                        @forelse($attempt->exam->questions as $question)
+                            @php($answer = $attempt->answers->firstWhere('question_id', $question->id))
+                            <article class="teacher-exam-answer-row">
+                                <div class="teacher-exam-answer-number">{{ AppSupportPersianUi::digits($loop->iteration) }}</div>
+
+                                <div class="teacher-exam-answer-content">
+                                    <div class="teacher-exam-answer-question">
+                                        <strong>{{ $question->question }}</strong>
+                                        <span>{{ AppSupportPersianUi::digits($question->score) }} امتیاز</span>
+                                    </div>
+
+                                    <div class="teacher-exam-answer-value">
+                                        <span>پاسخ دانش‌آموز</span>
+                                        <p>
+                                            @if($answer?->answer)
+                                                {{ is_array($answer->answer) ? implode('، ', $answer->answer) : $answer->answer }}
+                                            @else
+                                                بدون پاسخ
+                                            @endif
+                                        </p>
+                                    </div>
+
+                                    @if($answer && $answer->is_correct !== null && $question->type !== 'text')
+                                        <span class="teacher-exam-answer-result {{ $answer->is_correct ? 'correct' : 'wrong' }}">
+                                            {{ $answer->is_correct ? 'پاسخ صحیح' : 'پاسخ نادرست' }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="teacher-exam-answer-score">
+                                    @if($isReview)
+                                        <label>
+                                            <span>نمره</span>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="{{ $question->score }}"
+                                                step="0.01"
+                                                name="answers[{{ $answer?->id }}]"
+                                                value="{{ $answer?->score ?? 0 }}"
+                                                form="grade-attempt-{{ $attempt->id }}"
+                                            >
+                                        </label>
+                                    @elseif($answer)
+                                        <strong>
+                                            {{ AppSupportPersianUi::digits($answer->score ?? 0) }}
+                                        </strong>
+                                        <span>از {{ AppSupportPersianUi::digits($question->score) }}</span>
+                                    @endif
+                                </div>
+                            </article>
+                        @empty
+                            <div class="teacher-exam-empty">برای این آزمون هنوز سؤالی ثبت نشده است.</div>
+                        @endforelse
+                    </div>
+
+                    @if($isReview)
+                        <footer class="teacher-exam-attempt-actions">
+                            <div>
+                                <strong>این برگه آماده‌ی بررسی است.</strong>
+                                <span>برای هر سؤال نمره وارد کن؛ مجموع نمره بعد از ثبت محاسبه می‌شود.</span>
+                            </div>
+
+                            <div class="teacher-exam-review-actions">
+                                <form method="POST" action="{{ route('teacher.exam-attempts.grade',$attempt) }}">
+                                    @csrf
+                                    <button type="submit" class="teacher-exam-secondary-btn">
+                                        تصحیح خودکار
+                                    </button>
+                                </form>
+
+                                <form
+                                    id="grade-attempt-{{ $attempt->id }}"
+                                    method="POST"
+                                    action="{{ route('teacher.exam-attempts.grade-manual',$attempt) }}"
+                                >
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="teacher-exam-primary-btn">
+                                        ثبت نمره و پایان بررسی
+                                    </button>
+                                </form>
+                            </div>
+                        </footer>
+                    @endif
+                </article>
+            @empty
+                <section class="teacher-exam-empty-state">
+                    <div>✓</div>
+                    <strong>هنوز دانش‌آموزی این آزمون را تحویل نداده است.</strong>
+                    <p>وقتی اولین برگه ارسال شود، همین‌جا برای بررسی ظاهر می‌شود.</p>
+                </section>
+            @endforelse
+        </div>
     </div>
-</div>
 @endsection
