@@ -95,7 +95,9 @@ class StudentLearningResourceAccessTest extends TestCase
 
         $student->enrollments()->where('course_id', $course->id)->update([
             'status' => 'active',
-            'paid_amount' => max(1, (int) $course->price),
+            'price_amount' => $course->price,
+            'paid_amount' => $course->price,
+            'payment_status' => 'paid',
         ]);
 
         $otherStudent->enrollments()->updateOrCreate(
