@@ -86,6 +86,19 @@ class StudentSessionAccessTest extends TestCase
             ->get(route('media.view', $released->recording))
             ->assertForbidden()
             ->assertSee('دسترسی این فایل برای حساب شما فعال نیست.');
+
+        // Classroom membership alone must not bypass paid course access.
+        $inside->enrollments()
+            ->where('course_id', $course->id)
+            ->update([
+                'status' => 'completed',
+                'payment_status' => 'paid',
+                'paid_amount' => 0,
+            ]);
+
+        $this->actingAs($inside->fresh())
+            ->get(route('media.view', $released->recording))
+            ->assertForbidden();
     }
 
     private function makeSession(
