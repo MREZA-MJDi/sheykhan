@@ -206,7 +206,19 @@ class MediaPolicy
 
     private function classroomAccess(User $user, Classroom $classroom): bool
     {
-        $classroom->loadMissing('academy');
+        $classroom->loadMissing(['academy', 'course']);
+
+        if ($user->hasRole('student')) {
+            if (!$classroom->course) {
+                return false;
+            }
+
+            return $this->courseAccess($user, $classroom->course)
+                && $user->classroomsAsStudent()
+                    ->whereKey($classroom->id)
+                    ->wherePivot('status', 'active')
+                    ->exists();
+        }
 
         if ($this->academyOwner($user, $classroom->academy)) {
             return true;
