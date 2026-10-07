@@ -476,7 +476,7 @@
                                 {{ $result->title }}
                             </div>
 
-                            @if($gradedAt)
+                            @if($occurredAt)
                                 <span class="student-row-meta">
                                     {{ \App\Support\PersianUi::date($gradedAt) }}
                                 </span>
