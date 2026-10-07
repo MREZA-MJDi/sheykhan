@@ -56,6 +56,15 @@ class CourseCatalogService
                     'category' => $course->academy?->name,
                     'teacher' => $course->teachers->first()?->name,
                     'lessons' => PersianUi::digits($course->sections->sum(fn ($section) => $section->lessons->count())),
+                    'previewLessons' => $course->sections
+                        ->flatMap(fn ($section) => $section->lessons)
+                        ->take(3)
+                        ->map(fn ($lesson) => [
+                            'title' => $lesson->title,
+                            'is_free' => (bool) $lesson->is_free,
+                        ])
+                        ->values()
+                        ->all(),
                     'grades' => $course->grades->pluck('title')->values()->all(),
                     'duration' => $this->formatDuration($course->duration_minutes),
                     'price' => $this->formatPrice($course->price, $course->isFree()),
