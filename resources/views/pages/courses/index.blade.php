@@ -12,7 +12,14 @@
                 description="دوره‌های منتشرشده را بر اساس مسیر، سطح و موضوع انتخاب کن."
             />
 
-            <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div class="mt-8 flex flex-wrap items-center gap-2">
+                <a href="{{ route('courses.index') }}" class="rounded-full border px-4 py-2 text-sm font-bold {{ empty($selectedGradeId) ? 'border-[var(--color-primary-600)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'border-[var(--color-border)] text-[var(--color-text-muted)]' }}">همه دوره‌ها</a>
+                @foreach(($navigationGrades ?? collect()) as $grade)
+                    <a href="{{ route('courses.index', ['grade' => $grade->id]) }}" class="rounded-full border px-4 py-2 text-sm font-bold {{ (int) $selectedGradeId === (int) $grade->id ? 'border-[var(--color-primary-600)] bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'border-[var(--color-border)] text-[var(--color-text-muted)]' }}">{{ $grade->title }}</a>
+                @endforeach
+            </div>
+
+            <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 @forelse ($courses as $course)
                     <x-education.course-card
                         :title="$course->title"
