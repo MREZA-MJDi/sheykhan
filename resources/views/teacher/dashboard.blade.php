@@ -7,8 +7,8 @@
     @php
         $progress = max(0, min(100, (float) $weeklyProgress));
         $pendingReviews = max(0, (int) ($metrics['pendingReviews'] ?? 0));
-        $pendingAssignmentReviews = max(0, (int) $activities->sum('pending_review_count'));
-        $pendingExamReviews = max(0, $pendingReviews - $pendingAssignmentReviews);
+        $pendingAssignmentReviews = max(0, (int) ($metrics['pendingAssignmentReviews'] ?? 0));
+        $pendingExamReviews = max(0, (int) ($metrics['pendingExamReviews'] ?? 0));
     @endphp
 
     <div
@@ -95,11 +95,11 @@
             </article>
 
             <article class="teacher-stat">
-                <div class="teacher-stat-icon" aria-hidden="true">ت</div>
+                <div class="teacher-stat-icon" aria-hidden="true">پ</div>
                 <div class="teacher-stat-copy">
-                    <span>فروش دوره‌ها</span>
-                    <strong>{{ \App\Support\PersianUi::money($metrics['monthlySales'] ?? 0) }}</strong>
-                    <small>تومان · این ماه</small>
+                    <span>نیازمند بررسی</span>
+                    <strong>{{ \App\Support\PersianUi::digits($pendingReviews) }}</strong>
+                    <small>تکلیف و آزمون ارسال‌شده</small>
                 </div>
             </article>
         </section>
