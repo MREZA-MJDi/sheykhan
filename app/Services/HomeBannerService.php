@@ -22,7 +22,11 @@ final class HomeBannerService
                     ->where('mime_type', 'like', 'image/%'))
                 ->with([
                     'academy:id,name',
-                    'media:id,disk,path,original_name,mime_type,visibility,status',
+                    'media' => fn ($query) => $query
+                        ->where('visibility', 'public')
+                        ->where('status', 'active')
+                        ->where('mime_type', 'like', 'image/%')
+                        ->orderByPivot('sort_order'),
                 ])
                 ->orderBy('sort_order')
                 ->orderBy('id')
