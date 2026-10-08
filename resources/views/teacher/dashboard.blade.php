@@ -66,6 +66,44 @@
             </div>
         </section>
 
+        <section class="teacher-focus-card" aria-labelledby="teacher-focus-title">
+            <div class="teacher-focus-mark" aria-hidden="true">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="teacher-focus-copy">
+                <span class="teacher-focus-kicker">مرکز توجه</span>
+                <h2 id="teacher-focus-title">
+                    @if($pendingAssignmentReviews > 0)
+                        {{ App\Support\PersianUi::digits($pendingAssignmentReviews) }} تکلیف منتظر تصحیح است.
+                    @elseif($pendingExamReviews > 0)
+                        {{ App\Support\PersianUi::digits($pendingExamReviews) }} آزمون برای بررسی داری.
+                    @elseif(($metrics['activeClasses'] ?? 0) > 0)
+                        کلاس‌ها آماده‌اند؛ یک نگاه به برنامه امروز بینداز.
+                    @else
+                        همه‌چیز آرام است؛ وقت ساختن یک قدم تازه است.
+                    @endif
+                </h2>
+                <p>
+                    @if($pendingAssignmentReviews > 0)
+                        اول تکلیف‌های منتظر را جمع کن تا بازخورد دانش‌آموزان معطل نماند.
+                    @elseif($pendingExamReviews > 0)
+                        پاسخ‌های آزمون را مرور کن و نتیجه‌ها را نهایی کن.
+                    @elseif(($metrics['activeClasses'] ?? 0) > 0)
+                        جلسه بعدی و حضور دانش‌آموزان را از یک مسیر کوتاه مدیریت کن.
+                    @else
+                        می‌توانی یک تکلیف تازه بسازی یا محتوای یکی از دوره‌ها را کامل‌تر کنی.
+                    @endif
+                </p>
+            </div>
+            <a
+                href="{{ $pendingAssignmentReviews > 0 ? route('teacher.assignments.index') : ($pendingExamReviews > 0 ? route('teacher.exams.index') : route('teacher.classrooms.index')) }}"
+                class="teacher-focus-action"
+            >
+                {{ $pendingAssignmentReviews > 0 ? 'شروع تصحیح' : ($pendingExamReviews > 0 ? 'شروع بررسی' : 'رفتن به کلاس‌ها') }}
+                <span aria-hidden="true">←</span>
+            </a>
+        </section>
+
         <section class="teacher-stats" aria-label="آمار آموزشی">
             <article class="teacher-stat">
                 <div class="teacher-stat-icon" aria-hidden="true">ک</div>
