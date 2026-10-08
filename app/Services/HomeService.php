@@ -16,13 +16,12 @@ class HomeService
         private readonly AcademyContentService $academyContent,
         private readonly AchievementService $achievements,
         private readonly TestimonialService $testimonials,
-        private readonly HomeBannerService $homeBanners,
     ) {
     }
 
     public function getData(): array
     {
-        return Cache::remember('public:home:data:v2', now()->addSeconds(30), fn () => [
+        return Cache::remember('public:home:data:v3', now()->addMinute(), fn () => [
             'courseCards' => $this->courses->featuredCards(),
             'liveClassCards' => $this->liveClasses->upcomingCards(),
             'teacherCards' => $this->teachers->featuredCards(),
@@ -33,7 +32,6 @@ class HomeService
             'academyContentGroups' => $this->academyContent->featuredGroups(),
             'achievementCards' => $this->achievements->featured(),
             'testimonialCards' => $this->testimonials->featured(),
-            'homeBanners' => $this->homeBanners->featured(3),
         ]);
     }
 }
