@@ -21,9 +21,9 @@
         $totalLessons = (int) ($totalLessonsCount ?? 0);
         $studyMinutes = (int) ($studyMinutesLast7Days ?? 0);
         $studyStreak = (int) ($studyStreak ?? 0);
-        $monthStart = now()->startOfMonth();
-        $daysInMonth = $monthStart->daysInMonth;
-        $firstWeekday = $monthStart->dayOfWeek;
+        $jalaliCalendar = App\\Support\\PersianUi::calendar(now());
+        $daysInMonth = $jalaliCalendar['days_in_month'];
+        $firstWeekday = $jalaliCalendar['first_weekday'];
         $maxStudy = max(1, collect($studyWeek ?? [])->max('minutes'));
     @endphp
 
@@ -249,14 +249,14 @@
                 <section class="student-ui-calendar">
                     <div class="student-ui-rail-head"><h2>تقویم</h2><span>{{ App\Support\PersianUi::date(now()) }}</span>
                     </div>
-                    <div class="student-ui-calendar-month">{{ now()->format('F Y') }}</div>
+                    <div class="student-ui-calendar-month">{{ $jalaliCalendar['month_label'] }}</div>
                     <div class="student-ui-calendar-week"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
                     </div>
                     <div class="student-ui-calendar-days">
                         @for($i=0;$i<$firstWeekday;$i++)<i></i>@endfor
                         @for($day=1;$day<=$daysInMonth;$day++)
                             <span
-                                class="{{ $day === now()->day ? 'today' : '' }}">{{ App\Support\PersianUi::digits($day) }}</span>
+                                class="{{ $day === $jalaliCalendar['day'] ? 'today' : '' }}">{{ App\Support\PersianUi::digits($day) }}</span>
                         @endfor
                     </div>
                 </section>
