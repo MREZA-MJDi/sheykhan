@@ -7,7 +7,6 @@ use App\Models\Course;
 use App\Models\AcademyContent;
 use App\Models\BlogPost;
 use App\Models\User;
-use Illuminate\Support\Collection;
 
 final class OwnerSeoService
 {
