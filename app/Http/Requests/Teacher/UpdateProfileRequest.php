@@ -1,9 +1,9 @@
 <?php
 
-namespace AppHttpRequestsTeacher;
+namespace App\Http\Requests\Teacher;
 
-use IlluminateFoundationHttpFormRequest;
-use IlluminateValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -17,35 +17,13 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120'],
-            'email' => [
-                'nullable',
-                'email:rfc',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($this->user()->id),
-            ],
+            'email' => ['nullable', 'email:rfc', 'max:255', Rule::unique('users', 'email')->ignore($this->user()->id)],
             'bio' => ['nullable', 'string', 'max:4000'],
             'specialization' => ['nullable', 'string', 'max:255'],
             'education' => ['nullable', 'string', 'max:1000'],
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:80'],
             'is_public' => ['sometimes', 'boolean'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:3072'],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'name.required' => 'نام و نام خانوادگی الزامی است.',
-            'email.email' => 'ایمیل واردشده معتبر نیست.',
-            'email.unique' => 'این ایمیل قبلاً استفاده شده است.',
-            'bio.max' => 'معرفی شما نمی‌تواند بیشتر از ۴۰۰۰ کاراکتر باشد.',
-            'specialization.max' => 'تخصص نمی‌تواند بیشتر از ۲۵۵ کاراکتر باشد.',
-            'education.max' => 'تحصیلات نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.',
-            'experience_years.integer' => 'سابقه تدریس باید به‌صورت عدد وارد شود.',
-            'experience_years.max' => 'سابقه تدریس بیش از حد مجاز است.',
-            'avatar.image' => 'فایل آواتار باید یک تصویر معتبر باشد.',
-            'avatar.mimes' => 'فرمت آواتار باید JPG، PNG، WEBP یا AVIF باشد.',
-            'avatar.max' => 'حجم آواتار نباید بیشتر از ۳ مگابایت باشد.',
         ];
     }
 }
