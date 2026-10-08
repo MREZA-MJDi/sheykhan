@@ -49,6 +49,119 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+
+    const teacherJalaliFields = document.querySelectorAll('[data-teacher-jalali]');
+
+    const teacherNormalizeDigits = (value) => String(value ?? '')
+        .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+        .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+
+    const teacherGregorianToJalali = (value) => {
+        if (!value) return '';
+        const date = new Date(String(value).replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) return '';
+
+        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).format(date);
+    };
+
+    const teacherJalaliToGregorian = (value) => {
+        const normalized = teacherNormalizeDigits(value).replace(/-/g, '/').trim();
+        const match = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+        if (!match) return null;
+
+        const jy = Number(match[1]);
+        const jm = Number(match[2]);
+        const jd = Number(match[3]);
+        const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        });
+
+        const start = new Date(Date.UTC(jy + 620, 0, 1, 12));
+        for (let offset = 0; offset <= 800; offset++) {
+            const candidate = new Date(start.getTime() + offset * 86400000);
+            const parts = Object.fromEntries(
+                formatter.formatToParts(candidate).map((item) => [item.type, item.value])
+            );
+
+            if (Number(teacherNormalizeDigits(parts.year)) === jy
+                && Number(teacherNormalizeDigits(parts.month)) === jm
+                && Number(teacherNormalizeDigits(parts.day)) === jd) {
+                return [
+                    candidate.getUTCFullYear(),
+                    String(candidate.getUTCMonth() + 1).padStart(2, '0'),
+                    String(candidate.getUTCDate()).padStart(2, '0'),
+                ];
+            }
+        }
+
+        return null;
+    };
+
+    teacherJalaliFields.forEach((field) => {
+        const visibleDate = field.querySelector('[data-jalali-visible-date]');
+        const visibleTime = field.querySelector('[data-jalali-visible-time]');
+        const target = field.querySelector('[data-jalali-target]');
+        const dateOnly = field.dataset.jalaliDateOnly === '1';
+
+        if (!visibleDate || !target) return;
+
+        const hydrate = () => {
+            const raw = target.value;
+            if (!raw) return;
+
+            const match = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+            if (!match) return;
+
+            const jalali = teacherGregorianToJalali(
+                match[4] ? `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}` : `${match[1]}-${match[2]}-${match[3]}T12:00`
+            );
+
+            if (jalali) visibleDate.value = jalali;
+            if (visibleTime && match[4]) visibleTime.value = `${match[4]}:${match[5]}`;
+        };
+
+        const sync = () => {
+            const gregorian = teacherJalaliToGregorian(visibleDate.value);
+            if (!gregorian) {
+                target.value = '';
+                return false;
+            }
+
+            if (dateOnly) {
+                target.value = gregorian.join('-');
+                return true;
+            }
+
+            if (!visibleTime?.value) {
+                target.value = '';
+                return false;
+            }
+
+            target.value = `${gregorian.join('-')}T${visibleTime.value}`;
+            return true;
+        };
+
+        hydrate();
+        visibleDate.addEventListener('change', sync);
+        visibleDate.addEventListener('blur', sync);
+        visibleTime?.addEventListener('change', sync);
+
+        field.closest('form')?.addEventListener('submit', (event) => {
+            if (!sync()) {
+                event.preventDefault();
+                visibleDate.focus();
+            }
+        });
+    });
+
     const liveForm = document.querySelector('[data-live-class-form]');
 
     if (liveForm) {
