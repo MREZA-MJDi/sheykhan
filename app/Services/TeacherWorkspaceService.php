@@ -101,7 +101,7 @@ final class TeacherWorkspaceService
             ->withQueryString();
     }
 
-    public function assignments(User $teacher): Collection
+    public function assignments(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
         return Assignment::query()
             ->where('teacher_id', $teacher->id)
@@ -113,10 +113,11 @@ final class TeacherWorkspaceService
                     ->whereNull('graded_at'),
             ])
             ->latest('due_at')
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
-    public function exams(User $teacher): Collection
+    public function exams(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
         return Exam::query()
             ->where('teacher_id', $teacher->id)
@@ -126,17 +127,18 @@ final class TeacherWorkspaceService
                 'attempts as graded_attempts_count' => fn ($query) => $query->where('status', 'graded'),
             ])
             ->latest('starts_at')
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
-    public function liveClasses(User $teacher): Collection
+    public function liveClasses(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
         return LiveClass::query()
             ->where('teacher_id', $teacher->id)
             ->with(['course:id,title', 'classroom:id,title'])
             ->orderByDesc('scheduled_at')
-            ->limit(30)
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     public function courseOwnedBy(User $teacher, int $courseId): Course
