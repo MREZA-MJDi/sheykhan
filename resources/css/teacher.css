@@ -463,3 +463,120 @@
         width:100%;
     }
 }
+
+
+/* =========================================================
+   DASHBOARD REFERENCE SYSTEM — TEACHER WORKSPACE
+========================================================= */
+.teacher-dashboard{
+    --td-purple:#6554d9;
+    --td-purple-dark:#5142c5;
+    --td-soft:#f4f3ff;
+    --td-bg:#f6f8fc;
+    --td-ink:#25344a;
+    --td-muted:#7e899b;
+    --td-line:#edf0f5;
+    gap:15px;
+}
+.teacher-welcome-card{
+    min-height:245px;
+    border:0;
+    border-radius:28px;
+    background:
+        radial-gradient(circle at 82% 24%,rgba(255,255,255,.16),transparent 25%),
+        linear-gradient(110deg,#5848cc,#7759df 58%,#9672e9);
+    box-shadow:0 18px 40px rgba(87,70,205,.15);
+}
+.teacher-welcome-copy{padding:30px 34px}
+.teacher-welcome-kicker{font-size:10px}
+.teacher-welcome-copy h1,.teacher-welcome-copy h2{font-size:clamp(25px,2.8vw,36px);letter-spacing:-.025em}
+.teacher-welcome-copy p{font-size:12px}
+.teacher-primary-btn{min-height:43px;border-radius:13px}
+.teacher-secondary-hero-btn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.2)}
+
+.teacher-stats{gap:11px}
+.teacher-stat{
+    min-height:104px;
+    padding:16px;
+    border:0;
+    border-radius:17px;
+    background:#fff;
+    box-shadow:0 8px 25px rgba(35,51,80,.045);
+}
+.teacher-stat-icon{border-radius:10px;background:#f0edff;color:#6554d9}
+.teacher-stat-copy span{font-size:9px}
+.teacher-stat-copy strong{font-size:24px}
+.teacher-stat-copy small{font-size:8px}
+
+.teacher-grid{gap:15px}
+.teacher-panel{
+    padding:18px;
+    border:0;
+    border-radius:20px;
+    background:#fff;
+    box-shadow:0 9px 28px rgba(35,51,80,.045);
+}
+.teacher-panel-label{font-size:9px}
+.teacher-panel-head h2{font-size:18px}
+.teacher-panel-head p{font-size:9px}
+.teacher-panel-link{font-size:9px}
+
+.teacher-session-row,.teacher-upcoming-item{
+    border:0;
+    border-radius:13px;
+    background:#f9fafc;
+    padding:11px;
+}
+.teacher-session-row.is-live{background:#f5f0ff}
+.teacher-status,.teacher-type-badge{
+    font-size:8px;
+    border-radius:999px;
+}
+.teacher-time-box strong{font-size:12px}
+.teacher-time-box small{font-size:7px}
+.teacher-session-title,.teacher-upcoming-title{font-size:10px}
+.teacher-session-meta,.teacher-upcoming-meta{font-size:8px}
+
+.teacher-filter{
+    border:1px solid #ece9f7;
+    border-radius:10px;
+    padding:3px;
+    background:#faf9fe;
+}
+.teacher-filter button{font-size:8px;border-radius:8px}
+.teacher-filter button.active{background:#e9e4ff;color:#5c48cf}
+
+.teacher-chart{
+    min-height:240px;
+    padding:12px 4px 0;
+}
+.teacher-course-progress{gap:8px}
+.teacher-progress-card{
+    padding:10px 12px;
+    border:0;
+    border-radius:12px;
+    background:#f9fafc;
+}
+.teacher-progress-card strong{font-size:9px}
+.teacher-progress-card small{font-size:7px}
+.teacher-progress-track{height:5px}
+
+.teacher-activity-table-wrap{border:1px solid #edf0f4;border-radius:14px;overflow:auto}
+.teacher-activity-table th,.teacher-activity-table td{font-size:8px;padding:10px 12px}
+
+@media(max-width:900px){
+    .teacher-welcome-card{grid-template-columns:1fr}
+    .teacher-welcome-visual{display:none}
+}
+@media(max-width:700px){
+    .teacher-dashboard{gap:11px}
+    .teacher-welcome-card{min-height:0;border-radius:22px}
+    .teacher-welcome-copy{padding:21px}
+    .teacher-welcome-copy h1,.teacher-welcome-copy h2{font-size:24px}
+    .teacher-welcome-copy p{font-size:10px}
+    .teacher-stats{grid-template-columns:1fr 1fr}
+    .teacher-stat{min-height:92px;padding:12px}
+    .teacher-stat-copy strong{font-size:20px}
+    .teacher-grid{grid-template-columns:1fr}
+    .teacher-panel{padding:14px}
+}
