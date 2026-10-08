@@ -92,37 +92,40 @@ final class OwnerBlogService
             $post->update([
                 'category_id' => $data['category_id'] ?? null,
                 'title' => $data['title'] ?? $post->title,
-                'slug' => blank($data['slug'] ?? null) ? $post->slug : $this->uniqueSlug($data['title'] ?? $post->title, $data['slug'], $post->id),
+                'slug' => blank($data['slug'] ?? null)
+                    ? $post->slug
+                    : $this->uniqueSlug($data['title'] ?? $post->title, $data['slug'], $post->id),
                 'excerpt' => $data['excerpt'] ?? null,
                 'content' => $data['content'] ?? $post->content,
                 'status' => $status,
-                'published_at' => $status === 'published' ? ($data['published_at'] ?? $post->published_at ?? now()) : null,
+                'published_at' => $status === 'published'
+                    ? ($data['published_at'] ?? $post->published_at ?? now())
+                    : null,
             ]);
 
-        if ($cover) {
-            $media = $post->media()->wherePivot('collection', 'cover')->first();
-            if ($media) {
-                app(MediaService::class)->replace($media, $cover, $post, [
-                    'disk' => config('filesystems.default', 'local'),
-                    'directory' => 'blog/covers/' . $post->id,
-                    'collection' => 'cover',
-                    'visibility' => 'public',
-                    'sort_order' => 0,
-                    'is_featured' => true,
-                ]);
-            } else {
-                app(MediaService::class)->upload($cover, $post, [
-                    'disk' => config('filesystems.default', 'local'),
-                    'directory' => 'blog/covers/' . $post->id,
-                    'collection' => 'cover',
-                    'visibility' => 'public',
-                    'sort_order' => 0,
-                    'is_featured' => true,
-                ]);
-            }
-        }
+            if ($cover) {
+                $media = $post->media()->wherePivot('collection', 'cover')->first();
 
-        }
+                if ($media) {
+                    app(MediaService::class)->replace($media, $cover, $post, [
+                        'disk' => config('filesystems.default', 'local'),
+                        'directory' => 'blog/covers/' . $post->id,
+                        'collection' => 'cover',
+                        'visibility' => 'public',
+                        'sort_order' => 0,
+                        'is_featured' => true,
+                    ]);
+                } else {
+                    app(MediaService::class)->upload($cover, $post, [
+                        'disk' => config('filesystems.default', 'local'),
+                        'directory' => 'blog/covers/' . $post->id,
+                        'collection' => 'cover',
+                        'visibility' => 'public',
+                        'sort_order' => 0,
+                        'is_featured' => true,
+                    ]);
+                }
+            }
         });
 
         app(BlogService::class)->clearPublicCache();
