@@ -403,3 +403,53 @@ window.addEventListener('pageshow', () => {
         });
     });
 });
+
+
+function bootOwnerCoverPreviews() {
+    document.querySelectorAll('[data-owner-cover-editor]').forEach((editor) => {
+        const input = editor.querySelector('[data-owner-cover-input]');
+        const preview = editor.querySelector('[data-owner-cover-preview]');
+        const empty = editor.querySelector('[data-owner-cover-empty]');
+
+        if (!input) return;
+
+        let objectUrl = null;
+
+        input.addEventListener('change', () => {
+            const file = input.files?.[0];
+
+            if (!file || !file.type.startsWith('image/')) {
+                return;
+            }
+
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+
+            objectUrl = URL.createObjectURL(file);
+
+            if (preview) {
+                preview.src = objectUrl;
+                preview.hidden = false;
+            } else {
+                const image = document.createElement('img');
+                image.src = objectUrl;
+                image.alt = '';
+                image.dataset.ownerCoverPreview = '1';
+                editor.querySelector('.owner-cover-preview')?.appendChild(image);
+            }
+
+            if (empty) {
+                empty.hidden = true;
+            }
+        });
+
+        editor.closest('form')?.addEventListener('submit', () => {
+            window.setTimeout(() => {
+                if (objectUrl) URL.revokeObjectURL(objectUrl);
+            }, 0);
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', bootOwnerCoverPreviews);
