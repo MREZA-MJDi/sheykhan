@@ -17,13 +17,13 @@
     <section class="student-workspace-card" aria-labelledby="student-courses-title">
         <div class="student-workspace-card-head">
             <div><h2 id="student-courses-title">دوره‌های فعال</h2><p>مسیرهای آموزشی فعلی شما</p></div>
-            <span class="student-workspace-status primary">{{ AppSupportPersianUi::digits($courses->count()) }} دوره</span>
+            <span class="student-workspace-status primary">{{ App\Support\PersianUi::digits($courses->count()) }} دوره</span>
         </div>
         <div class="student-workspace-list">
             @forelse($courses as $course)
                 @php($p=max(0,min(100,(float)($course->learning_progress ?? 0))))
                 <article class="student-workspace-row">
-                    <div class="student-workspace-date"><strong>{{ AppSupportPersianUi::digits(round($p)) }}٪</strong><small>پیشرفت</small></div>
+                    <div class="student-workspace-date"><strong>{{ App\Support\PersianUi::digits(round($p)) }}٪</strong><small>پیشرفت</small></div>
                     <div class="student-workspace-row-main">
                         <a href="{{ route('student.courses.show', $course) }}">{{ $course->title }}</a>
                         <span>{{ $course->academy?->name ?? 'آکادمی شیخان' }} · {{ $course->level ?: 'دوره آموزشی' }}</span>
