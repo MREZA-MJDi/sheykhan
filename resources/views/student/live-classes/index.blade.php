@@ -9,7 +9,7 @@
 <div class="student-workspace-list">
 @forelse($classes as $class)
 <article class="student-workspace-row">
-<div class="student-workspace-date"><strong>{{ AppSupportPersianUi::time($class->scheduled_at) }}</strong><small>{{ AppSupportPersianUi::date($class->scheduled_at) }}</small></div>
+<div class="student-workspace-date"><strong>{{ App\Support\PersianUi::time($class->scheduled_at) }}</strong><small>{{ App\Support\PersianUi::date($class->scheduled_at) }}</small></div>
 <div class="student-workspace-row-main"><strong>{{ $class->title }}</strong><span>{{ $class->course?->title }} @if($class->teacher) · {{ $class->teacher->name }} @endif</span></div>
 @if($class->can_join)<a class="student-workspace-status success" href="{{ route('student.live-classes.join',$class) }}">ورود به جلسه ←</a>@else<span class="student-workspace-status warning">در زمان مجاز فعال می‌شود</span>@endif
 </article>
