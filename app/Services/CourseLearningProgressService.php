@@ -32,18 +32,15 @@ final class CourseLearningProgressService
             ->values();
 
         /** @var LengthAwarePaginator $students */
-        $students = $course->enrollments()
-            ->where('status', 'active')
-            ->with(['student:id,name'])
-            ->orderBy('id')
+        $students = User::query()
+            ->whereHas('enrollments', fn ($query) => $query
+                ->where('course_id', $course->id)
+                ->where('status', 'active'))
+            ->orderBy('users.id')
             ->paginate(20)
             ->withQueryString();
 
-        $studentCollection = $students->getCollection()
-            ->map(fn ($enrollment) => $enrollment->student)
-            ->filter()
-            ->unique('id')
-            ->values();
+        $studentCollection = $students->getCollection();
 
         $progressRows = $lessons->isEmpty() || $studentCollection->isEmpty()
             ? collect()
