@@ -20,16 +20,24 @@ final class PersianUi
         return self::digits(number_format((float) $amount, 0, '.', ',')) . ' تومان';
     }
 
-    public static function date(?CarbonInterface $date): string
+    public static function date(CarbonInterface|string|null $date): string
     {
         if (!$date) return '—';
+        if (is_string($date)) {
+            $date = Carbon::parse($date);
+        }
         [$jy,$jm,$jd] = self::gregorianToJalali((int)$date->format('Y'), (int)$date->format('m'), (int)$date->format('d'));
         return self::digits(sprintf('%04d/%02d/%02d', $jy, $jm, $jd));
     }
 
-    public static function time(?CarbonInterface $date): string
+    public static function time(CarbonInterface|string|null $date): string
     {
-        return $date ? self::digits($date->format('H:i')) : '—';
+        if (!$date) return '—';
+        if (is_string($date)) {
+            $date = Carbon::parse($date);
+        }
+
+        return self::digits($date->format('H:i'));
     }
 
     public static function calendar(?CarbonInterface $date = null): array
