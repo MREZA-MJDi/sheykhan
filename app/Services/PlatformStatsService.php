@@ -24,6 +24,7 @@ class PlatformStatsService
                     ->where('academy_user.status', 'active'))
                 ->count(),
             'students' => User::query()
+                ->where('status', 'active')
                 ->whereHas('roles', fn ($query) => $query->where('slug', 'student'))
                 ->count(),
         ]);
