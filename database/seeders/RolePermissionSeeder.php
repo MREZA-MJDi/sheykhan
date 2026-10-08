@@ -70,6 +70,7 @@ class RolePermissionSeeder extends Seeder
             ['name'=>'orders.view','label'=>'مشاهده سفارش‌ها','group'=>'orders'],
             ['name'=>'orders.manage','label'=>'مدیریت سفارش‌ها','group'=>'orders'],
             ['name'=>'payments.view','label'=>'مشاهده پرداخت‌ها','group'=>'payments'],
+            ['name'=>'finance.view','label'=>'مشاهده امور مالی','group'=>'finance'],
             ['name'=>'achievements.view','label'=>'مشاهده افتخارآفرینان','group'=>'achievements'],
             ['name'=>'achievements.manage','label'=>'مدیریت افتخارآفرینان','group'=>'achievements'],
             ['name'=>'testimonials.view','label'=>'مشاهده رضایتمندی','group'=>'testimonials'],
