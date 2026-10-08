@@ -1,10 +1,12 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Models\\User;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Tests\\TestCase;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\ViewErrorBag;
+use Tests\TestCase;
 
 class HttpFeedbackAndFailurePathsTest extends TestCase
 {
@@ -55,12 +57,13 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
 
     public function test_validation_errors_are_rendered_as_an_accessible_alert(): void
     {
-        $this->withSession([
-            '_errors' => (new \\Illuminate\\Support\\ViewErrorBag())->put(
-                'default',
-                new \\Illuminate\\Support\\MessageBag(['identifier' => ['شناسه ورود الزامی است.']])
-            ),
-        ])->get(route('login'))
+        $errors = (new ViewErrorBag())->put(
+            'default',
+            new MessageBag(['identifier' => ['شناسه ورود الزامی است.']])
+        );
+
+        $this->withSession(['errors' => $errors])
+            ->get(route('home'))
             ->assertOk()
             ->assertSee('شناسه ورود الزامی است.')
             ->assertSee('role="alert"', false);
