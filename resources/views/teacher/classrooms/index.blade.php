@@ -48,7 +48,7 @@
                     <div class="teacher-workspace-actions-row">
                         <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">حضور و غیاب</a>
                         <a href="{{ route('teacher.courses.progress',$classroom->course) }}" class="teacher-workspace-link">پیشرفت دوره</a>
-                        <a href="{{ route('teacher.students.index',['classroom'=>$classroom->id]) }}" class="teacher-workspace-link">دانش‌آموزان</a>
+                        <a href="{{ route('teacher.students.index') }}" class="teacher-workspace-link">دانش‌آموزان</a>
                     </div>
                 </div>
             </article>
