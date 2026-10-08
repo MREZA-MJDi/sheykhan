@@ -47,6 +47,7 @@ class BlogService
         }
 
         Cache::forget('public:home:data:v3');
+        Cache::forget('public:seo:sitemap:v1');
     }
 
     private function publishedQuery(): Builder
