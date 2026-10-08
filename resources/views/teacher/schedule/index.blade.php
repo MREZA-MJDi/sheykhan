@@ -58,7 +58,7 @@
             <article class="teacher-workspace-card">
                 <div class="teacher-workspace-card-head">
                     <div><h2>{{ $classroom->title }}</h2><p>{{ $classroom->course?->title }}</p></div>
-                    <span class="teacher-workspace-chip">{{ App\SupportPersianUi::digits($classroom->schedules->count()) }} زمان</span>
+                    <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($classroom->schedules->count()) }} زمان</span>
                 </div>
                 <div class="teacher-workspace-list">
                     @forelse($classroom->schedules->sortBy(['weekday','start_time']) as $schedule)
@@ -66,7 +66,7 @@
                             <div class="teacher-workspace-item-main">
                                 <strong class="teacher-workspace-item-title">{{ [0=>'یکشنبه',1=>'دوشنبه',2=>'سه‌شنبه',3=>'چهارشنبه',4=>'پنجشنبه',5=>'جمعه',6=>'شنبه'][$schedule->weekday] ?? 'روز نامشخص' }}</strong>
                                 <div class="teacher-workspace-item-meta">
-                                    <span>{{ App\SupportPersianUi::digits(Illuminate\SupportCarbon::parse($schedule->start_time)->format('H:i')) }} تا {{ App\SupportPersianUi::digits(Illuminate\SupportCarbon::parse($schedule->end_time)->format('H:i')) }}</span>
+                                    <span>{{ App\Support\PersianUi::digits(Illuminate\Support\Carbon::parse($schedule->start_time)->format('H:i')) }} تا {{ App\Support\PersianUi::digits(Illuminate\Support\Carbon::parse($schedule->end_time)->format('H:i')) }}</span>
                                     <span>{{ $schedule->room ?: 'بدون اتاق' }}</span>
                                     @if($schedule->meeting_url)<span>جلسه آنلاین</span>@endif
                                 </div>
