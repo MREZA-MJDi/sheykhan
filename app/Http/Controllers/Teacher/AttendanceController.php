@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\AttendanceRequest;
 use App\Models\Classroom;
 use App\Services\TeacherWorkspaceService;
+use App\Support\PersianUi;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
@@ -22,14 +23,13 @@ class AttendanceController extends Controller
     public function edit(Classroom $classroom, TeacherWorkspaceService $workspace): View
     {
         $classroom = $workspace->classroomWithStudents(request()->user(), $classroom->id);
-        $attendanceDate = today()->toDateString();
-        if ($rawAttendanceDate = request()->input('attendance_date')) {
-            try {
-                $attendanceDate = Carbon::parse($rawAttendanceDate)->toDateString();
-            } catch (\Throwable) {
-                $attendanceDate = today()->toDateString();
-            }
-        }
+
+        $attendanceDate = PersianUi::normalizeDate(
+            is_string(request()->input('attendance_date'))
+                ? request()->input('attendance_date')
+                : null
+        ) ?? today()->toDateString();
+
         $existingAttendance = $classroom->attendance()
             ->whereDate('attendance_date', $attendanceDate)
             ->pluck('status', 'student_id');
