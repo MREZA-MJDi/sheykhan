@@ -6,6 +6,7 @@ use App\Models\Assignment;
 use App\Models\ExamAttempt;
 use App\Models\LiveClass;
 use App\Models\User;
+use App\Support\PersianUi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -118,7 +119,7 @@ final class TeacherDashboardService
         return [
             'teacher' => $teacher,
             'profile' => $teacher->teacherProfile,
-            'dashboardDate' => $this->faDigits(now()->format('Y/m/d')),
+            'dashboardDate' => PersianUi::date(now()),
             'weeklyProgress' => round((float) $weeklyProgress),
             'completedSessions' => $completedSessions,
             'metrics' => [
@@ -361,7 +362,7 @@ final class TeacherDashboardService
         return [
             'teacher' => $teacher,
             'profile' => $teacher->teacherProfile,
-            'dashboardDate' => $this->faDigits(now()->format('Y/m/d')),
+            'dashboardDate' => PersianUi::date(now()),
             'weeklyProgress' => 0,
             'completedSessions' => 0,
             'metrics' => [
