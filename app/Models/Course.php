@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Course extends Model {
  use HasFactory, HasMedia, HasSeoMeta;
  protected $fillable=['academy_id','created_by','title','slug','short_description','description','level','status','access_type','price','duration_minutes','published_at'];
@@ -18,6 +19,7 @@ class Course extends Model {
  public function grades(): BelongsToMany{return $this->belongsToMany(AcademicGrade::class,'course_grade','course_id','grade_id')->withTimestamps();}
  public function enrollments(): HasMany{return $this->hasMany(CourseEnrollment::class);}
  public function sections(): HasMany{return $this->hasMany(CourseSection::class)->orderBy('sort_order');}
+ public function lessons(): HasManyThrough{return $this->hasManyThrough(Lesson::class, CourseSection::class, 'course_id', 'course_section_id', 'id', 'id');}
  public function classrooms(): HasMany{return $this->hasMany(Classroom::class);}
  public function assignments(): HasMany{return $this->hasMany(Assignment::class);}
  public function exams(): HasMany{return $this->hasMany(Exam::class);}
