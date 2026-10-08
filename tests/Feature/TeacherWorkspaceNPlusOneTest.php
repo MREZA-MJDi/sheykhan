@@ -48,7 +48,7 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
             '2026-10-07',
         );
 
-        // One ownership query + one classroom relation load + one batched student load.
+        // One ownership query + one batched active-membership query.
         // No per-student membership lookup or existence query.
         $this->assertLessThanOrEqual(3, $selects);
         $this->assertDatabaseCount('attendances', $before + 2);
