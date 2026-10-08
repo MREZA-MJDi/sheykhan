@@ -22,8 +22,8 @@
                         <div class="teacher-workspace-card-title">{{ $classroom->title }}</div>
                         <div class="teacher-workspace-card-subtitle">{{ $classroom->course?->title ?: 'بدون دوره' }}</div>
                         <div class="teacher-workspace-mini-stats">
-                            <div class="teacher-workspace-mini-stat"><strong>{{ App\SupportPersianUi::digits($classroom->active_students_count) }}</strong><span>دانش‌آموز</span></div>
-                            <div class="teacher-workspace-mini-stat"><strong>{{ $classroom->capacity ? App\SupportPersianUi::digits($classroom->capacity) : '—' }}</strong><span>ظرفیت</span></div>
+                            <div class="teacher-workspace-mini-stat"><strong>{{ App\Support\PersianUi::digits($classroom->active_students_count) }}</strong><span>دانش‌آموز</span></div>
+                            <div class="teacher-workspace-mini-stat"><strong>{{ $classroom->capacity ? App\Support\PersianUi::digits($classroom->capacity) : '—' }}</strong><span>ظرفیت</span></div>
                         </div>
                         <div class="teacher-workspace-actions-row">
                             <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">ثبت حضور امروز</a>
