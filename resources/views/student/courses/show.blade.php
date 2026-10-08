@@ -4,7 +4,7 @@
 @section('header-title', 'مسیر دوره')
 
 @section('content')
-    <div class="student-dashboard">
+    <div class="student-workspace-page">
         <section class="student-welcome" aria-labelledby="course-title">
             <div class="student-welcome-copy">
                 <span class="student-kicker">دوره فعال</span>
