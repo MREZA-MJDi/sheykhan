@@ -70,6 +70,7 @@ class AcademyContentService
     {
         Cache::forget('public:home:data:v3');
         Cache::forget('public:home:academy-content:v2:3');
+        Cache::forget('public:seo:sitemap:v1');
     }
 
     private function formatDuration(int $seconds): string
