@@ -96,6 +96,8 @@ class TeacherWorkspaceFlowTest extends TestCase
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
 
+        $before = $classroom->schedules()->count();
+
         $classroom->schedules()->create([
             'weekday' => 6,
             'start_time' => '09:00',
@@ -111,7 +113,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ])
             ->assertSessionHasErrors('start_time');
 
-        $this->assertSame(1, $classroom->schedules()->count());
+        $this->assertSame($before + 1, $classroom->schedules()->count());
     }
 
     public function test_live_class_creation_persists_a_calculated_end_time(): void
