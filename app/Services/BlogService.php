@@ -61,6 +61,7 @@ class BlogService
                 'author:id,name',
                 'media' => fn ($query) => $query
                     ->where('visibility', 'public')
+                    ->where('status', 'active')
                     ->orderByPivot('sort_order'),
             ]);
     }
