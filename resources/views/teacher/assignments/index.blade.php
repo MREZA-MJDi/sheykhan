@@ -14,7 +14,7 @@
 
     @if($assignments->hasPages())
         <div class="dashboard-panel p-4">
-            {{ $assignments->links() }}
+            {{ $assignments->links('components.navigation.pagination') }}
         </div>
     @endif
 </div>
