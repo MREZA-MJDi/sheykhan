@@ -114,6 +114,10 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertSessionHasErrors('start_time');
 
         $this->assertSame($before + 1, $classroom->schedules()->count());
+
+        $schedule = $classroom->schedules()->latest('id')->firstOrFail();
+        $this->assertStringStartsWith('https://meet.jit.si/Sheykhan-', $schedule->meeting_url);
+        $this->assertGreaterThan(20, strlen($schedule->meeting_url));
     }
 
     public function test_live_class_creation_persists_a_calculated_end_time(): void
