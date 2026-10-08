@@ -10,6 +10,15 @@ final class ParentDashboardService
 {
     public function build(User $parent): array
     {
+        return \Illuminate\Support\Facades\Cache::remember(
+            'parent:dashboard:' . $parent->id,
+            now()->addSeconds(15),
+            fn () => $this->buildFresh($parent),
+        );
+    }
+
+    private function buildFresh(User $parent): array
+    {
         $children = $parent->children()
             ->with('studentProfile')
             ->orderBy('users.name')
