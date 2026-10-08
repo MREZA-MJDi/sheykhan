@@ -10,12 +10,14 @@
     if ($role === 'teacher' && $topbarUser) {
         $topbarUser->loadMissing([
             'teacherProfile.media' => fn ($query) => $query
-                ->where('visibility', 'public')
                 ->wherePivot('collection', 'teacher-avatar')
                 ->orderByPivot('sort_order'),
         ]);
 
-        $topbarAvatar = $topbarUser->teacherProfile?->media?->first()?->url();
+        $avatarMedia = $topbarUser->teacherProfile?->media?->first();
+        $topbarAvatar = $avatarMedia?->visibility === 'public'
+            ? $avatarMedia->url()
+            : ($avatarMedia ? route('media.view', $avatarMedia) : null);
     }
 
     $roleLabels = [
