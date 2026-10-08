@@ -8,8 +8,8 @@
         @csrf
         <section class="teacher-form-section md:col-span-2"><h2>این تکلیف برای چه کسانی است؟</h2><p>اگر کلاس انتخاب نکنی، تکلیف برای همه دانش‌آموزان ثبت‌نام‌شده در دوره قابل مشاهده خواهد بود.</p>
             <div class="mt-5 grid gap-4 md:grid-cols-2">
-                <label class="teacher-form-field"><span>دوره</span><select name="course_id" required>@foreach($courses as $course)<option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>@endforeach</select></label>
-                <label class="teacher-form-field"><span>کلاس / گروه <small class="text-slate-400">اختیاری</small></span><select name="classroom_id"><option value="">همه دانش‌آموزان دوره</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
+                <label class="teacher-form-field"><span>دوره</span><select name="course_id" data-course-select required>@foreach($courses as $course)<option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>@endforeach</select></label>
+                <label class="teacher-form-field"><span>کلاس / گروه <small class="text-slate-400">اختیاری</small></span><select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]"><option value="">همه دانش‌آموزان دوره</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
             </div>
         </section>
         <section class="teacher-form-section md:col-span-2"><h2>جزئیات تکلیف</h2><p>عنوان و دستورالعمل را طوری بنویس که دانش‌آموز دقیقاً بداند چه کاری باید انجام دهد.</p>
