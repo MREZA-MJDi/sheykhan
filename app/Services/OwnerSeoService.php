@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Academy;
 use App\Models\Course;
+use App\Models\AcademyContent;
+use App\Models\BlogPost;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -24,6 +26,20 @@ final class OwnerSeoService
             ->limit(50)
             ->get();
 
+        $contents = AcademyContent::query()
+            ->whereHas('academy', fn ($query) => $query->where('owner_id', $owner->id))
+            ->with(['academy:id,name', 'seoMeta'])
+            ->orderByDesc('updated_at')
+            ->limit(50)
+            ->get();
+
+        $posts = BlogPost::query()
+            ->where('author_id', $owner->id)
+            ->with('seoMeta')
+            ->orderByDesc('updated_at')
+            ->limit(50)
+            ->get();
+
         $items = $academies->map(fn (Academy $academy) => $this->mapItem(
             $academy,
             'academy',
@@ -39,11 +55,28 @@ final class OwnerSeoService
                 $course->seoMeta,
                 $course->academy?->name
             ))
+        )->concat(
+            $contents->map(fn (AcademyContent $content) => $this->mapItem(
+                $content,
+                'content',
+                $content->title,
+                $content->seoMeta,
+                $content->academy?->name
+            ))
+        )->concat(
+            $posts->map(fn (BlogPost $post) => $this->mapItem(
+                $post,
+                'blog',
+                $post->title,
+                $post->seoMeta
+            ))
         );
 
         return [
             'academies' => $academies,
             'courses' => $courses,
+            'contents' => $contents,
+            'posts' => $posts,
             'items' => $items->values(),
             'stats' => [
                 'total' => $items->count(),
@@ -65,6 +98,16 @@ final class OwnerSeoService
             'course' => Course::query()
                 ->whereKey($id)
                 ->whereHas('academy', fn ($query) => $query->where('owner_id', $owner->id))
+                ->firstOrFail(),
+
+            'content' => AcademyContent::query()
+                ->whereKey($id)
+                ->whereHas('academy', fn ($query) => $query->where('owner_id', $owner->id))
+                ->firstOrFail(),
+
+            'blog' => BlogPost::query()
+                ->whereKey($id)
+                ->where('author_id', $owner->id)
                 ->firstOrFail(),
 
             default => abort(404),
