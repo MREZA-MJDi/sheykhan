@@ -19,6 +19,18 @@
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="teacher-workspace-alert error">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 
+    <section class="teacher-workspace-card">
+        <div class="teacher-workspace-card-head">
+            <div><h2>ساختار دوره</h2><p>قبل از افزودن درس، سرفصل‌های دوره را به ترتیب آموزشی بساز.</p></div>
+        </div>
+        <form method="POST" action="{{ route('teacher.courses.sections.store',$course) }}" class="teacher-workspace-form-grid">
+            @csrf
+            <label class="teacher-workspace-field"><span>عنوان سرفصل</span><input name="title" value="{{ old('title') }}" placeholder="مثلاً فصل اول: حرکت‌شناسی" required></label>
+            <label class="teacher-workspace-field"><span>توضیحات <small>اختیاری</small></span><input name="description" value="{{ old('description') }}" placeholder="هدف و محتوای این بخش"></label>
+            <div style="grid-column:1/-1;display:flex;justify-content:flex-end"><button type="submit" class="teacher-workspace-btn primary">+ افزودن سرفصل</button></div>
+        </form>
+    </section>
+
     @forelse($course->sections as $section)
         <section class="teacher-workspace-card">
             <div class="teacher-workspace-card-head">
