@@ -14,7 +14,7 @@ class ClassroomController extends Controller
     public function index(TeacherWorkspaceService $workspace): View
     {
         return view('teacher.classrooms.index', [
-            'classrooms' => $workspace->classrooms(request()->user()),
+            'classrooms' => $workspace->classroomsPaginated(request()->user()),
         ]);
     }
 
