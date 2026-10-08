@@ -4,8 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\ViewErrorBag;
 use Tests\TestCase;
 
 class HttpFeedbackAndFailurePathsTest extends TestCase
@@ -15,7 +13,8 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
     public function test_guest_is_redirected_to_login_before_entering_owner_portal(): void
     {
         $this->get(route('owner.dashboard'))
-            ->assertRedirect(route('login'));
+            ->assertRedirect(route('login'))
+            ->assertSessionHas('url.intended', route('owner.dashboard'));
     }
 
     public function test_authenticated_user_without_owner_role_gets_forbidden_response(): void
@@ -32,7 +31,8 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
         $this->get('/this-route-does-not-exist')
             ->assertNotFound()
             ->assertSee('صفحه یا رکورد موردنظر پیدا نشد.')
-            ->assertSee('404');
+            ->assertSee('404')
+            ->assertSee(route('home'), false);
     }
 
     public function test_unknown_json_route_returns_a_safe_localized_not_found_message(): void
@@ -55,17 +55,36 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
             ->assertSee('data-ui-flash-close', false);
     }
 
-    public function test_validation_errors_are_rendered_as_an_accessible_alert(): void
+    public function test_login_validation_errors_redirect_back_and_are_announced_accessibly(): void
     {
-        $errors = (new ViewErrorBag())->put(
-            'default',
-            new MessageBag(['identifier' => ['شناسه ورود الزامی است.']])
-        );
+        $this->from(route('login'))
+            ->post(route('login.store'), [
+                'identifier' => '',
+                'password' => '',
+            ])
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors(['identifier', 'password']);
 
-        $this->withSession(['errors' => $errors])
-            ->get(route('home'))
+        $this->get(route('login'))
             ->assertOk()
-            ->assertSee('شناسه ورود الزامی است.')
+            ->assertSee('ایمیل یا شماره موبایل را وارد کنید.')
+            ->assertSee('رمز عبور را وارد کنید.')
+            ->assertSee('role="alert"', false);
+    }
+
+    public function test_invalid_credentials_return_to_login_with_a_visible_error(): void
+    {
+        $this->from(route('login'))
+            ->post(route('login.store'), [
+                'identifier' => 'missing-user@example.test',
+                'password' => 'incorrect-password',
+            ])
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('identifier');
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('اطلاعات ورود صحیح نیست یا این حساب فعال نیست.')
             ->assertSee('role="alert"', false);
     }
 }
