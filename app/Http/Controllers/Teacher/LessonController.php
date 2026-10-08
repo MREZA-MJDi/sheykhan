@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\Lesson\StoreCourseSectionRequest;
 use App\Http\Requests\Teacher\Lesson\StoreLessonRequest;
 use App\Http\Requests\Teacher\Lesson\UpdateLessonRequest;
 use App\Models\Course;
+use App\Models\CourseSection;
 use App\Models\LearningResource;
 use Illuminate\Support\Facades\DB;
 use App\Models\Lesson;
@@ -27,6 +29,27 @@ class LessonController extends Controller
         ]);
 
         return view('teacher.courses.content', compact('course'));
+    }
+
+    public function storeSection(
+        StoreCourseSectionRequest $request,
+        Course $course
+    ): RedirectResponse {
+        abort_unless(
+            $course->teachers()->whereKey($request->user()->id)->exists()
+                && $course->academy?->status === 'active',
+            403
+        );
+
+        $nextOrder = ((int) $course->sections()->max('sort_order')) + 1;
+
+        $course->sections()->create([
+            'title' => $request->validated('title'),
+            'description' => $request->validated('description'),
+            'sort_order' => $nextOrder,
+        ]);
+
+        return back()->with('success', 'سرفصل با موفقیت ساخته شد.');
     }
 
     public function store(StoreLessonRequest $request): RedirectResponse
