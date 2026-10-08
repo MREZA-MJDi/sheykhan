@@ -26,7 +26,7 @@
             </div>
             <label>
                 <span>دوره</span>
-                <select name="course_id" required>
+                <select name="course_id" data-course-select required>
                     @foreach($courses as $course)
                         <option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>
                     @endforeach
@@ -34,10 +34,10 @@
             </label>
             <label>
                 <span>کلاس / گروه <small>اختیاری</small></span>
-                <select name="classroom_id">
+                <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
                     <option value="">برای همه دانش‌آموزان دوره</option>
                     @foreach($classrooms as $classroom)
-                        <option value="{{ $classroom->id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>
+                        <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>
                     @endforeach
                 </select>
                 <em>اگر کلاس مشخصی انتخاب کنی، فقط اعضای همان کلاس جلسه را می‌بینند.</em>
