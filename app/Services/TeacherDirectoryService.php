@@ -18,8 +18,10 @@ class TeacherDirectoryService
 
     public function findPublic(User $teacher): User
     {
+        $teacherId = $teacher->getKey();
+
         return $this->query()
-            ->whereKey($teacher->id)
+            ->whereKey($teacherId)
             ->where('status', 'active')
             ->with([
                 'taughtCourses' => fn ($query) => $query
@@ -27,7 +29,7 @@ class TeacherDirectoryService
                     ->whereHas('academy', fn ($academy) => $academy
                         ->where('status', 'active')
                         ->whereHas('users', fn ($membership) => $membership
-                            ->whereKey($teacher->id)
+                            ->whereKey($teacherId)
                             ->where('academy_user.role', 'teacher')
                             ->where('academy_user.status', 'active')))
                     ->withCount('lessons')
