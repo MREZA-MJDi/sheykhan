@@ -18,6 +18,7 @@ use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
 use App\Http\Controllers\PublicSite\SeoController as PublicSeoController;
+use App\Http\Controllers\PublicSite\AcademyContentController;
 use App\Http\Controllers\Student\AchievementController as StudentAchievementController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
@@ -59,6 +60,7 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/robots.txt', [PublicSeoController::class, 'robots'])->name('seo.robots');
 Route::get('/sitemap.xml', [PublicSeoController::class, 'sitemap'])->name('seo.sitemap');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/academy/{academy}/content/{content}', [AcademyContentController::class, 'show'])->name('academy.content.show');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
