@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\AcademyContent;
 use App\Models\Course;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Response;
@@ -58,6 +59,7 @@ final class SeoController extends Controller
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('category', fn ($query) => $query->where('is_active', true))
             ->with('academy:id,slug')
             ->get(['id', 'academy_id', 'slug', 'updated_at'])
             ->each(function (AcademyContent $content) use (&$urls): void {
@@ -70,6 +72,17 @@ final class SeoController extends Controller
                     'lastmod' => $content->updated_at,
                 ]);
             });
+
+        Product::query()
+            ->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->whereHas('category', fn ($query) => $query->where('is_active', true))
+            ->get(['id', 'slug', 'updated_at'])
+            ->each(fn (Product $product) => $urls->push([
+                'loc' => route('store.product.show', $product),
+                'lastmod' => $product->updated_at,
+            ]));
 
         BlogPost::query()
             ->where('status', 'published')
