@@ -121,12 +121,13 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::patch('/lessons/{lesson}', [TeacherLessonController::class, 'update'])->middleware('permission:lessons.manage')->name('lessons.update');
     Route::post('/lessons/{lesson}/media', [TeacherLessonMediaController::class, 'store'])->middleware('permission:media.upload')->name('lessons.media.store');
     Route::get('/classrooms', [TeacherClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
-    Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->middleware('permission:classrooms.view')->name('classrooms.create');
-    Route::post('/classrooms', [TeacherClassroomController::class, 'store'])->middleware('permission:classrooms.view')->name('classrooms.store');
+    Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->middleware('permission:classrooms.manage')->name('classrooms.create');
+    Route::post('/classrooms', [TeacherClassroomController::class, 'store'])->middleware('permission:classrooms.manage')->name('classrooms.store');
     Route::get('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'edit'])->middleware('permission:attendance.view')->name('classrooms.attendance.edit');
     Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->middleware('permission:attendance.manage')->name('classrooms.attendance.store');
     Route::get('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->middleware('permission:live_classes.view')->name('schedule.index');
     Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->middleware('permission:live_classes.manage')->name('schedule.store');
+    Route::delete('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->middleware('permission:live_classes.manage')->name('schedule.destroy');
     Route::get('/students', function (\App\Services\TeacherWorkspaceService $workspace) {
         $sort = request()->string('sort')->toString() ?: 'name';
         $direction = request()->string('direction')->toString() ?: 'asc';
