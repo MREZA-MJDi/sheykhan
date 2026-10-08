@@ -21,18 +21,18 @@ final class TeacherAssessmentService
             throw new AccessDeniedHttpException();
         }
 
-        if ($submission->submitted_at === null) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'score' => 'پاسخی که هنوز ارسال نشده است قابل تصحیح نیست.',
-            ]);
-        }
-
         return DB::transaction(function () use ($assignment, $submission, $score, $feedback, $teacherId): AssignmentSubmission {
             $lockedSubmission = AssignmentSubmission::query()
                 ->whereKey($submission->id)
                 ->where('assignment_id', $assignment->id)
                 ->lockForUpdate()
                 ->firstOrFail();
+
+            if ($lockedSubmission->submitted_at === null) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'score' => 'پاسخی که هنوز ارسال نشده است قابل تصحیح نیست.',
+                ]);
+            }
 
             $lockedSubmission->update([
                 'score' => $score,
