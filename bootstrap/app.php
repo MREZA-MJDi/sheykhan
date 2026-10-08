@@ -1,15 +1,15 @@
 <?php
 
-use AppHttpMiddlewareEnsurePermission;
-use AppHttpMiddlewareEnsureActiveUser;
-use AppHttpMiddlewareEnsureRole;
-use AppHttpMiddlewareEnsureActiveTeacherMembership;
-use IlluminateDatabaseEloquentModelNotFoundException;
-use IlluminateFoundationApplication;
-use IlluminateFoundationConfigurationExceptions;
-use IlluminateFoundationConfigurationMiddleware;
-use IlluminateHttpRequest;
-use SymfonyComponentHttpKernelExceptionNotFoundHttpException;
+use App\Http\Middleware\EnsurePermission;
+use App\Http\Middleware\EnsureActiveUser;
+use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\EnsureActiveTeacherMembership;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -27,7 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // A missing route or implicitly bound model is a normal 404, not a server error.
         $exceptions->render(function (ModelNotFoundException $e, Request $request) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -52,7 +51,6 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 404);
         });
 
-        // Keep JSON endpoints machine-readable while web pages use the branded error UI.
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request, Throwable $e): bool => $request->expectsJson()
         );
