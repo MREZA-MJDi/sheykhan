@@ -28,7 +28,14 @@ class AcademyContentService
                     ->whereHas('category', fn ($query) => $query
                         ->where('slug', $slug)
                         ->where('is_active', true))
-                    ->with('category:id,title,slug')
+                    ->with([
+                        'category:id,title,slug',
+                        'academy:id,name,slug,status',
+                        'media' => fn ($query) => $query
+                            ->where('visibility', 'public')
+                            ->where('status', 'active')
+                            ->orderByPivot('sort_order'),
+                    ])
                     ->orderByDesc('is_featured')
                     ->orderBy('sort_order')
                     ->orderByDesc('published_at')
@@ -43,6 +50,12 @@ class AcademyContentService
                             : null,
                         'category' => $content->category?->title,
                         'slug' => $content->slug,
+                        'academy' => $content->academy?->name,
+                        'academy_slug' => $content->academy?->slug,
+                        'image' => $content->media->first()?->url(),
+                        'href' => $content->academy
+                            ? route('academy.content.show', [$content->academy, $content])
+                            : null,
                     ])
                     ->values()
                     ->all();
