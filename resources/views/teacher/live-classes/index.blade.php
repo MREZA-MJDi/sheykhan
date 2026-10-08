@@ -14,7 +14,7 @@
 
     @if($liveClasses->hasPages())
         <div class="dashboard-panel p-4">
-            {{ $liveClasses->links() }}
+            {{ $liveClasses->links('components.navigation.pagination') }}
         </div>
     @endif
 </div>
