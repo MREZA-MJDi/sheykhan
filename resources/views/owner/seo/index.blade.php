@@ -19,7 +19,7 @@
         <article class="owner-seo-stat">
             <span>صفحات قابل مدیریت</span>
             <strong>{{ $stats['total'] }}</strong>
-            <small>آموزشگاه + دوره</small>
+            <small>آموزشگاه، دوره، محتوا و مقاله</small>
         </article>
         <article class="owner-seo-stat">
             <span>آماده</span>
@@ -45,7 +45,7 @@
             @forelse($items as $item)
                 <article class="owner-seo-row">
                     <div class="owner-seo-main">
-                        <span class="owner-seo-type">{{ $item['type'] === 'academy' ? 'آموزشگاه' : 'دوره' }}</span>
+                        <span class="owner-seo-type">{{ match($item['type']) { 'academy' => 'آموزشگاه', 'course' => 'دوره', 'content' => 'محتوای آموزشگاه', 'blog' => 'مقاله', default => 'صفحه' } }}</span>
                         <strong>{{ $item['label'] }}</strong>
                         @if($item['academy'])
                             <small>{{ $item['academy'] }}</small>
