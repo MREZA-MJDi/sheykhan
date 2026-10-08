@@ -23,7 +23,16 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('owner.dashboard'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertSee('403')
+            ->assertSee('شما اجازه دسترسی به این بخش را ندارید.');
+
+        $this->actingAs($user)
+            ->getJson(route('owner.dashboard'))
+            ->assertForbidden()
+            ->assertJson([
+                'message' => 'شما اجازه دسترسی به این بخش را ندارید.',
+            ]);
     }
 
     public function test_unknown_html_route_uses_branded_not_found_view(): void
