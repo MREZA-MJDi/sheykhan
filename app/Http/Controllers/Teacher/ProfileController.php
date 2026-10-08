@@ -17,7 +17,6 @@ class ProfileController extends Controller
         $teacher = request()->user()->load([
             'teacherProfile' => fn ($query) => $query->with([
                 'media' => fn ($media) => $media
-                    ->where('visibility', 'public')
                     ->wherePivot('collection', 'teacher-avatar')
                     ->orderByPivot('sort_order'),
             ]),
@@ -50,12 +49,14 @@ class ProfileController extends Controller
                 ['is_verified' => false, 'is_public' => true],
             );
 
+            $isPublic = $request->boolean('is_public');
+
             $profile->update([
                 'bio' => $data['bio'] ?? null,
                 'specialization' => $data['specialization'] ?? null,
                 'education' => $data['education'] ?? null,
                 'experience_years' => $data['experience_years'] ?? null,
-                'is_public' => $request->boolean('is_public'),
+                'is_public' => $isPublic,
             ]);
 
             if ($request->hasFile('avatar')) {
@@ -71,7 +72,7 @@ class ProfileController extends Controller
                         'disk' => 'local',
                         'directory' => 'teachers/' . $teacher->id,
                         'collection' => 'teacher-avatar',
-                        'visibility' => 'public',
+                        'visibility' => $isPublic ? 'public' : 'private',
                         'sort_order' => 0,
                         'is_featured' => true,
                     ],
@@ -85,6 +86,13 @@ class ProfileController extends Controller
                     }
                 }
             }
+
+            $profile->media()
+                ->wherePivot('collection', 'teacher-avatar')
+                ->get()
+                ->each(fn (\App\Models\Media $avatar): bool => $avatar->update([
+                    'visibility' => $isPublic ? 'public' : 'private',
+                ]));
         });
 
         return redirect()->route('teacher.profile.edit')
