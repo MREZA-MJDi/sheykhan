@@ -15,6 +15,15 @@ class TeacherDirectoryService
             ->withQueryString();
     }
 
+
+    public function findPublic(User $teacher): User
+    {
+        return $this->query()
+            ->whereKey($teacher->id)
+            ->where('status', 'active')
+            ->firstOrFail();
+    }
+
     public function featuredCards(int $limit = 4): array
     {
         return $this->query()
