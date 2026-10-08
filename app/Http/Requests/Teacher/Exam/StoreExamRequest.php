@@ -33,6 +33,37 @@ class StoreExamRequest extends FormRequest
         ];
     }
 
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            $questions = $this->input('questions', []);
+            $status = $this->input('status', 'draft');
+
+            if ($status === 'published' && count($questions) === 0) {
+                $validator->errors()->add('questions', 'برای انتشار آزمون حداقل یک سؤال لازم است.');
+            }
+
+            foreach ($questions as $index => $question) {
+                $type = $question['type'] ?? 'text';
+
+                if (in_array($type, ['single', 'multiple', 'checkbox'], true)) {
+                    $options = array_values(array_filter(
+                        (array) ($question['options'] ?? []),
+                        static fn ($option) => trim((string) $option) !== ''
+                    ));
+
+                    if (count($options) < 2) {
+                        $validator->errors()->add("questions.{$index}.options", 'برای سؤال تستی حداقل دو گزینه لازم است.');
+                    }
+
+                    if (($question['correct_answer'] ?? null) === null || ($question['correct_answer'] ?? '') === '') {
+                        $validator->errors()->add("questions.{$index}.correct_answer", 'پاسخ صحیح سؤال تستی را مشخص کن.');
+                    }
+                }
+            }
+        });
+    }
+
     public function messages(): array
     {
         return [
