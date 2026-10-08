@@ -8,7 +8,7 @@
         <div class="teacher-workspace-head-copy">
             <span class="teacher-workspace-kicker">محتوای آموزشی</span>
             <h1 class="teacher-workspace-title">{{ $course->title }}</h1>
-            <p class="teacher-workspace-description">{{ AppSupportPersianUi::digits($course->sections->count()) }} سرفصل · درس‌ها و فایل‌های هر سرفصل از همین صفحه مدیریت می‌شوند.</p>
+            <p class="teacher-workspace-description">{{ App\Support\PersianUi::digits($course->sections->count()) }} سرفصل · درس‌ها و فایل‌های هر سرفصل از همین صفحه مدیریت می‌شوند.</p>
         </div>
         <div class="teacher-workspace-actions">
             <a href="{{ route('teacher.courses.progress',$course) }}" class="teacher-workspace-btn secondary">پیشرفت دانش‌آموزان</a>
@@ -22,7 +22,7 @@
     @forelse($course->sections as $section)
         <section class="teacher-workspace-card">
             <div class="teacher-workspace-card-head">
-                <div><h2>{{ $section->title }}</h2><p>{{ AppSupportPersianUi::digits($section->lessons->count()) }} درس</p></div>
+                <div><h2>{{ $section->title }}</h2><p>{{ App\Support\PersianUi::digits($section->lessons->count()) }} درس</p></div>
             </div>
             <div class="teacher-workspace-list">
                 @forelse($section->lessons as $lesson)
@@ -32,8 +32,8 @@
                             <div class="teacher-workspace-item-meta">
                                 <span>{{ $lesson->type }}</span>
                                 <span>{{ $lesson->status === 'published' ? 'منتشرشده' : 'پیش‌نویس' }}</span>
-                                <span>{{ AppSupportPersianUi::digits((int)($lesson->duration_seconds ?? 0)) }} ثانیه</span>
-                                @if($lesson->media->isNotEmpty())<span>{{ AppSupportPersianUi::digits($lesson->media->count()) }} فایل</span>@endif
+                                <span>{{ App\Support\PersianUi::digits((int)($lesson->duration_seconds ?? 0)) }} ثانیه</span>
+                                @if($lesson->media->isNotEmpty())<span>{{ App\Support\PersianUi::digits($lesson->media->count()) }} فایل</span>@endif
                             </div>
                         </div>
                         <div class="teacher-workspace-item-actions">
