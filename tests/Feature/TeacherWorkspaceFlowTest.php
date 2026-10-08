@@ -33,6 +33,16 @@ class TeacherWorkspaceFlowTest extends TestCase
                 ->get(route($route))
                 ->assertOk();
         }
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.courses.content', $course))
+            ->assertOk();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.courses.progress', $course))
+            ->assertOk();
     }
 
     public function test_teacher_can_create_a_class_with_the_manage_permission(): void
