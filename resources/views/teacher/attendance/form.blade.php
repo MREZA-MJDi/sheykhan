@@ -11,7 +11,7 @@
             <div class="mt-5 max-w-md"><x-teacher.jalali-datetime name="attendance_date" :value="old('attendance_date',today()->toDateString())" label="تاریخ" :dateOnly="true" help="تاریخ به شمسی نمایش داده می‌شود و به شکل استاندارد در سیستم ذخیره می‌شود." /></div>
         </section>
         <section class="teacher-form-section">
-            <div class="flex items-center justify-between gap-3"><div><h2>وضعیت دانش‌آموزان</h2><p>فقط دانش‌آموزان فعال این کلاس در این فهرست قرار می‌گیرند.</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-[9px] font-black">{{ AppSupportPersianUi::digits($classroom->students->count()) }} نفر</span></div>
+            <div class="flex items-center justify-between gap-3"><div><h2>وضعیت دانش‌آموزان</h2><p>فقط دانش‌آموزان فعال این کلاس در این فهرست قرار می‌گیرند.</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-[9px] font-black">{{ \App\Support\PersianUi::digits($classroom->students->count()) }} نفر</span></div>
             <div class="mt-5 grid gap-2">
                 @forelse($classroom->students as $student)
                     <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
