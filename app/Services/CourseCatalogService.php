@@ -82,41 +82,44 @@ class CourseCatalogService
 
     public function findPublished(Course $course): Course
     {
-        $course->load([
-            'academy:id,name,slug,owner_id',
-            'teachers:id,name',
-            'sections.lessons' => fn ($query) => $query
-                ->where('status', 'published')
-                ->where(fn ($query) => $query
-                    ->whereNull('published_at')
-                    ->orWhere('published_at', '<=', now())
-                )
-                ->select([
-                    'id',
-                    'course_section_id',
-                    'title',
-                    'slug',
-                    'type',
-                    'summary',
-                    'duration_seconds',
-                    'is_free',
-                    'status',
-                    'published_at',
-                    'sort_order',
-                ])
-                ->orderBy('sort_order'),
-            'grades:id,title',
-            'media' => fn ($query) => $query
-                ->where('visibility', 'public')
-                ->orderByPivot('sort_order'),
-            'seoMeta',
-        ]);
+        $course = Course::query()
+            ->whereKey($course->getKey())
+            ->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->with([
+                'academy:id,name,slug,owner_id',
+                'teachers:id,name',
+                'sections.lessons' => fn ($query) => $query
+                    ->where('status', 'published')
+                    ->where(fn ($query) => $query
+                        ->whereNull('published_at')
+                        ->orWhere('published_at', '<=', now())
+                    )
+                    ->select([
+                        'id',
+                        'course_section_id',
+                        'title',
+                        'slug',
+                        'type',
+                        'summary',
+                        'duration_seconds',
+                        'is_free',
+                        'status',
+                        'published_at',
+                        'sort_order',
+                    ])
+                    ->orderBy('sort_order'),
+                'grades:id,title',
+                'media' => fn ($query) => $query
+                    ->where('visibility', 'public')
+                    ->orderByPivot('sort_order'),
+                'seoMeta',
+            ])
+            ->first();
 
-        abort_unless(
-            $course->isPublished()
-            && $course->academy?->status === 'active',
-            404
-        );
+        abort_unless($course, 404);
 
         return $course;
     }
