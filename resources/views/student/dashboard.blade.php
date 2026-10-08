@@ -103,13 +103,13 @@
                 @forelse($assignments->take(3) as $assignment)
                     <a class="student-ui-board-card is-purple" href="{{ route('student.assignments.show', $assignment->id) }}">
                         <div class="student-ui-board-icon">✓</div>
-                        <div class="student-ui-board-copy"><small>{{ $assignment->submitted_at ? 'ارسال شده' : 'تکلیف باز' }}</small><strong>{{ $assignment->title }}</strong><span>{{ $assignment->due_at ? 'موعد · '.AppSupportPersianUi::date($assignment->due_at) : 'بدون موعد' }}</span></div>
+                        <div class="student-ui-board-copy"><small>{{ $assignment->submitted_at ? 'ارسال شده' : 'تکلیف باز' }}</small><strong>{{ $assignment->title }}</strong><span>{{ $assignment->due_at ? 'موعد · '.App\Support\PersianUi::date($assignment->due_at) : 'بدون موعد' }}</span></div>
                         <b>{{ $assignment->submitted_at ? '✓' : '→' }}</b>
                     </a>
                 @empty
                     <a class="student-ui-board-card is-blue" href="{{ route('student.courses.index') }}">
                         <div class="student-ui-board-icon">▣</div>
-                        <div class="student-ui-board-copy"><small>مسیر یادگیری</small><strong>{{ $topCourse?->title ?: 'دوره‌های من' }}</strong><span>{{ $topCourse ? AppSupportPersianUi::digits(round($topCourse->learning_progress ?? 0)).'٪ پیشرفت' : 'یک دوره را برای شروع انتخاب کن' }}</span></div>
+                        <div class="student-ui-board-copy"><small>مسیر یادگیری</small><strong>{{ $topCourse?->title ?: 'دوره‌های من' }}</strong><span>{{ $topCourse ? App\Support\PersianUi::digits(round($topCourse->learning_progress ?? 0)).'٪ پیشرفت' : 'یک دوره را برای شروع انتخاب کن' }}</span></div>
                         <b>→</b>
                     </a>
                 @endforelse
