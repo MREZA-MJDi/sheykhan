@@ -87,15 +87,17 @@ final class OwnerBlogService
         unset($data['cover_image']);
 
         $status = $data['status'] ?? $post->status;
-        $post->update([
-            'category_id' => $data['category_id'] ?? null,
-            'title' => $data['title'] ?? $post->title,
-            'slug' => blank($data['slug'] ?? null) ? $post->slug : $this->uniqueSlug($data['title'] ?? $post->title, $data['slug'], $post->id),
-            'excerpt' => $data['excerpt'] ?? null,
-            'content' => $data['content'] ?? $post->content,
-            'status' => $status,
-            'published_at' => $status === 'published' ? ($data['published_at'] ?? $post->published_at ?? now()) : null,
-        ]);
+
+        DB::transaction(function () use ($post, $data, $status, $cover): void {
+            $post->update([
+                'category_id' => $data['category_id'] ?? null,
+                'title' => $data['title'] ?? $post->title,
+                'slug' => blank($data['slug'] ?? null) ? $post->slug : $this->uniqueSlug($data['title'] ?? $post->title, $data['slug'], $post->id),
+                'excerpt' => $data['excerpt'] ?? null,
+                'content' => $data['content'] ?? $post->content,
+                'status' => $status,
+                'published_at' => $status === 'published' ? ($data['published_at'] ?? $post->published_at ?? now()) : null,
+            ]);
 
         if ($cover) {
             $media = $post->media()->wherePivot('collection', 'cover')->first();
@@ -119,6 +121,9 @@ final class OwnerBlogService
                 ]);
             }
         }
+
+        }
+        });
 
         app(BlogService::class)->clearPublicCache();
 
