@@ -405,11 +405,19 @@
                         <span>{{ $title }}</span>
                         <h3>{{ count($items) ? 'جدیدترین محتوای این مسیر' : 'در حال آماده‌سازی' }}</h3>
                         @forelse($items as $item)
+                            @if($item['href'])
+                                <a href="{{ $item['href'] }}" class="home-academy-item">
+                                <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
+                                <strong>{{ $item['title'] }}</strong>
+                                @if($item['duration']) <small>{{ $item['duration'] }}</small> @endif
+                                </a>
+                            @else
                             <div class="home-academy-item">
                                 <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
                                 <strong>{{ $item['title'] }}</strong>
                                 @if($item['duration']) <small>{{ $item['duration'] }}</small> @endif
-                            </div>
+                            </
+                            @endifdiv>
                         @empty
                             <p>محتوای رسمی این بخش پس از انتشار در اینجا نمایش داده می‌شود.</p>
                         @endforelse
