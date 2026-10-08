@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\\Database\\Migrations\\Migration;
-use Illuminate\\Database\\Schema\\Blueprint;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Schema;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     private const LEGACY_INDEX = 'course_enrollments_course_student_year_unique';
@@ -12,9 +12,8 @@ return new class extends Migration {
 
     public function up(): void
     {
-        // A previous attempt may have stopped after MySQL/MariaDB committed one DDL
-        // statement but before Laravel recorded this migration. Keep this migration
-        // safe to retry instead of failing on an already-created deleted_at column.
+        // DDL can be committed before a failed migration is recorded. Make retries
+        // safe when a previous attempt already added deleted_at or dropped the old index.
         if (! Schema::hasColumn('users', 'deleted_at')) {
             Schema::table('users', function (Blueprint $table): void {
                 $table->softDeletes();
@@ -25,9 +24,8 @@ return new class extends Migration {
         $isMariaDb = $driver === 'mysql'
             && str_contains(strtolower((string) DB::selectOne('SELECT VERSION() AS version')?->version), 'mariadb');
 
-        // MySQL 8.0.13+ supports functional key parts. MariaDB does not accept
-        // MySQL's "(COALESCE(...))" index syntax, so use an indexed stored generated
-        // column there. SQLite also uses the generated-column implementation below.
+        // MySQL 8 supports functional key parts. MariaDB does not support that syntax,
+        // so use a stored generated column there. SQLite uses the same portable path.
         if ($driver === 'mysql' && ! $isMariaDb) {
             $this->dropIndexIfExists(self::LEGACY_INDEX);
 
