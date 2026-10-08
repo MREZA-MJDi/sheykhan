@@ -21,16 +21,16 @@
     @endif
 
     <section class="teacher-workspace-stats">
-        <div class="teacher-workspace-stat"><small>کل دوره‌ها</small><strong>{{ AppSupportPersianUi::digits($courses->total()) }}</strong><span>دوره تحت مدیریت</span></div>
-        <div class="teacher-workspace-stat"><small>در این صفحه</small><strong>{{ AppSupportPersianUi::digits($courses->count()) }}</strong><span>نمایش داده‌شده</span></div>
-        <div class="teacher-workspace-stat"><small>منتشرشده</small><strong>{{ AppSupportPersianUi::digits($courses->getCollection()->where('status','published')->count()) }}</strong><span>آماده ارائه</span></div>
-        <div class="teacher-workspace-stat"><small>دانش‌آموزان فعال</small><strong>{{ AppSupportPersianUi::digits($courses->getCollection()->sum('active_students_count')) }}</strong><span>در دوره‌های این صفحه</span></div>
+        <div class="teacher-workspace-stat"><small>کل دوره‌ها</small><strong>{{ App\SupportPersianUi::digits($courses->total()) }}</strong><span>دوره تحت مدیریت</span></div>
+        <div class="teacher-workspace-stat"><small>در این صفحه</small><strong>{{ App\SupportPersianUi::digits($courses->count()) }}</strong><span>نمایش داده‌شده</span></div>
+        <div class="teacher-workspace-stat"><small>منتشرشده</small><strong>{{ App\SupportPersianUi::digits($courses->getCollection()->where('status','published')->count()) }}</strong><span>آماده ارائه</span></div>
+        <div class="teacher-workspace-stat"><small>دانش‌آموزان فعال</small><strong>{{ App\SupportPersianUi::digits($courses->getCollection()->sum('active_students_count')) }}</strong><span>در دوره‌های این صفحه</span></div>
     </section>
 
     <section class="teacher-workspace-card">
         <div class="teacher-workspace-card-head">
             <div><h2>فهرست دوره‌ها</h2><p>آخرین دوره‌های به‌روزشده در ابتدا قرار دارند.</p></div>
-            <span class="teacher-workspace-chip">{{ AppSupportPersianUi::digits($courses->currentPage()) }} / {{ AppSupportPersianUi::digits($courses->lastPage()) }}</span>
+            <span class="teacher-workspace-chip">{{ App\SupportPersianUi::digits($courses->currentPage()) }} / {{ App\SupportPersianUi::digits($courses->lastPage()) }}</span>
         </div>
 
         @forelse($courses as $course)
@@ -40,16 +40,16 @@
                         <strong class="teacher-workspace-item-title">{{ $course->title }}</strong>
                         <div class="teacher-workspace-item-meta">
                             <span>{{ $course->academy?->name ?: 'آموزشگاه' }}</span>
-                            <span>{{ AppSupportPersianUi::digits($course->sections_count) }} بخش</span>
-                            <span>{{ AppSupportPersianUi::digits($course->classrooms_count) }} کلاس</span>
-                            <span>{{ AppSupportPersianUi::digits($course->active_students_count) }} دانش‌آموز فعال</span>
+                            <span>{{ App\SupportPersianUi::digits($course->sections_count) }} بخش</span>
+                            <span>{{ App\SupportPersianUi::digits($course->classrooms_count) }} کلاس</span>
+                            <span>{{ App\SupportPersianUi::digits($course->active_students_count) }} دانش‌آموز فعال</span>
                         </div>
                     </div>
                     <div class="teacher-workspace-item-actions">
                         @if($course->access_type === 'free')
                             <span class="teacher-workspace-chip success">رایگان</span>
                         @else
-                            <span class="teacher-workspace-chip warning">{{ AppSupportPersianUi::digits(number_format((float)$course->price,0,'.','٬')) }} تومان</span>
+                            <span class="teacher-workspace-chip warning">{{ App\SupportPersianUi::digits(number_format((float)$course->price,0,'.','٬')) }} تومان</span>
                         @endif
                         <span class="teacher-workspace-chip {{ $course->status === 'published' ? 'success' : ($course->status === 'archived' ? 'danger' : 'muted') }}">
                             {{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'archived' ? 'آرشیو' : 'پیش‌نویس') }}
