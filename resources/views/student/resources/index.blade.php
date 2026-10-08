@@ -26,13 +26,10 @@
 
                     <div class="student-resource-actions">
                         <a class="student-action" href="{{ route('student.resources.view', $resource) }}">
-                            مشاهده
+                            مشاهده منبع
                         </a>
-
                         @if($resource->downloadable)
-                            <a class="student-action" href="{{ route('student.resources.view', $resource) }}" target="_blank" rel="noopener">
-                                مشاهده
-                            </a>
+                            <span class="student-status success">قابل دریافت</span>
                         @else
                             <span class="student-status">فقط مشاهده</span>
                         @endif
