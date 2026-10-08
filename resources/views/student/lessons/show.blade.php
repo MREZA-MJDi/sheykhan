@@ -4,7 +4,7 @@
 @section('header-title', 'درس')
 
 @section('content')
-    <div class="student-dashboard">
+    <div class="student-workspace-page">
         <section class="student-panel dashboard-panel" aria-labelledby="lesson-title">
             <div class="student-panel-head">
                 <div>
