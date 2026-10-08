@@ -39,6 +39,6 @@ class DashboardRedirectorTest extends TestCase
 
         $response = app(DashboardRedirector::class)->redirect($student);
 
-        $response->assertRedirect(route('student.dashboard'));
+        $this->assertTrue($response->isRedirect(route('student.dashboard')));
     }
 }
