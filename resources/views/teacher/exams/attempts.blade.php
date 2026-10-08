@@ -20,7 +20,7 @@
                     <span>سؤال</span>
                 </div>
                 <div>
-                    <strong>{{ $exam->attempts->count() }}</strong>
+                    <strong>{{ $attempts->total() }}</strong>
                     <span>تلاش</span>
                 </div>
             </div>
@@ -50,9 +50,9 @@
                             <div>
                                 <strong>{{ $attempt->student?->name ?: 'دانش‌آموز' }}</strong>
                                 <span>
-                                    تلاش {{ AppSupportPersianUi::digits($attempt->attempt_number) }}
+                                    تلاش {{ App\Support\PersianUi::digits($attempt->attempt_number) }}
                                     ·
-                                    {{ $attempt->submitted_at ? AppSupportPersianUi::date($attempt->submitted_at) : 'هنوز تحویل نشده' }}
+                                    {{ $attempt->submitted_at ? App\Support\PersianUi::date($attempt->submitted_at) : 'هنوز تحویل نشده' }}
                                 </span>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                         <div class="teacher-exam-attempt-meta">
                             <span class="teacher-exam-review-status {{ $statusTone }}">{{ $statusLabel }}</span>
                             <span class="teacher-exam-score-chip">
-                                {{ $attempt->score === null ? '—' : AppSupportPersianUi::digits($attempt->score) }}
+                                {{ $attempt->score === null ? '—' : App\Support\PersianUi::digits($attempt->score) }}
                             </span>
                         </div>
                     </header>
@@ -69,12 +69,12 @@
                         @forelse($attempt->exam->questions as $question)
                             @php($answer = $attempt->answers->firstWhere('question_id', $question->id))
                             <article class="teacher-exam-answer-row">
-                                <div class="teacher-exam-answer-number">{{ AppSupportPersianUi::digits($loop->iteration) }}</div>
+                                <div class="teacher-exam-answer-number">{{ App\Support\PersianUi::digits($loop->iteration) }}</div>
 
                                 <div class="teacher-exam-answer-content">
                                     <div class="teacher-exam-answer-question">
                                         <strong>{{ $question->question }}</strong>
-                                        <span>{{ AppSupportPersianUi::digits($question->score) }} امتیاز</span>
+                                        <span>{{ App\Support\PersianUi::digits($question->score) }} امتیاز</span>
                                     </div>
 
                                     <div class="teacher-exam-answer-value">
@@ -111,9 +111,9 @@
                                         </label>
                                     @elseif($answer)
                                         <strong>
-                                            {{ AppSupportPersianUi::digits($answer->score ?? 0) }}
+                                            {{ App\Support\PersianUi::digits($answer->score ?? 0) }}
                                         </strong>
-                                        <span>از {{ AppSupportPersianUi::digits($question->score) }}</span>
+                                        <span>از {{ App\Support\PersianUi::digits($question->score) }}</span>
                                     @endif
                                 </div>
                             </article>
@@ -160,5 +160,11 @@
                 </section>
             @endforelse
         </div>
+
+        @if($attempts->hasPages())
+            <div class="mt-6">
+                {{ $attempts->onEachSide(1)->links() }}
+            </div>
+        @endif
     </div>
 @endsection
