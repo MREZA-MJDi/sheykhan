@@ -78,8 +78,10 @@ class AcademyContentService
         $minutes = intdiv($seconds, 60);
         $remaining = $seconds % 60;
 
-        return $minutes > 0
+        $formatted = $minutes > 0
             ? $minutes . ':' . str_pad((string) $remaining, 2, '0', STR_PAD_LEFT)
             : '00:' . str_pad((string) $remaining, 2, '0', STR_PAD_LEFT);
+
+        return \App\Support\PersianUi::digits($formatted);
     }
 }
