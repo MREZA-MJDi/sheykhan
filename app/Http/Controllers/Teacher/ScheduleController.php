@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\StoreScheduleRequest;
 use App\Services\TeacherWorkspaceService;
+use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -26,10 +27,20 @@ class ScheduleController extends Controller
             (int) $request->validated('classroom_id')
         );
 
+        $data = $request->validated();
+
+        // A recurring schedule gets its own stable virtual room automatically.
+        // We use Jitsi because it requires no external account/API integration.
+        $data['meeting_url'] = 'https://meet.jit.si/Sheykhan-'
+            . Str::slug((string) ($classroom->code ?: $classroom->id))
+            . '-'
+            . Str::lower(Str::random(12));
+        $data['provider'] = 'Jitsi';
+
         $workspace->storeSchedule(
             $request->user(),
             $classroom,
-            $request->validated(),
+            $data,
         );
 
         return back()->with('success', 'جلسه هفتگی ثبت شد.');
