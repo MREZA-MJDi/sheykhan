@@ -44,6 +44,7 @@ use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
 use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Teacher\LessonMediaController as TeacherLessonMediaController;
 use App\Http\Controllers\Teacher\LiveClassController as TeacherLiveClassController;
+use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -51,6 +52,7 @@ Route::get('/courses', [CourseController::class, 'index'])->name('courses.index'
 Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
 Route::get('/courses/{course}/lessons/{lesson}/preview', [CourseController::class, 'preview'])->name('courses.lessons.preview');
 Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
+Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])->name('teachers.show');
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
@@ -108,6 +110,8 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
 
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', TeacherDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/profile', [TeacherProfileController::class, 'edit'])->middleware('permission:profile.view')->name('profile.edit');
+    Route::patch('/profile', [TeacherProfileController::class, 'update'])->middleware(['permission:profile.manage','throttle:10,1'])->name('profile.update');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
     Route::get('/courses/create', [TeacherCourseController::class, 'create'])->middleware('permission:courses.manage')->name('courses.create');
     Route::post('/courses', [TeacherCourseController::class, 'store'])->middleware('permission:courses.manage')->name('courses.store');
