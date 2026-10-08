@@ -62,7 +62,7 @@ final class OwnerContentService
             ->where('is_active', true)
             ->firstOrFail();
 
-        return DB::transaction(function () use ($owner, $academy, $category, $data): AcademyContent {
+        return DB::transaction(function () use ($owner, $academy, $category, $data, $cover): AcademyContent {
             $content = $academy->academyContents()->create([
                 'category_id' => $category->id,
                 'type' => $data['type'],
@@ -108,7 +108,7 @@ final class OwnerContentService
             ->where('is_active', true)
             ->firstOrFail();
 
-        return DB::transaction(function () use ($academy, $content, $category, $data): AcademyContent {
+        return DB::transaction(function () use ($academy, $content, $category, $data, $cover): AcademyContent {
             $status = $data['status'] ?? $content->status;
 
             $content->update([
