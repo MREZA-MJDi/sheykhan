@@ -12,7 +12,7 @@
                 <div class="student-workspace-date"><strong>★</strong><small>دستاورد</small></div>
                 <div class="student-workspace-row-main"><div class="student-row-title">{{ $achievement->title ?: $achievement->display_name }}</div><span class="student-row-meta">{{ $achievement->school_name ?: $achievement->achievement_type }}</span></div>
                 @if($achievement->media)
-                    <a class="student-workspace-status primary" target="_blank" rel="noopener" href="{{ route('media.view',$achievement->media) }}">مشاهده</a>
+                    <a class="student-workspace-status primary" href="{{ route('student.achievements.show', $achievement) }}">مشاهده</a>
                 @else
                     <span class="student-workspace-status success">ثبت‌شده</span>
                 @endif
