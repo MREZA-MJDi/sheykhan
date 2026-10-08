@@ -48,7 +48,7 @@
                                 :avatar="$teacher->teacherProfile?->media?->first()?->url()"
                                 :bio="$teacher->teacherProfile?->bio"
                                 :courses="$teacher->courses_count ?? 0"
-                                :href="route('teachers.index')"
+                                 :href="route('teachers.show', $teacher)"
                             />
                         @endforeach
                     </div>
