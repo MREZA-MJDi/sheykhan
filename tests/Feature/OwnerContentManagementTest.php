@@ -78,15 +78,10 @@ class OwnerContentManagementTest extends TestCase
 
     private function ownerWithAcademy(?string $permission = null): array
     {
-        $role = Role::create([
-            'name' => 'مدیر ' . Str::random(4),
-            'slug' => 'academy-owner-' . Str::random(6),
-            'description' => 'Owner test',
-        ]);
-
-        // The permission middleware checks the permission name, while the
-        // service checks the academy-owner role. Use the canonical role slug.
-        $role->update(['slug' => 'academy-owner']);
+        $role = Role::firstOrCreate(
+            ['slug' => 'academy-owner'],
+            ['name' => 'مدیر آموزشگاه', 'description' => 'Owner test']
+        );
 
         if ($permission) {
             $perm = Permission::firstOrCreate(
