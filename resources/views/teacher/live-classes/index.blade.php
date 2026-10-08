@@ -11,5 +11,11 @@
             <div class="dashboard-panel p-10 text-center text-sm text-slate-500 md:col-span-2">جلسه‌ای ثبت نشده است.</div>
         @endforelse
     </div>
+
+    @if($liveClasses->hasPages())
+        <div class="dashboard-panel p-4">
+            {{ $liveClasses->links() }}
+        </div>
+    @endif
 </div>
 @endsection
