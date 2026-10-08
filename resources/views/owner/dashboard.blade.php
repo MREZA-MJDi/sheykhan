@@ -139,11 +139,11 @@
                 <span>کلاس‌های فعال</span>
 
                 <strong>
-                    {{ $metrics['classrooms'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['classrooms'] ?? 0) }}
                 </strong>
 
                 <small>
-                    {{ $metrics['liveNow'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['liveNow'] ?? 0) }}
                     کلاس آنلاین در حال اجرا
                 </small>
             </article>
@@ -152,7 +152,7 @@
                 <span>دانش‌آموز فعال</span>
 
                 <strong>
-                    {{ $metrics['students'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['students'] ?? 0) }}
                 </strong>
 
                 <small>
@@ -168,11 +168,11 @@
                 <span>مدرس فعال</span>
 
                 <strong>
-                    {{ $metrics['teachers'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['teachers'] ?? 0) }}
                 </strong>
 
                 <small>
-                    {{ $metrics['courses'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }}
                     دوره در آموزشگاه‌ها
                 </small>
             </article>
@@ -586,9 +586,9 @@
                         <article class="owner-live-row">
 
                             <div class="owner-pill shrink-0">
-                                {{ \App\Support\PersianUi::digits(
-                                    \Illuminate\Support\Carbon::parse($item->scheduled_at)->format('m/d H:i')
-                                ) }}
+                                {{ \App\Support\PersianUi::date(\Illuminate\Support\Carbon::parse($item->scheduled_at)) }}
+                                ·
+                                {{ \App\Support\PersianUi::time(\Illuminate\Support\Carbon::parse($item->scheduled_at)) }}
                             </div>
 
                             <div class="min-w-0">
