@@ -167,6 +167,33 @@ class TeacherWorkspaceFlowTest extends TestCase
         ]);
     }
 
+    public function test_teacher_can_store_attendance_with_a_jalali_date(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
+        $student = $classroom->students()->wherePivot('status', 'active')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.classrooms.attendance.store', $classroom), [
+                'attendance_date' => '۱۴۰۵/۰۷/۱۶',
+                'attendance' => [
+                    $student->id => 'absent',
+                ],
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('attendances', [
+            'classroom_id' => $classroom->id,
+            'student_id' => $student->id,
+            'attendance_date' => '2026-10-08',
+            'status' => 'absent',
+            'marked_by' => $teacher->id,
+        ]);
+    }
+
     public function test_attendance_edit_loads_existing_status_for_the_selected_date(): void
     {
         $this->seed();
