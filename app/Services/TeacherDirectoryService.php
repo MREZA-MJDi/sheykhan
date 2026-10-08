@@ -39,6 +39,12 @@ class TeacherDirectoryService
                     ->published()
                     ->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))
                     ->withCount('lessons')
+                    ->with([
+                        'media' => fn ($query) => $query
+                            ->where('visibility', 'public')
+                            ->where('status', 'active')
+                            ->orderByPivot('sort_order'),
+                    ])
                     ->latest('courses.published_at'),
             ])
             ->firstOrFail();
@@ -59,6 +65,7 @@ class TeacherDirectoryService
                     'bio' => $teacher->teacherProfile?->bio,
                     'courses' => $teacher->courses_count,
                     'avatar' => $teacher->teacherProfile?->media->first()?->url(),
+                    'href' => route('teachers.show', $teacher),
                 ])
                 ->all()
         );
