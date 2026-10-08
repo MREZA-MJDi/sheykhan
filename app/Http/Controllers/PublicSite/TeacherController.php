@@ -22,7 +22,6 @@ class TeacherController extends Controller
 
         return view('pages.teachers.show', [
             'teacher' => $teacher,
-            'seoMeta' => null,
         ]);
     }
 }
