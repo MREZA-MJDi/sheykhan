@@ -107,7 +107,9 @@ class RolePermissionSeeder extends Seeder
                 'profile.view','profile.manage',
                 'media.view','media.upload','media.download','media.manage',
                 'resources.view',
-                'payments.view',
+                'payments.view','finance.view',
+                'blog.view','blog.manage',
+                'content.manage','seo.manage',
                 'audit.view',
             ],
 
