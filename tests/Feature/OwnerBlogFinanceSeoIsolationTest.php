@@ -100,8 +100,8 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             ->get(route('owner.finance.index'))
             ->assertOk();
 
-        $response->assertSee('1250000');
-        $response->assertDontSee('9900000');
+        $response->assertSee('1,250,000');
+        $response->assertDontSee('9,900,000');
     }
 
     public function test_owner_can_manage_seo_for_owned_academy_content(): void
