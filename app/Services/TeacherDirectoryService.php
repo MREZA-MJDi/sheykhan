@@ -49,7 +49,12 @@ class TeacherDirectoryService
     private function query(): Builder
     {
         return User::query()
+            ->where('status', 'active')
             ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
+            ->whereHas('academies', fn ($query) => $query
+                ->where('academy_user.status', 'active')
+                ->where('academy_user.role', 'teacher')
+                ->where('academies.status', 'active'))
             ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
             ->with([
                 'teacherProfile:id,user_id,bio,specialization',
