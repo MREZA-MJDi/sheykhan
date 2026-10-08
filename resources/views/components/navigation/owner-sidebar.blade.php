@@ -110,7 +110,7 @@
             @endif
         @endif
 
-        @if($user->hasPermission('finance.view'))
+        @if($user->hasPermission('finance.view') && Route::has('owner.finance.index'))
             <div class="role-sidebar-label mt-6">مالی</div>
 
             <a href="{{ route('owner.finance.index') }}"
