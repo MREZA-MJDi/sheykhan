@@ -106,6 +106,7 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
+    Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->middleware('permission:academy.view')->name('website.index');
 });
 
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
