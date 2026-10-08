@@ -185,6 +185,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
     Route::get('/attendance', [StudentAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
     Route::get('/results', [StudentResultController::class, 'index'])->middleware('permission:results.view')->name('results.index');
     Route::get('/achievements', [StudentAchievementController::class, 'index'])->middleware('permission:achievements.view')->name('achievements.index');
+    Route::get('/achievements/{achievement}', [StudentAchievementController::class, 'show'])->middleware('permission:achievements.view')->name('achievements.show');
 
     Route::get('/notes', [StudentNoteController::class, 'index'])->middleware('permission:notes.view')->name('notes.index');
     Route::post('/lessons/{lesson}/notes', [StudentNoteController::class, 'store'])->middleware(['permission:notes.manage','throttle:20,1'])->name('lessons.notes.store');
