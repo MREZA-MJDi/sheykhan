@@ -1,10 +1,10 @@
 <?php
 
-namespace TestsFeature;
+namespace Tests\Feature;
 
-use AppModelsUser;
-use IlluminateFoundationTestingRefreshDatabase;
-use TestsTestCase;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class StudentPortalUiContractTest extends TestCase
 {
