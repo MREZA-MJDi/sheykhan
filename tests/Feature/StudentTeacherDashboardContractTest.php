@@ -60,7 +60,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertSame(7, $calendar['month']);
         $this->assertSame(16, $calendar['day']);
         $this->assertSame('مهر', $calendar['month_name']);
-        $this->assertSame(31, $calendar['days_in_month']);
+        $this->assertSame(30, $calendar['days_in_month']);
     }
 
     public function test_student_calendar_is_rendered_as_jalali_and_teacher_dashboard_uses_persian_date(): void
