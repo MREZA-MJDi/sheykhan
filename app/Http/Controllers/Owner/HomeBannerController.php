@@ -12,7 +12,6 @@ use App\Services\MediaService;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
 final class HomeBannerController extends Controller
 {
@@ -44,8 +43,13 @@ final class HomeBannerController extends Controller
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
 
         $payload = $request->validated()['banners'] ?? [];
-        $academy->load('media');
-        $attachedMediaIds = $academy->media->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $attachedMediaIds = $academy->media()
+            ->where('visibility', 'public')
+            ->where('status', 'active')
+            ->where('mime_type', 'like', 'image/%')
+            ->pluck('media.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
         DB::transaction(function () use (
             $payload,
@@ -69,7 +73,7 @@ final class HomeBannerController extends Controller
                         $data['image'],
                         $academy,
                         [
-                            'disk' => 'local',
+                            'disk' => config('filesystems.default', 'local'),
                             'directory' => 'academies/' . $academy->id . '/home-banners',
                             'collection' => 'home-banners',
                             'visibility' => 'public',
