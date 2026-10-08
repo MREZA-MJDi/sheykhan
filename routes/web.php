@@ -201,3 +201,20 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Final fallback
+|--------------------------------------------------------------------------
+| Never let an unknown web URL fall through to an internal error page.
+| This must remain the last route in the file.
+*/
+Route::fallback(function () {
+    if (request()->expectsJson()) {
+        return response()->json([
+            'message' => 'صفحه موردنظر پیدا نشد.',
+        ], 404);
+    }
+
+    return response()->view('errors.404', [], 404);
+});
