@@ -7,8 +7,15 @@
     $topbarUser = auth()->user();
     $topbarAvatar = null;
 
-    if ($role === 'teacher') {
-        $topbarAvatar = $topbarUser?->teacherProfile?->media?->first()?->url();
+    if ($role === 'teacher' && $topbarUser) {
+        $topbarUser->loadMissing([
+            'teacherProfile.media' => fn ($query) => $query
+                ->where('visibility', 'public')
+                ->wherePivot('collection', 'teacher-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+
+        $topbarAvatar = $topbarUser->teacherProfile?->media?->first()?->url();
     }
 
     $roleLabels = [
