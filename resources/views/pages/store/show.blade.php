@@ -8,6 +8,20 @@
         $media = $product->media;
         $cover = $media->first()?->url();
         $price = $product->sale_price ?? $product->price;
+
+        $typeLabel = match ($product->product_type) {
+            'digital' => 'محصول دیجیتال',
+            'book' => 'کتاب',
+            'exam' => 'آزمون',
+            'file' => 'فایل آموزشی',
+            default => 'منبع آموزشی',
+        };
+
+        $deliveryLabel = match ($product->delivery_type) {
+            'download' => 'تحویل دیجیتال',
+            'physical' => 'تحویل فیزیکی',
+            default => 'تحویل توسط شیخان',
+        };
     @endphp
 
     <section class="public-product-page">
@@ -56,7 +70,7 @@
                                 </span>
                             @endif
                             <span class="inline-flex rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-bold text-[var(--color-text-muted)]">
-                                {{ $product->product_type }}
+                                {{ $typeLabel }}
                             </span>
                         </div>
 
@@ -75,7 +89,7 @@
                             </strong>
 
                             <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[var(--color-text-muted)]">
-                                <span class="rounded-full bg-white px-3 py-1.5">{{ $product->delivery_type === 'download' ? 'تحویل دیجیتال' : 'تحویل توسط شیخان' }}</span>
+                                <span class="rounded-full bg-white px-3 py-1.5">{{ $deliveryLabel }}</span>
                                 <span class="rounded-full bg-white px-3 py-1.5">انتشار رسمی شیخان</span>
                             </div>
                         </div>
