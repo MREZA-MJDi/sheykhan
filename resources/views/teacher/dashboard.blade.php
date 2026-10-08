@@ -333,6 +333,21 @@
             </section>
         </div>
 
+        <section class="teacher-people-panel">
+            <div class="teacher-board-head"><div><span>دانش‌آموزان</span><h2>دانش‌آموزان با پیشرفت بالاتر</h2></div><a href="{{ route('teacher.classrooms.index') }}">کلاس‌ها ←</a></div>
+            <div class="teacher-people-grid">
+                @forelse(($topStudents ?? collect()) as $studentItem)
+                    <article class="teacher-person-card">
+                        <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+                        <div><strong>{{ $studentItem->name }}</strong><span>{{ AppSupportPersianUi::digits($studentItem->progress_average) }}٪ پیشرفت</span></div>
+                        <b>{{ AppSupportPersianUi::digits($studentItem->progress_average) }}٪</b>
+                    </article>
+                @empty
+                    <div class="teacher-empty">هنوز داده کافی برای نمایش دانش‌آموزان وجود ندارد.</div>
+                @endforelse
+            </div>
+        </section>
+
         <section class="teacher-panel" aria-labelledby="teacher-assignments-title">
             <div class="teacher-panel-head">
                 <div>
