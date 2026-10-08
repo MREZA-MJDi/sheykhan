@@ -49,7 +49,17 @@
     <div class="role-topbar-actions">
         <a href="{{ route('home') }}" class="role-topbar-site">مشاهده سایت</a>
 
-        <a href="{{ $role === 'teacher' ? route('teacher.profile.edit') : ($role === 'student' ? route('student.profile.edit') : route('home')) }}" class="role-user-chip" aria-label="پروفایل کاربری">
+        <a
+            href="{{ match ($role) {
+                'teacher' => route('teacher.profile.edit'),
+                'student' => route('student.profile.edit'),
+                'parent' => route('parent.dashboard'),
+                'owner' => route('owner.dashboard'),
+                default => route('home'),
+            } }}"
+            class="role-user-chip"
+            aria-label="{{ in_array($role, ['owner', 'parent'], true) ? 'بازگشت به داشبورد' : 'پروفایل کاربری' }}"
+        >
             <span class="role-user-avatar role-user-avatar-image">
                 @if($topbarAvatar)
                     <img src="{{ $topbarAvatar }}" alt="" loading="lazy">
