@@ -35,7 +35,7 @@
                 <div class="student-workspace-empty"><strong>هنوز دوره فعالی برای شما ثبت نشده است.</strong><span>پس از ثبت‌نام معتبر، مسیر آموزشی شما در این بخش نمایش داده می‌شود.</span></div>
             @endforelse
         </div>
-        @if($courses->isNotEmpty())
+        @if($courses->count() > 0)
             @foreach($courses->take(1) as $course)
                 <div class="student-workspace-actions" style="margin-top:13px"><a class="student-workspace-btn primary" href="{{ route('student.courses.show', $course) }}">ادامه یادگیری ←</a></div>
             @endforeach
