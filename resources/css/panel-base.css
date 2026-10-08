@@ -946,7 +946,7 @@
         position:fixed;
         left:10px;
         right:10px;
-        bottom:10px;
+        bottom:calc(10px + env(safe-area-inset-bottom));
         z-index:70;
         display:grid;
         grid-template-columns:repeat(5,minmax(0,1fr));
@@ -997,4 +997,9 @@
 @media(max-width:380px){
     .role-mobile-bottom-nav{left:6px;right:6px;bottom:6px}
     .role-mobile-bottom-nav a{min-height:52px;font-size:7px}
+}
+
+@media (prefers-reduced-motion: reduce){
+    .role-mobile-bottom-nav a,
+    .role-mobile-bottom-nav a:active{transition:none;transform:none}
 }
