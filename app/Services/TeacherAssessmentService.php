@@ -109,7 +109,8 @@ final class TeacherAssessmentService
     ): ExamAttempt {
         $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
 
-        if ((int) $attempt->exam?->teacher_id !== $teacherId || !$this->teacherCanActOnCourse($teacherId, (int) $attempt->exam?->course_id)) {
+        $teacher = User::query()->find($teacherId);
+        if (!$teacher || !app(TeacherAccessService::class)->canManageExam($teacher, $attempt->exam)) {
             throw new AccessDeniedHttpException();
         }
 
