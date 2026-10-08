@@ -1,14 +1,14 @@
 <?php
 
-namespace TestsFeature;
+namespace Tests\Feature;
 
-use AppModelsAttendance;
-use AppModelsClassroom;
-use AppModelsCourse;
-use AppModelsUser;
-use CarbonCarbon;
-use IlluminateFoundationTestingRefreshDatabase;
-use TestsTestCase;
+use App\Models\Attendance;
+use App\Models\Classroom;
+use App\Models\Course;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class TeacherWorkspaceFlowTest extends TestCase
 {
