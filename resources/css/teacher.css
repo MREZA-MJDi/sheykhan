@@ -657,3 +657,29 @@
  .teacher-live-form-head{align-items:flex-start;flex-direction:column}
  .teacher-live-date-row{grid-template-columns:1fr}
 }
+
+/* Shared teacher form primitives */
+.teacher-jalali-field label{display:grid;gap:7px}
+.teacher-jalali-field label>span{color:#4a576c;font-size:9px;font-weight:900}
+.teacher-jalali-field-grid{display:grid;grid-template-columns:minmax(0,1fr) 7rem;gap:8px}
+.teacher-jalali-field-grid.is-date-only{grid-template-columns:1fr}
+.teacher-jalali-field input{width:100%;min-height:43px;border:1px solid #e7ebf1;border-radius:13px;background:#fbfcfe;color:#2e3b50;padding:0 13px;outline:0;font:inherit;font-size:11px;transition:.2s}
+.teacher-jalali-field input:focus{border-color:#8a73e6;box-shadow:0 0 0 3px rgba(101,84,217,.08);background:#fff}
+.teacher-jalali-field em{color:#9aa2ae;font-size:8px;font-style:normal;line-height:1.7}
+.teacher-field-error{color:#d64b5b;font-size:8px}
+.teacher-form-shell{max-width:980px;margin:0 auto;padding-bottom:32px}
+.teacher-form-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:16px}
+.teacher-form-head h1{margin:4px 0;color:#25344a;font-size:25px;font-weight:950}
+.teacher-form-head p{margin:0;color:#8993a3;font-size:10px;line-height:1.9}
+.teacher-form-section{padding:20px;border:1px solid #edf0f5;border-radius:22px;background:#fff;box-shadow:0 9px 28px rgba(35,51,80,.045)}
+.teacher-form-section h2{margin:0;color:#2c3a50;font-size:14px;font-weight:950}
+.teacher-form-section>p{margin:4px 0 0;color:#8c96a5;font-size:9px;line-height:1.8}
+.teacher-form-field{display:grid;gap:7px}
+.teacher-form-field>span{color:#4a576c;font-size:9px;font-weight:900}
+.teacher-form-field input,.teacher-form-field select,.teacher-form-field textarea{width:100%;border:1px solid #e7ebf1;border-radius:13px;background:#fbfcfe;color:#2e3b50;padding:11px 13px;outline:0;font:inherit;font-size:11px}
+.teacher-form-field input:focus,.teacher-form-field select:focus,.teacher-form-field textarea:focus{border-color:#8a73e6;box-shadow:0 0 0 3px rgba(101,84,217,.08);background:#fff}
+.teacher-form-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+.teacher-form-actions a,.teacher-form-actions button{min-height:43px;padding:0 17px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;font:inherit;font-size:10px;font-weight:900;text-decoration:none;cursor:pointer}
+.teacher-form-actions a{border:1px solid #e5e9ef;background:#fff;color:#697589}
+.teacher-form-actions button{border:0;background:linear-gradient(135deg,#6554d9,#7b5ee4);color:#fff;box-shadow:0 10px 22px rgba(101,84,217,.18)}
+@media(max-width:700px){.teacher-form-head{align-items:flex-start;flex-direction:column}.teacher-jalali-field-grid{grid-template-columns:1fr}.teacher-form-section{padding:16px;border-radius:18px}}
