@@ -93,6 +93,43 @@
         </section>
 
 
+        <section class="owner-focus-card" aria-labelledby="owner-focus-title">
+            <div class="owner-focus-status" aria-hidden="true">
+                <span class="{{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}"></span>
+            </div>
+
+            <div class="owner-focus-copy">
+                <span class="owner-focus-kicker">صف امروز</span>
+                <h2 id="owner-focus-title">
+                    @if(($metrics['classroomsWithoutTeacher'] ?? 0) > 0)
+                        {{ $metrics['classroomsWithoutTeacher'] }} کلاس بدون مدرس داری.
+                    @elseif(($metrics['capacityAlerts'] ?? 0) > 0)
+                        {{ $metrics['capacityAlerts'] }} کلاس نزدیک ظرفیت است.
+                    @elseif(($metrics['pendingReviews'] ?? 0) > 0)
+                        {{ $metrics['pendingReviews'] }} مورد هنوز نیازمند بررسی است.
+                    @else
+                        امروز مورد بحرانی برای پیگیری نداری.
+                    @endif
+                </h2>
+                <p>
+                    این نوار فقط مواردی را بالا می‌آورد که از داده واقعی عملیات آموزشگاه می‌آیند؛
+                    اولویت را باز کن و مستقیم سراغ همان کار برو.
+                </p>
+            </div>
+
+            <div class="owner-focus-actions">
+                @if(($metrics['classroomsWithoutTeacher'] ?? 0) > 0 && $firstAcademy)
+                    <a href="{{ route('owner.classrooms.index', $firstAcademy) }}">تکمیل کلاس‌ها ←</a>
+                @elseif(($metrics['capacityAlerts'] ?? 0) > 0 && $firstAcademy)
+                    <a href="{{ route('owner.classrooms.index', $firstAcademy) }}">بررسی ظرفیت ←</a>
+                @elseif(($metrics['pendingReviews'] ?? 0) > 0)
+                    <a href="{{ route('owner.reports.index') }}">باز کردن گزارش ←</a>
+                @else
+                    <a href="{{ route('owner.courses.index') }}">مدیریت دوره‌ها ←</a>
+                @endif
+            </div>
+        </section>
+
         {{-- =========================================================
             PRIMARY METRICS
         ========================================================== --}}
