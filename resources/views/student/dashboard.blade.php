@@ -116,6 +116,21 @@
             </div>
         </section>
 
+        <section class="student-ui-people-panel">
+            <div class="student-ui-board-head"><div><span>آدم‌های مسیر یادگیری</span><h2>اساتید دوره‌های من</h2></div><a href="{{ route('student.courses.index') }}">دوره‌ها <span>←</span></a></div>
+            <div class="student-ui-people-grid">
+                @forelse(($teachers ?? collect()) as $teacherItem)
+                    <article class="student-ui-person-card">
+                        <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+                        <div><strong>{{ $teacherItem->name }}</strong><span>استاد دوره‌های تو</span></div>
+                        <b>✓</b>
+                    </article>
+                @empty
+                    <div class="student-ui-empty">هنوز استادی برای دوره‌های فعال تو ثبت نشده است.</div>
+                @endforelse
+            </div>
+        </section>
+
         <section class="student-ui-quick">
             <div class="student-ui-section-title">
                 <div><span>مسیرهای اصلی</span>
