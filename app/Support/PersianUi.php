@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 
 final class PersianUi
@@ -53,7 +54,7 @@ final class PersianUi
             : ($jm <= 11 ? 30 : (self::isJalaliLeapYear($jy) ? 30 : 29));
 
         [$firstGy, $firstGm, $firstGd] = self::jalaliToGregorian($jy, $jm, 1);
-        $firstWeekday = (CarbonInterface::create($firstGy, $firstGm, $firstGd)->dayOfWeek + 1) % 7;
+        $firstWeekday = (Carbon::create($firstGy, $firstGm, $firstGd)->dayOfWeek + 1) % 7;
 
         return [
             'year' => $jy,
