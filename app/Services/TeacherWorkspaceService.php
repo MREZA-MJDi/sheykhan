@@ -31,7 +31,7 @@ final class TeacherWorkspaceService
     public function coursesPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
         return $teacher->taughtCourses()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('academy:id,name')
             ->withCount([
                 'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
@@ -46,7 +46,7 @@ final class TeacherWorkspaceService
     public function classrooms(User $teacher): Collection
     {
         return $teacher->classroomsAsTeacher()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
@@ -75,7 +75,7 @@ final class TeacherWorkspaceService
     public function classroomsForSchedule(User $teacher): Collection
     {
         return $teacher->classroomsAsTeacher()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with([
                 'course:id,title',
                 'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
@@ -88,6 +88,7 @@ final class TeacherWorkspaceService
     {
         return $teacher->classroomsAsTeacher()
             ->whereKey($classroomId)
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with([
                 'course:id,title',
                 'students' => fn ($query) => $query
@@ -226,7 +227,7 @@ final class TeacherWorkspaceService
         return $teacher->classroomsAsTeacher()
             ->whereKey($classroomId)
             ->where('course_id', $courseId)
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->firstOrFail();
     }
 
