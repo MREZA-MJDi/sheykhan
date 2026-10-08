@@ -41,6 +41,7 @@
             @endforeach
         @endif
         
-    </section>
+        @if($courses->hasPages())<nav class="student-pagination" aria-label="صفحه‌بندی دوره‌ها">{{ $courses->links() }}</nav>@endif
+</section>
 </div>
 @endsection
