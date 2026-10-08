@@ -18,7 +18,6 @@ final class ProductController extends Controller
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
             ->with([
                 'category:id,name,slug',
-                'seoMeta',
                 'media' => fn ($query) => $query
                     ->where('visibility', 'public')
                     ->where('status', 'active')
@@ -28,7 +27,6 @@ final class ProductController extends Controller
 
         return view('pages.store.show', [
             'product' => $product,
-            'seoMeta' => $product->seoMeta,
         ]);
     }
 }
