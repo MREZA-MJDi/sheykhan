@@ -27,7 +27,7 @@
         </section>
 
         <div class="teacher-exam-attempt-list">
-            @forelse($exam->attempts as $attempt)
+            @forelse($attempts as $attempt)
                 @php
                     $isReview = in_array($attempt->status, ['submitted','pending_review','needs_review'], true);
                     $statusLabel = match($attempt->status) {
