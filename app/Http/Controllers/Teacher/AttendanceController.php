@@ -7,16 +7,24 @@ use App\Http\Requests\Teacher\AttendanceRequest;
 use App\Models\Classroom;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
     public function edit(Classroom $classroom, TeacherWorkspaceService $workspace): View
     {
-        $classroom = $workspace->classroomOwnedBy(request()->user(), $classroom->id);
-        $classroom->load(['course:id,title', 'students:id,name']);
+        $classroom = $workspace->classroomWithStudents(request()->user(), $classroom->id);
+        $attendanceDate = request()->date('attendance_date')?->toDateString() ?? today()->toDateString();
+        $existingAttendance = $classroom->attendance()
+            ->whereDate('attendance_date', $attendanceDate)
+            ->pluck('status', 'student_id');
 
-        return view('teacher.attendance.form', compact('classroom'));
+        return view('teacher.attendance.form', compact(
+            'classroom',
+            'attendanceDate',
+            'existingAttendance',
+        ));
     }
 
     public function store(
