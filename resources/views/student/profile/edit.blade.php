@@ -4,7 +4,7 @@
 @section('header-title','حساب کاربری')
 
 @section('content')
-<div class="student-dashboard">
+<div class="student-workspace-page"><header class="student-workspace-head"><div class="student-workspace-head-copy"><span class="student-workspace-kicker">حساب کاربری</span><h1 class="student-workspace-title">حساب من</h1><p class="student-workspace-description">اطلاعات پایه و امنیت حساب دانش‌آموز از همین‌جا مدیریت می‌شود.</p></div></header>
 <section class="student-panel dashboard-panel" aria-labelledby="profile-title">
     <div class="student-panel-head"><div><span class="student-kicker" style="color:var(--panel-primary)">حساب من</span><h2 id="profile-title">اطلاعات حساب</h2><p>اطلاعات پایه‌ای که دانش‌آموز می‌تواند مدیریت کند.</p></div><span class="student-status primary">امن</span></div>
     <form method="POST" action="{{ route('student.profile.update') }}" class="student-form">
