@@ -11,10 +11,16 @@ class CourseController extends Controller
 {
     public function index(StudentCourseService $courses): View
     {
-        $coursesList = $courses->query(request()->user())->get();
-        $progress = $courses->progressByCourse(request()->user(), $coursesList->pluck('id'));
+        $coursesList = $courses->query(request()->user())
+            ->paginate(12)
+            ->withQueryString();
 
-        $coursesList->each(function (Course $course) use ($progress): void {
+        $progress = $courses->progressByCourse(
+            request()->user(),
+            $coursesList->getCollection()->pluck('id')
+        );
+
+        $coursesList->getCollection()->each(function (Course $course) use ($progress): void {
             $course->learning_progress = (float) ($progress[$course->id] ?? 0);
         });
 
