@@ -58,7 +58,9 @@ class ProfileController extends Controller
                 'bio' => $data['bio'] ?? null,
                 'specialization' => $data['specialization'] ?? null,
                 'education' => $data['education'] ?? null,
-                'experience_years' => $data['experience_years'] ?? null,
+                'experience_years' => array_key_exists('experience_years', $data)
+                    ? $data['experience_years']
+                    : ($profile->experience_years ?? 0),
                 'is_public' => $isPublic,
             ]);
 
