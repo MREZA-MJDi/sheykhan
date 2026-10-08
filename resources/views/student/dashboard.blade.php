@@ -73,19 +73,19 @@
             <article>
                 <span>دوره‌های فعال</span>
                 <strong>{{ App\Support\PersianUi::digits($activeCourses) }}</strong>
-                <small>دوره‌ای که اکنون دنبال می‌کنی</small>
+                <small>دوره‌هایی که اکنون در آن‌ها فعال هستی</small>
                 <i class="student-ui-kpi-icon is-blue">◉</i>
             </article>
             <article>
                 <span>جلسات کلاس</span>
                 <strong>{{ App\Support\PersianUi::digits($sessionCount) }}</strong>
-                <small>جلسات ثبت‌شده در مسیرهای تو</small>
+                <small>جلسات و کلاس‌های برنامه‌ریزی‌شده</small>
                 <i class="student-ui-kpi-icon is-green">◎</i>
             </article>
             <article>
                 <span>تکالیف من</span>
                 <strong>{{ App\Support\PersianUi::digits($pending) }}</strong>
-                <small>مورد نیازمند اقدام</small>
+                <small>تکلیف‌هایی که هنوز باید پیگیری کنی</small>
                 <i class="student-ui-kpi-icon is-purple">✓</i>
             </article>
             <article>
@@ -99,28 +99,28 @@
 
         <section class="student-ui-quick">
             <div class="student-ui-section-title">
-                <div><span>دسترسی سریع</span>
-                    <h2>Quick Links</h2></div>
-                <a href="{{ route('student.dashboard') }}">خانه <span>←</span></a>
+                <div><span>مسیرهای اصلی</span>
+                    <h2>هر کاری که برای یادگیری لازم داری</h2></div>
+                <a href="{{ route('student.dashboard') }}">نمای کلی <span>←</span></a>
             </div>
             <div class="student-ui-quick-grid">
                 @php
                     $quickLinks = [
-                        ['route'=>'student.courses.index','label'=>'دوره‌های من','icon'=>'▣','permission'=>'courses.view'],
-                        ['route'=>'student.live-classes.index','label'=>'کلاس‌های من','icon'=>'◷','permission'=>'live_classes.view'],
-                        ['route'=>'student.assignments.index','label'=>'تکالیف من','icon'=>'✓','permission'=>'assignments.view'],
-                        ['route'=>'student.exams.index','label'=>'آزمون‌ها','icon'=>'▤','permission'=>'exams.view'],
-                        ['route'=>'student.results.index','label'=>'نتایج','icon'=>'↗','permission'=>'results.view'],
-                        ['route'=>'student.resources.index','label'=>'جزوه‌ها و فایل‌های من','icon'=>'▤','permission'=>'resources.view'],
-                        ['route'=>'student.notes.index','label'=>'یادداشت‌ها','icon'=>'✎','permission'=>'notes.view'],
-                        ['route'=>'student.profile.edit','label'=>'حساب کاربری','icon'=>'○','permission'=>'profile.view'],
+                        ['route'=>'student.courses.index','label'=>'دوره‌های من','description'=>'ادامه درس‌ها و دیدن درصد پیشرفت','icon'=>'▣','permission'=>'courses.view'],
+                        ['route'=>'student.live-classes.index','label'=>'کلاس‌های من','description'=>'برنامه کلاس‌های زنده و جلسات','icon'=>'◷','permission'=>'live_classes.view'],
+                        ['route'=>'student.assignments.index','label'=>'تکالیف من','description'=>'کارهای باز، موعدها و ارسال‌ها','icon'=>'✓','permission'=>'assignments.view'],
+                        ['route'=>'student.exams.index','label'=>'آزمون‌ها','description'=>'آزمون‌های منتشرشده و شروع آزمون','icon'=>'▤','permission'=>'exams.view'],
+                        ['route'=>'student.results.index','label'=>'نمرات و عملکرد','description'=>'نتایج، نمره‌ها و بازخوردها','icon'=>'↗','permission'=>'results.view'],
+                        ['route'=>'student.resources.index','label'=>'جزوه‌ها و منابع','description'=>'فایل‌ها و محتوای اختصاصی تو','icon'=>'▤','permission'=>'resources.view'],
+                        ['route'=>'student.notes.index','label'=>'یادداشت‌ها','description'=>'یادداشت‌های شخصی مسیر یادگیری','icon'=>'✎','permission'=>'notes.view'],
+                        ['route'=>'student.profile.edit','label'=>'حساب کاربری','description'=>'اطلاعات حساب و تنظیمات شخصی','icon'=>'○','permission'=>'profile.view'],
                     ];
                 @endphp
                 @foreach($quickLinks as $link)
                     @if($student->hasPermission($link['permission']))
                         <a href="{{ route($link['route']) }}">
                             <i>{{ $link['icon'] }}</i>
-                            <span>{{ $link['label'] }}</span>
+                            <span>{{ $link['label'] }}</span><small>{{ $link['description'] }}</small>
                         </a>
                     @endif
                 @endforeach
@@ -197,7 +197,7 @@
                                     <b class="{{ $assignment->submitted_at ? 'done' : '' }}">{{ $assignment->submitted_at ? '✓' : '→' }}</b>
                                 </a>
                             @empty
-                                <div class="student-ui-empty">تکلیف بازی برای نمایش نیست.</div>
+                                <div class="student-ui-empty">تکلیف فعالی برای نمایش نیست.</div>
                             @endforelse
                         </div>
                     </section>
