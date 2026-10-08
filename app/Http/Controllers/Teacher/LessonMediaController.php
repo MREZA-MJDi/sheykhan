@@ -19,7 +19,7 @@ class LessonMediaController extends Controller
         Lesson $lesson,
         MediaService $media
     ): RedirectResponse {
-        $lesson->loadMissing('section.course');
+        $lesson->loadMissing('section.course.academy');
 
         abort_unless(
             $lesson->section?->course?->teachers()->whereKey($request->user()->id)->exists()
