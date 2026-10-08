@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -30,27 +31,33 @@ final class CourseLearningProgressService
             ->flatMap(fn ($section) => $section->lessons)
             ->values();
 
+        /** @var LengthAwarePaginator $students */
         $students = $course->enrollments()
             ->where('status', 'active')
             ->with(['student:id,name'])
             ->orderBy('id')
-            ->get()
+            ->paginate(20)
+            ->withQueryString();
+
+        $studentCollection = $students->getCollection()
             ->map(fn ($enrollment) => $enrollment->student)
             ->filter()
             ->unique('id')
             ->values();
 
-        $progressRows = DB::table('lesson_progress')
-            ->whereIn('lesson_id', $lessons->pluck('id'))
-            ->whereIn('user_id', $students->pluck('id'))
-            ->get([
-                'lesson_id',
-                'user_id',
-                'progress_percent',
-                'seconds_watched',
-                'completed_at',
-                'last_watched_at',
-            ]);
+        $progressRows = $lessons->isEmpty() || $studentCollection->isEmpty()
+            ? collect()
+            : DB::table('lesson_progress')
+                ->whereIn('lesson_id', $lessons->pluck('id'))
+                ->whereIn('user_id', $studentCollection->pluck('id'))
+                ->get([
+                    'lesson_id',
+                    'user_id',
+                    'progress_percent',
+                    'seconds_watched',
+                    'completed_at',
+                    'last_watched_at',
+                ]);
 
         $progress = $progressRows->mapWithKeys(function ($row) {
             return [
@@ -58,7 +65,7 @@ final class CourseLearningProgressService
             ];
         });
 
-        $studentSummary = $students->map(function (User $student) use ($lessons, $progress) {
+        $studentSummary = $studentCollection->map(function (User $student) use ($lessons, $progress) {
             $values = $lessons->map(function ($lesson) use ($student, $progress) {
                 return (float) ($progress[$student->id . ':' . $lesson->id]->progress_percent ?? 0);
             });
