@@ -289,3 +289,12 @@ select.course-input{padding-inline-end:36px}
 .owner-seo-status.partial{background:#fff7ed;color:#b54708}
 @media(max-width:820px){.owner-seo-hero{align-items:stretch;flex-direction:column}.owner-seo-hero .website-open-btn{width:100%}.owner-seo-row{grid-template-columns:1fr 1fr}.owner-seo-row .owner-seo-main{grid-column:1/-1}}
 @media(max-width:520px){.owner-seo-row{grid-template-columns:1fr}.owner-seo-row .course-action-btn{width:100%}.owner-seo-status{justify-self:start}}
+
+
+/* Owner public cover editor */
+.owner-cover-editor{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:14px;align-items:start;margin-top:14px;padding:12px;border:1px solid #e7ebf1;border-radius:18px;background:#fafbfc}
+.owner-cover-preview{position:relative;overflow:hidden;aspect-ratio:16/9;border:1px solid #e8ebf1;border-radius:14px;background:#f1f4f8;display:grid;place-items:center;color:#8b95a5;font-size:9px;font-weight:800}
+.owner-cover-preview img{width:100%;height:100%;display:block;object-fit:cover}
+.owner-cover-editor small{display:block;margin-top:5px;color:#98a2b3;font-size:8px;line-height:1.7}
+.owner-cover-editor input[type=file]{width:100%;margin-top:8px;padding:10px;border:1px dashed #d6dce5;border-radius:12px;background:#fff;color:#667085;font-size:9px}
+@media(max-width:760px){.owner-cover-editor{grid-template-columns:1fr}.owner-cover-preview{max-width:100%}}
