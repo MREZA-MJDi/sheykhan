@@ -35,7 +35,7 @@ class AssignmentController extends Controller
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedBy($request->user(), (int) $classroomId);
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, (int) $request->validated('course_id'));
         }
 
         $payload = $request->safe()->except('course_id');
