@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 
 class TeacherDirectoryService
 {
@@ -14,7 +15,6 @@ class TeacherDirectoryService
             ->paginate($perPage)
             ->withQueryString();
     }
-
 
     public function findPublic(User $teacher): User
     {
@@ -32,18 +32,22 @@ class TeacherDirectoryService
 
     public function featuredCards(int $limit = 4): array
     {
-        return $this->query()
-            ->latest()
-            ->limit($limit)
-            ->get(['id', 'name'])
-            ->map(fn (User $teacher) => [
-                'name' => $teacher->name,
-                'role' => $teacher->teacherProfile?->specialization ?: 'مدرس',
-                'bio' => $teacher->teacherProfile?->bio,
-                'courses' => $teacher->courses_count,
-                'avatar' => $teacher->teacherProfile?->media->first()?->url(),
-            ])
-            ->all();
+        return Cache::remember(
+            "public:home:teachers:{$limit}:v2",
+            now()->addMinutes(5),
+            fn () => $this->query()
+                ->latest()
+                ->limit($limit)
+                ->get(['id', 'name'])
+                ->map(fn (User $teacher) => [
+                    'name' => $teacher->name,
+                    'role' => $teacher->teacherProfile?->specialization ?: 'مدرس',
+                    'bio' => $teacher->teacherProfile?->bio,
+                    'courses' => $teacher->courses_count,
+                    'avatar' => $teacher->teacherProfile?->media->first()?->url(),
+                ])
+                ->all()
+        );
     }
 
     private function query(): Builder
