@@ -60,7 +60,7 @@ final class TeacherWorkspaceService
     public function classroomsPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
         return $teacher->classroomsAsTeacher()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
@@ -101,7 +101,9 @@ final class TeacherWorkspaceService
 
     public function students(User $teacher): Collection
     {
-        $classroomIds = $teacher->classroomsAsTeacher()->pluck('classrooms.id');
+        $classroomIds = $teacher->classroomsAsTeacher()
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
             return collect();
