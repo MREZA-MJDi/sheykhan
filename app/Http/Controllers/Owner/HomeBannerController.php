@@ -60,6 +60,10 @@ final class HomeBannerController extends Controller
                     'slot' => $slot,
                 ]);
 
+                if (!$banner->exists && empty($data)) {
+                    continue;
+                }
+
                 if (!empty($data['image'])) {
                     $newMedia = $mediaService->upload(
                         $data['image'],
