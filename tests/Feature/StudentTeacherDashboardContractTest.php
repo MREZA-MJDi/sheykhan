@@ -50,4 +50,41 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('روند پیشرفت دانش‌آموزان')
             ->assertDontSee('فروش دوره‌ها');
     }
+    public function test_student_calendar_is_rendered_as_jalali_and_teacher_dashboard_uses_persian_date(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+
+        $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('تقویم')
+            ->assertDontSee(now()->format('F Y'));
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk();
+    }
+
+    public function test_teacher_lists_are_paginated_contracts(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.assignments.index'))
+            ->assertOk();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.index'))
+            ->assertOk();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.live-classes.index'))
+            ->assertOk();
+    }
+
 }
