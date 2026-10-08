@@ -683,3 +683,49 @@
 .teacher-form-actions a{border:1px solid #e5e9ef;background:#fff;color:#697589}
 .teacher-form-actions button{border:0;background:linear-gradient(135deg,#6554d9,#7b5ee4);color:#fff;box-shadow:0 10px 22px rgba(101,84,217,.18)}
 @media(max-width:700px){.teacher-form-head{align-items:flex-start;flex-direction:column}.teacher-jalali-field-grid{grid-template-columns:1fr}.teacher-form-section{padding:16px;border-radius:18px}}
+
+
+/* =========================================================
+   FRIENDLY TEACHER LAYER
+========================================================= */
+.teacher-shell{
+    background:
+        radial-gradient(circle at 96% 10%,rgba(101,84,217,.055),transparent 23rem),
+        radial-gradient(circle at 4% 72%,rgba(247,154,84,.04),transparent 20rem),
+        var(--panel-bg);
+}
+.teacher-dashboard .teacher-welcome-card{
+    position:relative;
+    border-radius:28px;
+    box-shadow:0 20px 45px rgba(82,68,190,.15);
+}
+.teacher-dashboard .teacher-welcome-card::after{
+    content:"";
+    position:absolute;
+    width:210px;height:210px;
+    left:-75px;bottom:-110px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.10);
+    pointer-events:none;
+}
+.teacher-stat,
+.teacher-panel,
+.teacher-task-board,
+.teacher-people-panel{
+    transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.teacher-stat:hover,
+.teacher-panel:hover,
+.teacher-task-board:hover,
+.teacher-people-panel:hover{
+    transform:translateY(-2px);
+    box-shadow:0 15px 34px rgba(35,45,80,.065);
+}
+.teacher-primary-btn{box-shadow:0 10px 24px rgba(101,84,217,.16)}
+@media(max-width:700px){
+    .teacher-dashboard{gap:12px}
+    .teacher-dashboard .teacher-welcome-card{border-radius:22px}
+    .teacher-stats{gap:9px}
+    .teacher-stat{border-radius:17px}
+    .teacher-task-board,.teacher-people-panel{border-radius:18px;padding:14px}
+}
