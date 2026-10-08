@@ -408,11 +408,12 @@ window.addEventListener('pageshow', () => {
 function bootOwnerCoverPreviews() {
     document.querySelectorAll('[data-owner-cover-editor]').forEach((editor) => {
         const input = editor.querySelector('[data-owner-cover-input]');
-        const preview = editor.querySelector('[data-owner-cover-preview]');
-        const empty = editor.querySelector('[data-owner-cover-empty]');
+        const frame = editor.querySelector('.owner-cover-preview');
 
-        if (!input) return;
+        if (!input || !frame) return;
 
+        let preview = frame.querySelector('[data-owner-cover-preview]');
+        let empty = frame.querySelector('[data-owner-cover-empty]');
         let objectUrl = null;
 
         input.addEventListener('change', () => {
@@ -428,16 +429,15 @@ function bootOwnerCoverPreviews() {
 
             objectUrl = URL.createObjectURL(file);
 
-            if (preview) {
-                preview.src = objectUrl;
-                preview.hidden = false;
-            } else {
-                const image = document.createElement('img');
-                image.src = objectUrl;
-                image.alt = '';
-                image.dataset.ownerCoverPreview = '1';
-                editor.querySelector('.owner-cover-preview')?.appendChild(image);
+            if (!preview) {
+                preview = document.createElement('img');
+                preview.alt = '';
+                preview.dataset.ownerCoverPreview = '1';
+                frame.appendChild(preview);
             }
+
+            preview.src = objectUrl;
+            preview.hidden = false;
 
             if (empty) {
                 empty.hidden = true;
@@ -451,5 +451,4 @@ function bootOwnerCoverPreviews() {
         });
     });
 }
-
 document.addEventListener('DOMContentLoaded', bootOwnerCoverPreviews);
