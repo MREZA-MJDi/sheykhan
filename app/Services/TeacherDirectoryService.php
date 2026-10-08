@@ -86,7 +86,9 @@ class TeacherDirectoryService
                     ->orderByPivot('sort_order'),
             ])
             ->withCount([
-                'taughtCourses as courses_count' => fn ($query) => $query->published(),
+                'taughtCourses as courses_count' => fn ($query) => $query
+                    ->published()
+                    ->whereHas('academy', fn ($academy) => $academy->where('status', 'active')),
             ]);
     }
 }
