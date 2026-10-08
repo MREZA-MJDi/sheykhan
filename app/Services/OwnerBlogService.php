@@ -7,6 +7,7 @@ use App\Models\BlogPost;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\MediaService;
 
 final class OwnerBlogService
 {
@@ -44,7 +45,10 @@ final class OwnerBlogService
 
     public function create(User $owner, array $data): BlogPost
     {
-        return DB::transaction(function () use ($owner, $data): BlogPost {
+        $cover = $data['cover_image'] ?? null;
+        unset($data['cover_image']);
+
+        return DB::transaction(function () use ($owner, $data, $cover): BlogPost {
             $post = BlogPost::create([
                 'category_id' => $data['category_id'] ?? null,
                 'author_id' => $owner->id,
@@ -58,15 +62,29 @@ final class OwnerBlogService
                     : null,
             ]);
 
+            if ($cover) {
+                app(MediaService::class)->upload($cover, $post, [
+                    'disk' => config('filesystems.default', 'local'),
+                    'directory' => 'blog/covers/' . $post->id,
+                    'collection' => 'cover',
+                    'visibility' => 'public',
+                    'sort_order' => 0,
+                    'is_featured' => true,
+                ]);
+            }
+
             app(BlogService::class)->clearPublicCache();
 
-            return $post;
+            return $post->load('media');
         });
     }
 
     public function update(User $owner, BlogPost $post, array $data): BlogPost
     {
         $this->owned($owner, $post);
+
+        $cover = $data['cover_image'] ?? null;
+        unset($data['cover_image']);
 
         $status = $data['status'] ?? $post->status;
         $post->update([
@@ -79,9 +97,32 @@ final class OwnerBlogService
             'published_at' => $status === 'published' ? ($data['published_at'] ?? $post->published_at ?? now()) : null,
         ]);
 
+        if ($cover) {
+            $media = $post->media()->wherePivot('collection', 'cover')->first();
+            if ($media) {
+                app(MediaService::class)->replace($media, $cover, $post, [
+                    'disk' => config('filesystems.default', 'local'),
+                    'directory' => 'blog/covers/' . $post->id,
+                    'collection' => 'cover',
+                    'visibility' => 'public',
+                    'sort_order' => 0,
+                    'is_featured' => true,
+                ]);
+            } else {
+                app(MediaService::class)->upload($cover, $post, [
+                    'disk' => config('filesystems.default', 'local'),
+                    'directory' => 'blog/covers/' . $post->id,
+                    'collection' => 'cover',
+                    'visibility' => 'public',
+                    'sort_order' => 0,
+                    'is_featured' => true,
+                ]);
+            }
+        }
+
         app(BlogService::class)->clearPublicCache();
 
-        return $post->refresh();
+        return $post->fresh('media');
     }
 
     private function uniqueSlug(string $title, ?string $requested = null, ?int $ignoreId = null): string
