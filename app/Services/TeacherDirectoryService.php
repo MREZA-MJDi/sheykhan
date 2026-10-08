@@ -24,6 +24,12 @@ class TeacherDirectoryService
             ->with([
                 'taughtCourses' => fn ($query) => $query
                     ->published()
+                    ->whereHas('academy', fn ($academy) => $academy
+                        ->where('status', 'active')
+                        ->whereHas('users', fn ($membership) => $membership
+                            ->whereKey($teacher->id)
+                            ->where('academy_user.role', 'teacher')
+                            ->where('academy_user.status', 'active')))
                     ->withCount('lessons')
                     ->latest('courses.published_at'),
             ])
@@ -56,6 +62,10 @@ class TeacherDirectoryService
             ->where('status', 'active')
             ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
             ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
+            ->whereHas('academies', fn ($query) => $query
+                ->where('academies.status', 'active')
+                ->where('academy_user.role', 'teacher')
+                ->where('academy_user.status', 'active'))
             ->with([
                 'teacherProfile:id,user_id,bio,specialization',
                 'teacherProfile.media' => fn ($query) => $query
