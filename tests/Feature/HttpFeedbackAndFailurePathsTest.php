@@ -125,4 +125,15 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
             ->assertSee('role="status"', false);
     }
 
+    public function test_enrollment_migration_installs_the_effective_unique_key(): void
+    {
+        $this->assertTrue(Schema::hasColumn('course_enrollments', 'academic_year_key'));
+
+        $index = collect(Schema::getIndexes('course_enrollments'))
+            ->firstWhere('name', 'course_enrollments_course_student_year_effective_unique');
+
+        $this->assertNotNull($index);
+        $this->assertTrue($index['unique']);
+    }
+
 }
