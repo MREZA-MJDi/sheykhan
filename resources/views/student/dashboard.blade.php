@@ -97,6 +97,25 @@
             </article>
         </section>
 
+        <section class="student-ui-task-board" aria-labelledby="student-task-board-title">
+            <div class="student-ui-board-head"><div><span>کارهای من</span><h2 id="student-task-board-title">الان روی چه چیزی تمرکز کنم؟</h2></div><a href="{{ route('student.assignments.index') }}">همه کارها <span>←</span></a></div>
+            <div class="student-ui-board-cards">
+                @forelse($assignments->take(3) as $assignment)
+                    <a class="student-ui-board-card is-purple" href="{{ route('student.assignments.show', $assignment->id) }}">
+                        <div class="student-ui-board-icon">✓</div>
+                        <div class="student-ui-board-copy"><small>{{ $assignment->submitted_at ? 'ارسال شده' : 'تکلیف باز' }}</small><strong>{{ $assignment->title }}</strong><span>{{ $assignment->due_at ? 'موعد · '.AppSupportPersianUi::date($assignment->due_at) : 'بدون موعد' }}</span></div>
+                        <b>{{ $assignment->submitted_at ? '✓' : '→' }}</b>
+                    </a>
+                @empty
+                    <a class="student-ui-board-card is-blue" href="{{ route('student.courses.index') }}">
+                        <div class="student-ui-board-icon">▣</div>
+                        <div class="student-ui-board-copy"><small>مسیر یادگیری</small><strong>{{ $topCourse?->title ?: 'دوره‌های من' }}</strong><span>{{ $topCourse ? AppSupportPersianUi::digits(round($topCourse->learning_progress ?? 0)).'٪ پیشرفت' : 'یک دوره را برای شروع انتخاب کن' }}</span></div>
+                        <b>→</b>
+                    </a>
+                @endforelse
+            </div>
+        </section>
+
         <section class="student-ui-quick">
             <div class="student-ui-section-title">
                 <div><span>مسیرهای اصلی</span>
