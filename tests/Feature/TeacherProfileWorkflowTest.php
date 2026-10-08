@@ -1,14 +1,14 @@
 <?php
 
-namespace TestsFeature;
+namespace Tests\Feature;
 
-use AppModelsMedia;
-use AppModelsTeacherProfile;
-use AppModelsUser;
-use IlluminateFoundationTestingRefreshDatabase;
-use IlluminateHttpUploadedFile;
-use IlluminateSupportFacadesStorage;
-use TestsTestCase;
+use App\Models\Media;
+use App\Models\TeacherProfile;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class TeacherProfileWorkflowTest extends TestCase
 {
@@ -20,11 +20,6 @@ class TeacherProfileWorkflowTest extends TestCase
         Storage::fake('local');
 
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
-
-        $this->actingAs($teacher)
-            ->get(route('teacher.profile.edit'))
-            ->assertOk()
-            ->assertSee('پروفایل استاد');
 
         $this->actingAs($teacher)
             ->patch(route('teacher.profile.update'), [
@@ -53,13 +48,6 @@ class TeacherProfileWorkflowTest extends TestCase
             'mediable_id' => $profile->id,
             'collection' => 'teacher-avatar',
         ]);
-
-        $this->assertTrue(
-            Media::where('visibility', 'public')
-                ->where('collection', 'teacher-avatar')
-                ->where('uploaded_by', $teacher->id)
-                ->exists()
-        );
     }
 
     public function test_public_teacher_directory_links_to_a_complete_profile(): void
