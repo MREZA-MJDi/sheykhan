@@ -10,7 +10,7 @@
 @forelse($resources as $resource)
 <article class="student-workspace-row">
 <div class="student-workspace-date"><strong>↗</strong><small>فایل</small></div>
-<div class="student-workspace-row-main"><strong>{{ $resource->title }}</strong><span>{{ $resource->course?->title ?? $resource->classroom?->title ?? $resource->lesson?->title ?? 'منبع آموزشی' }} @if($resource->description) · {{ IlluminateSupportStr::limit($resource->description,90) }} @endif</span></div>
+<div class="student-workspace-row-main"><strong>{{ $resource->title }}</strong><span>{{ $resource->course?->title ?? $resource->classroom?->title ?? $resource->lesson?->title ?? 'منبع آموزشی' }} @if($resource->description) · {{ \Illuminate\Support\Str::limit($resource->description,90) }} @endif</span></div>
 <div class="student-workspace-actions"><a class="student-workspace-btn primary" href="{{ route('student.resources.view', $resource) }}">مشاهده</a>@if($resource->downloadable)<a class="student-workspace-btn secondary" href="{{ route('student.resources.download',$resource) }}">دریافت</a>@endif</div>
 </article>
 @empty<div class="student-workspace-empty"><strong>هنوز منبع آموزشی منتشر نشده است.</strong><span>با انتشار جزوه یا فایل، اینجا نمایش داده می‌شود.</span></div>@endforelse
