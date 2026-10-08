@@ -47,10 +47,18 @@ return new class extends Migration {
         }
 
         if (! Schema::hasColumn('course_enrollments', self::YEAR_KEY)) {
-            Schema::table('course_enrollments', function (Blueprint $table): void {
-                $table->unsignedBigInteger(self::YEAR_KEY)
-                    ->storedAs('COALESCE(academic_year_id, 0)')
-                    ->after('academic_year_id');
+            Schema::table('course_enrollments', function (Blueprint $table) use ($driver): void {
+                $column = $table->unsignedBigInteger(self::YEAR_KEY);
+
+                // SQLite only permits VIRTUAL generated columns to be added with ALTER TABLE.
+                // MariaDB supports an indexed STORED column, which is used for the unique key.
+                if ($driver === 'sqlite') {
+                    $column->virtualAs('COALESCE(academic_year_id, 0)');
+                } else {
+                    $column->storedAs('COALESCE(academic_year_id, 0)');
+                }
+
+                $column->after('academic_year_id');
             });
         }
 
