@@ -20,11 +20,11 @@
     <div class="mt-4 grid gap-4 md:grid-cols-2">
         @foreach($classrooms as $classroom)
             <section class="teacher-form-section">
-                <div class="flex items-center justify-between gap-3"><div><h2>{{ $classroom->title }}</h2><p>{{ $classroom->course?->title }}</p></div><span class="rounded-full bg-indigo-50 px-3 py-1 text-[9px] font-black text-indigo-700">{{ AppSupportPersianUi::digits($classroom->schedules->count()) }} زمان</span></div>
+                <div class="flex items-center justify-between gap-3"><div><h2>{{ $classroom->title }}</h2><p>{{ $classroom->course?->title }}</p></div><span class="rounded-full bg-indigo-50 px-3 py-1 text-[9px] font-black text-indigo-700">{{ \App\Support\PersianUi::digits($classroom->schedules->count()) }} زمان</span></div>
                 <div class="mt-4 grid gap-2">
                     @forelse($classroom->schedules->sortBy(['weekday','start_time']) as $schedule)
                         <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3 text-xs">
-                            <div><strong>{{ ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'][$schedule->weekday] ?? 'روز' }}</strong><span class="mx-2 text-slate-500">{{ IlluminateSupportCarbon::parse($schedule->start_time)->format('H:i') }} تا {{ IlluminateSupportCarbon::parse($schedule->end_time)->format('H:i') }}</span></div>
+                            <div><strong>{{ ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'][$schedule->weekday] ?? 'روز' }}</strong><span class="mx-2 text-slate-500">{{ \Illuminate\Support\Carbon::parse($schedule->start_time)->format('H:i') }} تا {{ \Illuminate\Support\Carbon::parse($schedule->end_time)->format('H:i') }}</span></div>
                             <small class="text-slate-500">{{ $schedule->room ?: 'بدون اتاق' }}</small>
                         </div>
                     @empty
