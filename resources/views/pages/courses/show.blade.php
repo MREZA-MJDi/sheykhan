@@ -15,7 +15,13 @@
         $sectionCount = $course->sections->count();
 
         $durationLabel = $course->duration_minutes > 0
-            ? \App\Support\PersianUi::digits(floor($course->duration_minutes / 60)) . ' ساعت'
+            ? (
+                intdiv((int) $course->duration_minutes, 60) > 0 && ((int) $course->duration_minutes % 60) > 0
+                    ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت و ' . \App\Support\PersianUi::digits((int) $course->duration_minutes % 60) . ' دقیقه'
+                    : (intdiv((int) $course->duration_minutes, 60) > 0
+                        ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت'
+                        : \App\Support\PersianUi::digits((int) $course->duration_minutes) . ' دقیقه')
+            )
             : 'مدت زمان متغیر';
 
         $accessLabel = $canAccessContent
