@@ -20,7 +20,7 @@
         ],
         'owner' => [
             ['route' => 'owner.dashboard', 'label' => 'مرکز', 'permission' => 'dashboard.view', 'icon' => '⌂'],
-            ['route' => 'owner.people.index', 'label' => 'اعضا', 'permission' => 'students.view', 'icon' => '◎', 'requiresAcademy' => true],
+            ['route' => 'owner.people.index', 'label' => 'اعضا', 'permissions' => ['students.view', 'teachers.view'], 'icon' => '◎', 'requiresAcademy' => true],
             ['route' => 'owner.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦', 'requiresAcademy' => true],
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣'],
             ['route' => 'owner.reports.index', 'label' => 'گزارش', 'permission' => 'reports.view', 'icon' => '↗'],
@@ -33,7 +33,7 @@
         : null;
 
     $visibleItems = collect($items)
-        ->filter(fn (array $item) => !$user || $user->hasPermission($item['permission']))
+        ->filter(fn (array $item) => !$user || collect($item['permissions'] ?? [$item['permission'] ?? null])->filter()->contains(fn (string $permission) => $user->hasPermission($permission)))
         ->filter(fn (array $item) => empty($item['requiresAcademy']) || $academy)
         ->map(function (array $item) use ($academy) {
             if ($academy && in_array($item['route'], ['owner.people.index', 'owner.classrooms.index'], true)) {
