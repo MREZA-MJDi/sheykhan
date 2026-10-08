@@ -5,7 +5,7 @@
 <div class="grid gap-5">
     <div class="dashboard-panel p-5"><p class="text-xs font-black text-[var(--panel-primary)]">تکلیف</p><h2 class="mt-1 text-2xl font-black">{{ $assignment->title }}</h2><p class="mt-2 text-sm text-slate-500">{{ $assignment->classroom?->title ?? 'دوره' }} · نمره کل {{ $assignment->max_score ?? '—' }}</p></div>
     <div class="grid gap-4">
-        @forelse($assignment->submissions as $submission)
+        @forelse($submissions as $submission)
             <article class="dashboard-panel p-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div class="min-w-0"><h3 class="text-sm font-black">{{ $submission->student?->name }}</h3><p class="mt-1 text-[10px] text-slate-500">تحویل: {{ $submission->submitted_at ? \App\Support\PersianUi::date($submission->submitted_at).' · '.\App\Support\PersianUi::time($submission->submitted_at) : '—' }}</p><div class="mt-4 whitespace-pre-line rounded-xl bg-slate-50 p-4 text-sm leading-7">{{ $submission->content ?: 'پاسخ متنی ثبت نشده است.' }}</div></div>
