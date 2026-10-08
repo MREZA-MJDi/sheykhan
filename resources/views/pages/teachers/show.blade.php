@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'مدرس | شیخان')
-@section('description', 'پروفایل مدرس و اطلاعات آموزشی او در شیخان.')
+@section('title', ($teacher->name ?: 'مدرس') . ' | مدرس شیخان')
+@section('description', \Illuminate\Support\Str::limit(
+    trim(($teacher->teacherProfile?->bio ?: '') . ' ' . ($teacher->teacherProfile?->specialization ?: 'مدرس تاییدشده در شیخان.')),
+    155
+))
 
 @section('content')
     @php
@@ -168,15 +171,15 @@
                                         <article
                                             class="group overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] transition duration-300 hover:-translate-y-1 hover:border-[var(--color-primary-200)] hover:shadow-xl"
                                         >
-                                            @if($course->image ?? null)
-                                                <div class="aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
+                                            @if($course->media?->first())
+                                                <a href="{{ route('courses.show', $course) }}" aria-label="مشاهده دوره {{ $course->title }}" class="block aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
                                                     <img
-                                                        src="{{ $course->image }}"
+                                                        src="{{ $course->media->first()->url() }}"
                                                         alt="{{ $course->title }}"
                                                         class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                                                         loading="lazy"
                                                     >
-                                                </div>
+                                                </a>
                                             @endif
 
                                             <div class="p-5">
@@ -187,13 +190,15 @@
 
                                                     @if(isset($course->lessons_count))
                                                         <span class="text-xs font-semibold text-[var(--color-text-muted)]">
-                                                            {{ $course->lessons_count }} درس
+                                                            {{ \App\Support\PersianUi::digits($course->lessons_count) }} درس
                                                         </span>
                                                     @endif
                                                 </div>
 
                                                 <h3 class="mt-4 line-clamp-2 text-lg font-black leading-8 text-[var(--color-text)]">
-                                                    {{ $course->title }}
+                                                    <a href="{{ route('courses.show', $course) }}" class="transition-colors hover:text-[var(--color-primary-600)]">
+                                                        {{ $course->title }}
+                                                    </a>
                                                 </h3>
 
                                                 @if($course->description ?? null)
