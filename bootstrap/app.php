@@ -50,6 +50,24 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 404);
         });
 
+        $exceptions->render(function (Throwable $e, Request $request) {
+            $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : null;
+
+            if ($status !== 403) {
+                return null;
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'شما اجازه دسترسی به این بخش را ندارید.',
+                ], 403);
+            }
+
+            return response()->view('errors.403', [
+                'exception' => $e,
+            ], 403);
+        });
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request, Throwable $e): bool => $request->expectsJson()
         );
