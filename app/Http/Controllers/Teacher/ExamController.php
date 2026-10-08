@@ -63,13 +63,14 @@ class ExamController extends Controller
     {
         abort_unless($exam->teacher_id === request()->user()->id, 403);
 
-        return view('teacher.exams.attempts', [
-            'exam' => $exam->load([
-                'questions',
-                'attempts' => fn ($query) => $query
-                    ->with(['student:id,name', 'answers.question'])
-                    ->latest('submitted_at'),
-            ]),
-        ]);
+        $exam->load('questions');
+
+        $attempts = $exam->attempts()
+            ->with(['student:id,name', 'answers.question', 'exam.questions'])
+            ->latest('submitted_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('teacher.exams.attempts', compact('exam', 'attempts'));
     }
 }
