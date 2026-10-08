@@ -6,6 +6,7 @@ use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\ExamAttempt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final class TeacherAssessmentService
@@ -17,7 +18,7 @@ final class TeacherAssessmentService
         ?string $feedback,
         int $teacherId
     ): AssignmentSubmission {
-        if ($assignment->teacher_id !== $teacherId || $submission->assignment_id !== $assignment->id) {
+        if ($assignment->teacher_id !== $teacherId || $submission->assignment_id !== $assignment->id || !$this->teacherCanActOnCourse($teacherId, (int) $assignment->course_id)) {
             throw new AccessDeniedHttpException();
         }
 
@@ -49,7 +50,7 @@ final class TeacherAssessmentService
     {
         $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
 
-        if ((int) $attempt->exam?->teacher_id !== $teacherId) {
+        if ((int) $attempt->exam?->teacher_id !== $teacherId || !$this->teacherCanActOnCourse($teacherId, (int) $attempt->exam?->course_id)) {
             throw new AccessDeniedHttpException();
         }
 
@@ -104,7 +105,7 @@ final class TeacherAssessmentService
     ): ExamAttempt {
         $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
 
-        if ((int) $attempt->exam?->teacher_id !== $teacherId) {
+        if ((int) $attempt->exam?->teacher_id !== $teacherId || !$this->teacherCanActOnCourse($teacherId, (int) $attempt->exam?->course_id)) {
             throw new AccessDeniedHttpException();
         }
 
@@ -150,6 +151,26 @@ final class TeacherAssessmentService
 
             return $attempt->refresh();
         });
+    }
+
+
+    private function teacherCanActOnCourse(int $teacherId, int $courseId): bool
+    {
+        return DB::table('course_teacher as ct')
+            ->join('courses', 'courses.id', '=', 'ct.course_id')
+            ->join('academy_user as au', function ($join) use ($teacherId): void {
+                $join->on('au.academy_id', '=', 'courses.academy_id')
+                    ->where('au.user_id', '=', $teacherId)
+                    ->where('au.role', '=', 'teacher')
+                    ->where('au.status', '=', 'active');
+            })
+            ->join('academies', function ($join): void {
+                $join->on('academies.id', '=', 'courses.academy_id')
+                    ->where('academies.status', '=', 'active');
+            })
+            ->where('ct.teacher_id', $teacherId)
+            ->where('ct.course_id', $courseId)
+            ->exists();
     }
 
     private function matches($expected, $actual, ?string $type): bool
