@@ -3840,3 +3840,30 @@
     .student-ui-quick-grid{grid-template-columns:1fr 1fr}
     .student-ui-quick-grid a{min-height:82px}
 }
+
+/* Dashboard workspace cards — reference-aligned */
+.student-ui-task-board,.student-ui-people-panel{padding:18px;border:0;border-radius:20px;background:#fff;box-shadow:0 9px 28px rgba(35,51,80,.045)}
+.student-ui-board-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.student-ui-board-head>div span,.student-ui-board-head>div>span{display:block;color:#8740cf;font-size:9px;font-weight:900}
+.student-ui-board-head h2{margin-top:3px;color:#26364d;font-size:18px;font-weight:900}
+.student-ui-board-head>a{color:#8240c7;font-size:9px;font-weight:900;text-decoration:none;white-space:nowrap}
+.student-ui-board-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:14px;overflow:hidden}
+.student-ui-board-card{position:relative;min-height:145px;display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:11px;align-items:start;padding:17px;border-radius:20px;color:#fff;text-decoration:none;overflow:hidden;box-shadow:0 12px 28px rgba(85,62,130,.12)}
+.student-ui-board-card:after{content:"";position:absolute;width:150px;height:150px;right:-55px;bottom:-80px;border-radius:50%;background:rgba(255,255,255,.13)}
+.student-ui-board-card.is-purple{background:linear-gradient(135deg,#e65ad1,#8c3cdb)}
+.student-ui-board-card.is-blue{background:linear-gradient(135deg,#5b9df1,#4566d8)}
+.student-ui-board-icon{width:38px;height:38px;display:grid;place-items:center;border:1px dashed rgba(255,255,255,.6);border-radius:11px;font-size:15px}
+.student-ui-board-copy{min-width:0}
+.student-ui-board-copy small{display:block;color:rgba(255,255,255,.76);font-size:8px;font-weight:800}
+.student-ui-board-copy strong{display:block;margin-top:6px;color:#fff;font-size:13px;line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.student-ui-board-copy span{display:block;margin-top:5px;color:rgba(255,255,255,.76);font-size:8px}
+.student-ui-board-card>b{position:relative;z-index:2;align-self:end;font-size:15px}
+.student-ui-people-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:13px}
+.student-ui-person-card{display:flex;align-items:center;gap:10px;padding:11px;border-radius:14px;background:#f9fafc}
+.student-ui-person-card img{width:40px;height:40px;border-radius:11px;object-fit:cover}
+.student-ui-person-card div{min-width:0;flex:1}
+.student-ui-person-card strong{display:block;color:#334057;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.student-ui-person-card span{display:block;margin-top:3px;color:#929bab;font-size:8px}
+.student-ui-person-card>b{width:24px;height:24px;display:grid;place-items:center;border-radius:8px;background:#eaf8f2;color:#2aa879;font-size:10px}
+@media(max-width:800px){.student-ui-board-cards{grid-template-columns:1fr 1fr}.student-ui-people-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.student-ui-board-cards,.student-ui-people-grid{grid-template-columns:1fr}.student-ui-board-card{min-height:125px}}
