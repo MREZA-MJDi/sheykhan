@@ -26,7 +26,7 @@ class PublicContentSeeder extends Seeder
    foreach(['article','video'] as $type) for($i=1;$i<=3;$i++){
     $content=AcademyContent::firstOrCreate(['academy_id'=>$academy->id,'slug'=>$c[0].'-'.$type.'-'.$i],[
      'category_id'=>$cat->id,'type'=>$type,'title'=>$c[1].' - '.($type==='video'?'ویدئو':'مقاله').' '.$i,
-     'excerpt'=>'محتوای رسمی آکادمی شیخان.','body'=>'این رکورد توسط Seeder ایجاد شده و از پنل قابل ویرایش و انتشار است.',
+     'excerpt'=>'راهنمای کاربردی برای دانش‌آموزان و خانواده‌ها در مسیر یادگیری.','body'=>'در این مطلب، یک موضوع آموزشی را از زاویه کاربردی بررسی می‌کنیم؛ هدف این است که دانش‌آموز بداند از کجا شروع کند، چطور تمرین کند و چگونه نتیجه را اندازه‌گیری کند.',
      'video_duration_seconds'=>$type==='video'?240:null,'status'=>'published','is_featured'=>$i===1,'sort_order'=>$i,'published_at'=>now()->subDays($i),'created_by'=>$owner->id
     ]);
     $media=SeedMedia::make('academy-content-'.$c[0].'-'.$type.'-'.$i,$owner->id,$type==='video'?'video/mp4':'image/svg+xml',$type==='video'?'mp4':'svg','academy-content','public');
@@ -39,7 +39,7 @@ class PublicContentSeeder extends Seeder
    [$student,$type,$school]=$row; $media=SeedMedia::make('achievement-'.($i+1),$owner->id,'image/svg+xml','svg','achievements','public');
    Achievement::firstOrCreate(['academy_id'=>$academy->id,'student_id'=>$student->id,'title'=>'افتخارآفرین شماره '.($i+1)],[
     'display_name'=>$student->name,'achievement_type'=>$type,'school_name'=>$school,'grade_id'=>$student->studentProfile?->grade_id,'academic_year_id'=>$year->id,
-    'description'=>'رکورد اولیه برای نمایش افتخارآفرینان.','media_id'=>$media->id,'status'=>'published','is_featured'=>true,'published_at'=>now()->subDays($i),'created_by'=>$owner->id
+    'description'=>'یک دستاورد ثبت‌شده در مسیر آموزشی دانش‌آموز.','media_id'=>$media->id,'status'=>'published','is_featured'=>true,'published_at'=>now()->subDays($i),'created_by'=>$owner->id
    ]);
   }
   foreach([
