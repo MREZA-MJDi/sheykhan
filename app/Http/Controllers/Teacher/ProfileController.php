@@ -18,7 +18,7 @@ class ProfileController extends Controller
             'teacherProfile' => fn ($query) => $query->with([
                 'media' => fn ($media) => $media
                     ->where('visibility', 'public')
-                    ->where('collection', 'teacher-avatar')
+                    ->wherePivot('collection', 'teacher-avatar')
                     ->orderByPivot('sort_order'),
             ]),
         ]);
