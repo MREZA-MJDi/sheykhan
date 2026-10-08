@@ -98,7 +98,7 @@
         </section>
 
         <section class="student-ui-task-board" aria-labelledby="student-task-board-title">
-            <div class="student-ui-board-head"><div><span>کارهای من</span><h2 id="student-task-board-title">الان روی چه چیزی تمرکز کنم؟</h2></div><a href="{{ route('student.assignments.index') }}">همه کارها <span>←</span></a></div>
+            <div class="student-ui-board-head"><div><span>قدم بعدی</span><h2 id="student-task-board-title">الان روی چه چیزی تمرکز کنم؟</h2></div><a href="{{ route('student.assignments.index') }}">همه کارها <span>←</span></a></div>
             <div class="student-ui-board-cards">
                 @forelse($assignments->take(3) as $assignment)
                     <a class="student-ui-board-card is-purple" href="{{ route('student.assignments.show', $assignment->id) }}">
@@ -202,7 +202,7 @@
                 <div class="student-ui-split">
                     <section class="student-ui-panel">
                         <div class="student-ui-panel-head">
-                            <div><span>ریتم مطالعه</span>
+                            <div><span>ریتم یادگیری</span>
                                 <h2>فعالیت این هفته</h2></div>
                             <strong>{{ App\Support\PersianUi::digits($studyMinutes) }} دقیقه</strong>
                         </div>
