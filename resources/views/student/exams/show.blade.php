@@ -44,12 +44,12 @@
             </article>
             <article>
                 <span>زمان</span>
-                <strong>{{ $exam->duration_minutes ? AppSupportPersianUi::digits($exam->duration_minutes) : '∞' }}</strong>
+                <strong>{{ $exam->duration_minutes ? App\Support\PersianUi::digits($exam->duration_minutes) : '∞' }}</strong>
                 <small>{{ $exam->duration_minutes ? 'دقیقه' : 'بدون محدودیت زمانی' }}</small>
             </article>
             <article>
                 <span>تلاش باقی‌مانده</span>
-                <strong>{{ AppSupportPersianUi::digits($activeAttempt ? 1 : $remainingAttempts) }}</strong>
+                <strong>{{ App\Support\PersianUi::digits($activeAttempt ? 1 : $remainingAttempts) }}</strong>
                 <small>{{ $activeAttempt ? 'یک آزمون نیمه‌تمام داری.' : 'فرصت‌های مجاز' }}</small>
             </article>
         </section>
@@ -113,7 +113,7 @@
                         <strong>کمی صبر کن 🌱</strong>
                         <p>
                             @if($exam->starts_at && now()->lt($exam->starts_at))
-                                شروع آزمون: {{ AppSupportPersianUi::date($exam->starts_at) }} · {{ AppSupportPersianUi::time($exam->starts_at) }}
+                                شروع آزمون: {{ App\Support\PersianUi::date($exam->starts_at) }} · {{ App\Support\PersianUi::time($exam->starts_at) }}
                             @else
                                 بازه‌ی این آزمون به پایان رسیده یا هنوز منتشر نشده است.
                             @endif
