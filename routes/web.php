@@ -12,11 +12,6 @@ use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
 use App\Http\Controllers\Owner\EnrollmentController as OwnerEnrollmentController;
 use App\Http\Controllers\Owner\PeopleController as OwnerPeopleController;
 use App\Http\Controllers\Owner\ReportController as OwnerReportController;
-use App\Http\Controllers\Owner\WebsiteController as OwnerWebsiteController;
-use App\Http\Controllers\Owner\ContentController as OwnerContentController;
-use App\Http\Controllers\Owner\BlogController as OwnerBlogController;
-use App\Http\Controllers\Owner\SeoController as OwnerSeoController;
-use App\Http\Controllers\Owner\FinanceController as OwnerFinanceController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
@@ -111,25 +106,6 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
-    Route::get('/website', OwnerWebsiteController::class)->middleware('permission:academy.view')->name('website.index');
-
-    Route::get('/content', [OwnerContentController::class, 'index'])->middleware('permission:content.manage')->name('content.index');
-    Route::get('/content/create', [OwnerContentController::class, 'create'])->middleware('permission:content.manage')->name('content.create');
-    Route::post('/content', [OwnerContentController::class, 'store'])->middleware('permission:content.manage')->name('content.store');
-    Route::get('/content/{content}/edit', [OwnerContentController::class, 'edit'])->middleware('permission:content.manage')->name('content.edit');
-    Route::patch('/content/{content}', [OwnerContentController::class, 'update'])->middleware('permission:content.manage')->name('content.update');
-
-    Route::get('/blog', [OwnerBlogController::class, 'index'])->middleware('permission:blog.manage')->name('blog.index');
-    Route::get('/blog/create', [OwnerBlogController::class, 'create'])->middleware('permission:blog.manage')->name('blog.create');
-    Route::post('/blog', [OwnerBlogController::class, 'store'])->middleware('permission:blog.manage')->name('blog.store');
-    Route::get('/blog/{post}/edit', [OwnerBlogController::class, 'edit'])->middleware('permission:blog.manage')->name('blog.edit');
-    Route::patch('/blog/{post}', [OwnerBlogController::class, 'update'])->middleware('permission:blog.manage')->name('blog.update');
-
-    Route::get('/seo', [OwnerSeoController::class, 'index'])->middleware('permission:seo.manage')->name('seo.index');
-    Route::get('/seo/{type}/{id}/edit', [OwnerSeoController::class, 'edit'])->middleware('permission:seo.manage')->name('seo.edit');
-    Route::patch('/seo/{type}/{id}', [OwnerSeoController::class, 'update'])->middleware('permission:seo.manage')->name('seo.update');
-
-    Route::get('/finance', OwnerFinanceController::class)->middleware('permission:finance.view')->name('finance.index');
 });
 
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
