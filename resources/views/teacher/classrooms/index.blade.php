@@ -21,10 +21,10 @@
     @endif
 
     <section class="teacher-workspace-stats">
-        <div class="teacher-workspace-stat"><small>کلاس‌های فعال</small><strong>{{ AppSupportPersianUi::digits($classrooms->total()) }}</strong><span>تحت مدیریت شما</span></div>
-        <div class="teacher-workspace-stat"><small>در این صفحه</small><strong>{{ AppSupportPersianUi::digits($classrooms->count()) }}</strong><span>کلاس نمایش‌داده‌شده</span></div>
-        <div class="teacher-workspace-stat"><small>دانش‌آموز فعال</small><strong>{{ AppSupportPersianUi::digits($classrooms->getCollection()->sum('active_students_count')) }}</strong><span>در کلاس‌های این صفحه</span></div>
-        <div class="teacher-workspace-stat"><small>زمان‌های هفتگی</small><strong>{{ AppSupportPersianUi::digits($classrooms->getCollection()->sum('schedules_count')) }}</strong><span>برنامه ثبت‌شده</span></div>
+        <div class="teacher-workspace-stat"><small>کلاس‌های فعال</small><strong>{{ App\SupportPersianUi::digits($classrooms->total()) }}</strong><span>تحت مدیریت شما</span></div>
+        <div class="teacher-workspace-stat"><small>در این صفحه</small><strong>{{ App\SupportPersianUi::digits($classrooms->count()) }}</strong><span>کلاس نمایش‌داده‌شده</span></div>
+        <div class="teacher-workspace-stat"><small>دانش‌آموز فعال</small><strong>{{ App\SupportPersianUi::digits($classrooms->getCollection()->sum('active_students_count')) }}</strong><span>در کلاس‌های این صفحه</span></div>
+        <div class="teacher-workspace-stat"><small>زمان‌های هفتگی</small><strong>{{ App\SupportPersianUi::digits($classrooms->getCollection()->sum('schedules_count')) }}</strong><span>برنامه ثبت‌شده</span></div>
     </section>
 
     <section class="teacher-workspace-grid">
@@ -40,9 +40,9 @@
                     </div>
 
                     <div class="teacher-workspace-mini-stats">
-                        <div class="teacher-workspace-mini-stat"><strong>{{ AppSupportPersianUi::digits($classroom->active_students_count) }}</strong><span>دانش‌آموز</span></div>
-                        <div class="teacher-workspace-mini-stat"><strong>{{ $classroom->capacity ? AppSupportPersianUi::digits($classroom->capacity) : '—' }}</strong><span>ظرفیت</span></div>
-                        <div class="teacher-workspace-mini-stat"><strong>{{ AppSupportPersianUi::digits($classroom->schedules_count) }}</strong><span>برنامه</span></div>
+                        <div class="teacher-workspace-mini-stat"><strong>{{ App\SupportPersianUi::digits($classroom->active_students_count) }}</strong><span>دانش‌آموز</span></div>
+                        <div class="teacher-workspace-mini-stat"><strong>{{ $classroom->capacity ? App\SupportPersianUi::digits($classroom->capacity) : '—' }}</strong><span>ظرفیت</span></div>
+                        <div class="teacher-workspace-mini-stat"><strong>{{ App\SupportPersianUi::digits($classroom->schedules_count) }}</strong><span>برنامه</span></div>
                     </div>
 
                     <div class="teacher-workspace-actions-row">
