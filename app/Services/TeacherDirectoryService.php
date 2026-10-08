@@ -21,6 +21,12 @@ class TeacherDirectoryService
         return $this->query()
             ->whereKey($teacher->id)
             ->where('status', 'active')
+            ->with([
+                'taughtCourses' => fn ($query) => $query
+                    ->published()
+                    ->withCount('lessons')
+                    ->latest('courses.published_at'),
+            ])
             ->firstOrFail();
     }
 
