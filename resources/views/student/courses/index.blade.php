@@ -40,7 +40,7 @@
                 <div class="student-workspace-actions" style="margin-top:13px"><a class="student-workspace-btn primary" href="{{ route('student.courses.show', $course) }}">ادامه یادگیری ←</a></div>
             @endforeach
         @endif
-        @if($courses->hasPages())<nav class="student-pagination" aria-label="صفحه‌بندی دوره‌ها">{{ $courses->links() }}</nav>@endif
+        
     </section>
 </div>
 @endsection
