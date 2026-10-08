@@ -99,6 +99,8 @@ final class HomeBannerController extends Controller
                     $banner->cta_label = $data['cta_label'] ?? null;
                     $banner->cta_url = $data['cta_url'] ?? null;
                     $banner->sort_order = $slot;
+                    $banner->crop_x = (int) ($data['crop_x'] ?? 50);
+                    $banner->crop_y = (int) ($data['crop_y'] ?? 50);
                     $banner->is_active = (bool) ($data['is_active'] ?? false);
                 }
 
