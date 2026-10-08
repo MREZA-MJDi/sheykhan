@@ -3702,3 +3702,141 @@
 @media(max-width:1100px){.student-ui-main-grid{grid-template-columns:1fr}.student-ui-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.student-ui-rail-profile{grid-column:1/-1}.student-ui-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:800px){.student-ui-hero{padding:22px}.student-ui-hero-art{width:150px;flex-basis:150px}.student-ui-hero-art img{width:120px;height:120px}.student-ui-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.student-ui-split{grid-template-columns:1fr}}
 @media(max-width:600px){.student-ui-hero{min-height:0;padding:18px;align-items:flex-start}.student-ui-hero-art{display:none}.student-ui-hero h2{font-size:23px}.student-ui-hero p{font-size:11px}.student-ui-hero-meta{gap:11px}.student-ui-hero-meta span{font-size:9px}.student-ui-quick-grid{grid-template-columns:1fr 1fr;gap:7px}.student-ui-quick-grid a{min-height:86px;padding:10px}.student-ui-quick-grid span{font-size:10px}.student-ui-quick-grid small{font-size:8px}.student-ui-kpis{gap:7px}.student-ui-kpis article{padding:12px 43px 11px 11px}.student-ui-kpis strong{font-size:19px}.student-ui-course{grid-template-columns:30px minmax(0,1fr)}.student-ui-course>a{grid-column:2;justify-self:start}.student-ui-resource-grid{grid-template-columns:1fr}.student-ui-rail{grid-template-columns:1fr}.student-ui-rail-profile{grid-column:auto}}
+
+
+/* =========================================================
+   DASHBOARD REFERENCE SYSTEM — LEARNING WORKSPACE
+   Visual direction: airy workspace / strong task hierarchy
+========================================================= */
+.student-dashboard-ui{
+    --sui-bg:#f5f7fb;
+    --sui-card:#ffffff;
+    --sui-ink:#26364d;
+    --sui-muted:#7f8b9d;
+    --sui-line:#edf0f5;
+    --sui-purple:#8a3fd0;
+    --sui-blue:#3679e8;
+    --sui-pink:#e94fc5;
+    --sui-orange:#f49a72;
+    --sui-green:#42cf9b;
+    background:transparent;
+}
+.student-ui-hero{
+    min-height:240px;
+    padding:30px 34px;
+    border:0;
+    border-radius:28px;
+    background:
+        radial-gradient(circle at 90% 20%,rgba(255,255,255,.34),transparent 27%),
+        linear-gradient(112deg,#f8f9ff 0%,#f2f5ff 55%,#eeeaff 100%);
+    box-shadow:none;
+}
+.student-ui-hero:after{width:380px;height:380px;left:-150px;bottom:-245px;background:rgba(138,63,208,.07)}
+.student-ui-eyebrow{
+    padding:6px 11px;
+    background:#fff;
+    color:#8140c9;
+    font-size:10px;
+    box-shadow:0 5px 18px rgba(70,55,120,.06);
+}
+.student-ui-hero h2{font-size:clamp(27px,3vw,38px);letter-spacing:-.025em}
+.student-ui-hero p{font-size:12px;max-width:680px;color:#8791a2}
+.student-ui-primary{
+    min-height:44px;
+    padding:0 17px;
+    border-radius:13px;
+    background:linear-gradient(135deg,#9438d8,#7135d0);
+    box-shadow:0 12px 24px rgba(125,55,208,.17);
+}
+.student-ui-secondary{min-height:44px;border-radius:13px;background:rgba(255,255,255,.8)}
+.student-ui-hero-meta{gap:22px}
+.student-ui-hero-meta b{color:#7b3dc5}
+
+.student-ui-kpis{gap:11px}
+.student-ui-kpis article{
+    min-height:108px;
+    padding:17px 58px 15px 17px;
+    border:0;
+    border-radius:17px;
+    box-shadow:0 8px 25px rgba(35,51,80,.045);
+}
+.student-ui-kpis span{font-size:9px}
+.student-ui-kpis strong{font-size:25px}
+.student-ui-kpis small{font-size:9px}
+
+.student-ui-quick{
+    padding:18px;
+    border:0;
+    border-radius:19px;
+    box-shadow:0 8px 25px rgba(35,51,80,.04);
+}
+.student-ui-section-title h2,.student-ui-panel-head h2{font-size:18px}
+.student-ui-quick-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.student-ui-quick-grid a{
+    min-height:88px;
+    grid-template-columns:32px minmax(0,1fr);
+    padding:11px;
+    border:1px solid #edf0f5;
+    border-radius:14px;
+    background:#fff;
+}
+.student-ui-quick-grid i{width:32px;height:32px}
+.student-ui-quick-grid span{font-size:10px}
+.student-ui-quick-grid small{font-size:8px}
+
+.student-ui-main-grid{grid-template-columns:minmax(0,1fr) 300px;gap:15px}
+.student-ui-panel,.student-ui-calendar,.student-ui-rail-panel,.student-ui-rail-profile{
+    border:0;
+    border-radius:20px;
+    box-shadow:0 9px 28px rgba(35,51,80,.045);
+}
+.student-ui-panel{padding:18px}
+.student-ui-course{
+    min-height:78px;
+    padding:12px;
+    border:0;
+    background:#f9fafc;
+}
+.student-ui-course-copy h3{font-size:12px}
+.student-ui-course-copy p{font-size:9px}
+.student-ui-course>a{background:#fff;border:1px solid #edf0f4}
+
+.student-ui-split{gap:15px}
+.student-ui-chart{height:175px}
+.student-ui-chart>div>span{height:105px;width:24px;background:#f2eff8}
+.student-ui-chart i{background:linear-gradient(180deg,#9c50dc,#7537cf)}
+.student-ui-task-list>a,.student-ui-results article,.student-ui-resource-grid>a{
+    min-height:55px;
+    padding:10px 11px;
+    border:0;
+    background:#f9fafc;
+}
+.student-ui-task-list strong,.student-ui-results b,.student-ui-resource-grid b{font-size:10px}
+.student-ui-task-list small,.student-ui-results span,.student-ui-resource-grid span{font-size:8px}
+
+.student-ui-calendar,.student-ui-rail-panel{padding:16px}
+.student-ui-calendar-days span.today{background:#873fd0}
+.student-ui-schedule{border-right:3px solid #8b42d1;background:#faf7ff}
+.student-ui-schedule time{color:#7d3bc8}
+.student-ui-reminder{border:0;background:#f9fafc}
+.student-ui-rail-profile{padding:13px}
+
+@media(max-width:1100px){
+    .student-ui-main-grid{grid-template-columns:1fr}
+    .student-ui-rail{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .student-ui-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:800px){
+    .student-ui-hero{padding:23px}
+    .student-ui-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .student-ui-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+    .student-ui-hero{padding:19px;border-radius:22px}
+    .student-ui-hero h2{font-size:24px}
+    .student-ui-hero p{font-size:11px}
+    .student-ui-kpis article{min-height:96px}
+    .student-ui-kpis strong{font-size:21px}
+    .student-ui-quick-grid{grid-template-columns:1fr 1fr}
+    .student-ui-quick-grid a{min-height:82px}
+}
