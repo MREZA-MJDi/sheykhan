@@ -7,7 +7,6 @@ use App\Models\BlogPost;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Services\MediaService;
 
 final class OwnerBlogService
 {
