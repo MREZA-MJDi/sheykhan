@@ -22,14 +22,14 @@
         @for($i = max(1, $page - 2); $i <= min($last, $page + 2); $i++)
             @if($i === $page)
                 <span class="inline-flex min-h-10 min-w-10 items-center justify-center rounded-xl bg-[var(--color-primary-600)] px-3 text-xs font-black text-white" aria-current="page">
-                    {{ AppSupportPersianUi::digits($i) }}
+                    {{ App\Support\PersianUi::digits($i) }}
                 </span>
             @else
                 <a
                     href="{{ $paginator->url($i) }}"
                     class="inline-flex min-h-10 min-w-10 items-center justify-center rounded-xl border border-[var(--color-border)] bg-white px-3 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]"
                 >
-                    {{ AppSupportPersianUi::digits($i) }}
+                    {{ App\Support\PersianUi::digits($i) }}
                 </a>
             @endif
         @endfor
