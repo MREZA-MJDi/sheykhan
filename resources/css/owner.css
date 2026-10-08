@@ -211,3 +211,52 @@ select.course-input{padding-inline-end:36px}
   .banner-submitbar{align-items:stretch;flex-direction:column}
   .banner-submitbar .course-primary-btn{width:100%}
 }
+
+
+/* Academy owner website center */
+.website-center{max-width:1500px;margin:0 auto}
+.website-center-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:22px 24px;border:1px solid var(--panel-border);border-radius:24px;background:linear-gradient(135deg,#fff 0%,#f8f9ff 100%);box-shadow:var(--panel-shadow-soft)}
+.website-kicker{display:block;color:var(--panel-primary);font-size:9px;font-weight:900}
+.website-center-hero h1{max-width:760px;margin-top:7px;color:var(--panel-text);font-size:25px;line-height:1.6;font-weight:900;letter-spacing:-.03em}
+.website-center-hero p{max-width:780px;margin-top:7px;color:var(--panel-muted);font-size:10px;line-height:2}
+.website-open-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 16px;border:1px solid #d9def0;border-radius:13px;background:#fff;color:var(--panel-primary);font-size:10px;font-weight:900;white-space:nowrap}
+.website-open-btn:hover{background:var(--panel-primary-soft);border-color:#c9d0f7}
+.website-academy-card{padding:18px;border:1px solid var(--panel-border);border-radius:22px;background:#fff;box-shadow:var(--panel-shadow-soft)}
+.website-academy-head{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.website-academy-head>div:first-child>span{display:block;color:var(--panel-primary);font-size:8px;font-weight:900}
+.website-academy-head h2{margin-top:4px;font-size:16px;font-weight:900}
+.website-academy-head p{margin-top:3px;color:var(--panel-muted);font-size:8px}
+.website-academy-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.website-academy-stats span{padding:7px 9px;border:1px solid #e3e6ed;border-radius:999px;background:#fafbfc;color:#748096;font-size:8px;font-weight:800}
+.website-academy-stats b{color:var(--panel-text);font-size:9px}
+.website-banner-rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.website-banner-mini{overflow:hidden;border:1px solid #e4e7ee;border-radius:16px;background:#fbfcfd}
+.website-banner-mini-media{position:relative;height:150px;overflow:hidden;background:#eef1f5}
+.website-banner-mini-media img{width:100%;height:100%;object-fit:cover}
+.website-banner-badge{position:absolute;top:9px;right:9px;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);color:#667085;font-size:7px;font-weight:900}
+.website-banner-mini:first-child .website-banner-badge{color:#067647}
+.website-banner-empty{height:100%;display:grid;place-items:center;color:#97a0af;font-size:9px;font-weight:900}
+.website-banner-mini-body{display:grid;gap:3px;padding:10px 11px}
+.website-banner-mini-body strong{overflow:hidden;color:#303849;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.website-banner-mini-body span{overflow:hidden;color:#8a93a4;font-size:7px;text-overflow:ellipsis;white-space:nowrap}
+.website-academy-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.website-academy-actions .course-primary-btn,.website-academy-actions .course-secondary-btn{min-height:40px}
+@media(max-width:900px){.website-center-hero{align-items:stretch;flex-direction:column}.website-open-btn{width:100%}.website-banner-rail{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.website-center-hero{padding:17px}.website-center-hero h1{font-size:20px}.website-academy-head{align-items:flex-start;flex-direction:column}.website-academy-stats{justify-content:flex-start}.website-banner-rail{grid-template-columns:1fr}.website-academy-actions{align-items:stretch;flex-direction:column}.website-academy-actions>*{width:100%}}
+
+/* Non-destructive banner crop editor */
+.banner-editor-preview-wrap{display:grid;gap:10px}
+.banner-crop-tools{padding:11px 12px;border:1px solid #e0e4ed;border-radius:15px;background:#fafbfc}
+.banner-crop-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.banner-crop-head strong{display:block;color:#303849;font-size:9px;font-weight:900}
+.banner-crop-head span{display:block;margin-top:3px;color:#8992a3;font-size:7px;line-height:1.7}
+.banner-reset-btn{min-height:30px;padding:0 9px;border:1px solid #dce2ed;border-radius:9px;background:#fff;color:#697386;font-size:7px;font-weight:900;cursor:pointer}
+.banner-reset-btn:hover{border-color:#cdd5e3;background:#f7f8fb}
+.banner-range{display:grid;gap:5px;margin-top:9px}
+.banner-range>span{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#7a8495;font-size:7px}
+.banner-range b{color:#475267;font-weight:900}
+.banner-range output{color:var(--panel-primary);font-weight:900}
+.banner-range input{width:100%;accent-color:var(--panel-primary);cursor:pointer}
+.banner-file-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;border:1px solid #e1e5ed;border-radius:10px;background:#fafbfc;color:#7a8495;font-size:7px}
+.banner-file-meta strong{overflow:hidden;color:#465066;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){.banner-crop-head{flex-direction:column}.banner-reset-btn{width:100%}}
