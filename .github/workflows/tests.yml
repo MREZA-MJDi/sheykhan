@@ -1,5 +1,9 @@
 name: Tests - Owner Foundation
 
+concurrency:
+  group: sheykhan-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main, "feat/**", "fix/**"]
@@ -39,6 +43,8 @@ jobs:
           cp .env.example .env
           touch database/database.sqlite
           php artisan key:generate
+          php artisan config:cache
+          php artisan view:cache
 
       - name: Run tests
         env:
