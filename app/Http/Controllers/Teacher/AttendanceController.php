@@ -22,7 +22,14 @@ class AttendanceController extends Controller
     public function edit(Classroom $classroom, TeacherWorkspaceService $workspace): View
     {
         $classroom = $workspace->classroomWithStudents(request()->user(), $classroom->id);
-        $attendanceDate = request()->date('attendance_date')?->toDateString() ?? today()->toDateString();
+        $attendanceDate = today()->toDateString();
+        if ($rawAttendanceDate = request()->input('attendance_date')) {
+            try {
+                $attendanceDate = Carbon::parse($rawAttendanceDate)->toDateString();
+            } catch (\Throwable) {
+                $attendanceDate = today()->toDateString();
+            }
+        }
         $existingAttendance = $classroom->attendance()
             ->whereDate('attendance_date', $attendanceDate)
             ->pluck('status', 'student_id');
