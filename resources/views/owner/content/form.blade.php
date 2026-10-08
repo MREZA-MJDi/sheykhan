@@ -12,7 +12,7 @@
         <a href="{{ route('owner.content.index') }}">بازگشت</a>
     </div>
 
-    <form method="POST" action="{{ $content->exists ? route('owner.content.update', $content) : route('owner.content.store') }}" class="owner-form-grid">
+    <form enctype="multipart/form-data" method="POST" action="{{ $content->exists ? route('owner.content.update', $content) : route('owner.content.store') }}" class="owner-form-grid">
         @csrf
         @if($content->exists) @method('PATCH') @endif
         <section class="owner-form-section">
@@ -24,6 +24,21 @@
             <label><span>شناسه URL</span><input name="slug" value="{{ old('slug',$content->slug) }}" maxlength="255"></label>
             <label><span>خلاصه</span><textarea name="excerpt" rows="3" maxlength="500">{{ old('excerpt',$content->excerpt) }}</textarea></label>
             <label><span>متن محتوا</span><textarea name="body" rows="14">{{ old('body',$content->body) }}</textarea></label>
+            <div class="owner-cover-editor" data-owner-cover-editor>
+                <div class="owner-cover-preview">
+                    @php($cover = $content->media->first(fn($media) => $media->pivot?->collection === 'cover')?->url())
+                    @if($cover)
+                        <img src="{{ $cover }}" alt="{{ $content->title }}" data-owner-cover-preview>
+                    @else
+                        <div data-owner-cover-empty>تصویر شاخص انتخاب نشده است.</div>
+                    @endif
+                </div>
+                <label>
+                    <span>تصویر شاخص</span>
+                    <input type="file" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input>
+                    <small>حداکثر ۱۰ مگابایت — تصویر اصلی دست‌نخورده ذخیره می‌شود.</small>
+                </label>
+            </div>
         </section>
         <aside class="owner-form-side">
             <section class="owner-form-section">
