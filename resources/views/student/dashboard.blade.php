@@ -21,7 +21,7 @@
         $totalLessons = (int) ($totalLessonsCount ?? 0);
         $studyMinutes = (int) ($studyMinutesLast7Days ?? 0);
         $studyStreak = (int) ($studyStreak ?? 0);
-        $jalaliCalendar = App\\Support\\PersianUi::calendar(now());
+        $jalaliCalendar = App\Support\PersianUi::calendar(now());
         $daysInMonth = $jalaliCalendar['days_in_month'];
         $firstWeekday = $jalaliCalendar['first_weekday'];
         $maxStudy = max(1, collect($studyWeek ?? [])->max('minutes'));
