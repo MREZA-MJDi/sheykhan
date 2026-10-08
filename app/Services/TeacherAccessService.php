@@ -51,15 +51,25 @@ final class TeacherAccessService
 
     public function canManageClassroom(User $teacher, Classroom $classroom): bool
     {
-        return $teacher->hasRole('teacher')
-            && $classroom->teachers()
-                ->whereKey($teacher->id)
-                ->whereHas('academies', fn ($query) => $query
-                    ->where('academies.id', $classroom->academy_id)
-                    ->where('academy_user.status', 'active')
-                    ->where('academy_user.role', 'teacher'))
-                ->whereHas('ownedAcademyForAccess')
-                ->exists();
+        if (!$teacher->hasRole('teacher')) {
+            return false;
+        }
+
+        return DB::table('classroom_teacher as ct')
+            ->join('classrooms', 'classrooms.id', '=', 'ct.classroom_id')
+            ->join('academies', function ($join): void {
+                $join->on('academies.id', '=', 'classrooms.academy_id')
+                    ->where('academies.status', '=', 'active');
+            })
+            ->join('academy_user as au', function ($join) use ($teacher): void {
+                $join->on('au.academy_id', '=', 'classrooms.academy_id')
+                    ->where('au.user_id', '=', $teacher->id)
+                    ->where('au.role', '=', 'teacher')
+                    ->where('au.status', '=', 'active');
+            })
+            ->where('ct.classroom_id', $classroom->id)
+            ->where('ct.teacher_id', $teacher->id)
+            ->exists();
     }
 
     public function canManageLiveClass(User $teacher, LiveClass $liveClass): bool
