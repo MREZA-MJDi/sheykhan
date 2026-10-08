@@ -4,6 +4,8 @@ namespace App\Http\Controllers\PublicSite;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Models\AcademyContent;
+use App\Models\Academy;
 use App\Models\Course;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\URL;
@@ -39,6 +41,18 @@ final class SeoController extends Controller
                 'loc' => route('courses.show', $course),
                 'lastmod' => $course->updated_at,
             ]));
+
+        AcademyContent::query()
+            ->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->get(['id', 'academy_id', 'slug', 'updated_at'])
+            ->each(function (AcademyContent $content) use (&$urls): void {
+                $academy = Academy::query()->select('id','slug')->find($content->academy_id);
+                if (!$academy) return;
+                $urls->push(['loc' => route('academy.content.show', [$academy, $content]), 'lastmod' => $content->updated_at]);
+            });
 
         BlogPost::query()
             ->where('status', 'published')
