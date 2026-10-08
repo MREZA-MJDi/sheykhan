@@ -16,6 +16,17 @@ class TeacherDirectoryService
             ->withQueryString();
     }
 
+    public function clearPublicCache(): void
+    {
+        foreach ([4, 6] as $limit) {
+            Cache::forget("public:home:teachers:{$limit}:v2");
+        }
+
+        Cache::forget('public:home:data:v3');
+        Cache::forget('public:platform:stats:v1');
+        Cache::forget('public:seo:sitemap:v1');
+    }
+
     public function findPublic(User $teacher): User
     {
         $teacherId = $teacher->getKey();
