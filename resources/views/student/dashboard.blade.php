@@ -10,23 +10,30 @@
         $todayClasses = collect($upcomingLiveClasses ?? [])->filter(
             fn ($class) => $class->scheduled_at && $class->scheduled_at->isSameDay($today)
         )->values();
-        $nextAssignment = collect($assignments ?? [])->first(fn ($item) => empty($item->submitted_at));
+
+        $nextAssignment = collect($assignments ?? [])->first(
+            fn ($item) => empty($item->submitted_at)
+        );
+
         $latestResult = collect($recentResults ?? [])->first();
         $topCourse = collect($courses ?? [])->sortByDesc('learning_progress')->first();
+
         $activeCourses = $courses->count();
         $sessionCount = $sessions->count();
         $resourceCount = $resources->count();
+
         $pending = (int) ($pendingAssignments ?? 0);
         $completedLessons = (int) ($completedLessonsCount ?? 0);
         $totalLessons = (int) ($totalLessonsCount ?? 0);
         $studyMinutes = (int) ($studyMinutesLast7Days ?? 0);
         $studyStreak = (int) ($studyStreak ?? 0);
-        $jalaliCalendar = App\\Support\\PersianUi::calendar(now());
+
+        $jalaliCalendar = App\Support\PersianUi::calendar(now());
+
         $daysInMonth = $jalaliCalendar['days_in_month'];
         $firstWeekday = $jalaliCalendar['first_weekday'];
         $maxStudy = max(1, collect($studyWeek ?? [])->max('minutes'));
     @endphp
-
     <div class="student-dashboard-ui">
         <section class="student-ui-hero">
             <div class="student-ui-hero-copy">
