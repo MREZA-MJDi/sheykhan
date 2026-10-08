@@ -13,7 +13,7 @@
         $nextAssignment = collect($assignments ?? [])->first(fn ($item) => empty($item->submitted_at));
         $latestResult = collect($recentResults ?? [])->first();
         $topCourse = collect($courses ?? [])->sortByDesc('learning_progress')->first();
-        $activeCourses = $courses->count();
+        $activeCourses = (int) ($activeCourseCount ?? $courses->count());
         $sessionCount = $sessions->count();
         $resourceCount = $resources->count();
         $pending = (int) ($pendingAssignments ?? 0);
@@ -113,6 +113,8 @@
                         ['route'=>'student.results.index','label'=>'نمرات و عملکرد','description'=>'نتایج، نمره‌ها و بازخوردها','icon'=>'↗','permission'=>'results.view'],
                         ['route'=>'student.resources.index','label'=>'جزوه‌ها و منابع','description'=>'فایل‌ها و محتوای اختصاصی تو','icon'=>'▤','permission'=>'resources.view'],
                         ['route'=>'student.notes.index','label'=>'یادداشت‌ها','description'=>'یادداشت‌های شخصی مسیر یادگیری','icon'=>'✎','permission'=>'notes.view'],
+                        ['route'=>'student.attendance.index','label'=>'حضور و غیاب','description'=>'سوابق حضور در کلاس‌های تو','icon'=>'◷','permission'=>'attendance.view'],
+                        ['route'=>'student.achievements.index','label'=>'دستاوردها','description'=>'مدال‌ها و موفقیت‌های آموزشی','icon'=>'★','permission'=>'achievements.view'],
                         ['route'=>'student.profile.edit','label'=>'حساب کاربری','description'=>'اطلاعات حساب و تنظیمات شخصی','icon'=>'○','permission'=>'profile.view'],
                     ];
                 @endphp
