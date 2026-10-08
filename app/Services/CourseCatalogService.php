@@ -51,7 +51,12 @@ class CourseCatalogService
                         ->orderByPivot('sort_order'),
                 ])
                 ->withCount([
-                    'lessons as lessons_count' => fn ($query) => $query->where('status', 'published'),
+                    'lessons as lessons_count' => fn ($query) => $query
+                        ->where('status', 'published')
+                        ->where(fn ($query) => $query
+                            ->whereNull('published_at')
+                            ->orWhere('published_at', '<=', now())
+                        ),
                 ])
                 ->latest('published_at')
                 ->limit($limit)
@@ -119,6 +124,7 @@ class CourseCatalogService
 
     public function clearPublicCache(): void
     {
+        Cache::forget('public:home:data:v3');
         Cache::forget('public:home:courses:3');
         Cache::forget('public:home:courses:6');
         Cache::forget('public:seo:sitemap:v1');
