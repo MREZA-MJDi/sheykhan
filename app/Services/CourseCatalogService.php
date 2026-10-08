@@ -18,12 +18,13 @@ class CourseCatalogService
             ->with([
                 'academy:id,name',
                 'teachers:id,name',
-                'sections.lessons' => fn ($query) => $query
-                    ->select('id', 'course_section_id', 'title', 'is_free', 'sort_order')
-                    ->orderBy('sort_order'),
+                'grades:id,title',
                 'media' => fn ($query) => $query
                     ->where('visibility', 'public')
                     ->orderByPivot('sort_order'),
+            ])
+            ->withCount([
+                'lessons as lessons_count' => fn ($query) => $query->where('status', 'published'),
             ])
             ->latest('published_at');
 
@@ -118,7 +119,7 @@ class CourseCatalogService
     public function clearPublicCache(): void
     {
         Cache::forget('public:home:courses:3');
-        Cache::store('file')->forget('public:home:courses:6');
+        Cache::forget('public:home:courses:6');
         Cache::forget('public:seo:sitemap:v1');
     }
 
