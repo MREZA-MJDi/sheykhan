@@ -298,3 +298,72 @@ select.course-input{padding-inline-end:36px}
 .owner-cover-editor small{display:block;margin-top:5px;color:#98a2b3;font-size:8px;line-height:1.7}
 .owner-cover-editor input[type=file]{width:100%;margin-top:8px;padding:10px;border:1px dashed #d6dce5;border-radius:12px;background:#fff;color:#667085;font-size:9px}
 @media(max-width:760px){.owner-cover-editor{grid-template-columns:1fr}.owner-cover-preview{max-width:100%}}
+
+
+/* =========================================================
+   OWNER FOCUS / OPERATIONS CONTROL
+========================================================= */
+.owner-focus-card{
+    position:relative;
+    display:grid;
+    grid-template-columns:16px minmax(0,1fr) auto;
+    align-items:center;
+    gap:14px;
+    padding:16px 18px;
+    border:1px solid #dfe3ed;
+    border-radius:20px;
+    background:linear-gradient(135deg,#fff,#fafbfe);
+    box-shadow:0 10px 28px rgba(24,34,60,.045);
+}
+.owner-focus-status{
+    align-self:stretch;
+    display:grid;
+    place-items:center;
+}
+.owner-focus-status span{
+    width:10px;height:10px;border-radius:50%;
+    background:#18a26b;
+    box-shadow:0 0 0 6px rgba(24,162,107,.09);
+}
+.owner-focus-status span.has-alert{
+    background:#e0a33a;
+    box-shadow:0 0 0 6px rgba(224,163,58,.10);
+    animation:owner-alert-pulse 1.9s ease-in-out infinite;
+}
+.owner-focus-kicker{
+    display:block;color:#5362df;font-size:8px;font-weight:900;
+}
+.owner-focus-copy h2{
+    margin-top:3px;color:#1a2233;
+    font-size:14px;font-weight:900;line-height:1.7;
+}
+.owner-focus-copy p{
+    max-width:780px;
+    margin-top:3px;color:#7c8699;
+    font-size:8px;line-height:1.95;
+}
+.owner-focus-actions a{
+    min-height:40px;
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:0 13px;border-radius:12px;
+    background:#5362df;color:#fff;text-decoration:none;
+    font-size:8px;font-weight:900;
+    box-shadow:0 9px 20px rgba(83,98,223,.13);
+    transition:transform .2s ease,box-shadow .2s ease;
+}
+.owner-focus-actions a:hover{
+    transform:translateY(-2px);
+    box-shadow:0 13px 26px rgba(83,98,223,.19);
+}
+@keyframes owner-alert-pulse{
+    0%,100%{box-shadow:0 0 0 6px rgba(224,163,58,.10)}
+    50%{box-shadow:0 0 0 9px rgba(224,163,58,.04)}
+}
+@media(max-width:700px){
+    .owner-focus-card{grid-template-columns:12px minmax(0,1fr);padding:14px}
+    .owner-focus-actions{grid-column:2}
+    .owner-focus-actions a{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+    .owner-focus-status span.has-alert{animation:none}
+}
