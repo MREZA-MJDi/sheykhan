@@ -115,7 +115,7 @@ class RolePermissionSeeder extends Seeder
                 'dashboard.view','academy.view',
                 'courses.view','courses.manage',
                 'lessons.view','lessons.manage',
-                'classrooms.view',
+                'classrooms.view','classrooms.manage',
                 'students.view',
                 'assignments.view','assignments.manage',
                 'exams.view','exams.manage',
