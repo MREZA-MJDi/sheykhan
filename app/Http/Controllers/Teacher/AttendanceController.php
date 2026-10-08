@@ -12,6 +12,13 @@ use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
+    public function index(TeacherWorkspaceService $workspace): View
+    {
+        return view('teacher.attendance.index', [
+            'classrooms' => $workspace->classroomsPaginated(request()->user()),
+        ]);
+    }
+
     public function edit(Classroom $classroom, TeacherWorkspaceService $workspace): View
     {
         $classroom = $workspace->classroomWithStudents(request()->user(), $classroom->id);
