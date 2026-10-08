@@ -29,6 +29,7 @@ final class StudentDashboardService
             ->with([
                 'course:id,academy_id,title,slug,level,access_type,price',
                 'course.academy:id,name',
+                'course.teachers:id,name',
             ])
             ->latest('started_at')
             ->limit(6)
@@ -274,6 +275,7 @@ final class StudentDashboardService
             'student' => $student,
             'profile' => $student->studentProfile,
             'courses' => $courses,
+            'teachers' => $courses->flatMap(fn ($course) => $course->teachers ?? [])->unique('id')->values()->take(3),
             'overallProgress' => round($overallProgress),
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
