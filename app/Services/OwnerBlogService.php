@@ -89,7 +89,7 @@ final class OwnerBlogService
         $base = Str::slug(Str::transliterate($requested ?: $title));
         if ($base === '') $base = 'article-' . Str::lower(Str::random(8));
         $slug = $base; $suffix = 2;
-        while (BlogPost::query()->when($ignoreId !== null, fn ($q) => $q->whereKeyNot($ignoreId))->where('slug',$slug)->exists()) {
+        while (BlogPost::query()->when($ignoreId !== null, fn ($q) => $q->where('blog_posts.id','!=',$ignoreId))->where('slug',$slug)->exists()) {
             $slug = $base . '-' . $suffix++;
         }
         return $slug;
