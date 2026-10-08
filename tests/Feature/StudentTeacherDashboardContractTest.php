@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Support\PersianUi;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -50,6 +52,17 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('روند پیشرفت دانش‌آموزان')
             ->assertDontSee('فروش دوره‌ها');
     }
+    public function test_persian_calendar_conversion_is_jalali(): void
+    {
+        $calendar = PersianUi::calendar(Carbon::create(2026, 10, 8));
+
+        $this->assertSame(1405, $calendar['year']);
+        $this->assertSame(7, $calendar['month']);
+        $this->assertSame(16, $calendar['day']);
+        $this->assertSame('مهر', $calendar['month_name']);
+        $this->assertSame(31, $calendar['days_in_month']);
+    }
+
     public function test_student_calendar_is_rendered_as_jalali_and_teacher_dashboard_uses_persian_date(): void
     {
         $this->seed();
