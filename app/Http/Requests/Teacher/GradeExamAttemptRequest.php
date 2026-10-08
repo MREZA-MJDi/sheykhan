@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Teacher;
 
 use App\Models\ExamAttempt;
+use App\Services\TeacherAccessService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GradeExamAttemptRequest extends FormRequest
@@ -17,7 +18,7 @@ class GradeExamAttemptRequest extends FormRequest
 
         $attempt->loadMissing('exam:id,teacher_id');
 
-        return (int) $attempt->exam?->teacher_id === (int) $this->user()->id;
+        return app(TeacherAccessService::class)->canManageExam($this->user(), $attempt->exam);
     }
 
     public function rules(): array
