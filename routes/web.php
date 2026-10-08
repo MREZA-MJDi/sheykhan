@@ -80,7 +80,7 @@ Route::middleware(['auth','active'])->group(function () {
         ->name('media.download');
 });
 
-Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
+Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
