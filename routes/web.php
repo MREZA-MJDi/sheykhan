@@ -17,6 +17,7 @@ use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
+use App\Http\Controllers\PublicSite\ProductController;
 use App\Http\Controllers\PublicSite\SeoController as PublicSeoController;
 use App\Http\Controllers\PublicSite\AcademyContentController;
 use App\Http\Controllers\Student\AchievementController as StudentAchievementController;
@@ -56,6 +57,7 @@ Route::get('/courses/{course}/lessons/{lesson}/preview', [CourseController::clas
 Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
 Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])->name('teachers.show');
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
+Route::get('/store/{product:slug}', [ProductController::class, 'show'])->name('store.product.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/robots.txt', [PublicSeoController::class, 'robots'])->name('seo.robots');
 Route::get('/sitemap.xml', [PublicSeoController::class, 'sitemap'])->name('seo.sitemap');
