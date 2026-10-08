@@ -34,7 +34,7 @@ class ScheduleController extends Controller
         $data['meeting_url'] = 'https://meet.jit.si/Sheykhan-'
             . Str::slug((string) ($classroom->code ?: $classroom->id))
             . '-'
-            . Str::lower(Str::random(12));
+            . Str::lower(Str::random(20));
         $data['provider'] = 'Jitsi';
 
         $workspace->storeSchedule(
