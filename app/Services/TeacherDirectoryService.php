@@ -38,7 +38,14 @@ class TeacherDirectoryService
                 'taughtCourses' => fn ($query) => $query
                     ->published()
                     ->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))
-                    ->withCount('lessons')
+                    ->withCount([
+                        'lessons as lessons_count' => fn ($query) => $query
+                            ->where('status', 'published')
+                            ->where(fn ($query) => $query
+                                ->whereNull('published_at')
+                                ->orWhere('published_at', '<=', now())
+                            ),
+                    ])
                     ->with([
                         'media' => fn ($query) => $query
                             ->where('visibility', 'public')
