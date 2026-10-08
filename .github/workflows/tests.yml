@@ -1,7 +1,7 @@
 name: Tests - Owner Foundation
 
 concurrency:
-  group: sheykhan-ci-${{ github.ref }}
+  group: sheykhan-ci-${{ github.event.pull_request.head.ref || github.ref }}
   cancel-in-progress: true
 
 on:
@@ -11,10 +11,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -27,7 +29,7 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
