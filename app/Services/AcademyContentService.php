@@ -65,6 +65,12 @@ class AcademyContentService
         });
     }
 
+    public function clearPublicCache(): void
+    {
+        Cache::forget('public:home:data:v3');
+        Cache::forget('public:home:academy-content:v2:3');
+    }
+
     private function formatDuration(int $seconds): string
     {
         $minutes = intdiv($seconds, 60);
