@@ -178,6 +178,31 @@ final class CourseManagementService
         ];
     }
 
+    public function coursesForPaginated(User $user, int $perPage = 12)
+    {
+        $query = $user->hasRole('academy-owner')
+            ? Course::query()
+                ->whereHas('academy', fn ($query) => $query->where('owner_id', $user->id))
+            : $user->taughtCourses()
+                ->whereHas('academy', fn ($query) => $query
+                    ->where('status', 'active')
+                    ->whereHas('users', fn ($membership) => $membership
+                        ->where('users.id', $user->id)
+                        ->where('academy_user.role', 'teacher')
+                        ->where('academy_user.status', 'active')));
+
+        return $query
+            ->withCount([
+                'sections',
+                'classrooms',
+                'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
+            ])
+            ->with('academy:id,name')
+            ->latest('courses.updated_at')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
     public function coursesFor(User $user)
     {
         if ($user->hasRole('academy-owner')) {
