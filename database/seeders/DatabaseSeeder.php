@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             FinanceSeeder::class,
             LegalSeeder::class,
             PublicContentSeeder::class,
+            HomeContentSeeder::class,
             BlogSeeder::class,
             SystemSeeder::class,
             OnboardingSeeder::class,
