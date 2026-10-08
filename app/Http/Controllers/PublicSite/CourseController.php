@@ -47,6 +47,7 @@ class CourseController extends Controller
             'course' => $course,
             'canAccessContent' => $canAccessContent,
             'requiresPayment' => $course->requiresPayment(),
+            'seoMeta' => $course->seoMeta,
         ]);
     }
 
