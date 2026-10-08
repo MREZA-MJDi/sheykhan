@@ -37,7 +37,7 @@ class ScheduleController extends Controller
 
     public function destroy(\App\Models\ClassSchedule $schedule, TeacherWorkspaceService $workspace): RedirectResponse
     {
-        $workspace->deleteSchedule($request->user(), $schedule->id);
+        $workspace->deleteSchedule(request()->user(), $schedule->id);
 
         return back()->with('success', 'زمان هفتگی حذف شد.');
     }
