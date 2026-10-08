@@ -8,7 +8,7 @@
         @csrf
         <section class="teacher-form-section">
             <h2>تاریخ حضور و غیاب</h2>
-            <div class="mt-5 max-w-md"><x-teacher.jalali-datetime name="attendance_date" :value="old('attendance_date',today()->toDateString())" label="تاریخ" :dateOnly="true" help="تاریخ به شمسی نمایش داده می‌شود و به شکل استاندارد در سیستم ذخیره می‌شود." /></div>
+            <div class="mt-5 max-w-md"><x-teacher.jalali-datetime name="attendance_date" :value="old('attendance_date',$attendanceDate)" label="تاریخ" :dateOnly="true" help="تاریخ به شمسی نمایش داده می‌شود و به شکل استاندارد در سیستم ذخیره می‌شود." /></div>
         </section>
         <section class="teacher-form-section">
             <div class="flex items-center justify-between gap-3"><div><h2>وضعیت دانش‌آموزان</h2><p>فقط دانش‌آموزان فعال این کلاس در این فهرست قرار می‌گیرند.</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-[9px] font-black">{{ \App\Support\PersianUi::digits($classroom->students->count()) }} نفر</span></div>
@@ -17,7 +17,11 @@
                     <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
                         <span class="text-sm font-bold">{{ $student->name }}</span>
                         <select name="attendance[{{ $student->id }}]" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs">
-                            <option value="present">حاضر</option><option value="late">تأخیر</option><option value="absent">غایب</option><option value="excused">موجه</option>
+                            @php($currentStatus = old("attendance.{$student->id}", $existingAttendance[$student->id] ?? 'present'))
+                            <option value="present" @selected($currentStatus === 'present')>حاضر</option>
+                            <option value="late" @selected($currentStatus === 'late')>تأخیر</option>
+                            <option value="absent" @selected($currentStatus === 'absent')>غایب</option>
+                            <option value="excused" @selected($currentStatus === 'excused')>موجه</option>
                         </select>
                     </div>
                 @empty
