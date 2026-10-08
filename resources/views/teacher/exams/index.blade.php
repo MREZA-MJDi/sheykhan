@@ -11,10 +11,10 @@
         @forelse($exams as $exam)
             <article class="dashboard-panel p-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div><h3 class="text-sm font-black">{{ $exam->title }}</h3><p class="mt-1 text-xs text-slate-500">{{ $exam->classroom?->title ?? 'عمومی دوره' }} · {{ $exam->duration_minutes }} دقیقه</p></div>
+                    <div><h3 class="text-sm font-black">{{ $exam->title }}</h3><p class="mt-1 text-xs text-slate-500">{{ $exam->classroom?->title ?? 'عمومی دوره' }} · {{ \App\Support\PersianUi::digits($exam->duration_minutes) }} دقیقه</p></div>
                     <div class="flex flex-wrap gap-2">
-                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px]">{{ $exam->submitted_attempts_count }} ارسال</span>
-                        <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] text-emerald-700">{{ $exam->graded_attempts_count }} تصحیح‌شده</span>
+                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px]">{{ \App\Support\PersianUi::digits($exam->submitted_attempts_count) }} ارسال</span>
+                        <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] text-emerald-700">{{ \App\Support\PersianUi::digits($exam->graded_attempts_count) }} تصحیح‌شده</span>
                         <a href="{{ route('teacher.exams.attempts',$exam) }}" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold">مشاهده نتایج</a>
                     </div>
                 </div>
