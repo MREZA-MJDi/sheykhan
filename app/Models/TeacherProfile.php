@@ -15,7 +15,7 @@ class TeacherProfile extends Model
         'user_id','bio','specialization','education','experience_years','is_verified','is_public'
     ];
 
-    protected $casts = ['is_verified' => 'boolean'];
+    protected $casts = ['is_verified' => 'boolean', 'is_public' => 'boolean'];
 
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
 }
