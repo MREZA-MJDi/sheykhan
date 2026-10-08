@@ -22,7 +22,9 @@ class DashboardController extends Controller
             fn () => $dashboard->build($owner)
         );
 
-        $data['academies'] = $workspace->academies($owner);
+        // The dashboard payload already contains the owner's active academies.
+        // Avoid issuing the same ownership query a second time on every request.
+        $data['academies'] ??= $workspace->academies($owner);
 
         return view('owner.dashboard', $data);
     }
