@@ -60,7 +60,7 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/robots.txt', [PublicSeoController::class, 'robots'])->name('seo.robots');
 Route::get('/sitemap.xml', [PublicSeoController::class, 'sitemap'])->name('seo.sitemap');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-Route::get('/academy/{academy}/content/{content}', [AcademyContentController::class, 'show'])->name('academy.content.show');
+Route::get('/academy/{academy:slug}/content/{content:slug}', [AcademyContentController::class, 'show'])->scopeBindings()->name('academy.content.show');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
