@@ -9,29 +9,46 @@ class AcademyContentService
 {
     public function featuredGroups(int $perGroup = 3): array
     {
-        return Cache::remember("public:home:academy-content:{$perGroup}", now()->addMinutes(5), function () use ($perGroup) {
-            return AcademyContent::query()
-                ->where('status', 'published')
-                ->whereNotNull('published_at')
-                ->where('published_at', '<=', now())
-                ->whereHas('category', fn ($q) => $q->where('is_active', true))
-                ->with('category:id,title,slug')
-                ->orderByDesc('is_featured')
-                ->orderBy('sort_order')
-                ->orderByDesc('published_at')
-                ->get()
-                ->groupBy(fn (AcademyContent $content) => $content->category?->slug)
-                ->map(fn ($items) => $items->take($perGroup)->map(fn (AcademyContent $content) => [
-                    'title' => $content->title,
-                    'excerpt' => $content->excerpt,
-                    'type' => $content->type,
-                    'duration' => $content->video_duration_seconds
-                        ? $this->formatDuration($content->video_duration_seconds)
-                        : null,
-                    'category' => $content->category?->title,
-                    'slug' => $content->slug,
-                ])->values()->all())
-                ->all();
+        $slugs = [
+            'parents',
+            'students',
+            'gifted',
+            'foreign-resources',
+            'question-designer',
+        ];
+
+        return Cache::remember("public:home:academy-content:v2:{$perGroup}", now()->addMinutes(5), function () use ($perGroup, $slugs) {
+            $groups = [];
+
+            foreach ($slugs as $slug) {
+                $groups[$slug] = AcademyContent::query()
+                    ->where('status', 'published')
+                    ->whereNotNull('published_at')
+                    ->where('published_at', '<=', now())
+                    ->whereHas('category', fn ($query) => $query
+                        ->where('slug', $slug)
+                        ->where('is_active', true))
+                    ->with('category:id,title,slug')
+                    ->orderByDesc('is_featured')
+                    ->orderBy('sort_order')
+                    ->orderByDesc('published_at')
+                    ->limit($perGroup)
+                    ->get()
+                    ->map(fn (AcademyContent $content) => [
+                        'title' => $content->title,
+                        'excerpt' => $content->excerpt,
+                        'type' => $content->type,
+                        'duration' => $content->video_duration_seconds
+                            ? $this->formatDuration($content->video_duration_seconds)
+                            : null,
+                        'category' => $content->category?->title,
+                        'slug' => $content->slug,
+                    ])
+                    ->values()
+                    ->all();
+            }
+
+            return $groups;
         });
     }
 

@@ -44,12 +44,12 @@ class CourseCatalogService
                     'academy:id,name',
                     'teachers:id,name',
                     'grades:id,title',
-                    'sections.lessons' => fn ($query) => $query
-                        ->select('id', 'course_section_id', 'title', 'is_free', 'sort_order')
-                        ->orderBy('sort_order'),
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
                         ->orderByPivot('sort_order'),
+                ])
+                ->withCount([
+                    'lessons as lessons_count' => fn ($query) => $query->where('status', 'published'),
                 ])
                 ->latest('published_at')
                 ->limit($limit)
@@ -59,16 +59,7 @@ class CourseCatalogService
                     'description' => $course->short_description ?: $course->description,
                     'category' => $course->academy?->name,
                     'teacher' => $course->teachers->first()?->name,
-                    'lessons' => PersianUi::digits($course->sections->sum(fn ($section) => $section->lessons->count())),
-                    'previewLessons' => $course->sections
-                        ->flatMap(fn ($section) => $section->lessons)
-                        ->take(3)
-                        ->map(fn ($lesson) => [
-                            'title' => $lesson->title,
-                            'is_free' => (bool) $lesson->is_free,
-                        ])
-                        ->values()
-                        ->all(),
+                    'lessons' => PersianUi::digits((int) $course->lessons_count),
                     'grades' => $course->grades->pluck('title')->values()->all(),
                     'duration' => $this->formatDuration($course->duration_minutes),
                     'price' => $this->formatPrice($course->price, $course->isFree()),

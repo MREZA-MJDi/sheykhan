@@ -6,6 +6,7 @@ use App\Models\BlogPost;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class BlogService
 {
@@ -18,10 +19,14 @@ class BlogService
 
     public function latest(int $limit = 3): Collection
     {
-        return $this->publishedQuery()
-            ->latest('published_at')
-            ->limit($limit)
-            ->get(['id', 'category_id', 'title', 'slug', 'excerpt', 'published_at']);
+        return Cache::remember(
+            "public:home:blog:latest:{$limit}:v1",
+            now()->addMinutes(3),
+            fn () => $this->publishedQuery()
+                ->latest('published_at')
+                ->limit($limit)
+                ->get(['id', 'category_id', 'title', 'slug', 'excerpt', 'published_at'])
+        );
     }
 
     public function findPublished(string $slug): BlogPost
