@@ -23,7 +23,7 @@ final class OwnerContentService
             ->withQueryString();
 
         $stats = [
-            'total' => (clone $contents->toBase())->count(), // paginator query is already executed; counts below use cheap scoped queries.
+            'total' => (int) $contents->total(),
             'published' => AcademyContent::query()->whereIn('academy_id', $academies->modelKeys())->where('status', 'published')->count(),
             'drafts' => AcademyContent::query()->whereIn('academy_id', $academies->modelKeys())->where('status', 'draft')->count(),
         ];
@@ -163,7 +163,7 @@ final class OwnerContentService
         $suffix = 2;
 
         while ($academy->academyContents()
-            ->when($ignoreId !== null, fn ($query) => $query->whereKeyNot($ignoreId))
+            ->when($ignoreId !== null, fn ($query) => $query->where('academy_contents.id', '!=', $ignoreId))
             ->where('slug', $slug)
             ->exists()) {
             $slug = $base . '-' . $suffix++;
