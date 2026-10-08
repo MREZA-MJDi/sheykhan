@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/css/owner.css',
                 'resources/js/owner.js',
                 'resources/css/teacher.css',
+                'resources/css/teacher-workspace.css',
                 'resources/js/teacher.js',
                 'resources/css/student.css',
                 'resources/js/student.js',
