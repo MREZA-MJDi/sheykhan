@@ -26,7 +26,7 @@
 
     @if($exams->hasPages())
         <div class="dashboard-panel p-4">
-            {{ $exams->links() }}
+            {{ $exams->links('components.navigation.pagination') }}
         </div>
     @endif
 </div>
