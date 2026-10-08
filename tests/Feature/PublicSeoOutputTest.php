@@ -73,4 +73,44 @@ class PublicSeoOutputTest extends TestCase
             ->assertSee('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', false)
             ->assertSee('<loc>' . url('/') . '</loc>', false);
     }
+
+    public function test_custom_json_ld_is_script_safe(): void
+    {
+        $owner = User::factory()->create();
+        $academy = Academy::create([
+            'owner_id' => $owner->id,
+            'name' => 'آکادمی امن',
+            'slug' => 'safe-seo-' . Str::random(8),
+            'status' => 'active',
+        ]);
+
+        $course = Course::create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره امنیت',
+            'slug' => 'safe-course-' . Str::random(8),
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'short_description' => 'توضیح',
+            'published_at' => now()->subMinute(),
+        ]);
+
+        SeoMeta::create([
+            'seoable_type' => Course::class,
+            'seoable_id' => $course->id,
+            'title' => 'SEO',
+            'robots' => 'index,follow',
+            'schema_json' => [
+                '@context' => 'https://schema.org',
+                'description' => '</script><script>window.__xss=1</script>',
+            ],
+        ]);
+
+        $response = $this->get(route('courses.show', $course))->assertOk();
+
+        $response->assertSee('\\u003C/script\\u003E\\u003Cscript\\u003Ewindow.__xss=1\\u003C/script\\u003E', false);
+        $response->assertDontSee('</script><script>window.__xss=1</script>', false);
+    }
+
 }
