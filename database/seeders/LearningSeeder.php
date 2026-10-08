@@ -44,7 +44,7 @@ class LearningSeeder extends Seeder
         $courses=collect();
         foreach($definitions as $d){
             $course=Course::firstOrCreate(['academy_id'=>$academy->id,'slug'=>$d['slug']],[
-                'created_by'=>$owner->id,'title'=>$d['title'],'short_description'=>'دوره ساختاریافته آکادمی شیخان.','description'=>'شامل جلسات، منابع، تکالیف، آزمون و گزارش پیشرفت.',
+                'created_by'=>$owner->id,'title'=>$d['title'],'short_description'=>'مسیر منظم آموزش مفاهیم پایه، تمرین و سنجش پیشرفت.','description'=>'دوره‌ای ساختاریافته با درس‌های ویدئویی، منابع آموزشی، تکالیف و آزمون‌های مرحله‌ای برای پیگیری واقعی یادگیری.',
                 'level'=>'متوسط','status'=>'published','access_type'=>'paid','price'=>$d['price'],'duration_minutes'=>1440,'published_at'=>now()->subDays(20)
             ]);
             $course->grades()->syncWithoutDetaching([$grades[$d['grade']]->id]);
@@ -52,7 +52,7 @@ class LearningSeeder extends Seeder
             $section=CourseSection::firstOrCreate(['course_id'=>$course->id,'sort_order'=>1],['title'=>'بخش اول: شروع مسیر','description'=>'مفاهیم پایه و شروع مسیر آموزشی.']);
             foreach(['آشنایی با مسیر یادگیری','مفاهیم کلیدی','حل نمونه سؤال','جمع‌بندی و تکلیف'] as $i=>$title){
                 $lesson=Lesson::firstOrCreate(['course_section_id'=>$section->id,'slug'=>$d['slug'].'-lesson-'.($i+1)],[
-                    'title'=>$title,'type'=>'video','summary'=>'ویدئوی آموزشی در مسیر یادگیری.','content'=>'محتوای درس قابل ویرایش و انتشار از پنل.',
+                    'title'=>$title,'type'=>'video','summary'=>'این جلسه یک مفهوم کلیدی را با مثال و تمرین کوتاه آموزش می‌دهد.','content'=>'محتوای آموزشی این درس برای مطالعه و مرور طراحی شده و از پنل مدرس قابل ویرایش، تکمیل و انتشار است.',
                     'duration_seconds'=>1200+($i*300),'is_free'=>$i===0,'status'=>'published','published_at'=>now()->subDays(15-$i),'sort_order'=>$i+1
                 ]);
                 $student=$students->values()->get($i%$students->count());
@@ -73,7 +73,7 @@ class LearningSeeder extends Seeder
         foreach($classroomDefs as $d){
             $c=Classroom::firstOrCreate(['academy_id'=>$academy->id,'code'=>$d['code']],[
                 'course_id'=>$courses->get($d['course'])->id,'grade_id'=>$grades[$d['grade']]->id,'academic_year_id'=>$year->id,
-                'title'=>$d['title'],'description'=>'کلاس فعال آموزشی آکادمی برای پیگیری یادگیری.','capacity'=>20,'status'=>'active','starts_at'=>now()->subMonth(),'ends_at'=>now()->addMonths(8)
+                'title'=>$d['title'],'description'=>'کلاس فعال آموزشی برای تمرین، تعامل با مدرس و پیگیری منظم وضعیت دانش‌آموزان.','capacity'=>20,'status'=>'active','starts_at'=>now()->subMonth(),'ends_at'=>now()->addMonths(8)
             ]);
             $c->teachers()->syncWithoutDetaching([$teachers[$d['teacher']]->id]);
             foreach($d['students'] as $email){
@@ -86,7 +86,7 @@ class LearningSeeder extends Seeder
                     'marked_by'=>$teachers[$d['teacher']]->id,'status'=>'present'
                 ]);
             }
-            ClassSchedule::firstOrCreate(['classroom_id'=>$c->id,'weekday'=>2],['start_time'=>'17:00','end_time'=>'18:30','room'=>'کلاس آنلاین','meeting_url'=>'https://example.com/sheykhan/'.$d['code']]);
+            ClassSchedule::firstOrCreate(['classroom_id'=>$c->id,'weekday'=>2],['start_time'=>'17:00','end_time'=>'18:30','room'=>'کلاس آنلاین','meeting_url'=>'https://meet.jit.si/Sheykhan-'.$d['code']]);
             $classrooms->push($c);
         }
 
@@ -100,7 +100,7 @@ class LearningSeeder extends Seeder
             $media=$d['released']?SeedMedia::make('live-'.$d['course'],$owner->id,'video/mp4','mp4','live-classes','private'):null;
             LiveClass::firstOrCreate(['course_id'=>$courses->get($d['course'])->id,'title'=>$d['title']],[
                 'classroom_id'=>$classrooms->get($d['classroom'])->id,'teacher_id'=>$teachers[$d['teacher']]->id,'recording_media_id'=>$media?->id,
-                'description'=>'جلسه قابل مشاهده در کارتابل دانش‌آموز.','provider'=>'internal','meeting_url'=>'https://example.com/live/'.$courses->get($d['course'])->slug,
+                'description'=>'جلسه آنلاین برنامه‌ریزی‌شده با امکان مشاهده زمان، وضعیت و در صورت انتشار، دسترسی به ضبط جلسه.','provider'=>'Jitsi','meeting_url'=>'https://meet.jit.si/Sheykhan-'.$classrooms->get($d['classroom'])->code,
                 'scheduled_at'=>$scheduled,'scheduled_end_at'=>$scheduled->copy()->addMinutes(90),'started_at'=>$d['status']==='completed'?$scheduled:null,
                 'ended_at'=>$d['status']==='completed'?$scheduled->copy()->addMinutes(90):null,'recording_released_at'=>$d['released']?$scheduled->copy()->addDay():null,
                 'recording_visibility'=>'enrolled','duration_minutes'=>90,'status'=>$d['status']
@@ -110,13 +110,13 @@ class LearningSeeder extends Seeder
         foreach($courses as $i=>$course){
             $teacher=$teachers->values()->get($i%$teachers->count()); $classroom=$classrooms->get($i); $student=$students->values()->get($i%$students->count());
             $assignment=Assignment::firstOrCreate(['course_id'=>$course->id,'title'=>'تکلیف هفته '.($i+1)],[
-                'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'instructions'=>'حل تمرین‌های مشخص‌شده و ارسال راه‌حل.','due_at'=>now()->addDays(7),'max_score'=>100,'status'=>'published'
+                'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'instructions'=>'تمرین‌های مشخص‌شده را حل کن و راه‌حل مرحله‌به‌مرحله‌ات را در پاسخ ثبت کن.','due_at'=>now()->addDays(7),'max_score'=>100,'status'=>'published'
             ]);
             AssignmentSubmission::firstOrCreate(['assignment_id'=>$assignment->id,'student_id'=>$student->id],[
                 'content'=>'پاسخ ثبت‌شده دانش‌آموز برای این تکلیف.','submitted_at'=>now()->subDay(),'score'=>92,'feedback'=>'پاسخ خوب است.','graded_at'=>now()->subHours(12),'graded_by'=>$teacher->id
             ]);
             $exam=Exam::firstOrCreate(['course_id'=>$course->id,'title'=>'آزمون دوره '.($i+1)],[
-                'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'description'=>'آزمون دوره برای ارزیابی یادگیری.','duration_minutes'=>45,
+                'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'description'=>'آزمون مرحله‌ای برای سنجش میزان یادگیری و مشخص‌کردن مباحثی که نیاز به مرور بیشتری دارند.','duration_minutes'=>45,
                 'starts_at'=>now()->subDay(),'ends_at'=>now()->addDay(),'attempts_allowed'=>2,'status'=>'published'
             ]);
             $questions=collect();
@@ -135,7 +135,7 @@ class LearningSeeder extends Seeder
         LearningResource::firstOrCreate(
             ['academy_id'=>$academy->id,'course_id'=>$courses->first()->id,'title'=>'جزوه ریاضی'],
             ['classroom_id'=>$classrooms->first()->id,'lesson_id'=>$courses->first()->sections->first()->lessons->first()->id,'media_id'=>$media->id,'uploaded_by'=>$owner->id,
-             'description'=>'جزوه قابل مدیریت از پنل.','resource_type'=>'pdf','visibility'=>'enrolled_students','release_at'=>now()->subDay(),'downloadable'=>true,'status'=>'published','sort_order'=>1]
+             'description'=>'منبع آموزشی منتشرشده برای مرور مباحث و تمرین بیشتر.','resource_type'=>'pdf','visibility'=>'enrolled_students','release_at'=>now()->subDay(),'downloadable'=>true,'status'=>'published','sort_order'=>1]
         );
     }
 }
