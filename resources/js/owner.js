@@ -221,8 +221,116 @@ function bootCourseMediaUploaders() {
 document.addEventListener('DOMContentLoaded', bootCourseMediaUploaders);
 
 
+function bootBannerEditors() {
+    document.querySelectorAll('[data-banner-slot]').forEach((slot) => {
+        if (slot.dataset.bannerEditorBound === 'true') return;
+        slot.dataset.bannerEditorBound = 'true';
+
+        const preview = slot.querySelector('[data-banner-preview]');
+        const image = slot.querySelector('[data-banner-preview-image]');
+        const empty = slot.querySelector('[data-banner-preview-empty]');
+        const file = slot.querySelector('[data-banner-file]');
+        const select = slot.querySelector('[data-banner-media-select]');
+        const x = slot.querySelector('[data-crop-x]');
+        const y = slot.querySelector('[data-crop-y]');
+        const xOutput = slot.querySelector('[data-crop-x-output]');
+        const yOutput = slot.querySelector('[data-crop-y-output]');
+        const reset = slot.querySelector('[data-banner-reset]');
+        const fileMeta = slot.querySelector('[data-banner-file-meta]');
+        const fileName = slot.querySelector('[data-banner-file-name]');
+        const fileSize = slot.querySelector('[data-banner-file-size]');
+
+        if (!preview || !x || !y) return;
+
+        const setPosition = () => {
+            const xValue = Math.max(0, Math.min(100, Number(x.value || 50)));
+            const yValue = Math.max(0, Math.min(100, Number(y.value || 50)));
+
+            if (image) image.style.objectPosition = `${xValue}% ${yValue}%`;
+            if (xOutput) xOutput.textContent = `${xValue}٪`;
+            if (yOutput) yOutput.textContent = `${yValue}٪`;
+        };
+
+        const showImage = (src) => {
+            let target = slot.querySelector('[data-banner-preview-image]');
+
+            if (!target) {
+                target = document.createElement('img');
+                target.alt = '';
+                target.setAttribute('data-banner-preview-image', '');
+                preview.replaceChildren(target);
+            }
+
+            target.src = src;
+            target.hidden = false;
+            target.style.objectFit = 'cover';
+            target.style.width = '100%';
+            target.style.height = '100%';
+            target.style.minHeight = window.matchMedia('(max-width: 700px)').matches ? '180px' : '250px';
+            if (empty) empty.hidden = true;
+            setPosition();
+            return target;
+        };
+
+        const formatSize = (bytes) => {
+            if (!Number.isFinite(bytes) || bytes <= 0) return '۰ بایت';
+            const units = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
+            let value = bytes;
+            let unit = 0;
+            while (value >= 1024 && unit < units.length - 1) {
+                value /= 1024;
+                unit += 1;
+            }
+            return `${new Intl.NumberFormat('fa-IR', { maximumFractionDigits: unit ? 1 : 0 }).format(value)} ${units[unit]}`;
+        };
+
+        x.addEventListener('input', setPosition);
+        y.addEventListener('input', setPosition);
+
+        reset?.addEventListener('click', () => {
+            x.value = '50';
+            y.value = '50';
+            setPosition();
+        });
+
+        select?.addEventListener('change', () => {
+            const option = select.selectedOptions?.[0];
+            const src = option?.dataset?.mediaUrl;
+
+            if (!src) return;
+            showImage(src);
+
+            if (file) file.value = '';
+            if (fileMeta) fileMeta.hidden = true;
+        });
+
+        file?.addEventListener('change', () => {
+            const selectedFile = file.files?.[0];
+            if (!selectedFile) return;
+
+            if (!selectedFile.type.startsWith('image/')) {
+                file.value = '';
+                return;
+            }
+
+            const objectUrl = URL.createObjectURL(selectedFile);
+            showImage(objectUrl);
+            image?.addEventListener('load', () => URL.revokeObjectURL(objectUrl), { once: true });
+
+            if (fileMeta) fileMeta.hidden = false;
+            if (fileName) fileName.textContent = selectedFile.name;
+            if (fileSize) fileSize.textContent = formatSize(selectedFile.size);
+
+            if (select) select.value = '';
+        });
+
+        setPosition();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
+    bootBannerEditors();
 
     document.querySelectorAll('form').forEach((form) => {
         if (form.dataset.noSubmitLock === 'true') return;
