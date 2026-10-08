@@ -48,7 +48,7 @@ final class PersianUi
             try {
                 $dateObject = Carbon::createSafe($year, $month, $day);
                 return $dateObject?->toDateString();
-            } catch (\\Throwable) {
+            } catch (\Throwable) {
                 return null;
             }
         }
@@ -65,7 +65,7 @@ final class PersianUi
 
         try {
             return Carbon::createSafe($gy, $gm, $gd)?->toDateString();
-        } catch (\\Throwable) {
+        } catch (\Throwable) {
             return null;
         }
     }
