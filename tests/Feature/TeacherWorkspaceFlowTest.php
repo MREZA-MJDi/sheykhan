@@ -45,6 +45,27 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertOk();
     }
 
+    public function test_teacher_can_create_a_course_section_for_owned_course(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.courses.sections.store', $course), [
+                'title' => 'سرفصل تست',
+                'description' => 'توضیح تست',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('course_sections', [
+            'course_id' => $course->id,
+            'title' => 'سرفصل تست',
+            'description' => 'توضیح تست',
+        ]);
+    }
+
     public function test_teacher_can_create_a_class_with_the_manage_permission(): void
     {
         $this->seed();
