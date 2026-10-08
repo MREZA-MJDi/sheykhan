@@ -182,6 +182,8 @@ final class StudentDashboardService
             ->where('submissions.student_id', $student->id)
             ->whereIn('assignments.course_id', $courseIds)
             ->whereNotNull('submissions.graded_at')
+            ->latest('submissions.graded_at')
+            ->limit(6)
             ->get([
                 'assignments.title',
                 'submissions.score',
@@ -201,6 +203,8 @@ final class StudentDashboardService
             ->where('attempts.student_id', $student->id)
             ->whereIn('exams.course_id', $courseIds)
             ->whereNotNull('attempts.submitted_at')
+            ->latest('attempts.submitted_at')
+            ->limit(6)
             ->get([
                 'exams.title',
                 'attempts.score',
