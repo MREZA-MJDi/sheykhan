@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Teacher;
 
 use App\Models\Assignment;
+use App\Services\TeacherAccessService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,7 +14,8 @@ class GradeAssignmentSubmissionRequest extends FormRequest
         $assignment = $this->route('assignment');
 
         return $assignment instanceof Assignment
-            && $assignment->teacher_id === $this->user()?->id;
+            && $this->user()
+            && app(TeacherAccessService::class)->canManageAssignment($this->user(), $assignment);
     }
 
     public function rules(): array
