@@ -9,6 +9,7 @@ use App\Models\AcademyContentCategory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Services\MediaService;
 
 final class OwnerContentService
 {
@@ -52,6 +53,9 @@ final class OwnerContentService
 
     public function create(User $owner, array $data): AcademyContent
     {
+        $cover = $data['cover_image'] ?? null;
+        unset($data['cover_image']);
+
         $academy = $this->ownedAcademy($owner, (int) $data['academy_id']);
         $category = $academy->academyContentCategories()
             ->whereKey((int) $data['category_id'])
@@ -76,14 +80,28 @@ final class OwnerContentService
                 'created_by' => $owner->id,
             ]);
 
+            if ($cover) {
+                app(MediaService::class)->upload($cover, $content, [
+                    'disk' => config('filesystems.default', 'local'),
+                    'directory' => 'academy-content/' . $academy->id . '/covers',
+                    'collection' => 'cover',
+                    'visibility' => 'public',
+                    'sort_order' => 0,
+                    'is_featured' => true,
+                ]);
+            }
+
             app(AcademyContentService::class)->clearPublicCache();
 
-            return $content;
+            return $content->load('media');
         });
     }
 
     public function update(User $owner, AcademyContent $content, array $data): AcademyContent
     {
+        $cover = $data['cover_image'] ?? null;
+        unset($data['cover_image']);
+
         $academy = $this->ownedAcademy($owner, (int) $content->academy_id);
         $category = $academy->academyContentCategories()
             ->whereKey((int) $data['category_id'])
@@ -111,9 +129,35 @@ final class OwnerContentService
                     : null,
             ]);
 
+            if ($cover) {
+                $media = $content->media()
+                    ->wherePivot('collection', 'cover')
+                    ->first();
+
+                if ($media) {
+                    app(MediaService::class)->replace($media, $cover, $content, [
+                        'disk' => config('filesystems.default', 'local'),
+                        'directory' => 'academy-content/' . $academy->id . '/covers',
+                        'collection' => 'cover',
+                        'visibility' => 'public',
+                        'sort_order' => 0,
+                        'is_featured' => true,
+                    ]);
+                } else {
+                    app(MediaService::class)->upload($cover, $content, [
+                        'disk' => config('filesystems.default', 'local'),
+                        'directory' => 'academy-content/' . $academy->id . '/covers',
+                        'collection' => 'cover',
+                        'visibility' => 'public',
+                        'sort_order' => 0,
+                        'is_featured' => true,
+                    ]);
+                }
+            }
+
             app(AcademyContentService::class)->clearPublicCache();
 
-            return $content->refresh();
+            return $content->fresh('media');
         });
     }
 
