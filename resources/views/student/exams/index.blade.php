@@ -9,8 +9,8 @@
 <div class="student-workspace-list">
 @forelse($exams as $exam)
 <article class="student-workspace-row">
-<div class="student-workspace-date"><strong>{{ AppSupportPersianUi::digits($exam->attempts_allowed) }}</strong><small>دفعات</small></div>
-<div class="student-workspace-row-main"><a href="{{ route('student.exams.show',$exam) }}">{{ $exam->title }}</a><span>{{ $exam->course?->title }} · {{ $exam->duration_minutes ? AppSupportPersianUi::digits($exam->duration_minutes).' دقیقه' : 'زمان متغیر' }}</span></div>
+<div class="student-workspace-date"><strong>{{ App\Support\PersianUi::digits($exam->attempts_allowed) }}</strong><small>دفعات</small></div>
+<div class="student-workspace-row-main"><a href="{{ route('student.exams.show',$exam) }}">{{ $exam->title }}</a><span>{{ $exam->course?->title }} · {{ $exam->duration_minutes ? App\Support\PersianUi::digits($exam->duration_minutes).' دقیقه' : 'زمان متغیر' }}</span></div>
 <span class="student-workspace-status {{ $exam->starts_at && now()->lt($exam->starts_at) ? 'warning' : 'primary' }}">{{ $exam->starts_at && now()->lt($exam->starts_at) ? 'هنوز باز نشده' : 'مشاهده' }}</span>
 </article>
 @empty<div class="student-workspace-empty"><strong>آزمون فعالی ندارید.</strong><span>با انتشار آزمون جدید، اینجا قرار می‌گیرد.</span></div>@endforelse
