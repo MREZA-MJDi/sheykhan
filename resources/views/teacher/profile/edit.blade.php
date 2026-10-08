@@ -27,8 +27,8 @@
         <section class="teacher-profile-editor">
             <div class="teacher-profile-editor-hero">
                 <div class="teacher-profile-avatar">
-                    @if($avatar?->url())
-                        <img src="{{ $avatar->url() }}" alt="{{ $teacher->name }}">
+                    @if($avatar)
+                        <img src="{{ $avatar->visibility === 'public' ? $avatar->url() : route('media.view',$avatar) }}" alt="{{ $teacher->name }}">
                     @else
                         <span>{{ mb_substr(trim($teacher->name),0,1) }}</span>
                     @endif
