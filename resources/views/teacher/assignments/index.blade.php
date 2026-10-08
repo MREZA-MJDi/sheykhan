@@ -16,10 +16,10 @@
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
 
     <section class="teacher-workspace-stats">
-        <div class="teacher-workspace-stat"><small>کل تکالیف</small><strong>{{ AppSupportPersianUi::digits($assignments->total()) }}</strong><span>تحت مدیریت شما</span></div>
-        <div class="teacher-workspace-stat"><small>ارسال‌شده</small><strong>{{ AppSupportPersianUi::digits($assignments->getCollection()->sum('submitted_count')) }}</strong><span>در این صفحه</span></div>
-        <div class="teacher-workspace-stat"><small>منتظر تصحیح</small><strong>{{ AppSupportPersianUi::digits($assignments->getCollection()->sum('pending_review_count')) }}</strong><span>نیازمند اقدام</span></div>
-        <div class="teacher-workspace-stat"><small>نمایش</small><strong>{{ AppSupportPersianUi::digits($assignments->count()) }}</strong><span>مورد در این صفحه</span></div>
+        <div class="teacher-workspace-stat"><small>کل تکالیف</small><strong>{{ App\SupportPersianUi::digits($assignments->total()) }}</strong><span>تحت مدیریت شما</span></div>
+        <div class="teacher-workspace-stat"><small>ارسال‌شده</small><strong>{{ App\SupportPersianUi::digits($assignments->getCollection()->sum('submitted_count')) }}</strong><span>در این صفحه</span></div>
+        <div class="teacher-workspace-stat"><small>منتظر تصحیح</small><strong>{{ App\SupportPersianUi::digits($assignments->getCollection()->sum('pending_review_count')) }}</strong><span>نیازمند اقدام</span></div>
+        <div class="teacher-workspace-stat"><small>نمایش</small><strong>{{ App\SupportPersianUi::digits($assignments->count()) }}</strong><span>مورد در این صفحه</span></div>
     </section>
 
     <section class="teacher-workspace-card">
@@ -32,14 +32,14 @@
                         <div class="teacher-workspace-item-meta">
                             <span>{{ $assignment->course?->title ?: 'دوره' }}</span>
                             <span>{{ $assignment->classroom?->title ?: 'همه دانش‌آموزان دوره' }}</span>
-                            <span>{{ $assignment->due_at ? 'موعد '.AppSupportPersianUi::date($assignment->due_at).' · '.AppSupportPersianUi::time($assignment->due_at) : 'بدون موعد' }}</span>
-                            <span>نمره کل {{ AppSupportPersianUi::digits($assignment->max_score ?? 0) }}</span>
+                            <span>{{ $assignment->due_at ? 'موعد '.App\SupportPersianUi::date($assignment->due_at).' · '.App\SupportPersianUi::time($assignment->due_at) : 'بدون موعد' }}</span>
+                            <span>نمره کل {{ App\SupportPersianUi::digits($assignment->max_score ?? 0) }}</span>
                         </div>
                     </div>
                     <div class="teacher-workspace-item-actions">
                         <span class="teacher-workspace-chip">{{ $assignment->status === 'published' ? 'منتشرشده' : ($assignment->status === 'closed' ? 'بسته' : 'پیش‌نویس') }}</span>
-                        <span class="teacher-workspace-chip">{{ AppSupportPersianUi::digits($assignment->submitted_count) }} ارسال</span>
-                        <span class="teacher-workspace-chip {{ $assignment->pending_review_count ? 'warning' : 'success' }}">{{ AppSupportPersianUi::digits($assignment->pending_review_count) }} نیازمند بررسی</span>
+                        <span class="teacher-workspace-chip">{{ App\SupportPersianUi::digits($assignment->submitted_count) }} ارسال</span>
+                        <span class="teacher-workspace-chip {{ $assignment->pending_review_count ? 'warning' : 'success' }}">{{ App\SupportPersianUi::digits($assignment->pending_review_count) }} نیازمند بررسی</span>
                         <a href="{{ route('teacher.assignments.submissions',$assignment) }}" class="teacher-workspace-link primary">بررسی پاسخ‌ها</a>
                     </div>
                 </article>
