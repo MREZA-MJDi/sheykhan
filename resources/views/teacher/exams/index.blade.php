@@ -23,5 +23,11 @@
             <div class="dashboard-panel p-10 text-center text-sm text-slate-500">آزمونی ثبت نشده است.</div>
         @endforelse
     </div>
+
+    @if($exams->hasPages())
+        <div class="dashboard-panel p-4">
+            {{ $exams->links() }}
+        </div>
+    @endif
 </div>
 @endsection
