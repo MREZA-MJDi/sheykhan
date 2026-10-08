@@ -260,3 +260,32 @@ select.course-input{padding-inline-end:36px}
 .banner-file-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 9px;border:1px solid #e1e5ed;border-radius:10px;background:#fafbfc;color:#7a8495;font-size:7px}
 .banner-file-meta strong{overflow:hidden;color:#465066;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:700px){.banner-crop-head{flex-direction:column}.banner-reset-btn{width:100%}}
+
+
+/* Owner SEO manager */
+.owner-seo-page{max-width:1500px;margin:0 auto}
+.owner-seo-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;padding:22px 24px;border:1px solid var(--panel-border);border-radius:24px;background:linear-gradient(135deg,#fff,#f8f9ff);box-shadow:var(--panel-shadow-soft)}
+.owner-seo-kicker{display:block;color:var(--panel-primary);font-size:9px;font-weight:900}
+.owner-seo-hero h1{margin-top:6px;color:var(--panel-text);font-size:24px;line-height:1.55;font-weight:900}
+.owner-seo-hero p{max-width:800px;margin-top:7px;color:var(--panel-muted);font-size:10px;line-height:2}
+.owner-seo-stat{padding:16px 17px;border:1px solid var(--panel-border);border-radius:18px;background:#fff;box-shadow:var(--panel-shadow-soft)}
+.owner-seo-stat span,.owner-seo-stat small{display:block;color:var(--panel-muted);font-size:8px}
+.owner-seo-stat strong{display:block;margin-top:5px;color:var(--panel-text);font-size:24px;font-weight:900}
+.owner-seo-stat small{margin-top:3px}
+.owner-seo-stat.warning strong{color:#b54708}
+.owner-seo-list{display:grid;gap:8px}
+.owner-seo-row{display:grid;grid-template-columns:minmax(230px,1fr) minmax(220px,.85fr) auto auto;align-items:center;gap:14px;padding:12px;border:1px solid #e5e8ef;border-radius:15px;background:#fafbfc}
+.owner-seo-main{min-width:0}
+.owner-seo-type{display:block;color:var(--panel-primary);font-size:7px;font-weight:900}
+.owner-seo-main strong{display:block;margin-top:3px;overflow:hidden;color:#303849;font-size:10px;font-weight:900;text-overflow:ellipsis;white-space:nowrap}
+.owner-seo-main small{display:block;margin-top:2px;color:#8a93a4;font-size:7px}
+.owner-seo-score{min-width:0}
+.owner-seo-score-top{display:flex;justify-content:space-between;gap:10px;color:#7a8495;font-size:7px}
+.owner-seo-score-top strong{color:var(--panel-primary);font-size:8px}
+.owner-seo-track{height:6px;margin-top:6px;overflow:hidden;border-radius:999px;background:#e8ebf2}
+.owner-seo-track span{display:block;height:100%;border-radius:inherit;background:var(--panel-primary)}
+.owner-seo-status{padding:6px 8px;border-radius:999px;font-size:7px;font-weight:900;background:#f2f4f7;color:#687286;white-space:nowrap}
+.owner-seo-status.ready{background:#ecfdf3;color:#067647}
+.owner-seo-status.partial{background:#fff7ed;color:#b54708}
+@media(max-width:820px){.owner-seo-hero{align-items:stretch;flex-direction:column}.owner-seo-hero .website-open-btn{width:100%}.owner-seo-row{grid-template-columns:1fr 1fr}.owner-seo-row .owner-seo-main{grid-column:1/-1}}
+@media(max-width:520px){.owner-seo-row{grid-template-columns:1fr}.owner-seo-row .course-action-btn{width:100%}.owner-seo-status{justify-self:start}}
