@@ -119,6 +119,7 @@ class CourseCatalogService
     {
         Cache::forget('public:home:courses:3');
         Cache::store('file')->forget('public:home:courses:6');
+        Cache::forget('public:seo:sitemap:v1');
     }
 
     private function formatDuration(int $minutes): string
