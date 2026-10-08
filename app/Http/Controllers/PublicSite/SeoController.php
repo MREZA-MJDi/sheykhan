@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\AcademyContent;
 use App\Models\Course;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Response;
 
 final class SeoController extends Controller
@@ -23,13 +25,24 @@ final class SeoController extends Controller
 
     public function sitemap(): Response
     {
-        $urls = collect([
+        $xml = Cache::remember('public:seo:sitemap:v1', now()->addMinutes(30), function (): string {
+            $urls = collect([
             ['loc' => url('/'), 'lastmod' => now()],
             ['loc' => route('courses.index'), 'lastmod' => now()],
             ['loc' => route('teachers.index'), 'lastmod' => now()],
             ['loc' => route('store.index'), 'lastmod' => now()],
             ['loc' => route('blog.index'), 'lastmod' => now()],
         ]);
+
+        User::query()
+            ->where('status', 'active')
+            ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
+            ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
+            ->get(['id', 'updated_at'])
+            ->each(fn (User $teacher) => $urls->push([
+                'loc' => route('teachers.show', $teacher),
+                'lastmod' => $teacher->updated_at,
+            ]));
 
         Course::query()
             ->published()
@@ -68,7 +81,8 @@ final class SeoController extends Controller
                 'lastmod' => $post->updated_at,
             ]));
 
-        $xml = view('seo.sitemap', ['urls' => $urls])->render();
+            return view('seo.sitemap', ['urls' => $urls])->render();
+        });
 
         return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
