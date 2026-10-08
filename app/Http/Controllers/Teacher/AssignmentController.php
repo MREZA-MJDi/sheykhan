@@ -54,12 +54,12 @@ class AssignmentController extends Controller
         abort_unless($assignment->teacher_id === request()->user()->id, 403);
 
         return view('teacher.assignments.submissions', [
-            'assignment' => $assignment->load([
-                'classroom:id,title',
-                'submissions' => fn ($query) => $query
-                    ->with('student:id,name')
-                    ->latest('submitted_at'),
-            ]),
+            'assignment' => $assignment->load('classroom:id,title'),
+            'submissions' => $assignment->submissions()
+                ->with('student:id,name')
+                ->latest('submitted_at')
+                ->paginate(15)
+                ->withQueryString(),
         ]);
     }
 }
