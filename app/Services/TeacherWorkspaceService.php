@@ -270,12 +270,17 @@ final class TeacherWorkspaceService
 
     public function markAttendance(User $teacher, Classroom $classroom, array $attendance, string $attendanceDate): void
     {
-        $classroom = $this->classroomWithStudents($teacher, $classroom->id);
+        // Keep ownership and student membership checks separate and batched.
+        // This intentionally avoids loading the full Classroom model graph.
+        $this->classroomOwnedBy($teacher, $classroom->id);
 
-        DB::transaction(function () use ($teacher, $classroom, $attendance, $attendanceDate): void {
-            $studentIds = $classroom->students
-                ->modelKeys();
+        $studentIds = $classroom->students()
+            ->wherePivot('status', 'active')
+            ->pluck('users.id')
+            ->map(static fn ($id): int => (int) $id)
+            ->all();
 
+        DB::transaction(function () use ($teacher, $classroom, $attendance, $attendanceDate, $studentIds): void {
             $allowedStudentIds = array_fill_keys($studentIds, true);
             $rows = [];
 
