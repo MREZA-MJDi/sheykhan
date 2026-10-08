@@ -23,6 +23,7 @@ class AcademyContentService
             foreach ($slugs as $slug) {
                 $groups[$slug] = AcademyContent::query()
                     ->where('status', 'published')
+                    ->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))
                     ->whereNotNull('published_at')
                     ->where('published_at', '<=', now())
                     ->whereHas('category', fn ($query) => $query
