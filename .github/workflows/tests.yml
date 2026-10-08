@@ -45,7 +45,7 @@ jobs:
           cp .env.example .env
           touch database/database.sqlite
           php artisan key:generate
-          php artisan config:cache
+          php artisan config:clear
           php artisan view:cache
 
       - name: Run tests
@@ -53,4 +53,6 @@ jobs:
           APP_ENV: testing
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
+          SESSION_DRIVER: array
+          CACHE_STORE: array
         run: php artisan test --compact
