@@ -18,7 +18,9 @@ class CourseCatalogService
             ->with([
                 'academy:id,name',
                 'teachers:id,name',
-                'sections.lessons:id,course_section_id',
+                'sections.lessons' => fn ($query) => $query
+                    ->select('id', 'course_section_id', 'title', 'is_free', 'sort_order')
+                    ->orderBy('sort_order'),
                 'media' => fn ($query) => $query
                     ->where('visibility', 'public')
                     ->orderByPivot('sort_order'),
@@ -42,7 +44,9 @@ class CourseCatalogService
                     'academy:id,name',
                     'teachers:id,name',
                     'grades:id,title',
-                    'sections.lessons:id,course_section_id',
+                    'sections.lessons' => fn ($query) => $query
+                        ->select('id', 'course_section_id', 'title', 'is_free', 'sort_order')
+                        ->orderBy('sort_order'),
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
                         ->orderByPivot('sort_order'),
@@ -56,6 +60,15 @@ class CourseCatalogService
                     'category' => $course->academy?->name,
                     'teacher' => $course->teachers->first()?->name,
                     'lessons' => PersianUi::digits($course->sections->sum(fn ($section) => $section->lessons->count())),
+                    'previewLessons' => $course->sections
+                        ->flatMap(fn ($section) => $section->lessons)
+                        ->take(3)
+                        ->map(fn ($lesson) => [
+                            'title' => $lesson->title,
+                            'is_free' => (bool) $lesson->is_free,
+                        ])
+                        ->values()
+                        ->all(),
                     'grades' => $course->grades->pluck('title')->values()->all(),
                     'duration' => $this->formatDuration($course->duration_minutes),
                     'price' => $this->formatPrice($course->price, $course->isFree()),
@@ -69,22 +82,44 @@ class CourseCatalogService
 
     public function findPublished(Course $course): Course
     {
-        $course->load([
-            'academy:id,name,slug,owner_id',
-            'teachers:id,name',
-            'sections.lessons.media',
-            'grades:id,title',
-            'media' => fn ($query) => $query
-                ->where('visibility', 'public')
-                ->orderByPivot('sort_order'),
-            'seoMeta',
-        ]);
+        $course = Course::query()
+            ->whereKey($course->getKey())
+            ->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->with([
+                'academy:id,name,slug,owner_id',
+                'teachers:id,name',
+                'sections.lessons' => fn ($query) => $query
+                    ->where('status', 'published')
+                    ->where(fn ($query) => $query
+                        ->whereNull('published_at')
+                        ->orWhere('published_at', '<=', now())
+                    )
+                    ->select([
+                        'id',
+                        'course_section_id',
+                        'title',
+                        'slug',
+                        'type',
+                        'summary',
+                        'duration_seconds',
+                        'is_free',
+                        'status',
+                        'published_at',
+                        'sort_order',
+                    ])
+                    ->orderBy('sort_order'),
+                'grades:id,title',
+                'media' => fn ($query) => $query
+                    ->where('visibility', 'public')
+                    ->orderByPivot('sort_order'),
+                'seoMeta',
+            ])
+            ->first();
 
-        abort_unless(
-            $course->isPublished()
-            && $course->academy?->status === 'active',
-            404
-        );
+        abort_unless($course, 404);
 
         return $course;
     }

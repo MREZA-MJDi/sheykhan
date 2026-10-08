@@ -4,6 +4,22 @@
 ])
 
 @php
+    $topbarUser = auth()->user();
+    $topbarAvatar = null;
+
+    if ($role === 'teacher' && $topbarUser) {
+        $topbarUser->loadMissing([
+            'teacherProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'teacher-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+
+        $avatarMedia = $topbarUser->teacherProfile?->media?->first();
+        $topbarAvatar = $avatarMedia?->visibility === 'public'
+            ? $avatarMedia->url()
+            : ($avatarMedia ? route('media.view', $avatarMedia) : null);
+    }
+
     $roleLabels = [
         'owner' => 'مدیریت آموزشگاه',
         'teacher' => 'پنل استاد',
@@ -33,13 +49,19 @@
     <div class="role-topbar-actions">
         <a href="{{ route('home') }}" class="role-topbar-site">مشاهده سایت</a>
 
-        <div class="role-user-chip">
-            <span class="role-user-avatar">{{ mb_substr(auth()->user()->name ?? 'ش', 0, 1) }}</span>
+        <a href="{{ $role === 'teacher' ? route('teacher.profile.edit') : ($role === 'student' ? route('student.profile.edit') : route('home')) }}" class="role-user-chip" aria-label="پروفایل کاربری">
+            <span class="role-user-avatar role-user-avatar-image">
+                @if($topbarAvatar)
+                    <img src="{{ $topbarAvatar }}" alt="" loading="lazy">
+                @else
+                    <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+                @endif
+            </span>
             <span class="role-user-copy">
                 <strong>{{ auth()->user()->name ?? 'کاربر' }}</strong>
                 <small>{{ $roleLabels[$role] ?? 'کاربر' }}</small>
             </span>
-        </div>
+        </a>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf

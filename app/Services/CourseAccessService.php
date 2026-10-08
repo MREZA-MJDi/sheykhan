@@ -19,6 +19,13 @@ final class CourseAccessService
             return false;
         }
 
+        if (
+            $user->hasAnyRole(['student', 'parent'])
+            && !$this->academyMember($user, $course->academy_id)
+        ) {
+            return false;
+        }
+
         if ($user->hasRole('student')) {
             return $this->studentCanAccess($user, $course);
         }
@@ -32,6 +39,11 @@ final class CourseAccessService
 
     public function canDownload(User $user, Course $course): bool
     {
+        // Purchasing a protected course grants learning access, not file download rights.
+        if ($user->hasRole('student')) {
+            return false;
+        }
+
         return $this->canAccess($user, $course);
     }
 
@@ -39,15 +51,17 @@ final class CourseAccessService
     {
         return $user->enrollments()
             ->where('course_id', $course->id)
-            ->where('status', 'active')
-            ->where('paid_amount', '>', 0)
+            ->fullyPaid()
             ->exists();
     }
 
     private function studentCanAccess(User $user, Course $course): bool
     {
         if ($course->isFree()) {
-            return true;
+            return $user->enrollments()
+                ->active()
+                ->where('course_id', $course->id)
+                ->exists();
         }
 
         return $this->isPaidEnrollment($user, $course);
@@ -62,8 +76,7 @@ final class CourseAccessService
         return $user->children()
             ->whereHas('enrollments', fn ($query) => $query
                 ->where('course_id', $course->id)
-                ->where('status', 'active')
-                ->where('paid_amount', '>', 0))
+                ->fullyPaid())
             ->exists();
     }
 
@@ -80,5 +93,13 @@ final class CourseAccessService
     private function isAssignedTeacher(User $user, Course $course): bool
     {
         return $course->teachers()->whereKey($user->id)->exists();
+    }
+
+    private function academyMember(User $user, int $academyId): bool
+    {
+        return $user->academies()
+            ->whereKey($academyId)
+            ->wherePivot('status', 'active')
+            ->exists();
     }
 }

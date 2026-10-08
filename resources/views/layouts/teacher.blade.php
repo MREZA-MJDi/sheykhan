@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل استاد | شیخان')</title>
-    @vite(['resources/css/teacher.css', 'resources/js/teacher.js'])
+    @vite(['resources/css/teacher.css', 'resources/css/teacher-workspace.css', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
 <body class="teacher-shell">
@@ -13,7 +13,8 @@
         <x-navigation.teacher-sidebar />
 
         <div class="role-content">
-            <x-navigation.panel-topbar role="teacher" title="@yield('header-title', 'پنل استاد')" />
+            @php($teacherHeaderTitle = trim($__env->yieldContent('header-title', 'پنل استاد')))
+            <x-navigation.panel-topbar role="teacher" :title="$teacherHeaderTitle" />
             <main class="role-main">@yield('content')</main>
         </div>
     </div>

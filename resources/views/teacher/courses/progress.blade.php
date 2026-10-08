@@ -1,39 +1,60 @@
 @extends('layouts.teacher')
 @section('title','پیشرفت دانش‌آموزان | شیخان')
 @section('header-title','پیشرفت دانش‌آموزان')
-@section('content')
-<div class="grid gap-5">
-    <div class="dashboard-panel p-5 sm:p-7"><span class="text-xs font-black text-[var(--panel-primary)]">مانیتور یادگیری</span><h2 class="mt-1 text-2xl font-black">{{ $course->title }}</h2><p class="mt-2 text-sm text-slate-500">دقیقاً ببین هر دانش‌آموز کدام درس را دیده، چند درصد جلو رفته و آخرین مشاهده چه زمانی بوده است.</p></div>
 
-    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <div class="overflow-x-auto">
-            <table class="min-w-[860px] w-full text-right">
-                <thead class="bg-slate-50 text-[10px] font-black text-slate-500">
-                    <tr><th class="px-4 py-4">دانش‌آموز</th>@foreach($lessons as $lesson)<th class="px-3 py-4 text-center">{{ $loop->iteration }}</th>@endforeach<th class="px-4 py-4">میانگین</th></tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                @forelse($students as $student)
+@section('content')
+<div class="teacher-workspace-page">
+    <header class="teacher-workspace-head">
+        <div class="teacher-workspace-head-copy">
+            <span class="teacher-workspace-kicker">مانیتور یادگیری</span>
+            <h1 class="teacher-workspace-title">{{ $course->title }}</h1>
+            <p class="teacher-workspace-description">پیشرفت هر دانش‌آموز در درس‌های دوره از داده‌های واقعی مشاهده و تکمیل درس محاسبه می‌شود.</p>
+        </div>
+        <div class="teacher-workspace-actions">
+            <a href="{{ route('teacher.courses.content',$course) }}" class="teacher-workspace-btn secondary">محتوای دوره</a>
+            <a href="{{ route('teacher.courses.index') }}" class="teacher-workspace-btn primary">دوره‌ها</a>
+        </div>
+    </header>
+
+    <section class="teacher-workspace-card">
+        <div class="teacher-workspace-card-head">
+            <div><h2>جدول پیشرفت</h2><p>{{ App\Support\PersianUi::digits($lessons->count()) }} درس · هر صفحه حداکثر ۲۰ دانش‌آموز</p></div>
+            <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($students->total()) }} دانش‌آموز</span>
+        </div>
+        <div class="teacher-workspace-table-wrap">
+            <table class="teacher-workspace-table" style="min-width:{{ max(760, 380 + ($lessons->count() * 75)) }}px">
+                <thead>
                     <tr>
-                        <td class="px-4 py-4"><strong class="text-xs">{{ $student->name }}</strong></td>
+                        <th>دانش‌آموز</th>
+                        @foreach($lessons as $lesson)<th style="text-align:center">{{ App\Support\PersianUi::digits($loop->iteration) }}</th>@endforeach
+                        <th>میانگین</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($students as $student)
+                    @php($summary = $studentSummary->firstWhere('student.id',$student->id))
+                    <tr>
+                        <td><strong>{{ $student->name }}</strong></td>
                         @foreach($lessons as $lesson)
                             @php($row = $progress[$student->id . ':' . $lesson->id] ?? null)
-                            <td class="px-3 py-4 text-center">
-                                <div class="mx-auto flex w-14 flex-col items-center gap-1">
-                                    <span class="text-[10px] font-black">{{ round((float)($row->progress_percent ?? 0)) }}٪</span>
-                                    <span class="text-[8px] {{ ($row?->progress_percent ?? 0) >= 100 ? 'text-emerald-600' : (($row?->progress_percent ?? 0) > 0 ? 'text-indigo-600' : 'text-slate-400') }}">{{ ($row?->progress_percent ?? 0) >= 100 ? 'کامل' : (($row?->progress_percent ?? 0) > 0 ? 'در حال مشاهده' : 'ندیده') }}</span>
-                                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100"><span class="block h-full rounded-full bg-[var(--panel-primary)]" style="width:{{ min(100,max(0,(float)($row->progress_percent ?? 0))) }}%"></span></div>
+                            @php($percent = min(100,max(0,(float)($row->progress_percent ?? 0))))
+                            <td style="text-align:center">
+                                <div style="min-width:58px">
+                                    <strong style="display:block;font-size:8px">{{ App\Support\PersianUi::digits(round($percent)) }}٪</strong>
+                                    <span style="display:block;margin-top:3px;color:#929baa;font-size:6px">{{ $percent >= 100 ? 'کامل' : ($percent > 0 ? 'درحال یادگیری' : 'ندیده') }}</span>
+                                    <span style="display:block;height:4px;margin-top:5px;border-radius:99px;background:#edf0f4;overflow:hidden"><span style="display:block;height:100%;width:{{ $percent }}%;background:#6554d9"></span></span>
                                 </div>
                             </td>
                         @endforeach
-                        @php($summary = $studentSummary->firstWhere('student.id',$student->id))
-                        <td class="px-4 py-4 text-center"><strong class="text-xs">{{ $summary['progress'] ?? 0 }}٪</strong><div class="mt-1 text-[9px] text-slate-500">{{ $summary['completed_lessons'] ?? 0 }} درس کامل</div></td>
+                        <td style="text-align:center"><strong>{{ App\Support\PersianUi::digits($summary['progress'] ?? 0) }}٪</strong><div style="margin-top:3px;color:#929baa;font-size:7px">{{ App\Support\PersianUi::digits($summary['completed_lessons'] ?? 0) }} درس کامل</div></td>
                     </tr>
                 @empty
-                    <tr><td colspan="{{ $lessons->count()+2 }}" class="px-5 py-12 text-center text-sm text-slate-500">دانش‌آموزی برای این دوره ثبت نشده است.</td></tr>
+                    <tr><td colspan="{{ $lessons->count()+2 }}"><div class="teacher-workspace-empty"><strong>دانش‌آموزی ثبت نشده است.</strong>پس از فعال‌شدن enrollment این جدول تکمیل می‌شود.</div></td></tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+        @if($students->hasPages())<div class="teacher-workspace-pagination">{{ $students->links('components.navigation.pagination') }}</div>@endif
+    </section>
 </div>
 @endsection

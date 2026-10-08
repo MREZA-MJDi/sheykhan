@@ -35,7 +35,7 @@ class AssignmentController extends Controller
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedBy($request->user(), (int) $classroomId);
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, (int) $request->validated('course_id'));
         }
 
         $payload = $request->safe()->except('course_id');
@@ -54,12 +54,12 @@ class AssignmentController extends Controller
         abort_unless($assignment->teacher_id === request()->user()->id, 403);
 
         return view('teacher.assignments.submissions', [
-            'assignment' => $assignment->load([
-                'classroom:id,title',
-                'submissions' => fn ($query) => $query
-                    ->with('student:id,name')
-                    ->latest('submitted_at'),
-            ]),
+            'assignment' => $assignment->load('classroom:id,title'),
+            'submissions' => $assignment->submissions()
+                ->with('student:id,name')
+                ->latest('submitted_at')
+                ->paginate(15)
+                ->withQueryString(),
         ]);
     }
 }

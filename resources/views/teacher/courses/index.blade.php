@@ -1,85 +1,78 @@
 @extends('layouts.teacher')
 
 @section('title', 'دوره‌های من | شیخان')
+@section('header-title', 'دوره‌های من')
 
 @section('content')
-    <div class="space-y-6 panel-page-enter">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <p class="text-xs font-bold text-[var(--color-brand-600)]">مدرس</p>
-                <h1 class="mt-2 text-2xl font-black text-[var(--color-text)]">دوره‌های من</h1>
-                <p class="mt-2 text-sm leading-7 text-[var(--color-text-secondary)]">
-                    دوره‌های آموزشی، قیمت‌گذاری و فایل‌های آموزشی خودت را مدیریت کن.
-                </p>
-            </div>
+<div class="teacher-workspace-page">
+    <header class="teacher-workspace-head">
+        <div class="teacher-workspace-head-copy">
+            <span class="teacher-workspace-kicker">آموزش</span>
+            <h1 class="teacher-workspace-title">دوره‌های من</h1>
+            <p class="teacher-workspace-description">دوره‌ها، قیمت‌گذاری، محتوای آموزشی و روند یادگیری دانش‌آموزان را از یک فضای یکپارچه مدیریت کن.</p>
+        </div>
+        <div class="teacher-workspace-actions">
+            <a href="{{ route('teacher.courses.create') }}" class="teacher-workspace-btn primary">+ ساخت دوره</a>
+        </div>
+    </header>
 
-            <a href="{{ route('teacher.courses.create') }}"
-               class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-brand-600)] px-4 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--color-brand-700)]">
-                + ساخت دوره
-            </a>
+    @if(session('success'))
+        <div class="teacher-workspace-alert success">{{ session('success') }}</div>
+    @endif
+
+    <section class="teacher-workspace-stats">
+        <div class="teacher-workspace-stat"><small>کل دوره‌ها</small><strong>{{ App\Support\PersianUi::digits($courses->total()) }}</strong><span>دوره تحت مدیریت</span></div>
+        <div class="teacher-workspace-stat"><small>در این صفحه</small><strong>{{ App\Support\PersianUi::digits($courses->count()) }}</strong><span>نمایش داده‌شده</span></div>
+        <div class="teacher-workspace-stat"><small>منتشرشده</small><strong>{{ App\Support\PersianUi::digits($courses->getCollection()->where('status','published')->count()) }}</strong><span>آماده ارائه</span></div>
+        <div class="teacher-workspace-stat"><small>دانش‌آموزان فعال</small><strong>{{ App\Support\PersianUi::digits($courses->getCollection()->sum('active_students_count')) }}</strong><span>در دوره‌های این صفحه</span></div>
+    </section>
+
+    <section class="teacher-workspace-card">
+        <div class="teacher-workspace-card-head">
+            <div><h2>فهرست دوره‌ها</h2><p>آخرین دوره‌های به‌روزشده در ابتدا قرار دارند.</p></div>
+            <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($courses->currentPage()) }} / {{ App\Support\PersianUi::digits($courses->lastPage()) }}</span>
         </div>
 
-        @if(session('success'))
-            <div class="rounded-2xl border border-[var(--color-success-100)] bg-[var(--color-success-50)] px-4 py-3 text-sm font-semibold text-[var(--color-success-700)]">
-                {{ session('success') }}
+        @forelse($courses as $course)
+            <div class="teacher-workspace-list">
+                <article class="teacher-workspace-item">
+                    <div class="teacher-workspace-item-main">
+                        <strong class="teacher-workspace-item-title">{{ $course->title }}</strong>
+                        <div class="teacher-workspace-item-meta">
+                            <span>{{ $course->academy?->name ?: 'آموزشگاه' }}</span>
+                            <span>{{ App\Support\PersianUi::digits($course->sections_count) }} بخش</span>
+                            <span>{{ App\Support\PersianUi::digits($course->classrooms_count) }} کلاس</span>
+                            <span>{{ App\Support\PersianUi::digits($course->active_students_count) }} دانش‌آموز فعال</span>
+                        </div>
+                    </div>
+                    <div class="teacher-workspace-item-actions">
+                        @if($course->access_type === 'free')
+                            <span class="teacher-workspace-chip success">رایگان</span>
+                        @else
+                            <span class="teacher-workspace-chip warning">{{ App\Support\PersianUi::digits(number_format((float)$course->price,0,'.','٬')) }} تومان</span>
+                        @endif
+                        <span class="teacher-workspace-chip {{ $course->status === 'published' ? 'success' : ($course->status === 'archived' ? 'danger' : 'muted') }}">
+                            {{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'archived' ? 'آرشیو' : 'پیش‌نویس') }}
+                        </span>
+                        <a href="{{ route('teacher.courses.content',$course) }}" class="teacher-workspace-link primary">محتوا</a>
+                        <a href="{{ route('teacher.courses.progress',$course) }}" class="teacher-workspace-link">پیشرفت</a>
+                        <a href="{{ route('teacher.courses.edit',$course) }}" class="teacher-workspace-link">تنظیمات</a>
+                        @if($course->isPublished())
+                            <a href="{{ route('courses.show',$course) }}" class="teacher-workspace-link" target="_blank" rel="noopener">نمایش سایت</a>
+                        @endif
+                    </div>
+                </article>
             </div>
+        @empty
+            <div class="teacher-workspace-empty">
+                <strong>هنوز دوره‌ای نداری.</strong>
+                اولین دوره را بساز و بعد محتوا، کلاس و ارزیابی‌های آن را اضافه کن.
+            </div>
+        @endforelse
+
+        @if($courses->hasPages())
+            <div class="teacher-workspace-pagination">{{ $courses->links('components.navigation.pagination') }}</div>
         @endif
-
-        <section class="panel-card overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[700px] text-right">
-                    <thead class="border-b border-[var(--color-border)] bg-[var(--color-background-soft)]">
-                        <tr>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">دوره</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">آموزشگاه</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">دسترسی</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">وضعیت</th>
-                            <th class="px-5 py-4 text-xs font-black text-[var(--color-text-muted)]">عملیات</th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="divide-y divide-[var(--color-border)]">
-                        @forelse($courses as $course)
-                            <tr class="transition hover:bg-[var(--color-background-soft)]">
-                                <td class="px-5 py-4">
-                                    <div class="font-bold text-[var(--color-text)]">{{ $course->title }}</div>
-                                    <div class="mt-1 text-xs text-[var(--color-text-muted)]">{{ $course->sections_count }} بخش</div>
-                                </td>
-                                <td class="px-5 py-4 text-sm text-[var(--color-text-secondary)]">{{ $course->academy?->name }}</td>
-                                <td class="px-5 py-4">
-                                    @if($course->isFree())
-                                        <span class="rounded-full bg-[var(--color-success-50)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-success-700)]">رایگان</span>
-                                    @else
-                                        <div>
-                                            <span class="rounded-full bg-[var(--color-warning-50)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-warning-700)]">پولی</span>
-                                            <div class="mt-1 text-xs font-bold text-[var(--color-text)]">{{ number_format((float) $course->price, 0, '.', ',') }} تومان</div>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td class="px-5 py-4">
-                                    <span class="rounded-full px-2.5 py-1 text-[11px] font-bold {{ $course->status === 'published' ? 'bg-[var(--color-success-50)] text-[var(--color-success-700)]' : 'bg-[var(--color-slate-100)] text-[var(--color-text-muted)]' }}">
-                                        {{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : 'آرشیو') }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-4">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <a href="{{ route('teacher.courses.content', $course) }}" class="rounded-lg bg-[var(--color-brand-50)] px-3 py-2 text-[10px] font-black text-[var(--color-brand-600)]">محتوا</a>
-                                        <a href="{{ route('teacher.courses.progress', $course) }}" class="rounded-lg bg-[var(--color-slate-100)] px-3 py-2 text-[10px] font-black text-[var(--color-text-secondary)]">پیشرفت</a>
-                                        <a href="{{ route('teacher.courses.edit', $course) }}" class="rounded-lg border border-[var(--color-border)] px-3 py-2 text-[10px] font-black">تنظیمات</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-5 py-16 text-center">
-                                    <div class="text-sm font-bold">هنوز دوره‌ای نداری.</div>
-                                    <p class="mt-1 text-xs text-[var(--color-text-muted)]">اولین دوره را بساز و محتوای آن را اضافه کن.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
+    </section>
+</div>
 @endsection

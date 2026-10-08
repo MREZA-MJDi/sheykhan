@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\AssignTeacherCourseRequest;
 use App\Http\Requests\Owner\EnrollStudentRequest;
+use App\Http\Requests\Owner\LegacyStudentOnboardingRequest;
 use App\Http\Requests\Owner\StoreTeacherRequest;
 use App\Http\Requests\Owner\UpdateTeacherVisibilityRequest;
 use App\Models\Academy;
 use App\Models\User;
 use App\Services\OwnerWorkspaceService;
+use App\Services\StudentOnboardingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -25,6 +27,26 @@ class PeopleController extends Controller
             ...$people,
             ...$options,
         ]);
+    }
+
+    public function onboardLegacyStudent(
+        LegacyStudentOnboardingRequest $request,
+        Academy $academy,
+        StudentOnboardingService $onboarding,
+        OwnerWorkspaceService $workspace,
+    ): RedirectResponse {
+        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+
+        $onboarding->onboard(
+            $request->user(),
+            $academy,
+            $request->validated(),
+        );
+
+        return back()->with(
+            'success',
+            'دانش‌آموز قدیمی با موفقیت ثبت/به‌روزرسانی شد و به این آموزشگاه متصل شد.'
+        );
     }
 
     public function storeTeacher(

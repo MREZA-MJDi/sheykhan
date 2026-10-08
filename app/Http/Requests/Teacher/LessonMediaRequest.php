@@ -21,6 +21,7 @@ class LessonMediaRequest extends FormRequest
                 'mimetypes:video/mp4,video/webm,video/quicktime,application/pdf,image/jpeg,image/png,image/webp,application/zip',
             ],
             'collection' => ['nullable', 'string', 'max:50'],
+            'downloadable' => ['nullable', 'boolean'],
         ];
     }
 

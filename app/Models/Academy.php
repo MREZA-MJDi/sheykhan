@@ -111,4 +111,9 @@ class Academy extends Model
     {
         return $this->hasMany(FinancialTransaction::class);
     }
+
+    public function homeBanners(): HasMany
+    {
+        return $this->hasMany(HomeBanner::class)->orderBy('slot');
+    }
 }

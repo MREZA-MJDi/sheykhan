@@ -9,7 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use LogicException;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class MediaService
@@ -123,14 +123,42 @@ class MediaService
         return Storage::disk($media->disk)->url($media->path);
     }
 
-    public function download(Media $media): StreamedResponse
+    public function inline(Media $media): Response
     {
         abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
 
-        return Storage::disk($media->disk)->download(
+        return Storage::disk($media->disk)->response(
             $media->path,
             $media->original_name,
-            ['Content-Type' => $media->mime_type ?: 'application/octet-stream'],
+            [
+                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+                'Content-Disposition' => 'inline',
+                'Cache-Control' => 'private, no-store, max-age=0',
+                'Pragma' => 'no-cache',
+                'Referrer-Policy' => 'no-referrer',
+                'X-Content-Type-Options' => 'nosniff',
+            ],
+        );
+    }
+
+    public function download(Media $media): Response
+    {
+        $disk = Storage::disk($media->disk);
+
+        abort_unless($disk->exists($media->path), 404);
+
+        $name = str_replace(["\r", "\n"], '', (string) ($media->original_name ?: basename($media->path)));
+
+        return $disk->download(
+            $media->path,
+            $name,
+            [
+                'Content-Type' => $media->mime_type ?: 'application/octet-stream',
+                'Cache-Control' => 'private, no-store, max-age=0',
+                'Pragma' => 'no-cache',
+                'Referrer-Policy' => 'no-referrer',
+                'X-Content-Type-Options' => 'nosniff',
+            ],
         );
     }
 }

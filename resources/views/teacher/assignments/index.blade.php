@@ -1,15 +1,53 @@
 @extends('layouts.teacher')
 @section('title','تکالیف | شیخان')
 @section('header-title','تکالیف')
+
 @section('content')
-<div class="grid gap-5">
-    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="text-xs font-black text-[var(--panel-primary)]">ارزیابی</p><h2 class="mt-1 text-2xl font-black">تکالیف</h2></div><a href="{{ route('teacher.assignments.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">+ تکلیف جدید</a></div>
-    <div class="grid gap-4">
-        @forelse($assignments as $assignment)
-            <article class="dashboard-panel p-5"><div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div><h3 class="text-sm font-black">{{ $assignment->title }}</h3><p class="mt-1 text-xs text-slate-500">{{ $assignment->classroom?->title ?? 'عمومی دوره' }} · موعد {{ $assignment->due_at?->format('Y/m/d H:i') ?? 'بدون موعد' }}</p></div><div class="flex flex-wrap items-center gap-2"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px]">{{ $assignment->submitted_count }} تحویل</span><span class="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] text-amber-700">{{ $assignment->pending_review_count }} منتظر تصحیح</span><a href="{{ route('teacher.assignments.submissions',$assignment) }}" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold">بررسی پاسخ‌ها</a></div></div></article>
-        @empty
-            <div class="dashboard-panel p-10 text-center text-sm text-slate-500">تکلیفی ثبت نشده است.</div>
-        @endforelse
-    </div>
+<div class="teacher-workspace-page">
+    <header class="teacher-workspace-head">
+        <div class="teacher-workspace-head-copy">
+            <span class="teacher-workspace-kicker">ارزیابی</span>
+            <h1 class="teacher-workspace-title">تکالیف</h1>
+            <p class="teacher-workspace-description">تکلیف بساز، موعد تحویل را مدیریت کن و پاسخ‌های ارسال‌شده را از همین‌جا تصحیح کن.</p>
+        </div>
+        <a href="{{ route('teacher.assignments.create') }}" class="teacher-workspace-btn primary">+ تکلیف جدید</a>
+    </header>
+
+    @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
+
+    <section class="teacher-workspace-stats">
+        <div class="teacher-workspace-stat"><small>کل تکالیف</small><strong>{{ App\Support\PersianUi::digits($assignments->total()) }}</strong><span>تحت مدیریت شما</span></div>
+        <div class="teacher-workspace-stat"><small>ارسال‌شده</small><strong>{{ App\Support\PersianUi::digits($assignments->getCollection()->sum('submitted_count')) }}</strong><span>در این صفحه</span></div>
+        <div class="teacher-workspace-stat"><small>منتظر تصحیح</small><strong>{{ App\Support\PersianUi::digits($assignments->getCollection()->sum('pending_review_count')) }}</strong><span>نیازمند اقدام</span></div>
+        <div class="teacher-workspace-stat"><small>نمایش</small><strong>{{ App\Support\PersianUi::digits($assignments->count()) }}</strong><span>مورد در این صفحه</span></div>
+    </section>
+
+    <section class="teacher-workspace-card">
+        <div class="teacher-workspace-card-head"><div><h2>فهرست تکالیف</h2><p>موارد نزدیک به موعد و آخرین موارد ایجادشده را سریع بررسی کن.</p></div></div>
+        <div class="teacher-workspace-list">
+            @forelse($assignments as $assignment)
+                <article class="teacher-workspace-item">
+                    <div class="teacher-workspace-item-main">
+                        <strong class="teacher-workspace-item-title">{{ $assignment->title }}</strong>
+                        <div class="teacher-workspace-item-meta">
+                            <span>{{ $assignment->course?->title ?: 'دوره' }}</span>
+                            <span>{{ $assignment->classroom?->title ?: 'همه دانش‌آموزان دوره' }}</span>
+                            <span>{{ $assignment->due_at ? 'موعد '.App\Support\PersianUi::date($assignment->due_at).' · '.App\Support\PersianUi::time($assignment->due_at) : 'بدون موعد' }}</span>
+                            <span>نمره کل {{ App\Support\PersianUi::digits($assignment->max_score ?? 0) }}</span>
+                        </div>
+                    </div>
+                    <div class="teacher-workspace-item-actions">
+                        <span class="teacher-workspace-chip">{{ $assignment->status === 'published' ? 'منتشرشده' : ($assignment->status === 'closed' ? 'بسته' : 'پیش‌نویس') }}</span>
+                        <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($assignment->submitted_count) }} ارسال</span>
+                        <span class="teacher-workspace-chip {{ $assignment->pending_review_count ? 'warning' : 'success' }}">{{ App\Support\PersianUi::digits($assignment->pending_review_count) }} نیازمند بررسی</span>
+                        <a href="{{ route('teacher.assignments.submissions',$assignment) }}" class="teacher-workspace-link primary">بررسی پاسخ‌ها</a>
+                    </div>
+                </article>
+            @empty
+                <div class="teacher-workspace-empty"><strong>تکلیفی ثبت نشده است.</strong>اولین تکلیف را بساز و آن را به یک دوره یا کلاس متصل کن.</div>
+            @endforelse
+        </div>
+        @if($assignments->hasPages())<div class="teacher-workspace-pagination">{{ $assignments->links('components.navigation.pagination') }}</div>@endif
+    </section>
 </div>
 @endsection

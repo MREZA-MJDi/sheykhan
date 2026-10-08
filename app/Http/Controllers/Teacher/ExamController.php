@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Exam;
 use App\Services\TeacherWorkspaceService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -35,7 +36,7 @@ class ExamController extends Controller
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedBy($request->user(), (int) $classroomId);
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, (int) $request->validated('course_id'));
         }
 
         $payload = $request->safe()->except(['course_id', 'questions']);
@@ -62,13 +63,14 @@ class ExamController extends Controller
     {
         abort_unless($exam->teacher_id === request()->user()->id, 403);
 
-        return view('teacher.exams.attempts', [
-            'exam' => $exam->load([
-                'questions',
-                'attempts' => fn ($query) => $query
-                    ->with(['student:id,name', 'answers.question'])
-                    ->latest('submitted_at'),
-            ]),
-        ]);
+        $exam->load('questions');
+
+        $attempts = $exam->attempts()
+            ->with(['student:id,name', 'answers.question', 'exam.questions'])
+            ->latest('submitted_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('teacher.exams.attempts', compact('exam', 'attempts'));
     }
 }

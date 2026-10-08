@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Academy;
+use App\Models\Achievement;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Classroom;
@@ -14,12 +15,69 @@ use App\Models\LiveClass;
 use App\Models\Media;
 use App\Models\User;
 use App\Services\CourseAccessService;
+use App\Services\StudentAccessService;
 
 class MediaPolicy
 {
-    public function download(User $user, Media $media): bool
+    public function view(User $user, Media $media): bool
     {
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
+            return true;
+        }
+
+        return $this->canAccessProtectedMedia($user, $media);
+    }
+
+    public function download(User $user, Media $media): bool
+    {
+        // Protected educational media is view-only for students.
+        // A purchase grants content access, not a file download capability.
+        if ($media->visibility === 'public') {
+            return true;
+        }
+
+        if ($user->hasRole('student')) {
+            return false;
+        }
+
+        if ($media->uploaded_by === $user->id) {
+            return true;
+        }
+
+        return $this->canAccessProtectedMedia($user, $media);
+    }
+
+    private function canAccessProtectedMedia(User $user, Media $media): bool
+    {
+        if (Achievement::query()
+            ->where('media_id', $media->id)
+            ->where('student_id', $user->id)
+            ->where('status', 'published')
+            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
+            ->exists()
+        ) {
+            return true;
+        }
+
+        if (LiveClass::query()
+            ->where('recording_media_id', $media->id)
+            ->whereIn('status', ['completed', 'published'])
+            ->whereNotNull('recording_released_at')
+            ->where('recording_released_at', '<=', now())
+            ->with(['course', 'classroom'])
+            ->get()
+            ->contains(function (LiveClass $liveClass) use ($user, $media): bool {
+                if (!$liveClass->isRecordingAvailable()) {
+                    return false;
+                }
+
+                if ($liveClass->classroom) {
+                    return $this->classroomAccess($user, $liveClass->classroom);
+                }
+
+                return $liveClass->course && $this->courseAccess($user, $liveClass->course);
+            })
+        ) {
             return true;
         }
 
@@ -49,8 +107,12 @@ class MediaPolicy
             if ($model instanceof Assignment) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
-                    return true;
+                if ($model->classroom) {
+                    if ($this->classroomAccess($user, $model->classroom)) {
+                        return true;
+                    }
+
+                    continue;
                 }
 
                 if ($model->course && $this->courseAccess($user, $model->course)) {
@@ -69,11 +131,15 @@ class MediaPolicy
                     return true;
                 }
 
-                if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
-                    return true;
+                if ($model->assignment?->classroom) {
+                    if ($this->classroomAccess($user, $model->assignment->classroom)) {
+                        return true;
+                    }
+
+                    continue;
                 }
 
-                if ($model->assignment?->classroom && $this->classroomAccess($user, $model->assignment->classroom)) {
+                if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
                     return true;
                 }
             }
@@ -81,8 +147,8 @@ class MediaPolicy
             if ($model instanceof Exam) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
-                    return true;
+                if ($model->classroom) {
+                    return $this->classroomAccess($user, $model->classroom);
                 }
 
                 if ($model->course && $this->courseAccess($user, $model->course)) {
@@ -102,8 +168,15 @@ class MediaPolicy
             if ($model instanceof LiveClass) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom && $this->classroomAccess($user, $model->classroom)) {
-                    return true;
+                if (
+                    $model->recording_media_id !== $media->id
+                    || !$model->isRecordingAvailable()
+                ) {
+                    continue;
+                }
+
+                if ($model->classroom) {
+                    return $this->classroomAccess($user, $model->classroom);
                 }
 
                 if ($model->course && $this->courseAccess($user, $model->course)) {
@@ -133,7 +206,19 @@ class MediaPolicy
 
     private function classroomAccess(User $user, Classroom $classroom): bool
     {
-        $classroom->loadMissing('academy');
+        $classroom->loadMissing(['academy', 'course']);
+
+        if ($user->hasRole('student')) {
+            if (!$classroom->course) {
+                return false;
+            }
+
+            return $this->courseAccess($user, $classroom->course)
+                && $user->classroomsAsStudent()
+                    ->whereKey($classroom->id)
+                    ->wherePivot('status', 'active')
+                    ->exists();
+        }
 
         if ($this->academyOwner($user, $classroom->academy)) {
             return true;
@@ -164,6 +249,10 @@ class MediaPolicy
 
     private function courseAccess(User $user, Course $course): bool
     {
+        if ($user->hasRole('student')) {
+            return app(StudentAccessService::class)->course($user, $course);
+        }
+
         return app(CourseAccessService::class)->canAccess($user, $course);
     }
 

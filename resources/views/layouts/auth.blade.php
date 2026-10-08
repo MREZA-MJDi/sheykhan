@@ -17,23 +17,8 @@
 </head>
 <body class="sheykhan-site min-h-screen">
     <div class="min-h-screen">
-        <header class="home-glass-nav sticky top-0 z-[var(--z-sticky)] border-b border-[var(--color-border)]">
-            <x-layout.container size="wide">
-                <div class="flex min-h-16 items-center justify-between gap-4">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3" aria-label="شیخان">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-slate-900)] text-sm font-black text-white">ش</span>
-                        <span class="leading-tight">
-                            <span class="block text-sm font-black text-[var(--color-text)]">شیخان</span>
-                            <span class="block text-[11px] text-[var(--color-text-muted)]">آموزش، رشد، آینده</span>
-                        </span>
-                    </a>
-
-                    <a href="{{ route('home') }}" class="text-sm font-bold text-[var(--color-text-secondary)] transition hover:text-[var(--color-primary-600)]">
-                        بازگشت به خانه
-                    </a>
-                </div>
-            </x-layout.container>
-        </header>
+        {{-- Shared public navigation: same behavior on all public/auth pages. --}}
+        <x-navigation.navbar />
 
         <main class="min-h-[calc(100vh-4rem)] px-4 py-10 sm:px-6 sm:py-14">
             <div class="mx-auto w-full max-w-md">

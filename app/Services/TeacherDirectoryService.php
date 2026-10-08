@@ -15,6 +15,21 @@ class TeacherDirectoryService
             ->withQueryString();
     }
 
+
+    public function findPublic(User $teacher): User
+    {
+        return $this->query()
+            ->whereKey($teacher->id)
+            ->where('status', 'active')
+            ->with([
+                'taughtCourses' => fn ($query) => $query
+                    ->published()
+                    ->withCount('lessons')
+                    ->latest('courses.published_at'),
+            ])
+            ->firstOrFail();
+    }
+
     public function featuredCards(int $limit = 4): array
     {
         return $this->query()
@@ -34,6 +49,7 @@ class TeacherDirectoryService
     private function query(): Builder
     {
         return User::query()
+            ->where('status', 'active')
             ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
             ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
             ->with([

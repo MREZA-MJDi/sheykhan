@@ -7,6 +7,7 @@ use App\Http\Requests\Teacher\StoreLiveClassRequest;
 use App\Models\LiveClass;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class LiveClassController extends Controller
@@ -35,11 +36,17 @@ class LiveClassController extends Controller
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedBy($request->user(), (int) $classroomId);
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, (int) $request->validated('course_id'));
         }
 
         $payload = $request->safe()->except('course_id');
         $payload['teacher_id'] = $request->user()->id;
+        $payload['status'] = 'scheduled';
+
+        $scheduledAt = Carbon::parse($payload['scheduled_at']);
+        $payload['scheduled_end_at'] = $scheduledAt
+            ->copy()
+            ->addMinutes((int) $payload['duration_minutes']);
 
         $course->liveClasses()->create($payload);
 

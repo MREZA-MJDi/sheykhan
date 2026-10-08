@@ -13,7 +13,8 @@
         <x-navigation.parent-sidebar />
 
         <div class="role-content">
-            <x-navigation.panel-topbar role="parent" title="@yield('header-title', 'پنل والد')" />
+            @php($parentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل والد')))
+            <x-navigation.panel-topbar role="parent" :title="$parentHeaderTitle" />
             <main class="role-main">@yield('content')</main>
         </div>
     </div>

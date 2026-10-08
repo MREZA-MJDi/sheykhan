@@ -12,7 +12,8 @@
 <div class="role-layout">
     <x-navigation.owner-sidebar/>
     <div class="role-content">
-        <x-navigation.panel-topbar role="owner"/>
+        @php($ownerHeaderTitle = trim($__env->yieldContent('header-title', 'مدیریت آموزشگاه')))
+        <x-navigation.panel-topbar role="owner" :title="$ownerHeaderTitle" />
         <main class="role-main">
             <x-owner.feedback/>@yield('content')</main>
     </div>

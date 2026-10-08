@@ -6,7 +6,7 @@
 ])
 
 <article {{ $attributes->class([
-    'home-feature-card home-card h-full p-5 sm:p-6',
+    'edu-feature-card h-full p-5 sm:p-6',
 ]) }}>
     <div class="relative z-[1] flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
         {!! $icon !!}
@@ -21,8 +21,12 @@
     </p>
 
     @if($href)
-        <a href="{{ $href }}" class="relative z-[1] mt-5 inline-flex text-sm font-black text-[var(--color-primary-600)]">
-            بیشتر بدانید ←
+        <a
+            href="{{ $href }}"
+            class="relative z-[1] mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[var(--color-primary-600)]"
+        >
+            <span>بیشتر بدانید</span>
+            <span aria-hidden="true">←</span>
         </a>
     @endif
 </article>

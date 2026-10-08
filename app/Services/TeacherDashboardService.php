@@ -6,6 +6,7 @@ use App\Models\Assignment;
 use App\Models\ExamAttempt;
 use App\Models\LiveClass;
 use App\Models\User;
+use App\Support\PersianUi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -13,8 +14,17 @@ final class TeacherDashboardService
 {
     public function build(User $teacher): array
     {
-        $courseIds = $teacher->taughtCourses()->pluck('courses.id');
+        $activeAcademyIds = $teacher->academies()
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
+            ->pluck('academies.id');
+
+        $courseIds = $teacher->taughtCourses()
+            ->whereIn('courses.academy_id', $activeAcademyIds)
+            ->pluck('courses.id');
+
         $classrooms = $teacher->classroomsAsTeacher()
+            ->whereIn('classrooms.academy_id', $activeAcademyIds)
             ->where('classrooms.status', 'active')
             ->with([
                 'course:id,title',
@@ -38,19 +48,20 @@ final class TeacherDashboardService
 
         $weekStart = now()->startOfWeek(Carbon::SATURDAY);
         $weekEnd = now()->endOfWeek(Carbon::FRIDAY);
-        $monthStart = now()->startOfMonth();
-
         $weeklyProgress = $this->progressAverage($teacher->id, $courseIds);
-        $pendingAssignmentReviews = Assignment::query()
-            ->where('teacher_id', $teacher->id)
-            ->whereHas('submissions', fn ($query) => $query
-                ->whereNotNull('submitted_at')
-                ->whereNull('graded_at'))
+        $pendingAssignmentReviews = DB::table('assignment_submissions as submissions')
+            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->where('assignments.teacher_id', $teacher->id)
+            ->whereIn('assignments.course_id', $courseIds)
+            ->whereNotNull('submissions.submitted_at')
+            ->whereNull('submissions.graded_at')
             ->count();
 
         $pendingExamReviews = ExamAttempt::query()
             ->where('status', 'submitted')
-            ->whereHas('exam', fn ($query) => $query->where('teacher_id', $teacher->id))
+            ->whereHas('exam', fn ($query) => $query
+                ->where('teacher_id', $teacher->id)
+                ->whereIn('course_id', $courseIds))
             ->count();
 
         $weeklySessions = LiveClass::query()
@@ -64,15 +75,9 @@ final class TeacherDashboardService
             ->whereIn('course_id', $courseIds)
             ->where('teacher_id', $teacher->id)
             ->whereBetween('scheduled_at', [$weekStart, $weekEnd])
-            ->where('scheduled_at', '<', now())
+            ->whereNotNull('ended_at')
             ->where('status', '!=', 'cancelled')
             ->count();
-
-        $monthlySales = (float) DB::table('course_enrollments')
-            ->whereIn('course_id', $courseIds)
-            ->where('status', 'active')
-            ->where('created_at', '>=', $monthStart)
-            ->sum('paid_amount');
 
         $todaySessions = $this->todaySessions($teacher, $classrooms, $courseIds);
         $upcomingClasses = LiveClass::query()
@@ -97,6 +102,7 @@ final class TeacherDashboardService
 
         $activities = Assignment::query()
             ->where('teacher_id', $teacher->id)
+            ->whereIn('course_id', $courseIds)
             ->with('classroom:id,title')
             ->withCount([
                 'submissions as submitted_count' => fn ($query) => $query->whereNotNull('submitted_at'),
@@ -109,18 +115,52 @@ final class TeacherDashboardService
             ->get();
 
         $courseProgress = $this->courseProgress($teacher->id, $courseIds);
+        $topStudents = DB::table('classroom_student as memberships')
+            ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
+            ->join('classroom_teacher as classroom_teachers', function ($join) use ($teacher): void {
+                $join->on('classroom_teachers.classroom_id', '=', 'memberships.classroom_id')
+                    ->where('classroom_teachers.teacher_id', '=', $teacher->id);
+            })
+            ->join('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.student_id', '=', 'memberships.student_id')
+                    ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                    ->where('enrollments.status', '=', 'active');
+            })
+            ->join('users', 'users.id', '=', 'memberships.student_id')
+            ->leftJoin('course_sections', 'course_sections.course_id', '=', 'enrollments.course_id')
+            ->leftJoin('lessons', 'lessons.course_section_id', '=', 'course_sections.id')
+            ->leftJoin('lesson_progress as progress', function ($join): void {
+                $join->on('progress.lesson_id', '=', 'lessons.id')
+                    ->on('progress.user_id', '=', 'enrollments.student_id');
+            })
+            ->where('memberships.status', 'active')
+            ->whereIn('enrollments.course_id', $courseIds)
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc(DB::raw('COALESCE(AVG(progress.progress_percent), 0)'))
+            ->limit(3)
+            ->get([
+                'users.id',
+                'users.name',
+                DB::raw('ROUND(COALESCE(AVG(progress.progress_percent), 0)) as progress_average'),
+            ])
+            ->map(function ($student): object {
+                $student->progress_average = (int) $student->progress_average;
+                return $student;
+            });
+
 
         return [
             'teacher' => $teacher,
             'profile' => $teacher->teacherProfile,
-            'dashboardDate' => $this->faDigits(now()->format('Y/m/d')),
+            'dashboardDate' => PersianUi::date(now()),
             'weeklyProgress' => round((float) $weeklyProgress),
             'completedSessions' => $completedSessions,
             'metrics' => [
                 'activeClasses' => count($classroomIds),
                 'studentCount' => $studentCount,
                 'weeklySessions' => $weeklySessions,
-                'monthlySales' => $monthlySales,
+                'pendingAssignmentReviews' => $pendingAssignmentReviews,
+                'pendingExamReviews' => $pendingExamReviews,
                 'pendingReviews' => $pendingAssignmentReviews + $pendingExamReviews,
             ],
             'todaySessions' => $todaySessions,
@@ -128,6 +168,7 @@ final class TeacherDashboardService
             'chart' => $chart,
             'activities' => $activities,
             'courseProgress' => $courseProgress,
+            'topStudents' => $topStudents,
             'calendarEvents' => $this->calendarEvents($teacher, $courseIds),
         ];
     }
@@ -271,10 +312,12 @@ final class TeacherDashboardService
                     $end = Carbon::parse($schedule->end_time);
                     $now = now();
 
-                    $status = $now->between(
-                        now()->copy()->setTimeFrom($start),
-                        now()->copy()->setTimeFrom($end)
-                    ) ? 'در حال برگزاری' : 'شروع نشده';
+                    $startAt = now()->copy()->setTimeFrom($start);
+                    $endAt = now()->copy()->setTimeFrom($end);
+
+                    $status = $now->gt($endAt)
+                        ? 'پایان یافته'
+                        : ($now->gte($startAt) ? 'در حال برگزاری' : 'شروع نشده');
 
                     return [
                         'time' => $this->faDigits($start->format('H:i')),
@@ -295,11 +338,16 @@ final class TeacherDashboardService
             ->orderBy('scheduled_at')
             ->get()
             ->map(function (LiveClass $item) {
+                $ended = $item->ended_at !== null
+                    || ($item->scheduled_end_at !== null && $item->scheduled_end_at->isPast());
+
                 return [
                     'time' => $this->faDigits($item->scheduled_at->format('H:i')),
                     'title' => $item->title,
                     'meta' => $item->classroom?->title ?? $item->course?->title,
-                    'status' => $item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده',
+                    'status' => $ended
+                        ? 'پایان یافته'
+                        : ($item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده'),
                     'type' => 'online',
                 ];
             });
@@ -317,6 +365,7 @@ final class TeacherDashboardService
         LiveClass::query()
             ->whereIn('course_id', $courseIds)
             ->where('teacher_id', $teacher->id)
+            ->whereIn('course_id', $courseIds)
             ->whereBetween('scheduled_at', [$from, $to])
             ->get(['scheduled_at', 'title'])
             ->each(function ($event) use (&$events): void {
@@ -328,6 +377,7 @@ final class TeacherDashboardService
 
         Assignment::query()
             ->where('teacher_id', $teacher->id)
+            ->whereIn('course_id', $courseIds)
             ->whereNotNull('due_at')
             ->whereBetween('due_at', [$from, $to])
             ->get(['due_at', 'title'])
@@ -346,14 +396,15 @@ final class TeacherDashboardService
         return [
             'teacher' => $teacher,
             'profile' => $teacher->teacherProfile,
-            'dashboardDate' => $this->faDigits(now()->format('Y/m/d')),
+            'dashboardDate' => PersianUi::date(now()),
             'weeklyProgress' => 0,
             'completedSessions' => 0,
             'metrics' => [
                 'activeClasses' => $classrooms->count(),
                 'studentCount' => $studentCount,
                 'weeklySessions' => 0,
-                'monthlySales' => 0,
+                'pendingAssignmentReviews' => 0,
+                'pendingExamReviews' => 0,
                 'pendingReviews' => 0,
             ],
             'todaySessions' => collect(),
@@ -364,6 +415,7 @@ final class TeacherDashboardService
             ],
             'activities' => collect(),
             'courseProgress' => collect(),
+            'topStudents' => collect(),
             'calendarEvents' => [],
         ];
     }

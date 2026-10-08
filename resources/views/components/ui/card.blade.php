@@ -1,20 +1,14 @@
-﻿@props([
+@props([
     'padding' => true,
     'interactive' => false,
 ])
 
 @php
-    $classes = 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-xl)] shadow-[var(--shadow-sm)]';
-
-    if ($padding) {
-        $classes .= ' p-5 sm:p-6';
-    }
-
-    if ($interactive) {
-        $classes .= ' fz-surface-interactive';
-    }
+    $classes = $interactive
+        ? 'fz-surface-interactive'
+        : 'fz-surface';
 @endphp
 
-<div {{ $attributes->merge(['class' => $classes]) }}>
+<div {{ $attributes->class([$classes, $padding ? 'p-5 sm:p-6' : '']) }}>
     {{ $slot }}
 </div>

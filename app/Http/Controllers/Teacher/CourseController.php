@@ -15,7 +15,7 @@ class CourseController extends Controller
     public function index(CourseManagementService $service): View
     {
         return view('teacher.courses.index', [
-            'courses' => $service->coursesFor(request()->user()),
+            'courses' => $service->coursesForPaginated(request()->user()),
         ]);
     }
 

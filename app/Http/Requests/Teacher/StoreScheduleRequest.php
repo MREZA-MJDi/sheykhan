@@ -8,7 +8,7 @@ class StoreScheduleRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasPermission('classrooms.manage') ?? false;
+        return $this->user()?->hasPermission('live_classes.manage') ?? false;
     }
 
     public function rules(): array

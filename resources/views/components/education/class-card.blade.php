@@ -9,62 +9,52 @@
     'href' => '#',
 ])
 
-<article class="fz-surface-interactive p-5">
-
+<article class="fz-surface-interactive min-w-0 p-5">
     <div class="flex items-start justify-between gap-4">
-
         <div class="min-w-0">
-
-            <span class="text-xs text-[var(--color-text-muted)]">
+            <span class="text-xs font-semibold text-[var(--color-text-muted)]">
                 {{ $course ?? 'کلاس آموزشی' }}
             </span>
 
-            <h3 class="mt-1 text-base font-bold">
-                <a
-                    href="{{ $href }}"
-                    class="hover:text-[var(--color-primary-600)]"
-                >
+            <h3 class="mt-1 truncate text-base font-black text-[var(--color-text)]">
+                <a href="{{ $href }}" class="transition-colors hover:text-[var(--color-primary-600)]">
                     {{ $title }}
                 </a>
             </h3>
-
         </div>
 
         @if($status)
-            <x-ui.badge variant="primary">
-                {{ $status }}
-            </x-ui.badge>
+            <x-ui.badge variant="primary">{{ $status }}</x-ui.badge>
         @endif
-
     </div>
 
-    <div class="mt-5 grid grid-cols-1 gap-3 text-sm text-[var(--color-text-muted)] sm:grid-cols-2">
-
+    <div class="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-[var(--color-background-soft)] p-4 text-xs">
         @if($teacher)
-            <div class="flex items-center gap-2">
-                <span>مدرس:</span>
-                <strong class="text-[var(--color-text)]">{{ $teacher }}</strong>
+            <div>
+                <span class="block text-[var(--color-text-muted)]">مدرس</span>
+                <strong class="mt-1 block truncate text-[var(--color-text)]">{{ $teacher }}</strong>
             </div>
         @endif
 
         @if($date)
             <div>
-                تاریخ: <strong class="text-[var(--color-text)]">{{ $date }}</strong>
+                <span class="block text-[var(--color-text-muted)]">تاریخ</span>
+                <strong class="mt-1 block text-[var(--color-text)]">{{ $date }}</strong>
             </div>
         @endif
 
         @if($time)
             <div>
-                ساعت: <strong class="text-[var(--color-text)]">{{ $time }}</strong>
+                <span class="block text-[var(--color-text-muted)]">ساعت</span>
+                <strong class="mt-1 block text-[var(--color-text)]">{{ $time }}</strong>
             </div>
         @endif
 
-        @if($students)
+        @if($students !== null)
             <div>
-                {{ $students }} دانش‌آموز
+                <span class="block text-[var(--color-text-muted)]">دانش‌آموز</span>
+                <strong class="mt-1 block text-[var(--color-text)]">{{ $students }}</strong>
             </div>
         @endif
-
     </div>
-
 </article>

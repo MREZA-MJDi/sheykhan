@@ -1,4 +1,4 @@
-﻿@props([
+@props([
     'label' => null,
     'error' => null,
     'placeholder' => null,
@@ -8,26 +8,28 @@
     @if($label)
         <label
             @if($attributes->has('id')) for="{{ $attributes->get('id') }}" @endif
-            class="mb-2 block text-sm font-medium text-[var(--color-slate-700)]"
+            class="mb-2 block text-sm font-bold text-[var(--color-slate-700)]"
         >
             {{ $label }}
         </label>
     @endif
 
     <select
-        {{ $attributes->merge([
-            'class' => 'block w-full min-h-11 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none fz-transition focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]',
+        {{ $attributes->class([
+            'ui-control appearance-none px-4 text-sm outline-none',
+            'border-[var(--color-danger-400)] focus:border-[var(--color-danger-400)]' => $error,
         ]) }}
+        @if($error) aria-invalid="true" @endif
     >
         @if($placeholder)
-            <option value="" disabled selected>{{ $placeholder }}</option>
+            <option value="">{{ $placeholder }}</option>
         @endif
 
         {{ $slot }}
     </select>
 
     @if($error)
-        <p class="mt-1.5 text-xs font-medium text-[var(--color-danger-600)]">
+        <p class="mt-1.5 text-xs font-semibold text-[var(--color-danger-600)]">
             {{ $error }}
         </p>
     @endif

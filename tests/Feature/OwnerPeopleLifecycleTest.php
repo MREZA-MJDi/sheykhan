@@ -121,6 +121,12 @@ class OwnerPeopleLifecycleTest extends TestCase
             'description' => 'Teacher',
         ]);
 
+        $academyView = Permission::create([
+            'name' => 'academy.view',
+            'label' => 'View academy',
+            'group' => 'academy',
+        ]);
+
         $teacherManage = Permission::create([
             'name' => 'teachers.manage',
             'label' => 'Manage teachers',
@@ -137,7 +143,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             'group' => 'courses',
         ]);
 
-        $ownerRole->permissions()->attach([$teacherManage->id, $coursesManage->id, $coursesView->id]);
+        $ownerRole->permissions()->attach([$academyView->id, $teacherManage->id, $coursesManage->id, $coursesView->id]);
         $teacherRole->permissions()->attach([$coursesManage->id, $coursesView->id]);
 
         $owner->roles()->attach($ownerRole->id);

@@ -6,7 +6,7 @@ use App\Models\CourseEnrollment;
 use App\Models\FinancialTransaction;
 use Illuminate\Database\Seeder;
 
-class DemoFinanceSeeder extends Seeder
+class FinanceSeeder extends Seeder
 {
     public function run(): void
     {
@@ -32,7 +32,7 @@ class DemoFinanceSeeder extends Seeder
                     }
 
                     FinancialTransaction::updateOrCreate(
-                        ['reference' => 'demo-enrollment-' . $enrollment->id],
+                        ['reference' => 'enrollment-payment-' . $enrollment->id],
                         [
                             'academy_id' => $enrollment->course->academy_id,
                             'enrollment_id' => $enrollment->id,
@@ -42,8 +42,8 @@ class DemoFinanceSeeder extends Seeder
                             'status' => 'completed',
                             'amount' => $paid,
                             'currency' => 'IRT',
-                            'description' => 'پرداخت نمونه ثبت‌نام',
-                            'metadata' => ['source' => 'demo_finance'],
+                            'description' => 'پرداخت ثبت‌نام',
+                            'metadata' => ['source' => 'initial_seed'],
                             'occurred_at' => $enrollment->created_at,
                         ]
                     );

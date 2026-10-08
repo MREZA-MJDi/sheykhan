@@ -1,9 +1,11 @@
-﻿@props([
+@props([
     'class' => '',
 ])
 
 <div
-    {{ $attributes->merge([
-        'class' => "animate-pulse rounded-[var(--radius-md)] bg-[var(--color-slate-200)] {$class}",
+    {{ $attributes->class([
+        'animate-pulse rounded-[var(--radius-md)] bg-[var(--color-slate-200)]',
+        $class,
     ]) }}
+    aria-hidden="true"
 ></div>
