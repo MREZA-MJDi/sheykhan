@@ -11,5 +11,11 @@
             <div class="dashboard-panel p-10 text-center text-sm text-slate-500">تکلیفی ثبت نشده است.</div>
         @endforelse
     </div>
+
+    @if($assignments->hasPages())
+        <div class="dashboard-panel p-4">
+            {{ $assignments->links() }}
+        </div>
+    @endif
 </div>
 @endsection
