@@ -15,7 +15,7 @@ final class StoreContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'academy_id' => ['required','integer','exists:academies,id'],
+            'academy_id' => ['required','integer', Rule::in($this->ownedAcademyIds())],
             'category_id' => ['required','integer','exists:academy_content_categories,id'],
             'type' => ['required', Rule::in(['article','video'])],
             'title' => ['required','string','max:255'],
@@ -29,5 +29,14 @@ final class StoreContentRequest extends FormRequest
             'published_at' => ['nullable','date'],
             'cover_image' => ['nullable','file','max:10240','mimes:jpg,jpeg,png,webp'],
         ];
+    }
+
+    private function ownedAcademyIds(): array
+    {
+        return $this->user()
+            ?->ownedAcademies()
+            ->where('status', 'active')
+            ->pluck('id')
+            ->all() ?? [];
     }
 }
