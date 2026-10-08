@@ -3,6 +3,24 @@ import { bootPanel } from './panel-base.js';
 document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
 
+    document.querySelectorAll('[data-copy-schedule-link]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const value = button.dataset.copyScheduleLink || '';
+            if (!value) return;
+
+            try {
+                await navigator.clipboard.writeText(value);
+                const previous = button.textContent;
+                button.textContent = 'کپی شد ✓';
+                window.setTimeout(() => {
+                    button.textContent = previous;
+                }, 1600);
+            } catch {
+                window.prompt('لینک جلسه را کپی کنید:', value);
+            }
+        });
+    });
+
     const dashboard = document.querySelector('[data-teacher-dashboard]');
 
     if (dashboard) {
