@@ -7,7 +7,6 @@ use App\Models\BlogPost;
 use App\Models\AcademyContent;
 use App\Models\Course;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\URL;
 
 final class SeoController extends Controller
 {
