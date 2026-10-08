@@ -116,19 +116,23 @@ return new class extends Migration {
             ['course_enrollments', self::YEAR_FOREIGN_KEY]
         );
 
-        if (! $constraint || strtoupper((string) $constraint->delete_rule) !== 'SET NULL') {
-            return;
+        if ($constraint && strtoupper((string) $constraint->delete_rule) === 'SET NULL') {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
+                $table->dropForeign(self::YEAR_FOREIGN_KEY);
+            });
+
+            $constraint = null;
         }
 
-        Schema::table('course_enrollments', function (Blueprint $table): void {
-            $table->dropForeign(self::YEAR_FOREIGN_KEY);
-        });
-
-        Schema::table('course_enrollments', function (Blueprint $table): void {
-            $table->foreign('academic_year_id', self::YEAR_FOREIGN_KEY)
-                ->references('id')
-                ->on('academic_years');
-        });
+        // Also recover if a previous DDL attempt dropped the constraint but failed
+        // before recreating it.
+        if (! $constraint) {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
+                $table->foreign('academic_year_id', self::YEAR_FOREIGN_KEY)
+                    ->references('id')
+                    ->on('academic_years');
+            });
+        }
     }
 
     private function allowAcademicYearSetNull(): void
@@ -142,13 +146,15 @@ return new class extends Migration {
             ['course_enrollments', self::YEAR_FOREIGN_KEY]
         );
 
-        if (! $constraint || strtoupper((string) $constraint->delete_rule) === 'SET NULL') {
+        if ($constraint && strtoupper((string) $constraint->delete_rule) === 'SET NULL') {
             return;
         }
 
-        Schema::table('course_enrollments', function (Blueprint $table): void {
-            $table->dropForeign(self::YEAR_FOREIGN_KEY);
-        });
+        if ($constraint) {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
+                $table->dropForeign(self::YEAR_FOREIGN_KEY);
+            });
+        }
 
         Schema::table('course_enrollments', function (Blueprint $table): void {
             $table->foreign('academic_year_id', self::YEAR_FOREIGN_KEY)
