@@ -16,10 +16,10 @@
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
 
     <section class="teacher-workspace-stats">
-        <div class="teacher-workspace-stat"><small>کل جلسات</small><strong>{{ App\SupportPersianUi::digits($liveClasses->total()) }}</strong><span>جلسه ثبت‌شده</span></div>
-        <div class="teacher-workspace-stat"><small>برنامه‌ریزی‌شده</small><strong>{{ App\SupportPersianUi::digits($liveClasses->getCollection()->where('status','scheduled')->count()) }}</strong><span>در این صفحه</span></div>
-        <div class="teacher-workspace-stat"><small>در حال برگزاری</small><strong>{{ App\SupportPersianUi::digits($liveClasses->getCollection()->where('status','live')->count()) }}</strong><span>وضعیت فعلی</span></div>
-        <div class="teacher-workspace-stat"><small>لغوشده</small><strong>{{ App\SupportPersianUi::digits($liveClasses->getCollection()->where('status','cancelled')->count()) }}</strong><span>در این صفحه</span></div>
+        <div class="teacher-workspace-stat"><small>کل جلسات</small><strong>{{ App\Support\PersianUi::digits($liveClasses->total()) }}</strong><span>جلسه ثبت‌شده</span></div>
+        <div class="teacher-workspace-stat"><small>برنامه‌ریزی‌شده</small><strong>{{ App\Support\PersianUi::digits($liveClasses->getCollection()->where('status','scheduled')->count()) }}</strong><span>در این صفحه</span></div>
+        <div class="teacher-workspace-stat"><small>در حال برگزاری</small><strong>{{ App\Support\PersianUi::digits($liveClasses->getCollection()->where('status','live')->count()) }}</strong><span>وضعیت فعلی</span></div>
+        <div class="teacher-workspace-stat"><small>لغوشده</small><strong>{{ App\Support\PersianUi::digits($liveClasses->getCollection()->where('status','cancelled')->count()) }}</strong><span>در این صفحه</span></div>
     </section>
 
     <section class="teacher-workspace-card">
@@ -41,9 +41,9 @@
                         <div class="teacher-workspace-item-meta">
                             <span>{{ $liveClass->course?->title ?: 'دوره' }}</span>
                             <span>{{ $liveClass->classroom?->title ?: 'همه دانش‌آموزان دوره' }}</span>
-                            <span>{{ App\SupportPersianUi::date($liveClass->scheduled_at).' · '.App\SupportPersianUi::time($liveClass->scheduled_at) }}</span>
+                            <span>{{ App\Support\PersianUi::date($liveClass->scheduled_at).' · '.App\Support\PersianUi::time($liveClass->scheduled_at) }}</span>
                             <span>{{ $liveClass->provider }}</span>
-                            <span>{{ App\SupportPersianUi::digits($liveClass->duration_minutes) }} دقیقه</span>
+                            <span>{{ App\Support\PersianUi::digits($liveClass->duration_minutes) }} دقیقه</span>
                         </div>
                     </div>
                     <div class="teacher-workspace-item-actions">
