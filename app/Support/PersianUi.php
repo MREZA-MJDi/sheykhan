@@ -20,6 +20,56 @@ final class PersianUi
         return self::digits(number_format((float) $amount, 0, '.', ',')) . ' تومان';
     }
 
+
+    public static function normalizeDate(string|null $date): ?string
+    {
+        if (!$date) {
+            return null;
+        }
+
+        $normalized = strtr(trim($date), [
+            '۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4',
+            '۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9',
+            '٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4',
+            '٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9',
+        ]);
+
+        $normalized = str_replace('/', '-', $normalized);
+
+        if (preg_match('/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/', $normalized, $match) !== 1) {
+            return null;
+        }
+
+        $year = (int) $match[1];
+        $month = (int) $match[2];
+        $day = (int) $match[3];
+
+        if ($year >= 1700) {
+            try {
+                $dateObject = Carbon::createSafe($year, $month, $day);
+                return $dateObject?->toDateString();
+            } catch (\\Throwable) {
+                return null;
+            }
+        }
+
+        if ($year < 1200 || $month < 1 || $month > 12 || $day < 1 || $day > 31) {
+            return null;
+        }
+
+        [$gy, $gm, $gd] = self::jalaliToGregorian($year, $month, $day);
+
+        if (self::gregorianToJalali($gy, $gm, $gd) !== [$year, $month, $day]) {
+            return null;
+        }
+
+        try {
+            return Carbon::createSafe($gy, $gm, $gd)?->toDateString();
+        } catch (\\Throwable) {
+            return null;
+        }
+    }
+
     public static function date(CarbonInterface|string|null $date): string
     {
         if (!$date) return '—';
