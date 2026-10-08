@@ -3057,7 +3057,7 @@
     font-weight: 900;
 }
 
-.home-product-card > span:not(.home-product-link) {
+.home-product-card > span:not(.home-product-link):not(.home-product-placeholder) {
     margin: 1rem 1.15rem 0;
     color: var(--home-muted);
     font-size: .68rem;
