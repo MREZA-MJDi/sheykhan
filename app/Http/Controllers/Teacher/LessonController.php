@@ -16,14 +16,15 @@ class LessonController extends Controller
 {
     public function index(Course $course): View
     {
+        abort_unless(
+            $course->teachers()->whereKey(request()->user()->id)->exists()
+                && $course->academy?->status === 'active',
+            403
+        );
+
         $course->load([
             'sections.lessons.media',
         ]);
-
-        abort_unless(
-            $course->teachers()->whereKey(request()->user()->id)->exists(),
-            403
-        );
 
         return view('teacher.courses.content', compact('course'));
     }
