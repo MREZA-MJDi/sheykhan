@@ -69,6 +69,57 @@
             </div>
         </section>
 
+        <section class="student-focus-card" data-student-focus aria-labelledby="student-focus-title">
+            <div class="student-focus-art" aria-hidden="true">
+                <span class="student-focus-spark s1">✦</span>
+                <span class="student-focus-spark s2">•</span>
+                <span class="student-focus-ring"></span>
+                <strong>{{ App\Support\PersianUi::digits($progress) }}٪</strong>
+            </div>
+
+            <div class="student-focus-copy">
+                <span class="student-focus-kicker">چالش امروز</span>
+                <h2 id="student-focus-title">
+                    @if($nextAssignment)
+                        اول این تکلیف را جمع کنیم 🎯
+                    @elseif($topCourse?->next_lesson)
+                        وقت ادامه مسیر یادگیریه 🚀
+                    @elseif($latestResult)
+                        نتیجه‌ات را ببین و قدم بعدی را بردار ✨
+                    @else
+                        یک مسیر برای امروز انتخاب کن 🌱
+                    @endif
+                </h2>
+                <p>
+                    @if($nextAssignment)
+                        «{{ $nextAssignment->title }}» هنوز باز است.
+                    @elseif($topCourse?->next_lesson)
+                        درس بعدی تو «{{ $topCourse->next_lesson->title }}» است.
+                    @elseif($latestResult)
+                        آخرین نتیجه‌ات را بررسی کن و ببین چه چیزی را بهتر می‌توانی ادامه بدهی.
+                    @else
+                        لازم نیست همه‌چیز را یک‌جا انجام بدهی؛ یک قدم کوچک کافی است.
+                    @endif
+                </p>
+
+                <a
+                    href="{{ $nextAssignment ? route('student.assignments.show', $nextAssignment->id) : ($topCourse?->next_lesson ? route('student.lessons.show', $topCourse->next_lesson->id) : ($latestResult ? route('student.results.index') : route('student.courses.index'))) }}"
+                    class="student-focus-action"
+                >
+                    {{ $nextAssignment ? 'ادامه تکلیف' : ($topCourse?->next_lesson ? 'ادامه درس' : ($latestResult ? 'دیدن نتیجه' : 'انتخاب دوره')) }}
+                    <span aria-hidden="true">←</span>
+                </a>
+            </div>
+
+            <div class="student-focus-progress">
+                <span>پیشرفت کلی</span>
+                <div class="student-focus-progress-track">
+                    <i style="width: {{ $progress }}%"></i>
+                </div>
+                <small>{{ App\Support\PersianUi::digits($completedLessons) }} از {{ App\Support\PersianUi::digits($totalLessons) }} درس کامل</small>
+            </div>
+        </section>
+
         <section class="student-ui-kpis" aria-label="خلاصه وضعیت یادگیری">
             <article>
                 <span>دوره‌های فعال</span>
