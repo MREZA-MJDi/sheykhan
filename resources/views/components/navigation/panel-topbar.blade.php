@@ -4,6 +4,13 @@
 ])
 
 @php
+    $topbarUser = auth()->user();
+    $topbarAvatar = null;
+
+    if ($role === 'teacher') {
+        $topbarAvatar = $topbarUser?->teacherProfile?->media?->first()?->url();
+    }
+
     $roleLabels = [
         'owner' => 'مدیریت آموزشگاه',
         'teacher' => 'پنل استاد',
@@ -33,15 +40,19 @@
     <div class="role-topbar-actions">
         <a href="{{ route('home') }}" class="role-topbar-site">مشاهده سایت</a>
 
-        <div class="role-user-chip">
+        <a href="{{ $role === 'teacher' ? route('teacher.profile.edit') : ($role === 'student' ? route('student.profile.edit') : route('home')) }}" class="role-user-chip" aria-label="پروفایل کاربری">
             <span class="role-user-avatar role-user-avatar-image">
-                <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+                @if($topbarAvatar)
+                    <img src="{{ $topbarAvatar }}" alt="" loading="lazy">
+                @else
+                    <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+                @endif
             </span>
             <span class="role-user-copy">
                 <strong>{{ auth()->user()->name ?? 'کاربر' }}</strong>
                 <small>{{ $roleLabels[$role] ?? 'کاربر' }}</small>
             </span>
-        </div>
+        </a>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
