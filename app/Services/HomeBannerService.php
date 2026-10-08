@@ -36,6 +36,8 @@ final class HomeBannerService
                     'description' => $banner->description,
                     'ctaLabel' => $banner->cta_label,
                     'ctaUrl' => $banner->cta_url,
+                    'cropX' => (int) ($banner->crop_x ?? 50),
+                    'cropY' => (int) ($banner->crop_y ?? 50),
                 ])
                 ->filter(fn (array $banner) => filled($banner['image']))
                 ->values(),
