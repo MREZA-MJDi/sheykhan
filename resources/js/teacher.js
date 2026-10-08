@@ -50,6 +50,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+    document.querySelectorAll('[data-course-classroom-select]').forEach((classroomSelect) => {
+        const courseSelect = document.querySelector(classroomSelect.dataset.courseSelect);
+        if (!courseSelect) return;
+
+        const syncClassrooms = () => {
+            const courseId = courseSelect.value;
+            Array.from(classroomSelect.options).forEach((option) => {
+                const matches = !option.dataset.courseId || option.dataset.courseId === courseId;
+                option.hidden = !matches;
+                if (!matches && option.selected) classroomSelect.value = '';
+            });
+        };
+
+        courseSelect.addEventListener('change', syncClassrooms);
+        syncClassrooms();
+    });
+
     const teacherJalaliFields = document.querySelectorAll('[data-teacher-jalali]');
 
     const teacherNormalizeDigits = (value) => String(value ?? '')
