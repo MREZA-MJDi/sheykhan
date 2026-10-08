@@ -41,9 +41,9 @@ final class TeacherAssessmentService
 
     public function gradeExamAttemptAutomatically(ExamAttempt $attempt, int $teacherId): ExamAttempt
     {
-        $attempt->loadMissing(['exam.questions', 'answers.question']);
+        $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
 
-        if ($attempt->exam?->teacher_id !== $teacherId) {
+        if ((int) $attempt->exam?->teacher_id !== $teacherId) {
             throw new AccessDeniedHttpException();
         }
 
@@ -90,9 +90,9 @@ final class TeacherAssessmentService
         array $scores,
         int $teacherId
     ): ExamAttempt {
-        $attempt->loadMissing(['exam.questions', 'answers.question']);
+        $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
 
-        if ($attempt->exam?->teacher_id !== $teacherId) {
+        if ((int) $attempt->exam?->teacher_id !== $teacherId) {
             throw new AccessDeniedHttpException();
         }
 
