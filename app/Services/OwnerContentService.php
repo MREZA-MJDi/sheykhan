@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Academy;
 use App\Models\AcademyContent;
 use App\Models\User;
+use App\Models\AcademyContentCategory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -39,7 +40,7 @@ final class OwnerContentService
         return [
             'academies' => $academies,
             'categories' => $academyId
-                ? App\Models\AcademyContentCategory::query()
+                ? AcademyContentCategory::query()
                     ->where('academy_id', $academyId)
                     ->where('is_active', true)
                     ->orderBy('sort_order')
