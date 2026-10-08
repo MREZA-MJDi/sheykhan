@@ -9,6 +9,7 @@ use App\Models\Lesson;
 use App\Models\Media;
 use App\Services\MediaService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class LessonMediaController extends Controller
@@ -21,14 +22,16 @@ class LessonMediaController extends Controller
         $lesson->loadMissing('section.course');
 
         abort_unless(
-            $lesson->section?->course?->teachers()->whereKey($request->user()->id)->exists(),
+            $lesson->section?->course?->teachers()->whereKey($request->user()->id)->exists()
+                && $lesson->section?->course?->academy?->status === 'active',
             403
         );
 
         $uploaded = null;
 
         try {
-            $uploaded = $media->upload(
+            DB::transaction(function () use ($request, $lesson, $media, &$uploaded): void {
+                $uploaded = $media->upload(
                 $request->file('media'),
                 $lesson,
                 [
@@ -37,9 +40,9 @@ class LessonMediaController extends Controller
                     'collection' => $request->string('collection')->toString() ?: 'lesson-assets',
                     'visibility' => 'private',
                 ]
-            );
+                );
 
-            LearningResource::create([
+                LearningResource::create([
                 'academy_id' => $lesson->section->course->academy_id,
                 'course_id' => $lesson->section->course_id,
                 'lesson_id' => $lesson->id,
@@ -52,8 +55,9 @@ class LessonMediaController extends Controller
                 'release_at' => $lesson->status === 'published' ? now() : null,
                 'downloadable' => (bool) $request->boolean('downloadable', true),
                 'status' => $lesson->status === 'published' ? 'active' : 'draft',
-                'sort_order' => $lesson->sort_order ?? 0,
-            ]);
+                    'sort_order' => $lesson->sort_order ?? 0,
+                ]);
+            });
         } catch (Throwable $exception) {
             if ($uploaded) {
                 $media->detach($uploaded, $lesson);
