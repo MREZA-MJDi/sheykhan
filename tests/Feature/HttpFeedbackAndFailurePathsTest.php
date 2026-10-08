@@ -87,4 +87,33 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
             ->assertSee('اطلاعات ورود صحیح نیست یا این حساب فعال نیست.')
             ->assertSee('role="alert"', false);
     }
+    public function test_registration_validation_redirects_back_and_displays_accessible_errors(): void
+    {
+        $this->from(route('register'))
+            ->post(route('register.store'), [])
+            ->assertRedirect(route('register'))
+            ->assertSessionHasErrors(['name', 'email', 'password']);
+
+        $this->get(route('register'))
+            ->assertOk()
+            ->assertSee('نام و نام خانوادگی را وارد کنید.')
+            ->assertSee('ایمیل را وارد کنید.')
+            ->assertSee('role="alert"', false);
+    }
+
+    public function test_logout_redirects_home_and_shows_success_feedback(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+
+        $this->actingAs($user)
+            ->post(route('logout'))
+            ->assertRedirect(route('home'))
+            ->assertSessionHas('success', 'با موفقیت از حساب کاربری خارج شدید.');
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('با موفقیت از حساب کاربری خارج شدید.')
+            ->assertSee('role="status"', false);
+    }
+
 }
