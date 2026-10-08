@@ -39,7 +39,7 @@
         <section class="student-exam-prep-grid" aria-label="اطلاعات آزمون">
             <article>
                 <span>تعداد سؤال</span>
-                <strong>{{ AppSupportPersianUi::digits($exam->questions->count()) }}</strong>
+                <strong>{{ App\Support\PersianUi::digits($exam->questions->count()) }}</strong>
                 <small>هر سؤال ارزش خودش را دارد.</small>
             </article>
             <article>
