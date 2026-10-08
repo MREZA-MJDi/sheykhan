@@ -102,6 +102,15 @@ class Academy extends Model
         return $this->hasMany(AcademyContent::class);
     }
 
+    /**
+     * Route-model-binding alias for scoped academy/content URLs.
+     * Keep academyContents() as the explicit domain relation used elsewhere.
+     */
+    public function contents(): HasMany
+    {
+        return $this->hasMany(AcademyContent::class);
+    }
+
     public function studentOnboardings(): HasMany
     {
         return $this->hasMany(StudentOnboarding::class);
