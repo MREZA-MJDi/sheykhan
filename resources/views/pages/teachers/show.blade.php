@@ -11,11 +11,11 @@
         $bio = $profile?->bio;
         $avatar = $profile?->media?->first()?->url();
 
-        $coursesCount = $teacher->courses_count ?? $teacher->courses?->count() ?? 0;
+        $coursesCount = $teacher->courses_count ?? $teacher->taughtCourses?->count() ?? 0;
 
         $initial = mb_substr(trim($name), 0, 1);
 
-        $courses = $teacher->courses ?? collect();
+        $courses = $teacher->taughtCourses ?? collect();
     @endphp
 
     <section class="teacher-profile-page relative overflow-hidden">
