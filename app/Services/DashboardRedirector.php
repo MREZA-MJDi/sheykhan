@@ -4,25 +4,30 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 final class DashboardRedirector
 {
     public function routeName(User $user): string
     {
-        return match (true) {
-            $user->hasRole('academy-owner') => 'owner.dashboard',
-            $user->hasRole('teacher') => 'teacher.dashboard',
-            $user->hasRole('student') => 'student.dashboard',
-            $user->hasRole('parent') => 'parent.dashboard',
-            default => 'home',
-        };
+        $routes = config('role_access.dashboard_routes', []);
+
+        foreach ([
+            'academy-owner' => fn (User $u): bool => $u->hasRole('academy-owner'),
+            'teacher' => fn (User $u): bool => $u->hasRole('teacher'),
+            'student' => fn (User $u): bool => $u->hasRole('student'),
+            'parent' => fn (User $u): bool => $u->hasRole('parent'),
+        ] as $role => $matches) {
+            if ($matches($user) && !empty($routes[$role])) {
+                return $routes[$role];
+            }
+        }
+
+        return 'home';
     }
 
     public function redirect(User $user): RedirectResponse
     {
-        // Login is the role entry point. Do not replay an arbitrary pre-login
-        // protected URL after authentication; send the user to the dashboard
-        // that belongs to the authenticated role.
         return redirect()->route($this->routeName($user));
     }
 }
