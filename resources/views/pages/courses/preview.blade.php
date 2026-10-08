@@ -33,7 +33,7 @@
                                 <span class="text-xs font-black text-[var(--color-primary-600)]">درس آزمایشی</span>
                                 @if($lesson->duration_seconds > 0)
                                     <span class="rounded-full bg-[var(--color-surface)] px-3 py-1.5 text-[11px] font-bold text-[var(--color-text-muted)]">
-                                        {{ AppSupportPersianUi::digits(ceil($lesson->duration_seconds / 60)) }} دقیقه
+                                        {{ App\Support\PersianUi::digits(ceil($lesson->duration_seconds / 60)) }} دقیقه
                                     </span>
                                 @endif
                             </div>
