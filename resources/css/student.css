@@ -1319,8 +1319,8 @@
     --sv2-indigo-soft:#eef0ff;
     --sv2-teal:#12a39b;
     --sv2-teal-soft:#e8faf8;
-    --sv2-coral:#e66d61;
-    --sv2-coral-soft:#fff0ed;
+    --sv2-coral:#c8912d;
+    --sv2-coral-soft:#fff7df;
     --sv2-gold:#c8912d;
     --sv2-gold-soft:#fff7df;
     --sv2-ink:#141a2c;
@@ -1537,7 +1537,7 @@
     backdrop-filter:blur(18px);
 }
 
-.student-v2-focus-card.is-task{border-color:rgba(236,109,97,.18)}
+.student-v2-focus-card.is-task{border-color:rgba(200,145,45,.18)}
 .student-v2-focus-card.is-class{border-color:rgba(112,215,210,.18)}
 
 .student-v2-focus-top{
@@ -2591,8 +2591,8 @@
     --exam-purple-soft:#f0efff;
     --exam-teal:#18a59e;
     --exam-teal-soft:#eafaf8;
-    --exam-coral:#e66d61;
-    --exam-coral-soft:#fff0ed;
+    --exam-gold:#c8912d;
+    --exam-gold-soft:#fff7df;
     --exam-yellow:#f1b84b;
     --exam-yellow-soft:#fff7df;
     --exam-ink:#171b2b;
@@ -2707,7 +2707,7 @@
 .student-exam-timer.is-warning strong{color:#9b711f}
 .student-exam-timer.is-danger{
     border-color:#f0d1cd;
-    background:var(--exam-coral-soft);
+    background:var(--exam-gold-soft);
 }
 .student-exam-timer.is-danger strong{color:#b8463a}
 
@@ -3489,7 +3489,7 @@
     font-size:8px;
 }
 .student-exam-prep-tips article:nth-child(2) > b{
-    background:#fff0ed;
+    background:#fff7df;
     color:#d35e53;
 }
 .student-exam-prep-tips article:nth-child(3) > b{
@@ -3716,7 +3716,7 @@
     --sui-line:#edf0f5;
     --sui-purple:#8a3fd0;
     --sui-blue:#3679e8;
-    --sui-pink:#e94fc5;
+    --sui-accent:#5962d9;
     --sui-orange:#f49a72;
     --sui-green:#42cf9b;
     background:transparent;
