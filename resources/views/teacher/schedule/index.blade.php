@@ -46,7 +46,13 @@
             <label class="teacher-workspace-field"><span>شروع</span><input type="time" name="start_time" value="{{ old('start_time') }}" required></label>
             <label class="teacher-workspace-field"><span>پایان</span><input type="time" name="end_time" value="{{ old('end_time') }}" required></label>
             <label class="teacher-workspace-field"><span>اتاق / عنوان جلسه <small>اختیاری</small></span><input name="room" value="{{ old('room') }}" placeholder="مثلاً کلاس ۳"></label>
-            <label class="teacher-workspace-field"><span>لینک آنلاین <small>اختیاری</small></span><input name="meeting_url" type="url" dir="ltr" value="{{ old('meeting_url') }}" placeholder="https://..."></label>
+            <div class="teacher-workspace-field teacher-schedule-auto-link" style="grid-column:1/-1">
+                <span>لینک جلسه آنلاین <small>خودکار</small></span>
+                <div class="teacher-schedule-auto-link-box">
+                    <span dir="ltr">پس از ثبت، یک اتاق امن Jitsi به‌صورت خودکار ساخته می‌شود.</span>
+                    <strong>نیازی به ساخت یا وارد کردن لینک دستی نیست.</strong>
+                </div>
+            </div>
             <div class="teacher-workspace-actions" style="grid-column:1/-1;justify-content:flex-end">
                 <button type="submit" class="teacher-workspace-btn primary">افزودن به برنامه</button>
             </div>
@@ -72,6 +78,12 @@
                                 </div>
                             </div>
                             <div class="teacher-workspace-item-actions">
+                                @if($schedule->meeting_url)
+                                    <div class="teacher-schedule-link-box">
+                                        <a href="{{ $schedule->meeting_url }}" target="_blank" rel="noopener" dir="ltr">{{ $schedule->meeting_url }}</a>
+                                        <button type="button" class="teacher-workspace-link" data-copy-schedule-link="{{ $schedule->meeting_url }}">کپی لینک</button>
+                                    </div>
+                                @endif
                                 <form method="POST" action="{{ route('teacher.schedule.destroy',$schedule) }}" onsubmit="return confirm('این زمان از برنامه هفتگی حذف شود؟')">
                                     @csrf @method('DELETE')
                                     <button class="teacher-workspace-link" type="submit">حذف</button>
