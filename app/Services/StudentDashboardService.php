@@ -17,6 +17,12 @@ final class StudentDashboardService
         $access = app(StudentAccessService::class);
         $courseIds = $access->enrolledCourseIds($student);
 
+        $activeCourseCount = $student->enrollments()
+            ->where('status', 'active')
+            ->whereIn('course_id', $courseIds)
+            ->distinct('course_id')
+            ->count('course_id');
+
         $enrollments = $student->enrollments()
             ->where('status', 'active')
             ->whereIn('course_id', $courseIds)
@@ -25,6 +31,7 @@ final class StudentDashboardService
                 'course.academy:id,name',
             ])
             ->latest('started_at')
+            ->limit(6)
             ->get();
 
         $progress = $this->progressByCourse($student->id, $courseIds);
@@ -258,14 +265,17 @@ final class StudentDashboardService
             ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
             ->count();
 
-        $overallProgress = (float) ($courses->avg('learning_progress') ?? 0);
+        $overallProgress = (float) ($progress->isEmpty() ? 0 : $progress->avg());
+
+        $completedLessonsCount = (int) $lessonStats->sum('completed_lessons');
+        $totalLessonsCount = (int) $lessonStats->sum('total_lessons');
 
         return [
             'student' => $student,
             'profile' => $student->studentProfile,
             'courses' => $courses,
             'overallProgress' => round($overallProgress),
-            'activeCourseCount' => $courses->count(),
+            'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
             'upcomingLiveClasses' => $upcomingLive,
             'assignments' => $assignmentItems,
@@ -274,8 +284,8 @@ final class StudentDashboardService
             'sessions' => $sessions,
             'nextLesson' => $courses->pluck('next_lesson')->filter()->first(),
             'nextLiveClass' => $upcomingLive->first(),
-            'completedLessonsCount' => (int) $courses->sum('completed_lessons'),
-            'totalLessonsCount' => (int) $courses->sum('total_lessons'),
+            'completedLessonsCount' => $completedLessonsCount,
+            'totalLessonsCount' => $totalLessonsCount,
             'studyMinutesLast7Days' => $learningActivity['study_minutes_last_7_days'],
             'studyStreak' => $learningActivity['study_streak'],
             'studyDates' => $learningActivity['study_dates'],
@@ -324,9 +334,32 @@ final class StudentDashboardService
             ->where('lessons.status', 'published')
             ->where(fn ($query) => $query->whereNull('lessons.published_at')->orWhere('lessons.published_at', '<=', now()))
             ->where(fn ($query) => $query->whereNull('progress.progress_percent')->orWhere('progress.progress_percent', '<', 100))
+            ->whereNotExists(function ($query) use ($studentId): void {
+                $query->selectRaw('1')
+                    ->from('course_sections as earlier_sections')
+                    ->join('lessons as earlier_lessons', 'earlier_lessons.course_section_id', '=', 'earlier_sections.id')
+                    ->leftJoin('lesson_progress as earlier_progress', function ($join) use ($studentId): void {
+                        $join->on('earlier_progress.lesson_id', '=', 'earlier_lessons.id')
+                            ->where('earlier_progress.user_id', '=', $studentId);
+                    })
+                    ->whereColumn('earlier_sections.course_id', 'course_sections.course_id')
+                    ->where('earlier_lessons.status', 'published')
+                    ->where(fn ($query) => $query->whereNull('earlier_lessons.published_at')->orWhere('earlier_lessons.published_at', '<=', now()))
+                    ->where(fn ($query) => $query->whereNull('earlier_progress.progress_percent')->orWhere('earlier_progress.progress_percent', '<', 100))
+                    ->where(function ($query): void {
+                        $query->whereColumn('earlier_sections.sort_order', '<', 'course_sections.sort_order')
+                            ->orWhere(function ($tie) {
+                                $tie->whereColumn('earlier_sections.sort_order', '=', 'course_sections.sort_order')
+                                    ->whereColumn('earlier_lessons.sort_order', '<', 'lessons.sort_order');
+                            })
+                            ->orWhere(function ($tie) {
+                                $tie->whereColumn('earlier_sections.sort_order', '=', 'course_sections.sort_order')
+                                    ->whereColumn('earlier_lessons.sort_order', '=', 'lessons.sort_order')
+                                    ->whereColumn('earlier_lessons.id', '<', 'lessons.id');
+                            });
+                    });
+            })
             ->orderBy('course_sections.course_id')
-            ->orderBy('course_sections.sort_order')
-            ->orderBy('lessons.sort_order')
             ->get([
                 'course_sections.course_id',
                 'lessons.id',
@@ -334,8 +367,7 @@ final class StudentDashboardService
                 'lessons.type',
                 'lessons.duration_seconds',
             ])
-            ->groupBy(fn ($row) => (int) $row->course_id)
-            ->map(fn ($lessons) => $lessons->first());
+            ->keyBy(fn ($row) => (int) $row->course_id);
     }
 
     private function learningActivity(int $studentId, $courseIds): array
