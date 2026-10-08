@@ -39,6 +39,7 @@ class ProductCatalogService
                     'category:id,name,slug',
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
+                        ->where('status', 'active')
                         ->orderByPivot('sort_order'),
                 ])
                 ->orderByDesc('is_featured')
