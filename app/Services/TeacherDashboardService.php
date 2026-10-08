@@ -115,6 +115,29 @@ final class TeacherDashboardService
             ->get();
 
         $courseProgress = $this->courseProgress($teacher->id, $courseIds);
+        $topStudents = DB::table('course_enrollments as enrollments')
+            ->join('users', 'users.id', '=', 'enrollments.student_id')
+            ->leftJoin('course_sections', 'course_sections.course_id', '=', 'enrollments.course_id')
+            ->leftJoin('lessons', 'lessons.course_section_id', '=', 'course_sections.id')
+            ->leftJoin('lesson_progress as progress', function ($join): void {
+                $join->on('progress.lesson_id', '=', 'lessons.id')
+                    ->on('progress.user_id', '=', 'enrollments.student_id');
+            })
+            ->whereIn('enrollments.course_id', $courseIds)
+            ->where('enrollments.status', 'active')
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc(DB::raw('COALESCE(AVG(progress.progress_percent), 0)'))
+            ->limit(3)
+            ->get([
+                'users.id',
+                'users.name',
+                DB::raw('ROUND(COALESCE(AVG(progress.progress_percent), 0)) as progress_average'),
+            ])
+            ->map(function ($student): object {
+                $student->progress_average = (int) $student->progress_average;
+                return $student;
+            });
+
 
         return [
             'teacher' => $teacher,
@@ -135,6 +158,7 @@ final class TeacherDashboardService
             'chart' => $chart,
             'activities' => $activities,
             'courseProgress' => $courseProgress,
+            'topStudents' => $topStudents,
             'calendarEvents' => $this->calendarEvents($teacher, $courseIds),
         ];
     }
@@ -381,6 +405,7 @@ final class TeacherDashboardService
             ],
             'activities' => collect(),
             'courseProgress' => collect(),
+            'topStudents' => collect(),
             'calendarEvents' => [],
         ];
     }
