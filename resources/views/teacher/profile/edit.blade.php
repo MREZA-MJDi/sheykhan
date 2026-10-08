@@ -11,7 +11,11 @@
             <h1 class="teacher-workspace-title">پروفایل استاد</h1>
             <p class="teacher-workspace-description">اطلاعاتی که دانش‌آموز قبل از ورود به دوره می‌بیند را کامل کن و آواتار حرفه‌ای خودت را تنظیم کن.</p>
         </div>
-        <a href="{{ route('teachers.show',$teacher) }}" class="teacher-workspace-btn secondary">مشاهده پروفایل عمومی</a>
+        @if($profile->is_public)
+            <a href="{{ route('teachers.show',$teacher) }}" class="teacher-workspace-btn secondary">مشاهده پروفایل عمومی</a>
+        @else
+            <span class="teacher-workspace-btn secondary" aria-disabled="true">پروفایل عمومی خاموش است</span>
+        @endif
     </header>
 
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
