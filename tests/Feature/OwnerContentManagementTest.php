@@ -10,6 +10,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class OwnerContentManagementTest extends TestCase
@@ -47,6 +49,49 @@ class OwnerContentManagementTest extends TestCase
             'academy_id' => $academy->id,
             'slug' => 'parents-guide',
             'status' => 'published',
+        ]);
+    }
+
+
+    public function test_owner_content_cover_is_stored_as_public_media(): void
+    {
+        Storage::fake('local');
+
+        [$owner, $academy] = $this->ownerWithAcademy('content.manage');
+
+        $category = AcademyContentCategory::create([
+            'academy_id' => $academy->id,
+            'title' => 'رسانه',
+            'slug' => 'media',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('owner.content.store'), [
+                'academy_id' => $academy->id,
+                'category_id' => $category->id,
+                'type' => 'article',
+                'title' => 'محتوای تصویری',
+                'body' => 'متن',
+                'status' => 'published',
+                'cover_image' => UploadedFile::fake()->image('cover.webp', 1200, 675),
+            ])
+            ->assertSessionHas('success');
+
+        $content = AcademyContent::query()->where('academy_id', $academy->id)->firstOrFail();
+
+        $this->assertDatabaseHas('media', [
+            'uploaded_by' => $owner->id,
+            'visibility' => 'public',
+            'collection' => 'cover',
+            'status' => 'active',
+        ]);
+
+        $this->assertDatabaseHas('media_attachments', [
+            'mediable_type' => AcademyContent::class,
+            'mediable_id' => $content->id,
+            'collection' => 'cover',
+            'is_featured' => 1,
         ]);
     }
 
