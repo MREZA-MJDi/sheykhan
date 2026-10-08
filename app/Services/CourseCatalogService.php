@@ -47,6 +47,7 @@ class CourseCatalogService
                     'grades:id,title',
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
+                        ->where('status', 'active')
                         ->orderByPivot('sort_order'),
                 ])
                 ->withCount([
