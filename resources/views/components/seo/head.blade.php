@@ -52,7 +52,7 @@
                 '@type' => 'Offer',
                 'price' => (string) ($product->sale_price ?? $product->price),
                 'priceCurrency' => $product->currency ?: 'IRR',
-                'availability' => 'https://schema.org/InStock',
+                'priceValidUntil' => now()->addYear()->toDateString(),
                 'url' => $canonical,
             ],
         ];
