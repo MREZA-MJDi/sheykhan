@@ -60,6 +60,12 @@ final class TeacherAssessmentService
                 ->with(['exam.questions', 'answers.question'])
                 ->firstOrFail();
 
+            if (!in_array($attempt->status, ['submitted', 'pending_review', 'needs_review'], true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'attempt' => 'این آزمون هنوز توسط دانش‌آموز ارسال نشده است.',
+                ]);
+            }
+
             $total = 0.0;
             $requiresManualReview = false;
 
@@ -108,6 +114,12 @@ final class TeacherAssessmentService
                 ->lockForUpdate()
                 ->with(['exam.questions', 'answers.question'])
                 ->firstOrFail();
+
+            if (!in_array($attempt->status, ['submitted', 'pending_review', 'needs_review', 'graded'], true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'attempt' => 'این آزمون هنوز توسط دانش‌آموز ارسال نشده است.',
+                ]);
+            }
 
             $total = 0.0;
 
