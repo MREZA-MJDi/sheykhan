@@ -60,16 +60,16 @@
                     <div class="student-exam-paper-top">
                         <div>
                             <span class="student-exam-chip is-purple">
-                                تلاش {{ AppSupportPersianUi::digits($attempt->attempt_number) }}
+                                تلاش {{ App\Support\PersianUi::digits($attempt->attempt_number) }}
                             </span>
                             <span class="student-exam-chip">
-                                {{ AppSupportPersianUi::digits($questions->count()) }} سؤال
+                                {{ App\Support\PersianUi::digits($questions->count()) }} سؤال
                             </span>
                         </div>
 
                         <div class="student-exam-progress-copy">
                             <strong data-answered-count>۰</strong>
-                            <span>از {{ AppSupportPersianUi::digits($questions->count()) }} پاسخ</span>
+                            <span>از {{ App\Support\PersianUi::digits($questions->count()) }} پاسخ</span>
                         </div>
                     </div>
 
@@ -113,7 +113,7 @@
                             >
                                 <div class="student-exam-question-head">
                                     <div class="student-exam-question-number">
-                                        {{ AppSupportPersianUi::digits($loop->iteration) }}
+                                        {{ App\Support\PersianUi::digits($loop->iteration) }}
                                     </div>
 
                                     <div class="student-exam-question-meta">
@@ -122,7 +122,7 @@
                                                 {{ $question->type === 'text' ? 'تشریحی' : 'گزینه‌ای' }}
                                             </span>
                                             <span class="student-exam-score">
-                                                {{ AppSupportPersianUi::digits($question->score) }} امتیاز
+                                                {{ App\Support\PersianUi::digits($question->score) }} امتیاز
                                             </span>
                                         </div>
                                         <button
@@ -184,7 +184,7 @@
                                 @endif
 
                                 <div class="student-exam-question-foot">
-                                    <span>سؤال {{ AppSupportPersianUi::digits($loop->iteration) }} از {{ AppSupportPersianUi::digits($questions->count()) }}</span>
+                                    <span>سؤال {{ App\Support\PersianUi::digits($loop->iteration) }} از {{ App\Support\PersianUi::digits($questions->count()) }}</span>
                                     <button type="button" data-next-question="{{ $question->id }}">
                                         {{ $loop->last ? 'بازبینی پاسخ‌ها' : 'رفتن به سؤال بعدی' }}
                                         <i aria-hidden="true">←</i>
@@ -226,7 +226,7 @@
                                     data-answer-number="{{ $loop->iteration }}"
                                     aria-label="رفتن به سؤال {{ $loop->iteration }}"
                                 >
-                                    <span>{{ AppSupportPersianUi::digits($loop->iteration) }}</span>
+                                    <span>{{ App\Support\PersianUi::digits($loop->iteration) }}</span>
                                 </button>
                             @endforeach
                         </div>
@@ -258,7 +258,7 @@
 
             <div class="student-exam-mobile-nav">
                 <button type="button" data-mobile-question-prev>↑</button>
-                <span><strong data-mobile-current>۱</strong> / {{ AppSupportPersianUi::digits($questions->count()) }}</span>
+                <span><strong data-mobile-current>۱</strong> / {{ App\Support\PersianUi::digits($questions->count()) }}</span>
                 <button type="button" data-mobile-question-next>↓</button>
             </div>
         </form>
