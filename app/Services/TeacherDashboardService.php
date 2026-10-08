@@ -258,6 +258,13 @@ final class TeacherDashboardService
         $from = now()->subDays(30)->startOfDay();
         $to = now()->endOfDay();
 
+        $weekExpression = match (DB::getDriverName()) {
+            'sqlite' => "strftime('%W', progress.last_watched_at)",
+            'mysql', 'mariadb' => "WEEK(progress.last_watched_at, 1)",
+            'pgsql' => "EXTRACT(WEEK FROM progress.last_watched_at)",
+            default => "EXTRACT(WEEK FROM progress.last_watched_at)",
+        };
+
         $rows = DB::table('lesson_progress as progress')
             ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
             ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
@@ -267,29 +274,22 @@ final class TeacherDashboardService
             })
             ->whereIn('course_sections.course_id', $courseIds)
             ->whereBetween('progress.last_watched_at', [$from, $to])
-            ->get([
-                'progress.last_watched_at',
-                'progress.progress_percent',
-            ]);
-
-        $weekly = [];
-
-        foreach ($rows as $row) {
-            $week = (int) Carbon::parse($row->last_watched_at)->format('W');
-            $weekly[$week]['sum'] = ($weekly[$week]['sum'] ?? 0) + (float) $row->progress_percent;
-            $weekly[$week]['count'] = ($weekly[$week]['count'] ?? 0) + 1;
-        }
+            ->selectRaw("{$weekExpression} as week_number, AVG(progress.progress_percent) as value")
+            ->groupBy(DB::raw($weekExpression))
+            ->pluck('value', 'week_number');
 
         $labels = [];
         $values = [];
 
         for ($index = 3; $index >= 0; $index--) {
             $date = now()->subWeeks($index);
-            $week = (int) $date->format('W');
+            $week = match (DB::getDriverName()) {
+                'pgsql' => (string) (int) $date->format('W'),
+                default => (int) $date->format('W'),
+            };
+
             $labels[] = $this->faDigits('هفته ' . (4 - $index));
-            $values[] = isset($weekly[$week])
-                ? round($weekly[$week]['sum'] / max(1, $weekly[$week]['count']))
-                : 0;
+            $values[] = round((float) ($rows[$week] ?? 0));
         }
 
         while (count($values) < 7) {
