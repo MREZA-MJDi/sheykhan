@@ -74,6 +74,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->get(route('student.dashboard'))
             ->assertOk()
             ->assertSee('تقویم')
+            ->assertSee(PersianUi::calendar(now())['month_label'])
             ->assertDontSee(now()->format('F Y'));
 
         $this->actingAs($teacher)
