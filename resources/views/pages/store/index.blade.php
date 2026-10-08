@@ -41,7 +41,7 @@
                                 >
                                     <div class="flex items-start justify-between gap-5">
                                         <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-50)] text-sm font-black text-[var(--color-primary-600)]">
-                                            {{ AppSupportPersianUi::digits(str_pad($index + 1, 2, '0', STR_PAD_LEFT)) }}
+                                            {{ \App\Support\PersianUi::digits(str_pad($index + 1, 2, '0', STR_PAD_LEFT)) }}
                                         </span>
 
                                         <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-border)] text-[var(--color-primary-600)] transition group-hover:-translate-x-1 group-hover:border-[var(--color-primary-200)] group-hover:bg-[var(--color-primary-50)]" aria-hidden="true">
@@ -80,7 +80,7 @@
 
                         @if($products->total())
                             <span class="text-sm font-semibold text-[var(--color-text-muted)]">
-                                {{ AppSupportPersianUi::digits($products->total()) }} محصول
+                                {{ \App\Support\PersianUi::digits($products->total()) }} محصول
                             </span>
                         @endif
                     </div>
