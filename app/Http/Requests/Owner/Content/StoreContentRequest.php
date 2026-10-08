@@ -27,6 +27,7 @@ final class StoreContentRequest extends FormRequest
             'is_featured' => ['sometimes','boolean'],
             'sort_order' => ['sometimes','integer','min:0','max:100000'],
             'published_at' => ['nullable','date'],
+            'cover_image' => ['nullable','file','max:10240','mimes:jpg,jpeg,png,webp'],
         ];
     }
 }
