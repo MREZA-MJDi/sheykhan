@@ -115,16 +115,26 @@ final class TeacherDashboardService
             ->get();
 
         $courseProgress = $this->courseProgress($teacher->id, $courseIds);
-        $topStudents = DB::table('course_enrollments as enrollments')
-            ->join('users', 'users.id', '=', 'enrollments.student_id')
+        $topStudents = DB::table('classroom_student as memberships')
+            ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
+            ->join('classroom_teacher as classroom_teachers', function ($join) use ($teacher): void {
+                $join->on('classroom_teachers.classroom_id', '=', 'memberships.classroom_id')
+                    ->where('classroom_teachers.teacher_id', '=', $teacher->id);
+            })
+            ->join('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.student_id', '=', 'memberships.student_id')
+                    ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                    ->where('enrollments.status', '=', 'active');
+            })
+            ->join('users', 'users.id', '=', 'memberships.student_id')
             ->leftJoin('course_sections', 'course_sections.course_id', '=', 'enrollments.course_id')
             ->leftJoin('lessons', 'lessons.course_section_id', '=', 'course_sections.id')
             ->leftJoin('lesson_progress as progress', function ($join): void {
                 $join->on('progress.lesson_id', '=', 'lessons.id')
                     ->on('progress.user_id', '=', 'enrollments.student_id');
             })
+            ->where('memberships.status', 'active')
             ->whereIn('enrollments.course_id', $courseIds)
-            ->where('enrollments.status', 'active')
             ->groupBy('users.id', 'users.name')
             ->orderByDesc(DB::raw('COALESCE(AVG(progress.progress_percent), 0)'))
             ->limit(3)
