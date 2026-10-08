@@ -17,6 +17,7 @@ use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
+use App\Http\Controllers\PublicSite\SeoController as PublicSeoController;
 use App\Http\Controllers\Student\AchievementController as StudentAchievementController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
@@ -55,6 +56,8 @@ Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.ind
 Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])->name('teachers.show');
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/robots.txt', [PublicSeoController::class, 'robots'])->name('seo.robots');
+Route::get('/sitemap.xml', [PublicSeoController::class, 'sitemap'])->name('seo.sitemap');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::middleware('guest')->group(function () {
