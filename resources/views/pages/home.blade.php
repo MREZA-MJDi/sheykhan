@@ -288,23 +288,14 @@
 
             <div class="home-teacher-grid">
                 @forelse($teacherCards as $teacher)
-                    <article class="home-teacher-card">
-                        <div class="home-teacher-avatar">
-                            @if($teacher['avatar'])
-                                <img src="{{ $teacher['avatar'] }}" alt="{{ $teacher['name'] }}" loading="lazy">
-                            @else
-                                <span>{{ mb_substr($teacher['name'], 0, 1) }}</span>
-                            @endif
-                        </div>
-                        <div>
-                            <span>{{ $teacher['role'] }}</span>
-                            <h3>{{ $teacher['name'] }}</h3>
-                            @if($teacher['bio'])
-                                <p>{{ \Illuminate\Support\Str::limit($teacher['bio'], 105) }}</p>
-                            @endif
-                            <small>{{ $fa($teacher['courses']) }} دوره منتشرشده</small>
-                        </div>
-                    </article>
+                    <x-education.teacher-card
+                        :name="$teacher['name']"
+                        :role="$teacher['role']"
+                        :avatar="$teacher['avatar']"
+                        :bio="$teacher['bio']"
+                        :courses="$teacher['courses']"
+                        :href="$teacher['href']"
+                    />
                 @empty
                     <div class="home-empty-state"><strong>هنوز مدرس عمومی ثبت نشده است.</strong></div>
                 @endforelse
@@ -366,14 +357,17 @@
             @if(count($productCards))
                 <div class="home-product-strip">
                     @foreach($productCards as $product)
-                        <article class="home-product-card">
+                        <a href="{{ $product['href'] }}" class="home-product-card">
                             @if($product['image'])
                                 <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" loading="lazy">
+                            @else
+                                <span class="home-product-placeholder" aria-hidden="true">ش</span>
                             @endif
-                            <span>{{ $product['category'] }}</span>
+                            <span>{{ $product['category'] ?: 'منبع آموزشی' }}</span>
                             <h3>{{ $product['title'] }}</h3>
                             <strong>{{ $product['price'] }}</strong>
-                        </article>
+                            <span class="home-product-link">مشاهده جزئیات <i aria-hidden="true">←</i></span>
+                        </a>
                     @endforeach
                 </div>
             @endif
@@ -381,7 +375,7 @@
     </section>
 
     {{-- Academy editorial content --}}
-    <section class="home-section home-soft">
+    <section id="academy-content" class="home-section home-soft">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
@@ -389,7 +383,7 @@
                     <h2>محتوایی فراتر از کلاس.</h2>
                     <p>پنج مسیر محتوایی رسمی آکادمی برای والدین، دانش‌آموزان و علاقه‌مندان.</p>
                 </div>
-                <a href="{{ route('blog.index') }}">مقالات آکادمی <i>←</i></a>
+                <a href="#academy-content">پنج مسیر محتوا <i>↓</i></a>
             </div>
 
             <div class="home-academy-grid">
