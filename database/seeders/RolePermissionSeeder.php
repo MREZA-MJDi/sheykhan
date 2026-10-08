@@ -104,7 +104,7 @@ class RolePermissionSeeder extends Seeder
                 'attendance.view',
                 'live_classes.view',
                 'reports.view',
-                'profile.view','profile.manage','profile.security',
+                'profile.view','profile.manage',
                 'media.view','media.upload','media.download','media.manage',
                 'resources.view',
                 'payments.view',
