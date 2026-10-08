@@ -10,7 +10,7 @@
 @forelse($attendance as $item)
 @php($label=['present'=>'حاضر','absent'=>'غایب','late'=>'با تأخیر','excused'=>'موجه'][$item->status] ?? $item->status)
 <article class="student-workspace-row">
-<div class="student-workspace-date"><strong>{{ AppSupportPersianUi::date($item->attendance_date) }}</strong><small>تاریخ</small></div>
+<div class="student-workspace-date"><strong>{{ App\Support\PersianUi::date($item->attendance_date) }}</strong><small>تاریخ</small></div>
 <div class="student-workspace-row-main"><strong>{{ $item->classroom?->title }}</strong><span>{{ $item->note ?: 'بدون توضیح' }}</span></div>
 <span class="student-workspace-status {{ $item->status==='present' ? 'success' : 'warning' }}">{{ $label }}</span>
 </article>
