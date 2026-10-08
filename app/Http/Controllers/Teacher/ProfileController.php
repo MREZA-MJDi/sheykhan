@@ -1,14 +1,14 @@
 <?php
 
-namespace AppHttpControllersTeacher;
+namespace App\Http\Controllers\Teacher;
 
-use AppHttpControllersController;
-use AppHttpRequestsTeacherUpdateProfileRequest;
-use AppModelsTeacherProfile;
-use AppServicesMediaService;
-use IlluminateHttpRedirectResponse;
-use IlluminateSupportFacadesDB;
-use IlluminateViewView;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\UpdateProfileRequest;
+use App\Models\TeacherProfile;
+use App\Services\MediaService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
@@ -60,7 +60,7 @@ class ProfileController extends Controller
 
             if ($request->hasFile('avatar')) {
                 $oldAvatar = $profile->media()
-                    ->where('collection', 'teacher-avatar')
+                    ->wherePivot('collection', 'teacher-avatar')
                     ->orderByPivot('sort_order')
                     ->first();
 
