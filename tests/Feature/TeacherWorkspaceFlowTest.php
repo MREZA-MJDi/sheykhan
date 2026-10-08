@@ -115,9 +115,29 @@ class TeacherWorkspaceFlowTest extends TestCase
 
         $this->assertSame($before + 1, $classroom->schedules()->count());
 
-        $schedule = $classroom->schedules()->latest('id')->firstOrFail();
-        $this->assertStringStartsWith('https://meet.jit.si/Sheykhan-', $schedule->meeting_url);
-        $this->assertGreaterThan(20, strlen($schedule->meeting_url));
+    }
+
+    public function test_weekly_schedule_generates_a_jitsi_meeting_link(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.schedule.store'), [
+                'classroom_id' => $classroom->id,
+                'weekday' => 6,
+                'start_time' => '09:00',
+                'end_time' => '10:30',
+                'room' => 'کلاس آنلاین',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $schedule = $classroom->schedules()->where('weekday', 6)->latest('id')->firstOrFail();
+
+        $this->assertStringStartsWith('https://meet.jit.si/Sheykhan-', (string) $schedule->meeting_url);
+        $this->assertGreaterThan(20, strlen((string) $schedule->meeting_url));
     }
 
     public function test_live_class_creation_persists_a_calculated_end_time(): void
