@@ -28,9 +28,12 @@
                 </h1>
 
                 <p>
-                    میانگین پیشرفت دانش‌آموزان دوره‌های شما
-                    <strong>{{ \App\Support\PersianUi::digits($progress) }}٪</strong>
-                    است. وضعیت کلاس‌ها، ارزیابی‌ها و جلسات را از همین‌جا دنبال کن.
+                    اینجا مسیر کلاس‌ها و بازخوردهای آموزشی را دنبال کن؛
+                    @if($pendingReviews > 0)
+                        <strong>{{ \App\Support\PersianUi::digits($pendingReviews) }} مورد</strong> برای بررسی باقی مانده است.
+                    @else
+                        فعلاً تکلیف یا آزمونِ منتظر بررسی ثبت نشده است.
+                    @endif
                 </p>
 
                 <div class="teacher-welcome-actions">
@@ -51,17 +54,14 @@
                 <div class="teacher-orb two"></div>
 
                 <div class="teacher-visual-card teacher-visual-main">
-                    <span>میانگین پیشرفت</span>
-                    <strong>{{ \App\Support\PersianUi::digits($progress) }}٪</strong>
-
-                    <div class="teacher-track">
-                        <span style="width: {{ $progress }}%"></span>
-                    </div>
+                    <span>کارهای منتظر بررسی</span>
+                    <strong>{{ \App\Support\PersianUi::digits($pendingReviews) }}</strong>
+                    <small>تکلیف و آزمون ارسال‌شده</small>
                 </div>
 
                 <div class="teacher-visual-card teacher-visual-small">
-                    <span>بررسی در انتظار</span>
-                    <strong>{{ \App\Support\PersianUi::digits($pendingReviews) }}</strong>
+                    <span>کلاس‌های فعال</span>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['activeClasses'] ?? 0) }}</strong>
                 </div>
             </div>
         </section>
@@ -106,7 +106,7 @@
 
         <section class="teacher-stats" aria-label="آمار آموزشی">
             <article class="teacher-stat">
-                <div class="teacher-stat-icon" aria-hidden="true">ک</div>
+                <div class="teacher-stat-icon is-violet" aria-hidden="true">▦</div>
                 <div class="teacher-stat-copy">
                     <span>کلاس‌های فعال</span>
                     <strong>{{ \App\Support\PersianUi::digits($metrics['activeClasses'] ?? 0) }}</strong>
@@ -115,7 +115,7 @@
             </article>
 
             <article class="teacher-stat">
-                <div class="teacher-stat-icon" aria-hidden="true">د</div>
+                <div class="teacher-stat-icon is-blue" aria-hidden="true">♙</div>
                 <div class="teacher-stat-copy">
                     <span>دانش‌آموزان</span>
                     <strong>{{ \App\Support\PersianUi::digits($metrics['studentCount'] ?? 0) }}</strong>
@@ -124,7 +124,7 @@
             </article>
 
             <article class="teacher-stat">
-                <div class="teacher-stat-icon" aria-hidden="true">ج</div>
+                <div class="teacher-stat-icon is-green" aria-hidden="true">◷</div>
                 <div class="teacher-stat-copy">
                     <span>جلسات این هفته</span>
                     <strong>{{ \App\Support\PersianUi::digits($metrics['weeklySessions'] ?? 0) }}</strong>
@@ -133,7 +133,7 @@
             </article>
 
             <article class="teacher-stat">
-                <div class="teacher-stat-icon" aria-hidden="true">پ</div>
+                <div class="teacher-stat-icon is-orange" aria-hidden="true">✓</div>
                 <div class="teacher-stat-copy">
                     <span>نیازمند بررسی</span>
                     <strong>{{ \App\Support\PersianUi::digits($pendingReviews) }}</strong>
