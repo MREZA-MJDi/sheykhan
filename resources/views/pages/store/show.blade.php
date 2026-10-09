@@ -85,7 +85,7 @@
                         <div class="mt-7 rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-background-soft)] p-5 sm:p-6">
                             <span class="text-xs font-bold text-[var(--color-text-muted)]">قیمت</span>
                             <strong class="mt-1 block text-2xl font-black text-[var(--color-primary-600)]">
-                                {{ \\App\\Support\\PersianUi::money($price) }}
+                                {{ \App\Support\PersianUi::money($price) }}
                             </strong>
 
                             <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[var(--color-text-muted)]">
