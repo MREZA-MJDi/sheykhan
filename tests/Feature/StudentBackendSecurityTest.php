@@ -252,6 +252,48 @@ class StudentBackendSecurityTest extends TestCase
         $service->start($student, $exam);
     }
 
+    public function test_exam_closed_by_teacher_finalizes_existing_attempt_without_accepting_answers(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update(['access_type' => 'free']);
+        $student->enrollments()->where('course_id', $course->id)->update(['paid_amount' => 0]);
+
+        $exam = Exam::create([
+            'course_id' => $course->id,
+            'classroom_id' => null,
+            'teacher_id' => User::where('email', 'teacher.math@sheykhan.test')->value('id'),
+            'title' => 'آزمون بسته‌شده',
+            'description' => '—',
+            'duration_minutes' => 60,
+            'starts_at' => now()->subMinute(),
+            'ends_at' => now()->addHour(),
+            'attempts_allowed' => 1,
+            'status' => 'published',
+        ]);
+
+        $service = app(StudentExamService::class);
+        $attempt = $service->start($student, $exam);
+        $exam->update(['status' => 'closed']);
+
+        try {
+            $service->submit($student, $attempt, []);
+            $this->fail('A closed exam must not accept answers.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('exam', $exception->errors());
+        }
+
+        $this->assertDatabaseHas('exam_attempts', [
+            'id' => $attempt->id,
+            'status' => 'submitted',
+        ]);
+        $this->assertDatabaseMissing('exam_answers', [
+            'exam_attempt_id' => $attempt->id,
+        ]);
+    }
+
     public function test_submitting_a_timed_out_exam_persists_closed_status_before_returning_validation_error(): void
     {
         $this->seed();
