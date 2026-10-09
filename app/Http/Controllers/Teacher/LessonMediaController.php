@@ -8,6 +8,7 @@ use App\Models\LearningResource;
 use App\Models\Lesson;
 use App\Models\Media;
 use App\Services\MediaService;
+use App\Services\TeacherAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -20,10 +21,12 @@ class LessonMediaController extends Controller
         MediaService $media
     ): RedirectResponse {
         $lesson->loadMissing('section.course.academy');
+        $course = $lesson->section?->course;
 
+        // The teacher must still have an active membership in this course's
+        // academy. A course-teacher pivot can outlive an archived membership.
         abort_unless(
-            $lesson->section?->course?->teachers()->whereKey($request->user()->id)->exists()
-                && $lesson->section?->course?->academy?->status === 'active',
+            $course && app(TeacherAccessService::class)->canTeachCourse($request->user(), $course),
             403
         );
 
