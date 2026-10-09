@@ -3656,7 +3656,7 @@
 }
 
 /* Consistent teacher cards: real portrait is the lead visual, never a tiny avatar. */
-.sheykhan-site .teacher-card { align-self: stretch; }
+.sheykhan-site .teacher-card { display: flex; min-height: 100%; flex-direction: column; align-self: stretch; }
 .teacher-card__media {
     position: relative;
     display: block;
@@ -3718,7 +3718,7 @@
 .teacher-card__role {
     display: inline-flex;
     max-width: 100%;
-    margin-top: .45rem;
+    margin: .45rem 0 0;
     border: 1px solid #dce7ff;
     border-radius: .55rem;
     padding: .28rem .55rem;
@@ -3728,7 +3728,7 @@
     font-weight: 800;
     line-height: 1.6;
 }
-.teacher-card__bio { margin-top: .85rem; color: var(--color-text-secondary); font-size: .83rem; line-height: 1.95; }
+.teacher-card__bio { margin: .85rem 0 1rem; color: var(--color-text-secondary); font-size: .83rem; line-height: 1.95; }
 .teacher-card__footer {
     display: flex;
     align-items: center;
