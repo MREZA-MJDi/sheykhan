@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -168,14 +169,20 @@ final class ProductManagementController extends Controller
 
         $hasRealPdf = $product->files()
             ->where('is_preview', false)
-            ->whereHas('media', fn ($query) => $query
-                ->where('status', 'active')
-                ->where('visibility', 'private')
-                ->where('mime_type', 'application/pdf')
-                ->whereNotNull('path'))
-            ->exists();
+            ->with('media')
+            ->get()
+            ->contains(function ($file): bool {
+                $media = $file->media;
 
-        abort_unless($hasRealPdf, 422, 'بدون فایل PDF واقعی و خصوصی، انتشار محصول ممکن نیست.');
+                return $media
+                    && $media->status === 'active'
+                    && $media->visibility === 'private'
+                    && strtolower((string) $media->mime_type) === 'application/pdf'
+                    && filled($media->path)
+                    && Storage::disk($media->disk)->exists($media->path);
+            });
+
+        abort_unless($hasRealPdf, 422, 'بدون فایل PDF واقعی موجود در فضای خصوصی، انتشار محصول ممکن نیست.');
 
         DB::transaction(function () use ($product): void {
             $locked = Product::query()->whereKey($product->id)->lockForUpdate()->firstOrFail();
