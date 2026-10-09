@@ -191,10 +191,10 @@
             <div class="student-ui-quick-grid">
                 @php
                     $quickLinks = [
-                        ['route'=>'student.courses.index','label'=>'دوره‌های من','description'=>'ادامه درس‌ها و دیدن درصد پیشرفت','icon'=>'▣','permission'=>'courses.view'],
-                        ['route'=>'student.live-classes.index','label'=>'کلاس‌های من','description'=>'برنامه کلاس‌های زنده و جلسات','icon'=>'◷','permission'=>'live_classes.view'],
-                        ['route'=>'student.assignments.index','label'=>'تکالیف من','description'=>'کارهای باز، موعدها و ارسال‌ها','icon'=>'✓','permission'=>'assignments.view'],
-                        ['route'=>'student.exams.index','label'=>'آزمون‌ها','description'=>'آزمون‌های منتشرشده و شروع آزمون','icon'=>'▤','permission'=>'exams.view'],
+                        ['route'=>'student.courses.index','label'=>'دوره‌های من','description'=>'ادامه درس‌ها و دیدن درصد پیشرفت','icon'=>'▤','permission'=>'courses.view'],
+                        ['route'=>'student.live-classes.index','label'=>'کلاس‌های من','description'=>'برنامه کلاس‌های زنده و جلسات','icon'=>'◉','permission'=>'live_classes.view'],
+                        ['route'=>'student.assignments.index','label'=>'تکالیف من','description'=>'کارهای باز، موعدها و ارسال‌ها','icon'=>'✎','permission'=>'assignments.view'],
+                        ['route'=>'student.exams.index','label'=>'آزمون‌ها','description'=>'آزمون‌های منتشرشده و شروع آزمون','icon'=>'▣','permission'=>'exams.view'],
                         ['route'=>'student.results.index','label'=>'نمرات و عملکرد','description'=>'نتایج، نمره‌ها و بازخوردها','icon'=>'↗','permission'=>'results.view'],
                         ['route'=>'student.resources.index','label'=>'جزوه‌ها و منابع','description'=>'فایل‌ها و محتوای اختصاصی تو','icon'=>'▤','permission'=>'resources.view'],
                         ['route'=>'student.notes.index','label'=>'یادداشت‌ها','description'=>'یادداشت‌های شخصی مسیر یادگیری','icon'=>'✎','permission'=>'notes.view'],
