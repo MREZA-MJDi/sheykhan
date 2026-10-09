@@ -45,7 +45,7 @@ class LiveClassController extends Controller
 
         $data = $request->validate([
             'recording' => ['required', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime,video/x-matroska', 'max:204800'],
-            'release_at' => ['nullable', 'date', 'before_or_equal:now'],
+            'release_at' => ['nullable', 'date', 'after_or_equal:now'],
         ]);
 
         $newMedia = $media->upload($data['recording'], null, [
