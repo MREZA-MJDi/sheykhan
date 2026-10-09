@@ -110,20 +110,21 @@ final class StudentExamService
             abort_unless($attempt->status === 'in_progress', 422);
 
             $exam = $attempt->exam;
-            abort_unless(app(StudentAccessService::class)->exam($student, $exam), 404);
-
+            $studentCanAccessExam = app(StudentAccessService::class)->exam($student, $exam);
             $timedOut = $this->hasTimedOut($attempt, $exam);
             $examIsOpen = $this->isOpen($exam);
 
-            if (!$examIsOpen || $timedOut) {
+            if (!$studentCanAccessExam || !$examIsOpen || $timedOut) {
                 $attempt->status = 'submitted';
                 $attempt->submitted_at = now();
                 $attempt->save();
 
                 // Commit the final state before surfacing a validation error.
                 // Throwing inside the transaction would roll this state change back.
-                $message = $exam->status !== 'published'
-                    ? 'این آزمون توسط مدرس بسته شده است. پاسخ‌ها ثبت نشدند.'
+                $message = !$studentCanAccessExam
+                    ? ($exam->status !== 'published'
+                        ? 'این آزمون توسط مدرس بسته شده است. پاسخ‌ها ثبت نشدند.'
+                        : 'دسترسی شما به این آزمون دیگر فعال نیست. پاسخ‌ها ثبت نشدند.')
                     : ($timedOut
                         ? 'زمان آزمون شما به پایان رسیده است. پاسخ‌ها ثبت نشدند.'
                         : 'این آزمون در حال حاضر باز نیست.');
