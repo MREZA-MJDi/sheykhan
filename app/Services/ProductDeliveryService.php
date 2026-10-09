@@ -215,15 +215,13 @@ final class ProductDeliveryService
 
     private function recordDownload(ProductEntitlement $entitlement, ProductFile $file, Request $request): void
     {
-        $download = ProductDownload::query()->firstOrNew([
+        ProductDownload::query()->create([
             'entitlement_id' => $entitlement->id,
             'product_file_id' => $file->id,
-        ]);
-        $download->fill([
             'ip_address' => $request->ip(),
             'user_agent' => mb_substr((string) $request->userAgent(), 0, 1000),
             'downloaded_at' => now(),
-        ])->save();
+        ]);
     }
 
     private function downloadName(ProductFile $file): string
