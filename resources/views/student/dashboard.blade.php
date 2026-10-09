@@ -69,6 +69,50 @@
             </div>
         </section>
 
+        @if(collect($sessions ?? [])->isNotEmpty())
+            <section class="student-workspace-card mt-5" aria-labelledby="student-recordings-title">
+                <div class="student-workspace-card-head">
+                    <div>
+                        <h2 id="student-recordings-title">جلسه‌های من و آرشیو ضبط‌ها</h2>
+                        <p>ضبط‌های منتشرشده با چراغ روشن آمادهٔ مشاهده‌اند؛ جلسه‌های دیگر تا انتشار مجاز قفل می‌مانند.</p>
+                    </div>
+                    <a class="student-workspace-btn secondary" href="{{ route('student.live-classes.index') }}">همه جلسات</a>
+                </div>
+                <div class="student-workspace-list">
+                    @foreach(collect($sessions)->take(8) as $session)
+                        <article class="student-workspace-row">
+                            <div class="student-workspace-date">
+                                <strong>{{ $session['is_future'] ? '◷' : '▶' }}</strong>
+                                <small>{{ $session['is_future'] ? 'آینده' : 'آرشیو' }}</small>
+                            </div>
+                            <div class="student-workspace-row-main">
+                                <strong>{{ $session['title'] }}</strong>
+                                <span>{{ $session['course'] ?: 'دوره آموزشی' }} · {{ $session['classroom'] ?: 'جلسه دوره' }}</span>
+                                <span>{{ $session['date'] }} · {{ $session['time'] }}</span>
+                            </div>
+                            <div class="student-workspace-actions">
+                                @if($session['available'] && $session['href'])
+                                    <span class="student-workspace-status success">● چراغ روشن</span>
+                                    <a class="student-workspace-btn primary" href="{{ $session['href'] }}">مشاهده ضبط</a>
+                                @else
+                                    <span class="student-workspace-status warning">○ چراغ خاموش</span>
+                                    <small class="max-w-48 text-xs leading-6 text-slate-500">
+                                        @if($session['is_future'])
+                                            این جلسه هنوز برگزار نشده است.
+                                        @elseif(in_array($session['status'], ['completed','published'], true))
+                                            ضبط جلسه هنوز منتشر نشده یا زمان دسترسی آن نرسیده است.
+                                        @else
+                                            ضبطی برای این جلسه منتشر نشده است.
+                                        @endif
+                                    </small>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         <section class="student-focus-card" data-student-focus aria-labelledby="student-focus-title">
             <div class="student-focus-art" aria-hidden="true">
                 <span class="student-focus-spark s1">✦</span>
