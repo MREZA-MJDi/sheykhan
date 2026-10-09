@@ -87,16 +87,18 @@ class CommerceCheckoutFlowTest extends TestCase
         $this->assertSame((int) $product->price, (int) $order->total);
 
         $recordedConsents = LegalConsent::query()->where('order_id', $order->id)->get();
-        $this->assertSameCanonicalizing(
-            [
-                ['version' => $terms->version, 'hash' => $terms->content_hash],
-                ['version' => $copyright->version, 'hash' => $copyright->content_hash],
-            ],
-            $recordedConsents->map(fn (LegalConsent $consent) => [
-                'version' => $consent->document_version,
-                'hash' => $consent->content_hash,
-            ])->all()
-        );
+        $expected = [
+            ['version' => $terms->version, 'hash' => $terms->content_hash],
+            ['version' => $copyright->version, 'hash' => $copyright->content_hash],
+        ];
+        $actual = $recordedConsents->map(fn (LegalConsent $consent) => [
+            'version' => $consent->document_version,
+            'hash' => $consent->content_hash,
+        ])->all();
+        $sortByVersion = fn (array $left, array $right): int => $left['version'] <=> $right['version'];
+        usort($expected, $sortByVersion);
+        usort($actual, $sortByVersion);
+        $this->assertSame($expected, $actual);
     }
 
     public function test_unpaid_order_cannot_download_a_product_file(): void
