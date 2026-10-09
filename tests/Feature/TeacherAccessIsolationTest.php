@@ -126,7 +126,7 @@ class TeacherAccessIsolationTest extends TestCase
             ['name' => 'media.upload', 'label' => 'Upload media', 'group' => 'media'],
         ])->map(fn (array $permission) => Permission::create($permission));
 
-        $role->permissions()->attach($permissions->modelKeys());
+        $role->permissions()->attach($permissions->pluck('id')->all());
 
         $teacher = User::factory()->create([
             'email' => 'teacher-' . Str::random(8) . '@test.local',
