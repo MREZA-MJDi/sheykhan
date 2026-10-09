@@ -78,7 +78,7 @@ final class OrderController extends Controller
 
         if ($oldMediaId && (int) $oldMediaId !== (int) $newMedia->id) {
             $oldMedia = Media::query()->find($oldMediaId);
-            if ($oldMedia && ! $oldMedia->payments()->exists() && $oldMedia->attachments()->doesntExist()) {
+            if ($oldMedia && ! Payment::query()->where('proof_media_id', $oldMedia->id)->exists() && $oldMedia->attachments()->doesntExist()) {
                 $media->delete($oldMedia);
             }
         }
