@@ -234,7 +234,7 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
 Route::fallback(function () {
     if (request()->expectsJson()) {
         return response()->json([
-            'message' => 'صفحه موردنظر پیدا نشد.',
+            'message' => 'صفحه یا رکورد موردنظر پیدا نشد.',
         ], 404);
     }
 
