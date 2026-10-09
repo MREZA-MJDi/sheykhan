@@ -46,7 +46,7 @@
         </div>
 
         @if(filled($bio))
-            <p class="teacher-card__bio">{{ \\Illuminate\\Support\\Str::limit(trim(strip_tags((string) $bio)), 155) }}</p>
+            <p class="teacher-card__bio">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $bio)), 155) }}</p>
         @endif
 
         <div class="teacher-card__footer">
@@ -55,7 +55,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/>
                     <path stroke-linecap="round" d="M4 5.5v16M8 7h8M8 10.5h8"/>
                 </svg>
-                {{ \\App\\Support\\PersianUi::digits((int) ($courses ?? 0)) }} دوره آموزشی
+                {{ \App\Support\PersianUi::digits((int) ($courses ?? 0)) }} دوره آموزشی
             </span>
 
             <a href="{{ $href }}" class="teacher-card__action">
