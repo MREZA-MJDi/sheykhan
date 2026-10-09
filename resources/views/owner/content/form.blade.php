@@ -24,16 +24,14 @@
             <label><span>شناسه URL</span><input name="slug" value="{{ old('slug',$content->slug) }}" maxlength="255"></label>
             <label><span>خلاصه</span><textarea name="excerpt" rows="3" maxlength="500">{{ old('excerpt',$content->excerpt) }}</textarea></label>
             <label><span>متن محتوا</span><textarea name="body" rows="14">{{ old('body',$content->body) }}</textarea></label>
-            @if($content->type === 'video' || old('type') === 'video')
-                <label>
-                    <span>فایل واقعی ویدئو</span>
-                    <input type="file" name="video_file" accept=".mp4,.webm,.mov,video/mp4,video/webm,video/quicktime">
-                    <small>حداکثر ۲۰۰ مگابایت. برای انتشار ویدئو، فایل واقعی لازم است؛ متن seed به‌جای ویدئو پذیرفته نیست.</small>
-                </label>
-                @php($existingVideo = $content->media->first(fn($media) => $media->pivot?->collection === 'video' && $media->visibility === 'public'))
-                @if($existingVideo)
-                    <video controls preload="metadata" class="mt-3 w-full rounded-xl border border-slate-200" src="{{ $existingVideo->url() }}"></video>
-                @endif
+            <label>
+                <span>فایل واقعی ویدئو (برای نوع «ویدئو» الزامی)</span>
+                <input type="file" name="video_file" accept=".mp4,.webm,.mov,video/mp4,video/webm,video/quicktime">
+                <small>حداکثر ۲۰۰ مگابایت. برای انتشار ویدئو، فایل واقعی لازم است؛ متن seed به‌جای ویدئو پذیرفته نیست.</small>
+            </label>
+            @php($existingVideo = $content->media->first(fn($media) => $media->pivot?->collection === 'video' && $media->collection === 'video' && $media->visibility === 'public' && $media->status === 'active'))
+            @if($existingVideo)
+                <video controls preload="metadata" class="mt-3 w-full rounded-xl border border-slate-200" src="{{ $existingVideo->url() }}"></video>
             @endif
             <div class="owner-cover-editor" data-owner-cover-editor>
                 <div class="owner-cover-preview">
