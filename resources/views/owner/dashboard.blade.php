@@ -68,6 +68,10 @@
                             جزوه‌ها و فایل‌ها
                         </a>
 
+                        <a href="{{ route('owner.products.index', $firstAcademy) }}" class="owner-btn ghost">
+                            کتابخانه، جزوه و آزمون
+                        </a>
+
                         <a href="{{ route('owner.showcase.index', $firstAcademy) }}" class="owner-btn ghost">
                             افتخارآفرینان و رضایتمندی
                         </a>
