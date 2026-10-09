@@ -2,6 +2,9 @@
 
 Sheykhan is a Laravel application for an education/academy workflow. Its routes and controllers cover public academy/course/teacher content, owner-side academy and classroom management, enrollments and reports, student learning features, and a parent portal. The exact availability of each workflow depends on the current implementation; consult routes, tests, and migrations before describing a feature as production-ready.
 
+## Dedicated dashboards
+Sheykhan provides dedicated role-based dashboards for its academy workflows, including the relevant owner, student, and parent experiences. Check the current route middleware and tests when verifying which operations each role may access.
+
 ## Stack
 - PHP `^8.2`, Laravel `^12.0`
 - Blade, Vite and the frontend dependencies in `package.json`
