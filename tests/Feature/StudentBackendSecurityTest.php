@@ -252,6 +252,49 @@ class StudentBackendSecurityTest extends TestCase
         $service->start($student, $exam);
     }
 
+    public function test_submitting_a_timed_out_exam_persists_closed_status_before_returning_validation_error(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update(['access_type' => 'free']);
+        $student->enrollments()->where('course_id', $course->id)->update(['paid_amount' => 0]);
+
+        $exam = Exam::create([
+            'course_id' => $course->id,
+            'classroom_id' => null,
+            'teacher_id' => User::where('email', 'teacher.math@sheykhan.test')->value('id'),
+            'title' => 'آزمون پایان‌یافته',
+            'description' => '—',
+            'duration_minutes' => 20,
+            'starts_at' => now()->subHour(),
+            'ends_at' => now()->addHour(),
+            'attempts_allowed' => 2,
+            'status' => 'published',
+        ]);
+
+        $attempt = ExamAttempt::create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'attempt_number' => 1,
+            'started_at' => now()->subMinutes(30),
+            'status' => 'in_progress',
+        ]);
+
+        try {
+            app(StudentExamService::class)->submit($student, $attempt, []);
+            $this->fail('A timed-out exam submission should return a validation error.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('exam', $exception->errors());
+        }
+
+        $this->assertDatabaseHas('exam_attempts', [
+            'id' => $attempt->id,
+            'status' => 'submitted',
+        ]);
+    }
+
     public function test_timed_out_exam_attempt_is_closed_before_a_new_attempt_is_allowed(): void
     {
         $this->seed();
