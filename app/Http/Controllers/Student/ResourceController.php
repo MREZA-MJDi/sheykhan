@@ -31,12 +31,9 @@ class ResourceController extends Controller
     public function download(
         LearningResource $resource,
         StudentLearningResourceService $resources,
-        MediaService $media,
     ) {
         abort_unless($resources->canAccess(request()->user(), $resource), 404);
-        abort_unless($resource->downloadable, 403, 'دانلود این منبع توسط آموزشگاه غیرفعال شده است.');
-        abort_unless($resource->media && $resource->media->status === 'active', 404);
 
-        return $media->download($resource->media);
+        abort(403, 'فایل‌های آموزشی محافظت‌شده برای دانش‌آموز فقط قابل مشاهده هستند و دانلود مستقیم ندارند.');
     }
 }
