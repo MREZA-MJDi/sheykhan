@@ -32,8 +32,7 @@
             <section class="owner-form-section">
                 <h2>دسترسی</h2>
                 <label><span>زمان انتشار (اختیاری)</span><input type="datetime-local" name="release_at" value="{{ old('release_at') }}"><small>قبل از این زمان دانش‌آموز فایل را نمی‌بیند.</small></label>
-                <label class="owner-check"><input type="checkbox" name="downloadable" value="1" @checked(old('downloadable'))><span>دانلود این فایل مجاز است</span></label>
-                <p class="text-xs leading-6 text-slate-500">در صورت غیرفعال بودن دانلود، فایل فقط از مسیر مشاهدهٔ احرازشده ارائه می‌شود. برای PDFهای فروشی از این ابزار استفاده نکنید.</p>
+                <p class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900">فایل‌های آموزشی دانش‌آموز همیشه از مسیر مشاهدهٔ احرازشده ارائه می‌شوند؛ دانلود مستقیم این بخش عمداً غیرفعال است. PDFهای فروشی را از مدیریت محصولات ثبت کن.</p>
             </section>
             <button type="submit" class="owner-primary-btn w-full">ثبت فایل خصوصی</button>
         </aside>
@@ -47,7 +46,7 @@
                     <div class="min-w-0">
                         <strong class="block">{{ $resource->title }}</strong>
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->course?->title ?? 'آموزشگاه' }} @if($resource->classroom) · {{ $resource->classroom->title }} @endif @if($resource->lesson) · {{ $resource->lesson->title }} @endif</p>
-                        <p class="mt-1 text-xs text-slate-500">{{ $resource->media?->original_name }} · {{ $resource->downloadable ? 'دانلود مجاز' : 'فقط مشاهده' }} · {{ $resource->release_at?->format('Y-m-d H:i') ?? 'بدون تأخیر انتشار' }}</p>
+                        <p class="mt-1 text-xs text-slate-500">{{ $resource->media?->original_name }} · فقط مشاهدهٔ احرازشده · {{ $resource->release_at?->format('Y-m-d H:i') ?? 'بدون تأخیر انتشار' }}</p>
                     </div>
                     <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">{{ $resource->status }}</span>
                 </article>
