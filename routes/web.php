@@ -180,6 +180,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
     Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->middleware('permission:live_classes.manage')->name('live-classes.create');
     Route::post('/live-classes', [TeacherLiveClassController::class, 'store'])->middleware('permission:live_classes.manage')->name('live-classes.store');
+    Route::post('/live-classes/{liveClass}/recording', [TeacherLiveClassController::class, 'uploadRecording'])->middleware(['permission:live_classes.manage','throttle:5,1'])->name('live-classes.recording.store');
 });
 
 Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
