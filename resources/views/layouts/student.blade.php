@@ -1,4 +1,4 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="csrf-token" content="{{ csrf_token() }}"><title>@yield('title', 'پنل دانش‌آموز | شیخان')</title>@vite(['resources/css/student.css', 'resources/js/student.js'])@stack('styles')</head>
-<body class="student-shell"><div class="role-layout"><x-navigation.student-sidebar /><div class="role-content">@php($studentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل دانش‌آموز')))<x-navigation.panel-topbar role="student" :title="$studentHeaderTitle" /><main class="role-main"><x-ui.flash-messages />@yield('content')</main></div></div>@stack('scripts')</body></html>
+<body class="student-shell"><div class="role-layout"><x-navigation.student-sidebar /><div class="role-content">@php($studentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل دانش‌آموز')))<x-navigation.panel-topbar role="student" :title="$studentHeaderTitle" /><main class="role-main"><x-ui.flash-messages />@yield('content')</main></div><x-navigation.role-mobile-nav role="student" /></div>@stack('scripts')</body></html>

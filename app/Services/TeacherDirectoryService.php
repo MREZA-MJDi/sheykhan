@@ -16,15 +16,42 @@ class TeacherDirectoryService
             ->withQueryString();
     }
 
+    public function clearPublicCache(): void
+    {
+        foreach ([4, 6] as $limit) {
+            Cache::forget("public:home:teachers:{$limit}:v2");
+        }
+
+        Cache::forget('public:home:data:v3');
+        Cache::forget('public:platform:stats:v1');
+        Cache::forget('public:seo:sitemap:v1');
+    }
+
     public function findPublic(User $teacher): User
     {
+        $teacherId = $teacher->getKey();
+
         return $this->query()
-            ->whereKey($teacher->id)
+            ->whereKey($teacherId)
             ->where('status', 'active')
             ->with([
                 'taughtCourses' => fn ($query) => $query
                     ->published()
-                    ->withCount('lessons')
+                    ->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))
+                    ->withCount([
+                        'lessons as lessons_count' => fn ($query) => $query
+                            ->where('status', 'published')
+                            ->where(fn ($query) => $query
+                                ->whereNull('published_at')
+                                ->orWhere('published_at', '<=', now())
+                            ),
+                    ])
+                    ->with([
+                        'media' => fn ($query) => $query
+                            ->where('visibility', 'public')
+                            ->where('status', 'active')
+                            ->orderByPivot('sort_order'),
+                    ])
                     ->latest('courses.published_at'),
             ])
             ->firstOrFail();
@@ -45,6 +72,7 @@ class TeacherDirectoryService
                     'bio' => $teacher->teacherProfile?->bio,
                     'courses' => $teacher->courses_count,
                     'avatar' => $teacher->teacherProfile?->media->first()?->url(),
+                    'href' => route('teachers.show', $teacher),
                 ])
                 ->all()
         );
@@ -63,7 +91,9 @@ class TeacherDirectoryService
                     ->orderByPivot('sort_order'),
             ])
             ->withCount([
-                'taughtCourses as courses_count' => fn ($query) => $query->published(),
+                'taughtCourses as courses_count' => fn ($query) => $query
+                    ->published()
+                    ->whereHas('academy', fn ($academy) => $academy->where('status', 'active')),
             ]);
     }
 }

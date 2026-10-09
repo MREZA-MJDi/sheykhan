@@ -16,6 +16,7 @@ class HomeService
         private readonly AcademyContentService $academyContent,
         private readonly AchievementService $achievements,
         private readonly TestimonialService $testimonials,
+        private readonly HomeBannerService $banners,
     ) {
     }
 
@@ -32,6 +33,7 @@ class HomeService
             'academyContentGroups' => $this->academyContent->featuredGroups(),
             'achievementCards' => $this->achievements->featured(),
             'testimonialCards' => $this->testimonials->featured(),
+            'homeBanners' => $this->banners->featured(),
         ]);
     }
 }

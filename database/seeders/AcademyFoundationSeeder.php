@@ -15,6 +15,13 @@ class AcademyFoundationSeeder extends Seeder
 {
     public function run(): void
     {
+        // Keep the local/demo database easy to explore: one login per role.
+        // Feature tests retain the richer fixture set because they exercise multiple grades and teachers.
+        if (! app()->environment('testing')) {
+            $this->runDemoFoundation();
+            return;
+        }
+
         $owner=$this->user('owner@sheykhan.test','مدیر آکادمی شیخان','owner','academy-owner');
         $teacherSeeds=[['teacher.math@sheykhan.test','سمیه احمدی','math'],['teacher.science@sheykhan.test','علی رضایی','science'],['teacher.gifted@sheykhan.test','نگار کریمی','gifted']];
         $teachers=collect($teacherSeeds)->map(fn($x)=>$this->user($x[0],$x[1],'teacher-'.$x[2],'teacher'));
@@ -52,13 +59,94 @@ class AcademyFoundationSeeder extends Seeder
         foreach($members as $id=>$role){$academy->users()->syncWithoutDetaching([$id=>['role'=>$role,'status'=>'active','joined_at'=>now()]]);}
     }
 
+    private function runDemoFoundation(): void
+    {
+        $owner = $this->user('owner@sheykhan.test', 'مدیر آکادمی شیخان', 'owner', 'academy-owner');
+        $teacher = $this->user('teacher.math@sheykhan.test', 'سمیه احمدی', 'teacher-math', 'teacher');
+        $student = $this->user('student.armin@sheykhan.test', 'آرین محمدی', 'student-armin', 'student');
+        $parent = $this->user('parent.armin@sheykhan.test', 'مریم محمدی', 'parent-armin', 'parent');
+
+        TeacherProfile::firstOrCreate(['user_id' => $teacher->id], [
+            'bio' => 'مدرس آکادمی شیخان با تمرکز بر آموزش مفهومی و حل مسئله.',
+            'specialization' => 'ریاضی',
+            'education' => 'کارشناسی مرتبط',
+            'experience_years' => 7,
+            'is_verified' => true,
+        ]);
+
+        $grade = AcademicGrade::where('code', '7')->firstOrFail();
+        StudentProfile::firstOrCreate(['user_id' => $student->id], [
+            'student_number' => 'SH-1001',
+            'birth_date' => '2013-05-10',
+            'grade' => $grade->title,
+            'grade_id' => $grade->id,
+            'school_name' => 'مدرسه منتخب شیخان',
+            'bio' => 'دانش‌آموز نمونه آکادمی شیخان.',
+            'registration_source' => 'admin',
+            'onboarded_at' => now()->subMonths(2),
+            'status' => 'active',
+        ]);
+
+        ParentProfile::firstOrCreate(['user_id' => $parent->id], [
+            'occupation' => 'والد',
+            'relation_default' => 'مادر',
+        ]);
+        $parent->children()->syncWithoutDetaching([
+            $student->id => ['relation' => 'مادر'],
+        ]);
+
+        $academy = Academy::firstOrCreate(['slug' => 'sheykhan-academy'], [
+            'owner_id' => $owner->id,
+            'name' => 'آکادمی شیخان',
+            'code' => 'SHK-001',
+            'description' => 'آکادمی آموزشی شیخان؛ آموزش تخصصی، کلاس آنلاین، آزمون و محتوای آموزشی.',
+            'phone' => '02191000000',
+            'email' => 'academy@sheykhan.test',
+            'address' => 'تهران',
+            'city' => 'تهران',
+            'province' => 'تهران',
+            'website' => 'https://sheykhan.test',
+            'status' => 'active',
+        ]);
+
+        foreach ([
+            $owner->id => 'owner',
+            $teacher->id => 'teacher',
+            $student->id => 'student',
+            $parent->id => 'parent',
+        ] as $userId => $role) {
+            $academy->users()->syncWithoutDetaching([
+                $userId => ['role' => $role, 'status' => 'active', 'joined_at' => now()],
+            ]);
+        }
+    }
+
     private function user(string $email,string $name,string $key,string $roleSlug): User
     {
-        $user=User::firstOrCreate(['email'=>$email],[
-            'name'=>$name,'mobile'=>'09'.str_pad((string)(1000000000+abs(crc32($key))%899999999),10,'0',STR_PAD_LEFT),
-            'status'=>'active','password'=>Hash::make(env('SEED_USER_PASSWORD','Sheykhan@12345')),
+        // Keep the documented demo credentials usable even when the user
+        // already existed from an earlier seed with an old password/status.
+        $seedPassword = env('SEED_USER_PASSWORD');
+        if (blank($seedPassword) && ! app()->environment(['local', 'testing'])) {
+            throw new \RuntimeException(
+                'Set SEED_USER_PASSWORD before seeding demo accounts outside local/testing environments.'
+            );
+        }
+        $seedPassword = $seedPassword ?: 'Sheykhan@12345';
+
+        $user = User::withTrashed()->updateOrCreate(
+            ['email' => $email],
+            [
+                'name' => $name,
+                'mobile' => '09' . str_pad((string) (1000000000 + abs(crc32($key)) % 899999999), 10, '0', STR_PAD_LEFT),
+                'status' => 'active',
+                'password' => Hash::make($seedPassword),
+                'deleted_at' => null,
+            ],
+        );
+
+        $user->roles()->syncWithoutDetaching([
+            Role::where('slug', $roleSlug)->value('id'),
         ]);
-        $user->roles()->syncWithoutDetaching([Role::where('slug',$roleSlug)->value('id')]);
         return $user;
     }
 }

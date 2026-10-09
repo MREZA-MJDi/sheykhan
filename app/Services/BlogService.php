@@ -40,6 +40,16 @@ class BlogService
             ->firstOrFail();
     }
 
+    public function clearPublicCache(): void
+    {
+        foreach ([3, 6] as $limit) {
+            Cache::forget("public:home:blog:latest:{$limit}:v1");
+        }
+
+        Cache::forget('public:home:data:v3');
+        Cache::forget('public:seo:sitemap:v1');
+    }
+
     private function publishedQuery(): Builder
     {
         return BlogPost::query()
@@ -51,6 +61,7 @@ class BlogService
                 'author:id,name',
                 'media' => fn ($query) => $query
                     ->where('visibility', 'public')
+                    ->where('status', 'active')
                     ->orderByPivot('sort_order'),
             ]);
     }

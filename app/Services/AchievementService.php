@@ -15,7 +15,12 @@ class AchievementService
                 ->where('is_featured', true)
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', now())
-                ->with(['media:id,disk,path,visibility', 'grade:id,title'])
+                ->with([
+                    'media' => fn ($query) => $query
+                        ->where('visibility', 'public')
+                        ->where('status', 'active'),
+                    'grade:id,title',
+                ])
                 ->orderByDesc('published_at')
                 ->limit($limit)
                 ->get()

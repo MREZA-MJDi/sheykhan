@@ -6,68 +6,189 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+    private const LEGACY_INDEX = 'course_enrollments_course_student_year_unique';
+    private const EFFECTIVE_INDEX = 'course_enrollments_course_student_year_effective_unique';
+    private const YEAR_KEY = 'academic_year_key';
+    private const YEAR_FOREIGN_KEY = 'course_enrollments_academic_year_id_foreign';
+
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table): void {
-            $table->softDeletes();
-        });
+        // DDL can be committed before a failed migration is recorded. Make retries
+        // safe when a previous attempt already added deleted_at or dropped the old index.
+        if (! Schema::hasColumn('users', 'deleted_at')) {
+            Schema::table('users', function (Blueprint $table): void {
+                $table->softDeletes();
+            });
+        }
 
-        // A nullable academic_year_id is useful for legacy imports, but MySQL UNIQUE
-        // indexes otherwise allow multiple NULL rows for the same course/student pair.
-        //
-        // Do not use a generated column here on MySQL. academic_year_id is a nullable
-        // foreign key with ON DELETE SET NULL, and MySQL rejects foreign-key actions
-        // on a base column of a generated column. MySQL 8.4 supports functional key
-        // parts, so enforce the effective uniqueness directly in the index expression.
-        if (DB::getDriverName() === 'mysql') {
-            DB::statement(
-                'ALTER TABLE course_enrollments DROP INDEX course_enrollments_course_student_year_unique'
-            );
-            DB::statement(
-                'ALTER TABLE course_enrollments ' .
-                'ADD UNIQUE INDEX course_enrollments_course_student_year_effective_unique ' .
-                '(course_id, student_id, (COALESCE(academic_year_id, 0)))'
-            );
+        $driver = DB::getDriverName();
+        $isMariaDb = $this->isMariaDb();
+
+        // MySQL 8 supports functional key parts. MariaDB does not support that syntax,
+        // so it needs a stored generated column. MariaDB/InnoDB does not allow SET NULL
+        // on a foreign-key column used by a generated column; use RESTRICT instead so
+        // an academic year referenced by enrollment history cannot be silently nulled.
+        if ($driver === 'mysql' && ! $isMariaDb) {
+            $this->dropIndexIfExists(self::LEGACY_INDEX);
+
+            if (! $this->indexExists(self::EFFECTIVE_INDEX)) {
+                DB::statement(
+                    'ALTER TABLE course_enrollments ' .
+                    'ADD UNIQUE INDEX ' . self::EFFECTIVE_INDEX . ' ' .
+                    '(course_id, student_id, (COALESCE(academic_year_id, 0)))'
+                );
+            }
 
             return;
         }
 
-        Schema::table('course_enrollments', function (Blueprint $table): void {
-            $table->dropUnique('course_enrollments_course_student_year_unique');
-            $table->unsignedBigInteger('academic_year_key')
-                ->storedAs('COALESCE(academic_year_id, 0)')
-                ->after('academic_year_id');
-            $table->unique(
-                ['course_id', 'student_id', 'academic_year_key'],
-                'course_enrollments_course_student_year_effective_unique'
-            );
-        });
+        if ($isMariaDb) {
+            $this->restrictAcademicYearDelete();
+        }
+
+        if (! Schema::hasColumn('course_enrollments', self::YEAR_KEY)) {
+            Schema::table('course_enrollments', function (Blueprint $table) use ($driver): void {
+                $column = $table->unsignedBigInteger(self::YEAR_KEY);
+
+                // SQLite only permits VIRTUAL generated columns to be added with ALTER TABLE.
+                // MariaDB supports an indexed STORED column, which is used for the unique key.
+                if ($driver === 'sqlite') {
+                    $column->virtualAs('COALESCE(academic_year_id, 0)');
+                } else {
+                    $column->storedAs('COALESCE(academic_year_id, 0)');
+                }
+
+                $column->after('academic_year_id');
+            });
+        }
+
+        $this->dropIndexIfExists(self::LEGACY_INDEX);
+
+        if (! $this->indexExists(self::EFFECTIVE_INDEX)) {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
+                $table->unique(
+                    ['course_id', 'student_id', self::YEAR_KEY],
+                    self::EFFECTIVE_INDEX
+                );
+            });
+        }
     }
 
     public function down(): void
     {
-        if (DB::getDriverName() === 'mysql') {
-            DB::statement(
-                'ALTER TABLE course_enrollments DROP INDEX course_enrollments_course_student_year_effective_unique'
-            );
-            DB::statement(
-                'ALTER TABLE course_enrollments ' .
-                'ADD UNIQUE INDEX course_enrollments_course_student_year_unique ' .
-                '(course_id, student_id, academic_year_id)'
-            );
-        } else {
+        $driver = DB::getDriverName();
+        $isMariaDb = $this->isMariaDb();
+
+        $this->dropIndexIfExists(self::EFFECTIVE_INDEX);
+
+        if (($driver !== 'mysql' || $isMariaDb) && Schema::hasColumn('course_enrollments', self::YEAR_KEY)) {
             Schema::table('course_enrollments', function (Blueprint $table): void {
-                $table->dropUnique('course_enrollments_course_student_year_effective_unique');
-                $table->dropColumn('academic_year_key');
+                $table->dropColumn(self::YEAR_KEY);
+            });
+        }
+
+        if ($isMariaDb) {
+            $this->allowAcademicYearSetNull();
+        }
+
+        if (! $this->indexExists(self::LEGACY_INDEX)) {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
                 $table->unique(
                     ['course_id', 'student_id', 'academic_year_id'],
-                    'course_enrollments_course_student_year_unique'
+                    self::LEGACY_INDEX
                 );
             });
         }
 
-        Schema::table('users', function (Blueprint $table): void {
-            $table->dropSoftDeletes();
+        if (Schema::hasColumn('users', 'deleted_at')) {
+            Schema::table('users', function (Blueprint $table): void {
+                $table->dropSoftDeletes();
+            });
+        }
+    }
+
+    private function isMariaDb(): bool
+    {
+        return DB::getDriverName() === 'mysql'
+            && str_contains(strtolower((string) DB::selectOne('SELECT VERSION() AS version')?->version), 'mariadb');
+    }
+
+    private function restrictAcademicYearDelete(): void
+    {
+        $constraint = DB::selectOne(
+            'SELECT DELETE_RULE AS delete_rule
+             FROM information_schema.REFERENTIAL_CONSTRAINTS
+             WHERE CONSTRAINT_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND CONSTRAINT_NAME = ?',
+            ['course_enrollments', self::YEAR_FOREIGN_KEY]
+        );
+
+        if ($constraint && strtoupper((string) $constraint->delete_rule) === 'SET NULL') {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
+                $table->dropForeign(self::YEAR_FOREIGN_KEY);
+            });
+
+            $constraint = null;
+        }
+
+        // Also recover if a previous DDL attempt dropped the constraint but failed
+        // before recreating it.
+        if (! $constraint) {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
+                $table->foreign('academic_year_id', self::YEAR_FOREIGN_KEY)
+                    ->references('id')
+                    ->on('academic_years');
+            });
+        }
+    }
+
+    private function allowAcademicYearSetNull(): void
+    {
+        $constraint = DB::selectOne(
+            'SELECT DELETE_RULE AS delete_rule
+             FROM information_schema.REFERENTIAL_CONSTRAINTS
+             WHERE CONSTRAINT_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND CONSTRAINT_NAME = ?',
+            ['course_enrollments', self::YEAR_FOREIGN_KEY]
+        );
+
+        if ($constraint && strtoupper((string) $constraint->delete_rule) === 'SET NULL') {
+            return;
+        }
+
+        if ($constraint) {
+            Schema::table('course_enrollments', function (Blueprint $table): void {
+                $table->dropForeign(self::YEAR_FOREIGN_KEY);
+            });
+        }
+
+        Schema::table('course_enrollments', function (Blueprint $table): void {
+            $table->foreign('academic_year_id', self::YEAR_FOREIGN_KEY)
+                ->references('id')
+                ->on('academic_years')
+                ->nullOnDelete();
         });
+    }
+
+    private function indexExists(string $name): bool
+    {
+        foreach (Schema::getIndexes('course_enrollments') as $index) {
+            if (($index['name'] ?? null) === $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function dropIndexIfExists(string $name): void
+    {
+        if ($this->indexExists($name)) {
+            Schema::table('course_enrollments', function (Blueprint $table) use ($name): void {
+                $table->dropUnique($name);
+            });
+        }
     }
 };

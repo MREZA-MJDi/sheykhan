@@ -17,6 +17,9 @@ use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
+use App\Http\Controllers\PublicSite\ProductController;
+use App\Http\Controllers\PublicSite\SeoController as PublicSeoController;
+use App\Http\Controllers\PublicSite\AcademyContentController;
 use App\Http\Controllers\Student\AchievementController as StudentAchievementController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
@@ -54,8 +57,12 @@ Route::get('/courses/{course}/lessons/{lesson}/preview', [CourseController::clas
 Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
 Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])->name('teachers.show');
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
+Route::get('/store/{product:slug}', [ProductController::class, 'show'])->name('store.product.show');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/robots.txt', [PublicSeoController::class, 'robots'])->name('seo.robots');
+Route::get('/sitemap.xml', [PublicSeoController::class, 'sitemap'])->name('seo.sitemap');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/academy/{academy:slug}/content/{content:slug}', [AcademyContentController::class, 'show'])->name('academy.content.show');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -77,7 +84,7 @@ Route::middleware(['auth','active'])->group(function () {
         ->name('media.download');
 });
 
-Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->group(function () {
+Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
@@ -106,6 +113,21 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
+    Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->middleware('permission:academy.view')->name('website.index');
+    Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->middleware('permission:seo.manage')->name('seo.index');
+    Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->middleware('permission:seo.manage')->name('seo.edit');
+    Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->middleware('permission:seo.manage')->name('seo.update');
+    Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->middleware('permission:content.manage')->name('content.index');
+    Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->middleware('permission:content.manage')->name('content.create');
+    Route::post('/content', [\App\Http\Controllers\Owner\ContentController::class, 'store'])->middleware('permission:content.manage')->name('content.store');
+    Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->middleware('permission:content.manage')->name('content.edit');
+    Route::patch('/content/{content}', [\App\Http\Controllers\Owner\ContentController::class, 'update'])->middleware('permission:content.manage')->name('content.update');
+    Route::get('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'index'])->middleware('permission:blog.manage')->name('blog.index');
+    Route::get('/blog/create', [\App\Http\Controllers\Owner\BlogController::class, 'create'])->middleware('permission:blog.manage')->name('blog.create');
+    Route::post('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'store'])->middleware('permission:blog.manage')->name('blog.store');
+    Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->middleware('permission:blog.manage')->name('blog.edit');
+    Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->middleware('permission:blog.manage')->name('blog.update');
+    Route::get('/finance', [\App\Http\Controllers\Owner\FinanceController::class, 'index'])->middleware('permission:finance.view')->name('finance.index');
 });
 
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
@@ -212,7 +234,7 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
 Route::fallback(function () {
     if (request()->expectsJson()) {
         return response()->json([
-            'message' => 'صفحه موردنظر پیدا نشد.',
+            'message' => 'صفحه یا رکورد موردنظر پیدا نشد.',
         ], 404);
     }
 

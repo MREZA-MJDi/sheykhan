@@ -18,7 +18,7 @@ final class TeacherWorkspaceService
     public function courses(User $teacher): Collection
     {
         return $teacher->taughtCourses()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('academy:id,name')
             ->withCount([
                 'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
@@ -31,7 +31,7 @@ final class TeacherWorkspaceService
     public function coursesPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
         return $teacher->taughtCourses()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('academy:id,name')
             ->withCount([
                 'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
@@ -46,7 +46,7 @@ final class TeacherWorkspaceService
     public function classrooms(User $teacher): Collection
     {
         return $teacher->classroomsAsTeacher()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
@@ -60,7 +60,7 @@ final class TeacherWorkspaceService
     public function classroomsPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
         return $teacher->classroomsAsTeacher()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
@@ -75,7 +75,7 @@ final class TeacherWorkspaceService
     public function classroomsForSchedule(User $teacher): Collection
     {
         return $teacher->classroomsAsTeacher()
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with([
                 'course:id,title',
                 'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
@@ -88,6 +88,7 @@ final class TeacherWorkspaceService
     {
         return $teacher->classroomsAsTeacher()
             ->whereKey($classroomId)
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with([
                 'course:id,title',
                 'students' => fn ($query) => $query
@@ -100,7 +101,9 @@ final class TeacherWorkspaceService
 
     public function students(User $teacher): Collection
     {
-        $classroomIds = $teacher->classroomsAsTeacher()->pluck('classrooms.id');
+        $classroomIds = $teacher->classroomsAsTeacher()
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
             return collect();
@@ -162,6 +165,7 @@ final class TeacherWorkspaceService
     {
         return Assignment::query()
             ->where('teacher_id', $teacher->id)
+            ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with(['course:id,title', 'classroom:id,title'])
             ->withCount([
                 'submissions as submitted_count' => fn ($query) => $query->whereNotNull('submitted_at'),
@@ -179,6 +183,7 @@ final class TeacherWorkspaceService
     {
         return Exam::query()
             ->where('teacher_id', $teacher->id)
+            ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with(['course:id,title', 'classroom:id,title'])
             ->withCount([
                 'questions',
@@ -195,6 +200,7 @@ final class TeacherWorkspaceService
     {
         return LiveClass::query()
             ->where('teacher_id', $teacher->id)
+            ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with(['course:id,title', 'classroom:id,title'])
             ->orderByDesc('scheduled_at')
             ->orderByDesc('id')
@@ -206,7 +212,7 @@ final class TeacherWorkspaceService
     {
         return $teacher->taughtCourses()
             ->whereKey($courseId)
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->firstOrFail();
     }
 
@@ -214,7 +220,7 @@ final class TeacherWorkspaceService
     {
         return $teacher->classroomsAsTeacher()
             ->whereKey($classroomId)
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->firstOrFail();
     }
 
@@ -223,7 +229,7 @@ final class TeacherWorkspaceService
         return $teacher->classroomsAsTeacher()
             ->whereKey($classroomId)
             ->where('course_id', $courseId)
-            ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->firstOrFail();
     }
 
@@ -233,8 +239,19 @@ final class TeacherWorkspaceService
             ->whereKey($scheduleId)
             ->whereHas('classroom', fn ($query) => $query
                 ->whereHas('teachers', fn ($teacherQuery) => $teacherQuery->whereKey($teacher->id))
-                ->whereHas('academy', fn ($academy) => $academy->where('status', 'active')))
+                ->whereHas('academy', fn ($academy) => $this->activeTeacherAcademy($academy, $teacher->id)))
             ->firstOrFail();
+    }
+
+
+    private function activeTeacherAcademy($query, int $teacherId)
+    {
+        return $query
+            ->where('status', 'active')
+            ->whereHas('users', fn ($membership) => $membership
+                ->whereKey($teacherId)
+                ->where('academy_user.role', 'teacher')
+                ->where('academy_user.status', 'active'));
     }
 
     public function storeSchedule(

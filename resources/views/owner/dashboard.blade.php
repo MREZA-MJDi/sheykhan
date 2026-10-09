@@ -93,6 +93,43 @@
         </section>
 
 
+        <section class="owner-focus-card" aria-labelledby="owner-focus-title">
+            <div class="owner-focus-status" aria-hidden="true">
+                <span class="{{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}"></span>
+            </div>
+
+            <div class="owner-focus-copy">
+                <span class="owner-focus-kicker">صف امروز</span>
+                <h2 id="owner-focus-title">
+                    @if(($metrics['classroomsWithoutTeacher'] ?? 0) > 0)
+                        {{ $metrics['classroomsWithoutTeacher'] }} کلاس بدون مدرس داری.
+                    @elseif(($metrics['capacityAlerts'] ?? 0) > 0)
+                        {{ $metrics['capacityAlerts'] }} کلاس نزدیک ظرفیت است.
+                    @elseif(($metrics['pendingReviews'] ?? 0) > 0)
+                        {{ $metrics['pendingReviews'] }} مورد هنوز نیازمند بررسی است.
+                    @else
+                        امروز مورد بحرانی برای پیگیری نداری.
+                    @endif
+                </h2>
+                <p>
+                    این نوار فقط مواردی را بالا می‌آورد که از داده واقعی عملیات آموزشگاه می‌آیند؛
+                    اولویت را باز کن و مستقیم سراغ همان کار برو.
+                </p>
+            </div>
+
+            <div class="owner-focus-actions">
+                @if(($metrics['classroomsWithoutTeacher'] ?? 0) > 0 && $firstAcademy)
+                    <a href="{{ route('owner.classrooms.index', $firstAcademy) }}">تکمیل کلاس‌ها ←</a>
+                @elseif(($metrics['capacityAlerts'] ?? 0) > 0 && $firstAcademy)
+                    <a href="{{ route('owner.classrooms.index', $firstAcademy) }}">بررسی ظرفیت ←</a>
+                @elseif(($metrics['pendingReviews'] ?? 0) > 0)
+                    <a href="{{ route('owner.reports.index') }}">باز کردن گزارش ←</a>
+                @else
+                    <a href="{{ route('owner.courses.index') }}">مدیریت دوره‌ها ←</a>
+                @endif
+            </div>
+        </section>
+
         {{-- =========================================================
             PRIMARY METRICS
         ========================================================== --}}
@@ -102,11 +139,11 @@
                 <span>کلاس‌های فعال</span>
 
                 <strong>
-                    {{ $metrics['classrooms'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['classrooms'] ?? 0) }}
                 </strong>
 
                 <small>
-                    {{ $metrics['liveNow'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['liveNow'] ?? 0) }}
                     کلاس آنلاین در حال اجرا
                 </small>
             </article>
@@ -115,7 +152,7 @@
                 <span>دانش‌آموز فعال</span>
 
                 <strong>
-                    {{ $metrics['students'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['students'] ?? 0) }}
                 </strong>
 
                 <small>
@@ -131,11 +168,11 @@
                 <span>مدرس فعال</span>
 
                 <strong>
-                    {{ $metrics['teachers'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['teachers'] ?? 0) }}
                 </strong>
 
                 <small>
-                    {{ $metrics['courses'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }}
                     دوره در آموزشگاه‌ها
                 </small>
             </article>
@@ -549,9 +586,9 @@
                         <article class="owner-live-row">
 
                             <div class="owner-pill shrink-0">
-                                {{ \App\Support\PersianUi::digits(
-                                    \Illuminate\Support\Carbon::parse($item->scheduled_at)->format('m/d H:i')
-                                ) }}
+                                {{ \App\Support\PersianUi::date(\Illuminate\Support\Carbon::parse($item->scheduled_at)) }}
+                                ·
+                                {{ \App\Support\PersianUi::time(\Illuminate\Support\Carbon::parse($item->scheduled_at)) }}
                             </div>
 
                             <div class="min-w-0">

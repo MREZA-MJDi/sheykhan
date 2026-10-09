@@ -99,6 +99,50 @@
         </x-layout.container>
     </section>
 
+    @if($homeBanners->isNotEmpty())
+        <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
+            <x-layout.container size="wide">
+                <div class="home-heading home-banner-heading">
+                    <div>
+                        <span>ویژه شیخان</span>
+                        <h2>چیزی تازه برای مسیر یادگیری.</h2>
+                        <p>بنرهای به‌روزشده آموزشگاه‌ها را ببین و مستقیم وارد محتوای مرتبط شو.</p>
+                    </div>
+                </div>
+
+                <div class="home-banner-grid">
+                    @foreach($homeBanners as $banner)
+                        <article class="home-banner-card">
+                            <div class="home-banner-media">
+                                <img
+                                    src="{{ $banner['image'] }}"
+                                    alt="{{ $banner['title'] ?: 'بنر شیخان' }}"
+                                    loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                                    style="object-position: {{ $banner['cropX'] }}% {{ $banner['cropY'] }}%;"
+                                >
+                                <span class="home-banner-academy">{{ $banner['academy'] ?: 'شیخان' }}</span>
+                            </div>
+                            <div class="home-banner-body">
+                                <div>
+                                    @if($banner['title'])
+                                        <h3>{{ $banner['title'] }}</h3>
+                                    @endif
+                                    @if($banner['description'])
+                                        <p>{{ $banner['description'] }}</p>
+                                    @endif
+                                </div>
+
+                                @if($banner['ctaUrl'] && $banner['ctaLabel'])
+                                    <a href="{{ $banner['ctaUrl'] }}" class="home-banner-link">{{ $banner['ctaLabel'] }} <span aria-hidden="true">←</span></a>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </x-layout.container>
+        </section>
+    @endif
+
     {{-- Trust / paths --}}
     <section class="home-paths">
         <x-layout.container size="wide">
@@ -244,23 +288,14 @@
 
             <div class="home-teacher-grid">
                 @forelse($teacherCards as $teacher)
-                    <article class="home-teacher-card">
-                        <div class="home-teacher-avatar">
-                            @if($teacher['avatar'])
-                                <img src="{{ $teacher['avatar'] }}" alt="{{ $teacher['name'] }}" loading="lazy">
-                            @else
-                                <span>{{ mb_substr($teacher['name'], 0, 1) }}</span>
-                            @endif
-                        </div>
-                        <div>
-                            <span>{{ $teacher['role'] }}</span>
-                            <h3>{{ $teacher['name'] }}</h3>
-                            @if($teacher['bio'])
-                                <p>{{ \Illuminate\Support\Str::limit($teacher['bio'], 105) }}</p>
-                            @endif
-                            <small>{{ $fa($teacher['courses']) }} دوره منتشرشده</small>
-                        </div>
-                    </article>
+                    <x-education.teacher-card
+                        :name="$teacher['name']"
+                        :role="$teacher['role']"
+                        :avatar="$teacher['avatar']"
+                        :bio="$teacher['bio']"
+                        :courses="$teacher['courses']"
+                        :href="$teacher['href']"
+                    />
                 @empty
                     <div class="home-empty-state"><strong>هنوز مدرس عمومی ثبت نشده است.</strong></div>
                 @endforelse
@@ -322,14 +357,17 @@
             @if(count($productCards))
                 <div class="home-product-strip">
                     @foreach($productCards as $product)
-                        <article class="home-product-card">
+                        <a href="{{ $product['href'] }}" class="home-product-card">
                             @if($product['image'])
                                 <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" loading="lazy">
+                            @else
+                                <span class="home-product-placeholder" aria-hidden="true">ش</span>
                             @endif
-                            <span>{{ $product['category'] }}</span>
+                            <span>{{ $product['category'] ?: 'منبع آموزشی' }}</span>
                             <h3>{{ $product['title'] }}</h3>
                             <strong>{{ $product['price'] }}</strong>
-                        </article>
+                            <span class="home-product-link">مشاهده جزئیات <i aria-hidden="true">←</i></span>
+                        </a>
                     @endforeach
                 </div>
             @endif
@@ -337,7 +375,7 @@
     </section>
 
     {{-- Academy editorial content --}}
-    <section class="home-section home-soft">
+    <section id="academy-content" class="home-section home-soft">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
@@ -345,7 +383,7 @@
                     <h2>محتوایی فراتر از کلاس.</h2>
                     <p>پنج مسیر محتوایی رسمی آکادمی برای والدین، دانش‌آموزان و علاقه‌مندان.</p>
                 </div>
-                <a href="{{ route('blog.index') }}">مقالات آکادمی <i>←</i></a>
+                <a href="#academy-content">پنج مسیر محتوا <i>↓</i></a>
             </div>
 
             <div class="home-academy-grid">
@@ -361,11 +399,23 @@
                         <span>{{ $title }}</span>
                         <h3>{{ count($items) ? 'جدیدترین محتوای این مسیر' : 'در حال آماده‌سازی' }}</h3>
                         @forelse($items as $item)
-                            <div class="home-academy-item">
-                                <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
-                                <strong>{{ $item['title'] }}</strong>
-                                @if($item['duration']) <small>{{ $item['duration'] }}</small> @endif
-                            </div>
+                            @if($item['href'])
+                                <a href="{{ $item['href'] }}" class="home-academy-item">
+                                    <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
+                                    <strong>{{ $item['title'] }}</strong>
+                                    @if($item['duration'])
+                                        <small>{{ $item['duration'] }}</small>
+                                    @endif
+                                </a>
+                            @else
+                                <div class="home-academy-item">
+                                    <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
+                                    <strong>{{ $item['title'] }}</strong>
+                                    @if($item['duration'])
+                                        <small>{{ $item['duration'] }}</small>
+                                    @endif
+                                </div>
+                            @endif
                         @empty
                             <p>محتوای رسمی این بخش پس از انتشار در اینجا نمایش داده می‌شود.</p>
                         @endforelse

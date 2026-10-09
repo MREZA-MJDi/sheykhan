@@ -29,7 +29,9 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('جلسات کلاس')
             ->assertSee('تکالیف من')
             ->assertSee('جزوه‌ها و فایل‌های من')
-            ->assertSee('آخرین نتیجه‌ها');
+            ->assertSee('آخرین نتیجه‌ها')
+            ->assertSee('student-focus-card')
+            ->assertSee('student-focus-action');
     }
 
     public function test_teacher_dashboard_exposes_teaching_workflow_without_financial_kpi(): void
@@ -50,8 +52,33 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('جلسات این هفته')
             ->assertSee('نیازمند بررسی')
             ->assertSee('روند پیشرفت دانش‌آموزان')
+            ->assertSee('مرکز توجه')
+            ->assertSee('teacher-focus-card')
+            ->assertSee('teacher-focus-action')
             ->assertDontSee('فروش دوره‌ها');
     }
+
+    public function test_dashboard_focus_components_have_loaded_stylesheet_contracts(): void
+    {
+        $teacherCss = file_get_contents(resource_path('css/teacher.css'));
+        $studentCss = file_get_contents(resource_path('css/student.css'));
+        $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
+        $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
+
+        $this->assertIsString($teacherCss);
+        $this->assertIsString($studentCss);
+        $this->assertIsString($teacherLayout);
+        $this->assertIsString($studentLayout);
+
+        $this->assertStringContainsString('.teacher-focus-card {', $teacherCss);
+        $this->assertStringContainsString('.teacher-focus-action {', $teacherCss);
+        $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
+
+        $this->assertStringContainsString('.student-focus-card {', $studentCss);
+        $this->assertStringContainsString('.student-focus-action {', $studentCss);
+        $this->assertStringContainsString('resources/css/student.css', $studentLayout);
+    }
+
     public function test_persian_calendar_conversion_is_jalali(): void
     {
         $calendar = PersianUi::calendar(Carbon::create(2026, 10, 8));

@@ -18,6 +18,7 @@
             <x-owner.feedback/>@yield('content')</main>
     </div>
 </div>
+<x-navigation.role-mobile-nav role="owner" />
 @stack('scripts')
 </body>
 </html>

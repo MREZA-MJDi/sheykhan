@@ -17,8 +17,11 @@ class BlogController extends Controller
 
     public function show(string $slug, BlogService $service): View
     {
+        $post = $service->findPublished($slug);
+
         return view('pages.blog.show', [
-            'post' => $service->findPublished($slug),
+            'post' => $post,
+            'seoMeta' => $post->seoMeta,
         ]);
     }
 }

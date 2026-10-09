@@ -23,12 +23,20 @@ class AcademyContentService
             foreach ($slugs as $slug) {
                 $groups[$slug] = AcademyContent::query()
                     ->where('status', 'published')
+                    ->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))
                     ->whereNotNull('published_at')
                     ->where('published_at', '<=', now())
                     ->whereHas('category', fn ($query) => $query
                         ->where('slug', $slug)
                         ->where('is_active', true))
-                    ->with('category:id,title,slug')
+                    ->with([
+                        'category:id,title,slug',
+                        'academy:id,name,slug,status',
+                        'media' => fn ($query) => $query
+                            ->where('visibility', 'public')
+                            ->where('status', 'active')
+                            ->orderByPivot('sort_order'),
+                    ])
                     ->orderByDesc('is_featured')
                     ->orderBy('sort_order')
                     ->orderByDesc('published_at')
@@ -43,6 +51,12 @@ class AcademyContentService
                             : null,
                         'category' => $content->category?->title,
                         'slug' => $content->slug,
+                        'academy' => $content->academy?->name,
+                        'academy_slug' => $content->academy?->slug,
+                        'image' => $content->media->first()?->url(),
+                        'href' => $content->academy
+                            ? route('academy.content.show', [$content->academy, $content])
+                            : null,
                     ])
                     ->values()
                     ->all();
@@ -52,13 +66,22 @@ class AcademyContentService
         });
     }
 
+    public function clearPublicCache(): void
+    {
+        Cache::forget('public:home:data:v3');
+        Cache::forget('public:home:academy-content:v2:3');
+        Cache::forget('public:seo:sitemap:v1');
+    }
+
     private function formatDuration(int $seconds): string
     {
         $minutes = intdiv($seconds, 60);
         $remaining = $seconds % 60;
 
-        return $minutes > 0
+        $formatted = $minutes > 0
             ? $minutes . ':' . str_pad((string) $remaining, 2, '0', STR_PAD_LEFT)
             : '00:' . str_pad((string) $remaining, 2, '0', STR_PAD_LEFT);
+
+        return \App\Support\PersianUi::digits($formatted);
     }
 }

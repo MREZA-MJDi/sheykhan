@@ -28,6 +28,7 @@
 
                     <a href="{{ route('teachers.index') }}" @if(request()->routeIs('teachers.*')) aria-current="page" @endif class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('teachers.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مدرس‌ها</a>
                     <a href="{{ route('blog.index') }}" @if(request()->routeIs('blog.*')) aria-current="page" @endif class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('blog.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مقالات</a>
+                    <a href="{{ route('store.index') }}" @if(request()->routeIs('store.*')) aria-current="page" @endif class="rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('store.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">فروشگاه</a>
                 </div>
 
                 <div class="hidden items-center gap-3 lg:flex">
@@ -112,6 +113,7 @@
                     </details>
                     <a href="{{ route('teachers.index') }}" @click="isOpen = false" class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('teachers.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مدرس‌ها</a>
                     <a href="{{ route('blog.index') }}" @click="isOpen = false" class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('blog.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">مقالات</a>
+                    <a href="{{ route('store.index') }}" @click="isOpen = false" class="rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('store.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">فروشگاه</a>
                 </div>
 
                 <div class="mt-3 border-t border-[var(--color-border)] pt-3">

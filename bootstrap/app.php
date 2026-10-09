@@ -10,6 +10,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -48,6 +49,24 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->view('errors.404', [
                 'exception' => $e,
             ], 404);
+        });
+
+        $exceptions->render(function (Throwable $e, Request $request) {
+            $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : null;
+
+            if ($status !== 403) {
+                return null;
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'شما اجازه دسترسی به این بخش را ندارید.',
+                ], 403);
+            }
+
+            return response()->view('errors.403', [
+                'exception' => $e,
+            ], 403);
         });
 
         $exceptions->shouldRenderJsonWhen(

@@ -932,3 +932,74 @@
         }
     }
 }
+
+
+/* =========================================================
+   ROLE MOBILE QUICK NAV
+========================================================= */
+.role-mobile-bottom-nav{
+    display:none;
+}
+@media(max-width:700px){
+    .role-main{padding-bottom:92px}
+    .role-mobile-bottom-nav{
+        position:fixed;
+        left:10px;
+        right:10px;
+        bottom:calc(10px + env(safe-area-inset-bottom));
+        z-index:70;
+        display:grid;
+        grid-template-columns:repeat(5,minmax(0,1fr));
+        gap:4px;
+        padding:7px;
+        border:1px solid rgba(231,235,241,.94);
+        border-radius:20px;
+        background:rgba(255,255,255,.92);
+        box-shadow:0 18px 45px rgba(17,24,39,.12);
+        backdrop-filter:blur(18px);
+        -webkit-backdrop-filter:blur(18px);
+    }
+    .role-mobile-bottom-nav a{
+        min-width:0;
+        min-height:56px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:4px;
+        border-radius:14px;
+        color:#8791a2;
+        text-decoration:none;
+        font-size:8px;
+        font-weight:900;
+        transition:background .2s ease,color .2s ease,transform .2s ease;
+    }
+    .role-mobile-bottom-nav a.is-active{
+        color:var(--panel-primary);
+        background:var(--panel-primary-soft);
+    }
+    .role-mobile-bottom-nav a:active{transform:scale(.97)}
+    .role-mobile-bottom-icon{
+        width:28px;
+        height:28px;
+        display:grid;
+        place-items:center;
+        border-radius:10px;
+        background:#f5f7fa;
+        font-size:13px;
+        line-height:1;
+    }
+    .role-mobile-bottom-nav a.is-active .role-mobile-bottom-icon{
+        background:#fff;
+        box-shadow:0 5px 13px color-mix(in srgb,var(--panel-primary) 12%,transparent);
+    }
+}
+@media(max-width:380px){
+    .role-mobile-bottom-nav{left:6px;right:6px;bottom:6px}
+    .role-mobile-bottom-nav a{min-height:52px;font-size:7px}
+}
+
+@media (prefers-reduced-motion: reduce){
+    .role-mobile-bottom-nav a,
+    .role-mobile-bottom-nav a:active{transition:none;transform:none}
+}

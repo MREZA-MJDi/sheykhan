@@ -146,6 +146,8 @@ final class OwnerWorkspaceService
             $academy->users()->updateExistingPivot($teacher->id, [
                 'status' => 'archived',
             ]);
+
+            app(TeacherDirectoryService::class)->clearPublicCache();
         });
     }
 
@@ -165,6 +167,8 @@ final class OwnerWorkspaceService
                 'status' => 'active',
                 'joined_at' => $membership->pivot->joined_at ?? now(),
             ]);
+
+            app(TeacherDirectoryService::class)->clearPublicCache();
         });
     }
 
@@ -187,6 +191,8 @@ final class OwnerWorkspaceService
         $teacher->teacherProfile->update([
             'is_public' => $isPublic,
         ]);
+
+        app(TeacherDirectoryService::class)->clearPublicCache();
     }
 
     public function assignTeacher(User $owner, Academy $academy, int $teacherId, int $courseId): void

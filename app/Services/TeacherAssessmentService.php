@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\ExamAttempt;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use App\Services\TeacherAccessService;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final class TeacherAssessmentService
@@ -17,7 +20,8 @@ final class TeacherAssessmentService
         ?string $feedback,
         int $teacherId
     ): AssignmentSubmission {
-        if ($assignment->teacher_id !== $teacherId || $submission->assignment_id !== $assignment->id) {
+        $teacher = User::query()->find($teacherId);
+        if (!$teacher || $submission->assignment_id !== $assignment->id || !app(TeacherAccessService::class)->canManageAssignment($teacher, $assignment)) {
             throw new AccessDeniedHttpException();
         }
 
@@ -49,7 +53,8 @@ final class TeacherAssessmentService
     {
         $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
 
-        if ((int) $attempt->exam?->teacher_id !== $teacherId) {
+        $teacher = User::query()->find($teacherId);
+        if (!$teacher || !app(TeacherAccessService::class)->canManageExam($teacher, $attempt->exam)) {
             throw new AccessDeniedHttpException();
         }
 
@@ -104,7 +109,8 @@ final class TeacherAssessmentService
     ): ExamAttempt {
         $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
 
-        if ((int) $attempt->exam?->teacher_id !== $teacherId) {
+        $teacher = User::query()->find($teacherId);
+        if (!$teacher || !app(TeacherAccessService::class)->canManageExam($teacher, $attempt->exam)) {
             throw new AccessDeniedHttpException();
         }
 
@@ -151,6 +157,7 @@ final class TeacherAssessmentService
             return $attempt->refresh();
         });
     }
+
 
     private function matches($expected, $actual, ?string $type): bool
     {

@@ -23,7 +23,7 @@
         <main class="min-h-[calc(100vh-4rem)] px-4 py-10 sm:px-6 sm:py-14">
             <div class="mx-auto w-full max-w-md">
                 @if(session('success'))
-                    <div class="mb-5 rounded-2xl border border-[var(--color-success-100)] bg-[var(--color-success-50)] px-4 py-3 text-sm font-semibold text-[var(--color-success-700)]">
+                    <div role="status" aria-live="polite" class="mb-5 rounded-2xl border border-[var(--color-success-100)] bg-[var(--color-success-50)] px-4 py-3 text-sm font-semibold text-[var(--color-success-700)]">
                         {{ session('success') }}
                     </div>
                 @endif

@@ -22,7 +22,10 @@ final class HomeBannerService
                     ->where('mime_type', 'like', 'image/%'))
                 ->with([
                     'academy:id,name',
-                    'media:id,disk,path,original_name,mime_type,visibility,status',
+                    'media' => fn ($query) => $query
+                        ->where('visibility', 'public')
+                        ->where('status', 'active')
+                        ->where('mime_type', 'like', 'image/%'),
                 ])
                 ->orderBy('sort_order')
                 ->orderBy('id')
@@ -36,6 +39,8 @@ final class HomeBannerService
                     'description' => $banner->description,
                     'ctaLabel' => $banner->cta_label,
                     'ctaUrl' => $banner->cta_url,
+                    'cropX' => (int) ($banner->crop_x ?? 50),
+                    'cropY' => (int) ($banner->crop_y ?? 50),
                 ])
                 ->filter(fn (array $banner) => filled($banner['image']))
                 ->values(),
@@ -44,7 +49,7 @@ final class HomeBannerService
 
     public function forgetCache(): void
     {
-        Cache::forget('public:home:data:v2');
+        Cache::forget('public:home:data:v3');
 
         foreach ([1, 2, 3] as $limit) {
             Cache::forget("public:home:banners:v1:{$limit}");

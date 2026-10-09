@@ -143,15 +143,15 @@
                                     :description="$course->short_description ?: $course->description"
                                     :category="$course->academy?->name"
                                     :teacher="$course->teachers->first()?->name"
-                                    :lessons="\App\Support\PersianUi::digits(
-                                        $course->sections->sum(
-                                            fn ($section) => $section->lessons->count()
-                                        )
-                                    )"
+                                    :lessons="\App\Support\PersianUi::digits($course->lessons_count ?? 0)"
                                     :duration="$course->duration_minutes > 0
-                                        ? \App\Support\PersianUi::digits(
-                                            floor($course->duration_minutes / 60)
-                                        ) . ' ساعت'
+                                        ? (
+                                            intdiv((int) $course->duration_minutes, 60) > 0 && ((int) $course->duration_minutes % 60) > 0
+                                                ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت و ' . \App\Support\PersianUi::digits((int) $course->duration_minutes % 60) . ' دقیقه'
+                                                : (intdiv((int) $course->duration_minutes, 60) > 0
+                                                    ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت'
+                                                    : \App\Support\PersianUi::digits((int) $course->duration_minutes) . ' دقیقه')
+                                        )
                                         : 'مدت زمان متغیر'"
                                     :price="$course->price > 0
                                         ? \App\Support\PersianUi::money($course->price)

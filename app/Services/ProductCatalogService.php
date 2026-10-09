@@ -16,7 +16,8 @@ class ProductCatalogService
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
-            ->when($category, fn ($query) => $query->whereHas('category', fn ($q) => $q->where('slug', $category)))
+            ->whereHas('category', fn ($query) => $query->where('is_active', true))
+            ->when($category, fn ($query) => $query->whereHas('category', fn ($q) => $q->where('slug', $category)->where('is_active', true)))
             ->with([
                 'category:id,name,slug',
                 'media' => fn ($query) => $query->where('visibility', 'public')->orderByPivot('sort_order'),
@@ -38,6 +39,7 @@ class ProductCatalogService
                     'category:id,name,slug',
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
+                        ->where('status', 'active')
                         ->orderByPivot('sort_order'),
                 ])
                 ->orderByDesc('is_featured')
@@ -50,6 +52,7 @@ class ProductCatalogService
                     'category_slug' => $product->category?->slug,
                     'price' => $this->formatPrice($product->sale_price ?? $product->price),
                     'image' => $product->media->first()?->url(),
+                    'href' => route('store.product.show', $product),
                 ])
                 ->all();
         });

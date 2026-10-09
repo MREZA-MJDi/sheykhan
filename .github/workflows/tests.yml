@@ -1,5 +1,9 @@
 name: Tests - Owner Foundation
 
+concurrency:
+  group: sheykhan-ci-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main, "feat/**", "fix/**"]
@@ -7,23 +11,40 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: sheykhan
+          MARIADB_USER: sheykhan
+          MARIADB_PASSWORD: sheykhan
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          extensions: mbstring, pdo_sqlite, sqlite3
+          extensions: mbstring, pdo_sqlite, pdo_mysql, sqlite3
           coverage: none
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
@@ -31,18 +52,70 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build frontend
-        run: npm run build
+      - name: Resolve patched frontend dependency lockfile
+        run: |
+          npm audit fix --package-lock-only
+          npm ci
+          npm run build
+
+      - name: Inspect frontend dependency advisories
+        if: always()
+        run: |
+          npm audit --json > "$RUNNER_TEMP/npm-audit.json" || true
+          node <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/npm-audit.json`, 'utf8'));
+          const vulnerabilities = Object.entries(report.vulnerabilities ?? {}).map(([name, item]) => ({
+            name,
+            severity: item.severity,
+            range: item.range,
+            fixAvailable: item.fixAvailable,
+            via: (item.via ?? []).map((advisory) => typeof advisory === 'string'
+              ? advisory
+              : { title: advisory.title, url: advisory.url, range: advisory.range }),
+          }));
+          console.log(JSON.stringify({
+            summary: report.metadata?.vulnerabilities,
+            vulnerabilities,
+          }, null, 2));
+          NODE
+
+      - name: Export patched lockfile for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: sheykhan-patched-package-lock
+          path: package-lock.json
+          retention-days: 1
 
       - name: Prepare application
         run: |
           cp .env.example .env
           touch database/database.sqlite
           php artisan key:generate
+          php artisan config:clear
+          php artisan view:cache
 
       - name: Run tests
         env:
           APP_ENV: testing
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
+          SESSION_DRIVER: array
+          CACHE_STORE: array
         run: php artisan test --compact
+
+      - name: Run MariaDB compatibility tests
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: sheykhan
+          DB_USERNAME: sheykhan
+          DB_PASSWORD: sheykhan
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+        run: |
+          php artisan config:clear
+          php artisan test --compact

@@ -76,7 +76,9 @@
                                 @php
                                     $postImage = $post->media?->first()?->url();
                                     $postCategory = $post->category?->name;
-                                    $postDate = $post->published_at?->format('Y/m/d');
+                                    $postDate = $post->published_at
+                                        ? \App\Support\PersianUi::date($post->published_at)
+                                        : null;
                                     $postExcerpt = $post->excerpt ?: \Illuminate\Support\Str::limit(
                                         strip_tags((string) $post->content),
                                         140

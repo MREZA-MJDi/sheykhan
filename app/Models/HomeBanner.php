@@ -19,12 +19,16 @@ class HomeBanner extends Model
         'cta_label',
         'cta_url',
         'sort_order',
+        'crop_x',
+        'crop_y',
         'is_active',
     ];
 
     protected $casts = [
         'slot' => 'integer',
         'sort_order' => 'integer',
+        'crop_x' => 'integer',
+        'crop_y' => 'integer',
         'is_active' => 'boolean',
     ];
 
