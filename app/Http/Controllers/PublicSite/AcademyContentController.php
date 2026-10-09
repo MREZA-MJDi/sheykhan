@@ -31,6 +31,15 @@ final class AcademyContentController extends Controller
             'seoMeta',
         ]);
 
+        if ($content->type === 'video') {
+            abort_unless($content->media->contains(
+                fn ($media) => $media->pivot?->collection === 'video'
+                    && $media->collection === 'video'
+                    && $media->visibility === 'public'
+                    && $media->status === 'active'
+            ), 404);
+        }
+
         return view('pages.academy-content.show', [
             'academy' => $academy,
             'content' => $content,
