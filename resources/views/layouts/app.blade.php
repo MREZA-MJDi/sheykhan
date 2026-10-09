@@ -6,16 +6,23 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-seo.head :seo-meta="$seoMeta ?? null" />
 
-    @vite(['resources/css/public.css', 'resources/js/public.js'])
-    @if (request()->routeIs('home'))
-        @vite([
+    @php
+    $pageAssets = [
+        'resources/css/public.css',
+        'resources/js/public.js',
+    ];
+
+    if (request()->routeIs('home')) {
+        $pageAssets = array_merge($pageAssets, [
             'resources/css/home.css',
             'resources/css/home-meraki-hero.css',
             'resources/css/tiamir-intro.css',
             'resources/js/home.js',
             'resources/js/tiamir-intro.js',
-        ])
-    @endif
+        ]);
+    }
+@endphp
+@vite($pageAssets)
     @stack('styles')
 </head>
 <body class="sheykhan-site">

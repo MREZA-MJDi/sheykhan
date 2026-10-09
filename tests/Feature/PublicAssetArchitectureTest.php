@@ -34,6 +34,34 @@ class PublicAssetArchitectureTest extends TestCase
         $this->assertStringContainsString("resources/js/public.js", $viteConfig);
     }
 
+    public function test_homepage_prioritizes_platform_value_and_real_trust_content(): void
+    {
+        $home = file_get_contents(resource_path('views/pages/home.blade.php'));
+        $this->assertIsString($home);
+
+        $roles = strpos($home, 'home-role-grid');
+        $courses = strpos($home, 'از همین‌جا مسیرت را پیدا کن.');
+        $teachers = strpos($home, 'آدم‌های خوب، آموزش خوب می‌سازند.');
+        $achievements = strpos($home, 'نتیجه‌ای که دیده می‌شود.');
+        $testimonials = strpos($home, 'اعتماد، از تجربه واقعی می‌آید.');
+        $academyContent = strpos($home, 'محتوایی فراتر از کلاس.');
+        $articles = strpos($home, 'محتوا را فقط نخوان؛ از آن چیزی یاد بگیر.');
+
+        $this->assertNotFalse($roles);
+        $this->assertNotFalse($courses);
+        $this->assertNotFalse($teachers);
+        $this->assertNotFalse($achievements);
+        $this->assertNotFalse($testimonials);
+        $this->assertNotFalse($academyContent);
+        $this->assertNotFalse($articles);
+
+        $this->assertTrue($roles < $courses);
+        $this->assertTrue($courses < $teachers);
+        $this->assertTrue($teachers < $achievements);
+        $this->assertTrue($achievements < $testimonials);
+        $this->assertTrue($academyContent < $articles);
+    }
+
     public function test_variable_vazirmatn_font_is_shared_instead_of_six_static_files(): void
     {
         $sharedStyles = file_get_contents(resource_path('css/components.css'));
