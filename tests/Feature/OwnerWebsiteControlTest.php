@@ -9,6 +9,8 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -83,6 +85,58 @@ class OwnerWebsiteControlTest extends TestCase
         $this->assertSame(18, $banner->crop_x);
         $this->assertSame(72, $banner->crop_y);
         $this->assertSame($media->id, $banner->media_id);
+    }
+
+    public function test_failed_banner_update_removes_uploaded_files_after_database_rollback(): void
+    {
+        [$owner, $academy] = $this->workspace();
+        $otherUser = User::factory()->create();
+
+        $unattachedMedia = Media::create([
+            'uploaded_by' => $otherUser->id,
+            'disk' => 'local',
+            'path' => 'other/banner.webp',
+            'original_name' => 'banner.webp',
+            'file_name' => 'banner.webp',
+            'mime_type' => 'image/webp',
+            'extension' => 'webp',
+            'size' => 1000,
+            'checksum' => hash('sha256', 'foreign-banner'),
+            'visibility' => 'public',
+            'collection' => 'home-banners',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+
+        Storage::fake('local');
+
+        $this->actingAs($owner)
+            ->patch(route('owner.academy.banners.update', $academy), [
+                'banners' => [
+                    1 => [
+                        'image' => UploadedFile::fake()->image('new-banner.jpg', 800, 400),
+                        'title' => 'بنر جدید',
+                        'is_active' => true,
+                    ],
+                    2 => [
+                        'media_id' => $unattachedMedia->id,
+                        'title' => 'رسانه متعلق به آموزشگاه دیگر',
+                        'is_active' => true,
+                    ],
+                ],
+            ])
+            ->assertStatus(422);
+
+        $this->assertSame(
+            [],
+            Storage::disk('local')->allFiles('academies/' . $academy->id . '/home-banners')
+        );
+        $this->assertDatabaseMissing('home_banners', [
+            'academy_id' => $academy->id,
+            'slot' => 1,
+        ]);
+        $this->assertDatabaseCount('media', 1);
+        $this->assertDatabaseCount('media_attachments', 0);
     }
 
     private function workspace(): array
