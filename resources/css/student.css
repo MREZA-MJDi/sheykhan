@@ -3984,3 +3984,17 @@
     .student-ui-course{grid-template-columns:30px minmax(0,1fr);gap:9px}
     .student-ui-course>a{grid-column:2;justify-self:start}
 }
+
+
+/* Dashboard polish: accessible colorful icon tiles and clear navigation affordances. */
+.student-ui-quick-grid a{position:relative;border-color:#e8edf4;background:#fff;box-shadow:0 4px 14px rgba(26,45,75,.025)}
+.student-ui-quick-grid a>i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#eaf4ff;color:#2673d1;font-size:17px;font-style:normal;transition:transform .18s ease,background .18s ease}
+.student-ui-quick-grid a:nth-child(4n + 2)>i{background:#e9f8ef;color:#218a54}
+.student-ui-quick-grid a:nth-child(4n + 3)>i{background:#f2edff;color:#7451d8}
+.student-ui-quick-grid a:nth-child(4n)>i{background:#fff2df;color:#b96b13}
+.student-ui-quick-grid a:after{content:"←";position:absolute;left:11px;top:12px;color:#a3adbd;font-size:12px;transition:color .18s ease,transform .18s ease}
+.student-ui-quick-grid a:hover{border-color:#cddcf2;box-shadow:0 8px 20px rgba(26,45,75,.06);transform:translateY(-2px)}
+.student-ui-quick-grid a:hover:after{color:var(--panel-primary);transform:translateX(-2px)}
+.student-ui-kpi-icon{font-size:17px}
+.student-ui-board-card>b{font-size:15px;opacity:.8}
+@media(max-width:640px){.student-ui-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-ui-quick-grid a{min-height:86px}}
