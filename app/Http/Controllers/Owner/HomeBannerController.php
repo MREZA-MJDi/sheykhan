@@ -12,6 +12,8 @@ use App\Services\MediaService;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 final class HomeBannerController extends Controller
 {
@@ -51,12 +53,16 @@ final class HomeBannerController extends Controller
             ->map(fn ($id) => (int) $id)
             ->all();
 
-        DB::transaction(function () use (
-            $payload,
-            $academy,
-            $attachedMediaIds,
-            $mediaService
-        ): void {
+        $uploadedFiles = [];
+
+        try {
+            DB::transaction(function () use (
+                $payload,
+                $academy,
+                $attachedMediaIds,
+                $mediaService,
+                &$uploadedFiles
+            ): void {
             for ($slot = 1; $slot <= 3; $slot++) {
                 $data = $payload[$slot] ?? $payload[(string) $slot] ?? [];
                 $banner = HomeBanner::query()->firstOrNew([
@@ -79,6 +85,11 @@ final class HomeBannerController extends Controller
                             'visibility' => 'public',
                         ],
                     );
+
+                    $uploadedFiles[] = [
+                        'disk' => $newMedia->disk,
+                        'path' => $newMedia->path,
+                    ];
 
                     $banner->media_id = $newMedia->id;
                 } elseif (!empty($data['media_id'])) {
@@ -114,7 +125,15 @@ final class HomeBannerController extends Controller
 
                 $banner->save();
             }
-        });
+            });
+        } catch (Throwable $exception) {
+            // Database rollback does not remove files written to the filesystem.
+            foreach ($uploadedFiles as $uploadedFile) {
+                Storage::disk($uploadedFile['disk'])->delete($uploadedFile['path']);
+            }
+
+            throw $exception;
+        }
 
         $bannerService->forgetCache();
 
