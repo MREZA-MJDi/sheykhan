@@ -75,6 +75,10 @@
                         <a href="{{ route('owner.orders.index', $firstAcademy) }}" class="owner-btn ghost">
                             سفارش‌ها و رسیدها
                         </a>
+
+                        <a href="{{ route('owner.legal-documents.index') }}" class="owner-btn ghost">
+                            اسناد حقوقی و کپی‌رایت
+                        </a>
                     @endif
 
                     <a
