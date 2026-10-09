@@ -125,13 +125,21 @@ class AcademyFoundationSeeder extends Seeder
     {
         // Keep the documented demo credentials usable even when the user
         // already existed from an earlier seed with an old password/status.
+        $seedPassword = env('SEED_USER_PASSWORD');
+        if (blank($seedPassword) && ! app()->environment(['local', 'testing'])) {
+            throw new \RuntimeException(
+                'Set SEED_USER_PASSWORD before seeding demo accounts outside local/testing environments.'
+            );
+        }
+        $seedPassword = $seedPassword ?: 'Sheykhan@12345';
+
         $user = User::withTrashed()->updateOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
                 'mobile' => '09' . str_pad((string) (1000000000 + abs(crc32($key)) % 899999999), 10, '0', STR_PAD_LEFT),
                 'status' => 'active',
-                'password' => Hash::make(env('SEED_USER_PASSWORD', 'Sheykhan@12345')),
+                'password' => Hash::make($seedPassword),
                 'deleted_at' => null,
             ],
         );
