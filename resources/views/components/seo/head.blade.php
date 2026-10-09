@@ -21,6 +21,10 @@
         $ogImage = $course->media?->first()?->url();
     }
 
+    if (!$ogImage && isset($content)) {
+        $ogImage = $content->media?->first()?->url();
+    }
+
     $schema = $seo?->schema_json;
 
     if (!$schema && request()->routeIs('home')) {
