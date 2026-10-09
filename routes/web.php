@@ -118,6 +118,8 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->middleware('permission:seo.manage')->name('seo.edit');
     Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->middleware('permission:seo.manage')->name('seo.update');
     Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->middleware('permission:content.manage')->name('content.index');
+    Route::get('/academy/{academy}/resources', [\App\Http\Controllers\Owner\LearningResourceController::class, 'index'])->middleware('permission:content.manage')->name('resources.index');
+    Route::post('/academy/{academy}/resources', [\App\Http\Controllers\Owner\LearningResourceController::class, 'store'])->middleware(['permission:content.manage','throttle:10,1'])->name('resources.store');
     Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->middleware('permission:content.manage')->name('content.create');
     Route::post('/content', [\App\Http\Controllers\Owner\ContentController::class, 'store'])->middleware('permission:content.manage')->name('content.store');
     Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->middleware('permission:content.manage')->name('content.edit');
