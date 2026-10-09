@@ -28,6 +28,7 @@ final class StoreContentRequest extends FormRequest
             'sort_order' => ['sometimes','integer','min:0','max:100000'],
             'published_at' => ['nullable','date'],
             'cover_image' => ['nullable','file','max:10240','mimes:jpg,jpeg,png,webp'],
+            'video_file' => ['nullable','file','max:204800','mimes:mp4,webm,mov'],
         ];
     }
 
