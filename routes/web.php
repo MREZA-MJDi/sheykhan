@@ -140,6 +140,10 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::post('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'store'])->middleware('permission:blog.manage')->name('blog.store');
     Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->middleware('permission:blog.manage')->name('blog.edit');
     Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->middleware('permission:blog.manage')->name('blog.update');
+    Route::get('/academy/{academy}/products', [\App\Http\Controllers\Owner\ProductManagementController::class, 'index'])->middleware('permission:products.view')->name('products.index');
+    Route::post('/academy/{academy}/products', [\App\Http\Controllers\Owner\ProductManagementController::class, 'store'])->middleware(['permission:products.manage','throttle:10,1'])->name('products.store');
+    Route::patch('/academy/{academy}/products/{product}/publish', [\App\Http\Controllers\Owner\ProductManagementController::class, 'publish'])->middleware('permission:products.manage')->name('products.publish');
+    Route::patch('/academy/{academy}/products/{product}/archive', [\App\Http\Controllers\Owner\ProductManagementController::class, 'archive'])->middleware('permission:products.manage')->name('products.archive');
     Route::get('/academy/{academy}/orders', [\App\Http\Controllers\Owner\OrderReviewController::class, 'index'])->middleware('permission:orders.view')->withoutScopedBindings()->name('orders.index');
     Route::get('/academy/{academy}/orders/{order}/payments/{payment}/proof', [\App\Http\Controllers\Owner\OrderReviewController::class, 'proof'])->middleware('permission:orders.view')->withoutScopedBindings()->name('orders.proof');
     Route::post('/academy/{academy}/orders/{order}/payments/{payment}/confirm', [\App\Http\Controllers\Owner\OrderReviewController::class, 'confirm'])->middleware(['permission:orders.manage','throttle:20,1'])->withoutScopedBindings()->name('orders.confirm');
