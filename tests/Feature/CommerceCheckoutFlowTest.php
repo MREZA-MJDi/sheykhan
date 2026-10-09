@@ -261,6 +261,8 @@ class CommerceCheckoutFlowTest extends TestCase
 
     private function product(?int $academyId = null): Product
     {
+        Storage::fake('local');
+        $uploader = User::query()->firstOrFail();
         $category = ProductCategory::query()->create([
             'name' => 'آزمون',
             'slug' => 'exam-' . Str::lower(Str::random(8)),
@@ -269,7 +271,7 @@ class CommerceCheckoutFlowTest extends TestCase
             'is_active' => true,
         ]);
 
-        return Product::query()->create([
+        $product = Product::query()->create([
             'academy_id' => $academyId,
             'category_id' => $category->id,
             'title' => 'آزمون آزمایشی',
@@ -281,6 +283,35 @@ class CommerceCheckoutFlowTest extends TestCase
             'status' => 'published',
             'published_at' => now()->subMinute(),
         ]);
+
+        $path = 'products/' . $product->id . '/source.pdf';
+        Storage::disk('local')->put($path, '%PDF-1.4 fake source file for the checkout tests');
+        $media = Media::query()->create([
+            'uploaded_by' => $uploader->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'source.pdf',
+            'file_name' => 'source.pdf',
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+            'size' => 48,
+            'checksum' => hash('sha256', 'fake source file for the checkout tests'),
+            'visibility' => 'private',
+            'collection' => 'product-source',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+
+        ProductFile::query()->create([
+            'product_id' => $product->id,
+            'media_id' => $media->id,
+            'version' => '1.0',
+            'is_primary' => true,
+            'is_preview' => false,
+            'requires_watermark' => true,
+        ]);
+
+        return $product;
     }
 
     private function legalDocument(string $code, string $version): LegalDocument
