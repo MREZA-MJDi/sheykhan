@@ -12,6 +12,8 @@ class AchievementService
         return Cache::remember("public:home:achievements:{$limit}", now()->addMinutes(10), fn () =>
             Achievement::query()
                 ->where('status', 'published')
+                ->whereNotNull('publication_consent_at')
+                ->whereNotNull('publication_consent_reference')
                 ->where('is_featured', true)
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', now())
@@ -27,7 +29,11 @@ class AchievementService
                 ->map(fn (Achievement $achievement) => [
                     'name' => $achievement->display_name,
                     'school' => $achievement->school_name,
-                    'type' => $achievement->achievement_type,
+                    'type' => match ($achievement->achievement_type) {
+                        'gifted_school' => 'قبولی آزمون تیزهوشان',
+                        'sample_school' => 'قبولی مدارس نمونه دولتی',
+                        default => 'افتخارآفرینی آموزشی',
+                    },
                     'title' => $achievement->title,
                     'image' => $achievement->media?->url(),
                     'grade' => $achievement->grade?->title,

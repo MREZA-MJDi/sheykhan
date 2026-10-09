@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    // Checkout stays disabled until these manual bank-transfer details are configured.
+    'sheykhan_transfer' => [
+        'bank_name' => env('SHEIKHAN_TRANSFER_BANK_NAME'),
+        'account_holder' => env('SHEIKHAN_TRANSFER_ACCOUNT_HOLDER'),
+        'iban' => env('SHEIKHAN_TRANSFER_IBAN'),
+        'account_number' => env('SHEIKHAN_TRANSFER_ACCOUNT_NUMBER'),
+    ],
+
+    'pdf_watermark' => [
+        'binary' => env('PDF_WATERMARK_BINARY', 'gs'),
+    ],
+
 ];

@@ -29,6 +29,16 @@ class AcademyContentService
                     ->whereHas('category', fn ($query) => $query
                         ->where('slug', $slug)
                         ->where('is_active', true))
+                    ->where(function ($query): void {
+                        $query->where('type', 'article')
+                            ->orWhere(function ($video): void {
+                                $video->where('type', 'video')
+                                    ->whereHas('media', fn ($media) => $media
+                                        ->where('media.collection', 'video')
+                                        ->where('media.visibility', 'public')
+                                        ->where('media.status', 'active'));
+                            });
+                    })
                     ->with([
                         'category:id,title,slug',
                         'academy:id,name,slug,status',
@@ -53,7 +63,8 @@ class AcademyContentService
                         'slug' => $content->slug,
                         'academy' => $content->academy?->name,
                         'academy_slug' => $content->academy?->slug,
-                        'image' => $content->media->first()?->url(),
+                        'image' => $content->media->firstWhere('pivot.collection', 'cover')?->url(),
+                        'video' => $content->media->first(fn ($media) => $media->pivot?->collection === 'video' && $media->collection === 'video')?->url(),
                         'href' => $content->academy
                             ? route('academy.content.show', [$content->academy, $content])
                             : null,

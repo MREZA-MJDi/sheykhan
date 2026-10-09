@@ -1,0 +1,100 @@
+name: Deploy production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_deploy:
+        description: "Type deploy to run the production deployment"
+        required: true
+        type: choice
+        default: "no"
+        options:
+          - "no"
+          - "deploy"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sheykhan-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && inputs.confirm_deploy == 'deploy'
+    environment: production
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate deployment configuration
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing required GitHub Environment secret: $name"
+              exit 1
+            fi
+          done
+
+      - name: Configure pinned SSH host
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Deploy verified main commit
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          TARGET_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          remote_env="DEPLOY_PATH=$(printf '%q' "$DEPLOY_PATH") TARGET_SHA=$(printf '%q' "$TARGET_SHA")"
+          ssh -i "$HOME/.ssh/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" "$remote_env bash -s" <<'REMOTE'
+          set -Eeuo pipefail
+
+          cd "$DEPLOY_PATH"
+          php artisan down --retry=60 --render=errors::503
+          echo "Maintenance mode enabled. On any failure, keep the site offline until the old release/schema is reviewed."
+
+          git fetch origin main
+          git switch main
+          git pull --ff-only origin main
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+
+          composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+          npm ci
+          npm run build
+          php artisan optimize:clear
+
+          # Keep a rollback snapshot of private uploads and public media before any schema change.
+          mkdir -p storage/app/private storage/app/public storage/app/deploy-backups
+          chmod 700 storage/app/deploy-backups
+          storage_snapshot="storage/app/deploy-backups/storage-$(date +%Y%m%d-%H%M%S).tar.gz"
+          tar -czf "$storage_snapshot" --exclude='private/deploy-backups' -C storage/app private public
+          test -s "$storage_snapshot"
+          chmod 600 "$storage_snapshot"
+
+          # Fail closed: migrations run only after both the media snapshot and DB dump succeeded.
+          php deploy/backup-database.php
+          php artisan migrate --force
+
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan queue:restart
+          php artisan up
+          echo "Deployment completed at $(git rev-parse --short HEAD)"
+          REMOTE

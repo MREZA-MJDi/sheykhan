@@ -63,6 +63,26 @@
                         >
                             مدیریت اعضا
                         </a>
+
+                        <a href="{{ route('owner.resources.index', $firstAcademy) }}" class="owner-btn ghost">
+                            جزوه‌ها و فایل‌ها
+                        </a>
+
+                        <a href="{{ route('owner.products.index', $firstAcademy) }}" class="owner-btn ghost">
+                            کتابخانه، جزوه و آزمون
+                        </a>
+
+                        <a href="{{ route('owner.showcase.index', $firstAcademy) }}" class="owner-btn ghost">
+                            افتخارآفرینان و رضایتمندی
+                        </a>
+
+                        <a href="{{ route('owner.orders.index', $firstAcademy) }}" class="owner-btn ghost">
+                            سفارش‌ها و رسیدها
+                        </a>
+
+                        <a href="{{ route('owner.legal-documents.index') }}" class="owner-btn ghost">
+                            اسناد حقوقی و کپی‌رایت
+                        </a>
                     @endif
 
                     <a

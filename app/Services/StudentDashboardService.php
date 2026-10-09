@@ -179,6 +179,8 @@ final class StudentDashboardService
                         'date' => PersianUi::date($session->scheduled_at),
                         'time' => PersianUi::time($session->scheduled_at),
                         'is_future' => $isFuture,
+                        'is_past' => $session->scheduled_at->isPast(),
+                        'status' => $session->status,
                         'lamp' => $recordingReady ? 'روشن' : 'خاموش',
                         'available' => $recordingReady,
                         'href' => $recordingReady ? route('media.view', $session->recording) : null,

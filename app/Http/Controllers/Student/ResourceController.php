@@ -34,6 +34,6 @@ class ResourceController extends Controller
     ) {
         abort_unless($resources->canAccess(request()->user(), $resource), 404);
 
-        abort(403, 'فایل‌های آموزشی محافظت‌شده برای دانش‌آموز فقط قابل مشاهده هستند و دانلود مستقیم ندارند.');
+        return response()->view('errors.resource-download', compact('resource'), 403);
     }
 }

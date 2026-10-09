@@ -4,7 +4,8 @@
 @section('description', $seoMeta?->description ?: ($content->excerpt ?: 'محتوای آموزشی ' . $academy->name))
 
 @section('content')
-@php($cover = $content->media->first()?->url())
+@php($cover = $content->media->firstWhere('pivot.collection', 'cover')?->url())
+@php($video = $content->media->first(fn($media) => $media->pivot?->collection === 'video' && $media->collection === 'video' && $media->visibility === 'public' && $media->status === 'active'))
 <article class="public-academy-content-page">
     <x-layout.section spacing="lg">
         <x-layout.container size="wide">
@@ -32,6 +33,18 @@
             @if($cover)
                 <figure class="mx-auto mt-9 max-w-5xl overflow-hidden rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-slate-100)] shadow-[0_18px_55px_rgba(15,23,42,.08)]">
                     <img src="{{ $cover }}" alt="{{ $content->title }}" class="aspect-[16/8] w-full object-cover" fetchpriority="high">
+                </figure>
+            @endif
+
+            @if($content->type === 'video' && $video)
+                <figure class="mx-auto mt-9 max-w-5xl overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-black shadow-[0_18px_55px_rgba(15,23,42,.08)]">
+                    <video controls playsinline preload="metadata" class="aspect-video w-full" poster="{{ $cover }}">
+                        <source src="{{ $video->url() }}" type="{{ $video->mime_type }}">
+                        مرورگر شما امکان پخش این ویدئو را ندارد.
+                    </video>
+                    @if($video->original_name)
+                        <figcaption class="bg-[var(--color-surface)] px-4 py-3 text-xs text-[var(--color-text-muted)]">{{ $content->title }}</figcaption>
+                    @endif
                 </figure>
             @endif
 

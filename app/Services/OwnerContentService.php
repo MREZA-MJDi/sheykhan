@@ -9,6 +9,7 @@ use App\Models\AcademyContentCategory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 final class OwnerContentService
 {
@@ -53,7 +54,15 @@ final class OwnerContentService
     public function create(User $owner, array $data): AcademyContent
     {
         $cover = $data['cover_image'] ?? null;
-        unset($data['cover_image']);
+        $videoFile = $data['video_file'] ?? null;
+        unset($data['cover_image'], $data['video_file']);
+
+        $status = $data['status'] ?? 'draft';
+        if (($data['type'] ?? 'article') === 'video' && $status === 'published' && ! $videoFile) {
+            throw ValidationException::withMessages([
+                'video_file' => 'برای انتشار ویدئو، فایل واقعی ویدئو را بارگذاری کن.',
+            ]);
+        }
 
         $academy = $this->ownedAcademy($owner, (int) $data['academy_id']);
         $category = $academy->academyContentCategories()
@@ -61,45 +70,67 @@ final class OwnerContentService
             ->where('is_active', true)
             ->firstOrFail();
 
-        return DB::transaction(function () use ($owner, $academy, $category, $data, $cover): AcademyContent {
-            $content = $academy->academyContents()->create([
-                'category_id' => $category->id,
-                'type' => $data['type'],
-                'title' => $data['title'],
-                'slug' => $this->uniqueSlug($academy, $data['title'], $data['slug'] ?? null),
-                'excerpt' => $data['excerpt'] ?? null,
-                'body' => $data['body'] ?? null,
-                'video_duration_seconds' => $data['video_duration_seconds'] ?? null,
-                'status' => $data['status'] ?? 'draft',
-                'is_featured' => (bool) ($data['is_featured'] ?? false),
-                'sort_order' => (int) ($data['sort_order'] ?? 0),
-                'published_at' => ($data['status'] ?? 'draft') === 'published'
-                    ? ($data['published_at'] ?? now())
-                    : null,
-                'created_by' => $owner->id,
-            ]);
+        $createdMedia = [];
 
-            if ($cover) {
-                app(MediaService::class)->upload($cover, $content, [
-                    'disk' => config('filesystems.default', 'local'),
-                    'directory' => 'academy-content/' . $academy->id . '/covers',
-                    'collection' => 'cover',
-                    'visibility' => 'public',
-                    'sort_order' => 0,
-                    'is_featured' => true,
+        try {
+            $content = DB::transaction(function () use ($owner, $academy, $category, $data, $cover, $videoFile, $status, &$createdMedia): AcademyContent {
+                $content = $academy->academyContents()->create([
+                    'category_id' => $category->id,
+                    'type' => $data['type'],
+                    'title' => $data['title'],
+                    'slug' => $this->uniqueSlug($academy, $data['title'], $data['slug'] ?? null),
+                    'excerpt' => $data['excerpt'] ?? null,
+                    'body' => $data['body'] ?? null,
+                    'video_duration_seconds' => $data['video_duration_seconds'] ?? null,
+                    'status' => $status,
+                    'is_featured' => (bool) ($data['is_featured'] ?? false),
+                    'sort_order' => (int) ($data['sort_order'] ?? 0),
+                    'published_at' => $status === 'published' ? ($data['published_at'] ?? now()) : null,
+                    'created_by' => $owner->id,
                 ]);
-            }
 
-            app(AcademyContentService::class)->clearPublicCache();
+                $visibility = $status === 'published' ? 'public' : 'private';
+                $service = app(MediaService::class);
 
-            return $content->load('media');
-        });
+                if ($cover) {
+                    $createdMedia[] = $service->upload($cover, $content, [
+                        'disk' => config('filesystems.default', 'local'),
+                        'directory' => 'academy-content/' . $academy->id . '/covers',
+                        'collection' => 'cover',
+                        'visibility' => $visibility,
+                        'sort_order' => 0,
+                        'is_featured' => true,
+                    ]);
+                }
+
+                if ($videoFile) {
+                    $createdMedia[] = $service->upload($videoFile, $content, [
+                        'disk' => config('filesystems.default', 'local'),
+                        'directory' => 'academy-content/' . $academy->id . '/videos',
+                        'collection' => 'video',
+                        'visibility' => $visibility,
+                        'sort_order' => 1,
+                        'is_featured' => true,
+                    ]);
+                }
+
+                return $content->load('media');
+            });
+        } catch (Throwable $exception) {
+            $this->cleanupRolledBackUploads($createdMedia);
+            throw $exception;
+        }
+
+        app(AcademyContentService::class)->clearPublicCache();
+
+        return $content;
     }
 
     public function update(User $owner, AcademyContent $content, array $data): AcademyContent
     {
         $cover = $data['cover_image'] ?? null;
-        unset($data['cover_image']);
+        $videoFile = $data['video_file'] ?? null;
+        unset($data['cover_image'], $data['video_file']);
 
         $academy = $this->ownedAcademy($owner, (int) $content->academy_id);
         $category = $academy->academyContentCategories()
@@ -107,57 +138,108 @@ final class OwnerContentService
             ->where('is_active', true)
             ->firstOrFail();
 
-        return DB::transaction(function () use ($academy, $content, $category, $data, $cover): AcademyContent {
-            $status = $data['status'] ?? $content->status;
+        $status = $data['status'] ?? $content->status;
+        $type = $data['type'] ?? $content->type;
+        $oldCover = $content->media()->wherePivot('collection', 'cover')->first();
+        $oldVideo = $content->media()->wherePivot('collection', 'video')->first();
 
-            $content->update([
-                'category_id' => $category->id,
-                'type' => $data['type'] ?? $content->type,
-                'title' => $data['title'] ?? $content->title,
-                'slug' => blank($data['slug'] ?? null)
-                    ? $content->slug
-                    : $this->uniqueSlug($academy, $data['title'] ?? $content->title, $data['slug'], $content->id),
-                'excerpt' => $data['excerpt'] ?? null,
-                'body' => $data['body'] ?? null,
-                'video_duration_seconds' => $data['video_duration_seconds'] ?? null,
-                'status' => $status,
-                'is_featured' => (bool) ($data['is_featured'] ?? false),
-                'sort_order' => (int) ($data['sort_order'] ?? 0),
-                'published_at' => $status === 'published'
-                    ? ($data['published_at'] ?? $content->published_at ?? now())
-                    : null,
+        if ($type === 'video' && $status === 'published' && ! $videoFile && ! $oldVideo) {
+            throw ValidationException::withMessages([
+                'video_file' => 'برای انتشار ویدئو باید فایل ویدئویی واقعی ثبت شده باشد.',
             ]);
+        }
 
-            if ($cover) {
-                $media = $content->media()
-                    ->wherePivot('collection', 'cover')
-                    ->first();
+        $createdMedia = [];
 
-                if ($media) {
-                    app(MediaService::class)->replace($media, $cover, $content, [
+        try {
+            $updated = DB::transaction(function () use (
+                $academy, $content, $category, $data, $cover, $videoFile, $status, $type,
+                $oldCover, $oldVideo, &$createdMedia
+            ): AcademyContent {
+                $content->update([
+                    'category_id' => $category->id,
+                    'type' => $type,
+                    'title' => $data['title'] ?? $content->title,
+                    'slug' => blank($data['slug'] ?? null)
+                        ? $content->slug
+                        : $this->uniqueSlug($academy, $data['title'] ?? $content->title, $data['slug'], $content->id),
+                    'excerpt' => $data['excerpt'] ?? null,
+                    'body' => $data['body'] ?? null,
+                    'video_duration_seconds' => $data['video_duration_seconds'] ?? null,
+                    'status' => $status,
+                    'is_featured' => (bool) ($data['is_featured'] ?? false),
+                    'sort_order' => (int) ($data['sort_order'] ?? 0),
+                    'published_at' => $status === 'published'
+                        ? ($data['published_at'] ?? $content->published_at ?? now())
+                        : null,
+                ]);
+
+                $visibility = $status === 'published' ? 'public' : 'private';
+                $service = app(MediaService::class);
+
+                if ($cover) {
+                    $createdMedia[] = $service->upload($cover, $content, [
                         'disk' => config('filesystems.default', 'local'),
                         'directory' => 'academy-content/' . $academy->id . '/covers',
                         'collection' => 'cover',
-                        'visibility' => 'public',
+                        'visibility' => $visibility,
                         'sort_order' => 0,
                         'is_featured' => true,
                     ]);
-                } else {
-                    app(MediaService::class)->upload($cover, $content, [
-                        'disk' => config('filesystems.default', 'local'),
-                        'directory' => 'academy-content/' . $academy->id . '/covers',
-                        'collection' => 'cover',
-                        'visibility' => 'public',
-                        'sort_order' => 0,
-                        'is_featured' => true,
-                    ]);
+                    if ($oldCover) {
+                        $content->media()->detach($oldCover->id);
+                    }
                 }
+
+                if ($videoFile) {
+                    $createdMedia[] = $service->upload($videoFile, $content, [
+                        'disk' => config('filesystems.default', 'local'),
+                        'directory' => 'academy-content/' . $academy->id . '/videos',
+                        'collection' => 'video',
+                        'visibility' => $visibility,
+                        'sort_order' => 1,
+                        'is_featured' => true,
+                    ]);
+                    if ($oldVideo) {
+                        $content->media()->detach($oldVideo->id);
+                    }
+                }
+
+                foreach ($content->media()->get() as $attachedMedia) {
+                    if (in_array($attachedMedia->pivot?->collection, ['cover', 'video'], true)
+                        && $attachedMedia->visibility !== $visibility) {
+                        $attachedMedia->forceFill(['visibility' => $visibility])->save();
+                    }
+                }
+
+                return $content->fresh('media');
+            });
+        } catch (Throwable $exception) {
+            $this->cleanupRolledBackUploads($createdMedia);
+            throw $exception;
+        }
+
+        foreach ([$cover ? $oldCover : null, $videoFile ? $oldVideo : null] as $oldMedia) {
+            if ($oldMedia && $oldMedia->attachments()->doesntExist()) {
+                app(MediaService::class)->delete($oldMedia);
             }
+        }
 
-            app(AcademyContentService::class)->clearPublicCache();
+        app(AcademyContentService::class)->clearPublicCache();
 
-            return $content->fresh('media');
-        });
+        return $updated;
+    }
+
+    private function cleanupRolledBackUploads(array $uploaded): void
+    {
+        foreach ($uploaded as $media) {
+            try {
+                \Illuminate\Support\Facades\Storage::disk($media->disk)->delete($media->path);
+                $media->delete();
+            } catch (Throwable) {
+                report(new \RuntimeException('A rolled-back academy content upload needs storage cleanup.'));
+            }
+        }
     }
 
     public function owned(User $owner, AcademyContent $content): AcademyContent
