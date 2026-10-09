@@ -74,7 +74,14 @@ final class OrderReviewController extends Controller
 
             abort_unless((int) $lockedPayment->order_id === (int) $lockedOrder->id, 404);
             abort_unless($lockedOrder->status === 'pending' && $lockedOrder->paid_at === null, 409);
-            abort_unless($lockedPayment->status === 'pending' && $lockedPayment->proof_media_id, 409);
+            abort_unless($lockedPayment->status === 'pending' && $lockedPayment->proof_media_id && $lockedPayment->proof_uploaded_at, 409);
+            $lockedPayment->loadMissing('proofMedia');
+            abort_unless(
+                $lockedPayment->proofMedia
+                    && $lockedPayment->proofMedia->status === 'active'
+                    && $lockedPayment->proofMedia->visibility === 'private',
+                409
+            );
             abort_unless((int) $lockedPayment->amount === (int) $lockedOrder->total, 409);
 
             $belongsToAcademy = $lockedOrder->items()
