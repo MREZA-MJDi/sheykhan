@@ -20,11 +20,19 @@ class PublicHomeSmokeTest extends TestCase
 
         $home->assertOk()
             ->assertSee('آموزش خوب')
+            ->assertSee('data-frame-hero', false)
+            ->assertSee('home-frame-hero__title', false)
+            ->assertDontSee('pater/pater.css')
+            ->assertDontSee('js/demo4.js')
             ->assertDontSee('home-banner-slider');
 
-        $this->get(route('courses.index'))->assertOk();
+        $this->get(route('courses.index'))
+            ->assertOk()
+            ->assertSee('public-page-intro--courses', false);
         $this->get(route('teachers.index'))->assertOk();
-        $this->get(route('blog.index'))->assertOk();
+        $this->get(route('blog.index'))
+            ->assertOk()
+            ->assertSee('public-page-intro--editorial', false);
         $this->get(route('store.index'))->assertOk();
     }
 
