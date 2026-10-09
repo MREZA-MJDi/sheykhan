@@ -10,12 +10,12 @@ Create a protected GitHub Environment named `production` and configure these sec
 - `DEPLOY_SSH_KEY`: private SSH key for that user
 - `DEPLOY_KNOWN_HOSTS`: pinned SSH host key line(s), collected and verified out of band
 
-The server needs Git, PHP with the extensions listed by Laravel/composer, Composer, Node/npm, MySQL/MariaDB client tools, and (when paid PDFs are enabled) Ghostscript. Configure the correct production `.env`, private file storage, TLS, queue/scheduler, rate limits, database grants, and log rotation before first release.
+The server needs Git, PHP with the extensions listed by Laravel/composer, Composer, Node/npm, tar/gzip, MySQL/MariaDB client tools, and (when paid PDFs are enabled) Ghostscript. For session videos up to 200 MB, configure PHP `upload_max_filesize` and `post_max_size` to at least 220M and Nginx `client_max_body_size` to at least 220M, then reload PHP-FPM/Nginx after reviewing server capacity. Configure the correct production `.env`, private file storage, TLS, queue/scheduler, rate limits, database grants, and log rotation before first release.
 
 ## Deployment behavior
-The workflow runs only from `main`, requires an explicit `deploy` confirmation, verifies the SSH host using the pinned key, creates a database backup before migrations, updates the existing checkout with fast-forward-only Git, builds assets, runs migrations, clears/rebuilds Laravel caches, restarts queue workers and exits maintenance mode. On failure after maintenance mode begins, it attempts to bring the site back up.
+The workflow runs only from `main`, requires an explicit `deploy` confirmation, verifies the SSH host using the pinned key, creates a private storage/media archive and a database dump before migrations, updates the existing checkout with fast-forward-only Git, builds assets, runs migrations, clears/rebuilds Laravel caches, restarts queue workers and exits maintenance mode. On any failure after maintenance mode begins, the site deliberately stays in maintenance mode; an operator must inspect logs and backups before restoring traffic. The workflow does not perform an automatic rollback of the schema or files.
 
-The workflow does not configure the server, create database users, enable HTTPS, provision the gateway, or upload real academy content. Those are one-time infrastructure/business setup tasks. A passing deployment does not replace post-deploy smoke tests.
+The pre-deploy snapshots live on the same server disk and are rollback aids, not offsite disaster-recovery backups. Configure a separate encrypted offsite backup schedule and test restoration. The workflow does not configure the server, create database users, enable HTTPS, provision the gateway, or upload real academy content. Those are one-time infrastructure/business setup tasks. A passing deployment does not replace post-deploy smoke tests.
 
 ## Before first production use
 1. Snapshot/back up the DB and private uploaded files. Verify that the backup can be restored.
