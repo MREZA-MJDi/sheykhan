@@ -69,6 +69,104 @@
         </x-layout.container>
     </section>
 
+    {{-- Courses --}}
+    <section class="home-section home-soft">
+        <x-layout.container size="wide">
+            <div class="home-heading">
+                <div>
+                    <span>دوره‌های منتخب</span>
+                    <h2>از همین‌جا مسیرت را پیدا کن.</h2>
+                    <p>دوره‌های منتشرشده از آموزشگاه‌های فعال شیخان.</p>
+                </div>
+                <a href="{{ route('courses.index') }}">همه دوره‌ها <i>←</i></a>
+            </div>
+
+            <div class="home-course-grid">
+                @forelse($courseCards as $course)
+                    <x-education.course-card
+                        :title="$course['title']"
+                        :description="$course['description']"
+                        :category="$course['category']"
+                        :teacher="$course['teacher']"
+                        :lessons="$course['lessons']"
+                        :duration="$course['duration']"
+                        :price="$course['price']"
+                        :level="$course['level']"
+                        :grades="$course['grades'] ?? []"
+                        :image="$course['image']"
+                        :href="$course['href']"
+                    />
+                @empty
+                    <div class="home-empty-state">
+                        <strong>هنوز دوره‌ای منتشر نشده است.</strong>
+                        <span>به‌محض انتشار، دوره‌ها در این بخش نمایش داده می‌شوند.</span>
+                    </div>
+                @endforelse
+            </div>
+        </x-layout.container>
+    </section>
+
+    {{-- Latest articles --}}
+    <section class="home-section home-blog">
+        <x-layout.container size="wide">
+            <div class="home-heading">
+                <div>
+                    <span>مجله شیخان</span>
+                    <h2>محتوا را فقط نخوان؛ از آن چیزی یاد بگیر.</h2>
+                    <p>یادداشت‌ها و مطالب منتشرشده برای دانش‌آموز، والد و مسیر یادگیری بهتر.</p>
+                </div>
+                <a href="{{ route('blog.index') }}">رفتن به مجله <i>←</i></a>
+            </div>
+
+            <div class="home-post-grid">
+                @forelse($latestPosts as $post)
+                    @php
+                        $postImage = $post->media?->first()?->url();
+                        $postDate = $post->published_at;
+                        $postCategory = $post->category?->name;
+                    @endphp
+
+                    <article class="home-post-card">
+                        <a href="{{ route('blog.show', $post->slug) }}" class="home-post-media" aria-label="مطالعه {{ $post->title }}">
+                            @if($postImage)
+                                <img src="{{ $postImage }}" alt="{{ $post->title }}" loading="lazy"
+ decoding="async">
+                            @else
+                                <div class="home-post-placeholder" aria-hidden="true">
+                                    <span>ش</span>
+                                </div>
+                            @endif
+                            <span class="home-post-index">{{ $loop->iteration < 10 ? '۰' . $loop->iteration : $fa($loop->iteration) }}</span>
+                        </a>
+
+                        <div class="home-post-body">
+                            <div class="home-post-meta">
+                                @if($postCategory)<span>{{ $postCategory }}</span>@endif
+                                @if($postDate)<time datetime="{{ $postDate->toDateString() }}">{{ \App\Support\PersianUi::date($postDate) }}</time>@endif
+                            </div>
+
+                            <h3><a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a></h3>
+
+                            @if($post->excerpt)
+                                <p>{{ \Illuminate\Support\Str::limit($post->excerpt, 125) }}</p>
+                            @endif
+
+                            <a href="{{ route('blog.show', $post->slug) }}" class="home-post-link">
+                                <span>مطالعه مطلب</span>
+                                <i aria-hidden="true">←</i>
+                            </a>
+                        </div>
+                    </article>
+                @empty
+                    <div class="home-empty-state">
+                        <strong>هنوز مطلبی منتشر نشده است.</strong>
+                        <span>به‌محض انتشار، جدیدترین مطالب اینجا دیده می‌شوند.</span>
+                    </div>
+                @endforelse
+            </div>
+        </x-layout.container>
+    </section>
+
     {{-- Why Sheykhan --}}
     <section class="home-section home-dark">
         <x-layout.container size="wide">
@@ -123,43 +221,6 @@
         </x-layout.container>
     </section>
 
-    {{-- Courses --}}
-    <section class="home-section home-soft">
-        <x-layout.container size="wide">
-            <div class="home-heading">
-                <div>
-                    <span>دوره‌های منتخب</span>
-                    <h2>از همین‌جا مسیرت را پیدا کن.</h2>
-                    <p>دوره‌های منتشرشده از آموزشگاه‌های فعال شیخان.</p>
-                </div>
-                <a href="{{ route('courses.index') }}">همه دوره‌ها <i>←</i></a>
-            </div>
-
-            <div class="home-course-grid">
-                @forelse($courseCards as $course)
-                    <x-education.course-card
-                        :title="$course['title']"
-                        :description="$course['description']"
-                        :category="$course['category']"
-                        :teacher="$course['teacher']"
-                        :lessons="$course['lessons']"
-                        :duration="$course['duration']"
-                        :price="$course['price']"
-                        :level="$course['level']"
-                        :grades="$course['grades'] ?? []"
-                        :image="$course['image']"
-                        :href="$course['href']"
-                    />
-                @empty
-                    <div class="home-empty-state">
-                        <strong>هنوز دوره‌ای منتشر نشده است.</strong>
-                        <span>به‌محض انتشار، دوره‌ها در این بخش نمایش داده می‌شوند.</span>
-                    </div>
-                @endforelse
-            </div>
-        </x-layout.container>
-    </section>
-
     {{-- Teachers --}}
     <section class="home-section">
         <x-layout.container size="wide">
@@ -184,79 +245,6 @@
                     />
                 @empty
                     <div class="home-empty-state"><strong>هنوز مدرس عمومی ثبت نشده است.</strong></div>
-                @endforelse
-            </div>
-        </x-layout.container>
-    </section>
-
-    {{-- Achievers --}}
-    <section class="home-section home-trust">
-        <x-layout.container size="wide">
-            <div class="home-heading">
-                <div>
-                    <span>افتخارآفرینان شیخان</span>
-                    <h2>نتیجه‌ای که دیده می‌شود.</h2>
-                    <p>دانش‌آموزانی که مسیرشان به قبولی‌های ارزشمند رسیده است.</p>
-                </div>
-            </div>
-
-            <div class="home-achievement-grid">
-                @forelse($achievementCards as $achievement)
-                    <article class="home-achievement-card">
-                        @if($achievement['image'])
-                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy"
- decoding="async">
-                        @endif
-                        <div>
-                            <span>{{ $achievement['type'] }}</span>
-                            <h3>{{ $achievement['name'] }}</h3>
-                            @if($achievement['school']) <p>{{ $achievement['school'] }}</p> @endif
-                            <small>{{ $achievement['title'] }}</small>
-                        </div>
-                    </article>
-                @empty
-                    <div class="home-empty-state"><strong>افتخارآفرینان هنوز ثبت نشده‌اند.</strong></div>
-                @endforelse
-            </div>
-        </x-layout.container>
-    </section>
-
-    {{-- Testimonials --}}
-    <section class="home-section home-dark">
-        <x-layout.container size="wide">
-            <div class="home-heading home-heading-dark">
-                <div>
-                    <span>تجربه خانواده‌ها</span>
-                    <h2>اعتماد، از تجربه واقعی می‌آید.</h2>
-                    <p>صدای والدین و دانش‌آموزان، همراه با رسانه‌های واقعی ثبت‌شده در پنل.</p>
-                </div>
-            </div>
-
-            <div class="home-testimonial-grid">
-                @forelse($testimonialCards as $testimonial)
-                    <article class="home-testimonial-card">
-                        @if($testimonial['image'])
-                            <img src="{{ $testimonial['image'] }}" alt="" loading="lazy"
- decoding="async">
-                        @endif
-                        <p>«{{ $testimonial['text'] }}»</p>
-                        @if($testimonial['audio'])
-                            <audio class="mt-4 w-full" controls preload="none">
-                                <source src="{{ $testimonial['audio'] }}" type="audio/mpeg">
-                                پخش صوت در مرورگر شما پشتیبانی نمی‌شود.
-                            </audio>
-                        @endif
-                        @if($testimonial['video'])
-                            <video class="mt-4 aspect-video w-full rounded-xl object-cover" controls playsinline preload="none">
-                                <source src="{{ $testimonial['video'] }}" type="video/mp4">
-                                پخش ویدئو در مرورگر شما پشتیبانی نمی‌شود.
-                            </video>
-                        @endif
-                        <strong>{{ $testimonial['name'] }}</strong>
-                        <span>{{ $testimonial['role'] === 'parent' ? 'والد دانش‌آموز' : 'دانش‌آموز' }}</span>
-                    </article>
-                @empty
-                    <div class="home-empty-state"><strong>تجربه‌های ثبت‌شده هنوز آماده انتشار نیستند.</strong></div>
                 @endforelse
             </div>
         </x-layout.container>
@@ -385,62 +373,74 @@
         </x-layout.container>
     </section>
 
-    {{-- Latest articles --}}
-    <section class="home-section home-blog">
+    {{-- Achievers --}}
+    <section class="home-section home-trust">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
-                    <span>مجله شیخان</span>
-                    <h2>محتوا را فقط نخوان؛ از آن چیزی یاد بگیر.</h2>
-                    <p>یادداشت‌ها و مطالب منتشرشده برای دانش‌آموز، والد و مسیر یادگیری بهتر.</p>
+                    <span>افتخارآفرینان شیخان</span>
+                    <h2>نتیجه‌ای که دیده می‌شود.</h2>
+                    <p>دانش‌آموزانی که مسیرشان به قبولی‌های ارزشمند رسیده است.</p>
                 </div>
-                <a href="{{ route('blog.index') }}">رفتن به مجله <i>←</i></a>
             </div>
 
-            <div class="home-post-grid">
-                @forelse($latestPosts as $post)
-                    @php
-                        $postImage = $post->media?->first()?->url();
-                        $postDate = $post->published_at;
-                        $postCategory = $post->category?->name;
-                    @endphp
-
-                    <article class="home-post-card">
-                        <a href="{{ route('blog.show', $post->slug) }}" class="home-post-media" aria-label="مطالعه {{ $post->title }}">
-                            @if($postImage)
-                                <img src="{{ $postImage }}" alt="{{ $post->title }}" loading="lazy"
+            <div class="home-achievement-grid">
+                @forelse($achievementCards as $achievement)
+                    <article class="home-achievement-card">
+                        @if($achievement['image'])
+                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy"
  decoding="async">
-                            @else
-                                <div class="home-post-placeholder" aria-hidden="true">
-                                    <span>ش</span>
-                                </div>
-                            @endif
-                            <span class="home-post-index">{{ $loop->iteration < 10 ? '۰' . $loop->iteration : $fa($loop->iteration) }}</span>
-                        </a>
-
-                        <div class="home-post-body">
-                            <div class="home-post-meta">
-                                @if($postCategory)<span>{{ $postCategory }}</span>@endif
-                                @if($postDate)<time datetime="{{ $postDate->toDateString() }}">{{ \App\Support\PersianUi::date($postDate) }}</time>@endif
-                            </div>
-
-                            <h3><a href="{{ route('blog.show', $post->slug) }}">{{ $post->title }}</a></h3>
-
-                            @if($post->excerpt)
-                                <p>{{ \Illuminate\Support\Str::limit($post->excerpt, 125) }}</p>
-                            @endif
-
-                            <a href="{{ route('blog.show', $post->slug) }}" class="home-post-link">
-                                <span>مطالعه مطلب</span>
-                                <i aria-hidden="true">←</i>
-                            </a>
+                        @endif
+                        <div>
+                            <span>{{ $achievement['type'] }}</span>
+                            <h3>{{ $achievement['name'] }}</h3>
+                            @if($achievement['school']) <p>{{ $achievement['school'] }}</p> @endif
+                            <small>{{ $achievement['title'] }}</small>
                         </div>
                     </article>
                 @empty
-                    <div class="home-empty-state">
-                        <strong>هنوز مطلبی منتشر نشده است.</strong>
-                        <span>به‌محض انتشار، جدیدترین مطالب اینجا دیده می‌شوند.</span>
-                    </div>
+                    <div class="home-empty-state"><strong>افتخارآفرینان هنوز ثبت نشده‌اند.</strong></div>
+                @endforelse
+            </div>
+        </x-layout.container>
+    </section>
+
+    {{-- Testimonials --}}
+    <section class="home-section home-dark">
+        <x-layout.container size="wide">
+            <div class="home-heading home-heading-dark">
+                <div>
+                    <span>تجربه خانواده‌ها</span>
+                    <h2>اعتماد، از تجربه واقعی می‌آید.</h2>
+                    <p>صدای والدین و دانش‌آموزان، همراه با رسانه‌های واقعی ثبت‌شده در پنل.</p>
+                </div>
+            </div>
+
+            <div class="home-testimonial-grid">
+                @forelse($testimonialCards as $testimonial)
+                    <article class="home-testimonial-card">
+                        @if($testimonial['image'])
+                            <img src="{{ $testimonial['image'] }}" alt="" loading="lazy"
+ decoding="async">
+                        @endif
+                        <p>«{{ $testimonial['text'] }}»</p>
+                        @if($testimonial['audio'])
+                            <audio class="mt-4 w-full" controls preload="none">
+                                <source src="{{ $testimonial['audio'] }}" type="audio/mpeg">
+                                پخش صوت در مرورگر شما پشتیبانی نمی‌شود.
+                            </audio>
+                        @endif
+                        @if($testimonial['video'])
+                            <video class="mt-4 aspect-video w-full rounded-xl object-cover" controls playsinline preload="none">
+                                <source src="{{ $testimonial['video'] }}" type="video/mp4">
+                                پخش ویدئو در مرورگر شما پشتیبانی نمی‌شود.
+                            </video>
+                        @endif
+                        <strong>{{ $testimonial['name'] }}</strong>
+                        <span>{{ $testimonial['role'] === 'parent' ? 'والد دانش‌آموز' : 'دانش‌آموز' }}</span>
+                    </article>
+                @empty
+                    <div class="home-empty-state"><strong>تجربه‌های ثبت‌شده هنوز آماده انتشار نیستند.</strong></div>
                 @endforelse
             </div>
         </x-layout.container>
