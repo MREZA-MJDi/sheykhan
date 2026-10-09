@@ -18,8 +18,7 @@ class AchievementService
                 ->with([
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
-                        ->where('status', 'active')
-                        ->orderByPivot('sort_order'),
+                        ->where('status', 'active'),
                     'grade:id,title',
                 ])
                 ->orderByDesc('published_at')
