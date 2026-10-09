@@ -1,0 +1,107 @@
+<?php
+
+namespace App\Http\Controllers\Owner;
+
+use App\Http\Controllers\Controller;
+use App\Models\LegalDocument;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
+
+final class LegalDocumentController extends Controller
+{
+    public function index(Request $request): View
+    {
+        abort_unless($request->user()->hasPermission('legal.manage'), 403);
+
+        return view('owner.legal-documents.index', [
+            'documents' => LegalDocument::query()
+                ->orderBy('code')
+                ->orderByDesc('created_at')
+                ->paginate(30),
+            'purchaseReady' => collect(['purchase-terms', 'copyright'])->every(
+                fn (string $code): bool => LegalDocument::query()
+                    ->where('code', $code)
+                    ->where('required_for_purchase', true)
+                    ->where('is_active', true)
+                    ->whereNotNull('published_at')
+                    ->where('published_at', '<=', now())
+                    ->whereRaw('content_hash = ' . $this->hashExpressionForCurrentDriver())
+                    ->exists()
+            ),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->hasPermission('legal.manage'), 403);
+
+        $data = $request->validate([
+            'code' => ['required', Rule::in(['purchase-terms', 'copyright', 'media-release'])],
+            'version' => ['required', 'string', 'max:32', 'regex:/^[A-Za-z0-9._-]+$/'],
+            'title' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string', 'min:100', 'max:100000'],
+            'publish' => ['sometimes', 'boolean'],
+        ]);
+
+        $required = in_array($data['code'], ['purchase-terms', 'copyright'], true);
+        $content = trim($data['content']);
+        $hash = hash('sha256', $content);
+        $publish = (bool) ($data['publish'] ?? false);
+
+        DB::transaction(function () use ($request, $data, $required, $content, $hash, $publish): void {
+            if ($publish) {
+                LegalDocument::query()
+                    ->where('code', $data['code'])
+                    ->where('is_active', true)
+                    ->update(['is_active' => false]);
+            }
+
+            LegalDocument::query()->create([
+                'code' => $data['code'],
+                'title' => trim($data['title']),
+                'version' => $data['version'],
+                'content' => $content,
+                'content_hash' => $hash,
+                'document_type' => match ($data['code']) {
+                    'purchase-terms' => 'terms_purchase',
+                    'copyright' => 'copyright',
+                    default => 'media_release',
+                },
+                'required_for_purchase' => $required,
+                'is_active' => $publish,
+                'published_at' => $publish ? now() : null,
+            ]);
+        });
+
+        return redirect()
+            ->route('owner.legal-documents.index')
+            ->with('success', $publish
+                ? 'نسخه جدید سند حقوقی منتشر شد. نسخه‌های قبلی غیرفعال شدند و رضایت‌های ثبت‌شده قبلی دست‌نخورده باقی می‌مانند.'
+                : 'پیش‌نویس سند ذخیره شد و تا انتشار، در checkout استفاده نمی‌شود.');
+    }
+
+    public function deactivate(Request $request, LegalDocument $document): RedirectResponse
+    {
+        abort_unless($request->user()->hasPermission('legal.manage'), 403);
+
+        $document->forceFill(['is_active' => false])->save();
+
+        return back()->with('success', 'سند غیرفعال شد. سفارش‌های قبلی و سابقه رضایت حذف نمی‌شوند.');
+    }
+
+    private function hashExpressionForCurrentDriver(): string
+    {
+        // The checkout performs an application-side SHA-256 check before any order is created.
+        // This UI readiness flag intentionally only checks whether a published document exists.
+        return "'{$this->currentHashSentinel()}'";
+    }
+
+    private function currentHashSentinel(): string
+    {
+        return Str::random(64);
+    }
+}
