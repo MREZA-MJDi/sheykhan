@@ -20,8 +20,8 @@ class PublicHomeSmokeTest extends TestCase
 
         $home->assertOk()
             ->assertSee('آموزش خوب')
-            ->assertSee('data-frame-hero', false)
-            ->assertSee('home-frame-hero__title', false)
+            ->assertSee('data-home-hero', false)
+            ->assertSee('sheykhan-home-hero__title', false)
             ->assertDontSee('pater/pater.css')
             ->assertDontSee('js/demo4.js')
             ->assertDontSee('home-banner-slider');
@@ -82,7 +82,10 @@ class PublicHomeSmokeTest extends TestCase
 
         Cache::flush();
 
-        $this->get(route('home'))->assertOk();
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('home-banner-grid', false)
+            ->assertSee('بنر واقعی صفحه اصلی');
     }
 
     public function test_unknown_public_path_returns_not_found(): void
@@ -96,31 +99,35 @@ class PublicHomeSmokeTest extends TestCase
     }
 
 
-    public function test_home_frame_uses_local_animation_assets_and_has_no_missing_codrops_dependencies(): void
+    public function test_home_hero_uses_the_existing_vite_pipeline_and_keeps_academy_banners_separate(): void
     {
-        $blade = file_get_contents(resource_path('views/components/branding/home-frame-hero.blade.php'));
-        $script = file_get_contents(resource_path('js/home-frame-hero.js'));
-        $styles = file_get_contents(resource_path('css/home-frame-hero.css'));
+        $blade = file_get_contents(resource_path('views/components/branding/home-meraki-hero.blade.php'));
+        $styles = file_get_contents(resource_path('css/home-meraki-hero.css'));
+        $homeStyles = file_get_contents(resource_path('css/home.css'));
 
         $this->assertIsString($blade);
-        $this->assertIsString($script);
         $this->assertIsString($styles);
+        $this->assertIsString($homeStyles);
 
-        $source = strtolower($blade . "\n" . $script . "\n" . $styles);
+        $source = strtolower($blade . "\\n" . $styles);
 
         foreach ([
+            'cdn.tailwindcss.com',
+            'unpkg.com/alpinejs',
             'tympanus.net',
             'img/map.png',
             'imagesloaded',
             'anime.min.js',
             'demo4.js',
             'pater/pater.css',
-        ] as $missingDemoDependency) {
-            $this->assertStringNotContainsString($missingDemoDependency, $source);
+        ] as $externalOrMissingDemoDependency) {
+            $this->assertStringNotContainsString($externalOrMissingDemoDependency, $source);
         }
 
-        $this->assertStringContainsString('data-frame-hero', $blade);
-        $this->assertStringContainsString('prefers-reduced-motion', $script . $styles);
+        $this->assertStringContainsString('data-home-hero', $blade);
+        $this->assertStringContainsString('aria-labelledby', $blade);
+        $this->assertStringContainsString('prefers-reduced-motion', $styles);
+        $this->assertStringContainsString('.home-banner-grid', $homeStyles);
+        $this->assertStringContainsString('.home-banner-media img', $homeStyles);
     }
-
 }
