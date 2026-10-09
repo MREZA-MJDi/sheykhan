@@ -79,7 +79,15 @@ jobs:
           npm run build
           php artisan optimize:clear
 
-          # Fail closed: no migration runs unless a readable DB backup was created.
+          # Keep a rollback snapshot of private uploads and public media before any schema change.
+          mkdir -p storage/app/private storage/app/public storage/app/deploy-backups
+          chmod 700 storage/app/deploy-backups
+          storage_snapshot="storage/app/deploy-backups/storage-$(date +%Y%m%d-%H%M%S).tar.gz"
+          tar -czf "$storage_snapshot" --exclude='private/deploy-backups' -C storage/app private public
+          test -s "$storage_snapshot"
+          chmod 600 "$storage_snapshot"
+
+          # Fail closed: migrations run only after both the media snapshot and DB dump succeeded.
           php deploy/backup-database.php
           php artisan migrate --force
 
