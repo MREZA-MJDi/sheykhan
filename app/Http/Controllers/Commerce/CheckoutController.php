@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -130,14 +131,27 @@ final class CheckoutController extends Controller
 
     private function purchasableProduct(Product $product): Product
     {
-        $product->loadMissing('category');
+        $product->loadMissing(['category', 'files.media']);
+
+        $hasRealPrivatePdf = $product->files->contains(function ($file): bool {
+            $media = $file->media;
+
+            return ! $file->is_preview
+                && $media
+                && $media->status === 'active'
+                && $media->visibility === 'private'
+                && strtolower((string) $media->mime_type) === 'application/pdf'
+                && filled($media->path)
+                && Storage::disk($media->disk)->exists($media->path);
+        });
 
         abort_unless(
             $product->status === 'published'
                 && $product->published_at
                 && $product->published_at->isPast()
                 && $product->category?->is_active
-                && $product->delivery_type === 'download',
+                && $product->delivery_type === 'download'
+                && $hasRealPrivatePdf,
             404
         );
 
