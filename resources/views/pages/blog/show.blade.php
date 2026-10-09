@@ -138,7 +138,7 @@
                         <div class="min-w-0">
                             <div class="overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_8px_30px_rgba(15,23,42,.04)]">
                                 <div class="px-5 py-7 sm:px-8 sm:py-10 lg:px-10">
-                                    <div class="max-w-none text-[15px] leading-[2.15] text-[var(--color-text-secondary)] sm:text-base sm:leading-[2.2]">
+                                    <div class="public-article-body max-w-none text-[15px] leading-[2.15] text-[var(--color-text-secondary)] sm:text-base sm:leading-[2.2]">
                                         {!! nl2br(e($post->content)) !!}
                                     </div>
 
