@@ -118,6 +118,11 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->middleware('permission:seo.manage')->name('seo.edit');
     Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->middleware('permission:seo.manage')->name('seo.update');
     Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->middleware('permission:content.manage')->name('content.index');
+    Route::get('/academy/{academy}/showcase', [\App\Http\Controllers\Owner\ShowcaseController::class, 'index'])->middleware('permission:content.manage')->name('showcase.index');
+    Route::post('/academy/{academy}/achievements', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeAchievement'])->middleware(['permission:content.manage','throttle:10,1'])->name('achievements.store');
+    Route::patch('/academy/{academy}/achievements/{achievement}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawAchievement'])->middleware('permission:content.manage')->name('achievements.withdraw');
+    Route::post('/academy/{academy}/testimonials', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeTestimonial'])->middleware(['permission:content.manage','throttle:10,1'])->name('testimonials.store');
+    Route::patch('/academy/{academy}/testimonials/{testimonial}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawTestimonial'])->middleware('permission:content.manage')->name('testimonials.withdraw');
     Route::get('/academy/{academy}/resources', [\App\Http\Controllers\Owner\LearningResourceController::class, 'index'])->middleware('permission:content.manage')->name('resources.index');
     Route::post('/academy/{academy}/resources', [\App\Http\Controllers\Owner\LearningResourceController::class, 'store'])->middleware(['permission:content.manage','throttle:10,1'])->name('resources.store');
     Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->middleware('permission:content.manage')->name('content.create');
