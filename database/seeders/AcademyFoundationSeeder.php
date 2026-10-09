@@ -123,11 +123,22 @@ class AcademyFoundationSeeder extends Seeder
 
     private function user(string $email,string $name,string $key,string $roleSlug): User
     {
-        $user=User::firstOrCreate(['email'=>$email],[
-            'name'=>$name,'mobile'=>'09'.str_pad((string)(1000000000+abs(crc32($key))%899999999),10,'0',STR_PAD_LEFT),
-            'status'=>'active','password'=>Hash::make(env('SEED_USER_PASSWORD','Sheykhan@12345')),
+        // Keep the documented demo credentials usable even when the user
+        // already existed from an earlier seed with an old password/status.
+        $user = User::withTrashed()->updateOrCreate(
+            ['email' => $email],
+            [
+                'name' => $name,
+                'mobile' => '09' . str_pad((string) (1000000000 + abs(crc32($key)) % 899999999), 10, '0', STR_PAD_LEFT),
+                'status' => 'active',
+                'password' => Hash::make(env('SEED_USER_PASSWORD', 'Sheykhan@12345')),
+                'deleted_at' => null,
+            ],
+        );
+
+        $user->roles()->syncWithoutDetaching([
+            Role::where('slug', $roleSlug)->value('id'),
         ]);
-        $user->roles()->syncWithoutDetaching([Role::where('slug',$roleSlug)->value('id')]);
         return $user;
     }
 }
