@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Achievement;
 use App\Models\Academy;
 use App\Models\Testimonial;
-use App\Services\AchievementService;
 use App\Services\MediaService;
 use App\Services\OwnerWorkspaceService;
-use App\Services\TestimonialService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -249,7 +247,5 @@ final class ShowcaseController extends Controller
         Cache::forget('public:home:data:v3');
         Cache::forget('public:home:achievements:6');
         Cache::forget('public:home:testimonials:6');
-        app(AchievementService::class);
-        app(TestimonialService::class);
     }
 }
