@@ -9,7 +9,7 @@
             <x-layout.container size="wide">
 
                 {{-- Header --}}
-                <header class="mb-10 sm:mb-12">
+                <header class="public-page-intro public-page-intro--editorial mb-10 sm:mb-12">
                     <div class="max-w-3xl">
                         <span class="inline-flex items-center gap-2 rounded-full border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3.5 py-2 text-xs font-black text-[var(--color-primary-700)]">
                             <span class="h-1.5 w-1.5 rounded-full bg-[var(--color-primary-600)]"></span>
@@ -71,7 +71,7 @@
                     </div>
 
                     @if($posts->count())
-                        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                        <div class="public-blog-grid grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                             @foreach($posts as $post)
                                 @php
                                     $postImage = $post->media?->first()?->url();
@@ -86,12 +86,12 @@
                                 @endphp
 
                                 <article
-                                    class="group flex h-full min-w-0 flex-col overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_8px_30px_rgba(15,23,42,.04)] transition duration-300 hover:-translate-y-1 hover:border-[var(--color-primary-200)] hover:shadow-[0_18px_45px_rgba(15,23,42,.10)]"
+                                    class="public-blog-card {{ $loop->first && $posts->count() > 1 ? 'public-blog-card--featured' : '' }} group flex h-full min-w-0 flex-col overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_8px_30px_rgba(15,23,42,.04)] transition duration-300 hover:-translate-y-1 hover:border-[var(--color-primary-200)] hover:shadow-[0_18px_45px_rgba(15,23,42,.10)]"
                                 >
                                     {{-- Image --}}
                                     <a
                                         href="{{ route('blog.show', $post->slug) }}"
-                                        class="relative block aspect-[16/10] overflow-hidden bg-[var(--color-slate-100)]"
+                                        class="public-blog-card__media relative block aspect-[16/10] overflow-hidden bg-[var(--color-slate-100)]"
                                         aria-label="مطالعه {{ $post->title }}"
                                     >
                                         @if($postImage)
@@ -126,7 +126,7 @@
                                     </a>
 
                                     {{-- Body --}}
-                                    <div class="flex flex-1 flex-col p-5 sm:p-6">
+                                    <div class="public-blog-card__body flex flex-1 flex-col p-5 sm:p-6">
                                         <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-text-muted)]">
                                             @if($postCategory)
                                                 <span class="font-bold text-[var(--color-primary-600)]">

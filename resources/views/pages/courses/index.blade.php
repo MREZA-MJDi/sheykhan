@@ -9,7 +9,7 @@
             <x-layout.container size="wide">
 
                 {{-- Header --}}
-                <header class="mb-10 sm:mb-12">
+                <header class="public-page-intro public-page-intro--courses mb-10 sm:mb-12">
                     <div class="max-w-3xl">
                         <span class="inline-flex items-center gap-2 rounded-full border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-3.5 py-2 text-xs font-black text-[var(--color-primary-700)]">
                             <span class="h-1.5 w-1.5 rounded-full bg-[var(--color-primary-600)]"></span>
@@ -136,9 +136,9 @@
                     </div>
 
                     @if($courses->count())
-                        <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                        <div class="public-course-grid grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                             @foreach($courses as $course)
-                                <x-education.course-card
+                                <x-education.course-card class="public-catalog-course-card"
                                     :title="$course->title"
                                     :description="$course->short_description ?: $course->description"
                                     :category="$course->academy?->name"
