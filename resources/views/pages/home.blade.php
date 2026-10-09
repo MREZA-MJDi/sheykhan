@@ -474,6 +474,18 @@
                             <img src="{{ $testimonial['image'] }}" alt="" loading="lazy">
                         @endif
                         <p>«{{ $testimonial['text'] }}»</p>
+                        @if($testimonial['audio'])
+                            <audio class="mt-4 w-full" controls preload="none">
+                                <source src="{{ $testimonial['audio'] }}" type="audio/mpeg">
+                                پخش صوت در مرورگر شما پشتیبانی نمی‌شود.
+                            </audio>
+                        @endif
+                        @if($testimonial['video'])
+                            <video class="mt-4 aspect-video w-full rounded-xl object-cover" controls playsinline preload="none">
+                                <source src="{{ $testimonial['video'] }}" type="video/mp4">
+                                پخش ویدئو در مرورگر شما پشتیبانی نمی‌شود.
+                            </video>
+                        @endif
                         <strong>{{ $testimonial['name'] }}</strong>
                         <span>{{ $testimonial['role'] === 'parent' ? 'والد دانش‌آموز' : 'دانش‌آموز' }}</span>
                     </article>
