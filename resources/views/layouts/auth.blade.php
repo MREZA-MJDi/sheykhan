@@ -9,8 +9,8 @@
     <meta name="description" content="@yield('description', 'ورود و ثبت‌نام در شیخان')">
 
     @vite([
-        'resources/css/home.css',
-        'resources/js/home.js',
+        'resources/css/public.css',
+        'resources/js/public.js',
     ])
 
     @stack('styles')

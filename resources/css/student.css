@@ -1,5 +1,9 @@
 @import './panel-base.css';
 
+@source '../views/components';
+@source '../views/student';
+@source '../views/layouts/student.blade.php';
+
 /* SHEYKHAN — STUDENT PANEL */
 
 

@@ -6,8 +6,13 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
+                'resources/css/public.css',
+                'resources/js/public.js',
                 'resources/css/home.css',
+                'resources/css/home-meraki-hero.css',
+                'resources/css/tiamir-intro.css',
                 'resources/js/home.js',
+                'resources/js/tiamir-intro.js',
                 'resources/css/owner.css',
                 'resources/js/owner.js',
                 'resources/css/teacher.css',

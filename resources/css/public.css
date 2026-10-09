@@ -1,0 +1,13 @@
+@import 'tailwindcss' source(none);
+@import './components.css';
+@import './public-experience.css';
+
+@source '../views/pages';
+@source '../views/auth';
+@source '../views/components';
+@source '../views/layouts/app.blade.php';
+@source '../views/layouts/auth.blade.php';
+
+@theme {
+    --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
+}

@@ -6,7 +6,16 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-seo.head :seo-meta="$seoMeta ?? null" />
 
-    @vite(['resources/css/home.css', 'resources/js/home.js'])
+    @vite(['resources/css/public.css', 'resources/js/public.js'])
+    @if (request()->routeIs('home'))
+        @vite([
+            'resources/css/home.css',
+            'resources/css/home-meraki-hero.css',
+            'resources/css/tiamir-intro.css',
+            'resources/js/home.js',
+            'resources/js/tiamir-intro.js',
+        ])
+    @endif
     @stack('styles')
 </head>
 <body class="sheykhan-site">
@@ -16,7 +25,7 @@
 
     <div id="app">
         <x-navigation.navbar />
-        <main id="main-content" class="home-page">
+        <main id="main-content" class="{{ request()->routeIs('home') ? 'home-page' : 'public-page' }}">
             <x-ui.flash-messages />
             @yield('content')
         </main>

@@ -1,5 +1,9 @@
 @import './panel-base.css';
 
+@source '../views/components';
+@source '../views/parent';
+@source '../views/layouts/parent.blade.php';
+
 .parent-shell { --panel-primary:#19a674; --panel-primary-soft:#eafaf4; --color-primary-50:#eafaf4; --color-primary-100:#d7f4e8; --color-primary-200:#b9ead7; --color-primary-300:#8edcbe; --color-primary-400:#4fc69a; --color-primary-500:#19a674; --color-primary-600:#19a674; --color-primary-700:#137e5a; --color-primary-800:#0f6649; --color-primary-900:#0c553d; }
 
 .parent-shell {

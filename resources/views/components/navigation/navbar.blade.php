@@ -1,4 +1,4 @@
-<header class="home-glass-nav site-navbar sticky top-0 z-[var(--z-sticky)] border-b border-[var(--color-border)]">
+<header class="site-navbar sticky top-0 z-[var(--z-sticky)] border-b border-[var(--color-border)]">
     <nav x-data="{ isOpen: false }" @keydown.escape.window="isOpen = false" class="relative site-navbar__nav">
         <x-layout.container size="wide">
             <div class="flex min-h-18 items-center justify-between gap-4 py-2">

@@ -9,6 +9,7 @@
         <img
             src="{{ $heroImage }}"
             alt=""
+            loading="eager"
             decoding="async"
             fetchpriority="high"
         >

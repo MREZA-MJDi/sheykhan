@@ -26,6 +26,7 @@
                     alt="{{ $title }}"
                     class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.045]"
                     loading="lazy"
+                    decoding="async"
                 >
                 <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent"></div>
             @else

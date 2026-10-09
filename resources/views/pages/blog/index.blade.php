@@ -100,6 +100,7 @@
                                                 alt="{{ $post->title }}"
                                                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                                                 loading="lazy"
+                                                decoding="async"
                                             >
                                         @else
                                             <div class="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(104,121,245,.18),transparent_42%),var(--color-slate-100)] text-[var(--color-primary-600)]">

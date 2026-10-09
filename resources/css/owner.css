@@ -1,5 +1,9 @@
 @import './panel-base.css';
 
+@source '../views/components';
+@source '../views/owner';
+@source '../views/layouts/owner.blade.php';
+
 .owner-shell{--panel-primary:#5362df;--panel-primary-soft:#eef0ff;--color-primary-50:#eef0ff;--color-primary-100:#e4e7ff;--color-primary-200:#d2d7ff;--color-primary-300:#b8c0ff;--color-primary-400:#8793f0;--color-primary-500:#5362df;--color-primary-600:#5362df;--color-primary-700:#454fc2;--color-primary-800:#30399d;--color-primary-900:#252d7e}
 
 .owner-shell{--panel-primary:#5362df;--panel-primary-soft:#eef0ff}
