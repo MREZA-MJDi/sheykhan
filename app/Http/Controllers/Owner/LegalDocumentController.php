@@ -50,7 +50,10 @@ final class LegalDocumentController extends Controller
 
         $data = $request->validate([
             'code' => ['required', Rule::in(['purchase-terms', 'copyright', 'media-release'])],
-            'version' => ['required', 'string', 'max:32', 'regex:/^[A-Za-z0-9._-]+$/'],
+            'version' => [
+                'required', 'string', 'max:32', 'regex:/^[A-Za-z0-9._-]+$/',
+                Rule::unique('legal_documents', 'version')->where(fn ($query) => $query->where('code', $request->input('code'))),
+            ],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string', 'min:100', 'max:100000'],
             'publish' => ['sometimes', 'boolean'],
