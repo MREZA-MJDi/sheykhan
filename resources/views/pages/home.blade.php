@@ -10,8 +10,8 @@
             '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
         ]);
     @endphp
-{{-- Animated course frame hero: existing public catalog data, no external demo assets. --}}
-    @include('components.branding.home-frame-hero', ['courseCards' => $courseCards])
+{{-- Full-bleed editorial home hero; academy-managed banners remain a separate section below. --}}
+    @include('components.branding.home-meraki-hero')
 
     @if($homeBanners->isNotEmpty())
         <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
