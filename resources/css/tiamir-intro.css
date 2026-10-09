@@ -1,0 +1,342 @@
+/* Tiamir / RMMAJIDI DEV — five-second metal signal intro.
+   Kept isolated from the public site and loaded only on the home route. */
+.tiamir-intro {
+    --tiamir-metal-bright: #f5f6f8;
+    --tiamir-metal: #b4b8c0;
+    --tiamir-metal-dim: #5e626a;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    isolation: isolate;
+    contain: layout paint style;
+    color: var(--tiamir-metal-bright);
+    background:
+        radial-gradient(ellipse at 50% 46%, rgba(88, 92, 101, .12) 0, transparent 30%),
+        radial-gradient(ellipse at 50% 110%, rgba(105, 110, 120, .08) 0, transparent 42%),
+        #030303;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    font-family: "Arial Black", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+    transition: opacity .62s cubic-bezier(.76, 0, .24, 1), visibility .62s;
+}
+.tiamir-intro *,
+.tiamir-intro *::before,
+.tiamir-intro *::after { box-sizing: border-box; }
+.tiamir-intro__canvas,
+.tiamir-intro__scanlines,
+.tiamir-intro__edge-light {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+.tiamir-intro__canvas { z-index: -2; opacity: .92; }
+.tiamir-intro__scanlines {
+    z-index: -1;
+    opacity: .24;
+    background:
+        repeating-linear-gradient(to bottom, transparent 0 2px, rgba(255,255,255,.065) 3px, transparent 4px),
+        linear-gradient(90deg, rgba(0,0,0,.58), transparent 20%, transparent 80%, rgba(0,0,0,.64));
+    mix-blend-mode: screen;
+    animation: tiamir-scan-jitter .16s steps(2, end) infinite;
+}
+.tiamir-intro__edge-light {
+    opacity: .6;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,.035), transparent 1px) 0 0 / 10px 100%,
+        radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.82) 100%);
+}
+.tiamir-intro__topline,
+.tiamir-intro__footer {
+    position: absolute;
+    z-index: 3;
+    right: clamp(18px, 3vw, 48px);
+    left: clamp(18px, 3vw, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+.tiamir-intro__topline {
+    top: clamp(18px, 3vh, 34px);
+    color: #777b83;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .17em;
+    animation: tiamir-ui-arrive .7s ease-out .1s both;
+}
+.tiamir-intro__topline i { color: #d5d7db; font-style: normal; margin: 0 7px; }
+.tiamir-intro__sequence { display: flex; align-items: center; gap: 13px; }
+.tiamir-intro__sequence b { color: #e6e7e9; font-weight: 500; }
+.tiamir-intro__stage {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: min(92vw, 840px);
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8vh 0;
+    text-align: center;
+    transform: translateY(-1.5vh);
+}
+.tiamir-intro__impact {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(54vw, 560px);
+    aspect-ratio: 1;
+    pointer-events: none;
+    transform: translate(-50%, -56%);
+}
+.tiamir-intro__impact span {
+    position: absolute;
+    inset: 17%;
+    border: 1px solid rgba(218, 222, 230, .0);
+    border-radius: 50%;
+    box-shadow: 0 0 24px rgba(190, 195, 205, .0), inset 0 0 24px rgba(190, 195, 205, .0);
+    animation: tiamir-shockwave 1.8s cubic-bezier(.12, .65, .18, 1) .46s both;
+}
+.tiamir-intro__impact span:nth-child(2) { animation-delay: .66s; }
+.tiamir-intro__impact span:nth-child(3) { animation-delay: .82s; }
+.tiamir-intro__logo-wrap {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    min-height: clamp(76px, 13vh, 136px);
+    width: min(76vw, 530px);
+    place-items: center;
+    animation: tiamir-logo-impact 1.24s cubic-bezier(.13, .86, .18, 1) .46s both;
+}
+.tiamir-intro__logo-image {
+    display: none;
+    width: 100%;
+    max-height: clamp(76px, 13vh, 136px);
+    object-fit: contain;
+    filter: grayscale(1) invert(1) contrast(1.48) brightness(1.15)
+        drop-shadow(0 0 9px rgba(223,227,234,.26))
+        drop-shadow(0 0 32px rgba(223,227,234,.12));
+    mix-blend-mode: screen;
+}
+.tiamir-intro.has-logo .tiamir-intro__logo-image { display: block; }
+.tiamir-intro.has-logo .tiamir-intro__logo-fallback { display: none; }
+.tiamir-intro__logo-fallback {
+    display: block;
+    font-size: clamp(46px, 8.5vw, 92px);
+    font-weight: 1000;
+    letter-spacing: .08em;
+    line-height: .95;
+    color: transparent;
+    background: linear-gradient(180deg, #fff 0%, #bfc3ca 14%, #f9fafb 20%, #555a63 36%, #e7e9ed 49%, #666b74 62%, #cbd0d8 78%, #fff 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-stroke: 1px rgba(255,255,255,.32);
+    text-shadow: 0 1px 0 #fff, 0 5px 0 #393c43, 0 12px 25px rgba(255,255,255,.08);
+    white-space: nowrap;
+}
+.tiamir-intro__wordmark {
+    position: relative;
+    z-index: 2;
+    margin: clamp(8px, 1.7vh, 18px) 0 0;
+    color: transparent;
+    background: linear-gradient(180deg, #f6f7f8 0%, #8c919b 20%, #fafafa 29%, #444851 49%, #d3d6dc 59%, #777d87 77%, #ebedf0 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    font-family: "Arial Black", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(20px, 3.2vw, 34px);
+    font-weight: 1000;
+    letter-spacing: .34em;
+    line-height: 1.5;
+    padding-left: .34em;
+    text-shadow: 0 1px 0 rgba(255,255,255,.38), 0 8px 24px rgba(255,255,255,.07);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: tiamir-wordmark-reveal .72s steps(3, end) 1.45s forwards;
+}
+.tiamir-intro__wordmark span { font-weight: 500; letter-spacing: .22em; }
+.tiamir-intro__tagline {
+    position: relative;
+    z-index: 2;
+    margin: 7px 0 0;
+    color: #a2a6ae;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: clamp(8px, 1vw, 11px);
+    font-weight: 700;
+    letter-spacing: .21em;
+    line-height: 1.8;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: tiamir-ui-arrive .68s ease-out 2.05s forwards;
+}
+.tiamir-intro__tagline i { color: #f1f2f4; margin: 0 .7em; font-style: normal; }
+.tiamir-intro__ready {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: clamp(18px, 3vh, 30px);
+    color: #777c85;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 8px;
+    letter-spacing: .17em;
+    opacity: 0;
+    animation: tiamir-ui-arrive .65s ease-out 2.55s forwards;
+}
+.tiamir-intro__ready span,
+.tiamir-intro__footer-status i {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #e4e7eb;
+    box-shadow: 0 0 12px rgba(236,240,246,.95);
+}
+.tiamir-intro__ready i { color: #42464f; font-style: normal; }
+.tiamir-intro__footer { bottom: clamp(18px, 3vh, 34px); }
+.tiamir-intro__signature {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 190px;
+    opacity: 0;
+    transform: translateX(-12px);
+    animation: tiamir-signature-arrive .76s cubic-bezier(.16, 1, .3, 1) 2.72s forwards;
+}
+.tiamir-intro__monogram {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid #646972;
+    background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.015) 55%, rgba(255,255,255,.09));
+    color: #e5e7eb;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: -.08em;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.17), 0 8px 22px rgba(0,0,0,.6);
+}
+.tiamir-intro__signature-copy { display: grid; gap: 4px; text-align: left; }
+.tiamir-intro__signature-copy strong {
+    color: #e4e6e9;
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .13em;
+    white-space: nowrap;
+}
+.tiamir-intro__signature-copy small {
+    color: #6d727b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 8px;
+    letter-spacing: .12em;
+    white-space: nowrap;
+}
+.tiamir-intro__footer-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #626771;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 8px;
+    letter-spacing: .16em;
+    opacity: 0;
+    animation: tiamir-ui-arrive .72s ease-out 3.05s forwards;
+}
+.tiamir-intro__footer-status i { width: 3px; height: 3px; background: #8f949d; box-shadow: none; }
+.tiamir-intro__skip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid rgba(188,193,202,.22);
+    border-radius: 2px;
+    background: rgba(15,15,16,.7);
+    color: #9297a0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    cursor: pointer;
+    opacity: 0;
+    animation: tiamir-ui-arrive .72s ease-out 3.1s forwards;
+    transition: border-color .2s ease, color .2s ease, background .2s ease;
+}
+.tiamir-intro__skip svg { width: 14px; height: 14px; transition: transform .2s ease; }
+.tiamir-intro__skip:hover,
+.tiamir-intro__skip:focus-visible {
+    border-color: rgba(235,238,244,.72);
+    background: rgba(255,255,255,.06);
+    color: #f5f6f8;
+}
+.tiamir-intro__skip:hover svg { transform: translateX(3px); }
+.tiamir-intro__skip:focus-visible { outline: 2px solid #f0f2f5; outline-offset: 4px; }
+.tiamir-intro.is-exiting { opacity: 0; visibility: hidden; pointer-events: none; }
+body.tiamir-intro-active { overflow: hidden; }
+@keyframes tiamir-logo-impact {
+    0% { opacity: 0; transform: translateY(38px) scale(1.32) skewX(-4deg); filter: brightness(4) blur(13px); }
+    38% { opacity: 1; transform: translateY(-4px) scale(.94) skewX(1deg); filter: brightness(2.1) blur(0); }
+    47% { transform: translateY(1px) scale(1.025) skewX(-1deg); }
+    56% { transform: translateY(-1px) scale(.99); }
+    72% { transform: translateY(0) scale(1); }
+    75% { filter: brightness(1.7) contrast(1.6); }
+    79% { filter: brightness(.7) contrast(1.8); }
+    83% { filter: brightness(1.25) contrast(1.35); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1) contrast(1.2); }
+}
+@keyframes tiamir-shockwave {
+    0% { opacity: 0; transform: scale(.12); border-color: rgba(230,234,242,.8); box-shadow: 0 0 10px rgba(230,234,242,.6), inset 0 0 18px rgba(230,234,242,.15); }
+    24% { opacity: .75; }
+    100% { opacity: 0; transform: scale(1.65); border-color: rgba(230,234,242,0); box-shadow: 0 0 0 rgba(230,234,242,0), inset 0 0 0 rgba(230,234,242,0); }
+}
+@keyframes tiamir-wordmark-reveal {
+    0% { opacity: 0; transform: translateY(10px); clip-path: inset(0 100% 0 0); }
+    14% { opacity: .95; }
+    17% { transform: translate(2px, 0); }
+    20% { transform: translate(-2px, 0); }
+    25%, 100% { opacity: 1; transform: translateY(0); clip-path: inset(0); }
+}
+@keyframes tiamir-ui-arrive {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes tiamir-signature-arrive {
+    0% { opacity: 0; transform: translateX(-16px); filter: blur(5px); }
+    65% { opacity: 1; transform: translateX(2px); filter: blur(0); }
+    100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+@keyframes tiamir-scan-jitter {
+    0%, 100% { transform: translateY(0); opacity: .18; }
+    50% { transform: translateY(1px); opacity: .32; }
+}
+@media (max-width: 640px) {
+    .tiamir-intro__topline,
+    .tiamir-intro__footer { right: 18px; left: 18px; }
+    .tiamir-intro__topline { font-size: 7px; letter-spacing: .1em; }
+    .tiamir-intro__sequence { gap: 7px; }
+    .tiamir-intro__stage { width: 94vw; transform: translateY(-2vh); }
+    .tiamir-intro__logo-wrap { width: min(80vw, 460px); }
+    .tiamir-intro__wordmark { letter-spacing: .19em; padding-left: .19em; }
+    .tiamir-intro__tagline { max-width: 90vw; letter-spacing: .09em; }
+    .tiamir-intro__signature { min-width: 0; gap: 8px; }
+    .tiamir-intro__monogram { width: 29px; height: 29px; font-size: 9px; }
+    .tiamir-intro__signature-copy strong { font-size: 9px; letter-spacing: .09em; }
+    .tiamir-intro__signature-copy small { font-size: 7px; letter-spacing: .06em; }
+    .tiamir-intro__footer-status { display: none; }
+    .tiamir-intro__skip { min-height: 34px; padding: 0 8px; gap: 4px; font-size: 7px; }
+}
+@media (max-width: 390px) {
+    .tiamir-intro__topline > span:first-child { max-width: 160px; line-height: 1.8; }
+    .tiamir-intro__signature-copy small { display: none; }
+    .tiamir-intro__wordmark { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tiamir-intro,
+    .tiamir-intro * { animation: none !important; transition: none !important; }
+}
