@@ -35,22 +35,10 @@ return [
             'username' => 'owner@sheykhan.test',
         ],
         [
-            'role' => 'مدرس ریاضی',
+            'role' => 'مدرس',
             'role_key' => 'teacher',
             'name' => 'سمیه احمدی',
             'username' => 'teacher.math@sheykhan.test',
-        ],
-        [
-            'role' => 'مدرس علوم',
-            'role_key' => 'teacher',
-            'name' => 'علی رضایی',
-            'username' => 'teacher.science@sheykhan.test',
-        ],
-        [
-            'role' => 'مدرس تیزهوشان',
-            'role_key' => 'teacher',
-            'name' => 'نگار کریمی',
-            'username' => 'teacher.gifted@sheykhan.test',
         ],
         [
             'role' => 'دانش‌آموز',
@@ -59,52 +47,10 @@ return [
             'username' => 'student.armin@sheykhan.test',
         ],
         [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'نیکا حسینی',
-            'username' => 'student.nika@sheykhan.test',
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'پارسا رضایی',
-            'username' => 'student.parsa@sheykhan.test',
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'آوا محمدی',
-            'username' => 'student.ava@sheykhan.test',
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'متین احمدی',
-            'username' => 'student.matin@sheykhan.test',
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'تارا کریمی',
-            'username' => 'student.tara@sheykhan.test',
-        ],
-        [
             'role' => 'والد',
             'role_key' => 'parent',
             'name' => 'مریم محمدی',
             'username' => 'parent.armin@sheykhan.test',
-        ],
-        [
-            'role' => 'والد',
-            'role_key' => 'parent',
-            'name' => 'حسین حسینی',
-            'username' => 'parent.nika@sheykhan.test',
-        ],
-        [
-            'role' => 'والد',
-            'role_key' => 'parent',
-            'name' => 'الهام رضایی',
-            'username' => 'parent.parsa@sheykhan.test',
         ],
     ],
 
