@@ -94,4 +94,33 @@ class PublicHomeSmokeTest extends TestCase
     {
         $this->get('/courses/999999999')->assertNotFound();
     }
+
+
+    public function test_home_frame_uses_local_animation_assets_and_has_no_missing_codrops_dependencies(): void
+    {
+        $blade = file_get_contents(resource_path('views/components/branding/home-frame-hero.blade.php'));
+        $script = file_get_contents(resource_path('js/home-frame-hero.js'));
+        $styles = file_get_contents(resource_path('css/home-frame-hero.css'));
+
+        $this->assertIsString($blade);
+        $this->assertIsString($script);
+        $this->assertIsString($styles);
+
+        $source = strtolower($blade . "\n" . $script . "\n" . $styles);
+
+        foreach ([
+            'tympanus.net',
+            'img/map.png',
+            'imagesloaded',
+            'anime.min.js',
+            'demo4.js',
+            'pater/pater.css',
+        ] as $missingDemoDependency) {
+            $this->assertStringNotContainsString($missingDemoDependency, $source);
+        }
+
+        $this->assertStringContainsString('data-frame-hero', $blade);
+        $this->assertStringContainsString('prefers-reduced-motion', $script . $styles);
+    }
+
 }

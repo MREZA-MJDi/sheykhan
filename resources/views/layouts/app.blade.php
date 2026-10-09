@@ -6,11 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-seo.head :seo-meta="$seoMeta ?? null" />
 
-    @if (request()->routeIs('home'))
-        <link rel="preconnect" href="https://tiamir.com" crossorigin>
-        <link rel="preload" as="image" href="https://tiamir.com/wp-content/uploads/2023/10/Logo-3.png" fetchpriority="high">
-    @endif
-
     @vite(['resources/css/home.css', 'resources/js/home.js'])
     @stack('styles')
 </head>
