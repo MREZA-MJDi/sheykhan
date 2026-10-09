@@ -24,7 +24,7 @@
             شیخان؛ آموزش، رشد، آینده
         </p>
 
-        <h1 id="sheykhan-home-hero-title">
+        <h1 id="sheykhan-home-hero-title" class="sheykhan-home-hero__title">
             آینده‌ات را با <span>یادگیری</span> بساز
         </h1>
 
