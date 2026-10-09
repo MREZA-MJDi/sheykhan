@@ -6,11 +6,16 @@ use App\Models\Academy;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Course;
+use App\Models\CourseSection;
+use App\Models\Lesson;
+use App\Models\Exam;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\TeacherAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -25,6 +30,53 @@ class TeacherAccessIsolationTest extends TestCase
         $this->assertFalse(
             app(TeacherAccessService::class)->canTeachCourse($teacher, $course)
         );
+    }
+
+    public function test_archived_academy_membership_blocks_viewing_exam_attempts_even_when_teacher_is_active_elsewhere(): void
+    {
+        [$teacher, $course] = $this->teacherWithArchivedCourseMembership();
+
+        $exam = Exam::create([
+            'course_id' => $course->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'آزمون آموزشگاه قبلی',
+            'duration_minutes' => 30,
+            'attempts_allowed' => 1,
+            'status' => 'published',
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.attempts', $exam))
+            ->assertForbidden();
+    }
+
+    public function test_archived_academy_membership_blocks_uploading_media_to_an_old_lesson(): void
+    {
+        [$teacher, $course] = $this->teacherWithArchivedCourseMembership();
+
+        $section = CourseSection::create([
+            'course_id' => $course->id,
+            'title' => 'بخش قدیمی',
+            'sort_order' => 1,
+        ]);
+        $lesson = Lesson::create([
+            'course_section_id' => $section->id,
+            'title' => 'درس قدیمی',
+            'slug' => 'old-lesson',
+            'type' => 'video',
+            'status' => 'draft',
+        ]);
+
+        Storage::fake('local');
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.lessons.media.store', $lesson), [
+                'media' => UploadedFile::fake()->create('lesson.pdf', 20, 'application/pdf'),
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('media', 0);
+        $this->assertDatabaseCount('learning_resources', 0);
     }
 
     public function test_archived_academy_membership_blocks_grading_old_assignment_even_when_teacher_is_active_elsewhere(): void
@@ -68,13 +120,13 @@ class TeacherAccessIsolationTest extends TestCase
             'description' => 'Teacher',
         ]);
 
-        $permission = Permission::create([
-            'name' => 'assignments.manage',
-            'label' => 'Manage assignments',
-            'group' => 'assignments',
-        ]);
+        $permissions = collect([
+            ['name' => 'assignments.manage', 'label' => 'Manage assignments', 'group' => 'assignments'],
+            ['name' => 'exams.view', 'label' => 'View exams', 'group' => 'exams'],
+            ['name' => 'media.upload', 'label' => 'Upload media', 'group' => 'media'],
+        ])->map(fn (array $permission) => Permission::create($permission));
 
-        $role->permissions()->attach($permission->id);
+        $role->permissions()->attach($permissions->pluck('id')->all());
 
         $teacher = User::factory()->create([
             'email' => 'teacher-' . Str::random(8) . '@test.local',
