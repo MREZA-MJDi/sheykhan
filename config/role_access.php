@@ -54,6 +54,6 @@ return [
         ],
     ],
 
-    'test_password' => env('SEED_USER_PASSWORD'),
+    'test_password' => env('SEED_USER_PASSWORD', 'Sheykhan@12345'),
 
 ];
