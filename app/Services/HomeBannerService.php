@@ -25,8 +25,7 @@ final class HomeBannerService
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
                         ->where('status', 'active')
-                        ->where('mime_type', 'like', 'image/%')
-                        ->orderByPivot('sort_order'),
+                        ->where('mime_type', 'like', 'image/%'),
                 ])
                 ->orderBy('sort_order')
                 ->orderBy('id')
