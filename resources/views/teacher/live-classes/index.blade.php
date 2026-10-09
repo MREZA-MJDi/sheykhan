@@ -52,6 +52,22 @@
                             <a href="{{ $liveClass->meeting_url }}" target="_blank" rel="noopener noreferrer" class="teacher-workspace-link primary">ورود به جلسه</a>
                         @endif
                     </div>
+                    @if($liveClass->status !== 'cancelled')
+                        <form method="POST" enctype="multipart/form-data" action="{{ route('teacher.live-classes.recording.store', $liveClass) }}" class="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(180px,.7fr)_auto] sm:items-end">
+                            @csrf
+                            <label class="grid gap-1 text-xs font-bold text-slate-700">
+                                ضبط جلسه (MP4 / WebM / MOV)
+                                <input type="file" name="recording" accept="video/mp4,video/webm,video/quicktime" required class="block w-full text-xs">
+                                <small class="font-normal text-slate-500">حداکثر ۲۰۰ مگابایت؛ فایل به‌صورت خصوصی ذخیره می‌شود.</small>
+                            </label>
+                            <label class="grid gap-1 text-xs font-bold text-slate-700">
+                                زمان انتشار (اختیاری)
+                                <input type="datetime-local" name="release_at" class="min-h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-normal">
+                                <small class="font-normal text-slate-500">خالی بماند، از همین حالا قابل مشاهده است.</small>
+                            </label>
+                            <button type="submit" class="teacher-workspace-link primary min-h-10">ذخیره ضبط</button>
+                        </form>
+                    @endif
                 </article>
             @empty
                 <div class="teacher-workspace-empty"><strong>جلسه‌ای ثبت نشده است.</strong>اولین جلسه آنلاین را برای یک دوره یا کلاس برنامه‌ریزی کن.</div>
