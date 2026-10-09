@@ -42,6 +42,11 @@ final class LearningResourceController extends Controller
                 ->where('academy_id', $academy->id)
                 ->orderBy('title')
                 ->get(['id', 'title', 'course_id']),
+            'lessons' => Lesson::query()
+                ->whereHas('section.course', fn ($query) => $query->where('academy_id', $academy->id))
+                ->with('section.course:id,title')
+                ->orderBy('title')
+                ->get(['id', 'title', 'course_section_id']),
         ]);
     }
 
