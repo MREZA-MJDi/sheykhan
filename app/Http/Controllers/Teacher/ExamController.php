@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Exam;
 use App\Services\TeacherWorkspaceService;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ExamController extends Controller
@@ -42,26 +42,28 @@ class ExamController extends Controller
         $payload = $request->safe()->except(['course_id', 'questions']);
         $payload['teacher_id'] = $request->user()->id;
 
-        $exam = $course->exams()->create($payload);
+        DB::transaction(function () use ($course, $payload, $request): void {
+            $exam = $course->exams()->create($payload);
 
-        foreach ($request->validated('questions', []) as $index => $question) {
-            $exam->questions()->create([
-                'type' => $question['type'] ?? 'text',
-                'question' => $question['question'],
-                'options' => $question['options'] ?? null,
-                'correct_answer' => $question['correct_answer'] ?? null,
-                'score' => $question['score'] ?? 1,
-                'sort_order' => $index,
-            ]);
-        }
+            foreach ($request->validated('questions', []) as $index => $question) {
+                $exam->questions()->create([
+                    'type' => $question['type'] ?? 'text',
+                    'question' => $question['question'],
+                    'options' => $question['options'] ?? null,
+                    'correct_answer' => $question['correct_answer'] ?? null,
+                    'score' => $question['score'] ?? 1,
+                    'sort_order' => $index,
+                ]);
+            }
+        });
 
         return redirect()->route('teacher.exams.index')
             ->with('success', 'آزمون با موفقیت ساخته شد.');
     }
 
-    public function attempts(Exam $exam): View
+    public function attempts(Exam $exam, \App\Services\TeacherAccessService $access): View
     {
-        abort_unless($exam->teacher_id === request()->user()->id, 403);
+        abort_unless($access->canManageExam(request()->user(), $exam), 403);
 
         $exam->load('questions');
 
