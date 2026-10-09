@@ -1,7 +1,7 @@
 name: Tests - Owner Foundation
 
 concurrency:
-  group: sheykhan-ci-${{ github.event.pull_request.head.ref || github.ref }}
+  group: sheykhan-ci-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 on:
@@ -37,8 +37,40 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build frontend
-        run: npm run build
+      - name: Resolve patched frontend dependency lockfile
+        run: |
+          npm audit fix --package-lock-only
+          npm ci
+          npm run build
+
+      - name: Inspect frontend dependency advisories
+        if: always()
+        run: |
+          npm audit --json > "$RUNNER_TEMP/npm-audit.json" || true
+          node <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/npm-audit.json`, 'utf8'));
+          const vulnerabilities = Object.entries(report.vulnerabilities ?? {}).map(([name, item]) => ({
+            name,
+            severity: item.severity,
+            range: item.range,
+            fixAvailable: item.fixAvailable,
+            via: (item.via ?? []).map((advisory) => typeof advisory === 'string'
+              ? advisory
+              : { title: advisory.title, url: advisory.url, range: advisory.range }),
+          }));
+          console.log(JSON.stringify({
+            summary: report.metadata?.vulnerabilities,
+            vulnerabilities,
+          }, null, 2));
+          NODE
+
+      - name: Export patched lockfile for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: sheykhan-patched-package-lock
+          path: package-lock.json
+          retention-days: 1
 
       - name: Prepare application
         run: |
