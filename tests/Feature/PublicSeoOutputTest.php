@@ -59,6 +59,63 @@ class PublicSeoOutputTest extends TestCase
             ->assertSee('property="og:title" content="' . e($meta->og_title) . '"', false);
     }
 
+
+    public function test_published_product_renders_managed_seo_and_uses_the_supported_money_helper(): void
+    {
+        $owner = User::factory()->create();
+        $academy = Academy::create([
+            'owner_id' => $owner->id,
+            'name' => 'آکادمی فروشگاه',
+            'slug' => 'product-seo-academy-' . Str::random(6),
+            'status' => 'active',
+        ]);
+        $category = ProductCategory::create([
+            'name' => 'جزوه',
+            'slug' => 'product-seo-notes-' . Str::random(6),
+            'description' => 'منابع آموزشی',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+        $product = Product::create([
+            'academy_id' => $academy->id,
+            'category_id' => $category->id,
+            'created_by' => $owner->id,
+            'title' => 'محصول آزمایشی SEO',
+            'slug' => 'product-seo-' . Str::random(8),
+            'subtitle' => 'توضیح پیش‌فرض',
+            'description' => 'جزئیات محصول',
+            'product_type' => 'digital',
+            'delivery_type' => 'download',
+            'price' => 250000,
+            'currency' => 'IRR',
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+        ]);
+        $canonical = route('store.product.show', $product);
+
+        $meta = SeoMeta::create([
+            'seoable_type' => Product::class,
+            'seoable_id' => $product->id,
+            'title' => 'عنوان اختصاصی محصول',
+            'description' => 'توضیح اختصاصی محصول برای جستجو',
+            'canonical_url' => $canonical,
+            'robots' => 'index,follow',
+            'og_title' => 'محصول برای اشتراک‌گذاری',
+            'og_description' => 'توضیح محصول برای شبکه‌های اجتماعی',
+            'og_image_url' => 'https://example.test/images/product-share.jpg',
+        ]);
+
+        $this->get($canonical)
+            ->assertOk()
+            ->assertSee('<title>' . e($meta->title) . '</title>', false)
+            ->assertSee('name="description" content="' . e($meta->description) . '"', false)
+            ->assertSee('rel="canonical" href="' . e($canonical) . '"', false)
+            ->assertSee('property="og:title" content="' . e($meta->og_title) . '"', false)
+            ->assertSee('property="og:image" content="' . e($meta->og_image_url) . '"', false)
+            ->assertSee('name="twitter:card" content="summary_large_image"', false)
+            ->assertSee(\\App\\Support\\PersianUi::money(250000), false);
+    }
+
     public function test_robots_and_sitemap_are_real_public_endpoints(): void
     {
         $this->get(route('seo.robots'))
