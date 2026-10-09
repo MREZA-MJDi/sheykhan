@@ -331,23 +331,23 @@ select.course-input{padding-inline-end:36px}
     animation:owner-alert-pulse 1.9s ease-in-out infinite;
 }
 .owner-focus-kicker{
-    display:block;color:#5362df;font-size:8px;font-weight:900;
+    display:block;color:#5362df;font-size:9px;font-weight:900;line-height:1.7;
 }
 .owner-focus-copy h2{
     margin-top:3px;color:#1a2233;
-    font-size:14px;font-weight:900;line-height:1.7;
+    font-size:15px;font-weight:900;line-height:1.8;
 }
 .owner-focus-copy p{
     max-width:780px;
-    margin-top:3px;color:#7c8699;
-    font-size:8px;line-height:1.95;
+    margin-top:4px;color:#7c8699;
+    font-size:10px;line-height:1.95;
 }
 .owner-focus-actions a{
     min-height:40px;
     display:inline-flex;align-items:center;justify-content:center;
     padding:0 13px;border-radius:12px;
     background:#5362df;color:#fff;text-decoration:none;
-    font-size:8px;font-weight:900;
+    font-size:10px;font-weight:900;
     box-shadow:0 9px 20px rgba(83,98,223,.13);
     transition:transform .2s ease,box-shadow .2s ease;
 }
