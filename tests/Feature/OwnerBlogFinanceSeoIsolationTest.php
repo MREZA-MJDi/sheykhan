@@ -6,6 +6,8 @@ use App\Models\Academy;
 use App\Models\BlogPost;
 use App\Models\FinancialTransaction;
 use App\Models\Permission;
+use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Role;
 use App\Models\SeoMeta;
 use App\Models\User;
