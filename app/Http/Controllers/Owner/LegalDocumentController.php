@@ -17,22 +17,31 @@ final class LegalDocumentController extends Controller
     {
         abort_unless($request->user()->hasPermission('legal.manage'), 403);
 
-        return view('owner.legal-documents.index', [
-            'documents' => LegalDocument::query()
-                ->orderBy('code')
-                ->orderByDesc('created_at')
-                ->paginate(30),
-            'purchaseReady' => collect(['purchase-terms', 'copyright'])->every(
-                fn (string $code): bool => LegalDocument::query()
-                    ->where('code', $code)
-                    ->where('required_for_purchase', true)
-                    ->where('is_active', true)
-                    ->whereNotNull('published_at')
-                    ->where('published_at', '<=', now())
-                    ->whereRaw('content_hash = ' . $this->hashExpressionForCurrentDriver())
-                    ->exists()
-            ),
-        ]);
+        $documents = LegalDocument::query()
+            ->orderBy('code')
+            ->orderByDesc('created_at')
+            ->paginate(30);
+
+        $validCodes = LegalDocument::query()
+            ->whereIn('code', ['purchase-terms', 'copyright'])
+            ->where('required_for_purchase', true)
+            ->where('is_active', true)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->get(['code', 'content', 'content_hash'])
+            ->filter(fn (LegalDocument $document): bool =>
+                filled(trim((string) $document->content))
+                    && filled($document->content_hash)
+                    && hash_equals($document->content_hash, hash('sha256', $document->content))
+            )
+            ->pluck('code')
+            ->unique()
+            ->values();
+
+        $purchaseReady = collect(['purchase-terms', 'copyright'])
+            ->every(fn (string $code): bool => $validCodes->contains($code));
+
+        return view('owner.legal-documents.index', compact('documents', 'purchaseReady'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -93,15 +102,4 @@ final class LegalDocumentController extends Controller
         return back()->with('success', 'سند غیرفعال شد. سفارش‌های قبلی و سابقه رضایت حذف نمی‌شوند.');
     }
 
-    private function hashExpressionForCurrentDriver(): string
-    {
-        // The checkout performs an application-side SHA-256 check before any order is created.
-        // This UI readiness flag intentionally only checks whether a published document exists.
-        return "'{$this->currentHashSentinel()}'";
-    }
-
-    private function currentHashSentinel(): string
-    {
-        return Str::random(64);
-    }
 }
