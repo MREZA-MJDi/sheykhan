@@ -12,7 +12,8 @@ class OnboardingSeeder extends Seeder
  {
   $academy=Academy::where('slug','sheykhan-academy')->firstOrFail();
   $owner=User::where('email','owner@sheykhan.test')->firstOrFail();
-  $student=User::where('email','student.matin@sheykhan.test')->firstOrFail();
+  $student=User::where('email','student.matin@sheykhan.test')->first()
+   ?? User::where('email','student.armin@sheykhan.test')->firstOrFail();
   $grade=AcademicGrade::where('code','8')->firstOrFail();
   $lookup=NationalIdLookup::make('0012345678');
   StudentOnboarding::firstOrCreate(['academy_id'=>$academy->id,'national_id_lookup'=>$lookup],['admin_id'=>$owner->id,'student_id'=>$student->id,'entered_name'=>$student->name,'requested_grade_id'=>$grade->id,'school_name'=>'مدرسه منتخب شیخان','mobile'=>$student->mobile,'source'=>'legacy','status'=>'activated','notes'=>'رکورد دانش‌آموز قدیمی واردشده از بایگانی.','verified_at'=>now()->subDays(10),'activated_at'=>now()->subDays(9)]);
