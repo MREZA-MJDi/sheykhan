@@ -14,6 +14,21 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: sheykhan
+          MARIADB_USER: sheykhan
+          MARIADB_PASSWORD: sheykhan
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -22,7 +37,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          extensions: mbstring, pdo_sqlite, sqlite3
+          extensions: mbstring, pdo_sqlite, pdo_mysql, sqlite3
           coverage: none
 
       - name: Install dependencies
@@ -88,3 +103,19 @@ jobs:
           SESSION_DRIVER: array
           CACHE_STORE: array
         run: php artisan test --compact
+
+      - name: Run MariaDB compatibility tests
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: sheykhan
+          DB_USERNAME: sheykhan
+          DB_PASSWORD: sheykhan
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+        run: |
+          php artisan config:clear
+          php artisan test --compact
