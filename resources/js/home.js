@@ -1,6 +1,5 @@
 import Alpine from 'alpinejs';
 import './tiamir-intro.js';
-import './home-frame-hero.js';
 
 window.Alpine = window.Alpine || Alpine;
 
