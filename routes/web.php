@@ -82,6 +82,12 @@ Route::middleware(['auth','active'])->group(function () {
     Route::get('/media/{media}/download', [MediaController::class, 'download'])
         ->middleware('permission:media.download')
         ->name('media.download');
+
+    Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'show'])->name('checkout.show');
+    Route::post('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Commerce\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/payment-proof', [\App\Http\Controllers\Commerce\OrderController::class, 'uploadProof'])->middleware('throttle:5,1')->name('orders.proof.store');
+    Route::get('/orders/{order}/files/{file}/download', [\App\Http\Controllers\Commerce\OrderController::class, 'download'])->middleware('throttle:20,1')->name('orders.files.download');
 });
 
 Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
@@ -134,6 +140,14 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::post('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'store'])->middleware('permission:blog.manage')->name('blog.store');
     Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->middleware('permission:blog.manage')->name('blog.edit');
     Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->middleware('permission:blog.manage')->name('blog.update');
+    Route::get('/academy/{academy}/orders', [\App\Http\Controllers\Owner\OrderReviewController::class, 'index'])->middleware('permission:orders.view')->withoutScopedBindings()->name('orders.index');
+    Route::get('/academy/{academy}/orders/{order}/payments/{payment}/proof', [\App\Http\Controllers\Owner\OrderReviewController::class, 'proof'])->middleware('permission:orders.view')->withoutScopedBindings()->name('orders.proof');
+    Route::post('/academy/{academy}/orders/{order}/payments/{payment}/confirm', [\App\Http\Controllers\Owner\OrderReviewController::class, 'confirm'])->middleware(['permission:orders.manage','throttle:20,1'])->withoutScopedBindings()->name('orders.confirm');
+    Route::post('/academy/{academy}/orders/{order}/payments/{payment}/reject', [\App\Http\Controllers\Owner\OrderReviewController::class, 'reject'])->middleware(['permission:orders.manage','throttle:20,1'])->withoutScopedBindings()->name('orders.reject');
+    Route::get('/legal-documents', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'index'])->middleware('permission:legal.manage')->name('legal-documents.index');
+    Route::post('/legal-documents', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'store'])->middleware(['permission:legal.manage','throttle:10,1'])->name('legal-documents.store');
+    Route::patch('/legal-documents/{document}/deactivate', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'deactivate'])->middleware('permission:legal.manage')->name('legal-documents.deactivate');
+
     Route::get('/finance', [\App\Http\Controllers\Owner\FinanceController::class, 'index'])->middleware('permission:finance.view')->name('finance.index');
 });
 
