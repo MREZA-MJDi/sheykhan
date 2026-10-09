@@ -66,7 +66,7 @@
             </div>
         </section>
 
-        <section class="teacher-focus-card" aria-labelledby="teacher-focus-title">
+        <section class="teacher-focus-card {{ ($pendingAssignmentReviews + $pendingExamReviews) > 0 ? 'has-pending' : 'is-clear' }}" aria-labelledby="teacher-focus-title">
             <div class="teacher-focus-mark" aria-hidden="true">
                 <span></span><span></span><span></span>
             </div>
