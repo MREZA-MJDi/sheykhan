@@ -1,6 +1,8 @@
 @import 'tailwindcss' source(none);
 @import './components.css';
 @import './tiamir-intro.css';
+@import './home-frame-hero.css';
+@import './public-experience.css';
 @source '../../resources/views';
 
 @theme {
