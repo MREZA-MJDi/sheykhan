@@ -33,7 +33,7 @@ QUEUE_CONNECTION=database
 SEED_USER_PASSWORD=<seed-account-password>
 ```
 
-Never commit the real password to Git.
+Never commit the real password to Git. This server config uses `APP_ENV=production`: do not run `php artisan db:seed --force` against the live database because demo seeders can create or reset demo users. Provision required users through the reviewed admin/onboarding workflow.
 
 ## Deployment
 
@@ -45,8 +45,10 @@ npm ci
 npm run build
 php artisan storage:link
 php artisan optimize:clear
+mkdir -p storage/app/private storage/app/public storage/app/deploy-backups
+php deploy/backup-database.php
+tar -czf "storage/app/deploy-backups/storage-$(date +%Y%m%d-%H%M%S).tar.gz" --exclude='private/deploy-backups' -C storage/app private public
 php artisan migrate --force
-php artisan db:seed --force
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R ug+rwx storage bootstrap/cache
 ```
