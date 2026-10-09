@@ -100,7 +100,7 @@ final class StudentExamService
 
     public function submit(User $student, ExamAttempt $attempt, array $answers): ExamAttempt
     {
-        return DB::transaction(function () use ($student, $attempt, $answers): ExamAttempt {
+        $result = DB::transaction(function () use ($student, $attempt, $answers): array {
             $attempt = ExamAttempt::query()
                 ->with(['exam.questions'])
                 ->lockForUpdate()
@@ -117,7 +117,9 @@ final class StudentExamService
                 $attempt->submitted_at = now();
                 $attempt->save();
 
-                throw ValidationException::withMessages(['exam' => 'زمان آزمون شما به پایان رسیده است. پاسخ‌ها ثبت نشدند.']);
+                // Return from the transaction so the closed attempt is committed
+                // before the validation error is shown to the student.
+                return ['timed_out' => true, 'attempt' => $attempt];
             }
 
             $questionById = $exam->questions->keyBy('id');
@@ -166,8 +168,19 @@ final class StudentExamService
             $attempt->submitted_at = now();
             $attempt->save();
 
-            return $attempt->load(['exam.questions', 'answers']);
+            return [
+                'timed_out' => false,
+                'attempt' => $attempt->load(['exam.questions', 'answers']),
+            ];
         });
+
+        if ($result['timed_out']) {
+            throw ValidationException::withMessages([
+                'exam' => 'زمان آزمون شما به پایان رسیده است. پاسخ‌ها ثبت نشدند.',
+            ]);
+        }
+
+        return $result['attempt'];
     }
 
     public function isOpen(Exam $exam): bool
