@@ -95,7 +95,16 @@
                         </div>
 
                         <div class="mt-7 flex flex-col gap-3 sm:flex-row">
-                            <a href="{{ route('store.index', ['category' => $product->category?->slug]) }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl bg-[var(--color-primary-600)] px-5 text-sm font-black text-white shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-700)]">
+                            @auth
+                                <a href="{{ route('checkout.show', $product) }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl bg-[var(--color-primary-600)] px-5 text-sm font-black text-white shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-700)]">
+                                    خرید و دریافت امن
+                                </a>
+                            @else
+                                <a href="{{ route('login', ['redirect' => route('checkout.show', $product)]) }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl bg-[var(--color-primary-600)] px-5 text-sm font-black text-white shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-700)]">
+                                    ورود برای خرید
+                                </a>
+                            @endauth
+                            <a href="{{ route('store.index', ['category' => $product->category?->slug]) }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 text-sm font-black text-[var(--color-text-muted)] transition hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]">
                                 مشاهده منابع مشابه
                             </a>
                             <a href="{{ route('store.index') }}" class="inline-flex min-h-12 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 text-sm font-black text-[var(--color-text-muted)] transition hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-700)]">
