@@ -40,6 +40,28 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Inspect frontend dependency advisories
+        if: always()
+        run: |
+          npm audit --json > "$RUNNER_TEMP/npm-audit.json" || true
+          node <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/npm-audit.json`, 'utf8'));
+          const vulnerabilities = Object.entries(report.vulnerabilities ?? {}).map(([name, item]) => ({
+            name,
+            severity: item.severity,
+            range: item.range,
+            fixAvailable: item.fixAvailable,
+            via: (item.via ?? []).map((advisory) => typeof advisory === 'string'
+              ? advisory
+              : { title: advisory.title, url: advisory.url, range: advisory.range }),
+          }));
+          console.log(JSON.stringify({
+            summary: report.metadata?.vulnerabilities,
+            vulnerabilities,
+          }, null, 2));
+          NODE
+
       - name: Prepare application
         run: |
           cp .env.example .env
