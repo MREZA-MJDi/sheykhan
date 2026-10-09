@@ -6,6 +6,7 @@ use App\Models\Academy;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Course;
+use App\Models\Exam;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -25,6 +26,24 @@ class TeacherAccessIsolationTest extends TestCase
         $this->assertFalse(
             app(TeacherAccessService::class)->canTeachCourse($teacher, $course)
         );
+    }
+
+    public function test_archived_academy_membership_blocks_viewing_exam_attempts_even_when_teacher_is_active_elsewhere(): void
+    {
+        [$teacher, $course] = $this->teacherWithArchivedCourseMembership();
+
+        $exam = Exam::create([
+            'course_id' => $course->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'آزمون آموزشگاه قبلی',
+            'duration_minutes' => 30,
+            'attempts_allowed' => 1,
+            'status' => 'published',
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.attempts', $exam))
+            ->assertForbidden();
     }
 
     public function test_archived_academy_membership_blocks_grading_old_assignment_even_when_teacher_is_active_elsewhere(): void
@@ -73,8 +92,13 @@ class TeacherAccessIsolationTest extends TestCase
             'label' => 'Manage assignments',
             'group' => 'assignments',
         ]);
+        $examPermission = Permission::create([
+            'name' => 'exams.view',
+            'label' => 'View exams',
+            'group' => 'exams',
+        ]);
 
-        $role->permissions()->attach($permission->id);
+        $role->permissions()->attach([$permission->id, $examPermission->id]);
 
         $teacher = User::factory()->create([
             'email' => 'teacher-' . Str::random(8) . '@test.local',
