@@ -66,7 +66,6 @@ final class LearningResourceController extends Controller
             'classroom_id' => ['nullable', 'integer'],
             'lesson_id' => ['nullable', 'integer'],
             'release_at' => ['nullable', 'date'],
-            'downloadable' => ['sometimes', 'boolean'],
         ]);
 
         $course = null;
@@ -139,7 +138,7 @@ final class LearningResourceController extends Controller
                     'resource_type' => $this->resourceType((string) $uploaded->mime_type),
                     'visibility' => 'enrolled_students',
                     'release_at' => $data['release_at'] ?? null,
-                    'downloadable' => (bool) ($data['downloadable'] ?? false),
+                    'downloadable' => false,
                     'status' => 'active',
                     'sort_order' => 0,
                 ]);
