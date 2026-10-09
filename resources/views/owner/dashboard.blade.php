@@ -71,6 +71,10 @@
                         <a href="{{ route('owner.showcase.index', $firstAcademy) }}" class="owner-btn ghost">
                             افتخارآفرینان و رضایتمندی
                         </a>
+
+                        <a href="{{ route('owner.orders.index', $firstAcademy) }}" class="owner-btn ghost">
+                            سفارش‌ها و رسیدها
+                        </a>
                     @endif
 
                     <a
