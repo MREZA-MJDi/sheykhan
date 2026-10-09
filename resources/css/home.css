@@ -119,7 +119,7 @@
     }
 
     :focus-visible {
-        outline: 3px solid rgba(86, 103, 232, .35);
+        outline: 3px solid rgba(40,100,232, .35);
         outline-offset: 3px;
     }
 }
@@ -154,7 +154,7 @@
     background:
         radial-gradient(
             circle at 82% 10%,
-            rgba(86, 103, 232, .13),
+            rgba(40,100,232, .13),
             transparent 30rem
         ),
         radial-gradient(
@@ -257,7 +257,7 @@
     background: var(--home-primary);
 
     box-shadow:
-        0 0 0 5px rgba(86, 103, 232, .1);
+        0 0 0 5px rgba(40,100,232, .1);
 }
 
 .home-hero h1 {
@@ -384,7 +384,7 @@
     background:
         radial-gradient(
             circle,
-            rgba(86, 103, 232, .22),
+            rgba(40,100,232, .22),
             transparent 65%
         );
 
@@ -569,7 +569,6 @@
     background:
         rgba(0,0,0,.25);
 
-    backdrop-filter: blur(12px);
 
     color: #fff;
 
@@ -778,83 +777,86 @@
    ========================================================= */
 
 .home-paths {
-    background: #fff;
-
-    border-block:
-        1px solid #e8ecf3;
+    padding-block: .85rem;
+    background: transparent;
+    border: 0;
 }
 
 .home-path-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(4,minmax(0,1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(.75rem, 1.5vw, 1.15rem);
+    align-items: stretch;
 }
 
 .home-path-grid a {
     position: relative;
-
-    min-height: 125px;
-
     display: flex;
+    min-width: 0;
+    min-height: 140px;
     flex-direction: column;
     justify-content: center;
-
-    gap: .4rem;
-
-    padding:
-        1.5rem;
-
-    border-inline-start:
-        1px solid #edf0f5;
-
-    transition:
-        background .25s ease,
-        transform .25s var(--home-ease);
+    gap: .55rem;
+    padding: 1.25rem 1.35rem 1.65rem;
+    border: 1px solid var(--home-border);
+    border-radius: var(--home-radius-lg);
+    background: #fff;
+    box-shadow: var(--home-shadow-sm);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 
-.home-path-grid a:first-child {
-    border-inline-start: 0;
-}
+
 
 .home-path-grid a:hover {
-    background:
-        #f8f9ff;
+    transform: translateY(-3px);
+    border-color: var(--home-primary-soft);
+    background: #fff;
+    box-shadow: var(--home-shadow-md);
 }
 
 .home-path-grid b {
-    font-size: .95rem;
-    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    color: var(--home-ink);
+    font-size: .98rem;
+    font-weight: 900;
+    letter-spacing: -.015em;
 }
 
+.home-path-grid b::before {
+    content: "";
+    width: .55rem;
+    height: .55rem;
+    flex: 0 0 .55rem;
+    border-radius: 3px;
+    background: var(--home-primary);
+}
+.home-path-grid a:nth-child(2) b::before { background: var(--home-teal); }
+.home-path-grid a:nth-child(3) b::before { background: var(--home-coral); }
+.home-path-grid a:nth-child(4) b::before { background: var(--home-gold); }
+
+
+
 .home-path-grid span {
-    max-width: 230px;
-
-    color:
-        var(--home-muted);
-
-    font-size: .74rem;
-    line-height: 1.8;
+    max-width: 25rem;
+    color: var(--home-muted);
+    font-size: .78rem;
+    line-height: 1.9;
 }
 
 .home-path-grid i {
     position: absolute;
-
-    left: 1.4rem;
-    bottom: 1.25rem;
-
-    color:
-        var(--home-primary);
-
+    inset-inline-end: auto;
+    inset-inline-start: 1.25rem;
+    bottom: 1.1rem;
+    color: var(--home-primary);
     font-style: normal;
-
-    transition:
-        transform .25s var(--home-ease);
+    font-weight: 900;
+    transition: transform .2s ease;
 }
 
-.home-path-grid a:hover i {
-    transform: translateX(-4px);
-}
+.home-path-grid a:hover i { transform: translateX(-3px); }
 
 /* =========================================================
    HEADINGS
@@ -1007,7 +1009,7 @@
     border: 1px solid rgba(236, 239, 247, .14);
     border-radius: 1.15rem;
     background:
-        radial-gradient(circle at 90% 0%, rgba(139, 124, 255, .15), transparent 55%),
+        radial-gradient(circle at 90% 0%, rgba(40,100,232, .15), transparent 55%),
         linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
     color: #f1f3f8;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
@@ -1027,7 +1029,7 @@
     transform: translateY(-6px);
     border-color: rgba(235,238,248,.32);
     background:
-        radial-gradient(circle at 90% 0%, rgba(139, 124, 255, .23), transparent 58%),
+        radial-gradient(circle at 90% 0%, rgba(40,100,232, .23), transparent 58%),
         linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.035));
     box-shadow: 0 20px 45px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.08);
 }
@@ -1156,7 +1158,7 @@
 
 .home-why-copy > span {
     color:
-        #8995ff;
+        #91b5ff;
 
     font-size: .76rem;
     font-weight: 800;
@@ -1185,7 +1187,7 @@
 }
 
 .home-why-copy em {
-    color: #8995ff;
+    color: #91b5ff;
     font-style: normal;
 }
 
@@ -1238,7 +1240,7 @@
 }
 
 .home-role-grid b {
-    color: #8995ff;
+    color: #91b5ff;
 
     font-size: .68rem;
 }
@@ -1307,7 +1309,7 @@
     transform: translateY(-5px);
 
     border-color:
-        #d8ddff;
+        #dce9ff;
 
     box-shadow:
         var(--home-shadow-md);
@@ -1428,7 +1430,7 @@
     transform: translateY(-5px);
 
     border-color:
-        #d8ddff;
+        #dce9ff;
 
     box-shadow:
         0 25px 60px rgba(83,98,223,.1);
@@ -1510,15 +1512,14 @@
 }
 
 .home-product-card img {
+    display: block;
     width: 100%;
-    height: 180px;
-
+    height: auto;
+    aspect-ratio: 4 / 3;
     object-fit: cover;
-
-    margin-bottom: .8rem;
-
-    border-radius:
-        var(--home-radius-md);
+    margin-bottom: .9rem;
+    border-radius: var(--home-radius-md);
+    background: #edf1f7;
 }
 
 .home-product-card span,
@@ -1644,8 +1645,8 @@
     background:
         linear-gradient(
             180deg,
-            #f0f3ff,
-            #f8f9ff
+            #eff5ff,
+            #f6f8ff
         );
 }
 
@@ -2008,12 +2009,10 @@
     .home-path-grid a:nth-child(3),
     .home-path-grid a:nth-child(4) {
         border-top:
-            1px solid #edf0f5;
+            1px solid var(--home-border);
     }
 
-    .home-path-grid a:nth-child(3) {
-        border-inline-start: 0;
-    }
+    
 
     .home-achievement-grid,
     .home-testimonial-grid {
@@ -2282,10 +2281,10 @@
 /* Hero gets the strongest visual treatment. */
 .home-hero {
     background:
-        radial-gradient(circle at 82% 12%, rgba(91,91,214,.14), transparent 28rem),
-        radial-gradient(circle at 8% 84%, rgba(14,159,154,.09), transparent 23rem),
+        radial-gradient(circle at 82% 12%, rgba(40,100,232,.14), transparent 28rem),
+        radial-gradient(circle at 8% 84%, rgba(27,154,99,.09), transparent 23rem),
         radial-gradient(circle at 54% 45%, rgba(201,150,50,.035), transparent 30rem),
-        linear-gradient(180deg, #fbfbff 0%, #fbfaf7 100%);
+        linear-gradient(180deg, #fbfbff 0%, #fbfbfd 100%);
 }
 
 .home-hero::after {
@@ -2294,7 +2293,7 @@
     inset: auto 0 0;
     height: 34%;
     pointer-events: none;
-    background: linear-gradient(180deg, transparent, rgba(91,91,214,.025));
+    background: linear-gradient(180deg, transparent, rgba(40,100,232,.025));
 }
 
 .home-hero h1 span {
@@ -2305,9 +2304,9 @@
 }
 
 .home-eyebrow {
-    border-color: rgba(91,91,214,.16);
+    border-color: rgba(40,100,232,.16);
     background: rgba(255,255,255,.76);
-    box-shadow: 0 8px 24px rgba(91,91,214,.06);
+    box-shadow: 0 8px 24px rgba(40,100,232,.06);
     backdrop-filter: blur(12px);
 }
 
@@ -2319,15 +2318,15 @@
 /* Hero visual: glossy glass, restrained glow, real hierarchy. */
 .home-hero-glow {
     background:
-        radial-gradient(circle at 35% 32%, rgba(91,91,214,.28), transparent 48%),
-        radial-gradient(circle at 72% 72%, rgba(14,159,154,.18), transparent 42%);
+        radial-gradient(circle at 35% 32%, rgba(40,100,232,.28), transparent 48%),
+        radial-gradient(circle at 72% 72%, rgba(27,154,99,.18), transparent 42%);
 }
 
 .home-hero-panel {
     border-color: rgba(255,255,255,.12);
     background:
         radial-gradient(circle at 84% 16%, rgba(125,125,230,.22), transparent 22rem),
-        radial-gradient(circle at 8% 86%, rgba(14,159,154,.12), transparent 17rem),
+        radial-gradient(circle at 8% 86%, rgba(27,154,99,.12), transparent 17rem),
         linear-gradient(145deg, #0a0f20 0%, #151a36 52%, #303884 100%);
     box-shadow:
         0 38px 100px rgba(24, 28, 68, .22),
@@ -2378,7 +2377,7 @@
 }
 
 .home-arrow {
-    background: linear-gradient(145deg, rgba(91,91,214,.30), rgba(14,159,154,.12));
+    background: linear-gradient(145deg, rgba(40,100,232,.30), rgba(27,154,99,.12));
     border: 1px solid rgba(255,255,255,.10);
 }
 
@@ -2391,18 +2390,18 @@
 
 .home-path-grid {
     overflow: hidden;
-    border-inline: 1px solid #ecece8;
+    border-inline: 1px solid #f5f7fb;
 }
 
 .home-path-grid a {
     min-height: 146px;
     padding: 1.35rem 1.5rem 1.55rem;
-    border-inline-start-color: #ecece8;
+    border-inline-start-color: #f5f7fb;
 }
 
 .home-path-grid a:hover {
     background:
-        radial-gradient(circle at 90% 12%, rgba(91,91,214,.07), transparent 8rem),
+        radial-gradient(circle at 90% 12%, rgba(40,100,232,.07), transparent 8rem),
         #fbfbf9;
 }
 
@@ -2434,7 +2433,7 @@
     color: var(--home-primary);
     font-size: .68rem;
     font-weight: 900;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 8px 18px rgba(91,91,214,.07);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 8px 18px rgba(40,100,232,.07);
 }
 
 .home-path-icon.is-teal {
@@ -2510,7 +2509,7 @@
     border-color: #d9dde8;
     box-shadow:
         0 22px 48px rgba(18,24,39,.09),
-        0 0 0 1px rgba(91,91,214,.03);
+        0 0 0 1px rgba(40,100,232,.03);
 }
 
 .edu-card img {
@@ -2581,7 +2580,7 @@
     gap: .42rem;
     min-width: 0;
     padding: .42rem 0;
-    border-top: 1px solid #ecefe9;
+    border-top: 1px solid #f5f7fb;
     color: var(--home-ink-soft);
     font-size: .67rem;
     font-weight: 700;
@@ -2614,14 +2613,14 @@
 .home-teacher-avatar {
     position: relative;
     box-shadow:
-        0 0 0 5px rgba(91,91,214,.055),
-        0 14px 30px rgba(91,91,214,.08);
+        0 0 0 5px rgba(40,100,232,.055),
+        0 14px 30px rgba(40,100,232,.08);
 }
 
 .home-teacher-card:hover .home-teacher-avatar {
     box-shadow:
-        0 0 0 6px rgba(14,159,154,.08),
-        0 18px 36px rgba(14,159,154,.11);
+        0 0 0 6px rgba(27,154,99,.08),
+        0 18px 36px rgba(27,154,99,.11);
 }
 
 .home-teacher-card h3 {
@@ -2636,7 +2635,7 @@
 /* Live classes = status-focused, not decorative. */
 .home-live-grid .edu-card {
     background:
-        radial-gradient(circle at 92% 9%, rgba(14,159,154,.055), transparent 9rem),
+        radial-gradient(circle at 92% 9%, rgba(27,154,99,.055), transparent 9rem),
         #fff;
 }
 
@@ -2649,7 +2648,7 @@
 .home-blog {
     background:
         radial-gradient(circle at 8% 18%, rgba(201,150,50,.055), transparent 18rem),
-        linear-gradient(180deg, #fbfaf7 0%, #f7f7f4 100%);
+        linear-gradient(180deg, #fbfbfd 0%, #f7f7f4 100%);
     border-block: 1px solid #e7e9e4;
 }
 
@@ -2659,11 +2658,10 @@
     min-height: 100%;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid #e2e6ea;
+    border: 1px solid #e5e9f1;
     border-radius: var(--home-radius-xl);
-    background: rgba(255,255,255,.82);
+    background: #fff;
     box-shadow: 0 10px 30px rgba(18,24,39,.045);
-    backdrop-filter: blur(10px);
     transition: transform .35s var(--home-ease), border-color .35s ease, box-shadow .35s ease;
 }
 
@@ -2698,8 +2696,8 @@
     height: 100%;
     place-items: center;
     background:
-        radial-gradient(circle at 25% 22%, rgba(91,91,214,.34), transparent 34%),
-        radial-gradient(circle at 82% 82%, rgba(14,159,154,.24), transparent 34%),
+        radial-gradient(circle at 25% 22%, rgba(40,100,232,.34), transparent 34%),
+        radial-gradient(circle at 82% 82%, rgba(27,154,99,.24), transparent 34%),
         linear-gradient(135deg, #151a39, #4e4fb7);
     color: #fff;
     font-size: 2rem;
@@ -2806,7 +2804,7 @@
 /* Store and academy get their own accents so the long Home page has rhythm. */
 .home-store-card {
     background:
-        radial-gradient(circle at 88% 10%, rgba(91,91,214,.08), transparent 10rem),
+        radial-gradient(circle at 88% 10%, rgba(40,100,232,.08), transparent 10rem),
         linear-gradient(145deg, #fff, #f8f8f5);
 }
 
@@ -2826,7 +2824,7 @@
 }
 
 .home-product-card {
-    background: linear-gradient(180deg, #fff, #fbfbf8);
+    background: linear-gradient(180deg, #fff, #fbfcff);
 }
 
 .home-product-card strong {
@@ -2869,8 +2867,8 @@
 /* Dark sections get colored lights instead of flat navy. */
 .home-dark {
     background:
-        radial-gradient(circle at 10% 14%, rgba(91,91,214,.18), transparent 20rem),
-        radial-gradient(circle at 88% 88%, rgba(14,159,154,.10), transparent 22rem),
+        radial-gradient(circle at 10% 14%, rgba(40,100,232,.18), transparent 20rem),
+        radial-gradient(circle at 88% 88%, rgba(27,154,99,.10), transparent 22rem),
         linear-gradient(135deg, #090e1c 0%, #11182f 54%, #202b57 100%);
 }
 
@@ -2934,8 +2932,8 @@
 .home-cta {
     background:
         radial-gradient(circle at 88% 14%, rgba(255,255,255,.16), transparent 16rem),
-        radial-gradient(circle at 10% 90%, rgba(14,159,154,.16), transparent 14rem),
-        linear-gradient(135deg, #37358f 0%, #5b5bd6 55%, #0e9f9a 130%);
+        radial-gradient(circle at 10% 90%, rgba(27,154,99,.16), transparent 14rem),
+        linear-gradient(135deg, #1f50c7 0%, #2864e8 55%, #0e9f9a 130%);
     box-shadow:
         0 32px 78px rgba(55,53,143,.22),
         inset 0 1px 0 rgba(255,255,255,.10);
@@ -2944,7 +2942,9 @@
 /* Small screens preserve hierarchy rather than shrinking everything. */
 @media (max-width: 640px) {
     .home-path-grid {
-        border-inline: 0;
+        grid-template-columns: minmax(0, 1fr);
+        gap: .75rem;
+        border: 0;
     }
 
     .home-path-grid a {
@@ -2991,7 +2991,7 @@
 }
 
 .home-glass-nav a:hover {
-    background: rgba(91,91,214,.065);
+    background: rgba(40,100,232,.065);
 }
 
 .home-glass-nav .bg-\[var\(--color-slate-900\)\] {
@@ -3003,8 +3003,8 @@
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(circle at 90% 10%, rgba(91,91,214,.055), transparent 17rem),
-        linear-gradient(180deg, #fbfaf7 0%, #f2f3ef 100%);
+        radial-gradient(circle at 90% 10%, rgba(40,100,232,.055), transparent 17rem),
+        linear-gradient(180deg, #fbfbfd 0%, #f2f3ef 100%);
 }
 
 .sheykhan-site > #app > footer::before {
@@ -3012,7 +3012,7 @@
     position: absolute;
     inset: 0 0 auto;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(91,91,214,.34), rgba(14,159,154,.34), transparent);
+    background: linear-gradient(90deg, transparent, rgba(40,100,232,.34), rgba(27,154,99,.34), transparent);
 }
 
 .sheykhan-site > #app > footer .bg-\[var\(--color-slate-900\)\] {
@@ -3079,7 +3079,7 @@
     min-height: 100%;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid #e2e6ea;
+    border: 1px solid #e5e9f1;
     border-radius: 1.45rem;
     background: linear-gradient(180deg, #ffffff 0%, #fbfbf7 100%);
     box-shadow: 0 10px 28px rgba(18,24,39,.045);
@@ -3108,8 +3108,8 @@
     aspect-ratio: 4 / 3;
     place-items: center;
     background:
-        radial-gradient(circle at 22% 20%, rgba(91,91,214,.18), transparent 34%),
-        linear-gradient(135deg, #f0f3ff, #edf8f7);
+        radial-gradient(circle at 22% 20%, rgba(40,100,232,.18), transparent 34%),
+        linear-gradient(135deg, #eff5ff, #edf8f7);
     color: var(--home-primary);
     font-size: 1.8rem;
     font-weight: 900;
@@ -3144,7 +3144,7 @@
     gap: .75rem;
     margin: auto 1.15rem 1.15rem;
     padding-top: .85rem;
-    border-top: 1px solid #ecefe9;
+    border-top: 1px solid #f5f7fb;
     color: var(--home-primary);
     font-size: .68rem;
     font-weight: 900;
@@ -3168,8 +3168,8 @@
 
 .home-academy-card {
     background:
-        radial-gradient(circle at 90% 8%, rgba(91,91,214,.055), transparent 9rem),
-        linear-gradient(180deg, #fff, #fbfbf8);
+        radial-gradient(circle at 90% 8%, rgba(40,100,232,.055), transparent 9rem),
+        linear-gradient(180deg, #fff, #fbfcff);
 }
 
 .home-academy-item {
@@ -3322,13 +3322,13 @@
     display: inline-flex;
     align-items: center;
     gap: .5rem;
-    color: var(--home-primary-dark, #37358f);
+    color: var(--home-primary-dark, #1f50c7);
     font-size: .85rem;
     font-weight: 900;
     text-decoration: none;
 }
 .home-banner-link span { transition: transform .2s ease; }
-.home-banner-link:hover { color: var(--home-primary, #5b5bd6); }
+.home-banner-link:hover { color: var(--home-primary, #2864e8); }
 .home-banner-link:hover span { transform: translateX(-3px); }
 .home-banner-link:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: .2rem; }
 

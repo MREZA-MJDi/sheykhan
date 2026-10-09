@@ -129,7 +129,8 @@
                     <article class="home-post-card">
                         <a href="{{ route('blog.show', $post->slug) }}" class="home-post-media" aria-label="مطالعه {{ $post->title }}">
                             @if($postImage)
-                                <img src="{{ $postImage }}" alt="{{ $post->title }}" loading="lazy">
+                                <img src="{{ $postImage }}" alt="{{ $post->title }}" loading="lazy"
+ decoding="async">
                             @else
                                 <div class="home-post-placeholder" aria-hidden="true">
                                     <span>ش</span>
@@ -305,7 +306,8 @@
                     @foreach($productCards as $product)
                         <a href="{{ $product['href'] }}" class="home-product-card">
                             @if($product['image'])
-                                <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" loading="lazy">
+                                <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" loading="lazy"
+ decoding="async">
                             @else
                                 <span class="home-product-placeholder" aria-hidden="true">ش</span>
                             @endif
@@ -386,7 +388,8 @@
                 @forelse($achievementCards as $achievement)
                     <article class="home-achievement-card">
                         @if($achievement['image'])
-                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy">
+                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy"
+ decoding="async">
                         @endif
                         <div>
                             <span>{{ $achievement['type'] }}</span>
@@ -417,7 +420,8 @@
                 @forelse($testimonialCards as $testimonial)
                     <article class="home-testimonial-card">
                         @if($testimonial['image'])
-                            <img src="{{ $testimonial['image'] }}" alt="" loading="lazy">
+                            <img src="{{ $testimonial['image'] }}" alt="" loading="lazy"
+ decoding="async">
                         @endif
                         <p>«{{ $testimonial['text'] }}»</p>
                         @if($testimonial['audio'])

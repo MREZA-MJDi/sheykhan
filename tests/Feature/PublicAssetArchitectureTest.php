@@ -46,7 +46,7 @@ class PublicAssetArchitectureTest extends TestCase
 
         $this->assertSame(1, substr_count($sharedStyles, '@font-face'));
         $this->assertStringContainsString('Vazirmatn[wght].woff2', $sharedStyles);
-        $this->assertStringContainsString('font-weight:100 900', str_replace(' ', '', $sharedStyles));
+        $this->assertStringContainsString('font-weight:100900', str_replace(' ', '', $sharedStyles));
         $this->assertStringNotContainsString('@font-face', $panelBase);
         $this->assertStringNotContainsString('@font-face', $homeStyles);
     }
