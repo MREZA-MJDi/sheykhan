@@ -31,8 +31,18 @@ class LearningSeeder extends Seeder
     {
         $academy=Academy::where('slug','sheykhan-academy')->firstOrFail();
         $owner=User::where('email','owner@sheykhan.test')->firstOrFail();
-        $teachers=User::whereIn('email',['teacher.math@sheykhan.test','teacher.science@sheykhan.test','teacher.gifted@sheykhan.test'])->get()->keyBy('email');
-        $students=User::whereIn('email',['student.armin@sheykhan.test','student.nika@sheykhan.test','student.parsa@sheykhan.test','student.ava@sheykhan.test','student.matin@sheykhan.test','student.tara@sheykhan.test'])->get()->keyBy('email');
+        $teacherEmails = ['teacher.math@sheykhan.test', 'teacher.science@sheykhan.test', 'teacher.gifted@sheykhan.test'];
+        $studentEmails = ['student.armin@sheykhan.test', 'student.nika@sheykhan.test', 'student.parsa@sheykhan.test', 'student.ava@sheykhan.test', 'student.matin@sheykhan.test', 'student.tara@sheykhan.test'];
+        $primaryTeacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $primaryStudent = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        // In local/demo seeding, map the sample workflows to the single demo login per role.
+        // In testing, the dedicated fixtures above remain available for role/grade coverage.
+        $teachers = collect($teacherEmails)->mapWithKeys(fn (string $email) => [
+            $email => User::where('email', $email)->first() ?? $primaryTeacher,
+        ]);
+        $students = collect($studentEmails)->mapWithKeys(fn (string $email) => [
+            $email => User::where('email', $email)->first() ?? $primaryStudent,
+        ]);
         $grades=AcademicGrade::get()->keyBy('code');
         $year=AcademicYear::where('title','1405-1406')->firstOrFail();
 
