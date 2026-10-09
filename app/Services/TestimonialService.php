@@ -20,6 +20,7 @@ class TestimonialService
                 ->with([
                     'media' => fn ($query) => $query
                         ->where('visibility', 'public')
+                        ->where('status', 'active')
                         ->orderByPivot('sort_order'),
                 ])
                 ->orderBy('sort_order')
