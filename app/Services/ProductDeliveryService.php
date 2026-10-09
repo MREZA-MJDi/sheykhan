@@ -187,7 +187,7 @@ final class ProductDeliveryService
         }
 
         $escaped = str_replace(['\\', '(', ')', "\r", "\n"], ['\\\\', '\\(', '\\)', ' ', ' '], $watermark);
-        $postScript = '<< /EndPage { exch pop 0 eq { gsave 0.72 setgray /Helvetica findfont 12 scalefont setfont 36 24 moveto (' .
+        $postScript = '<< /EndPage { 2 eq { pop false } { pop gsave 0.72 setgray /Helvetica findfont 12 scalefont setfont 36 24 moveto (' .
             $escaped .
             ') show grestore true } { true } ifelse } bind >> setpagedevice';
 
