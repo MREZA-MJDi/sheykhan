@@ -61,7 +61,7 @@
     background: #93c5fd;
     box-shadow: 0 0 0 5px rgba(147, 197, 253, .16), 0 0 22px rgba(147, 197, 253, .48);
 }
-.sheykhan-home-hero h1 {
+.sheykhan-home-hero__title {
     max-width: 100%;
     margin: 0;
     color: #fff;
@@ -74,7 +74,7 @@
     text-shadow: 0 4px 34px rgba(0, 0, 0, .28);
 }
 .sheykhan-home-hero h1 { overflow-wrap: anywhere; }
-.sheykhan-home-hero h1 span {
+.sheykhan-home-hero__title span {
     color: #93c5fd;
     text-shadow: 0 0 34px rgba(96, 165, 250, .24);
 }
