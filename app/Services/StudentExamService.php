@@ -100,7 +100,7 @@ final class StudentExamService
 
     public function submit(User $student, ExamAttempt $attempt, array $answers): ExamAttempt
     {
-        return DB::transaction(function () use ($student, $attempt, $answers): ExamAttempt {
+        $result = DB::transaction(function () use ($student, $attempt, $answers): array {
             $attempt = ExamAttempt::query()
                 ->with(['exam.questions'])
                 ->lockForUpdate()
@@ -110,14 +110,26 @@ final class StudentExamService
             abort_unless($attempt->status === 'in_progress', 422);
 
             $exam = $attempt->exam;
-            abort_unless(app(StudentAccessService::class)->exam($student, $exam), 404);
+            $studentCanAccessExam = app(StudentAccessService::class)->exam($student, $exam);
+            $timedOut = $this->hasTimedOut($attempt, $exam);
+            $examIsOpen = $this->isOpen($exam);
 
-            if ($this->hasTimedOut($attempt, $exam)) {
+            if (!$studentCanAccessExam || !$examIsOpen || $timedOut) {
                 $attempt->status = 'submitted';
                 $attempt->submitted_at = now();
                 $attempt->save();
 
-                throw ValidationException::withMessages(['exam' => 'زمان آزمون شما به پایان رسیده است. پاسخ‌ها ثبت نشدند.']);
+                // Commit the final state before surfacing a validation error.
+                // Throwing inside the transaction would roll this state change back.
+                $message = !$studentCanAccessExam
+                    ? ($exam->status !== 'published'
+                        ? 'این آزمون توسط مدرس بسته شده است. پاسخ‌ها ثبت نشدند.'
+                        : 'دسترسی شما به این آزمون دیگر فعال نیست. پاسخ‌ها ثبت نشدند.')
+                    : ($timedOut
+                        ? 'زمان آزمون شما به پایان رسیده است. پاسخ‌ها ثبت نشدند.'
+                        : 'این آزمون در حال حاضر باز نیست.');
+
+                return ['failure' => $message, 'attempt' => $attempt];
             }
 
             $questionById = $exam->questions->keyBy('id');
@@ -166,8 +178,19 @@ final class StudentExamService
             $attempt->submitted_at = now();
             $attempt->save();
 
-            return $attempt->load(['exam.questions', 'answers']);
+            return [
+                'failure' => null,
+                'attempt' => $attempt->load(['exam.questions', 'answers']),
+            ];
         });
+
+        if ($result['failure'] !== null) {
+            throw ValidationException::withMessages([
+                'exam' => $result['failure'],
+            ]);
+        }
+
+        return $result['attempt'];
     }
 
     public function isOpen(Exam $exam): bool
