@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Academy;
 use App\Models\BlogPost;
 use App\Models\Course;
+use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\SeoMeta;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
