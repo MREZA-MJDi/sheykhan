@@ -63,68 +63,69 @@ final class HomeBannerController extends Controller
                 $mediaService,
                 &$uploadedFiles
             ): void {
-            for ($slot = 1; $slot <= 3; $slot++) {
-                $data = $payload[$slot] ?? $payload[(string) $slot] ?? [];
-                $banner = HomeBanner::query()->firstOrNew([
-                    'academy_id' => $academy->id,
-                    'slot' => $slot,
-                ]);
-
-                if (!$banner->exists && empty($data)) {
-                    continue;
-                }
-
-                if (!empty($data['image'])) {
-                    $newMedia = $mediaService->upload(
-                        $data['image'],
-                        $academy,
-                        [
-                            'disk' => config('filesystems.default', 'local'),
-                            'directory' => 'academies/' . $academy->id . '/home-banners',
-                            'collection' => 'home-banners',
-                            'visibility' => 'public',
-                        ],
-                    );
-
-                    $uploadedFiles[] = [
-                        'disk' => $newMedia->disk,
-                        'path' => $newMedia->path,
-                    ];
-
-                    $banner->media_id = $newMedia->id;
-                } elseif (!empty($data['media_id'])) {
-                    $mediaId = (int) $data['media_id'];
-
-                    if (!in_array($mediaId, $attachedMediaIds, true)) {
-                        abort(422, 'بنر انتخاب‌شده متعلق به این آموزشگاه نیست.');
+                for ($slot = 1; $slot <= 3; $slot++) {
+                    $data = $payload[$slot] ?? $payload[(string) $slot] ?? [];
+                    $banner = HomeBanner::query()->firstOrNew([
+                        'academy_id' => $academy->id,
+                        'slot' => $slot,
+                    ]);
+    
+                    if (!$banner->exists && empty($data)) {
+                        continue;
                     }
-
-                    $media = Media::query()
-                        ->whereKey($mediaId)
-                        ->where('visibility', 'public')
-                        ->where('status', 'active')
-                        ->where('mime_type', 'like', 'image/%')
-                        ->first();
-
-                    abort_unless($media, 422);
-                    $banner->media_id = $media->id;
+    
+                    if (!empty($data['image'])) {
+                        $newMedia = $mediaService->upload(
+                            $data['image'],
+                            $academy,
+                            [
+                                'disk' => config('filesystems.default', 'local'),
+                                'directory' => 'academies/' . $academy->id . '/home-banners',
+                                'collection' => 'home-banners',
+                                'visibility' => 'public',
+                            ],
+                        );
+    
+                        $uploadedFiles[] = [
+                            'disk' => $newMedia->disk,
+                            'path' => $newMedia->path,
+                        ];
+    
+                        $banner->media_id = $newMedia->id;
+                    } elseif (!empty($data['media_id'])) {
+                        $mediaId = (int) $data['media_id'];
+    
+                        if (!in_array($mediaId, $attachedMediaIds, true)) {
+                            abort(422, 'بنر انتخاب‌شده متعلق به این آموزشگاه نیست.');
+                        }
+    
+                        $media = Media::query()
+                            ->whereKey($mediaId)
+                            ->where('visibility', 'public')
+                            ->where('status', 'active')
+                            ->where('mime_type', 'like', 'image/%')
+                            ->first();
+    
+                        abort_unless($media, 422);
+                        $banner->media_id = $media->id;
+                    }
+    
+                    if (!$banner->media_id) {
+                        $banner->is_active = false;
+                    } else {
+                        $banner->title = $data['title'] ?? null;
+                        $banner->description = $data['description'] ?? null;
+                        $banner->cta_label = $data['cta_label'] ?? null;
+                        $banner->cta_url = $data['cta_url'] ?? null;
+                        $banner->sort_order = $slot;
+                        $banner->crop_x = (int) ($data['crop_x'] ?? 50);
+                        $banner->crop_y = (int) ($data['crop_y'] ?? 50);
+                        $banner->is_active = (bool) ($data['is_active'] ?? false);
+                    }
+    
+                    $banner->save();
                 }
-
-                if (!$banner->media_id) {
-                    $banner->is_active = false;
-                } else {
-                    $banner->title = $data['title'] ?? null;
-                    $banner->description = $data['description'] ?? null;
-                    $banner->cta_label = $data['cta_label'] ?? null;
-                    $banner->cta_url = $data['cta_url'] ?? null;
-                    $banner->sort_order = $slot;
-                    $banner->crop_x = (int) ($data['crop_x'] ?? 50);
-                    $banner->crop_y = (int) ($data['crop_y'] ?? 50);
-                    $banner->is_active = (bool) ($data['is_active'] ?? false);
-                }
-
-                $banner->save();
-            }
+    
             });
         } catch (Throwable $exception) {
             // Database rollback does not remove files written to the filesystem.
