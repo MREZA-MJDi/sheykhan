@@ -115,7 +115,7 @@ class PublicSeoOutputTest extends TestCase
             ->assertSee('property="og:title" content="' . e($meta->og_title) . '"', false)
             ->assertSee('property="og:image" content="' . e($meta->og_image_url) . '"', false)
             ->assertSee('name="twitter:card" content="summary_large_image"', false)
-            ->assertSee(\\App\\Support\\PersianUi::money(250000), false);
+            ->assertSee(\App\Support\PersianUi::money(250000), false);
     }
 
     public function test_robots_and_sitemap_are_real_public_endpoints(): void
