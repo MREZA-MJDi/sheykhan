@@ -100,7 +100,7 @@
                                     خرید و دریافت امن
                                 </a>
                             @else
-                                <a href="{{ route('login', ['redirect' => route('checkout.show', $product)]) }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl bg-[var(--color-primary-600)] px-5 text-sm font-black text-white shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-700)]">
+                                <a href="{{ route('checkout.show', $product) }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl bg-[var(--color-primary-600)] px-5 text-sm font-black text-white shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-700)]">
                                     ورود برای خرید
                                 </a>
                             @endauth
