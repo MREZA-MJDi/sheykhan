@@ -176,10 +176,18 @@
         resizeHandler();
         window.addEventListener('resize', resizeHandler, { passive: true });
         keyHandler = (event) => {
-            if (event.key === 'Escape') finish();
+            if (event.key === 'Escape') {
+                finish();
+                return;
+            }
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                skipButton?.focus({ preventScroll: true });
+            }
         };
         document.addEventListener('keydown', keyHandler);
         skipButton?.addEventListener('click', finish);
+        skipButton?.focus({ preventScroll: true });
 
         animationFrame = window.requestAnimationFrame(draw);
         timer = window.setTimeout(finish, duration);

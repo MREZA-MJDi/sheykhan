@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TiamirIntroTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_tiamir_intro_is_present_on_home_and_not_on_other_public_pages(): void
     {
         $this->withoutVite();

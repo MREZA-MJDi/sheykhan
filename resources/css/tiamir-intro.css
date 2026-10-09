@@ -264,8 +264,7 @@
     font-weight: 700;
     letter-spacing: .14em;
     cursor: pointer;
-    opacity: 0;
-    animation: tiamir-ui-arrive .72s ease-out 3.1s forwards;
+    opacity: 1;
     transition: border-color .2s ease, color .2s ease, background .2s ease;
 }
 .tiamir-intro__skip svg { width: 14px; height: 14px; transition: transform .2s ease; }
