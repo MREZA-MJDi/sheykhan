@@ -39,6 +39,13 @@ final class OwnerSeoService
             ->limit(50)
             ->get();
 
+        $products = Product::query()
+            ->whereHas('academy', fn ($query) => $query->where('owner_id', $owner->id))
+            ->with(['academy:id,name', 'seoMeta'])
+            ->orderByDesc('updated_at')
+            ->limit(50)
+            ->get();
+
         $items = $academies->map(fn (Academy $academy) => $this->mapItem(
             $academy,
             'academy',
@@ -71,11 +78,22 @@ final class OwnerSeoService
             ))
         );
 
+        $items = $items->concat(
+            $products->map(fn (Product $product) => $this->mapItem(
+                $product,
+                'product',
+                $product->title,
+                $product->seoMeta,
+                $product->academy?->name
+            ))
+        );
+
         return [
             'academies' => $academies,
             'courses' => $courses,
             'contents' => $contents,
             'posts' => $posts,
+            'products' => $products,
             'items' => $items->values(),
             'stats' => [
                 'total' => $items->count(),
@@ -100,6 +118,11 @@ final class OwnerSeoService
                 ->firstOrFail(),
 
             'content' => AcademyContent::query()
+                ->whereKey($id)
+                ->whereHas('academy', fn ($query) => $query->where('owner_id', $owner->id))
+                ->firstOrFail(),
+
+            'product' => Product::query()
                 ->whereKey($id)
                 ->whereHas('academy', fn ($query) => $query->where('owner_id', $owner->id))
                 ->firstOrFail(),
