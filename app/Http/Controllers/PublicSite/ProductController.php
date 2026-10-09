@@ -22,11 +22,13 @@ final class ProductController extends Controller
                     ->where('visibility', 'public')
                     ->where('status', 'active')
                     ->orderByPivot('sort_order'),
+                'seoMeta',
             ])
             ->firstOrFail();
 
         return view('pages.store.show', [
             'product' => $product,
+            'seoMeta' => $product->seoMeta,
         ]);
     }
 }
