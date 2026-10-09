@@ -6,6 +6,7 @@ use App\Models\Academy;
 use App\Models\Course;
 use App\Models\AcademyContent;
 use App\Models\BlogPost;
+use App\Models\Product;
 use App\Models\User;
 
 final class OwnerSeoService
