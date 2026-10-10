@@ -52,7 +52,7 @@
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
                                         <strong class="break-words">{{ $item->product_title_snapshot }}</strong>
-                                        <p class="mt-1 text-xs text-[var(--color-text-muted)]">{{ \\App\\Support\\PersianUi::money($item->total_price) }}</p>
+                                        <p class="mt-1 text-xs text-[var(--color-text-muted)]">{{ \App\Support\PersianUi::money($item->total_price) }}</p>
                                     </div>
                                     <span class="inline-flex rounded-full px-3 py-1.5 text-xs font-bold {{ $order->status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800' }}">
                                         {{ $order->status === 'paid' ? 'دسترسی فعال' : 'قفل تا تأیید پرداخت' }}
