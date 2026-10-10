@@ -80,6 +80,8 @@ jobs:
           coverage: none
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Lint PHP source files
+        run: find app bootstrap config database routes tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Prepare SQLite database
         if: matrix.database == 'sqlite'
         run: |
