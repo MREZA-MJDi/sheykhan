@@ -139,7 +139,7 @@ final class OrderReviewController extends Controller
                     409,
                     'دسترسی این دانش‌آموز به دوره قبلاً فعال شده است.'
                 );
-                abort_unless($course->isPublished() && $course->academy?->status === 'active', 409);
+                abort_unless($course->isPublished() && $course->academy()->where('status', 'active')->exists(), 409);
 
                 $enrollment = CourseEnrollment::query()->firstOrNew([
                     'course_id' => $course->id,
