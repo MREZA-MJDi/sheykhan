@@ -1,10 +1,6 @@
 name: Sheykhan Readiness
 
 on:
-  push:
-    branches:
-      - main
-      - audit/production-readiness-8-checks-2026-10-10
   pull_request:
     branches:
       - main
@@ -12,10 +8,6 @@ on:
 
 permissions:
   contents: read
-
-concurrency:
-  group: sheykhan-readiness-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: false
 
 jobs:
   frontend-build:
