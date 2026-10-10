@@ -1,13 +1,13 @@
 <?php
 
-namespace App\\Http\\Controllers\\Commerce;
+namespace App\Http\Controllers\Commerce;
 
-use App\\Http\\Controllers\\Controller;
-use App\\Models\\CourseEnrollment;
-use App\\Models\\ProductEntitlement;
-use App\\Services\\StudentAccessService;
-use Illuminate\\Http\\Request;
-use Illuminate\\View\\View;
+use App\Http\Controllers\Controller;
+use App\Models\CourseEnrollment;
+use App\Models\ProductEntitlement;
+use App\Services\StudentAccessService;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 final class LibraryController extends Controller
 {
