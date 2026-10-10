@@ -3792,3 +3792,309 @@
     .teacher-card__photo { transform: none !important; }
 }
 
+
+
+
+/* =========================================================
+   SHEYKHAN PUBLIC EXPERIENCE — VISUAL SYSTEM LAYER
+   Distinct editorial sections, tactile cards, clear hierarchy.
+========================================================= */
+.home-heading {
+    align-items:flex-end;
+    gap:22px;
+    margin-bottom:clamp(20px,3vw,30px);
+}
+.home-heading > div > span {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color:#6554d9;
+    font-size:10px;
+    font-weight:950;
+    letter-spacing:.025em;
+}
+.home-heading > div > span::before {
+    content:"";
+    width:18px;
+    height:2px;
+    border-radius:10px;
+    background:linear-gradient(90deg,#22a8a3,#7d68e5);
+}
+.home-heading h2 {
+    max-width:780px;
+    font-size:clamp(22px,3vw,34px);
+    line-height:1.65;
+    letter-spacing:-.035em;
+    text-wrap:pretty;
+}
+.home-heading p {
+    max-width:680px;
+    margin-top:7px;
+    color:#778398;
+    font-size:clamp(11px,1vw,13px);
+    line-height:2.05;
+}
+.home-heading > a {
+    display:inline-flex;
+    flex:0 0 auto;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    min-height:40px;
+    padding:0 13px;
+    border:1px solid #e4e5f7;
+    border-radius:12px;
+    background:rgba(255,255,255,.78);
+    color:#5b4acb;
+    font-size:11px;
+    font-weight:950;
+    text-decoration:none;
+    transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.home-heading > a:hover {
+    transform:translateY(-2px);
+    border-color:#d3cdfb;
+    background:#fff;
+    box-shadow:0 9px 22px rgba(71,64,157,.09);
+}
+.home-paths .home-path-grid { gap:12px; }
+.home-paths .home-path-grid > a {
+    position:relative;
+    min-height:120px;
+    overflow:hidden;
+    padding:21px 20px;
+    border:1px solid rgba(220,226,238,.92);
+    border-radius:19px;
+    background:
+        radial-gradient(circle at 95% 5%,rgba(111,96,220,.08),transparent 9rem),
+        linear-gradient(145deg,rgba(255,255,255,.98),rgba(248,250,255,.96));
+    box-shadow:0 8px 25px rgba(25,40,71,.035);
+    transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.home-paths .home-path-grid > a::after {
+    content:"";
+    position:absolute;
+    width:76px;
+    height:76px;
+    inset-inline-end:-28px;
+    bottom:-42px;
+    border:1px solid rgba(102,84,217,.14);
+    border-radius:50%;
+    box-shadow:0 0 0 11px rgba(102,84,217,.035);
+    pointer-events:none;
+}
+.home-paths .home-path-grid > a:hover {
+    transform:translateY(-4px);
+    border-color:#d4cff9;
+    box-shadow:0 17px 34px rgba(29,42,78,.085);
+}
+.home-paths .home-path-grid > a b {
+    position:relative;
+    z-index:1;
+    color:#24324a;
+    font-size:15px;
+    font-weight:950;
+}
+.home-paths .home-path-grid > a span {
+    position:relative;
+    z-index:1;
+    max-width:90%;
+    color:#778398;
+    font-size:11px;
+    line-height:1.9;
+}
+.home-paths .home-path-grid > a i {
+    position:relative;
+    z-index:1;
+    display:inline-grid;
+    place-items:center;
+    width:30px;
+    height:30px;
+    border:1px solid #e5e0ff;
+    border-radius:10px;
+    background:#f2efff;
+    color:#6554d9;
+    font-size:15px;
+    font-style:normal;
+    transition:transform .2s ease;
+}
+.home-paths .home-path-grid > a:hover i { transform:translateX(-3px); }
+
+.home-section { position:relative; }
+.home-section:not(.home-dark):not(.home-trust) .home-heading { position:relative; }
+.home-course-grid > *, .home-post-grid > *, .home-teacher-grid > *,
+.home-live-grid > *, .home-store-grid > *, .home-achievement-grid > *,
+.home-testimonial-grid > * { min-width:0; }
+.home-course-grid .edu-card,
+.public-course-grid .edu-card {
+    overflow:hidden;
+    border:1px solid #e5e9f2;
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 8px 28px rgba(24,40,74,.045);
+    transition:transform .24s cubic-bezier(.2,.7,.2,1),border-color .24s ease,box-shadow .24s ease;
+}
+.home-course-grid .edu-card:hover,
+.public-course-grid .edu-card:hover {
+    transform:translateY(-5px);
+    border-color:#d8d3fb;
+    box-shadow:0 22px 45px rgba(26,40,78,.105);
+}
+.home-course-grid .edu-card > a > div:first-child,
+.public-course-grid .edu-card > a > div:first-child { background:#e9edf7; }
+.home-course-grid .edu-card img,
+.public-course-grid .edu-card img { transition:transform .55s cubic-bezier(.2,.7,.2,1); }
+.home-post-card {
+    overflow:hidden;
+    border:1px solid #e5e9f1;
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 8px 26px rgba(24,40,74,.04);
+    transition:transform .23s ease,border-color .23s ease,box-shadow .23s ease;
+}
+.home-post-card:hover {
+    transform:translateY(-4px);
+    border-color:#dad4fb;
+    box-shadow:0 18px 38px rgba(25,39,73,.09);
+}
+.home-post-media { background:#e8ecf5; }
+.home-post-media img { transition:transform .55s cubic-bezier(.2,.7,.2,1); }
+.home-post-card:hover .home-post-media img { transform:scale(1.045); }
+.home-banner-card {
+    overflow:hidden;
+    border:1px solid rgba(225,230,240,.9);
+    border-radius:24px;
+    background:#fff;
+    box-shadow:0 12px 35px rgba(23,37,70,.06);
+    transition:transform .22s ease,box-shadow .22s ease;
+}
+.home-banner-card:hover { transform:translateY(-3px); box-shadow:0 21px 42px rgba(23,37,70,.11); }
+.home-banner-media { background:#e7ebf4; }
+.home-banner-media img { transition:transform .65s cubic-bezier(.2,.7,.2,1); }
+.home-banner-card:hover .home-banner-media img { transform:scale(1.035); }
+
+.home-store-card {
+    position:relative;
+    overflow:hidden;
+    min-height:178px;
+    border:1px solid #e5e8f1;
+    border-radius:21px;
+    background:
+        radial-gradient(circle at 98% 2%,rgba(88,71,201,.11),transparent 9rem),
+        linear-gradient(145deg,#fff,#f9faff);
+    box-shadow:0 8px 25px rgba(27,42,74,.035);
+    transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.home-store-card:hover {
+    transform:translateY(-4px);
+    border-color:#d5cff9;
+    box-shadow:0 18px 36px rgba(27,42,74,.09);
+}
+.home-store-card > b {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:34px;
+    height:34px;
+    border-radius:11px;
+    background:#eeebff;
+    color:#6554d9;
+    font-size:11px;
+    font-weight:950;
+}
+.home-store-card > strong { margin-top:15px; color:#26334c; font-size:16px; font-weight:950; }
+.home-store-card > span { color:#7c879b; font-size:11px; line-height:1.95; }
+.home-product-card {
+    overflow:hidden;
+    border:1px solid #e4e8f0;
+    border-radius:19px;
+    background:#fff;
+    box-shadow:0 7px 24px rgba(25,40,74,.04);
+    transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+}
+.home-product-card:hover { transform:translateY(-4px); border-color:#d6d0fb; box-shadow:0 18px 38px rgba(25,40,74,.095); }
+.home-product-card > img,.home-product-placeholder { background:#e8edf5; }
+.home-product-card > img { transition:transform .55s cubic-bezier(.2,.7,.2,1); }
+.home-product-card:hover > img { transform:scale(1.045); }
+
+.home-academy-card {
+    position:relative;
+    overflow:hidden;
+    border:1px solid #e5e8f2;
+    border-radius:20px;
+    background:linear-gradient(145deg,#fff,#f9faff);
+    box-shadow:0 7px 23px rgba(26,40,73,.035);
+}
+.home-academy-card > span { color:#6655d3; font-size:10px; font-weight:950; }
+.home-academy-card > h3 { color:#27344c; font-size:15px; font-weight:950; }
+.home-academy-item {
+    border:1px solid #edf0f6;
+    border-radius:13px;
+    background:rgba(255,255,255,.82);
+    transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+a.home-academy-item:hover { transform:translateX(-2px); border-color:#d8d2fc; background:#fff; }
+.home-academy-item > b {
+    display:inline-flex;
+    width:max-content;
+    padding:4px 7px;
+    border-radius:7px;
+    background:#eeebff;
+    color:#5d4bc9;
+    font-size:9px;
+    font-weight:950;
+}
+.home-achievement-card {
+    overflow:hidden;
+    border:1px solid rgba(227,232,242,.95);
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 9px 25px rgba(24,40,75,.045);
+    transition:transform .22s ease,box-shadow .22s ease;
+}
+.home-achievement-card:hover { transform:translateY(-4px); box-shadow:0 19px 38px rgba(24,40,75,.10); }
+.home-achievement-card img { background:#e8edf5; }
+.home-achievement-card > div > span { color:#7a63d9; font-weight:950; }
+.home-achievement-card h3 { color:#26344c; font-weight:950; }
+.home-achievement-card small { color:#748197; line-height:1.9; }
+.home-testimonial-card {
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:22px;
+    background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.045));
+    box-shadow:0 15px 34px rgba(8,17,37,.12);
+    backdrop-filter:blur(9px);
+}
+.home-testimonial-card > p { color:rgba(255,255,255,.84); line-height:2.15; }
+.home-testimonial-card > strong { color:#fff; font-weight:950; }
+.home-testimonial-card > span { color:rgba(255,255,255,.58); }
+.home-testimonial-card audio,.home-testimonial-card video { border-radius:12px; }
+.home-empty-state {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    min-height:108px;
+    gap:8px;
+    padding:22px 24px;
+    border:1px dashed #d8deea;
+    border-radius:18px;
+    background:linear-gradient(135deg,#fff,#f8faff);
+    color:#7c8799;
+}
+.home-empty-state strong { color:#384760; font-size:12px; font-weight:950; }
+.home-empty-state span { color:#8b95a6; font-size:11px; line-height:1.9; }
+
+@media (max-width: 720px) {
+    .home-heading { align-items:flex-start; flex-direction:column; gap:12px; }
+    .home-heading > a { min-height:38px; }
+    .home-paths .home-path-grid > a { min-height:106px; border-radius:16px; }
+    .home-course-grid .edu-card,.public-course-grid .edu-card,.home-post-card { border-radius:18px; }
+    .home-store-card { min-height:150px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .home-paths .home-path-grid > a,.home-course-grid .edu-card,.public-course-grid .edu-card,
+    .home-post-card,.home-banner-card,.home-store-card,.home-product-card,.home-achievement-card { transition:none !important; }
+    .home-paths .home-path-grid > a:hover,.home-course-grid .edu-card:hover,.public-course-grid .edu-card:hover,
+    .home-post-card:hover,.home-banner-card:hover,.home-store-card:hover,.home-product-card:hover,.home-achievement-card:hover { transform:none; }
+}

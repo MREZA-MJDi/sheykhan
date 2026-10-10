@@ -367,3 +367,106 @@ select.course-input{padding-inline-end:36px}
 @media(prefers-reduced-motion:reduce){
     .owner-focus-status span.has-alert{animation:none}
 }
+
+/* SHEYKHAN ROLE VISUAL SIGNATURE */
+
+/* OWNER — control room, not a generic dashboard */
+.owner-dashboard .owner-hero {
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:30px;
+    background:
+        radial-gradient(circle at 88% 13%,rgba(77,215,197,.24),transparent 18rem),
+        radial-gradient(circle at 8% 100%,rgba(156,114,255,.23),transparent 21rem),
+        linear-gradient(118deg,#172941 0%,#2e3c70 55%,#147c83 100%);
+    box-shadow:0 24px 58px rgba(20,37,66,.19);
+}
+.owner-dashboard .owner-hero::after {
+    content:"";
+    position:absolute;
+    z-index:-1;
+    width:300px;height:300px;
+    inset-inline-end:-115px;bottom:-190px;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:50%;
+    box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 65px rgba(255,255,255,.025);
+    pointer-events:none;
+}
+.owner-dashboard .owner-kicker { color:#c3e7e8; }
+.owner-dashboard .owner-hero-copy h1 { color:#fff; letter-spacing:-.035em; text-wrap:pretty; }
+.owner-dashboard .owner-hero-copy p { color:rgba(255,255,255,.77); line-height:2.05; }
+.owner-dashboard .owner-hero-actions .owner-btn {
+    border-radius:12px;
+    box-shadow:0 9px 24px rgba(12,22,47,.16);
+    transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.owner-dashboard .owner-hero-actions .owner-btn:hover { transform:translateY(-2px); box-shadow:0 14px 28px rgba(12,22,47,.2); }
+.owner-dashboard .owner-hero-art { isolation:isolate; }
+.owner-dashboard .owner-orb { filter:blur(1px); opacity:.72; }
+.owner-dashboard .owner-hero-stat {
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:17px;
+    background:rgba(255,255,255,.09);
+    box-shadow:0 12px 28px rgba(12,22,47,.13);
+    backdrop-filter:blur(13px);
+}
+.owner-dashboard .owner-stats { gap:13px; }
+.owner-dashboard .owner-stat-card {
+    position:relative;
+    overflow:hidden;
+    border:1px solid #e5e9f1;
+    border-radius:20px;
+    background:linear-gradient(145deg,#fff,#fafbff);
+    box-shadow:0 8px 25px rgba(27,42,74,.04);
+    transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.owner-dashboard .owner-stat-card::before {
+    content:"";
+    position:absolute;
+    inset:0 0 auto;
+    height:3px;
+    background:linear-gradient(90deg,#6c5ce7,#31a8a2);
+    opacity:.8;
+}
+.owner-dashboard .owner-stat-card:nth-child(2)::before { background:linear-gradient(90deg,#17a986,#7acb9b); }
+.owner-dashboard .owner-stat-card:nth-child(3)::before { background:linear-gradient(90deg,#e1a44d,#ed7a74); }
+.owner-dashboard .owner-stat-card:nth-child(4)::before { background:linear-gradient(90deg,#4d91d8,#6c5ce7); }
+.owner-dashboard .owner-stat-card:hover {
+    transform:translateY(-3px);
+    border-color:#d6d1fb;
+    box-shadow:0 17px 35px rgba(25,40,73,.085);
+}
+.owner-dashboard .owner-panel {
+    border:1px solid #e5e9f1;
+    border-radius:22px;
+    background:rgba(255,255,255,.96);
+    box-shadow:0 9px 28px rgba(25,40,73,.045);
+}
+.owner-dashboard .owner-panel-head h2 { letter-spacing:-.025em; }
+.owner-dashboard .owner-focus-card {
+    border:1px solid rgba(255,255,255,.17);
+    border-radius:22px;
+    background:linear-gradient(112deg,#312f67,#4c4b96 58%,#277f86);
+    box-shadow:0 16px 35px rgba(52,51,120,.15);
+}
+.owner-dashboard .owner-focus-copy { color:#fff; }
+.owner-dashboard .owner-focus-copy p,.owner-dashboard .owner-focus-kicker { color:rgba(255,255,255,.75); }
+.owner-dashboard .owner-focus-actions a {
+    border-radius:11px;
+    transition:transform .18s ease,box-shadow .18s ease;
+}
+.owner-dashboard .owner-focus-actions a:hover { transform:translateY(-2px); }
+.owner-dashboard .owner-teacher-row,.owner-dashboard .owner-live-row,.owner-dashboard .owner-course-row {
+    transition:background .18s ease,border-color .18s ease;
+}
+.owner-dashboard :is(a,button):focus-visible { outline:3px solid rgba(98,83,216,.36); outline-offset:3px; }
+@media(max-width:700px) {
+    .owner-dashboard .owner-hero { border-radius:22px; }
+    .owner-dashboard .owner-panel { border-radius:18px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .owner-dashboard .owner-stat-card,.owner-dashboard .owner-hero-actions .owner-btn { transition:none !important; }
+    .owner-dashboard .owner-stat-card:hover,.owner-dashboard .owner-hero-actions .owner-btn:hover { transform:none; }
+}

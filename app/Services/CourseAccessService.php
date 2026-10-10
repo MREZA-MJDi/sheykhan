@@ -19,10 +19,7 @@ final class CourseAccessService
             return false;
         }
 
-        if (
-            $user->hasAnyRole(['student', 'parent'])
-            && !$this->academyMember($user, $course->academy_id)
-        ) {
+        if ($user->hasRole('student') && ! $this->academyMember($user, $course->academy_id)) {
             return false;
         }
 
@@ -40,7 +37,9 @@ final class CourseAccessService
     public function canDownload(User $user, Course $course): bool
     {
         // Purchasing a protected course grants learning access, not file download rights.
-        if ($user->hasRole('student')) {
+        // Neither students nor parents can download course media as a raw file.
+        // Parents monitor progress; students consume lessons inside the protected viewer.
+        if ($user->hasAnyRole(['student', 'parent'])) {
             return false;
         }
 
@@ -70,14 +69,30 @@ final class CourseAccessService
     private function parentCanAccess(User $user, Course $course): bool
     {
         if ($course->isFree()) {
-            return $user->children()->exists();
+            // Family access follows a child's actual enrollment in this course;
+            // the mere existence of a linked child is not an entitlement.
+            return $this->eligibleEnrolledChild($user, $course)
+                ->whereHas('enrollments', fn ($query) => $query
+                    ->where('course_id', $course->id)
+                    ->active())
+                ->exists();
         }
 
-        return $user->children()
+        return $this->eligibleEnrolledChild($user, $course)
             ->whereHas('enrollments', fn ($query) => $query
                 ->where('course_id', $course->id)
                 ->fullyPaid())
             ->exists();
+    }
+
+    private function eligibleEnrolledChild(User $parent, Course $course)
+    {
+        return $parent->children()
+            ->whereHas('roles', fn ($roles) => $roles->where('slug', 'student'))
+            ->whereHas('academies', fn ($academies) => $academies
+                ->where('academies.id', $course->academy_id)
+                ->where('academy_user.role', 'student')
+                ->where('academy_user.status', 'active'));
     }
 
     private function isAcademyOwner(User $user, Course $course): bool

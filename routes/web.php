@@ -83,7 +83,11 @@ Route::middleware(['auth','active'])->group(function () {
         ->middleware('permission:media.download')
         ->name('media.download');
 
-    Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'show'])->name('checkout.show');
+        Route::get('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'show'])->name('checkout.course.show');
+    Route::post('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.course.store');
+    Route::get('/library', [\App\Http\Controllers\Commerce\LibraryController::class, 'index'])->name('library.index');
+
+Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'show'])->name('checkout.show');
     Route::post('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
     Route::get('/orders/{order}', [\App\Http\Controllers\Commerce\OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/payment-proof', [\App\Http\Controllers\Commerce\OrderController::class, 'uploadProof'])->middleware('throttle:5,1')->name('orders.proof.store');

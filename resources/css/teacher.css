@@ -883,3 +883,167 @@
 .teacher-focus-action,.teacher-panel-link,.teacher-board-head>a{transition:background .18s ease,color .18s ease,transform .18s ease}
 .teacher-focus-action:hover,.teacher-panel-link:hover{transform:translateX(-2px)}
 @media(max-width:640px){.teacher-welcome-copy{padding:24px 20px}.teacher-welcome-visual{min-height:190px}.teacher-visual-main{right:8%;top:22px}.teacher-visual-small{right:auto;left:6%;bottom:12px}}
+
+
+/* Make the dashboard explain what its chart measures, not only what it is called. */
+.teacher-chart-method {
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    border-inline-start: 3px solid #d9d4fb;
+    border-radius: 10px;
+    background: #faf9ff;
+    color: #657087;
+    font-size: 11px;
+    line-height: 1.9;
+}
+@media (max-width: 640px) {
+    .teacher-chart-method {
+        padding: 9px 11px;
+        font-size: 10px;
+    }
+}
+
+/* SHEYKHAN ROLE VISUAL SIGNATURE */
+
+/* TEACHER — calm, focused workspace with purposeful visual hierarchy */
+.teacher-shell { background-color:#f5f7fc; }
+.teacher-dashboard .teacher-welcome-card {
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:29px;
+    background:
+        radial-gradient(circle at 90% 8%,rgba(67,212,190,.2),transparent 17rem),
+        radial-gradient(circle at 0% 95%,rgba(161,126,255,.23),transparent 21rem),
+        linear-gradient(117deg,#1b2b43 0%,#3c3e7d 61%,#1c7d85 100%);
+    box-shadow:0 22px 50px rgba(33,42,83,.18);
+}
+.teacher-dashboard .teacher-welcome-kicker { color:#c8e3ee; }
+.teacher-dashboard .teacher-welcome-copy h1 { color:#fff; letter-spacing:-.035em; text-wrap:pretty; }
+.teacher-dashboard .teacher-welcome-copy p { color:rgba(255,255,255,.78); line-height:2.1; }
+.teacher-dashboard .teacher-primary-btn { border-radius:12px; box-shadow:0 10px 23px rgba(17,24,55,.19); transition:transform .18s ease,box-shadow .18s ease; }
+.teacher-dashboard .teacher-primary-btn:hover { transform:translateY(-2px); box-shadow:0 15px 29px rgba(17,24,55,.24); }
+.teacher-dashboard .teacher-visual-card {
+    border:1px solid rgba(255,255,255,.21);
+    border-radius:17px;
+    background:rgba(255,255,255,.11);
+    box-shadow:0 15px 30px rgba(12,20,47,.14);
+    backdrop-filter:blur(12px);
+}
+.teacher-dashboard .teacher-visual-card span,.teacher-dashboard .teacher-visual-card small { color:rgba(255,255,255,.72); }
+.teacher-dashboard .teacher-visual-card strong { color:#fff; }
+.teacher-dashboard .teacher-stat {
+    border:1px solid #e5e9f2;
+    border-radius:18px;
+    background:linear-gradient(145deg,#fff,#fafbff);
+    box-shadow:0 7px 22px rgba(25,40,74,.04);
+}
+.teacher-dashboard .teacher-stat-copy small { color:#8490a3; line-height:1.85; }
+.teacher-dashboard .teacher-panel,.teacher-dashboard .teacher-task-board,.teacher-dashboard .teacher-people-panel {
+    border:1px solid #e4e9f2;
+    border-radius:21px;
+    background:rgba(255,255,255,.96);
+    box-shadow:0 9px 27px rgba(27,42,74,.045);
+}
+.teacher-dashboard .teacher-panel-head h2,.teacher-dashboard .teacher-board-head h2 { letter-spacing:-.025em; text-wrap:pretty; }
+.teacher-dashboard .teacher-chart {
+    border:1px solid #edf0f6;
+    border-radius:16px;
+    background:linear-gradient(180deg,#fff,#fbfcff);
+}
+.teacher-dashboard .teacher-bars .teacher-bar {
+    border-radius:8px 8px 3px 3px;
+    background:linear-gradient(180deg,#39b8b1 0%,#6c5ce7 100%);
+    box-shadow:0 5px 12px rgba(78,82,187,.13);
+    transition:height .35s cubic-bezier(.2,.7,.2,1),filter .18s ease;
+}
+.teacher-dashboard .teacher-bars .teacher-bar:hover { filter:saturate(1.3) brightness(1.05); }
+.teacher-dashboard .teacher-progress-track { overflow:hidden; border-radius:99px; background:#edf0f7; }
+.teacher-dashboard .teacher-progress-track span { border-radius:inherit; background:linear-gradient(90deg,#26a99e,#6d5ce7); }
+.teacher-dashboard .teacher-person-card {
+    border:1px solid #edf0f6;
+    background:linear-gradient(135deg,#fff,#f8faff);
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.teacher-dashboard .teacher-person-card:hover { transform:translateY(-2px); border-color:#dcd7fb; box-shadow:0 10px 22px rgba(35,47,87,.07); }
+.teacher-dashboard :is(a,button):focus-visible { outline:3px solid rgba(101,84,217,.35); outline-offset:3px; }
+@media(max-width:700px) {
+    .teacher-dashboard .teacher-welcome-card { border-radius:22px; }
+    .teacher-dashboard .teacher-panel,.teacher-dashboard .teacher-task-board,.teacher-dashboard .teacher-people-panel { border-radius:17px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .teacher-dashboard .teacher-primary-btn,.teacher-dashboard .teacher-person-card,.teacher-dashboard .teacher-bars .teacher-bar { transition:none !important; }
+    .teacher-dashboard .teacher-primary-btn:hover,.teacher-dashboard .teacher-person-card:hover { transform:none; }
+}
+
+
+
+/* Optional profile-cover editor: show a real preview, never force a stock blue banner. */
+.teacher-cover-editor {
+    display:grid;
+    grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);
+    align-items:center;
+    gap:22px;
+    margin:20px 0;
+    padding:18px;
+    border:1px solid #e6eaf2;
+    border-radius:22px;
+    background:linear-gradient(135deg,#fff,#f9faff);
+}
+.teacher-cover-preview {
+    position:relative;
+    min-height:170px;
+    aspect-ratio:16/7;
+    overflow:hidden;
+    border:1px solid #e4e9f2;
+    border-radius:17px;
+    background:
+        radial-gradient(circle at 83% 8%,rgba(41,180,177,.23),transparent 9rem),
+        radial-gradient(circle at 6% 100%,rgba(115,94,224,.22),transparent 10rem),
+        linear-gradient(130deg,#20364f,#5652a0 64%,#227e87);
+}
+.teacher-cover-preview img { width:100%; height:100%; position:absolute; inset:0; object-fit:cover; }
+.teacher-cover-preview-label {
+    position:absolute; inset-inline-start:12px; inset-block-start:12px;
+    padding:6px 9px; border:1px solid rgba(255,255,255,.25); border-radius:999px;
+    background:rgba(18,28,53,.52); color:#fff; font-size:9px; font-weight:900; backdrop-filter:blur(10px);
+}
+.teacher-cover-placeholder {
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    padding:clamp(18px,3vw,30px); color:#fff; isolation:isolate;
+}
+.teacher-cover-placeholder::before {
+    content:""; position:absolute; z-index:-1; width:180px; height:180px;
+    inset-inline-end:-65px; bottom:-120px; border:1px solid rgba(255,255,255,.28); border-radius:50%;
+    box-shadow:0 0 0 18px rgba(255,255,255,.04),0 0 0 42px rgba(255,255,255,.025);
+}
+.teacher-cover-placeholder > span { color:rgba(255,255,255,.7); font-size:10px; font-weight:900; }
+.teacher-cover-placeholder > strong { max-width:90%; margin-top:5px; color:#fff; font-size:clamp(17px,2.4vw,25px); font-weight:950; line-height:1.65; }
+.teacher-cover-placeholder > small { max-width:340px; margin-top:6px; color:rgba(255,255,255,.74); font-size:10px; line-height:1.9; }
+.teacher-cover-placeholder > i { position:absolute; inset-inline-end:20px; top:12px; color:rgba(255,255,255,.65); font-size:24px; font-style:normal; font-weight:950; }
+.teacher-cover-editor-copy h2 { margin:6px 0 0; color:#26354d; font-size:18px; font-weight:950; }
+.teacher-cover-editor-copy p { margin:6px 0 13px; color:#7d899d; font-size:11px; line-height:2; }
+.teacher-cover-editor-copy > small { display:block; margin-top:9px; color:#929caf; font-size:9px; line-height:1.9; }
+@media(max-width:800px) {
+    .teacher-cover-editor { grid-template-columns:minmax(0,1fr); gap:15px; padding:14px; border-radius:18px; }
+    .teacher-cover-preview { min-height:145px; }
+}
+
+
+.teacher-cover-remove {
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    margin-top:12px;
+    color:#8d5964;
+    font-size:10px;
+    font-weight:850;
+    line-height:1.9;
+    cursor:pointer;
+}
+.teacher-cover-remove input {
+    width:16px;
+    height:16px;
+    flex:0 0 auto;
+    margin-top:3px;
+    accent-color:#b9475d;
+}
