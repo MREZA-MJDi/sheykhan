@@ -152,6 +152,13 @@ class CourseCheckoutFlowTest extends TestCase
         $this->assertSame('paid', $enrollment->payment_status);
         $this->assertGreaterThanOrEqual((int) $item->unit_price, (int) $enrollment->paid_amount);
         $this->assertTrue(app(CourseAccessService::class)->canAccess($student, $course));
+
+        $this->actingAs($student)
+            ->get(route('library.index'))
+            ->assertOk()
+            ->assertSee($course->title)
+            ->assertSee('ادامه یادگیری');
+
         $this->assertDatabaseHas('financial_transactions', [
             'enrollment_id' => $enrollment->id,
             'type' => 'enrollment_payment',
@@ -202,4 +209,73 @@ class CourseCheckoutFlowTest extends TestCase
 
         return [$academy, $course, $student];
     }
+
+    public function test_parent_library_lists_a_paid_course_for_the_selected_child(): void
+    {
+        Storage::fake('local');
+        config(['services.sheykhan_transfer' => [
+            'bank_name' => 'بانک آزمون',
+            'account_holder' => 'آکادمی شیخان',
+            'iban' => 'IR000000000000000000000000',
+            'account_number' => '',
+        ]]);
+
+        [$academy, $course, $student] = $this->preparedCourseAndStudent();
+        $parent = User::query()->where('email', 'parent.armin@sheykhan.test')->firstOrFail();
+
+        $this->actingAs($parent)->post(route('checkout.course.store', $course), [
+            'billing_name' => $parent->name,
+            'billing_mobile' => '09120000000',
+            'beneficiary_id' => $student->id,
+            'consents' => LegalDocument::query()->whereIn('code', ['purchase-terms', 'copyright'])
+                ->pluck('id')->mapWithKeys(fn ($id) => [$id => '1'])->all(),
+        ])->assertRedirect();
+
+        $order = Order::query()->where('buyer_id', $parent->id)->firstOrFail();
+        $item = $order->items()->firstOrFail();
+        $payment = $order->payments()->firstOrFail();
+
+        Storage::disk('local')->put('orders/parent-course-proof.jpg', 'proof');
+        $proof = Media::query()->create([
+            'uploaded_by' => $parent->id,
+            'disk' => 'local',
+            'path' => 'orders/parent-course-proof.jpg',
+            'original_name' => 'proof.jpg',
+            'file_name' => 'parent-course-proof.jpg',
+            'mime_type' => 'image/jpeg',
+            'extension' => 'jpg',
+            'size' => 5,
+            'checksum' => hash('sha256', 'proof'),
+            'visibility' => 'private',
+            'collection' => 'payment-proof',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $payment->update(['proof_media_id' => $proof->id, 'proof_uploaded_at' => now()]);
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $this->actingAs($owner)->post(
+            route('owner.orders.confirm', [$academy, $order, $payment]),
+            [
+                'tracking_code' => 'BANK-PARENT-' . Str::upper(Str::random(6)),
+                'review_note' => 'تطبیق با صورت‌حساب بانکی',
+                'bank_statement_checked' => '1',
+            ]
+        )->assertRedirect();
+
+        $this->assertDatabaseHas('course_enrollments', [
+            'course_id' => $course->id,
+            'student_id' => $student->id,
+            'payment_status' => 'paid',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('library.index'))
+            ->assertOk()
+            ->assertSee($course->title)
+            ->assertSee($student->name);
+    }
+
+
 }
