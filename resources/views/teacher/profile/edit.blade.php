@@ -39,9 +39,17 @@
                     <p>یک تصویر واضح و حرفه‌ای انتخاب کن؛ این تصویر در صفحه معرفی عمومی مدرس نمایش داده می‌شود.</p>
                     <label class="teacher-upload-btn">
                         انتخاب تصویر
-                        <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp,image/avif">
+                        <input
+                            type="file"
+                            name="avatar"
+                            accept="image/jpeg,image/png,image/webp,image/avif"
+                            aria-describedby="teacher-avatar-help"
+                        >
                     </label>
-                    <small>JPG، PNG، WEBP یا AVIF · حداکثر ۳ مگابایت</small>
+                    <small id="teacher-avatar-help">
+                        JPG، PNG، WEBP یا AVIF · حداکثر ۳ مگابایت.
+                        این تصویر به‌عنوان آواتار شما در فهرست مدرس‌ها و صفحه معرفی عمومی نمایش داده می‌شود.
+                    </small>
                 </div>
             </div>
 
