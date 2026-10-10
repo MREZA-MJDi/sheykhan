@@ -315,7 +315,7 @@
                                                     <p class="mt-1 text-xs leading-6 text-[var(--color-warning-700)]/80">
                                                         ثبت سفارش یا بارگذاری رسید به‌تنهایی دسترسی را فعال نمی‌کند. پس از تطبیق واقعی وجه توسط آموزشگاه، دوره در کتابخانه‌ی دانش‌آموز قرار می‌گیرد.
                                                     </p>
-                                                    @if(auth()->user()->hasAnyRole(['student', 'parent']))
+                                                    @if(auth()->check() && auth()->user()->hasAnyRole(['student', 'parent']))
                                                         <a href="{{ route('checkout.course.show', $course) }}" class="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-primary-600)] px-4 text-xs font-black text-white">خرید دوره و فعال‌سازی دسترسی <span class="ms-2" aria-hidden="true">←</span></a>
                                                     @else
                                                         <p class="mt-3 text-xs leading-6 text-[var(--color-text-muted)]">خرید مستقیم برای حساب دانش‌آموز یا والد انجام می‌شود.</p>
