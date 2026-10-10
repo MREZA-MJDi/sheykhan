@@ -21,6 +21,7 @@ final class HomeHeroService
 
         return [
             'image' => $image ?? self::DEFAULT_IMAGE,
+            'defaultImage' => self::DEFAULT_IMAGE,
             'mobileImage' => $mobileImage,
             'cropX' => $settings?->crop_x ?? 50,
             'cropY' => $settings?->crop_y ?? 46,
