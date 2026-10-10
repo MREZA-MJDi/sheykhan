@@ -125,6 +125,11 @@
 
                 <div class="mt-3 border-t border-[var(--color-border)] pt-3">
                     @auth
+                        @if(auth()->user()->hasAnyRole(['student', 'parent']))
+                            <a href="{{ route('library.index') }}" @click="isOpen = false" class="mb-2 flex min-h-11 items-center justify-center rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-4 text-sm font-bold text-[var(--color-primary-700)]">
+                                کتابخانه من
+                            </a>
+                        @endif
                         <a href="{{ route('dashboard') }}" @click="isOpen = false" class="site-navbar__cta flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
                             ورود به داشبورد
                         </a>
