@@ -30,9 +30,13 @@ class CourseController extends Controller
     ): View {
         $course = $service->findPublished($course);
 
-        $canAccessContent = $request->user()
+        $hasCourseEntitlement = $request->user()
             ? $access->canAccess($request->user(), $course)
             : false;
+        $parentCourseEntitlement = (bool) ($request->user()?->hasRole('parent') && $hasCourseEntitlement);
+        // A parent can monitor the child's paid enrollment, but private lesson
+        // media should only be hydrated for the learner's own account.
+        $canAccessContent = $hasCourseEntitlement && ! $parentCourseEntitlement;
 
         if ($canAccessContent) {
             $course->load([
@@ -46,6 +50,7 @@ class CourseController extends Controller
         return view('pages.courses.show', [
             'course' => $course,
             'canAccessContent' => $canAccessContent,
+            'parentCourseEntitlement' => $parentCourseEntitlement,
             'requiresPayment' => $course->requiresPayment(),
             'seoMeta' => $course->seoMeta,
         ]);
