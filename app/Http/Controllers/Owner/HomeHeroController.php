@@ -147,7 +147,13 @@ final class HomeHeroController extends Controller
 
     private function ensureOwnerHasWorkspace($owner, OwnerWorkspaceService $workspace): void
     {
-        abort_unless($workspace->academies($owner)->isNotEmpty(), 403);
+        // The public homepage is a platform-wide surface. Only the owner of the
+        // canonical platform academy may change it; academy owners still manage
+        // their own three lower-page banner slots through the existing screen.
+        $canManagePublicSite = $workspace->academies($owner)
+            ->contains(fn (Academy $academy): bool => $academy->slug === 'sheykhan-academy');
+
+        abort_unless($canManagePublicSite, 403);
     }
 
     private function deleteReplacedHeroMedia(array $mediaIds, MediaService $mediaService): void
