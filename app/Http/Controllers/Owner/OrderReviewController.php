@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
+use App\Models\User;
+use App\Models\FinancialTransaction;
+use App\Models\CourseEnrollment;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\ProductEntitlement;
