@@ -22,6 +22,37 @@
                 </div>
             </header>
 
+            @if($pendingOrders->isNotEmpty())
+                <section class="public-library-section public-library-orders" aria-labelledby="pending-orders-title">
+                    <div class="public-section-heading">
+                        <div>
+                            <span>خریدهای در جریان</span>
+                            <h2 id="pending-orders-title">سفارش‌های منتظر تأیید</h2>
+                            <p>رسید یا ثبت سفارش به‌تنهایی دسترسی نمی‌سازد. از این‌جا وضعیت پرداخت را پیگیری کن.</p>
+                        </div>
+                    </div>
+                    <div class="public-library-orders-list">
+                        @foreach($pendingOrders as $order)
+                            @php($pendingItem = $order->items->first())
+                            @php($pendingTitle = $pendingItem?->product_title_snapshot ?: ($pendingItem?->course?->title ?: ($pendingItem?->product?->title ?: 'محتوای سفارش')))
+                            @php($proofRejected = $order->payments->contains(fn ($payment) => $payment->status === 'rejected'))
+                            <article class="public-library-order-row">
+                                <div class="public-library-order-mark" aria-hidden="true">{{ $proofRejected ? '!' : '◷' }}</div>
+                                <div class="public-library-order-copy">
+                                    <span>{{ $proofRejected ? 'رسید نیاز به بررسی دوباره دارد' : 'در انتظار تطبیق پرداخت' }}</span>
+                                    <h3>{{ $pendingTitle }}</h3>
+                                    <p>سفارش {{ $order->order_number }} · {{ App\Support\PersianUi::money($order->total) }}</p>
+                                </div>
+                                <a href="{{ route('orders.show', $order) }}" class="public-library-order-action">
+                                    {{ $proofRejected ? 'بررسی سفارش و رسید' : 'پیگیری سفارش' }}
+                                    <span aria-hidden="true">←</span>
+                                </a>
+                            </article>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+
             @if($isParent)
                 <section class="public-library-section" aria-labelledby="family-courses-title">
                     <div class="public-section-heading"><div><span>دسترسی‌های خانوادگی</span><h2 id="family-courses-title">دوره‌های فرزندان</h2><p>پس از تأیید سفارش، هر دوره به حساب دانش‌آموز دریافت‌کننده اضافه می‌شود.</p></div><a href="{{ route('parent.dashboard') }}">پیگیری فرزندان <span aria-hidden="true">←</span></a></div>
