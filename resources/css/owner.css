@@ -291,6 +291,51 @@ select.course-input{padding-inline-end:36px}
 @media(max-width:520px){.owner-seo-row{grid-template-columns:1fr}.owner-seo-row .course-action-btn{width:100%}.owner-seo-status{justify-self:start}}
 
 
+
+/* =========================================================
+   SHARED OWNER FORMS
+   One responsive system for content, blog, SEO, resources,
+   products, showcase, legal documents and order workflows.
+========================================================= */
+.owner-form-shell{width:100%;max-width:1500px;min-width:0;margin-inline:auto}
+.owner-form-shell:not(.space-y-6){display:grid;gap:18px}
+.owner-form-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;min-width:0;padding:23px 25px;border:1px solid var(--panel-border);border-radius:22px;background:linear-gradient(135deg,#fff,#f8f9ff);box-shadow:var(--panel-shadow-soft)}
+.owner-form-head>div{min-width:0}
+.owner-form-head>div>span{display:inline-flex;align-items:center;gap:6px;color:var(--panel-primary);font-size:9px;font-weight:900}
+.owner-form-head h1{margin:5px 0 0;color:#20293b;font-size:clamp(20px,2.2vw,28px);font-weight:900;line-height:1.6}
+.owner-form-head p{max-width:70ch;margin:6px 0 0;color:var(--panel-muted);font-size:10px;line-height:1.95}
+.owner-form-head>a{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid var(--panel-border);border-radius:12px;background:#fff;color:#586478;font-size:10px;font-weight:900;text-decoration:none;transition:border-color .18s ease,color .18s ease,background .18s ease}
+.owner-form-head>a:hover{border-color:color-mix(in srgb,var(--panel-primary) 30%,var(--panel-border));background:var(--panel-primary-soft);color:var(--panel-primary)}
+.owner-form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,320px);align-items:start;gap:18px;min-width:0}
+.owner-form-section{display:grid;gap:14px;min-width:0;padding:22px;border:1px solid var(--panel-border);border-radius:20px;background:#fff;box-shadow:var(--panel-shadow-soft)}
+.owner-form-section.space-y-3>:not([hidden]),.owner-form-section.space-y-4>:not([hidden]),.owner-form-section.space-y-5>:not([hidden]),.owner-form-section.space-y-6>:not([hidden]){margin-block:0}
+.owner-form-section h2{min-width:0;margin:0;padding-bottom:11px;border-bottom:1px solid #eef0f5;color:#293347;font-size:14px;font-weight:900;line-height:1.8}
+.owner-form-section label{display:grid;gap:7px;min-width:0;color:#344054;font-size:10px;font-weight:800;line-height:1.7}
+.owner-form-section label>span{display:block;min-width:0}
+.owner-form-section label small,.owner-form-section>small{display:block;color:var(--panel-muted);font-size:9px;font-weight:500;line-height:1.9}
+.owner-form-section input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]):not([type=submit]):not([type=button]),.owner-form-section select,.owner-form-section textarea{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;min-height:45px;padding:10px 12px;border:1px solid #dfe4ed;border-radius:12px;background:#fff;color:#253044;font:inherit;font-size:11px;line-height:1.8;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.owner-form-section textarea{min-height:100px;resize:vertical}
+.owner-form-section input::placeholder,.owner-form-section textarea::placeholder{color:#a6aebc}
+.owner-form-section input:focus,.owner-form-section select:focus,.owner-form-section textarea:focus{outline:0;border-color:color-mix(in srgb,var(--panel-primary) 55%,#fff);box-shadow:0 0 0 3px color-mix(in srgb,var(--panel-primary) 11%,transparent)}
+.owner-form-section input[aria-invalid=true],.owner-form-section select[aria-invalid=true],.owner-form-section textarea[aria-invalid=true]{border-color:var(--panel-danger)}
+.owner-form-section input[type=file]{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:9px;border:1px dashed #cfd6e4;border-radius:12px;background:#fafbfc;color:#667085;font-size:9px}
+.owner-form-section input[type=file]::file-selector-button{margin-inline-end:9px;padding:7px 10px;border:0;border-radius:8px;background:var(--panel-primary-soft);color:var(--panel-primary);font:inherit;font-weight:900;cursor:pointer}
+.owner-form-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+.owner-form-two>*{min-width:0}
+.owner-form-side{position:sticky;top:96px;display:grid;align-content:start;gap:14px;min-width:0}
+.owner-form-side .owner-form-section{padding:18px}
+.owner-form-side>.owner-primary-btn,.owner-form-side>button{width:100%}
+.owner-check{display:flex!important;grid-template-columns:none;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--panel-border);border-radius:12px;background:#fafbfc;cursor:pointer}
+.owner-check input[type=checkbox],.owner-check input[type=radio]{width:18px;height:18px;flex:0 0 18px;min-height:0;margin:0;accent-color:var(--panel-primary)}
+.owner-check span{flex:1}
+.owner-primary-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:45px;padding:0 17px;border:1px solid transparent;border-radius:13px;background:linear-gradient(135deg,var(--panel-primary),color-mix(in srgb,var(--panel-primary) 82%,#8b96ff));box-shadow:0 9px 22px color-mix(in srgb,var(--panel-primary) 16%,transparent);color:#fff;font-size:10px;font-weight:900;line-height:1.6;text-align:center;text-decoration:none;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.owner-primary-btn:hover{transform:translateY(-1px);box-shadow:0 13px 27px color-mix(in srgb,var(--panel-primary) 22%,transparent);filter:saturate(1.04)}
+.owner-primary-btn:focus-visible{outline:2px solid var(--panel-primary);outline-offset:3px}
+.owner-primary-btn:disabled,.owner-primary-btn[aria-busy=true]{opacity:.65;box-shadow:none;transform:none;cursor:wait}
+@media(max-width:900px){.owner-form-grid{grid-template-columns:minmax(0,1fr)}.owner-form-side{position:static;grid-template-columns:minmax(0,1fr)}.owner-form-side>.owner-primary-btn,.owner-form-side>button{width:100%}}
+@media(max-width:640px){.owner-form-head{align-items:stretch;flex-direction:column;gap:12px;padding:18px}.owner-form-head>a{width:100%}.owner-form-grid{gap:12px}.owner-form-section,.owner-form-side .owner-form-section{padding:16px;border-radius:17px}.owner-form-two{grid-template-columns:minmax(0,1fr);gap:12px}.owner-form-shell.space-y-6{min-width:0}}
+
+
 /* Owner public cover editor */
 .owner-cover-editor{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:14px;align-items:start;margin-top:14px;padding:12px;border:1px solid #e7ebf1;border-radius:18px;background:#fafbfc}
 .owner-cover-preview{position:relative;overflow:hidden;aspect-ratio:16/9;border:1px solid #e8ebf1;border-radius:14px;background:#f1f4f8;display:grid;place-items:center;color:#8b95a5;font-size:9px;font-weight:800}
