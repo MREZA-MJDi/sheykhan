@@ -40,7 +40,9 @@ final class CourseAccessService
     public function canDownload(User $user, Course $course): bool
     {
         // Purchasing a protected course grants learning access, not file download rights.
-        if ($user->hasRole('student')) {
+        // Neither students nor parents can download course media as a raw file.
+        // Parents monitor progress; students consume lessons inside the protected viewer.
+        if ($user->hasAnyRole(['student', 'parent'])) {
             return false;
         }
 
@@ -70,7 +72,13 @@ final class CourseAccessService
     private function parentCanAccess(User $user, Course $course): bool
     {
         if ($course->isFree()) {
-            return $user->children()->exists();
+            // Family access follows a child's actual enrollment in this course;
+            // the mere existence of a linked child is not an entitlement.
+            return $user->children()
+                ->whereHas('enrollments', fn ($query) => $query
+                    ->where('course_id', $course->id)
+                    ->active())
+                ->exists();
         }
 
         return $user->children()
