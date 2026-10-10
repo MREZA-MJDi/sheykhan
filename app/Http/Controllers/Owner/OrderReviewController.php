@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\User;
 use App\Models\FinancialTransaction;
+use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Order;
 use App\Models\Payment;
@@ -142,7 +143,7 @@ final class OrderReviewController extends Controller
                     409,
                     'دسترسی این دانش‌آموز به دوره قبلاً فعال شده است.'
                 );
-                abort_unless($course->isPublished() && $course->academy()->where('status', 'active')->exists(), 409);
+                abort_unless(Course::query()->published()->whereKey($course->id)->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))->exists(), 409);
 
                 $enrollment = CourseEnrollment::query()->firstOrNew([
                     'course_id' => $course->id,
