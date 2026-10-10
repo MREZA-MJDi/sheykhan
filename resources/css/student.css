@@ -4203,3 +4203,26 @@
         filter: blur(9px);
     }
 }
+
+
+/* Progress KPI: make the definition readable instead of hiding the metric behind a number. */
+.student-focus-progress .student-progress-method {
+    display: block;
+    margin-top: 9px;
+    color: var(--student-muted, #718096);
+    font-size: 11px;
+    line-height: 1.9;
+    text-wrap: pretty;
+}
+.student-focus-progress [role="progressbar"] {
+    overflow: hidden;
+}
+.student-focus-progress [role="progressbar"]:focus-visible {
+    outline: 3px solid rgba(13, 143, 202, .3);
+    outline-offset: 3px;
+}
+@media (max-width: 640px) {
+    .student-focus-progress .student-progress-method {
+        font-size: 10px;
+    }
+}
