@@ -1,21 +1,21 @@
 <?php
 
-namespace App\\Http\\Controllers\\Commerce;
+namespace App\Http\Controllers\Commerce;
 
-use App\\Http\\Controllers\\Controller;
-use App\\Models\\Course;
-use App\\Models\\LegalConsent;
-use App\\Models\\LegalDocument;
-use App\\Models\\Order;
-use App\\Models\\OrderItem;
-use App\\Models\\User;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Collection;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Str;
-use Illuminate\\Validation\\ValidationException;
-use Illuminate\\View\\View;
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\LegalConsent;
+use App\Models\LegalDocument;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 final class CourseCheckoutController extends Controller
 {
