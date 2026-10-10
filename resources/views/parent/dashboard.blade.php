@@ -20,7 +20,7 @@
             </h1>
 
             <p>
-                پیشرفت، دوره‌های فعال، جلسات پیش‌رو و نتیجه‌های اخیر فرزندان را از یک فضای امن دنبال کن.
+                میانگین تکمیل درس‌های منتشرشده در دوره‌های فعال، تکلیف‌های باز، جلسات پیش‌رو و نتیجه‌های اخیر فرزندان را از یک فضای امن دنبال کن.
             </p>
 
             <div class="mt-5 flex flex-wrap gap-2">
@@ -28,8 +28,11 @@
                     {{ \App\Support\PersianUi::digits($childrenCount) }} فرزند
                 </span>
 
-                <span class="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold text-white/80">
-                    میانگین پیشرفت {{ \App\Support\PersianUi::digits($progress) }}٪
+                <span
+                    class="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-bold text-white/80"
+                    title="میانگین پیشرفت درس‌های منتشرشده در دوره‌های فعال فرزندان"
+                >
+                    میانگین پیشرفت درس‌های منتشرشده {{ \App\Support\PersianUi::digits($progress) }}٪
                 </span>
             </div>
 
