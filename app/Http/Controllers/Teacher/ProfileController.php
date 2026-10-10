@@ -121,6 +121,20 @@ class ProfileController extends Controller
                 }
             }
 
+            if (! $request->hasFile('cover') && $request->boolean('remove_cover')) {
+                $coverToRemove = $profile->media()
+                    ->wherePivot('collection', 'teacher-cover')
+                    ->first();
+
+                if ($coverToRemove) {
+                    $mediaService->detach($coverToRemove, $profile);
+
+                    if ($coverToRemove->attachments()->doesntExist()) {
+                        $mediaService->delete($coverToRemove);
+                    }
+                }
+            }
+
             $profile->media()
                 ->wherePivotIn('collection', ['teacher-avatar', 'teacher-cover'])
                 ->get()
