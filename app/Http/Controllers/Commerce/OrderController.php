@@ -23,6 +23,8 @@ final class OrderController extends Controller
         $order->load([
             'items.product.category',
             'items.product.files' => fn ($query) => $query->where('is_preview', false)->orderByDesc('is_primary'),
+            'items.course:id,academy_id,title,slug,price',
+            'items.beneficiary:id,name',
             'consents.document',
             'payments.proofMedia',
         ]);
