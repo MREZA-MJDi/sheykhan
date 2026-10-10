@@ -177,11 +177,9 @@ final class CourseCheckoutController extends Controller
             return [collect(), 'خرید مستقیم دوره فقط برای حساب دانش‌آموز یا والد مجاز است.'];
         }
 
-        $parentMembership = $buyer->academies()->whereKey($course->academy_id)
-            ->wherePivot('role', 'parent')->wherePivot('status', 'active')->exists();
-        if (! $parentMembership) {
-            return [collect(), 'برای خرید این دوره، حساب والد باید عضویت فعال در آموزشگاه برگزارکننده داشته باشد.'];
-        }
+        // Parent eligibility comes from the verified parent-child relationship plus
+        // the child's active student membership in this academy; a duplicate parent
+        // membership is not required just to buy on behalf of the child.
 
         $children = $buyer->children()
             ->whereHas('roles', fn ($query) => $query->where('slug', 'student'))
