@@ -970,3 +970,238 @@ function bootOwnerResourcePreview() {
     });
 }
 document.addEventListener('DOMContentLoaded', bootOwnerResourcePreview);
+
+
+
+// Responsive public homepage hero editor: preview locally before upload and keep
+// desktop/mobile focal points independent without introducing another dependency.
+function bootHomeHeroEditor() {
+    const form = document.querySelector('[data-home-hero-editor]');
+    if (!form || form.dataset.homeHeroEditorBound === 'true') return;
+    form.dataset.homeHeroEditorBound = 'true';
+
+    const desktopInput = form.querySelector('[data-home-hero-file="desktop"]');
+    const mobileInput = form.querySelector('[data-home-hero-file="mobile"]');
+    const desktopPreview = form.querySelector('[data-home-hero-preview-desktop]');
+    const mobilePreview = form.querySelector('[data-home-hero-preview-mobile]');
+    const removeMobile = form.querySelector('[data-home-hero-remove-mobile]');
+    const restoreDefault = form.querySelector('[data-home-hero-restore]');
+    const submit = form.querySelector('[data-home-hero-submit]');
+    const initialDesktop = form.dataset.currentDesktop || '';
+    const initialMobile = form.dataset.currentMobile || '';
+    const defaultImage = form.dataset.defaultImage || initialDesktop;
+    const fallbackImage = form.dataset.fallbackImage || '';
+    const currentSources = { desktop: initialDesktop, mobile: initialMobile };
+    const objectUrls = { desktop: null, mobile: null };
+    const acceptedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
+
+    if (!desktopInput || !mobileInput || !desktopPreview || !mobilePreview) return;
+
+    const feedbackFor = (kind) => form.querySelector('[data-home-hero-feedback="' + kind + '"]');
+    const setFeedback = (kind, message, tone = '') => {
+        const output = feedbackFor(kind);
+        if (!output) return;
+        output.textContent = message;
+        output.classList.toggle('is-error', tone === 'error');
+        output.classList.toggle('is-warning', tone === 'warning');
+        output.setAttribute('role', tone === 'error' ? 'alert' : 'status');
+    };
+    const releaseObjectUrl = (kind) => {
+        if (!objectUrls[kind]) return;
+        URL.revokeObjectURL(objectUrls[kind]);
+        objectUrls[kind] = null;
+    };
+    const setPreviewSource = (image, src) => {
+        if (!image) return;
+        image.onerror = () => {
+            if (fallbackImage && image.src !== fallbackImage) image.src = fallbackImage;
+        };
+        image.src = src || fallbackImage;
+    };
+    const selectedDesktop = () => objectUrls.desktop || currentSources.desktop || defaultImage;
+    const selectedMobile = () => {
+        if (objectUrls.mobile) return objectUrls.mobile;
+        if (removeMobile?.checked) return selectedDesktop();
+        return currentSources.mobile || selectedDesktop();
+    };
+    const updatePositions = () => {
+        const values = {};
+        form.querySelectorAll('[data-home-hero-range]').forEach((input) => {
+            const value = Math.max(0, Math.min(100, Number(input.value || 0)));
+            values[input.dataset.homeHeroRange] = value;
+            const output = form.querySelector('[data-home-hero-range-output="' + input.dataset.homeHeroRange + '"]');
+            if (output) output.textContent = value.toLocaleString('fa-IR') + '٪';
+        });
+        desktopPreview.style.objectPosition = (values.crop_x ?? 50) + '% ' + (values.crop_y ?? 46) + '%';
+        mobilePreview.style.objectPosition = (values.mobile_crop_x ?? 54) + '% ' + (values.mobile_crop_y ?? 50) + '%';
+    };
+    const refreshPreviews = () => {
+        setPreviewSource(desktopPreview, restoreDefault?.checked ? defaultImage : selectedDesktop());
+        setPreviewSource(mobilePreview, restoreDefault?.checked ? defaultImage : selectedMobile());
+        const mobileInfo = form.querySelector('[data-home-hero-mobile-info]');
+        if (mobileInfo) {
+            mobileInfo.textContent = restoreDefault?.checked
+                ? 'تصویر پیش‌فرض در هر دو قاب استفاده می‌شود.'
+                : objectUrls.mobile
+                    ? 'پیش‌نمایش فایل جدید موبایل؛ هنوز روی سایت منتشر نشده است.'
+                    : currentSources.mobile && !removeMobile?.checked
+                        ? 'تصویر اختصاصی موبایل فعال است.'
+                        : 'در موبایل همان تصویر اصلی با قاب‌بندی جداگانه استفاده می‌شود.';
+        }
+    };
+    const syncRestoreState = () => {
+        const restoring = Boolean(restoreDefault?.checked);
+        [desktopInput, mobileInput].forEach((input) => { input.disabled = restoring; });
+        form.querySelectorAll('[data-home-hero-range]').forEach((input) => { input.disabled = restoring; });
+        if (removeMobile) removeMobile.disabled = restoring;
+        const desktopInfo = form.querySelector('[data-home-hero-desktop-info]');
+        if (desktopInfo) desktopInfo.textContent = restoring
+            ? 'تصویر پیش‌فرض در صورت ذخیره جایگزین می‌شود.'
+            : 'تصویر فعلی در کادر عریض نمایش داده می‌شود.';
+        refreshPreviews();
+        updatePositions();
+    };
+    const resetInputPreview = (kind) => {
+        releaseObjectUrl(kind);
+        if (kind === 'desktop') {
+            setPreviewSource(desktopPreview, currentSources.desktop || defaultImage);
+        } else {
+            setPreviewSource(mobilePreview, currentSources.mobile || selectedDesktop());
+        }
+        refreshPreviews();
+    };
+    const bindFile = (input, kind) => {
+        input.addEventListener('change', () => {
+            const file = input.files?.[0];
+            if (!file) {
+                resetInputPreview(kind);
+                setFeedback(kind, '');
+                return;
+            }
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            const allowedExtensions = new Set(['jpg', 'jpeg', 'png', 'webp', 'avif']);
+            const maxBytes = Number(input.dataset.maxSizeMb || (kind === 'desktop' ? 8 : 5)) * 1024 * 1024;
+            if (!allowedExtensions.has(ext) || (file.type && !acceptedTypes.has(file.type))) {
+                input.value = '';
+                resetInputPreview(kind);
+                setFeedback(kind, 'فرمت معتبر نیست؛ JPG، PNG، WEBP یا AVIF انتخاب کن.', 'error');
+                return;
+            }
+            if (!file.size || file.size > maxBytes) {
+                input.value = '';
+                resetInputPreview(kind);
+                setFeedback(kind, file.size > maxBytes
+                    ? 'حجم فایل از ' + input.dataset.maxSizeMb + ' مگابایت بیشتر است.'
+                    : 'فایل انتخاب‌شده خالی است.', 'error');
+                return;
+            }
+
+            releaseObjectUrl(kind);
+            const url = URL.createObjectURL(file);
+            const probe = new Image();
+            probe.onload = () => {
+                const minWidth = Number(input.dataset.minWidth || 1);
+                const minHeight = Number(input.dataset.minHeight || 1);
+                if (probe.naturalWidth < minWidth || probe.naturalHeight < minHeight) {
+                    URL.revokeObjectURL(url);
+                    input.value = '';
+                    resetInputPreview(kind);
+                    setFeedback(kind,
+                        'ابعاد تصویر ' + probe.naturalWidth.toLocaleString('fa-IR') + '×' +
+                        probe.naturalHeight.toLocaleString('fa-IR') + ' است؛ حداقل ' +
+                        minWidth.toLocaleString('fa-IR') + '×' + minHeight.toLocaleString('fa-IR') + ' لازم است.',
+                        'error'
+                    );
+                    return;
+                }
+
+                objectUrls[kind] = url;
+                refreshPreviews();
+                const cropHint = Math.abs((probe.naturalWidth / probe.naturalHeight) - (16 / 9)) < .12
+                    ? 'نسبت تصویر برای قاب عریض مناسب است.'
+                    : 'با تنظیم نقطه تمرکز، برش نمایشی را کنترل کن.';
+                setFeedback(kind,
+                    'پیش‌نمایش آماده است · ' +
+                    probe.naturalWidth.toLocaleString('fa-IR') + '×' + probe.naturalHeight.toLocaleString('fa-IR') +
+                    ' پیکسل · ' + formatUploadSize(file.size) + ' · ' + cropHint,
+                    'warning'
+                );
+            };
+            probe.onerror = () => {
+                URL.revokeObjectURL(url);
+                input.value = '';
+                resetInputPreview(kind);
+                setFeedback(kind, 'مرورگر نتوانست تصویر را باز کند؛ فایل دیگری انتخاب کن.', 'error');
+            };
+            probe.src = url;
+        });
+    };
+
+    bindFile(desktopInput, 'desktop');
+    bindFile(mobileInput, 'mobile');
+    form.querySelectorAll('[data-home-hero-range]').forEach((input) => {
+        input.addEventListener('input', () => {
+            updatePositions();
+        });
+    });
+    form.querySelectorAll('[data-home-hero-reset-crop]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const mobile = button.dataset.homeHeroResetCrop === 'mobile';
+            const defaults = mobile
+                ? { mobile_crop_x: 54, mobile_crop_y: 50 }
+                : { crop_x: 50, crop_y: 46 };
+            Object.entries(defaults).forEach(([name, value]) => {
+                const input = form.querySelector('[data-home-hero-range="' + name + '"]');
+                if (input) input.value = String(value);
+            });
+            updatePositions();
+        });
+    });
+    removeMobile?.addEventListener('change', () => {
+        if (removeMobile.checked) {
+            releaseObjectUrl('mobile');
+            mobileInput.value = '';
+            setFeedback('mobile', 'پس از ذخیره، تصویر موبایل حذف می‌شود و قاب‌بندی از تصویر اصلی استفاده می‌کند.');
+        } else {
+            setFeedback('mobile', '');
+        }
+        refreshPreviews();
+    });
+    restoreDefault?.addEventListener('change', () => {
+        if (restoreDefault.checked) {
+            releaseObjectUrl('desktop');
+            releaseObjectUrl('mobile');
+            desktopInput.value = '';
+            mobileInput.value = '';
+            if (removeMobile) removeMobile.checked = false;
+            setFeedback('desktop', '');
+            setFeedback('mobile', '');
+            const defaults = { crop_x: 50, crop_y: 46, mobile_crop_x: 54, mobile_crop_y: 50 };
+            Object.entries(defaults).forEach(([name, value]) => {
+                const input = form.querySelector('[data-home-hero-range="' + name + '"]');
+                if (input) input.value = String(value);
+            });
+        }
+        syncRestoreState();
+    });
+    form.addEventListener('submit', () => {
+        if (restoreDefault?.checked) {
+            desktopInput.value = '';
+            mobileInput.value = '';
+        }
+        if (submit) {
+            submit.disabled = true;
+            submit.setAttribute('aria-busy', 'true');
+            submit.textContent = 'در حال ذخیره…';
+        }
+    });
+    window.addEventListener('pagehide', () => {
+        releaseObjectUrl('desktop');
+        releaseObjectUrl('mobile');
+    }, { once: true });
+
+    refreshPreviews();
+    updatePositions();
+    syncRestoreState();
+}
+document.addEventListener('DOMContentLoaded', bootHomeHeroEditor);
