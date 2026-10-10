@@ -152,6 +152,7 @@ class CourseCheckoutFlowTest extends TestCase
         $this->assertSame('paid', $enrollment->payment_status);
         $this->assertGreaterThanOrEqual((int) $item->unit_price, (int) $enrollment->paid_amount);
         $this->assertTrue(app(CourseAccessService::class)->canAccess($student, $course));
+        $this->assertFalse(app(CourseAccessService::class)->canDownload($student, $course));
 
         $this->actingAs($student)
             ->get(route('library.index'))
@@ -270,11 +271,27 @@ class CourseCheckoutFlowTest extends TestCase
             'status' => 'active',
         ]);
 
+        $this->assertTrue(app(CourseAccessService::class)->canAccess($parent, $course));
+        $this->assertFalse(app(CourseAccessService::class)->canDownload($parent, $course));
+
         $this->actingAs($parent)
             ->get(route('library.index'))
             ->assertOk()
             ->assertSee($course->title)
             ->assertSee($student->name);
+    }
+
+
+
+    public function test_parent_does_not_receive_a_course_entitlement_just_because_a_child_is_linked(): void
+    {
+        [$academy, $course, $student] = $this->preparedCourseAndStudent();
+        $course->update(['access_type' => 'free', 'price' => 0]);
+
+        $parent = User::query()->where('email', 'parent.armin@sheykhan.test')->firstOrFail();
+        $this->assertTrue($parent->children()->whereKey($student->id)->exists());
+        $this->assertFalse(app(CourseAccessService::class)->canAccess($parent, $course));
+        $this->assertFalse(app(CourseAccessService::class)->canDownload($parent, $course));
     }
 
 
