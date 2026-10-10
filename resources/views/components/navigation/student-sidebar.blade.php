@@ -50,6 +50,12 @@
             </a>
         @endif
 
+        @if(\Illuminate\Support\Facades\Route::has('library.index'))
+            <a href="{{ route('library.index') }}" class="role-nav-link {{ request()->routeIs('library.index') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>کتابخانه و خریدهای من</span>
+            </a>
+        @endif
+
         <div class="role-sidebar-label mt-6">عملکرد و حساب</div>
 
         @if($studentUser->hasPermission('results.view'))
