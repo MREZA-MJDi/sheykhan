@@ -124,8 +124,8 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
     Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->middleware('permission:academy.view')->name('website.index');
-    Route::get('/website/hero', [\\App\\Http\\Controllers\\Owner\\HomeHeroController::class, 'edit'])->middleware('permission:academy.view')->name('website.hero.edit');
-    Route::patch('/website/hero', [\\App\\Http\\Controllers\\Owner\\HomeHeroController::class, 'update'])->middleware('permission:academy.manage')->name('website.hero.update');
+    Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->middleware('permission:academy.view')->name('website.hero.edit');
+    Route::patch('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'update'])->middleware('permission:academy.manage')->name('website.hero.update');
     Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->middleware('permission:seo.manage')->name('seo.index');
     Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->middleware('permission:seo.manage')->name('seo.edit');
     Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->middleware('permission:seo.manage')->name('seo.update');
