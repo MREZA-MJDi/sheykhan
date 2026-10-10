@@ -38,7 +38,6 @@ final class HomeHeroController extends Controller
         HomeHeroRequest $request,
         OwnerWorkspaceService $workspace,
         MediaService $mediaService,
-        HomeHeroService $heroService,
         HomeBannerService $bannerService,
     ): RedirectResponse {
         $owner = $request->user();
