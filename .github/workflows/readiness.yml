@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: sheykhan-readiness-${{ github.ref }}
-  cancel-in-progress: true
+  group: sheykhan-readiness-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
 
 jobs:
   frontend-build:
