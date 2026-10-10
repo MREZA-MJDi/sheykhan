@@ -17,7 +17,7 @@ class ProfileController extends Controller
         $teacher = request()->user()->load([
             'teacherProfile' => fn ($query) => $query->with([
                 'media' => fn ($media) => $media
-                    ->wherePivot('collection', 'teacher-avatar')
+                    ->wherePivotIn('collection', ['teacher-avatar', 'teacher-cover'])
                     ->orderByPivot('sort_order'),
             ]),
         ]);
@@ -27,7 +27,8 @@ class ProfileController extends Controller
         return view('teacher.profile.edit', [
             'teacher' => $teacher,
             'profile' => $profile,
-            'avatar' => $profile->media->first(),
+            'avatar' => $profile->media->firstWhere('pivot.collection', 'teacher-avatar'),
+            'cover' => $profile->media->firstWhere('pivot.collection', 'teacher-cover'),
         ]);
     }
 
@@ -92,10 +93,38 @@ class ProfileController extends Controller
                 }
             }
 
+            if ($request->hasFile('cover')) {
+                $oldCover = $profile->media()
+                    ->wherePivot('collection', 'teacher-cover')
+                    ->orderByPivot('sort_order')
+                    ->first();
+
+                $newCover = $mediaService->upload(
+                    $request->file('cover'),
+                    $profile,
+                    [
+                        'disk' => 'local',
+                        'directory' => 'teachers/' . $teacher->id,
+                        'collection' => 'teacher-cover',
+                        'visibility' => $isPublic ? 'public' : 'private',
+                        'sort_order' => 0,
+                        'is_featured' => false,
+                    ],
+                );
+
+                if ($oldCover && $oldCover->id !== $newCover->id) {
+                    $mediaService->detach($oldCover, $profile);
+
+                    if ($oldCover->attachments()->doesntExist()) {
+                        $mediaService->delete($oldCover);
+                    }
+                }
+            }
+
             $profile->media()
-                ->wherePivot('collection', 'teacher-avatar')
+                ->wherePivotIn('collection', ['teacher-avatar', 'teacher-cover'])
                 ->get()
-                ->each(fn (\App\Models\Media $avatar): bool => $avatar->update([
+                ->each(fn (\App\Models\Media $media): bool => $media->update([
                     'visibility' => $isPublic ? 'public' : 'private',
                 ]));
         });
