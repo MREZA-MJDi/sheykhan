@@ -4168,3 +4168,38 @@
 .student-ui-kpi-icon{font-size:17px}
 .student-ui-board-card>b{font-size:15px;opacity:.8}
 @media(max-width:640px){.student-ui-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-ui-quick-grid a{min-height:86px}}
+
+
+/* Decorative dashboard glow from the existing Blade view; it never intercepts input. */
+.student-ui-hero {
+    position: relative;
+    isolation: isolate;
+}
+.student-ui-hero-glow {
+    position: absolute;
+    z-index: 0;
+    top: -46%;
+    right: -8%;
+    width: min(40rem, 72%);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 42% 48%, rgba(92, 125, 245, .21), transparent 56%),
+        radial-gradient(circle at 62% 40%, rgba(124, 92, 255, .16), transparent 62%);
+    filter: blur(14px);
+    pointer-events: none;
+}
+.student-ui-hero-copy,
+.student-ui-hero-art {
+    position: relative;
+    z-index: 1;
+}
+@media (max-width: 600px) {
+    .student-ui-hero-glow {
+        top: -22%;
+        right: -18%;
+        width: 95%;
+        opacity: .75;
+        filter: blur(9px);
+    }
+}

@@ -1,5 +1,8 @@
 @import 'tailwindcss' source(none);
 @import './components.css';
+@import './tiamir-intro.css';
+@import './home-meraki-hero.css';
+@import './public-experience.css';
 @source '../../resources/views';
 
 @theme {
@@ -3171,3 +3174,621 @@
         font-size: .94rem;
     }
 }
+
+
+/* Academy-managed banners are editorial cards below the independent main hero. */
+.home-banner-stage {
+    padding-block: clamp(2.75rem, 6vw, 5rem);
+    border-block: 1px solid #e8ebf1;
+    background: #f7f8fb;
+}
+.home-banner-stage .home-banner-heading { margin-bottom: clamp(1.5rem, 3vw, 2.25rem); }
+.home-banner-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: clamp(1rem, 2vw, 1.5rem);
+}
+.home-banner-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e4e8ef;
+    border-radius: 1.25rem;
+    background: #fff;
+    box-shadow: 0 12px 36px rgba(20, 28, 47, .055);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.home-banner-card:hover {
+    transform: translateY(-3px);
+    border-color: #cbd5e1;
+    box-shadow: 0 20px 48px rgba(20, 28, 47, .1);
+}
+.home-banner-media {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #111827;
+}
+.home-banner-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform .55s cubic-bezier(.16, 1, .3, 1);
+}
+.home-banner-card:hover .home-banner-media img { transform: scale(1.035); }
+.home-banner-academy {
+    position: absolute;
+    top: .8rem;
+    right: .8rem;
+    max-width: calc(100% - 1.6rem);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 999px;
+    padding: .35rem .7rem;
+    background: rgba(15, 23, 42, .72);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+}
+.home-banner-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.2rem;
+    padding: clamp(1rem, 2vw, 1.4rem);
+}
+.home-banner-body h3 {
+    margin: 0;
+    color: var(--home-ink, #171c2e);
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    font-weight: 900;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+.home-banner-body p {
+    margin: .4rem 0 0;
+    color: var(--home-ink-soft, #596174);
+    font-size: .88rem;
+    line-height: 1.95;
+    overflow-wrap: anywhere;
+}
+.home-banner-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--home-primary-dark, #37358f);
+    font-size: .85rem;
+    font-weight: 900;
+    text-decoration: none;
+}
+.home-banner-link span { transition: transform .2s ease; }
+.home-banner-link:hover { color: var(--home-primary, #5b5bd6); }
+.home-banner-link:hover span { transform: translateX(-3px); }
+.home-banner-link:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: .2rem; }
+
+@media (max-width: 980px) {
+    .home-banner-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+    .home-banner-stage { padding-block: 2.5rem; }
+    .home-banner-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    .home-banner-body { padding: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .home-banner-card,
+    .home-banner-media img,
+    .home-banner-link span { transition: none !important; }
+    .home-banner-card:hover,
+    .home-banner-card:hover .home-banner-media img { transform: none; }
+}
+
+
+
+/* ==========================================================================
+   SHEYKHAN PUBLIC DESIGN SYSTEM
+   Pearl surfaces, semantic color roles, shared navigation and reusable cards.
+   Scoped to the public/auth site bundle; role dashboards keep their own themes.
+   ========================================================================== */
+:root {
+    --panel-primary: #2864e8;
+    --panel-primary-soft: #edf3ff;
+
+    --color-primary-50: #eff5ff;
+    --color-primary-100: #dce9ff;
+    --color-primary-200: #bfd5ff;
+    --color-primary-300: #91b5ff;
+    --color-primary-400: #5c8ef6;
+    --color-primary-500: #3474ef;
+    --color-primary-600: #2864e8;
+    --color-primary-700: #2050c4;
+    --color-primary-800: #1f439d;
+    --color-primary-900: #1d397c;
+
+    --color-accent-50: #fff5e9;
+    --color-accent-100: #ffe7c9;
+    --color-accent-500: #ed8a2c;
+    --color-accent-600: #d87318;
+    --color-accent-700: #b65a12;
+
+    --color-success-50: #eaf8f0;
+    --color-success-100: #c9efd9;
+    --color-success-500: #1b9a63;
+    --color-success-600: #137b4e;
+    --color-success-700: #12613f;
+
+    --color-warning-50: #fff8dc;
+    --color-warning-100: #ffedab;
+    --color-warning-500: #dfa51a;
+    --color-warning-600: #b9820c;
+    --color-warning-700: #8e6208;
+
+    --color-danger-50: #fff0f0;
+    --color-danger-100: #ffd8d9;
+    --color-danger-400: #ef7278;
+    --color-danger-500: #df4b55;
+    --color-danger-600: #c93643;
+    --color-danger-700: #a92936;
+
+    --color-slate-50: #fbfcfe;
+    --color-slate-100: #f3f5f9;
+    --color-slate-200: #e5e9f1;
+    --color-slate-300: #d4dae5;
+    --color-slate-400: #a2adbf;
+    --color-slate-500: #758198;
+    --color-slate-600: #58657b;
+    --color-slate-700: #39465c;
+    --color-slate-800: #253148;
+    --color-slate-900: #17243a;
+
+    --color-background: #fbfbfd;
+    --color-background-soft: #f5f7fb;
+    --color-surface: #ffffff;
+    --color-text: #182338;
+    --color-text-secondary: #536078;
+    --color-text-muted: #68758b;
+    --color-text-subtle: #98a2b3;
+    --color-text-tertiary: #7a879d;
+    --color-border: #e5e9f1;
+    --color-border-strong: #d5dce8;
+
+    --home-primary: #2864e8;
+    --home-primary-dark: #1f50c7;
+    --home-ink: #182338;
+    --home-ink-soft: #536078;
+    --home-bg: #fbfbfd;
+    --home-bg-soft: #f5f7fb;
+    --home-border: #e5e9f1;
+
+    --radius-sm: .625rem;
+    --radius-md: .875rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.375rem;
+    --radius-2xl: 1.75rem;
+
+    --shadow-xs: 0 3px 10px rgba(24, 35, 56, .035);
+    --shadow-sm: 0 8px 24px rgba(24, 35, 56, .055);
+    --shadow-md: 0 16px 38px rgba(24, 35, 56, .085);
+    --shadow-lg: 0 24px 58px rgba(24, 35, 56, .11);
+    --shadow-xl: 0 30px 78px rgba(24, 35, 56, .14);
+}
+
+.sheykhan-site {
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+.sheykhan-site [x-cloak] { display: none !important; }
+.sheykhan-site #app {
+    display: flex;
+    min-height: 100svh;
+    flex-direction: column;
+}
+.sheykhan-site #main-content { flex: 1 0 auto; min-width: 0; }
+.sheykhan-site :is(img, video, canvas) { max-width: 100%; }
+.sheykhan-site :is(a, button, summary, input, select, textarea):focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-primary-400) 68%, transparent);
+    outline-offset: 3px;
+}
+
+/* One predictable navbar for every public and auth route. */
+.site-navbar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky, 1020);
+    border-color: var(--color-border) !important;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 0 6px 24px rgba(24, 35, 56, .045);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+}
+.site-navbar__brand { text-decoration: none; }
+.site-navbar__monogram {
+    border-radius: 14px !important;
+    background: linear-gradient(145deg, #1f50c7, #4383fa) !important;
+    box-shadow: 0 7px 18px rgba(40, 100, 232, .23) !important;
+}
+.site-navbar__brand-name { color: var(--color-text) !important; letter-spacing: -.035em; }
+.site-navbar__brand-tagline { color: var(--color-text-muted) !important; }
+.site-navbar__links { gap: .25rem !important; }
+.site-navbar__link {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    border: 1px solid transparent;
+    border-radius: .8rem !important;
+    padding: .6rem .82rem !important;
+    background: transparent !important;
+    color: var(--color-text-secondary) !important;
+    font-size: .82rem !important;
+    font-weight: 750 !important;
+    line-height: 1.35;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.site-navbar__link:hover {
+    border-color: #dce7ff;
+    background: #f1f5ff !important;
+    color: var(--color-primary-700) !important;
+}
+.site-navbar__link[aria-current="page"],
+.site-navbar__link--current {
+    border-color: #d8e4ff;
+    background: #edf3ff !important;
+    color: var(--color-primary-700) !important;
+}
+.site-navbar__link--dropdown { cursor: pointer; }
+.site-navbar__actions { gap: .65rem !important; }
+.site-navbar__account-trigger,
+.site-navbar__cta {
+    display: inline-flex;
+    min-height: 43px;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    border: 1px solid var(--color-primary-600) !important;
+    border-radius: .85rem !important;
+    padding: .65rem 1rem !important;
+    background: var(--color-primary-600) !important;
+    color: #fff !important;
+    box-shadow: 0 7px 18px rgba(40, 100, 232, .18);
+    font-size: .82rem !important;
+    font-weight: 850 !important;
+    text-decoration: none;
+    transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+.site-navbar__account-trigger:hover,
+.site-navbar__cta:hover {
+    transform: translateY(-1px);
+    background: var(--color-primary-700) !important;
+    box-shadow: 0 10px 22px rgba(40, 100, 232, .22);
+    color: #fff !important;
+}
+.site-navbar__dropdown {
+    border-color: var(--color-border) !important;
+    border-radius: 1rem !important;
+    background: #fff !important;
+    box-shadow: 0 18px 48px rgba(24, 35, 56, .14) !important;
+}
+.site-navbar__dropdown a { text-decoration: none; }
+.site-navbar__dropdown a:hover { background: #f3f6fc !important; color: var(--color-primary-700) !important; }
+.site-navbar__toggle {
+    border-color: var(--color-border-strong) !important;
+    border-radius: .85rem !important;
+    background: #fff !important;
+    color: var(--color-text) !important;
+    box-shadow: var(--shadow-xs);
+}
+.site-navbar__mobile {
+    border-color: var(--color-border) !important;
+    background: rgba(255, 255, 255, .98);
+}
+.site-navbar__mobile-link {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: .8rem !important;
+    color: var(--color-text-secondary) !important;
+    text-decoration: none;
+    font-weight: 750 !important;
+}
+.site-navbar__mobile-link:hover,
+.site-navbar__mobile-link[aria-current="page"] {
+    border-color: #dce7ff;
+    background: #edf3ff !important;
+    color: var(--color-primary-700) !important;
+}
+.site-navbar__mobile-summary {
+    color: var(--color-text-secondary) !important;
+    font-weight: 800 !important;
+    cursor: pointer;
+}
+.site-navbar__mobile-courses[open] { background: #f5f7fb !important; }
+.site-navbar__mobile-courses[open] > summary { color: var(--color-primary-700) !important; }
+.site-navbar__mobile a,
+.site-navbar__mobile summary { -webkit-tap-highlight-color: transparent; }
+
+@media (min-width: 1024px) {
+    .site-navbar__links, .site-navbar__actions { display: flex !important; }
+    .site-navbar__toggle, .site-navbar__mobile { display: none !important; }
+}
+@media (max-width: 1023.98px) {
+    .site-navbar__links, .site-navbar__actions { display: none !important; }
+    .site-navbar__toggle { display: inline-flex !important; }
+    .site-navbar__mobile { width: 100%; }
+    .site-navbar__mobile-links { padding-top: .5rem; }
+    .site-navbar__mobile .site-navbar__cta { width: 100%; }
+}
+
+/* Shared editorial page header: bright pearl, not a second dark theme. */
+.sheykhan-site :is(.public-courses-page, .public-teachers-page, .public-blog-page, .public-store-page,
+    .public-course-page, .public-product-page, .teacher-profile-page, .public-academy-content-page) {
+    color: var(--color-text);
+}
+.sheykhan-site .public-page-intro {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: clamp(1.25rem, 2.6vw, 1.8rem);
+    padding: clamp(1.4rem, 3.5vw, 3rem);
+    background:
+        radial-gradient(ellipse at 5% 100%, rgba(237, 138, 44, .06), transparent 22rem),
+        radial-gradient(ellipse at 92% 0%, rgba(40, 100, 232, .09), transparent 26rem),
+        linear-gradient(140deg, #fff 0%, #fcfdff 72%, #f6f8ff 100%);
+    box-shadow: 0 14px 38px rgba(24, 35, 56, .045);
+}
+.sheykhan-site .public-page-intro::after {
+    border-color: rgba(40, 100, 232, .13);
+    box-shadow: 0 0 0 22px rgba(40, 100, 232, .025), 0 0 0 46px rgba(40, 100, 232, .018);
+}
+.sheykhan-site .public-page-intro--editorial {
+    border-color: var(--color-border);
+    color: var(--color-text);
+    background:
+        radial-gradient(ellipse at 88% 0%, rgba(237, 138, 44, .075), transparent 25rem),
+        radial-gradient(ellipse at 4% 100%, rgba(40, 100, 232, .07), transparent 24rem),
+        linear-gradient(135deg, #fff 0%, #fbfcff 100%);
+    box-shadow: 0 14px 38px rgba(24, 35, 56, .045);
+}
+.sheykhan-site .public-page-intro--editorial :is(h1, h2) { color: var(--color-text) !important; }
+.sheykhan-site .public-page-intro--editorial p { color: var(--color-text-secondary) !important; }
+.sheykhan-site .public-page-intro .rounded-full {
+    border-color: #d8e4ff !important;
+    background: #edf3ff !important;
+    color: var(--color-primary-700) !important;
+}
+
+/* Card grammar: stable media ratios, pearl surfaces, restrained depth. */
+.sheykhan-site .edu-card,
+.sheykhan-site .public-blog-card,
+.sheykhan-site .home-banner-card,
+.sheykhan-site .home-academy-card,
+.sheykhan-site .home-achievement-card,
+.sheykhan-site .home-testimonial-card,
+.sheykhan-site .home-product-card {
+    min-width: 0;
+    border-color: var(--color-border) !important;
+    border-radius: 1.25rem !important;
+    background: var(--color-surface) !important;
+    box-shadow: 0 8px 26px rgba(24, 35, 56, .045) !important;
+    overflow: hidden;
+}
+.sheykhan-site .edu-card,
+.sheykhan-site .public-blog-card,
+.sheykhan-site .home-banner-card {
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.sheykhan-site .edu-card:hover,
+.sheykhan-site .public-blog-card:hover,
+.sheykhan-site .home-banner-card:hover {
+    border-color: #c9d9fb !important;
+    box-shadow: 0 16px 36px rgba(24, 35, 56, .09) !important;
+    transform: translateY(-2px);
+}
+.sheykhan-site .edu-card :is(h2, h3, h4),
+.sheykhan-site .public-blog-card :is(h2, h3, h4),
+.sheykhan-site .home-banner-card :is(h2, h3, h4) {
+    color: var(--color-text);
+    letter-spacing: -.025em;
+}
+.sheykhan-site .edu-card p,
+.sheykhan-site .public-blog-card p,
+.sheykhan-site .home-banner-card p { color: var(--color-text-secondary); }
+.sheykhan-site .edu-card img,
+.sheykhan-site .public-blog-card img,
+.sheykhan-site .home-banner-card img { display: block; max-width: 100%; }
+.sheykhan-site .home-card-badge {
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 999px;
+    background: rgba(255,255,255,.94);
+    color: var(--color-primary-800);
+    box-shadow: 0 4px 14px rgba(17, 24, 39, .08);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+.sheykhan-site .home-card-badge.is-free {
+    border-color: var(--color-success-100);
+    background: var(--color-success-50);
+    color: var(--color-success-700);
+}
+.sheykhan-site .home-banner-stage { background: #f5f7fb; border-block-color: var(--color-border); }
+.sheykhan-site .home-banner-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: clamp(.9rem, 1.8vw, 1.35rem);
+}
+.sheykhan-site .home-banner-card { display: flex; flex-direction: column; }
+.sheykhan-site .home-banner-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #edf1f7;
+}
+.sheykhan-site .home-banner-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.sheykhan-site .home-banner-body { display: flex; flex: 1; flex-direction: column; gap: .85rem; padding: 1.15rem; }
+.sheykhan-site .home-banner-link { color: var(--color-primary-700); font-weight: 850; }
+.sheykhan-site .home-banner-academy {
+    position: absolute; inset-block-start: .75rem; inset-inline-start: .75rem;
+    max-width: calc(100% - 1.5rem); border: 1px solid rgba(255,255,255,.35);
+    border-radius: 999px; padding: .35rem .65rem; background: rgba(24,35,56,.72);
+    color: #fff; font-size: .72rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Consistent teacher cards: real portrait is the lead visual, never a tiny avatar. */
+.sheykhan-site .teacher-card { display: flex; min-height: 100%; flex-direction: column; align-self: stretch; }
+.teacher-card__media {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    isolation: isolate;
+    background: linear-gradient(140deg, #edf3ff, #fbfcff 58%, #fff1e5);
+    text-decoration: none;
+}
+.teacher-card__photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 34%;
+    transition: transform .45s cubic-bezier(.2,.8,.2,1);
+}
+.teacher-card:hover .teacher-card__photo { transform: scale(1.025); }
+.teacher-card__fallback {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    color: #2456bb;
+    font-size: clamp(2.75rem, 5vw, 4.25rem);
+    font-weight: 900;
+    background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,.9), transparent 27%),
+        linear-gradient(135deg, #e6efff, #f6f8ff 60%, #fff0df);
+}
+.teacher-card__media-overlay {
+    position: absolute;
+    inset: 45% 0 0;
+    background: linear-gradient(180deg, transparent, rgba(20, 35, 62, .18));
+    pointer-events: none;
+}
+.teacher-card__media-action {
+    position: absolute;
+    inset-inline-end: .85rem;
+    inset-block-end: .85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    border: 1px solid rgba(255,255,255,.7);
+    border-radius: 999px;
+    padding: .42rem .7rem;
+    background: rgba(255,255,255,.92);
+    color: var(--color-primary-800);
+    font-size: .72rem;
+    font-weight: 850;
+    box-shadow: 0 4px 14px rgba(24,35,56,.1);
+}
+.teacher-card__body { display: flex; flex: 1; flex-direction: column; padding: 1.15rem 1.2rem 1.2rem; }
+.teacher-card__identity { min-width: 0; }
+.teacher-card__name { margin: 0; color: var(--color-text); font-size: 1.05rem; font-weight: 900; line-height: 1.7; }
+.teacher-card__name a { color: inherit; text-decoration: none; }
+.teacher-card__name a:hover { color: var(--color-primary-700); }
+.teacher-card__role {
+    display: inline-flex;
+    max-width: 100%;
+    margin: .45rem 0 0;
+    border: 1px solid #dce7ff;
+    border-radius: .55rem;
+    padding: .28rem .55rem;
+    background: #f1f5ff;
+    color: #2854ae;
+    font-size: .72rem;
+    font-weight: 800;
+    line-height: 1.6;
+}
+.teacher-card__bio { margin: .85rem 0 1rem; color: var(--color-text-secondary); font-size: .83rem; line-height: 1.95; }
+.teacher-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+}
+.teacher-card__course-count { display: inline-flex; align-items: center; gap: .42rem; color: var(--color-text-muted); font-size: .75rem; font-weight: 750; }
+.teacher-card__course-count svg { width: 1rem; height: 1rem; color: var(--color-success-600); }
+.teacher-card__action { display: inline-flex; align-items: center; gap: .4rem; color: var(--color-primary-700); font-size: .8rem; font-weight: 900; text-decoration: none; white-space: nowrap; }
+.teacher-card__action span { transition: transform .18s ease; }
+.teacher-card__action:hover span { transform: translateX(-3px); }
+
+/* Directory, details, article, product and form surfaces share one rhythm. */
+.sheykhan-site :is(.public-courses-page, .public-teachers-page, .public-blog-page, .public-store-page) > section {
+    padding-block: clamp(1.75rem, 4vw, 3rem);
+}
+.sheykhan-site .public-teachers-page .teacher-directory-grid { align-items: stretch; }
+.sheykhan-site .public-blog-card__media,
+.sheykhan-site .public-blog-card__media img { aspect-ratio: 16 / 10; }
+.sheykhan-site .public-blog-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.sheykhan-site .public-course-hero {
+    border: 1px solid var(--color-border);
+    border-radius: 1.5rem;
+    background:
+        radial-gradient(ellipse at 90% 0%, rgba(40,100,232,.07), transparent 22rem),
+        #fff;
+}
+.sheykhan-site .public-course-page .edu-card,
+.sheykhan-site .public-store-page .edu-card { background: #fff; }
+.sheykhan-site .public-product-page .bg-\[var\(--color-background-soft\)\] { background: #f5f7fb; }
+.sheykhan-site .teacher-profile-page .teacher-card { box-shadow: var(--shadow-sm); }
+.sheykhan-site footer {
+    border-color: var(--color-border) !important;
+    background: #fff !important;
+}
+.sheykhan-site footer a { text-underline-offset: .2em; }
+.sheykhan-site footer a:hover { color: var(--color-primary-700) !important; }
+
+@media (max-width: 900px) {
+    .sheykhan-site .home-banner-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .sheykhan-site .home-banner-grid { grid-template-columns: minmax(0, 1fr); }
+    .sheykhan-site .home-banner-body { padding: 1rem; }
+    .teacher-card__body { padding: 1rem; }
+    .teacher-card__media { aspect-ratio: 4 / 3; }
+    .site-navbar__link { white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sheykhan-site *,
+    .sheykhan-site *::before,
+    .sheykhan-site *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+    .teacher-card__photo { transform: none !important; }
+}
+

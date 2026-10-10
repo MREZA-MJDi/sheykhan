@@ -20,11 +20,19 @@ class PublicHomeSmokeTest extends TestCase
 
         $home->assertOk()
             ->assertSee('آموزش خوب')
+            ->assertSee('data-home-hero', false)
+            ->assertSee('sheykhan-home-hero__title', false)
+            ->assertDontSee('pater/pater.css')
+            ->assertDontSee('js/demo4.js')
             ->assertDontSee('home-banner-slider');
 
-        $this->get(route('courses.index'))->assertOk();
+        $this->get(route('courses.index'))
+            ->assertOk()
+            ->assertSee('public-page-intro--courses', false);
         $this->get(route('teachers.index'))->assertOk();
-        $this->get(route('blog.index'))->assertOk();
+        $this->get(route('blog.index'))
+            ->assertOk()
+            ->assertSee('public-page-intro--editorial', false);
         $this->get(route('store.index'))->assertOk();
     }
 
@@ -74,7 +82,10 @@ class PublicHomeSmokeTest extends TestCase
 
         Cache::flush();
 
-        $this->get(route('home'))->assertOk();
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('home-banner-grid', false)
+            ->assertSee('بنر واقعی صفحه اصلی');
     }
 
     public function test_unknown_public_path_returns_not_found(): void
@@ -85,5 +96,38 @@ class PublicHomeSmokeTest extends TestCase
     public function test_missing_course_returns_not_found(): void
     {
         $this->get('/courses/999999999')->assertNotFound();
+    }
+
+
+    public function test_home_hero_uses_the_existing_vite_pipeline_and_keeps_academy_banners_separate(): void
+    {
+        $blade = file_get_contents(resource_path('views/components/branding/home-meraki-hero.blade.php'));
+        $styles = file_get_contents(resource_path('css/home-meraki-hero.css'));
+        $homeStyles = file_get_contents(resource_path('css/home.css'));
+
+        $this->assertIsString($blade);
+        $this->assertIsString($styles);
+        $this->assertIsString($homeStyles);
+
+        $source = strtolower($blade . "\\n" . $styles);
+
+        foreach ([
+            'cdn.tailwindcss.com',
+            'unpkg.com/alpinejs',
+            'tympanus.net',
+            'img/map.png',
+            'imagesloaded',
+            'anime.min.js',
+            'demo4.js',
+            'pater/pater.css',
+        ] as $externalOrMissingDemoDependency) {
+            $this->assertStringNotContainsString($externalOrMissingDemoDependency, $source);
+        }
+
+        $this->assertStringContainsString('data-home-hero', $blade);
+        $this->assertStringContainsString('aria-labelledby', $blade);
+        $this->assertStringContainsString('prefers-reduced-motion', $styles);
+        $this->assertStringContainsString('.home-banner-grid', $homeStyles);
+        $this->assertStringContainsString('.home-banner-media img', $homeStyles);
     }
 }

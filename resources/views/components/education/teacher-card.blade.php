@@ -7,52 +7,60 @@
     'href' => '#',
 ])
 
-<article class="edu-card group h-full min-w-0 p-5 sm:p-6">
-    <div class="flex items-start gap-4">
-        <div class="relative shrink-0">
-            <x-ui.avatar :src="$avatar" :alt="$name" size="lg" />
+@php
+    $displayName = trim((string) $name) ?: 'مدرس شیخان';
+    $initial = mb_substr($displayName, 0, 1);
+@endphp
 
-            <span
-                class="absolute -bottom-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-[var(--color-success-500)] text-white shadow-sm"
-                title="مدرس تاییدشده"
-                aria-label="مدرس تاییدشده"
+<article {{ $attributes->class(['teacher-card edu-card group h-full min-w-0']) }}>
+    <a
+        href="{{ $href }}"
+        class="teacher-card__media"
+        aria-label="مشاهده پروفایل {{ $displayName }}"
+    >
+        @if($avatar)
+            <img
+                src="{{ $avatar }}"
+                alt="تصویر {{ $displayName }}"
+                class="teacher-card__photo"
+                loading="lazy"
+                decoding="async"
             >
-                <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m7 12 3 3 7-7"/>
-                </svg>
-            </span>
-        </div>
+        @else
+            <span class="teacher-card__fallback" aria-hidden="true">{{ $initial }}</span>
+        @endif
 
-        <div class="min-w-0 flex-1">
-            <h3 class="truncate text-base font-black text-[var(--color-text)]">
-                <a href="{{ $href }}" class="transition-colors hover:text-[var(--color-primary-600)]">
-                    {{ $name }}
-                </a>
+        <span class="teacher-card__media-overlay" aria-hidden="true"></span>
+        <span class="teacher-card__media-action">پروفایل مدرس <span aria-hidden="true">↗</span></span>
+    </a>
+
+    <div class="teacher-card__body">
+        <div class="teacher-card__identity">
+            <h3 class="teacher-card__name">
+                <a href="{{ $href }}">{{ $displayName }}</a>
             </h3>
 
-            <p class="mt-1 truncate text-xs font-semibold text-[var(--color-text-muted)]">
-                {{ $role }}
-            </p>
+            @if(filled($role))
+                <p class="teacher-card__role">{{ $role }}</p>
+            @endif
         </div>
-    </div>
 
-    @if($bio)
-        <p class="mt-5 line-clamp-3 text-sm leading-7 text-[var(--color-text-secondary)]">
-            {{ $bio }}
-        </p>
-    @endif
+        @if(filled($bio))
+            <p class="teacher-card__bio">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $bio)), 155) }}</p>
+        @endif
 
-    <div class="mt-5 flex items-center justify-between gap-3 border-t border-[var(--color-border)] pt-4">
-        <span class="text-xs font-semibold text-[var(--color-text-muted)]">
-            {{ $courses ?? 0 }} دوره آموزشی
-        </span>
+        <div class="teacher-card__footer">
+            <span class="teacher-card__course-count">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/>
+                    <path stroke-linecap="round" d="M4 5.5v16M8 7h8M8 10.5h8"/>
+                </svg>
+                {{ \App\Support\PersianUi::digits((int) ($courses ?? 0)) }} دوره آموزشی
+            </span>
 
-        <a
-            href="{{ $href }}"
-            class="inline-flex items-center gap-1.5 text-xs font-black text-[var(--color-primary-600)]"
-        >
-            <span>مشاهده</span>
-            <span aria-hidden="true">←</span>
-        </a>
+            <a href="{{ $href }}" class="teacher-card__action">
+                دیدن پروفایل <span aria-hidden="true">←</span>
+            </a>
+        </div>
     </div>
 </article>

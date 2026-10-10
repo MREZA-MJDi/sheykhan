@@ -13,7 +13,7 @@
     'href' => '#',
 ])
 
-<article class="edu-card group flex h-full min-w-0 flex-col">
+<article {{ $attributes->class(['edu-card group flex h-full min-w-0 flex-col']) }}>
     <a
         href="{{ $href }}"
         class="block"

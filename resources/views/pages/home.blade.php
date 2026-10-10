@@ -9,95 +9,9 @@
             '0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴',
             '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
         ]);
-        $heroCourse = $courseCards[0] ?? null;
     @endphp
-{{-- Hero --}}
-    <section class="home-hero">
-        <x-layout.container size="wide">
-            <div class="home-hero-grid">
-                <div class="home-hero-copy home-reveal">
-                    <span class="home-eyebrow"><i></i> آکادمی شیخان</span>
-
-                    <h1>
-                        آموزش خوب،
-                        <span>مسیر روشن‌تری</span>
-                        برای آینده می‌سازد.
-                    </h1>
-
-                    <p>
-                        دوره، کلاس، تمرین و آزمون در یک مسیر منظم؛
-                        برای دانش‌آموزی که می‌خواهد فقط درس نخواند، بلکه پیشرفت خودش را ببیند.
-                    </p>
-
-                    <div class="home-actions">
-                        <x-ui.button href="{{ route('courses.index') }}" variant="primary" size="xl">
-                            شروع مسیر یادگیری <span aria-hidden="true">←</span>
-                        </x-ui.button>
-                        <x-ui.button href="{{ route('teachers.index') }}" variant="outline" size="xl">
-                            آشنایی با اساتید
-                        </x-ui.button>
-                    </div>
-
-                    <div class="home-proof">
-                        <div><strong>{{ $fa($stats['courses']) }}+</strong><span>دوره</span></div>
-                        <div><strong>{{ $fa($stats['teachers']) }}+</strong><span>مدرس</span></div>
-                        <div><strong>{{ $fa($stats['students']) }}+</strong><span>دانش‌آموز</span></div>
-                    </div>
-                </div>
-
-                <div class="home-hero-visual home-reveal" data-delay="2">
-                    <div class="home-hero-glow"></div>
-                    <div class="home-hero-panel">
-                        <div class="home-panel-top">
-                            <div>
-                                <small>شیخان / مسیر یادگیری</small>
-                                <strong>امروز یک قدم جلوتر</strong>
-                            </div>
-                            <span class="home-mark">ش</span>
-                        </div>
-
-                        @if($heroCourse)
-                            <a href="{{ $heroCourse['href'] }}" class="home-feature-course">
-                                <div class="home-feature-image">
-                                    @if($heroCourse['image'])
-                                        <img src="{{ $heroCourse['image'] }}" alt="{{ $heroCourse['title'] }}" fetchpriority="high">
-                                    @else
-                                        <div class="home-feature-fallback"></div>
-                                    @endif
-                                    <div class="home-feature-overlay"></div>
-                                    <div class="home-feature-label">{{ $heroCourse['category'] ?: 'دوره آموزشی' }}</div>
-                                </div>
-                                <div class="home-feature-body">
-                                    <div>
-                                        <small>دوره منتخب</small>
-                                        <h2>{{ $heroCourse['title'] }}</h2>
-                                    </div>
-                                    <span class="home-arrow">←</span>
-                                </div>
-                                <div class="home-feature-meta">
-                                    <span>{{ $heroCourse['lessons'] }} درس</span>
-                                    <span>{{ $heroCourse['duration'] }}</span>
-                                    <span>{{ $heroCourse['price'] }}</span>
-                                </div>
-                            </a>
-                        @else
-                            <div class="home-empty-hero">
-                                <strong>مسیر یادگیریت را شروع کن</strong>
-                                <p>دوره‌های منتشرشده شیخان به‌محض آماده‌شدن اینجا نمایش داده می‌شوند.</p>
-                                <a href="{{ route('courses.index') }}">مشاهده دوره‌ها ←</a>
-                            </div>
-                        @endif
-
-                        <div class="home-hero-bottom">
-                            <span><b>01</b> یادگیری</span>
-                            <span><b>02</b> تمرین</span>
-                            <span><b>03</b> پیشرفت</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </x-layout.container>
-    </section>
+{{-- Full-bleed editorial home hero; academy-managed banners remain a separate section below. --}}
+    @include('components.branding.home-meraki-hero')
 
     @if($homeBanners->isNotEmpty())
         <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
@@ -264,11 +178,43 @@
                         اما همه در یک مسیر آموزشی به هم متصل‌اند.
                     </p>
                 </div>
-                <div class="home-role-grid">
-                    <article><b>۰۱</b><strong>دانش‌آموز</strong><p>دوره، کلاس، تمرین و پیشرفت در فضای شخصی.</p></article>
-                    <article><b>۰۲</b><strong>مدرس</strong><p>ساخت و مدیریت آموزش و ارتباط با دانش‌آموزان.</p></article>
-                    <article><b>۰۳</b><strong>والد</strong><p>تصویر روشن‌تر از مسیر و عملکرد فرزند.</p></article>
-                    <article><b>۰۴</b><strong>آموزشگاه</strong><p>مدیریت دوره، کلاس، مدرس و ساختار آموزشی.</p></article>
+                <div class="home-role-grid home-feature-grid">
+                    <article class="home-feature-card" data-feature-index="01">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><path d="M4 12.5 16 6l12 6.5L16 19 4 12.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 16v6.2c4.3 3.4 9.7 3.4 14 0V16M28 13v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۱</b><span>LEARN</span></div>
+                        <strong>دانش‌آموز</strong>
+                        <p>دوره، کلاس، تکلیف، آزمون و پیشرفت در یک فضای شخصی.</p>
+                        <span class="home-feature-card__note">کارتابل یادگیری <i aria-hidden="true">↗</i></span>
+                    </article>
+                    <article class="home-feature-card" data-feature-index="02">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5.5" width="22" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M11 26.5h10M16 20.5v6M9 10h8m-8 4h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۲</b><span>TEACH</span></div>
+                        <strong>مدرس</strong>
+                        <p>مدیریت کلاس، حضور و غیاب، تکلیف، آزمون و تصحیح.</p>
+                        <span class="home-feature-card__note">فضای تدریس <i aria-hidden="true">↗</i></span>
+                    </article>
+                    <article class="home-feature-card" data-feature-index="03">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><circle cx="12" cy="11" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="23" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 26c.7-5 3.1-7.6 7.5-7.6s6.8 2.6 7.5 7.6M20 20c3.9-.3 6.1 1.7 7 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۳</b><span>FOLLOW</span></div>
+                        <strong>والد</strong>
+                        <p>دیدی روشن‌تر از مسیر آموزشی و عملکرد فرزند.</p>
+                        <span class="home-feature-card__note">نمای پیگیری <i aria-hidden="true">↗</i></span>
+                    </article>
+                    <article class="home-feature-card" data-feature-index="04">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="5" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۴</b><span>MANAGE</span></div>
+                        <strong>آموزشگاه</strong>
+                        <p>مدیریت افراد، کلاس‌ها، محتوا، دوره‌ها و گزارش‌ها.</p>
+                        <span class="home-feature-card__note">مرکز مدیریت <i aria-hidden="true">↗</i></span>
+                    </article>
                 </div>
             </div>
         </x-layout.container>

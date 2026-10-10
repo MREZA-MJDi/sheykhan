@@ -76,6 +76,7 @@ class StudentTeacherDashboardContractTest extends TestCase
 
         $this->assertStringContainsString('.student-focus-card {', $studentCss);
         $this->assertStringContainsString('.student-focus-action {', $studentCss);
+        $this->assertStringContainsString('.student-ui-hero-glow {', $studentCss);
         $this->assertStringContainsString('resources/css/student.css', $studentLayout);
     }
 
@@ -107,6 +108,15 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
             ->assertOk();
+    }
+
+    public function test_teacher_jalali_calendar_has_esfand_leap_year_detection(): void
+    {
+        $teacherJs = file_get_contents(resource_path('js/teacher.js'));
+
+        $this->assertIsString($teacherJs);
+        $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $teacherJs);
+        $this->assertStringContainsString('Validate Esfand 30', $teacherJs);
     }
 
     public function test_teacher_lists_are_paginated_contracts(): void

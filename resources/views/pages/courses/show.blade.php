@@ -51,7 +51,7 @@
                 </div>
 
                 {{-- Course Hero --}}
-                <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
+                <div class="public-course-hero mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-10">
 
                     {{-- Main information --}}
                     <div class="min-w-0">

@@ -246,7 +246,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return [gy, gm, gd];
         };
 
-        const jalaliMonthDays = (year, month) => month <= 6 ? 31 : (month <= 11 ? 30 : 29);
+        const jalaliMonthDays = (year, month) => {
+            if (month <= 6) return 31;
+            if (month <= 11) return 30;
+
+            // Validate Esfand 30 with the browser's Persian calendar implementation.
+            const [gy, gm, gd] = jalaliToGregorian(year, 12, 30);
+            const candidate = new Date(Date.UTC(gy, gm - 1, gd, 12));
+            const parts = Object.fromEntries(
+                new Intl.DateTimeFormat('en-u-ca-persian-nu-latn', {
+                    timeZone: 'UTC',
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                }).formatToParts(candidate).map((part) => [part.type, part.value])
+            );
+
+            return Number(parts.year) === year
+                && Number(parts.month) === 12
+                && Number(parts.day) === 30
+                ? 30
+                : 29;
+        };
 
         let viewYear = Number(liveForm.dataset.jalaliYear);
         let viewMonth = Number(liveForm.dataset.jalaliMonth);
