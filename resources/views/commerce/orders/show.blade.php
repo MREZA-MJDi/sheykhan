@@ -28,14 +28,21 @@
                         <div class="rounded-xl bg-[var(--color-background-soft)] p-4 sm:col-span-2"><span class="text-xs text-[var(--color-text-muted)]">شبا</span><strong dir="ltr" class="mt-1 block break-all text-left">{{ $bank['iban'] ?? 'تنظیم نشده' }}</strong></div>
                     </div>
                     <p class="mt-4 text-sm leading-7 text-[var(--color-text-secondary)]">مبلغ را دقیقاً برابر مبلغ سفارش واریز کن و شماره سفارش را در شرح واریز قرار بده. رسید فقط برای بررسی است؛ تأیید نهایی پس از تطبیق واقعی در گردش حساب بانکی انجام می‌شود.</p>
-                    @if($order->status === 'pending' && $payment?->status === 'pending')
+                    @if(in_array($order->status, ['pending', 'payment_failed'], true) && in_array($payment?->status, ['pending', 'rejected'], true))
+                        @if($payment?->status === 'rejected')
+                            <div class="mt-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm leading-7 text-rose-900">
+                                <strong class="block font-black">رسید قبلی تأیید نشد</strong>
+                                <p class="mt-1">{{ $payment->review_note ?: 'لطفاً رسید خوانا و مبلغ دقیق سفارش را دوباره ارسال کن.' }}</p>
+                                <p class="mt-1 text-xs">با ارسال رسید تازه، یک تلاش پرداخت جدید ثبت می‌شود و سابقه بررسی قبلی حفظ خواهد شد.</p>
+                            </div>
+                        @endif
                         <form method="POST" enctype="multipart/form-data" action="{{ route('orders.proof.store', $order) }}" class="mt-6 grid gap-4 rounded-2xl border border-[var(--color-border)] p-4 sm:p-5">
                             @csrf
                             <label class="grid gap-2 text-sm font-bold"><span>رسید واریز (PDF / JPG / PNG / WebP، حداکثر ۱۲ مگابایت)</span><input type="file" name="proof" required accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"></label>
-                            @if($payment->proof_uploaded_at)
+                            @if($payment?->proof_uploaded_at)
                                 <p class="text-xs text-[var(--color-text-muted)]">آخرین رسید در {{ \App\Support\PersianUi::date($payment->proof_uploaded_at) }} ثبت شده است.</p>
                             @endif
-                            <button class="min-h-11 rounded-xl bg-[var(--color-primary-600)] px-4 text-sm font-black text-white">بارگذاری رسید خصوصی</button>
+                            <button class="min-h-11 rounded-xl bg-[var(--color-primary-600)] px-4 text-sm font-black text-white">{{ $payment?->status === 'rejected' ? 'ارسال رسید جدید' : 'بارگذاری رسید خصوصی' }}</button>
                         </form>
                     @elseif($order->status === 'paid')
                         <div class="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">پرداخت تأیید شد. دسترسی فایل‌های مجاز و/یا دوره‌ی سفارش مطابق نوع محصول فعال شده است.</div>
