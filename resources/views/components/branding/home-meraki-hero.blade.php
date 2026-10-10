@@ -1,17 +1,35 @@
 @php
-    // Editorial hero inspired by the supplied Meraki UI component.
-    // Keep the shared navigation in layouts.app; this component owns only the hero.
-    $heroImage = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=85';
+    // The owner-managed image is supplied by HomeHeroService.
+    $heroConfig = $homeHero ?? [];
+    $heroImage = $heroConfig['image'] ?? 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=85';
+    $mobileHeroImage = $heroConfig['mobileImage'] ?? null;
+    $heroFallback = asset('images/home/hero-fallback.svg');
+    $cropX = max(0, min(100, (int) ($heroConfig['cropX'] ?? 50)));
+    $cropY = max(0, min(100, (int) ($heroConfig['cropY'] ?? 46)));
+    $mobileCropX = max(0, min(100, (int) ($heroConfig['mobileCropX'] ?? 54)));
+    $mobileCropY = max(0, min(100, (int) ($heroConfig['mobileCropY'] ?? 50)));
 @endphp
 
 <section class="sheykhan-home-hero" aria-labelledby="sheykhan-home-hero-title" data-home-hero>
-    <div class="sheykhan-home-hero__media" aria-hidden="true">
-        <img
-            src="{{ $heroImage }}"
-            alt=""
-            decoding="async"
-            fetchpriority="high"
-        >
+    <div
+        class="sheykhan-home-hero__media"
+        aria-hidden="true"
+        style="--hero-crop-x: {{ $cropX }}%; --hero-crop-y: {{ $cropY }}%; --hero-mobile-crop-x: {{ $mobileCropX }}%; --hero-mobile-crop-y: {{ $mobileCropY }}%;"
+    >
+        <picture>
+            @if($mobileHeroImage)
+                <source media="(max-width: 640px)" srcset="{{ $mobileHeroImage }}" data-home-hero-mobile-source>
+            @endif
+            <img
+                src="{{ $heroImage }}"
+                alt=""
+                decoding="async"
+                loading="eager"
+                fetchpriority="high"
+                data-home-hero-image
+                data-fallback-src="{{ $heroFallback }}"
+            >
+        </picture>
     </div>
 
     <div class="sheykhan-home-hero__overlay" aria-hidden="true"></div>
