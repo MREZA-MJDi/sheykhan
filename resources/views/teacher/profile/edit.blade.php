@@ -85,6 +85,12 @@
                         >
                     </label>
                     <small id="teacher-cover-help">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت. انتخاب کاور اجباری نیست.</small>
+                    @if($cover)
+                        <label class="teacher-cover-remove">
+                            <input type="checkbox" name="remove_cover" value="1" @checked(old('remove_cover'))>
+                            <span>حذف کاور فعلی و نمایش پروفایل بدون کاور</span>
+                        </label>
+                    @endif
                 </div>
             </section>
 
