@@ -129,7 +129,11 @@ final class TeacherWorkspaceService
         string $sort = 'name',
         string $direction = 'asc'
     ): LengthAwarePaginator {
-        $classroomIds = $teacher->classroomsAsTeacher()->pluck('classrooms.id');
+        // Use the same active-academy membership boundary as the other teacher
+        // workspace queries. Archived memberships must not leak into the roster.
+        $classroomIds = $teacher->classroomsAsTeacher()
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
             return new LengthAwarePaginator([], 0, $perPage);
