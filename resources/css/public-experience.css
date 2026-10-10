@@ -541,3 +541,182 @@
     .public-library-course-media img,.public-library-product-media img,.public-library-action span { transition:none !important; }
     .public-checkout-submit:hover,.public-library-course-card:hover,.public-library-product-card:hover { transform:none; }
 }
+
+
+
+/* Public catalog/editorial details: one signature look, with a different visual voice for each content type. */
+.public-blog-page,.public-blog-post-page,.public-teachers-page,.teacher-profile-page,
+.public-courses-page,.public-course-page,.public-store-page,.public-product-page {
+    background:
+        radial-gradient(circle at 97% 3%,rgba(101,84,217,.055),transparent 24rem),
+        radial-gradient(circle at 2% 32%,rgba(21,143,151,.035),transparent 20rem);
+}
+.public-page-intro,.public-blog-page > section > div > header,
+.public-courses-page > section > div > header,
+.public-teachers-page > section > div > header,
+.public-store-page > section > div > header {
+    position:relative;
+}
+.public-page-intro--editorial,
+.public-page-intro--courses {
+    padding:clamp(22px,3.5vw,36px);
+    border:1px solid rgba(255,255,255,.8);
+    border-radius:26px;
+    background:
+        radial-gradient(circle at 93% 8%,rgba(100,84,216,.11),transparent 12rem),
+        radial-gradient(circle at 0% 100%,rgba(23,145,150,.065),transparent 18rem),
+        linear-gradient(135deg,#fff,#f8faff);
+    box-shadow:0 17px 43px rgba(22,38,72,.055);
+}
+.public-page-intro--editorial h1,.public-page-intro--courses h1 {
+    letter-spacing:-.045em;
+    text-wrap:pretty;
+}
+.public-blog-grid { align-items:stretch; gap:clamp(14px,1.8vw,22px); }
+.public-blog-card {
+    border-color:#e4e8f1 !important;
+    border-radius:22px !important;
+    box-shadow:0 8px 25px rgba(20,37,71,.045) !important;
+    transition:transform .25s cubic-bezier(.2,.7,.2,1),border-color .22s ease,box-shadow .22s ease !important;
+}
+.public-blog-card:hover {
+    transform:translateY(-5px) !important;
+    border-color:#d6d0fb !important;
+    box-shadow:0 20px 44px rgba(23,39,75,.095) !important;
+}
+.public-blog-card--featured {
+    background:
+        linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.04) 100%),
+        #fff;
+}
+.public-blog-card__media { background:#e8edf6; }
+.public-blog-card__media img { transition:transform .55s cubic-bezier(.2,.7,.2,1); }
+.public-blog-card:hover .public-blog-card__media img { transform:scale(1.045); }
+.public-blog-card__body { gap:4px; }
+.public-blog-card__body h2 { text-wrap:pretty; }
+.public-blog-card__body > div:last-child { border-color:#edf0f5; }
+
+.teacher-directory-grid { align-items:stretch; gap:clamp(14px,2vw,22px); }
+.teacher-directory-grid .teacher-card {
+    overflow:hidden;
+    border:1px solid #e3e8f1;
+    border-radius:23px;
+    background:#fff;
+    box-shadow:0 8px 27px rgba(22,37,70,.045);
+    transition:transform .24s cubic-bezier(.2,.7,.2,1),border-color .22s ease,box-shadow .22s ease;
+}
+.teacher-directory-grid .teacher-card:hover {
+    transform:translateY(-5px);
+    border-color:#d6d0fa;
+    box-shadow:0 20px 43px rgba(23,38,75,.1);
+}
+.teacher-directory-grid .teacher-card__media {
+    position:relative;
+    aspect-ratio:5/4;
+    background:
+        radial-gradient(circle at 25% 20%,rgba(255,255,255,.24),transparent 9rem),
+        linear-gradient(140deg,#233855,#5b58ac 60%,#278d92);
+}
+.teacher-directory-grid .teacher-card__photo { transition:transform .6s cubic-bezier(.2,.7,.2,1),filter .3s ease; }
+.teacher-directory-grid .teacher-card:hover .teacher-card__photo { transform:scale(1.04); filter:saturate(1.08); }
+.teacher-directory-grid .teacher-card__fallback {
+    display:grid; place-items:center; width:94px; height:94px; margin:auto;
+    border:1px solid rgba(255,255,255,.38); border-radius:28px;
+    background:rgba(255,255,255,.13); color:#fff; font-size:40px; font-weight:950;
+    box-shadow:0 15px 40px rgba(15,25,50,.15); backdrop-filter:blur(10px);
+}
+.teacher-directory-grid .teacher-card__body { display:flex; min-height:230px; flex-direction:column; padding:20px; }
+.teacher-directory-grid .teacher-card__name { color:#233149; font-size:18px; font-weight:950; line-height:1.65; }
+.teacher-directory-grid .teacher-card__role { display:inline-flex; width:max-content; max-width:100%; margin-top:5px; padding:5px 9px; border-radius:8px; background:#f0edff; color:#5f4dce; font-size:10px; font-weight:900; }
+.teacher-directory-grid .teacher-card__bio { color:#7a8699; font-size:12px; line-height:2.05; }
+.teacher-directory-grid .teacher-card__footer { margin-top:auto; padding-top:15px; border-top:1px solid #edf0f5; }
+.teacher-directory-grid .teacher-card__course-count { color:#7a879a; font-size:10px; font-weight:850; }
+.teacher-directory-grid .teacher-card__action { color:#5c4acb; font-size:11px; font-weight:950; text-decoration:none; }
+
+.public-store-page > section > div > section[aria-labelledby="store-products-title"] { margin-top:clamp(32px,4vw,55px); }
+.public-store-page .grid > .group.relative.overflow-hidden {
+    border-color:#e3e8f1;
+    border-radius:21px;
+    background:
+        radial-gradient(circle at 96% 2%,rgba(95,76,207,.075),transparent 11rem),
+        linear-gradient(145deg,#fff,#f9faff);
+    box-shadow:0 8px 25px rgba(25,40,74,.04);
+    transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.public-store-page .grid > .group.relative.overflow-hidden:hover {
+    transform:translateY(-4px);
+    border-color:#d6d0fa;
+    box-shadow:0 17px 36px rgba(25,40,74,.09);
+}
+.public-store-page .edu-card,.public-courses-page .edu-card {
+    overflow:hidden;
+    border:1px solid #e3e8f1;
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 8px 25px rgba(25,40,74,.04);
+    transition:transform .23s cubic-bezier(.2,.7,.2,1),border-color .22s ease,box-shadow .22s ease;
+}
+.public-store-page .edu-card:hover,.public-courses-page .edu-card:hover {
+    transform:translateY(-4px);
+    border-color:#d6d0fa;
+    box-shadow:0 20px 42px rgba(25,40,74,.09);
+}
+.public-store-page .edu-card > a > div:first-child,
+.public-courses-page .edu-card > a > div:first-child { background:#e9edf6; }
+.public-store-page .edu-card img,.public-courses-page .edu-card img { transition:transform .55s cubic-bezier(.2,.7,.2,1); }
+.public-store-page .edu-card:hover img,.public-courses-page .edu-card:hover img { transform:scale(1.045); }
+.public-course-page .public-course-hero {
+    position:relative;
+}
+.public-course-page .public-course-hero > div:first-child {
+    padding-top:2px;
+}
+.public-course-page .public-course-hero img {
+    filter:saturate(1.035);
+}
+.public-course-page .public-course-hero :is(.rounded-2xl,.rounded-3xl) {
+    border-color:#e1e6f0;
+}
+.public-product-page article > div > div:first-child {
+    background:#e9edf6;
+}
+.public-product-page article > div > div:first-child img {
+    transition:transform .55s cubic-bezier(.2,.7,.2,1);
+}
+.public-product-page article > div:first-child:hover img { transform:scale(1.025); }
+.public-blog-post-page .public-article-body {
+    color:#536178;
+    font-size:16px;
+    line-height:2.25;
+    overflow-wrap:anywhere;
+}
+.public-blog-post-page .public-article-body :is(h2,h3) {
+    margin-top:2.2em;
+    margin-bottom:.7em;
+    color:#202d44;
+    font-weight:950;
+    line-height:1.7;
+}
+.public-blog-post-page .public-article-body img {
+    max-width:100%;
+    height:auto;
+    border-radius:18px;
+}
+.public-blog-post-page .public-article-body a {
+    color:#5948ca;
+    font-weight:800;
+    text-decoration-thickness:1px;
+    text-underline-offset:4px;
+}
+@media(max-width:720px) {
+    .public-page-intro--editorial,.public-page-intro--courses { border-radius:20px; }
+    .teacher-directory-grid .teacher-card { border-radius:19px; }
+    .teacher-directory-grid .teacher-card__body { min-height:0; padding:17px; }
+    .public-blog-card { border-radius:18px !important; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .public-blog-card,.teacher-directory-grid .teacher-card,.public-store-page .edu-card,
+    .public-courses-page .edu-card,.teacher-directory-grid .teacher-card__photo { transition:none !important; }
+    .public-blog-card:hover,.teacher-directory-grid .teacher-card:hover,
+    .public-store-page .edu-card:hover,.public-courses-page .edu-card:hover { transform:none !important; }
+}
