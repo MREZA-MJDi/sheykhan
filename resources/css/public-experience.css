@@ -794,3 +794,52 @@
         background:linear-gradient(180deg,rgba(16,26,49,.72) 0%,rgba(24,37,68,.82) 100%);
     }
 }
+
+
+
+/* Fallback selectors for public cards shared by Blade components with different names. */
+.public-teachers-page .grid > article,
+.public-teachers-page .grid > .edu-card,
+.public-teachers-page .grid > .teacher-card,
+.public-store-page .grid > article,
+.public-store-page .grid > .edu-card,
+.public-store-page .grid > .product-card,
+.public-courses-page .grid > article,
+.public-courses-page .grid > .edu-card {
+    overflow:hidden;
+    border-color:#e3e8f1;
+    border-radius:21px;
+    background:#fff;
+    box-shadow:0 8px 26px rgba(23,39,74,.045);
+    transition:transform .23s cubic-bezier(.2,.7,.2,1),border-color .22s ease,box-shadow .22s ease;
+}
+.public-teachers-page .grid > article:hover,
+.public-teachers-page .grid > .edu-card:hover,
+.public-teachers-page .grid > .teacher-card:hover,
+.public-store-page .grid > article:hover,
+.public-store-page .grid > .edu-card:hover,
+.public-store-page .grid > .product-card:hover,
+.public-courses-page .grid > article:hover,
+.public-courses-page .grid > .edu-card:hover {
+    transform:translateY(-4px);
+    border-color:#d7d1fa;
+    box-shadow:0 19px 40px rgba(23,39,74,.095);
+}
+.public-teachers-page .grid > article img,
+.public-teachers-page .grid > .edu-card img,
+.public-teachers-page .grid > .teacher-card img,
+.public-store-page .grid > article img,
+.public-store-page .grid > .edu-card img,
+.public-store-page .grid > .product-card img,
+.public-courses-page .grid > article img,
+.public-courses-page .grid > .edu-card img {
+    transition:transform .55s cubic-bezier(.2,.7,.2,1);
+}
+.public-teachers-page .grid > article:hover img,
+.public-teachers-page .grid > .edu-card:hover img,
+.public-teachers-page .grid > .teacher-card:hover img,
+.public-store-page .grid > article:hover img,
+.public-store-page .grid > .edu-card:hover img,
+.public-store-page .grid > .product-card:hover img,
+.public-courses-page .grid > article:hover img,
+.public-courses-page .grid > .edu-card:hover img { transform:scale(1.04); }
