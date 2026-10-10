@@ -26,7 +26,7 @@
 
         $accessLabel = $canAccessContent
             ? 'دسترسی فعال'
-            : ($requiresPayment ? 'نیازمند پرداخت' : 'ورود لازم است');
+            : (($parentCourseEntitlement ?? false) ? 'دسترسی فرزند فعال' : ($requiresPayment ? 'نیازمند پرداخت' : 'ورود لازم است'));
     @endphp
 
     <section class="public-course-page">
@@ -287,26 +287,39 @@
                                                     </strong>
 
                                                     <p class="mt-1 text-xs leading-6 text-[var(--color-success-700)]/80">
-                                                        این حساب می‌تواند محتوای محافظت‌شده دوره را فقط در همین فضای امن مشاهده کند.
+                                                        دسترسی آموزشی فعال است. درس‌ها و ویدئوهای محافظت‌شده فقط از محیط امن یادگیری در دسترس‌اند؛ فایل خام دوره لینک دانلود عمومی ندارد.
                                                     </p>
+                                                    @if(auth()->user()?->hasRole('student'))
+                                                        <a href="{{ route('student.courses.show', $course) }}" class="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--color-success-700)] px-4 text-xs font-black text-white">رفتن به درس‌های دوره <span class="ms-2" aria-hidden="true">←</span></a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @elseif($parentCourseEntitlement ?? false)
+                                        <div class="mt-6 rounded-2xl border border-[var(--color-warning-100)] bg-[var(--color-warning-50)] p-4">
+                                            <div class="flex items-start gap-3">
+                                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[var(--color-warning-700)] shadow-sm">✓</span>
+                                                <div>
+                                                    <strong class="block text-sm font-black text-[var(--color-warning-700)]">دسترسی فرزند فعال است</strong>
+                                                    <p class="mt-1 text-xs leading-6 text-[var(--color-warning-700)]/80">محتوای درس باید از حساب خود دانش‌آموز باز شود. از پنل والد می‌توانی پیشرفت و برنامه‌ی فرزندت را پیگیری کنی.</p>
+                                                    <a href="{{ route('parent.dashboard') }}" class="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--color-warning-700)] px-4 text-xs font-black text-white">رفتن به پنل والد <span class="ms-2" aria-hidden="true">←</span></a>
                                                 </div>
                                             </div>
                                         </div>
                                     @elseif($requiresPayment)
                                         <div class="mt-6 rounded-2xl border border-[var(--color-warning-100)] bg-[var(--color-warning-50)] p-4">
                                             <div class="flex items-start gap-3">
-                                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[var(--color-warning-700)] shadow-sm">
-                                                    !
-                                                </span>
-
+                                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[var(--color-warning-700)] shadow-sm">!</span>
                                                 <div>
-                                                    <strong class="block text-sm font-black text-[var(--color-warning-700)]">
-                                                        این دوره نیاز به پرداخت دارد
-                                                    </strong>
-
+                                                    <strong class="block text-sm font-black text-[var(--color-warning-700)]">این دوره نیاز به پرداخت دارد</strong>
                                                     <p class="mt-1 text-xs leading-6 text-[var(--color-warning-700)]/80">
-                                                        محتوای محافظت‌شده تا زمان تأیید پرداخت در دسترس نخواهد بود.
+                                                        ثبت سفارش یا بارگذاری رسید به‌تنهایی دسترسی را فعال نمی‌کند. پس از تطبیق واقعی وجه توسط آموزشگاه، دوره در کتابخانه‌ی دانش‌آموز قرار می‌گیرد.
                                                     </p>
+                                                    @if(auth()->user()->hasAnyRole(['student', 'parent']))
+                                                        <a href="{{ route('checkout.course.show', $course) }}" class="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-primary-600)] px-4 text-xs font-black text-white">خرید دوره و فعال‌سازی دسترسی <span class="ms-2" aria-hidden="true">←</span></a>
+                                                    @else
+                                                        <p class="mt-3 text-xs leading-6 text-[var(--color-text-muted)]">خرید مستقیم برای حساب دانش‌آموز یا والد انجام می‌شود.</p>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -317,10 +330,10 @@
                                     @endif
                                 @else
                                     <a
-                                        href="{{ route('login') }}"
+                                        href="{{ $requiresPayment ? route('checkout.course.show', $course) : route('login') }}"
                                         class="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary-600)] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[var(--color-primary-700)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-300)] focus:ring-offset-2"
                                     >
-                                        <span>ورود برای ادامه</span>
+                                        <span>{{ $requiresPayment ? 'ورود و خرید دوره' : 'ورود برای ادامه' }}</span>
                                         <span aria-hidden="true">←</span>
                                     </a>
 
