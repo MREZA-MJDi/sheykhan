@@ -26,6 +26,17 @@
         'student' => 'پنل دانش‌آموز',
         'parent' => 'پنل والد',
     ];
+
+    $topbarUserUrl = match ($role) {
+        'teacher' => route('teacher.profile.edit'),
+        'student' => route('student.profile.edit'),
+        'parent' => route('parent.dashboard'),
+        default => route('dashboard'),
+    };
+
+    $topbarUserLinkLabel = in_array($role, ['teacher', 'student'], true)
+        ? 'ویرایش پروفایل کاربری'
+        : ($role === 'parent' ? 'رفتن به داشبورد والد' : 'رفتن به داشبورد');
 @endphp
 
 <header class="role-topbar">
@@ -49,7 +60,7 @@
     <div class="role-topbar-actions">
         <a href="{{ route('home') }}" class="role-topbar-site">مشاهده سایت</a>
 
-        <a href="{{ $role === 'teacher' ? route('teacher.profile.edit') : ($role === 'student' ? route('student.profile.edit') : route('home')) }}" class="role-user-chip" aria-label="پروفایل کاربری">
+        <a href="{{ $topbarUserUrl }}" class="role-user-chip" aria-label="{{ $topbarUserLinkLabel }}">
             <span class="role-user-avatar role-user-avatar-image">
                 @if($topbarAvatar)
                     <img src="{{ $topbarAvatar }}" alt="" loading="lazy">

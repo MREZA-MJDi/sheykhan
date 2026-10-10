@@ -7,17 +7,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 const announce = (type, title, message) => {
-    const existing = document.querySelector('.student-alert');
+    const main = document.querySelector('.role-main');
+    if (!main) return;
+
+    const isSuccess = type === 'success';
     const alert = document.createElement('div');
-    alert.className = `student-alert student-alert-${type === 'success' ? 'success' : 'danger'}`;
-    alert.setAttribute('role', type === 'success' ? 'status' : 'alert');
-    alert.setAttribute('aria-live', type === 'success' ? 'polite' : 'assertive');
-    alert.innerHTML = `
-        <span class="student-alert-icon" aria-hidden="true">${type === 'success' ? '✓' : '!'}</span>
-        <div><strong>${title}</strong><span>${message}</span></div>
-    `;
-    existing?.remove();
-    document.querySelector('.role-main')?.prepend(alert);
+    alert.className = `student-alert student-alert-${isSuccess ? 'success' : 'danger'}`;
+    alert.setAttribute('role', isSuccess ? 'status' : 'alert');
+    alert.setAttribute('aria-live', isSuccess ? 'polite' : 'assertive');
+
+    const icon = document.createElement('span');
+    icon.className = 'student-alert-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = isSuccess ? '✓' : '!';
+
+    const copy = document.createElement('div');
+    const heading = document.createElement('strong');
+    const detail = document.createElement('span');
+    heading.textContent = String(title ?? '');
+    detail.textContent = String(message ?? '');
+    copy.append(heading, detail);
+    alert.append(icon, copy);
+
+    document.querySelector('.student-alert')?.remove();
+    main.prepend(alert);
 };
 
 document.addEventListener('submit', async (event) => {

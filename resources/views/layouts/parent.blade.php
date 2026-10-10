@@ -15,8 +15,12 @@
         <div class="role-content">
             @php($parentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل والد')))
             <x-navigation.panel-topbar role="parent" :title="$parentHeaderTitle" />
-            <main class="role-main">@yield('content')</main>
+            <main class="role-main">
+                <x-ui.flash-messages />
+                @yield('content')
+            </main>
         </div>
+        <x-navigation.role-mobile-nav role="parent" />
     </div>
     @stack('scripts')
 </body>

@@ -949,7 +949,7 @@
         bottom:calc(10px + env(safe-area-inset-bottom));
         z-index:70;
         display:grid;
-        grid-template-columns:repeat(5,minmax(0,1fr));
+        grid-template-columns:repeat(auto-fit,minmax(0,1fr));
         gap:4px;
         padding:7px;
         border:1px solid rgba(231,235,241,.94);
@@ -995,7 +995,7 @@
     }
 }
 @media(max-width:380px){
-    .role-mobile-bottom-nav{left:6px;right:6px;bottom:6px}
+    .role-mobile-bottom-nav{left:6px;right:6px;bottom:calc(6px + env(safe-area-inset-bottom))}
     .role-mobile-bottom-nav a{min-height:52px;font-size:7px}
 }
 

@@ -18,8 +18,8 @@
         @endif
     </header>
 
-    @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
-    @if($errors->any())<div class="teacher-workspace-alert error">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
+    @if(session('success'))<div class="teacher-workspace-alert success" role="status" aria-live="polite">{{ session('success') }}</div>@endif
+    @if($errors->any())<div class="teacher-workspace-alert error" role="alert" aria-live="assertive">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 
     <form method="POST" action="{{ route('teacher.profile.update') }}" enctype="multipart/form-data">
         @csrf @method('PATCH')
