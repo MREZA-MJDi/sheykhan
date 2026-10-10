@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureActiveTeacherMembership;
+use App\Http\Middleware\MeasureCriticalRequestTime;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Measure only critical routes after the response returns; keep payloads and personal data out of logs.
+        $middleware->append(MeasureCriticalRequestTime::class);
+
         $middleware->alias([
             'role' => EnsureRole::class,
             'permission' => EnsurePermission::class,

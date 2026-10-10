@@ -17,23 +17,30 @@ final class StudentDashboardService
         $access = app(StudentAccessService::class);
         $courseIds = $access->enrolledCourseIds($student);
 
-        $activeCourseCount = $student->enrollments()
-            ->where('status', 'active')
-            ->whereIn('course_id', $courseIds)
-            ->distinct('course_id')
-            ->count('course_id');
-
-        $enrollments = $student->enrollments()
-            ->where('status', 'active')
-            ->whereIn('course_id', $courseIds)
-            ->with([
-                'course:id,academy_id,title,slug,level,access_type,price',
-                'course.academy:id,name',
-                'course.teachers:id,name',
-            ])
-            ->latest('started_at')
-            ->limit(6)
-            ->get();
+        if ($courseIds->isEmpty()) {
+            // New students should reach a useful empty dashboard without two
+            // pointless count/list round trips to the enrollment table.
+            $activeCourseCount = 0;
+            $enrollments = collect();
+        } else {
+            $activeCourseCount = $student->enrollments()
+                ->where('status', 'active')
+                ->whereIn('course_id', $courseIds)
+                ->distinct('course_id')
+                ->count('course_id');
+    
+            $enrollments = $student->enrollments()
+                ->where('status', 'active')
+                ->whereIn('course_id', $courseIds)
+                ->with([
+                    'course:id,academy_id,title,slug,level,access_type,price',
+                    'course.academy:id,name',
+                    'course.teachers:id,name',
+                ])
+                ->latest('started_at')
+                ->limit(6)
+                ->get();
+        }
 
         $progress = $this->progressByCourse($student->id, $courseIds);
         $lessonStats = $this->lessonStatsByCourse($student->id, $courseIds);
@@ -187,59 +194,63 @@ final class StudentDashboardService
                     ];
                 });
 
-        $assignmentResults = DB::table('assignment_submissions as submissions')
-            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-            ->where('submissions.student_id', $student->id)
-            ->whereIn('assignments.course_id', $courseIds)
-            ->whereNotNull('submissions.graded_at')
-            ->latest('submissions.graded_at')
-            ->limit(6)
-            ->get([
-                'assignments.title',
-                'submissions.score',
-                'submissions.graded_at as occurred_at',
-            ])
-            ->map(function ($result): object {
-                $result->occurred_at = $result->occurred_at
-                    ? Carbon::parse($result->occurred_at)
-                    : null;
-                $result->type = 'assignment';
-                $result->status_label = 'تصحیح‌شده';
-                return $result;
-            });
-
-        $examResults = DB::table('exam_attempts as attempts')
-            ->join('exams', 'exams.id', '=', 'attempts.exam_id')
-            ->where('attempts.student_id', $student->id)
-            ->whereIn('exams.course_id', $courseIds)
-            ->whereNotNull('attempts.submitted_at')
-            ->latest('attempts.submitted_at')
-            ->limit(6)
-            ->get([
-                'exams.title',
-                'attempts.score',
-                'attempts.submitted_at as occurred_at',
-                'attempts.status',
-            ])
-            ->map(function ($result): object {
-                $result->occurred_at = $result->occurred_at
-                    ? Carbon::parse($result->occurred_at)
-                    : null;
-                $result->type = 'exam';
-                $result->status_label = $result->status === 'graded'
-                    ? 'تصحیح‌شده'
-                    : 'در انتظار بررسی';
-                if ($result->status !== 'graded') {
-                    $result->score = null;
-                }
-                return $result;
-            });
-
-        $recentResults = $assignmentResults
-            ->concat($examResults)
-            ->sortByDesc('occurred_at')
-            ->take(6)
-            ->values();
+        if ($courseIds->isEmpty()) {
+            $recentResults = collect();
+        } else {
+            $assignmentResults = DB::table('assignment_submissions as submissions')
+                ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+                ->where('submissions.student_id', $student->id)
+                ->whereIn('assignments.course_id', $courseIds)
+                ->whereNotNull('submissions.graded_at')
+                ->latest('submissions.graded_at')
+                ->limit(6)
+                ->get([
+                    'assignments.title',
+                    'submissions.score',
+                    'submissions.graded_at as occurred_at',
+                ])
+                ->map(function ($result): object {
+                    $result->occurred_at = $result->occurred_at
+                        ? Carbon::parse($result->occurred_at)
+                        : null;
+                    $result->type = 'assignment';
+                    $result->status_label = 'تصحیح‌شده';
+                    return $result;
+                });
+    
+            $examResults = DB::table('exam_attempts as attempts')
+                ->join('exams', 'exams.id', '=', 'attempts.exam_id')
+                ->where('attempts.student_id', $student->id)
+                ->whereIn('exams.course_id', $courseIds)
+                ->whereNotNull('attempts.submitted_at')
+                ->latest('attempts.submitted_at')
+                ->limit(6)
+                ->get([
+                    'exams.title',
+                    'attempts.score',
+                    'attempts.submitted_at as occurred_at',
+                    'attempts.status',
+                ])
+                ->map(function ($result): object {
+                    $result->occurred_at = $result->occurred_at
+                        ? Carbon::parse($result->occurred_at)
+                        : null;
+                    $result->type = 'exam';
+                    $result->status_label = $result->status === 'graded'
+                        ? 'تصحیح‌شده'
+                        : 'در انتظار بررسی';
+                    if ($result->status !== 'graded') {
+                        $result->score = null;
+                    }
+                    return $result;
+                });
+    
+            $recentResults = $assignmentResults
+                ->concat($examResults)
+                ->sortByDesc('occurred_at')
+                ->take(6)
+                ->values();
+        }
 
         $resources = app(StudentLearningResourceService::class)
             ->query($student)

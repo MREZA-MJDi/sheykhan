@@ -1,13 +1,3 @@
-import Alpine from 'alpinejs';
-import './tiamir-intro.js';
-
-window.Alpine = window.Alpine || Alpine;
-
-if (!window.__sheykhanAlpineBooted) {
-    Alpine.start();
-    window.__sheykhanAlpineBooted = true;
-}
-
 (() => {
     'use strict';
 
@@ -29,7 +19,7 @@ if (!window.__sheykhanAlpineBooted) {
     };
 
     ready(() => {
-        const root = document.querySelector('#main-content');
+        const root = document.querySelector('#main-content.home-page');
 
         if (!root) return;
 

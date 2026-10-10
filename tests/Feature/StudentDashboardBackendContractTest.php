@@ -6,9 +6,11 @@ use App\Models\Assignment;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\StudentDashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class StudentDashboardBackendContractTest extends TestCase
@@ -55,6 +57,39 @@ class StudentDashboardBackendContractTest extends TestCase
             $this->assertNotNull($result->occurred_at);
             $this->assertNotSame('', $result->status_label ?? '');
         }
+    }
+
+    public function test_new_student_dashboard_skips_course_scoped_queries_when_no_courses_are_enrolled(): void
+    {
+        $this->seed();
+
+        $student = User::factory()->create();
+        $studentRoleId = Role::query()->where('slug', 'student')->value('id');
+        $this->assertNotNull($studentRoleId);
+        $student->roles()->attach($studentRoleId);
+
+        $queries = [];
+        DB::listen(function ($query) use (&$queries): void {
+            $queries[] = strtolower($query->sql);
+        });
+
+        $payload = app(StudentDashboardService::class)->build($student);
+
+        $this->assertSame(0, $payload['activeCourseCount']);
+        $this->assertTrue($payload['courses']->isEmpty());
+        $this->assertTrue($payload['assignments']->isEmpty());
+        $this->assertTrue($payload['recentResults']->isEmpty());
+        $this->assertTrue($payload['sessions']->isEmpty());
+        $this->assertTrue($payload['upcomingLiveClasses']->isEmpty());
+        $this->assertSame(0, $payload['pendingAssignments']);
+
+        $courseScopedResultQueries = array_filter(
+            $queries,
+            fn (string $sql): bool => str_contains($sql, 'assignment_submissions')
+                || str_contains($sql, 'exam_attempts')
+        );
+
+        $this->assertSame([], array_values($courseScopedResultQueries));
     }
 
     public function test_pending_assignment_kpi_is_not_limited_to_the_dashboard_list(): void
