@@ -246,8 +246,8 @@
             <section class="teacher-panel" aria-labelledby="teacher-progress-title">
                 <div class="teacher-panel-head">
                     <div>
-                        <span class="teacher-panel-label">عملکرد آموزشی</span>
-                        <h2 id="teacher-progress-title">روند پیشرفت دانش‌آموزان</h2>
+                        <span class="teacher-panel-label">بر پایهٔ ثبت پیشرفت درس‌ها</span>
+                        <h2 id="teacher-progress-title">میانگین پیشرفت ثبت‌شدهٔ دانش‌آموزان</h2>
                     </div>
 
                     <div class="teacher-filter" role="group" aria-label="بازه نمودار">
@@ -275,7 +275,7 @@
                             <i></i><i></i><i></i><i></i><i></i>
                         </div>
 
-                        <div class="teacher-bars" data-teacher-bars aria-label="نمودار پیشرفت">
+                        <div class="teacher-bars" data-teacher-bars role="img" aria-label="نمودار میانگین درصد پیشرفت درس‌ها بر اساس بازهٔ انتخاب‌شده">
                             @foreach(($chart['week']['values'] ?? []) as $index => $value)
                                 @php($chartValue = max(0, min(100, (float) $value)))
 
@@ -292,6 +292,10 @@
                         </div>
                     </div>
                 </div>
+
+                <p class="teacher-chart-method">
+                    درصد هر بازه از رکوردهای پیشرفت درس دانش‌آموزان در همان بازه محاسبه می‌شود؛ این شاخص میزان تکمیل محتوای ثبت‌شده را نشان می‌دهد، نه نمرهٔ آزمون یا کیفیت یادگیری.
+                </p>
 
                 @if($courseProgress->isNotEmpty())
                     <div class="teacher-course-progress">
