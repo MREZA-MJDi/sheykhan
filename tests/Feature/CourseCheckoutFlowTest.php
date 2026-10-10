@@ -1,21 +1,21 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Models\\Academy;
-use App\\Models\\Course;
-use App\\Models\\CourseEnrollment;
-use App\\Models\\FinancialTransaction;
-use App\\Models\\LegalDocument;
-use App\\Models\\Media;
-use App\\Models\\Order;
-use App\\Models\\OrderItem;
-use App\\Models\\User;
-use App\\Services\\CourseAccessService;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Illuminate\\Support\\Facades\\Storage;
-use Illuminate\\Support\\Str;
-use Tests\\TestCase;
+use App\Models\Academy;
+use App\Models\Course;
+use App\Models\CourseEnrollment;
+use App\Models\FinancialTransaction;
+use App\Models\LegalDocument;
+use App\Models\Media;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\User;
+use App\Services\CourseAccessService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 class CourseCheckoutFlowTest extends TestCase
 {
