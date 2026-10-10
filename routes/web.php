@@ -83,9 +83,9 @@ Route::middleware(['auth','active'])->group(function () {
         ->middleware('permission:media.download')
         ->name('media.download');
 
-        Route::get('/checkout/course/{course}', [\\App\\Http\\Controllers\\Commerce\\CourseCheckoutController::class, 'show'])->name('checkout.course.show');
-    Route::post('/checkout/course/{course}', [\\App\\Http\\Controllers\\Commerce\\CourseCheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.course.store');
-    Route::get('/library', [\\App\\Http\\Controllers\\Commerce\\LibraryController::class, 'index'])->name('library.index');
+        Route::get('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'show'])->name('checkout.course.show');
+    Route::post('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.course.store');
+    Route::get('/library', [\App\Http\Controllers\Commerce\LibraryController::class, 'index'])->name('library.index');
 
 Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'show'])->name('checkout.show');
     Route::post('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
