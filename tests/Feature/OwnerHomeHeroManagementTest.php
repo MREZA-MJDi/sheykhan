@@ -124,7 +124,16 @@ class OwnerHomeHeroManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    private function workspace(): array
+    public function test_owner_of_another_academy_cannot_change_the_platform_wide_hero(): void
+    {
+        [$owner] = $this->workspace('another-academy');
+
+        $this->actingAs($owner)
+            ->get(route('owner.website.hero.edit'))
+            ->assertForbidden();
+    }
+
+    private function workspace(string $academySlug = 'sheykhan-academy'): array
     {
         $owner = User::factory()->create([
             'email' => 'owner-' . Str::random(8) . '@test.local',
@@ -151,7 +160,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         $academy = Academy::create([
             'owner_id' => $owner->id,
             'name' => 'آکادمی تست',
-            'slug' => 'sheykhan-academy',
+            'slug' => $academySlug,
             'status' => 'active',
         ]);
 
