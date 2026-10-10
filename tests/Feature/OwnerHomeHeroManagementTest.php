@@ -151,7 +151,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         $academy = Academy::create([
             'owner_id' => $owner->id,
             'name' => 'آکادمی تست',
-            'slug' => 'academy-' . Str::random(8),
+            'slug' => 'sheykhan-academy',
             'status' => 'active',
         ]);
 
