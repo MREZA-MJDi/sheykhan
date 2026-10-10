@@ -32,13 +32,26 @@ if (!window.__sheykhanAlpineBooted) {
         // A failed custom/CDN hero must not leave a broken-image glyph over the hero.
         document.querySelectorAll('[data-home-hero-image]').forEach((image) => {
             const fallback = image.dataset.fallbackSrc;
+            const desktopSource = image.dataset.desktopSrc || image.getAttribute('src') || '';
+            const mobileSource = image.closest('picture')?.querySelector('[data-home-hero-mobile-source]');
             const useFallback = () => {
+                // On mobile, first retry the desktop image if only the mobile source failed.
+                if (
+                    mobileSource?.hasAttribute('srcset')
+                    && window.matchMedia('(max-width: 640px)').matches
+                    && image.dataset.mobileFallbackAttempted !== 'true'
+                ) {
+                    mobileSource.removeAttribute('srcset');
+                    image.dataset.mobileFallbackAttempted = 'true';
+                    image.src = desktopSource;
+                    return;
+                }
                 if (!fallback || image.dataset.fallbackApplied === 'true') return;
                 image.dataset.fallbackApplied = 'true';
-                image.closest('picture')?.querySelectorAll('source').forEach((source) => source.removeAttribute('srcset'));
+                mobileSource?.removeAttribute('srcset');
                 image.src = fallback;
             };
-            image.addEventListener('error', useFallback, { once: true });
+            image.addEventListener('error', useFallback);
             if (image.complete && image.naturalWidth === 0) useFallback();
         });
 
