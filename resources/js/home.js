@@ -29,6 +29,19 @@ if (!window.__sheykhanAlpineBooted) {
     };
 
     ready(() => {
+        // A failed custom/CDN hero must not leave a broken-image glyph over the hero.
+        document.querySelectorAll('[data-home-hero-image]').forEach((image) => {
+            const fallback = image.dataset.fallbackSrc;
+            const useFallback = () => {
+                if (!fallback || image.dataset.fallbackApplied === 'true') return;
+                image.dataset.fallbackApplied = 'true';
+                image.closest('picture')?.querySelectorAll('source').forEach((source) => source.removeAttribute('srcset'));
+                image.src = fallback;
+            };
+            image.addEventListener('error', useFallback, { once: true });
+            if (image.complete && image.naturalWidth === 0) useFallback();
+        });
+
         const root = document.querySelector('#main-content');
 
         if (!root) return;
