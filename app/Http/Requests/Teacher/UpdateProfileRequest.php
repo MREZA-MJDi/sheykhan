@@ -24,6 +24,7 @@ class UpdateProfileRequest extends FormRequest
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:80'],
             'is_public' => ['sometimes', 'boolean'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:3072'],
+            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:5120'],
         ];
     }
 }
