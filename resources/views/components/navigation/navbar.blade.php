@@ -57,6 +57,12 @@
                                     <div class="text-sm font-bold text-[var(--color-text)]">داشبورد من</div>
                                     <div class="mt-1 text-xs text-[var(--color-text-muted)]">ورود به فضای نقش شما</div>
                                 </a>
+                                @if(auth()->user()->hasAnyRole(['student', 'parent']))
+                                    <a href="{{ route('library.index') }}" class="block rounded-xl px-4 py-3 transition hover:bg-[var(--color-background-soft)]">
+                                        <div class="text-sm font-bold text-[var(--color-text)]">کتابخانه من</div>
+                                        <div class="mt-1 text-xs text-[var(--color-text-muted)]">دوره‌ها و منابعی که دسترسی آن‌ها فعال است</div>
+                                    </a>
+                                @endif
 
                                 <div class="my-1 h-px bg-[var(--color-border)]"></div>
 
