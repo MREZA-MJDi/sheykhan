@@ -80,3 +80,21 @@
     .parent-row { grid-template-columns:58px minmax(0,1fr); }
     .parent-score { grid-column:2; }
 }
+
+
+.parent-progress-method {
+    margin: 0 0 1.25rem;
+    padding: .85rem 1rem;
+    border: 1px solid rgba(255,255,255,.45);
+    border-radius: 14px;
+    background: rgba(255,255,255,.72);
+    color: var(--panel-text-secondary, #475467);
+    font-size: 12px;
+    line-height: 1.9;
+}
+@media (max-width: 640px) {
+    .parent-progress-method {
+        padding: .7rem .8rem;
+        font-size: 11px;
+    }
+}
