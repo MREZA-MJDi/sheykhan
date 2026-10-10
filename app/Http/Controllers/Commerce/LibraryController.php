@@ -43,7 +43,7 @@ final class LibraryController extends Controller
 
         $pendingOrders = Order::query()
             ->where('buyer_id', $user->id)
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'payment_failed'])
             ->whereHas('payments', fn ($payment) => $payment->whereIn('status', ['pending', 'rejected']))
             ->with([
                 'items.course:id,title,slug',
