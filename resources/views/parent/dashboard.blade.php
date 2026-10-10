@@ -39,6 +39,10 @@
             <span class="parent-orb" aria-hidden="true"></span>
         </section>
 
+        <p class="parent-progress-method" role="note">
+            این درصد، میانگین پیشرفت درس‌های منتشرشده در دوره‌های فعال فرزندان است؛ درس‌های شروع‌نشده صفر حساب می‌شوند. این شاخص میزان تکمیل محتوا را نشان می‌دهد، نه نمره یا کیفیت یادگیری.
+        </p>
+
         @if($children->isEmpty())
             <x-ui.empty-state
                 title="هنوز فرزندی به حساب والد متصل نشده است"
