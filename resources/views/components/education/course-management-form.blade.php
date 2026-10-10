@@ -403,6 +403,9 @@
                         <span>انتخاب فایل</span>
                         <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.mov,.zip">
                     </label>
+                    <p class="course-cover-scope-note mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900" role="note">
+                        این بخش برای فایل‌های خصوصی دوره است؛ تصویر عمومی کارت دوره را تغییر نمی‌دهد. کارت‌های دوره در سایت با قاب ۱۶:۹ نمایش داده می‌شوند، اما فرم فعلی مسیر جداگانه‌ای برای آپلود تصویر کاور عمومی ندارد.
+                    </p>
 
                     <div class="course-upload-preview" data-upload-preview hidden>
                         <div class="course-upload-preview-media">

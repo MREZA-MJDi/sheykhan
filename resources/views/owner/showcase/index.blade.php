@@ -27,7 +27,17 @@
             <label><span>نام مدرسه قبولی</span><input name="school_name" value="{{ old('school_name') }}" maxlength="180" required></label>
             <label><span>عنوان کوتاه</span><input name="title" value="{{ old('title') }}" maxlength="255" placeholder="قبولی در آزمون ورودی" required></label>
             <label><span>توضیح</span><textarea name="description" rows="3" maxlength="2000">{{ old('description') }}</textarea></label>
-            <label><span>تصویر (اختیاری)</span><input type="file" name="image" accept="image/jpeg,image/png,image/webp"></label>
+            <section class="owner-cover-editor" data-owner-cover-editor data-preview-ratio="0.8461538" style="--owner-cover-ratio: 11 / 13;">
+                <div class="owner-cover-preview" style="width:110px; margin-inline:auto; aspect-ratio:11 / 13;">
+                    <div data-owner-cover-empty>نمایش در کارت افتخارآفرین</div>
+                </div>
+                <label>
+                    <span>تصویر افتخارآفرین (اختیاری)</span>
+                    <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input data-max-size-mb="10" data-allowed-extensions="jpg,jpeg,png,webp" data-recommended-width="660" data-recommended-height="780" aria-describedby="achievement-image-help achievement-image-feedback">
+                    <small id="achievement-image-help">حداکثر ۱۰ مگابایت · قاب نمایش سایت حدود ۱۱۰×۱۳۰ (نسبت ۱۱:۱۳). پیشنهاد تصویر ۶۶۰×۷۸۰ پیکسل است.</small>
+                </label>
+                <span id="achievement-image-feedback" class="owner-image-feedback" data-owner-cover-feedback role="status" aria-live="polite">پیش‌نمایش نسبت تصویر و برش با همان cover عمومی محاسبه می‌شود؛ فایل اصلی تغییر نمی‌کند.</span>
+            </section>
             <label><span>مرجع داخلی رضایت</span><input name="publication_consent_reference" value="{{ old('publication_consent_reference') }}" maxlength="160" placeholder="شناسه پرونده / تاریخ دریافت رضایت‌نامه" required></label>
             <label><span>روش نگهداری رضایت</span><select name="publication_consent_method" required><option value="written">فرم کتبی امضاشده</option><option value="paper">پرونده کاغذی</option><option value="email">ایمیل ثبت‌شده</option><option value="message">پیام ثبت‌شده</option></select></label>
             <label class="owner-check"><input type="checkbox" name="publication_consent_confirmed" value="1" required><span>تأیید می‌کنم اجازه انتشار نام، مدرسه و تصویر را در پرونده نگه‌داری می‌کنیم.</span></label>
@@ -42,7 +52,17 @@
             <label><span>نام نمایشی</span><input name="display_name" value="{{ old('display_name') }}" maxlength="160" required></label>
             <label><span>نقش</span><select name="role" required><option value="parent" @selected(old('role','parent')==='parent')>والد دانش‌آموز</option><option value="student" @selected(old('role')==='student')>دانش‌آموز</option></select></label>
             <label><span>متن رضایتمندی</span><textarea name="content_text" rows="4" maxlength="3000" required>{{ old('content_text') }}</textarea></label>
-            <label><span>اسکرین‌شات / تصویر</span><input type="file" name="image_file" accept="image/jpeg,image/png,image/webp"></label>
+            <section class="owner-cover-editor" data-owner-cover-editor data-preview-ratio="1" style="--owner-cover-ratio: 1;">
+                <div class="owner-cover-preview" style="width:104px; margin-inline:auto; aspect-ratio:1; border-radius:50%;">
+                    <div data-owner-cover-empty>آواتار دایره‌ای</div>
+                </div>
+                <label>
+                    <span>اسکرین‌شات / تصویر رضایتمندی (اختیاری)</span>
+                    <input type="file" name="image_file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input data-max-size-mb="10" data-allowed-extensions="jpg,jpeg,png,webp" data-recommended-width="600" data-recommended-height="600" aria-describedby="testimonial-image-help testimonial-image-feedback">
+                    <small id="testimonial-image-help">حداکثر ۱۰ مگابایت · در لندینگ به‌شکل دایره‌ای نمایش داده می‌شود؛ پیشنهاد تصویر ۶۰۰×۶۰۰ پیکسل است.</small>
+                </label>
+                <span id="testimonial-image-feedback" class="owner-image-feedback" data-owner-cover-feedback role="status" aria-live="polite">نمایش عمومی تصویر به شکل دایره‌ای است؛ برای تصویر چهره، سوژه را نزدیک مرکز نگه دار.</span>
+            </section>
             <label><span>صوت رضایتمندی</span><input type="file" name="audio_file" accept=".mp3,.m4a,.aac,.ogg,.wav,audio/*"><small>حداکثر ۵۰ مگابایت</small></label>
             <label><span>کلیپ ویدئویی</span><input type="file" name="video_file" accept=".mp4,.webm,.mov,video/*"><small>حداکثر ۲۰۰ مگابایت</small></label>
             <label><span>مرجع داخلی رضایت</span><input name="publication_consent_reference" value="{{ old('publication_consent_reference') }}" maxlength="160" placeholder="شناسه پرونده / تاریخ دریافت رضایت‌نامه" required></label>

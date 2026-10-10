@@ -4,6 +4,11 @@
 @section('header-title','ویرایش SEO')
 
 @section('content')
+@php
+    $initialOgImage = old('og_image_url', $seoMeta?->og_image_url);
+    $initialOgTitle = old('og_title', $seoMeta?->og_title ?: old('title', $seoMeta?->title ?: $item->getAttribute('title')));
+    $initialOgDescription = old('og_description', $seoMeta?->og_description ?: old('description', $seoMeta?->description));
+@endphp
 <div class="owner-form-shell">
     <div class="owner-form-head">
         <div>
@@ -23,13 +28,13 @@
 
             <label>
                 <span>عنوان SEO</span>
-                <input name="title" value="{{ old('title', $seoMeta?->title) }}" maxlength="255">
+                <input name="title" value="{{ old('title', $seoMeta?->title) }}" maxlength="255" data-seo-title-input>
                 <small>عنوانی که در عنوان نتایج جستجو و تب مرورگر استفاده می‌شود.</small>
             </label>
 
             <label>
                 <span>توضیحات SEO</span>
-                <textarea name="description" rows="4" maxlength="500">{{ old('description', $seoMeta?->description) }}</textarea>
+                <textarea name="description" rows="4" maxlength="500" data-seo-description-input>{{ old('description', $seoMeta?->description) }}</textarea>
             </label>
 
             <label>
@@ -58,18 +63,36 @@
 
                 <label>
                     <span>OG Title</span>
-                    <input name="og_title" value="{{ old('og_title', $seoMeta?->og_title) }}" maxlength="255">
+                    <input name="og_title" value="{{ old('og_title', $seoMeta?->og_title) }}" maxlength="255" data-seo-og-title-input>
                 </label>
 
                 <label>
                     <span>OG Description</span>
-                    <textarea name="og_description" rows="4" maxlength="500">{{ old('og_description', $seoMeta?->og_description) }}</textarea>
+                    <textarea name="og_description" rows="4" maxlength="500" data-seo-og-description-input>{{ old('og_description', $seoMeta?->og_description) }}</textarea>
                 </label>
 
                 <label>
                     <span>OG Image URL</span>
-                    <input type="url" name="og_image_url" value="{{ old('og_image_url', $seoMeta?->og_image_url) }}" maxlength="2048">
+                    <input type="url" name="og_image_url" value="{{ old('og_image_url', $seoMeta?->og_image_url) }}" maxlength="2048" data-seo-og-image-input aria-describedby="seo-og-image-help">
+                    <small id="seo-og-image-help">تصویر لینک اشتراک‌گذاری اجتماعی است، نه بنر لندینگ. نسبت پیشنهادی ۱۲۰۰×۶۳۰ پیکسل (حدود ۱٫۹۱:۱) است و URL باید عمومی و قابل دسترسی باشد.</small>
                 </label>
+
+                <div class="seo-og-preview" data-seo-og-preview>
+                    <div class="seo-og-preview-card">
+                        <div class="seo-og-preview-image" data-seo-og-image-wrap>
+                            <img @if(filled($initialOgImage)) src="{{ $initialOgImage }}" @endif alt="" data-seo-og-preview-image @if(blank($initialOgImage)) hidden @endif>
+                            <span class="seo-og-preview-empty" data-seo-og-preview-empty @if(filled($initialOgImage)) hidden @endif>با واردکردن URL عمومی، تصویر اشتراک‌گذاری اینجا نمایش داده می‌شود.</span>
+                        </div>
+                        <div class="seo-og-preview-copy">
+                            <small>{{ parse_url(config('app.url'), PHP_URL_HOST) ?: config('app.url') }}</small>
+                            <strong data-seo-og-preview-title>{{ $initialOgTitle ?: 'عنوان صفحه' }}</strong>
+                            <p data-seo-og-preview-description>{{ $initialOgDescription ?: 'توضیحات صفحه هنگام اشتراک‌گذاری در این بخش نمایش داده می‌شود.' }}</p>
+                        </div>
+                    </div>
+                    <p class="seo-og-preview-status" data-seo-og-preview-status role="status" aria-live="polite">
+                        @if(filled($initialOgImage)) در حال بررسی دسترسی تصویر… @else تصویر اشتراک‌گذاری هنوز تنظیم نشده است. @endif
+                    </p>
+                </div>
 
                 <label>
                     <span>Schema JSON</span>

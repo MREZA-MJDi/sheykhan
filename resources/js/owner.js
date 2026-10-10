@@ -222,12 +222,24 @@ document.addEventListener('DOMContentLoaded', bootCourseMediaUploaders);
 
 
 function bootBannerEditors() {
+    const supportedMimes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
+
+    const formatSize = (bytes) => {
+        const units = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
+        let value = Math.max(0, Number(bytes) || 0);
+        let index = 0;
+        while (value >= 1024 && index < units.length - 1) {
+            value /= 1024;
+            index += 1;
+        }
+        return new Intl.NumberFormat('fa-IR', { maximumFractionDigits: index ? 1 : 0 }).format(value) + ' ' + units[index];
+    };
+
     document.querySelectorAll('[data-banner-slot]').forEach((slot) => {
         if (slot.dataset.bannerEditorBound === 'true') return;
         slot.dataset.bannerEditorBound = 'true';
 
         const preview = slot.querySelector('[data-banner-preview]');
-        const image = slot.querySelector('[data-banner-preview-image]');
         const empty = slot.querySelector('[data-banner-preview-empty]');
         const file = slot.querySelector('[data-banner-file]');
         const select = slot.querySelector('[data-banner-media-select]');
@@ -239,53 +251,166 @@ function bootBannerEditors() {
         const fileMeta = slot.querySelector('[data-banner-file-meta]');
         const fileName = slot.querySelector('[data-banner-file-name]');
         const fileSize = slot.querySelector('[data-banner-file-size]');
+        const fileDimensions = slot.querySelector('[data-banner-file-dimensions]');
+        const fileFeedback = slot.querySelector('[data-banner-file-feedback]');
+        const previewDimensions = slot.querySelector('[data-banner-preview-dimensions]');
+        const titleInput = slot.querySelector('[data-banner-title-input]');
+        const descriptionInput = slot.querySelector('[data-banner-description-input]');
+        const ctaLabelInput = slot.querySelector('[data-banner-cta-label-input]');
+        const ctaUrlInput = slot.querySelector('[data-banner-cta-url-input]');
+        const previewTitle = slot.querySelector('[data-banner-preview-title]');
+        const previewDescription = slot.querySelector('[data-banner-preview-description]');
+        const previewCta = slot.querySelector('[data-banner-preview-cta]');
+        const previewCtaLabel = slot.querySelector('[data-banner-preview-cta-label]');
+        const ctaUrlFeedback = slot.querySelector('[data-banner-cta-url-feedback]');
+        const initialSource = preview?.dataset.bannerInitialImage || '';
+        let objectUrl = null;
 
         if (!preview || !x || !y) return;
+
+        const imageElement = () => slot.querySelector('[data-banner-preview-image]');
+        const releaseObjectUrl = () => {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
+            }
+        };
+        const setFileFeedback = (message, kind = 'normal') => {
+            if (!fileFeedback) return;
+            fileFeedback.textContent = message;
+            fileFeedback.classList.toggle('is-error', kind === 'error');
+            fileFeedback.classList.toggle('is-warning', kind === 'warning');
+            fileFeedback.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+        };
 
         const setPosition = () => {
             const xValue = Math.max(0, Math.min(100, Number(x.value || 50)));
             const yValue = Math.max(0, Math.min(100, Number(y.value || 50)));
-
-            if (image) image.style.objectPosition = `${xValue}% ${yValue}%`;
-            if (xOutput) xOutput.textContent = `${xValue}٪`;
-            if (yOutput) yOutput.textContent = `${yValue}٪`;
+            const image = imageElement();
+            if (image) image.style.objectPosition = xValue + '% ' + yValue + '%';
+            if (xOutput) xOutput.textContent = xValue + '٪';
+            if (yOutput) yOutput.textContent = yValue + '٪';
         };
 
-        const showImage = (src) => {
-            let target = slot.querySelector('[data-banner-preview-image]');
+        const updateDimensions = (image, selectedFile = null) => {
+            const width = Number(image.naturalWidth || 0);
+            const height = Number(image.naturalHeight || 0);
+            if (!width || !height) return;
 
-            if (!target) {
-                target = document.createElement('img');
-                target.alt = '';
-                target.setAttribute('data-banner-preview-image', '');
-                preview.replaceChildren(target);
+            const ratio = width / height;
+            const ratioLabel = ratio.toFixed(2) + ':1';
+            const cropHint = Math.abs(ratio - (16 / 9)) / (16 / 9) <= 0.05
+                ? 'نسبت تصویر با قاب ۱۶:۹ هماهنگ است.'
+                : ratio > (16 / 9)
+                    ? 'در قاب نهایی بخشی از کناره‌های تصویر بریده می‌شود.'
+                    : 'در قاب نهایی بخشی از بالا و پایین تصویر بریده می‌شود.';
+            const recommendedWidth = Number(file?.dataset.recommendedWidth || 1600);
+            const recommendedHeight = Number(file?.dataset.recommendedHeight || 900);
+            const isLowResolution = width < recommendedWidth || height < recommendedHeight;
+            const resolutionHint = isLowResolution
+                ? ' وضوح کمتر از پیشنهاد ' + recommendedWidth.toLocaleString('fa-IR') + '×' + recommendedHeight.toLocaleString('fa-IR') + ' پیکسل است.'
+                : '';
+            const dimensionsText = 'ابعاد ' + width.toLocaleString('fa-IR') + '×' + height.toLocaleString('fa-IR') +
+                ' پیکسل · نسبت ' + ratioLabel + '. ' + cropHint + resolutionHint;
+
+            if (previewDimensions) previewDimensions.textContent = dimensionsText;
+            if (fileDimensions && selectedFile) {
+                fileDimensions.textContent = width.toLocaleString('fa-IR') + '×' + height.toLocaleString('fa-IR') + ' پیکسل · ' + ratioLabel;
+            }
+            if (selectedFile) {
+                setFileFeedback(
+                    'پیش‌نمایش آماده است. ' + cropHint + resolutionHint + ' قاب و متن را بررسی کن.',
+                    isLowResolution ? 'warning' : 'normal'
+                );
+            }
+        };
+
+        const showEmpty = () => {
+            imageElement()?.remove();
+            if (empty) empty.hidden = false;
+            if (previewDimensions) previewDimensions.textContent = 'پس از انتخاب تصویر، ابعاد واقعی و برش احتمالی نمایش داده می‌شود.';
+        };
+
+        const showImage = (src, selectedFile = null) => {
+            let image = imageElement();
+            if (!image) {
+                image = document.createElement('img');
+                image.alt = '';
+                image.setAttribute('data-banner-preview-image', '');
+                preview.prepend(image);
             }
 
-            target.src = src;
-            target.hidden = false;
-            target.style.objectFit = 'cover';
-            target.style.width = '100%';
-            target.style.height = '100%';
-            target.style.minHeight = window.matchMedia('(max-width: 700px)').matches ? '180px' : '250px';
+            image.hidden = false;
+            image.style.objectFit = 'cover';
+            image.style.width = '100%';
+            image.style.height = '100%';
+            image.style.objectPosition = Math.max(0, Math.min(100, Number(x.value || 50))) + '% ' +
+                Math.max(0, Math.min(100, Number(y.value || 50))) + '%';
+            image.onload = () => updateDimensions(image, selectedFile);
+            image.onerror = () => {
+                if (selectedFile && file) {
+                    file.value = '';
+                    releaseObjectUrl();
+                    if (fileMeta) fileMeta.hidden = true;
+                    setFileFeedback('مرورگر نتوانست تصویر را باز کند؛ فایل دیگری انتخاب کن.', 'error');
+                    restorePriorImage();
+                } else if (previewDimensions) {
+                    previewDimensions.textContent = 'این تصویر بارگذاری نشد؛ URL یا فایل را بررسی کن.';
+                }
+            };
+            if (image.src !== src) image.src = src;
             if (empty) empty.hidden = true;
             setPosition();
-            return target;
+            if (image.complete && image.naturalWidth > 0) updateDimensions(image, selectedFile);
+            return image;
         };
 
-        const formatSize = (bytes) => {
-            if (!Number.isFinite(bytes) || bytes <= 0) return '۰ بایت';
-            const units = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
-            let value = bytes;
-            let unit = 0;
-            while (value >= 1024 && unit < units.length - 1) {
-                value /= 1024;
-                unit += 1;
+        const restorePriorImage = () => {
+            const selectedSource = select?.selectedOptions?.[0]?.dataset?.mediaUrl || initialSource;
+            if (selectedSource) showImage(selectedSource);
+            else showEmpty();
+        };
+
+        const updatePreviewCopy = () => {
+            const title = titleInput?.value?.trim() || '';
+            const description = descriptionInput?.value?.trim() || '';
+            const ctaLabel = ctaLabelInput?.value?.trim() || '';
+            const ctaUrl = ctaUrlInput?.value?.trim() || '';
+            const validUrl = /^(https?:\/\/|\/|#)/i.test(ctaUrl);
+
+            if (previewTitle) {
+                previewTitle.textContent = title;
+                previewTitle.hidden = !title;
             }
-            return `${new Intl.NumberFormat('fa-IR', { maximumFractionDigits: unit ? 1 : 0 }).format(value)} ${units[unit]}`;
+            if (previewDescription) {
+                previewDescription.textContent = description;
+                previewDescription.hidden = !description;
+            }
+            if (previewCtaLabel) previewCtaLabel.textContent = ctaLabel;
+            if (previewCta) previewCta.hidden = !(ctaLabel && ctaUrl && validUrl);
+
+            if (ctaUrlFeedback) {
+                ctaUrlFeedback.classList.remove('is-error');
+                if (ctaUrl && !validUrl) {
+                    ctaUrlFeedback.textContent = 'لینک باید با /، # یا https:// شروع شود.';
+                    ctaUrlFeedback.classList.add('is-error');
+                    ctaUrlFeedback.setAttribute('role', 'alert');
+                } else if (ctaLabel && !ctaUrl) {
+                    ctaUrlFeedback.textContent = 'تا وقتی لینک وارد نشود، دکمه در سایت نمایش داده نمی‌شود.';
+                    ctaUrlFeedback.setAttribute('role', 'status');
+                } else {
+                    ctaUrlFeedback.textContent = '';
+                    ctaUrlFeedback.setAttribute('role', 'status');
+                }
+            }
         };
 
         x.addEventListener('input', setPosition);
         y.addEventListener('input', setPosition);
+        titleInput?.addEventListener('input', updatePreviewCopy);
+        descriptionInput?.addEventListener('input', updatePreviewCopy);
+        ctaLabelInput?.addEventListener('input', updatePreviewCopy);
+        ctaUrlInput?.addEventListener('input', updatePreviewCopy);
 
         reset?.addEventListener('click', () => {
             x.value = '50';
@@ -294,40 +419,76 @@ function bootBannerEditors() {
         });
 
         select?.addEventListener('change', () => {
-            const option = select.selectedOptions?.[0];
-            const src = option?.dataset?.mediaUrl;
-
-            if (!src) return;
-            showImage(src);
-
+            releaseObjectUrl();
             if (file) file.value = '';
             if (fileMeta) fileMeta.hidden = true;
+            setFileFeedback('');
+
+            const src = select.selectedOptions?.[0]?.dataset?.mediaUrl || initialSource;
+            if (src) {
+                showImage(src);
+                setFileFeedback('این تصویر با همان قاب ۱۶:۹ کارت عمومی نمایش داده می‌شود.');
+            } else {
+                showEmpty();
+            }
         });
 
         file?.addEventListener('change', () => {
             const selectedFile = file.files?.[0];
             if (!selectedFile) return;
 
-            if (!selectedFile.type.startsWith('image/')) {
+            const extension = (selectedFile.name.split('.').pop() || '').toLowerCase();
+            const allowedExtensions = new Set(
+                (file.dataset.allowedExtensions || 'jpg,jpeg,png,webp,avif')
+                    .split(',')
+                    .map((value) => value.trim().toLowerCase())
+                    .filter(Boolean)
+            );
+            const extensionAllowed = allowedExtensions.has(extension);
+            const mime = (selectedFile.type || '').toLowerCase();
+            const mimeAllowed = mime ? supportedMimes.has(mime) : extensionAllowed;
+            const maxSizeMb = Number(file.dataset.maxSizeMb || 5);
+
+            if (!extensionAllowed || !mimeAllowed) {
                 file.value = '';
+                releaseObjectUrl();
+                if (fileMeta) fileMeta.hidden = true;
+                setFileFeedback('فرمت تصویر پشتیبانی نمی‌شود؛ JPG، PNG، WEBP یا AVIF انتخاب کن.', 'error');
+                restorePriorImage();
+                return;
+            }
+            if (selectedFile.size > maxSizeMb * 1024 * 1024 || selectedFile.size <= 0) {
+                file.value = '';
+                releaseObjectUrl();
+                if (fileMeta) fileMeta.hidden = true;
+                setFileFeedback(
+                    selectedFile.size <= 0 ? 'فایل انتخاب‌شده خالی است.' : 'حجم فایل بیشتر از ' + maxSizeMb + ' مگابایت است.',
+                    'error'
+                );
+                restorePriorImage();
                 return;
             }
 
-            const objectUrl = URL.createObjectURL(selectedFile);
-            showImage(objectUrl);
-            image?.addEventListener('load', () => URL.revokeObjectURL(objectUrl), { once: true });
-
+            releaseObjectUrl();
+            objectUrl = URL.createObjectURL(selectedFile);
             if (fileMeta) fileMeta.hidden = false;
             if (fileName) fileName.textContent = selectedFile.name;
             if (fileSize) fileSize.textContent = formatSize(selectedFile.size);
-
+            if (fileDimensions) fileDimensions.textContent = 'در حال خواندن ابعاد تصویر…';
             if (select) select.value = '';
+            setFileFeedback('این فایل در صورت ذخیره، تصویر بنر را جایگزین می‌کند.');
+
+            showImage(objectUrl, selectedFile);
         });
 
+        const firstSource = select?.selectedOptions?.[0]?.dataset?.mediaUrl || initialSource;
+        if (firstSource) showImage(firstSource);
+        else showEmpty();
         setPosition();
+        updatePreviewCopy();
+        window.addEventListener('pagehide', releaseObjectUrl, { once: true });
     });
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
     bootBannerEditors();
@@ -406,27 +567,121 @@ window.addEventListener('pageshow', () => {
 
 
 function bootOwnerCoverPreviews() {
+    const formatSize = (bytes) => {
+        const units = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
+        let value = Math.max(0, Number(bytes) || 0);
+        let unit = 0;
+        while (value >= 1024 && unit < units.length - 1) {
+            value /= 1024;
+            unit += 1;
+        }
+        return new Intl.NumberFormat('fa-IR', { maximumFractionDigits: unit ? 1 : 0 }).format(value) + ' ' + units[unit];
+    };
+
     document.querySelectorAll('[data-owner-cover-editor]').forEach((editor) => {
+        if (editor.dataset.ownerCoverPreviewBound === 'true') return;
+        editor.dataset.ownerCoverPreviewBound = 'true';
+
         const input = editor.querySelector('[data-owner-cover-input]');
         const frame = editor.querySelector('.owner-cover-preview');
-
+        const feedback = editor.querySelector('[data-owner-cover-feedback]');
         if (!input || !frame) return;
 
         let preview = frame.querySelector('[data-owner-cover-preview]');
-        let empty = frame.querySelector('[data-owner-cover-empty]');
+        const empty = frame.querySelector('[data-owner-cover-empty]');
+        const initialSource = preview?.getAttribute('src') || '';
         let objectUrl = null;
+
+        const setFeedback = (message, kind = 'normal') => {
+            if (!feedback) return;
+            feedback.textContent = message;
+            feedback.classList.toggle('is-error', kind === 'error');
+            feedback.classList.toggle('is-warning', kind === 'warning');
+            feedback.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+        };
+
+        const releaseObjectUrl = () => {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
+            }
+        };
+
+        const restoreInitialPreview = () => {
+            if (initialSource) {
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.alt = '';
+                    preview.dataset.ownerCoverPreview = '1';
+                    frame.appendChild(preview);
+                }
+                preview.hidden = false;
+                preview.src = initialSource;
+                if (empty) empty.hidden = true;
+            } else {
+                if (preview) preview.hidden = true;
+                if (empty) empty.hidden = false;
+            }
+        };
+
+        const describeDimensions = (image, file) => {
+            const width = Number(image.naturalWidth || 0);
+            const height = Number(image.naturalHeight || 0);
+            if (!width || !height) return;
+
+            const expectedRatio = Number(editor.dataset.previewRatio || (16 / 10));
+            const actualRatio = width / height;
+            const recommendedWidth = Number(input.dataset.recommendedWidth || 1200);
+            const recommendedHeight = Number(input.dataset.recommendedHeight || Math.round(recommendedWidth / expectedRatio));
+            const cropHint = Math.abs(actualRatio - expectedRatio) / expectedRatio <= 0.05
+                ? 'نسبت تصویر با قاب نهایی هماهنگ است.'
+                : (actualRatio > expectedRatio
+                    ? 'برای پرشدن قاب، بخشی از کناره‌های تصویر دیده نمی‌شود.'
+                    : 'برای پرشدن قاب، بخشی از بالا و پایین تصویر دیده نمی‌شود.');
+            const lowResolution = width < recommendedWidth || height < recommendedHeight;
+            const resolutionHint = lowResolution
+                ? ' وضوح فایل کمتر از پیشنهاد ' + recommendedWidth.toLocaleString('fa-IR') + '×' + recommendedHeight.toLocaleString('fa-IR') + ' است.'
+                : '';
+            const fileInfo = file ? ' فایل: ' + formatSize(file.size) + '.' : '';
+            setFeedback(
+                width.toLocaleString('fa-IR') + '×' + height.toLocaleString('fa-IR') + ' پیکسل · ' + cropHint + resolutionHint + ' فایل اصلی تغییر نمی‌کند.' + fileInfo,
+                lowResolution ? 'warning' : 'normal'
+            );
+        };
 
         input.addEventListener('change', () => {
             const file = input.files?.[0];
+            if (!file) return;
 
-            if (!file || !file.type.startsWith('image/')) {
+            const extension = (file.name.split('.').pop() || '').toLowerCase();
+            const allowedExtensions = new Set(
+                (input.dataset.allowedExtensions || 'jpg,jpeg,png,webp')
+                    .split(',')
+                    .map((value) => value.trim().toLowerCase())
+                    .filter(Boolean)
+            );
+            const type = (file.type || '').toLowerCase();
+            const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
+            const validType = allowedExtensions.has(extension) && (type ? allowedTypes.has(type) : true);
+            const maxSizeMb = Number(input.dataset.maxSizeMb || 10);
+
+            if (!validType) {
+                input.value = '';
+                releaseObjectUrl();
+                restoreInitialPreview();
+                setFeedback('فرمت تصویر پشتیبانی نمی‌شود. یکی از فرمت‌های مجاز این فرم را انتخاب کن.', 'error');
                 return;
             }
 
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl);
+            if (file.size > maxSizeMb * 1024 * 1024) {
+                input.value = '';
+                releaseObjectUrl();
+                restoreInitialPreview();
+                setFeedback('حجم فایل بیشتر از ' + maxSizeMb + ' مگابایت است؛ فایل کوچک‌تری انتخاب کن.', 'error');
+                return;
             }
 
+            releaseObjectUrl();
             objectUrl = URL.createObjectURL(file);
 
             if (!preview) {
@@ -436,19 +691,257 @@ function bootOwnerCoverPreviews() {
                 frame.appendChild(preview);
             }
 
-            preview.src = objectUrl;
             preview.hidden = false;
-
-            if (empty) {
-                empty.hidden = true;
-            }
+            preview.onerror = () => {
+                if (preview?.src !== objectUrl) return;
+                input.value = '';
+                releaseObjectUrl();
+                restoreInitialPreview();
+                setFeedback('پیش‌نمایش این تصویر باز نشد؛ لطفاً فایل دیگری انتخاب کن.', 'error');
+            };
+            preview.onload = () => {
+                if (preview?.src !== objectUrl) return;
+                if (empty) empty.hidden = true;
+                describeDimensions(preview, file);
+            };
+            preview.src = objectUrl;
+            if (empty) empty.hidden = true;
+            setFeedback('در حال بررسی تصویر و تطبیق با قاب عمومی…');
         });
 
-        editor.closest('form')?.addEventListener('submit', () => {
-            window.setTimeout(() => {
-                if (objectUrl) URL.revokeObjectURL(objectUrl);
-            }, 0);
-        });
+        if (preview) {
+            const hydrate = () => {
+                if (!preview?.naturalWidth || !preview?.naturalHeight) return;
+                describeDimensions(preview, null);
+            };
+            if (preview.complete) hydrate();
+            else preview.addEventListener('load', hydrate, { once: true });
+        }
+
+        window.addEventListener('pagehide', releaseObjectUrl, { once: true });
     });
 }
 document.addEventListener('DOMContentLoaded', bootOwnerCoverPreviews);
+
+
+function bootSeoOgPreview() {
+    document.querySelectorAll('[data-seo-og-preview]').forEach((preview) => {
+        const imageInput = document.querySelector('[data-seo-og-image-input]');
+        const titleInput = document.querySelector('[data-seo-og-title-input]');
+        const descriptionInput = document.querySelector('[data-seo-og-description-input]');
+        const seoTitleInput = document.querySelector('[data-seo-title-input]');
+        const seoDescriptionInput = document.querySelector('[data-seo-description-input]');
+        const imageWrap = preview.querySelector('[data-seo-og-image-wrap]');
+        const image = preview.querySelector('[data-seo-og-preview-image]');
+        const empty = preview.querySelector('[data-seo-og-preview-empty]');
+        const title = preview.querySelector('[data-seo-og-preview-title]');
+        const description = preview.querySelector('[data-seo-og-preview-description]');
+        const status = preview.querySelector('[data-seo-og-preview-status]');
+        if (!imageInput || !imageWrap) return;
+
+        let previewTimer = null;
+        let lastRequestedUrl = '';
+
+        const setStatus = (message, isError = false) => {
+            if (!status) return;
+            status.textContent = message;
+            status.classList.toggle('is-error', isError);
+            status.setAttribute('role', isError ? 'alert' : 'status');
+        };
+
+        const syncText = () => {
+            const ogTitle = titleInput?.value?.trim() || seoTitleInput?.value?.trim() || '';
+            const ogDescription = descriptionInput?.value?.trim() || seoDescriptionInput?.value?.trim() || '';
+            if (title) title.textContent = ogTitle || 'عنوان صفحه';
+            if (description) description.textContent = ogDescription || 'توضیحات صفحه هنگام اشتراک‌گذاری در این بخش نمایش داده می‌شود.';
+        };
+
+        const syncImage = () => {
+            const value = imageInput.value.trim();
+            if (!value) {
+                if (image) {
+                    image.hidden = true;
+                    image.removeAttribute('src');
+                }
+                if (empty) empty.hidden = false;
+                setStatus('نشانی تصویر اشتراک‌گذاری ثبت نشده است.');
+                return;
+            }
+
+            let parsed;
+            try {
+                parsed = new URL(value);
+            } catch {
+                if (image) image.hidden = true;
+                if (empty) empty.hidden = false;
+                setStatus('یک نشانی کامل و عمومی با https:// وارد کن.', true);
+                return;
+            }
+
+            if (!['http:', 'https:'].includes(parsed.protocol)) {
+                if (image) image.hidden = true;
+                if (empty) empty.hidden = false;
+                setStatus('تصویر اشتراک‌گذاری باید نشانی HTTP یا HTTPS داشته باشد.', true);
+                return;
+            }
+
+            lastRequestedUrl = parsed.href;
+            if (image) {
+                image.onload = () => {
+                    if (image.src !== lastRequestedUrl) return;
+                    image.hidden = false;
+                    if (empty) empty.hidden = true;
+                    setStatus('پیش‌نمایش تصویر اشتراک‌گذاری بارگذاری شد. نسبت پیشنهادی: ۱۲۰۰×۶۳۰ (حدود ۱٫۹۱:۱).');
+                };
+                image.onerror = () => {
+                    if (image.src !== lastRequestedUrl) return;
+                    image.hidden = true;
+                    if (empty) empty.hidden = false;
+                    setStatus('تصویر از این نشانی دریافت نشد؛ مطمئن شو URL عمومی و قابل‌دسترسی است.', true);
+                };
+                if (image.src !== lastRequestedUrl) image.src = lastRequestedUrl;
+                else if (image.complete && image.naturalWidth > 0) {
+                    image.hidden = false;
+                    if (empty) empty.hidden = true;
+                    setStatus('پیش‌نمایش تصویر اشتراک‌گذاری بارگذاری شد. نسبت پیشنهادی: ۱۲۰۰×۶۳۰ (حدود ۱٫۹۱:۱).');
+                }
+            }
+        };
+
+        const scheduleImageSync = () => {
+            window.clearTimeout(previewTimer);
+            previewTimer = window.setTimeout(syncImage, 250);
+        };
+
+        imageInput.addEventListener('input', scheduleImageSync);
+        titleInput?.addEventListener('input', syncText);
+        descriptionInput?.addEventListener('input', syncText);
+        seoTitleInput?.addEventListener('input', syncText);
+        seoDescriptionInput?.addEventListener('input', syncText);
+        syncText();
+        syncImage();
+    });
+}
+document.addEventListener('DOMContentLoaded', bootSeoOgPreview);
+
+
+function bootOwnerResourcePreview() {
+    const allowedExtensions = new Set([
+        'pdf', 'mp4', 'webm', 'mov', 'mp3', 'm4a', 'jpg', 'jpeg', 'png',
+        'webp', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip',
+    ]);
+
+    const formatSize = (bytes) => {
+        const units = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
+        let value = Math.max(0, Number(bytes) || 0);
+        let index = 0;
+        while (value >= 1024 && index < units.length - 1) {
+            value /= 1024;
+            index += 1;
+        }
+        return new Intl.NumberFormat('fa-IR', { maximumFractionDigits: index ? 1 : 0 }).format(value) + ' ' + units[index];
+    };
+
+    document.querySelectorAll('[data-owner-resource-input]').forEach((input) => {
+        const form = input.closest('form');
+        const preview = form?.querySelector('[data-owner-resource-preview]');
+        const image = preview?.querySelector('[data-owner-resource-image]');
+        const video = preview?.querySelector('[data-owner-resource-video]');
+        const audio = preview?.querySelector('[data-owner-resource-audio]');
+        const generic = preview?.querySelector('[data-owner-resource-generic]');
+        const name = preview?.querySelector('[data-owner-resource-name]');
+        const size = preview?.querySelector('[data-owner-resource-size]');
+        const dimensions = preview?.querySelector('[data-owner-resource-dimensions]');
+        const feedback = form?.querySelector('[data-owner-resource-feedback]');
+        if (!preview) return;
+
+        let objectUrl = null;
+        const release = () => {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+                objectUrl = null;
+            }
+        };
+        const resetPreview = () => {
+            preview.hidden = true;
+            [image, video, audio].forEach((element) => {
+                if (!element) return;
+                element.hidden = true;
+                element.removeAttribute('src');
+                element.load?.();
+            });
+            if (generic) generic.hidden = false;
+            if (name) name.textContent = '';
+            if (size) size.textContent = '';
+            if (dimensions) dimensions.textContent = '';
+        };
+        const setFeedback = (message, isError = false) => {
+            if (!feedback) return;
+            feedback.textContent = message;
+            feedback.classList.toggle('is-error', isError);
+            feedback.classList.toggle('is-warning', false);
+            feedback.setAttribute('role', isError ? 'alert' : 'status');
+        };
+
+        input.addEventListener('change', () => {
+            const file = input.files?.[0];
+            release();
+            resetPreview();
+            if (!file) {
+                setFeedback('هنوز فایلی انتخاب نشده است.');
+                return;
+            }
+
+            const extension = (file.name.split('.').pop() || '').toLowerCase();
+            if (!allowedExtensions.has(extension)) {
+                input.value = '';
+                setFeedback('پسوند این فایل در این بخش پشتیبانی نمی‌شود.', true);
+                return;
+            }
+            if (file.size <= 0 || file.size > 200 * 1024 * 1024) {
+                input.value = '';
+                setFeedback(file.size <= 0 ? 'فایل انتخاب‌شده خالی است.' : 'حجم فایل بیشتر از ۲۰۰ مگابایت است.', true);
+                return;
+            }
+
+            objectUrl = URL.createObjectURL(file);
+            preview.hidden = false;
+            if (name) name.textContent = file.name;
+            if (size) size.textContent = formatSize(file.size);
+            if (generic) generic.hidden = false;
+
+            if (file.type.startsWith('image/') && image) {
+                image.hidden = false;
+                image.onload = () => {
+                    if (image.naturalWidth && image.naturalHeight && dimensions) {
+                        dimensions.textContent = image.naturalWidth.toLocaleString('fa-IR') + '×' +
+                            image.naturalHeight.toLocaleString('fa-IR') + ' پیکسل · تصویر کامل نمایش داده می‌شود؛ این آپلودر برش عمومی اعمال نمی‌کند.';
+                    }
+                    if (generic) generic.hidden = true;
+                    setFeedback('تصویر خوانده شد. این فایل در بخش منابع خصوصی قرار می‌گیرد، نه به‌عنوان بنر یا کاور عمومی.');
+                };
+                image.onerror = () => {
+                    image.hidden = true;
+                    if (generic) generic.hidden = false;
+                    setFeedback('مرورگر نتوانست پیش‌نمایش تصویر را باز کند؛ فایل را بررسی کن.', true);
+                };
+                image.src = objectUrl;
+            } else if (file.type.startsWith('video/') && video) {
+                video.hidden = false;
+                video.src = objectUrl;
+                if (generic) generic.hidden = true;
+                setFeedback('ویدئو آمادهٔ پیش‌نمایش است؛ ذخیره نهایی همچنان سمت سرور اعتبارسنجی می‌شود.');
+            } else if (file.type.startsWith('audio/') && audio) {
+                audio.hidden = false;
+                audio.src = objectUrl;
+                if (generic) generic.hidden = true;
+                setFeedback('صوت آمادهٔ پیش‌نمایش است؛ برای فرمت‌های اداری و PDF نام و حجم فایل نمایش داده می‌شود.');
+            } else {
+                setFeedback('فایل انتخاب شد. پیش‌نمایش تصویری برای این نوع فایل در دسترس نیست.');
+            }
+        });
+
+        window.addEventListener('pagehide', release, { once: true });
+    });
+}
+document.addEventListener('DOMContentLoaded', bootOwnerResourcePreview);

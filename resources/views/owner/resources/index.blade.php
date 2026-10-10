@@ -21,7 +21,25 @@
             <h2>فایل جدید</h2>
             <label><span>عنوان</span><input name="title" value="{{ old('title') }}" maxlength="255" required></label>
             <label><span>توضیح کوتاه</span><textarea name="description" rows="3" maxlength="2000">{{ old('description') }}</textarea></label>
-            <label><span>فایل</span><input type="file" name="file" required accept=".pdf,.mp4,.webm,.mov,.mp3,.m4a,.jpg,.jpeg,.png,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip"><small>حداکثر ۲۰۰ مگابایت. PDF، ویدئو، صوت، تصویر و فایل‌های اداری پذیرفته می‌شوند.</small></label>
+            <label>
+                <span>فایل</span>
+                <input type="file" name="file" required accept=".pdf,.mp4,.webm,.mov,.mp3,.m4a,.jpg,.jpeg,.png,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip" data-owner-resource-input aria-describedby="owner-resource-file-help owner-resource-file-feedback">
+                <small id="owner-resource-file-help">حداکثر ۲۰۰ مگابایت. PDF، ویدئو، صوت، تصویر و فایل‌های اداری پذیرفته می‌شوند.</small>
+            </label>
+            <div class="owner-resource-preview" data-owner-resource-preview hidden>
+                <div class="owner-resource-preview-media">
+                    <img data-owner-resource-image alt="" hidden>
+                    <video data-owner-resource-video controls preload="metadata" hidden></video>
+                    <audio data-owner-resource-audio controls preload="metadata" hidden></audio>
+                    <div data-owner-resource-generic>پیش‌نمایش برای این نوع فایل در دسترس نیست.</div>
+                </div>
+                <div class="owner-resource-preview-copy">
+                    <strong data-owner-resource-name></strong>
+                    <span data-owner-resource-size></span>
+                    <span data-owner-resource-dimensions></span>
+                </div>
+            </div>
+            <p id="owner-resource-file-feedback" class="owner-image-feedback" data-owner-resource-feedback role="status" aria-live="polite">این بخش فایل خصوصی برای اعضای مجاز آموزشگاه می‌سازد؛ تصویر اینجا به بنر یا کاور عمومی سایت تبدیل نمی‌شود.</p>
             <div class="owner-form-two">
                 <label><span>دوره (اختیاری)</span><select name="course_id"><option value="">همهٔ دانش‌آموزان مجاز آموزشگاه</option>@foreach($courses as $course)<option value="{{ $course->id }}" @selected((string)old('course_id')===(string)$course->id)>{{ $course->title }}</option>@endforeach</select></label>
                 <label><span>کلاس (اختیاری)</span><select name="classroom_id"><option value="">بدون محدودیت کلاس</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)old('classroom_id')===(string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>

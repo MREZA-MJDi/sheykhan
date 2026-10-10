@@ -14,8 +14,11 @@
                 <span class="banner-kicker">{{ $academy->name }}</span>
                 <h1>کنترل تصویر صفحه اصلی</h1>
                 <p>
-                    تصویر را انتخاب کن، قاب آن را با نقطه تمرکز تنظیم کن و قبل از ذخیره نتیجه را همان‌جا ببین.
-                    فایل اصلی دست‌نخورده می‌ماند.
+                    تصویر را انتخاب کن، نقطهٔ تمرکز را تنظیم کن و پیش از ذخیره، همان قاب ۱۶:۹ و چیدمان کارت عمومی را ببین.
+                    فایل اصلی دست‌نخورده می‌ماند؛ فقط نحوهٔ نمایش در قاب تنظیم می‌شود.
+                </p>
+                <p class="banner-scope-note">
+                    این سه جایگاه، کارت‌های تصویری زیر بخش اصلی لندینگ هستند؛ تصویر تمام‌صفحهٔ ابتدای سایت و تصویر اشتراک‌گذاری SEO از مسیر جداگانه‌ای می‌آیند.
                 </p>
             </div>
 
@@ -65,43 +68,53 @@
 
                     <div class="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(21rem,.9fr)]">
                         <div class="banner-editor-preview-wrap">
-                            <div class="banner-preview" data-banner-preview>
-                                @if($currentImage)
-                                    <img
-                                        src="{{ $currentImage }}"
-                                        alt=""
-                                        data-banner-preview-image
-                                        style="object-position: {{ $cropX }}% {{ $cropY }}%;"
-                                    >
-                                @else
-                                    <div class="banner-preview-empty" data-banner-preview-empty>
-                                        <strong>هنوز تصویری برای این جایگاه انتخاب نشده</strong>
-                                        <span>یک تصویر عریض انتخاب کن تا پیش‌نمایش واقعی قاب را ببینی.</span>
+                            <article class="banner-preview-card" data-banner-preview-card>
+                                <div
+                                    class="banner-preview"
+                                    data-banner-preview
+                                    data-banner-initial-image="{{ $currentImage ?? '' }}"
+                                >
+                                    @if($currentImage)
+                                        <img src="{{ $currentImage }}" alt="" data-banner-preview-image style="object-position: {{ $cropX }}% {{ $cropY }}%;">
+                                    @endif
+                                    <div class="banner-preview-empty" data-banner-preview-empty @if($currentImage) hidden @endif>
+                                        <strong>هنوز تصویری انتخاب نشده</strong>
+                                        <span>پس از انتخاب فایل، قاب دقیق نمایش عمومی اینجا دیده می‌شود.</span>
                                     </div>
-                                @endif
+                                    <span class="banner-preview-academy">{{ $academy->name }}</span>
+                                </div>
+                                <div class="banner-preview-body">
+                                    <div class="banner-preview-copy">
+                                        <h3 data-banner-preview-title @if(blank($banner?->title)) hidden @endif>{{ $banner?->title }}</h3>
+                                        <p data-banner-preview-description @if(blank($banner?->description)) hidden @endif>{{ $banner?->description }}</p>
+                                    </div>
+                                    <span class="banner-preview-cta" data-banner-preview-cta @if(blank($banner?->cta_label) || blank($banner?->cta_url)) hidden @endif>
+                                        <span data-banner-preview-cta-label>{{ $banner?->cta_label }}</span><span aria-hidden="true">←</span>
+                                    </span>
+                                </div>
+                            </article>
+                            <div class="banner-preview-caption">
+                                <strong>قاب نهایی سایت: ۱۶:۹</strong>
+                                <span data-banner-preview-dimensions>پس از انتخاب تصویر، ابعاد، نسبت و برش احتمالی نمایش داده می‌شود.</span>
                             </div>
-
                             <div class="banner-crop-tools">
                                 <div class="banner-crop-head">
                                     <div>
-                                        <strong>قاب‌بندی تصویر</strong>
-                                        <span>بدون برش فایل اصلی؛ فقط نقطه تمرکز نمایش تغییر می‌کند.</span>
+                                        <strong>نقطهٔ تمرکز تصویر</strong>
+                                        <span>تنظیم با object-position در سایت عمومی هم عیناً استفاده می‌شود؛ فایل اصلی برش یا بازذخیره نمی‌شود.</span>
                                     </div>
                                     <button type="button" class="banner-reset-btn" data-banner-reset>مرکز</button>
                                 </div>
-
                                 <label class="banner-range">
-                                    <span><b>افقی</b><output data-crop-x-output>{{ $cropX }}٪</output></span>
-                                    <input type="range" min="0" max="100" value="{{ $cropX }}" name="banners[{{ $slot }}][crop_x]" data-crop-x>
+                                    <span><b>تمرکز افقی</b><output data-crop-x-output>{{ $cropX }}٪</output></span>
+                                    <input type="range" min="0" max="100" value="{{ $cropX }}" name="banners[{{ $slot }}][crop_x]" data-crop-x aria-label="نقطه تمرکز افقی تصویر">
                                 </label>
-
                                 <label class="banner-range">
-                                    <span><b>عمودی</b><output data-crop-y-output>{{ $cropY }}٪</output></span>
-                                    <input type="range" min="0" max="100" value="{{ $cropY }}" name="banners[{{ $slot }}][crop_y]" data-crop-y>
+                                    <span><b>تمرکز عمودی</b><output data-crop-y-output>{{ $cropY }}٪</output></span>
+                                    <input type="range" min="0" max="100" value="{{ $cropY }}" name="banners[{{ $slot }}][crop_y]" data-crop-y aria-label="نقطه تمرکز عمودی تصویر">
                                 </label>
                             </div>
                         </div>
-
                         <div class="grid gap-3">
                             <label class="banner-field">
                                 <span>انتخاب از تصاویر آموزشگاه</span>
@@ -127,35 +140,43 @@
                                     name="banners[{{ $slot }}][image]"
                                     accept="image/jpeg,image/png,image/webp,image/avif"
                                     data-banner-file
+                                    data-allowed-extensions="jpg,jpeg,png,webp,avif"
+                                    data-max-size-mb="5"
+                                    data-recommended-width="1600"
+                                    data-recommended-height="900"
+                                    aria-describedby="banner-file-help-{{ $slot }} banner-file-feedback-{{ $slot }}"
                                 >
-                                <small>JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت</small>
+                                <small id="banner-file-help-{{ $slot }}">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت · پیشنهاد: ۱۶۰۰×۹۰۰ پیکسل</small>
+                                <span id="banner-file-feedback-{{ $slot }}" class="banner-file-feedback" data-banner-file-feedback role="status" aria-live="polite"></span>
                             </label>
 
                             <div class="banner-file-meta" data-banner-file-meta hidden>
                                 <strong data-banner-file-name></strong>
                                 <span data-banner-file-size></span>
+                                <span data-banner-file-dimensions></span>
                             </div>
 
                             <div class="grid gap-3 sm:grid-cols-2">
                                 <label class="banner-field">
                                     <span>عنوان</span>
-                                    <input type="text" name="banners[{{ $slot }}][title]" value="{{ old("banners.$slot.title", $banner?->title) }}" placeholder="عنوان کوتاه">
+                                    <input type="text" name="banners[{{ $slot }}][title]" value="{{ old("banners.$slot.title", $banner?->title) }}" placeholder="عنوان کوتاه" data-banner-title-input>
                                 </label>
 
                                 <label class="banner-field">
                                     <span>متن دکمه</span>
-                                    <input type="text" name="banners[{{ $slot }}][cta_label]" value="{{ old("banners.$slot.cta_label", $banner?->cta_label) }}" placeholder="مشاهده دوره‌ها">
+                                    <input type="text" name="banners[{{ $slot }}][cta_label]" value="{{ old("banners.$slot.cta_label", $banner?->cta_label) }}" placeholder="مشاهده دوره‌ها" data-banner-cta-label-input>
                                 </label>
                             </div>
 
                             <label class="banner-field">
                                 <span>توضیح کوتاه</span>
-                                <textarea name="banners[{{ $slot }}][description]" rows="3" placeholder="یک جمله کوتاه">{{ old("banners.$slot.description", $banner?->description) }}</textarea>
+                                <textarea name="banners[{{ $slot }}][description]" rows="3" placeholder="یک جمله کوتاه" data-banner-description-input>{{ old("banners.$slot.description", $banner?->description) }}</textarea>
                             </label>
 
                             <label class="banner-field">
                                 <span>لینک دکمه</span>
-                                <input type="text" name="banners[{{ $slot }}][cta_url]" value="{{ old("banners.$slot.cta_url", $banner?->cta_url) }}" placeholder="/courses یا https://...">
+                                <input type="text" name="banners[{{ $slot }}][cta_url]" value="{{ old("banners.$slot.cta_url", $banner?->cta_url) }}" placeholder="/courses یا https://..." data-banner-cta-url-input aria-describedby="banner-cta-url-feedback-{{ $slot }}">
+                                <small id="banner-cta-url-feedback-{{ $slot }}" data-banner-cta-url-feedback role="status" aria-live="polite"></small>
                             </label>
                         </div>
                     </div>
