@@ -754,3 +754,9 @@ select.course-input{padding-inline-end:36px}
 .owner-resource-preview-media [data-owner-resource-generic] { padding:24px; color:#667085; font-size:11px; text-align:center; }
 .owner-resource-preview-copy { display:grid; gap:5px; min-width:0; color:#667085; font-size:10px; line-height:1.8; overflow-wrap:anywhere; }
 .owner-resource-preview-copy strong { color:#344054; font-size:12px; font-weight:900; }
+
+
+/* Keep transparency/backdrop and hidden-state behavior consistent with public previews. */
+.banner-preview { background:#edf1f7; }
+.seo-og-preview [hidden],
+.owner-resource-preview[hidden] { display:none !important; }
