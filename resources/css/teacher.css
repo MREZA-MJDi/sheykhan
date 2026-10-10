@@ -974,3 +974,56 @@
     .teacher-dashboard .teacher-primary-btn,.teacher-dashboard .teacher-person-card,.teacher-dashboard .teacher-bars .teacher-bar { transition:none !important; }
     .teacher-dashboard .teacher-primary-btn:hover,.teacher-dashboard .teacher-person-card:hover { transform:none; }
 }
+
+
+
+/* Optional profile-cover editor: show a real preview, never force a stock blue banner. */
+.teacher-cover-editor {
+    display:grid;
+    grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);
+    align-items:center;
+    gap:22px;
+    margin:20px 0;
+    padding:18px;
+    border:1px solid #e6eaf2;
+    border-radius:22px;
+    background:linear-gradient(135deg,#fff,#f9faff);
+}
+.teacher-cover-preview {
+    position:relative;
+    min-height:170px;
+    aspect-ratio:16/7;
+    overflow:hidden;
+    border:1px solid #e4e9f2;
+    border-radius:17px;
+    background:
+        radial-gradient(circle at 83% 8%,rgba(41,180,177,.23),transparent 9rem),
+        radial-gradient(circle at 6% 100%,rgba(115,94,224,.22),transparent 10rem),
+        linear-gradient(130deg,#20364f,#5652a0 64%,#227e87);
+}
+.teacher-cover-preview img { width:100%; height:100%; position:absolute; inset:0; object-fit:cover; }
+.teacher-cover-preview-label {
+    position:absolute; inset-inline-start:12px; inset-block-start:12px;
+    padding:6px 9px; border:1px solid rgba(255,255,255,.25); border-radius:999px;
+    background:rgba(18,28,53,.52); color:#fff; font-size:9px; font-weight:900; backdrop-filter:blur(10px);
+}
+.teacher-cover-placeholder {
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    padding:clamp(18px,3vw,30px); color:#fff; isolation:isolate;
+}
+.teacher-cover-placeholder::before {
+    content:""; position:absolute; z-index:-1; width:180px; height:180px;
+    inset-inline-end:-65px; bottom:-120px; border:1px solid rgba(255,255,255,.28); border-radius:50%;
+    box-shadow:0 0 0 18px rgba(255,255,255,.04),0 0 0 42px rgba(255,255,255,.025);
+}
+.teacher-cover-placeholder > span { color:rgba(255,255,255,.7); font-size:10px; font-weight:900; }
+.teacher-cover-placeholder > strong { max-width:90%; margin-top:5px; color:#fff; font-size:clamp(17px,2.4vw,25px); font-weight:950; line-height:1.65; }
+.teacher-cover-placeholder > small { max-width:340px; margin-top:6px; color:rgba(255,255,255,.74); font-size:10px; line-height:1.9; }
+.teacher-cover-placeholder > i { position:absolute; inset-inline-end:20px; top:12px; color:rgba(255,255,255,.65); font-size:24px; font-style:normal; font-weight:950; }
+.teacher-cover-editor-copy h2 { margin:6px 0 0; color:#26354d; font-size:18px; font-weight:950; }
+.teacher-cover-editor-copy p { margin:6px 0 13px; color:#7d899d; font-size:11px; line-height:2; }
+.teacher-cover-editor-copy > small { display:block; margin-top:9px; color:#929caf; font-size:9px; line-height:1.9; }
+@media(max-width:800px) {
+    .teacher-cover-editor { grid-template-columns:minmax(0,1fr); gap:15px; padding:14px; border-radius:18px; }
+    .teacher-cover-preview { min-height:145px; }
+}
