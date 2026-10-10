@@ -27,6 +27,7 @@
                 loading="eager"
                 fetchpriority="high"
                 data-home-hero-image
+                data-desktop-src="{{ $heroImage }}"
                 data-fallback-src="{{ $heroFallback }}"
             >
         </picture>
