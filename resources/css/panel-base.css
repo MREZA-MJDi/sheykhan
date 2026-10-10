@@ -1003,3 +1003,97 @@
     .role-mobile-bottom-nav a,
     .role-mobile-bottom-nav a:active{transition:none;transform:none}
 }
+
+
+
+/* =========================================================
+   SHEYKHAN ROLE WORKSPACES — shared interaction and surface language
+========================================================= */
+.owner-shell,.teacher-shell,.student-shell,.parent-shell {
+    background:
+        radial-gradient(circle at 100% 0,color-mix(in srgb,var(--panel-primary) 8%,transparent),transparent 28rem),
+        radial-gradient(circle at 3% 78%,rgba(19,151,153,.035),transparent 22rem),
+        var(--panel-bg);
+}
+.role-layout { background:transparent; }
+.role-sidebar {
+    border-left-color:color-mix(in srgb,var(--panel-primary) 10%,var(--panel-border));
+    box-shadow:8px 0 36px rgba(24,38,67,.025);
+}
+.role-sidebar-brand { position:relative; padding-bottom:20px; }
+.role-sidebar-brand::after {
+    content:""; display:block; width:54px; height:3px; margin-top:16px; border-radius:8px;
+    background:linear-gradient(90deg,var(--panel-primary),color-mix(in srgb,var(--panel-primary) 24%,white));
+}
+.role-nav-link { min-height:47px; }
+.role-nav-link:not(.is-disabled):hover {
+    background:color-mix(in srgb,var(--panel-primary) 5%,white);
+    color:var(--panel-primary);
+}
+.role-nav-link.is-active {
+    background:linear-gradient(110deg,var(--panel-primary-soft),color-mix(in srgb,var(--panel-primary) 4%,white));
+    box-shadow:inset -3px 0 0 var(--panel-primary),0 5px 14px rgba(26,37,66,.025);
+}
+.role-nav-link.is-active .role-nav-icon {
+    color:var(--panel-primary);
+    border:1px solid color-mix(in srgb,var(--panel-primary) 12%,white);
+}
+.role-main {
+    position:relative;
+    background:
+        radial-gradient(circle at 100% 0,color-mix(in srgb,var(--panel-primary) 3.5%,transparent),transparent 24rem);
+}
+.role-main :is(h1,.teacher-workspace-title,.owner-page-title,.student-page-title) {
+    letter-spacing:-.025em;
+    text-wrap:pretty;
+}
+.role-main :is(.teacher-panel,.student-workspace-card,.teacher-workspace-card,.owner-form-section,
+    .teacher-task-board,.teacher-people-panel,.teacher-focus-card,.parent-child,.owner-stat-card,.ui-stat) {
+    border-radius:20px;
+    box-shadow:var(--panel-shadow-soft);
+    transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+.role-main :is(.teacher-panel,.student-workspace-card,.teacher-workspace-card,.owner-form-section,
+    .teacher-task-board,.teacher-people-panel,.parent-child,.owner-stat-card,.ui-stat):hover {
+    border-color:color-mix(in srgb,var(--panel-primary) 14%,var(--panel-border));
+    box-shadow:0 15px 36px rgba(24,38,69,.065);
+}
+.role-main :is(.teacher-panel,.student-workspace-card,.teacher-workspace-card,.owner-form-section,
+    .teacher-task-board,.teacher-people-panel,.parent-child,.owner-stat-card,.ui-stat):hover {
+    transform:translateY(-1px);
+}
+.role-main :is(a,button,input,select,textarea,[tabindex]):focus-visible {
+    outline:3px solid color-mix(in srgb,var(--panel-primary) 36%,transparent);
+    outline-offset:3px;
+}
+.role-main :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea) {
+    transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.role-main :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea):focus {
+    border-color:color-mix(in srgb,var(--panel-primary) 55%,white);
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--panel-primary) 10%,transparent);
+}
+.role-main :is(.ui-empty,.teacher-empty,.teacher-workspace-empty,.student-empty) {
+    border-radius:17px;
+    line-height:2;
+}
+.role-topbar {
+    border-bottom-color:color-mix(in srgb,var(--panel-primary) 8%,var(--panel-border));
+    box-shadow:0 5px 22px rgba(20,34,65,.025);
+}
+@media(max-width:900px) {
+    .role-main { padding-inline:20px; }
+    .role-main :is(.teacher-panel,.student-workspace-card,.teacher-workspace-card,.owner-form-section,
+        .teacher-task-board,.teacher-people-panel,.parent-child,.owner-stat-card,.ui-stat) { border-radius:17px; }
+}
+@media(max-width:600px) {
+    .role-main { padding:16px 13px 30px; }
+    .role-topbar { padding-inline:15px; }
+    .role-sidebar-brand::after { margin-top:11px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .role-nav-link,.role-main :is(.teacher-panel,.student-workspace-card,.teacher-workspace-card,.owner-form-section,
+        .teacher-task-board,.teacher-people-panel,.parent-child,.owner-stat-card,.ui-stat) { transition:none !important; }
+    .role-nav-link:hover,.role-main :is(.teacher-panel,.student-workspace-card,.teacher-workspace-card,.owner-form-section,
+        .teacher-task-board,.teacher-people-panel,.parent-child,.owner-stat-card,.ui-stat):hover { transform:none; }
+}
