@@ -756,6 +756,31 @@ function bootSeoOgPreview() {
             if (description) description.textContent = ogDescription || 'توضیحات صفحه هنگام اشتراک‌گذاری در این بخش نمایش داده می‌شود.';
         };
 
+        const describeLoadedImage = () => {
+            const width = Number(image?.naturalWidth || 0);
+            const height = Number(image?.naturalHeight || 0);
+            if (!width || !height) {
+                setStatus('پیش‌نمایش تصویر بارگذاری شد؛ نسبت پیشنهادی ۱۲۰۰×۶۳۰ پیکسل است.');
+                return;
+            }
+
+            const targetRatio = 1200 / 630;
+            const actualRatio = width / height;
+            const cropHint = Math.abs(actualRatio - targetRatio) / targetRatio <= 0.05
+                ? 'نسبت تصویر با قاب OG پیشنهادی هماهنگ است.'
+                : actualRatio > targetRatio
+                    ? 'در قاب نمونه، بخشی از کناره‌های تصویر بریده می‌شود.'
+                    : 'در قاب نمونه، بخشی از بالا و پایین تصویر بریده می‌شود.';
+            const resolutionHint = width < 1200 || height < 630
+                ? ' وضوح تصویر کمتر از پیشنهاد ۱۲۰۰×۶۳۰ است.'
+                : '';
+            setStatus(
+                'ابعاد واقعی: ' + width.toLocaleString('fa-IR') + '×' + height.toLocaleString('fa-IR') +
+                ' پیکسل. ' + cropHint + resolutionHint +
+                ' پلتفرم‌های اجتماعی ممکن است پیش‌نمایش را کمی متفاوت نمایش دهند.'
+            );
+        };
+
         const syncImage = () => {
             const value = imageInput.value.trim();
             if (!value) {
@@ -791,7 +816,7 @@ function bootSeoOgPreview() {
                     if (image.src !== lastRequestedUrl) return;
                     image.hidden = false;
                     if (empty) empty.hidden = true;
-                    setStatus('پیش‌نمایش تصویر اشتراک‌گذاری بارگذاری شد. نسبت پیشنهادی: ۱۲۰۰×۶۳۰ (حدود ۱٫۹۱:۱).');
+                    describeLoadedImage();
                 };
                 image.onerror = () => {
                     if (image.src !== lastRequestedUrl) return;
@@ -803,7 +828,7 @@ function bootSeoOgPreview() {
                 else if (image.complete && image.naturalWidth > 0) {
                     image.hidden = false;
                     if (empty) empty.hidden = true;
-                    setStatus('پیش‌نمایش تصویر اشتراک‌گذاری بارگذاری شد. نسبت پیشنهادی: ۱۲۰۰×۶۳۰ (حدود ۱٫۹۱:۱).');
+                    describeLoadedImage();
                 }
             }
         };
