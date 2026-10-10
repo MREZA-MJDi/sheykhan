@@ -55,6 +55,7 @@
 @if($visibleItems->isNotEmpty())
     <nav
         class="role-mobile-bottom-nav"
+        style="--role-mobile-nav-items: {{ $visibleItems->count() }};"
         aria-label="{{ match ($role) {
             'student' => 'دسترسی سریع دانش‌آموز',
             'teacher' => 'دسترسی سریع مدرس',

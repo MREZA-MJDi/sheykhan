@@ -941,7 +941,7 @@
     display:none;
 }
 @media(max-width:700px){
-    .role-main{padding-bottom:92px}
+    .role-main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
     .role-mobile-bottom-nav{
         position:fixed;
         left:10px;
@@ -949,7 +949,7 @@
         bottom:calc(10px + env(safe-area-inset-bottom));
         z-index:70;
         display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(0,1fr));
+        grid-template-columns:repeat(var(--role-mobile-nav-items,5),minmax(0,1fr));
         gap:4px;
         padding:7px;
         border:1px solid rgba(231,235,241,.94);
