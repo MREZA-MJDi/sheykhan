@@ -33,10 +33,19 @@ class PublicContentSeeder extends Seeder
     $content->media()->syncWithoutDetaching([$media->id=>['collection'=>$type,'sort_order'=>0,'is_featured'=>true]]);
    }
   }
-  foreach([
-   [$students->get(0),'gifted_school','علامه حلی ۱'],[$students->get(1),'sample_school','مدرسه نمونه دولتی فرزانگان'],[$students->get(2),'gifted_school','علامه حلی ۲']
-  ] as $i=>$row){
-   [$student,$type,$school]=$row; $media=SeedMedia::make('achievement-'.($i+1),$owner->id,'image/svg+xml','svg','achievements','public');
+
+  // Local/demo foundation intentionally creates one demo student; testing fixtures may create more.
+  // Seed achievements only for demo students that actually exist in this environment.
+  $achievementSeeds = [
+   ['student.armin@sheykhan.test','gifted_school','علامه حلی ۱'],
+   ['student.nika@sheykhan.test','sample_school','مدرسه نمونه دولتی فرزانگان'],
+   ['student.parsa@sheykhan.test','gifted_school','علامه حلی ۲'],
+  ];
+  foreach($achievementSeeds as $i=>[$studentEmail,$type,$school]){
+   $student=$students->firstWhere('email',$studentEmail);
+   if(!$student) continue;
+
+   $media=SeedMedia::make('achievement-'.($i+1),$owner->id,'image/svg+xml','svg','achievements','public');
    Achievement::firstOrCreate(['academy_id'=>$academy->id,'student_id'=>$student->id,'title'=>'افتخارآفرین شماره '.($i+1)],[
     'display_name'=>$student->name,'achievement_type'=>$type,'school_name'=>$school,'grade_id'=>$student->studentProfile?->grade_id,'academic_year_id'=>$year->id,
     'description'=>'یک دستاورد ثبت‌شده در مسیر آموزشی دانش‌آموز.','media_id'=>$media->id,'status'=>'published','is_featured'=>true,'published_at'=>now()->subDays($i),'created_by'=>$owner->id
