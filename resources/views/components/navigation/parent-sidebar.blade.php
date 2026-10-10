@@ -10,16 +10,29 @@
     </div>
 
     <nav class="role-sidebar-nav" aria-label="منوی والد">
-        <div class="role-sidebar-label">پیگیری فرزند</div>
-        <a href="{{ route('parent.dashboard') }}" class="role-nav-link is-active"><span class="role-nav-icon"></span><span>داشبورد</span></a>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>فرزندان من</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>دوره‌ها و کلاس‌ها</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>تمرین و آزمون</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>حضور و غیاب</span><small>به‌زودی</small></span>
+        <div class="role-sidebar-label">خانواده</div>
+        <a href="{{ route('parent.dashboard') }}" class="role-nav-link {{ request()->routeIs('parent.dashboard') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>داشبورد خانواده</span>
+        </a>
+        <a href="{{ route('parent.dashboard') }}#parent-children-title" class="role-nav-link">
+            <span class="role-nav-icon"></span><span>وضعیت فرزندان</span>
+        </a>
+        <a href="{{ route('parent.dashboard') }}#parent-live-title" class="role-nav-link">
+            <span class="role-nav-icon"></span><span>جلسات پیش‌رو</span>
+        </a>
+        <a href="{{ route('parent.dashboard') }}#parent-results-title" class="role-nav-link">
+            <span class="role-nav-icon"></span><span>نتیجه‌های اخیر</span>
+        </a>
 
-        <div class="role-sidebar-label mt-6">گزارش</div>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>عملکرد تحصیلی</span><small>به‌زودی</small></span>
-        <span class="role-nav-link is-disabled"><span class="role-nav-icon"></span><span>تقویم آموزشی</span><small>به‌زودی</small></span>
+        <div class="role-sidebar-label mt-6">دسترسی‌ها</div>
+        @if(\Illuminate\Support\Facades\Route::has('library.index'))
+            <a href="{{ route('library.index') }}" class="role-nav-link {{ request()->routeIs('library.index') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>کتابخانه و خریدها</span>
+            </a>
+        @endif
+        <a href="{{ route('courses.index') }}" class="role-nav-link">
+            <span class="role-nav-icon"></span><span>کشف دوره‌ها</span>
+        </a>
     </nav>
 
     <div class="role-sidebar-footer">
