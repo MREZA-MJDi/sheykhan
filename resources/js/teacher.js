@@ -3,6 +3,68 @@ import { bootPanel } from './panel-base.js';
 document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
 
+    // Preview profile images before upload; the server remains authoritative for validation.
+    const profileForm = document.querySelector('[data-teacher-profile-form]');
+    if (profileForm) {
+        ['avatar', 'cover'].forEach((kind) => {
+            const input = profileForm.querySelector(`[data-teacher-preview-input="${kind}"]`);
+            const preview = profileForm.querySelector(`[data-teacher-preview-container="${kind}"]`);
+            const feedback = profileForm.querySelector(`[data-teacher-preview-feedback="${kind}"]`);
+            if (!input || !preview) return;
+
+            let previewUrl = null;
+            input.addEventListener('change', () => {
+                const file = input.files?.[0];
+                if (!file) return;
+
+                const maxBytes = Number(input.dataset.maxSizeMb || (kind === 'avatar' ? 3 : 5)) * 1024 * 1024;
+                const looksLikeImage = file.type.startsWith('image/')
+                    || /\\.(jpe?g|png|webp|avif)$/i.test(file.name);
+
+                if (!looksLikeImage || file.size > maxBytes) {
+                    input.value = '';
+                    if (feedback) {
+                        feedback.textContent = !looksLikeImage
+                            ? 'لطفاً یک فایل تصویری معتبر انتخاب کن.'
+                            : `حجم تصویر نباید بیشتر از ${kind === 'avatar' ? '۳' : '۵'} مگابایت باشد.`;
+                    }
+                    return;
+                }
+
+                if (previewUrl) URL.revokeObjectURL(previewUrl);
+                previewUrl = URL.createObjectURL(file);
+
+                let image = preview.querySelector('img');
+                if (!image) {
+                    image = document.createElement('img');
+                    image.alt = kind === 'avatar' ? 'پیش‌نمایش آواتار مدرس' : '';
+                    preview.replaceChildren(image);
+                }
+                image.src = previewUrl;
+
+                if (kind === 'cover') {
+                    preview.classList.remove('no-cover');
+                    preview.classList.add('has-cover');
+                    let label = preview.querySelector('.teacher-cover-preview-label');
+                    if (!label) {
+                        label = document.createElement('span');
+                        label.className = 'teacher-cover-preview-label';
+                        preview.appendChild(label);
+                    }
+                    label.textContent = 'پیش‌نمایش کاور';
+                }
+
+                if (feedback) {
+                    feedback.textContent = `پیش‌نمایش «${file.name}» آماده است؛ برای ثبت نهایی، ذخیره پروفایل را بزن.`;
+                }
+            });
+
+            window.addEventListener('pagehide', () => {
+                if (previewUrl) URL.revokeObjectURL(previewUrl);
+            }, { once: true });
+        });
+    }
+
     document.querySelectorAll('[data-copy-schedule-link]').forEach((button) => {
         button.addEventListener('click', async () => {
             const value = button.dataset.copyScheduleLink || '';

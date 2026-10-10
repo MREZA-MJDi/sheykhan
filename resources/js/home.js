@@ -33,6 +33,44 @@ if (!window.__sheykhanAlpineBooted) {
 
         if (!root) return;
 
+        root.querySelectorAll('[data-order-proof-form]').forEach((form) => {
+            const input = form.querySelector('[data-proof-input]');
+            const feedback = form.querySelector('[data-proof-file-name]');
+            const button = form.querySelector('[data-proof-submit]');
+            if (!input) return;
+
+            input.addEventListener('change', () => {
+                const file = input.files?.[0];
+                if (!file) return;
+
+                if (file.size > 12 * 1024 * 1024) {
+                    input.value = '';
+                    if (feedback) {
+                        feedback.setAttribute('role', 'alert');
+                        feedback.textContent = 'حجم فایل بیشتر از ۱۲ مگابایت است؛ یک فایل کوچک‌تر انتخاب کن.';
+                        feedback.classList.add('text-rose-700');
+                    }
+                    return;
+                }
+
+                if (feedback) {
+                    feedback.setAttribute('role', 'status');
+                    feedback.classList.remove('text-rose-700');
+                    const size = file.size >= 1024 * 1024
+                        ? `${(file.size / (1024 * 1024)).toFixed(1)} مگابایت`
+                        : `${Math.max(1, Math.round(file.size / 1024))} کیلوبایت`;
+                    feedback.textContent = `فایل انتخاب‌شده: ${file.name} · ${size}`;
+                }
+            });
+
+            form.addEventListener('submit', () => {
+                if (!input.files?.length || !button) return;
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
+                button.textContent = 'در حال ارسال رسید…';
+            });
+        });
+
         const revealElements = root.querySelectorAll('.home-reveal');
 
         if ('IntersectionObserver' in window) {

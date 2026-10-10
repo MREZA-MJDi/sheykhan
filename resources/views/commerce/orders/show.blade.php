@@ -36,13 +36,14 @@
                                 <p class="mt-1 text-xs">با ارسال رسید تازه، یک تلاش پرداخت جدید ثبت می‌شود و سابقه بررسی قبلی حفظ خواهد شد.</p>
                             </div>
                         @endif
-                        <form method="POST" enctype="multipart/form-data" action="{{ route('orders.proof.store', $order) }}" class="mt-6 grid gap-4 rounded-2xl border border-[var(--color-border)] p-4 sm:p-5">
+                        <form method="POST" enctype="multipart/form-data" action="{{ route('orders.proof.store', $order) }}" class="mt-6 grid gap-4 rounded-2xl border border-[var(--color-border)] p-4 sm:p-5" data-order-proof-form>
                             @csrf
-                            <label class="grid gap-2 text-sm font-bold"><span>رسید واریز (PDF / JPG / PNG / WebP، حداکثر ۱۲ مگابایت)</span><input type="file" name="proof" required accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"></label>
+                            <label class="grid gap-2 text-sm font-bold"><span>رسید واریز (PDF / JPG / PNG / WebP، حداکثر ۱۲ مگابایت)</span><input type="file" name="proof" required accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" data-proof-input aria-describedby="proof-file-feedback"></label>
+                            <p id="proof-file-feedback" data-proof-file-name class="text-xs leading-6 text-[var(--color-text-muted)]" role="status" aria-live="polite">{{ $payment?->proof_uploaded_at ? 'با انتخاب فایل جدید، رسید تازه برای بررسی ارسال خواهد شد.' : 'هنوز فایلی انتخاب نشده است.' }}</p>
                             @if($payment?->proof_uploaded_at)
                                 <p class="text-xs text-[var(--color-text-muted)]">آخرین رسید در {{ \App\Support\PersianUi::date($payment->proof_uploaded_at) }} ثبت شده است.</p>
                             @endif
-                            <button class="min-h-11 rounded-xl bg-[var(--color-primary-600)] px-4 text-sm font-black text-white">{{ $payment?->status === 'rejected' ? 'ارسال رسید جدید' : 'بارگذاری رسید خصوصی' }}</button>
+                            <button type="submit" data-proof-submit class="min-h-11 rounded-xl bg-[var(--color-primary-600)] px-4 text-sm font-black text-white">{{ $payment?->status === 'rejected' ? 'ارسال رسید جدید' : 'بارگذاری رسید خصوصی' }}</button>
                         </form>
                     @elseif($order->status === 'paid')
                         <div class="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">پرداخت تأیید شد. دسترسی فایل‌های مجاز و/یا دوره‌ی سفارش مطابق نوع محصول فعال شده است.</div>
