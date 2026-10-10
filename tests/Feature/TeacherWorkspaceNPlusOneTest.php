@@ -53,4 +53,37 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
         $this->assertLessThanOrEqual(3, $selects);
         $this->assertDatabaseCount('attendances', $before + 2);
     }
+    public function test_paginated_roster_uses_only_current_active_academy_memberships(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        $service = app(TeacherWorkspaceService::class);
+        $page = $service->studentsPaginated($teacher);
+
+        $activeClassroomIds = $teacher->classroomsAsTeacher()
+            ->whereHas('academy', fn ($query) => $query
+                ->where('status', 'active')
+                ->whereHas('users', fn ($membership) => $membership
+                    ->whereKey($teacher->id)
+                    ->where('academy_user.role', 'teacher')
+                    ->where('academy_user.status', 'active')))
+            ->pluck('classrooms.id');
+
+        $expectedStudentIds = User::query()
+            ->whereHas('classroomsAsStudent', fn ($query) => $query
+                ->whereIn('classrooms.id', $activeClassroomIds)
+                ->where('classroom_student.status', 'active'))
+            ->orderBy('name')
+            ->orderBy('users.id')
+            ->limit(20)
+            ->pluck('users.id')
+            ->all();
+
+        $this->assertGreaterThan(0, $activeClassroomIds->count());
+        $this->assertSame($expectedStudentIds, $page->getCollection()->pluck('id')->all());
+    }
 }

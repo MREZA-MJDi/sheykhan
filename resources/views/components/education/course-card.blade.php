@@ -122,10 +122,6 @@
                     <span class="home-meta-signal"><i aria-hidden="true">◷</i>{{ $duration }}</span>
                 @endif
 
-                @if($price)
-                    <span class="home-meta-signal"><i aria-hidden="true">₮</i>{{ $price }}</span>
-                @endif
-
                 <span class="ms-auto font-black text-[var(--color-primary-600)]">
                     مشاهده دوره ←
                 </span>

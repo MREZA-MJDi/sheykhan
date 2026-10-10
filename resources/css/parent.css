@@ -80,3 +80,85 @@
     .parent-row { grid-template-columns:58px minmax(0,1fr); }
     .parent-score { grid-column:2; }
 }
+
+
+.parent-progress-method {
+    margin: 0 0 1.25rem;
+    padding: .85rem 1rem;
+    border: 1px solid rgba(255,255,255,.45);
+    border-radius: 14px;
+    background: rgba(255,255,255,.72);
+    color: var(--panel-text-secondary, #475467);
+    font-size: 12px;
+    line-height: 1.9;
+}
+@media (max-width: 640px) {
+    .parent-progress-method {
+        padding: .7rem .8rem;
+        font-size: 11px;
+    }
+}
+
+/* SHEYKHAN ROLE VISUAL SIGNATURE */
+
+/* PARENT — family oversight and calm, readable summaries */
+.parent-dashboard .parent-hero {
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:28px;
+    background:
+        radial-gradient(circle at 91% 9%,rgba(68,217,200,.22),transparent 17rem),
+        radial-gradient(circle at 1% 100%,rgba(162,127,255,.21),transparent 18rem),
+        linear-gradient(118deg,#192d44 0%,#2e467b 56%,#147b81 100%);
+    box-shadow:0 22px 50px rgba(23,57,83,.17);
+}
+.parent-dashboard .parent-hero::after {
+    content:"";position:absolute;width:245px;height:245px;inset-inline-end:-100px;bottom:-165px;
+    border:1px solid rgba(255,255,255,.17);border-radius:50%;
+    box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 60px rgba(255,255,255,.025);
+    pointer-events:none;
+}
+.parent-dashboard .parent-hero h1 { color:#fff; letter-spacing:-.035em; text-wrap:pretty; }
+.parent-dashboard .parent-hero p { color:rgba(255,255,255,.79); line-height:2.05; }
+.parent-dashboard .parent-kicker { color:#c5e8ec; }
+.parent-dashboard .parent-hero .rounded-full.bg-white\/10 {
+    border:1px solid rgba(255,255,255,.17);
+    background:rgba(255,255,255,.09);
+    backdrop-filter:blur(10px);
+}
+.parent-dashboard .parent-children { gap:15px; }
+.parent-dashboard .parent-child {
+    border:1px solid #e4e9f2;
+    border-radius:20px;
+    background:linear-gradient(145deg,#fff,#fafbff);
+    box-shadow:0 8px 23px rgba(26,42,75,.04);
+    transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.parent-dashboard .parent-child:hover { transform:translateY(-3px); border-color:#d7d2fb; box-shadow:0 16px 33px rgba(26,42,75,.08); }
+.parent-dashboard .parent-child-stat {
+    border:1px solid #edf0f6;
+    border-radius:13px;
+    background:#f9faff;
+}
+.parent-dashboard .parent-grid .parent-panel {
+    border:1px solid #e4e9f2;
+    border-radius:21px;
+    background:rgba(255,255,255,.97);
+    box-shadow:0 9px 26px rgba(26,42,75,.045);
+}
+.parent-dashboard .parent-row {
+    border-radius:14px;
+    transition:background .18s ease,border-color .18s ease;
+}
+.parent-dashboard .parent-row:hover { background:#f8f9ff; }
+.parent-dashboard :is(a,button):focus-visible { outline:3px solid rgba(93,74,209,.35); outline-offset:3px; }
+@media(max-width:700px) {
+    .parent-dashboard .parent-hero { border-radius:22px; }
+    .parent-dashboard .parent-child { border-radius:17px; }
+    .parent-dashboard .parent-grid .parent-panel { border-radius:17px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .parent-dashboard .parent-child { transition:none !important; }
+    .parent-dashboard .parent-child:hover { transform:none; }
+}

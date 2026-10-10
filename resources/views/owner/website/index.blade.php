@@ -19,6 +19,11 @@
         </a>
     </section>
 
+    <aside class="website-image-scope-note mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-xs leading-7 text-blue-900" role="note">
+        <strong class="block font-black">مرز کنترل تصاویر</strong>
+        <p>بنرهای این صفحه، سه کارت تصویری زیر بخش اصلی لندینگ هستند. تصویر تمام‌صفحهٔ ابتدای صفحه در حال حاضر از یک کامپوننت ثابت می‌آید و در این پنل قابل‌تعویض نیست. تصویر OG در تنظیمات SEO هم فقط برای اشتراک‌گذاری لینک است و جایگزین عکس‌های سایت نمی‌شود.</p>
+    </aside>
+
     @forelse($academies as $academy)
         @php
             $activeBanners = $academy->homeBanners->where('is_active', true)->count();

@@ -138,4 +138,22 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertOk();
     }
 
+
+    public function test_parent_dashboard_explains_progress_and_uses_published_active_course_content(): void
+    {
+        $this->seed();
+
+        $parent = User::query()
+            ->where('email', 'parent.armin@sheykhan.test')
+            ->firstOrFail();
+
+        $this->actingAs($parent)
+            ->get(route('parent.dashboard'))
+            ->assertOk()
+            ->assertSee('میانگین پیشرفت')
+            ->assertSee('درس‌های منتشرشده')
+            ->assertSee('دوره‌های فعال');
+    }
+
+
 }

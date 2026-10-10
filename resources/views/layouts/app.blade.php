@@ -17,7 +17,9 @@
     <div id="app">
         <x-navigation.navbar />
         <main id="main-content" class="home-page">
-            <x-ui.flash-messages />
+            @if(!request()->routeIs('checkout.course.show', 'orders.show'))
+                <x-ui.flash-messages />
+            @endif
             @yield('content')
         </main>
         <x-navigation.footer />

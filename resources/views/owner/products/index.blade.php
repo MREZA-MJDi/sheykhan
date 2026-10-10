@@ -31,7 +31,17 @@
         <aside class="owner-form-side space-y-4">
             <section class="owner-form-section space-y-4">
                 <h2>فایل‌های واقعی محصول</h2>
-                <label><span>تصویر روی جلد (اختیاری)</span><input type="file" name="cover_image" accept="image/jpeg,image/png,image/webp"><small>حداکثر ۱۰ مگابایت</small></label>
+                <section class="owner-cover-editor" data-owner-cover-editor data-preview-ratio="1.333333" style="--owner-cover-ratio: 4 / 3;">
+                    <div class="owner-cover-preview">
+                        <div data-owner-cover-empty>پیش‌نمایش جلد محصول با نسبت ۴:۳</div>
+                    </div>
+                    <label>
+                        <span>تصویر روی جلد (اختیاری)</span>
+                        <input type="file" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input data-max-size-mb="10" data-allowed-extensions="jpg,jpeg,png,webp" data-recommended-width="1200" data-recommended-height="900" aria-describedby="product-cover-help product-cover-feedback">
+                        <small id="product-cover-help">حداکثر ۱۰ مگابایت · کادر عمومی محصول ۴:۳ · پیشنهاد ۱۲۰۰×۹۰۰ پیکسل.</small>
+                    </label>
+                    <span id="product-cover-feedback" class="owner-image-feedback" data-owner-cover-feedback role="status" aria-live="polite">این پیش‌نمایش مطابق نسبت تصویر کارت محصول است؛ فایل اصلی بدون تغییر ذخیره می‌شود.</span>
+                </section>
                 <label><span>PDF اصلی محصول</span><input type="file" name="pdf_file" accept="application/pdf,.pdf"><small>حداکثر ۵۰ مگابایت. در انتشار عمومی ضروری است.</small></label>
                 <label class="owner-check"><input type="checkbox" name="is_featured" value="1" @checked(old('is_featured'))><span>نمایش ویژه در صفحه اصلی</span></label>
                 <label class="owner-check"><input type="checkbox" name="publish" value="1" @checked(old('publish'))><span>انتشار عمومی (نیازمند PDF واقعی)</span></label>

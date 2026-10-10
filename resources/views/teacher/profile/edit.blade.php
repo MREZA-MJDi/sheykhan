@@ -18,15 +18,15 @@
         @endif
     </header>
 
-    @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
-    @if($errors->any())<div class="teacher-workspace-alert error">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
+    @if(session('success'))<div class="teacher-workspace-alert success" role="status" aria-live="polite">{{ session('success') }}</div>@endif
+    @if($errors->any())<div class="teacher-workspace-alert error" role="alert" aria-live="assertive">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 
-    <form method="POST" action="{{ route('teacher.profile.update') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('teacher.profile.update') }}" enctype="multipart/form-data" data-teacher-profile-form>
         @csrf @method('PATCH')
 
         <section class="teacher-profile-editor">
             <div class="teacher-profile-editor-hero">
-                <div class="teacher-profile-avatar">
+                <div class="teacher-profile-avatar" data-teacher-preview-container="avatar">
                     @if($avatar)
                         <img src="{{ $avatar->visibility === 'public' ? $avatar->url() : route('media.view',$avatar) }}" alt="{{ $teacher->name }}">
                     @else
@@ -39,11 +39,66 @@
                     <p>یک تصویر واضح و حرفه‌ای انتخاب کن؛ این تصویر در صفحه معرفی عمومی مدرس نمایش داده می‌شود.</p>
                     <label class="teacher-upload-btn">
                         انتخاب تصویر
-                        <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp,image/avif">
+                        <input
+                            type="file"
+                            name="avatar"
+                            accept="image/jpeg,image/png,image/webp,image/avif"
+                            data-teacher-preview-input="avatar"
+                            data-max-size-mb="3"
+                            aria-describedby="teacher-avatar-help teacher-avatar-feedback"
+                        >
                     </label>
-                    <small>JPG، PNG، WEBP یا AVIF · حداکثر ۳ مگابایت</small>
+                    <small id="teacher-avatar-help">
+                        JPG، PNG، WEBP یا AVIF · حداکثر ۳ مگابایت.
+                        این تصویر به‌عنوان آواتار شما در فهرست مدرس‌ها و صفحه معرفی عمومی نمایش داده می‌شود.
+                    </small>
+                    <span id="teacher-avatar-feedback" data-teacher-preview-feedback="avatar" class="mt-2 block text-xs leading-6 text-[var(--color-primary-600)]" role="status" aria-live="polite"></span>
                 </div>
             </div>
+
+            <section class="teacher-cover-editor" aria-labelledby="teacher-cover-title">
+                <div class="teacher-cover-preview {{ $cover ? 'has-cover' : 'no-cover' }}" data-teacher-preview-container="cover">
+                    @if($cover)
+                        <img
+                            src="{{ $cover->visibility === 'public' ? $cover->url() : route('media.view', $cover) }}"
+                            alt=""
+                            loading="lazy"
+                        >
+                        <span class="teacher-cover-preview-label">کاور فعلی</span>
+                    @else
+                        <div class="teacher-cover-placeholder">
+                            <span>معرفی مدرس</span>
+                            <strong>{{ $teacher->name }}</strong>
+                            <small>کاور اختیاری است؛ اگر انتخاب نکنی، صفحه بدون تصویر اجباری نمایش داده می‌شود.</small>
+                            <i aria-hidden="true">ش</i>
+                        </div>
+                    @endif
+                </div>
+                <div class="teacher-cover-editor-copy">
+                    <span class="teacher-workspace-kicker">اختیاری · تصویر عریض</span>
+                    <h2 id="teacher-cover-title">کاور صفحه معرفی</h2>
+                    <p>یک عکس عریض مرتبط با فضای تدریس یا تخصصت انتخاب کن. کاور فقط در صفحه عمومی مدرس نمایش داده می‌شود؛ آواتار همچنان جداست.</p>
+                    <label class="teacher-upload-btn">
+                        انتخاب کاور
+                        <input
+                            type="file"
+                            name="cover"
+                            accept="image/jpeg,image/png,image/webp,image/avif"
+                            data-teacher-preview-input="cover"
+                            data-max-size-mb="5"
+                            aria-describedby="teacher-cover-help teacher-cover-feedback"
+                        >
+                    </label>
+                    <small id="teacher-cover-help">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت. انتخاب کاور اجباری نیست.</small>
+                    <span id="teacher-cover-feedback" data-teacher-preview-feedback="cover" class="mt-2 block text-xs leading-6 text-[var(--color-primary-600)]" role="status" aria-live="polite"></span>
+                    @if($cover)
+                        <label class="teacher-cover-remove">
+                            <input type="checkbox" name="remove_cover" value="1" @checked(old('remove_cover'))>
+                            <span>حذف کاور فعلی و نمایش پروفایل بدون کاور</span>
+                        </label>
+                    @endif
+                </div>
+            </section>
 
             <div class="teacher-profile-form-grid">
                 <label class="teacher-workspace-field"><span>نام و نام خانوادگی</span><input name="name" value="{{ old('name',$teacher->name) }}" required maxlength="120"></label>

@@ -31,6 +31,7 @@ class TeacherProfileWorkflowTest extends TestCase
                 'experience_years' => 9,
                 'is_public' => 1,
                 'avatar' => UploadedFile::fake()->image('teacher-avatar.webp', 640, 640),
+                'cover' => UploadedFile::fake()->image('teacher-cover.webp', 1600, 700),
             ])
             ->assertRedirect(route('teacher.profile.edit'));
 
@@ -48,6 +49,15 @@ class TeacherProfileWorkflowTest extends TestCase
             'mediable_id' => $profile->id,
             'collection' => 'teacher-avatar',
         ]);
+        $this->assertDatabaseHas('media_attachments', [
+            'mediable_type' => TeacherProfile::class,
+            'mediable_id' => $profile->id,
+            'collection' => 'teacher-cover',
+        ]);
+
+        $this->get(route('teachers.show', $teacher))
+            ->assertOk()
+            ->assertSee('teacher-profile-hero__image', false);
     }
 
     public function test_public_teacher_directory_links_to_a_complete_profile(): void

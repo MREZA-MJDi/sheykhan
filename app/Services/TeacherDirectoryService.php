@@ -35,6 +35,12 @@ class TeacherDirectoryService
             ->whereKey($teacherId)
             ->where('status', 'active')
             ->with([
+                'teacherProfile:id,user_id,bio,specialization,education,experience_years,is_verified,is_public',
+                'teacherProfile.media' => fn ($media) => $media
+                    ->wherePivotIn('collection', ['teacher-avatar', 'teacher-cover'])
+                    ->where('visibility', 'public')
+                    ->where('status', 'active')
+                    ->orderByPivot('sort_order'),
                 'taughtCourses' => fn ($query) => $query
                     ->published()
                     ->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))
@@ -87,7 +93,9 @@ class TeacherDirectoryService
             ->with([
                 'teacherProfile:id,user_id,bio,specialization',
                 'teacherProfile.media' => fn ($query) => $query
+                    ->wherePivot('collection', 'teacher-avatar')
                     ->where('visibility', 'public')
+                    ->where('status', 'active')
                     ->orderByPivot('sort_order'),
             ])
             ->withCount([

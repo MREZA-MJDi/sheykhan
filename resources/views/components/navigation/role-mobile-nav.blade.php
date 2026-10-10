@@ -25,6 +25,13 @@
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣'],
             ['route' => 'owner.reports.index', 'label' => 'گزارش', 'permission' => 'reports.view', 'icon' => '↗'],
         ],
+        'parent' => [
+            ['route' => 'parent.dashboard', 'url' => route('parent.dashboard'), 'activeRoute' => 'parent.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂'],
+            ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-children-title', 'activeRoute' => null, 'label' => 'فرزندان', 'permission' => 'dashboard.view', 'icon' => '◎'],
+            ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-live-title', 'activeRoute' => null, 'label' => 'جلسات', 'permission' => 'dashboard.view', 'icon' => '◷'],
+            ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-results-title', 'activeRoute' => null, 'label' => 'نتایج', 'permission' => 'dashboard.view', 'icon' => '↗'],
+            ['route' => 'library.index', 'activeRoute' => 'library.index', 'label' => 'خریدها', 'permission' => 'courses.view', 'icon' => '▣'],
+        ],
         default => [],
     };
 
@@ -48,6 +55,7 @@
 @if($visibleItems->isNotEmpty())
     <nav
         class="role-mobile-bottom-nav"
+        style="--role-mobile-nav-items: {{ $visibleItems->count() }};"
         aria-label="{{ match ($role) {
             'student' => 'دسترسی سریع دانش‌آموز',
             'teacher' => 'دسترسی سریع مدرس',
@@ -63,15 +71,19 @@
                     'owner' => 'owner.dashboard',
                     default => '',
                 };
-                $active = request()->routeIs($item['route'])
-                    || (
-                        $item['route'] !== $dashboardRoute
-                        && str_ends_with($item['route'], '.index')
-                        && request()->routeIs(str_replace('.index', '.*', $item['route']))
+                $active = array_key_exists('activeRoute', $item)
+                    ? ($item['activeRoute'] !== null && request()->routeIs($item['activeRoute']))
+                    : (
+                        request()->routeIs($item['route'])
+                        || (
+                            $item['route'] !== $dashboardRoute
+                            && str_ends_with($item['route'], '.index')
+                            && request()->routeIs(str_replace('.index', '.*', $item['route']))
+                        )
                     );
             @endphp
             <a
-                href="{{ route($item['route'], $item['urlArgs'] ?? []) }}"
+                href="{{ $item['url'] ?? route($item['route'], $item['urlArgs'] ?? []) }}"
                 class="{{ $active ? 'is-active' : '' }}"
             >
                 <span class="role-mobile-bottom-icon" aria-hidden="true">{{ $item['icon'] }}</span>

@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
+use App\Models\User;
+use App\Models\FinancialTransaction;
+use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\ProductEntitlement;
@@ -23,10 +27,14 @@ final class OrderReviewController extends Controller
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
 
         $orders = Order::query()
-            ->whereHas('items.product', fn ($query) => $query->where('academy_id', $academy->id))
+            ->where(fn ($query) => $query
+                ->whereHas('items.product', fn ($product) => $product->where('academy_id', $academy->id))
+                ->orWhereHas('items.course', fn ($course) => $course->where('academy_id', $academy->id)))
             ->with([
                 'buyer:id,name,email,mobile',
                 'items.product:id,title,academy_id',
+                'items.course:id,title,academy_id,price',
+                'items.beneficiary:id,name',
                 'payments.proofMedia:id,original_name,mime_type,size,status',
             ])
             ->orderByDesc('created_at')
@@ -84,9 +92,7 @@ final class OrderReviewController extends Controller
             );
             abort_unless((int) $lockedPayment->amount === (int) $lockedOrder->total, 409);
 
-            $belongsToAcademy = $lockedOrder->items()
-                ->whereHas('product', fn ($query) => $query->where('academy_id', $academy->id))
-                ->exists();
+            $belongsToAcademy = $this->orderBelongsToAcademy($lockedOrder, $academy);
             abort_unless($belongsToAcademy, 404);
 
             $lockedPayment->forceFill([
@@ -104,21 +110,78 @@ final class OrderReviewController extends Controller
                 'legal_consent_completed' => true,
             ])->save();
 
-            foreach ($lockedOrder->items()->with('product')->lockForUpdate()->get() as $item) {
+            foreach ($lockedOrder->items()->with(['product', 'course'])->lockForUpdate()->get() as $item) {
                 $beneficiaryId = (int) ($item->beneficiary_id ?: $lockedOrder->buyer_id);
-                $entitlement = ProductEntitlement::query()->firstOrNew(['order_item_id' => $item->id]);
-                $entitlement->fill([
-                    'user_id' => $beneficiaryId,
-                    'product_id' => $item->product_id,
+
+                if ($item->product) {
+                    $entitlement = ProductEntitlement::query()->firstOrNew(['order_item_id' => $item->id]);
+                    $entitlement->fill([
+                        'user_id' => $beneficiaryId,
+                        'product_id' => $item->product_id,
+                        'status' => 'active',
+                        'starts_at' => now(),
+                        'expires_at' => null,
+                        'granted_at' => now(),
+                    ])->save();
+                    continue;
+                }
+
+                $course = $item->course;
+                abort_unless($course && (int) $course->academy_id === (int) $academy->id, 409);
+                abort_unless((int) $item->quantity === 1 && (int) $item->unit_price > 0 && (int) $item->total_price === (int) $item->unit_price, 409);
+
+                $beneficiary = User::query()->findOrFail($beneficiaryId);
+                abort_unless(
+                    $beneficiary->hasRole('student')
+                        && $beneficiary->academies()->whereKey($course->academy_id)
+                            ->wherePivot('role', 'student')->wherePivot('status', 'active')->exists(),
+                    409,
+                    'حساب دانش‌آموزِ دریافت‌کننده دیگر عضو فعال این آموزشگاه نیست.'
+                );
+                abort_unless(
+                    ! $beneficiary->enrollments()->where('course_id', $course->id)->fullyPaid()->exists(),
+                    409,
+                    'دسترسی این دانش‌آموز به دوره قبلاً فعال شده است.'
+                );
+                abort_unless(Course::query()->published()->whereKey($course->id)->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))->exists(), 409);
+
+                $enrollment = CourseEnrollment::query()->firstOrNew([
+                    'course_id' => $course->id,
+                    'student_id' => $beneficiary->id,
+                ]);
+                $enrollment->fill([
                     'status' => 'active',
-                    'starts_at' => now(),
-                    'expires_at' => null,
-                    'granted_at' => now(),
-                ])->save();
+                    'payment_status' => 'paid',
+                    'price_amount' => $item->unit_price,
+                    'paid_amount' => $item->total_price,
+                    'started_at' => $enrollment->started_at ?? now(),
+                ]);
+                $enrollment->save();
+
+                FinancialTransaction::query()->firstOrCreate(
+                    ['reference' => 'course-order-' . $lockedOrder->id . '-item-' . $item->id],
+                    [
+                        'academy_id' => $course->academy_id,
+                        'enrollment_id' => $enrollment->id,
+                        'user_id' => $beneficiary->id,
+                        'recorded_by' => $request->user()->id,
+                        'type' => 'enrollment_payment',
+                        'status' => 'completed',
+                        'amount' => $item->total_price,
+                        'currency' => $lockedOrder->currency ?: 'IRR',
+                        'description' => 'خرید دوره «' . $course->title . '» با سفارش ' . $lockedOrder->order_number,
+                        'metadata' => [
+                            'order_id' => $lockedOrder->id,
+                            'order_item_id' => $item->id,
+                            'source' => 'manual_transfer_checkout',
+                        ],
+                        'occurred_at' => now(),
+                    ]
+                );
             }
         });
 
-        return back()->with('success', 'پرداخت با کد رهگیری ثبت شد و دسترسی محصولات سفارش فعال گردید.');
+        return back()->with('success', 'پرداخت تأیید شد؛ دسترسی فایل‌های مجاز و/یا دوره‌های سفارش فعال گردید.');
     }
 
     public function reject(
@@ -141,7 +204,7 @@ final class OrderReviewController extends Controller
             $lockedPayment = Payment::query()->whereKey($payment->id)->lockForUpdate()->firstOrFail();
             abort_unless((int) $lockedPayment->order_id === (int) $lockedOrder->id, 404);
             abort_unless($lockedOrder->status === 'pending' && $lockedPayment->status === 'pending', 409);
-            abort_unless($lockedOrder->items()->whereHas('product', fn ($query) => $query->where('academy_id', $academy->id))->exists(), 404);
+            abort_unless($this->orderBelongsToAcademy($lockedOrder, $academy), 404);
 
             $lockedPayment->forceFill([
                 'status' => 'rejected',
@@ -163,8 +226,18 @@ final class OrderReviewController extends Controller
     ): void {
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
         abort_unless(
-            $order->items()->whereHas('product', fn ($query) => $query->where('academy_id', $academy->id))->exists(),
+            $this->orderBelongsToAcademy($order, $academy),
             404
         );
     }
+
+    private function orderBelongsToAcademy(Order $order, Academy $academy): bool
+    {
+        return $order->items()
+            ->where(fn ($query) => $query
+                ->whereHas('product', fn ($product) => $product->where('academy_id', $academy->id))
+                ->orWhereHas('course', fn ($course) => $course->where('academy_id', $academy->id)))
+            ->exists();
+    }
+
 }

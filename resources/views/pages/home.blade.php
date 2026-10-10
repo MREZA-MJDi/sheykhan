@@ -277,6 +277,7 @@
     @endif
 
     {{-- Educational store --}}
+    @if(count($storeCategories) || count($productCards))
     <section class="home-section">
         <x-layout.container size="wide">
             <div class="home-heading">
@@ -319,59 +320,67 @@
             @endif
         </x-layout.container>
     </section>
+    @endif
 
-    {{-- Academy editorial content --}}
-    <section id="academy-content" class="home-section home-soft">
-        <x-layout.container size="wide">
-            <div class="home-heading">
-                <div>
-                    <span>آکادمی شیخان</span>
-                    <h2>محتوایی فراتر از کلاس.</h2>
-                    <p>پنج مسیر محتوایی رسمی آکادمی برای والدین، دانش‌آموزان و علاقه‌مندان.</p>
+    {{-- Academy editorial content: show only content paths that have public material. --}}
+    @php
+        $academyPathTitles = [
+            'parents' => 'سخنی با اولیاء',
+            'students' => 'سخنی با دانش‌آموزان',
+            'gifted' => 'سلام تیزهوشان',
+            'foreign-resources' => 'نکاتی از سوالات منابع خارجی',
+            'question-designer' => 'اگر من طراح سوال بودم',
+        ];
+        $publicAcademyPaths = collect($academyPathTitles)
+            ->map(fn ($title, $slug) => [
+                'slug' => $slug,
+                'title' => $title,
+                'items' => $academyContentGroups[$slug] ?? [],
+            ])
+            ->filter(fn ($path) => count($path['items']) > 0)
+            ->values();
+    @endphp
+    @if($publicAcademyPaths->isNotEmpty())
+        <section id="academy-content" class="home-section home-soft">
+            <x-layout.container size="wide">
+                <div class="home-heading">
+                    <div>
+                        <span>آکادمی شیخان</span>
+                        <h2>محتوایی فراتر از کلاس.</h2>
+                        <p>{{ $fa($publicAcademyPaths->count()) }} مسیر محتوایی فعال؛ مقاله‌ها و ویدئوهایی که همین حالا قابل مشاهده‌اند.</p>
+                    </div>
+                    <a href="{{ route('blog.index') }}">مطالب آموزشی بیشتر <i>←</i></a>
                 </div>
-                <a href="#academy-content">پنج مسیر محتوا <i>↓</i></a>
-            </div>
 
-            <div class="home-academy-grid">
-                @foreach([
-                    'parents' => 'سخنی با اولیاء',
-                    'students' => 'سخنی با دانش‌آموزان',
-                    'gifted' => 'سلام تیزهوشان',
-                    'foreign-resources' => 'نکاتی از سوالات منابع خارجی',
-                    'question-designer' => 'اگر من طراح سوال بودم',
-                ] as $slug => $title)
-                    @php($items = $academyContentGroups[$slug] ?? [])
-                    <article class="home-academy-card">
-                        <span>{{ $title }}</span>
-                        <h3>{{ count($items) ? 'جدیدترین محتوای این مسیر' : 'در حال آماده‌سازی' }}</h3>
-                        @forelse($items as $item)
-                            @if($item['href'])
-                                <a href="{{ $item['href'] }}" class="home-academy-item">
-                                    <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
-                                    <strong>{{ $item['title'] }}</strong>
-                                    @if($item['duration'])
-                                        <small>{{ $item['duration'] }}</small>
-                                    @endif
-                                </a>
-                            @else
-                                <div class="home-academy-item">
-                                    <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
-                                    <strong>{{ $item['title'] }}</strong>
-                                    @if($item['duration'])
-                                        <small>{{ $item['duration'] }}</small>
-                                    @endif
-                                </div>
-                            @endif
-                        @empty
-                            <p>محتوای رسمی این بخش پس از انتشار در اینجا نمایش داده می‌شود.</p>
-                        @endforelse
-                    </article>
-                @endforeach
-            </div>
-        </x-layout.container>
-    </section>
+                <div class="home-academy-grid">
+                    @foreach($publicAcademyPaths as $path)
+                        <article class="home-academy-card">
+                            <span>{{ $path['title'] }}</span>
+                            <h3>محتوای منتشرشده</h3>
+                            @foreach($path['items'] as $item)
+                                @if($item['href'])
+                                    <a href="{{ $item['href'] }}" class="home-academy-item">
+                                        <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
+                                        <strong>{{ $item['title'] }}</strong>
+                                        @if($item['duration'])<small>{{ $item['duration'] }}</small>@endif
+                                    </a>
+                                @else
+                                    <div class="home-academy-item">
+                                        <b>{{ $item['type'] === 'video' ? 'ویدئو' : 'مقاله' }}</b>
+                                        <strong>{{ $item['title'] }}</strong>
+                                        @if($item['duration'])<small>{{ $item['duration'] }}</small>@endif
+                                    </div>
+                                @endif
+                            @endforeach
+                        </article>
+                    @endforeach
+                </div>
+            </x-layout.container>
+        </section>
+    @endif
 
     {{-- Achievers --}}
+    @if(count($achievementCards))
     <section class="home-section home-trust">
         <x-layout.container size="wide">
             <div class="home-heading">
@@ -401,8 +410,10 @@
             </div>
         </x-layout.container>
     </section>
+    @endif
 
     {{-- Testimonials --}}
+    @if(count($testimonialCards))
     <section class="home-section home-dark">
         <x-layout.container size="wide">
             <div class="home-heading home-heading-dark">
@@ -441,6 +452,7 @@
             </div>
         </x-layout.container>
     </section>
+    @endif
 
     {{-- CTA --}}
     <section class="home-section">

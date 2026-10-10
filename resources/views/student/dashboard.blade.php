@@ -155,12 +155,24 @@
                 </a>
             </div>
 
-            <div class="student-focus-progress">
-                <span>پیشرفت کلی</span>
-                <div class="student-focus-progress-track">
+            <div class="student-focus-progress" aria-label="روش محاسبه پیشرفت یادگیری">
+                <span>میانگین پیشرفت دوره‌ها</span>
+                <div
+                    class="student-focus-progress-track"
+                    role="progressbar"
+                    aria-label="میانگین پیشرفت دوره‌های فعال"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="{{ $progress }}"
+                >
                     <i style="width: {{ $progress }}%"></i>
                 </div>
-                <small>{{ App\Support\PersianUi::digits($completedLessons) }} از {{ App\Support\PersianUi::digits($totalLessons) }} درس کامل</small>
+                <small>
+                    {{ App\Support\PersianUi::digits($completedLessons) }} از {{ App\Support\PersianUi::digits($totalLessons) }} درس کامل
+                </small>
+                <small class="student-progress-method">
+                    محاسبه بر پایه میانگین درصد پیشرفت ثبت‌شده در دوره‌های فعال است؛ هر درسِ منتشرشده که پیشرفت آن به ۱۰۰٪ برسد، کامل حساب می‌شود.
+                </small>
             </div>
         </section>
 

@@ -33,7 +33,7 @@
             @if($existingVideo)
                 <video controls preload="metadata" class="mt-3 w-full rounded-xl border border-slate-200" src="{{ $existingVideo->url() }}"></video>
             @endif
-            <div class="owner-cover-editor" data-owner-cover-editor>
+            <div class="owner-cover-editor" data-owner-cover-editor data-preview-ratio="1.6" style="--owner-cover-ratio: 16 / 10;">
                 <div class="owner-cover-preview">
                     @php($cover = $content->media->first(fn($media) => $media->pivot?->collection === 'cover')?->url())
                     @if($cover)
@@ -44,8 +44,9 @@
                 </div>
                 <label>
                     <span>تصویر شاخص</span>
-                    <input type="file" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input>
-                    <small>حداکثر ۱۰ مگابایت — تصویر اصلی دست‌نخورده ذخیره می‌شود.</small>
+                    <input type="file" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input data-max-size-mb="10" data-allowed-extensions="jpg,jpeg,png,webp" data-recommended-width="1200" data-recommended-height="750" aria-describedby="owner-content-cover-help owner-content-cover-feedback">
+                    <small id="owner-content-cover-help">حداکثر ۱۰ مگابایت · کادر تصویر عمومی ۱۶:۱۰ · پیشنهاد ۱۲۰۰×۷۵۰ پیکسل.</small>
+                    <span id="owner-content-cover-feedback" class="owner-image-feedback" data-owner-cover-feedback role="status" aria-live="polite">تصویر در قاب عمومی به‌صورت cover دیده می‌شود؛ فایل اصلی تغییر نمی‌کند.</span>
                 </label>
             </div>
         </section>

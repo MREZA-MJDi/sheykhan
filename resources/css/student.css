@@ -4203,3 +4203,106 @@
         filter: blur(9px);
     }
 }
+
+
+/* Progress KPI: make the definition readable instead of hiding the metric behind a number. */
+.student-focus-progress .student-progress-method {
+    display: block;
+    margin-top: 9px;
+    color: var(--student-muted, #718096);
+    font-size: 11px;
+    line-height: 1.9;
+    text-wrap: pretty;
+}
+.student-focus-progress [role="progressbar"] {
+    overflow: hidden;
+}
+.student-focus-progress [role="progressbar"]:focus-visible {
+    outline: 3px solid rgba(13, 143, 202, .3);
+    outline-offset: 3px;
+}
+@media (max-width: 640px) {
+    .student-focus-progress .student-progress-method {
+        font-size: 10px;
+    }
+}
+
+/* SHEYKHAN ROLE VISUAL SIGNATURE */
+
+/* STUDENT — learning journey, motivating but never vague */
+.student-dashboard-ui .student-ui-hero {
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:28px;
+    background:
+        radial-gradient(circle at 91% 8%,rgba(70,226,202,.24),transparent 16rem),
+        radial-gradient(circle at 3% 95%,rgba(177,132,255,.23),transparent 18rem),
+        linear-gradient(118deg,#172b43 0%,#245d82 52%,#5645a9 100%);
+    box-shadow:0 23px 50px rgba(22,74,111,.17);
+}
+.student-dashboard-ui .student-ui-eyebrow { color:#bde8f1; }
+.student-dashboard-ui .student-ui-hero-copy h2 { color:#fff; letter-spacing:-.035em; text-wrap:pretty; }
+.student-dashboard-ui .student-ui-hero-copy p { color:rgba(255,255,255,.79); line-height:2.05; }
+.student-dashboard-ui .student-ui-hero-meta span {
+    border:1px solid rgba(255,255,255,.17);
+    border-radius:11px;
+    background:rgba(255,255,255,.085);
+    color:rgba(255,255,255,.78);
+}
+.student-dashboard-ui .student-ui-hero-meta b { color:#fff; }
+.student-dashboard-ui .student-ui-hero-art { isolation:isolate; }
+.student-dashboard-ui .student-ui-hero-glow { filter:blur(2px); opacity:.85; }
+.student-dashboard-ui .student-ui-kpis > article {
+    position:relative;
+    overflow:hidden;
+    border:1px solid #e4e9f2;
+    border-radius:19px;
+    background:linear-gradient(145deg,#fff,#f9fbff);
+    box-shadow:0 7px 22px rgba(20,46,76,.04);
+    transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.student-dashboard-ui .student-ui-kpis > article::after {
+    content:"";
+    position:absolute;
+    width:90px;height:90px;
+    inset-inline-end:-37px;bottom:-48px;
+    border:1px solid rgba(96,79,207,.13);
+    border-radius:50%;
+    box-shadow:0 0 0 12px rgba(96,79,207,.025);
+    pointer-events:none;
+}
+.student-dashboard-ui .student-ui-kpis > article:hover { transform:translateY(-3px); border-color:#d8d3fb; box-shadow:0 15px 30px rgba(25,53,87,.08); }
+.student-dashboard-ui .student-ui-task-board,.student-dashboard-ui .student-ui-panel,.student-dashboard-ui .student-workspace-card {
+    border:1px solid #e4e9f2;
+    border-radius:21px;
+    background:rgba(255,255,255,.97);
+    box-shadow:0 9px 26px rgba(24,43,75,.045);
+}
+.student-dashboard-ui .student-ui-board-card {
+    border:1px solid rgba(255,255,255,.2);
+    border-radius:18px;
+    box-shadow:0 11px 24px rgba(30,44,83,.11);
+    transition:transform .2s ease,box-shadow .2s ease;
+}
+.student-dashboard-ui .student-ui-board-card:hover { transform:translateY(-3px); box-shadow:0 18px 30px rgba(30,44,83,.16); }
+.student-dashboard-ui .student-ui-course {
+    border:1px solid #e8ecf3;
+    border-radius:16px;
+    background:linear-gradient(135deg,#fff,#fafbff);
+    transition:border-color .18s ease,box-shadow .18s ease;
+}
+.student-dashboard-ui .student-ui-course:hover { border-color:#d7d2fb; box-shadow:0 9px 20px rgba(27,45,80,.055); }
+.student-dashboard-ui .student-ui-progress,.student-dashboard-ui .student-focus-progress-track { overflow:hidden; border-radius:99px; }
+.student-dashboard-ui .student-ui-progress > span,.student-dashboard-ui .student-focus-progress-track i {
+    background:linear-gradient(90deg,#18a7a2,#6754dc);
+    border-radius:inherit;
+}
+.student-dashboard-ui :is(a,button):focus-visible { outline:3px solid rgba(13,143,202,.35); outline-offset:3px; }
+@media(max-width:700px) {
+    .student-dashboard-ui .student-ui-hero { border-radius:22px; }
+    .student-dashboard-ui .student-ui-kpis > article { border-radius:16px; }
+    .student-dashboard-ui .student-ui-task-board,.student-dashboard-ui .student-ui-panel,.student-dashboard-ui .student-workspace-card { border-radius:17px; }
+}
+@media(prefers-reduced-motion:reduce) {
+    .student-dashboard-ui .student-ui-kpis > article,.student-dashboard-ui .student-ui-board-card { transition:none !important; }
+    .student-dashboard-ui .student-ui-kpis > article:hover,.student-dashboard-ui .student-ui-board-card:hover { transform:none; }
+}

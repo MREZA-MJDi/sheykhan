@@ -27,13 +27,33 @@ final class ParentDashboardService
 
         $childIds = $children->pluck('id');
 
-        $progress = DB::table('lesson_progress')
-            ->whereIn('user_id', $childIds)
-            ->groupBy('user_id')
-            ->select('user_id')
-            ->selectRaw('AVG(progress_percent) as progress_average')
+        // Parent progress must use the same denominator as student progress:
+        // active enrolled courses, published lessons only, and unstarted lessons count as 0.
+        $progress = DB::table('course_enrollments as enrollments')
+            ->join('courses', 'courses.id', '=', 'enrollments.course_id')
+            ->leftJoin('course_sections as sections', 'sections.course_id', '=', 'courses.id')
+            ->leftJoin('lessons as lessons', function ($join): void {
+                $join->on('lessons.course_section_id', '=', 'sections.id')
+                    ->where('lessons.status', '=', 'published')
+                    ->where(fn ($published) => $published
+                        ->whereNull('lessons.published_at')
+                        ->orWhere('lessons.published_at', '<=', now()));
+            })
+            ->leftJoin('lesson_progress as lesson_progress', function ($join): void {
+                $join->on('lesson_progress.lesson_id', '=', 'lessons.id')
+                    ->on('lesson_progress.user_id', '=', 'enrollments.student_id');
+            })
+            ->whereIn('enrollments.student_id', $childIds)
+            ->where('enrollments.status', 'active')
+            ->groupBy('enrollments.student_id')
+            ->select('enrollments.student_id')
+            ->selectRaw(
+                'CASE WHEN COUNT(lessons.id) = 0 THEN 0
+                    ELSE AVG(COALESCE(lesson_progress.progress_percent, 0))
+                END AS progress_average'
+            )
             ->get()
-            ->mapWithKeys(fn ($row) => [(int) $row->user_id => (float) $row->progress_average]);
+            ->mapWithKeys(fn ($row) => [(int) $row->student_id => (float) $row->progress_average]);
 
         $enrollmentCounts = DB::table('course_enrollments')
             ->whereIn('student_id', $childIds)

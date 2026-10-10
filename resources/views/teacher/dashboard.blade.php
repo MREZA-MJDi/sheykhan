@@ -246,8 +246,8 @@
             <section class="teacher-panel" aria-labelledby="teacher-progress-title">
                 <div class="teacher-panel-head">
                     <div>
-                        <span class="teacher-panel-label">عملکرد آموزشی</span>
-                        <h2 id="teacher-progress-title">روند پیشرفت دانش‌آموزان</h2>
+                        <span class="teacher-panel-label">فعالیت ثبت‌شده در آخرین مشاهده</span>
+                        <h2 id="teacher-progress-title">وضعیت پیشرفت درس‌ها</h2>
                     </div>
 
                     <div class="teacher-filter" role="group" aria-label="بازه نمودار">
@@ -275,7 +275,7 @@
                             <i></i><i></i><i></i><i></i><i></i>
                         </div>
 
-                        <div class="teacher-bars" data-teacher-bars aria-label="نمودار پیشرفت">
+                        <div class="teacher-bars" data-teacher-bars role="img" aria-label="میانگین درصد فعلیِ رکوردهای درس با آخرین مشاهده در بازهٔ انتخاب‌شده">
                             @foreach(($chart['week']['values'] ?? []) as $index => $value)
                                 @php($chartValue = max(0, min(100, (float) $value)))
 
@@ -292,6 +292,10 @@
                         </div>
                     </div>
                 </div>
+
+                <p class="teacher-chart-method">
+                    این نمودار رکوردهای فعلیِ پیشرفت درس‌ها را بر اساس زمان آخرین مشاهده در بازهٔ انتخاب‌شده دسته‌بندی می‌کند. تاریخچهٔ تغییرات هر درس جداگانه ذخیره نمی‌شود؛ بنابراین نمودار برای بررسی فعالیت اخیر مفید است، اما سابقهٔ دقیق رشد روزبه‌روز یا معیار نمره و کیفیت یادگیری نیست.
+                </p>
 
                 @if($courseProgress->isNotEmpty())
                     <div class="teacher-course-progress">

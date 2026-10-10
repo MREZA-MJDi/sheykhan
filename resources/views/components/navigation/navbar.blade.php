@@ -57,6 +57,12 @@
                                     <div class="text-sm font-bold text-[var(--color-text)]">داشبورد من</div>
                                     <div class="mt-1 text-xs text-[var(--color-text-muted)]">ورود به فضای نقش شما</div>
                                 </a>
+                                @if(auth()->user()->hasAnyRole(['student', 'parent']))
+                                    <a href="{{ route('library.index') }}" class="block rounded-xl px-4 py-3 transition hover:bg-[var(--color-background-soft)]">
+                                        <div class="text-sm font-bold text-[var(--color-text)]">کتابخانه من</div>
+                                        <div class="mt-1 text-xs text-[var(--color-text-muted)]">دوره‌ها و منابعی که دسترسی آن‌ها فعال است</div>
+                                    </a>
+                                @endif
 
                                 <div class="my-1 h-px bg-[var(--color-border)]"></div>
 
@@ -119,6 +125,11 @@
 
                 <div class="mt-3 border-t border-[var(--color-border)] pt-3">
                     @auth
+                        @if(auth()->user()->hasAnyRole(['student', 'parent']))
+                            <a href="{{ route('library.index') }}" @click="isOpen = false" class="mb-2 flex min-h-11 items-center justify-center rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-4 text-sm font-bold text-[var(--color-primary-700)]">
+                                کتابخانه من
+                            </a>
+                        @endif
                         <a href="{{ route('dashboard') }}" @click="isOpen = false" class="site-navbar__cta flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-slate-900)] px-4 text-sm font-bold text-white">
                             ورود به داشبورد
                         </a>
