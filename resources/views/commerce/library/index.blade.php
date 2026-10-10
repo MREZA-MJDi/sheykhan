@@ -35,7 +35,8 @@
                         @foreach($pendingOrders as $order)
                             @php($pendingItem = $order->items->first())
                             @php($pendingTitle = $pendingItem?->product_title_snapshot ?: ($pendingItem?->course?->title ?: ($pendingItem?->product?->title ?: 'محتوای سفارش')))
-                            @php($proofRejected = $order->payments->contains(fn ($payment) => $payment->status === 'rejected'))
+                            @php($latestPayment = $order->payments->sortByDesc('id')->first())
+                            @php($proofRejected = $order->status === 'payment_failed' || $latestPayment?->status === 'rejected')
                             <article class="public-library-order-row">
                                 <div class="public-library-order-mark" aria-hidden="true">{{ $proofRejected ? '!' : '◷' }}</div>
                                 <div class="public-library-order-copy">
