@@ -87,7 +87,7 @@ final class CourseCheckoutController extends Controller
 
         $order = DB::transaction(function () use ($request, $buyer, $beneficiary, $course, $documents, $data, $unitPrice): Order {
             $lockedCourse = Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
-            abort_unless($lockedCourse->isPublished() && $lockedCourse->requiresPayment(), 409, 'وضعیت دوره تغییر کرده است؛ صفحه را تازه‌سازی کن.');
+            abort_unless(Course::query()->published()->whereKey($lockedCourse->id)->where('access_type', 'paid')->whereHas('academy', fn ($academy) => $academy->where('status', 'active'))->exists(), 409, 'وضعیت دوره تغییر کرده است؛ صفحه را تازه‌سازی کن.');
             abort_unless((int) round((float) $lockedCourse->price) === $unitPrice, 409, 'قیمت دوره تغییر کرده است؛ صفحه را تازه‌سازی کن.');
 
             $order = Order::query()->create([
