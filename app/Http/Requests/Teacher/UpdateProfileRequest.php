@@ -25,6 +25,7 @@ class UpdateProfileRequest extends FormRequest
             'is_public' => ['sometimes', 'boolean'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:3072'],
             'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:5120'],
+            'remove_cover' => ['nullable', 'boolean'],
         ];
     }
 }
