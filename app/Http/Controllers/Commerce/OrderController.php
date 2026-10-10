@@ -42,12 +42,11 @@ final class OrderController extends Controller
         MediaService $media
     ): RedirectResponse {
         $this->assertBuyer($request, $order);
-        abort_unless($order->status === 'pending', 409, 'برای این سفارش امکان ارسال رسید وجود ندارد.');
-
-        $payment = $order->payments()
-            ->where('status', 'pending')
-            ->orderByDesc('id')
-            ->firstOrFail();
+        abort_unless(
+            in_array($order->status, ['pending', 'payment_failed'], true),
+            409,
+            'برای این سفارش امکان ارسال رسید وجود ندارد.'
+        );
 
         $data = $request->validate([
             'proof' => ['required', 'file', 'max:12288', 'mimes:pdf,jpg,jpeg,png,webp'],
@@ -59,19 +58,51 @@ final class OrderController extends Controller
             'collection' => 'payment-proof',
             'visibility' => 'private',
         ]);
-        $oldMediaId = $payment->proof_media_id;
+
+        $oldMediaId = null;
 
         try {
-            DB::transaction(function () use ($payment, $newMedia): void {
-                $locked = $payment->newQuery()->whereKey($payment->id)->lockForUpdate()->firstOrFail();
-                abort_unless($locked->status === 'pending', 409);
+            DB::transaction(function () use ($request, $order, $newMedia, &$oldMediaId): void {
+                $lockedOrder = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+                abort_unless((int) $lockedOrder->buyer_id === (int) $request->user()->id, 404);
+                abort_unless(
+                    in_array($lockedOrder->status, ['pending', 'payment_failed'], true),
+                    409,
+                    'وضعیت سفارش تغییر کرده است؛ صفحه را تازه‌سازی کن.'
+                );
 
-                $locked->forceFill([
+                if ($lockedOrder->status === 'payment_failed') {
+                    $rejectedPayment = $lockedOrder->payments()
+                        ->where('status', 'rejected')
+                        ->orderByDesc('id')
+                        ->firstOrFail();
+
+                    // Preserve the rejected attempt for audit; each retry receives a new payment row.
+                    $payment = $lockedOrder->payments()->create([
+                        'gateway' => $rejectedPayment->gateway ?: 'manual_transfer',
+                        'amount' => $lockedOrder->total,
+                        'currency' => $lockedOrder->currency ?: 'IRR',
+                        'status' => 'pending',
+                    ]);
+
+                    $lockedOrder->forceFill(['status' => 'pending'])->save();
+                } else {
+                    $payment = $lockedOrder->payments()
+                        ->where('status', 'pending')
+                        ->orderByDesc('id')
+                        ->lockForUpdate()
+                        ->firstOrFail();
+
+                    $oldMediaId = $payment->proof_media_id;
+                }
+
+                $payment->forceFill([
                     'proof_media_id' => $newMedia->id,
                     'proof_uploaded_at' => now(),
                     'reviewed_by' => null,
                     'reviewed_at' => null,
                     'review_note' => null,
+                    'tracking_code' => null,
                 ])->save();
             });
         } catch (Throwable $exception) {
