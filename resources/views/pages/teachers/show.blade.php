@@ -12,7 +12,8 @@
         $name = $teacher->name ?? 'مدرس شیخان';
         $specialization = $profile?->specialization ?: 'مدرس شیخان';
         $bio = $profile?->bio;
-        $avatar = $profile?->media?->first()?->url();
+        $avatar = $profile?->media?->firstWhere('pivot.collection', 'teacher-avatar')?->url();
+        $cover = $profile?->media?->firstWhere('pivot.collection', 'teacher-cover')?->url();
 
         $coursesCount = $teacher->courses_count ?? $teacher->taughtCourses?->count() ?? 0;
 
@@ -64,7 +65,16 @@
                 <div
                     class="overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_24px_70px_rgba(15,23,42,.08)]"
                 >
-                    <div class="relative overflow-hidden bg-[linear-gradient(135deg,#0f172a,#172554_58%,#1e3a8a)] px-5 py-8 text-white sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+                    <div class="teacher-profile-hero {{ $cover ? 'has-cover' : 'without-cover' }} relative overflow-hidden px-5 py-8 text-white sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+                        @if($cover)
+                            <img
+                                src="{{ $cover }}"
+                                alt=""
+                                class="teacher-profile-hero__image"
+                                fetchpriority="high"
+                            >
+                        @endif
+                        <div class="teacher-profile-hero__overlay" aria-hidden="true"></div>
                         <div class="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
                         <div class="pointer-events-none absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl"></div>
 
