@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Commerce;
 
 use App\Http\Controllers\Controller;
 use App\Models\CourseEnrollment;
+use App\Models\Order;
 use App\Models\ProductEntitlement;
 use App\Services\StudentAccessService;
 use Illuminate\Http\Request;
@@ -38,6 +39,19 @@ final class LibraryController extends Controller
                 'orderItem.order',
             ])
             ->latest('granted_at')
+            ->get();
+
+        $pendingOrders = Order::query()
+            ->where('buyer_id', $user->id)
+            ->where('status', 'pending')
+            ->whereHas('payments', fn ($payment) => $payment->whereIn('status', ['pending', 'rejected']))
+            ->with([
+                'items.course:id,title,slug',
+                'items.product:id,title,slug',
+                'payments' => fn ($payment) => $payment->latest('id'),
+            ])
+            ->orderByDesc('created_at')
+            ->limit(5)
             ->get();
 
         $myCourses = collect();
@@ -83,6 +97,7 @@ final class LibraryController extends Controller
 
         return view('commerce.library.index', [
             'products' => $products,
+            'pendingOrders' => $pendingOrders,
             'myCourses' => $myCourses,
             'childCourses' => $childCourses,
             'isParent' => $user->hasRole('parent'),
