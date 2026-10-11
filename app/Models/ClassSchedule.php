@@ -10,7 +10,7 @@ class ClassSchedule extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['classroom_id','weekday','start_time','end_time','room','meeting_url'];
+    protected $fillable = ['classroom_id','weekday','start_time','end_time','room','provider','meeting_url'];
 
     public function classroom(): BelongsTo { return $this->belongsTo(Classroom::class); }
 }
