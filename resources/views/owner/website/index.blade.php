@@ -19,9 +19,20 @@
         </a>
     </section>
 
+    @if($canManagePublicHero)
+        <section class="website-hero-control-card">
+            <div class="website-hero-control-copy">
+                <span>تصویر شاخص سایت</span>
+                <h2>تصویر بزرگ ابتدای صفحه (Hero)</h2>
+                <p>تصویر دسکتاپ، تصویر اختصاصی موبایل، نقطهٔ تمرکز هر قاب و پیش‌نمایش قبل از انتشار را مدیریت کن. این تنظیمات از کارت‌های بنر پایین صفحه جدا هستند.</p>
+            </div>
+            <a href="{{ route('owner.website.hero.edit') }}" class="course-primary-btn">مدیریت تصویر Hero</a>
+        </section>
+    @endif
+
     <aside class="website-image-scope-note mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-xs leading-7 text-blue-900" role="note">
         <strong class="block font-black">مرز کنترل تصاویر</strong>
-        <p>بنرهای این صفحه، سه کارت تصویری زیر بخش اصلی لندینگ هستند. تصویر تمام‌صفحهٔ ابتدای صفحه در حال حاضر از یک کامپوننت ثابت می‌آید و در این پنل قابل‌تعویض نیست. تصویر OG در تنظیمات SEO هم فقط برای اشتراک‌گذاری لینک است و جایگزین عکس‌های سایت نمی‌شود.</p>
+        <p>Hero تصویر بزرگ ابتدای صفحه است و از بنرهای آموزشگاه جداست. مدیریت Hero برای صاحب آکادمی شیخان در دسترس است؛ سه کارت بنر پایین صفحه همچنان از بخش مدیریت بنرها کنترل می‌شوند. تصویر OG در تنظیمات SEO صرفاً برای اشتراک‌گذاری لینک است.</p>
     </aside>
 
     @forelse($academies as $academy)

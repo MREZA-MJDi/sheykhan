@@ -72,6 +72,15 @@ jobs:
           coverage: none
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Setup Node for Blade-rendering tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked frontend dependencies
+        run: npm ci
+      - name: Build Vite assets required by Blade tests
+        run: npm run build
       - name: Lint PHP source files
         run: find app bootstrap config database routes tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Prepare SQLite database
@@ -81,5 +90,7 @@ jobs:
           touch database/database.sqlite
       - name: Run migrations
         run: php artisan migrate:fresh --force
+      - name: Run homepage Hero upload/render regression tests
+        run: php artisan test --filter=OwnerHomeHeroManagementTest
       - name: Run full PHPUnit feature and unit suite
         run: php artisan test
