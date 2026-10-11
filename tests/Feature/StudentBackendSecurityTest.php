@@ -393,7 +393,7 @@ class StudentBackendSecurityTest extends TestCase
             'classroom_id' => $classroom->id,
             'teacher_id' => User::where('email', 'teacher.math@sheykhan.test')->value('id'),
             'title' => 'کلاس زنده تست',
-            'provider' => 'test',
+            'provider' => 'سایر',
             'meeting_url' => 'https://meet.example.test/student',
             'scheduled_at' => now()->subMinutes(5),
             'duration_minutes' => 60,
