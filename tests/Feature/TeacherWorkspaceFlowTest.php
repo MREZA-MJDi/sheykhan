@@ -364,4 +364,27 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertOk()
             ->assertSee('value="absent" selected', false);
     }
+
+    public function test_teacher_courses_classrooms_and_roster_follow_explicit_assignments(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $workspace = app(\\App\\Services\\TeacherWorkspaceService::class);
+
+        $this->assertSame(
+            ['math-foundation-7'],
+            $workspace->courses($teacher)->pluck('slug')->all()
+        );
+
+        $this->assertSame(
+            ['MATH7-01'],
+            $workspace->classrooms($teacher)->pluck('code')->all()
+        );
+
+        $this->assertEqualsCanonicalizing(
+            ['student.armin@sheykhan.test', 'student.ava@sheykhan.test'],
+            $workspace->students($teacher)->pluck('email')->all()
+        );
+    }
 }
