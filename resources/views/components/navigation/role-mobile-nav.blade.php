@@ -35,6 +35,14 @@
         default => [],
     };
 
+    if ($role === 'owner' && $user?->hasRole('seo-specialist') && ! $user?->hasRole('academy-owner')) {
+        // Keep the specialist inside the shared owner shell, but point the home
+        // shortcut only to the page they are authorized to use.
+        $items[0] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
+    } elseif ($role === 'owner' && $user?->hasPermission('seo.manage')) {
+        $items[] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
+    }
+
     $academy = $role === 'owner'
         ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->first()
         : null;

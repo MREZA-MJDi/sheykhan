@@ -14,6 +14,7 @@ final class DashboardRedirector
 
         foreach ([
             'academy-owner' => fn (User $u): bool => $u->hasRole('academy-owner'),
+            'seo-specialist' => fn (User $u): bool => $u->hasRole('seo-specialist'),
             'teacher' => fn (User $u): bool => $u->hasRole('teacher'),
             'student' => fn (User $u): bool => $u->hasRole('student'),
             'parent' => fn (User $u): bool => $u->hasRole('parent'),

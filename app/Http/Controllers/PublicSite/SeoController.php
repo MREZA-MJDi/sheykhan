@@ -18,7 +18,7 @@ final class SeoController extends Controller
         $sitemap = url('/sitemap.xml');
 
         return response(
-            "User-agent: *\nAllow: /\nDisallow: /owner\nDisallow: /teacher\nDisallow: /student\nDisallow: /parent\nDisallow: /dashboard\nDisallow: /login\nDisallow: /register\n\nSitemap: {$sitemap}\n",
+            "User-agent: *\nAllow: /\nDisallow: /owner\nDisallow: /teacher\nDisallow: /student\nDisallow: /parent\nDisallow: /dashboard\nDisallow: /login\nDisallow: /register\nDisallow: /checkout\nDisallow: /orders\nDisallow: /library\n\nSitemap: {$sitemap}\n",
             200,
             ['Content-Type' => 'text/plain; charset=UTF-8', 'Cache-Control' => 'public, max-age=3600']
         );
@@ -39,6 +39,7 @@ final class SeoController extends Controller
             ->where('status', 'active')
             ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
             ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
+            ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
             ->get(['id', 'updated_at'])
             ->each(fn (User $teacher) => $urls->push([
                 'loc' => route('teachers.show', $teacher),
@@ -48,6 +49,7 @@ final class SeoController extends Controller
         Course::query()
             ->published()
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+            ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
             ->get(['id', 'slug', 'updated_at'])
             ->each(fn (Course $course) => $urls->push([
                 'loc' => route('courses.show', $course),
@@ -60,6 +62,18 @@ final class SeoController extends Controller
             ->where('published_at', '<=', now())
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
+            ->where(function ($query): void {
+                $query->where('type', 'article')
+                    ->orWhere(function ($video): void {
+                        $video->where('type', 'video')
+                            ->whereHas('media', fn ($media) => $media
+                                ->where('media_attachments.collection', 'video')
+                                ->where('media.collection', 'video')
+                                ->where('media.visibility', 'public')
+                                ->where('media.status', 'active'));
+                    });
+            })
+            ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
             ->with('academy:id,slug')
             ->get(['id', 'academy_id', 'slug', 'updated_at'])
             ->each(function (AcademyContent $content) use (&$urls): void {
@@ -78,6 +92,7 @@ final class SeoController extends Controller
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
+            ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
             ->get(['id', 'slug', 'updated_at'])
             ->each(fn (Product $product) => $urls->push([
                 'loc' => route('store.product.show', $product),
@@ -88,6 +103,7 @@ final class SeoController extends Controller
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
+            ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
             ->get(['id', 'slug', 'updated_at'])
             ->each(fn (BlogPost $post) => $urls->push([
                 'loc' => route('blog.show', $post->slug),

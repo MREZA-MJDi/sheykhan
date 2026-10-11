@@ -12,6 +12,7 @@ return [
     |
     */
     'dashboard_routes' => [
+        'seo-specialist' => 'owner.seo.index',
         'academy-owner' => 'owner.dashboard',
         'teacher' => 'teacher.dashboard',
         'student' => 'student.dashboard',
