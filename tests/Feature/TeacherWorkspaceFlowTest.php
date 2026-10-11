@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Academy;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\TeacherWorkspaceService;
 use App\Services\MeetingLinkService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -370,7 +371,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->seed();
 
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
-        $workspace = app(\\App\\Services\\TeacherWorkspaceService::class);
+        $workspace = app(TeacherWorkspaceService::class);
 
         $this->assertSame(
             ['math-foundation-7'],
