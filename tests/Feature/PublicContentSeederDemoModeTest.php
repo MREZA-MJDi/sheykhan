@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Database\Seeders\AcademyFoundationSeeder;
 use Database\Seeders\AcademicReferenceSeeder;
 use Database\Seeders\PublicContentSeeder;
@@ -32,7 +33,7 @@ class PublicContentSeederDemoModeTest extends TestCase
 
             $this->assertDatabaseHas('achievements', [
                 'title' => 'افتخارآفرین شماره 1',
-                'student_id' => \App\Models\User::where('email', 'student.armin@sheykhan.test')->value('id'),
+                'student_id' => User::where('email', 'student.armin@sheykhan.test')->value('id'),
             ]);
 
             foreach ([
@@ -42,7 +43,7 @@ class PublicContentSeederDemoModeTest extends TestCase
             ] as $number => $email) {
                 $this->assertDatabaseHas('achievements', [
                     'title' => 'افتخارآفرین شماره ' . $number,
-                    'student_id' => \\App\\Models\\User::where('email', $email)->value('id'),
+                    'student_id' => User::where('email', $email)->value('id'),
                 ]);
             }
 
