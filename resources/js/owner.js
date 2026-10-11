@@ -1117,9 +1117,11 @@ function bootHomeHeroEditor() {
 
                 objectUrls[kind] = url;
                 refreshPreviews();
-                const cropHint = Math.abs((probe.naturalWidth / probe.naturalHeight) - (16 / 9)) < .12
-                    ? 'نسبت تصویر برای قاب عریض مناسب است.'
-                    : 'با تنظیم نقطه تمرکز، برش نمایشی را کنترل کن.';
+                const imageRatio = probe.naturalWidth / probe.naturalHeight;
+                const targetRatio = kind === 'mobile' ? (9 / 16) : 2;
+                const cropHint = Math.abs(imageRatio - targetRatio) / targetRatio < .12
+                    ? 'نسبت تصویر با قاب ' + (kind === 'mobile' ? 'عمودی موبایل' : 'عریض دسکتاپ') + ' هماهنگ است.'
+                    : 'نسبت تصویر با قاب نمایش متفاوت است؛ با تنظیم نقطه تمرکز، برش نمایشی را کنترل کن.';
                 setFeedback(kind,
                     'پیش‌نمایش آماده است · ' +
                     probe.naturalWidth.toLocaleString('fa-IR') + '×' + probe.naturalHeight.toLocaleString('fa-IR') +
