@@ -13,7 +13,7 @@ class LegacyWordPressPasswordTest extends TestCase
 
         $this->assertTrue($service->verify(
             'legacy-import-password',
-            '$P$B12345678KrMX6cdabhk0avaPBrG9b.'
+            '$P$B12345678KrcV6c7XbhUsava2BrG7b.'
         ));
     }
 
@@ -23,7 +23,7 @@ class LegacyWordPressPasswordTest extends TestCase
 
         $this->assertFalse($service->verify(
             'incorrect-password',
-            '$P$B12345678KrMX6cdabhk0avaPBrG9b.'
+            '$P$B12345678KrcV6c7XbhUsava2BrG7b.'
         ));
         $this->assertFalse($service->verify('legacy-import-password', '$P$short'));
         $this->assertFalse($service->verify('legacy-import-password', '$2y$10$not-phpass'));
