@@ -156,7 +156,26 @@ final class StudentAccessService
 
     public function canJoinLiveClass(User $student, LiveClass $liveClass): bool
     {
-        if (!$this->liveClass($student, $liveClass) || blank($liveClass->meeting_url) || !$liveClass->scheduled_at) {
+        return $this->liveClass($student, $liveClass)
+            && $this->isLiveClassJoinWindowOpen($liveClass);
+    }
+
+    /**
+     * Time and link check only. The student index uses already-authorized,
+     * relationship-scoped queries, so it can call this without repeating
+     * per-row enrollment and classroom membership queries.
+     */
+    public function isLiveClassJoinWindowOpen(LiveClass $liveClass): bool
+    {
+        if (
+            blank($liveClass->meeting_url)
+            || blank($liveClass->provider)
+            || ! $liveClass->scheduled_at
+            || ! app(MeetingLinkService::class)->urlMatchesProvider(
+                (string) $liveClass->provider,
+                (string) $liveClass->meeting_url,
+            )
+        ) {
             return false;
         }
 
@@ -175,18 +194,13 @@ final class StudentAccessService
         return now()->betweenIncluded($startsAt->copy()->subMinutes(15), $endsAt);
     }
 
-
     /**
-     * A recurring classroom slot is visible to a student only while the student
-     * has an active classroom membership and valid access to the course.
+     * A recurring classroom slot is joinable only with valid course access,
+     * active classroom membership, a matching weekday and an open time window.
      */
     public function canJoinClassSchedule(User $student, ClassSchedule $schedule): bool
     {
-        if (
-            ! $student->hasRole('student')
-            || blank($schedule->meeting_url)
-            || blank($schedule->provider)
-        ) {
+        if (! $student->hasRole('student')) {
             return false;
         }
 
@@ -207,7 +221,24 @@ final class StudentAccessService
             return false;
         }
 
-        if ((int) $schedule->weekday !== (int) now()->dayOfWeek) {
+        return $this->isClassScheduleJoinWindowOpen($schedule);
+    }
+
+    /**
+     * Time and URL check only. Student list queries already scope schedules
+     * to enrolled courses and active classroom memberships before this call.
+     */
+    public function isClassScheduleJoinWindowOpen(ClassSchedule $schedule): bool
+    {
+        if (
+            blank($schedule->meeting_url)
+            || blank($schedule->provider)
+            || (int) $schedule->weekday !== (int) now()->dayOfWeek
+            || ! app(MeetingLinkService::class)->urlMatchesProvider(
+                (string) $schedule->provider,
+                (string) $schedule->meeting_url,
+            )
+        ) {
             return false;
         }
 
@@ -220,13 +251,6 @@ final class StudentAccessService
 
         $startsAt = now()->copy()->startOfDay()->setTime($startParts[0], $startParts[1]);
         $endsAt = now()->copy()->startOfDay()->setTime($endParts[0], $endParts[1]);
-
-        if (! app(MeetingLinkService::class)->urlMatchesProvider(
-            (string) $schedule->provider,
-            (string) $schedule->meeting_url,
-        )) {
-            return false;
-        }
 
         return now()->betweenIncluded($startsAt->copy()->subMinutes(15), $endsAt);
     }
