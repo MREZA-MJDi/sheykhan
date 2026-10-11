@@ -55,7 +55,7 @@
             <section class="website-hero-preview-grid" aria-label="پیش‌نمایش تصویر">
                 <article class="website-hero-preview-card">
                     <div class="website-hero-preview-heading">
-                        <div><strong>نمای دسکتاپ</strong><span>قاب عریض · ۱۶:۹</span></div>
+                        <div><strong>نمای دسکتاپ</strong><span>قاب عریض · تقریباً ۲:۱</span></div>
                         <span class="website-hero-viewport-badge">Desktop</span>
                     </div>
                     <div class="website-hero-preview website-hero-preview--desktop">
@@ -78,7 +78,7 @@
 
                 <article class="website-hero-preview-card">
                     <div class="website-hero-preview-heading">
-                        <div><strong>نمای موبایل</strong><span>قاب عمودی · ۴:۵</span></div>
+                        <div><strong>نمای موبایل</strong><span>قاب عمودی · ۹:۱۶</span></div>
                         <span class="website-hero-viewport-badge">Mobile</span>
                     </div>
                     <div class="website-hero-preview website-hero-preview--mobile">
@@ -137,7 +137,7 @@
                             data-min-height="800"
                             aria-describedby="home-hero-mobile-help home-hero-mobile-feedback"
                         >
-                        <small id="home-hero-mobile-help">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت · حداقل ۶۰۰×۸۰۰ · پیشنهاد ۹۰۰×۱۱۲۵. اگر انتخاب نکنی، تصویر اصلی استفاده می‌شود.</small>
+                        <small id="home-hero-mobile-help">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت · حداقل ۶۰۰×۸۰۰ · پیشنهاد ۹۰۰×۱۶۰۰. اگر انتخاب نکنی، تصویر اصلی استفاده می‌شود.</small>
                         <span id="home-hero-mobile-feedback" class="website-hero-upload-feedback" data-home-hero-feedback="mobile" role="status" aria-live="polite"></span>
                     </label>
                 </div>
