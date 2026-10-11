@@ -36,7 +36,7 @@ class LiveClassController extends Controller
             ->withQueryString();
 
         $classes->getCollection()->transform(function (LiveClass $class) use ($student, $access): LiveClass {
-            $class->can_join = $access->canJoinLiveClass($student, $class);
+            $class->can_join = $access->isLiveClassJoinWindowOpen($class);
             return $class;
         });
 
@@ -60,7 +60,7 @@ class LiveClassController extends Controller
             ->values();
 
         $weeklySchedules->each(function (ClassSchedule $schedule) use ($student, $access): void {
-            $schedule->can_join = $access->canJoinClassSchedule($student, $schedule);
+            $schedule->can_join = $access->isClassScheduleJoinWindowOpen($schedule);
         });
 
         return view('student.live-classes.index', [
