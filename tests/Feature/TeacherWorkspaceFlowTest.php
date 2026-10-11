@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\User;
+use App\Services\MeetingLinkService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -219,6 +220,19 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertSessionHasErrors('meeting_url');
 
         $this->assertDatabaseMissing('live_classes', ['title' => 'لینک ناسازگار']);
+    }
+
+    public function test_meeting_link_service_requires_a_room_path_for_known_providers(): void
+    {
+        $service = app(MeetingLinkService::class);
+
+        $this->assertFalse($service->urlMatchesProvider('Jitsi', 'https://meet.jit.si'));
+        $this->assertFalse($service->urlMatchesProvider('Google Meet', 'https://meet.google.com'));
+        $this->assertFalse($service->urlMatchesProvider('Zoom', 'https://zoom.us'));
+
+        $this->assertTrue($service->urlMatchesProvider('Jitsi', 'https://meet.jit.si/Sheykhan-test-room'));
+        $this->assertTrue($service->urlMatchesProvider('Google Meet', 'https://meet.google.com/abc-defg-hij'));
+        $this->assertTrue($service->urlMatchesProvider('Zoom', 'https://us02web.zoom.us/j/123456789'));
     }
 
     public function test_live_class_creation_persists_a_calculated_end_time(): void
