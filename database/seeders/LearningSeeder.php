@@ -147,6 +147,9 @@ class LearningSeeder extends Seeder
                     'completed_at' => now(),
                 ]);
             ClassSchedule::firstOrCreate(['classroom_id'=>$c->id,'weekday'=>2],['start_time'=>'17:00','end_time'=>'18:30','room'=>'کلاس آنلاین','meeting_url'=>'https://meet.jit.si/Sheykhan-'.$d['code']]);
+            // A recurring class twice a week is two schedule rows for the same
+            // Classroom; keep the room link stable across those weekly slots.
+            ClassSchedule::firstOrCreate(['classroom_id'=>$c->id,'weekday'=>4],['start_time'=>'17:00','end_time'=>'18:30','room'=>'کلاس آنلاین','meeting_url'=>'https://meet.jit.si/Sheykhan-'.$d['code']]);
             $classrooms->push($c);
         }
 

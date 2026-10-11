@@ -15,8 +15,8 @@ class AcademyFoundationSeeder extends Seeder
 {
     public function run(): void
     {
-        // Keep the local/demo database easy to explore: one login per role.
-        // Feature tests retain the richer fixture set because they exercise multiple grades and teachers.
+        // Keep each demo teacher and student as a separate login so course scopes are visible.
+        // Feature tests use these distinct demo identities plus any test-specific fixtures.
         if (! app()->environment('testing')) {
             $this->runDemoFoundation();
             return;

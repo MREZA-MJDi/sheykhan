@@ -17,12 +17,10 @@ class LegacyStudentImportTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
         $this->seed(\Database\Seeders\AcademicReferenceSeeder::class);
         $this->seed(\Database\Seeders\AcademyFoundationSeeder::class);
-
-        $academyId = (int) Academy::query()->where('slug', 'sheykhan-academy')->value('id');
+        $academyId = (int) DB::table('academies')->where('slug', 'sheykhan-academy')->value('id');
         $this->assertGreaterThan(0, $academyId);
 
         $this->createUnrelatedLegacyUser();
-
         $path = $this->makeSourceSql();
 
         try {
@@ -101,7 +99,20 @@ class LegacyStudentImportTest extends TestCase
                 'status' => 'active',
             ]);
 
-            // A second run must not duplicate profiles, users or role links.
+            $this->assertSame(
+                55,
+                DB::table('academy_user')
+                    ->where('academy_id', $academyId)
+                    ->where('role', 'student')
+                    ->where('status', 'active')
+                    ->whereIn('user_id', DB::table('users')
+                        ->select('id')
+                        ->where('legacy_source', 'wordpress')
+                        ->whereBetween('legacy_id', [2001, 2055]))
+                    ->count()
+            );
+
+            // A second run must not duplicate profiles, users, role links or memberships.
             $this->artisan('sheykhan:import-legacy-students', [
                 'source' => $path,
                 '--academy-id' => $academyId,
@@ -172,7 +183,7 @@ class LegacyStudentImportTest extends TestCase
         $statements = [];
         for ($index = 1; $index <= 55; $index++) {
             $legacyId = 2000 + $index;
-            $name = 'Imported student ' . $index;
+            $name = $index === 1 ? 'Student (test case)' : 'Imported student ' . $index;
             // Exercise both supported WordPress hash families without using any
             // of the actual private source's personal data or hashes.
             $hash = $index === 1

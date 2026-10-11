@@ -7,6 +7,7 @@
 | نیاز | سند |
 |---|---|
 | مرور کلی قابلیت‌ها برای محصول، پشتیبانی یا همکار جدید | [کاتالوگ کامل قابلیت‌ها](FEATURE_CATALOG_FA.md) |
+| فهم روشن هر داشبورد، فرایند دانش‌آموز پایه دهم/استاد چنددوره‌ای و ممیزی دسترسی مدرس | [راهنمای مسیرها، منطق داشبورد و import](PLATFORM_DASHBOARD_AND_LEGACY_IMPORT_FA.md) |
 | ساخت جلسه آنلاین، فرق دوره/گروه/برنامه هفتگی/جلسه تاریخ‌دار، لینک provider | [راهنمای کلاس آنلاین و برنامه هفتگی](ONLINE_CLASSES_AND_SCHEDULES_FA.md) |
 | URLها، Route nameها، نقش‌ها و Permissionها | [مرجع Route و دسترسی](ROUTES_AND_PERMISSIONS_FA.md) |
 | مرز مسئولیت نقش‌ها و گردش اصلی سیستم | [Workflow پلتفرم](platform-workflow.md) |
