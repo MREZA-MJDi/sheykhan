@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\ClassSchedule;
 use App\Models\LiveClass;
 use App\Models\Media;
 use App\Models\User;
@@ -40,6 +41,55 @@ class StudentSessionAccessTest extends TestCase
         $this->assertTrue($byId[$released->id]['available']);
         $this->assertSame('روشن', $byId[$released->id]['lamp']);
         $this->assertSame(route('media.view', $released->recording), $byId[$released->id]['href']);
+    }
+
+    public function test_student_sees_weekly_classroom_schedule_separately_and_can_join_only_in_the_join_window(): void
+    {
+        $this->seed();
+        $this->travelTo(now()->startOfDay()->addHours(12));
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $classroom = $student->classroomsAsStudent()
+            ->where('classrooms.course_id', $course->id)
+            ->wherePivot('status', 'active')
+            ->firstOrFail();
+
+        $schedule = ClassSchedule::create([
+            'classroom_id' => $classroom->id,
+            'weekday' => now()->dayOfWeek,
+            'start_time' => '12:05',
+            'end_time' => '13:00',
+            'room' => 'اتاق هفتگی',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-weekly-test-room',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.live-classes.index'))
+            ->assertOk()
+            ->assertSee('جلسه‌های پیش‌رو')
+            ->assertSee('برنامه هفتگی ثابت')
+            ->assertSee('اتاق هفتگی')
+            ->assertSee('ورود به اتاق هفتگی');
+
+        $this->actingAs($student)
+            ->get(route('student.schedule.join', $schedule))
+            ->assertRedirect($schedule->meeting_url);
+
+        $notYet = ClassSchedule::create([
+            'classroom_id' => $classroom->id,
+            'weekday' => now()->dayOfWeek,
+            'start_time' => '14:00',
+            'end_time' => '15:00',
+            'room' => 'اتاق جلسه بعدی',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-next-test-room',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.schedule.join', $notYet))
+            ->assertNotFound();
     }
 
     public function test_recording_view_requires_release_and_student_scope_and_download_stays_disabled(): void
