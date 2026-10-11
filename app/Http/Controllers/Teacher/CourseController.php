@@ -44,7 +44,7 @@ class CourseController extends Controller
                 'academy',
                 'media' => fn ($query) => $query->orderByPivot('sort_order'),
             ]),
-            'academies' => $service->accessibleAcademies(request()->user()),
+            'academies' => $service->teacherAccessibleAcademies(request()->user()),
         ]);
     }
 
