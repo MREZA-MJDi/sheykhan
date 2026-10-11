@@ -13,6 +13,7 @@ final class DashboardRedirector
         $routes = config('role_access.dashboard_routes', []);
 
         foreach ([
+            'seo-specialist' => fn (User $u): bool => $u->hasRole('seo-specialist'),
             'academy-owner' => fn (User $u): bool => $u->hasRole('academy-owner'),
             'teacher' => fn (User $u): bool => $u->hasRole('teacher'),
             'student' => fn (User $u): bool => $u->hasRole('student'),
