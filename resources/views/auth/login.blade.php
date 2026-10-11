@@ -159,6 +159,32 @@
                         <span class="font-bold">Password:</span>
                         <code dir="ltr">{{ $testPassword }}</code>
                     </div>
+
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            data-test-login-fill
+                            data-username="{{ $account['username'] }}"
+                            data-password="{{ $testPassword }}"
+                            aria-label="پر کردن فرم ورود با حساب {{ $account['role'] }}"
+                            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-[var(--color-primary-600)] px-3 py-2 text-[11px] font-bold text-white transition hover:bg-[var(--color-primary-700)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-100)]"
+                        >
+                            پر کردن فرم ورود
+                        </button>
+
+                        <button
+                            type="button"
+                            data-test-login-copy
+                            data-username="{{ $account['username'] }}"
+                            data-password="{{ $testPassword }}"
+                            aria-label="کپی یوزرنیم و پسورد حساب {{ $account['role'] }}"
+                            class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-[11px] font-bold text-[var(--color-text)] transition hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-100)]"
+                        >
+                            کپی یوزرنیم و پسورد
+                        </button>
+                    </div>
+
+                    <p data-test-login-feedback role="status" aria-live="polite" class="mt-2 min-h-4 text-[11px] text-[var(--color-success-700)]"></p>
                 @endif
 
                 @if($dashboardUrl)
@@ -182,3 +208,74 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(() => {
+    'use strict';
+
+    const getFeedback = (button) => button.closest('.rounded-xl')?.querySelector('[data-test-login-feedback]');
+
+    document.querySelectorAll('[data-test-login-fill]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const identifier = document.getElementById('identifier');
+            const password = document.getElementById('password');
+
+            if (!identifier || !password) return;
+
+            identifier.value = button.dataset.username || '';
+            password.value = button.dataset.password || '';
+
+            identifier.dispatchEvent(new Event('input', { bubbles: true }));
+            identifier.dispatchEvent(new Event('change', { bubbles: true }));
+            password.dispatchEvent(new Event('input', { bubbles: true }));
+            password.dispatchEvent(new Event('change', { bubbles: true }));
+
+            const feedback = getFeedback(button);
+            if (feedback) feedback.textContent = 'فرم پر شد؛ برای ورود روی «ورود به حساب» بزن.';
+            password.focus();
+        });
+    });
+
+    document.querySelectorAll('[data-test-login-copy]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const credentials = `Username: ${button.dataset.username || ''}\nPassword: ${button.dataset.password || ''}`;
+            const feedback = getFeedback(button);
+
+            try {
+                if (navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(credentials);
+                } else {
+                    throw new Error('Clipboard API unavailable');
+                }
+            } catch {
+                // Fallback supports browsers/HTTP environments where Clipboard API is unavailable.
+                const textarea = document.createElement('textarea');
+                textarea.value = credentials;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                textarea.style.pointerEvents = 'none';
+                document.body.appendChild(textarea);
+                textarea.select();
+
+                let copied = false;
+                try {
+                    copied = document.execCommand('copy');
+                } finally {
+                    textarea.remove();
+                }
+
+                if (!copied) {
+                    if (feedback) feedback.textContent = 'کپی خودکار در این مرورگر انجام نشد؛ از «پر کردن فرم ورود» استفاده کن.';
+                    return;
+                }
+            }
+
+            if (feedback) feedback.textContent = 'یوزرنیم و پسورد کپی شد.';
+        });
+    });
+})();
+</script>
+@endpush
+
