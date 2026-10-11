@@ -102,10 +102,6 @@ class OwnerHomeHeroManagementTest extends TestCase
         $replacementPath = $hero->media->path;
         $this->actingAs($owner)->patch(route('owner.website.hero.update'), [
             'restore_default' => true,
-            'crop_x' => 50,
-            'crop_y' => 46,
-            'mobile_crop_x' => 54,
-            'mobile_crop_y' => 50,
         ])->assertRedirect();
 
         $hero->refresh();
