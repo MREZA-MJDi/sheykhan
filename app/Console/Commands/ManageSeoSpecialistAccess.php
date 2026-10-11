@@ -71,9 +71,9 @@ final class ManageSeoSpecialistAccess extends Command
         $role->permissions()->sync([$dashboardPermission->getKey(), $seoPermission->getKey()]);
         $user->roles()->syncWithoutDetaching([$role->getKey()]);
 
-        $this->info("SEO specialist access granted to {$user->email}.");
-        $this->line('Granted permissions: dashboard.view, seo.manage.');
-        $this->line('No user account was created, and no academy, finance, student, or teacher-management permissions were granted.');
+        $this->info("SEO specialist role granted to {$user->email}.");
+        $this->line('Permissions attached to this role: dashboard.view, seo.manage.');
+        $this->line('No user account was created; existing roles and permissions on this account were left unchanged.');
 
         return self::SUCCESS;
     }
