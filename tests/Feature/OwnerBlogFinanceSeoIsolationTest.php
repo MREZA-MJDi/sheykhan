@@ -22,9 +22,9 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
 
     public function test_owner_seo_index_renders_real_content_in_the_shared_panel(): void
     {
-        [$owner, $academy] = $this->ownerWithPermissions(['seo.manage']);
+        [$owner, $academy] = $this->ownerWithPermissions(['seo.manage', 'academy.view', 'blog.manage', 'content.manage']);
 
-        Course::query()->create([
+        $course = Course::query()->create([
             'academy_id' => $academy->id,
             'created_by' => $owner->id,
             'title' => 'دوره SEO آزمایشی',
@@ -39,7 +39,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             'published_at' => now()->subMinute(),
         ]);
 
-        BlogPost::query()->create([
+        $post = BlogPost::query()->create([
             'author_id' => $owner->id,
             'title' => 'مقاله SEO آزمایشی',
             'slug' => 'seo-post-' . Str::random(7),
@@ -53,7 +53,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             'is_active' => true,
         ]);
 
-        $academy->academyContents()->create([
+        $item = $academy->academyContents()->create([
             'category_id' => $category->id,
             'type' => 'article',
             'title' => 'محتوای آموزشگاه SEO',
@@ -63,6 +63,24 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             'published_at' => now()->subMinute(),
             'created_by' => $owner->id,
         ]);
+
+        $routes = [
+            route('owner.blog.index'),
+            route('owner.blog.create'),
+            route('owner.blog.edit', $post),
+            route('owner.content.index'),
+            route('owner.content.create'),
+            route('owner.content.edit', $item),
+            route('owner.seo.index'),
+            route('owner.seo.edit', ['course', $course->id]),
+            route('owner.seo.edit', ['blog', $post->id]),
+            route('owner.seo.edit', ['content', $item->id]),
+            route('owner.seo.edit', ['academy', $academy->id]),
+        ];
+
+        foreach ($routes as $url) {
+            $this->actingAs($owner)->get($url)->assertOk();
+        }
 
         $response = $this->actingAs($owner)
             ->get(route('owner.seo.index'))
