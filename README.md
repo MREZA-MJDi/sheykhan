@@ -47,6 +47,8 @@ Review upload validation, storage disk settings, access policies, and role middl
 The Persian documentation index is [docs/README-fa.md](docs/README-fa.md).
 
 - [Feature catalog and role workflows](docs/FEATURE_CATALOG_FA.md)
+- [Dashboard route map, teacher access audit and legacy-student import](docs/PLATFORM_DASHBOARD_AND_LEGACY_IMPORT_FA.md)
+- [Private WordPress student import runbook](docs/LEGACY_STUDENT_IMPORT_FA.md)
 - [Online classes, weekly schedules, providers and student join rules](docs/ONLINE_CLASSES_AND_SCHEDULES_FA.md)
 - [Routes and permissions reference](docs/ROUTES_AND_PERMISSIONS_FA.md)
 - [Platform role workflow](docs/platform-workflow.md)
