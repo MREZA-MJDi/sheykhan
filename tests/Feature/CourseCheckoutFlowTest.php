@@ -40,7 +40,7 @@ class CourseCheckoutFlowTest extends TestCase
                 ->pluck('id')->mapWithKeys(fn ($id) => [$id => '1'])->all(),
         ]);
 
-        $order = Order::query()->firstOrFail();
+        $order = $this->checkoutOrderFor($course, $student, $student);
         $item = $order->items()->firstOrFail();
 
         $response->assertRedirect(route('orders.show', $order));
@@ -79,7 +79,7 @@ class CourseCheckoutFlowTest extends TestCase
                 ->pluck('id')->mapWithKeys(fn ($id) => [$id => '1'])->all(),
         ]);
 
-        $order = Order::query()->firstOrFail();
+        $order = $this->checkoutOrderFor($course, $parent, $child);
         $item = $order->items()->firstOrFail();
         $response->assertRedirect(route('orders.show', $order));
         $this->assertSame($parent->id, (int) $order->buyer_id);
@@ -107,7 +107,7 @@ class CourseCheckoutFlowTest extends TestCase
                 ->pluck('id')->mapWithKeys(fn ($id) => [$id => '1'])->all(),
         ])->assertRedirect();
 
-        $order = Order::query()->firstOrFail();
+        $order = $this->checkoutOrderFor($course, $student, $student);
         $item = $order->items()->firstOrFail();
         $payment = $order->payments()->firstOrFail();
 
@@ -167,6 +167,17 @@ class CourseCheckoutFlowTest extends TestCase
             'amount' => $item->total_price,
             'reference' => 'course-order-' . $order->id . '-item-' . $item->id,
         ]);
+    }
+
+    private function checkoutOrderFor(Course $course, User $buyer, User $beneficiary): Order
+    {
+        return Order::query()
+            ->where('buyer_id', $buyer->id)
+            ->whereHas('items', fn ($query) => $query
+                ->where('course_id', $course->id)
+                ->where('beneficiary_id', $beneficiary->id))
+            ->latest('id')
+            ->firstOrFail();
     }
 
     private function preparedCourseAndStudent(): array
@@ -232,7 +243,7 @@ class CourseCheckoutFlowTest extends TestCase
                 ->pluck('id')->mapWithKeys(fn ($id) => [$id => '1'])->all(),
         ])->assertRedirect();
 
-        $order = Order::query()->where('buyer_id', $parent->id)->firstOrFail();
+        $order = $this->checkoutOrderFor($course, $parent, $student);
         $item = $order->items()->firstOrFail();
         $payment = $order->payments()->firstOrFail();
 
