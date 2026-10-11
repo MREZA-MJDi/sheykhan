@@ -127,13 +127,13 @@ class OwnerHomeHeroManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_owner_of_another_academy_cannot_change_the_platform_wide_hero(): void
+    public function test_academy_owner_can_manage_hero_without_a_slug_or_branch_assumption(): void
     {
-        [$owner] = $this->workspace('another-academy');
+        [$owner] = $this->workspace('sheykhan-main');
 
         $this->actingAs($owner)
             ->get(route('owner.website.hero.edit'))
-            ->assertForbidden();
+            ->assertOk();
     }
 
     private function workspace(string $academySlug = 'sheykhan-academy'): array
