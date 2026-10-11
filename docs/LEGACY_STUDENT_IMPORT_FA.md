@@ -48,7 +48,8 @@ chmod 600 storage/app/private/legacy-students.sql
 اول شناسهٔ یک Academy فعال و مورد تأیید را از محیط خودت پیدا کن؛ Importer عمداً Academy نمی‌سازد و از روی نام دانش‌آموز هم حدس نمی‌زند. بعد Dry-run را با همان شناسه اجرا کن:
 
 ~~~bash
-php artisan sheykhan:import-legacy-students storage/app/private/legacy-students.sql --academy-id=<ACADEMY_ID>
+ACADEMY_ID=123 # عدد 123 را با ID واقعی Academy فعال جایگزین کن
+php artisan sheykhan:import-legacy-students storage/app/private/legacy-students.sql --academy-id="$ACADEMY_ID"
 ~~~
 
 خروجی باید تعداد ۵۵ شناسهٔ یکتا را تأیید کند. اگر تعداد، ساختار ستون‌ها، نوع هش یا هویت‌ها با انتظار مطابق نباشد، Import باید متوقف شود. اگر خطای تعارض ایمیل دیدی، آن حساب را دستی تطبیق بده؛ Import نباید یک حساب فعلی را صرفاً به‌دلیل ایمیل مشترک تصاحب کند.
@@ -58,7 +59,8 @@ php artisan sheykhan:import-legacy-students storage/app/private/legacy-students.
 پیش از اعمال روی Production، از دیتابیس بکاپ قابل‌بازیابی بگیر و Dry-run را مرور کن. سپس:
 
 ~~~bash
-php artisan sheykhan:import-legacy-students storage/app/private/legacy-students.sql --academy-id=<ACADEMY_ID> --apply
+ACADEMY_ID=123 # همان ID تأییدشده در Dry-run
+php artisan sheykhan:import-legacy-students storage/app/private/legacy-students.sql --academy-id="$ACADEMY_ID" --apply
 ~~~
 
 عملیات در تراکنش اجرا می‌شود، تکرار مجاز است و حساب‌های خارج از فهرست را مسدود یا حذف نمی‌کند. حساب legacy موجود با همان legacy_id دوباره ساخته نمی‌شود و password/status اصلاح‌شدهٔ حساب موجود بی‌دلیل بازنویسی نمی‌شود. در صورت برخورد یک ایمیل منبع با حسابی با هویت متفاوت، دستور متوقف می‌شود تا بررسی دستی انجام شود.
@@ -95,7 +97,7 @@ php artisan sheykhan:import-legacy-students storage/app/private/legacy-students.
 6. تعریف برنامه هفتگی برای Classroom با یک ClassSchedule برای هر روز/بازه؛
 7. تست فهرست دوره‌ها و کلاس‌های آنلاین با همان حساب دانش‌آموز.
 
-گزینهٔ --block-unlisted به‌صورت پیش‌فرض فعال نیست. فقط در صورت تصمیم جداگانه و پس از فهرست‌برداری از حساب‌های موجود، می‌توان آن را اجرا کرد؛ این گزینه نقش student را از کاربران WordPress خارج از فهرست برمی‌دارد، عضویت student آن‌ها را آرشیو و حساب را blocked می‌کند. این رفتار destructve است و جایگزین SQL اصلی یا پاک‌سازی پیش‌فرض نیست.
+گزینهٔ --block-unlisted به‌صورت پیش‌فرض فعال نیست. فقط در صورت تصمیم جداگانه و پس از فهرست‌برداری از حساب‌های موجود، می‌توان آن را اجرا کرد؛ این گزینه نقش student را از کاربران WordPress خارج از فهرست برمی‌دارد، عضویت student آن‌ها را آرشیو و حساب را blocked می‌کند. این رفتار destructive است و جایگزین SQL اصلی یا پاک‌سازی پیش‌فرض نیست.
 
 فایل SQL منبع هیچ ارتباطی میان این ۵۵ دانش‌آموز و دوره یا مدرس خاصی تعریف نمی‌کند؛ این ارتباط را از روی نام یا حدس نساز.
 
