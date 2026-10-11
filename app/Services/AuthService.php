@@ -37,7 +37,9 @@ final class AuthService
         }
 
         $plainPassword = (string) ($credentials['password'] ?? '');
-        $isLegacyHash = $user && $this->legacyPasswords->isLegacyHash((string) $user->password);
+        $isLegacyHash = $user
+            && $user->legacy_source === 'wordpress'
+            && $this->legacyPasswords->isLegacyHash((string) $user->password);
         $passwordValid = $user
             ? ($isLegacyHash
                 ? $this->legacyPasswords->verify($plainPassword, (string) $user->password)
