@@ -119,7 +119,7 @@ final class OwnerWorkspaceService
                 'is_verified' => true,
             ]);
 
-            $academy->users()->syncWithoutDetaching([
+            $academy->teachers()->syncWithoutDetaching([
                 $teacher->id => [
                     'role' => 'teacher',
                     'status' => 'active',
@@ -143,7 +143,7 @@ final class OwnerWorkspaceService
         abort_if(!$membership, 404);
 
         DB::transaction(function () use ($academy, $teacher): void {
-            $academy->users()->updateExistingPivot($teacher->id, [
+            $academy->teachers()->updateExistingPivot($teacher->id, [
                 'status' => 'archived',
             ]);
 
@@ -163,7 +163,7 @@ final class OwnerWorkspaceService
         abort_if(!$membership, 404);
 
         DB::transaction(function () use ($academy, $teacher, $membership): void {
-            $academy->users()->updateExistingPivot($teacher->id, [
+            $academy->teachers()->updateExistingPivot($teacher->id, [
                 'status' => 'active',
                 'joined_at' => $membership->pivot->joined_at ?? now(),
             ]);
