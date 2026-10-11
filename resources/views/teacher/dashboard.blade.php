@@ -247,7 +247,7 @@
                 <div class="teacher-panel-head">
                     <div>
                         <span class="teacher-panel-label">فعالیت ثبت‌شده در آخرین مشاهده</span>
-                        <h2 id="teacher-progress-title">وضعیت پیشرفت درس‌ها</h2>
+                        <h2 id="teacher-progress-title">روند پیشرفت دانش‌آموزان</h2>
                     </div>
 
                     <div class="teacher-filter" role="group" aria-label="بازه نمودار">
