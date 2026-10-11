@@ -27,6 +27,8 @@
     aria-roledescription="carousel"
     data-home-hero
 >
+    <h1 id="sheykhan-home-hero-title" class="sr-only">آینده‌ات را با یادگیری بساز | شیخان</h1>
+
     <div class="sheykhan-home-hero__slides">
         @foreach($heroSlides as $slide)
             <article
@@ -54,23 +56,13 @@
                         {{ $slide['academy'] ?: 'شیخان؛ آموزش، رشد، آینده' }}
                     </p>
 
-                    @if($loop->first)
-                        <h1 id="sheykhan-home-hero-title" class="sheykhan-home-hero__title" @if(filled($slide['title'] ?? null)) data-banner-title @endif>
-                            @if(filled($slide['title'] ?? null))
-                                {{ $slide['title'] }}
-                            @else
-                                آینده‌ات را با <span>یادگیری</span> بساز
-                            @endif
-                        </h1>
-                    @else
-                        <h2 class="sheykhan-home-hero__title" @if(filled($slide['title'] ?? null)) data-banner-title @endif>
-                            @if(filled($slide['title'] ?? null))
-                                {{ $slide['title'] }}
-                            @else
-                                آینده‌ات را با <span>یادگیری</span> بساز
-                            @endif
-                        </h2>
-                    @endif
+                    <h2 class="sheykhan-home-hero__title" @if(filled($slide['title'] ?? null)) data-banner-title @endif>
+                        @if(filled($slide['title'] ?? null))
+                            {{ $slide['title'] }}
+                        @else
+                            آینده‌ات را با <span>یادگیری</span> بساز
+                        @endif
+                    </h2>
 
                     <p class="sheykhan-home-hero__description">
                         {{ $slide['description'] ?: 'از دوره و کلاس تا تمرین و آزمون؛ مسیر یادگیری‌ات را یکپارچه و روشن دنبال کن.' }}
