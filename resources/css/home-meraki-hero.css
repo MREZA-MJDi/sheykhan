@@ -188,6 +188,7 @@
     opacity: 1;
     filter: saturate(1.18) contrast(1.06) brightness(1.04);
 }
+.sheykhan-home-hero__title { overflow-wrap: anywhere; }
 .sheykhan-home-hero__title[data-banner-title]::after {
     display: block;
     width: clamp(3.5rem, 8vw, 5.5rem);
