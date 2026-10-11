@@ -20,12 +20,14 @@
     </div>
 
     <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
-        <div class="role-sidebar-label">مرکز کنترل</div>
+        @if(! $seoOnly)
+            <div class="role-sidebar-label">مرکز کنترل</div>
 
-        <a href="{{ $seoOnly ? route('owner.seo.index') : route('owner.dashboard') }}"
-           class="role-nav-link {{ ($seoOnly && request()->routeIs('owner.seo.*')) || (!$seoOnly && request()->routeIs('owner.dashboard')) ? 'is-active' : '' }}">
-            <span class="role-nav-icon"></span><span>{{ $seoOnly ? 'SEO و دیده‌شدن' : 'داشبورد' }}</span>
-        </a>
+            <a href="{{ route('owner.dashboard') }}"
+               class="role-nav-link {{ request()->routeIs('owner.dashboard') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>داشبورد</span>
+            </a>
+        @endif
 
         @if($user->hasPermission('reports.view'))
             <a href="{{ route('owner.reports.index') }}"
