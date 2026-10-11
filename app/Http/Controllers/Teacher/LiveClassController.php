@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\StoreLiveClassRequest;
 use App\Models\LiveClass;
 use App\Services\TeacherWorkspaceService;
+use App\Services\MeetingLinkService;
 use App\Services\MediaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -87,7 +88,8 @@ class LiveClassController extends Controller
 
     public function store(
         StoreLiveClassRequest $request,
-        TeacherWorkspaceService $workspace
+        TeacherWorkspaceService $workspace,
+        MeetingLinkService $meetingLinks,
     ): RedirectResponse {
         $course = $workspace->courseOwnedBy($request->user(), (int) $request->validated('course_id'));
 
@@ -97,6 +99,10 @@ class LiveClassController extends Controller
         }
 
         $payload = $request->safe()->except('course_id');
+        $payload['meeting_url'] = $meetingLinks->resolve(
+            (string) $payload['provider'],
+            $payload['meeting_url'] ?? null,
+        );
         $payload['teacher_id'] = $request->user()->id;
         $payload['status'] = 'scheduled';
 
