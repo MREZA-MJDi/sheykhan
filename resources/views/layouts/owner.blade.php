@@ -18,7 +18,7 @@
             <x-owner.feedback/>@yield('content')</main>
     </div>
 </div>
-<x-navigation.role-mobile-nav role="owner" />
+<x-navigation.role-mobile-nav role="{{ auth()->user()?->hasRole('seo-specialist') && !auth()->user()?->hasRole('academy-owner') ? 'seo' : 'owner' }}" />
 @stack('scripts')
 </body>
 </html>
