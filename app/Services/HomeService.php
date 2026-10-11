@@ -23,7 +23,7 @@ class HomeService
 
     public function getData(): array
     {
-        return Cache::remember('public:home:data:v4', now()->addMinute(), fn () => [
+        return Cache::remember('public:home:data:v5', now()->addMinute(), fn () => [
             'courseCards' => $this->courses->featuredCards(),
             'liveClassCards' => $this->liveClasses->upcomingCards(),
             'teacherCards' => $this->teachers->featuredCards(),
@@ -34,7 +34,7 @@ class HomeService
             'academyContentGroups' => $this->academyContent->featuredGroups(),
             'achievementCards' => $this->achievements->featured(),
             'testimonialCards' => $this->testimonials->featured(),
-            'homeHero' => $this->hero->publicConfig(),
+            'homeHeroSlides' => $this->hero->slides(),
             'homeBanners' => $this->banners->featured(),
         ]);
     }
