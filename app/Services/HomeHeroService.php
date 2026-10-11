@@ -49,7 +49,7 @@ final class HomeHeroService
             }
 
             return $media->url();
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             // A storage outage must not take the whole public homepage down.
             report($exception);
 
