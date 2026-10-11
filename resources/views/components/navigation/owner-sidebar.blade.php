@@ -14,24 +14,17 @@
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
-                <small>{{ $seoOnly ? 'متخصص SEO' : 'مدیریت آموزشگاه' }}</small>
+                <small>مدیریت آموزشگاه</small>
             </span>
         </a>
     </div>
 
     <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
-        @if($seoOnly)
-            <div class="role-sidebar-label">مرکز کنترل</div>
-            <a href="{{ route('owner.seo.index') }}"
-               class="role-nav-link {{ request()->routeIs('owner.seo.*') ? 'is-active' : '' }}">
-                <span class="role-nav-icon"></span><span>SEO و دیده‌شدن</span>
-            </a>
-        @else
         <div class="role-sidebar-label">مرکز کنترل</div>
 
-        <a href="{{ route('owner.dashboard') }}"
-           class="role-nav-link {{ request()->routeIs('owner.dashboard') ? 'is-active' : '' }}">
-            <span class="role-nav-icon"></span><span>داشبورد</span>
+        <a href="{{ $seoOnly ? route('owner.seo.index') : route('owner.dashboard') }}"
+           class="role-nav-link {{ ($seoOnly && request()->routeIs('owner.seo.*')) || (!$seoOnly && request()->routeIs('owner.dashboard')) ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>{{ $seoOnly ? 'SEO و دیده‌شدن' : 'داشبورد' }}</span>
         </a>
 
         @if($user->hasPermission('reports.view'))
@@ -41,6 +34,7 @@
             </a>
         @endif
 
+        @if(! $seoOnly)
         <div class="role-sidebar-label mt-6">عملیات آموزشگاه</div>
 
         @forelse($academies as $academy)
@@ -68,6 +62,7 @@
         @empty
             <div class="owner-sidebar-empty">هنوز آموزشگاه فعالی ندارید.</div>
         @endforelse
+        @endif
 
         @if($user->hasPermission('courses.view'))
             <div class="role-sidebar-label mt-6">آموزش و دوره</div>
@@ -81,7 +76,7 @@
         @if($user->hasPermission('content.manage') || $user->hasPermission('blog.manage') || $user->hasPermission('seo.manage'))
             <div class="role-sidebar-label mt-6">سایت و محتوا</div>
 
-            @if(Route::has('owner.website.index'))
+            @if($user->hasPermission('academy.view') && Route::has('owner.website.index'))
                 <a href="{{ route('owner.website.index') }}"
                    class="role-nav-link {{ request()->routeIs('owner.website.*') ? 'is-active' : '' }}">
                     <span class="role-nav-icon"></span><span>مرکز سایت</span>
@@ -139,7 +134,6 @@
                 </a>
             @empty
             @endforelse
-        @endif
         @endif
     </nav>
 
