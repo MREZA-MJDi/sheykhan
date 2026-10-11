@@ -16,5 +16,44 @@
 @empty<div class="student-workspace-empty"><strong>جلسه‌ای در برنامه نیست.</strong><span>جلسه‌های بعدی دوره‌های فعال در این بخش ظاهر می‌شوند.</span></div>@endforelse
 </div>
 @if($classes->hasPages())<nav class="student-pagination" aria-label="صفحه‌بندی کلاس‌ها">{{ $classes->links() }}</nav>@endif
-</section></div>
+</section>
+
+<section class="student-workspace-card mt-6" aria-labelledby="weekly-schedule-title">
+    <div class="student-workspace-card-head">
+        <div>
+            <h2 id="weekly-schedule-title">برنامه هفتگی ثابت</h2>
+            <p>این ردیف‌ها جلسه‌های تکرارشوندهٔ کلاس شما هستند؛ با جلسه‌های دارای تاریخ مشخص در بخش بالا فرق دارند.</p>
+        </div>
+    </div>
+    <div class="student-workspace-list">
+        @forelse($weeklySchedules as $schedule)
+            @php
+                $weekdays = [0 => 'یکشنبه', 1 => 'دوشنبه', 2 => 'سه‌شنبه', 3 => 'چهارشنبه', 4 => 'پنجشنبه', 5 => 'جمعه', 6 => 'شنبه'];
+            @endphp
+            <article class="student-workspace-row">
+                <div class="student-workspace-date">
+                    <strong>{{ $weekdays[(int) $schedule->weekday] ?? 'روز نامشخص' }}</strong>
+                    <small>{{ App\Support\PersianUi::digits(substr((string) $schedule->start_time, 0, 5)) }} تا {{ App\Support\PersianUi::digits(substr((string) $schedule->end_time, 0, 5)) }}</small>
+                </div>
+                <div class="student-workspace-row-main">
+                    <strong>{{ $schedule->classroom?->title ?: 'کلاس' }}</strong>
+                    <span>{{ $schedule->classroom?->course?->title }} · {{ $schedule->provider ?: 'سرویس ثبت‌نشده' }}</span>
+                </div>
+                @if($schedule->can_join)
+                    <a class="student-workspace-status success" href="{{ route('student.schedule.join', $schedule) }}">ورود به اتاق هفتگی ←</a>
+                @elseif(blank($schedule->meeting_url))
+                    <span class="student-workspace-status warning">لینک اتاق ثبت نشده</span>
+                @else
+                    <span class="student-workspace-status warning">در روز و بازه مجاز فعال می‌شود</span>
+                @endif
+            </article>
+        @empty
+            <div class="student-workspace-empty">
+                <strong>برنامه هفتگی ثابتی ثبت نشده است.</strong>
+                <span>این بخش فقط زمان‌های تکرارشوندهٔ کلاس‌هایی را نشان می‌دهد که عضویت فعال دارید.</span>
+            </div>
+        @endforelse
+    </div>
+</section>
+</div>
 @endsection
