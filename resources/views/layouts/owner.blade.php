@@ -12,13 +12,17 @@
 <div class="role-layout">
     <x-navigation.owner-sidebar/>
     <div class="role-content">
-        @php($ownerHeaderTitle = trim($__env->yieldContent('header-title', 'مدیریت آموزشگاه')))
-        <x-navigation.panel-topbar role="owner" :title="$ownerHeaderTitle" />
+        @php
+            $isSeoOnlyUser = auth()->user()?->hasRole('seo-specialist') && !auth()->user()?->hasRole('academy-owner');
+            $ownerPanelRole = $isSeoOnlyUser ? 'seo' : 'owner';
+            $ownerHeaderTitle = trim($__env->yieldContent('header-title', $isSeoOnlyUser ? 'SEO و دیده‌شدن' : 'مدیریت آموزشگاه'));
+            $mobileNavigationRole = $ownerPanelRole;
+        @endphp
+        <x-navigation.panel-topbar :role="$ownerPanelRole" :title="$ownerHeaderTitle" />
         <main class="role-main">
             <x-owner.feedback/>@yield('content')</main>
     </div>
 </div>
-@php($mobileNavigationRole = auth()->user()?->hasRole('seo-specialist') && !auth()->user()?->hasRole('academy-owner') ? 'seo' : 'owner')
 <x-navigation.role-mobile-nav :role="$mobileNavigationRole" />
 @stack('scripts')
 </body>
