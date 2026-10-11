@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Academy;
 use App\Models\Role;
+use App\Services\LegacyWordPressPassword;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -26,7 +27,7 @@ final class ImportLegacyStudents extends Command
         'legacy_source', 'legacy_id', 'created_at', 'updated_at',
     ];
 
-    public function handle(): int
+    public function handle(LegacyWordPressPassword $legacyPasswords): int
     {
         $path = (string) $this->argument('source');
 
@@ -43,7 +44,7 @@ final class ImportLegacyStudents extends Command
         }
 
         try {
-            $rows = $this->extractVerifiedStudents((string) file_get_contents($path));
+            $rows = $this->extractVerifiedStudents((string) file_get_contents($path), $legacyPasswords);
         } catch (RuntimeException $exception) {
             $this->error($exception->getMessage());
             return self::FAILURE;
@@ -296,7 +297,7 @@ final class ImportLegacyStudents extends Command
      * statements are deliberately ignored, including DELETE, UPDATE, COMMIT,
      * role/profile mutations, and the source's broad cleanup statements.
      */
-    private function extractVerifiedStudents(string $sql): array
+    private function extractVerifiedStudents(string $sql, LegacyWordPressPassword $legacyPasswords): array
     {
         $pattern = '/INSERT\s+INTO\s+users\s*\(name,\s*email,\s*password,\s*mobile,\s*status,\s*legacy_source,\s*legacy_id,\s*created_at,\s*updated_at\)\s*VALUES\s*\((.*?)\)\s*ON\s+DUPLICATE\s+KEY\s+UPDATE/si';
 
@@ -320,6 +321,11 @@ final class ImportLegacyStudents extends Command
             }
 
             $hash = (string) $data['password'];
+            $rawLaravelBcrypt = str_starts_with($hash, '$2y$') && strlen($hash) === 60;
+            if (!$legacyPasswords->supportsHashFormat($hash) && !$rawLaravelBcrypt) {
+                throw new RuntimeException('فرمت یا طول هش رمز یکی از رکوردها پشتیبانی نمی‌شود؛ Import متوقف شد.');
+            }
+
             if (str_starts_with($hash, '$wp$2y$')) {
                 $kind = 'wp-bcrypt';
                 $normalized = substr($hash, 3); // "$wp$2y$..." -> "$2y$..."
