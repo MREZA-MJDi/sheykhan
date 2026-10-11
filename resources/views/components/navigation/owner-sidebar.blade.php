@@ -29,6 +29,14 @@
             </a>
         @endif
 
+        @if($user->hasPermission('seo.manage'))
+            <div class="role-sidebar-label mt-6">بهینه‌سازی سایت</div>
+            <a href="{{ route('owner.seo.index') }}"
+               class="role-nav-link {{ request()->routeIs('owner.seo.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>SEO و دیده‌شدن</span>
+            </a>
+        @endif
+
         @if($user->hasPermission('reports.view'))
             <a href="{{ route('owner.reports.index') }}"
                class="role-nav-link {{ request()->routeIs('owner.reports.*') ? 'is-active' : '' }}">
@@ -75,7 +83,7 @@
             </a>
         @endif
 
-        @if($user->hasPermission('content.manage') || $user->hasPermission('blog.manage') || $user->hasPermission('seo.manage'))
+        @if($user->hasPermission('content.manage') || $user->hasPermission('blog.manage') || ($user->hasPermission('academy.view') && Route::has('owner.website.index')))
             <div class="role-sidebar-label mt-6">سایت و محتوا</div>
 
             @if($user->hasPermission('academy.view') && Route::has('owner.website.index'))
@@ -99,12 +107,6 @@
                 </a>
             @endif
 
-            @if($user->hasPermission('seo.manage'))
-                <a href="{{ route('owner.seo.index') }}"
-                   class="role-nav-link {{ request()->routeIs('owner.seo.*') ? 'is-active' : '' }}">
-                    <span class="role-nav-icon"></span><span>SEO و دیده‌شدن</span>
-                </a>
-            @endif
 
             @if($user->hasPermission('academy.view'))
                 @if($academies->count() === 1)
