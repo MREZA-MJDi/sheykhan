@@ -353,7 +353,9 @@
                 @forelse($achievementCards as $achievement)
                     <article class="home-achievement-card">
                         @if($achievement['image'])
-                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy">
+                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy" decoding="async">
+                        @else
+                            <div class="home-achievement-placeholder" aria-hidden="true">ش</div>
                         @endif
                         <div>
                             <span>{{ $achievement['type'] }}</span>
