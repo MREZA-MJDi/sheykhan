@@ -323,6 +323,9 @@ final class ImportLegacyStudents extends Command
             if (str_starts_with($hash, '$wp$2y$')) {
                 $kind = 'wp-bcrypt';
                 $normalized = substr($hash, 3); // "$wp$2y$..." -> "$2y$..."
+                if (strlen($normalized) !== 60) {
+                    throw new RuntimeException('یکی از هش‌های WordPress bcrypt طول غیرمعتبر دارد.');
+                }
             } elseif ((str_starts_with($hash, '$P$') || str_starts_with($hash, '$H$')) && strlen($hash) === 34) {
                 $kind = 'phpass';
                 $normalized = $hash;
