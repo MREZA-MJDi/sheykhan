@@ -13,7 +13,7 @@
     <div class="owner-form-head">
         <div>
             <span>کنترل دیده‌شدن</span>
-            <h1>{{ $item->getAttribute('title') ?: 'صفحه' }}</h1>
+            <h1>{{ $item->getAttribute('title') ?: $item->getAttribute('name') ?: 'صفحه' }}</h1>
             <p>این تنظیمات در HTML عمومی صفحه قرار می‌گیرند. مقدارهای خالی از metadata پیش‌فرض صفحه استفاده می‌کنند.</p>
         </div>
         <a href="{{ route('owner.seo.index') }}">بازگشت به SEO</a>
