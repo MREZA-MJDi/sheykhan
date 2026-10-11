@@ -4229,6 +4229,8 @@ a.home-academy-item:hover { transform:translateX(-2px); border-color:#d8d2fc; ba
 @media (max-width: 720px) {
     .home-path-grid { gap: .6rem; padding-block: .85rem; }
     .home-path-grid a { min-height: 106px; padding: .9rem; }
+    .home-achievement-card { grid-template-columns: 88px minmax(0, 1fr); }
+    .home-achievement-card > div { min-width: 0; }
     .home-achievement-card > img,
     .home-achievement-placeholder { width: 88px; min-width: 88px; height: 112px; }
     .home-product-card > img { height: 180px; }
