@@ -13,20 +13,21 @@ final class LegacyAwareUserProvider extends EloquentUserProvider
     {
         $plain = $credentials['password'] ?? null;
         $stored = $user->getAuthPassword();
+        $legacyPasswords = app(LegacyWordPressPassword::class);
 
         if (
             $user instanceof User
             && $user->legacy_source === 'wordpress'
             && is_string($plain)
             && is_string($stored)
-            && (str_starts_with($stored, '$P$') || str_starts_with($stored, '$H$'))
+            && $legacyPasswords->isLegacyHash($stored)
         ) {
-            if (! app(LegacyWordPressPassword::class)->verify($plain, $stored)) {
+            if (! $legacyPasswords->verify($plain, $stored)) {
                 return false;
             }
 
-            // The User model's "hashed" cast converts the legacy password to a
-            // current Laravel hash. The next login no longer uses phpass.
+            // The User model's "hashed" cast converts the verified legacy
+            // password to Laravel's current hash; next login is standard.
             $user->forceFill(['password' => $plain])->save();
 
             return true;
