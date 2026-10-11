@@ -19,6 +19,12 @@ class OwnerPeopleLifecycleTest extends TestCase
     {
         [$owner, $academy, $teacher] = $this->makeWorkspace();
 
+        // One account can hold different academy roles; lifecycle changes must be role-scoped.
+        $academy->students()->attach($teacher->id, [
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
         $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
             ->assertOk()
@@ -35,6 +41,12 @@ class OwnerPeopleLifecycleTest extends TestCase
             'role' => 'teacher',
             'status' => 'archived',
         ]);
+        $this->assertDatabaseHas('academy_user', [
+            'academy_id' => $academy->id,
+            'user_id' => $teacher->id,
+            'role' => 'student',
+            'status' => 'active',
+        ]);
 
         $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
@@ -50,6 +62,12 @@ class OwnerPeopleLifecycleTest extends TestCase
             'academy_id' => $academy->id,
             'user_id' => $teacher->id,
             'role' => 'teacher',
+            'status' => 'active',
+        ]);
+        $this->assertDatabaseHas('academy_user', [
+            'academy_id' => $academy->id,
+            'user_id' => $teacher->id,
+            'role' => 'student',
             'status' => 'active',
         ]);
     }
