@@ -22,7 +22,7 @@ final class WebsiteController extends Controller
 
         return view('owner.website.index', [
             'academies' => $academies,
-            'canManagePublicHero' => $academies->contains('slug', 'sheykhan-academy'),
+            'canManagePublicHero' => $academies->isNotEmpty(),
         ]);
     }
 }
