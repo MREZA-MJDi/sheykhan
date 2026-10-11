@@ -51,7 +51,19 @@ final class MeetingLinkService
         $scheme = strtolower((string) ($parts['scheme'] ?? ''));
         $host = strtolower(rtrim((string) ($parts['host'] ?? ''), '.'));
 
-        if ($scheme !== 'https' || $host === '') {
+        if (
+            $scheme !== 'https'
+            || $host === ''
+            || isset($parts['user'])
+            || isset($parts['pass'])
+            || (isset($parts['port']) && (int) $parts['port'] !== 443)
+        ) {
+            return false;
+        }
+
+        $path = trim((string) ($parts['path'] ?? ''), '/');
+        if ($provider !== self::OTHER && $path === '') {
+            // The official provider home page is not a room invitation.
             return false;
         }
 
