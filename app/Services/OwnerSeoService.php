@@ -126,6 +126,17 @@ final class OwnerSeoService
             ->where('published_at', '<=', now())
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
+            ->where(function ($query): void {
+                $query->where('type', 'article')
+                    ->orWhere(function ($video): void {
+                        $video->where('type', 'video')
+                            ->whereHas('media', fn ($media) => $media
+                                ->where('media_attachments.collection', 'video')
+                                ->where('media.collection', 'video')
+                                ->where('media.visibility', 'public')
+                                ->where('media.status', 'active'));
+                    });
+            })
             ->with(['academy:id,name,slug', 'seoMeta'])
             ->orderByDesc('updated_at')
             ->get(['id', 'academy_id', 'category_id', 'title', 'slug', 'type', 'status', 'published_at', 'updated_at']);
@@ -224,6 +235,17 @@ final class OwnerSeoService
                     ->where('published_at', '<=', now())
                     ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
                     ->whereHas('category', fn ($query) => $query->where('is_active', true))
+                    ->where(function ($query): void {
+                        $query->where('type', 'article')
+                            ->orWhere(function ($video): void {
+                                $video->where('type', 'video')
+                                    ->whereHas('media', fn ($media) => $media
+                                        ->where('media_attachments.collection', 'video')
+                                        ->where('media.collection', 'video')
+                                        ->where('media.visibility', 'public')
+                                        ->where('media.status', 'active'));
+                            });
+                    })
                     ->firstOrFail(),
 
                 'blog' => BlogPost::query()
