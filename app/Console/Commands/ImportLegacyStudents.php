@@ -2,17 +2,20 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Academy;
+use App\Models\Role;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use RuntimeException;
 
 final class ImportLegacyStudents extends Command
 {
     protected $signature = 'sheykhan:import-legacy-students
         {source : Path to the privately stored original WordPress SQL export}
-        {--apply : Apply the import; without this flag the command is dry-run only}';
+        {--academy-id= : Existing active Academy to attach the imported identities to}
+        {--apply : Apply the import; without this flag the command is dry-run only}
+        {--block-unlisted : Also block other WordPress-source accounts outside this verified set}';
 
     protected $description = 'Safely import the 55 verified WordPress students without executing destructive SQL from the source dump';
 
@@ -46,6 +49,16 @@ final class ImportLegacyStudents extends Command
             return self::FAILURE;
         }
 
+        $academyId = filter_var($this->option('academy-id'), FILTER_VALIDATE_INT);
+        $academy = $academyId
+            ? Academy::query()->whereKey($academyId)->where('status', 'active')->first()
+            : null;
+
+        if (! $academy) {
+            $this->error('An existing active Academy is required. Pass --academy-id; no academy will be guessed or created.');
+            return self::FAILURE;
+        }
+
         $conflicts = $this->emailConflicts($rows);
         if ($conflicts !== []) {
             $this->error('ایمیل بعضی رکوردها به حسابی با هویت دیگری تعلق دارد؛ برای جلوگیری از ادغام ناخواسته، هیچ داده‌ای تغییر نکرد.');
@@ -61,13 +74,32 @@ final class ImportLegacyStudents extends Command
             }
         }
 
+        foreach ($rows as $row) {
+            $existing = $this->findByLegacyIdentity((int) $row['legacy_id']);
+            if ($existing) {
+                $membership = DB::table('academy_user')
+                    ->where('academy_id', $academy->id)
+                    ->where('user_id', $existing->id)
+                    ->first(['role']);
+                if ($membership && $membership->role !== 'student') {
+                    $this->error('An existing identity has a non-student membership in the target academy. No data was changed.');
+                    return self::FAILURE;
+                }
+            }
+        }
+
         $newCount = count($rows) - $existingCount;
+        $unlistedCount = $this->unlistedWordPressUsersQuery(array_column($rows, 'legacy_id'))->count();
+        $this->info('Target Academy: ' . $academy->name . ' (#' . $academy->id . ').');
+        $this->info('Other WordPress-source rows outside the verified set: ' . $unlistedCount . '.');
         $this->info('منبع معتبر: ' . count($rows) . ' دانش‌آموز یکتا.');
         $this->line('حساب جدید: ' . $newCount);
         $this->line('هویت legacy موجود: ' . $existingCount);
         $this->line('هش‌های WordPress bcrypt قابل تبدیل به Laravel: ' . collect($rows)->where('password_kind', 'wp-bcrypt')->count());
         $this->line('هش قدیمی phpass که هنگام اولین ورود تبدیل می‌شود: ' . collect($rows)->where('password_kind', 'phpass')->count());
-        $this->line('هیچ DELETE یا مسدودسازی حساب‌های خارج از فهرست اجرا نمی‌شود.');
+        $this->line($this->option('block-unlisted')
+            ? 'Optional cleanup enabled: other WordPress-source users will lose the student role, have student memberships archived and be blocked; their profiles will be preserved.'
+            : 'No DELETE or account blocking is enabled by default.');
 
         if (! $this->option('apply')) {
             $this->comment('Dry-run است؛ دیتابیس تغییر نکرد. برای اعمال صریحاً گزینه --apply را اضافه کن.');
@@ -81,9 +113,10 @@ final class ImportLegacyStudents extends Command
             'existing_users' => 0,
             'created_profiles' => 0,
             'student_role_links' => 0,
+            'blocked_users' => 0,
         ];
 
-        DB::transaction(function () use ($rows, &$result): void {
+        DB::transaction(function () use ($rows, &$result, $academy): void {
             $now = now();
             $studentRoleId = DB::table('roles')->where('slug', 'student')->value('id');
 
@@ -109,10 +142,10 @@ final class ImportLegacyStudents extends Command
                     $userId = (int) DB::table('users')->insertGetId([
                         'name' => $row['name'],
                         'email' => $row['email'],
-                        // Query Builder is intentional: it preserves known WordPress
-                        // hashes rather than passing an existing hash through the
-                        // User model's automatic "hashed" cast.
-                        'password' => $row['normalized_password'],
+                        // Preserve the exact legacy hash. The AuthService verifies it
+                        // through LegacyWordPressPasswordService and upgrades it only
+                        // after the student successfully logs in.
+                        'password' => $row['password'],
                         'mobile' => $row['mobile'],
                         'status' => 'active',
                         'legacy_source' => 'wordpress',
@@ -146,6 +179,56 @@ final class ImportLegacyStudents extends Command
                         'updated_at' => $now,
                     ]);
                     $result['created_profiles']++;
+                } else {
+                    DB::table('student_profiles')->where('user_id', $userId)->update([
+                        'status' => 'active',
+                        'updated_at' => $now,
+                    ]);
+                }
+
+                $membership = DB::table('academy_user')
+                    ->where('academy_id', $academy->id)
+                    ->where('user_id', $userId)
+                    ->first(['role']);
+
+                if ($membership) {
+                    // Role was preflighted above; preserve the original joined_at.
+                    DB::table('academy_user')
+                        ->where('academy_id', $academy->id)
+                        ->where('user_id', $userId)
+                        ->update(['status' => 'active', 'updated_at' => $now]);
+                } else {
+                    DB::table('academy_user')->insert([
+                        'academy_id' => $academy->id,
+                        'user_id' => $userId,
+                        'role' => 'student',
+                        'status' => 'active',
+                        'joined_at' => $now,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+                }
+            }
+
+            if ($this->option('block-unlisted')) {
+                $unlistedIds = $this->unlistedWordPressUsersQuery(array_column($rows, 'legacy_id'))
+                    ->pluck('id')
+                    ->all();
+
+                if ($unlistedIds !== []) {
+                    DB::table('role_user')
+                        ->where('role_id', $studentRoleId)
+                        ->whereIn('user_id', $unlistedIds)
+                        ->delete();
+
+                    DB::table('academy_user')
+                        ->whereIn('user_id', $unlistedIds)
+                        ->where('role', 'student')
+                        ->update(['status' => 'archived', 'updated_at' => $now]);
+
+                    $result['blocked_users'] = DB::table('users')
+                        ->whereIn('id', $unlistedIds)
+                        ->update(['status' => 'blocked', 'updated_at' => $now]);
                 }
             }
 
@@ -173,7 +256,7 @@ final class ImportLegacyStudents extends Command
             $result['created_profiles'],
             $result['student_role_links'],
         ]]);
-        $this->warn('این Import فقط هویت دانش‌آموز و پروفایل را وارد می‌کند؛ ثبت‌نام دوره، پرداخت و تخصیص Classroom از این SQL قابل استنتاج نیست.');
+        $this->warn('This SQL contains identities only. Course enrollment, purchase/payment evidence, course/teacher assignment, classroom roster and weekly schedules were not inferred or created.');
 
         return self::SUCCESS;
     }
@@ -188,6 +271,7 @@ final class ImportLegacyStudents extends Command
                 'user_id', 'student_number', 'birth_date', 'grade', 'school_name', 'bio',
                 'registration_source', 'registered_by', 'onboarded_at', 'status', 'created_at', 'updated_at',
             ],
+            'academy_user' => ['academy_id', 'user_id', 'role', 'status', 'joined_at', 'created_at', 'updated_at'],
         ];
 
         $missing = [];
@@ -239,10 +323,10 @@ final class ImportLegacyStudents extends Command
             if (str_starts_with($hash, '$wp$2y$')) {
                 $kind = 'wp-bcrypt';
                 $normalized = substr($hash, 3); // "$wp$2y$..." -> "$2y$..."
-            } elseif (str_starts_with($hash, '$P$') || str_starts_with($hash, '$H$')) {
+            } elseif ((str_starts_with($hash, '$P$') || str_starts_with($hash, '$H$')) && strlen($hash) === 34) {
                 $kind = 'phpass';
                 $normalized = $hash;
-            } elseif (str_starts_with($hash, '$2y$')) {
+            } elseif (str_starts_with($hash, '$2y$') && strlen($hash) === 60) {
                 $kind = 'bcrypt';
                 $normalized = $hash;
             } else {
@@ -377,6 +461,18 @@ final class ImportLegacyStudents extends Command
         }
 
         return $conflicts;
+    }
+
+    /**
+     * @param array<int, int> $importedIds
+     */
+    private function unlistedWordPressUsersQuery(array $importedIds)
+    {
+        return DB::table('users')
+            ->where('legacy_source', 'wordpress')
+            ->where(function ($query) use ($importedIds): void {
+                $query->whereNull('legacy_id')->orWhereNotIn('legacy_id', $importedIds);
+            });
     }
 
     private function findByLegacyIdentity(int $legacyId): ?object
