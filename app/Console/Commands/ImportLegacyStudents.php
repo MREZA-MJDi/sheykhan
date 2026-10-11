@@ -306,23 +306,38 @@ final class ImportLegacyStudents extends Command
      */
     private function extractVerifiedStudents(string $sql, LegacyWordPressPassword $legacyPasswords): array
     {
-        $pattern = '/INSERT\s+INTO\s+users\s*\(name,\s*email,\s*password,\s*mobile,\s*status,\s*legacy_source,\s*legacy_id,\s*created_at,\s*updated_at\)\s*VALUES\s*\((.*?)\)\s*ON\s+DUPLICATE\s+KEY\s+UPDATE/si';
+        // Locate each known INSERT prefix, then scan to its closing parenthesis
+        // while respecting quoted strings. A name such as "فاطمه(لیانا)" must
+        // not truncate the tuple at the parenthesis inside the name.
+        $pattern = '/INSERT\\s+INTO\\s+users\\s*\\(name,\\s*email,\\s*password,\\s*mobile,\\s*status,\\s*legacy_source,\\s*legacy_id,\\s*created_at,\\s*updated_at\\)\\s*VALUES\\s*\\(/si';
 
-        if (! preg_match_all($pattern, $sql, $matches)) {
+        if (!preg_match_all($pattern, $sql, $matches, PREG_OFFSET_CAPTURE)) {
             throw new RuntimeException('فایل SQL شامل INSERTهای کاربر با قالب مورد انتظار نیست.');
         }
 
         $rows = [];
-        foreach ($matches[1] as $valuesText) {
+        foreach ($matches[0] as [$prefix, $prefixOffset]) {
+            $tupleStart = $prefixOffset + strlen($prefix);
+            [$valuesText, $afterTuple] = $this->readSqlTuple($sql, $tupleStart);
+
+            if (!preg_match('/^\\s*ON\\s+DUPLICATE\\s+KEY\\s+UPDATE/i', substr($sql, $afterTuple))) {
+                throw new RuntimeException('ساختار INSERT کاربر با قالب مورد انتظار مطابقت ندارد.');
+            }
+
             $values = $this->splitSqlValues($valuesText);
             if (count($values) !== count(self::USER_COLUMNS)) {
                 throw new RuntimeException('یکی از ردیف‌های کاربر تعداد ستون غیرمنتظره دارد.');
             }
 
-            $data = array_combine(self::USER_COLUMNS, array_map(fn ($value) => $this->decodeSqlValue($value), $values));
-            if (($data['legacy_source'] ?? null) !== 'wordpress' || ! is_numeric($data['legacy_id'] ?? null)) {
+            $data = array_combine(
+                self::USER_COLUMNS,
+                array_map(fn ($value) => $this->decodeSqlValue($value), $values)
+            );
+
+            if (($data['legacy_source'] ?? null) !== 'wordpress' || !is_numeric($data['legacy_id'] ?? null)) {
                 throw new RuntimeException('منبع یا شناسه legacy یکی از رکوردها معتبر نیست.');
             }
+
             if (($data['status'] ?? null) !== 'active' || blank($data['name'] ?? null) || blank($data['password'] ?? null)) {
                 throw new RuntimeException('نام، وضعیت یا هش رمز یکی از رکوردها معتبر نیست.');
             }
@@ -335,7 +350,7 @@ final class ImportLegacyStudents extends Command
 
             if (str_starts_with($hash, '$wp$2y$')) {
                 $kind = 'wp-bcrypt';
-                $normalized = substr($hash, 3); // "$wp$2y$..." -> "$2y$..."
+                $normalized = substr($hash, 3);
                 if (strlen($normalized) !== 60) {
                     throw new RuntimeException('یکی از هش‌های WordPress bcrypt طول غیرمعتبر دارد.');
                 }
@@ -361,6 +376,51 @@ final class ImportLegacyStudents extends Command
         }
 
         return $rows;
+    }
+
+    /**
+     * Read the values in one SQL tuple, ignoring any closing parenthesis that
+     * occurs inside a single-quoted string. Returns the values and the absolute
+     * offset immediately after the tuple's closing parenthesis.
+     *
+     * @return array{0: string, 1: int}
+     */
+    private function readSqlTuple(string $sql, int $start): array
+    {
+        $quoted = false;
+        $length = strlen($sql);
+
+        for ($index = $start; $index < $length; $index++) {
+            $char = $sql[$index];
+
+            if ($quoted) {
+                if ($char === '\\\\' && $index + 1 < $length) {
+                    $index++;
+                    continue;
+                }
+
+                if ($char === "'") {
+                    if ($index + 1 < $length && $sql[$index + 1] === "'") {
+                        $index++;
+                    } else {
+                        $quoted = false;
+                    }
+                }
+
+                continue;
+            }
+
+            if ($char === "'") {
+                $quoted = true;
+                continue;
+            }
+
+            if ($char === ')') {
+                return [substr($sql, $start, $index - $start), $index + 1];
+            }
+        }
+
+        throw new RuntimeException('پرانتز انتهایی یکی از INSERTهای کاربر پیدا نشد.');
     }
 
     private function splitSqlValues(string $sql): array
