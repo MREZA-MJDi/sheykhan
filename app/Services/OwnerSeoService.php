@@ -126,7 +126,7 @@ final class OwnerSeoService
             ->where('published_at', '<=', now())
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
-            ->with(['academy:id,name', 'seoMeta'])
+            ->with(['academy:id,name,slug', 'seoMeta'])
             ->orderByDesc('updated_at')
             ->get(['id', 'academy_id', 'category_id', 'title', 'slug', 'type', 'status', 'published_at', 'updated_at']);
 
