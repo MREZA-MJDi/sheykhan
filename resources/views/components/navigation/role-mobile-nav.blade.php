@@ -25,9 +25,6 @@
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣'],
             ['route' => 'owner.reports.index', 'label' => 'گزارش', 'permission' => 'reports.view', 'icon' => '↗'],
         ],
-        'seo' => [
-            ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'],
-        ],
         'parent' => [
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard'), 'activeRoute' => 'parent.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂'],
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-children-title', 'activeRoute' => null, 'label' => 'فرزندان', 'permission' => 'dashboard.view', 'icon' => '◎'],
@@ -37,6 +34,14 @@
         ],
         default => [],
     };
+
+    if ($role === 'owner' && $user?->hasRole('seo-specialist') && ! $user?->hasRole('academy-owner')) {
+        // Keep the specialist inside the shared owner shell, but point the home
+        // shortcut only to the page they are authorized to use.
+        $items[0] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
+    } elseif ($role === 'owner' && $user?->hasPermission('seo.manage')) {
+        $items[] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
+    }
 
     $academy = $role === 'owner'
         ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->first()
@@ -63,7 +68,6 @@
             'student' => 'دسترسی سریع دانش‌آموز',
             'teacher' => 'دسترسی سریع مدرس',
             'owner' => 'دسترسی سریع مدیر آموزشگاه',
-            'seo' => 'دسترسی سریع متخصص SEO',
             default => 'دسترسی سریع',
         } }}"
     >
@@ -73,7 +77,6 @@
                     'student' => 'student.dashboard',
                     'teacher' => 'teacher.dashboard',
                     'owner' => 'owner.dashboard',
-                    'seo' => 'owner.seo.index',
                     default => '',
                 };
                 $active = array_key_exists('activeRoute', $item)
