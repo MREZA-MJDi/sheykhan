@@ -90,5 +90,7 @@ jobs:
           touch database/database.sqlite
       - name: Run migrations
         run: php artisan migrate:fresh --force
+      - name: Run homepage Hero upload/render regression tests
+        run: php artisan test --filter=OwnerHomeHeroManagementTest
       - name: Run full PHPUnit feature and unit suite
         run: php artisan test
