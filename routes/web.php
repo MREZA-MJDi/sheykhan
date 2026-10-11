@@ -258,9 +258,9 @@ Route::middleware(['auth','active','permission:seo.manage'])
     ->name('owner.')
     ->group(function () {
         // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
-        Route::get('/seo', [\\App\\Http\\Controllers\\Owner\\SeoController::class, 'index'])->name('seo.index');
-        Route::get('/seo/{type}/{id}/edit', [\\App\\Http\\Controllers\\Owner\\SeoController::class, 'edit'])->name('seo.edit');
-        Route::patch('/seo/{type}/{id}', [\\App\\Http\\Controllers\\Owner\\SeoController::class, 'update'])->name('seo.update');
+        Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('seo.index');
+        Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->name('seo.edit');
+        Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->name('seo.update');
     });
 
 /*
