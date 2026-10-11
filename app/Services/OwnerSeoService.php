@@ -15,7 +15,7 @@ final class OwnerSeoService
 {
     public function overview(User $owner): array
     {
-        if ($owner->hasRole('seo-specialist')) {
+        if ($this->isDedicatedSeoSpecialist($owner)) {
             return $this->publicSiteOverview();
         }
 
@@ -209,7 +209,7 @@ final class OwnerSeoService
 
     public function resolveOwned(User $owner, string $type, int $id): mixed
     {
-        if ($owner->hasRole('seo-specialist')) {
+        if ($this->isDedicatedSeoSpecialist($owner)) {
             return match ($type) {
                 'course' => Course::query()
                     ->whereKey($id)
@@ -306,6 +306,11 @@ final class OwnerSeoService
 
         // Changes to robots directives must be reflected in the sitemap immediately.
         Cache::forget('public:seo:sitemap:v1');
+    }
+
+    private function isDedicatedSeoSpecialist(User $user): bool
+    {
+        return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     }
 
     private function statsFor(Collection $items): array
