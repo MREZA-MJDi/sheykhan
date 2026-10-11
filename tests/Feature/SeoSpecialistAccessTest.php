@@ -94,6 +94,16 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertDontSee($url, false);
     }
 
+    public function test_robots_txt_is_dynamic_and_references_the_real_sitemap_route(): void
+    {
+        $this->get(route('seo.robots'))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'text/plain; charset=UTF-8')
+            ->assertSee('Disallow: /owner', false)
+            ->assertSee('Disallow: /checkout', false)
+            ->assertSee('Sitemap: ' . route('seo.sitemap'), false);
+    }
+
     public function test_access_command_grants_and_revokes_only_the_seo_specialist_role_for_an_existing_account(): void
     {
         $user = User::factory()->create([
