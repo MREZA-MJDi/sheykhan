@@ -19,6 +19,13 @@ class OwnerHomeHeroManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+        config(['filesystems.default' => 'local']);
+    }
+
     public function test_owner_can_upload_desktop_and_mobile_hero_images_and_public_home_uses_them(): void
     {
         Storage::fake('local');
