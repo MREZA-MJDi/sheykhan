@@ -25,6 +25,9 @@
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣'],
             ['route' => 'owner.reports.index', 'label' => 'گزارش', 'permission' => 'reports.view', 'icon' => '↗'],
         ],
+        'seo' => [
+            ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'],
+        ],
         'parent' => [
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard'), 'activeRoute' => 'parent.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂'],
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-children-title', 'activeRoute' => null, 'label' => 'فرزندان', 'permission' => 'dashboard.view', 'icon' => '◎'],
@@ -60,6 +63,7 @@
             'student' => 'دسترسی سریع دانش‌آموز',
             'teacher' => 'دسترسی سریع مدرس',
             'owner' => 'دسترسی سریع مدیر آموزشگاه',
+            'seo' => 'دسترسی سریع متخصص SEO',
             default => 'دسترسی سریع',
         } }}"
     >
@@ -69,6 +73,7 @@
                     'student' => 'student.dashboard',
                     'teacher' => 'teacher.dashboard',
                     'owner' => 'owner.dashboard',
+                    'seo' => 'owner.seo.index',
                     default => '',
                 };
                 $active = array_key_exists('activeRoute', $item)
