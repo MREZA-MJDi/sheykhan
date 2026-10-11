@@ -37,7 +37,7 @@
 
         <div>
             <label for="identifier" class="mb-2 block text-sm font-bold text-[var(--color-text)]">
-                ایمیل یا شماره موبایل
+                ایمیل، شماره موبایل یا شناسه قدیمی دانش‌آموز
             </label>
 
             <input
@@ -49,7 +49,7 @@
                 autofocus
                 required
                 class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                placeholder="ایمیل یا ۰۹۱۲..."
+                placeholder="ایمیل، ۰۹۱۲... یا شناسه قدیمی"
             >
         </div>
 
