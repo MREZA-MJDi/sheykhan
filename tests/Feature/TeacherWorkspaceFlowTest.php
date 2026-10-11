@@ -210,11 +210,11 @@ class TeacherWorkspaceFlowTest extends TestCase
             'status' => 'absent',
         ]);
 
+        $attendanceUrl = route('teacher.classrooms.attendance.edit', $classroom)
+            . '?attendance_date=2026-10-08';
+
         $this->actingAs($teacher)
-            ->get(route('teacher.classrooms.attendance.edit', [
-                'classroom' => $classroom,
-                'attendance_date' => '2026-10-08',
-            ]))
+            ->get($attendanceUrl)
             ->assertOk()
             ->assertSee('value="absent" selected', false);
     }
