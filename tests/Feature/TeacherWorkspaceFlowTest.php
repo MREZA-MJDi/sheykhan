@@ -108,6 +108,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->post(route('teacher.schedule.store'), [
                 'classroom_id' => $classroom->id,
                 'weekday' => 6,
+                'provider' => 'Jitsi',
                 'start_time' => '10:00',
                 'end_time' => '11:00',
             ])
@@ -128,6 +129,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->post(route('teacher.schedule.store'), [
                 'classroom_id' => $classroom->id,
                 'weekday' => 6,
+                'provider' => 'Jitsi',
                 'start_time' => '09:00',
                 'end_time' => '10:30',
                 'room' => 'کلاس آنلاین',
@@ -136,8 +138,87 @@ class TeacherWorkspaceFlowTest extends TestCase
 
         $schedule = $classroom->schedules()->where('weekday', 6)->latest('id')->firstOrFail();
 
+        $this->assertSame('Jitsi', $schedule->provider);
         $this->assertStringStartsWith('https://meet.jit.si/Sheykhan-', (string) $schedule->meeting_url);
         $this->assertGreaterThan(20, strlen((string) $schedule->meeting_url));
+    }
+
+    public function test_weekly_schedule_keeps_a_real_google_meet_link_and_provider(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
+
+        $url = 'https://meet.google.com/abc-defg-hij';
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.schedule.store'), [
+                'classroom_id' => $classroom->id,
+                'weekday' => 5,
+                'start_time' => '23:00',
+                'end_time' => '23:30',
+                'provider' => 'Google Meet',
+                'meeting_url' => $url,
+                'room' => 'جلسه Meet',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('class_schedules', [
+            'classroom_id' => $classroom->id,
+            'weekday' => 5,
+            'provider' => 'Google Meet',
+            'meeting_url' => $url,
+        ]);
+    }
+
+    public function test_live_class_creation_generates_a_jitsi_link_when_provider_is_selected_without_a_url(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $scheduledAt = Carbon::now()->addDays(2)->setTime(18, 0, 0);
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.live-classes.store'), [
+                'course_id' => $course->id,
+                'title' => 'جلسه Jitsi خودکار',
+                'provider' => 'Jitsi',
+                'scheduled_at' => $scheduledAt->toDateTimeString(),
+                'duration_minutes' => 45,
+            ])
+            ->assertRedirect(route('teacher.live-classes.index'))
+            ->assertSessionHasNoErrors();
+
+        $class = \App\Models\LiveClass::query()->where('title', 'جلسه Jitsi خودکار')->firstOrFail();
+        $this->assertStringStartsWith('https://meet.jit.si/Sheykhan-', (string) $class->meeting_url);
+        $this->assertDatabaseHas('live_classes', [
+            'id' => $class->id,
+            'provider' => 'Jitsi',
+            'scheduled_end_at' => $scheduledAt->copy()->addMinutes(45)->toDateTimeString(),
+        ]);
+    }
+
+    public function test_google_meet_rejects_a_jitsi_url_instead_of_mislabelling_the_provider(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.live-classes.store'), [
+                'course_id' => $course->id,
+                'title' => 'لینک ناسازگار',
+                'provider' => 'Google Meet',
+                'meeting_url' => 'https://meet.jit.si/not-a-google-meet',
+                'scheduled_at' => Carbon::now()->addDays(2)->toDateTimeString(),
+                'duration_minutes' => 30,
+            ])
+            ->assertSessionHasErrors('meeting_url');
+
+        $this->assertDatabaseMissing('live_classes', ['title' => 'لینک ناسازگار']);
     }
 
     public function test_live_class_creation_persists_a_calculated_end_time(): void
