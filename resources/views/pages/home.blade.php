@@ -10,7 +10,7 @@
             '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
         ]);
     @endphp
-{{-- Full-bleed editorial home hero; academy-managed banners remain a separate section below. --}}
+{{-- Full-bleed hero. Active academy-managed banners are rendered as its slides. --}}
     @include('components.branding.home-meraki-hero')
 
     {{-- Academy-managed banners now drive the hero carousel above; avoid duplicating them below. --}}
