@@ -11,9 +11,44 @@ final class LegacyWordPressPassword
 {
     private const ITOA64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
+    public function isLegacyHash(string $storedHash): bool
+    {
+        return str_starts_with($storedHash, '$wp$2y$')
+            || str_starts_with($storedHash, '$P$')
+            || str_starts_with($storedHash, '$H$');
+    }
+
+    public function supportsHashFormat(string $storedHash): bool
+    {
+        if (str_starts_with($storedHash, '$wp$2y$')) {
+            return strlen(substr($storedHash, 3)) === 60;
+        }
+
+        return (str_starts_with($storedHash, '$P$') || str_starts_with($storedHash, '$H$'))
+            && strlen($storedHash) === 34;
+    }
+
     public function verify(string $plain, string $storedHash): bool
     {
-        if (! str_starts_with($storedHash, '$P$') && ! str_starts_with($storedHash, '$H$')) {
+        if (str_starts_with($storedHash, '$wp$2y$')) {
+            if (!$this->supportsHashFormat($storedHash)) {
+                return false;
+            }
+
+            // WordPress 6.8+ pre-hashes with HMAC-SHA384, base64 encodes the
+            // bytes, and bcrypts that intermediate value. The wrapper is not
+            // cosmetic, so never validate by merely stripping it and checking
+            // the student's raw password with password_verify().
+            $prehashed = base64_encode(hash_hmac('sha384', $plain, 'wp-sha384', true));
+
+            return password_verify($prehashed, substr($storedHash, 3));
+        }
+
+        if (!str_starts_with($storedHash, '$P$') && !str_starts_with($storedHash, '$H$')) {
+            return false;
+        }
+
+        if (!$this->supportsHashFormat($storedHash)) {
             return false;
         }
 
