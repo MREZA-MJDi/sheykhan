@@ -14,13 +14,19 @@ class LegacyStudentImportTest extends TestCase
     public function test_import_is_dry_run_by_default_and_never_touches_unlisted_legacy_users(): void
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
-        $this->createUnrelatedLegacyUser();
+        $this->seed(\Database\Seeders\AcademicReferenceSeeder::class);
+        $this->seed(\Database\Seeders\AcademyFoundationSeeder::class);
+        $academyId = (int) DB::table('academies')->where('slug', 'sheykhan-academy')->value('id');
+        $this->assertGreaterThan(0, $academyId);
 
+        $this->createUnrelatedLegacyUser();
         $path = $this->makeSourceSql();
 
         try {
-            $this->artisan('sheykhan:import-legacy-students', ['source' => $path])
-                ->assertExitCode(0);
+            $this->artisan('sheykhan:import-legacy-students', [
+                'source' => $path,
+                '--academy-id' => $academyId,
+            ])->assertExitCode(0);
 
             $this->assertSame(
                 0,
@@ -35,6 +41,7 @@ class LegacyStudentImportTest extends TestCase
 
             $this->artisan('sheykhan:import-legacy-students', [
                 'source' => $path,
+                '--academy-id' => $academyId,
                 '--apply' => true,
             ])->assertExitCode(0);
 
@@ -76,9 +83,23 @@ class LegacyStudentImportTest extends TestCase
                 'status' => 'active',
             ]);
 
-            // A second run must not duplicate profiles, users or role links.
+            $this->assertSame(
+                55,
+                DB::table('academy_user')
+                    ->where('academy_id', $academyId)
+                    ->where('role', 'student')
+                    ->where('status', 'active')
+                    ->whereIn('user_id', DB::table('users')
+                        ->select('id')
+                        ->where('legacy_source', 'wordpress')
+                        ->whereBetween('legacy_id', [2001, 2055]))
+                    ->count()
+            );
+
+            // A second run must not duplicate profiles, users, role links or memberships.
             $this->artisan('sheykhan:import-legacy-students', [
                 'source' => $path,
+                '--academy-id' => $academyId,
                 '--apply' => true,
             ])->assertExitCode(0);
 
