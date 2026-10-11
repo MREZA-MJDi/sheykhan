@@ -62,6 +62,17 @@ final class SeoController extends Controller
             ->where('published_at', '<=', now())
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
+            ->where(function ($query): void {
+                $query->where('type', 'article')
+                    ->orWhere(function ($video): void {
+                        $video->where('type', 'video')
+                            ->whereHas('media', fn ($media) => $media
+                                ->where('media_attachments.collection', 'video')
+                                ->where('media.collection', 'video')
+                                ->where('media.visibility', 'public')
+                                ->where('media.status', 'active'));
+                    });
+            })
             ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
             ->with('academy:id,slug')
             ->get(['id', 'academy_id', 'slug', 'updated_at'])
