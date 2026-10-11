@@ -35,6 +35,7 @@ class ProductCatalogService
                 ->where('status', 'published')
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', now())
+                ->whereHas('category', fn ($query) => $query->where('is_active', true))
                 ->with([
                     'category:id,name,slug',
                     'media' => fn ($query) => $query
