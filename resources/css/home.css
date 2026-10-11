@@ -4098,3 +4098,144 @@ a.home-academy-item:hover { transform:translateX(-2px); border-color:#d8d2fc; ba
     .home-paths .home-path-grid > a:hover,.home-course-grid .edu-card:hover,.public-course-grid .edu-card:hover,
     .home-post-card:hover,.home-banner-card:hover,.home-store-card:hover,.home-product-card:hover,.home-achievement-card:hover { transform:none; }
 }
+
+
+/* HOMEPAGE POLISH — clearer section rhythm, colorful accents and fixed image frames. */
+.home-paths {
+    position: relative;
+    background:
+        radial-gradient(ellipse at 8% 0%, rgba(111, 99, 235, .075), transparent 24rem),
+        linear-gradient(105deg, #fbfbff 0%, #f2fbfa 54%, #fff8f0 100%);
+    border-block-color: #e3e8f2;
+}
+.home-paths::before {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #70cfc1 0%, #91adff 34%, #a995f3 68%, #ffc18a 100%);
+    content: "";
+}
+.home-path-grid {
+    gap: clamp(.55rem, 1.2vw, 1rem);
+    padding-block: clamp(1rem, 2vw, 1.4rem);
+}
+.home-path-grid a {
+    min-width: 0;
+    min-height: 125px;
+    margin-inline: 0;
+    border: 1px solid #e5e9f2;
+    border-inline-start: 1px solid #e5e9f2;
+    border-radius: 17px;
+    padding: clamp(.9rem, 1.6vw, 1.35rem);
+    background: rgba(255,255,255,.8);
+    box-shadow: 0 8px 22px rgba(27, 39, 76, .045);
+    backdrop-filter: blur(8px);
+    transition: transform .24s ease, border-color .24s ease, background .24s ease, box-shadow .24s ease;
+}
+.home-path-grid a:nth-child(4n + 1) { background: linear-gradient(145deg, #fff, #f4f1ff); }
+.home-path-grid a:nth-child(4n + 2) { background: linear-gradient(145deg, #fff, #effbf8); }
+.home-path-grid a:nth-child(4n + 3) { background: linear-gradient(145deg, #fff, #fff5eb); }
+.home-path-grid a:nth-child(4n + 4) { background: linear-gradient(145deg, #fff, #eef5ff); }
+.home-path-grid a:hover {
+    transform: translateY(-3px);
+    border-color: #d3d7f8;
+    box-shadow: 0 15px 30px rgba(27, 39, 76, .08);
+}
+.home-path-grid a b { color: #26334d; font-weight: 950; }
+.home-path-grid a span { color: #65728a; line-height: 1.9; }
+.home-path-grid a i { color: #6454d8; }
+
+.home-section.home-soft {
+    background:
+        radial-gradient(ellipse at 94% 4%, rgba(110, 94, 230, .055), transparent 27rem),
+        linear-gradient(180deg, #f8f9ff 0%, #f5fbfb 100%);
+    border-block-color: #e7ebf3;
+}
+.home-section.home-blog {
+    background:
+        radial-gradient(ellipse at 3% 0%, rgba(255, 190, 128, .12), transparent 25rem),
+        linear-gradient(180deg, #fffaf5 0%, #fbfaff 100%);
+}
+.home-heading > div > span,
+.home-heading > span {
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    max-width: 100%;
+    border: 1px solid #e7e2ff;
+    border-radius: 999px;
+    padding: .32rem .72rem;
+    background: linear-gradient(100deg, #f2efff, #eef9f8);
+    color: #5d4acb;
+    font-size: .74rem;
+    font-weight: 900;
+    line-height: 1.6;
+}
+.home-course-grid > .edu-card {
+    min-width: 0;
+    border-top: 3px solid #8171e8;
+}
+.home-course-grid > .edu-card:nth-child(3n + 2) { border-top-color: #48b8a6; }
+.home-course-grid > .edu-card:nth-child(3n + 3) { border-top-color: #f0aa62; }
+.home-course-grid > .edu-card > a:first-child,
+.home-course-grid > .edu-card > a:first-child > div:first-child { overflow: hidden; }
+.home-course-grid .edu-card img,
+.home-post-media img,
+.home-product-card > img,
+.home-achievement-card > img,
+.teacher-card__photo {
+    display: block;
+    object-fit: cover;
+}
+.home-post-media { aspect-ratio: 16 / 9; }
+.home-post-media img { width: 100%; height: 100%; object-position: center; }
+.home-product-card > img {
+    width: 100%;
+    height: clamp(155px, 17vw, 205px);
+    aspect-ratio: 4 / 3;
+    margin-bottom: .8rem;
+    background: linear-gradient(140deg, #ecebff, #e8f8f5 58%, #fff0e2);
+}
+.home-achievement-card > img,
+.home-achievement-placeholder {
+    width: 110px;
+    height: 130px;
+    min-width: 110px;
+    border-radius: 1rem;
+}
+.home-achievement-card > img { object-position: center; }
+.home-achievement-placeholder {
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.9);
+    background:
+        radial-gradient(circle at 25% 18%, rgba(255,255,255,.9), transparent 4rem),
+        linear-gradient(145deg, #eeeaff, #e5f7f4 58%, #fff0df);
+    color: #6855d9;
+    font-size: 2.4rem;
+    font-weight: 950;
+}
+.home-achievement-card:nth-child(3n + 2) .home-achievement-placeholder { color: #188d83; }
+.home-achievement-card:nth-child(3n + 3) .home-achievement-placeholder { color: #bd7437; }
+.home-post-card { border-color: #e6e8f1; }
+.home-post-card:nth-child(3n + 1) { border-top: 3px solid #8876e8; }
+.home-post-card:nth-child(3n + 2) { border-top: 3px solid #58bdaa; }
+.home-post-card:nth-child(3n + 3) { border-top: 3px solid #f0b16d; }
+.home-product-card:nth-child(3n + 1) { border-top: 3px solid #8876e8; }
+.home-product-card:nth-child(3n + 2) { border-top: 3px solid #58bdaa; }
+.home-product-card:nth-child(3n + 3) { border-top: 3px solid #f0b16d; }
+
+@media (max-width: 720px) {
+    .home-path-grid { gap: .6rem; padding-block: .85rem; }
+    .home-path-grid a { min-height: 106px; padding: .9rem; }
+    .home-achievement-card { grid-template-columns: 88px minmax(0, 1fr); }
+    .home-achievement-card > div { min-width: 0; }
+    .home-achievement-card > img,
+    .home-achievement-placeholder { width: 88px; min-width: 88px; height: 112px; }
+    .home-product-card > img { height: 180px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .home-path-grid a { transition: none !important; }
+    .home-path-grid a:hover { transform: none; }
+}

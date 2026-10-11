@@ -14,11 +14,11 @@
                 <span class="banner-kicker">{{ $academy->name }}</span>
                 <h1>کنترل تصویر صفحه اصلی</h1>
                 <p>
-                    تصویر را انتخاب کن، نقطهٔ تمرکز را تنظیم کن و پیش از ذخیره، همان قاب ۱۶:۹ و چیدمان کارت عمومی را ببین.
-                    فایل اصلی دست‌نخورده می‌ماند؛ فقط نحوهٔ نمایش در قاب تنظیم می‌شود.
+                    تصویر را انتخاب کن، نقطهٔ تمرکز را تنظیم کن و پیش از ذخیره، قاب دسکتاپ هیرو را ببین.
+                    فایل اصلی دست‌نخورده می‌ماند؛ تصویر در هیرو با رنگ اصلی و برش متناسب با قاب تمام‌عرض نمایش داده می‌شود.
                 </p>
                 <p class="banner-scope-note">
-                    این سه جایگاه، کارت‌های تصویری زیر بخش اصلی لندینگ هستند؛ تصویر تمام‌صفحهٔ ابتدای سایت و تصویر اشتراک‌گذاری SEO از مسیر جداگانه‌ای می‌آیند.
+                    این سه جایگاه، اسلایدهای هیرو در ابتدای صفحه اصلی‌اند. اسلایدهای فعال به ترتیب می‌چرخند؛ عنوان، متن، دکمه و نقطهٔ تمرکز هر اسلاید جداگانه ذخیره می‌شود.
                 </p>
             </div>
 
@@ -62,7 +62,7 @@
                                 value="1"
                                 @checked(old("banners.$slot.is_active", $banner?->is_active ?? false))
                             >
-                            <span>نمایش</span>
+                            <span>فعال در هیرو</span>
                         </label>
                     </div>
 
@@ -94,8 +94,8 @@
                                 </div>
                             </article>
                             <div class="banner-preview-caption">
-                                <strong>قاب نهایی سایت: ۱۶:۹</strong>
-                                <span data-banner-preview-dimensions>پس از انتخاب تصویر، ابعاد، نسبت و برش احتمالی نمایش داده می‌شود.</span>
+                                <strong>قاب دسکتاپ هیرو: تمام‌عرض</strong>
+                                <span data-banner-preview-dimensions>پیش‌نمایش قاب دسکتاپ است؛ در موبایل قاب بلندتر می‌شود. نقطه تمرکز را طوری تنظیم کن که سوژه اصلی دیده بماند.</span>
                             </div>
                             <div class="banner-crop-tools">
                                 <div class="banner-crop-head">
@@ -142,11 +142,11 @@
                                     data-banner-file
                                     data-allowed-extensions="jpg,jpeg,png,webp,avif"
                                     data-max-size-mb="5"
-                                    data-recommended-width="1600"
-                                    data-recommended-height="900"
+                                    data-recommended-width="1920"
+                                    data-recommended-height="800"
                                     aria-describedby="banner-file-help-{{ $slot }} banner-file-feedback-{{ $slot }}"
                                 >
-                                <small id="banner-file-help-{{ $slot }}">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت · پیشنهاد: ۱۶۰۰×۹۰۰ پیکسل</small>
+                                <small id="banner-file-help-{{ $slot }}">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت · پیشنهاد برای هیرو: ۱۹۲۰×۸۰۰ پیکسل</small>
                                 <span id="banner-file-feedback-{{ $slot }}" class="banner-file-feedback" data-banner-file-feedback role="status" aria-live="polite"></span>
                             </label>
 

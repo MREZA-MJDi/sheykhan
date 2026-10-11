@@ -10,52 +10,10 @@
             '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
         ]);
     @endphp
-{{-- Full-bleed editorial home hero; academy-managed banners remain a separate section below. --}}
+{{-- Full-bleed hero. Active academy-managed banners are rendered as its slides. --}}
     @include('components.branding.home-meraki-hero')
 
-    @if($homeBanners->isNotEmpty())
-        <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
-            <x-layout.container size="wide">
-                <div class="home-heading home-banner-heading">
-                    <div>
-                        <span>ویژه شیخان</span>
-                        <h2>چیزی تازه برای مسیر یادگیری.</h2>
-                        <p>بنرهای به‌روزشده آموزشگاه‌ها را ببین و مستقیم وارد محتوای مرتبط شو.</p>
-                    </div>
-                </div>
-
-                <div class="home-banner-grid">
-                    @foreach($homeBanners as $banner)
-                        <article class="home-banner-card">
-                            <div class="home-banner-media">
-                                <img
-                                    src="{{ $banner['image'] }}"
-                                    alt="{{ $banner['title'] ?: 'بنر شیخان' }}"
-                                    loading="{{ $loop->first ? 'eager' : 'lazy' }}"
-                                    style="object-position: {{ $banner['cropX'] }}% {{ $banner['cropY'] }}%;"
-                                >
-                                <span class="home-banner-academy">{{ $banner['academy'] ?: 'شیخان' }}</span>
-                            </div>
-                            <div class="home-banner-body">
-                                <div>
-                                    @if($banner['title'])
-                                        <h3>{{ $banner['title'] }}</h3>
-                                    @endif
-                                    @if($banner['description'])
-                                        <p>{{ $banner['description'] }}</p>
-                                    @endif
-                                </div>
-
-                                @if($banner['ctaUrl'] && $banner['ctaLabel'])
-                                    <a href="{{ $banner['ctaUrl'] }}" class="home-banner-link">{{ $banner['ctaLabel'] }} <span aria-hidden="true">←</span></a>
-                                @endif
-                            </div>
-                        </article>
-                    @endforeach
-                </div>
-            </x-layout.container>
-        </section>
-    @endif
+    {{-- Academy-managed banners now drive the hero carousel above; avoid duplicating them below. --}}
 
     {{-- Trust / paths --}}
     <section class="home-paths">
@@ -395,7 +353,9 @@
                 @forelse($achievementCards as $achievement)
                     <article class="home-achievement-card">
                         @if($achievement['image'])
-                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy">
+                            <img src="{{ $achievement['image'] }}" alt="{{ $achievement['name'] }}" loading="lazy" decoding="async">
+                        @else
+                            <div class="home-achievement-placeholder" aria-hidden="true">ش</div>
                         @endif
                         <div>
                             <span>{{ $achievement['type'] }}</span>

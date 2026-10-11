@@ -59,6 +59,109 @@ if (!window.__sheykhanAlpineBooted) {
 
         if (!root) return;
 
+        // Lightweight homepage hero carousel: no plugin, no page-wide polling.
+        const hero = root.querySelector('[data-home-hero]');
+        if (hero) {
+            const slides = Array.from(hero.querySelectorAll('[data-home-hero-slide]'));
+
+            if (slides.length > 1) {
+                const dots = Array.from(hero.querySelectorAll('[data-home-hero-dot]'));
+                const previousButton = hero.querySelector('[data-home-hero-prev]');
+                const nextButton = hero.querySelector('[data-home-hero-next]');
+                const count = hero.querySelector('[data-home-hero-count]');
+                const reducedMotion = typeof window.matchMedia === 'function'
+                    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+                    : { matches: false };
+                const numberFormat = new Intl.NumberFormat('fa-IR');
+                let activeIndex = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
+                let rotateTimer = null;
+
+                const stopRotation = () => {
+                    if (rotateTimer !== null) {
+                        window.clearInterval(rotateTimer);
+                        rotateTimer = null;
+                    }
+                };
+
+                const preloadSlide = (index) => {
+                    const image = slides[index]?.querySelector('img');
+                    if (!image || image.dataset.preloadRequested === 'true') return;
+
+                    image.dataset.preloadRequested = 'true';
+                    image.loading = 'eager';
+                    image.fetchPriority = 'low';
+
+                    // Promote only the next slide, rather than eager-loading every banner.
+                };
+
+                const activateSlide = (requestedIndex) => {
+                    activeIndex = (requestedIndex + slides.length) % slides.length;
+
+                    slides.forEach((slide, index) => {
+                        const active = index === activeIndex;
+                        slide.classList.toggle('is-active', active);
+                        slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+                    });
+
+                    dots.forEach((dot, index) => {
+                        const active = index === activeIndex;
+                        dot.classList.toggle('is-active', active);
+                        dot.setAttribute('aria-pressed', active ? 'true' : 'false');
+                    });
+
+                    if (count) {
+                        count.textContent = `${numberFormat.format(activeIndex + 1)} / ${numberFormat.format(slides.length)}`;
+                    }
+
+                    preloadSlide((activeIndex + 1) % slides.length);
+                };
+
+                const startRotation = () => {
+                    stopRotation();
+                    if (reducedMotion.matches || document.hidden) return;
+
+                    rotateTimer = window.setInterval(() => {
+                        activateSlide(activeIndex + 1);
+                    }, 6500);
+                };
+
+                previousButton?.addEventListener('click', () => {
+                    activateSlide(activeIndex - 1);
+                    startRotation();
+                });
+
+                nextButton?.addEventListener('click', () => {
+                    activateSlide(activeIndex + 1);
+                    startRotation();
+                });
+
+                dots.forEach((dot) => {
+                    dot.addEventListener('click', () => {
+                        activateSlide(Number(dot.dataset.index) || 0);
+                        startRotation();
+                    });
+                });
+
+                hero.addEventListener('mouseenter', stopRotation);
+                hero.addEventListener('mouseleave', startRotation);
+                hero.addEventListener('focusin', stopRotation);
+                hero.addEventListener('focusout', (event) => {
+                    if (!hero.contains(event.relatedTarget)) startRotation();
+                });
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) stopRotation();
+                    else startRotation();
+                });
+
+                if (typeof reducedMotion.addEventListener === 'function') {
+                    reducedMotion.addEventListener('change', startRotation);
+                }
+
+                activateSlide(activeIndex);
+                startRotation();
+            }
+        }
+
         root.querySelectorAll('[data-order-proof-form]').forEach((form) => {
             const input = form.querySelector('[data-proof-input]');
             const feedback = form.querySelector('[data-proof-file-name]');
