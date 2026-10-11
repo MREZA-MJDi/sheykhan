@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\Website\HomeHeroRequest;
-use App\Models\Academy;
 use App\Models\HomeHeroSetting;
 use App\Models\Media;
 use App\Services\HomeBannerService;
@@ -147,13 +146,11 @@ final class HomeHeroController extends Controller
 
     private function ensureOwnerHasWorkspace($owner, OwnerWorkspaceService $workspace): void
     {
-        // The public homepage is a platform-wide surface. Only the owner of the
-        // canonical platform academy may change it; academy owners still manage
-        // their own three lower-page banner slots through the existing screen.
-        $canManagePublicSite = $workspace->academies($owner)
-            ->contains(fn (Academy $academy): bool => $academy->slug === 'sheykhan-academy');
-
-        abort_unless($canManagePublicSite, 403);
+        // Sheykhan currently has one academy and no branch hierarchy. Any
+        // authenticated academy owner with an active owned academy can manage
+        // the shared homepage Hero; the route/FormRequest still enforce role
+        // and academy.manage permission.
+        abort_unless($workspace->academies($owner)->isNotEmpty(), 403);
     }
 
     private function deleteReplacedHeroMedia(array $mediaIds, MediaService $mediaService): void
