@@ -167,7 +167,7 @@ class LegacyStudentImportTest extends TestCase
         $statements = [];
         for ($index = 1; $index <= 55; $index++) {
             $legacyId = 2000 + $index;
-            $name = 'Imported student ' . $index;
+            $name = $index === 1 ? 'Student (test case)' : 'Imported student ' . $index;
             // Exercise both supported WordPress hash families without using any
             // of the actual private source's personal data or hashes.
             $hash = $index === 1
