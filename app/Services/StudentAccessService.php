@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\LiveClass;
+use App\Models\ClassSchedule;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -168,6 +169,62 @@ final class StudentAccessService
         }
 
         if ($liveClass->status !== 'scheduled') {
+            return false;
+        }
+
+        return now()->betweenIncluded($startsAt->copy()->subMinutes(15), $endsAt);
+    }
+
+
+    /**
+     * A recurring classroom slot is visible to a student only while the student
+     * has an active classroom membership and valid access to the course.
+     */
+    public function canJoinClassSchedule(User $student, ClassSchedule $schedule): bool
+    {
+        if (
+            ! $student->hasRole('student')
+            || blank($schedule->meeting_url)
+            || blank($schedule->provider)
+        ) {
+            return false;
+        }
+
+        $schedule->loadMissing(['classroom.course']);
+        $classroom = $schedule->classroom;
+        $course = $classroom?->course;
+
+        if (
+            ! $classroom
+            || $classroom->status !== 'active'
+            || ! $course
+            || ! $this->course($student, $course)
+            || ! $student->classroomsAsStudent()
+                ->whereKey($classroom->id)
+                ->wherePivot('status', 'active')
+                ->exists()
+        ) {
+            return false;
+        }
+
+        if ((int) $schedule->weekday !== (int) now()->dayOfWeek) {
+            return false;
+        }
+
+        $startParts = array_map('intval', explode(':', substr((string) $schedule->start_time, 0, 5)));
+        $endParts = array_map('intval', explode(':', substr((string) $schedule->end_time, 0, 5)));
+
+        if (count($startParts) !== 2 || count($endParts) !== 2) {
+            return false;
+        }
+
+        $startsAt = now()->copy()->startOfDay()->setTime($startParts[0], $startParts[1]);
+        $endsAt = now()->copy()->startOfDay()->setTime($endParts[0], $endParts[1]);
+
+        if (! app(MeetingLinkService::class)->urlMatchesProvider(
+            (string) $schedule->provider,
+            (string) $schedule->meeting_url,
+        )) {
             return false;
         }
 
