@@ -394,7 +394,7 @@ final class ImportLegacyStudents extends Command
             $char = $sql[$index];
 
             if ($quoted) {
-                if ($char === '\\\\' && $index + 1 < $length) {
+                if ($char === '\\' && $index + 1 < $length) {
                     $index++;
                     continue;
                 }
