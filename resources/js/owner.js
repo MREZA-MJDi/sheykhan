@@ -243,6 +243,7 @@ function bootBannerEditors() {
         const empty = slot.querySelector('[data-banner-preview-empty]');
         const file = slot.querySelector('[data-banner-file]');
         const select = slot.querySelector('[data-banner-media-select]');
+        const activeToggle = slot.querySelector('input[name$="[is_active]"]');
         const x = slot.querySelector('[data-crop-x]');
         const y = slot.querySelector('[data-crop-y]');
         const xOutput = slot.querySelector('[data-crop-x-output]');
@@ -419,6 +420,7 @@ function bootBannerEditors() {
         });
 
         select?.addEventListener('change', () => {
+            if (select.value && activeToggle) activeToggle.checked = true;
             releaseObjectUrl();
             if (file) file.value = '';
             if (fileMeta) fileMeta.hidden = true;
@@ -427,7 +429,7 @@ function bootBannerEditors() {
             const src = select.selectedOptions?.[0]?.dataset?.mediaUrl || initialSource;
             if (src) {
                 showImage(src);
-                setFileFeedback('این تصویر با همان قاب ۱۶:۹ کارت عمومی نمایش داده می‌شود.');
+                setFileFeedback('این تصویر پس از ذخیره، در اسلایدر تمام‌عرض هیرو نمایش داده می‌شود.');
             } else {
                 showEmpty();
             }
@@ -469,6 +471,7 @@ function bootBannerEditors() {
                 return;
             }
 
+            if (activeToggle) activeToggle.checked = true;
             releaseObjectUrl();
             objectUrl = URL.createObjectURL(selectedFile);
             if (fileMeta) fileMeta.hidden = false;
@@ -476,7 +479,7 @@ function bootBannerEditors() {
             if (fileSize) fileSize.textContent = formatSize(selectedFile.size);
             if (fileDimensions) fileDimensions.textContent = 'در حال خواندن ابعاد تصویر…';
             if (select) select.value = '';
-            setFileFeedback('این فایل در صورت ذخیره، تصویر بنر را جایگزین می‌کند.');
+            setFileFeedback('این تصویر پس از ذخیره در هیرو نمایش داده می‌شود؛ برای غیرفعال‌ماندن، گزینه «فعال در هیرو» را خاموش کن.');
 
             showImage(objectUrl, selectedFile);
         });
