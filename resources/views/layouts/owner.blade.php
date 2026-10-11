@@ -18,7 +18,8 @@
             <x-owner.feedback/>@yield('content')</main>
     </div>
 </div>
-<x-navigation.role-mobile-nav role="{{ auth()->user()?->hasRole('seo-specialist') && !auth()->user()?->hasRole('academy-owner') ? 'seo' : 'owner' }}" />
+@php($mobileNavigationRole = auth()->user()?->hasRole('seo-specialist') && !auth()->user()?->hasRole('academy-owner') ? 'seo' : 'owner')
+<x-navigation.role-mobile-nav :role="$mobileNavigationRole" />
 @stack('scripts')
 </body>
 </html>
