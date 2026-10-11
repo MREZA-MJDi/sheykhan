@@ -126,9 +126,6 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->middleware('permission:academy.view')->name('website.index');
     Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->middleware('permission:academy.view')->name('website.hero.edit');
     Route::patch('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'update'])->middleware('permission:academy.manage')->name('website.hero.update');
-    Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->middleware('permission:seo.manage')->name('seo.index');
-    Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->middleware('permission:seo.manage')->name('seo.edit');
-    Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->middleware('permission:seo.manage')->name('seo.update');
     Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->middleware('permission:content.manage')->name('content.index');
     Route::get('/academy/{academy}/showcase', [\App\Http\Controllers\Owner\ShowcaseController::class, 'index'])->middleware('permission:content.manage')->name('showcase.index');
     Route::post('/academy/{academy}/achievements', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeAchievement'])->middleware(['permission:content.manage','throttle:10,1'])->name('achievements.store');
@@ -255,6 +252,16 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
 });
+
+Route::middleware(['auth','active','permission:seo.manage'])
+    ->prefix('owner')
+    ->name('owner.')
+    ->group(function () {
+        // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
+        Route::get('/seo', [\\App\\Http\\Controllers\\Owner\\SeoController::class, 'index'])->name('seo.index');
+        Route::get('/seo/{type}/{id}/edit', [\\App\\Http\\Controllers\\Owner\\SeoController::class, 'edit'])->name('seo.edit');
+        Route::patch('/seo/{type}/{id}', [\\App\\Http\\Controllers\\Owner\\SeoController::class, 'update'])->name('seo.update');
+    });
 
 /*
 |--------------------------------------------------------------------------
