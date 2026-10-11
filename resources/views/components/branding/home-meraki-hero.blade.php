@@ -21,7 +21,9 @@
 
 <section
     class="sheykhan-home-hero"
+    role="region"
     aria-label="معرفی شیخان"
+    aria-labelledby="sheykhan-home-hero-title"
     aria-roledescription="carousel"
     data-home-hero
 >
