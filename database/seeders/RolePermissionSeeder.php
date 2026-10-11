@@ -118,6 +118,10 @@ class RolePermissionSeeder extends Seeder
                 'audit.view',
             ],
 
+            'seo-specialist' => [
+                'dashboard.view','seo.manage',
+            ],
+
             'teacher' => [
                 'dashboard.view','academy.view',
                 'courses.view','courses.manage',
@@ -163,6 +167,7 @@ class RolePermissionSeeder extends Seeder
 
         $roleMeta = [
             'academy-owner'=>['name'=>'مدیر آموزشگاه','description'=>'مدیریت کامل آموزشگاه'],
+            'seo-specialist'=>['name'=>'متخصص SEO','description'=>'مدیریت SEO صفحات عمومی سایت بدون دسترسی به عملیات آموزشگاه'],
             'teacher'=>['name'=>'مدرس','description'=>'مدیریت محتوای آموزشی و فعالیت‌های آموزشی مرتبط'],
             'student'=>['name'=>'دانش‌آموز','description'=>'دسترسی به آموزش‌ها و فعالیت‌های شخصی آموزشی'],
             'parent'=>['name'=>'والد','description'=>'پیگیری آموزش، حضور و عملکرد فرزند'],
