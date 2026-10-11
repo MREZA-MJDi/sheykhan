@@ -45,21 +45,24 @@ class Academy extends Model
     {
         return $this->belongsToMany(User::class)
             ->wherePivot('role', 'teacher')
-            ->withPivot(['status', 'joined_at']);
+            ->withPivot(['status', 'joined_at'])
+            ->withTimestamps();
     }
 
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->wherePivot('role', 'student')
-            ->withPivot(['status', 'joined_at']);
+            ->withPivot(['status', 'joined_at'])
+            ->withTimestamps();
     }
 
     public function parents(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->wherePivot('role', 'parent')
-            ->withPivot(['status', 'joined_at']);
+            ->withPivot(['status', 'joined_at'])
+            ->withTimestamps();
     }
 
     public function courses(): HasMany
