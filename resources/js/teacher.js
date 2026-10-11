@@ -83,6 +83,82 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Resolve the provider immediately in the form. Jitsi can use a unique
+    // room name without API credentials; Google Meet and Zoom need a real URL
+    // created by the user in the provider's own service.
+    document.querySelectorAll('[data-meeting-provider-form]').forEach((form) => {
+        const providerSelect = form.querySelector('[data-meeting-provider]');
+        const meetingUrl = form.querySelector('[data-meeting-url]');
+        const help = form.querySelector('[data-meeting-provider-help]');
+
+        if (!providerSelect || !meetingUrl) return;
+
+        const makeJitsiUrl = () => {
+            const bytes = new Uint8Array(18);
+
+            if (window.crypto?.getRandomValues) {
+                window.crypto.getRandomValues(bytes);
+            } else {
+                for (let index = 0; index < bytes.length; index++) {
+                    bytes[index] = Math.floor(Math.random() * 256);
+                }
+            }
+
+            const roomId = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+            return 'https://meet.jit.si/Sheykhan-' + roomId;
+        };
+
+        const isJitsiUrl = (value) => {
+            try {
+                const url = new URL(value);
+                return url.protocol === 'https:' && url.hostname === 'meet.jit.si';
+            } catch {
+                return false;
+            }
+        };
+
+        const syncMeetingProvider = () => {
+            const provider = providerSelect.value;
+
+            if (provider === 'Jitsi') {
+                if (!isJitsiUrl(meetingUrl.value)) {
+                    meetingUrl.value = makeJitsiUrl();
+                }
+
+                meetingUrl.readOnly = true;
+                meetingUrl.required = false;
+                meetingUrl.placeholder = 'لینک یکتای Jitsi ساخته شد';
+                if (help) {
+                    help.textContent = 'لینک یکتای Jitsi همین حالا ساخته شد. این لینک برای همین جلسه یا بازه هفتگی ثابت می‌ماند.';
+                }
+                return;
+            }
+
+            if (isJitsiUrl(meetingUrl.value)) {
+                meetingUrl.value = '';
+            }
+
+            meetingUrl.readOnly = false;
+            meetingUrl.required = Boolean(provider);
+
+            const guidance = {
+                'Google Meet': 'جلسه را در Google Meet بساز، لینک واقعی meet.google.com را کپی کن و اینجا قرار بده. شیخان بدون اتصال OAuth/Calendar نمی‌تواند از طرف حساب گوگل جلسه بسازد.',
+                'Zoom': 'جلسه را در Zoom بساز، لینک شرکت‌کننده را کپی کن و اینجا قرار بده. ساخت خودکار جلسه Zoom به اتصال رسمی و مجوز حساب نیاز دارد که فعلاً تنظیم نشده است.',
+                'سایر': 'لینک HTTPS واقعی سرویس را اینجا قرار بده.',
+            };
+
+            meetingUrl.placeholder = provider === 'Google Meet'
+                ? 'https://meet.google.com/abc-defg-hij'
+                : (provider === 'Zoom' ? 'https://zoom.us/j/...' : 'https://...');
+            if (help) {
+                help.textContent = guidance[provider] || 'ابتدا سرویس را انتخاب کن.';
+            }
+        };
+
+        providerSelect.addEventListener('change', syncMeetingProvider);
+        syncMeetingProvider();
+    });
+
     const dashboard = document.querySelector('[data-teacher-dashboard]');
 
     if (dashboard) {
