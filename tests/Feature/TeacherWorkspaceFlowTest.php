@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Course;
+use App\Models\Academy;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\MeetingLinkService;
 use Carbon\Carbon;
@@ -44,6 +46,44 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.courses.progress', $course))
             ->assertOk();
+    }
+
+    public function test_teacher_routes_show_only_assigned_courses_even_when_account_also_has_owner_role(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $academy = Academy::where('slug', 'sheykhan-academy')->firstOrFail();
+        $academy->update(['owner_id' => $teacher->id]);
+
+        // Reproduce the dual-role edge case that previously made the shared
+        // course query return every course in an owned academy.
+        $ownerRole = Role::where('slug', 'academy-owner')->firstOrFail();
+        $teacher->roles()->syncWithoutDetaching([$ownerRole->id]);
+        $teacher->unsetRelation('roles');
+
+        $assignedCourse = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $unassignedCourse = Course::where('slug', 'science-foundation-8')->firstOrFail();
+
+        $response = $this->actingAs($teacher)
+            ->get(route('teacher.courses.index'))
+            ->assertOk()
+            ->assertSee('ریاضی پایه هفتم')
+            ->assertDontSee('علوم پایه هشتم')
+            ->assertDontSee('آمادگی تیزهوشان پایه نهم');
+
+        $ids = app(\App\Services\CourseManagementService::class)
+            ->coursesForTeacherPaginated($teacher)
+            ->getCollection()
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $this->assertSame([$assignedCourse->id], $ids);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.courses.edit', $unassignedCourse))
+            ->assertForbidden();
     }
 
     public function test_teacher_can_create_a_course_section_for_owned_course(): void
