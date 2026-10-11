@@ -29,6 +29,62 @@ final class CourseManagementService
             ->get();
     }
 
+    /**
+     * Academies where the authenticated user is an active teacher.
+     *
+     * Deliberately does not treat academy ownership as teacher assignment:
+     * /teacher routes must not inherit broader owner visibility when an account
+     * happens to carry both roles.
+     */
+    public function teacherAccessibleAcademies(User $teacher)
+    {
+        return Academy::query()
+            ->where('status', 'active')
+            ->whereHas('users', fn ($membership) => $membership
+                ->whereKey($teacher->id)
+                ->where('academy_user.role', 'teacher')
+                ->where('academy_user.status', 'active'))
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function coursesForTeacherPaginated(User $teacher, int $perPage = 12)
+    {
+        abort_unless($teacher->hasRole('teacher'), 403);
+
+        return $teacher->taughtCourses()
+            ->whereHas('academy', fn ($query) => $query
+                ->where('status', 'active')
+                ->whereHas('users', fn ($membership) => $membership
+                    ->whereKey($teacher->id)
+                    ->where('academy_user.role', 'teacher')
+                    ->where('academy_user.status', 'active')))
+            ->withCount([
+                'sections',
+                'classrooms',
+                'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
+            ])
+            ->with('academy:id,name')
+            ->latest('courses.updated_at')
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    public function teacherCanManage(User $teacher, Course $course): bool
+    {
+        if (
+            ! $teacher->hasRole('teacher')
+            || ! $teacher->hasPermission('courses.manage')
+            || ! $this->isActiveTeacherMember($teacher, (int) $course->academy_id)
+        ) {
+            return false;
+        }
+
+        return $teacher->taughtCourses()
+            ->whereKey($course->id)
+            ->exists();
+    }
+
     public function canView(User $user, Course $course): bool
     {
         if (!$user->hasPermission('courses.view')) {

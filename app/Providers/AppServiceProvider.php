@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
+use App\Auth\LegacyAwareUserProvider;
 use App\Models\Media;
 use App\Policies\MediaPolicy;
 use App\Models\AcademicGrade;
@@ -25,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Auth::provider('legacy-aware-eloquent', function ($app, array $config) {
+            return new LegacyAwareUserProvider($app['hash'], $config['model']);
+        });
+
         Gate::policy(Media::class, MediaPolicy::class);
 
         View::composer('components.navigation.navbar', function ($view): void {

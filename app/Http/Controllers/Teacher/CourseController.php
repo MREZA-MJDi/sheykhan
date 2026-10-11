@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Owner\Course\StoreCourseRequest;
-use App\Http\Requests\Owner\Course\UpdateCourseRequest;
+use App\Http\Requests\Teacher\StoreCourseRequest;
+use App\Http\Requests\Teacher\UpdateCourseRequest;
 use App\Models\Course;
 use App\Services\CourseManagementService;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +15,7 @@ class CourseController extends Controller
     public function index(CourseManagementService $service): View
     {
         return view('teacher.courses.index', [
-            'courses' => $service->coursesForPaginated(request()->user()),
+            'courses' => $service->coursesForTeacherPaginated(request()->user()),
         ]);
     }
 
@@ -23,7 +23,7 @@ class CourseController extends Controller
     {
         return view('teacher.courses.form', [
             'course' => new Course(),
-            'academies' => $service->accessibleAcademies(request()->user()),
+            'academies' => $service->teacherAccessibleAcademies(request()->user()),
         ]);
     }
 
@@ -37,14 +37,14 @@ class CourseController extends Controller
 
     public function edit(Course $course, CourseManagementService $service): View
     {
-        abort_unless($service->canManage(request()->user(), $course), 403);
+        abort_unless($service->teacherCanManage(request()->user(), $course), 403);
 
         return view('teacher.courses.form', [
             'course' => $course->load([
                 'academy',
                 'media' => fn ($query) => $query->orderByPivot('sort_order'),
             ]),
-            'academies' => $service->accessibleAcademies(request()->user()),
+            'academies' => $service->teacherAccessibleAcademies(request()->user()),
         ]);
     }
 

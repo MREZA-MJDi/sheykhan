@@ -121,3 +121,63 @@ Owner:
 - robots/sitemap → valid public endpoints
 - Banner crop → only focal position changes
 - Mobile role navigation → route/permission contract preserved
+
+## 10. تفکیک دوره، گروه، برنامه هفتگی و جلسه آنلاین
+
+این چهار مفهوم عمداً جدا هستند:
+
+- Course: مسیر آموزشی و مجموعه درس‌ها.
+- Classroom: گروه دانش‌آموزان مرتبط با Course؛ محدودیت اعضا و مدرس‌ها در این مدل اعمال می‌شود.
+- ClassSchedule: زمان تکرارشونده در هفته برای Classroom، شامل weekday، start_time، end_time، provider و meeting_url.
+- LiveClass: جلسه تاریخ‌دار با scheduled_at، duration_minutes، scheduled_end_at، status، provider و meeting_url.
+
+برنامه هفتگی را برای زمان ثابتی مانند هر سه‌شنبه عصر ثبت کنید. LiveClass برای یک جلسه با تاریخ مشخص است. اگر جلسه ویژه‌ای خارج از برنامه هفتگی ساخته می‌شود، آن را به‌عنوان LiveClass جدید ثبت کنید؛ Course صرفاً با ایجاد شدن جلسه‌دار نمی‌شود.
+
+## 11. لینک سرویس جلسه
+
+MeetingLinkService منبع مشترک قواعد provider است.
+
+- Jitsi: لینک اتاق یکتا می‌تواند فوراً در فرم ساخته شود؛ اگر درخواست سمت کاربر URL نداشته باشد، backend نیز لینک تولید می‌کند.
+- Google Meet: لینک واقعی شرکت‌کننده که در Google Meet ساخته شده باید وارد شود.
+- Zoom: لینک واقعی شرکت‌کننده که در Zoom ساخته شده باید وارد شود.
+- سایر: لینک HTTPS واقعی سرویس ثبت می‌شود.
+
+شیخان در کد فعلی اتصال OAuth/Calendar API گوگل یا API/مجوز Zoom را ندارد. انتخاب Google Meet یا Zoom نباید یک URL جعلی بسازد و به‌عنوان جلسه معتبر نمایش داده شود.
+
+در ClassSchedule، همان URL برای هر بار تکرار همان برنامه استفاده می‌شود. در LiveClass، URL متعلق به همان جلسه تاریخ‌دار است.
+
+## 12. قواعد ورود به جلسه
+
+یک دکمه در UI به‌تنهایی authorization نیست. هر دو route ورود باید در backend دوباره دسترسی را بررسی کنند.
+
+LiveClass:
+- نقش Student و Course access معتبر؛
+- اگر Classroom انتخاب شده، membership فعال در همان گروه؛
+- جلسه لغو نشده و لینک/زمان معتبر؛
+- ورود از ۱۵ دقیقه قبل شروع تا پایان محاسبه‌شدهٔ جلسه؛
+- وضعیت جلسه scheduled یا live.
+
+ClassSchedule:
+- نقش Student و Course access معتبر؛
+- Classroom فعال و membership فعال دانش‌آموز؛
+- weekday رکورد برابر روز فعلی؛
+- بازه ورود از ۱۵ دقیقه پیش از شروع تا پایان آن برنامه؛
+- provider و URL سازگار.
+
+## 13. مسیرهای اصلی کلاس آنلاین
+
+Teacher:
+- /teacher/courses: دوره‌ها
+- /teacher/classrooms: گروه‌ها
+- /teacher/schedule: زمان‌های تکرارشونده
+- /teacher/live-classes: جلسه‌های تاریخ‌دار
+- /teacher/live-classes/create: ساخت جلسه
+- /teacher/live-classes/{liveClass}/recording: بارگذاری ضبط
+
+Student:
+- /student/courses: دوره‌های در دسترس
+- /student/live-classes: نشست‌های تاریخ‌دار و برنامه هفتگی در دو بخش
+- /student/live-classes/{liveClass}/join: ورود به LiveClass
+- /student/weekly-schedule/{schedule}/join: ورود به بازه ClassSchedule
+
+شرح کامل جریان، Providerها، محدودیت‌ها و تست دستی در ONLINE_CLASSES_AND_SCHEDULES_FA.md است. کاتالوگ کلی قابلیت‌ها در FEATURE_CATALOG_FA.md و route/permission reference در ROUTES_AND_PERMISSIONS_FA.md است.

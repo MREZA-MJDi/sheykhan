@@ -79,3 +79,28 @@ php artisan db:seed --class=DemoDatabaseSeeder
 ```
 
 Before merge, also verify Owner CRUD for students, courses, classrooms, lessons, resources, products, orders, achievements and testimonials.
+
+
+## LiveClass و ClassSchedule
+
+این دامنه دو جدول مرتبط اما متفاوت دارد:
+
+### live_classes
+یک رویداد تاریخ‌دار است و شامل course_id، classroom_id اختیاری، teacher_id، title، description، provider، meeting_url، scheduled_at، duration_minutes و status است. Migration ضبط جلسه فیلدهای recording_media_id و recording_released_at، recording_visibility، scheduled_end_at، started_at و ended_at را تکمیل می‌کند.
+
+### class_schedules
+یک بازه هفتگی برای Classroom است: classroom_id، weekday، start_time، end_time، room، meeting_url و provider. Migration افزوده‌شده provider را برای رکوردهای قبلی با مقدار پیش‌فرض Jitsi تکمیل می‌کند؛ لینک‌های قدیمی دست‌نخورده می‌مانند.
+
+### روابط و قاعده دسترسی
+- Course ظرف محتوا و درس است.
+- Classroom گروه دانش‌آموزان و مدرس‌های مرتبط با Course است.
+- ClassSchedule اتاق/زمان تکرارشونده را مشخص می‌کند و برای همهٔ هفته‌ها همان URL را به کار می‌برد.
+- LiveClass یک زمان دقیق و مستقل دارد و می‌تواند به Classroom خاص محدود شود یا در scope Course باشد.
+- StudentAccessService کنترل می‌کند Enrollment و پرداخت Course، عضویت Classroom، زمان مجاز و provider/url با هم سازگار باشند.
+- فایل ضبط‌شده در Media خصوصی نگهداری می‌شود و زمان انتشار آن تعیین می‌کند چه زمانی قابل مشاهده باشد.
+
+Provider:
+- Jitsi: URL اتاق یکتا از سمت شیخان ساخته می‌شود؛ اتاق در Jitsi با نام آن استفاده می‌شود.
+- Google Meet و Zoom: تنها URL واقعی ساخته‌شده در سرویس بیرونی ذخیره می‌شود تا یک URL حدسی اشتباهاً به‌عنوان جلسه واقعی ثبت نشود.
+
+Migration افزوده‌شده برای provider را به شکل backward-compatible اجرا کنید. برای rollout ابتدا نسخه‌ای مستقر شود که migration جدید را اجرا کند، سپس کد جدید را فعال کنید. در Deploy باید هم‌زمان migration و build/route cache طبق رویه Production پاک/بازسازی شود.

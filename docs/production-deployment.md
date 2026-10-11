@@ -27,5 +27,22 @@ The pre-deploy snapshots live on the same server disk and are rollback aids, not
 7. Upload approved, real materials. Placeholder seed content is not a substitute for academy-provided assets.
 8. Verify recordings, resource access, purchased downloads, watermark output, mail delivery, scheduled jobs, backup alerts and error monitoring.
 
+## Post-deploy smoke tests for online classes
+
+After a release that includes the online-class provider or weekly-schedule migration:
+
+1. Verify the provider migration completed with php artisan migrate:status and confirm class_schedules has the provider column.
+2. As a teacher, select Jitsi on the weekly schedule form and verify a unique meet.jit.si URL appears before saving.
+3. Create a dated Jitsi LiveClass and verify that the URL and scheduled_end_at are persisted.
+4. If testing Google Meet or Zoom, create a real participant link in that provider first, then submit it in Sheykhan. A provider selection without a real URL is expected to show validation feedback; no Google/Zoom API integration is configured by this release.
+5. As an enrolled student with active classroom membership, verify the fixed weekly timetable and dated LiveClass are shown as separate sections; verify the Join action is unavailable outside the allowed time window.
+6. Check that a student outside the class, without eligible course access, or before the release time cannot open the room or private recording.
+7. Inspect Laravel logs and reverse-proxy logs if any page returns HTTP 500. Do not expose APP_DEBUG on the public site.
+
+Persian operational references:
+- docs/FEATURE_CATALOG_FA.md
+- docs/ONLINE_CLASSES_AND_SCHEDULES_FA.md
+- docs/ROUTES_AND_PERMISSIONS_FA.md
+
 ## Rollback
 Do not blindly roll back a database migration if users have created records on the new schema. Restore the verified backup or run a reviewed forward-fix migration. Keep the previous release/build available and record the deployed commit SHA.

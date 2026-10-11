@@ -78,7 +78,7 @@ final class TeacherWorkspaceService
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with([
                 'course:id,title',
-                'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
+                'schedules:id,classroom_id,weekday,start_time,end_time,room,provider,meeting_url',
             ])
             ->orderBy('title')
             ->get();

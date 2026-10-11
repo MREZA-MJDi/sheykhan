@@ -14,6 +14,11 @@ use Illuminate\Validation\ValidationException;
 
 final class AuthService
 {
+    public function __construct(
+        private readonly LegacyWordPressPassword $legacyPasswords,
+    ) {
+    }
+
     public function login(array $credentials, bool $remember = false): User
     {
         $identifier = trim((string) ($credentials['identifier'] ?? ''));
@@ -21,10 +26,34 @@ final class AuthService
             ? User::query()->whereRaw('LOWER(email) = ?', [Str::lower($identifier)])->first()
             : User::query()->where('mobile', $this->normalizeMobile($identifier))->first();
 
-        if (!$user || $user->status !== 'active' || $user->deleted_at !== null || !Hash::check((string) ($credentials['password'] ?? ''), (string) $user->password)) {
+        // The verified legacy export contains students without email/mobile.
+        // Their original WordPress numeric ID is an alternate identifier, never
+        // a substitute for the password check.
+        if (!$user && ctype_digit($identifier)) {
+            $user = User::query()
+                ->where('legacy_source', 'wordpress')
+                ->where('legacy_id', (int) $identifier)
+                ->first();
+        }
+
+        $plainPassword = (string) ($credentials['password'] ?? '');
+        $isLegacyHash = $user && $this->legacyPasswords->isLegacyHash((string) $user->password);
+        $passwordValid = $user
+            ? ($isLegacyHash
+                ? $this->legacyPasswords->verify($plainPassword, (string) $user->password)
+                : Hash::check($plainPassword, (string) $user->password))
+            : false;
+
+        if (!$user || $user->status !== 'active' || $user->deleted_at !== null || !$passwordValid) {
             throw ValidationException::withMessages([
                 'identifier' => 'اطلاعات ورود صحیح نیست یا این حساب فعال نیست.',
             ]);
+        }
+
+        // Upgrade a verified WordPress hash to the configured Laravel hasher
+        // immediately, so the legacy verifier is needed only for first login.
+        if ($isLegacyHash) {
+            $user->forceFill(['password' => Hash::make($plainPassword)])->save();
         }
 
         Auth::login($user, $remember);

@@ -62,37 +62,65 @@ class AcademyFoundationSeeder extends Seeder
     private function runDemoFoundation(): void
     {
         $owner = $this->user('owner@sheykhan.test', 'مدیر آکادمی شیخان', 'owner', 'academy-owner');
-        $teacher = $this->user('teacher.math@sheykhan.test', 'سمیه احمدی', 'teacher-math', 'teacher');
-        $student = $this->user('student.armin@sheykhan.test', 'آرین محمدی', 'student-armin', 'student');
+
+        $teacherDefinitions = [
+            ['teacher.math@sheykhan.test', 'سمیه احمدی', 'teacher-math', 'ریاضی'],
+            ['teacher.science@sheykhan.test', 'علی رضایی', 'teacher-science', 'علوم'],
+            ['teacher.gifted@sheykhan.test', 'نگار کریمی', 'teacher-gifted', 'آمادگی تیزهوشان'],
+        ];
+
+        $teachers = collect();
+        foreach ($teacherDefinitions as [$email, $name, $key, $specialization]) {
+            $teacher = $this->user($email, $name, $key, 'teacher');
+
+            TeacherProfile::firstOrCreate(['user_id' => $teacher->id], [
+                'bio' => 'مدرس آکادمی شیخان با تمرکز بر آموزش مفهومی و حل مسئله.',
+                'specialization' => $specialization,
+                'education' => 'کارشناسی مرتبط',
+                'experience_years' => 7,
+                'is_verified' => true,
+                'is_public' => true,
+            ]);
+
+            $teachers->push($teacher);
+        }
+
+        $studentDefinitions = [
+            ['student.armin@sheykhan.test', 'آرین محمدی', 'student-armin', 'SH-1001', '7'],
+            ['student.nika@sheykhan.test', 'نیکا حسینی', 'student-nika', 'SH-1002', '8'],
+            ['student.parsa@sheykhan.test', 'پارسا رضایی', 'student-parsa', 'SH-1003', '9'],
+            ['student.ava@sheykhan.test', 'آوا محمدی', 'student-ava', 'SH-1004', '7'],
+            ['student.matin@sheykhan.test', 'متین احمدی', 'student-matin', 'SH-1005', '8'],
+            ['student.tara@sheykhan.test', 'تارا کریمی', 'student-tara', 'SH-1006', '9'],
+        ];
+
+        $students = collect();
+        foreach ($studentDefinitions as [$email, $name, $key, $number, $gradeCode]) {
+            $student = $this->user($email, $name, $key, 'student');
+            $grade = AcademicGrade::where('code', $gradeCode)->firstOrFail();
+
+            StudentProfile::firstOrCreate(['user_id' => $student->id], [
+                'student_number' => $number,
+                'birth_date' => '2013-05-10',
+                'grade' => $grade->title,
+                'grade_id' => $grade->id,
+                'school_name' => 'مدرسه منتخب شیخان',
+                'bio' => 'دانش‌آموز نمونه آکادمی شیخان.',
+                'registration_source' => 'admin',
+                'onboarded_at' => now()->subMonths(2),
+                'status' => 'active',
+            ]);
+
+            $students->push($student);
+        }
+
         $parent = $this->user('parent.armin@sheykhan.test', 'مریم محمدی', 'parent-armin', 'parent');
-
-        TeacherProfile::firstOrCreate(['user_id' => $teacher->id], [
-            'bio' => 'مدرس آکادمی شیخان با تمرکز بر آموزش مفهومی و حل مسئله.',
-            'specialization' => 'ریاضی',
-            'education' => 'کارشناسی مرتبط',
-            'experience_years' => 7,
-            'is_verified' => true,
-        ]);
-
-        $grade = AcademicGrade::where('code', '7')->firstOrFail();
-        StudentProfile::firstOrCreate(['user_id' => $student->id], [
-            'student_number' => 'SH-1001',
-            'birth_date' => '2013-05-10',
-            'grade' => $grade->title,
-            'grade_id' => $grade->id,
-            'school_name' => 'مدرسه منتخب شیخان',
-            'bio' => 'دانش‌آموز نمونه آکادمی شیخان.',
-            'registration_source' => 'admin',
-            'onboarded_at' => now()->subMonths(2),
-            'status' => 'active',
-        ]);
-
         ParentProfile::firstOrCreate(['user_id' => $parent->id], [
             'occupation' => 'والد',
             'relation_default' => 'مادر',
         ]);
         $parent->children()->syncWithoutDetaching([
-            $student->id => ['relation' => 'مادر'],
+            $students->first()->id => ['relation' => 'مادر'],
         ]);
 
         $academy = Academy::firstOrCreate(['slug' => 'sheykhan-academy'], [
@@ -109,14 +137,22 @@ class AcademyFoundationSeeder extends Seeder
             'status' => 'active',
         ]);
 
-        foreach ([
-            $owner->id => 'owner',
-            $teacher->id => 'teacher',
-            $student->id => 'student',
-            $parent->id => 'parent',
-        ] as $userId => $role) {
+        $members = [$owner->id => 'owner'];
+        foreach ($teachers as $teacher) {
+            $members[$teacher->id] = 'teacher';
+        }
+        foreach ($students as $student) {
+            $members[$student->id] = 'student';
+        }
+        $members[$parent->id] = 'parent';
+
+        foreach ($members as $userId => $role) {
             $academy->users()->syncWithoutDetaching([
-                $userId => ['role' => $role, 'status' => 'active', 'joined_at' => now()],
+                $userId => [
+                    'role' => $role,
+                    'status' => 'active',
+                    'joined_at' => now(),
+                ],
             ]);
         }
     }

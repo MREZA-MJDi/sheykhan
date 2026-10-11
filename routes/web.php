@@ -232,6 +232,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 
     Route::get('/live-classes', [StudentLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
     Route::get('/live-classes/{liveClass}/join', [StudentLiveClassController::class, 'join'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('live-classes.join');
+    Route::get('/weekly-schedule/{schedule}/join', [StudentLiveClassController::class, 'joinSchedule'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('schedule.join');
 
     Route::get('/attendance', [StudentAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
     Route::get('/results', [StudentResultController::class, 'index'])->middleware('permission:results.view')->name('results.index');

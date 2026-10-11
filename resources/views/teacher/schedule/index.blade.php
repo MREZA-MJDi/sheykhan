@@ -24,7 +24,7 @@
         <div class="teacher-workspace-card-head">
             <div><h2>افزودن زمان ثابت</h2><p>هر ردیف یک بازه تکرارشونده در هفته است.</p></div>
         </div>
-        <form method="POST" action="{{ route('teacher.schedule.store') }}" class="teacher-workspace-form-grid">
+        <form method="POST" action="{{ route('teacher.schedule.store') }}" class="teacher-workspace-form-grid" data-meeting-provider-form>
             @csrf
             <label class="teacher-workspace-field">
                 <span>کلاس</span>
@@ -46,13 +46,21 @@
             <label class="teacher-workspace-field"><span>شروع</span><input type="time" name="start_time" value="{{ old('start_time') }}" required></label>
             <label class="teacher-workspace-field"><span>پایان</span><input type="time" name="end_time" value="{{ old('end_time') }}" required></label>
             <label class="teacher-workspace-field"><span>اتاق / عنوان جلسه <small>اختیاری</small></span><input name="room" value="{{ old('room') }}" placeholder="مثلاً کلاس ۳"></label>
-            <div class="teacher-workspace-field teacher-schedule-auto-link" style="grid-column:1/-1">
-                <span>لینک جلسه آنلاین <small>خودکار</small></span>
-                <div class="teacher-schedule-auto-link-box">
-                    <span dir="ltr">پس از ثبت، یک اتاق امن Jitsi به‌صورت خودکار ساخته می‌شود.</span>
-                    <strong>نیازی به ساخت یا وارد کردن لینک دستی نیست.</strong>
-                </div>
-            </div>
+            <label class="teacher-workspace-field">
+                <span>سرویس جلسه</span>
+                <select name="provider" data-meeting-provider required>
+                    <option value="">انتخاب سرویس</option>
+                    <option value="Jitsi" @selected(old('provider') === 'Jitsi')>Jitsi · ساخت خودکار لینک</option>
+                    <option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option>
+                    <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
+                    <option value="سایر" @selected(old('provider') === 'سایر')>سایر سرویس‌ها</option>
+                </select>
+            </label>
+            <label class="teacher-workspace-field" style="grid-column:1/-1">
+                <span>لینک اتاق تکرارشونده</span>
+                <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url') }}" placeholder="ابتدا سرویس را انتخاب کن" autocomplete="url" aria-describedby="weekly-meeting-link-help">
+                <small id="weekly-meeting-link-help" data-meeting-provider-help role="status" aria-live="polite">این لینک برای هر هفتهٔ همین بازه زمانی ثابت می‌ماند.</small>
+            </label>
             <div class="teacher-workspace-actions" style="grid-column:1/-1;justify-content:flex-end">
                 <button type="submit" class="teacher-workspace-btn primary">افزودن به برنامه</button>
             </div>
@@ -74,6 +82,7 @@
                                 <div class="teacher-workspace-item-meta">
                                     <span>{{ App\Support\PersianUi::digits(Illuminate\Support\Carbon::parse($schedule->start_time)->format('H:i')) }} تا {{ App\Support\PersianUi::digits(Illuminate\Support\Carbon::parse($schedule->end_time)->format('H:i')) }}</span>
                                     <span>{{ $schedule->room ?: 'بدون اتاق' }}</span>
+                                    <span>{{ $schedule->provider ?: 'سرویس ثبت‌نشده' }}</span>
                                     @if($schedule->meeting_url)<span>جلسه آنلاین</span>@endif
                                 </div>
                             </div>

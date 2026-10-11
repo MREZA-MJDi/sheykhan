@@ -42,6 +42,19 @@ php artisan test
 ## Files, media and production
 Review upload validation, storage disk settings, access policies, and role middleware before deploying student/course media. Keep private recordings and student information behind authorization checks; never assume that an unlisted URL is sufficient access control. Back up the database and uploaded files before releases.
 
+## Product and developer documentation
+
+The Persian documentation index is [docs/README-fa.md](docs/README-fa.md).
+
+- [Feature catalog and role workflows](docs/FEATURE_CATALOG_FA.md)
+- [Online classes, weekly schedules, providers and student join rules](docs/ONLINE_CLASSES_AND_SCHEDULES_FA.md)
+- [Routes and permissions reference](docs/ROUTES_AND_PERMISSIONS_FA.md)
+- [Platform role workflow](docs/platform-workflow.md)
+- [Database schema reference](docs/database-schema.md)
+- [Production deployment](docs/production-deployment.md)
+
+The online meeting workflow distinguishes a course, a classroom/group, a recurring weekly schedule and a date-specific live session. Jitsi room URLs can be generated without provider API credentials; Google Meet and Zoom require a real URL created in the provider until their official API/OAuth integrations are configured.
+
 ## Links
 - Repository: https://github.com/MREZA-MJDi/sheykhan
 - Laravel documentation: https://laravel.com/docs/12.x

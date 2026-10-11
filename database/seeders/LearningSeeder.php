@@ -33,15 +33,13 @@ class LearningSeeder extends Seeder
         $owner=User::where('email','owner@sheykhan.test')->firstOrFail();
         $teacherEmails = ['teacher.math@sheykhan.test', 'teacher.science@sheykhan.test', 'teacher.gifted@sheykhan.test'];
         $studentEmails = ['student.armin@sheykhan.test', 'student.nika@sheykhan.test', 'student.parsa@sheykhan.test', 'student.ava@sheykhan.test', 'student.matin@sheykhan.test', 'student.tara@sheykhan.test'];
-        $primaryTeacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
-        $primaryStudent = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        // In local/demo seeding, map the sample workflows to the single demo login per role.
-        // In testing, the dedicated fixtures above remain available for role/grade coverage.
+        // Demo users must be distinct. Falling back to one account silently joins
+        // unrelated courses, classrooms and student rosters, hiding authorization bugs.
         $teachers = collect($teacherEmails)->mapWithKeys(fn (string $email) => [
-            $email => User::where('email', $email)->first() ?? $primaryTeacher,
+            $email => User::where('email', $email)->firstOrFail(),
         ]);
         $students = collect($studentEmails)->mapWithKeys(fn (string $email) => [
-            $email => User::where('email', $email)->first() ?? $primaryStudent,
+            $email => User::where('email', $email)->firstOrFail(),
         ]);
         $grades=AcademicGrade::get()->keyBy('code');
         $year=AcademicYear::where('title','1405-1406')->firstOrFail();
@@ -58,7 +56,8 @@ class LearningSeeder extends Seeder
                 'level'=>'متوسط','status'=>'published','access_type'=>'paid','price'=>$d['price'],'duration_minutes'=>1440,'published_at'=>now()->subDays(20)
             ]);
             $course->grades()->syncWithoutDetaching([$grades[$d['grade']]->id]);
-            $course->teachers()->syncWithoutDetaching([$teachers[$d['teacher']]->id=>['is_primary'=>true]]);
+            // Each demo course has one intentionally assigned primary teacher.
+            $course->teachers()->sync([$teachers[$d['teacher']]->id => ['is_primary' => true]]);
             $section=CourseSection::firstOrCreate(['course_id'=>$course->id,'sort_order'=>1],['title'=>'بخش اول: شروع مسیر','description'=>'مفاهیم پایه و شروع مسیر آموزشی.']);
             foreach(['آشنایی با مسیر یادگیری','مفاهیم کلیدی','حل نمونه سؤال','جمع‌بندی و تکلیف'] as $i=>$title){
                 $lesson=Lesson::firstOrCreate(['course_section_id'=>$section->id,'slug'=>$d['slug'].'-lesson-'.($i+1)],[
@@ -85,17 +84,68 @@ class LearningSeeder extends Seeder
                 'course_id'=>$courses->get($d['course'])->id,'grade_id'=>$grades[$d['grade']]->id,'academic_year_id'=>$year->id,
                 'title'=>$d['title'],'description'=>'کلاس فعال آموزشی برای تمرین، تعامل با مدرس و پیگیری منظم وضعیت دانش‌آموزان.','capacity'=>20,'status'=>'active','starts_at'=>now()->subMonth(),'ends_at'=>now()->addMonths(8)
             ]);
-            $c->teachers()->syncWithoutDetaching([$teachers[$d['teacher']]->id]);
+            // Re-seeding repairs accidental cross-course teacher pivots.
+            $c->teachers()->sync([$teachers[$d['teacher']]->id]);
+            $expectedStudentIds = [];
             foreach($d['students'] as $email){
-                $s=$students[$email];
-                $c->students()->syncWithoutDetaching([$s->id=>['status'=>'active','enrolled_at'=>now()->subMonth()]]);
-                CourseEnrollment::firstOrCreate(['course_id'=>$courses->get($d['course'])->id,'student_id'=>$s->id,'academic_year_id'=>$year->id],[
-                    'classroom_id'=>$c->id,'registered_by'=>$owner->id,'registration_source'=>'admin','status'=>'active','paid_amount'=>$courses->get($d['course'])->price,'started_at'=>now()->subMonth()
-                ]);
-                Attendance::firstOrCreate(['classroom_id'=>$c->id,'student_id'=>$s->id,'attendance_date'=>now()->subDays(3)->toDateString()],[
-                    'marked_by'=>$teachers[$d['teacher']]->id,'status'=>'present'
-                ]);
+                $s = $students[$email];
+                $expectedStudentIds[] = (int) $s->id;
+
+                CourseEnrollment::updateOrCreate(
+                    [
+                        'course_id' => $courses->get($d['course'])->id,
+                        'student_id' => $s->id,
+                        'academic_year_id' => $year->id,
+                    ],
+                    [
+                        'classroom_id' => $c->id,
+                        'registered_by' => $owner->id,
+                        'registration_source' => 'admin',
+                        'status' => 'active',
+                        'payment_status' => 'paid',
+                        'price_amount' => $courses->get($d['course'])->price,
+                        'paid_amount' => $courses->get($d['course'])->price,
+                        'started_at' => now()->subMonth(),
+                        'completed_at' => null,
+                    ]
+                );
+
+                Attendance::firstOrCreate(
+                    [
+                        'classroom_id' => $c->id,
+                        'student_id' => $s->id,
+                        'attendance_date' => now()->subDays(3)->toDateString(),
+                    ],
+                    [
+                        'marked_by' => $teachers[$d['teacher']]->id,
+                        'status' => 'present',
+                    ]
+                );
             }
+
+            // The Classroom roster is the explicit cohort membership, not every
+            // student who has ever purchased the Course.
+            $c->students()->sync(collect($expectedStudentIds)->mapWithKeys(
+                fn (int $studentId) => [$studentId => [
+                    'status' => 'active',
+                    'enrolled_at' => now()->subMonth(),
+                    'completed_at' => null,
+                ]]
+            )->all());
+
+            // Preserve historic demo enrollment rows, but cancel a row that was
+            // created only because the old fallback reused the same student in
+            // a different sample Course. Never delete enrollment history.
+            CourseEnrollment::query()
+                ->where('course_id', $courses->get($d['course'])->id)
+                ->whereIn('student_id', $students->pluck('id'))
+                ->whereNotIn('student_id', $expectedStudentIds)
+                ->where('status', 'active')
+                ->update([
+                    'status' => 'cancelled',
+                    'classroom_id' => null,
+                    'completed_at' => now(),
+                ]);
             ClassSchedule::firstOrCreate(['classroom_id'=>$c->id,'weekday'=>2],['start_time'=>'17:00','end_time'=>'18:30','room'=>'کلاس آنلاین','meeting_url'=>'https://meet.jit.si/Sheykhan-'.$d['code']]);
             $classrooms->push($c);
         }

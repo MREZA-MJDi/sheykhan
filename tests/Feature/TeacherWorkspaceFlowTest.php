@@ -5,7 +5,10 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Course;
+use App\Models\Academy;
+use App\Models\Role;
 use App\Models\User;
+use App\Services\MeetingLinkService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -43,6 +46,44 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.courses.progress', $course))
             ->assertOk();
+    }
+
+    public function test_teacher_routes_show_only_assigned_courses_even_when_account_also_has_owner_role(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $academy = Academy::where('slug', 'sheykhan-academy')->firstOrFail();
+        $academy->update(['owner_id' => $teacher->id]);
+
+        // Reproduce the dual-role edge case that previously made the shared
+        // course query return every course in an owned academy.
+        $ownerRole = Role::where('slug', 'academy-owner')->firstOrFail();
+        $teacher->roles()->syncWithoutDetaching([$ownerRole->id]);
+        $teacher->unsetRelation('roles');
+
+        $assignedCourse = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $unassignedCourse = Course::where('slug', 'science-foundation-8')->firstOrFail();
+
+        $response = $this->actingAs($teacher)
+            ->get(route('teacher.courses.index'))
+            ->assertOk()
+            ->assertSee('ریاضی پایه هفتم')
+            ->assertDontSee('علوم پایه هشتم')
+            ->assertDontSee('آمادگی تیزهوشان پایه نهم');
+
+        $ids = app(\App\Services\CourseManagementService::class)
+            ->coursesForTeacherPaginated($teacher)
+            ->getCollection()
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $this->assertSame([$assignedCourse->id], $ids);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.courses.edit', $unassignedCourse))
+            ->assertForbidden();
     }
 
     public function test_teacher_can_create_a_course_section_for_owned_course(): void
@@ -108,6 +149,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->post(route('teacher.schedule.store'), [
                 'classroom_id' => $classroom->id,
                 'weekday' => 6,
+                'provider' => 'Jitsi',
                 'start_time' => '10:00',
                 'end_time' => '11:00',
             ])
@@ -128,6 +170,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->post(route('teacher.schedule.store'), [
                 'classroom_id' => $classroom->id,
                 'weekday' => 6,
+                'provider' => 'Jitsi',
                 'start_time' => '09:00',
                 'end_time' => '10:30',
                 'room' => 'کلاس آنلاین',
@@ -136,8 +179,100 @@ class TeacherWorkspaceFlowTest extends TestCase
 
         $schedule = $classroom->schedules()->where('weekday', 6)->latest('id')->firstOrFail();
 
+        $this->assertSame('Jitsi', $schedule->provider);
         $this->assertStringStartsWith('https://meet.jit.si/Sheykhan-', (string) $schedule->meeting_url);
         $this->assertGreaterThan(20, strlen((string) $schedule->meeting_url));
+    }
+
+    public function test_weekly_schedule_keeps_a_real_google_meet_link_and_provider(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
+
+        $url = 'https://meet.google.com/abc-defg-hij';
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.schedule.store'), [
+                'classroom_id' => $classroom->id,
+                'weekday' => 5,
+                'start_time' => '23:00',
+                'end_time' => '23:30',
+                'provider' => 'Google Meet',
+                'meeting_url' => $url,
+                'room' => 'جلسه Meet',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('class_schedules', [
+            'classroom_id' => $classroom->id,
+            'weekday' => 5,
+            'provider' => 'Google Meet',
+            'meeting_url' => $url,
+        ]);
+    }
+
+    public function test_live_class_creation_generates_a_jitsi_link_when_provider_is_selected_without_a_url(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $scheduledAt = Carbon::now()->addDays(2)->setTime(18, 0, 0);
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.live-classes.store'), [
+                'course_id' => $course->id,
+                'title' => 'جلسه Jitsi خودکار',
+                'provider' => 'Jitsi',
+                'scheduled_at' => $scheduledAt->toDateTimeString(),
+                'duration_minutes' => 45,
+            ])
+            ->assertRedirect(route('teacher.live-classes.index'))
+            ->assertSessionHasNoErrors();
+
+        $class = \App\Models\LiveClass::query()->where('title', 'جلسه Jitsi خودکار')->firstOrFail();
+        $this->assertStringStartsWith('https://meet.jit.si/Sheykhan-', (string) $class->meeting_url);
+        $this->assertDatabaseHas('live_classes', [
+            'id' => $class->id,
+            'provider' => 'Jitsi',
+            'scheduled_end_at' => $scheduledAt->copy()->addMinutes(45)->toDateTimeString(),
+        ]);
+    }
+
+    public function test_google_meet_rejects_a_jitsi_url_instead_of_mislabelling_the_provider(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.live-classes.store'), [
+                'course_id' => $course->id,
+                'title' => 'لینک ناسازگار',
+                'provider' => 'Google Meet',
+                'meeting_url' => 'https://meet.jit.si/not-a-google-meet',
+                'scheduled_at' => Carbon::now()->addDays(2)->toDateTimeString(),
+                'duration_minutes' => 30,
+            ])
+            ->assertSessionHasErrors('meeting_url');
+
+        $this->assertDatabaseMissing('live_classes', ['title' => 'لینک ناسازگار']);
+    }
+
+    public function test_meeting_link_service_requires_a_room_path_for_known_providers(): void
+    {
+        $service = app(MeetingLinkService::class);
+
+        $this->assertFalse($service->urlMatchesProvider('Jitsi', 'https://meet.jit.si'));
+        $this->assertFalse($service->urlMatchesProvider('Google Meet', 'https://meet.google.com'));
+        $this->assertFalse($service->urlMatchesProvider('Zoom', 'https://zoom.us'));
+
+        $this->assertTrue($service->urlMatchesProvider('Jitsi', 'https://meet.jit.si/Sheykhan-test-room'));
+        $this->assertTrue($service->urlMatchesProvider('Google Meet', 'https://meet.google.com/abc-defg-hij'));
+        $this->assertTrue($service->urlMatchesProvider('Zoom', 'https://us02web.zoom.us/j/123456789'));
     }
 
     public function test_live_class_creation_persists_a_calculated_end_time(): void
