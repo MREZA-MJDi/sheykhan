@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\Website\HomeHeroRequest;
+use App\Models\Academy;
 use App\Models\HomeHeroSetting;
 use App\Models\Media;
 use App\Services\HomeBannerService;
