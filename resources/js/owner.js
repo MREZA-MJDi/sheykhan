@@ -979,8 +979,11 @@ document.addEventListener('DOMContentLoaded', bootOwnerResourcePreview);
 // Responsive public homepage hero editor: preview locally before upload and keep
 // desktop/mobile focal points independent without introducing another dependency.
 function bootHomeHeroEditor() {
-    const form = document.querySelector('[data-home-hero-editor]');
-    if (!form || form.dataset.homeHeroEditorBound === 'true') return;
+    const forms = document.querySelectorAll('[data-home-hero-editor]');
+    if (!forms.length) return;
+
+    forms.forEach((form) => {
+    if (form.dataset.homeHeroEditorBound === 'true') return;
     form.dataset.homeHeroEditorBound = 'true';
 
     const desktopInput = form.querySelector('[data-home-hero-file="desktop"]');
@@ -1044,7 +1047,7 @@ function bootHomeHeroEditor() {
         const mobileInfo = form.querySelector('[data-home-hero-mobile-info]');
         if (mobileInfo) {
             mobileInfo.textContent = restoreDefault?.checked
-                ? 'تصویر پیش‌فرض در هر دو قاب استفاده می‌شود.'
+                ? 'این اسلاید پس از ذخیره حذف می‌شود.'
                 : objectUrls.mobile
                     ? 'پیش‌نمایش فایل جدید موبایل؛ هنوز روی سایت منتشر نشده است.'
                     : currentSources.mobile && !removeMobile?.checked
@@ -1059,7 +1062,7 @@ function bootHomeHeroEditor() {
         if (removeMobile) removeMobile.disabled = restoring;
         const desktopInfo = form.querySelector('[data-home-hero-desktop-info]');
         if (desktopInfo) desktopInfo.textContent = restoring
-            ? 'تصویر پیش‌فرض در صورت ذخیره جایگزین می‌شود.'
+            ? 'این اسلاید پس از ذخیره حذف می‌شود.'
             : 'تصویر فعلی در کادر عریض نمایش داده می‌شود.';
         refreshPreviews();
         updatePositions();
@@ -1203,10 +1206,11 @@ function bootHomeHeroEditor() {
     window.addEventListener('pagehide', () => {
         releaseObjectUrl('desktop');
         releaseObjectUrl('mobile');
-    }, { once: true });
+    });
 
     refreshPreviews();
     updatePositions();
     syncRestoreState();
+    });
 }
 document.addEventListener('DOMContentLoaded', bootHomeHeroEditor);
