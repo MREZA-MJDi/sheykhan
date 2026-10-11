@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Academy;
 use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -59,10 +60,25 @@ class LegacyStudentImportTest extends TestCase
             );
 
             $studentRoleId = Role::where('slug', 'student')->value('id');
+            $importedUserIds = DB::table('users')
+                ->select('id')
+                ->where('legacy_source', 'wordpress')
+                ->whereBetween('legacy_id', [2001, 2055]);
+
             $this->assertSame(
                 55,
                 DB::table('role_user')
                     ->where('role_id', $studentRoleId)
+                    ->whereIn('user_id', $importedUserIds)
+                    ->count()
+            );
+
+            $this->assertSame(
+                55,
+                DB::table('academy_user')
+                    ->where('academy_id', $academyId)
+                    ->where('role', 'student')
+                    ->where('status', 'active')
                     ->whereIn('user_id', DB::table('users')
                         ->select('id')
                         ->where('legacy_source', 'wordpress')
