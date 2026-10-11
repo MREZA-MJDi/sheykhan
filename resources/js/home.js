@@ -63,12 +63,9 @@ if (!window.__sheykhanAlpineBooted) {
 
                     image.dataset.preloadRequested = 'true';
                     image.loading = 'eager';
+                    image.fetchPriority = 'low';
 
-                    // Warm at most one upcoming image so the next transition is smooth
-                    // without fetching every full-size banner immediately.
-                    const preload = new Image();
-                    preload.decoding = 'async';
-                    preload.src = image.currentSrc || image.src;
+                    // Promote only the next slide, rather than eager-loading every banner.
                 };
 
                 const activateSlide = (requestedIndex) => {
