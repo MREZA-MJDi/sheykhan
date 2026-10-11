@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\BlogPost;
+use App\Models\Course;
 use App\Models\FinancialTransaction;
 use App\Models\Permission;
 use App\Models\Product;
@@ -18,6 +19,80 @@ use Tests\TestCase;
 class OwnerBlogFinanceSeoIsolationTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_owner_seo_index_renders_real_content_in_the_shared_panel(): void
+    {
+        [$owner, $academy] = $this->ownerWithPermissions(['seo.manage', 'academy.view', 'blog.manage', 'content.manage']);
+
+        $course = Course::query()->create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره SEO آزمایشی',
+            'slug' => 'seo-course-' . Str::random(7),
+            'short_description' => 'توضیح کوتاه',
+            'description' => 'محتوای تست',
+            'level' => 'متوسط',
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'duration_minutes' => 30,
+            'published_at' => now()->subMinute(),
+        ]);
+
+        $post = BlogPost::query()->create([
+            'author_id' => $owner->id,
+            'title' => 'مقاله SEO آزمایشی',
+            'slug' => 'seo-post-' . Str::random(7),
+            'content' => 'محتوای تست',
+            'status' => 'draft',
+        ]);
+
+        $category = $academy->academyContentCategories()->create([
+            'title' => 'محتوای SEO',
+            'slug' => 'seo-content-' . Str::random(7),
+            'is_active' => true,
+        ]);
+
+        $item = $academy->academyContents()->create([
+            'category_id' => $category->id,
+            'type' => 'article',
+            'title' => 'محتوای آموزشگاه SEO',
+            'slug' => 'seo-academy-content-' . Str::random(7),
+            'body' => 'محتوای تست',
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+            'created_by' => $owner->id,
+        ]);
+
+        $routes = [
+            route('owner.blog.index'),
+            route('owner.blog.create'),
+            route('owner.blog.edit', $post),
+            route('owner.content.index'),
+            route('owner.content.create'),
+            route('owner.content.edit', $item),
+            route('owner.seo.index'),
+            route('owner.seo.edit', ['course', $course->id]),
+            route('owner.seo.edit', ['blog', $post->id]),
+            route('owner.seo.edit', ['content', $item->id]),
+            route('owner.seo.edit', ['academy', $academy->id]),
+        ];
+
+        foreach ($routes as $url) {
+            $this->actingAs($owner)->get($url)->assertOk();
+        }
+
+        $response = $this->actingAs($owner)
+            ->get(route('owner.seo.index'))
+            ->assertOk()
+            ->assertSee('SEO و دیده‌شدن')
+            ->assertSee('دوره SEO آزمایشی')
+            ->assertSee('مقاله SEO آزمایشی')
+            ->assertSee('محتوای آموزشگاه SEO')
+            ->assertSee('role-sidebar owner-sidebar', false);
+
+        $response->assertSee(route('owner.seo.index'), false);
+    }
 
     public function test_owner_can_manage_own_blog_post_but_not_another_owner_post(): void
     {

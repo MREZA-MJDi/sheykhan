@@ -34,7 +34,7 @@ final class OwnerSeoService
 
         $contents = AcademyContent::query()
             ->whereHas('academy', fn ($query) => $query->where('owner_id', $owner->id))
-            ->with(['academy:id,name', 'seoMeta'])
+            ->with(['academy:id,name,slug', 'seoMeta'])
             ->orderByDesc('updated_at')
             ->limit(50)
             ->get();
@@ -366,7 +366,7 @@ final class OwnerSeoService
         $score = (int) round(($filled / count($fields)) * 100);
         $url = match ($type) {
             'course' => route('courses.show', $model),
-            'content' => $model->academy ? route('academy.content.show', [$model->academy, $model]) : null,
+            'content' => $model->academy ? route('academy.content.show', [$model->academy->slug, $model->slug]) : null,
             'blog' => route('blog.show', $model->slug),
             'product' => route('store.product.show', $model),
             'teacher' => route('teachers.show', $model),

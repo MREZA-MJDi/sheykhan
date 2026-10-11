@@ -136,13 +136,13 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::post('/academy/{academy}/resources', [\App\Http\Controllers\Owner\LearningResourceController::class, 'store'])->middleware(['permission:content.manage','throttle:10,1'])->name('resources.store');
     Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->middleware('permission:content.manage')->name('content.create');
     Route::post('/content', [\App\Http\Controllers\Owner\ContentController::class, 'store'])->middleware('permission:content.manage')->name('content.store');
-    Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->middleware('permission:content.manage')->name('content.edit');
-    Route::patch('/content/{content}', [\App\Http\Controllers\Owner\ContentController::class, 'update'])->middleware('permission:content.manage')->name('content.update');
+    Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->whereNumber('content')->middleware('permission:content.manage')->name('content.edit');
+    Route::patch('/content/{content}', [\App\Http\Controllers\Owner\ContentController::class, 'update'])->whereNumber('content')->middleware('permission:content.manage')->name('content.update');
     Route::get('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'index'])->middleware('permission:blog.manage')->name('blog.index');
     Route::get('/blog/create', [\App\Http\Controllers\Owner\BlogController::class, 'create'])->middleware('permission:blog.manage')->name('blog.create');
     Route::post('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'store'])->middleware('permission:blog.manage')->name('blog.store');
-    Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->middleware('permission:blog.manage')->name('blog.edit');
-    Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->middleware('permission:blog.manage')->name('blog.update');
+    Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->whereNumber('post')->middleware('permission:blog.manage')->name('blog.edit');
+    Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->whereNumber('post')->middleware('permission:blog.manage')->name('blog.update');
     Route::get('/academy/{academy}/products', [\App\Http\Controllers\Owner\ProductManagementController::class, 'index'])->middleware('permission:products.view')->name('products.index');
     Route::post('/academy/{academy}/products', [\App\Http\Controllers\Owner\ProductManagementController::class, 'store'])->middleware(['permission:products.manage','throttle:10,1'])->name('products.store');
     Route::patch('/academy/{academy}/products/{product}/publish', [\App\Http\Controllers\Owner\ProductManagementController::class, 'publish'])->middleware('permission:products.manage')->name('products.publish');
@@ -259,8 +259,8 @@ Route::middleware(['auth','active','permission:seo.manage'])
     ->group(function () {
         // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
         Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('seo.index');
-        Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->name('seo.edit');
-        Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->name('seo.update');
+        Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.edit');
+        Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.update');
     });
 
 /*

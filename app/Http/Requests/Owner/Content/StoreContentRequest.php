@@ -16,7 +16,13 @@ final class StoreContentRequest extends FormRequest
     {
         return [
             'academy_id' => ['required','integer', Rule::in($this->ownedAcademyIds())],
-            'category_id' => ['required','integer','exists:academy_content_categories,id'],
+            'category_id' => [
+                'required',
+                'integer',
+                Rule::exists('academy_content_categories', 'id')
+                    ->where('academy_id', (int) $this->input('academy_id'))
+                    ->where('is_active', true),
+            ],
             'type' => ['required', Rule::in(['article','video'])],
             'title' => ['required','string','max:255'],
             'slug' => ['nullable','string','max:255','alpha_dash'],

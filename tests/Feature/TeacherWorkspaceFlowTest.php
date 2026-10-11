@@ -202,13 +202,24 @@ class TeacherWorkspaceFlowTest extends TestCase
         $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
         $student = $classroom->students()->wherePivot('status', 'active')->firstOrFail();
 
-        Attendance::create([
-            'classroom_id' => $classroom->id,
-            'student_id' => $student->id,
+        $attendance = Attendance::query()
+            ->where('classroom_id', $classroom->id)
+            ->where('student_id', $student->id)
+            ->whereDate('attendance_date', '2026-10-08')
+            ->first();
+
+        if (! $attendance) {
+            $attendance = new Attendance([
+                'classroom_id' => $classroom->id,
+                'student_id' => $student->id,
+                'attendance_date' => '2026-10-08',
+            ]);
+        }
+
+        $attendance->forceFill([
             'marked_by' => $teacher->id,
-            'attendance_date' => '2026-10-08',
             'status' => 'absent',
-        ]);
+        ])->save();
 
         $attendanceUrl = route('teacher.classrooms.attendance.edit', $classroom)
             . '?attendance_date=2026-10-08';
