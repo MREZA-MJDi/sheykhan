@@ -15,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 final class AuthService
 {
     public function __construct(
-        private readonly LegacyWordPressPasswordService $legacyPasswords,
+        private readonly LegacyWordPressPassword $legacyPasswords,
     ) {
     }
 
