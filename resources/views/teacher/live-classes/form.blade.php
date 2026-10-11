@@ -3,7 +3,7 @@
 @section('header-title','ایجاد جلسه آنلاین')
 @section('content')
 @php($calendar = App\Support\PersianUi::calendar(now()))
-<div class="teacher-live-form" data-live-class-form
+<div class="teacher-live-form" data-live-class-form data-meeting-provider-form
      data-jalali-year="{{ $calendar['year'] }}"
      data-jalali-month="{{ $calendar['month'] }}"
      data-jalali-day="{{ $calendar['day'] }}">
@@ -81,19 +81,19 @@
             </div>
             <label>
                 <span>سرویس جلسه</span>
-                <select name="provider" data-provider>
+                <select name="provider" data-meeting-provider required>
                     <option value="">انتخاب سرویس</option>
                     <option value="Jitsi" @selected(old('provider') === 'Jitsi')>Jitsi</option>
                     <option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option>
                     <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
                     <option value="سایر" @selected(old('provider') === 'سایر')>سایر</option>
                 </select>
-                <em>مثلاً اگر جلسه را در Google Meet ساخته‌ای، همین گزینه را انتخاب کن.</em>
+                <em>Jitsi لینک یکتا را بلافاصله می‌سازد؛ Google Meet و Zoom به لینک واقعی ساخته‌شده در همان سرویس نیاز دارند.</em>
             </label>
             <label>
                 <span>لینک ورود دانش‌آموزان</span>
-                <input type="url" name="meeting_url" value="{{ old('meeting_url') }}" placeholder="https://meet.google.com/..." autocomplete="url">
-                <em>این همان لینکی است که دانش‌آموز با زدن «ورود به جلسه» باز می‌کند.</em>
+                <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url') }}" placeholder="ابتدا سرویس را انتخاب کن" autocomplete="url" aria-describedby="live-meeting-link-help">
+                <em id="live-meeting-link-help" data-meeting-provider-help role="status" aria-live="polite">سرویس را انتخاب کن تا روش ساخت لینک مشخص شود.</em>
             </label>
         </section>
 
