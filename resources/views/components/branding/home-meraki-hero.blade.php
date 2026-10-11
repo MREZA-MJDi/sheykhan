@@ -1,13 +1,15 @@
 @php
-    // Public, active academy banners are the hero carousel source.
-    // Keep a single lightweight fallback slide until a banner is configured.
-    $heroSlides = collect($homeBanners ?? [])
-        ->filter(fn ($banner) => filled($banner['image'] ?? null))
+    // Hero slides come only from HomeHeroSlide; academy banners are rendered separately below.
+    $heroSlides = collect($homeHeroSlides ?? [])
+        ->filter(fn ($slide) => filled($slide['image'] ?? null))
         ->values();
+
+    $fallbackImage = asset('images/home/hero-fallback.svg');
 
     if ($heroSlides->isEmpty()) {
         $heroSlides = collect([[
-            'image' => 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=85',
+            'image' => $fallbackImage,
+            'mobileImage' => null,
             'academy' => 'شیخان؛ آموزش، رشد، آینده',
             'title' => null,
             'description' => null,
@@ -15,6 +17,8 @@
             'ctaUrl' => null,
             'cropX' => 50,
             'cropY' => 46,
+            'mobileCropX' => 54,
+            'mobileCropY' => 50,
         ]]);
     }
 @endphp
@@ -36,16 +40,28 @@
                 data-home-hero-slide
                 aria-hidden="{{ $loop->first ? 'false' : 'true' }}"
                 aria-label="اسلاید {{ $loop->iteration }} از {{ $loop->count }}"
+                style="--hero-crop-x: {{ (int) ($slide['cropX'] ?? 50) }}%; --hero-crop-y: {{ (int) ($slide['cropY'] ?? 46) }}%; --hero-mobile-crop-x: {{ (int) ($slide['mobileCropX'] ?? 54) }}%; --hero-mobile-crop-y: {{ (int) ($slide['mobileCropY'] ?? 50) }}%;"
             >
                 <div class="sheykhan-home-hero__media" aria-hidden="true">
-                    <img
-                        src="{{ $slide['image'] }}"
-                        alt=""
-                        decoding="async"
-                        loading="{{ $loop->first ? 'eager' : 'lazy' }}"
-                        fetchpriority="{{ $loop->first ? 'high' : 'low' }}"
-                        style="object-position: {{ (int) ($slide['cropX'] ?? 50) }}% {{ (int) ($slide['cropY'] ?? 50) }}%;"
-                    >
+                    <picture>
+                        @if(filled($slide['mobileImage'] ?? null))
+                            <source
+                                srcset="{{ $slide['mobileImage'] }}"
+                                media="(max-width: 640px)"
+                                data-home-hero-mobile-source
+                            >
+                        @endif
+                        <img
+                            src="{{ $slide['image'] }}"
+                            data-home-hero-image
+                            data-desktop-src="{{ $slide['image'] }}"
+                            data-fallback-src="{{ $fallbackImage }}"
+                            alt=""
+                            decoding="async"
+                            loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                            fetchpriority="{{ $loop->first ? 'high' : 'low' }}"
+                        >
+                    </picture>
                 </div>
 
                 <div class="sheykhan-home-hero__overlay" aria-hidden="true"></div>
@@ -56,7 +72,7 @@
                         {{ $slide['academy'] ?: 'شیخان؛ آموزش، رشد، آینده' }}
                     </p>
 
-                    <h2 class="sheykhan-home-hero__title" @if(filled($slide['title'] ?? null)) data-banner-title @endif>
+                    <h2 class="sheykhan-home-hero__title" @if(filled($slide['title'] ?? null)) data-hero-slide-title @endif>
                         @if(filled($slide['title'] ?? null))
                             {{ $slide['title'] }}
                         @else
