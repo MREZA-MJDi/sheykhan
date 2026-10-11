@@ -135,8 +135,15 @@ final class ImportLegacyStudents extends Command
                 $user = $this->findByLegacyIdentity($row['legacy_id']);
 
                 if ($user) {
-                    // Idempotent re-run: preserve password, active/blocked status,
-                    // email and other account corrections on an existing identity.
+                    // The verified source set is the authoritative active-student
+                    // allow-list. Reactivate those 55 identities, but preserve a
+                    // password already upgraded and contact details corrected later.
+                    $userUpdate = ['status' => 'active', 'updated_at' => $now];
+                    if (Schema::hasColumn('users', 'deleted_at')) {
+                        $userUpdate['deleted_at'] = null;
+                    }
+                    DB::table('users')->where('id', $user->id)->update($userUpdate);
+
                     $result['existing_users']++;
                     $userId = (int) $user->id;
                 } else {
