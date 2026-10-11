@@ -1,22 +1,32 @@
 @php
     $user = auth()->user();
-    $academies = $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
+    $seoOnly = $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
+    $academies = $seoOnly
+        ? collect()
+        : $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
     $routeAcademy = request()->route('academy');
     $routeAcademyId = $routeAcademy instanceof \App\Models\Academy ? $routeAcademy->getKey() : $routeAcademy;
 @endphp
 
 <aside class="role-sidebar owner-sidebar">
     <div class="role-sidebar-brand">
-        <a href="{{ route('owner.dashboard') }}" class="role-brand">
+        <a href="{{ $seoOnly ? route('owner.seo.index') : route('owner.dashboard') }}" class="role-brand">
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
-                <small>مدیریت آموزشگاه</small>
+                <small>{{ $seoOnly ? 'متخصص SEO' : 'مدیریت آموزشگاه' }}</small>
             </span>
         </a>
     </div>
 
     <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
+        @if($seoOnly)
+            <div class="role-sidebar-label">مرکز کنترل</div>
+            <a href="{{ route('owner.seo.index') }}"
+               class="role-nav-link {{ request()->routeIs('owner.seo.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>SEO و دیده‌شدن</span>
+            </a>
+        @else
         <div class="role-sidebar-label">مرکز کنترل</div>
 
         <a href="{{ route('owner.dashboard') }}"
@@ -129,6 +139,7 @@
                 </a>
             @empty
             @endforelse
+        @endif
         @endif
     </nav>
 
