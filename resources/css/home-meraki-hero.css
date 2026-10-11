@@ -189,7 +189,7 @@
     filter: saturate(1.18) contrast(1.06) brightness(1.04);
 }
 .sheykhan-home-hero__title { overflow-wrap: anywhere; }
-.sheykhan-home-hero__title[data-banner-title]::after {
+.sheykhan-home-hero__title[data-hero-slide-title]::after {
     display: block;
     width: clamp(3.5rem, 8vw, 5.5rem);
     height: 4px;
@@ -275,7 +275,7 @@
     .sheykhan-home-hero__arrow { width: 1.8rem; height: 1.8rem; flex-basis: 1.8rem; }
     .sheykhan-home-hero__dot { width: .42rem; height: .42rem; flex-basis: .42rem; }
     .sheykhan-home-hero__dot.is-active { width: 1.05rem; }
-    .sheykhan-home-hero__title[data-banner-title]::after { margin-top: .7rem; }
+    .sheykhan-home-hero__title[data-hero-slide-title]::after { margin-top: .7rem; }
 }
 @media (prefers-reduced-motion: reduce) {
     .sheykhan-home-hero__slide,
