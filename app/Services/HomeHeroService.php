@@ -41,12 +41,19 @@ final class HomeHeroService
             return null;
         }
 
-        $disk = Storage::disk($media->disk);
+        try {
+            $disk = Storage::disk($media->disk);
 
-        if (! $disk->exists($media->path)) {
+            if (! $disk->exists($media->path)) {
+                return null;
+            }
+
+            return $media->url();
+        } catch (\\Throwable $exception) {
+            // A storage outage must not take the whole public homepage down.
+            report($exception);
+
             return null;
         }
-
-        return $media->url();
     }
 }
