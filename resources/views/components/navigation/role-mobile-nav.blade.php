@@ -17,6 +17,8 @@
             ['route' => 'teacher.assignments.index', 'label' => 'تکلیف', 'permission' => 'assignments.view', 'icon' => '✓'],
             ['route' => 'teacher.exams.index', 'label' => 'آزمون', 'permission' => 'exams.view', 'icon' => '▤'],
             ['route' => 'teacher.attendance.index', 'label' => 'حضور', 'permission' => 'attendance.view', 'icon' => '◷'],
+            ['route' => 'teacher.schedule.index', 'label' => 'برنامه', 'permission' => 'live_classes.view', 'icon' => '▦'],
+            ['route' => 'teacher.live-classes.index', 'label' => 'جلسات', 'permission' => 'live_classes.view', 'icon' => '◉'],
         ],
         'owner' => [
             ['route' => 'owner.dashboard', 'label' => 'مرکز', 'permission' => 'dashboard.view', 'icon' => '⌂'],
