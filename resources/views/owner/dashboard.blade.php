@@ -208,7 +208,9 @@
                     {{ $metrics['pendingReviews'] ?? 0 }}
                     بررسی ·
                     {{ $metrics['capacityAlerts'] ?? 0 }}
-                    کلاس نزدیک ظرفیت
+                    کلاس نزدیک ظرفیت ·
+                    {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher'] ?? 0) }}
+                    کلاس بدون مدرس
                 </small>
             </article>
 
