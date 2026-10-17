@@ -132,7 +132,7 @@
                     <div>
                         <h2 class="text-base font-black">فهرست دانش‌آموزان کلاس</h2>
                         <p class="mt-1 text-[10px] leading-6 text-slate-500">
-                            {{ \\App\\Support\\PersianUi::digits($classroom->active_students_total) }} عضو فعال؛ فهرست به‌صورت صفحه‌بندی‌شده نمایش داده می‌شود.
+                            {{ \App\Support\PersianUi::digits($classroom->active_students_total) }} عضو فعال؛ فهرست به‌صورت صفحه‌بندی‌شده نمایش داده می‌شود.
                         </p>
                     </div>
                     <a href="{{ route('owner.people.index', $academy) }}"
