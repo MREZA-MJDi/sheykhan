@@ -6,7 +6,10 @@
 @source '../../resources/views/auth';
 @source '../../resources/views/layouts/app.blade.php';
 @source '../../resources/views/layouts/auth.blade.php';
-@source '../../resources/views/components/education';
+@source '../../resources/views/components/education/course-card.blade.php';
+@source '../../resources/views/components/education/teacher-card.blade.php';
+@source '../../resources/views/components/education/live-class-card.blade.php';
+@source '../../resources/views/components/education/product-card.blade.php';
 @source '../../resources/views/components/layout';
 @source '../../resources/views/components/ui';
 @source '../../resources/views/components/seo';
