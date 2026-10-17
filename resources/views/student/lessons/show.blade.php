@@ -21,7 +21,7 @@
                     <p>{{ $course->title }}</p>
                 </div>
                 <span class="student-status {{ $lesson->student_progress >= 100 ? 'success' : 'primary' }}" data-student-progress-label>
-                    {{ \\App\\Support\\PersianUi::digits(round($lesson->student_progress)) }}٪
+                    {{ \App\Support\PersianUi::digits(round($lesson->student_progress)) }}٪
                 </span>
             </div>
 
