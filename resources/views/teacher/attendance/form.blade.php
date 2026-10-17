@@ -14,7 +14,7 @@
             <div class="flex items-center justify-between gap-3"><div><h2>وضعیت دانش‌آموزان</h2><p>فقط دانش‌آموزان فعال این کلاس در این فهرست قرار می‌گیرند.</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-[9px] font-black">{{ \App\Support\PersianUi::digits($classroom->students->count()) }} نفر</span></div>
             @if($scheduledMinutes > 0)
                 <div class="mt-4 rounded-xl border border-sky-100 bg-sky-50 p-4 text-xs leading-7 text-sky-900">
-                    <strong>مدت برنامه‌ریزی‌شده این روز: {{ \\App\\Support\\PersianUi::digits($scheduledMinutes) }} دقیقه</strong>
+                    <strong>مدت برنامه‌ریزی‌شده این روز: {{ \App\Support\PersianUi::digits($scheduledMinutes) }} دقیقه</strong>
                     <p>درصد حضور از «مجموع دقیقه‌های حضور واقعی ÷ مجموع دقیقه‌های برنامه‌ریزی‌شده» محاسبه می‌شود. برای حاضر، مقدار اولیه کل زمان کلاس است؛ اگر دانش‌آموز زودتر رفته یا با تأخیر آمده، دقیقه واقعی را اصلاح کن. برای تأخیر، ثبت دقیقه حضور الزامی است.</p>
                     <p>غیبت با صفر دقیقه محاسبه می‌شود. غیبت موجه از مخرج درصد حضور خارج است. اگر برنامه هفتگی ثبت نشده باشد، وضعیت ذخیره می‌شود ولی درصد زمانی برای این روز ساخته نمی‌شود.</p>
                 </div>
@@ -71,7 +71,7 @@
                                     aria-describedby="attendance-minutes-help-{{ $student->id }}"
                                 >
                                 <small id="attendance-minutes-help-{{ $student->id }}" class="font-normal text-slate-500">
-                                    {{ $scheduledMinutes > 0 ? 'حداکثر '.\\App\\Support\\PersianUi::digits($scheduledMinutes).' دقیقه' : 'ابتدا برنامه هفتگی را تنظیم کن' }}
+                                    {{ $scheduledMinutes > 0 ? 'حداکثر '.\App\Support\PersianUi::digits($scheduledMinutes).' دقیقه' : 'ابتدا برنامه هفتگی را تنظیم کن' }}
                                 </small>
                             </label>
                         </div>
