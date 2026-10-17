@@ -1,10 +1,10 @@
-@extends('layouts.owner')
+@extends(($isGlobal ?? false) ? 'layouts.seo-specialist' : 'layouts.owner')
 
 @section('title', 'SEO و دیده‌شدن | شیخان')
 @section('header-title', 'SEO و دیده‌شدن')
 
 @section('content')
-<div class="owner-seo-page space-y-6">
+<div class="owner-seo-page {{ ($isGlobal ?? false) ? 'seo-specialist-sections' : 'space-y-6' }}">
     <section class="owner-seo-hero">
         <div>
             <span class="owner-seo-kicker">رشد ارگانیک</span>
@@ -15,7 +15,7 @@
         <a href="{{ route('home') }}" target="_blank" rel="noopener" class="website-open-btn">مشاهده سایت ↗</a>
     </section>
 
-    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <section class="{{ ($isGlobal ?? false) ? 'seo-specialist-stats' : 'grid gap-3 sm:grid-cols-2 xl:grid-cols-4' }}">
         <article class="owner-seo-stat">
             <span>صفحات واقعی در فهرست</span>
             <strong>{{ $stats['total'] }}</strong>
@@ -38,7 +38,7 @@
         </article>
     </section>
 
-    <section class="dashboard-panel owner-panel">
+    <section class="{{ ($isGlobal ?? false) ? 'seo-specialist-panel' : 'dashboard-panel owner-panel' }}">
         <div class="owner-panel-head">
             <div>
                 <h2>وضعیت صفحات</h2>
@@ -46,14 +46,14 @@
             </div>
         </div>
 
-        <div class="owner-seo-list mt-4">
+        <div class="owner-seo-list {{ ($isGlobal ?? false) ? '' : 'mt-4' }}">
             @forelse($items as $item)
                 <article class="owner-seo-row">
                     <div class="owner-seo-main">
                         <span class="owner-seo-type">{{ match($item['type']) { 'academy' => 'آموزشگاه', 'course' => 'دوره', 'content' => 'محتوای آموزشگاه', 'blog' => 'مقاله', 'product' => 'محصول', 'teacher' => 'مدرس عمومی', default => 'صفحه' } }}</span>
                         <strong>{{ $item['label'] }}</strong>
                         @if(filled($item['url'] ?? null))
-                            <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer" class="text-xs text-sky-700 underline underline-offset-2">نمایش صفحه عمومی ↗</a>
+                            <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer" class="{{ ($isGlobal ?? false) ? 'seo-public-url' : 'text-xs text-sky-700 underline underline-offset-2' }}">نمایش صفحه عمومی ↗</a>
                         @endif
                         @if($item['academy'])
                             <small>{{ $item['academy'] }}</small>
@@ -75,11 +75,11 @@
                             default => 'تنظیم نشده',
                         } }}
                         @if(str_starts_with($item['robots'] ?? 'index,follow', 'noindex'))
-                            <small class="block mt-1">noindex — خارج از فهرست نتایج</small>
+                            <small class="seo-noindex-note">noindex — خارج از فهرست نتایج</small>
                         @endif
                     </div>
 
-                    <a href="{{ route('owner.seo.edit', [$item['type'], $item['id']]) }}" class="course-action-btn primary">
+                    <a href="{{ route(($isGlobal ?? false) ? 'seo-specialist.edit' : 'owner.seo.edit', [$item['type'], $item['id']]) }}" class="course-action-btn primary">
                         ویرایش
                     </a>
                 </article>

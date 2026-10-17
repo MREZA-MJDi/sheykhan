@@ -63,3 +63,14 @@ Workflow استقرار فقط از `main` و با تأیید دستی اجرا 
 ## تعریف «آماده استقرار»
 
 نسخه فقط وقتی آماده release است که CI کامل روی همان SHA سبز باشد، تمام چهار پنل و نقش سئو به‌صورت مجاز/غیرمجاز تست شده باشند، build از lockfile قطعی انجام شود، خطا/کوئری پرتکرار بدون عددسازی اندازه‌گیری شود، backup قابل restore موجود باشد و smoke test روی محیط هدف موفق شود. «کد در شاخه موجود است» یا «یک workflow تست موفق شده» معادل استقرار تأییدشده نیست.
+
+
+## وضعیت پس از refactor سئو در شاخه hardening
+
+- متخصص SEO مسیر مستقل `/seo`، نام‌گذاری route مستقل و layout جدا دارد؛ پنل مالک با `role:academy-owner` محافظت می‌شود.
+- `OwnerSeoService` فقط scope آموزشگاه را اداره می‌کند؛ `SeoSpecialistService` فقط صفحات عمومی مجاز را resolve می‌کند.
+- `SeoPageSummary` و `SeoMetadataWriter` mapping و ذخیره/cache invalidation مشترک را نگه می‌دارند؛ فرم metadata کپی نشده است.
+- متخصص از bundle سبک اختصاصی `seo-specialist.css/js` استفاده می‌کند. رفتار پیش‌نمایش OG از handler موجود جدا شده و کل `owner.js` بارگذاری نمی‌شود.
+- مسیر `/seo` به robots.txt اضافه شده و تست‌های دسترسی و ورودی نامعتبر در suite سئو به‌روز شده‌اند.
+
+این تغییرات مرزبندی کد را اعمال می‌کنند، اما readiness نهایی همچنان به build و تست همین commit، ارزیابی چهار پنل، query profiling و smoke test سرور نیاز دارد.

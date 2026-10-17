@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Owner\Seo;
+namespace App\Http\Requests\Seo;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

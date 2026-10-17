@@ -19,6 +19,7 @@ use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
 use App\Http\Controllers\PublicSite\ProductController;
 use App\Http\Controllers\PublicSite\SeoController as PublicSeoController;
+use App\Http\Controllers\SeoSpecialist\SeoController as SeoSpecialistController;
 use App\Http\Controllers\PublicSite\AcademyContentController;
 use App\Http\Controllers\Student\AchievementController as StudentAchievementController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
@@ -254,14 +255,26 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
 });
 
-Route::middleware(['auth','active','permission:seo.manage'])
-    ->prefix('owner')
-    ->name('owner.')
-    ->group(function () {
-        // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
+Route::middleware(['auth', 'active', 'role:academy-owner', 'permission:seo.manage'])
+    ->prefix('owner')->name('owner.')->group(function () {
         Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('seo.index');
-        Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.edit');
-        Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.update');
+        Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])
+            ->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])
+            ->whereNumber('id')->name('seo.edit');
+        Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])
+            ->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])
+            ->whereNumber('id')->name('seo.update');
+    });
+
+Route::middleware(['auth', 'active', 'role:seo-specialist', 'permission:seo.manage'])
+    ->prefix('seo')->name('seo-specialist.')->group(function () {
+        Route::get('/', [SeoSpecialistController::class, 'index'])->name('index');
+        Route::get('/{type}/{id}/edit', [SeoSpecialistController::class, 'edit'])
+            ->whereIn('type', ['course', 'content', 'blog', 'product', 'teacher'])
+            ->whereNumber('id')->name('edit');
+        Route::patch('/{type}/{id}', [SeoSpecialistController::class, 'update'])
+            ->whereIn('type', ['course', 'content', 'blog', 'product', 'teacher'])
+            ->whereNumber('id')->name('update');
     });
 
 /*

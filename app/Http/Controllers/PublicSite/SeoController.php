@@ -18,7 +18,7 @@ final class SeoController extends Controller
         $sitemap = url('/sitemap.xml');
 
         return response(
-            "User-agent: *\nAllow: /\nDisallow: /owner\nDisallow: /teacher\nDisallow: /student\nDisallow: /parent\nDisallow: /dashboard\nDisallow: /login\nDisallow: /register\nDisallow: /checkout\nDisallow: /orders\nDisallow: /library\n\nSitemap: {$sitemap}\n",
+            "User-agent: *\nAllow: /\nDisallow: /owner\nDisallow: /seo\nDisallow: /teacher\nDisallow: /student\nDisallow: /parent\nDisallow: /dashboard\nDisallow: /login\nDisallow: /register\nDisallow: /checkout\nDisallow: /orders\nDisallow: /library\n\nSitemap: {$sitemap}\n",
             200,
             ['Content-Type' => 'text/plain; charset=UTF-8', 'Cache-Control' => 'public, max-age=3600']
         );

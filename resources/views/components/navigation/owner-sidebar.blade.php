@@ -1,16 +1,13 @@
 @php
     $user = auth()->user();
-    $seoOnly = $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
-    $academies = $seoOnly
-        ? collect()
-        : $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
+    $academies = $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
     $routeAcademy = request()->route('academy');
     $routeAcademyId = $routeAcademy instanceof \App\Models\Academy ? $routeAcademy->getKey() : $routeAcademy;
 @endphp
 
 <aside class="role-sidebar owner-sidebar">
     <div class="role-sidebar-brand">
-        <a href="{{ $seoOnly ? route('owner.seo.index') : route('owner.dashboard') }}" class="role-brand">
+        <a href="{{ route('owner.dashboard') }}" class="role-brand">
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
@@ -20,14 +17,14 @@
     </div>
 
     <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
-        @if(! $seoOnly)
+        
             <div class="role-sidebar-label">مرکز کنترل</div>
 
             <a href="{{ route('owner.dashboard') }}"
                class="role-nav-link {{ request()->routeIs('owner.dashboard') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>داشبورد</span>
             </a>
-        @endif
+        
 
         @if($user->hasPermission('seo.manage'))
             <div class="role-sidebar-label mt-6">بهینه‌سازی سایت</div>
@@ -44,7 +41,7 @@
             </a>
         @endif
 
-        @if(! $seoOnly)
+        
         <div class="role-sidebar-label mt-6">عملیات آموزشگاه</div>
 
         @forelse($academies as $academy)
@@ -72,7 +69,7 @@
         @empty
             <div class="owner-sidebar-empty">هنوز آموزشگاه فعالی ندارید.</div>
         @endforelse
-        @endif
+        
 
         @if($user->hasPermission('courses.view'))
             <div class="role-sidebar-label mt-6">آموزش و دوره</div>
