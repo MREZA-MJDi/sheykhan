@@ -11,9 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MediaController extends Controller
 {
-    public function servePublic(Media $media): Response
+    public function servePublic(Media $media, \App\Policies\MediaPolicy $policy): Response
     {
         abort_unless($media->status === 'active' && $media->visibility === 'public', 404);
+
+        // Visibility mistakes must not turn a lesson, assessment, recording or
+        // course handout into an unauthenticated public download.
+        abort_if($policy->requiresProtectedDelivery($media), 404);
         abort_unless(Storage::disk($media->disk)->exists($media->path), 404);
 
         $disk = Storage::disk($media->disk);
