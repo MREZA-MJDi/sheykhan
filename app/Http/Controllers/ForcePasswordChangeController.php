@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class ForcePasswordChangeController extends Controller
@@ -23,7 +24,7 @@ final class ForcePasswordChangeController extends Controller
         abort_unless($user && $user->must_change_password, 403);
 
         $validated = $request->validate([
-            'password' => ['required', 'string', 'min:12', 'confirmed'],
+            'password' => ['required', 'string', 'min:12', 'confirmed', Rule::notIn([(string) config('legacy_students.temporary_password', '')])],
         ], [
             'password.required' => 'رمز عبور جدید را وارد کنید.',
             'password.min' => 'رمز عبور جدید باید حداقل ۱۲ کاراکتر داشته باشد.',
