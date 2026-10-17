@@ -203,7 +203,7 @@ class TeacherStudentGroupIsolationTest extends TestCase
         $this->assertContains((int) $teacherB->id, $studentBTeacherIds);
         $this->assertNotContains((int) $teacherA->id, $studentBTeacherIds);
 
-        $studentAResultTitles = app(\\App\\Services\\StudentDashboardService::class)
+        $studentAResultTitles = app(\App\Services\StudentDashboardService::class)
             ->build($studentA)['recentResults']
             ->pluck('title')
             ->all();
