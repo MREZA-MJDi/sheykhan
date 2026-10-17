@@ -10,6 +10,7 @@ use App\Models\CourseEnrollment;
 use App\Models\CourseSection;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
+use App\Models\LiveClass;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\FinancialTransaction;
@@ -462,6 +463,61 @@ class OwnerReportingAndCourseShowTest extends TestCase
         ));
         $archivedClassroomReport = $reportsAfterArchive['classroomReports']->getCollection()->firstWhere('id', $classroom->id);
         $this->assertSame(0, (int) $archivedClassroomReport->teacher_count);
+    }
+
+    public function test_owner_dashboard_uses_scheduled_end_time_to_determine_current_live_sessions(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['dashboard.view']);
+
+        $teacher = User::factory()->create([
+            'name' => 'مدرس جلسه',
+            'email' => 'live-teacher-' . Str::random(8) . '@test.local',
+        ]);
+
+        $expiredClassroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس جلسه پایان‌یافته',
+            'code' => 'LIVE-END-' . Str::random(5),
+            'status' => 'active',
+        ]);
+
+        $activeClassroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس جلسه فعال',
+            'code' => 'LIVE-ON-' . Str::random(5),
+            'status' => 'active',
+        ]);
+
+        $expiredSession = LiveClass::create([
+            'course_id' => $course->id,
+            'classroom_id' => $expiredClassroom->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'جلسه‌ای که پایانش گذشته',
+            'scheduled_at' => now()->subMinutes(30),
+            'scheduled_end_at' => now()->subMinute(),
+            'duration_minutes' => 60,
+            'status' => 'scheduled',
+        ]);
+
+        $activeSession = LiveClass::create([
+            'course_id' => $course->id,
+            'classroom_id' => $activeClassroom->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'جلسه‌ای که پایانش نرسیده',
+            'scheduled_at' => now()->subMinutes(30),
+            'scheduled_end_at' => now()->addMinutes(5),
+            'duration_minutes' => 5,
+            'status' => 'live',
+        ]);
+
+        $dashboard = app(\\App\\Services\\OwnerDashboardService::class)->build($owner);
+        $classrooms = $dashboard['classrooms']->keyBy('id');
+
+        $this->assertSame(1, (int) $dashboard['metrics']['liveNow']);
+        $this->assertNull($classrooms[$expiredClassroom->id]->live_now);
+        $this->assertSame($activeSession->id, $classrooms[$activeClassroom->id]->live_now->id);
     }
 
     private function ownerWorkspace(array $permissions): array
