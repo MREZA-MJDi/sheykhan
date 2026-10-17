@@ -10,6 +10,7 @@
 @source '../../resources/views/components/education/teacher-card.blade.php';
 @source '../../resources/views/components/education/live-class-card.blade.php';
 @source '../../resources/views/components/education/product-card.blade.php';
+@source '../../resources/views/components/branding/home-meraki-hero.blade.php';
 @source '../../resources/views/components/layout';
 @source '../../resources/views/components/ui';
 @source '../../resources/views/components/seo';
