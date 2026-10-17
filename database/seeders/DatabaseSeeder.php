@@ -28,5 +28,11 @@ class DatabaseSeeder extends Seeder
         if (config('legacy_students.import_on_db_seed')) {
             $this->call(LegacyStudentsSeeder::class);
         }
+
+        // A rich, image-backed public demo is useful for local design review.
+        // This seeder has its own APP_ENV=local guard and is never run in production.
+        if (app()->environment('local')) {
+            $this->call(PublicExperienceSeeder::class);
+        }
     }
 }
