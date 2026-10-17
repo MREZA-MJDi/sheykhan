@@ -17,6 +17,7 @@ use App\Models\Media;
 use App\Models\User;
 use App\Services\CourseAccessService;
 use App\Services\StudentAccessService;
+use App\Services\TeacherAccessService;
 
 class MediaPolicy
 {
@@ -163,15 +164,38 @@ class MediaPolicy
             if ($model instanceof Assignment) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom) {
-                    if ($this->classroomAccess($user, $model->classroom)) {
+                // Direct attachment URLs must use the same cohort policy as the
+                // assignment page; a shared public course is not a student roster.
+                if ($user->hasRole('student')) {
+                    if (app(StudentAccessService::class)->assignment($user, $model)) {
                         return true;
                     }
 
                     continue;
                 }
 
-                if ($model->course && $this->courseAccess($user, $model->course)) {
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageAssignment($user, $model)) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildWork = $user->children()->get()->contains(
+                        fn (User $child): bool => app(StudentAccessService::class)->assignment($child, $model)
+                    );
+
+                    if ($canAccessChildWork) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($this->academyOwner($user, $model->course?->academy)
+                    || ($model->course && $this->courseAccess($user, $model->course))) {
                     return true;
                 }
             }
@@ -203,11 +227,37 @@ class MediaPolicy
             if ($model instanceof Exam) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom) {
-                    return $this->classroomAccess($user, $model->classroom);
+                // Assessment attachments follow the exact class/teacher rule.
+                if ($user->hasRole('student')) {
+                    if (app(StudentAccessService::class)->exam($user, $model)) {
+                        return true;
+                    }
+
+                    continue;
                 }
 
-                if ($model->course && $this->courseAccess($user, $model->course)) {
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageExam($user, $model)) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildWork = $user->children()->get()->contains(
+                        fn (User $child): bool => app(StudentAccessService::class)->exam($child, $model)
+                    );
+
+                    if ($canAccessChildWork) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($this->academyOwner($user, $model->course?->academy)
+                    || ($model->course && $this->courseAccess($user, $model->course))) {
                     return true;
                 }
             }
