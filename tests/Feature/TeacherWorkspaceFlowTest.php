@@ -435,13 +435,17 @@ class TeacherWorkspaceFlowTest extends TestCase
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
         $student = $classroom->students()->wherePivot('status', 'active')->firstOrFail();
+        $attendance = $classroom->students()
+            ->wherePivot('status', 'active')
+            ->pluck('users.id')
+            ->mapWithKeys(static fn ($studentId) => [(int) $studentId => 'present'])
+            ->all();
+        $attendance[$student->id] = 'absent';
 
         $this->actingAs($teacher)
             ->post(route('teacher.classrooms.attendance.store', $classroom), [
                 'attendance_date' => '۱۴۰۵/۰۷/۱۶',
-                'attendance' => [
-                    $student->id => 'absent',
-                ],
+                'attendance' => $attendance,
             ])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
