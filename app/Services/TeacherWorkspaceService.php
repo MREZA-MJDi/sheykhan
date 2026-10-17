@@ -390,7 +390,7 @@ final class TeacherWorkspaceService
         $submittedIds = array_map('intval', array_keys($attendance));
 
         if (array_diff($submittedIds, $studentIds) !== [] || array_diff($studentIds, $submittedIds) !== []) {
-            throw \Illuminate\Validation\\ValidationException::withMessages([
+            throw \Illuminate\Validation\ValidationException::withMessages([
                 'attendance' => 'فهرست دانش‌آموزان تغییر کرده است. صفحه را تازه کن و حضور همه دانش‌آموزان فعال را ثبت کن.',
             ]);
         }
@@ -400,7 +400,7 @@ final class TeacherWorkspaceService
         foreach ($attendance as $studentId => $status) {
             $id = (int) $studentId;
             if (! isset($allowed[$id])) {
-                throw \Illuminate\Validation\\ValidationException::withMessages([
+                throw \Illuminate\Validation\ValidationException::withMessages([
                     'attendance' => 'یک دانش‌آموز انتخاب‌شده عضو فعال این کلاس نیست.',
                 ]);
             }
@@ -409,13 +409,13 @@ final class TeacherWorkspaceService
             $actualMinutes = $rawMinutes === '' || $rawMinutes === null ? null : (int) $rawMinutes;
 
             if ($scheduledMinutes > 0 && $status === 'late' && $actualMinutes === null) {
-                throw \Illuminate\Validation\\ValidationException::withMessages([
+                throw \Illuminate\Validation\ValidationException::withMessages([
                     "attendance_minutes.{$studentId}" => 'برای دانش‌آموزی که با تأخیر آمده، دقیقه‌های حضور واقعی را وارد کن.',
                 ]);
             }
 
             if ($scheduledMinutes > 0 && $actualMinutes !== null && $actualMinutes > $scheduledMinutes) {
-                throw \Illuminate\Validation\\ValidationException::withMessages([
+                throw \Illuminate\Validation\ValidationException::withMessages([
                     "attendance_minutes.{$studentId}" => 'مدت حضور نمی‌تواند از مدت برنامه‌ریزی‌شده کلاس بیشتر باشد.',
                 ]);
             }
