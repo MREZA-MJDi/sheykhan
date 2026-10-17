@@ -3,11 +3,7 @@
 @section('title', 'ورود | شیخان')
 
 @section('content')
-@php
-    $testAccounts = config('role_access.test_accounts', []);
-    $testPassword = config('role_access.test_password');
-    $dashboardRoutes = config('role_access.dashboard_routes', []);
-@endphp
+
 
 <div class="rounded-[2rem] border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-xl)] sm:p-8">
     <div class="mb-8">
@@ -89,6 +85,13 @@
         </button>
     </form>
 
+    <div class="mt-4 rounded-2xl border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] p-4">
+        <strong class="block text-sm font-black text-[var(--color-primary-800)]">دانش‌آموز سامانه قبلی شیخان هستی؟</strong>
+        <p class="mt-2 text-xs leading-7 text-[var(--color-text-secondary)]">
+            اگر در حساب قبلی ایمیل یا شماره موبایل نداشتی، شناسهٔ عددی کاربر در سامانه قبلی را در کادر بالا وارد کن و همان رمز قبلی را بزن. پس از ورود موفق، رمز با روش امن شیخان ذخیره می‌شود. اگر شناسه یا رمز را نداری، از آموزشگاه درخواست بازیابی حساب کن.
+        </p>
+    </div>
+
     <div class="my-6 flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
         <span class="h-px flex-1 bg-[var(--color-border)]"></span>
         <span>یا</span>
@@ -103,179 +106,5 @@
     </p>
 </div>
 
-<div class="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4">
-    <div class="flex items-start justify-between gap-3">
-        <div>
-            <div class="text-sm font-black text-[var(--color-text)]">
-                حساب‌های تست همکار
-            </div>
 
-            <p class="mt-1 text-xs leading-6 text-[var(--color-text-muted)]">
-                همه حساب‌ها از Seeder واقعی دیتابیس ساخته شده‌اند و مسیر صحیح داشبورد هر نقش نیز نمایش داده می‌شود.
-            </p>
-        </div>
-
-        <span class="rounded-full bg-[var(--color-primary-50)] px-2.5 py-1 text-[10px] font-bold text-[var(--color-primary-700)]">
-            TEST
-        </span>
-    </div>
-
-    @forelse($testAccounts as $account)
-        @php
-            $routeName = $dashboardRoutes[$account['role_key']] ?? null;
-            $dashboardUrl = $routeName ? route($routeName) : null;
-        @endphp
-
-        <div class="mt-3 rounded-xl border border-[var(--color-border)] bg-white p-3">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                    <div class="text-xs font-black text-[var(--color-text)]">
-                        {{ $account['role'] }}
-                    </div>
-
-                    <div class="mt-0.5 text-[11px] text-[var(--color-text-secondary)]">
-                        {{ $account['name'] }}
-                    </div>
-                </div>
-
-                @if($dashboardUrl)
-                    <a
-                        href="{{ $dashboardUrl }}"
-                        class="rounded-lg bg-[var(--color-primary-50)] px-2.5 py-1.5 text-[10px] font-bold text-[var(--color-primary-700)]"
-                    >
-                        داشبورد
-                    </a>
-                @endif
-            </div>
-
-            <div class="mt-2 grid gap-1 text-xs text-[var(--color-text-secondary)]">
-                <div class="overflow-x-auto">
-                    <span class="font-bold">Username:</span>
-                    <code dir="ltr">{{ $account['username'] }}</code>
-                </div>
-
-                @if($testPassword)
-                    <div class="overflow-x-auto">
-                        <span class="font-bold">Password:</span>
-                        <code dir="ltr">{{ $testPassword }}</code>
-                    </div>
-
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <button
-                            type="button"
-                            data-test-login-fill
-                            data-username="{{ $account['username'] }}"
-                            data-password="{{ $testPassword }}"
-                            aria-label="پر کردن فرم ورود با حساب {{ $account['role'] }}"
-                            class="inline-flex min-h-9 items-center justify-center rounded-lg bg-[var(--color-primary-600)] px-3 py-2 text-[11px] font-bold text-white transition hover:bg-[var(--color-primary-700)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                        >
-                            پر کردن فرم ورود
-                        </button>
-
-                        <button
-                            type="button"
-                            data-test-login-copy
-                            data-username="{{ $account['username'] }}"
-                            data-password="{{ $testPassword }}"
-                            aria-label="کپی یوزرنیم و پسورد حساب {{ $account['role'] }}"
-                            class="inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-[11px] font-bold text-[var(--color-text)] transition hover:border-[var(--color-primary-400)] hover:bg-[var(--color-primary-50)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                        >
-                            کپی یوزرنیم و پسورد
-                        </button>
-                    </div>
-
-                    <p data-test-login-feedback role="status" aria-live="polite" class="mt-2 min-h-4 text-[11px] text-[var(--color-success-700)]"></p>
-                @endif
-
-                @if($dashboardUrl)
-                    <div class="overflow-x-auto">
-                        <span class="font-bold">Path:</span>
-                        <code dir="ltr">{{ $dashboardUrl }}</code>
-                    </div>
-                @endif
-            </div>
-        </div>
-    @empty
-        <div class="mt-3 rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-xs text-[var(--color-text-muted)]">
-            حساب تستی در تنظیمات تعریف نشده است.
-        </div>
-    @endforelse
-
-    @if(!$testPassword)
-        <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-            <span class="font-bold">SEED_USER_PASSWORD</span> در .env تنظیم نشده است.
-        </div>
-    @endif
-</div>
 @endsection
-
-@push('scripts')
-<script>
-(() => {
-    'use strict';
-
-    const getFeedback = (button) => button.closest('.rounded-xl')?.querySelector('[data-test-login-feedback]');
-
-    document.querySelectorAll('[data-test-login-fill]').forEach((button) => {
-        button.addEventListener('click', () => {
-            const identifier = document.getElementById('identifier');
-            const password = document.getElementById('password');
-
-            if (!identifier || !password) return;
-
-            identifier.value = button.dataset.username || '';
-            password.value = button.dataset.password || '';
-
-            identifier.dispatchEvent(new Event('input', { bubbles: true }));
-            identifier.dispatchEvent(new Event('change', { bubbles: true }));
-            password.dispatchEvent(new Event('input', { bubbles: true }));
-            password.dispatchEvent(new Event('change', { bubbles: true }));
-
-            const feedback = getFeedback(button);
-            if (feedback) feedback.textContent = 'فرم پر شد؛ برای ورود روی «ورود به حساب» بزن.';
-            password.focus();
-        });
-    });
-
-    document.querySelectorAll('[data-test-login-copy]').forEach((button) => {
-        button.addEventListener('click', async () => {
-            const credentials = `Username: ${button.dataset.username || ''}\nPassword: ${button.dataset.password || ''}`;
-            const feedback = getFeedback(button);
-
-            try {
-                if (navigator.clipboard?.writeText) {
-                    await navigator.clipboard.writeText(credentials);
-                } else {
-                    throw new Error('Clipboard API unavailable');
-                }
-            } catch {
-                // Fallback supports browsers/HTTP environments where Clipboard API is unavailable.
-                const textarea = document.createElement('textarea');
-                textarea.value = credentials;
-                textarea.setAttribute('readonly', '');
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                textarea.style.pointerEvents = 'none';
-                document.body.appendChild(textarea);
-                textarea.select();
-
-                let copied = false;
-                try {
-                    copied = document.execCommand('copy');
-                } finally {
-                    textarea.remove();
-                }
-
-                if (!copied) {
-                    if (feedback) feedback.textContent = 'کپی خودکار در این مرورگر انجام نشد؛ از «پر کردن فرم ورود» استفاده کن.';
-                    return;
-                }
-            }
-
-            if (feedback) feedback.textContent = 'یوزرنیم و پسورد کپی شد.';
-        });
-    });
-})();
-</script>
-@endpush
-

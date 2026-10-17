@@ -28,7 +28,7 @@
             @forelse($exams as $exam)
                 <article class="teacher-workspace-item">
                     <div class="teacher-workspace-item-main">
-                        <strong class="teacher-workspace-item-title">{{ $exam->title }}</strong>
+                        <a class="teacher-workspace-item-title teacher-workspace-title-link" href="{{ route('teacher.exams.attempts',$exam) }}" aria-label="باز کردن پاسخ‌های آزمون {{ $exam->title }}">{{ $exam->title }}</a>
                         <div class="teacher-workspace-item-meta">
                             <span>{{ $exam->course?->title ?: 'دوره' }}</span>
                             <span>{{ $exam->classroom?->title ?: 'همه دانش‌آموزان دوره' }}</span>

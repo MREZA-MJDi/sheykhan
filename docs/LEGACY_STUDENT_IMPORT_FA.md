@@ -18,6 +18,22 @@ Import فقط این موارد را ایجاد یا همساز می‌کند:
 
 در عوض، دستور Laravel منبع را فقط برای استخراج ۵۵ ردیف INSERT کاربر می‌خواند؛ بقیهٔ دستورهای SQL از جمله DELETE، UPDATE، START TRANSACTION و COMMIT از طرف Importer اجرا نمی‌شوند. منبع خام نباید در GitHub عمومی ذخیره شود.
 
+## Seeder واقعی ۵۵ دانش‌آموز
+
+یک Seeder اختصاصی با نام `LegacyStudentsSeeder` وجود دارد؛ دادهٔ شخصی در کد یا Git قرار نمی‌گیرد و Seeder از همان Importer allow-list شده استفاده می‌کند. `LearningSeeder` و `TestFixtureSeeder` دادهٔ آزمایشی‌اند و نباید به‌جای ۵۵ هویت واقعی استفاده شوند.
+
+برای فعال‌کردن import هنگام `php artisan db:seed` باید هر سه مقدار را عمداً تنظیم کنی:
+
+~~~dotenv
+SHEYKHAN_IMPORT_LEGACY_STUDENTS=true
+SHEYKHAN_LEGACY_STUDENTS_SQL_PATH=storage/app/private/legacy-students.sql
+SHEYKHAN_LEGACY_ACADEMY_ID=ID
+~~~
+
+پیش از فعال‌سازی Seeder، فایل SQL را در مسیر خصوصی بالا قرار بده، از دیتابیس بکاپ قابل‌بازیابی بگیر و Dry-run بخش بعد را اجرا کن. پس از بررسی خروجی، `php artisan config:clear` و سپس `php artisan db:seed --force` را اجرا کن. Seeder هر ۵۵ شناسهٔ تأییدشده را import می‌کند و داده‌های خارج از فهرست را حذف یا مسدود نمی‌کند. پس از موفقیت، مقدار `SHEYKHAN_IMPORT_LEGACY_STUDENTS` را دوباره روی `false` بگذار و تنظیمات را cache کن تا اجرای تصادفی دوباره رخ ندهد.
+
+این Seeder فقط هویت، نقش دانش‌آموز، پروفایل پایه و عضویت در آموزشگاه فعال را می‌سازد. فایل SQL هیچ رابطهٔ مشخصی با دوره یا کلاس ندارد؛ بنابراین Seeder عمداً ثبت‌نام دوره، وضعیت پرداخت، عضویت کلاس، نمره و حضورغیاب جعل نمی‌کند. این روابط باید از سوابق معتبر یا گردش‌کار آموزشگاه ثبت شوند.
+
 ## ۱. استقرار کد
 
 پس از Merge/Deploy شاخه‌ای که این دستور را دارد، در ریشهٔ پروژه بررسی کن:

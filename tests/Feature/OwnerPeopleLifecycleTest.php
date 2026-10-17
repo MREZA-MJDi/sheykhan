@@ -105,6 +105,39 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_student_roster_is_paginated_but_enrollment_selector_can_find_students_beyond_page_one(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        $studentRole = Role::create([
+            'name' => 'دانش‌آموز',
+            'slug' => 'student',
+            'description' => 'Student',
+        ]);
+
+        for ($i = 1; $i <= 30; $i++) {
+            $student = User::factory()->create([
+                'name' => sprintf('دانش‌آموز %02d', $i),
+                'email' => sprintf('student-%02d@test.local', $i),
+            ]);
+            $student->roles()->attach($studentRole->id);
+            $academy->users()->attach($student->id, [
+                'role' => 'student',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+        }
+
+        $response = $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students) => $students->total() === 30 && $students->count() === 25)
+            ->assertViewHas('enrollmentStudentOptions', fn ($options) => $options->count() === 30)
+            ->assertSee('دانش‌آموز 30 - student-30@test.local');
+
+        $this->assertStringContainsString('students_page=', $response->getContent());
+    }
+
     private function makeWorkspace(bool $withCourse = false): array
     {
         $owner = User::factory()->create(['email' => 'owner-' . Str::random(6) . '@test.local']);

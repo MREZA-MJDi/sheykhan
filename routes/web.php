@@ -94,7 +94,7 @@ Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutC
     Route::get('/orders/{order}/files/{file}/download', [\App\Http\Controllers\Commerce\OrderController::class, 'download'])->middleware('throttle:20,1')->name('orders.files.download');
 });
 
-Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
+Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');

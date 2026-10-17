@@ -25,7 +25,10 @@ final class StudentLearningResourceService
             ->with([
                 'course:id,academy_id,title,status,published_at,access_type',
                 'classroom:id,academy_id,title,course_id,status',
+                'classroom.course:id,academy_id,status,published_at,access_type',
                 'lesson:id,title,course_section_id',
+                'lesson.section:id,course_id',
+                'lesson.section.course:id,academy_id,status,published_at,access_type',
                 'academy:id',
                 'media:id,disk,path,original_name,mime_type,size,status',
             ])
@@ -88,10 +91,12 @@ final class StudentLearningResourceService
 
         $resource->loadMissing([
             'academy:id',
-            'course:id,academy_id,status,access_type,published_at',
-            'classroom:id,academy_id,course_id,status',
+            'course:id,academy_id,title,status,published_at,access_type',
+            'classroom:id,academy_id,title,course_id,status',
             'classroom.course:id,academy_id,status,published_at,access_type',
-            'lesson.section.course',
+            'lesson:id,title,course_section_id',
+            'lesson.section:id,course_id',
+            'lesson.section.course:id,academy_id,status,published_at,access_type',
             'media:id,disk,path,original_name,mime_type,size,status,visibility',
         ]);
 
@@ -151,6 +156,41 @@ final class StudentLearningResourceService
         }
 
         return true;
+    }
+
+    /**
+     * Returns null when the student may not access the resource, false when
+     * access is allowed but downloading is not, and true only for an explicitly
+     * downloadable resource belonging to a free course.
+     *
+     * Protected/paid content remains view-only even after successful payment.
+     */
+    public function downloadPermission(User $student, LearningResource $resource): ?bool
+    {
+        if (! $this->canAccess($student, $resource)) {
+            return null;
+        }
+
+        if (! $resource->downloadable) {
+            return false;
+        }
+
+        $resource->loadMissing([
+            'course:id,academy_id,title,status,published_at,access_type',
+            'classroom:id,academy_id,title,course_id,status',
+            'classroom.course:id,academy_id,status,published_at,access_type',
+            'lesson:id,title,course_section_id',
+            'lesson.section:id,course_id',
+            'lesson.section.course:id,academy_id,status,published_at,access_type',
+        ]);
+
+        $course = $resource->course
+            ?? $resource->classroom?->course
+            ?? $resource->lesson?->section?->course;
+
+        // Academy-wide resources without a specific free-course entitlement
+        // have no implicit download rights.
+        return $course !== null && $course->isFree();
     }
 
     private function academyMember(User $student, int $academyId): bool

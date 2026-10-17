@@ -54,6 +54,14 @@ final class OwnerWorkspaceService
             'teachers' => $activeTeachers,
             'archivedTeachers' => $archivedTeachers,
             'students' => $base('student', 'students_page'),
+            // Keep the roster table paginated, but let the enrollment form
+            // select any active student independently of the current table page.
+            'enrollmentStudentOptions' => $academy->users()
+                ->wherePivot('status', 'active')
+                ->wherePivot('role', 'student')
+                ->select('users.id', 'users.name', 'users.email')
+                ->orderBy('users.name')
+                ->get(),
             'parents' => $base('parent', 'parents_page'),
             'grades' => AcademicGrade::query()
                 ->where('is_active', true)

@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureActiveTeacherMembership;
+use App\Http\Middleware\InvalidateOwnerDashboardCache;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => EnsurePermission::class,
             'active' => EnsureActiveUser::class,
             'active-teacher' => EnsureActiveTeacherMembership::class,
+            'owner.cache.invalidate' => InvalidateOwnerDashboardCache::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

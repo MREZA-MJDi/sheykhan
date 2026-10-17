@@ -5,10 +5,12 @@
 
 @section('content')
 @php
-    $activeCount = $classrooms->where('status', 'active')->count();
-    $archivedCount = $classrooms->where('status', 'archived')->count();
-    $studentTotal = $classrooms->sum('active_students_count');
-    $capacityTotal = $classrooms->whereNotNull('capacity')->sum('capacity');
+    $activeCount = (int) ($summary['active_count'] ?? 0);
+    $archivedCount = (int) ($summary['archived_count'] ?? 0);
+    $studentTotal = (int) ($summary['unique_active_students'] ?? 0);
+    $capacityTotal = (int) ($summary['capacity_total'] ?? 0);
+    $capacityRemaining = max(0, $capacityTotal - (int) ($summary['capacity_used'] ?? 0));
+    $capacityAlerts = (int) ($summary['capacity_alerts'] ?? 0);
 @endphp
 
 <div class="space-y-6 panel-page-enter">
@@ -30,22 +32,22 @@
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article class="owner-stat-card">
             <span>کل کلاس‌ها</span>
-            <strong>{{ $classrooms->count() }}</strong>
+            <strong>{{ $summary['total'] ?? 0 }}</strong>
             <small>{{ $activeCount }} فعال · {{ $archivedCount }} آرشیو</small>
         </article>
         <article class="owner-stat-card">
-            <span>دانش‌آموز فعال</span>
+            <span>دانش‌آموزان فعال یکتا</span>
             <strong>{{ $studentTotal }}</strong>
-            <small>در تمام کلاس‌های این آموزشگاه</small>
+            <small>در کلاس‌های فعال این آموزشگاه</small>
         </article>
         <article class="owner-stat-card">
-            <span>ظرفیت تعریف‌شده</span>
-            <strong>{{ $capacityTotal ?: '∞' }}</strong>
-            <small>{{ $capacityTotal ? ($capacityTotal - $studentTotal) . ' ظرفیت باقیمانده' : 'بدون سقف کلی' }}</small>
+            <span>ظرفیت تعریف‌شدهٔ کلاس‌های فعال</span>
+            <strong>{{ $capacityTotal ?: '—' }}</strong>
+            <small>{{ $capacityTotal ? $capacityRemaining . ' ظرفیت باقیماندهٔ ثبت‌شده' : 'ظرفیت عددی برای کلاس‌های فعال تعریف نشده' }}</small>
         </article>
         <article class="owner-stat-card">
             <span>کلاس‌های نیازمند توجه</span>
-            <strong>{{ $classrooms->where('occupancy_percent', '>=', 90)->count() }}</strong>
+            <strong>{{ $capacityAlerts }}</strong>
             <small>۹۰٪ ظرفیت یا بیشتر</small>
         </article>
     </section>
@@ -156,18 +158,26 @@
         @empty
             <div class="dashboard-panel p-12 text-center xl:col-span-2">
                 <div class="mx-auto max-w-md">
-                    <span class="text-xs font-black text-[var(--panel-primary)]">شروع مدیریت کلاس</span>
-                    <h2 class="mt-2 text-lg font-black">هنوز کلاسی در این آموزشگاه نساخته‌ای.</h2>
-                    <p class="mt-2 text-sm leading-7 text-slate-500">
-                        اولین کلاس را بساز تا ظرفیت، مدرس، دانش‌آموز و اتفاقات آموزشی‌اش از همین‌جا قابل مدیریت باشد.
-                    </p>
-                    <a href="{{ route('owner.classrooms.create', $academy) }}"
-                       class="mt-5 inline-flex rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">
-                        ساخت اولین کلاس
-                    </a>
+                    @if($classrooms->total() > 0)
+                        <span class="text-xs font-black text-amber-700">صفحه خارج از محدوده</span>
+                        <h2 class="mt-2 text-lg font-black">این صفحه از فهرست کلاس‌ها موجود نیست.</h2>
+                        <p class="mt-2 text-sm leading-7 text-slate-500">از صفحهٔ نخست فهرست کلاس‌ها دوباره ادامه بده.</p>
+                        <a href="{{ route('owner.classrooms.index', $academy) }}" class="mt-5 inline-flex rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">رفتن به صفحهٔ نخست</a>
+                    @else
+                        <span class="text-xs font-black text-[var(--panel-primary)]">شروع مدیریت کلاس</span>
+                        <h2 class="mt-2 text-lg font-black">هنوز کلاسی در این آموزشگاه نساخته‌ای.</h2>
+                        <p class="mt-2 text-sm leading-7 text-slate-500">اولین کلاس را بساز تا ظرفیت، مدرس، دانش‌آموز و اتفاقات آموزشی‌اش از همین‌جا قابل مدیریت باشد.</p>
+                        <a href="{{ route('owner.classrooms.create', $academy) }}" class="mt-5 inline-flex rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت اولین کلاس</a>
+                    @endif
                 </div>
             </div>
         @endforelse
     </div>
+
+    @if($classrooms->hasPages())
+        <div class="flex justify-center pt-2">
+            {{ $classrooms->onEachSide(1)->links() }}
+        </div>
+    @endif
 </div>
 @endsection

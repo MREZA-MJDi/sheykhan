@@ -40,9 +40,15 @@ class CourseController extends Controller
             $lesson->is_completed = $lesson->student_progress >= 100;
         });
 
+        // Render the exact accessible lesson collection that received progress
+        // data above. Using the separately-loaded $course->sections.lessons here
+        // silently rendered a second set of models with no student progress values.
+        $lessonsBySection = $lessons->groupBy('course_section_id');
+
         return view('student.courses.show', [
             'course' => $course,
             'lessons' => $lessons,
+            'lessonsBySection' => $lessonsBySection,
         ]);
     }
 }

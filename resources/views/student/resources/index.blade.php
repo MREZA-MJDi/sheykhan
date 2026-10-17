@@ -8,10 +8,20 @@
 <div class="student-workspace-card-head"><div><h2 id="resources-title">کتابخانه آموزشی</h2><p>دسترسی هر منبع همچنان توسط backend کنترل می‌شود.</p></div></div>
 <div class="student-workspace-list">
 @forelse($resources as $resource)
+@php($resourceCourse = $resource->course ?? $resource->classroom?->course ?? $resource->lesson?->section?->course)
 <article class="student-workspace-row">
 <div class="student-workspace-date"><strong>↗</strong><small>فایل</small></div>
 <div class="student-workspace-row-main"><strong>{{ $resource->title }}</strong><span>{{ $resource->course?->title ?? $resource->classroom?->title ?? $resource->lesson?->title ?? 'منبع آموزشی' }} @if($resource->description) · {{ \Illuminate\Support\Str::limit($resource->description,90) }} @endif</span></div>
-<div class="student-workspace-actions"><a class="student-workspace-btn primary" href="{{ route('student.resources.view', $resource) }}">مشاهده امن</a><span class="student-workspace-status warning">دریافت مستقیم غیرفعال</span></div>
+<div class="student-workspace-actions">
+<a class="student-workspace-btn primary" href="{{ route('student.resources.view', $resource) }}">مشاهده امن</a>
+@if($resource->downloadable && $resourceCourse?->access_type === 'free')
+<a class="student-workspace-btn secondary" href="{{ route('student.resources.download', $resource) }}">دانلود فایل رایگان</a>
+@elseif($resourceCourse?->access_type === 'paid')
+<span class="student-workspace-status warning">دوره پولی · فقط مشاهده</span>
+@else
+<span class="student-workspace-status warning">دانلود مستقیم غیرفعال</span>
+@endif
+</div>
 </article>
 @empty<div class="student-workspace-empty"><strong>هنوز منبع آموزشی منتشر نشده است.</strong><span>با انتشار جزوه یا فایل، اینجا نمایش داده می‌شود.</span></div>@endforelse
 </div>

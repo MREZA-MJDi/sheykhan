@@ -19,14 +19,44 @@ final class StudentExamService
         return Exam::query()
             ->whereIn('course_id', $courseIds)
             ->where('status', 'published')
-            ->where(function (Builder $query) use ($student): void {
-                $query->whereNull('classroom_id')
-                    ->orWhereExists(function ($membership) use ($student): void {
-                        $membership->selectRaw('1')
-                            ->from('classroom_student')
-                            ->whereColumn('classroom_student.classroom_id', 'exams.classroom_id')
-                            ->where('classroom_student.student_id', $student->id)
-                            ->where('classroom_student.status', 'active');
+            ->whereExists(function ($group) use ($student): void {
+                $group->selectRaw('1')
+                    ->from('classroom_student as student_membership')
+                    ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                    ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                    ->join('course_enrollments as student_enrollment', function ($join) use ($student): void {
+                        $join->on('student_enrollment.classroom_id', '=', 'student_classroom.id')
+                            ->on('student_enrollment.course_id', '=', 'student_classroom.course_id')
+                            ->where('student_enrollment.student_id', '=', $student->id)
+                            ->where('student_enrollment.status', '=', 'active');
+                    })
+                    ->join('courses as enrolled_courses', 'enrolled_courses.id', '=', 'student_enrollment.course_id')
+                    ->where(function ($entitlement): void {
+                        $entitlement->where('enrolled_courses.access_type', 'free')
+                            ->orWhere(function ($paid): void {
+                                $paid->where('student_enrollment.payment_status', 'paid')
+                                    ->where('student_enrollment.paid_amount', '>', 0)
+                                    ->where(function ($amount): void {
+                                        $amount->whereNull('student_enrollment.price_amount')
+                                            ->orWhereColumn('student_enrollment.paid_amount', '>=', 'student_enrollment.price_amount');
+                                    })
+                                    ->whereExists(function ($transaction): void {
+                                        $transaction->selectRaw('1')
+                                            ->from('financial_transactions')
+                                            ->whereColumn('financial_transactions.enrollment_id', 'student_enrollment.id')
+                                            ->where('financial_transactions.status', 'completed')
+                                            ->where('financial_transactions.amount', '>', 0);
+                                    });
+                            });
+                    })
+                    ->whereColumn('student_classroom.course_id', 'exams.course_id')
+                    ->whereColumn('teaching_assignment.teacher_id', 'exams.teacher_id')
+                    ->where('student_classroom.status', 'active')
+                    ->where('student_membership.student_id', $student->id)
+                    ->where('student_membership.status', 'active')
+                    ->where(function ($scope): void {
+                        $scope->whereNull('exams.classroom_id')
+                            ->orWhereColumn('exams.classroom_id', 'student_classroom.id');
                     });
             })
             ->with([

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Attendance extends Model
 {
     use HasFactory;
-    protected $fillable=['classroom_id','student_id','marked_by','attendance_date','status','note'];
+    protected $fillable=['classroom_id','student_id','marked_by','attendance_date','scheduled_minutes','attended_minutes','status','note'];
     protected $casts=['attendance_date'=>'date'];
 
     /**

@@ -12,7 +12,16 @@
 <article class="student-workspace-row">
 <div class="student-workspace-date"><strong>{{ $assignment->due_at ? App\Support\PersianUi::date($assignment->due_at) : '—' }}</strong><small>موعد</small></div>
 <div class="student-workspace-row-main"><a href="{{ route('student.assignments.show',$assignment) }}">{{ $assignment->title }}</a><span>{{ $assignment->course?->title }} @if($assignment->classroom) · {{ $assignment->classroom->title }} @endif</span></div>
-@if($submission?->graded_at)<span class="student-workspace-status success">ارزیابی‌شده</span>@elseif($submission?->submitted_at)<span class="student-workspace-status primary">ارسال‌شده</span>@else<span class="student-workspace-status warning">نیازمند اقدام</span>@endif
+<div class="student-workspace-actions">
+@if($submission?->graded_at)
+<span class="student-workspace-status success">ارزیابی‌شده</span>
+@elseif($submission?->submitted_at)
+<span class="student-workspace-status primary">ارسال‌شده</span>
+@else
+<span class="student-workspace-status warning">نیازمند اقدام</span>
+@endif
+<a class="student-workspace-btn primary" href="{{ route('student.assignments.show',$assignment) }}">{{ $submission?->graded_at ? 'مشاهده نمره و بازخورد' : ($submission?->submitted_at ? 'مشاهده پاسخ' : 'باز کردن تکلیف') }}</a>
+</div>
 </article>
 @empty<div class="student-workspace-empty"><strong>تکلیف فعالی ندارید.</strong><span>با انتشار تکلیف مرتبط، اینجا نمایش داده می‌شود.</span></div>@endforelse
 </div>

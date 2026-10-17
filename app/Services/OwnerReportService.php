@@ -78,7 +78,7 @@ final class OwnerReportService
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
             ->whereIn('classrooms.academy_id', $academyIds)
             ->selectRaw(
-                "COUNT(*) AS total, SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended"
+                "SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS total, SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended"
             )
             ->first();
 
@@ -87,6 +87,13 @@ final class OwnerReportService
         $teacherReports = DB::table('course_teacher as ct')
             ->join('users', 'users.id', '=', 'ct.teacher_id')
             ->join('courses', 'courses.id', '=', 'ct.course_id')
+            ->leftJoinSub(
+                $this->analytics->teacherRosterCountsQuery($academyIds),
+                'cohort_counts',
+                'cohort_counts.teacher_id',
+                '=',
+                'ct.teacher_id'
+            )
             ->leftJoin('course_enrollments as enrollments', function ($join): void {
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
@@ -96,12 +103,21 @@ final class OwnerReportService
                     ->where('transactions.status', '=', 'completed');
             })
             ->whereIn('courses.academy_id', $academyIds)
-            ->groupBy('ct.teacher_id', 'users.name')
+            ->where('users.status', 'active')
+            ->whereExists(function ($membership): void {
+                $membership->selectRaw('1')
+                    ->from('academy_user as active_teacher_membership')
+                    ->whereColumn('active_teacher_membership.user_id', 'ct.teacher_id')
+                    ->whereColumn('active_teacher_membership.academy_id', 'courses.academy_id')
+                    ->where('active_teacher_membership.role', 'teacher')
+                    ->where('active_teacher_membership.status', 'active');
+            })
+            ->groupBy('ct.teacher_id', 'users.name', 'cohort_counts.student_count')
             ->select([
                 'ct.teacher_id',
                 'users.name',
                 DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
-                DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
+                DB::raw('COALESCE(cohort_counts.student_count, 0) AS student_count'),
                 DB::raw("COALESCE(SUM(CASE WHEN transactions.type = 'enrollment_payment' THEN transactions.amount WHEN transactions.type = 'refund' THEN -transactions.amount ELSE 0 END), 0) AS enrollment_sales"),
             ])
             ->orderByDesc('student_count')
@@ -173,7 +189,16 @@ final class OwnerReportService
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query->where('classroom_student.status', 'active'),
-                'teachers as teacher_count',
+                'teachers as teacher_count' => fn ($query) => $query
+                    ->where('users.status', 'active')
+                    ->whereExists(function ($membership): void {
+                        $membership->selectRaw('1')
+                            ->from('academy_user as active_teacher_membership')
+                            ->whereColumn('active_teacher_membership.user_id', 'users.id')
+                            ->whereColumn('active_teacher_membership.academy_id', 'classrooms.academy_id')
+                            ->where('active_teacher_membership.role', 'teacher')
+                            ->where('active_teacher_membership.status', 'active');
+                    }),
             ])
             ->latest()
             ->paginate(25, ['*'], 'classrooms_page');
@@ -190,7 +215,7 @@ final class OwnerReportService
                 ->groupBy('classroom_id')
                 ->select(
                     'classroom_id',
-                    DB::raw('COUNT(*) AS attendance_total'),
+                    DB::raw("SUM(CASE WHEN status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS attendance_total"),
                     DB::raw("SUM(CASE WHEN status IN ('present', 'late') THEN 1 ELSE 0 END) AS attendance_attended")
                 )
                 ->get()

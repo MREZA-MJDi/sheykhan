@@ -128,25 +128,34 @@
             </section>
 
             <section class="dashboard-panel p-5 sm:p-6">
-                <div class="flex items-center justify-between gap-3">
-                    <h2 class="text-base font-black">دانش‌آموزان</h2>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-base font-black">فهرست دانش‌آموزان کلاس</h2>
+                        <p class="mt-1 text-[10px] leading-6 text-slate-500">
+                            {{ \App\Support\PersianUi::digits($classroom->active_students_total) }} عضو فعال؛ فهرست به‌صورت صفحه‌بندی‌شده نمایش داده می‌شود.
+                        </p>
+                    </div>
                     <a href="{{ route('owner.people.index', $academy) }}"
                        class="text-[10px] font-black text-[var(--panel-primary)]">
-                        مدیریت اعضا
+                        مدیریت همه اعضای آموزشگاه
                     </a>
                 </div>
                 <div class="mt-4 grid gap-2">
-                    @forelse($classroom->students->take(8) as $student)
+                    @forelse($students as $student)
                         <div class="rounded-xl bg-slate-50 p-3">
                             <strong class="text-xs">{{ $student->name }}</strong>
-                            <span class="mt-1 block truncate text-[9px] text-slate-500">{{ $student->email }}</span>
+                            <span class="mt-1 block truncate text-[9px] text-slate-500">{{ $student->email ?: 'ایمیل ثبت نشده' }}</span>
                         </div>
                     @empty
-                        <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">دانش‌آموز فعالی در کلاس نیست.</div>
+                        <div class="rounded-xl bg-slate-50 p-4 text-center text-xs leading-6 text-slate-500">
+                            هنوز دانش‌آموز فعالی عضو این کلاس نیست. از بخش «اعضای آموزشگاه» ثبت‌نام را انجام بده و بعد همین کلاس را انتخاب کن.
+                        </div>
                     @endforelse
                 </div>
-                @if($classroom->active_students_total > $classroom->students->count())
-                    <p class="mt-3 text-[9px] text-slate-400">و {{ $classroom->active_students_total - $classroom->students->count() }} دانش‌آموز دیگر…</p>
+                @if($students->hasPages())
+                    <nav class="mt-4 flex justify-center" aria-label="صفحه‌بندی دانش‌آموزان کلاس">
+                        {{ $students->onEachSide(1)->links() }}
+                    </nav>
                 @endif
             </section>
         </div>

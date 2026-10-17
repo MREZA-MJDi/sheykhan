@@ -49,6 +49,11 @@ class LearningSeeder extends Seeder
             ['slug'=>'science-foundation-8','title'=>'علوم پایه هشتم','grade'=>'8','teacher'=>'teacher.science@sheykhan.test','price'=>1950000],
             ['slug'=>'gifted-prep-9','title'=>'آمادگی تیزهوشان پایه نهم','grade'=>'9','teacher'=>'teacher.gifted@sheykhan.test','price'=>2950000],
         ];
+        $classroomStudentEmails = [
+            'math-foundation-7' => ['student.armin@sheykhan.test', 'student.ava@sheykhan.test'],
+            'science-foundation-8' => ['student.nika@sheykhan.test', 'student.matin@sheykhan.test'],
+            'gifted-prep-9' => ['student.parsa@sheykhan.test', 'student.tara@sheykhan.test'],
+        ];
         $courses=collect();
         foreach($definitions as $d){
             $course=Course::firstOrCreate(['academy_id'=>$academy->id,'slug'=>$d['slug']],[
@@ -59,16 +64,60 @@ class LearningSeeder extends Seeder
             // Each demo course has one intentionally assigned primary teacher.
             $course->teachers()->sync([$teachers[$d['teacher']]->id => ['is_primary' => true]]);
             $section=CourseSection::firstOrCreate(['course_id'=>$course->id,'sort_order'=>1],['title'=>'بخش اول: شروع مسیر','description'=>'مفاهیم پایه و شروع مسیر آموزشی.']);
-            foreach(['آشنایی با مسیر یادگیری','مفاهیم کلیدی','حل نمونه سؤال','جمع‌بندی و تکلیف'] as $i=>$title){
-                $lesson=Lesson::firstOrCreate(['course_section_id'=>$section->id,'slug'=>$d['slug'].'-lesson-'.($i+1)],[
-                    'title'=>$title,'type'=>'video','summary'=>'این جلسه یک مفهوم کلیدی را با مثال و تمرین کوتاه آموزش می‌دهد.','content'=>'محتوای آموزشی این درس برای مطالعه و مرور طراحی شده و از پنل مدرس قابل ویرایش، تکمیل و انتشار است.',
-                    'duration_seconds'=>1200+($i*300),'is_free'=>$i===0,'status'=>'published','published_at'=>now()->subDays(15-$i),'sort_order'=>$i+1
-                ]);
-                $student=$students->values()->get($i%$students->count());
-                LessonProgress::firstOrCreate(['lesson_id'=>$lesson->id,'user_id'=>$student->id],[
-                    'progress_percent'=>$i===0?100:55,'seconds_watched'=>$i===0?$lesson->duration_seconds:650,
-                    'completed_at'=>$i===0?now()->subDays(2):null,'last_watched_at'=>now()->subDays($i+1)
-                ]);
+            $lessonDefinitions = match ($d['slug']) {
+                'math-foundation-7' => [
+                    ['title' => 'نسبت و تناسب در زندگی روزمره', 'summary' => 'نسبت دو مقدار را بخوان و از تناسب برای حل مسئله استفاده کن.', 'content' => "هدف درس: تشخیص نسبت و ساختن تناسب.\n\nمثال: برای تهیه شربت، به ازای هر ۲ پیمانه شربت، ۵ پیمانه آب می‌ریزیم. نسبت شربت به آب ۲ به ۵ است. اگر ۶ پیمانه شربت داشته باشیم، برای حفظ همان مزه چند پیمانه آب لازم است؟\n\nراه‌حل: چون ۶ سه برابر ۲ است، مقدار آب هم سه برابر می‌شود: ۵ × ۳ = ۱۵ پیمانه.\n\nتمرین: اگر ۴ دفتر ۱۲۰ هزار تومان باشد، قیمت ۷ دفتر با همان قیمت واحد چقدر است؟ راه‌حل را مرحله‌به‌مرحله بنویس.", 'free' => true],
+                    ['title' => 'عبارت‌های جبری و جای‌گذاری', 'summary' => 'حروف در عبارت جبری چه معنایی دارند؟', 'content' => "هدف درس: مقداردهی به متغیر و محاسبه عبارت جبری.\n\nدر عبارت ۳x + ۴، حرف x یک مقدار نامعلوم یا متغیر است. اگر x = ۵ باشد، ابتدا ضرب را انجام می‌دهیم: ۳ × ۵ + ۴ = ۱۹.\n\nیادت باشد ترتیب عملیات را رعایت کنی؛ ابتدا پرانتز، سپس ضرب و تقسیم و بعد جمع و تفریق.\n\nتمرین: برای x = ۶ مقدار ۲x + ۷ را حساب کن و توضیح بده کدام مرحله را اول انجام دادی.", 'free' => false],
+                    ['title' => 'حل مسئله با معادله یک‌مرحله‌ای', 'summary' => 'متن مسئله را به یک تساوی قابل حل تبدیل کن.', 'content' => "هدف درس: تبدیل جمله به معادله و بررسی جواب.\n\nمثال: عددی را با ۸ جمع کردیم و حاصل ۲۱ شد. عدد را x می‌نامیم: x + ۸ = ۲۱. با کم‌کردن ۸ از دو طرف، x = ۱۳ به دست می‌آید.\n\nبرای بررسی، ۱۳ + ۸ = ۲۱ است؛ پس پاسخ درست است.\n\nتمرین: اگر سه برابر عددی برابر ۲۷ باشد، معادله را بنویس و عدد را پیدا کن.", 'free' => false],
+                    ['title' => 'مرور فصل و خودسنجی', 'summary' => 'سه مهارت فصل را قبل از آزمون بررسی کن.', 'content' => "چک‌لیست مرور: ۱) نسبت هم‌ارز را می‌سازی؛ ۲) مقدار متغیر را در عبارت جای‌گذاری می‌کنی؛ ۳) معادله یک‌مرحله‌ای را حل و با جای‌گذاری بررسی می‌کنی.\n\nخودسنجی: بدون نگاه به مثال‌ها، مسئله قیمت ۵ بلیت را از روی قیمت ۲ بلیت حل کن. اگر هنوز در یک مرحله مطمئن نیستی، به درس مربوط برگرد و راه‌حل خودت را با مثال مقایسه کن.", 'free' => false],
+                ],
+                'science-foundation-8' => [
+                    ['title' => 'انرژی و تبدیل‌های آن', 'summary' => 'انرژی از بین نمی‌رود؛ شکل آن در فرایندها تغییر می‌کند.', 'content' => "هدف درس: تشخیص شکل‌های انرژی در یک موقعیت روزمره.\n\nمثال: در چراغ‌قوه، انرژی شیمیایی باتری به انرژی الکتریکی و سپس به انرژی نورانی و گرمایی تبدیل می‌شود. در یک توپ در حال حرکت، انرژی جنبشی داریم؛ هرچه سرعت بیشتر باشد، انرژی جنبشی بیشتر است.\n\nتمرین: مسیر تبدیل انرژی را در یک پنکه و یک اجاق برقی بنویس. مشخص کن در هرکدام چه مقدار از انرژی به شکل گرما ظاهر می‌شود.", 'free' => true],
+                    ['title' => 'نیرو، حرکت و اصطکاک', 'summary' => 'اثر نیرو را از تغییر سرعت یا جهت حرکت می‌شناسیم.', 'content' => "هدف درس: توضیح نقش نیرو و اصطکاک.\n\nنیرو می‌تواند سرعت یا جهت حرکت جسم را تغییر دهد یا شکل آن را عوض کند. اصطکاک میان دو سطح معمولاً در برابر لغزش مقاومت می‌کند؛ همین نیرو باعث می‌شود کف کفش به زمین بچسبد، اما مقداری انرژی نیز به گرما تبدیل شود.\n\nتمرین: چرا روی سطح یخی توقف دوچرخه سخت‌تر است؟ پاسخ را با مفهوم اصطکاک توضیح بده.", 'free' => false],
+                    ['title' => 'فشار در مایعات', 'summary' => 'فشار مایع با عمق افزایش پیدا می‌کند.', 'content' => "هدف درس: درک رابطه عمق و فشار مایع.\n\nدر یک مایع ساکن، هرچه پایین‌تر برویم، ستون مایع بالای سرمان بلندتر است و فشار بیشتر می‌شود. به همین دلیل سوراخ پایین بطری معمولاً آب را با شدت بیشتری بیرون می‌فرستد.\n\nتمرین: روی یک بطری آب سه سوراخ در ارتفاع‌های متفاوت تصور کن. پیش‌بینی کن کدام جریان دورتر می‌رود و دلیل خود را بنویس.", 'free' => false],
+                    ['title' => 'مرور مفاهیم و پرسش پژوهشی', 'summary' => 'دانسته‌ها را با مشاهده و دلیل به هم وصل کن.', 'content' => "برای جمع‌بندی، برای هر پدیده یک مشاهده و یک توضیح علمی بنویس: تبدیل انرژی در پنکه، نقش اصطکاک در توقف دوچرخه و افزایش فشار با عمق.\n\nپرسش پژوهشی: کدام متغیرها روی فاصله حرکت یک اسباب‌بازی پس از رهاشدن اثر می‌گذارند؟ فرضیه بنویس و بگو برای منصفانه بودن آزمایش چه چیزهایی باید ثابت بماند.", 'free' => false],
+                ],
+                default => [
+                    ['title' => 'الگویابی و تشخیص قاعده', 'summary' => 'از چند نمونه، قاعده تولید جمله بعدی را استخراج کن.', 'content' => "هدف درس: کشف قاعده به جای حدس‌زدن پاسخ.\n\nمثال: دنباله ۲، ۶، ۱۲، ۲۰، ۳۰ را بررسی کن. اختلاف‌ها ۴، ۶، ۸ و ۱۰ هستند؛ اختلاف‌ها خودشان هر بار ۲ واحد افزایش دارند. جمله بعدی ۴۲ است، چون اختلاف بعدی ۱۲ خواهد بود.\n\nتمرین: دنباله ۱، ۴، ۹، ۱۶، ۲۵ را بررسی کن. قاعده را توضیح بده و دو جمله بعدی را بنویس.", 'free' => true],
+                    ['title' => 'استدلال منطقی و حذف حالت‌ها', 'summary' => 'با شروط مسئله، حالت‌های ناممکن را حذف کن.', 'content' => "در مسائل منطقی، ابتدا داده‌ها را جدا کن، سپس شرط‌های قطعی را به ترتیب اعمال کن. حدس اولیه را تا وقتی با همه شرط‌ها سازگار نشده، پاسخ نهایی تلقی نکن.\n\nتمرین: سه دانش‌آموز در مسابقه رتبه‌های اول تا سوم گرفته‌اند. علی اول نشده، مینا دوم نشده و رضا سوم نشده است. همه حالت‌های ممکن را فهرست کن و با شرط‌های مسئله سازگارها را نگه دار.", 'free' => false],
+                    ['title' => 'شمارش نظام‌مند حالت‌ها', 'summary' => 'با جدول یا نمودار درختی، هیچ حالت را جا نینداز.', 'content' => "اگر سه پیراهن و دو شلوار متفاوت داشته باشیم، هر پیراهن با هر شلوار یک ترکیب می‌سازد؛ بنابراین ۳ × ۲ = ۶ ترکیب داریم. فهرست‌کردن منظم حالت‌ها از دوباره‌شماری و جاافتادن پاسخ جلوگیری می‌کند.\n\nتمرین: با چهار کارت رنگی و سه کارت عددی، اگر یک کارت از هر گروه انتخاب شود، چند جفت متفاوت ساخته می‌شود؟ راه‌حل را با جدول یا نمودار درختی نشان بده.", 'free' => false],
+                    ['title' => 'مرور راهبردهای حل مسئله', 'summary' => 'قاعده، شرط و شمارش را در یک مسئله ترکیب کن.', 'content' => "پیش از آزمون، این راهبردها را تمرین کن: ۱) داده‌ها و شرط‌ها را جدا بنویس؛ ۲) نمونه‌های کوچک بساز؛ ۳) جدول یا نمودار درختی رسم کن؛ ۴) پاسخ را با تمام شرط‌ها بررسی کن.\n\nخودسنجی: یک مسئله منطقی بساز که دست‌کم سه شرط داشته باشد، آن را با دوستت عوض کن و بررسی کن آیا برای آن پاسخ یکتا وجود دارد.", 'free' => false],
+                ],
+            };
+
+            foreach ($lessonDefinitions as $i => $definition) {
+                $lesson = Lesson::query()->updateOrCreate(
+                    ['course_section_id' => $section->id, 'slug' => $d['slug'].'-lesson-'.($i+1)],
+                    [
+                        'title' => $definition['title'],
+                        // The seed set contains real reading content, not fake MP4 placeholders.
+                        'type' => 'text',
+                        'summary' => $definition['summary'],
+                        'content' => $definition['content'],
+                        'duration_seconds' => 0,
+                        'is_free' => $definition['free'],
+                        'status' => 'published',
+                        'published_at' => now()->subDays(15 - $i),
+                        'sort_order' => $i + 1,
+                    ],
+                );
+
+                // Seed progress only for learners actually enrolled in this course's classroom.
+                $courseStudentEmails = $classroomStudentEmails[$d['slug']] ?? [];
+                foreach ($courseStudentEmails as $studentIndex => $email) {
+                    $student = $students[$email];
+                    $completed = $i === 0 || (($i + $studentIndex) % 3 === 0);
+
+                    LessonProgress::updateOrCreate(
+                        ['lesson_id' => $lesson->id, 'user_id' => $student->id],
+                        [
+                            'progress_percent' => $completed ? 100 : (($i + $studentIndex) % 2 === 0 ? 55 : 25),
+                            'seconds_watched' => 0,
+                            'completed_at' => $completed ? now()->subDays($i + $studentIndex + 1) : null,
+                            'last_watched_at' => now()->subDays($i + $studentIndex + 1),
+                        ],
+                    );
+                }
             }
             $courses->push($course->fresh(['sections.lessons']));
         }
@@ -110,7 +159,7 @@ class LearningSeeder extends Seeder
                     ]
                 );
 
-                Attendance::firstOrCreate(
+                Attendance::updateOrCreate(
                     [
                         'classroom_id' => $c->id,
                         'student_id' => $s->id,
@@ -119,6 +168,8 @@ class LearningSeeder extends Seeder
                     [
                         'marked_by' => $teachers[$d['teacher']]->id,
                         'status' => 'present',
+                        'scheduled_minutes' => 90,
+                        'attended_minutes' => 90,
                     ]
                 );
             }
@@ -154,10 +205,10 @@ class LearningSeeder extends Seeder
         }
 
         foreach([
-            ['course'=>0,'classroom'=>0,'teacher'=>'teacher.math@sheykhan.test','title'=>'جلسه ۱ ریاضی: حل مسئله','days'=>8,'status'=>'completed','released'=>true],
+            ['course'=>0,'classroom'=>0,'teacher'=>'teacher.math@sheykhan.test','title'=>'جلسه ۱ ریاضی: حل مسئله','days'=>8,'status'=>'completed','released'=>false],
             ['course'=>0,'classroom'=>0,'teacher'=>'teacher.math@sheykhan.test','title'=>'جلسه ۲ ریاضی: الگوها','days'=>2,'status'=>'completed','released'=>false],
             ['course'=>1,'classroom'=>1,'teacher'=>'teacher.science@sheykhan.test','title'=>'جلسه ۱ علوم: انرژی','days'=>-1,'status'=>'scheduled','released'=>false],
-            ['course'=>2,'classroom'=>2,'teacher'=>'teacher.gifted@sheykhan.test','title'=>'جلسه جمع‌بندی تیزهوشان','days'=>5,'status'=>'completed','released'=>true],
+            ['course'=>2,'classroom'=>2,'teacher'=>'teacher.gifted@sheykhan.test','title'=>'جلسه جمع‌بندی تیزهوشان','days'=>5,'status'=>'completed','released'=>false],
         ] as $d){
             $scheduled=$d['days']>=0?now()->subDays($d['days'])->setTime(18,0):now()->addDays(abs($d['days']))->setTime(18,0);
             $media=$d['released']?SeedMedia::make('live-'.$d['course'],$owner->id,'video/mp4','mp4','live-classes','private'):null;
@@ -171,34 +222,44 @@ class LearningSeeder extends Seeder
         }
 
         foreach($courses as $i=>$course){
-            $teacher=$teachers->values()->get($i%$teachers->count()); $classroom=$classrooms->get($i); $student=$students->values()->get($i%$students->count());
-            $assignment=Assignment::firstOrCreate(['course_id'=>$course->id,'title'=>'تکلیف هفته '.($i+1)],[
+            // Sample assessment data must follow the same teacher and student
+            // cohort as its course/classroom; never rotate unrelated learners.
+            $classroomDefinition = $classroomDefs[$i] ?? null;
+            if (! $classroomDefinition) {
+                continue;
+            }
+
+            $teacher = $teachers[$classroomDefinition['teacher']];
+            $classroom = $classrooms->get((int) $classroomDefinition['course']);
+            $student = $students[$classroomDefinition['students'][0]];
+
+            $assignment=Assignment::updateOrCreate(['course_id'=>$course->id,'title'=>'تکلیف هفته '.($i+1)],[
                 'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'instructions'=>'تمرین‌های مشخص‌شده را حل کن و راه‌حل مرحله‌به‌مرحله‌ات را در پاسخ ثبت کن.','due_at'=>now()->addDays(7),'max_score'=>100,'status'=>'published'
             ]);
-            AssignmentSubmission::firstOrCreate(['assignment_id'=>$assignment->id,'student_id'=>$student->id],[
+            AssignmentSubmission::updateOrCreate(['assignment_id'=>$assignment->id,'student_id'=>$student->id],[
                 'content'=>'پاسخ ثبت‌شده دانش‌آموز برای این تکلیف.','submitted_at'=>now()->subDay(),'score'=>92,'feedback'=>'پاسخ خوب است.','graded_at'=>now()->subHours(12),'graded_by'=>$teacher->id
             ]);
-            $exam=Exam::firstOrCreate(['course_id'=>$course->id,'title'=>'آزمون دوره '.($i+1)],[
+            $exam=Exam::updateOrCreate(['course_id'=>$course->id,'title'=>'آزمون دوره '.($i+1)],[
                 'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'description'=>'آزمون مرحله‌ای برای سنجش میزان یادگیری و مشخص‌کردن مباحثی که نیاز به مرور بیشتری دارند.','duration_minutes'=>45,
                 'starts_at'=>now()->subDay(),'ends_at'=>now()->addDay(),'attempts_allowed'=>2,'status'=>'published'
             ]);
             $questions=collect();
             foreach([['2+2 چند می‌شود؟',['3','4','5','6'],'4'],['گزینه درست را انتخاب کنید.',['A','B','C','D'],'B']] as $qi=>$q){
-                $questions->push(Question::firstOrCreate(['exam_id'=>$exam->id,'sort_order'=>$qi+1],[
-                    'type'=>'multiple_choice','question'=>$q[0],'options'=>$q[1],'correct_answer'=>$q[2],'score'=>1,'sort_order'=>$qi+1
+                $questions->push(Question::updateOrCreate(['exam_id'=>$exam->id,'sort_order'=>$qi+1],[
+                    'type'=>'single','question'=>$q[0],'options'=>$q[1],'correct_answer'=>$q[2],'score'=>1,'sort_order'=>$qi+1
                 ]));
             }
-            $attempt=ExamAttempt::firstOrCreate(['exam_id'=>$exam->id,'student_id'=>$student->id,'attempt_number'=>1],[
+            $attempt=ExamAttempt::updateOrCreate(['exam_id'=>$exam->id,'student_id'=>$student->id,'attempt_number'=>1],[
                 'started_at'=>now()->subHours(3),'submitted_at'=>now()->subHours(2),'score'=>2,'status'=>'submitted'
             ]);
-            foreach($questions as $q){ExamAnswer::firstOrCreate(['exam_attempt_id'=>$attempt->id,'question_id'=>$q->id],['answer'=>$q->correct_answer,'is_correct'=>true,'score'=>$q->score]);}
+            foreach($questions as $q){ExamAnswer::updateOrCreate(['exam_attempt_id'=>$attempt->id,'question_id'=>$q->id],['answer'=>$q->correct_answer,'is_correct'=>true,'score'=>$q->score]);}
         }
 
         $media=SeedMedia::make('math-handout',$owner->id,'application/pdf','pdf','learning-resources','private');
         LearningResource::firstOrCreate(
             ['academy_id'=>$academy->id,'course_id'=>$courses->first()->id,'title'=>'جزوه ریاضی'],
             ['classroom_id'=>$classrooms->first()->id,'lesson_id'=>$courses->first()->sections->first()->lessons->first()->id,'media_id'=>$media->id,'uploaded_by'=>$owner->id,
-             'description'=>'منبع آموزشی منتشرشده برای مرور مباحث و تمرین بیشتر.','resource_type'=>'pdf','visibility'=>'enrolled_students','release_at'=>now()->subDay(),'downloadable'=>true,'status'=>'published','sort_order'=>1]
+             'description'=>'منبع آموزشی منتشرشده برای مرور مباحث و تمرین بیشتر.','resource_type'=>'pdf','visibility'=>'enrolled_students','release_at'=>now()->subDay(),'downloadable'=>false,'status'=>'published','sort_order'=>1]
         );
     }
 }

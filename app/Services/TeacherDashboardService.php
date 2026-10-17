@@ -58,7 +58,8 @@ final class TeacherDashboardService
             ->count();
 
         $pendingExamReviews = ExamAttempt::query()
-            ->where('status', 'submitted')
+            // These are all statuses rendered as awaiting review in the grading UI.
+            ->whereIn('status', ['submitted', 'pending_review', 'needs_review'])
             ->whereHas('exam', fn ($query) => $query
                 ->where('teacher_id', $teacher->id)
                 ->whereIn('course_id', $courseIds))
@@ -123,6 +124,7 @@ final class TeacherDashboardService
             })
             ->join('course_enrollments as enrollments', function ($join): void {
                 $join->on('enrollments.student_id', '=', 'memberships.student_id')
+                    ->on('enrollments.classroom_id', '=', 'classrooms.id')
                     ->on('enrollments.course_id', '=', 'classrooms.course_id')
                     ->where('enrollments.status', '=', 'active');
             })
@@ -173,51 +175,96 @@ final class TeacherDashboardService
         ];
     }
 
+private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
+    {
+        return DB::table('course_teacher')
+            ->select('course_id')
+            ->whereIn('course_id', $courseIds)
+            ->groupBy('course_id')
+            ->havingRaw('COUNT(DISTINCT teacher_id) = 1')
+            ->havingRaw('MAX(teacher_id) = ?', [$teacherId])
+            ->pluck('course_id');
+    }
+
+    /**
+     * One row per eligible student × published lesson. Class-based learners are
+     * included only when this teacher is assigned to that exact classroom and
+     * its roster membership is active. A classroom-less enrollment is visible
+     * only when the course has one assigned teacher; otherwise ownership of a
+     * shared public course must not expose another teacher's cohort.
+     */
+    private function teacherLearningMatrix(int $teacherId, $courseIds)
+    {
+        $exclusiveCourseIds = $this->exclusiveCourseIdsForTeacher($teacherId, $courseIds);
+
+        return DB::table('course_teacher as course_teachers')
+            ->join('courses', 'courses.id', '=', 'course_teachers.course_id')
+            ->join('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.course_id', '=', 'courses.id')
+                    ->where('enrollments.status', '=', 'active');
+            })
+            ->leftJoin('classrooms', function ($join): void {
+                $join->on('classrooms.id', '=', 'enrollments.classroom_id')
+                    ->on('classrooms.course_id', '=', 'courses.id')
+                    ->where('classrooms.status', '=', 'active');
+            })
+            ->leftJoin('classroom_teacher as assigned_teachers', function ($join) use ($teacherId): void {
+                $join->on('assigned_teachers.classroom_id', '=', 'classrooms.id')
+                    ->where('assigned_teachers.teacher_id', '=', $teacherId);
+            })
+            ->leftJoin('classroom_student as memberships', function ($join): void {
+                $join->on('memberships.classroom_id', '=', 'classrooms.id')
+                    ->on('memberships.student_id', '=', 'enrollments.student_id')
+                    ->where('memberships.status', '=', 'active');
+            })
+            ->leftJoin('course_sections', 'course_sections.course_id', '=', 'courses.id')
+            ->leftJoin('lessons', function ($join): void {
+                $join->on('lessons.course_section_id', '=', 'course_sections.id')
+                    ->where('lessons.status', '=', 'published')
+                    ->where(function ($published): void {
+                        $published->whereNull('lessons.published_at')
+                            ->orWhere('lessons.published_at', '<=', now());
+                    });
+            })
+            ->leftJoin('lesson_progress as progress', function ($join): void {
+                $join->on('progress.lesson_id', '=', 'lessons.id')
+                    ->on('progress.user_id', '=', 'enrollments.student_id');
+            })
+            ->where('course_teachers.teacher_id', $teacherId)
+            ->whereIn('course_teachers.course_id', $courseIds)
+            ->where(function ($scope) use ($exclusiveCourseIds): void {
+                $scope->where(function ($classroomScope): void {
+                    $classroomScope->whereNotNull('assigned_teachers.classroom_id')
+                        ->whereNotNull('memberships.student_id');
+                });
+
+                if ($exclusiveCourseIds->isNotEmpty()) {
+                    $scope->orWhere(function ($directEnrollment) use ($exclusiveCourseIds): void {
+                        $directEnrollment->whereNull('enrollments.classroom_id')
+                            ->whereIn('courses.id', $exclusiveCourseIds);
+                    });
+                }
+            });
+    }
+
     private function progressAverage(int $teacherId, $courseIds): float
     {
-        return (float) (
-            DB::table('lesson_progress as progress')
-                ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-                ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-                ->join('course_enrollments as enrollments', function ($join): void {
-                    $join->on('enrollments.course_id', '=', 'course_sections.course_id')
-                        ->on('enrollments.student_id', '=', 'progress.user_id')
-                        ->where('enrollments.status', '=', 'active');
-                })
-                ->join('course_teacher as ct', function ($join) use ($teacherId): void {
-                    $join->on('ct.course_id', '=', 'course_sections.course_id')
-                        ->where('ct.teacher_id', '=', $teacherId);
-                })
-                ->whereIn('course_sections.course_id', $courseIds)
-                ->avg('progress.progress_percent') ?? 0
-        );
+        return (float) ($this->teacherLearningMatrix($teacherId, $courseIds)
+            ->avg(DB::raw('COALESCE(progress.progress_percent, 0)')) ?? 0);
     }
 
     private function courseProgress(int $teacherId, $courseIds)
     {
-        return DB::table('course_teacher as ct')
-            ->join('courses', 'courses.id', '=', 'ct.course_id')
-            ->leftJoin('course_enrollments as enrollments', function ($join): void {
-                $join->on('enrollments.course_id', '=', 'courses.id')
-                    ->where('enrollments.status', '=', 'active');
-            })
-            ->leftJoin('lesson_progress as progress', 'progress.user_id', '=', 'enrollments.student_id')
-            ->leftJoin('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->leftJoin('course_sections', function ($join): void {
-                $join->on('course_sections.id', '=', 'lessons.course_section_id')
-                    ->on('course_sections.course_id', '=', 'courses.id');
-            })
-            ->where('ct.teacher_id', $teacherId)
-            ->whereIn('ct.course_id', $courseIds)
-            ->groupBy('ct.course_id', 'courses.title')
-            ->orderByDesc('ct.course_id')
+        return $this->teacherLearningMatrix($teacherId, $courseIds)
+            ->groupBy('courses.id', 'courses.title')
+            ->orderByDesc('courses.id')
             ->get([
-                'ct.course_id',
+                'courses.id as course_id',
                 'courses.title',
                 DB::raw('COUNT(DISTINCT enrollments.student_id) AS student_count'),
-                DB::raw('COALESCE(AVG(progress.progress_percent), 0) AS progress_average'),
+                DB::raw('ROUND(COALESCE(AVG(COALESCE(progress.progress_percent, 0)), 0)) AS progress_average'),
             ])
-            ->map(function ($row) {
+            ->map(function ($row): object {
                 $row->student_count = (int) $row->student_count;
                 $row->progress_average = round((float) $row->progress_average);
 
@@ -231,14 +278,8 @@ final class TeacherDashboardService
         $values = [];
         $dayMap = [0 => 'ی', 1 => 'د', 2 => 'س', 3 => 'چ', 4 => 'پ', 5 => 'ج', 6 => 'ش'];
 
-        $rows = DB::table('lesson_progress as progress')
-            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->join('course_teacher as ct', function ($join) use ($teacherId): void {
-                $join->on('ct.course_id', '=', 'course_sections.course_id')
-                    ->where('ct.teacher_id', '=', $teacherId);
-            })
-            ->whereIn('course_sections.course_id', $courseIds)
+        $rows = $this->teacherLearningMatrix($teacherId, $courseIds)
+            ->whereNotNull('progress.last_watched_at')
             ->whereBetween('progress.last_watched_at', [$from, $to])
             ->groupBy(DB::raw('DATE(progress.last_watched_at)'))
             ->selectRaw('DATE(progress.last_watched_at) as day, AVG(progress.progress_percent) as value')
@@ -265,14 +306,8 @@ final class TeacherDashboardService
             default => "EXTRACT(WEEK FROM progress.last_watched_at)",
         };
 
-        $rows = DB::table('lesson_progress as progress')
-            ->join('lessons', 'lessons.id', '=', 'progress.lesson_id')
-            ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
-            ->join('course_teacher as ct', function ($join) use ($teacherId): void {
-                $join->on('ct.course_id', '=', 'course_sections.course_id')
-                    ->where('ct.teacher_id', '=', $teacherId);
-            })
-            ->whereIn('course_sections.course_id', $courseIds)
+        $rows = $this->teacherLearningMatrix($teacherId, $courseIds)
+            ->whereNotNull('progress.last_watched_at')
             ->whereBetween('progress.last_watched_at', [$from, $to])
             ->selectRaw("{$weekExpression} as week_number, AVG(progress.progress_percent) as value")
             ->groupBy(DB::raw($weekExpression))
@@ -300,7 +335,7 @@ final class TeacherDashboardService
         return ['labels' => $labels, 'values' => $values];
     }
 
-    private function todaySessions(User $teacher, $classrooms, $courseIds)
+        private function todaySessions(User $teacher, $classrooms, $courseIds)
     {
         $weekday = now()->dayOfWeek;
 

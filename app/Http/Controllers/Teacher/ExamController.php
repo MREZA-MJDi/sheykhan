@@ -46,11 +46,30 @@ class ExamController extends Controller
             $exam = $course->exams()->create($payload);
 
             foreach ($request->validated('questions', []) as $index => $question) {
+                $type = $question['type'] ?? 'text';
+                $options = $type === 'text'
+                    ? null
+                    : array_values(array_filter(
+                        (array) ($question['options'] ?? []),
+                        static fn ($option) => is_string($option) && trim($option) !== ''
+                    ));
+
+                $correctAnswer = $type === 'text'
+                    ? null
+                    : ($question['correct_answer'] ?? null);
+
+                // The database stores the expected answer in a text column.
+                // Multi-answer questions are stored as JSON so the grading
+                // service can compare a normalized list of selected options.
+                if (is_array($correctAnswer)) {
+                    $correctAnswer = json_encode(array_values($correctAnswer), JSON_UNESCAPED_UNICODE);
+                }
+
                 $exam->questions()->create([
-                    'type' => $question['type'] ?? 'text',
+                    'type' => $type,
                     'question' => $question['question'],
-                    'options' => $question['options'] ?? null,
-                    'correct_answer' => $question['correct_answer'] ?? null,
+                    'options' => $options,
+                    'correct_answer' => $correctAnswer,
                     'score' => $question['score'] ?? 1,
                     'sort_order' => $index,
                 ]);

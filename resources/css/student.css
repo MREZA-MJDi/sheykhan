@@ -4306,3 +4306,83 @@
     .student-dashboard-ui .student-ui-kpis > article,.student-dashboard-ui .student-ui-board-card { transition:none !important; }
     .student-dashboard-ui .student-ui-kpis > article:hover,.student-dashboard-ui .student-ui-board-card:hover { transform:none; }
 }
+
+
+/* Calm, white learning workspace refresh — applied after legacy dashboard rules. */
+.student-shell{--panel-bg:#f7f8fa;--panel-text:#202939;--panel-muted:#667085;--panel-border:#e5e7eb;--panel-primary:#2563eb;--panel-primary-dark:#1d4ed8;--panel-primary-soft:#eff6ff;background:#f7f8fa;color:#202939}
+.student-shell .role-layout{background:#f7f8fa}
+.student-shell .role-sidebar{background:#fff;border-left:1px solid #e5e7eb;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.student-shell .role-sidebar-brand{border-bottom-color:#eef0f3}
+.student-shell .role-brand-mark{background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;box-shadow:none;border-radius:12px}
+.student-shell .role-sidebar-label{color:#9ca3af}
+.student-shell .role-nav-link{min-height:42px;border-radius:10px;color:#596579;transition:background .15s ease,color .15s ease}
+.student-shell .role-nav-link:hover{background:#f8fafc;color:#1f2937}
+.student-shell .role-nav-link.is-active{background:#eff6ff;color:#1d4ed8;box-shadow:none;font-weight:800}
+.student-shell .role-topbar{background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.student-shell .role-main{padding:24px 28px 40px}
+.student-shell .student-ui-hero{min-height:0;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;padding:25px 27px;border:1px solid #e5e7eb;border-radius:16px;background:#fff!important;color:#202939!important;box-shadow:none}
+.student-shell .student-ui-hero-art{display:none!important}
+.student-shell .student-ui-hero-copy{max-width:850px}
+.student-shell .student-ui-eyebrow{color:#2563eb!important;font-weight:800}
+.student-shell .student-ui-hero-copy h2{color:#111827!important;font-size:clamp(22px,2.2vw,28px)}
+.student-shell .student-ui-hero-copy p{color:#667085!important;max-width:720px}
+.student-shell .student-ui-hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.student-shell .student-ui-hero-meta span{border:1px solid #e5e7eb;border-radius:9px;background:#fff!important;color:#667085!important;padding:7px 10px}
+.student-shell .student-ui-hero-meta b{color:#344054!important}
+.student-shell .student-ui-primary{border:1px solid #2563eb;border-radius:10px;background:#2563eb!important;color:#fff!important;box-shadow:none!important}
+.student-shell .student-ui-secondary{border:1px solid #e5e7eb;border-radius:10px;background:#fff!important;color:#344054!important}
+.student-shell .student-focus-card{background:#fff!important;border:1px solid #e5e7eb;border-radius:14px;box-shadow:none}
+.student-shell .student-focus-copy h2{color:#202939}
+.student-shell .student-focus-copy p{color:#667085}
+.student-shell .student-focus-kicker{color:#2563eb}
+.student-shell .student-focus-action{background:#2563eb!important;color:#fff!important;border-radius:10px;box-shadow:none!important}
+.student-shell .student-focus-art{background:#f8fafc!important;border:1px solid #edf0f3;color:#1f2937}
+.student-shell .student-focus-art strong{color:#2563eb}
+.student-shell .student-focus-progress-track{background:#eef2f7}
+.student-shell .student-focus-progress-track i,.student-shell .student-ui-progress>span{background:#2563eb!important}
+.student-shell .student-ui-kpis{gap:12px}
+.student-shell .student-ui-kpis>article{border:1px solid #e5e7eb;border-radius:13px;background:#fff!important;box-shadow:none!important;transition:border-color .15s ease}
+.student-shell .student-ui-kpis>article:before,.student-shell .student-ui-kpis>article:after{display:none!important}
+.student-shell .student-ui-kpis>article:hover{transform:none;border-color:#cbd5e1;background:#fff!important}
+.student-shell .student-ui-kpis>article>span,.student-shell .student-ui-kpis>article small{color:#667085}
+.student-shell .student-ui-kpis>article>strong{color:#111827}
+.student-shell .student-ui-kpi-icon{background:#f8fafc!important;color:#475569!important;box-shadow:none!important}
+.student-shell .student-ui-task-board,.student-shell .student-ui-panel,.student-shell .student-ui-people-panel,.student-shell .student-ui-calendar,.student-shell .student-ui-rail-panel,.student-shell .student-ui-rail-profile,.student-shell .student-workspace-card{border:1px solid #e5e7eb;border-radius:14px;background:#fff!important;box-shadow:none!important}
+.student-shell .student-ui-board-head{border-bottom-color:#eef0f3}
+.student-shell .student-ui-board-head>div>span,.student-shell .student-ui-section-title>div>span{color:#2563eb}
+.student-shell .student-ui-board-head h2,.student-shell .student-ui-section-title h2{color:#202939}
+.student-shell .student-ui-board-head>a,.student-shell .student-ui-panel-head>a{color:#2563eb}
+.student-shell .student-ui-board-cards{gap:10px}
+.student-shell .student-ui-board-card{border:1px solid #e5e7eb!important;border-radius:12px;background:#fff!important;color:#202939!important;box-shadow:none!important;transition:border-color .15s ease}
+.student-shell .student-ui-board-card:hover{transform:none;border-color:#bfdbfe!important;background:#f8fbff!important;box-shadow:none!important}
+.student-shell .student-ui-board-card :is(strong,small,span,b){color:inherit}
+.student-shell .student-ui-board-card small,.student-shell .student-ui-board-card span{color:#667085!important}
+.student-shell .student-ui-board-icon{background:#eff6ff!important;color:#2563eb!important}
+.student-shell .student-ui-course{border:1px solid #e5e7eb;border-radius:12px;background:#fff!important;box-shadow:none!important}
+.student-shell .student-ui-course:hover{border-color:#cbd5e1;box-shadow:none!important}
+.student-shell .student-ui-course h3,.student-shell .student-ui-course-copy h3{color:#202939}
+.student-shell .student-ui-course-copy :is(small,p){color:#667085}
+.student-shell .student-ui-course>a{color:#2563eb}
+.student-shell .student-ui-course-index{background:#eff6ff;color:#2563eb}
+.student-shell .student-ui-quick-grid>a{border:1px solid #e5e7eb;border-radius:11px;background:#fff;box-shadow:none}
+.student-shell .student-ui-quick-grid>a:hover{background:#f8fbff;border-color:#bfdbfe;transform:none}
+.student-shell .student-ui-quick-grid>a>i{background:#eff6ff;color:#2563eb}
+.student-shell .student-ui-panel-head{border-bottom-color:#eef0f3}
+.student-shell .student-ui-panel-head h2{color:#202939}
+.student-shell .student-ui-panel-head>div>span{color:#2563eb}
+.student-shell .student-ui-chart>div>span{background:#f1f5f9}
+.student-shell .student-ui-chart>div>span>i{background:#93c5fd}
+.student-shell .student-ui-chart>div>b,.student-shell .student-ui-chart>div>small{color:#667085}
+.student-shell .student-ui-task-list>a,.student-shell .student-ui-results article,.student-shell .student-ui-resource-grid>a,.student-shell .student-ui-schedule,.student-shell .student-ui-reminder,.student-shell .student-ui-person-card{border-color:#eef0f3;background:#fff;box-shadow:none}
+.student-shell .student-ui-task-list>a:hover,.student-shell .student-ui-resource-grid>a:hover,.student-shell .student-ui-schedule:hover,.student-shell .student-ui-reminder:hover{background:#f8fafc}
+.student-shell .student-ui-task-list strong,.student-shell .student-ui-results b,.student-shell .student-ui-resource-grid b,.student-shell .student-ui-schedule b,.student-shell .student-ui-reminder b,.student-shell .student-ui-person-card strong{color:#202939}
+.student-shell .student-ui-task-list small,.student-shell .student-ui-results span,.student-shell .student-ui-results small,.student-shell .student-ui-resource-grid span,.student-shell .student-ui-schedule span,.student-shell .student-ui-reminder span,.student-shell .student-ui-person-card span{color:#667085}
+.student-shell .student-ui-calendar-days span.today{background:#2563eb;color:#fff}
+.student-shell .student-ui-calendar-week,.student-shell .student-ui-rail-head span{color:#98a2b3}
+.student-shell .student-ui-empty,.student-shell .student-ui-rail-empty{border:1px dashed #d0d5dd;border-radius:11px;background:#fafbfc;color:#667085;padding:18px;line-height:1.9}
+.student-shell :is(a,button):focus-visible{outline:3px solid rgba(37,99,235,.24);outline-offset:3px}
+.student-shell :is(input,select,textarea){border-color:#d0d5dd;border-radius:10px}
+.student-shell :is(input,select,textarea):focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+@media(max-width:1000px){.student-shell .role-main{padding-inline:20px}}
+@media(max-width:760px){.student-shell .role-main{padding:16px 13px 32px}.student-shell .student-ui-hero{padding:19px;border-radius:13px}.student-shell .student-ui-hero-copy h2{font-size:22px}.student-shell .student-ui-hero-meta{gap:6px}.student-shell .student-ui-hero-meta span{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.student-shell *,.student-shell *:before,.student-shell *:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
