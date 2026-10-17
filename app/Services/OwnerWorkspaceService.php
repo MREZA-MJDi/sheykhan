@@ -84,10 +84,6 @@ final class OwnerWorkspaceService
             ->get(['users.id', 'users.name']);
 
         $courses = $academy->courses()
-            ->with(['classrooms' => fn ($query) => $query
-                ->where('status', 'active')
-                ->orderBy('title')
-                ->select('id', 'academy_id', 'course_id', 'title', 'status', 'capacity')])
             ->select('id', 'title')
             ->orderBy('title')
             ->get();
