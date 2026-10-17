@@ -438,25 +438,25 @@ class OwnerReportingAndCourseShowTest extends TestCase
             'status' => 'excused',
         ]);
 
-        $ownerReports = app(\\App\\Services\\OwnerReportService::class)->build($owner);
+        $ownerReports = app(\App\Services\OwnerReportService::class)->build($owner);
         $this->assertSame(100.0, (float) $ownerReports['metrics']['attendance_rate']);
         $classroomReport = $ownerReports['classroomReports']->getCollection()->firstWhere('id', $classroom->id);
         $this->assertSame(100.0, (float) $classroomReport->attendance_rate);
 
-        $dashboard = app(\\App\\Services\\OwnerDashboardService::class)->build($owner);
+        $dashboard = app(\App\Services\OwnerDashboardService::class)->build($owner);
         $this->assertSame(100.0, (float) $dashboard['metrics']['todayAttendanceRate']);
-        $this->assertSame(1, (int) $dashboard['metrics']['classroomsWithoutTeacher'] === 1 ? 1 : 0);
+        $this->assertSame(0, (int) $dashboard['metrics']['classroomsWithoutTeacher']);
 
         DB::table('academy_user')
             ->where('academy_id', $academy->id)
             ->where('user_id', $teacher->id)
             ->update(['status' => 'archived']);
 
-        $this->assertCount(0, app(\\App\\Services\\OwnerClassroomService::class)->index($owner, $academy)->first()->teachers);
-        $this->assertCount(0, app(\\App\\Services\\OwnerClassroomService::class)->show($owner, $academy, $classroom)['classroom']->teachers);
-        $this->assertSame(1, (int) app(\\App\\Services\\OwnerDashboardService::class)->build($owner)['metrics']['classroomsWithoutTeacher']);
+        $this->assertCount(0, app(\App\Services\OwnerClassroomService::class)->index($owner, $academy)->first()->teachers);
+        $this->assertCount(0, app(\App\Services\OwnerClassroomService::class)->show($owner, $academy, $classroom)['classroom']->teachers);
+        $this->assertSame(1, (int) app(\App\Services\OwnerDashboardService::class)->build($owner)['metrics']['classroomsWithoutTeacher']);
 
-        $reportsAfterArchive = app(\\App\\Services\\OwnerReportService::class)->build($owner);
+        $reportsAfterArchive = app(\App\Services\OwnerReportService::class)->build($owner);
         $this->assertFalse($reportsAfterArchive['teacherReports']->getCollection()->contains(
             fn ($report) => (int) $report->teacher_id === (int) $teacher->id
         ));
