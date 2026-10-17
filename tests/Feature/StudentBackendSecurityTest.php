@@ -411,48 +411,111 @@ class StudentBackendSecurityTest extends TestCase
         $this->assertFalse($access->canJoinLiveClass($student, $noLink));
     }
 
-    public function test_lesson_progress_can_only_move_forward_and_only_for_an_accessible_lesson(): void
+    public function test_lesson_progress_uses_server_timed_video_events_instead_of_client_percentages(): void
     {
+        Storage::fake('local');
         $this->seed();
 
         $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $otherStudent = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
         $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
         $lesson = $course->sections()->firstOrFail()->lessons()->orderBy('sort_order')->skip(1)->firstOrFail();
-
-        $student->enrollments()->where('course_id', $course->id)->update(['paid_amount' => max(1, (int) $course->price)]);
-        $otherStudent->enrollments()->where('course_id', $course->id)->update(['paid_amount' => max(1, (int) $course->price)]);
-
-        $this->actingAs($student)
-            ->patchJson(route('student.lessons.progress.update', $lesson), [
-                'progress_percent' => 80,
-                'seconds_watched' => 120,
-            ])
-            ->assertOk()
-            ->assertJsonPath('completed', false);
-
-        $this->actingAs($student)
-            ->patchJson(route('student.lessons.progress.update', $lesson), [
-                'progress_percent' => 20,
-                'seconds_watched' => 60,
-            ])
-            ->assertOk()
-            ->assertJsonPath('progress_percent', 80)
-            ->assertJsonPath('seconds_watched', 120);
-
-        $this->assertDatabaseHas('lesson_progress', [
-            'lesson_id' => $lesson->id,
-            'user_id' => $student->id,
+        $lesson->update(['type' => 'video']);
+        $student->enrollments()->where('course_id', $course->id)->update([
+            'paid_amount' => max(1, (int) $course->price),
         ]);
 
-        $progress = LessonProgress::query()->where('lesson_id', $lesson->id)->where('user_id', $student->id)->firstOrFail();
-        $this->assertSame(80.0, (float) $progress->progress_percent);
-        $this->assertSame(120, (int) $progress->seconds_watched);
+        $path = 'student-lessons/' . str()->uuid() . '.mp4';
+        Storage::disk('local')->put($path, 'video-fixture');
+        $media = Media::create([
+            'uploaded_by' => User::where('email', 'owner@sheykhan.test')->value('id'),
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'lesson-video.mp4',
+            'file_name' => basename($path),
+            'mime_type' => 'video/mp4',
+            'extension' => 'mp4',
+            'size' => Storage::disk('local')->size($path),
+            'checksum' => hash('sha256', Storage::disk('local')->get($path)),
+            'visibility' => 'private',
+            'collection' => 'lesson-assets',
+            'metadata' => ['test' => true],
+            'status' => 'active',
+        ]);
+        $lesson->media()->attach($media->id, [
+            'collection' => 'lesson-assets',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $this->actingAs($student)
+            ->patchJson(route('student.lessons.progress.update', $lesson), [
+                'event' => 'heartbeat',
+                'progress_percent' => 100,
+                'seconds_watched' => 86400,
+            ])
+            ->assertOk()
+            ->assertJsonPath('progress_percent', 0)
+            ->assertJsonPath('seconds_watched', 0);
+
+        $this->travel(15)->seconds();
+
+        $this->actingAs($student)
+            ->patchJson(route('student.lessons.progress.update', $lesson), [
+                'event' => 'heartbeat',
+                'progress_percent' => 100,
+                'seconds_watched' => 86400,
+            ])
+            ->assertOk()
+            ->assertJsonPath('completed', false)
+            ->assertJsonPath('seconds_watched', 15);
+
+        $this->actingAs($student)
+            ->patchJson(route('student.lessons.progress.update', $lesson), [
+                'event' => 'playback_completed',
+            ])
+            ->assertUnprocessable();
+
+        $progress = LessonProgress::query()
+            ->where('lesson_id', $lesson->id)
+            ->where('user_id', $student->id)
+            ->firstOrFail();
+
+        $this->assertSame(15, (int) $progress->seconds_watched);
+        $this->assertLessThan(100, (float) $progress->progress_percent);
+        $this->assertNull($progress->completed_at);
 
         $this->assertNotEquals(
             200,
             $this->actingAs($otherStudent)->get(route('student.lessons.show', $lesson))->status()
         );
+    }
+
+    public function test_student_can_mark_a_text_lesson_as_personally_studied_without_creating_an_official_grade(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
+        $lesson->update(['type' => 'text']);
+
+        $this->actingAs($student)
+            ->patchJson(route('student.lessons.progress.update', $lesson), [
+                'event' => 'mark_read',
+            ])
+            ->assertOk()
+            ->assertJsonPath('progress_percent', 100)
+            ->assertJsonPath('completed', true);
+
+        $this->assertDatabaseHas('lesson_progress', [
+            'lesson_id' => $lesson->id,
+            'user_id' => $student->id,
+            'progress_percent' => 100,
+        ]);
+
+        $this->assertDatabaseMissing('exam_attempts', ['student_id' => $student->id, 'score' => 100]);
+        $this->assertDatabaseMissing('assignment_submissions', ['student_id' => $student->id, 'score' => 100]);
     }
 
     public function test_student_note_is_owner_scoped(): void
