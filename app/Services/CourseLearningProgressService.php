@@ -48,7 +48,7 @@ final class CourseLearningProgressService
 
         /** @var LengthAwarePaginator $students */
         $students = User::query()
-            ->whereRaw('1 = 0')
+            ->when($teacherClassroomIds->isEmpty(), fn ($query) => $query->whereRaw('1 = 0'))
             ->when($teacherClassroomIds->isNotEmpty(), fn ($query) => $query
                 ->whereHas('enrollments', fn ($enrollment) => $enrollment
                     ->where('course_id', $course->id)
