@@ -94,7 +94,7 @@ final class OwnerDashboardService
             ->with([
                 'academy:id,name',
                 'course:id,title',
-                'teachers:id,name',
+                
             ])
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
@@ -106,6 +106,37 @@ final class OwnerDashboardService
             ->get();
 
         $classroomIdsForView = $classrooms->pluck('id');
+
+        // Only show teachers who still have an active teacher membership in
+        // the same academy as the classroom. A stale classroom_teacher pivot
+        // must not make an archived teacher look active in the dashboard.
+        $activeTeacherRowsByClassroom = DB::table('classroom_teacher as assignment')
+            ->join('classrooms as assigned_classroom', 'assigned_classroom.id', '=', 'assignment.classroom_id')
+            ->join('users as teacher_users', 'teacher_users.id', '=', 'assignment.teacher_id')
+            ->join('academy_user as teacher_membership', function ($join): void {
+                $join->on('teacher_membership.user_id', '=', 'assignment.teacher_id')
+                    ->on('teacher_membership.academy_id', '=', 'assigned_classroom.academy_id')
+                    ->where('teacher_membership.role', '=', 'teacher')
+                    ->where('teacher_membership.status', '=', 'active');
+            })
+            ->whereIn('assignment.classroom_id', $classroomIdsForView)
+            ->where('teacher_users.status', 'active')
+            ->get([
+                'assignment.classroom_id',
+                'teacher_users.id',
+                'teacher_users.name',
+            ])
+            ->groupBy('classroom_id');
+
+        $classrooms->each(function (Classroom $classroom) use ($activeTeacherRowsByClassroom): void {
+            $teacherRows = $activeTeacherRowsByClassroom->get($classroom->id, collect());
+            $classroom->setRelation('teachers', User::hydrate(
+                $teacherRows->map(fn ($teacher): array => [
+                    'id' => (int) $teacher->id,
+                    'name' => $teacher->name,
+                ])->all()
+            ));
+        });
 
         $attendanceByClassroom = DB::table('attendances')
             ->whereIn('classroom_id', $classroomIdsForView)
