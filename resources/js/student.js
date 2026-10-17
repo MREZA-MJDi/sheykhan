@@ -64,13 +64,20 @@ document.addEventListener('submit', async (event) => {
             throw new Error(payload.message || 'ذخیره پیشرفت انجام نشد.');
         }
 
-        const progressInput = form.querySelector('[data-progress-input]');
-        const secondsInput = form.querySelector('[data-seconds-input]');
+        const progressLabel = form.closest('.student-panel')?.querySelector('[data-student-progress-label]');
+        if (progressLabel && payload.progress_percent !== undefined) {
+            const digits = String(Math.round(Number(payload.progress_percent))).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+            progressLabel.textContent = digits + '٪';
+            progressLabel.classList.toggle('success', Number(payload.progress_percent) >= 100);
+            progressLabel.classList.toggle('primary', Number(payload.progress_percent) < 100);
+        }
 
-        if (progressInput) progressInput.value = payload.progress_percent ?? progressInput.value;
-        if (secondsInput) secondsInput.value = payload.seconds_watched ?? secondsInput.value;
+        if (button && payload.completed) {
+            button.textContent = 'مطالعه ثبت شده است';
+            button.disabled = true;
+        }
 
-        announce('success', 'ذخیره شد', 'پیشرفت این درس با موفقیت ثبت شد.');
+        announce('success', 'ثبت شد', 'مطالعه شخصی درس به‌روز شد؛ این وضعیت نمره رسمی نیست.');
     } catch (error) {
         announce('danger', 'ذخیره انجام نشد', error?.message || 'لطفاً دوباره تلاش کنید.');
     } finally {
@@ -81,6 +88,95 @@ document.addEventListener('submit', async (event) => {
     }
 });
 
+
+/* Video progress uses playback events; the client cannot submit watched totals. */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-student-video]').forEach((video) => {
+        const url = video.dataset.progressUrl;
+        if (!url) return;
+
+        let heartbeatTimer = null;
+        let inFlight = false;
+        let queuedEvent = null;
+
+        const updateProgress = async (eventName, notify = false) => {
+            if (inFlight) {
+                if (eventName === 'playback_completed') queuedEvent = eventName;
+                return;
+            }
+
+            inFlight = true;
+            try {
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    },
+                    body: JSON.stringify({ event: eventName }),
+                    credentials: 'same-origin',
+                });
+                const payload = await response.json();
+
+                if (!response.ok || !payload.ok) {
+                    throw new Error(payload.message || 'ثبت پیشرفت ویدئو انجام نشد.');
+                }
+
+                const label = document.querySelector('[data-student-progress-label]');
+                if (label && payload.progress_percent !== undefined) {
+                    const digits = String(Math.round(Number(payload.progress_percent))).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+                    label.textContent = digits + '٪';
+                    label.classList.toggle('success', Number(payload.progress_percent) >= 100);
+                    label.classList.toggle('primary', Number(payload.progress_percent) < 100);
+                }
+
+                if (notify && eventName === 'playback_completed' && payload.completed) {
+                    announce('success', 'آفرین!', 'ویدئو کامل شد و پیشرفت درس ثبت شد.');
+                }
+            } catch (error) {
+                if (notify || eventName === 'playback_completed') {
+                    announce('danger', 'ذخیره انجام نشد', error?.message || 'اتصال را بررسی و دوباره تلاش کن.');
+                }
+            } finally {
+                inFlight = false;
+                if (queuedEvent) {
+                    const nextEvent = queuedEvent;
+                    queuedEvent = null;
+                    updateProgress(nextEvent, true);
+                }
+            }
+        };
+
+        const stopHeartbeat = () => {
+            if (heartbeatTimer) window.clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+        };
+
+        video.addEventListener('playing', () => {
+            if (heartbeatTimer) return;
+            updateProgress('heartbeat');
+            heartbeatTimer = window.setInterval(() => {
+                if (!video.paused && !video.ended) updateProgress('heartbeat');
+            }, 15000);
+        });
+
+        video.addEventListener('pause', () => {
+            stopHeartbeat();
+            if (!video.ended) updateProgress('heartbeat');
+        });
+
+        video.addEventListener('ended', () => {
+            stopHeartbeat();
+            updateProgress('playback_completed', true);
+        });
+
+        video.addEventListener('error', () => {
+            stopHeartbeat();
+            announce('danger', 'ویدئو پخش نشد', 'فایل ویدئویی در دسترس نیست یا مرورگر از قالب آن پشتیبانی نمی‌کند. به مدرس اطلاع بده.');
+        });
+    });
+});
 
 /* Student exam interaction layer: local recovery + navigation + server-authoritative timer. */
 document.addEventListener('DOMContentLoaded', () => {
