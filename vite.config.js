@@ -9,6 +9,8 @@ export default defineConfig({
                 'resources/css/home.css',
                 'resources/js/home.js',
                 'resources/css/owner.css',
+                'resources/css/seo-specialist.css',
+                'resources/js/seo-specialist.js',
                 'resources/js/owner.js',
                 'resources/css/teacher.css',
                 'resources/css/teacher-workspace.css',

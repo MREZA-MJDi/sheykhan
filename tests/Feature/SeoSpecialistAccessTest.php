@@ -28,17 +28,17 @@ class SeoSpecialistAccessTest extends TestCase
 
         $this->actingAs($specialist)
             ->get(route('dashboard'))
-            ->assertRedirect(route('owner.seo.index'));
+            ->assertRedirect(route('seo-specialist.index'));
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index'))
+            ->get(route('seo-specialist.index'))
             ->assertOk()
             ->assertSee('SEO Visible Course')
             ->assertSee(route('courses.show', $course), false)
             ->assertSee('صفحات عمومی و منتشرشده')
-            ->assertSee('role-sidebar owner-sidebar', false)
-            ->assertSee('شیخان · مدیریت آموزشگاه')
-            ->assertDontSee('متخصص SEO</small>');
+            ->assertSee('seo-specialist-shell', false)
+            ->assertSee('مرکز تخصصی SEO')
+            ->assertDontSee('owner-sidebar', false);
 
         $this->actingAs($specialist)
             ->get(route('owner.dashboard'))
@@ -47,6 +47,10 @@ class SeoSpecialistAccessTest extends TestCase
         $this->actingAs($specialist)
             ->get(route('owner.website.index'))
             ->assertForbidden();
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index'))
+            ->assertForbidden();
     }
 
     public function test_seo_specialist_can_update_only_the_seo_metadata_of_a_public_course(): void
@@ -54,14 +58,14 @@ class SeoSpecialistAccessTest extends TestCase
         [$specialist, $course] = $this->makeSeoWorkspace();
 
         $this->actingAs($specialist)
-            ->patch(route('owner.seo.update', ['course', $course->id]), [
+            ->patch(route('seo-specialist.update', ['course', $course->id]), [
                 'title' => 'SEO title written by specialist',
                 'description' => 'A real description saved to this published course.',
                 'robots' => 'index,follow',
                 'og_title' => 'Share title',
                 'og_description' => 'Share description',
             ])
-            ->assertRedirect(route('owner.seo.index'))
+            ->assertRedirect(route('seo-specialist.index'))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('seo_metas', [
@@ -86,15 +90,36 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee($url, false);
 
         $this->actingAs($specialist)
-            ->patch(route('owner.seo.update', ['course', $course->id]), [
+            ->patch(route('seo-specialist.update', ['course', $course->id]), [
                 'title' => 'Keep this page out of search',
                 'robots' => 'noindex,follow',
             ])
-            ->assertRedirect(route('owner.seo.index'));
+            ->assertRedirect(route('seo-specialist.index'));
 
         $this->get(route('seo.sitemap'))
             ->assertOk()
             ->assertDontSee($url, false);
+    }
+
+    public function test_seo_specialist_form_rejects_invalid_canonical_urls_and_schema_json(): void
+    {
+        [$specialist, $course] = $this->makeSeoWorkspace();
+
+        $this->actingAs($specialist)
+            ->from(route('seo-specialist.edit', ['course', $course->id]))
+            ->patch(route('seo-specialist.update', ['course', $course->id]), [
+                'title' => 'Invalid metadata must not be stored',
+                'robots' => 'index,follow',
+                'canonical_url' => 'javascript:alert(1)',
+                'schema_json' => '{not-json}',
+            ])
+            ->assertSessionHasErrors(['canonical_url', 'schema_json']);
+
+        $this->assertDatabaseMissing('seo_metas', [
+            'seoable_type' => $course->getMorphClass(),
+            'seoable_id' => $course->id,
+            'title' => 'Invalid metadata must not be stored',
+        ]);
     }
 
     public function test_robots_txt_is_dynamic_and_references_the_real_sitemap_route(): void
@@ -104,6 +129,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertHeader('Content-Type', 'text/plain; charset=UTF-8')
             ->assertSee('Disallow: /owner', false)
             ->assertSee('Disallow: /checkout', false)
+            ->assertSee('Disallow: /seo', false)
             ->assertSee('Sitemap: ' . route('seo.sitemap'), false);
     }
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Owner\Seo\UpdateSeoRequest;
+use App\Http\Requests\Seo\UpdateSeoRequest;
 use App\Services\OwnerSeoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -24,6 +24,7 @@ final class SeoController extends Controller
             'type' => $type,
             'item' => $item,
             'seoMeta' => $item->seoMeta,
+            'isGlobal' => false,
         ]);
     }
 

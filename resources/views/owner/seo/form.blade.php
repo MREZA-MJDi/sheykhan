@@ -1,9 +1,13 @@
-@extends('layouts.owner')
+@extends(($isGlobal ?? false) ? 'layouts.seo-specialist' : 'layouts.owner')
 
 @section('title','ویرایش SEO | شیخان')
 @section('header-title','ویرایش SEO')
 
 @section('content')
+@php
+    $seoIndexRoute = ($isGlobal ?? false) ? 'seo-specialist.index' : 'owner.seo.index';
+    $seoUpdateRoute = ($isGlobal ?? false) ? 'seo-specialist.update' : 'owner.seo.update';
+@endphp
 @php
     $initialOgImage = old('og_image_url', $seoMeta?->og_image_url);
     $initialOgTitle = old('og_title', $seoMeta?->og_title ?: old('title', $seoMeta?->title ?: $item->getAttribute('title')));
@@ -16,10 +20,10 @@
             <h1>{{ $item->getAttribute('title') ?: $item->getAttribute('name') ?: 'صفحه' }}</h1>
             <p>این تنظیمات در HTML عمومی صفحه قرار می‌گیرند. مقدارهای خالی از metadata پیش‌فرض صفحه استفاده می‌کنند.</p>
         </div>
-        <a href="{{ route('owner.seo.index') }}">بازگشت به SEO</a>
+        <a href="{{ route($seoIndexRoute) }}">بازگشت به SEO</a>
     </div>
 
-    <form method="POST" action="{{ route('owner.seo.update', [$type, $item->getKey()]) }}" class="owner-form-grid">
+    <form method="POST" action="{{ route($seoUpdateRoute, [$type, $item->getKey()]) }}" class="owner-form-grid">
         @csrf
         @method('PATCH')
 
