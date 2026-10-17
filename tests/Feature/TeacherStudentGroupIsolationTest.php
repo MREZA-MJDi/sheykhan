@@ -117,12 +117,12 @@ class TeacherStudentGroupIsolationTest extends TestCase
 
         // Student-facing teacher cards must reflect the student's own cohort,
         // not every teacher attached to the shared public course.
-        $studentATeacherIds = app(\\App\\Services\\StudentDashboardService::class)
+        $studentATeacherIds = app(\App\Services\StudentDashboardService::class)
             ->build($studentA)['teachers']
             ->pluck('id')
             ->map(static fn ($id): int => (int) $id)
             ->all();
-        $studentBTeacherIds = app(\\App\\Services\\StudentDashboardService::class)
+        $studentBTeacherIds = app(\App\Services\StudentDashboardService::class)
             ->build($studentB)['teachers']
             ->pluck('id')
             ->map(static fn ($id): int => (int) $id)
