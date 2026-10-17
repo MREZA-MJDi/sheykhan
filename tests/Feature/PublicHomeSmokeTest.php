@@ -19,7 +19,10 @@ class PublicHomeSmokeTest extends TestCase
         $home = $this->get(route('home'));
 
         $home->assertOk()
-            ->assertSee('آموزش خوب')
+            ->assertSee('هر قدم کوچک')
+            ->assertSee('home-academy-story', false)
+            ->assertSee('home-paths__intro', false)
+            ->assertSee('دسترسی سریع به بخش‌های شیخان')
             ->assertSee('data-home-hero', false)
             ->assertSee('sheykhan-home-hero__title', false)
             ->assertDontSee('pater/pater.css')

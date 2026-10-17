@@ -13,6 +13,96 @@
 {{-- Full-bleed hero uses the independent HomeHeroSlide source. --}}
     @include('components.branding.home-meraki-hero')
 
+
+    {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
+    <section id="academy-story" class="home-section home-academy-story" aria-labelledby="home-academy-story-title">
+        <x-layout.container size="wide">
+            <div class="home-academy-story__grid">
+                <div class="home-academy-story__copy">
+                    <span class="home-academy-story__eyebrow"><i aria-hidden="true"></i> آکادمی شیخان · یادگیری با معنا</span>
+                    <h2 id="home-academy-story-title">
+                        هر قدم کوچک،
+                        <em>یک جهش بزرگ در یادگیری.</em>
+                    </h2>
+                    <p>
+                        یادگیری وقتی ماندگار می‌شود که دانش‌آموز فقط شنونده نباشد.
+                        در شیخان، درس‌خواندن با فهمیدن شروع می‌شود، با تمرین جان می‌گیرد
+                        و با بازخورد و پیگیری مسیر ادامه پیدا می‌کند.
+                    </p>
+
+                    <div class="home-academy-story__principles" aria-label="اصول مسیر یادگیری در شیخان">
+                        <div class="home-academy-story__principle">
+                            <span class="home-academy-story__principle-icon" aria-hidden="true">۱</span>
+                            <div><strong>مفهوم را کشف کن</strong><small>یادگیری روشن، قدم‌به‌قدم و هدفمند</small></div>
+                        </div>
+                        <div class="home-academy-story__principle">
+                            <span class="home-academy-story__principle-icon" aria-hidden="true">۲</span>
+                            <div><strong>با تمرین مسلط شو</strong><small>درس را به مهارت حل مسئله تبدیل کن</small></div>
+                        </div>
+                        <div class="home-academy-story__principle">
+                            <span class="home-academy-story__principle-icon" aria-hidden="true">۳</span>
+                            <div><strong>پیشرفتت را ببین</strong><small>با تکلیف، آزمون و بازخورد مسیرت را دنبال کن</small></div>
+                        </div>
+                    </div>
+
+                    <div class="home-academy-story__actions">
+                        <a href="{{ route('courses.index') }}" class="home-academy-story__primary">
+                            کشف مسیرهای آموزشی <span aria-hidden="true">←</span>
+                        </a>
+                        <a href="{{ route('teachers.index') }}" class="home-academy-story__secondary">
+                            آشنایی با مدرس‌ها <span aria-hidden="true">↗</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="home-academy-story__visual" aria-hidden="true">
+                    <div class="home-academy-story__visual-orbit home-academy-story__visual-orbit--outer"></div>
+                    <div class="home-academy-story__visual-orbit home-academy-story__visual-orbit--inner"></div>
+                    <div class="home-academy-story__visual-spark home-academy-story__visual-spark--one">✦</div>
+                    <div class="home-academy-story__visual-spark home-academy-story__visual-spark--two">✳</div>
+
+                    <div class="home-learning-card">
+                        <div class="home-learning-card__top">
+                            <span class="home-learning-card__brand"><span>ش</span> شیخان</span>
+                            <span class="home-learning-card__label">مسیر یادگیری</span>
+                        </div>
+                        <div class="home-learning-card__heading">
+                            <div>
+                                <small>از فهمیدن تا توانستن</small>
+                                <strong>یادگیریِ ماندگار</strong>
+                            </div>
+                            <span class="home-learning-card__book" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" fill="none"><path d="M5 11.5c7-2.5 13-1.4 19 3.2v26c-6-4.6-12-5.7-19-3.2v-26Z" fill="#8B7DF2"/><path d="M43 11.5c-7-2.5-13-1.4-19 3.2v26c6-4.6 12-5.7 19-3.2v-26Z" fill="#5CCBB6"/><path d="M24 14.7v26" stroke="white" stroke-width="2"/></svg>
+                            </span>
+                        </div>
+                        <div class="home-learning-steps">
+                            <div class="home-learning-step home-learning-step--active">
+                                <span>۰۱</span><div><strong>یاد بگیر</strong><small>مفهوم را بفهم</small></div><i>✓</i>
+                            </div>
+                            <div class="home-learning-step">
+                                <span>۰۲</span><div><strong>تمرین کن</strong><small>دانسته‌ها را به کار ببر</small></div><i>↗</i>
+                            </div>
+                            <div class="home-learning-step">
+                                <span>۰۳</span><div><strong>بازخورد بگیر</strong><small>قدم بعدی را بشناس</small></div><i>✦</i>
+                            </div>
+                        </div>
+                        <div class="home-learning-card__footer">
+                            <span><i></i> قدم‌به‌قدم، با همراهی</span>
+                            <span>شیخان</span>
+                        </div>
+                    </div>
+
+                    <div class="home-story-float home-story-float--top">
+                        <span aria-hidden="true">✦</span><div><strong>فهم عمیق</strong><small>نه فقط حفظ کردن</small></div>
+                    </div>
+                    <div class="home-story-float home-story-float--bottom">
+                        <span aria-hidden="true">✓</span><div><strong>مسیر روشن</strong><small>درس · تمرین · بازخورد</small></div>
+                    </div>
+                </div>
+            </div>
+        </x-layout.container>
+    </section>
+
     {{-- Academy banners remain a separate content section below the Hero. --}}
     @if($homeBanners->isNotEmpty())
         <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
@@ -58,20 +148,36 @@
         </section>
     @endif
 
-    {{-- Trust / paths --}}
-    <section class="home-paths">
+    {{-- Primary destinations: clear visual navigation after the academy introduction. --}}
+    <section class="home-paths" aria-labelledby="home-paths-title">
         <x-layout.container size="wide">
-            <div class="home-path-grid">
-                <a href="{{ route('courses.index') }}"><b>دوره‌ها</b><span>مسیرهای آموزشی منظم و قابل پیگیری</span><i>←</i></a>
-                <a href="{{ route('teachers.index') }}"><b>مدرس‌ها</b><span>اساتید تأییدشده و مسیرهای تخصصی آموزش</span><i>←</i></a>
-                <a href="{{ route('blog.index') }}"><b>مجله شیخان</b><span>مقاله‌ها و محتوای کاربردی برای یادگیری بهتر</span><i>←</i></a>
-                <a href="{{ route('store.index') }}"><b>فروشگاه</b><span>منابع آموزشی و محصولات منتشرشده شیخان</span><i>←</i></a>
+            <div class="home-paths__intro">
+                <div>
+                    <span>راه‌های کشف شیخان</span>
+                    <h2 id="home-paths-title">قدم بعدی تو از کجاست؟</h2>
+                </div>
+                <p>برای پیدا کردن مسیر آموزشی، شناخت مدرس‌ها یا مطالعه نکته‌های کاربردی، از اینجا شروع کن.</p>
             </div>
+            <nav class="home-path-grid" aria-label="دسترسی سریع به بخش‌های شیخان">
+                <a href="{{ route('courses.index') }}">
+                    <span class="home-path-card__index">۰۱</span><b>مسیرهای آموزشی</b><span>دوره‌ها و درس‌هایی که می‌توانی دنبال کنی.</span><i aria-hidden="true">←</i>
+                </a>
+                <a href="{{ route('teachers.index') }}">
+                    <span class="home-path-card__index">۰۲</span><b>آشنایی با مدرس‌ها</b><span>تخصص‌ها و معرفی مدرس‌های منتشرشده.</span><i aria-hidden="true">←</i>
+                </a>
+                <a href="{{ route('blog.index') }}">
+                    <span class="home-path-card__index">۰۳</span><b>مجله یادگیری</b><span>نکته‌ها و مطلب‌هایی برای یادگیری بهتر.</span><i aria-hidden="true">←</i>
+                </a>
+                <a href="{{ route('store.index') }}">
+                    <span class="home-path-card__index">۰۴</span><b>فروشگاه آموزشی</b><span>منابع و محصولاتی که در دسترس قرار گرفته‌اند.</span><i aria-hidden="true">←</i>
+                </a>
+            </nav>
         </x-layout.container>
     </section>
 
+    @if(count($courseCards))
     {{-- Courses --}}
-    <section class="home-section home-soft">
+    <section id="featured-courses" class="home-section home-soft">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
@@ -107,8 +213,12 @@
         </x-layout.container>
     </section>
 
+    @endif
+
+    {{-- Latest articles are shown only when there are real published posts. --}}
+    @if($latestPosts->isNotEmpty())
     {{-- Latest articles --}}
-    <section class="home-section home-blog">
+    <section id="academy-journal" class="home-section home-blog">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
@@ -167,8 +277,10 @@
         </x-layout.container>
     </section>
 
+    @endif
+
     {{-- Why Sheykhan --}}
-    <section class="home-section home-dark">
+    <section id="learning-experience" class="home-section home-dark">
         <x-layout.container size="wide">
             <div class="home-why">
                 <div class="home-why-copy">
@@ -221,8 +333,9 @@
         </x-layout.container>
     </section>
 
+    @if(count($teacherCards))
     {{-- Teachers --}}
-    <section class="home-section">
+    <section id="teachers-section" class="home-section">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
@@ -250,9 +363,11 @@
         </x-layout.container>
     </section>
 
+    @endif
+
     {{-- Live classes --}}
     @if(count($liveClassCards))
-        <section class="home-section home-soft">
+        <section id="upcoming-classes" class="home-section home-soft">
             <x-layout.container size="wide">
                 <div class="home-heading">
                     <div>
@@ -279,7 +394,7 @@
 
     {{-- Educational store --}}
     @if(count($storeCategories) || count($productCards))
-    <section class="home-section">
+    <section id="educational-store" class="home-section">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
@@ -382,7 +497,7 @@
 
     {{-- Achievers --}}
     @if(count($achievementCards))
-    <section class="home-section home-trust">
+    <section id="academy-achievements" class="home-section home-trust">
         <x-layout.container size="wide">
             <div class="home-heading">
                 <div>
@@ -417,7 +532,7 @@
 
     {{-- Testimonials --}}
     @if(count($testimonialCards))
-    <section class="home-section home-dark">
+    <section id="family-stories" class="home-section home-dark">
         <x-layout.container size="wide">
             <div class="home-heading home-heading-dark">
                 <div>
@@ -458,7 +573,7 @@
     @endif
 
     {{-- CTA --}}
-    <section class="home-section">
+    <section id="start-learning" class="home-section home-start-learning">
         <x-layout.container size="wide">
             <div class="home-cta">
                 <div>
