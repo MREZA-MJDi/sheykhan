@@ -23,6 +23,8 @@ class LegacyStudentImportTest extends TestCase
 
     public function test_import_is_dry_run_by_default_and_never_touches_unlisted_legacy_users(): void
     {
+        config(['legacy_students.temporary_password' => '12345678']);
+
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
         $this->seed(\Database\Seeders\AcademicReferenceSeeder::class);
         $this->seed(\Database\Seeders\AcademyFoundationSeeder::class);
@@ -95,22 +97,55 @@ class LegacyStudentImportTest extends TestCase
                     ->count()
             );
 
-            // A legacy student without email/mobile can authenticate by the old
-            // numeric ID and password. A successful first login upgrades the
-            // stored WordPress wrapper hash to a Laravel-compatible bcrypt hash.
+            // The 54 WordPress bcrypt accounts use the configured temporary password
+            // and must change it before accessing any authenticated page.
             $this->post(route('login.store'), [
                 'identifier' => '8',
-                'password' => 'legacy-import-test-password',
-            ])->assertSessionHasNoErrors();
+                'password' => '12345678',
+            ])->assertRedirect(route('password.change.show'))->assertSessionHasNoErrors();
 
             $this->assertAuthenticated();
             $loginUserId = (int) DB::table('users')
                 ->where('legacy_source', 'wordpress')
                 ->where('legacy_id', 8)
                 ->value('id');
-            $upgradedLegacyHash = (string) DB::table('users')->where('id', $loginUserId)->value('password');
-            $this->assertTrue(str_starts_with($upgradedLegacyHash, chr(36) . '2y' . chr(36)));
-            $this->assertTrue(Hash::check('legacy-import-test-password', $upgradedLegacyHash));
+            $importedUser = User::query()->findOrFail($loginUserId);
+            $this->assertTrue($importedUser->must_change_password);
+            $this->assertTrue(Hash::check('12345678', (string) $importedUser->password));
+
+            $this->assertSame(
+                54,
+                DB::table('users')
+                    ->where('legacy_source', 'wordpress')
+                    ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)
+                    ->where('must_change_password', true)
+                    ->count()
+            );
+            $this->assertDatabaseHas('users', [
+                'legacy_source' => 'wordpress',
+                'legacy_id' => 58,
+                'must_change_password' => false,
+            ]);
+
+            $this->get(route('dashboard'))->assertRedirect(route('password.change.show'));
+            $this->get(route('password.change.show'))->assertOk();
+
+            $newPassword = 'New-Sheykhan-Passphrase-2026!';
+            $this->put(route('password.change.update'), [
+                'password' => $newPassword,
+                'password_confirmation' => $newPassword,
+            ])->assertRedirect(route('dashboard'));
+
+            $importedUser->refresh();
+            $this->assertFalse($importedUser->must_change_password);
+            $this->assertTrue(Hash::check($newPassword, (string) $importedUser->password));
+
+            $afterPasswordChange = $this->get(route('dashboard'));
+            $this->assertNotSame(
+                route('password.change.show'),
+                $afterPasswordChange->headers->get('Location'),
+                'A student who has changed their password must no longer be blocked by the first-login gate.'
+            );
 
             // An unrelated imported user outside the source list must retain
             // their account status, student role and profile untouched.
@@ -157,6 +192,15 @@ class LegacyStudentImportTest extends TestCase
                     ->where('status', 'active')
                     ->count()
             );
+            $this->assertDatabaseHas('users', [
+                'legacy_source' => 'wordpress',
+                'legacy_id' => 8,
+                'must_change_password' => false,
+            ]);
+            $this->assertTrue(Hash::check($newPassword, (string) DB::table('users')
+                ->where('legacy_source', 'wordpress')
+                ->where('legacy_id', 8)
+                ->value('password')));
         } finally {
             @unlink($path);
         }
