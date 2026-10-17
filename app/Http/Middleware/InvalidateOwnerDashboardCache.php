@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Http\\Middleware;
+namespace App\Http\Middleware;
 
-use App\\Services\\OwnerCacheService;
+use App\Services\OwnerCacheService;
 use Closure;
-use Illuminate\\Http\\Request;
-use Symfony\\Component\\HttpFoundation\\Response;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class InvalidateOwnerDashboardCache
 {
