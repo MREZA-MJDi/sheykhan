@@ -174,3 +174,77 @@
         max-width:none;
     }
 }
+
+
+/* Calm, white teacher workspace refresh — no decorative hero or oversized shadows. */
+.teacher-shell{--panel-bg:#f7f8fa;--panel-text:#202939;--panel-muted:#667085;--panel-border:#e5e7eb;--panel-primary:#2563eb;--panel-primary-dark:#1d4ed8;--panel-primary-soft:#eff6ff;--teacher-border:#e5e7eb;background:#f7f8fa;color:#202939}
+.teacher-shell .role-layout{background:#f7f8fa}
+.teacher-shell .role-sidebar{background:#fff;border-left:1px solid #e5e7eb;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.teacher-shell .role-sidebar-brand{border-bottom-color:#eef0f3}
+.teacher-shell .role-brand-mark{background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;border-radius:12px;box-shadow:none}
+.teacher-shell .role-sidebar-label{color:#9ca3af}
+.teacher-shell .role-nav-link{border-radius:10px;color:#596579;transition:background .15s ease,color .15s ease}
+.teacher-shell .role-nav-link:hover{background:#f8fafc;color:#1f2937}
+.teacher-shell .role-nav-link.is-active{background:#eff6ff;color:#1d4ed8;box-shadow:none}
+.teacher-shell .role-topbar{background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:none;backdrop-filter:none}
+.teacher-shell .role-main{padding:24px 28px 40px}
+.teacher-shell .teacher-dashboard{gap:14px;color:#202939}
+.teacher-shell .teacher-welcome-card{min-height:0;display:grid;grid-template-columns:minmax(0,1fr);border:1px solid #e5e7eb;border-radius:15px;background:#fff!important;color:#202939;box-shadow:none!important}
+.teacher-shell .teacher-welcome-copy{padding:24px 26px;color:#202939}
+.teacher-shell .teacher-welcome-kicker{color:#2563eb;opacity:1}
+.teacher-shell .teacher-welcome-copy h1,.teacher-shell .teacher-welcome-copy h2{color:#202939!important;font-size:clamp(22px,2.1vw,28px)}
+.teacher-shell .teacher-welcome-copy p{color:#667085!important;line-height:1.9}
+.teacher-shell .teacher-welcome-visual{display:none!important}
+.teacher-shell .teacher-welcome-actions{gap:9px}
+.teacher-shell .teacher-primary-btn{min-height:40px;border:1px solid #2563eb;border-radius:10px;background:#2563eb!important;color:#fff!important;box-shadow:none!important}
+.teacher-shell .teacher-secondary-hero-btn{border:1px solid #e5e7eb;background:#fff!important;color:#344054!important}
+.teacher-shell .teacher-focus-card{border:1px solid #e5e7eb;border-radius:14px;background:#fff!important;box-shadow:none!important}
+.teacher-shell .teacher-focus-copy h2{color:#202939}
+.teacher-shell .teacher-focus-copy p{color:#667085}
+.teacher-shell .teacher-focus-kicker{color:#2563eb}
+.teacher-shell .teacher-focus-action{border-radius:10px;background:#2563eb!important;color:#fff!important;box-shadow:none!important}
+.teacher-shell .teacher-stats,.teacher-shell .teacher-workspace-stats{gap:12px}
+.teacher-shell .teacher-stat,.teacher-shell .teacher-workspace-stat{border:1px solid #e5e7eb;border-radius:13px;background:#fff!important;box-shadow:none!important}
+.teacher-shell .teacher-stat-icon{border-radius:10px;background:#eff6ff!important;color:#2563eb!important}
+.teacher-shell .teacher-stat-copy span,.teacher-shell .teacher-stat-copy small,.teacher-shell .teacher-workspace-stat small,.teacher-shell .teacher-workspace-stat span{color:#667085}
+.teacher-shell .teacher-stat-copy strong,.teacher-shell .teacher-workspace-stat strong{color:#111827}
+.teacher-shell .teacher-panel,.teacher-shell .teacher-people-panel,.teacher-shell .teacher-board-card,.teacher-shell .teacher-workspace-card{border:1px solid #e5e7eb;border-radius:14px;background:#fff!important;box-shadow:none!important}
+.teacher-shell .teacher-panel-head{border-bottom:1px solid #eef0f3}
+.teacher-shell .teacher-panel-label,.teacher-shell .teacher-workspace-kicker{color:#2563eb}
+.teacher-shell .teacher-panel-head h2,.teacher-shell .teacher-panel-head h3,.teacher-shell .teacher-board-head h2,.teacher-shell .teacher-workspace-title{color:#202939}
+.teacher-shell .teacher-panel-link,.teacher-shell .teacher-board-head>a,.teacher-shell .teacher-workspace-link{color:#2563eb}
+.teacher-shell .teacher-session-row,.teacher-shell .teacher-upcoming-item,.teacher-shell .teacher-activity-table tr{border-color:#eef0f3}
+.teacher-shell .teacher-session-meta,.teacher-shell .teacher-upcoming-meta{color:#667085}
+.teacher-shell .teacher-time-box{border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px}
+.teacher-shell .teacher-status,.teacher-shell .teacher-type-badge,.teacher-shell .teacher-workspace-chip{border-radius:8px;box-shadow:none}
+.teacher-shell .teacher-workspace-head{align-items:center}
+.teacher-shell .teacher-workspace-title{font-size:clamp(22px,2.2vw,28px)}
+.teacher-shell .teacher-workspace-description{color:#667085;font-size:12px;line-height:1.9}
+.teacher-shell .teacher-workspace-btn{border-radius:10px;box-shadow:none!important}
+.teacher-shell .teacher-workspace-btn.primary,.teacher-shell .teacher-workspace-link.primary{background:#2563eb!important;color:#fff!important;border-color:#2563eb}
+.teacher-shell .teacher-workspace-btn.secondary{background:#fff;color:#344054;border-color:#e5e7eb}
+.teacher-shell .teacher-workspace-item{border-bottom-color:#eef0f3}
+.teacher-shell .teacher-workspace-item-title,.teacher-shell .teacher-workspace-card-title{color:#202939}
+.teacher-shell .teacher-workspace-item-meta,.teacher-shell .teacher-workspace-card-subtitle{color:#667085}
+.teacher-shell .teacher-workspace-alert{box-shadow:none;border-radius:11px}
+.teacher-shell .teacher-empty,.teacher-shell .teacher-workspace-empty{color:#667085;background:#fafbfc!important}
+.teacher-shell .teacher-chart-lines i{border-color:#eef0f3}
+.teacher-shell .teacher-bar{background:#93c5fd!important;box-shadow:none!important}
+.teacher-shell .teacher-chart-method{color:#667085;line-height:1.9}
+.teacher-shell .teacher-progress-card{border:1px solid #eef0f3;border-radius:11px;background:#fff;box-shadow:none}
+.teacher-shell .teacher-progress-card strong{color:#202939}
+.teacher-shell .teacher-progress-card small{color:#667085}
+.teacher-shell .teacher-progress-track{background:#f1f5f9}
+.teacher-shell .teacher-progress-track span{background:#2563eb!important}
+.teacher-shell .teacher-person-card{border:1px solid #eef0f3;border-radius:12px;background:#fff;box-shadow:none}
+.teacher-shell .teacher-person-card strong{color:#202939}
+.teacher-shell .teacher-person-card span{color:#667085}
+.teacher-shell .teacher-activity-table th{background:#f9fafb;color:#667085}
+.teacher-shell .teacher-activity-table td{color:#344054;border-color:#eef0f3}
+.teacher-shell .teacher-workspace-item-actions{gap:7px}
+.teacher-shell :is(a,button):focus-visible{outline:3px solid rgba(37,99,235,.24);outline-offset:3px}
+.teacher-shell :is(input,select,textarea){border-color:#d0d5dd;border-radius:10px}
+.teacher-shell :is(input,select,textarea):focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+@media(max-width:1000px){.teacher-shell .role-main{padding-inline:20px}}
+@media(max-width:760px){.teacher-shell .role-main{padding:16px 13px 32px}.teacher-shell .teacher-welcome-copy{padding:18px}.teacher-shell .teacher-workspace-head{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.teacher-shell *,.teacher-shell *:before,.teacher-shell *:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
