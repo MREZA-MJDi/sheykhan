@@ -20,6 +20,13 @@ class DatabaseSeeder extends Seeder
         // fake learning activity confined to the isolated testing environment.
         if (app()->environment('testing')) {
             $this->call(TestFixtureSeeder::class);
+            return;
+        }
+
+        // The 55 real legacy students are imported only after an explicit
+        // operator opt-in and private-source/academy configuration.
+        if (config('legacy_students.import_on_db_seed')) {
+            $this->call(LegacyStudentsSeeder::class);
         }
     }
 }
