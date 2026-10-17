@@ -4,7 +4,7 @@
 @section('content')
 <div class="teacher-form-shell">
     <div class="teacher-form-head"><div><span class="text-xs font-black text-[var(--panel-primary)]">ارزیابی</span><h1>ساخت آزمون</h1><p>اول دوره، کلاس و زمان را مشخص کن؛ بعد برای هر سؤال نوع را انتخاب کن. فرم، پاسخ‌دهی و تصحیح دانش‌آموز به نوع هر سؤال وابسته است.</p></div><a href="{{ route('teacher.exams.index') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت ←</a></div>
-    <form method="POST" action="{{ route('teacher.exams.store') }}" class="grid gap-4" data-exam-builder>
+    <form method="POST" action="{{ route('teacher.exams.store') }}" class="grid gap-4" data-exam-builder data-initial-questions='@json(old("questions", []))'>
         @csrf
         <section class="teacher-form-section"><h2>محدوده و مشخصات</h2><p>آزمون را به دوره و در صورت نیاز به یک کلاس مشخص اختصاص بده.</p>
             <div class="mt-5 grid gap-4 md:grid-cols-2">
@@ -20,14 +20,14 @@
             </div>
         </section>
         <section class="teacher-form-section">
-            <div class="flex flex-wrap items-center justify-between gap-3"><div><h2>سؤال‌های آزمون</h2><p>تک‌گزینه‌ای و چندپاسخی خودکار تصحیح می‌شوند؛ تشریحی برای معلم به صف بررسی دستی می‌رود. نوع سؤال را عوض کنی، فرم پاسخ صحیح هم عوض می‌شود.</p></div><button type="button" data-exam-add-question class="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-black text-white">+ افزودن سؤال</button></div>
+            <div class="flex flex-wrap items-center justify-between gap-3"><div><h2>سؤال‌های آزمون</h2><p>هر سؤال یکی از سه نوع واقعی دارد: <strong>تشریحی</strong> (تصحیح دستی)، <strong>تک‌گزینه‌ای</strong> (یک پاسخ صحیح، تصحیح خودکار) یا <strong>چندپاسخی</strong> (چند جواب صحیح، تصحیح خودکار). پس از تغییر نوع، همین فرم و صفحه پاسخ دانش‌آموز متناسب می‌شوند.</p><p class="mt-2 text-xs leading-6 text-slate-500">اگر اعتبارسنجی خطا بدهد، سؤال‌ها و پاسخ‌های صحیحی که وارد کرده‌ای حفظ می‌شوند. قبل از انتشار، یک‌بار آزمون را به‌صورت پیش‌نویس ذخیره و سؤال‌ها را بررسی کن.</p></div><button type="button" data-exam-add-question class="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-black text-white">+ افزودن سؤال</button></div>
             <div class="mt-5 grid gap-4" data-exam-questions></div>
             <template data-exam-question-template>
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4" data-exam-question>
                     <div class="mb-4 flex items-center justify-between"><strong class="text-xs">سؤال جدید</strong><button type="button" data-exam-remove-question class="text-xs font-bold text-rose-600">حذف سؤال</button></div>
                     <div class="grid gap-4 md:grid-cols-2">
-                        <label class="teacher-form-field md:col-span-2"><span>متن سؤال</span><textarea data-name="question" rows="3" placeholder="متن سؤال را وارد کن..."></textarea></label>
-                        <label class="teacher-form-field"><span>نوع سؤال</span><select data-name="type"><option value="text">تشریحی</option><option value="single">تک‌گزینه‌ای</option><option value="multiple">چندگزینه‌ای</option><option value="checkbox">چک‌باکسی</option></select></label>
+                        <label class="teacher-form-field md:col-span-2"><span>متن سؤال</span><textarea data-name="question" rows="3" required maxlength="5000" placeholder="متن سؤال را وارد کن..."></textarea></label>
+                        <label class="teacher-form-field"><span>نوع سؤال</span><select data-name="type"><option value="text">تشریحی</option><option value="single">تک‌گزینه‌ای</option><option value="multiple">چندپاسخی (انتخاب چند پاسخ)</option></select></label>
                         <label class="teacher-form-field"><span>نمره</span><input data-name="score" type="number" value="1" min="0" step="0.25"></label>
                         <label class="teacher-form-field md:col-span-2" data-question-options>
                             <span>گزینه‌های پاسخ <small class="text-slate-400">هر گزینه را در یک خط بنویس؛ برای سؤال تشریحی لازم نیست.</small></span>
