@@ -361,7 +361,7 @@ class OwnerReportingAndCourseShowTest extends TestCase
             'progress_percent' => 0,
         ]);
 
-        $analytics = app(\\App\\Services\\OwnerLearningAnalyticsService::class);
+        $analytics = app(\App\Services\OwnerLearningAnalyticsService::class);
         $teacherProgress = $analytics->teacherProgressForAcademies(
             [$academy->id],
             [$teacherA->id, $teacherB->id],
@@ -369,14 +369,14 @@ class OwnerReportingAndCourseShowTest extends TestCase
         $this->assertSame(100.0, (float) $teacherProgress[$teacherA->id]);
         $this->assertSame(0.0, (float) $teacherProgress[$teacherB->id]);
 
-        $report = app(\\App\\Services\\OwnerReportService::class)->build($owner);
+        $report = app(\App\Services\OwnerReportService::class)->build($owner);
         $reportsByTeacher = $report['teacherReports']->getCollection()->keyBy('teacher_id');
         $this->assertSame(1, (int) $reportsByTeacher[$teacherA->id]->student_count);
         $this->assertSame(1, (int) $reportsByTeacher[$teacherB->id]->student_count);
         $this->assertSame(100.0, (float) $reportsByTeacher[$teacherA->id]->progress_average);
         $this->assertSame(0.0, (float) $reportsByTeacher[$teacherB->id]->progress_average);
 
-        $dashboard = app(\\App\\Services\\OwnerDashboardService::class)->build($owner);
+        $dashboard = app(\App\Services\OwnerDashboardService::class)->build($owner);
         $dashboardByTeacher = $dashboard['teacherReports']->keyBy('teacher_id');
         $this->assertSame(1, (int) $dashboardByTeacher[$teacherA->id]->student_count);
         $this->assertSame(1, (int) $dashboardByTeacher[$teacherB->id]->student_count);
