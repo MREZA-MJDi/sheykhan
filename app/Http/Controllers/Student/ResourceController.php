@@ -31,9 +31,20 @@ class ResourceController extends Controller
     public function download(
         LearningResource $resource,
         StudentLearningResourceService $resources,
+        MediaService $media,
     ) {
-        abort_unless($resources->canAccess(request()->user(), $resource), 404);
+        $permission = $resources->downloadPermission(request()->user(), $resource);
 
-        return response()->view('errors.resource-download', compact('resource'), 403);
+        if ($permission === null) {
+            abort(404);
+        }
+
+        if (! $permission) {
+            return response()->view('errors.resource-download', compact('resource'), 403);
+        }
+
+        abort_unless($resource->media && $resource->media->status === 'active', 404);
+
+        return $media->download($resource->media);
     }
 }

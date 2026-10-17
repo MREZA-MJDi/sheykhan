@@ -216,6 +216,51 @@ class StudentLearningResourceAccessTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_downloadable_resource_in_a_free_course_can_be_downloaded_by_an_enrolled_student(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update(['access_type' => 'free', 'price' => 0]);
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $media = $this->makeMedia('free-course-notes.pdf', 'application/pdf');
+
+        $resource = LearningResource::create([
+            'academy_id' => $course->academy_id,
+            'course_id' => $course->id,
+            'classroom_id' => null,
+            'lesson_id' => null,
+            'media_id' => $media->id,
+            'uploaded_by' => User::where('email', 'owner@sheykhan.test')->value('id'),
+            'title' => 'جزوه قابل دانلود دوره رایگان',
+            'description' => 'منبع رایگان برای تست مجوز دانلود.',
+            'resource_type' => 'document',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => true,
+            'status' => 'active',
+            'sort_order' => 1,
+        ]);
+
+        $this->assertTrue(
+            app(StudentLearningResourceService::class)->canAccess($student, $resource)
+        );
+        $this->assertTrue(
+            app(StudentLearningResourceService::class)->downloadPermission($student, $resource)
+        );
+
+        $response = $this->actingAs($student)
+            ->get(route('student.resources.download', $resource))
+            ->assertOk()
+            ->assertStreamed();
+
+        $this->assertStringContainsString(
+            'attachment',
+            strtolower((string) $response->headers->get('Content-Disposition'))
+        );
+    }
+
     private function makeMedia(string $fileName, string $mimeType): Media
     {
         Storage::fake('local');
