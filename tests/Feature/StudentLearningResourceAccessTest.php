@@ -261,6 +261,41 @@ class StudentLearningResourceAccessTest extends TestCase
         );
     }
 
+
+    public function test_public_visibility_cannot_bypass_access_checks_for_paid_course_files(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $entitledStudent = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $unrelatedStudent = User::where('email', 'student.nika@sheykhan.test')->firstOrFail();
+
+        $media = $this->makeMedia('paid-course-material.pdf', 'application/pdf');
+        $media->update(['visibility' => 'public']);
+        $media->attachments()->create([
+            'mediable_type' => Course::class,
+            'mediable_id' => $course->id,
+            'collection' => 'course-assets',
+            'sort_order' => 1,
+        ]);
+
+        // The entitled learner may view inside the platform, but no raw public
+        // URL or generic download route can bypass the course entitlement.
+        $this->assertTrue(Gate::forUser($entitledStudent)->allows('view', $media));
+        $this->assertFalse(Gate::forUser($entitledStudent)->allows('download', $media));
+        $this->assertFalse(Gate::forUser($unrelatedStudent)->allows('view', $media));
+
+        $this->get(route('media.public', $media))->assertNotFound();
+
+        $this->actingAs($entitledStudent)
+            ->get(route('media.download', $media))
+            ->assertForbidden();
+
+        $this->actingAs($unrelatedStudent)
+            ->get(route('media.view', $media))
+            ->assertForbidden();
+    }
+
     private function makeMedia(string $fileName, string $mimeType): Media
     {
         Storage::fake('local');
