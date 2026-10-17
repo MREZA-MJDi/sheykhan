@@ -2888,9 +2888,7 @@
 
 /* Small screens preserve hierarchy rather than shrinking everything. */
 @media (max-width: 640px) {
-    .home-path-grid {
-        border-inline: 0;
-    }
+    
 
     .home-path-grid a {
         min-height: 132px;
