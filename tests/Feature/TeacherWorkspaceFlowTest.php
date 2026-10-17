@@ -113,6 +113,105 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertSame(180, (int) $updated->duration_minutes);
     }
 
+    public function test_exam_builder_persists_essay_single_and_multi_choice_questions_correctly(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $classroom = Classroom::where('course_id', $course->id)
+            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.create'))
+            ->assertOk()
+            ->assertSee('data-question-correct', false)
+            ->assertSee('data-correct-answer-choices', false);
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'آزمون قالب‌های سؤال - تست',
+                'description' => 'بررسی مسیر واقعی ذخیره و تصحیح سؤال‌ها',
+                'duration_minutes' => 45,
+                'attempts_allowed' => 1,
+                'starts_at' => now()->subMinute()->toDateTimeString(),
+                'ends_at' => now()->addDay()->toDateTimeString(),
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'راه‌حل خود را توضیح بده.',
+                        'score' => 3,
+                    ],
+                    [
+                        'type' => 'single',
+                        'question' => '۲ + ۲ چند می‌شود؟',
+                        'options' => ['۳', '۴', '۵'],
+                        'correct_answer' => '۴',
+                        'score' => 1,
+                    ],
+                    [
+                        'type' => 'multiple',
+                        'question' => 'کدام گزینه‌ها عدد زوج‌اند؟',
+                        'options' => ['۱', '۲', '۳', '۴'],
+                        'correct_answer' => ['۲', '۴'],
+                        'score' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $exam = \\App\\Models\\Exam::where('title', 'آزمون قالب‌های سؤال - تست')->firstOrFail();
+        $questions = $exam->questions()->orderBy('sort_order')->get();
+
+        $this->assertCount(3, $questions);
+        $this->assertSame('text', $questions[0]->type);
+        $this->assertNull($questions[0]->options);
+        $this->assertNull($questions[0]->correct_answer);
+
+        $this->assertSame('single', $questions[1]->type);
+        $this->assertSame(['۳', '۴', '۵'], $questions[1]->options);
+        $this->assertSame('۴', $questions[1]->correct_answer);
+
+        $this->assertSame('multiple', $questions[2]->type);
+        $this->assertSame(['۱', '۲', '۳', '۴'], $questions[2]->options);
+        $this->assertSame(['۲', '۴'], json_decode($questions[2]->correct_answer, true));
+    }
+
+    public function test_exam_builder_rejects_a_correct_answer_that_is_not_one_of_the_options(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.create'))
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'title' => 'آزمون پاسخ ناسازگار - تست',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'single',
+                        'question' => 'یک سؤال تستی',
+                        'options' => ['گزینه الف', 'گزینه ب'],
+                        'correct_answer' => 'گزینه ج',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('questions.0.correct_answer');
+
+        $this->assertDatabaseMissing('exams', ['title' => 'آزمون پاسخ ناسازگار - تست']);
+    }
+
     public function test_teacher_can_create_a_course_section_for_owned_course(): void
     {
         $this->seed();
