@@ -305,32 +305,70 @@ final class PublicExperienceSeeder extends Seeder
         }
     }
 
-    private function seedFacultyArtwork(User $owner): void
+    /**
+     * Create only three local showcase faculty identities when they do not exist.
+     * Existing account names and passwords are preserved.
+     *
+     * @return array<string, User>
+     */
+    private function seedFacultyArtwork(Academy $academy, User $owner): array
     {
-        $faculty = [
+        $definitions = [
             'teacher.math@sheykhan.test' => [
+                'name' => 'سمیه احمدی',
                 'art' => 'teacher-math',
                 'specialization' => 'ریاضی و تفکر تحلیلی',
                 'bio' => 'کمک می‌کنم دانش‌آموز به‌جای حفظ‌کردن فرمول، منطق پشت مسئله را کشف کند و راه‌حلش را با اطمینان توضیح بدهد.',
             ],
             'teacher.science@sheykhan.test' => [
+                'name' => 'علی رضایی',
                 'art' => 'teacher-science',
                 'specialization' => 'علوم تجربی و یادگیری مفهومی',
                 'bio' => 'از پرسش‌های روزمره شروع می‌کنیم، فرضیه می‌سازیم و با مشاهده و استدلال به پاسخ نزدیک می‌شویم.',
             ],
             'teacher.gifted@sheykhan.test' => [
+                'name' => 'نگار کریمی',
                 'art' => 'teacher-thinking',
                 'specialization' => 'استدلال و آمادگی تیزهوشان',
                 'bio' => 'تمرکز کلاس بر دیدن الگوها، انتخاب راهبرد و توضیح شفاف مسیر حل مسئله است؛ نه فقط رسیدن به جواب.',
             ],
         ];
 
-        foreach ($faculty as $email => $definition) {
-            $teacher = User::query()->where('email', $email)->first();
+        $teacherRoleId = Role::query()->where('slug', 'teacher')->value('id');
+        $faculty = [];
+
+        foreach ($definitions as $email => $definition) {
+            $teacher = User::withTrashed()->where('email', $email)->first();
 
             if (! $teacher) {
-                continue;
+                $seedPassword = (string) env('SEED_USER_PASSWORD', 'Sheykhan@12345');
+                $mobileNumber = '09' . str_pad(
+                    (string) (1000000000 + abs(crc32($email)) % 899999999),
+                    10,
+                    '0',
+                    STR_PAD_LEFT,
+                );
+
+                $teacher = User::query()->create([
+                    'name' => $definition['name'],
+                    'email' => $email,
+                    'mobile' => $mobileNumber,
+                    'password' => Hash::make($seedPassword),
+                    'status' => 'active',
+                ]);
+            } elseif ($teacher->trashed()) {
+                $teacher->restore();
+                $teacher->forceFill(['status' => 'active'])->save();
             }
+
+            $teacher->roles()->syncWithoutDetaching([$teacherRoleId]);
+            $academy->users()->syncWithoutDetaching([
+                $teacher->id => [
+                    'role' => 'teacher',
+                    'status' => 'active',
+                    'joined_at' => now(),
+                ],
+            ]);
 
             $profile = TeacherProfile::query()->updateOrCreate(
                 ['user_id' => $teacher->id],
@@ -350,6 +388,112 @@ final class PublicExperienceSeeder extends Seeder
                 'teacher-avatar',
                 'teacher-avatar',
             );
+
+            $faculty[$email] = $teacher;
+        }
+
+        return $faculty;
+    }
+
+    /**
+     * Seed a small public catalog with actual readable lesson content, without
+     * inventing student accounts, enrollments, lesson progress, or class rosters.
+     *
+     * @param array<string, User> $faculty
+     */
+    private function seedShowcaseCourses(Academy $academy, User $owner, array $faculty): void
+    {
+        $definitions = [
+            [
+                'slug' => 'math-foundation-7',
+                'title' => 'ریاضی پایه هفتم',
+                'grade' => '7',
+                'teacher' => 'teacher.math@sheykhan.test',
+                'price' => 1850000,
+                'short' => 'از نسبت و تناسب تا عبارت جبری؛ ریاضی را با مثال، استدلال و تمرین مرحله‌به‌مرحله بفهم.',
+                'description' => 'یک مسیر مفهومی برای پایه هفتم: ایده اصلی هر مبحث را کشف کن، راه‌حل را با مثال بررسی کن و با تمرین‌های تدریجی به تسلط برس.',
+                'section' => 'ریاضی با فهم عمیق',
+                'lessons' => [
+                    ['نسبت و تناسب در زندگی روزمره', 'نسبت دو مقدار را بخوان و از تناسب برای حل مسئله استفاده کن.', "هدف درس: تشخیص نسبت و ساختن تناسب.\n\nمثال: برای تهیه شربت، به ازای هر ۲ پیمانه شربت، ۵ پیمانه آب می‌ریزیم. نسبت شربت به آب ۲ به ۵ است. اگر ۶ پیمانه شربت داشته باشیم، برای حفظ همان مزه چند پیمانه آب لازم است؟\n\nراه‌حل: چون ۶ سه برابر ۲ است، مقدار آب هم سه برابر می‌شود: ۵ × ۳ = ۱۵ پیمانه.\n\nتمرین: اگر ۴ دفتر ۱۲۰ هزار تومان باشد، قیمت ۷ دفتر با همان قیمت واحد چقدر است؟", true],
+                    ['عبارت‌های جبری و جای‌گذاری', 'حروف در عبارت جبری چه معنایی دارند؟', "در عبارت ۳x + ۴، حرف x یک مقدار نامعلوم یا متغیر است. اگر x = ۵ باشد، ابتدا ضرب را انجام می‌دهیم: ۳ × ۵ + ۴ = ۱۹.\n\nیادت باشد ترتیب عملیات را رعایت کنی؛ ابتدا پرانتز، سپس ضرب و تقسیم و بعد جمع و تفریق.\n\nتمرین: برای x = ۶ مقدار ۲x + ۷ را حساب کن و توضیح بده کدام مرحله را اول انجام دادی.", false],
+                    ['حل مسئله با معادله یک‌مرحله‌ای', 'متن مسئله را به یک تساوی قابل حل تبدیل کن.', "عدد مجهول را x بنام. اگر با اضافه‌کردن ۸ به آن عدد ۲۱ به دست آید، رابطه می‌شود x + ۸ = ۲۱. با کم‌کردن ۸ از دو طرف، x = ۱۳.\n\nبرای بررسی، ۱۳ + ۸ = ۲۱ است؛ پس پاسخ سازگار است.\n\nتمرین: اگر سه برابر عددی برابر ۲۷ باشد، معادله را بنویس و عدد را پیدا کن.", false],
+                ],
+            ],
+            [
+                'slug' => 'science-foundation-8',
+                'title' => 'علوم پایه هشتم',
+                'grade' => '8',
+                'teacher' => 'teacher.science@sheykhan.test',
+                'price' => 1950000,
+                'short' => 'علم را از دل پدیده‌های روزمره کشف کن؛ از انرژی و نیرو تا مشاهده و توضیح علمی.',
+                'description' => 'در این مسیر علوم را فقط حفظ نمی‌کنی. مشاهده می‌کنی، پیش‌بینی می‌سازی، دلیل می‌آوری و با تمرین بررسی می‌کنی که چرا پدیده‌ها اتفاق می‌افتند.',
+                'section' => 'علوم؛ از مشاهده تا کشف',
+                'lessons' => [
+                    ['انرژی و تبدیل‌های آن', 'انرژی از بین نمی‌رود؛ شکل آن در فرایندها تغییر می‌کند.', "در چراغ‌قوه، انرژی شیمیایی باتری به انرژی الکتریکی و سپس به انرژی نورانی و گرمایی تبدیل می‌شود. در یک توپ در حال حرکت، انرژی جنبشی داریم؛ هرچه سرعت بیشتر باشد، انرژی جنبشی بیشتر است.\n\nتمرین: مسیر تبدیل انرژی را در یک پنکه و یک اجاق برقی بنویس.", true],
+                    ['نیرو، حرکت و اصطکاک', 'اثر نیرو را از تغییر سرعت یا جهت حرکت می‌شناسیم.', "نیرو می‌تواند سرعت یا جهت حرکت جسم را تغییر دهد یا شکل آن را عوض کند. اصطکاک میان دو سطح معمولاً در برابر لغزش مقاومت می‌کند؛ همین نیرو باعث می‌شود کف کفش به زمین بچسبد، اما مقداری انرژی نیز به گرما تبدیل شود.\n\nتمرین: چرا روی سطح یخی توقف دوچرخه سخت‌تر است؟ پاسخ را با مفهوم اصطکاک توضیح بده.", false],
+                    ['فشار در مایعات', 'فشار مایع با عمق افزایش پیدا می‌کند.', "در یک مایع ساکن، هرچه پایین‌تر برویم، ستون مایع بالای سرمان بلندتر است و فشار بیشتر می‌شود. به همین دلیل سوراخ پایین بطری معمولاً آب را با شدت بیشتری بیرون می‌فرستد.\n\nتمرین: روی یک بطری آب سه سوراخ در ارتفاع‌های متفاوت تصور کن. پیش‌بینی کن کدام جریان دورتر می‌رود و دلیل خود را بنویس.", false],
+                ],
+            ],
+            [
+                'slug' => 'gifted-prep-9',
+                'title' => 'آمادگی تیزهوشان پایه نهم',
+                'grade' => '9',
+                'teacher' => 'teacher.gifted@sheykhan.test',
+                'price' => 2950000,
+                'short' => 'برای سؤال‌های چالشی آماده شو؛ الگوها را پیدا کن و راهبرد حل مسئله بساز.',
+                'description' => 'این مسیر برای تقویت استدلال و حل مسئله طراحی شده است: سؤال را تحلیل کن، الگوها را تشخیص بده و روش فکرکردنت را مرور کن.',
+                'section' => 'تفکر، الگو و استدلال',
+                'lessons' => [
+                    ['الگویابی و تشخیص قاعده', 'از چند نمونه، قاعده تولید جمله بعدی را استخراج کن.', "دنباله ۲، ۶، ۱۲، ۲۰، ۳۰ را بررسی کن. اختلاف‌ها ۴، ۶، ۸ و ۱۰ هستند؛ اختلاف‌ها خودشان هر بار ۲ واحد افزایش دارند. جمله بعدی ۴۲ است، چون اختلاف بعدی ۱۲ خواهد بود.\n\nتمرین: دنباله ۱، ۴، ۹، ۱۶، ۲۵ را بررسی کن. قاعده را توضیح بده و دو جمله بعدی را بنویس.", true],
+                    ['استدلال منطقی و حذف حالت‌ها', 'با شروط مسئله، حالت‌های ناممکن را حذف کن.', "در مسائل منطقی، ابتدا داده‌ها را جدا کن، سپس شرط‌های قطعی را به ترتیب اعمال کن. حدس اولیه را تا وقتی با همه شرط‌ها سازگار نشده، پاسخ نهایی تلقی نکن.\n\nتمرین: سه دانش‌آموز رتبه‌های اول تا سوم گرفته‌اند. علی اول نشده، مینا دوم نشده و رضا سوم نشده است. حالت‌های ممکن را فهرست کن و حالت‌های ناسازگار را کنار بگذار.", false],
+                    ['شمارش نظام‌مند حالت‌ها', 'با جدول یا نمودار درختی، هیچ حالت را جا نینداز.', "اگر سه پیراهن و دو شلوار متفاوت داشته باشیم، هر پیراهن با هر شلوار یک ترکیب می‌سازد؛ بنابراین ۳ × ۲ = ۶ ترکیب داریم.\n\nتمرین: با چهار کارت رنگی و سه کارت عددی، اگر یک کارت از هر گروه انتخاب شود، چند جفت متفاوت ساخته می‌شود؟", false],
+                ],
+            ],
+        ];
+
+        foreach ($definitions as $definition) {
+            $teacher = $faculty[$definition['teacher']];
+            $course = Course::query()->updateOrCreate(
+                ['academy_id' => $academy->id, 'slug' => $definition['slug']],
+                [
+                    'created_by' => $owner->id,
+                    'title' => $definition['title'],
+                    'short_description' => $definition['short'],
+                    'description' => $definition['description'],
+                    'level' => 'متوسط',
+                    'status' => 'published',
+                    'access_type' => 'paid',
+                    'price' => $definition['price'],
+                    'duration_minutes' => 180,
+                    'published_at' => now()->subDays(20),
+                ],
+            );
+
+            $grade = AcademicGrade::query()->where('code', $definition['grade'])->firstOrFail();
+            $course->grades()->syncWithoutDetaching([$grade->id]);
+            $course->teachers()->syncWithoutDetaching([$teacher->id => ['is_primary' => true]]);
+
+            $section = CourseSection::query()->firstOrCreate(
+                ['course_id' => $course->id, 'sort_order' => 1],
+                ['title' => $definition['section'], 'description' => 'درس‌های مفهومی و تمرین‌های مرحله‌به‌مرحله.'],
+            );
+
+            foreach ($definition['lessons'] as $index => [$title, $summary, $body, $isFree]) {
+                Lesson::query()->updateOrCreate(
+                    ['course_section_id' => $section->id, 'slug' => $definition['slug'] . '-lesson-' . ($index + 1)],
+                    [
+                        'title' => $title,
+                        'type' => 'text',
+                        'summary' => $summary,
+                        'content' => $body,
+                        'duration_seconds' => 0,
+                        'is_free' => $isFree,
+                        'status' => 'published',
+                        'published_at' => now()->subDays(15 - $index),
+                        'sort_order' => $index + 1,
+                    ],
+                );
+            }
         }
     }
 
