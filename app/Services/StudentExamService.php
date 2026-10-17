@@ -19,14 +19,19 @@ final class StudentExamService
         return Exam::query()
             ->whereIn('course_id', $courseIds)
             ->where('status', 'published')
-            ->where(function (Builder $query) use ($student): void {
-                $query->whereNull('classroom_id')
-                    ->orWhereExists(function ($membership) use ($student): void {
-                        $membership->selectRaw('1')
-                            ->from('classroom_student')
-                            ->whereColumn('classroom_student.classroom_id', 'exams.classroom_id')
-                            ->where('classroom_student.student_id', $student->id)
-                            ->where('classroom_student.status', 'active');
+            ->whereExists(function ($group) use ($student): void {
+                $group->selectRaw('1')
+                    ->from('classroom_student as student_membership')
+                    ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                    ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                    ->whereColumn('student_classroom.course_id', 'exams.course_id')
+                    ->whereColumn('teaching_assignment.teacher_id', 'exams.teacher_id')
+                    ->where('student_classroom.status', 'active')
+                    ->where('student_membership.student_id', $student->id)
+                    ->where('student_membership.status', 'active')
+                    ->where(function ($scope): void {
+                        $scope->whereNull('exams.classroom_id')
+                            ->orWhereColumn('exams.classroom_id', 'student_classroom.id');
                     });
             })
             ->with([
