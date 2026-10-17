@@ -1862,9 +1862,6 @@
         rgba(255,255,255,.7);
 }
 
-/* Keep public-page content visible in the first server-rendered paint. */
-.home-reveal.is-visible { opacity: 1; transform: none; }
-
 /* =========================================================
    TABLET
    ========================================================= */
