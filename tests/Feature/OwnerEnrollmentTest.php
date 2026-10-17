@@ -21,11 +21,13 @@ class OwnerEnrollmentTest extends TestCase
     public function test_same_idempotency_key_does_not_create_duplicate_enrollment_or_payment(): void
     {
         [$owner, $academy, $course, $student] = $this->makeWorkspace();
+        $classroom = $this->staffedClassroom($academy, $course);
         $key = (string) Str::uuid();
 
         $payload = [
             'student_id' => $student->id,
             'course_id' => $course->id,
+            'classroom_id' => $classroom->id,
             'paid_amount' => 100000,
             'idempotency_key' => $key,
         ];
@@ -51,12 +53,14 @@ class OwnerEnrollmentTest extends TestCase
     public function test_duplicate_enrollment_with_same_final_state_is_safe_even_with_a_new_key(): void
     {
         [$owner, $academy, $course, $student] = $this->makeWorkspace();
+        $classroom = $this->staffedClassroom($academy, $course);
 
         foreach ([(string) Str::uuid(), (string) Str::uuid()] as $key) {
             $this->actingAs($owner)
                 ->post(route('owner.people.enroll-student', $academy), [
                     'student_id' => $student->id,
                     'course_id' => $course->id,
+                    'classroom_id' => $classroom->id,
                     'paid_amount' => 100000,
                     'idempotency_key' => $key,
                 ])
@@ -151,16 +155,46 @@ class OwnerEnrollmentTest extends TestCase
     public function test_owner_cannot_enroll_a_student_from_another_academy(): void
     {
         [$owner, $academy, $course] = $this->makeWorkspace();
+        $classroom = $this->staffedClassroom($academy, $course);
         $foreignStudent = User::factory()->create(['email' => 'foreign@test.local']);
 
         $this->actingAs($owner)->post(route('owner.people.enroll-student', $academy), [
             'student_id' => $foreignStudent->id,
             'course_id' => $course->id,
+            'classroom_id' => $classroom->id,
             'paid_amount' => 100000,
             'idempotency_key' => (string) Str::uuid(),
         ])->assertSessionHasErrors('student_id');
 
         $this->assertDatabaseCount('course_enrollments', 0);
+    }
+
+    private function staffedClassroom(Academy $academy, Course $course): Classroom
+    {
+        $teacher = User::factory()->create(['email' => 'class-teacher-' . Str::lower(Str::random(6)) . '@test.local']);
+        $teacherRole = Role::firstOrCreate(
+            ['slug' => 'teacher'],
+            ['name' => 'مدرس', 'description' => 'Teacher']
+        );
+        $teacher->roles()->attach($teacherRole->id);
+        $academy->users()->attach($teacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $course->teachers()->attach($teacher->id, ['is_primary' => true]);
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس تست',
+            'code' => 'CLASS-' . strtoupper(Str::random(6)),
+            'capacity' => 30,
+            'status' => 'active',
+        ]);
+        $classroom->teachers()->attach($teacher->id);
+
+        return $classroom;
     }
 
     private function makeWorkspace(): array
