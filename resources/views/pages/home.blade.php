@@ -15,7 +15,7 @@
 
 
     {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
-    <section class="home-section home-academy-story" aria-labelledby="home-academy-story-title">
+    <section id="academy-story" class="home-section home-academy-story" aria-labelledby="home-academy-story-title">
         <x-layout.container size="wide">
             <div class="home-academy-story__grid">
                 <div class="home-academy-story__copy">
