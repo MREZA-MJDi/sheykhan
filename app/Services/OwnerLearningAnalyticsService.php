@@ -83,6 +83,34 @@ final class OwnerLearningAnalyticsService
             ->map(fn ($value) => (float) $value);
     }
 
+    /**
+     * One row per teacher, counting only students actively enrolled in a
+     * specific active classroom assigned to that teacher.
+     */
+    public function teacherRosterCountsQuery($academyIds)
+    {
+        return DB::table('classroom_teacher as teaching_assignment')
+            ->join('classrooms as classrooms', function ($join) use ($academyIds): void {
+                $join->on('classrooms.id', '=', 'teaching_assignment.classroom_id')
+                    ->whereIn('classrooms.academy_id', $academyIds)
+                    ->where('classrooms.status', '=', 'active');
+            })
+            ->join('classroom_student as roster', function ($join): void {
+                $join->on('roster.classroom_id', '=', 'classrooms.id')
+                    ->where('roster.status', '=', 'active');
+            })
+            ->join('course_enrollments as enrollment', function ($join): void {
+                $join->on('enrollment.classroom_id', '=', 'classrooms.id')
+                    ->on('enrollment.course_id', '=', 'classrooms.course_id')
+                    ->on('enrollment.student_id', '=', 'roster.student_id')
+                    ->where('enrollment.status', '=', 'active');
+            })
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->groupBy('teaching_assignment.teacher_id')
+            ->select('teaching_assignment.teacher_id')
+            ->selectRaw('COUNT(DISTINCT enrollment.student_id) AS student_count');
+    }
+
     public function courseExamAverages($courseIds)
     {
         return $this->latestExamAttemptsQuery($courseIds)
