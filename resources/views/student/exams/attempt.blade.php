@@ -101,7 +101,7 @@
                                     $decoded = json_decode((string) $savedAnswer, true);
                                     $savedMultiple = json_last_error() === JSON_ERROR_NONE && is_array($decoded)
                                         ? array_map('strval', $decoded)
-                                        : preg_split('/s*,s*/', (string) $savedAnswer);
+                                        : preg_split('/\\s*,\\s*/', (string) $savedAnswer);
                                 }
                             @endphp
 
@@ -119,7 +119,7 @@
                                     <div class="student-exam-question-meta">
                                         <div>
                                             <span class="student-exam-question-label">
-                                                {{ $question->type === 'text' ? 'تشریحی' : 'گزینه‌ای' }}
+                                                {{ match($question->type) { 'text' => 'تشریحی', 'single', 'multiple_choice' => 'تک‌گزینه‌ای', 'multiple', 'checkbox' => 'چندپاسخی', default => 'سؤال' } }}
                                             </span>
                                             <span class="student-exam-score">
                                                 {{ App\Support\PersianUi::digits($question->score) }} امتیاز
