@@ -146,6 +146,7 @@ final class TeacherWorkspaceService
     public function students(User $teacher): Collection
     {
         $classroomIds = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->pluck('classrooms.id');
 
@@ -153,15 +154,24 @@ final class TeacherWorkspaceService
             return collect();
         }
 
+        $courseIds = DB::table('classrooms')->whereIn('id', $classroomIds)->distinct()->pluck('course_id');
+
         return User::query()
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active'))
             ->with('studentProfile')
             ->withCount([
-                'lessonProgress as progress_items_count',
-                'assignmentSubmissions',
-                'examAttempts',
+                'lessonProgress as progress_items_count' => fn ($query) => $query
+                    ->whereHas('lesson', fn ($lesson) => $lesson
+                        ->where('status', 'published')
+                        ->whereHas('section', fn ($section) => $section->whereIn('course_id', $courseIds))),
+                'assignmentSubmissions' => fn ($query) => $query->whereHas('assignment', fn ($assignment) => $assignment
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
+                'examAttempts' => fn ($query) => $query->whereHas('exam', fn ($exam) => $exam
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
             ])
             ->orderBy('name')
             ->get();
@@ -176,12 +186,15 @@ final class TeacherWorkspaceService
         // Use the same active-academy membership boundary as the other teacher
         // workspace queries. Archived memberships must not leak into the roster.
         $classroomIds = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
             return new LengthAwarePaginator([], 0, $perPage);
         }
+
+        $courseIds = DB::table('classrooms')->whereIn('id', $classroomIds)->distinct()->pluck('course_id');
 
         $allowedSorts = [
             'name' => 'name',
@@ -199,9 +212,16 @@ final class TeacherWorkspaceService
                 ->where('classroom_student.status', 'active'))
             ->with('studentProfile')
             ->withCount([
-                'lessonProgress as progress_items_count',
-                'assignmentSubmissions',
-                'examAttempts',
+                'lessonProgress as progress_items_count' => fn ($query) => $query
+                    ->whereHas('lesson', fn ($lesson) => $lesson
+                        ->where('status', 'published')
+                        ->whereHas('section', fn ($section) => $section->whereIn('course_id', $courseIds))),
+                'assignmentSubmissions' => fn ($query) => $query->whereHas('assignment', fn ($assignment) => $assignment
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
+                'examAttempts' => fn ($query) => $query->whereHas('exam', fn ($exam) => $exam
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
             ])
             ->orderBy($sortColumn, $direction)
             ->orderBy('users.id')
