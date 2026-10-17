@@ -220,6 +220,32 @@ class OwnerClassroomManagementTest extends TestCase
         $this->assertTrue($activities->contains(fn (array $activity) => $activity['type'] === 'enrollment'));
     }
 
+    public function test_owner_classroom_list_is_paginated_and_headline_totals_cover_all_pages(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        for ($i = 1; $i <= 13; $i++) {
+            $classroom = Classroom::create([
+                'academy_id' => $academy->id,
+                'course_id' => $course->id,
+                'title' => 'کلاس صفحه‌بندی ' . $i,
+                'code' => 'PAG-' . str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+                'capacity' => 10,
+                'status' => 'active',
+            ]);
+            $classroom->teachers()->attach($teacher->id);
+        }
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.index', $academy))
+            ->assertOk()
+            ->assertViewHas('classrooms', fn ($classrooms) => $classrooms->total() === 13 && $classrooms->count() === 12)
+            ->assertViewHas('summary', fn (array $summary) => $summary['total'] === 13
+                && $summary['active_count'] === 13
+                && $summary['capacity_total'] === 130)
+            ->assertSee('page=2', false);
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create(['email' => 'owner-' . Str::random(8) . '@test.local']);
