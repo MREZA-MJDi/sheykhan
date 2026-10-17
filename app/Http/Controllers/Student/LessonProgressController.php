@@ -1,15 +1,15 @@
 <?php
 
-namespace App\\Http\\Controllers\\Student;
+namespace App\Http\Controllers\Student;
 
-use App\\Http\\Controllers\\Controller;
-use App\\Http\\Requests\\Student\\UpdateLessonProgressRequest;
-use App\\Models\\Lesson;
-use App\\Models\\Media;
-use App\\Services\\StudentAccessService;
-use Illuminate\\Http\\JsonResponse;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Validation\\ValidationException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\UpdateLessonProgressRequest;
+use App\Models\Lesson;
+use App\Models\Media;
+use App\Services\StudentAccessService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class LessonProgressController extends Controller
 {
