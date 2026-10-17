@@ -46,6 +46,8 @@ class TeacherLearningProgressTest extends TestCase
         $studentTwo = User::where('email', 'student.parsa@sheykhan.test')->firstOrFail();
         $owner = User::where('email', 'owner@sheykhan.test')->firstOrFail();
         $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        // This test isolates roster privacy, not the paid-enrollment transaction gate.
+        $course->update(['access_type' => 'free', 'price' => 0]);
         $teacherOneClassroom = $course->classrooms()->where('code', 'MATH7-01')->firstOrFail();
 
         // Both teachers are assigned to the same public course, but each teaches
