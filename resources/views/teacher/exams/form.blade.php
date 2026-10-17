@@ -4,7 +4,7 @@
 @section('content')
 <div class="teacher-form-shell">
     <div class="teacher-form-head"><div><span class="text-xs font-black text-[var(--panel-primary)]">ارزیابی</span><h1>ساخت آزمون</h1><p>اول دوره، کلاس و زمان را مشخص کن؛ بعد برای هر سؤال نوع را انتخاب کن. فرم، پاسخ‌دهی و تصحیح دانش‌آموز به نوع هر سؤال وابسته است.</p></div><a href="{{ route('teacher.exams.index') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت ←</a></div>
-    <form method="POST" action="{{ route('teacher.exams.store') }}" class="grid gap-4" data-exam-builder data-initial-questions='@json(old("questions", []))'>
+    <form method="POST" action="{{ route('teacher.exams.store') }}" class="grid gap-4" data-exam-builder data-initial-questions="{{ json_encode(old('questions', []), JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
         @csrf
         <section class="teacher-form-section"><h2>محدوده و مشخصات</h2><p>آزمون را به دوره و در صورت نیاز به یک کلاس مشخص اختصاص بده.</p>
             <div class="mt-5 grid gap-4 md:grid-cols-2">
