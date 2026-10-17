@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ForcePasswordChangeController;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MediaController;
@@ -69,6 +70,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1')->name('login.store');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register.store');
+});
+
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/account/change-password', [ForcePasswordChangeController::class, 'show'])
+        ->name('password.change.show');
+    Route::put('/account/change-password', [ForcePasswordChangeController::class, 'update'])
+        ->middleware('throttle:6,1')
+        ->name('password.change.update');
 });
 
 Route::get('/media/{media}/public', [MediaController::class, 'servePublic'])->name('media.public');
