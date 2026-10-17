@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Academy;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\CourseManagementService;
 use App\Services\TeacherWorkspaceService;
 use App\Services\MeetingLinkService;
 use Carbon\Carbon;
@@ -85,6 +86,31 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.courses.edit', $unassignedCourse))
             ->assertForbidden();
+    }
+
+    public function test_partial_course_update_preserves_fields_that_were_not_sent(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update([
+            'level' => 'پیشرفته',
+            'short_description' => 'خلاصه اصلی',
+            'description' => 'توضیح کامل اصلی',
+            'duration_minutes' => 180,
+        ]);
+
+        $updated = app(CourseManagementService::class)->update(
+            $teacher,
+            $course,
+            ['title' => 'ریاضی هفتم — عنوان اصلاح‌شده'],
+        );
+
+        $this->assertSame('پیشرفته', $updated->level);
+        $this->assertSame('خلاصه اصلی', $updated->short_description);
+        $this->assertSame('توضیح کامل اصلی', $updated->description);
+        $this->assertSame(180, (int) $updated->duration_minutes);
     }
 
     public function test_teacher_can_create_a_course_section_for_owned_course(): void
