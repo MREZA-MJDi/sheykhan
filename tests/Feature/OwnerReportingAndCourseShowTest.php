@@ -527,6 +527,26 @@ class OwnerReportingAndCourseShowTest extends TestCase
         $this->assertSame($activeSession->id, $activeDetail['liveNow']->id);
     }
 
+    public function test_owner_dashboard_explains_all_items_in_the_attention_total(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['dashboard.view']);
+
+        Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس بدون مدرس برای بررسی',
+            'code' => 'NO-TEACHER-' . Str::random(6),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('نیازمند توجه')
+            ->assertSee('کلاس بدون مدرس');
+    }
+
     private function ownerWorkspace(array $permissions): array
     {
         $owner = User::factory()->create(['email' => 'owner-' . Str::random(8) . '@test.local']);
