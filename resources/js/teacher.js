@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!field) return [];
 
         return field.value
-            .split(/\\r?\\n/)
+            .split(/\r?\n/)
             .map((value) => value.trim())
             .filter(Boolean);
     };
