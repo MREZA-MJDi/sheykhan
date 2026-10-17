@@ -18,30 +18,73 @@ final class TeacherWorkspaceService
 {
     public function courses(User $teacher): Collection
     {
-        return $teacher->taughtCourses()
+        $courses = $teacher->taughtCourses()
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('academy:id,name')
-            ->withCount([
-                'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
-                'sections',
-            ])
+            ->withCount(['sections'])
             ->latest('courses.updated_at')
             ->get();
+
+        $this->attachTeacherVisibleStudentCounts($courses, $teacher);
+
+        return $courses;
     }
 
     public function coursesPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
-        return $teacher->taughtCourses()
+        $courses = $teacher->taughtCourses()
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('academy:id,name')
-            ->withCount([
-                'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
-                'sections',
-                'classrooms',
-            ])
+            ->withCount(['sections', 'classrooms'])
             ->latest('courses.updated_at')
             ->paginate($perPage)
             ->withQueryString();
+
+        $this->attachTeacherVisibleStudentCounts($courses, $teacher);
+
+        return $courses;
+    }
+
+    /**
+     * Counts only students in this teacher's active classroom cohorts. A course
+     * may be shared publicly and assigned to several teachers, so counting every
+     * active course enrollment here would inflate the number and expose a
+     * misleading roster metric.
+     */
+    private function attachTeacherVisibleStudentCounts($courses, User $teacher): void
+    {
+        $items = $courses instanceof LengthAwarePaginator
+            ? $courses->getCollection()
+            : $courses;
+
+        $courseIds = $items->pluck('id');
+        if ($courseIds->isEmpty()) {
+            return;
+        }
+
+        $counts = DB::table('classroom_teacher as assigned_teachers')
+            ->join('classrooms', 'classrooms.id', '=', 'assigned_teachers.classroom_id')
+            ->join('classroom_student as memberships', function ($join): void {
+                $join->on('memberships.classroom_id', '=', 'classrooms.id')
+                    ->where('memberships.status', '=', 'active');
+            })
+            ->join('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.classroom_id', '=', 'classrooms.id')
+                    ->on('enrollments.student_id', '=', 'memberships.student_id')
+                    ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                    ->where('enrollments.status', '=', 'active');
+            })
+            ->where('assigned_teachers.teacher_id', $teacher->id)
+            ->where('classrooms.status', 'active')
+            ->whereIn('classrooms.course_id', $courseIds)
+            ->groupBy('classrooms.course_id')
+            ->select('classrooms.course_id')
+            ->selectRaw('COUNT(DISTINCT memberships.student_id) as visible_student_count')
+            ->pluck('visible_student_count', 'course_id');
+
+        foreach ($items as $course) {
+            $course->setAttribute('active_students_count', (int) ($counts[$course->id] ?? 0));
+        }
     }
 
     public function classrooms(User $teacher): Collection
