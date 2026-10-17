@@ -12,6 +12,7 @@ use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\LessonNote;
 use App\Models\LiveClass;
+use App\Models\Media;
 use App\Models\Question;
 use App\Models\User;
 use App\Services\MediaService;
