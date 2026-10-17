@@ -10,6 +10,7 @@ use App\Models\CourseEnrollment;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\OwnerCacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -244,6 +245,36 @@ class OwnerClassroomManagementTest extends TestCase
                 && $summary['active_count'] === 13
                 && $summary['capacity_total'] === 130)
             ->assertSee('page=2', false);
+    }
+
+    public function test_successful_owner_mutations_invalidate_dashboard_and_report_caches(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+        $cache = app(OwnerCacheService::class);
+
+        $cache->rememberDashboard($owner, fn () => ['snapshot' => 'stale-dashboard']);
+        $cache->rememberReport($owner, fn () => ['snapshot' => 'stale-report']);
+
+        $this->actingAs($owner)
+            ->post(route('owner.classrooms.store', $academy), [
+                'course_id' => $course->id,
+                'teacher_ids' => [$teacher->id],
+                'title' => 'کلاس پس از تغییر کش',
+                'code' => 'CACHE-' . Str::random(6),
+                'capacity' => 20,
+                'status' => 'active',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertSame(
+            ['snapshot' => 'fresh-dashboard'],
+            $cache->rememberDashboard($owner, fn () => ['snapshot' => 'fresh-dashboard'])
+        );
+        $this->assertSame(
+            ['snapshot' => 'fresh-report'],
+            $cache->rememberReport($owner, fn () => ['snapshot' => 'fresh-report'])
+        );
     }
 
     private function workspace(): array
