@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\CourseSection;
@@ -273,6 +274,114 @@ class OwnerReportingAndCourseShowTest extends TestCase
 
         $this->assertNotNull($teacherReport);
         $this->assertEquals(175000.0, (float) $teacherReport->enrollment_sales);
+    }
+
+    public function test_owner_teacher_reports_use_only_students_from_each_teachers_assigned_classroom(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['reports.view', 'dashboard.view']);
+
+        $teacherA = User::factory()->create(['name' => 'مدرس گروه الف', 'email' => 'cohort-a-' . Str::random(6) . '@test.local']);
+        $teacherB = User::factory()->create(['name' => 'مدرس گروه ب', 'email' => 'cohort-b-' . Str::random(6) . '@test.local']);
+        $studentA = User::factory()->create(['email' => 'cohort-student-a-' . Str::random(6) . '@test.local']);
+        $studentB = User::factory()->create(['email' => 'cohort-student-b-' . Str::random(6) . '@test.local']);
+
+        foreach ([$teacherA, $teacherB] as $teacher) {
+            $academy->users()->attach($teacher->id, [
+                'role' => 'teacher',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+            $course->teachers()->attach($teacher->id, ['is_primary' => $teacher->is($teacherA)]);
+        }
+
+        $classA = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'گروه الف',
+            'code' => 'COHORT-A-' . Str::random(5),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $classB = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'گروه ب',
+            'code' => 'COHORT-B-' . Str::random(5),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+
+        $classA->teachers()->attach($teacherA->id);
+        $classB->teachers()->attach($teacherB->id);
+
+        foreach ([[$classA, $studentA], [$classB, $studentB]] as [$classroom, $student]) {
+            $academy->users()->attach($student->id, [
+                'role' => 'student',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+            $classroom->students()->attach($student->id, [
+                'status' => 'active',
+                'enrolled_at' => now(),
+            ]);
+            CourseEnrollment::create([
+                'course_id' => $course->id,
+                'student_id' => $student->id,
+                'classroom_id' => $classroom->id,
+                'status' => 'active',
+                'payment_status' => 'paid',
+                'price_amount' => 0,
+                'paid_amount' => 0,
+                'started_at' => now(),
+            ]);
+        }
+
+        $section = CourseSection::create([
+            'course_id' => $course->id,
+            'title' => 'محتوای مشترک',
+            'sort_order' => 1,
+        ]);
+        $lesson = Lesson::create([
+            'course_section_id' => $section->id,
+            'title' => 'درس مشترک',
+            'slug' => 'shared-lesson-' . Str::random(6),
+            'type' => 'text',
+            'status' => 'published',
+            'published_at' => now(),
+            'sort_order' => 1,
+        ]);
+        LessonProgress::create([
+            'lesson_id' => $lesson->id,
+            'user_id' => $studentA->id,
+            'progress_percent' => 100,
+        ]);
+        LessonProgress::create([
+            'lesson_id' => $lesson->id,
+            'user_id' => $studentB->id,
+            'progress_percent' => 0,
+        ]);
+
+        $analytics = app(\\App\\Services\\OwnerLearningAnalyticsService::class);
+        $teacherProgress = $analytics->teacherProgressForAcademies(
+            [$academy->id],
+            [$teacherA->id, $teacherB->id],
+        );
+        $this->assertSame(100.0, (float) $teacherProgress[$teacherA->id]);
+        $this->assertSame(0.0, (float) $teacherProgress[$teacherB->id]);
+
+        $report = app(\\App\\Services\\OwnerReportService::class)->build($owner);
+        $reportsByTeacher = $report['teacherReports']->getCollection()->keyBy('teacher_id');
+        $this->assertSame(1, (int) $reportsByTeacher[$teacherA->id]->student_count);
+        $this->assertSame(1, (int) $reportsByTeacher[$teacherB->id]->student_count);
+        $this->assertSame(100.0, (float) $reportsByTeacher[$teacherA->id]->progress_average);
+        $this->assertSame(0.0, (float) $reportsByTeacher[$teacherB->id]->progress_average);
+
+        $dashboard = app(\\App\\Services\\OwnerDashboardService::class)->build($owner);
+        $dashboardByTeacher = $dashboard['teacherReports']->keyBy('teacher_id');
+        $this->assertSame(1, (int) $dashboardByTeacher[$teacherA->id]->student_count);
+        $this->assertSame(1, (int) $dashboardByTeacher[$teacherB->id]->student_count);
+        $this->assertSame(100.0, (float) $dashboardByTeacher[$teacherA->id]->progress_average);
+        $this->assertSame(0.0, (float) $dashboardByTeacher[$teacherB->id]->progress_average);
     }
 
     private function ownerWorkspace(array $permissions): array
