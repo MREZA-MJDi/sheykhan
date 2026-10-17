@@ -1,6 +1,5 @@
 @import 'tailwindcss' source(none);
 @import './components.css';
-@import './tiamir-intro.css';
 @import './home-meraki-hero.css';
 @import './public-experience.css';
 @source '../../resources/views/pages';
@@ -1864,7 +1863,6 @@
 }
 
 /* Keep public-page content visible in the first server-rendered paint. */
-.home-reveal { opacity: 1; transform: none; }
 .home-reveal.is-visible { opacity: 1; transform: none; }
 
 /* =========================================================
@@ -2159,11 +2157,6 @@
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
         scroll-behavior: auto !important;
-    }
-
-    .home-reveal {
-        opacity: 1;
-        transform: none;
     }
 }
 
