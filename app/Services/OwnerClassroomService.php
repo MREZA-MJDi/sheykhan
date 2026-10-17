@@ -253,14 +253,16 @@ final class OwnerClassroomService
             ->wherePivot('status', 'active')
             ->count();
 
-        $visibleStudents = $classroom->students()
+        // Show a real, paginated roster instead of silently truncating the
+        // class after the first eight names.
+        $students = $classroom->students()
             ->wherePivot('status', 'active')
             ->select('users.id', 'users.name', 'users.email')
             ->orderBy('users.name')
-            ->limit(8)
-            ->get();
+            ->paginate(12, ['users.id', 'users.name', 'users.email'], 'students_page')
+            ->withQueryString();
 
-        $classroom->setRelation('students', $visibleStudents);
+        $classroom->setRelation('students', $students->getCollection());
         $classroom->setAttribute('active_students_total', $activeStudentCount);
 
         $attendance = DB::table('attendances')
@@ -402,6 +404,7 @@ final class OwnerClassroomService
 
         return [
             'classroom' => $classroom,
+            'students' => $students,
             'attendance' => [
                 'total' => (int) ($attendance->total ?? 0),
                 'attended' => (int) ($attendance->attended ?? 0),
@@ -419,7 +422,9 @@ final class OwnerClassroomService
             'activities' => $activities,
             'liveNow' => $liveCandidates->first(function ($item) use ($now) {
                 $start = Carbon::parse($item->scheduled_at);
-                $end = $start->copy()->addMinutes((int) ($item->duration_minutes ?? 60));
+                $end = ! empty($item->scheduled_end_at)
+                    ? Carbon::parse($item->scheduled_end_at)
+                    : $start->copy()->addMinutes(max(1, (int) ($item->duration_minutes ?? 60)));
 
                 return in_array($item->status, ['live','scheduled'], true)
                     && $start->lte($now)
