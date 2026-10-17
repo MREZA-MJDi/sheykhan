@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Http\\Requests\\Teacher\\Exam;
+namespace App\Http\Requests\Teacher\Exam;
 
-use Illuminate\\Foundation\\Http\\FormRequest;
-use Illuminate\\Validation\\Rule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreExamRequest extends FormRequest
 {
