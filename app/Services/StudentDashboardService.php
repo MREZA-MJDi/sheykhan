@@ -29,7 +29,7 @@ final class StudentDashboardService
             ->with([
                 'course:id,academy_id,title,slug,level,access_type,price',
                 'course.academy:id,name',
-                'course.teachers:id,name',
+                'course.academy:id,name',
             ])
             ->latest('started_at')
             ->limit(6)
@@ -289,11 +289,50 @@ final class StudentDashboardService
         $completedLessonsCount = (int) $lessonStats->sum('completed_lessons');
         $totalLessonsCount = (int) $lessonStats->sum('total_lessons');
 
+        // Show only educators assigned to the student's exact active classroom cohort.
+        // A public course may have multiple teachers serving different groups.
+        $teachers = $courseIds->isEmpty()
+            ? collect()
+            : User::query()
+                ->whereIn('id', function ($query) use ($student, $courseIds): void {
+                    $query->select('classroom_teachers.teacher_id')
+                        ->from('classroom_teacher as classroom_teachers')
+                        ->join('classrooms', 'classrooms.id', '=', 'classroom_teachers.classroom_id')
+                        ->join('classroom_student as roster', function ($join) use ($student): void {
+                            $join->on('roster.classroom_id', '=', 'classrooms.id')
+                                ->where('roster.student_id', '=', $student->id)
+                                ->where('roster.status', '=', 'active');
+                        })
+                        ->join('course_enrollments as enrollments', function ($join) use ($student): void {
+                            $join->on('enrollments.classroom_id', '=', 'classrooms.id')
+                                ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                                ->where('enrollments.student_id', '=', $student->id)
+                                ->where('enrollments.status', '=', 'active');
+                        })
+                        ->join('course_teacher as assigned_course_teachers', function ($join): void {
+                            $join->on('assigned_course_teachers.course_id', '=', 'classrooms.course_id')
+                                ->on('assigned_course_teachers.teacher_id', '=', 'classroom_teachers.teacher_id');
+                        })
+                        ->join('academy_user as academy_membership', function ($join): void {
+                            $join->on('academy_membership.user_id', '=', 'classroom_teachers.teacher_id')
+                                ->on('academy_membership.academy_id', '=', 'classrooms.academy_id')
+                                ->where('academy_membership.role', '=', 'teacher')
+                                ->where('academy_membership.status', '=', 'active');
+                        })
+                        ->whereIn('enrollments.course_id', $courseIds)
+                        ->where('classrooms.status', '=', 'active')
+                        ->distinct();
+                })
+                ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
+                ->orderBy('name')
+                ->limit(3)
+                ->get(['id', 'name']);
+
         return [
             'student' => $student,
             'profile' => $student->studentProfile,
             'courses' => $courses,
-            'teachers' => $courses->flatMap(fn ($course) => $course->teachers ?? [])->unique('id')->values()->take(3),
+            'teachers' => $teachers,
             'overallProgress' => round($overallProgress),
             'attendanceMetrics' => $attendanceMetrics,
             'activeCourseCount' => $activeCourseCount,
