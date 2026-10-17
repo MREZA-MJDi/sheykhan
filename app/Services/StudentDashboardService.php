@@ -62,17 +62,19 @@ final class StudentDashboardService
                 })
                 ->whereIn('assignments.course_id', $courseIds)
                 ->where('assignments.status', 'published')
-                ->where(function ($query) use ($student): void {
-                    $query->whereNull('assignments.classroom_id')
-                        ->orWhereExists(function ($membership) use ($student): void {
-                            $membership->selectRaw('1')
-                                ->from('classroom_student')
-                                ->whereColumn(
-                                    'classroom_student.classroom_id',
-                                    'assignments.classroom_id'
-                                )
-                                ->where('classroom_student.student_id', $student->id)
-                                ->where('classroom_student.status', 'active');
+                ->whereExists(function ($group) use ($student): void {
+                    $group->selectRaw('1')
+                        ->from('classroom_student as student_membership')
+                        ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                        ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                        ->whereColumn('student_classroom.course_id', 'assignments.course_id')
+                        ->whereColumn('teaching_assignment.teacher_id', 'assignments.teacher_id')
+                        ->where('student_classroom.status', 'active')
+                        ->where('student_membership.student_id', $student->id)
+                        ->where('student_membership.status', 'active')
+                        ->where(function ($scope): void {
+                            $scope->whereNull('assignments.classroom_id')
+                                ->orWhereColumn('assignments.classroom_id', 'student_classroom.id');
                         });
                 });
 
@@ -118,17 +120,23 @@ final class StudentDashboardService
             ? collect()
             : DB::table('live_classes')
                 ->join('courses', 'courses.id', '=', 'live_classes.course_id')
-                ->leftJoin('classroom_student', function ($join) use ($student): void {
-                    $join->on('classroom_student.classroom_id', '=', 'live_classes.classroom_id')
-                        ->where('classroom_student.student_id', '=', $student->id)
-                        ->where('classroom_student.status', '=', 'active');
-                })
                 ->whereIn('live_classes.course_id', $courseIds)
                 ->whereBetween('live_classes.scheduled_at', [now(), now()->addDays(7)])
                 ->where('live_classes.status', 'scheduled')
-                ->where(function ($query) {
-                    $query->whereNull('live_classes.classroom_id')
-                        ->orWhereNotNull('classroom_student.student_id');
+                ->whereExists(function ($group) use ($student): void {
+                    $group->selectRaw('1')
+                        ->from('classroom_student as student_membership')
+                        ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                        ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                        ->whereColumn('student_classroom.course_id', 'live_classes.course_id')
+                        ->whereColumn('teaching_assignment.teacher_id', 'live_classes.teacher_id')
+                        ->where('student_classroom.status', 'active')
+                        ->where('student_membership.student_id', $student->id)
+                        ->where('student_membership.status', 'active')
+                        ->where(function ($scope): void {
+                            $scope->whereNull('live_classes.classroom_id')
+                                ->orWhereColumn('live_classes.classroom_id', 'student_classroom.id');
+                        });
                 })
                 ->orderBy('live_classes.scheduled_at')
                 ->limit(5)
@@ -152,14 +160,19 @@ final class StudentDashboardService
                 ->whereIn('course_id', $courseIds)
                 ->where('status', '!=', 'cancelled')
                 ->whereBetween('scheduled_at', [now()->subDays(60), now()->addDays(60)])
-                ->where(function ($query) use ($student): void {
-                    $query->whereNull('classroom_id')
-                        ->orWhereExists(function ($membership) use ($student): void {
-                            $membership->selectRaw('1')
-                                ->from('classroom_student')
-                                ->whereColumn('classroom_student.classroom_id', 'live_classes.classroom_id')
-                                ->where('classroom_student.student_id', $student->id)
-                                ->where('classroom_student.status', 'active');
+                ->whereExists(function ($group) use ($student): void {
+                    $group->selectRaw('1')
+                        ->from('classroom_student as student_membership')
+                        ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                        ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                        ->whereColumn('student_classroom.course_id', 'live_classes.course_id')
+                        ->whereColumn('teaching_assignment.teacher_id', 'live_classes.teacher_id')
+                        ->where('student_classroom.status', 'active')
+                        ->where('student_membership.student_id', $student->id)
+                        ->where('student_membership.status', 'active')
+                        ->where(function ($scope): void {
+                            $scope->whereNull('live_classes.classroom_id')
+                                ->orWhereColumn('live_classes.classroom_id', 'student_classroom.id');
                         });
                 })
                 ->with(['course:id,title', 'classroom:id,title', 'recording:id,disk,path,visibility,status'])
