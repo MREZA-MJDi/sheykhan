@@ -13,4 +13,8 @@ return [
     ),
 
     'academy_id' => env('SHEYKHAN_LEGACY_ACADEMY_ID'),
+
+    // Temporary password for the 54 verified WordPress bcrypt accounts.
+    // Configure only in the private .env and force a change immediately after login.
+    'temporary_password' => env('SHEYKHAN_LEGACY_STUDENT_TEMP_PASSWORD'),
 ];
