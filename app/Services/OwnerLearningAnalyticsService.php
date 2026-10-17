@@ -37,21 +37,49 @@ final class OwnerLearningAnalyticsService
 
     public function teacherProgressForAcademies($academyIds, $teacherIds = null)
     {
-        $query = DB::query()
+        // Teacher analytics must follow the actual classroom cohort, not every
+        // active enrollment attached to a course shared by several teachers.
+        $teacherStudentProgress = DB::query()
             ->fromSub($this->studentProgressQueryByAcademies($academyIds), 'student_progress')
-            ->join('course_teacher as ct', 'ct.course_id', '=', 'student_progress.course_id')
-            ->groupBy('ct.teacher_id')
+            ->join('classrooms as teacher_classrooms', function ($join) use ($academyIds): void {
+                $join->on('teacher_classrooms.course_id', '=', 'student_progress.course_id')
+                    ->whereIn('teacher_classrooms.academy_id', $academyIds)
+                    ->where('teacher_classrooms.status', '=', 'active');
+            })
+            ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'teacher_classrooms.id')
+            ->join('classroom_student as roster', function ($join): void {
+                $join->on('roster.classroom_id', '=', 'teacher_classrooms.id')
+                    ->on('roster.student_id', '=', 'student_progress.student_id')
+                    ->where('roster.status', '=', 'active');
+            })
+            ->join('course_enrollments as matching_enrollment', function ($join): void {
+                $join->on('matching_enrollment.classroom_id', '=', 'teacher_classrooms.id')
+                    ->on('matching_enrollment.course_id', '=', 'student_progress.course_id')
+                    ->on('matching_enrollment.student_id', '=', 'student_progress.student_id')
+                    ->where('matching_enrollment.status', '=', 'active');
+            })
+            ->groupBy('teaching_assignment.teacher_id', 'student_progress.course_id', 'student_progress.student_id')
             ->select([
-                'ct.teacher_id',
-                DB::raw('ROUND(AVG(student_progress.progress_percent), 1) AS progress_average'),
+                'teaching_assignment.teacher_id',
+                'student_progress.course_id',
+                'student_progress.student_id',
+            ])
+            ->selectRaw('AVG(student_progress.progress_percent) AS progress_average');
+
+        $query = DB::query()
+            ->fromSub($teacherStudentProgress, 'teacher_student_progress')
+            ->groupBy('teacher_id')
+            ->select([
+                'teacher_id',
+                DB::raw('ROUND(AVG(progress_average), 1) AS progress_average'),
             ]);
 
         if ($teacherIds !== null) {
-            $query->whereIn('ct.teacher_id', $teacherIds);
+            $query->whereIn('teacher_id', $teacherIds);
         }
 
         return $query
-            ->pluck('progress_average', 'ct.teacher_id')
+            ->pluck('progress_average', 'teacher_id')
             ->map(fn ($value) => (float) $value);
     }
 
