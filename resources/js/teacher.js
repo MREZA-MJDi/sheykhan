@@ -654,18 +654,54 @@ document.addEventListener('DOMContentLoaded', () => {
         syncQuestions();
     });
 
-    const addQuestion = () => {
+    const addQuestion = (initial = {}, focus = true) => {
         const fragment = template.content.cloneNode(true);
-
         container.appendChild(fragment);
+
+        const item = container.querySelectorAll('[data-exam-question]');
+        const questionItem = item[item.length - 1];
+        const text = questionItem?.querySelector('[data-name="question"]');
+        const type = questionItem?.querySelector('[data-name="type"]');
+        const score = questionItem?.querySelector('[data-name="score"]');
+        const options = questionItem?.querySelector('[data-name="options_text"]');
+
+        if (text) text.value = typeof initial.question === 'string' ? initial.question : '';
+        if (type && ['text', 'single', 'multiple', 'checkbox'].includes(initial.type)) {
+            type.value = initial.type;
+        }
+        if (score && initial.score !== undefined && initial.score !== null) score.value = initial.score;
+        if (options) options.value = Array.isArray(initial.options) ? initial.options.join('\\n') : '';
+
         syncQuestions();
 
-        const questions = container.querySelectorAll('[data-exam-question]');
-        questions[questions.length - 1]
-            ?.querySelector('[data-name="question"]')
-            ?.focus();
+        // Rehydrate the selected answer key only after the corresponding
+        // radio/checkboxes have been rendered from the options list.
+        const expected = Array.isArray(initial.correct_answer)
+            ? initial.correct_answer.map(String)
+            : (initial.correct_answer === undefined || initial.correct_answer === null
+                ? []
+                : [String(initial.correct_answer)]);
+
+        questionItem?.querySelectorAll('[data-correct-answer-choice]').forEach((input) => {
+            input.checked = expected.includes(input.value);
+        });
+
+        if (focus) text?.focus();
     };
 
-    addButton.addEventListener('click', addQuestion);
-    addQuestion();
+    addButton.addEventListener('click', () => addQuestion({}, true));
+
+    let initialQuestions = [];
+    try {
+        const raw = JSON.parse(examBuilder.dataset.initialQuestions || '[]');
+        initialQuestions = Array.isArray(raw) ? raw.filter((question) => question && typeof question === 'object') : [];
+    } catch {
+        initialQuestions = [];
+    }
+
+    if (initialQuestions.length) {
+        initialQuestions.forEach((question) => addQuestion(question, false));
+    } else {
+        addQuestion({}, true);
+    }
 });
