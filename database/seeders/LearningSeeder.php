@@ -65,9 +65,18 @@ class LearningSeeder extends Seeder
                     'duration_seconds'=>1200+($i*300),'is_free'=>$i===0,'status'=>'published','published_at'=>now()->subDays(15-$i),'sort_order'=>$i+1
                 ]);
                 $student=$students->values()->get($i%$students->count());
+                $watchedSeconds = $i === 0
+                    ? (int) $lesson->duration_seconds
+                    : min(
+                        max(0, (int) $lesson->duration_seconds - 1),
+                        (int) round((int) $lesson->duration_seconds * 0.55)
+                    );
+                $progressPercent = (int) $lesson->duration_seconds > 0
+                    ? min(100, (int) round($watchedSeconds / (int) $lesson->duration_seconds * 100))
+                    : 0;
                 LessonProgress::firstOrCreate(['lesson_id'=>$lesson->id,'user_id'=>$student->id],[
-                    'progress_percent'=>$i===0?100:55,'seconds_watched'=>$i===0?$lesson->duration_seconds:650,
-                    'completed_at'=>$i===0?now()->subDays(2):null,'last_watched_at'=>now()->subDays($i+1)
+                    'progress_percent'=>$progressPercent,'seconds_watched'=>$watchedSeconds,
+                    'completed_at'=>$progressPercent>=100?now()->subDays(2):null,'last_watched_at'=>now()->subDays($i+1)
                 ]);
             }
             $courses->push($course->fresh(['sections.lessons']));
@@ -154,10 +163,10 @@ class LearningSeeder extends Seeder
         }
 
         foreach([
-            ['course'=>0,'classroom'=>0,'teacher'=>'teacher.math@sheykhan.test','title'=>'جلسه ۱ ریاضی: حل مسئله','days'=>8,'status'=>'completed','released'=>true],
+            ['course'=>0,'classroom'=>0,'teacher'=>'teacher.math@sheykhan.test','title'=>'جلسه ۱ ریاضی: حل مسئله','days'=>8,'status'=>'completed','released'=>false],
             ['course'=>0,'classroom'=>0,'teacher'=>'teacher.math@sheykhan.test','title'=>'جلسه ۲ ریاضی: الگوها','days'=>2,'status'=>'completed','released'=>false],
             ['course'=>1,'classroom'=>1,'teacher'=>'teacher.science@sheykhan.test','title'=>'جلسه ۱ علوم: انرژی','days'=>-1,'status'=>'scheduled','released'=>false],
-            ['course'=>2,'classroom'=>2,'teacher'=>'teacher.gifted@sheykhan.test','title'=>'جلسه جمع‌بندی تیزهوشان','days'=>5,'status'=>'completed','released'=>true],
+            ['course'=>2,'classroom'=>2,'teacher'=>'teacher.gifted@sheykhan.test','title'=>'جلسه جمع‌بندی تیزهوشان','days'=>5,'status'=>'completed','released'=>false],
         ] as $d){
             $scheduled=$d['days']>=0?now()->subDays($d['days'])->setTime(18,0):now()->addDays(abs($d['days']))->setTime(18,0);
             $media=$d['released']?SeedMedia::make('live-'.$d['course'],$owner->id,'video/mp4','mp4','live-classes','private'):null;
@@ -185,7 +194,7 @@ class LearningSeeder extends Seeder
             $questions=collect();
             foreach([['2+2 چند می‌شود؟',['3','4','5','6'],'4'],['گزینه درست را انتخاب کنید.',['A','B','C','D'],'B']] as $qi=>$q){
                 $questions->push(Question::firstOrCreate(['exam_id'=>$exam->id,'sort_order'=>$qi+1],[
-                    'type'=>'multiple_choice','question'=>$q[0],'options'=>$q[1],'correct_answer'=>$q[2],'score'=>1,'sort_order'=>$qi+1
+                    'type'=>'single','question'=>$q[0],'options'=>$q[1],'correct_answer'=>$q[2],'score'=>1,'sort_order'=>$qi+1
                 ]));
             }
             $attempt=ExamAttempt::firstOrCreate(['exam_id'=>$exam->id,'student_id'=>$student->id,'attempt_number'=>1],[
@@ -198,7 +207,7 @@ class LearningSeeder extends Seeder
         LearningResource::firstOrCreate(
             ['academy_id'=>$academy->id,'course_id'=>$courses->first()->id,'title'=>'جزوه ریاضی'],
             ['classroom_id'=>$classrooms->first()->id,'lesson_id'=>$courses->first()->sections->first()->lessons->first()->id,'media_id'=>$media->id,'uploaded_by'=>$owner->id,
-             'description'=>'منبع آموزشی منتشرشده برای مرور مباحث و تمرین بیشتر.','resource_type'=>'pdf','visibility'=>'enrolled_students','release_at'=>now()->subDay(),'downloadable'=>true,'status'=>'published','sort_order'=>1]
+             'description'=>'منبع آموزشی منتشرشده برای مرور مباحث و تمرین بیشتر.','resource_type'=>'pdf','visibility'=>'enrolled_students','release_at'=>now()->subDay(),'downloadable'=>false,'status'=>'published','sort_order'=>1]
         );
     }
 }
