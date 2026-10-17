@@ -81,6 +81,7 @@ final class OwnerClassroomService
             ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' THEN 1 ELSE 0 END) AS active_count")
             ->selectRaw("SUM(CASE WHEN classrooms.status = 'archived' THEN 1 ELSE 0 END) AS archived_count")
             ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' AND classrooms.capacity IS NOT NULL THEN classrooms.capacity ELSE 0 END) AS capacity_total")
+            ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' AND classrooms.capacity IS NOT NULL THEN COALESCE(student_counts.active_students_count, 0) ELSE 0 END) AS capacity_used")
             ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' THEN COALESCE(student_counts.active_students_count, 0) ELSE 0 END) AS active_memberships")
             ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' AND classrooms.capacity > 0 AND COALESCE(student_counts.active_students_count, 0) >= classrooms.capacity * 0.9 THEN 1 ELSE 0 END) AS capacity_alerts")
             ->first();
@@ -99,6 +100,7 @@ final class OwnerClassroomService
             'archived_count' => (int) ($summary->archived_count ?? 0),
             'unique_active_students' => (int) $uniqueActiveStudents,
             'capacity_total' => (int) ($summary->capacity_total ?? 0),
+            'capacity_used' => (int) ($summary->capacity_used ?? 0),
             'active_memberships' => (int) ($summary->active_memberships ?? 0),
             'capacity_alerts' => (int) ($summary->capacity_alerts ?? 0),
         ];
