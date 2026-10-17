@@ -426,6 +426,13 @@ class StudentBackendSecurityTest extends TestCase
             'paid_amount' => max(1, (int) $course->price),
         ]);
 
+        // LearningSeeder creates historical progress rows; reset the baseline
+        // so this test proves the server ignores forged client totals.
+        LessonProgress::query()
+            ->where('lesson_id', $lesson->id)
+            ->where('user_id', $student->id)
+            ->delete();
+
         $path = 'student-lessons/' . str()->uuid() . '.mp4';
         Storage::disk('local')->put($path, 'video-fixture');
         $media = Media::create([
