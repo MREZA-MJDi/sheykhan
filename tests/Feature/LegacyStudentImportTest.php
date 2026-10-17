@@ -12,6 +12,13 @@ class LegacyStudentImportTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const APPROVED_LEGACY_IDS = [
+        8, 58, 101, 109, 110, 112, 113, 114, 115, 116, 117, 118, 119, 120,
+        121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134,
+        135, 136, 137, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+        150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
+    ];
+
     public function test_import_is_dry_run_by_default_and_never_touches_unlisted_legacy_users(): void
     {
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
@@ -31,7 +38,7 @@ class LegacyStudentImportTest extends TestCase
 
             $this->assertSame(
                 0,
-                DB::table('users')->where('legacy_source', 'wordpress')->whereBetween('legacy_id', [2001, 2055])->count()
+                DB::table('users')->where('legacy_source', 'wordpress')->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)->count()
             );
 
             $this->assertDatabaseHas('users', [
@@ -48,7 +55,7 @@ class LegacyStudentImportTest extends TestCase
 
             $this->assertSame(
                 55,
-                DB::table('users')->where('legacy_source', 'wordpress')->whereBetween('legacy_id', [2001, 2055])->count()
+                DB::table('users')->where('legacy_source', 'wordpress')->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)->count()
             );
 
             $this->assertSame(
@@ -63,7 +70,7 @@ class LegacyStudentImportTest extends TestCase
             $importedUserIds = DB::table('users')
                 ->select('id')
                 ->where('legacy_source', 'wordpress')
-                ->whereBetween('legacy_id', [2001, 2055]);
+                ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS);
 
             $this->assertSame(
                 55,
@@ -82,7 +89,7 @@ class LegacyStudentImportTest extends TestCase
                     ->whereIn('user_id', DB::table('users')
                         ->select('id')
                         ->where('legacy_source', 'wordpress')
-                        ->whereBetween('legacy_id', [2001, 2055]))
+                        ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS))
                     ->count()
             );
 
@@ -108,7 +115,7 @@ class LegacyStudentImportTest extends TestCase
                     ->whereIn('user_id', DB::table('users')
                         ->select('id')
                         ->where('legacy_source', 'wordpress')
-                        ->whereBetween('legacy_id', [2001, 2055]))
+                        ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS))
                     ->count()
             );
 
@@ -121,7 +128,7 @@ class LegacyStudentImportTest extends TestCase
 
             $this->assertSame(
                 55,
-                DB::table('users')->where('legacy_source', 'wordpress')->whereBetween('legacy_id', [2001, 2055])->count()
+                DB::table('users')->where('legacy_source', 'wordpress')->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)->count()
             );
             $this->assertSame(
                 55,
@@ -181,8 +188,7 @@ class LegacyStudentImportTest extends TestCase
         }
 
         $statements = [];
-        for ($index = 1; $index <= 55; $index++) {
-            $legacyId = 2000 + $index;
+        foreach (self::APPROVED_LEGACY_IDS as $index => $legacyId) {
             $name = $index === 1 ? 'Student (test case)' : 'Imported student ' . $index;
             // Exercise both supported WordPress hash families without using any
             // of the actual private source's personal data or hashes.
