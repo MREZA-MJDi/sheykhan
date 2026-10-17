@@ -22,6 +22,17 @@ final class ImportLegacyStudents extends Command
 
     private const EXPECTED_COUNT = 55;
 
+    /**
+     * Approved identities from the verified legacy export allow-list.
+     * A different set of 55 rows must never be silently imported.
+     */
+    private const EXPECTED_LEGACY_IDS = [
+        8, 58, 101, 109, 110, 112, 113, 114, 115, 116, 117, 118, 119, 120,
+        121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134,
+        135, 136, 137, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+        150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
+    ];
+
     private const USER_COLUMNS = [
         'name', 'email', 'password', 'mobile', 'status',
         'legacy_source', 'legacy_id', 'created_at', 'updated_at',
@@ -370,9 +381,17 @@ final class ImportLegacyStudents extends Command
             $rows[] = $data;
         }
 
-        $ids = collect($rows)->pluck('legacy_id');
-        if (count($rows) !== self::EXPECTED_COUNT || $ids->unique()->count() !== self::EXPECTED_COUNT) {
-            throw new RuntimeException('تعداد یا شناسه‌های یکتای فایل با مجموعهٔ تأییدشدهٔ ۵۵ دانش‌آموز تطبیق ندارد.');
+        $ids = collect($rows)->pluck('legacy_id')->map(static fn ($id): int => (int) $id)->all();
+        $expectedIds = self::EXPECTED_LEGACY_IDS;
+        sort($ids);
+        sort($expectedIds);
+
+        if (
+            count($rows) !== self::EXPECTED_COUNT
+            || count(array_unique($ids)) !== self::EXPECTED_COUNT
+            || $ids !== $expectedIds
+        ) {
+            throw new RuntimeException('تعداد یا شناسه‌های legacy با فهرست دقیق ۵۵ دانش‌آموز تأییدشده مطابقت ندارد.');
         }
 
         return $rows;
