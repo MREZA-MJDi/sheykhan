@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Exam;
 use App\Models\Media;
+use App\Models\MediaAttachment;
 use App\Models\User;
 use App\Services\CourseLearningProgressService;
 use App\Services\StudentAssignmentService;
@@ -112,8 +113,12 @@ class TeacherStudentGroupIsolationTest extends TestCase
             'sort_order' => 1,
             'is_featured' => false,
         ]);
-        $otherTeacherExam->mediaAttachments()->create([
+        // Exam currently has no HasMedia trait; create its polymorphic
+        // attachment explicitly so this test exercises the policy safely.
+        MediaAttachment::create([
             'media_id' => $assessmentMedia->id,
+            'mediable_type' => Exam::class,
+            'mediable_id' => $otherTeacherExam->id,
             'collection' => 'assessment',
             'sort_order' => 1,
             'is_featured' => false,
