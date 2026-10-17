@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Services;
+namespace App\Services;
 
-use App\\Models\\Assignment;
-use App\\Models\\Classroom;
-use App\\Models\\Course;
-use App\\Models\\Exam;
-use App\\Models\\LiveClass;
-use App\\Models\\User;
-use Illuminate\\Support\\Facades\\DB;
+use App\Models\Assignment;
+use App\Models\Classroom;
+use App\Models\Course;
+use App\Models\Exam;
+use App\Models\LiveClass;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 final class TeacherAccessService
 {
