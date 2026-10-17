@@ -512,7 +512,7 @@ class OwnerReportingAndCourseShowTest extends TestCase
             'status' => 'live',
         ]);
 
-        $dashboard = app(\\App\\Services\\OwnerDashboardService::class)->build($owner);
+        $dashboard = app(\App\Services\OwnerDashboardService::class)->build($owner);
         $classrooms = $dashboard['classrooms']->keyBy('id');
 
         $this->assertSame(1, (int) $dashboard['metrics']['liveNow']);
