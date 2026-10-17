@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\Media;
 use App\Models\MediaAttachment;
 use App\Models\User;
@@ -86,6 +88,30 @@ class TeacherStudentGroupIsolationTest extends TestCase
             'ends_at' => now()->addDay(),
             'status' => 'published',
         ]);
+
+        // Simulate stale legacy rows recorded for the wrong cohort. The student
+        // dashboard must not surface them merely because course_id matches.
+        AssignmentSubmission::updateOrCreate(
+            ['assignment_id' => $otherTeacherAssignment->id, 'student_id' => $studentA->id],
+            [
+                'content' => 'رکورد خارج از گروه برای تست دسترسی',
+                'submitted_at' => now()->subDay(),
+                'score' => 19,
+                'feedback' => 'نباید در داشبورد این دانش‌آموز دیده شود.',
+                'graded_at' => now()->subHour(),
+                'graded_by' => $teacherB->id,
+            ],
+        );
+
+        ExamAttempt::updateOrCreate(
+            ['exam_id' => $otherTeacherExam->id, 'student_id' => $studentA->id, 'attempt_number' => 1],
+            [
+                'started_at' => now()->subHours(3),
+                'submitted_at' => now()->subHours(2),
+                'score' => 18,
+                'status' => 'graded',
+            ],
+        );
 
         // File URLs must use the same cohort rule as assessment pages. A direct
         // media route may not bypass the student's exact teacher/class access.
@@ -176,6 +202,13 @@ class TeacherStudentGroupIsolationTest extends TestCase
         $this->assertNotContains((int) $teacherB->id, $studentATeacherIds);
         $this->assertContains((int) $teacherB->id, $studentBTeacherIds);
         $this->assertNotContains((int) $teacherA->id, $studentBTeacherIds);
+
+        $studentAResultTitles = app(\\App\\Services\\StudentDashboardService::class)
+            ->build($studentA)['recentResults']
+            ->pluck('title')
+            ->all();
+        $this->assertNotContains('تکلیف ویژه گروه استاد دوم', $studentAResultTitles);
+        $this->assertNotContains('آزمون ویژه گروه استاد دوم', $studentAResultTitles);
 
         $this->actingAs($studentA)
             ->get(route('student.assignments.show', $otherTeacherAssignment))
