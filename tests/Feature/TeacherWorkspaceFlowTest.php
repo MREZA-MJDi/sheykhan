@@ -165,7 +165,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertRedirect(route('teacher.exams.index'))
             ->assertSessionHasNoErrors();
 
-        $exam = \\App\\Models\\Exam::where('title', 'آزمون قالب‌های سؤال - تست')->firstOrFail();
+        $exam = \App\Models\Exam::where('title', 'آزمون قالب‌های سؤال - تست')->firstOrFail();
         $questions = $exam->questions()->orderBy('sort_order')->get();
 
         $this->assertCount(3, $questions);
