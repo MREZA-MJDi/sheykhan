@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Services;
+namespace App\\Services;
 
-use App\Models\Assignment;
-use App\Models\Classroom;
-use App\Models\Course;
-use App\Models\Exam;
-use App\Models\LiveClass;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\\Models\\Assignment;
+use App\\Models\\Classroom;
+use App\\Models\\Course;
+use App\\Models\\Exam;
+use App\\Models\\LiveClass;
+use App\\Models\\User;
+use Illuminate\\Support\\Facades\\DB;
 
 final class TeacherAccessService
 {
@@ -46,8 +46,14 @@ final class TeacherAccessService
             return false;
         }
 
-        return $assignment->classroom_id === null
-            || $this->teacherOwnsCourseClassroom($teacher, (int) $assignment->classroom_id, (int) $assignment->course_id);
+        if ($assignment->classroom_id === null) {
+            return true;
+        }
+
+        $classroom = $assignment->classroom;
+        return $classroom !== null
+            && (int) $classroom->course_id === (int) $assignment->course_id
+            && $this->canManageClassroom($teacher, $classroom);
     }
 
     public function canManageExam(User $teacher, Exam $exam): bool
@@ -59,8 +65,14 @@ final class TeacherAccessService
             return false;
         }
 
-        return $exam->classroom_id === null
-            || $this->teacherOwnsCourseClassroom($teacher, (int) $exam->classroom_id, (int) $exam->course_id);
+        if ($exam->classroom_id === null) {
+            return true;
+        }
+
+        $classroom = $exam->classroom;
+        return $classroom !== null
+            && (int) $classroom->course_id === (int) $exam->course_id
+            && $this->canManageClassroom($teacher, $classroom);
     }
 
     public function canManageClassroom(User $teacher, Classroom $classroom): bool
@@ -96,23 +108,13 @@ final class TeacherAccessService
             return false;
         }
 
-        return $liveClass->classroom_id === null
-            || $this->teacherOwnsCourseClassroom($teacher, (int) $liveClass->classroom_id, (int) $liveClass->course_id);
-    }
+        if ($liveClass->classroom_id === null) {
+            return true;
+        }
 
-    private function teacherOwnsCourseClassroom(User $teacher, int $classroomId, int $courseId): bool
-    {
-        return Classroom::query()
-            ->whereKey($classroomId)
-            ->where('course_id', $courseId)
-            ->where('status', 'active')
-            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
-            ->whereHas('academy', fn ($academy) => $academy
-                ->where('status', 'active')
-                ->whereHas('users', fn ($membership) => $membership
-                    ->whereKey($teacher->id)
-                    ->where('academy_user.role', 'teacher')
-                    ->where('academy_user.status', 'active')))
-            ->exists();
+        $classroom = $liveClass->classroom;
+        return $classroom !== null
+            && (int) $classroom->course_id === (int) $liveClass->course_id
+            && $this->canManageClassroom($teacher, $classroom);
     }
 }
