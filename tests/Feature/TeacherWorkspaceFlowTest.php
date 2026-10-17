@@ -224,7 +224,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertRedirect(route('teacher.exams.index'))
             ->assertSessionHasNoErrors();
 
-        $exam = \\App\\Models\\Exam::where('title', 'آزمون تشریحی - گردش کار کامل')->firstOrFail();
+        $exam = \App\Models\Exam::where('title', 'آزمون تشریحی - گردش کار کامل')->firstOrFail();
         $essay = $exam->questions()->where('type', 'text')->firstOrFail();
         $choice = $exam->questions()->where('type', 'single')->firstOrFail();
 
@@ -237,7 +237,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->post(route('student.exams.start', $exam))
             ->assertRedirect();
 
-        $attempt = \\App\\Models\\ExamAttempt::where('exam_id', $exam->id)
+        $attempt = \App\Models\ExamAttempt::where('exam_id', $exam->id)
             ->where('student_id', $student->id)
             ->firstOrFail();
 
