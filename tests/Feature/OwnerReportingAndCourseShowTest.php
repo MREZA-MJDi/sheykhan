@@ -518,6 +518,13 @@ class OwnerReportingAndCourseShowTest extends TestCase
         $this->assertSame(1, (int) $dashboard['metrics']['liveNow']);
         $this->assertNull($classrooms[$expiredClassroom->id]->live_now);
         $this->assertSame($activeSession->id, $classrooms[$activeClassroom->id]->live_now->id);
+
+        $classroomService = app(\\App\\Services\\OwnerClassroomService::class);
+        $expiredDetail = $classroomService->show($owner, $academy, $expiredClassroom);
+        $activeDetail = $classroomService->show($owner, $academy, $activeClassroom);
+
+        $this->assertNull($expiredDetail['liveNow']);
+        $this->assertSame($activeSession->id, $activeDetail['liveNow']->id);
     }
 
     private function ownerWorkspace(array $permissions): array
