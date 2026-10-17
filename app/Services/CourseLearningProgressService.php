@@ -23,9 +23,45 @@ final class CourseLearningProgressService
             throw new AccessDeniedHttpException('این دوره برای مدرس شما قابل مشاهده نیست.');
         }
 
+        // A course can have several teachers. In that case, course ownership alone
+        // does not authorize a teacher to inspect every learner on that course.
+        // Class membership is the cohort boundary for student-level reporting.
+        $classroomIds = $teacher->classroomsAsTeacher()
+            ->where('classrooms.course_id', $course->id)
+            ->where('classrooms.status', 'active')
+            ->pluck('classrooms.id');
+
+        $classroomStudentIds = $classroomIds->isEmpty()
+            ? collect()
+            : DB::table('classroom_student')
+                ->whereIn('classroom_id', $classroomIds)
+                ->where('status', 'active')
+                ->distinct()
+                ->pluck('student_id');
+
+        // A self-paced, classroom-less enrollment can be reported only when this
+        // is the course's sole assigned teacher. For a co-taught course, an
+        // unassigned enrollment is ambiguous and is intentionally not exposed.
+        $isSoleCourseTeacher = $course->teachers()->count() === 1;
+        $directStudentIds = $isSoleCourseTeacher
+            ? DB::table('course_enrollments')
+                ->where('course_id', $course->id)
+                ->where('status', 'active')
+                ->whereNull('classroom_id')
+                ->pluck('student_id')
+            : collect();
+
+        $visibleStudentIds = $classroomStudentIds
+            ->merge($directStudentIds)
+            ->map(static fn ($id): int => (int) $id)
+            ->unique()
+            ->values();
+
         $lessons = $course->sections()
             ->with(['lessons' => fn ($query) => $query
-                ->select('id', 'course_section_id', 'title', 'sort_order')
+                ->select('id', 'course_section_id', 'title', 'sort_order', 'status', 'published_at')
+                ->where('status', 'published')
+                ->where(fn ($published) => $published->whereNull('published_at')->orWhere('published_at', '<=', now()))
                 ->orderBy('sort_order')])
             ->get()
             ->flatMap(fn ($section) => $section->lessons)
@@ -33,9 +69,22 @@ final class CourseLearningProgressService
 
         /** @var LengthAwarePaginator $students */
         $students = User::query()
-            ->whereHas('enrollments', fn ($query) => $query
-                ->where('course_id', $course->id)
-                ->where('status', 'active'))
+            ->where('status', 'active')
+            ->whereIn('users.id', $visibleStudentIds)
+            ->whereHas('enrollments', function ($query) use ($course, $classroomIds, $isSoleCourseTeacher): void {
+                $query
+                    ->where('course_id', $course->id)
+                    ->where('status', 'active')
+                    ->where(function ($cohort) use ($classroomIds, $isSoleCourseTeacher): void {
+                        if ($classroomIds->isNotEmpty()) {
+                            $cohort->whereIn('classroom_id', $classroomIds);
+                        }
+
+                        if ($isSoleCourseTeacher) {
+                            $cohort->orWhereNull('classroom_id');
+                        }
+                    });
+            })
             ->orderBy('users.id')
             ->paginate(20)
             ->withQueryString();
@@ -62,9 +111,12 @@ final class CourseLearningProgressService
             ];
         });
 
+        // No activity is a measured zero, not a missing student. The score is
+        // explicitly a published-lesson study-progress average, not an exam grade
+        // or proof of comprehension; attendance and assessment remain separate.
         $studentSummary = $studentCollection->map(function (User $student) use ($lessons, $progress) {
             $values = $lessons->map(function ($lesson) use ($student, $progress) {
-                return (float) ($progress[$student->id . ':' . $lesson->id]->progress_percent ?? 0);
+                return min(100, max(0, (float) ($progress[$student->id . ':' . $lesson->id]->progress_percent ?? 0)));
             });
 
             return [
@@ -80,6 +132,7 @@ final class CourseLearningProgressService
             'students' => $students,
             'progress' => $progress,
             'studentSummary' => $studentSummary,
+            'progressMetricDescription' => 'میانگین درصد مطالعه درس‌های منتشرشده این دوره؛ حضور و غیاب، تکلیف و نمره آزمون جداگانه سنجیده می‌شوند.',
         ];
     }
 }
