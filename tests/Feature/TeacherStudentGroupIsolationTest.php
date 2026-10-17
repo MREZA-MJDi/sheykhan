@@ -133,14 +133,12 @@ class TeacherStudentGroupIsolationTest extends TestCase
         $this->assertContains((int) $teacherB->id, $studentBTeacherIds);
         $this->assertNotContains((int) $teacherA->id, $studentBTeacherIds);
 
-        $this->assertNotFound(
-            $this->actingAs($studentA)
-                ->get(route('student.assignments.show', $otherTeacherAssignment))
-        );
-        $this->assertNotFound(
-            $this->actingAs($studentA)
-                ->get(route('student.exams.show', $otherTeacherExam))
-        );
+        $this->actingAs($studentA)
+            ->get(route('student.assignments.show', $otherTeacherAssignment))
+            ->assertNotFound();
+        $this->actingAs($studentA)
+            ->get(route('student.exams.show', $otherTeacherExam))
+            ->assertNotFound();
 
         $crossGroupAssignment = Assignment::create([
             'course_id' => $course->id,
