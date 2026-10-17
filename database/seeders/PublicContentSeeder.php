@@ -16,8 +16,22 @@ class PublicContentSeeder extends Seeder
  public function run(): void
  {
   $academy=Academy::where('slug','sheykhan-academy')->firstOrFail(); $owner=User::where('email','owner@sheykhan.test')->firstOrFail(); $year=AcademicYear::where('title','1405-1406')->firstOrFail();
-  $students=User::whereIn('email',['student.armin@sheykhan.test','student.nika@sheykhan.test','student.parsa@sheykhan.test'])->get();
-  $parents=User::whereIn('email',['parent.armin@sheykhan.test','parent.nika@sheykhan.test'])->get();
+
+  // Demo mode intentionally provisions one account per role; testing provisions the full fixture set.
+  // Reuse the primary demo accounts when optional fixture accounts are absent.
+  $primaryStudent = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+  $students = collect([
+   'student.armin@sheykhan.test',
+   'student.nika@sheykhan.test',
+   'student.parsa@sheykhan.test',
+  ])->map(fn (string $email) => User::where('email', $email)->first() ?? $primaryStudent)->values();
+
+  $primaryParent = User::where('email', 'parent.armin@sheykhan.test')->firstOrFail();
+  $parents = collect([
+   'parent.armin@sheykhan.test',
+   'parent.nika@sheykhan.test',
+  ])->map(fn (string $email) => User::where('email', $email)->first() ?? $primaryParent)->values();
+
   foreach([
    ['parents','سخنی با اولیاء'],['students','سخنی با دانش‌آموزان'],['gifted','سلام تیزهوشان'],
    ['foreign-resources','نکاتی از سوالات منابع خارجی'],['question-designer','اگر من طراح سوال بودم']
