@@ -289,7 +289,28 @@ final class TeacherWorkspaceService
         $schedule->delete();
     }
 
-    public function markAttendance(User $teacher, Classroom $classroom, array $attendance, string $attendanceDate): void
+    public function scheduledMinutesForDate(Classroom $classroom, string $attendanceDate): int
+    {
+        $weekday = Carbon::parse($attendanceDate)->dayOfWeek;
+
+        return (int) $classroom->schedules()
+            ->where('weekday', $weekday)
+            ->get(['start_time', 'end_time'])
+            ->sum(function ($schedule): int {
+                [$startHour, $startMinute] = array_map('intval', explode(':', substr((string) $schedule->start_time, 0, 5)));
+                [$endHour, $endMinute] = array_map('intval', explode(':', substr((string) $schedule->end_time, 0, 5)));
+
+                return max(0, ($endHour * 60 + $endMinute) - ($startHour * 60 + $startMinute));
+            });
+    }
+
+    public function markAttendance(
+        User $teacher,
+        Classroom $classroom,
+        array $attendance,
+        string $attendanceDate,
+        array $attendanceMinutes = [],
+    ): void
     {
         // Keep ownership and student membership checks separate and batched.
         // This intentionally avoids loading the full Classroom model graph.
@@ -301,19 +322,68 @@ final class TeacherWorkspaceService
             ->map(static fn ($id): int => (int) $id)
             ->all();
 
-        DB::transaction(function () use ($teacher, $classroom, $attendance, $attendanceDate, $studentIds): void {
-            $allowedStudentIds = array_fill_keys($studentIds, true);
+        $allowed = array_fill_keys($studentIds, true);
+        $submittedIds = array_map('intval', array_keys($attendance));
+
+        if (array_diff($submittedIds, $studentIds) !== [] || array_diff($studentIds, $submittedIds) !== []) {
+            throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                'attendance' => 'فهرست دانش‌آموزان تغییر کرده است. صفحه را تازه کن و حضور همه دانش‌آموزان فعال را ثبت کن.',
+            ]);
+        }
+
+        $scheduledMinutes = $this->scheduledMinutesForDate($classroom, $attendanceDate);
+
+        foreach ($attendance as $studentId => $status) {
+            $id = (int) $studentId;
+            if (! isset($allowed[$id])) {
+                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                    'attendance' => 'یک دانش‌آموز انتخاب‌شده عضو فعال این کلاس نیست.',
+                ]);
+            }
+
+            $rawMinutes = $attendanceMinutes[$studentId] ?? $attendanceMinutes[$id] ?? null;
+            $actualMinutes = $rawMinutes === '' || $rawMinutes === null ? null : (int) $rawMinutes;
+
+            if ($scheduledMinutes > 0 && $status === 'late' && $actualMinutes === null) {
+                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                    "attendance_minutes.{$studentId}" => 'برای دانش‌آموزی که با تأخیر آمده، دقیقه‌های حضور واقعی را وارد کن.',
+                ]);
+            }
+
+            if ($scheduledMinutes > 0 && $actualMinutes !== null && $actualMinutes > $scheduledMinutes) {
+                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                    "attendance_minutes.{$studentId}" => 'مدت حضور نمی‌تواند از مدت برنامه‌ریزی‌شده کلاس بیشتر باشد.',
+                ]);
+            }
+        }
+
+        DB::transaction(function () use ($teacher, $classroom, $attendance, $attendanceDate, $attendanceMinutes, $scheduledMinutes): void {
             $rows = [];
 
             foreach ($attendance as $studentId => $status) {
-                if (!isset($allowedStudentIds[(int) $studentId])) {
-                    continue;
+                $rawMinutes = $attendanceMinutes[$studentId] ?? $attendanceMinutes[(int) $studentId] ?? null;
+                $actualMinutes = $rawMinutes === '' || $rawMinutes === null ? null : (int) $rawMinutes;
+
+                if ($scheduledMinutes < 1) {
+                    $scheduledForRow = null;
+                    $attendedForRow = null;
+                } else {
+                    $scheduledForRow = $scheduledMinutes;
+                    $attendedForRow = match ($status) {
+                        'absent' => 0,
+                        'excused' => null,
+                        'present' => min($scheduledMinutes, $actualMinutes ?? $scheduledMinutes),
+                        'late' => $actualMinutes,
+                        default => null,
+                    };
                 }
 
                 $rows[] = [
                     'classroom_id' => $classroom->id,
                     'student_id' => (int) $studentId,
                     'attendance_date' => $attendanceDate,
+                    'scheduled_minutes' => $scheduledForRow,
+                    'attended_minutes' => $attendedForRow,
                     'marked_by' => $teacher->id,
                     'status' => $status,
                     'note' => null,
@@ -326,7 +396,7 @@ final class TeacherWorkspaceService
                 DB::table('attendances')->upsert(
                     $rows,
                     ['classroom_id', 'student_id', 'attendance_date'],
-                    ['marked_by', 'status', 'note', 'updated_at'],
+                    ['marked_by', 'status', 'scheduled_minutes', 'attended_minutes', 'note', 'updated_at'],
                 );
             }
         });
