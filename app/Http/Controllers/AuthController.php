@@ -29,6 +29,10 @@ class AuthController extends Controller
             $request->boolean('remember'),
         );
 
+        if ($user->must_change_password) {
+            return redirect()->route('password.change.show');
+        }
+
         return $this->dashboard->redirect($user);
     }
 
