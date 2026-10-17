@@ -47,6 +47,14 @@ final class OwnerLearningAnalyticsService
                     ->where('teacher_classrooms.status', '=', 'active');
             })
             ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'teacher_classrooms.id')
+            ->join('users as active_teachers', 'active_teachers.id', '=', 'teaching_assignment.teacher_id')
+            ->join('academy_user as active_teacher_membership', function ($join): void {
+                $join->on('active_teacher_membership.user_id', '=', 'teaching_assignment.teacher_id')
+                    ->on('active_teacher_membership.academy_id', '=', 'teacher_classrooms.academy_id')
+                    ->where('active_teacher_membership.role', '=', 'teacher')
+                    ->where('active_teacher_membership.status', '=', 'active');
+            })
+            ->where('active_teachers.status', '=', 'active')
             ->join('classroom_student as roster', function ($join): void {
                 $join->on('roster.classroom_id', '=', 'teacher_classrooms.id')
                     ->on('roster.student_id', '=', 'student_progress.student_id')
@@ -95,6 +103,14 @@ final class OwnerLearningAnalyticsService
                     ->whereIn('classrooms.academy_id', $academyIds)
                     ->where('classrooms.status', '=', 'active');
             })
+            ->join('users as active_teachers', 'active_teachers.id', '=', 'teaching_assignment.teacher_id')
+            ->join('academy_user as active_teacher_membership', function ($join): void {
+                $join->on('active_teacher_membership.user_id', '=', 'teaching_assignment.teacher_id')
+                    ->on('active_teacher_membership.academy_id', '=', 'classrooms.academy_id')
+                    ->where('active_teacher_membership.role', '=', 'teacher')
+                    ->where('active_teacher_membership.status', '=', 'active');
+            })
+            ->where('active_teachers.status', '=', 'active')
             ->join('classroom_student as roster', function ($join): void {
                 $join->on('roster.classroom_id', '=', 'classrooms.id')
                     ->where('roster.status', '=', 'active');

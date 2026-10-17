@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
@@ -16,6 +17,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -382,6 +384,84 @@ class OwnerReportingAndCourseShowTest extends TestCase
         $this->assertSame(1, (int) $dashboardByTeacher[$teacherB->id]->student_count);
         $this->assertSame(100.0, (float) $dashboardByTeacher[$teacherA->id]->progress_average);
         $this->assertSame(0.0, (float) $dashboardByTeacher[$teacherB->id]->progress_average);
+    }
+
+    public function test_owner_metrics_exclude_excused_absences_and_archived_classroom_teachers(): void
+    {
+        [$owner, $academy, $course] = $this->ownerWorkspace(['reports.view', 'dashboard.view']);
+
+        $teacher = User::factory()->create(['name' => 'مدرس آرشیوشده', 'email' => 'archived-teacher-' . Str::random(6) . '@test.local']);
+        $studentPresent = User::factory()->create(['email' => 'present-student-' . Str::random(6) . '@test.local']);
+        $studentExcused = User::factory()->create(['email' => 'excused-student-' . Str::random(6) . '@test.local']);
+
+        $academy->users()->attach($teacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $course->teachers()->attach($teacher->id, ['is_primary' => true]);
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس حضور و غیاب',
+            'code' => 'ATT-' . Str::random(6),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $classroom->teachers()->attach($teacher->id);
+
+        foreach ([$studentPresent, $studentExcused] as $student) {
+            $academy->users()->attach($student->id, [
+                'role' => 'student',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+        }
+
+        Attendance::create([
+            'classroom_id' => $classroom->id,
+            'student_id' => $studentPresent->id,
+            'marked_by' => $owner->id,
+            'attendance_date' => today()->toDateString(),
+            'scheduled_minutes' => 60,
+            'attended_minutes' => 60,
+            'status' => 'present',
+        ]);
+        Attendance::create([
+            'classroom_id' => $classroom->id,
+            'student_id' => $studentExcused->id,
+            'marked_by' => $owner->id,
+            'attendance_date' => today()->toDateString(),
+            'scheduled_minutes' => 60,
+            'attended_minutes' => null,
+            'status' => 'excused',
+        ]);
+
+        $ownerReports = app(\\App\\Services\\OwnerReportService::class)->build($owner);
+        $this->assertSame(100.0, (float) $ownerReports['metrics']['attendance_rate']);
+        $classroomReport = $ownerReports['classroomReports']->getCollection()->firstWhere('id', $classroom->id);
+        $this->assertSame(100.0, (float) $classroomReport->attendance_rate);
+
+        $dashboard = app(\\App\\Services\\OwnerDashboardService::class)->build($owner);
+        $this->assertSame(100.0, (float) $dashboard['metrics']['todayAttendanceRate']);
+        $this->assertSame(1, (int) $dashboard['metrics']['classroomsWithoutTeacher'] === 1 ? 1 : 0);
+
+        DB::table('academy_user')
+            ->where('academy_id', $academy->id)
+            ->where('user_id', $teacher->id)
+            ->update(['status' => 'archived']);
+
+        $this->assertCount(0, app(\\App\\Services\\OwnerClassroomService::class)->index($owner, $academy)->first()->teachers);
+        $this->assertCount(0, app(\\App\\Services\\OwnerClassroomService::class)->show($owner, $academy, $classroom)['classroom']->teachers);
+        $this->assertSame(1, (int) app(\\App\\Services\\OwnerDashboardService::class)->build($owner)['metrics']['classroomsWithoutTeacher']);
+
+        $reportsAfterArchive = app(\\App\\Services\\OwnerReportService::class)->build($owner);
+        $this->assertFalse($reportsAfterArchive['teacherReports']->getCollection()->contains(
+            fn ($report) => (int) $report->teacher_id === (int) $teacher->id
+        ));
+        $archivedClassroomReport = $reportsAfterArchive['classroomReports']->getCollection()->firstWhere('id', $classroom->id);
+        $this->assertSame(0, (int) $archivedClassroomReport->teacher_count);
     }
 
     private function ownerWorkspace(array $permissions): array

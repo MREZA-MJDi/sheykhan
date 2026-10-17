@@ -85,7 +85,7 @@ final class OwnerDashboardService
             ->where('classrooms.status', 'active')
             ->whereDate('attendances.attendance_date', today())
             ->selectRaw(
-                'COUNT(*) AS total,
+                'SUM(CASE WHEN attendances.status IN (\'present\', \'late\', \'absent\') THEN 1 ELSE 0 END) AS total,
                  SUM(CASE WHEN attendances.status IN (\'present\', \'late\') THEN 1 ELSE 0 END) AS attended'
             )
             ->first();
@@ -113,7 +113,7 @@ final class OwnerDashboardService
             ->groupBy('classroom_id')
             ->select(
                 'classroom_id',
-                DB::raw('COUNT(*) AS total'),
+                DB::raw("SUM(CASE WHEN status IN ('present','late','absent') THEN 1 ELSE 0 END) AS total"),
                 DB::raw("SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended")
             )
             ->get()
@@ -187,11 +187,26 @@ final class OwnerDashboardService
             ->whereIn('classrooms.academy_id', $academyIds)
             ->where('classrooms.status', 'active')
             ->whereNotNull('classrooms.capacity')
+            ->where('classrooms.capacity', '>', 0)
             ->whereRaw('COALESCE(student_counts.active_students_count, 0) >= (classrooms.capacity * 0.9)')
             ->count();
 
-        $classroomsWithoutTeacher = (clone $classroomBase)
-            ->doesntHave('teachers')
+        $classroomsWithoutTeacher = DB::table('classrooms as classrooms')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->where('classrooms.status', 'active')
+            ->whereNotExists(function ($query): void {
+                $query->selectRaw('1')
+                    ->from('classroom_teacher as assignment')
+                    ->join('users as teacher_users', 'teacher_users.id', '=', 'assignment.teacher_id')
+                    ->join('academy_user as teacher_membership', function ($join): void {
+                        $join->on('teacher_membership.user_id', '=', 'assignment.teacher_id')
+                            ->on('teacher_membership.academy_id', '=', 'classrooms.academy_id')
+                            ->where('teacher_membership.role', '=', 'teacher')
+                            ->where('teacher_membership.status', '=', 'active');
+                    })
+                    ->whereColumn('assignment.classroom_id', 'classrooms.id')
+                    ->where('teacher_users.status', '=', 'active');
+            })
             ->count();
 
         $teacherReports = DB::table('course_teacher as ct')
@@ -213,6 +228,15 @@ final class OwnerDashboardService
                     ->where('transactions.status', '=', 'completed');
             })
             ->whereIn('courses.academy_id', $academyIds)
+            ->where('users.status', 'active')
+            ->whereExists(function ($membership): void {
+                $membership->selectRaw('1')
+                    ->from('academy_user as active_teacher_membership')
+                    ->whereColumn('active_teacher_membership.user_id', 'ct.teacher_id')
+                    ->whereColumn('active_teacher_membership.academy_id', 'courses.academy_id')
+                    ->where('active_teacher_membership.role', 'teacher')
+                    ->where('active_teacher_membership.status', 'active');
+            })
             ->groupBy('ct.teacher_id', 'users.name', 'cohort_counts.student_count')
             ->select([
                 'ct.teacher_id',

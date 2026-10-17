@@ -23,12 +23,22 @@ final class OwnerClassroomService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
+        $academyId = (int) $academy->id;
         $classrooms = $academy->classrooms()
             ->with([
                 'course:id,title',
                 'grade:id,title',
                 'academicYear:id,title,is_current',
-                'teachers:id,name',
+                'teachers' => fn ($query) => $query
+                    ->where('users.status', 'active')
+                    ->whereExists(function ($membership) use ($academyId): void {
+                        $membership->selectRaw('1')
+                            ->from('academy_user as active_teacher_membership')
+                            ->whereColumn('active_teacher_membership.user_id', 'users.id')
+                            ->where('active_teacher_membership.academy_id', $academyId)
+                            ->where('active_teacher_membership.role', 'teacher')
+                            ->where('active_teacher_membership.status', 'active');
+                    }),
                 'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
             ])
             ->withCount([
@@ -221,11 +231,21 @@ final class OwnerClassroomService
             abort(404);
         }
 
+        $academyId = (int) $academy->id;
         $classroom->load([
             'course:id,title,status',
             'grade:id,title',
             'academicYear:id,title,is_current',
-            'teachers:id,name',
+            'teachers' => fn ($query) => $query
+                ->where('users.status', 'active')
+                ->whereExists(function ($membership) use ($academyId): void {
+                    $membership->selectRaw('1')
+                        ->from('academy_user as active_teacher_membership')
+                        ->whereColumn('active_teacher_membership.user_id', 'users.id')
+                        ->where('active_teacher_membership.academy_id', $academyId)
+                        ->where('active_teacher_membership.role', 'teacher')
+                        ->where('active_teacher_membership.status', 'active');
+                }),
             'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
         ]);
 
@@ -245,7 +265,7 @@ final class OwnerClassroomService
 
         $attendance = DB::table('attendances')
             ->where('classroom_id', $classroom->id)
-            ->selectRaw("COUNT(*) AS total, SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended")
+            ->selectRaw("SUM(CASE WHEN status IN ('present','late','absent') THEN 1 ELSE 0 END) AS total, SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended")
             ->first();
 
         $classroom->setAttribute('active_students_count', $activeStudentCount);
