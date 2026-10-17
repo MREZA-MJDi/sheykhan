@@ -105,11 +105,12 @@ final class StudentAccessService
             return false;
         }
 
-        return !$assignment->classroom_id
-            || $student->classroomsAsStudent()
-                ->whereKey($assignment->classroom_id)
-                ->wherePivot('status', 'active')
-                ->exists();
+        return $this->studentBelongsToTeacherGroup(
+            $student,
+            (int) $assignment->course_id,
+            (int) $assignment->teacher_id,
+            $assignment->classroom_id === null ? null : (int) $assignment->classroom_id,
+        );
     }
 
     public function exam(User $student, Exam $exam): bool
@@ -124,11 +125,12 @@ final class StudentAccessService
             return false;
         }
 
-        return !$exam->classroom_id
-            || $student->classroomsAsStudent()
-                ->whereKey($exam->classroom_id)
-                ->wherePivot('status', 'active')
-                ->exists();
+        return $this->studentBelongsToTeacherGroup(
+            $student,
+            (int) $exam->course_id,
+            (int) $exam->teacher_id,
+            $exam->classroom_id === null ? null : (int) $exam->classroom_id,
+        );
     }
 
     public function liveClass(User $student, LiveClass $liveClass): bool
@@ -147,11 +149,12 @@ final class StudentAccessService
             return false;
         }
 
-        return !$liveClass->classroom_id
-            || $student->classroomsAsStudent()
-                ->whereKey($liveClass->classroom_id)
-                ->wherePivot('status', 'active')
-                ->exists();
+        return $this->studentBelongsToTeacherGroup(
+            $student,
+            (int) $liveClass->course_id,
+            (int) $liveClass->teacher_id,
+            $liveClass->classroom_id === null ? null : (int) $liveClass->classroom_id,
+        );
     }
 
     public function canJoinLiveClass(User $student, LiveClass $liveClass): bool
@@ -262,6 +265,31 @@ final class StudentAccessService
                 ->whereKey($classroomId)
                 ->wherePivot('status', 'active')
                 ->exists();
+    }
+
+    /**
+     * Teacher-authored assessments and sessions belong to the teacher's own
+     * active classroom group, not to every student enrolled in the same course.
+     * A classroom-less item means "all of this teacher's groups for this course",
+     * never "all course students regardless of teacher".
+     */
+    private function studentBelongsToTeacherGroup(
+        User $student,
+        int $courseId,
+        int $teacherId,
+        ?int $classroomId,
+    ): bool {
+        $query = $student->classroomsAsStudent()
+            ->where('classrooms.course_id', $courseId)
+            ->where('classrooms.status', 'active')
+            ->wherePivot('status', 'active')
+            ->whereHas('teachers', fn ($teacher) => $teacher->whereKey($teacherId));
+
+        if ($classroomId !== null) {
+            $query->whereKey($classroomId);
+        }
+
+        return $query->exists();
     }
 
     private function academyMember(User $student, int $academyId): bool
