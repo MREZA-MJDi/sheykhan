@@ -115,6 +115,24 @@ class TeacherStudentGroupIsolationTest extends TestCase
         $this->assertContains((int) $studentA->id, $rosterIds);
         $this->assertNotContains((int) $studentB->id, $rosterIds);
 
+        // Student-facing teacher cards must reflect the student's own cohort,
+        // not every teacher attached to the shared public course.
+        $studentATeacherIds = app(\\App\\Services\\StudentDashboardService::class)
+            ->build($studentA)['teachers']
+            ->pluck('id')
+            ->map(static fn ($id): int => (int) $id)
+            ->all();
+        $studentBTeacherIds = app(\\App\\Services\\StudentDashboardService::class)
+            ->build($studentB)['teachers']
+            ->pluck('id')
+            ->map(static fn ($id): int => (int) $id)
+            ->all();
+
+        $this->assertContains((int) $teacherA->id, $studentATeacherIds);
+        $this->assertNotContains((int) $teacherB->id, $studentATeacherIds);
+        $this->assertContains((int) $teacherB->id, $studentBTeacherIds);
+        $this->assertNotContains((int) $teacherA->id, $studentBTeacherIds);
+
         $this->assertNotFound(
             $this->actingAs($studentA)
                 ->get(route('student.assignments.show', $otherTeacherAssignment))
