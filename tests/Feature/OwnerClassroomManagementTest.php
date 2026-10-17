@@ -61,6 +61,34 @@ class OwnerClassroomManagementTest extends TestCase
             ->assertViewHas('activities');
     }
 
+    public function test_owner_cannot_create_classroom_with_more_than_one_teacher(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        $secondTeacher = User::factory()->create(['email' => 'second-class-teacher@test.local']);
+        $teacherRole = Role::query()->where('slug', 'teacher')->firstOrFail();
+        $secondTeacher->roles()->attach($teacherRole->id);
+        $academy->users()->attach($secondTeacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $course->teachers()->attach($secondTeacher->id, ['is_primary' => false]);
+
+        $this->actingAs($owner)
+            ->post(route('owner.classrooms.store', $academy), [
+                'course_id' => $course->id,
+                'teacher_ids' => [$teacher->id, $secondTeacher->id],
+                'title' => 'کلاس با دو مدرس',
+                'code' => 'TWO-TEACHERS',
+                'capacity' => 20,
+                'status' => 'active',
+            ])
+            ->assertSessionHasErrors('teacher_ids');
+
+        $this->assertDatabaseCount('classrooms', 0);
+    }
+
     public function test_owner_cannot_create_classroom_with_teacher_not_assigned_to_the_course(): void
     {
         [$owner, $academy, $course] = $this->workspace();

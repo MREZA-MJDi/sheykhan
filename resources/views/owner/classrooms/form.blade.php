@@ -73,7 +73,7 @@
                         @foreach($teachers as $teacher)
                             <label data-teacher-option="{{ $teacher->id }}"
                                    class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
-                                <input type="checkbox"
+                                <input type="radio"
                                        name="teacher_ids[]"
                                        value="{{ $teacher->id }}"
                                        @checked(in_array((int) $teacher->id, $selectedTeacherIds, true))

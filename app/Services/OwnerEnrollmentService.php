@@ -113,6 +113,35 @@ final class OwnerEnrollmentService
                         'classroom_id' => 'این کلاس فعال نیست.',
                     ]);
                 }
+
+                // Reassignment locks course then classroom; enrollment holds the same locks
+                // while verifying the teacher so roster writes cannot race with reassignment.
+                $activeTeacherIds = DB::table('classroom_teacher as classroom_teacher')
+                    ->join('academy_user as teacher_membership', function ($join) use ($academy): void {
+                        $join->on('teacher_membership.user_id', '=', 'classroom_teacher.teacher_id')
+                            ->where('teacher_membership.academy_id', '=', $academy->id)
+                            ->where('teacher_membership.role', '=', 'teacher')
+                            ->where('teacher_membership.status', '=', 'active');
+                    })
+                    ->join('users as teacher_users', 'teacher_users.id', '=', 'classroom_teacher.teacher_id')
+                    ->join('course_teacher as course_teacher', function ($join) use ($course): void {
+                        $join->on('course_teacher.teacher_id', '=', 'classroom_teacher.teacher_id')
+                            ->where('course_teacher.course_id', '=', $course->id);
+                    })
+                    ->where('classroom_teacher.classroom_id', $classroom->id)
+                    ->where('teacher_users.status', 'active')
+                    ->orderBy('teacher_membership.user_id')
+                    ->lockForUpdate()
+                    ->get(['teacher_membership.user_id'])
+                    ->pluck('user_id')
+                    ->unique()
+                    ->count();
+
+                if ($activeTeacherIds !== 1) {
+                    throw ValidationException::withMessages([
+                        'classroom_id' => 'برای ثبت‌نام، کلاس باید دقیقاً یک مدرس فعال و اختصاص‌یافته به همین دوره داشته باشد.',
+                    ]);
+                }
             }
 
             $price = (float) $course->price;

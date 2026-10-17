@@ -446,6 +446,12 @@ final class OwnerClassroomService
     {
         $teacherIds = array_values(array_unique(array_map('intval', $teacherIds)));
 
+        if (count($teacherIds) !== 1) {
+            throw ValidationException::withMessages([
+                'teacher_ids' => 'هر کلاس باید دقیقاً یک مدرس مسئول داشته باشد.',
+            ]);
+        }
+
         $academyTeacherIds = $academy->users()
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'active')

@@ -80,6 +80,21 @@ class OwnerEnrollmentTest extends TestCase
             'status' => 'active',
         ]);
 
+        $teacher = User::factory()->create(['name' => 'مدرس کلاس محدود', 'email' => 'teacher-limit@test.local']);
+        $teacherRole = Role::create([
+            'name' => 'مدرس',
+            'slug' => 'teacher',
+            'description' => 'Teacher',
+        ]);
+        $teacher->roles()->attach($teacherRole->id);
+        $academy->users()->attach($teacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $course->teachers()->attach($teacher->id, ['is_primary' => true]);
+        $classroom->teachers()->attach($teacher->id);
+
         $secondStudent = User::factory()->create(['name' => 'دانش‌آموز دوم', 'email' => 'student2@test.local']);
         $studentRole = Role::query()->where('slug', 'student')->firstOrFail();
         $secondStudent->roles()->attach($studentRole->id);
@@ -106,6 +121,31 @@ class OwnerEnrollmentTest extends TestCase
         ])->assertSessionHasErrors('classroom_id');
 
         $this->assertDatabaseCount('classroom_student', 1);
+    }
+
+    public function test_owner_cannot_enroll_into_a_class_without_exactly_one_active_course_teacher(): void
+    {
+        [$owner, $academy, $course, $student] = $this->makeWorkspace();
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس بدون مدرس',
+            'code' => 'UNSTAFFED-1',
+            'capacity' => 10,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)->post(route('owner.people.enroll-student', $academy), [
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+            'classroom_id' => $classroom->id,
+            'paid_amount' => 100000,
+            'idempotency_key' => (string) Str::uuid(),
+        ])->assertSessionHasErrors('classroom_id');
+
+        $this->assertDatabaseCount('course_enrollments', 0);
+        $this->assertDatabaseCount('financial_transactions', 0);
     }
 
     public function test_owner_cannot_enroll_a_student_from_another_academy(): void
