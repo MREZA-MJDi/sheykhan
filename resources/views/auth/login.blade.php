@@ -7,6 +7,7 @@
     $testAccounts = config('role_access.test_accounts', []);
     $testPassword = config('role_access.test_password');
     $dashboardRoutes = config('role_access.dashboard_routes', []);
+    $showTestAccounts = app()->environment(['local', 'testing']);
 @endphp
 
 <div class="rounded-[2rem] border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-xl)] sm:p-8">
@@ -89,6 +90,13 @@
         </button>
     </form>
 
+    <div class="mt-4 rounded-2xl border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] p-4">
+        <strong class="block text-sm font-black text-[var(--color-primary-800)]">دانش‌آموز سامانه قبلی شیخان هستی؟</strong>
+        <p class="mt-2 text-xs leading-7 text-[var(--color-text-secondary)]">
+            اگر در حساب قبلی ایمیل یا شماره موبایل نداشتی، شناسهٔ عددی کاربر در سامانه قبلی را در کادر بالا وارد کن و همان رمز قبلی را بزن. پس از ورود موفق، رمز با روش امن شیخان ذخیره می‌شود. اگر شناسه یا رمز را نداری، از آموزشگاه درخواست بازیابی حساب کن.
+        </p>
+    </div>
+
     <div class="my-6 flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
         <span class="h-px flex-1 bg-[var(--color-border)]"></span>
         <span>یا</span>
@@ -103,6 +111,7 @@
     </p>
 </div>
 
+@if($showTestAccounts)
 <div class="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4">
     <div class="flex items-start justify-between gap-3">
         <div>
@@ -207,6 +216,7 @@
         </div>
     @endif
 </div>
+@endif
 @endsection
 
 @push('scripts')
