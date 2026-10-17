@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolePermissionSeeder::class,
             AcademicReferenceSeeder::class,
-            SystemSeeder::class,
         ]);
 
         // Automated tests need repeatable fixtures. Keep demo identities and
