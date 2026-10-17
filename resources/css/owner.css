@@ -1029,7 +1029,7 @@ select.course-input{padding-inline-end:36px}
     color:#202939!important;
     box-shadow:none!important;
 }
-.owner-shell .owner-hero-art{display:none!important}
+.owner-shell .owner-hero-art{display:block!important;min-height:0;position:static;margin-top:18px}
 .owner-shell .owner-kicker{color:#2563eb!important;opacity:1}
 .owner-shell .owner-hero h1{color:#111827!important;line-height:1.8}
 .owner-shell .owner-hero p{color:#667085!important;line-height:1.9}
