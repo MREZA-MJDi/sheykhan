@@ -75,6 +75,15 @@
             </div>
         </section>
 
+        <aside class="student-notice mt-4" role="note" aria-label="توضیح شاخص‌های یادگیری">
+            <span class="student-notice-icon" aria-hidden="true">i</span>
+            <div class="student-notice-copy">
+                <strong>این عدد چه چیزی را می‌سنجد؟</strong>
+                <p>درصد بالای صفحه، خلاصهٔ پیشرفت محتوای درس‌ها در دوره‌های فعال توست. هر درس منتشرشده بر اساس درصد پیشرفت ثبت‌شده حساب می‌شود؛ درسی که هنوز رکورد پیشرفت ندارد، صفر است. این درصد نه نرخ حضور در کلاس است و نه نمرهٔ آزمون.</p>
+                <p>حضور در کلاس جداگانه و فقط از دقیقه‌های واقعی ثبت‌شده نسبت به زمان برنامه‌ریزی‌شده محاسبه می‌شود. رکورد قدیمی بدون دقیقهٔ حضور، حدس زده نمی‌شود. نمره هم وقتی نهایی است که معلم تکلیف یا آزمون را ارزیابی کرده باشد؛ پاسخ تشریحی تا قبل از تصحیح، نمرهٔ نهایی ندارد.</p>
+            </div>
+        </aside>
+
         @if(collect($sessions ?? [])->isNotEmpty())
             <section class="student-workspace-card mt-5" aria-labelledby="student-recordings-title">
                 <div class="student-workspace-card-head">

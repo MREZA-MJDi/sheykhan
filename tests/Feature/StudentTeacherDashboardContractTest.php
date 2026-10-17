@@ -31,7 +31,9 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('جزوه‌ها و فایل‌های من')
             ->assertSee('آخرین نتیجه‌ها')
             ->assertSee('student-focus-card')
-            ->assertSee('student-focus-action');
+            ->assertSee('student-focus-action')
+            ->assertSee('این عدد چه چیزی را می‌سنجد؟')
+            ->assertSee('این درصد نه نرخ حضور در کلاس است و نه نمرهٔ آزمون.');
     }
 
     public function test_teacher_dashboard_exposes_teaching_workflow_without_financial_kpi(): void
