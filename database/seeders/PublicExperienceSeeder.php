@@ -87,7 +87,7 @@ final class PublicExperienceSeeder extends Seeder
                 $owner = User::query()->create([
                     'name' => 'مدیر آکادمی شیخان',
                     'email' => 'owner@sheykhan.test',
-                    'mobile' => '09100000001',
+                    'mobile' => '09' . str_pad((string) (1000000000 + abs(crc32('owner@sheykhan.test')) % 899999999), 10, '0', STR_PAD_LEFT),
                     'password' => Hash::make((string) env('SEED_USER_PASSWORD', 'Sheykhan@12345')),
                     'status' => 'active',
                 ]);
@@ -473,7 +473,7 @@ final class PublicExperienceSeeder extends Seeder
             $course->grades()->syncWithoutDetaching([$grade->id]);
             $course->teachers()->syncWithoutDetaching([$teacher->id => ['is_primary' => true]]);
 
-            $section = CourseSection::query()->firstOrCreate(
+            $section = CourseSection::query()->updateOrCreate(
                 ['course_id' => $course->id, 'sort_order' => 1],
                 ['title' => $definition['section'], 'description' => 'درس‌های مفهومی و تمرین‌های مرحله‌به‌مرحله.'],
             );
@@ -499,7 +499,7 @@ final class PublicExperienceSeeder extends Seeder
 
     private function seedEditorialContent(Academy $academy, User $owner): void
     {
-        $category = BlogCategory::query()->updateOrCreate(
+        $category = BlogCategory::query()->firstOrCreate(
             ['slug' => 'learning'],
             ['name' => 'یادگیری و رشد', 'description' => 'راهنماهای کاربردی برای مطالعه، تمرین و رشد ذهنی'],
         );
@@ -656,7 +656,7 @@ final class PublicExperienceSeeder extends Seeder
         ];
 
         foreach ($categories as $slug => [$name, $description, $sortOrder]) {
-            ProductCategory::query()->updateOrCreate(
+            ProductCategory::query()->firstOrCreate(
                 ['slug' => $slug],
                 ['name' => $name, 'description' => $description, 'sort_order' => $sortOrder, 'is_active' => true],
             );
