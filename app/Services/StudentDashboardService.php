@@ -202,10 +202,18 @@ final class StudentDashboardService
                     ];
                 });
 
+        // Reuse the authoritative cohort/entitlement rules used by the
+        // student assignment list. Course membership alone is insufficient
+        // when the same public course has multiple teachers and classrooms.
+        $visibleAssignmentIds = app(StudentAssignmentService::class)
+            ->query($student)
+            ->reorder()
+            ->select('assignments.id');
+
         $assignmentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->where('submissions.student_id', $student->id)
-            ->whereIn('assignments.course_id', $courseIds)
+            ->whereIn('submissions.assignment_id', $visibleAssignmentIds)
             ->whereNotNull('submissions.graded_at')
             ->latest('submissions.graded_at')
             ->limit(6)
@@ -223,10 +231,17 @@ final class StudentDashboardService
                 return $result;
             });
 
+        // Results are visible only for exams the student may actually
+        // access in their assigned teacher/class cohort.
+        $visibleExamIds = app(StudentExamService::class)
+            ->query($student)
+            ->reorder()
+            ->select('exams.id');
+
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
             ->where('attempts.student_id', $student->id)
-            ->whereIn('exams.course_id', $courseIds)
+            ->whereIn('attempts.exam_id', $visibleExamIds)
             ->whereNotNull('attempts.submitted_at')
             ->latest('attempts.submitted_at')
             ->limit(6)
