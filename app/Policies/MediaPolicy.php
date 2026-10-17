@@ -12,6 +12,7 @@ use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Lesson;
 use App\Models\LiveClass;
+use App\Models\LearningResource;
 use App\Models\Media;
 use App\Models\User;
 use App\Services\CourseAccessService;
@@ -21,6 +22,12 @@ class MediaPolicy
 {
     public function view(User $user, Media $media): bool
     {
+        // "public" is not an override for course/lesson/assessment permissions.
+        // An accidentally public PDF must still stay behind its learning access rule.
+        if ($this->requiresProtectedDelivery($media)) {
+            return $this->canAccessProtectedMedia($user, $media);
+        }
+
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
             return true;
         }
@@ -30,8 +37,20 @@ class MediaPolicy
 
     public function download(User $user, Media $media): bool
     {
-        // Protected educational media is view-only for students.
-        // A purchase grants content access, not a file download capability.
+        $protectedLearningMedia = $this->requiresProtectedDelivery($media);
+
+        // Students download course materials only through the explicit resource
+        // route, which checks LearningResource.downloadable and the free-course
+        // entitlement. This generic route must never bypass that switch.
+        if ($user->hasRole('student') && $protectedLearningMedia) {
+            return false;
+        }
+
+        if ($protectedLearningMedia) {
+            return $this->canAccessProtectedMedia($user, $media)
+                || $media->uploaded_by === $user->id;
+        }
+
         if ($media->visibility === 'public') {
             return true;
         }
@@ -45,6 +64,43 @@ class MediaPolicy
         }
 
         return $this->canAccessProtectedMedia($user, $media);
+    }
+
+    /**
+     * Learning files must use authenticated routes that enforce course/class
+     * access. Public images (course covers, public profiles) remain public;
+     * public lesson attachments, PDFs, assessment files, resources, and
+     * recordings are treated as protected regardless of a mistaken visibility.
+     */
+    public function requiresProtectedDelivery(Media $media): bool
+    {
+        if (
+            LearningResource::query()->where('media_id', $media->id)->exists()
+            || LiveClass::query()->where('recording_media_id', $media->id)->exists()
+        ) {
+            return true;
+        }
+
+        foreach ($media->attachments()->with('mediable')->get() as $attachment) {
+            $model = $attachment->mediable;
+
+            if (
+                $model instanceof Lesson
+                || $model instanceof Classroom
+                || $model instanceof Assignment
+                || $model instanceof AssignmentSubmission
+                || $model instanceof Exam
+                || $model instanceof LiveClass
+            ) {
+                return true;
+            }
+
+            if ($model instanceof Course && !str_starts_with((string) $media->mime_type, 'image/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function canAccessProtectedMedia(User $user, Media $media): bool
