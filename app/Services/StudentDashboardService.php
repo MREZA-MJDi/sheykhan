@@ -29,7 +29,6 @@ final class StudentDashboardService
             ->with([
                 'course:id,academy_id,title,slug,level,access_type,price',
                 'course.academy:id,name',
-                'course.academy:id,name',
             ])
             ->latest('started_at')
             ->limit(6)
