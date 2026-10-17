@@ -138,8 +138,10 @@ final class OwnerDashboardService
 
         $liveNowByClassroom = $liveNowClasses
             ->filter(function (LiveClass $liveClass) use ($now): bool {
-                $start = Carbon::parse($liveClass->scheduled_at);
-                $end = $start->copy()->addMinutes((int) ($liveClass->duration_minutes ?? 60));
+                $start = $liveClass->scheduled_at;
+                $end = $liveClass->scheduled_end_at
+                    ? Carbon::parse($liveClass->scheduled_end_at)
+                    : $start->copy()->addMinutes(max(1, (int) ($liveClass->duration_minutes ?? 60)));
 
                 return $start->lte($now) && $end->gte($now);
             })
