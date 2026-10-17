@@ -32,7 +32,10 @@ class DatabaseSeeder extends Seeder
         // A rich, image-backed public demo is useful for local design review.
         // This seeder has its own APP_ENV=local guard and is never run in production.
         if (app()->environment('local')) {
-            $this->call(PublicExperienceSeeder::class);
+            $this->call([
+                AcademyFoundationSeeder::class,
+                PublicExperienceSeeder::class,
+            ]);
         }
     }
 }
