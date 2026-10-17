@@ -982,9 +982,9 @@ final class PublicExperienceSeeder extends Seeder
             'journal-focus' => ['#201b46', '#8475ed', '#6bd9c3', '#ffbe7c', 'STUDY SMARTER', 'FOCUS ON THE NEXT SMALL STEP.'],
             'journal-thinking' => ['#152a48', '#4f83dc', '#83e1ce', '#ffca70', 'THINKING TOOLS', 'A BETTER QUESTION CHANGES EVERYTHING.'],
             'journal-family' => ['#27324f', '#7965df', '#52cbb4', '#ffb7a1', 'GROW TOGETHER', 'CURIOSITY NEEDS ROOM TO BREATHE.'],
-            'teacher-math' => ['#6d5be5', '#372d77', '#b6adff', '#ffd2a1', 'MATH'],
-            'teacher-science' => ['#159d95', '#15576d', '#9be9cd', '#ffcf9d', 'SCIENCE'],
-            'teacher-thinking' => ['#d8799b', '#6f3d91', '#eeb8d1', '#ffdaa4', 'REASONING'],
+            'teacher-math' => ['#6d5be5', '#372d77', '#b6adff', '#ffd2a1', 'MATH', 'THINK CLEARLY. SOLVE CONFIDENTLY.'],
+            'teacher-science' => ['#159d95', '#15576d', '#9be9cd', '#ffcf9d', 'SCIENCE', 'OBSERVE. QUESTION. DISCOVER.'],
+            'teacher-thinking' => ['#d8799b', '#6f3d91', '#eeb8d1', '#ffdaa4', 'REASONING', 'LOOK FOR PATTERNS. EXPLAIN WHY.'],
         ];
 
         [$background, $primary, $secondary, $accent, $headline, $tagline] = $themes[$key]
