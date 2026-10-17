@@ -273,7 +273,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->get(route('teacher.exams.attempts', $exam))
             ->assertOk()
             ->assertSee('راه‌حل را با توضیح بنوی.')
-            ->assertSee('تصحیح دستی');
+            ->assertSee('بازبینی دستی');
 
         $this->actingAs($teacher)
             ->patch(route('teacher.exam-attempts.grade-manual', $attempt), [
