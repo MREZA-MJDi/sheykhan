@@ -14,7 +14,7 @@ final class TeacherAccessService
 {
     public function canTeachCourse(User $teacher, Course|int $course): bool
     {
-        if (!$teacher->hasRole('teacher')) {
+        if (! $teacher->hasRole('teacher')) {
             return false;
         }
 
@@ -39,19 +39,33 @@ final class TeacherAccessService
 
     public function canManageAssignment(User $teacher, Assignment $assignment): bool
     {
-        return (int) $assignment->teacher_id === (int) $teacher->id
-            && $this->canTeachCourse($teacher, (int) $assignment->course_id);
+        if (
+            (int) $assignment->teacher_id !== (int) $teacher->id
+            || ! $this->canTeachCourse($teacher, (int) $assignment->course_id)
+        ) {
+            return false;
+        }
+
+        return $assignment->classroom_id === null
+            || $this->teacherOwnsCourseClassroom($teacher, (int) $assignment->classroom_id, (int) $assignment->course_id);
     }
 
     public function canManageExam(User $teacher, Exam $exam): bool
     {
-        return (int) $exam->teacher_id === (int) $teacher->id
-            && $this->canTeachCourse($teacher, (int) $exam->course_id);
+        if (
+            (int) $exam->teacher_id !== (int) $teacher->id
+            || ! $this->canTeachCourse($teacher, (int) $exam->course_id)
+        ) {
+            return false;
+        }
+
+        return $exam->classroom_id === null
+            || $this->teacherOwnsCourseClassroom($teacher, (int) $exam->classroom_id, (int) $exam->course_id);
     }
 
     public function canManageClassroom(User $teacher, Classroom $classroom): bool
     {
-        if (!$teacher->hasRole('teacher')) {
+        if (! $teacher->hasRole('teacher')) {
             return false;
         }
 
@@ -69,12 +83,36 @@ final class TeacherAccessService
             })
             ->where('ct.classroom_id', $classroom->id)
             ->where('ct.teacher_id', $teacher->id)
+            ->where('classrooms.status', '=', 'active')
             ->exists();
     }
 
     public function canManageLiveClass(User $teacher, LiveClass $liveClass): bool
     {
-        return (int) $liveClass->teacher_id === (int) $teacher->id
-            && $this->canTeachCourse($teacher, (int) $liveClass->course_id);
+        if (
+            (int) $liveClass->teacher_id !== (int) $teacher->id
+            || ! $this->canTeachCourse($teacher, (int) $liveClass->course_id)
+        ) {
+            return false;
+        }
+
+        return $liveClass->classroom_id === null
+            || $this->teacherOwnsCourseClassroom($teacher, (int) $liveClass->classroom_id, (int) $liveClass->course_id);
+    }
+
+    private function teacherOwnsCourseClassroom(User $teacher, int $classroomId, int $courseId): bool
+    {
+        return Classroom::query()
+            ->whereKey($classroomId)
+            ->where('course_id', $courseId)
+            ->where('status', 'active')
+            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
+            ->whereHas('academy', fn ($academy) => $academy
+                ->where('status', 'active')
+                ->whereHas('users', fn ($membership) => $membership
+                    ->whereKey($teacher->id)
+                    ->where('academy_user.role', 'teacher')
+                    ->where('academy_user.status', 'active')))
+            ->exists();
     }
 }
