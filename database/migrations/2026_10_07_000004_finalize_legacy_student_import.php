@@ -1,97 +1,18 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    private const VERIFIED_LEGACY_IDS = [
-        8, 58, 101, 109, 110, 112, 113, 114, 115, 116, 117, 118, 119,
-        120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132,
-        133, 134, 135, 136, 137, 139, 140, 141, 142, 143, 144, 145, 146,
-        147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
-        160, 161, 162,
-    ];
-
+    /**
+     * Legacy student activation/import must be an explicit, reviewed operation.
+     *
+     * Do not mutate user status, role assignments, profiles, or delete records
+     * from a migration. The dedicated sheykhan:import-legacy-students command
+     * performs a dry-run by default and requires --apply for data changes.
+     */
     public function up(): void
     {
-        if (! Schema::hasColumn('users', 'legacy_source')
-            || ! Schema::hasColumn('users', 'legacy_id')) {
-            return;
-        }
-
-        DB::transaction(function (): void {
-            $studentRoleId = DB::table('roles')
-                ->where('slug', 'student')
-                ->value('id');
-
-            if (! $studentRoleId) {
-                return;
-            }
-
-            $legacyQuery = DB::table('users')
-                ->where('legacy_source', 'wordpress');
-
-            $excludedIds = (clone $legacyQuery)
-                ->whereNotIn('legacy_id', self::VERIFIED_LEGACY_IDS)
-                ->pluck('id');
-
-            if ($excludedIds->isNotEmpty()) {
-                DB::table('role_user')
-                    ->where('role_id', $studentRoleId)
-                    ->whereIn('user_id', $excludedIds)
-                    ->delete();
-
-                if (Schema::hasColumn('student_profiles', 'registration_source')) {
-                    DB::table('student_profiles')
-                        ->whereIn('user_id', $excludedIds)
-                        ->where('registration_source', 'legacy_import')
-                        ->delete();
-                }
-
-                DB::table('users')
-                    ->whereIn('id', $excludedIds)
-                    ->update([
-                        'status' => 'blocked',
-                        'updated_at' => now(),
-                    ]);
-            }
-
-            $verifiedUsers = (clone $legacyQuery)
-                ->whereIn('legacy_id', self::VERIFIED_LEGACY_IDS)
-                ->pluck('id');
-
-            if ($verifiedUsers->isEmpty()) {
-                return;
-            }
-
-            DB::table('users')
-                ->whereIn('id', $verifiedUsers)
-                ->update([
-                    'status' => 'active',
-                    'deleted_at' => null,
-                    'updated_at' => now(),
-                ]);
-
-            foreach ($verifiedUsers as $userId) {
-                DB::table('role_user')->updateOrInsert(
-                    [
-                        'role_id' => $studentRoleId,
-                        'user_id' => $userId,
-                    ],
-                    []
-                );
-            }
-
-            if (Schema::hasColumn('student_profiles', 'status')) {
-                DB::table('student_profiles')
-                    ->whereIn('user_id', $verifiedUsers)
-                    ->update([
-                        'status' => 'active',
-                        'updated_at' => now(),
-                    ]);
-            }
-        });
+        // Intentionally no data mutations. See ImportLegacyStudents command.
     }
 
     public function down(): void
