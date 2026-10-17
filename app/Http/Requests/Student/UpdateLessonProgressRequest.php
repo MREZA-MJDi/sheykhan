@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Http\\Requests\\Student;
+namespace App\Http\Requests\Student;
 
-use Illuminate\\Foundation\\Http\\FormRequest;
-use Illuminate\\Validation\\Rule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateLessonProgressRequest extends FormRequest
 {
