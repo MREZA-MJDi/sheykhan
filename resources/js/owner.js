@@ -603,6 +603,7 @@ function bootOwnerStudentPicker() {
         form.addEventListener('submit', (event) => {
             if (studentId.value) return;
             event.preventDefault();
+            event.stopImmediatePropagation();
             status.textContent = 'ابتدا یک دانش‌آموز را از نتایج جست‌وجو انتخاب کن.';
             search.focus();
         });

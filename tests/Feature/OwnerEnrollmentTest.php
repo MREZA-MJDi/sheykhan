@@ -45,8 +45,14 @@ class OwnerEnrollmentTest extends TestCase
         $this->assertDatabaseHas('course_enrollments', [
             'course_id' => $course->id,
             'student_id' => $student->id,
+            'classroom_id' => $classroom->id,
             'payment_status' => 'partial',
             'paid_amount' => 100000,
+        ]);
+        $this->assertDatabaseHas('classroom_student', [
+            'classroom_id' => $classroom->id,
+            'student_id' => $student->id,
+            'status' => 'active',
         ]);
     }
 
@@ -149,6 +155,22 @@ class OwnerEnrollmentTest extends TestCase
         ])->assertSessionHasErrors('classroom_id');
 
         $this->assertDatabaseCount('course_enrollments', 0);
+        $this->assertDatabaseCount('financial_transactions', 0);
+    }
+
+    public function test_owner_cannot_enroll_without_selecting_a_classroom(): void
+    {
+        [$owner, $academy, $course, $student] = $this->makeWorkspace();
+
+        $this->actingAs($owner)->post(route('owner.people.enroll-student', $academy), [
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+            'paid_amount' => 100000,
+            'idempotency_key' => (string) Str::uuid(),
+        ])->assertSessionHasErrors('classroom_id');
+
+        $this->assertDatabaseCount('course_enrollments', 0);
+        $this->assertDatabaseCount('classroom_student', 0);
         $this->assertDatabaseCount('financial_transactions', 0);
     }
 
