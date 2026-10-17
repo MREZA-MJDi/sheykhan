@@ -110,13 +110,19 @@ class PublicHomeSmokeTest extends TestCase
         $styles = file_get_contents(resource_path('css/home-meraki-hero.css'));
         $homeStyles = file_get_contents(resource_path('css/home.css'));
         $panelBaseStyles = file_get_contents(resource_path('css/panel-base.css'));
+        $ownerStyles = file_get_contents(resource_path('css/owner.css'));
+        $teacherStyles = file_get_contents(resource_path('css/teacher.css'));
         $studentStyles = file_get_contents(resource_path('css/student.css'));
+        $parentStyles = file_get_contents(resource_path('css/parent.css'));
 
         $this->assertIsString($blade);
         $this->assertIsString($styles);
         $this->assertIsString($homeStyles);
         $this->assertIsString($panelBaseStyles);
+        $this->assertIsString($ownerStyles);
+        $this->assertIsString($teacherStyles);
         $this->assertIsString($studentStyles);
+        $this->assertIsString($parentStyles);
 
         $source = strtolower($blade . "\\n" . $styles);
 
@@ -140,6 +146,10 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringNotContainsString("tiamir-intro.css", $homeStyles);
         $this->assertStringNotContainsString("@source '../../resources/views';", $homeStyles);
         $this->assertStringNotContainsString("@source '../../resources/views';", $panelBaseStyles);
+        $this->assertStringContainsString("@source '../../resources/views/owner';", $ownerStyles);
+        $this->assertStringContainsString("@source '../../resources/views/teacher';", $teacherStyles);
+        $this->assertStringContainsString("@source '../../resources/views/student';", $studentStyles);
+        $this->assertStringContainsString("@source '../../resources/views/parent';", $parentStyles);
         $this->assertStringNotContainsString('student-dashboard-enter', $studentStyles);
         $this->assertStringContainsString('.home-banner-grid', $homeStyles);
         $this->assertStringContainsString('.home-banner-media img', $homeStyles);
