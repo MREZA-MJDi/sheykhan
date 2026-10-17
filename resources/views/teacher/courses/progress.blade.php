@@ -16,6 +16,18 @@
         </div>
     </header>
 
+    <aside class="teacher-workspace-card" role="note" aria-label="مبنای محاسبه شاخص‌های آموزشی" style="margin-bottom:16px;padding:16px 18px;border-right:4px solid #2563eb;background:#f8fbff">
+        <h2 style="font-size:14px;font-weight:900;color:#1f2937;margin:0 0 8px">این درصد دقیقاً چه چیزی را می‌سنجد؟</h2>
+        <p style="font-size:12px;line-height:1.9;color:#475569;margin:0">
+            میانگین درصد پیشرفت ثبت‌شده برای درس‌های منتشرشدهٔ همین دوره است؛ درس منتشرشده‌ای که هنوز رکورد پیشرفت ندارد، ۰٪ حساب می‌شود. این عدد نمرهٔ آزمون و نرخ حضور نیست.
+        </p>
+        <div style="display:grid;gap:6px;margin-top:10px;font-size:11px;line-height:1.9;color:#475569">
+            <p style="margin:0"><strong>پیشرفت درس:</strong> درصد ثبت‌شده برای هر درس منتشرشده؛ این شاخص نشان می‌دهد مسیر محتوای درس چقدر جلو رفته است.</p>
+            <p style="margin:0"><strong>حضور در کلاس:</strong> دقیقه‌های حضور واقعی ثبت‌شده ÷ دقیقه‌های برنامه‌ریزی‌شده. رکوردهای قدیمی که دقیقهٔ واقعی ندارند، حدس زده نمی‌شوند؛ غیبت موجه هم از مخرج نرخ حضور خارج است.</p>
+            <p style="margin:0"><strong>نمره:</strong> از پاسخ تکلیف یا آزمونی می‌آید که مدرس ارزیابی کرده باشد؛ پاسخ تشریحی تا پیش از تصحیح نمرهٔ نهایی ندارد.</p>
+        </div>
+    </aside>
+
     <section class="teacher-workspace-card">
         <div class="teacher-workspace-card-head">
             <div><h2>جدول پیشرفت</h2><p>{{ App\Support\PersianUi::digits($lessons->count()) }} درس · هر صفحه حداکثر ۲۰ دانش‌آموز</p></div>
