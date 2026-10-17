@@ -10,8 +10,22 @@
 @forelse($exams as $exam)
 <article class="student-workspace-row">
 <div class="student-workspace-date"><strong>{{ App\Support\PersianUi::digits($exam->attempts_allowed) }}</strong><small>دفعات</small></div>
-<div class="student-workspace-row-main"><a href="{{ route('student.exams.show',$exam) }}">{{ $exam->title }}</a><span>{{ $exam->course?->title }} · {{ $exam->duration_minutes ? App\Support\PersianUi::digits($exam->duration_minutes).' دقیقه' : 'زمان متغیر' }}</span></div>
-<span class="student-workspace-status {{ $exam->starts_at && now()->lt($exam->starts_at) ? 'warning' : 'primary' }}">{{ $exam->starts_at && now()->lt($exam->starts_at) ? 'هنوز باز نشده' : 'مشاهده' }}</span>
+<div class="student-workspace-row-main">
+<a href="{{ route('student.exams.show',$exam) }}">{{ $exam->title }}</a>
+<span>{{ $exam->course?->title }} · {{ $exam->duration_minutes ? App\Support\PersianUi::digits($exam->duration_minutes).' دقیقه' : 'بدون محدودیت زمانی' }}</span>
+@if($exam->classroom)<span>کلاس: {{ $exam->classroom->title }}</span>@endif
+@if($exam->starts_at)<span>شروع: {{ App\Support\PersianUi::date($exam->starts_at) }} · {{ App\Support\PersianUi::time($exam->starts_at) }}</span>@endif
+</div>
+<div class="student-workspace-actions">
+@if($exam->starts_at && now()->lt($exam->starts_at))
+<span class="student-workspace-status warning">هنوز باز نشده</span>
+@elseif($exam->ends_at && now()->gt($exam->ends_at))
+<span class="student-workspace-status warning">مهلت تمام شده</span>
+@else
+<span class="student-workspace-status primary">آماده بررسی</span>
+@endif
+<a class="student-workspace-btn primary" href="{{ route('student.exams.show',$exam) }}">جزئیات و شروع آزمون</a>
+</div>
 </article>
 @empty<div class="student-workspace-empty"><strong>آزمون فعالی ندارید.</strong><span>با انتشار آزمون جدید، اینجا قرار می‌گیرد.</span></div>@endforelse
 </div>
