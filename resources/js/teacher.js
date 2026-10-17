@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type.value = initial.type;
         }
         if (score && initial.score !== undefined && initial.score !== null) score.value = initial.score;
-        if (options) options.value = Array.isArray(initial.options) ? initial.options.join('\\n') : '';
+        if (options) options.value = Array.isArray(initial.options) ? initial.options.join('\n') : '';
 
         syncQuestions();
 
