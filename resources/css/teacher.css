@@ -535,7 +535,6 @@
     font-size:8px;
     border-radius:999px;
 }
-.teacher-time-box strong{font-size:12px}
 .teacher-time-box small{font-size:7px}
 .teacher-session-title,.teacher-upcoming-title{font-size:10px}
 .teacher-session-meta,.teacher-upcoming-meta{font-size:8px}
@@ -568,7 +567,6 @@
 .teacher-activity-table th,.teacher-activity-table td{font-size:8px;padding:10px 12px}
 
 @media(max-width:900px){
-    .teacher-welcome-card{grid-template-columns:1fr}
     .teacher-welcome-visual{display:none}
 }
 @media(max-width:700px){
@@ -580,7 +578,6 @@
     .teacher-stats{grid-template-columns:1fr 1fr}
     .teacher-stat{min-height:92px;padding:12px}
     .teacher-stat-copy strong{font-size:20px}
-    .teacher-grid{grid-template-columns:1fr}
     .teacher-panel{padding:14px}
 }
 
