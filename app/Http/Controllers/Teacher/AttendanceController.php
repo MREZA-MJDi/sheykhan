@@ -32,12 +32,15 @@ class AttendanceController extends Controller
 
         $existingAttendance = $classroom->attendance()
             ->whereDate('attendance_date', $attendanceDate)
-            ->pluck('status', 'student_id');
+            ->get(['student_id', 'status', 'scheduled_minutes', 'attended_minutes'])
+            ->keyBy('student_id');
+        $scheduledMinutes = $workspace->scheduledMinutesForDate($classroom, $attendanceDate);
 
         return view('teacher.attendance.form', compact(
             'classroom',
             'attendanceDate',
             'existingAttendance',
+            'scheduledMinutes',
         ));
     }
 
@@ -51,6 +54,7 @@ class AttendanceController extends Controller
             $classroom,
             $request->validated('attendance'),
             $request->validated('attendance_date'),
+            $request->validated('attendance_minutes', []),
         );
 
         return back()->with('success', 'حضور و غیاب ثبت شد.');
