@@ -247,6 +247,40 @@ class OwnerClassroomManagementTest extends TestCase
             ->assertSee('page=2', false);
     }
 
+    public function test_owner_classroom_detail_paginates_the_entire_active_roster(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس با فهرست بلند',
+            'code' => 'ROSTER-' . Str::random(6),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $classroom->teachers()->attach($teacher->id);
+
+        for ($i = 1; $i <= 13; $i++) {
+            $student = User::factory()->create([
+                'name' => 'دانش‌آموز فهرست ' . $i,
+                'email' => 'roster-' . Str::random(8) . '@test.local',
+            ]);
+            $classroom->students()->attach($student->id, [
+                'status' => 'active',
+                'enrolled_at' => now(),
+            ]);
+        }
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.show', [$academy, $classroom]))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students) => $students->total() === 13 && $students->count() === 12)
+            ->assertSee('دانش‌آموز فهرست 1')
+            ->assertSee('students_page=2', false)
+            ->assertSee('فهرست دانش‌آموزان کلاس');
+    }
+
     public function test_successful_owner_mutations_invalidate_dashboard_and_report_caches(): void
     {
         [$owner, $academy, $course, $teacher] = $this->workspace();
