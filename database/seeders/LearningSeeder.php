@@ -49,6 +49,11 @@ class LearningSeeder extends Seeder
             ['slug'=>'science-foundation-8','title'=>'علوم پایه هشتم','grade'=>'8','teacher'=>'teacher.science@sheykhan.test','price'=>1950000],
             ['slug'=>'gifted-prep-9','title'=>'آمادگی تیزهوشان پایه نهم','grade'=>'9','teacher'=>'teacher.gifted@sheykhan.test','price'=>2950000],
         ];
+        $classroomStudentEmails = [
+            'math-foundation-7' => ['student.armin@sheykhan.test', 'student.ava@sheykhan.test'],
+            'science-foundation-8' => ['student.nika@sheykhan.test', 'student.matin@sheykhan.test'],
+            'gifted-prep-9' => ['student.parsa@sheykhan.test', 'student.tara@sheykhan.test'],
+        ];
         $courses=collect();
         foreach($definitions as $d){
             $course=Course::firstOrCreate(['academy_id'=>$academy->id,'slug'=>$d['slug']],[
@@ -154,7 +159,7 @@ class LearningSeeder extends Seeder
                     ]
                 );
 
-                Attendance::firstOrCreate(
+                Attendance::updateOrCreate(
                     [
                         'classroom_id' => $c->id,
                         'student_id' => $s->id,
@@ -163,6 +168,8 @@ class LearningSeeder extends Seeder
                     [
                         'marked_by' => $teachers[$d['teacher']]->id,
                         'status' => 'present',
+                        'scheduled_minutes' => 90,
+                        'attended_minutes' => 90,
                     ]
                 );
             }
@@ -215,27 +222,37 @@ class LearningSeeder extends Seeder
         }
 
         foreach($courses as $i=>$course){
-            $teacher=$teachers->values()->get($i%$teachers->count()); $classroom=$classrooms->get($i); $student=$students->values()->get($i%$students->count());
-            $assignment=Assignment::firstOrCreate(['course_id'=>$course->id,'title'=>'تکلیف هفته '.($i+1)],[
+            // Sample assessment data must follow the same teacher and student
+            // cohort as its course/classroom; never rotate unrelated learners.
+            $classroomDefinition = $classroomDefs[$i] ?? null;
+            if (! $classroomDefinition) {
+                continue;
+            }
+
+            $teacher = $teachers[$classroomDefinition['teacher']];
+            $classroom = $classrooms->get((int) $classroomDefinition['course']);
+            $student = $students[$classroomDefinition['students'][0]];
+
+            $assignment=Assignment::updateOrCreate(['course_id'=>$course->id,'title'=>'تکلیف هفته '.($i+1)],[
                 'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'instructions'=>'تمرین‌های مشخص‌شده را حل کن و راه‌حل مرحله‌به‌مرحله‌ات را در پاسخ ثبت کن.','due_at'=>now()->addDays(7),'max_score'=>100,'status'=>'published'
             ]);
-            AssignmentSubmission::firstOrCreate(['assignment_id'=>$assignment->id,'student_id'=>$student->id],[
+            AssignmentSubmission::updateOrCreate(['assignment_id'=>$assignment->id,'student_id'=>$student->id],[
                 'content'=>'پاسخ ثبت‌شده دانش‌آموز برای این تکلیف.','submitted_at'=>now()->subDay(),'score'=>92,'feedback'=>'پاسخ خوب است.','graded_at'=>now()->subHours(12),'graded_by'=>$teacher->id
             ]);
-            $exam=Exam::firstOrCreate(['course_id'=>$course->id,'title'=>'آزمون دوره '.($i+1)],[
+            $exam=Exam::updateOrCreate(['course_id'=>$course->id,'title'=>'آزمون دوره '.($i+1)],[
                 'classroom_id'=>$classroom->id,'teacher_id'=>$teacher->id,'description'=>'آزمون مرحله‌ای برای سنجش میزان یادگیری و مشخص‌کردن مباحثی که نیاز به مرور بیشتری دارند.','duration_minutes'=>45,
                 'starts_at'=>now()->subDay(),'ends_at'=>now()->addDay(),'attempts_allowed'=>2,'status'=>'published'
             ]);
             $questions=collect();
             foreach([['2+2 چند می‌شود؟',['3','4','5','6'],'4'],['گزینه درست را انتخاب کنید.',['A','B','C','D'],'B']] as $qi=>$q){
-                $questions->push(Question::firstOrCreate(['exam_id'=>$exam->id,'sort_order'=>$qi+1],[
+                $questions->push(Question::updateOrCreate(['exam_id'=>$exam->id,'sort_order'=>$qi+1],[
                     'type'=>'single','question'=>$q[0],'options'=>$q[1],'correct_answer'=>$q[2],'score'=>1,'sort_order'=>$qi+1
                 ]));
             }
-            $attempt=ExamAttempt::firstOrCreate(['exam_id'=>$exam->id,'student_id'=>$student->id,'attempt_number'=>1],[
+            $attempt=ExamAttempt::updateOrCreate(['exam_id'=>$exam->id,'student_id'=>$student->id,'attempt_number'=>1],[
                 'started_at'=>now()->subHours(3),'submitted_at'=>now()->subHours(2),'score'=>2,'status'=>'submitted'
             ]);
-            foreach($questions as $q){ExamAnswer::firstOrCreate(['exam_attempt_id'=>$attempt->id,'question_id'=>$q->id],['answer'=>$q->correct_answer,'is_correct'=>true,'score'=>$q->score]);}
+            foreach($questions as $q){ExamAnswer::updateOrCreate(['exam_attempt_id'=>$attempt->id,'question_id'=>$q->id],['answer'=>$q->correct_answer,'is_correct'=>true,'score'=>$q->score]);}
         }
 
         $media=SeedMedia::make('math-handout',$owner->id,'application/pdf','pdf','learning-resources','private');
