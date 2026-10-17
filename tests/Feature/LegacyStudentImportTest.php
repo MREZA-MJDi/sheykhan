@@ -109,7 +109,7 @@ class LegacyStudentImportTest extends TestCase
                 ->where('legacy_id', 8)
                 ->value('id');
             $upgradedLegacyHash = (string) DB::table('users')->where('id', $loginUserId)->value('password');
-            $this->assertStringStartsWith('$2y
+            $this->assertTrue(str_starts_with($upgradedLegacyHash, chr(36) . '2y' . chr(36)));
             // their account status, student role and profile untouched.
             $this->assertDatabaseHas('users', [
                 'legacy_source' => 'wordpress',
@@ -322,13 +322,17 @@ class LegacyStudentImportTest extends TestCase
         }
 
         $statements = [];
+        $plainPassword = 'legacy-import-test-password';
+        $prehashed = base64_encode(hash_hmac('sha384', $plainPassword, 'wp-sha384', true));
+        $validWordPressBcrypt = '$wp' . password_hash($prehashed, PASSWORD_BCRYPT, ['cost' => 4]);
+
         foreach (self::APPROVED_LEGACY_IDS as $index => $legacyId) {
             $name = $index === 1 ? 'Student (test case)' : 'Imported student ' . $index;
-            // Exercise both supported WordPress hash families without using any
-            // of the actual private source's personal data or hashes.
+            // Exercise a valid WordPress 6.8+ wrapped bcrypt hash and the phpass
+            // format without using any real student's personal data or hash.
             $hash = $index === 1
                 ? '$P$B12345678abcdefghijklmnopqrstuv'
-                : '$wp$2y$10$' . str_repeat(chr(65 + ($index % 26)), 53);
+                : $validWordPressBcrypt;
 
             $statements[] = "INSERT INTO users (name, email, password, mobile, status, legacy_source, legacy_id, created_at, updated_at) VALUES ('{$name}', NULL, '{$hash}', NULL, 'active', 'wordpress', {$legacyId}, '2025-01-01 00:00:00', '2025-01-01 00:00:00') ON DUPLICATE KEY UPDATE name=VALUES(name), email=VALUES(email), password=VALUES(password), status='active', updated_at=VALUES(updated_at);";
         }
