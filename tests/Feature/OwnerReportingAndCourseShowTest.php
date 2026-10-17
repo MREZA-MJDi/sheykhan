@@ -519,7 +519,7 @@ class OwnerReportingAndCourseShowTest extends TestCase
         $this->assertNull($classrooms[$expiredClassroom->id]->live_now);
         $this->assertSame($activeSession->id, $classrooms[$activeClassroom->id]->live_now->id);
 
-        $classroomService = app(\\App\\Services\\OwnerClassroomService::class);
+        $classroomService = app(\App\Services\OwnerClassroomService::class);
         $expiredDetail = $classroomService->show($owner, $academy, $expiredClassroom);
         $activeDetail = $classroomService->show($owner, $academy, $activeClassroom);
 
