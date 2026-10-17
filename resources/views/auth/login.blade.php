@@ -85,6 +85,61 @@
         </button>
     </form>
 
+    @if(app()->environment('local'))
+        @php
+            $demoPassword = filled(env('SEED_USER_PASSWORD'))
+                ? (string) env('SEED_USER_PASSWORD')
+                : 'Sheykhan@12345';
+        @endphp
+
+        <section class="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-4" aria-labelledby="local-demo-accounts-title">
+            <div class="mb-3">
+                <h2 id="local-demo-accounts-title" class="text-sm font-black text-amber-950">ورود سریع برای تست پنل‌ها</h2>
+                <p class="mt-1 text-xs leading-6 text-amber-900">فقط در محیط Local نمایش داده می‌شود. روی هر نقش بزن تا ایمیل و رمز فرم بالا پر شود؛ سپس خودت دکمهٔ «ورود به حساب» را بزن.</p>
+                <p class="mt-1 break-all text-[11px] text-amber-900">رمز پیش‌فرض: <code dir="ltr" class="rounded bg-white/70 px-1">{{ $demoPassword }}</code></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                @foreach([
+                    ['label' => 'مدیر آموزشگاه', 'email' => 'owner@sheykhan.test'],
+                    ['label' => 'مدرس', 'email' => 'teacher.math@sheykhan.test'],
+                    ['label' => 'دانش‌آموز', 'email' => 'student.armin@sheykhan.test'],
+                    ['label' => 'والد', 'email' => 'parent.armin@sheykhan.test'],
+                    ['label' => 'متخصص SEO', 'email' => 'seo@sheykhan.test'],
+                ] as $demoAccount)
+                    <button
+                        type="button"
+                        data-demo-login
+                        data-demo-identifier="{{ $demoAccount['email'] }}"
+                        data-demo-password="{{ $demoPassword }}"
+                        class="min-h-10 rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-amber-950 transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    >{{ $demoAccount['label'] }}</button>
+                @endforeach
+            </div>
+        </section>
+
+        @push('scripts')
+            <script>
+                (() => {
+                    document.querySelectorAll('[data-demo-login]').forEach((button) => {
+                        button.addEventListener('click', () => {
+                            const identifier = document.getElementById('identifier');
+                            const password = document.getElementById('password');
+
+                            if (!identifier || !password) return;
+
+                            identifier.value = button.dataset.demoIdentifier || '';
+                            password.value = button.dataset.demoPassword || '';
+                            identifier.dispatchEvent(new Event('input', { bubbles: true }));
+                            password.dispatchEvent(new Event('input', { bubbles: true }));
+                            password.focus();
+                        });
+                    });
+                })();
+            </script>
+        @endpush
+    @endif
+
     <div class="mt-4 rounded-2xl border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] p-4">
         <strong class="block text-sm font-black text-[var(--color-primary-800)]">دانش‌آموز سامانه قبلی شیخان هستی؟</strong>
         <p class="mt-2 text-xs leading-7 text-[var(--color-text-secondary)]">
