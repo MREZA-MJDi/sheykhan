@@ -3,7 +3,16 @@
 @import './tiamir-intro.css';
 @import './home-meraki-hero.css';
 @import './public-experience.css';
-@source '../../resources/views';
+@source '../../resources/views/pages';
+@source '../../resources/views/auth';
+@source '../../resources/views/layouts/app.blade.php';
+@source '../../resources/views/layouts/auth.blade.php';
+@source '../../resources/views/components/education';
+@source '../../resources/views/components/layout';
+@source '../../resources/views/components/ui';
+@source '../../resources/views/components/seo';
+@source '../../resources/views/components/navigation/navbar.blade.php';
+@source '../../resources/views/components/navigation/footer.blade.php';
 
 @theme {
     --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
@@ -1854,41 +1863,9 @@
         rgba(255,255,255,.7);
 }
 
-/* =========================================================
-   REVEAL ANIMATION
-   ========================================================= */
-
-.home-reveal {
-    opacity: 0;
-
-    transform:
-        translateY(24px);
-
-    transition:
-        opacity .75s var(--home-ease),
-        transform .75s var(--home-ease);
-}
-
-.home-reveal.is-visible {
-    opacity: 1;
-    transform: none;
-}
-
-.home-reveal[data-delay="1"] {
-    transition-delay: 80ms;
-}
-
-.home-reveal[data-delay="2"] {
-    transition-delay: 160ms;
-}
-
-.home-reveal[data-delay="3"] {
-    transition-delay: 240ms;
-}
-
-.home-reveal[data-delay="4"] {
-    transition-delay: 320ms;
-}
+/* Keep public-page content visible in the first server-rendered paint. */
+.home-reveal { opacity: 1; transform: none; }
+.home-reveal.is-visible { opacity: 1; transform: none; }
 
 /* =========================================================
    TABLET
