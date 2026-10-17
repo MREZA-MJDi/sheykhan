@@ -31,7 +31,7 @@ class TeacherLearningProgressTest extends TestCase
             ->get(route('teacher.courses.progress', $teacherOneCourse))
             ->assertOk()
             ->assertSee('این درصد دقیقاً چه چیزی را می‌سنجد؟')
-            ->assertSee('این عدد نمرهٔ آزمون یا نرخ حضور نیست.');
+            ->assertSeeText('این عدد نمرهٔ آزمون یا نرخ حضور نیست.');
 
         $this->actingAs($teacherOne)
             ->get(route('teacher.courses.progress', $teacherTwoCourse))
