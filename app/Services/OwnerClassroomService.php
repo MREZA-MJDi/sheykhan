@@ -19,11 +19,11 @@ final class OwnerClassroomService
             && (int) $academy->owner_id === (int) $owner->id;
     }
 
-    public function index(User $owner, Academy $academy): Collection
+    public function index(User $owner, Academy $academy): LengthAwarePaginator
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        return $academy->classrooms()
+        $classrooms = $academy->classrooms()
             ->with([
                 'course:id,title',
                 'grade:id,title',
@@ -36,24 +36,72 @@ final class OwnerClassroomService
                     ->where('classroom_student.status', 'active'),
             ])
             ->latest()
-            ->get()
-            ->each(function (Classroom $classroom): void {
-                $classroom->setAttribute(
-                    'capacity_remaining',
-                    $classroom->capacity === null
-                        ? null
-                        : max(0, (int) $classroom->capacity - (int) $classroom->active_students_count)
-                );
+            ->paginate(12)
+            ->withQueryString();
 
-                $classroom->setAttribute(
-                    'occupancy_percent',
-                    $classroom->capacity && $classroom->capacity > 0
-                        ? min(100, round(($classroom->active_students_count / $classroom->capacity) * 100, 1))
-                        : null
-                );
+        $classrooms->getCollection()->each(function (Classroom $classroom): void {
+            $classroom->setAttribute(
+                'capacity_remaining',
+                $classroom->capacity === null
+                    ? null
+                    : max(0, (int) $classroom->capacity - (int) $classroom->active_students_count)
+            );
 
-                $classroom->setAttribute('execution_status', $this->executionStatus($classroom));
-            });
+            $classroom->setAttribute(
+                'occupancy_percent',
+                $classroom->capacity && $classroom->capacity > 0
+                    ? min(100, round(($classroom->active_students_count / $classroom->capacity) * 100, 1))
+                    : null
+            );
+
+            $classroom->setAttribute('execution_status', $this->executionStatus($classroom));
+        });
+
+        return $classrooms;
+    }
+
+    /**
+     * Whole-academy totals are queried separately from the current page so
+     * pagination never changes the headline metrics or capacity alerts.
+     */
+    public function indexSummary(User $owner, Academy $academy): array
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $activeStudentCounts = DB::table('classroom_student')
+            ->where('status', 'active')
+            ->groupBy('classroom_id')
+            ->select('classroom_id')
+            ->selectRaw('COUNT(*) AS active_students_count');
+
+        $summary = DB::table('classrooms as classrooms')
+            ->leftJoinSub($activeStudentCounts, 'student_counts', 'student_counts.classroom_id', '=', 'classrooms.id')
+            ->where('classrooms.academy_id', $academy->id)
+            ->selectRaw('COUNT(*) AS total')
+            ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' THEN 1 ELSE 0 END) AS active_count")
+            ->selectRaw("SUM(CASE WHEN classrooms.status = 'archived' THEN 1 ELSE 0 END) AS archived_count")
+            ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' AND classrooms.capacity IS NOT NULL THEN classrooms.capacity ELSE 0 END) AS capacity_total")
+            ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' THEN COALESCE(student_counts.active_students_count, 0) ELSE 0 END) AS active_memberships")
+            ->selectRaw("SUM(CASE WHEN classrooms.status = 'active' AND classrooms.capacity > 0 AND COALESCE(student_counts.active_students_count, 0) >= classrooms.capacity * 0.9 THEN 1 ELSE 0 END) AS capacity_alerts")
+            ->first();
+
+        $uniqueActiveStudents = DB::table('classroom_student as roster')
+            ->join('classrooms as classrooms', 'classrooms.id', '=', 'roster.classroom_id')
+            ->where('classrooms.academy_id', $academy->id)
+            ->where('classrooms.status', 'active')
+            ->where('roster.status', 'active')
+            ->distinct()
+            ->count('roster.student_id');
+
+        return [
+            'total' => (int) ($summary->total ?? 0),
+            'active_count' => (int) ($summary->active_count ?? 0),
+            'archived_count' => (int) ($summary->archived_count ?? 0),
+            'unique_active_students' => (int) $uniqueActiveStudents,
+            'capacity_total' => (int) ($summary->capacity_total ?? 0),
+            'active_memberships' => (int) ($summary->active_memberships ?? 0),
+            'capacity_alerts' => (int) ($summary->capacity_alerts ?? 0),
+        ];
     }
 
     public function formData(User $owner, Academy $academy): array
