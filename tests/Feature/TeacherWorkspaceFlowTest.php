@@ -212,6 +212,45 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertDatabaseMissing('exams', ['title' => 'آزمون پاسخ ناسازگار - تست']);
     }
 
+    public function test_exam_builder_retains_question_options_after_validation_and_escapes_quotes_safely(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.create'))
+            ->followingRedirects()
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'title' => 'آزمون حفظ وضعیت فرم - تست',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'multiple',
+                        'question' => "سؤال با عنوان 'ویژه' باقی بماند",
+                        'options' => ['گزینه اول', 'گزینه دوم'],
+                        'correct_answer' => ['گزینه خارج از فهرست'],
+                        'score' => 2,
+                    ],
+                ],
+            ])
+            ->assertOk()
+            ->assertSee('data-initial-questions', false)
+            ->assertSee('سؤال با عنوان', false)
+            ->assertSee('\u0027ویژه\u0027', false)
+            ->assertSee('گزینه اول', false)
+            ->assertSee('گزینه دوم', false)
+            ->assertSee('تمام پاسخ‌های صحیح باید از بین گزینه‌های همین سؤال انتخاب شوند.');
+
+        $this->assertDatabaseMissing('exams', [
+            'title' => 'آزمون حفظ وضعیت فرم - تست',
+        ]);
+    }
+
     public function test_teacher_can_create_a_course_section_for_owned_course(): void
     {
         $this->seed();
