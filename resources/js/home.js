@@ -303,10 +303,5 @@ if (!window.__sheykhanAlpineBooted) {
 
         window.addEventListener('scroll', updateScrollState, { passive: true });
 
-        window.addEventListener('pageshow', () => {
-            document.documentElement.removeAttribute('data-home-loading');
-        });
-
-        document.documentElement.removeAttribute('data-home-loading');
     });
 })();
