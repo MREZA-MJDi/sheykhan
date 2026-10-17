@@ -40,7 +40,7 @@
                                 <a class="student-row-title" href="{{ route('student.lessons.show', $lesson) }}">{{ $lesson->title }}</a>
                                 <span class="student-row-meta">
                                     {{ $lesson->summary ?: 'درس آموزشی' }}
-                                    · {{ App\\Support\\PersianUi::digits((int) round($progress)) }}٪ مطالعه ثبت‌شده
+                                    · {{ App\Support\PersianUi::digits((int) round($progress)) }}٪ مطالعه ثبت‌شده
                                 </span>
                             </div>
                             <span class="student-status {{ $progress >= 100 ? 'success' : 'primary' }}">
