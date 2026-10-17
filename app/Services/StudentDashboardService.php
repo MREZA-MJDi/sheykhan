@@ -39,6 +39,7 @@ final class StudentDashboardService
         $lessonStats = $this->lessonStatsByCourse($student->id, $courseIds);
         $nextLessons = $this->nextLessonsByCourse($student->id, $courseIds);
         $learningActivity = $this->learningActivity($student->id, $courseIds);
+        $attendanceMetrics = app(AttendanceMetricsService::class)->forStudent($student);
 
         $courses = $enrollments->map(function ($enrollment) use ($progress, $lessonStats, $nextLessons) {
             $item = $enrollment->course;
@@ -281,6 +282,7 @@ final class StudentDashboardService
             'courses' => $courses,
             'teachers' => $courses->flatMap(fn ($course) => $course->teachers ?? [])->unique('id')->values()->take(3),
             'overallProgress' => round($overallProgress),
+            'attendanceMetrics' => $attendanceMetrics,
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
             'upcomingLiveClasses' => $upcomingLive,
