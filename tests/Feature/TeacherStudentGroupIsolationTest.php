@@ -7,12 +7,15 @@ use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Exam;
+use App\Models\Media;
 use App\Models\User;
 use App\Services\CourseLearningProgressService;
 use App\Services\StudentAssignmentService;
 use App\Services\StudentExamService;
 use App\Services\TeacherAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -82,6 +85,42 @@ class TeacherStudentGroupIsolationTest extends TestCase
             'ends_at' => now()->addDay(),
             'status' => 'published',
         ]);
+
+        // File URLs must use the same cohort rule as assessment pages. A direct
+        // media route may not bypass the student's exact teacher/class access.
+        Storage::fake('local');
+        $mediaPath = 'assessment-files/' . str()->uuid() . '.pdf';
+        Storage::disk('local')->put($mediaPath, 'cohort-private-fixture');
+        $assessmentMedia = Media::create([
+            'uploaded_by' => $teacherB->id,
+            'disk' => 'local',
+            'path' => $mediaPath,
+            'original_name' => 'group-b-assessment.pdf',
+            'file_name' => basename($mediaPath),
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+            'size' => Storage::disk('local')->size($mediaPath),
+            'checksum' => hash('sha256', Storage::disk('local')->get($mediaPath)),
+            'visibility' => 'private',
+            'collection' => 'assessment',
+            'metadata' => ['test' => true],
+            'status' => 'active',
+        ]);
+        $otherTeacherAssignment->mediaAttachments()->create([
+            'media_id' => $assessmentMedia->id,
+            'collection' => 'assessment',
+            'sort_order' => 1,
+            'is_featured' => false,
+        ]);
+        $otherTeacherExam->mediaAttachments()->create([
+            'media_id' => $assessmentMedia->id,
+            'collection' => 'assessment',
+            'sort_order' => 1,
+            'is_featured' => false,
+        ]);
+        $this->assertTrue( Gate::forUser($studentB)->allows('view', $assessmentMedia) );
+        $this->assertFalse(Gate::forUser($studentA)->allows('view', $assessmentMedia));
+
 
         $this->assertTrue(
             app(StudentAssignmentService::class)->query($studentB)
