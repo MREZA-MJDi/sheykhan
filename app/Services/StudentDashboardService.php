@@ -77,13 +77,15 @@ final class StudentDashboardService
 
         $pendingAssignments = $assignmentQuery
             ? (clone $assignmentQuery)
-                ->whereNull('submissions.id')
+                // A draft submission row is still waiting for the student to
+                // press submit; the existence of a row alone is not completion.
+                ->whereNull('submissions.submitted_at')
                 ->count('assignments.id')
             : 0;
 
         $assignmentItems = $assignmentQuery
             ? (clone $assignmentQuery)
-                ->orderByRaw('CASE WHEN submissions.id IS NULL THEN 0 ELSE 1 END')
+                ->orderByRaw('CASE WHEN submissions.submitted_at IS NULL THEN 0 ELSE 1 END')
                 ->orderBy('assignments.due_at')
                 ->limit(6)
                 ->get([
