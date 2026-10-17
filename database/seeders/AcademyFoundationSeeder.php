@@ -62,6 +62,9 @@ class AcademyFoundationSeeder extends Seeder
     private function runDemoFoundation(): void
     {
         $owner = $this->user('owner@sheykhan.test', 'مدیر آکادمی شیخان', 'owner', 'academy-owner');
+        // SEO specialists deliberately receive only dashboard.view + seo.manage,
+        // with no academy membership or owner permissions.
+        $this->user('seo@sheykhan.test', 'متخصص سئو', 'seo-specialist', 'seo-specialist');
 
         $teacherDefinitions = [
             ['teacher.math@sheykhan.test', 'سمیه احمدی', 'teacher-math', 'ریاضی'],
