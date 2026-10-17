@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Classroom;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\TeacherProfile;
@@ -105,7 +106,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_student_roster_is_paginated_but_enrollment_selector_can_find_students_beyond_page_one(): void
+    public function test_student_roster_and_enrollment_search_are_server_paginated(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
 
@@ -132,10 +133,63 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->get(route('owner.people.index', $academy))
             ->assertOk()
             ->assertViewHas('students', fn ($students) => $students->total() === 30 && $students->count() === 25)
-            ->assertViewHas('enrollmentStudentOptions', fn ($options) => $options->count() === 30)
-            ->assertSee('دانش‌آموز 30 - student-30@test.local');
+            ->assertSee('data-student-picker')
+            ->assertSee('آرشیو عضویت')
+            ->assertDontSee('student-30@test.local');
 
         $this->assertStringContainsString('students_page=', $response->getContent());
+
+        $searchUrl = route('owner.people.student-options', $academy);
+        $this->actingAs($owner)
+            ->get($searchUrl . '?q=student-30%40test.local')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.email', 'student-30@test.local');
+
+        $this->actingAs($owner)
+            ->get($searchUrl . '?q=student-')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 30)
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonCount(20, 'data');
+
+        $this->actingAs($owner)
+            ->get($searchUrl . '?q=student-&page=2')
+            ->assertOk()
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonCount(10, 'data')
+            ->assertJsonPath('data.9.email', 'student-30@test.local');
+    }
+
+    public function test_owner_can_assign_a_single_teacher_to_a_class_from_the_people_page(): void
+    {
+        [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس گردش کار اعضا',
+            'code' => 'PEOPLE-101',
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('owner.people.assign-class-teacher', $academy), [
+                'teacher_id' => $teacher->id,
+                'classroom_id' => $classroom->id,
+            ])
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('classroom_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher->id,
+        ]);
+        $this->assertDatabaseHas('course_teacher', [
+            'course_id' => $course->id,
+            'teacher_id' => $teacher->id,
+        ]);
+        $this->assertSame(1, $classroom->teachers()->count());
     }
 
     private function makeWorkspace(bool $withCourse = false): array

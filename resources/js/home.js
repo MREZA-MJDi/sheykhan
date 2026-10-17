@@ -1,5 +1,4 @@
 import Alpine from 'alpinejs';
-import './tiamir-intro.js';
 
 window.Alpine = window.Alpine || Alpine;
 
@@ -200,29 +199,6 @@ if (!window.__sheykhanAlpineBooted) {
             });
         });
 
-        const revealElements = root.querySelectorAll('.home-reveal');
-
-        if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver(
-                (entries, instance) => {
-                    entries.forEach((entry) => {
-                        if (!entry.isIntersecting) return;
-
-                        entry.target.classList.add('is-visible');
-                        instance.unobserve(entry.target);
-                    });
-                },
-                {
-                    rootMargin: '0px 0px -8% 0px',
-                    threshold: 0.08,
-                }
-            );
-
-            revealElements.forEach((element) => observer.observe(element));
-        } else {
-            revealElements.forEach((element) => element.classList.add('is-visible'));
-        }
-
         root.querySelectorAll('a[href^="#"]').forEach((link) => {
             link.addEventListener('click', (event) => {
                 const href = link.getAttribute('href');
@@ -303,10 +279,5 @@ if (!window.__sheykhanAlpineBooted) {
 
         window.addEventListener('scroll', updateScrollState, { passive: true });
 
-        window.addEventListener('pageshow', () => {
-            document.documentElement.removeAttribute('data-home-loading');
-        });
-
-        document.documentElement.removeAttribute('data-home-loading');
     });
 })();
