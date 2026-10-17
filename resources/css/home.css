@@ -12,6 +12,7 @@
 @source '../../resources/views/components/seo';
 @source '../../resources/views/components/navigation/navbar.blade.php';
 @source '../../resources/views/components/navigation/footer.blade.php';
+@source '../../resources/views/components/navigation/pagination.blade.php';
 
 @theme {
     --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
