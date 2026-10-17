@@ -23,6 +23,7 @@ class TestFixtureSeeder extends Seeder
             PublicContentSeeder::class,
             HomeContentSeeder::class,
             BlogSeeder::class,
+            SystemSeeder::class,
             OnboardingSeeder::class,
             AuditSeeder::class,
         ]);
