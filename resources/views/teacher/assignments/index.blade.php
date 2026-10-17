@@ -28,7 +28,7 @@
             @forelse($assignments as $assignment)
                 <article class="teacher-workspace-item">
                     <div class="teacher-workspace-item-main">
-                        <strong class="teacher-workspace-item-title">{{ $assignment->title }}</strong>
+                        <a class="teacher-workspace-item-title teacher-workspace-title-link" href="{{ route('teacher.assignments.submissions',$assignment) }}" aria-label="باز کردن پاسخ‌های تکلیف {{ $assignment->title }}">{{ $assignment->title }}</a>
                         <div class="teacher-workspace-item-meta">
                             <span>{{ $assignment->course?->title ?: 'دوره' }}</span>
                             <span>{{ $assignment->classroom?->title ?: 'همه دانش‌آموزان دوره' }}</span>
