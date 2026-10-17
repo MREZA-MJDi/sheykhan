@@ -25,6 +25,8 @@ class PublicHomeSmokeTest extends TestCase
             ->assertSee('دسترسی سریع به بخش‌های شیخان')
             ->assertSee('data-home-hero', false)
             ->assertSee('sheykhan-home-hero__title', false)
+            ->assertDontSee('data-tiamir-intro', false)
+            ->assertDontSee('data-tiamir-canvas', false)
             ->assertDontSee('pater/pater.css')
             ->assertDontSee('js/demo4.js')
             ->assertDontSee('home-banner-slider');
@@ -107,10 +109,14 @@ class PublicHomeSmokeTest extends TestCase
         $blade = file_get_contents(resource_path('views/components/branding/home-meraki-hero.blade.php'));
         $styles = file_get_contents(resource_path('css/home-meraki-hero.css'));
         $homeStyles = file_get_contents(resource_path('css/home.css'));
+        $panelBaseStyles = file_get_contents(resource_path('css/panel-base.css'));
+        $studentStyles = file_get_contents(resource_path('css/student.css'));
 
         $this->assertIsString($blade);
         $this->assertIsString($styles);
         $this->assertIsString($homeStyles);
+        $this->assertIsString($panelBaseStyles);
+        $this->assertIsString($studentStyles);
 
         $source = strtolower($blade . "\\n" . $styles);
 
@@ -130,6 +136,11 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringContainsString('data-home-hero', $blade);
         $this->assertStringContainsString('aria-labelledby', $blade);
         $this->assertStringContainsString('prefers-reduced-motion', $styles);
+        $this->assertStringContainsString('sheykhan-hero-image-drift', $styles);
+        $this->assertStringNotContainsString("tiamir-intro.css", $homeStyles);
+        $this->assertStringNotContainsString("@source '../../resources/views';", $homeStyles);
+        $this->assertStringNotContainsString("@source '../../resources/views';", $panelBaseStyles);
+        $this->assertStringNotContainsString('student-dashboard-enter', $studentStyles);
         $this->assertStringContainsString('.home-banner-grid', $homeStyles);
         $this->assertStringContainsString('.home-banner-media img', $homeStyles);
     }
