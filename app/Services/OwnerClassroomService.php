@@ -331,7 +331,7 @@ final class OwnerClassroomService
             ->limit(6)
             ->get([
                 'attendance_date',
-                DB::raw('COUNT(*) AS total'),
+                DB::raw("SUM(CASE WHEN status IN ('present','late','absent') THEN 1 ELSE 0 END) AS total"),
                 DB::raw("SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended"),
             ]);
 
@@ -399,7 +399,7 @@ final class OwnerClassroomService
         $todayAttendance = DB::table('attendances')
             ->where('classroom_id', $classroom->id)
             ->whereDate('attendance_date', today())
-            ->selectRaw("COUNT(*) AS total, SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended")
+            ->selectRaw("SUM(CASE WHEN status IN ('present','late','absent') THEN 1 ELSE 0 END) AS total, SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended")
             ->first();
 
         return [
