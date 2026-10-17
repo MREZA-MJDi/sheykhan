@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\FinancialTransaction;
 use App\Models\Lesson;
 use App\Models\User;
+use App\Services\CourseAccessService;
 use App\Services\StudentAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -131,6 +132,29 @@ class StudentCourseAccessSecurityTest extends TestCase
         $this->assertFalse(
             app(StudentAccessService::class)->course($student->fresh(), $course)
         );
+    }
+
+
+    public function test_only_enrolled_students_can_download_free_course_material_and_payment_never_unlocks_paid_downloads(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $enrolledStudent = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $unrelatedStudent = User::where('email', 'student.nika@sheykhan.test')->firstOrFail();
+        $downloads = app(CourseAccessService::class);
+
+        // A successful payment gives access to view a paid course, not to download
+        // its protected materials.
+        $course->update(['access_type' => 'paid']);
+        $this->assertTrue(app(StudentAccessService::class)->course($enrolledStudent, $course));
+        $this->assertFalse($downloads->canDownload($enrolledStudent, $course));
+
+        // A free course is downloadable only with a valid enrollment. Making the
+        // course free does not grant a random academy member access.
+        $course->update(['access_type' => 'free', 'price' => 0]);
+        $this->assertTrue($downloads->canDownload($enrolledStudent, $course));
+        $this->assertFalse($downloads->canDownload($unrelatedStudent, $course));
     }
 
 
