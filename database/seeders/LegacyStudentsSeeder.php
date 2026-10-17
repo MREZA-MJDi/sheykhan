@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\\Seeders;
+namespace Database\Seeders;
 
-use Illuminate\\Database\\Seeder;
-use Illuminate\\Support\\Facades\\Artisan;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use RuntimeException;
 
 class LegacyStudentsSeeder extends Seeder
