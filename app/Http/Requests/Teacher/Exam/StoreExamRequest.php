@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Requests\Teacher\Exam;
+namespace App\\Http\\Requests\\Teacher\\Exam;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\\Foundation\\Http\\FormRequest;
+use Illuminate\\Validation\\Rule;
 
 class StoreExamRequest extends FormRequest
 {
@@ -27,8 +27,10 @@ class StoreExamRequest extends FormRequest
             'questions' => ['nullable', 'array', 'max:100'],
             'questions.*.type' => ['required_with:questions', Rule::in(['text', 'single', 'multiple', 'checkbox'])],
             'questions.*.question' => ['required_with:questions', 'string', 'max:5000'],
-            'questions.*.options' => ['nullable', 'array'],
+            'questions.*.options' => ['nullable', 'array', 'max:30'],
+            'questions.*.options.*' => ['nullable', 'string', 'max:500'],
             'questions.*.correct_answer' => ['nullable'],
+            'questions.*.correct_answer.*' => ['string', 'max:500'],
             'questions.*.score' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ];
     }
@@ -37,27 +39,76 @@ class StoreExamRequest extends FormRequest
     {
         $validator->after(function ($validator): void {
             $questions = $this->input('questions', []);
-            $status = $this->input('status', 'draft');
+            if (! is_array($questions)) {
+                return;
+            }
 
-            if ($status === 'published' && count($questions) === 0) {
+            $status = $this->input('status', 'draft');
+            $hasQuestion = count(array_filter($questions, 'is_array')) > 0;
+
+            if ($status === 'published' && ! $hasQuestion) {
                 $validator->errors()->add('questions', 'برای انتشار آزمون حداقل یک سؤال لازم است.');
             }
 
             foreach ($questions as $index => $question) {
+                if (! is_array($question)) {
+                    $validator->errors()->add("questions.{$index}", 'ساختار سؤال معتبر نیست.');
+                    continue;
+                }
+
                 $type = $question['type'] ?? 'text';
+                if (! in_array($type, ['text', 'single', 'multiple', 'checkbox'], true)) {
+                    continue;
+                }
 
-                if (in_array($type, ['single', 'multiple', 'checkbox'], true)) {
-                    $options = array_values(array_filter(
-                        (array) ($question['options'] ?? []),
-                        static fn ($option) => trim((string) $option) !== ''
-                    ));
+                if ($type === 'text') {
+                    continue;
+                }
 
-                    if (count($options) < 2) {
-                        $validator->errors()->add("questions.{$index}.options", 'برای سؤال تستی حداقل دو گزینه لازم است.');
+                $options = array_values(array_filter(
+                    (array) ($question['options'] ?? []),
+                    static fn ($option) => is_string($option) && trim($option) !== ''
+                ));
+
+                if (count($options) < 2) {
+                    $validator->errors()->add("questions.{$index}.options", 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
+                    continue;
+                }
+
+                if (count(array_unique($options)) !== count($options)) {
+                    $validator->errors()->add("questions.{$index}.options", 'گزینه‌های تکراری مجاز نیستند؛ هر گزینه را فقط یک بار وارد کن.');
+                }
+
+                $correct = $question['correct_answer'] ?? null;
+                $multi = in_array($type, ['multiple', 'checkbox'], true);
+
+                if ($multi) {
+                    if (! is_array($correct) || $correct === []) {
+                        $validator->errors()->add("questions.{$index}.correct_answer", 'برای سؤال چندپاسخی دست‌کم یک پاسخ صحیح را انتخاب کن.');
+                        continue;
                     }
 
-                    if (($question['correct_answer'] ?? null) === null || ($question['correct_answer'] ?? '') === '') {
-                        $validator->errors()->add("questions.{$index}.correct_answer", 'پاسخ صحیح سؤال تستی را مشخص کن.');
+                    $correct = array_values(array_unique(array_map(
+                        static fn ($value) => is_string($value) ? trim($value) : '',
+                        $correct
+                    )));
+
+                    if (array_filter($correct, static fn ($value) => $value === '') !== []) {
+                        $validator->errors()->add("questions.{$index}.correct_answer", 'پاسخ صحیح چندپاسخی معتبر نیست.');
+                        continue;
+                    }
+
+                    if (array_diff($correct, $options) !== []) {
+                        $validator->errors()->add("questions.{$index}.correct_answer", 'تمام پاسخ‌های صحیح باید از بین گزینه‌های همین سؤال انتخاب شوند.');
+                    }
+                } else {
+                    if (! is_string($correct) || trim($correct) === '') {
+                        $validator->errors()->add("questions.{$index}.correct_answer", 'یک پاسخ صحیح برای این سؤال انتخاب کن.');
+                        continue;
+                    }
+
+                    if (! in_array(trim($correct), $options, true)) {
+                        $validator->errors()->add("questions.{$index}.correct_answer", 'پاسخ صحیح باید دقیقاً یکی از گزینه‌های همین سؤال باشد.');
                     }
                 }
             }
@@ -74,6 +125,7 @@ class StoreExamRequest extends FormRequest
             'duration_minutes.min' => 'مدت آزمون نمی‌تواند منفی باشد.',
             'ends_at.after_or_equal' => 'زمان پایان آزمون باید بعد از زمان شروع باشد.',
             'attempts_allowed.min' => 'تعداد دفعات مجاز باید حداقل ۱ باشد.',
+            'questions.*.question.required_with' => 'متن همه سؤال‌ها را وارد کن.',
         ];
     }
 }
