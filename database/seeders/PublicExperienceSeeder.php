@@ -54,7 +54,7 @@ final class PublicExperienceSeeder extends Seeder
         $this->seedFacultyArtwork($owner);
         $this->seedEditorialContent($academy, $owner);
         $this->seedAcademyArticles($academy, $owner);
-        $this->seedStoreCategories();
+        $this->seedStoreCatalog();
 
         $this->clearPublicCaches();
     }
@@ -434,28 +434,255 @@ final class PublicExperienceSeeder extends Seeder
         }
     }
 
-    private function seedStoreCategories(): void
+    private function seedStoreCatalog(): void
     {
-        foreach ([
-            ['books', 'کتابخانه', 'کتاب‌ها و راهنماهایی برای یادگیری عمیق‌تر.'],
-            ['booklets', 'جزوه‌های آموزشی', 'مرورهای جمع‌وجور برای تمرین و تثبیت مفاهیم.'],
-            ['exams', 'آزمون و تمرین', 'تمرین‌های هدفمند برای سنجش فهم و پیدا کردن قدم بعدی.'],
-        ] as [$slug, $name, $description]) {
+        $categories = [
+            'books' => ['کتابخانه', 'راهنماهایی برای عمیق‌تر فکرکردن و یادگیری مستقل.', 1],
+            'booklets' => ['جزوه‌های آموزشی', 'مرورهای منظم برای تمرین و تثبیت مفاهیم.', 2],
+            'exams' => ['آزمون و تمرین', 'تمرین هدفمند برای دیدن نقطه قوت و قدم بعدی.', 3],
+        ];
+
+        foreach ($categories as $slug => [$name, $description, $sortOrder]) {
             ProductCategory::query()->updateOrCreate(
                 ['slug' => $slug],
-                ['name' => $name, 'description' => $description, 'sort_order' => match ($slug) {
-                    'books' => 1,
-                    'booklets' => 2,
-                    default => 3,
-                }, 'is_active' => true],
+                ['name' => $name, 'description' => $description, 'sort_order' => $sortOrder, 'is_active' => true],
+            );
+        }
+
+        $academy = Academy::query()->where('slug', 'sheykhan-academy')->firstOrFail();
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+
+        $products = [
+            [
+                'slug' => 'study-rhythm-workbook',
+                'category' => 'booklets',
+                'title' => 'دفتر کار ریتم مطالعه',
+                'subtitle' => 'یک برنامه قابل اجرا برای تمرکز، تمرین و مرور',
+                'description' => 'یک ورک‌بوک کوتاه و کاربردی با نقشه هفتگی، چرخه مطالعه فعال و پرسش‌های بازبینی. فایل همراه محصول یک نسخه تمرینی انگلیسی از محتوای آموزشی است و از بخش فایل‌های محصول قابل مدیریت است.',
+                'type' => 'booklet',
+                'price' => 125000,
+                'art' => 'journal-focus',
+                'pdf_title' => 'STUDY RHYTHM WORKBOOK',
+                'pdf_lines' => [
+                    'A practical workbook for focused study and steady progress.',
+                    '',
+                    'THE 25-MINUTE LEARNING LOOP',
+                    '1. Pick one specific outcome for this session.',
+                    '2. Study one concept for 10 minutes.',
+                    '3. Close the material and recall the idea from memory.',
+                    '4. Solve a fresh problem without looking at the answer.',
+                    '5. Write one question to revisit tomorrow.',
+                    '',
+                    'WEEKLY REVIEW',
+                    'What became clearer this week?',
+                    'Which mistake taught me something useful?',
+                    'What is my smallest next step?',
+                    '',
+                    'MY NEXT SESSION',
+                    'Goal: __________________________________________',
+                    'Practice task: __________________________________',
+                    'One thing to review: ____________________________',
+                ],
+            ],
+            [
+                'slug' => 'math-patterns-workbook',
+                'category' => 'books',
+                'title' => 'کارگاه الگوهای ریاضی',
+                'subtitle' => 'تمرین دیدن رابطه‌ها، توضیح راه‌حل و بررسی جواب',
+                'description' => 'مجموعه‌ای کوتاه برای تمرین نسبت، دنباله و استدلال مرحله‌به‌مرحله. فایل همراه محصول شامل تمرین و پاسخ‌نامه مختصر انگلیسی است؛ محتوای محصول در پنل قابل جایگزینی است.',
+                'type' => 'book',
+                'price' => 185000,
+                'art' => 'course-math-lab',
+                'pdf_title' => 'MATH PATTERN WORKSHOP',
+                'pdf_lines' => [
+                    'Notice the relationship. Explain the rule. Check the result.',
+                    '',
+                    'CHALLENGE 1 - SEQUENCES',
+                    'Complete: 2, 5, 8, 11, __, __',
+                    'Explain the rule in one sentence.',
+                    '',
+                    'CHALLENGE 2 - RATIOS',
+                    'Four notebooks cost 120 units.',
+                    'How much do seven notebooks cost at the same rate?',
+                    'Show the unit price before you calculate.',
+                    '',
+                    'CHALLENGE 3 - ALGEBRA',
+                    'If 3x + 4 = 19, find x and check your answer.',
+                    'Write one line explaining why your first step works.',
+                    '',
+                    'QUICK ANSWERS',
+                    'Challenge 1: 14, 17; add 3 each time.',
+                    'Challenge 2: 210 units; one notebook costs 30 units.',
+                    'Challenge 3: x = 5; substitute to check 15 + 4 = 19.',
+                    '',
+                    'REFLECTION: Which rule was easiest to explain?',
+                ],
+            ],
+            [
+                'slug' => 'science-observation-lab',
+                'category' => 'exams',
+                'title' => 'آزمایشگاه مشاهده و پرسش',
+                'subtitle' => 'از یک مشاهده ساده تا نتیجه‌ای که بتوانی از آن دفاع کنی',
+                'description' => 'یک برگه کار آزمایشگاهی برای ساختن سؤال، پیش‌بینی، ثبت داده و توضیح نتیجه. فایل همراه محصول یک فعالیت کوتاه انگلیسی است و می‌تواند از پنل با جزوه نهایی جایگزین شود.',
+                'type' => 'exam',
+                'price' => 95000,
+                'art' => 'course-science-lab',
+                'pdf_title' => 'OBSERVE AND ASK - MINI LAB',
+                'pdf_lines' => [
+                    'A short worksheet for curious minds.',
+                    '',
+                    'STEP 1 - OBSERVE',
+                    'Choose a paper plane, a rolling object, or a shadow.',
+                    'Write three things you can observe without guessing.',
+                    '',
+                    'STEP 2 - ASK A TESTABLE QUESTION',
+                    'What single change might affect the result?',
+                    '',
+                    'STEP 3 - MAKE A PREDICTION',
+                    'I predict that _________________________________',
+                    'because ________________________________________',
+                    '',
+                    'STEP 4 - TEST FAIRLY',
+                    'Change one thing. Keep other conditions similar.',
+                    'Repeat the test three times and record what happens.',
+                    '',
+                    'STEP 5 - CONCLUDE',
+                    'What did the evidence show?',
+                    'Was the prediction supported? What would you test next?',
+                    '',
+                    'A strong conclusion connects an observation to evidence.',
+                ],
+            ],
+        ];
+
+        foreach ($products as $definition) {
+            $category = ProductCategory::query()->where('slug', $definition['category'])->firstOrFail();
+            $product = Product::query()->updateOrCreate(
+                ['slug' => $definition['slug']],
+                [
+                    'academy_id' => $academy->id,
+                    'category_id' => $category->id,
+                    'created_by' => $owner->id,
+                    'title' => $definition['title'],
+                    'subtitle' => $definition['subtitle'],
+                    'description' => $definition['description'],
+                    'product_type' => $definition['type'],
+                    'delivery_type' => 'download',
+                    'price' => $definition['price'],
+                    'currency' => 'IRR',
+                    'status' => 'published',
+                    'is_featured' => true,
+                    'published_at' => now()->subDays(2),
+                ],
+            );
+
+            $cover = $this->image($definition['art'], (int) $owner->id, 'product-covers');
+            $this->attachArtwork($product, $cover, 'featured', null);
+
+            $pdf = $this->privateWorkbook(
+                $definition['slug'],
+                (int) $owner->id,
+                $definition['pdf_title'],
+                $definition['pdf_lines'],
+            );
+
+            ProductFile::query()->firstOrCreate(
+                ['product_id' => $product->id, 'media_id' => $pdf->id],
+                [
+                    'version' => '1.0',
+                    'is_primary' => true,
+                    'is_preview' => false,
+                    'requires_watermark' => true,
+                ],
             );
         }
     }
 
+    private function privateWorkbook(string $slug, int $ownerId, string $title, array $lines): Media
+    {
+        $disk = Storage::disk('local');
+        $path = 'showcase-workbooks/' . $slug . '.pdf';
+        $contents = $this->workbookPdf($title, $lines);
+
+        if (! $disk->put($path, $contents)) {
+            throw new RuntimeException('Could not write demo workbook: ' . $path);
+        }
+
+        return Media::query()->updateOrCreate(
+            ['disk' => 'local', 'path' => $path],
+            [
+                'uploaded_by' => $ownerId,
+                'original_name' => $slug . '.pdf',
+                'file_name' => $slug . '.pdf',
+                'mime_type' => 'application/pdf',
+                'extension' => 'pdf',
+                'size' => strlen($contents),
+                'checksum' => hash('sha256', $contents),
+                'visibility' => 'private',
+                'collection' => 'products',
+                'metadata' => ['seeded' => true, 'seeded_public_experience' => true, 'local_demo_workbook' => true],
+                'status' => 'active',
+            ],
+        );
+    }
+
+    /** Create a valid, readable one-page PDF containing useful sample exercises. */
+    private function workbookPdf(string $title, array $lines): string
+    {
+        $escape = static fn (string $value): string => str_replace(
+            ['\\\\', '(', ')'],
+            ['\\\\\\\\', '\\(', '\\)'],
+            $value,
+        );
+
+        $stream = "BT\n/F1 10 Tf\n52 752 Td\n(SHEYKHAN LEARNING LAB) Tj\n";
+        $stream .= "/F1 20 Tf\n0 -34 Td\n(" . $escape($title) . ") Tj\n";
+        $stream .= "/F1 10 Tf\n0 -27 Td\n";
+        $stream .= "(" . $escape('An original local-demo practice sheet. Work it out, then explain why.') . ") Tj\n0 -24 Td\n";
+
+        foreach ($lines as $line) {
+            $line = (string) $line;
+            if ($line === '') {
+                $stream .= "0 -7 Td\n";
+                continue;
+            }
+
+            foreach (explode("\\n", wordwrap($line, 82, "\\n", true)) as $wrapped) {
+                $stream .= "(" . $escape($wrapped) . ") Tj\n0 -15 Td\n";
+            }
+        }
+
+        $stream .= "ET\n";
+        $objects = [
+            '<< /Type /Catalog /Pages 2 0 R >>',
+            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+            '<< /Length ' . strlen($stream) . " >>\nstream\n" . $stream . 'endstream',
+            '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        ];
+
+        $pdf = "%PDF-1.4\n";
+        $offsets = [0];
+        foreach ($objects as $index => $object) {
+            $offsets[$index + 1] = strlen($pdf);
+            $pdf .= ($index + 1) . " 0 obj\n" . $object . "\nendobj\n";
+        }
+
+        $xref = strlen($pdf);
+        $pdf .= "xref\n0 6\n0000000000 65535 f \n";
+        for ($index = 1; $index <= 5; $index++) {
+            $pdf .= str_pad((string) $offsets[$index], 10, '0', STR_PAD_LEFT) . " 00000 n \n";
+        }
+
+        return $pdf . "trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n" . $xref . "\n%%EOF";
+    }
+
     private function image(string $key, int $ownerId, string $collection): Media
     {
-        $disk = Storage::disk('public');
-        $path = 'sheykhan-showcase/' . $key . '.svg';
+        // Public media is served through the application's guarded media route,
+        // so the showcase does not depend on a storage:link symlink existing.
+        $disk = Storage::disk('local');
+        $path = 'showcase-artwork/' . $key . '.svg';
         $contents = $this->artworkSvg($key);
 
         if (! $disk->put($path, $contents)) {
@@ -463,7 +690,7 @@ final class PublicExperienceSeeder extends Seeder
         }
 
         return Media::query()->updateOrCreate(
-            ['disk' => 'public', 'path' => $path],
+            ['disk' => 'local', 'path' => $path],
             [
                 'uploaded_by' => $ownerId,
                 'original_name' => $key . '.svg',
