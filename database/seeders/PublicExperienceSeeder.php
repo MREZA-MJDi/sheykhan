@@ -5,21 +5,26 @@ namespace Database\Seeders;
 use App\Models\Academy;
 use App\Models\AcademyContent;
 use App\Models\AcademyContentCategory;
+use App\Models\AcademicGrade;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
 use App\Models\Course;
+use App\Models\CourseSection;
 use App\Models\HomeBanner;
 use App\Models\HomeHeroSlide;
+use App\Models\Lesson;
 use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductFile;
 use App\Models\ProductCategory;
+use App\Models\Role;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
@@ -41,22 +46,86 @@ final class PublicExperienceSeeder extends Seeder
             );
         }
 
+        // Make the explicitly-invoked seeder self-contained on a fresh local DB.
         $this->call([
-            AcademyFoundationSeeder::class,
-            LearningSeeder::class,
+            RolePermissionSeeder::class,
+            AcademicReferenceSeeder::class,
         ]);
 
-        $academy = Academy::query()->where('slug', 'sheykhan-academy')->firstOrFail();
-        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        [$academy, $owner] = $this->ensureAcademyAndOwner();
+        $faculty = $this->seedFacultyArtwork($academy, $owner);
 
+        // Seed public catalog content only; never create demo learners, class
+        // rosters, student progress, payments, orders, or fake achievement claims.
+        $this->seedShowcaseCourses($academy, $owner, $faculty);
         $this->seedHeroAndBanners($academy, $owner);
         $this->seedCourseArtwork($academy, $owner);
-        $this->seedFacultyArtwork($owner);
         $this->seedEditorialContent($academy, $owner);
         $this->seedAcademyArticles($academy, $owner);
         $this->seedStoreCatalog();
 
         $this->clearPublicCaches();
+    }
+
+    /**
+     * Reuse the academy's existing owner. On an empty local DB, create only
+     * the minimum owner/academy foundation required for public content.
+     *
+     * @return array{0: Academy, 1: User}
+     */
+    private function ensureAcademyAndOwner(): array
+    {
+        $academy = Academy::query()->where('slug', 'sheykhan-academy')->first();
+        $owner = $academy && $academy->owner_id
+            ? User::withTrashed()->find($academy->owner_id)
+            : null;
+
+        if (! $owner) {
+            $owner = User::withTrashed()->where('email', 'owner@sheykhan.test')->first();
+
+            if (! $owner) {
+                $owner = User::query()->create([
+                    'name' => 'مدیر آکادمی شیخان',
+                    'email' => 'owner@sheykhan.test',
+                    'mobile' => '09100000001',
+                    'password' => Hash::make((string) env('SEED_USER_PASSWORD', 'Sheykhan@12345')),
+                    'status' => 'active',
+                ]);
+            } elseif ($owner->trashed()) {
+                $owner->restore();
+            }
+
+            if (! $academy) {
+                $academy = Academy::query()->create([
+                    'owner_id' => $owner->id,
+                    'name' => 'آکادمی شیخان',
+                    'slug' => 'sheykhan-academy',
+                    'code' => 'SHK-001',
+                    'description' => 'آکادمی آموزشی شیخان؛ آموزش مفهومی، تمرین هدفمند و مسیر روشن رشد.',
+                    'phone' => '02191000000',
+                    'email' => 'academy@sheykhan.test',
+                    'city' => 'تهران',
+                    'province' => 'تهران',
+                    'status' => 'active',
+                ]);
+            }
+        } elseif ($owner->trashed()) {
+            $owner->restore();
+        }
+
+        $owner->roles()->syncWithoutDetaching([
+            Role::query()->where('slug', 'academy-owner')->value('id'),
+        ]);
+
+        $academy->users()->syncWithoutDetaching([
+            $owner->id => [
+                'role' => 'owner',
+                'status' => 'active',
+                'joined_at' => now(),
+            ],
+        ]);
+
+        return [$academy, $owner];
     }
 
     private function seedHeroAndBanners(Academy $academy, User $owner): void
