@@ -194,32 +194,62 @@ class MediaPolicy
                     continue;
                 }
 
-                if ($this->academyOwner($user, $model->course?->academy)
-                    || ($model->course && $this->courseAccess($user, $model->course))) {
+                if ($model->course && (
+                    $this->academyOwner($user, $model->course->academy)
+                    || $this->courseAccess($user, $model->course)
+                )) {
                     return true;
                 }
             }
 
             if ($model instanceof AssignmentSubmission) {
-                $model->loadMissing(['assignment.course', 'assignment.classroom']);
+                $model->loadMissing(['assignment.course.academy', 'assignment.classroom']);
 
-                if (
-                    $model->student_id === $user->id
-                    || $model->graded_by === $user->id
-                    || $model->assignment?->teacher_id === $user->id
-                ) {
-                    return true;
+                $assignment = $model->assignment;
+                if (! $assignment) {
+                    continue;
                 }
 
-                if ($model->assignment?->classroom) {
-                    if ($this->classroomAccess($user, $model->assignment->classroom)) {
+                if ($user->hasRole('student')) {
+                    if (
+                        (int) $model->student_id === (int) $user->id
+                        && app(StudentAccessService::class)->assignment($user, $assignment)
+                    ) {
                         return true;
                     }
 
                     continue;
                 }
 
-                if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageAssignment($user, $assignment)) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildWork = $user->children()->get()->contains(
+                        fn (User $child): bool => (int) $model->student_id === (int) $child->id
+                            && app(StudentAccessService::class)->assignment($child, $assignment)
+                    );
+
+                    if ($canAccessChildWork) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($model->graded_by === $user->id) {
+                    return true;
+                }
+
+                if ($assignment->course && (
+                    $this->academyOwner($user, $assignment->course->academy)
+                    || $this->courseAccess($user, $assignment->course)
+                )) {
                     return true;
                 }
             }
@@ -256,8 +286,10 @@ class MediaPolicy
                     continue;
                 }
 
-                if ($this->academyOwner($user, $model->course?->academy)
-                    || ($model->course && $this->courseAccess($user, $model->course))) {
+                if ($model->course && (
+                    $this->academyOwner($user, $model->course->academy)
+                    || $this->courseAccess($user, $model->course)
+                )) {
                     return true;
                 }
             }
