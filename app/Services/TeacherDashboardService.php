@@ -58,7 +58,8 @@ final class TeacherDashboardService
             ->count();
 
         $pendingExamReviews = ExamAttempt::query()
-            ->where('status', 'submitted')
+            // These are all statuses rendered as awaiting review in the grading UI.
+            ->whereIn('status', ['submitted', 'pending_review', 'needs_review'])
             ->whereHas('exam', fn ($query) => $query
                 ->where('teacher_id', $teacher->id)
                 ->whereIn('course_id', $courseIds))
