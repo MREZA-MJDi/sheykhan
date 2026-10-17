@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class LegacyStudentImportTest extends TestCase
@@ -92,6 +94,138 @@ class LegacyStudentImportTest extends TestCase
                         ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS))
                     ->count()
             );
+
+            // A legacy student without email/mobile can authenticate by the old
+            // numeric ID and password. A successful first login upgrades the
+            // stored WordPress wrapper hash to a Laravel-compatible bcrypt hash.
+            $this->post(route('login.store'), [
+                'identifier' => '8',
+                'password' => 'legacy-import-test-password',
+            ])->assertSessionHasNoErrors();
+
+            $this->assertAuthenticated();
+            $loginUserId = (int) DB::table('users')
+                ->where('legacy_source', 'wordpress')
+                ->where('legacy_id', 8)
+                ->value('id');
+            $upgradedLegacyHash = (string) DB::table('users')->where('id', $loginUserId)->value('password');
+            $this->assertStringStartsWith('$2y
+            // their account status, student role and profile untouched.
+            $this->assertDatabaseHas('users', [
+                'legacy_source' => 'wordpress',
+                'legacy_id' => 9000,
+                'status' => 'active',
+            ]);
+            $this->assertDatabaseHas('student_profiles', [
+                'user_id' => DB::table('users')->where('legacy_source', 'wordpress')->where('legacy_id', 9000)->value('id'),
+                'registration_source' => 'admin',
+                'status' => 'active',
+            ]);
+
+            $this->assertSame(
+                55,
+                DB::table('academy_user')
+                    ->where('academy_id', $academyId)
+                    ->where('role', 'student')
+                    ->where('status', 'active')
+                    ->whereIn('user_id', DB::table('users')
+                        ->select('id')
+                        ->where('legacy_source', 'wordpress')
+                        ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS))
+                    ->count()
+            );
+
+            // A second run must not duplicate profiles, users, role links or memberships.
+            $this->artisan('sheykhan:import-legacy-students', [
+                'source' => $path,
+                '--academy-id' => $academyId,
+                '--apply' => true,
+            ])->assertExitCode(0);
+
+            $this->assertSame(
+                55,
+                DB::table('users')->where('legacy_source', 'wordpress')->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)->count()
+            );
+            $this->assertSame(
+                55,
+                DB::table('student_profiles')
+                    ->where('registration_source', 'legacy_import')
+                    ->where('status', 'active')
+                    ->count()
+            );
+        } finally {
+            @unlink($path);
+        }
+    }
+
+    private function createUnrelatedLegacyUser(): void
+    {
+        $now = now();
+        $userId = DB::table('users')->insertGetId([
+            'name' => 'Unrelated historical account',
+            'email' => null,
+            'password' => password_hash('unrelated-password', PASSWORD_BCRYPT),
+            'mobile' => null,
+            'status' => 'active',
+            'legacy_source' => 'wordpress',
+            'legacy_id' => 9000,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $studentRoleId = Role::where('slug', 'student')->value('id');
+        DB::table('role_user')->insert([
+            'role_id' => $studentRoleId,
+            'user_id' => $userId,
+        ]);
+
+        DB::table('student_profiles')->insert([
+            'user_id' => $userId,
+            'student_number' => null,
+            'birth_date' => null,
+            'grade' => null,
+            'school_name' => null,
+            'bio' => null,
+            'registration_source' => 'admin',
+            'registered_by' => null,
+            'onboarded_at' => null,
+            'status' => 'active',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+    }
+
+    private function makeSourceSql(): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'sheykhan-legacy-import-');
+
+        if ($path === false) {
+            $this->fail('Could not create a temporary legacy import fixture.');
+        }
+
+        $statements = [];
+        $plainPassword = 'legacy-import-test-password';
+        $prehashed = base64_encode(hash_hmac('sha384', $plainPassword, 'wp-sha384', true));
+        $validWordPressBcrypt = '$wp' . password_hash($prehashed, PASSWORD_BCRYPT, ['cost' => 4]);
+
+        foreach (self::APPROVED_LEGACY_IDS as $index => $legacyId) {
+            $name = $index === 1 ? 'Student (test case)' : 'Imported student ' . $index;
+            // Exercise a valid WordPress 6.8+ wrapped bcrypt hash and the phpass
+            // format without using any real student's personal data or hash.
+            $hash = $index === 1
+                ? '$P$B12345678abcdefghijklmnopqrstuv'
+                : $validWordPressBcrypt;
+
+            $statements[] = "INSERT INTO users (name, email, password, mobile, status, legacy_source, legacy_id, created_at, updated_at) VALUES ('{$name}', NULL, '{$hash}', NULL, 'active', 'wordpress', {$legacyId}, '2025-01-01 00:00:00', '2025-01-01 00:00:00') ON DUPLICATE KEY UPDATE name=VALUES(name), email=VALUES(email), password=VALUES(password), status='active', updated_at=VALUES(updated_at);";
+        }
+
+        file_put_contents($path, implode("\n", $statements));
+
+        return $path;
+    }
+}
+, $upgradedLegacyHash);
+            $this->assertTrue(Hash::check('legacy-import-test-password', $upgradedLegacyHash));
 
             // An unrelated imported user outside the source list must retain
             // their account status, student role and profile untouched.
