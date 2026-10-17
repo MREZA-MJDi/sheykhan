@@ -131,7 +131,7 @@ final class TechnicalSeoAuditService
                 $pageStartedAt = microtime(true);
                 try {
                     $response = $this->request($url);
-                    $page = $this->inspectPage($response, $url, microtime(true) - $pageStartedAt, isset($sitemapSet[$url]));
+                    $page = $this->inspectPage($response, $url, microtime(true) - $pageStartedAt, isset($sitemapSet[$url]), $results);
                 } catch (Throwable $exception) {
                     $page = [
                         'url' => $url,
@@ -229,7 +229,7 @@ final class TechnicalSeoAuditService
             ->get($url);
     }
 
-    private function inspectPage(Response $response, string $url, float $elapsedSeconds, bool $isInSitemap): array
+    private function inspectPage(Response $response, string $url, float $elapsedSeconds, bool $isInSitemap, array &$results): array
     {
         $status = $response->status();
         $contentType = strtolower((string) $response->header('Content-Type'));
@@ -248,7 +248,6 @@ final class TechnicalSeoAuditService
             'content_type' => $contentType,
         ];
 
-        $results = ['issues' => []];
         if ($status >= 400) {
             $this->issue($results, 'page_http_error', $status >= 500 ? 'critical' : 'warning', 'صفحه با HTTP ' . $status . ' پاسخ داد.', $url);
         } elseif ($status >= 300) {
@@ -257,15 +256,13 @@ final class TechnicalSeoAuditService
 
         if (! str_contains($contentType, 'text/html')) {
             $this->issue($results, 'non_html_sitemap_url', 'warning', 'URL داخل sitemap محتوای HTML برنگرداند؛ مطمئن شوید این URL واقعاً صفحهٔ قابل ایندکس است.', $url);
-            $this->publishIssues($results['issues']);
             return $page;
         }
 
         $body = $response->body();
         if (strlen($body) > self::MAX_HTML_BYTES) {
             $this->issue($results, 'html_too_large', 'info', 'HTML از سقف تحلیل محتوا بزرگ‌تر است؛ تحلیل DOM این صفحه انجام نشد.', $url);
-            $this->publishIssues($results['issues']);
-            return $page;
+                return $page;
         }
 
         if (! class_exists(\DOMDocument::class)) {
@@ -408,7 +405,7 @@ final class TechnicalSeoAuditService
         }
 
         $name = strtolower($xml->getName());
-        if (! in_array($name, ['urlset', 'sitemapindex'], true)) {
+        if ($name !== 'urlset') {
             return null;
         }
 
@@ -432,17 +429,6 @@ final class TechnicalSeoAuditService
             'url' => $url,
         ];
     }
-
-    private function publishIssues(array $issues): void
-    {
-        // Page-scoped findings are accumulated by reference on the service instance
-        // in a separate request-safe slot; see setRunResults() below.
-        foreach ($issues as $issue) {
-            $this->currentIssues[] = $issue;
-        }
-    }
-
-    private array $currentIssues = [];
 
     private function isHttpUrl(string $url): bool
     {
