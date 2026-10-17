@@ -6,6 +6,12 @@
 @section('content')
     @php
         $progress = max(0, min(100, (float) $overallProgress));
+        $attendanceMetrics = $attendanceMetrics ?? [];
+        $attendancePercent = $attendanceMetrics['attendance_percent'] ?? null;
+        $attendanceMinutes = (int) ($attendanceMetrics['attended_minutes'] ?? 0);
+        $scheduledMinutes = (int) ($attendanceMetrics['scheduled_minutes'] ?? 0);
+        $measuredAttendanceSessions = (int) ($attendanceMetrics['measured_sessions'] ?? 0);
+        $unmeasuredAttendanceSessions = (int) ($attendanceMetrics['unmeasured_sessions'] ?? 0);
         $today = now()->startOfDay();
         $todayClasses = collect($upcomingLiveClasses ?? [])->filter(
             fn ($class) => $class->scheduled_at && $class->scheduled_at->isSameDay($today)
@@ -36,7 +42,7 @@
                     مسیر یادگیری‌ات از همین‌جا ادامه پیدا می‌کند؛
                     {{ App\Support\PersianUi::digits($activeCourses) }} دوره فعال،
                     {{ App\Support\PersianUi::digits($pending) }} کار باز
-                    و {{ App\Support\PersianUi::digits($progress) }}٪ پیشرفت داری.
+                    و {{ App\Support\PersianUi::digits($progress) }}٪ از مسیر مطالعهٔ محتوا پیش رفته‌ای.
                 </p>
                 <div class="student-ui-hero-actions">
                     @if($nextAssignment)
@@ -171,7 +177,7 @@
                     {{ App\Support\PersianUi::digits($completedLessons) }} از {{ App\Support\PersianUi::digits($totalLessons) }} درس کامل
                 </small>
                 <small class="student-progress-method">
-                    محاسبه بر پایه میانگین درصد پیشرفت ثبت‌شده در دوره‌های فعال است؛ هر درسِ منتشرشده که پیشرفت آن به ۱۰۰٪ برسد، کامل حساب می‌شود.
+                    این شاخص فقط مسیر مطالعهٔ محتوا را نشان می‌دهد؛ از درصد درس‌های منتشرشده محاسبه می‌شود و معیار حضور یا نمره آزمون نیست. نرخ حضور، جداگانه از دقیقه‌های حضور واقعی در برابر زمان برنامه‌ریزی‌شده محاسبه می‌شود.
                 </small>
             </div>
         </section>
@@ -196,11 +202,18 @@
                 <i class="student-ui-kpi-icon is-purple">✓</i>
             </article>
             <article>
-                <span>پیشرفت کلی</span>
-                <strong>{{ App\Support\PersianUi::digits($progress) }}٪</strong>
-                <small>{{ App\Support\PersianUi::digits($completedLessons) }}
-                    از {{ App\Support\PersianUi::digits($totalLessons) }} درس کامل</small>
-                <i class="student-ui-kpi-icon is-gold">↗</i>
+                <span>حضور در کلاس</span>
+                <strong>{{ $attendancePercent !== null ? App\Support\PersianUi::digits($attendancePercent).'٪' : '—' }}</strong>
+                <small>
+                    @if($attendancePercent !== null)
+                        {{ App\Support\PersianUi::digits($attendanceMinutes) }} از {{ App\Support\PersianUi::digits($scheduledMinutes) }} دقیقه در {{ App\Support\PersianUi::digits($measuredAttendanceSessions) }} جلسهٔ قابل‌سنجش
+                    @elseif($unmeasuredAttendanceSessions > 0)
+                        {{ App\Support\PersianUi::digits($unmeasuredAttendanceSessions) }} سابقه هنوز دقیقهٔ واقعی ندارد
+                    @else
+                        هنوز سابقهٔ حضورِ قابل‌اندازه‌گیری ثبت نشده است
+                    @endif
+                </small>
+                <i class="student-ui-kpi-icon is-gold">◷</i>
             </article>
         </section>
 
