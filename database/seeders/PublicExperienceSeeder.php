@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Academy;
 use App\Models\AcademyContent;
 use App\Models\AcademyContentCategory;
-use App\Models\AcademicGrade;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use App\Models\BlogTag;
@@ -14,6 +13,7 @@ use App\Models\HomeBanner;
 use App\Models\HomeHeroSlide;
 use App\Models\Media;
 use App\Models\Product;
+use App\Models\ProductFile;
 use App\Models\ProductCategory;
 use App\Models\TeacherProfile;
 use App\Models\User;
@@ -647,7 +647,7 @@ final class PublicExperienceSeeder extends Seeder
                 continue;
             }
 
-            foreach (explode("\\n", wordwrap($line, 82, "\\n", true)) as $wrapped) {
+            foreach (explode("\n", wordwrap($line, 82, "\n", true)) as $wrapped) {
                 $stream .= "(" . $escape($wrapped) . ") Tj\n0 -15 Td\n";
             }
         }
