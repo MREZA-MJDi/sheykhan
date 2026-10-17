@@ -224,7 +224,6 @@ class LegacyStudentImportTest extends TestCase
         return $path;
     }
 }
-, $upgradedLegacyHash);
             $this->assertTrue(Hash::check('legacy-import-test-password', $upgradedLegacyHash));
 
             // An unrelated imported user outside the source list must retain
