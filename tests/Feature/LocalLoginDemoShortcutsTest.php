@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Models\\User;
-use Illuminate\\Support\\Facades\\Hash;
-use Tests\\TestCase;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class LocalLoginDemoShortcutsTest extends TestCase
 {
@@ -62,7 +62,7 @@ class LocalLoginDemoShortcutsTest extends TestCase
         ]);
 
         try {
-            $this->seed(\\Database\\Seeders\\DatabaseSeeder::class);
+            $this->seed(\Database\Seeders\DatabaseSeeder::class);
 
             $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
 
