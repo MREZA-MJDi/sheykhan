@@ -62,6 +62,7 @@ class AcademyFoundationSeeder extends Seeder
     private function runDemoFoundation(): void
     {
         $owner = $this->user('owner@sheykhan.test', 'مدیر آکادمی شیخان', 'owner', 'academy-owner');
+        $this->user('seo@sheykhan.test', 'متخصص سئو', 'seo-specialist', 'seo-specialist');
 
         $teacherDefinitions = [
             ['teacher.math@sheykhan.test', 'سمیه احمدی', 'teacher-math', 'ریاضی'],
@@ -161,7 +162,7 @@ class AcademyFoundationSeeder extends Seeder
     {
         // Keep the documented demo credentials usable even when the user
         // already existed from an earlier seed with an old password/status.
-        $seedPassword = env('SEED_USER_PASSWORD');
+        $seedPassword = config('app.seed_user_password');
         if (blank($seedPassword) && ! app()->environment(['local', 'testing'])) {
             throw new \RuntimeException(
                 'Set SEED_USER_PASSWORD before seeding demo accounts outside local/testing environments.'
