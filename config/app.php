@@ -103,6 +103,10 @@ return [
     // Dedicated key is preferred; APP_KEY keeps existing local environments bootable.
     'national_id_hmac_key' => env('NATIONAL_ID_HMAC_KEY') ?: env('APP_KEY'),
 
+    // Demo logins deliberately default off outside local development.
+    'demo_login_enabled' => env('DEMO_LOGIN_ENABLED', false),
+    'seed_user_password' => env('SEED_USER_PASSWORD'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
