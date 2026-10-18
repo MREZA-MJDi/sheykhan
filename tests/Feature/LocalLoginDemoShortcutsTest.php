@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -62,7 +63,10 @@ class LocalLoginDemoShortcutsTest extends TestCase
         ]);
 
         try {
-            $this->seed(\Database\Seeders\DatabaseSeeder::class);
+            Artisan::call('db:seed', [
+                '--class' => \Database\Seeders\DatabaseSeeder::class,
+                '--force' => true,
+            ]);
 
             $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
 
