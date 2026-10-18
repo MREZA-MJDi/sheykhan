@@ -3,12 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class LocalLoginDemoShortcutsTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_demo_login_shortcuts_are_hidden_by_default_outside_local_environment(): void
     {
         $previousEnvironment = $this->app['env'];
