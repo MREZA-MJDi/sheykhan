@@ -29,10 +29,15 @@ class DatabaseSeeder extends Seeder
             $this->call(LegacyStudentsSeeder::class);
         }
 
-        // A rich, image-backed public demo is useful for local design review.
-        // This seeder has its own APP_ENV=local guard and is never run in production.
+        // Create the full role-based demo accounts only for local development,
+        // or after an explicit opt-in on a private demo/staging deployment.
         if (app()->environment('local')) {
-            $this->call(PublicExperienceSeeder::class);
+            $this->call([
+                AcademyFoundationSeeder::class,
+                PublicExperienceSeeder::class,
+            ]);
+        } elseif (config('app.demo_login_enabled') && filled(config('app.seed_user_password'))) {
+            $this->call(AcademyFoundationSeeder::class);
         }
     }
 }
