@@ -9,7 +9,7 @@ use App\Models\AcademyMeeting;
 use App\Services\OwnerMeetingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Rule;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class MeetingController extends Controller

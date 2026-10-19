@@ -7,7 +7,7 @@ use App\Models\Academy;
 use App\Models\Attendance;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Rule;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 final class AttendanceController extends Controller
