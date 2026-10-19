@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Achievement;
+use App\Models\AcademyMeeting;
 use App\Models\LiveClass;
 use App\Models\User;
 use App\Services\StudentAccessService;
@@ -342,8 +343,18 @@ final class StudentDashboardService
                 ->limit(3)
                 ->get(['id', 'name']);
 
+        $upcomingMeetings = AcademyMeeting::query()
+            ->where('student_id', $student->id)
+            ->where('status', 'scheduled')
+            ->where('scheduled_at', '>=', now())
+            ->with(['classroom:id,title', 'course:id,title', 'parent:id,name'])
+            ->orderBy('scheduled_at')
+            ->limit(8)
+            ->get();
+
         return [
             'student' => $student,
+            'upcomingMeetings' => $upcomingMeetings,
             'profile' => $student->studentProfile,
             'courses' => $courses,
             'teachers' => $teachers,

@@ -116,6 +116,11 @@ class Academy extends Model
         return $this->hasMany(StudentOnboarding::class);
     }
 
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(AcademyMeeting::class);
+    }
+
     public function financialTransactions(): HasMany
     {
         return $this->hasMany(FinancialTransaction::class);

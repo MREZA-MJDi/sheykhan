@@ -105,6 +105,24 @@
                 </div>
             </section>
 
+            <section class="parent-panel dashboard-panel mb-5" aria-labelledby="parent-meetings-title">
+                <div class="parent-panel-head">
+                    <div><span class="parent-kicker" style="color: var(--panel-primary)">اطلاع‌رسانی آموزشگاه</span><h2 id="parent-meetings-title">جلسات هماهنگ‌شده با خانواده</h2><p>جلسه‌هایی که ادمین آموزشگاه برای فرزندت ثبت کرده است.</p></div>
+                </div>
+                <div class="parent-list">
+                    @forelse($upcomingMeetings as $meeting)
+                        <article class="parent-row">
+                            <div class="parent-date"><strong>{{ \App\Support\PersianUi::time($meeting->scheduled_at) }}</strong><small>{{ \App\Support\PersianUi::date($meeting->scheduled_at) }}</small></div>
+                            <div class="min-w-0"><div class="parent-row-title">{{ $meeting->title }}</div><span class="parent-row-meta">{{ $meeting->student?->name ?? 'فرزند شما' }} · {{ $meeting->classroom?->title ?? 'کلاس' }}</span>
+                                @if($meeting->message)<p class="mt-1 text-xs leading-6 text-slate-500">{{ $meeting->message }}</p>@endif
+                            </div><span class="parent-score">برنامه‌ریزی‌شده</span>
+                        </article>
+                    @empty
+                        <div class="parent-row"><div class="parent-date">—</div><div><div class="parent-row-title">جلسه‌ای برای آینده ثبت نشده است.</div><span class="parent-row-meta">در صورت هماهنگی جدید، زمان و توضیح آن در همین بخش نمایش داده می‌شود.</span></div></div>
+                    @endforelse
+                </div>
+            </section>
+
             <div class="parent-grid">
 
                 <section class="parent-panel dashboard-panel" aria-labelledby="parent-live-title">

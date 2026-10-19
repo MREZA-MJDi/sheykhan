@@ -14,7 +14,7 @@
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
-                <small>مدیریت آموزشگاه</small>
+                <small>کارتابل ادمین / منشی</small>
             </span>
         </a>
     </div>
@@ -29,7 +29,7 @@
             </a>
         @endif
 
-        @if($user->hasPermission('seo.manage'))
+        @if($seoOnly && $user->hasPermission('seo.manage'))
             <div class="role-sidebar-label mt-6">بهینه‌سازی سایت</div>
             <a href="{{ route('owner.seo.index') }}"
                class="role-nav-link {{ request()->routeIs('owner.seo.*') ? 'is-active' : '' }}">
@@ -65,6 +65,20 @@
                         <a href="{{ route('owner.classrooms.index', $academy) }}"
                            class="role-nav-link {{ request()->routeIs('owner.classrooms.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
                             <span class="role-nav-icon"></span><span>کلاس‌ها</span>
+                        </a>
+                    @endif
+
+                    @if($user->hasPermission('attendance.view'))
+                        <a href="{{ route('owner.attendance.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.attendance.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>حضور و غیاب</span>
+                        </a>
+                    @endif
+
+                    @if($user->hasPermission('live_classes.manage'))
+                        <a href="{{ route('owner.meetings.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.meetings.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>هماهنگی جلسات</span>
                         </a>
                     @endif
                 </div>

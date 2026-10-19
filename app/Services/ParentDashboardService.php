@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\AcademyMeeting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
@@ -22,10 +23,21 @@ final class ParentDashboardService
                 'overallProgress' => 0,
                 'upcomingLiveClasses' => collect(),
                 'recentResults' => collect(),
+                'upcomingMeetings' => collect(),
             ];
         }
 
         $childIds = $children->pluck('id');
+
+        $upcomingMeetings = AcademyMeeting::query()
+            ->whereIn('student_id', $childIds)
+            ->where('parent_id', $parent->id)
+            ->where('status', 'scheduled')
+            ->where('scheduled_at', '>=', now())
+            ->with(['classroom:id,title', 'course:id,title', 'student:id,name'])
+            ->orderBy('scheduled_at')
+            ->limit(8)
+            ->get();
 
         // Parent progress must use the same denominator as student progress:
         // active enrolled courses, published lessons only, and unstarted lessons count as 0.
@@ -194,6 +206,7 @@ final class ParentDashboardService
                     : Carbon::parse($item->scheduled_at);
                 return $item;
             }),
+            'upcomingMeetings' => $upcomingMeetings,
             'recentResults' => $recentResults->map(function ($item) {
                 $item->graded_at = $item->graded_at instanceof \Carbon\CarbonInterface
                     ? $item->graded_at

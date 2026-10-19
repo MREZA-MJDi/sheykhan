@@ -84,6 +84,21 @@
             </div>
         </aside>
 
+        <section class="student-workspace-card mt-5" aria-labelledby="student-meetings-title">
+            <div class="student-workspace-card-head"><div><h2 id="student-meetings-title">جلسات هماهنگ‌شده با آموزشگاه</h2><p>زمان جلسه‌هایی که برای تو ثبت شده؛ ادمین آموزشگاه و ولی‌ات نیز همین اطلاع‌رسانی را می‌بینند.</p></div></div>
+            <div class="student-workspace-list">
+                @forelse($upcomingMeetings as $meeting)
+                    <article class="student-workspace-row">
+                        <div class="student-workspace-date"><strong>◷</strong><small>جلسه</small></div>
+                        <div class="student-workspace-row-main"><strong>{{ $meeting->title }}</strong><span>{{ $meeting->classroom?->title ?? 'کلاس آموزشی' }}</span><span>{{ App\Support\PersianUi::date($meeting->scheduled_at) }} · {{ App\Support\PersianUi::time($meeting->scheduled_at) }}</span>@if($meeting->message)<span>{{ $meeting->message }}</span>@endif</div>
+                        <div class="student-workspace-actions"><span class="student-workspace-status success">ثبت‌شده</span></div>
+                    </article>
+                @empty
+                    <div class="student-workspace-empty"><strong>جلسه‌ای برنامه‌ریزی نشده است.</strong>اگر جلسه‌ای با آموزشگاه هماهنگ شود، زمان و پیام آن اینجا نمایش داده خواهد شد.</div>
+                @endforelse
+            </div>
+        </section>
+
         @if(collect($sessions ?? [])->isNotEmpty())
             <section class="student-workspace-card mt-5" aria-labelledby="student-recordings-title">
                 <div class="student-workspace-card-head">
