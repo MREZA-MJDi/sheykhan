@@ -75,7 +75,7 @@
                         </a>
                     @endif
 
-                    @if($user->hasPermission('live_classes.manage'))
+                    @if($user->hasPermission('live_classes.view'))
                         <a href="{{ route('owner.meetings.index', $academy) }}"
                            class="role-nav-link {{ request()->routeIs('owner.meetings.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
                             <span class="role-nav-icon"></span><span>هماهنگی جلسات</span>

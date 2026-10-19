@@ -9,7 +9,7 @@ final class StoreAcademyMeetingRequest extends FormRequest
     public function authorize(): bool
     {
         return ($this->user()?->hasRole('academy-owner') ?? false)
-            && ($this->user()?->hasPermission('live_classes.manage') ?? false);
+            && ($this->user()?->hasPermission('live_classes.view') ?? false);
     }
 
     public function rules(): array
