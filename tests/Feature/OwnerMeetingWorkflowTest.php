@@ -147,7 +147,7 @@ class OwnerMeetingWorkflowTest extends TestCase
             'status' => 'active',
         ]);
 
-        foreach ([$student => 'student', $parent => 'parent'] as $user => $role) {
+        foreach ([[$student, 'student'], [$parent, 'parent']] as [$user, $role]) {
             $academy->users()->attach($user->id, [
                 'role' => $role,
                 'status' => 'active',
