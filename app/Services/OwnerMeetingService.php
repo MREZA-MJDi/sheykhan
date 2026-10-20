@@ -15,7 +15,8 @@ final class OwnerMeetingService
     {
         $this->authorizeAcademy($owner, $academy);
 
-        $targets = DB::table('classroom_student as classroom_membership')
+        $targets = $owner->hasPermission('live_classes.manage')
+            ? DB::table('classroom_student as classroom_membership')
             ->join('classrooms', 'classrooms.id', '=', 'classroom_membership.classroom_id')
             ->join('users as students', 'students.id', '=', 'classroom_membership.student_id')
             ->join('academy_user as student_membership', function ($join) use ($academy): void {
@@ -43,7 +44,8 @@ final class OwnerMeetingService
                 'students.name as student_name',
                 'parents.id as parent_id',
                 'parents.name as parent_name',
-            ]);
+            ])
+            : collect();
 
         $meetings = AcademyMeeting::query()
             ->where('academy_id', $academy->id)
@@ -64,6 +66,7 @@ final class OwnerMeetingService
     public function create(User $owner, Academy $academy, array $data): AcademyMeeting
     {
         $this->authorizeAcademy($owner, $academy);
+        abort_unless($owner->hasPermission('live_classes.manage'), 403);
 
         $target = explode(':', (string) ($data['meeting_target'] ?? ''));
         if (count($target) !== 3 || count(array_filter($target, static fn ($part) => ctype_digit($part))) !== 3) {
@@ -129,6 +132,7 @@ final class OwnerMeetingService
     public function changeStatus(User $owner, Academy $academy, AcademyMeeting $meeting, string $status): void
     {
         $this->authorizeAcademy($owner, $academy);
+        abort_unless($owner->hasPermission('live_classes.manage'), 403);
         abort_unless((int) $meeting->academy_id === (int) $academy->id, 404);
 
         if (!in_array($status, ['scheduled', 'completed', 'cancelled'], true)) {

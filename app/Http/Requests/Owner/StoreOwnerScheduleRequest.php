@@ -11,7 +11,7 @@ final class StoreOwnerScheduleRequest extends FormRequest
     public function authorize(): bool
     {
         return ($this->user()?->hasRole('academy-owner') ?? false)
-            && ($this->user()?->hasPermission('live_classes.view') ?? false);
+            && ($this->user()?->hasPermission('live_classes.manage') ?? false);
     }
 
     public function rules(): array

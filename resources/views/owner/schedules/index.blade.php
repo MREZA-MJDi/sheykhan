@@ -43,16 +43,19 @@
                                     <a href="{{ $schedule->meeting_url }}" target="_blank" rel="noopener noreferrer" dir="ltr" class="mt-2 inline-block max-w-full break-all text-xs font-bold text-[var(--panel-primary)] underline underline-offset-4">ورود به جلسه ↗</a>
                                 @endif
                             </div>
+                            @if(auth()->user()->hasPermission('live_classes.manage'))
                             <form method="POST" action="{{ route('owner.schedules.destroy', [$academy, $classroom, $schedule]) }}" data-confirm="این زمان هفتگی از کلاس حذف شود؟">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-black text-rose-700">حذف بازه</button>
                             </form>
+                            @endif
                         </div>
                     @empty
                         <div class="rounded-xl border border-dashed border-slate-200 p-4 text-xs text-slate-500">برای این کلاس هنوز زمان و لینک هفتگی تعریف نشده است.</div>
                     @endforelse
                 </div>
 
+                @if(auth()->user()->hasPermission('live_classes.manage'))
                 <div class="mt-5 border-t border-slate-100 pt-5">
                     <h3 class="text-sm font-black">افزودن زمان / لینک</h3>
                     <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-meeting-provider-form>
@@ -94,6 +97,9 @@
                         @endif
                     </form>
                 </div>
+                @else
+                    <p class="mt-5 border-t border-slate-100 pt-4 text-xs leading-7 text-slate-500">این بخش فقط در حالت مشاهده است؛ برای افزودن یا حذف زمان و لینک، مجوز مدیریت کلاس آنلاین لازم است.</p>
+                @endif
             </article>
         @empty
             <div class="dashboard-panel p-8 text-center">

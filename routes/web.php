@@ -108,11 +108,11 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/people/student-options', [OwnerPeopleController::class, 'studentOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.student-options');
     Route::get('/academy/{academy}/attendance', [OwnerAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
     Route::get('/academy/{academy}/meetings', [OwnerMeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
-    Route::post('/academy/{academy}/meetings', [OwnerMeetingController::class, 'store'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('meetings.store');
-    Route::patch('/academy/{academy}/meetings/{meeting}/status', [OwnerMeetingController::class, 'updateStatus'])->middleware('permission:live_classes.view')->name('meetings.status');
+    Route::post('/academy/{academy}/meetings', [OwnerMeetingController::class, 'store'])->middleware(['permission:live_classes.manage','throttle:20,1'])->name('meetings.store');
+    Route::patch('/academy/{academy}/meetings/{meeting}/status', [OwnerMeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
     Route::get('/academy/{academy}/schedules', [OwnerScheduleController::class, 'index'])->middleware('permission:live_classes.view')->name('schedules.index');
-    Route::post('/academy/{academy}/classrooms/{classroom}/schedules', [OwnerScheduleController::class, 'store'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('schedules.store');
-    Route::delete('/academy/{academy}/classrooms/{classroom}/schedules/{schedule}', [OwnerScheduleController::class, 'destroy'])->middleware('permission:live_classes.view')->name('schedules.destroy');
+    Route::post('/academy/{academy}/classrooms/{classroom}/schedules', [OwnerScheduleController::class, 'store'])->middleware(['permission:live_classes.manage','throttle:20,1'])->name('schedules.store');
+    Route::delete('/academy/{academy}/classrooms/{classroom}/schedules/{schedule}', [OwnerScheduleController::class, 'destroy'])->middleware('permission:live_classes.manage')->name('schedules.destroy');
     Route::get('/academy/{academy}/assignments/create', [OwnerAssignmentController::class, 'create'])->middleware('permission:courses.manage')->name('assignments.create');
     Route::post('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'store'])->middleware(['permission:courses.manage','throttle:20,1'])->name('assignments.store');
     Route::get('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'index'])->middleware('permission:courses.view')->name('assignments.index');

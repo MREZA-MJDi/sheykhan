@@ -131,6 +131,7 @@ class OwnerMeetingWorkflowTest extends TestCase
             'dashboard.view',
             'attendance.view',
             'live_classes.view',
+            'live_classes.manage',
             'seo.manage',
         ]);
         $studentRole = $this->role('student', 'دانش‌آموز', ['dashboard.view']);

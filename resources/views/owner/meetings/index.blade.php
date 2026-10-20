@@ -24,7 +24,9 @@
             <p class="mt-1 text-xs leading-6 text-slate-500">فقط کلاس‌های فعال، دانش‌آموزان عضو همان کلاس و اولیای واقعاً متصل در فهرست قرار می‌گیرند.</p>
         </div>
 
-        @if($targets->isEmpty())
+        @if(!auth()->user()->hasPermission('live_classes.manage'))
+            <p class="mt-5 rounded-xl bg-slate-50 p-4 text-xs leading-7 text-slate-500">دسترسی شما فقط برای مشاهدهٔ جلسات است؛ برای ثبت یا تغییر جلسه باید مجوز مدیریت کلاس آنلاین داشته باشید.</p>
+        @elseif($targets->isEmpty())
             <div class="mt-5 rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm leading-7 text-slate-500">
                 برای ثبت جلسه، حداقل یک کلاس فعال، دانش‌آموز عضو کلاس و حساب ولیِ متصل لازم است. ابتدا عضویت‌ها را در بخش اعضا بررسی کن.
                 <a href="{{ route('owner.people.index', $academy) }}" class="mt-2 inline-block font-black text-[var(--panel-primary)]">رفتن به مدیریت اعضا ←</a>
@@ -97,6 +99,7 @@
                             <p class="mt-1 text-xs text-slate-500">{{ \App\Support\PersianUi::date($meeting->scheduled_at) }} · {{ \App\Support\PersianUi::time($meeting->scheduled_at) }}</p>
                             @if($meeting->message)<p class="mt-2 text-xs leading-6 text-slate-500">{{ $meeting->message }}</p>@endif
                         </div>
+                        @if(auth()->user()->hasPermission('live_classes.manage'))
                         <form method="POST" action="{{ route('owner.meetings.status', [$academy, $meeting]) }}" class="flex shrink-0 flex-wrap items-center gap-2">
                             @csrf @method('PATCH')
                             <label class="sr-only" for="meeting-status-{{ $meeting->id }}">وضعیت جلسه</label>
@@ -107,6 +110,9 @@
                             </select>
                             <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700">ذخیره وضعیت</button>
                         </form>
+                        @else
+                            <span class="rounded-full bg-white px-3 py-2 text-xs font-bold text-slate-600">{{ $statusLabels[$meeting->status] ?? $meeting->status }}</span>
+                        @endif
                     </div>
                 </article>
             @empty

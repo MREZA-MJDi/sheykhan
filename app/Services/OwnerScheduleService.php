@@ -38,6 +38,7 @@ final class OwnerScheduleService
         MeetingLinkService $links
     ): ClassSchedule {
         $this->authorizeAcademy($owner, $academy);
+        abort_unless($owner->hasPermission('live_classes.manage'), 403);
         abort_unless((int) $classroom->academy_id === (int) $academy->id, 404);
 
         if ($classroom->status !== 'active') {
@@ -80,6 +81,7 @@ final class OwnerScheduleService
         ClassSchedule $schedule
     ): void {
         $this->authorizeAcademy($owner, $academy);
+        abort_unless($owner->hasPermission('live_classes.manage'), 403);
         abort_unless(
             (int) $classroom->academy_id === (int) $academy->id
                 && (int) $schedule->classroom_id === (int) $classroom->id,
