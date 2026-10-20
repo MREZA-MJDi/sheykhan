@@ -75,6 +75,20 @@
                         </a>
                     @endif
 
+                    @if($user->hasPermission('courses.view'))
+                        <a href="{{ route('owner.assignments.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.assignments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>تکالیف و تصحیح</span>
+                        </a>
+                    @endif
+
+                    @if($user->hasPermission('live_classes.view'))
+                        <a href="{{ route('owner.schedules.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.schedules.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>لینک کلاس آنلاین</span>
+                        </a>
+                    @endif
+
                     @if($user->hasPermission('live_classes.view'))
                         <a href="{{ route('owner.meetings.index', $academy) }}"
                            class="role-nav-link {{ request()->routeIs('owner.meetings.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">

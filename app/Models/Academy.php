@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Academy extends Model
 {
@@ -120,6 +121,11 @@ class Academy extends Model
     public function meetings(): HasMany
     {
         return $this->hasMany(AcademyMeeting::class);
+    }
+
+    public function schedules(): HasManyThrough
+    {
+        return $this->hasManyThrough(ClassSchedule::class, Classroom::class, 'academy_id', 'classroom_id', 'id', 'id');
     }
 
     public function assignments(): HasManyThrough

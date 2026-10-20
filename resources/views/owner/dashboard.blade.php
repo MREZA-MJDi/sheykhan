@@ -165,6 +165,12 @@
                 <a href="{{ route('owner.meetings.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
                     <span><strong class="block text-sm font-black">هماهنگی با اولیا</strong><small class="mt-1 block text-xs text-slate-500">ثبت جلسه و اطلاع‌رسانی در پنل دو طرف</small></span><span aria-hidden="true" class="text-xl text-slate-500">←</span>
                 </a>
+                <a href="{{ route('owner.assignments.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">تکالیف و تصحیح</strong><small class="mt-1 block text-xs text-slate-500">بارگذاری راهنما و بررسی پاسخ‌ها</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.schedules.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">لینک کلاس‌های آنلاین</strong><small class="mt-1 block text-xs text-slate-500">زمان‌بندی هفتگی و لینک ورود هر کلاس</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
                 <a href="{{ route('owner.resources.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
                     <span><strong class="block text-sm font-black">ویدئو و منابع آموزشی</strong><small class="mt-1 block text-xs text-slate-500">فایل، جزوه و محتوای دوره</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
                 </a>
