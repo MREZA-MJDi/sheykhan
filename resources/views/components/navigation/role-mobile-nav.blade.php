@@ -67,7 +67,9 @@
         aria-label="{{ match ($role) {
             'student' => 'دسترسی سریع دانش‌آموز',
             'teacher' => 'دسترسی سریع مدرس',
-            'owner' => 'دسترسی سریع ادمین / منشی',
+            'owner' => ($user?->hasRole('seo-specialist') && ! $user?->hasRole('academy-owner'))
+                ? 'دسترسی سریع متخصص SEO'
+                : 'دسترسی سریع ادمین / منشی',
             default => 'دسترسی سریع',
         } }}"
     >

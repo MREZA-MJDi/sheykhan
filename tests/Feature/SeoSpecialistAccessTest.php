@@ -37,8 +37,9 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee(route('courses.show', $course), false)
             ->assertSee('صفحات عمومی و منتشرشده')
             ->assertSee('role-sidebar owner-sidebar', false)
-            ->assertSee('شیخان · مدیریت آموزشگاه')
-            ->assertDontSee('متخصص SEO</small>');
+            ->assertSee('شیخان · پنل متخصص SEO')
+            ->assertSee('پنل متخصص SEO</small>')
+            ->assertDontSee('کارتابل ادمین / منشی');
 
         $this->actingAs($specialist)
             ->get(route('owner.dashboard'))

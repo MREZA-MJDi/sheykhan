@@ -14,12 +14,12 @@
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
-                <small>کارتابل ادمین / منشی</small>
+                <small>{{ $seoOnly ? 'پنل متخصص SEO' : 'کارتابل ادمین / منشی' }}</small>
             </span>
         </a>
     </div>
 
-    <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
+    <nav class="role-sidebar-nav" aria-label="{{ $seoOnly ? 'منوی متخصص SEO' : 'منوی کارتابل ادمین / منشی' }}">
         @if(! $seoOnly)
             <div class="role-sidebar-label">مرکز کنترل</div>
 

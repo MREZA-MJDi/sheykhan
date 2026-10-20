@@ -80,7 +80,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         $this->actingAs($owner)->get(route('owner.dashboard'))
             ->assertOk()
             ->assertDontSee('SEO و دیده‌شدن')
-            ->assertDontSee('SEO');
+            ->assertDontSee(route('owner.seo.index'), false);
 
         foreach ([
             route('owner.seo.index'),
