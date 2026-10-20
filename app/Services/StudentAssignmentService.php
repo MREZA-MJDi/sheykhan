@@ -60,6 +60,7 @@ final class StudentAssignmentService
                     });
             })
             ->with([
+                'media:id,original_name,mime_type,size,status',
                 'course:id,title,slug',
                 'classroom:id,title,code',
                 'submissions' => fn ($query) => $query
@@ -76,6 +77,7 @@ final class StudentAssignmentService
         abort_unless(app(StudentAccessService::class)->assignment($student, $assignment), 404);
 
         return $assignment->load([
+            'media:id,original_name,mime_type,size,status',
             'course:id,academy_id,title,slug',
             'classroom:id,academy_id,title,code,course_id',
             'submissions' => fn ($query) => $query
