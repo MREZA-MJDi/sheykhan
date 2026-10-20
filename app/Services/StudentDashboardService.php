@@ -347,7 +347,7 @@ final class StudentDashboardService
             ->where('student_id', $student->id)
             ->where('status', 'scheduled')
             ->where('scheduled_at', '>=', now())
-            ->with(['classroom:id,title', 'course:id,title', 'parent:id,name'])
+            ->with(['classroom:id,title', 'course:id,title'])
             ->orderBy('scheduled_at')
             ->limit(8)
             ->get();

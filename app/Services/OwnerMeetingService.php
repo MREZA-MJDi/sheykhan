@@ -51,7 +51,7 @@ final class OwnerMeetingService
                 'classroom:id,title',
                 'course:id,title',
                 'student:id,name',
-                'parent:id,name',
+                'guardian:id,name',
             ])
             ->orderByRaw("CASE WHEN status = 'scheduled' THEN 0 ELSE 1 END")
             ->orderBy('scheduled_at')

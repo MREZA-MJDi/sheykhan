@@ -52,7 +52,7 @@ final class AcademyMeeting extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
-    public function parent(): BelongsTo
+    public function guardian(): BelongsTo
     {
         return $this->belongsTo(User::class, 'parent_id');
     }

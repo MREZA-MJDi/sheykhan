@@ -93,7 +93,7 @@
                         <div class="min-w-0">
                             <h3 class="text-sm font-black">{{ $meeting->title }}</h3>
                             <p class="mt-1 text-xs leading-6 text-slate-500">{{ $meeting->classroom?->title ?? 'کلاس' }} · {{ $meeting->course?->title ?? 'دوره' }}</p>
-                            <p class="mt-1 text-xs leading-6 text-slate-600">دانش‌آموز: {{ $meeting->student?->name ?? '—' }} · ولی: {{ $meeting->parent?->name ?? '—' }}</p>
+                            <p class="mt-1 text-xs leading-6 text-slate-600">دانش‌آموز: {{ $meeting->student?->name ?? '—' }} · ولی: {{ $meeting->guardian?->name ?? '—' }}</p>
                             <p class="mt-1 text-xs text-slate-500">{{ \App\Support\PersianUi::date($meeting->scheduled_at) }} · {{ \App\Support\PersianUi::time($meeting->scheduled_at) }}</p>
                             @if($meeting->message)<p class="mt-2 text-xs leading-6 text-slate-500">{{ $meeting->message }}</p>@endif
                         </div>
