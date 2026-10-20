@@ -41,8 +41,6 @@
         // Keep the specialist inside the shared owner shell, but point the home
         // shortcut only to the page they are authorized to use.
         $items[0] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
-    } elseif ($role === 'owner' && $user?->hasPermission('seo.manage')) {
-        $items[] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
     }
 
     $academy = $role === 'owner'
@@ -69,7 +67,7 @@
         aria-label="{{ match ($role) {
             'student' => 'دسترسی سریع دانش‌آموز',
             'teacher' => 'دسترسی سریع مدرس',
-            'owner' => 'دسترسی سریع مدیر آموزشگاه',
+            'owner' => 'دسترسی سریع ادمین / منشی',
             default => 'دسترسی سریع',
         } }}"
     >
