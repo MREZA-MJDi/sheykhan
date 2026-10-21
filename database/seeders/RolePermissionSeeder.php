@@ -33,6 +33,9 @@ class RolePermissionSeeder extends Seeder
             ['name'=>'teachers.manage','label'=>'مدیریت مدرس‌ها','group'=>'teachers'],
             ['name'=>'parents.view','label'=>'مشاهده والدین','group'=>'parents'],
             ['name'=>'parents.manage','label'=>'مدیریت والدین','group'=>'parents'],
+            ['name'=>'parent_messages.view','label'=>'مشاهده پیام‌های اولیا','group'=>'parent_messages'],
+            ['name'=>'teacher_payments.view','label'=>'مشاهده حقوق ثبت‌شده مدرس‌ها','group'=>'teacher_payments'],
+            ['name'=>'teacher_payments.manage','label'=>'مدیریت سندهای پرداخت مدرس‌ها','group'=>'teacher_payments'],
 
             ['name'=>'assignments.view','label'=>'مشاهده تکالیف','group'=>'assignments'],
             ['name'=>'assignments.submit','label'=>'ارسال تکلیف','group'=>'assignments'],
@@ -99,9 +102,9 @@ class RolePermissionSeeder extends Seeder
                 'students.view','students.manage',
                 'onboarding.manage',
                 'teachers.view','teachers.manage',
-                'parents.view',
+                'parents.view','parents.manage','parent_messages.view',
                 'assignments.view',
-                'exams.view',
+                'exams.view','exams.manage',
                 'attendance.view',
                 'live_classes.view','live_classes.manage',
                 'reports.view',
@@ -115,6 +118,7 @@ class RolePermissionSeeder extends Seeder
                 'legal.manage',
                 'blog.view','blog.manage',
                 'content.manage',
+                'teacher_payments.view','teacher_payments.manage',
                 'audit.view',
             ],
 
@@ -129,6 +133,8 @@ class RolePermissionSeeder extends Seeder
                 'classrooms.view','classrooms.manage',
                 'students.view',
                 'assignments.view','assignments.manage',
+                'parent_messages.view',
+                'teacher_payments.view',
                 'exams.view','exams.manage',
                 'attendance.view','attendance.manage',
                 'live_classes.view','live_classes.manage',
@@ -166,7 +172,7 @@ class RolePermissionSeeder extends Seeder
         ];
 
         $roleMeta = [
-            'academy-owner'=>['name'=>'مدیر آموزشگاه','description'=>'مدیریت کامل آموزشگاه'],
+            'academy-owner'=>['name'=>'ادمین / منشی آکادمی','description'=>'مدیریت عملیات آموزشگاه، ارتباط با خانواده‌ها و پیگیری امور آموزشی'],
             'seo-specialist'=>['name'=>'متخصص SEO','description'=>'مدیریت SEO صفحات عمومی سایت بدون دسترسی به عملیات آموزشگاه'],
             'teacher'=>['name'=>'مدرس','description'=>'مدیریت محتوای آموزشی و فعالیت‌های آموزشی مرتبط'],
             'student'=>['name'=>'دانش‌آموز','description'=>'دسترسی به آموزش‌ها و فعالیت‌های شخصی آموزشی'],
