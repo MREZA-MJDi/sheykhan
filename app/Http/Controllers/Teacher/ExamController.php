@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Exam;
 use App\Services\TeacherWorkspaceService;
+use App\Services\ExamQuestionWriter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -30,7 +31,8 @@ class ExamController extends Controller
 
     public function store(
         StoreExamRequest $request,
-        TeacherWorkspaceService $workspace
+        TeacherWorkspaceService $workspace,
+        ExamQuestionWriter $questionWriter
     ): RedirectResponse {
         $course = $workspace->courseOwnedBy($request->user(), (int) $request->validated('course_id'));
 
@@ -42,38 +44,10 @@ class ExamController extends Controller
         $payload = $request->safe()->except(['course_id', 'questions']);
         $payload['teacher_id'] = $request->user()->id;
 
-        DB::transaction(function () use ($course, $payload, $request): void {
+        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
             $exam = $course->exams()->create($payload);
-
-            foreach ($request->validated('questions', []) as $index => $question) {
-                $type = $question['type'] ?? 'text';
-                $options = $type === 'text'
-                    ? null
-                    : array_values(array_filter(
-                        (array) ($question['options'] ?? []),
-                        static fn ($option) => is_string($option) && trim($option) !== ''
-                    ));
-
-                $correctAnswer = $type === 'text'
-                    ? null
-                    : ($question['correct_answer'] ?? null);
-
-                // The database stores the expected answer in a text column.
-                // Multi-answer questions are stored as JSON so the grading
-                // service can compare a normalized list of selected options.
-                if (is_array($correctAnswer)) {
-                    $correctAnswer = json_encode(array_values($correctAnswer), JSON_UNESCAPED_UNICODE);
-                }
-
-                $exam->questions()->create([
-                    'type' => $type,
-                    'question' => $question['question'],
-                    'options' => $options,
-                    'correct_answer' => $correctAnswer,
-                    'score' => $question['score'] ?? 1,
-                    'sort_order' => $index,
-                ]);
-            }
+            $questionWriter->storeQuestions($exam, $request->validated('questions', []));
+            return $exam;
         });
 
         return redirect()->route('teacher.exams.index')

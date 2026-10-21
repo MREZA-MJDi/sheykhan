@@ -107,6 +107,37 @@ class PhaseOneAdminTeacherCompletionTest extends TestCase
         $this->assertSame('present', $attendance->fresh()->status);
     }
 
+    public function test_owner_can_create_exam_and_questions_within_owned_academy(): void
+    {
+        [$owner, $academy, $course, $classroom] = $this->workspace();
+
+        $this->actingAs($owner)->get(route('owner.exams.create', $academy))
+            ->assertOk()->assertSee('ساخت آزمون')->assertSee('سؤال‌های آزمون');
+
+        $this->actingAs($owner)->post(route('owner.exams.store', $academy), [
+            'course_id' => $course->id,
+            'classroom_id' => $classroom->id,
+            'title' => 'آزمون ساخته‌شده توسط منشی',
+            'description' => 'توضیح کوتاه',
+            'duration_minutes' => 30,
+            'attempts_allowed' => 1,
+            'status' => 'published',
+            'questions' => [
+                ['type' => 'single', 'question' => 'کدام گزینه پاسخ صحیح است؟', 'options' => ['گزینه الف', 'گزینه ب'], 'correct_answer' => 'گزینه الف', 'score' => 2],
+                ['type' => 'text', 'question' => 'توضیح کوتاه بنویسید.', 'score' => 3],
+            ],
+        ])->assertRedirect();
+
+        $exam = Exam::query()->where('title', 'آزمون ساخته‌شده توسط منشی')->firstOrFail();
+        $this->assertSame('published', $exam->status);
+        $this->assertSame(2, $exam->questions()->count());
+        $this->assertDatabaseHas('questions', [
+            'exam_id' => $exam->id,
+            'question' => 'کدام گزینه پاسخ صحیح است؟',
+            'correct_answer' => 'گزینه الف',
+        ]);
+    }
+
     public function test_owner_can_view_exam_questions_and_only_publish_an_exam_with_questions(): void
     {
         [$owner, $academy, $course, $classroom, $teacher] = $this->workspace();
