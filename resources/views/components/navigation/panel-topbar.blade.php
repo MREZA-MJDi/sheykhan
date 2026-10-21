@@ -26,7 +26,7 @@
 
     $roleLabels = [
         'owner' => $seoOnlyRole ? 'پنل متخصص SEO' : 'کارتابل ادمین / منشی',
-        'teacher' => 'پنل استاد',
+        'teacher' => 'پنل مدرس',
         'student' => 'پنل دانش‌آموز',
         'parent' => 'پنل والد',
     ];
