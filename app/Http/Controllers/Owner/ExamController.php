@@ -53,7 +53,7 @@ final class ExamController extends Controller
         $record = Exam::query()
             ->whereKey($exam)
             ->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))
-            ->with(['course:id,academy_id,title', 'classroom:id,title', 'teacher:id,name', 'questions:id,exam_id,title,type,points'])
+            ->with(['course:id,academy_id,title', 'classroom:id,title', 'teacher:id,name', 'questions:id,exam_id,type,question,score,sort_order'])
             ->withCount('attempts')
             ->firstOrFail();
 
