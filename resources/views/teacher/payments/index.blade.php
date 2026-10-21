@@ -7,7 +7,7 @@
 <div class="space-y-6">
     <header><p class="text-xs font-black text-[var(--panel-primary)]">سوابق مالی شخصی</p><h1 class="mt-1 text-2xl font-black">حقوق و پرداخت‌های ثبت‌شده</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">این صفحه سندهایی را نشان می‌دهد که آموزشگاه برای حساب شما ثبت کرده است. مبلغ، محاسبه‌ی خودکار حقوق بر اساس تعداد جلسات نیست؛ شیوه‌ی محاسبه باید طبق توافق آموزشگاه جداگانه تعیین شود.</p></header>
     <section class="grid gap-3 sm:grid-cols-2">
-        <article class="owner-stat-card"><span>جمع پرداخت‌های قطعی این صفحه</span><strong>{{ number_format($summary['paid']) }}</strong><small>تومان · سندهای پرداخت‌شده در این صفحه</small></article>
+        <article class="owner-stat-card"><span>کل پرداخت‌های قطعی ثبت‌شده</span><strong>{{ number_format($summary['paid']) }}</strong><small>تومان · سندهای پرداخت‌شده در این صفحه</small></article>
         <article class="owner-stat-card"><span>مبلغ در انتظار پرداخت</span><strong>{{ number_format($summary['pending']) }}</strong><small>بر اساس سندهای ثبت‌شده برای حساب شما</small></article>
     </section>
     <section class="dashboard-panel overflow-hidden">
