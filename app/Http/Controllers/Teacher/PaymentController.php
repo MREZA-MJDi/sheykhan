@@ -22,7 +22,7 @@ final class PaymentController extends Controller
             ->withQueryString();
 
         $summary = [
-            'paid' => (int) (clone $payments->getCollection())->where('status', 'paid')->sum('amount'),
+            'paid' => TeacherPayment::query()->where('teacher_id', $teacher->id)->where('status', 'paid')->sum('amount'),
             'pending' => TeacherPayment::query()->where('teacher_id', $teacher->id)->where('status', 'pending')->sum('amount'),
         ];
 
