@@ -269,7 +269,7 @@ final class TeacherWorkspaceService
         return LiveClass::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
-            ->with(['course:id,title', 'classroom:id,title'])
+            ->with(['course:id,title', 'classroom:id,title', 'recording:id,original_name,mime_type,size,status,visibility'])
             ->orderByDesc('scheduled_at')
             ->orderByDesc('id')
             ->paginate($perPage)
