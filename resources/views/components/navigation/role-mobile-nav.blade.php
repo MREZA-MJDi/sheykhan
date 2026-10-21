@@ -17,13 +17,16 @@
             ['route' => 'teacher.assignments.index', 'label' => 'تکلیف', 'permission' => 'assignments.view', 'icon' => '✓'],
             ['route' => 'teacher.exams.index', 'label' => 'آزمون', 'permission' => 'exams.view', 'icon' => '▤'],
             ['route' => 'teacher.attendance.index', 'label' => 'حضور', 'permission' => 'attendance.view', 'icon' => '◷'],
-            ['route' => 'teacher.schedule.index', 'label' => 'برنامه', 'permission' => 'live_classes.view', 'icon' => '▦'],
-            ['route' => 'teacher.live-classes.index', 'label' => 'جلسات', 'permission' => 'live_classes.view', 'icon' => '◉'],
+            ['route' => 'teacher.messages.index', 'label' => 'پیام‌ها', 'permission' => 'parent_messages.view', 'icon' => '✉'],
+            ['route' => 'teacher.meetings.index', 'label' => 'جلسات اولیا', 'permission' => 'live_classes.view', 'icon' => '◷'],
+            ['route' => 'teacher.payments.index', 'label' => 'حقوق', 'permission' => 'teacher_payments.view', 'icon' => '₮'],
         ],
         'owner' => [
             ['route' => 'owner.dashboard', 'label' => 'مرکز', 'permission' => 'dashboard.view', 'icon' => '⌂'],
             ['route' => 'owner.people.index', 'label' => 'اعضا', 'permissions' => ['students.view', 'teachers.view'], 'icon' => '◎', 'requiresAcademy' => true],
             ['route' => 'owner.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦', 'requiresAcademy' => true],
+            ['route' => 'owner.messages.index', 'label' => 'پیام‌ها', 'permission' => 'parents.view', 'icon' => '✉', 'requiresAcademy' => true],
+            ['route' => 'owner.exams.index', 'label' => 'آزمون‌ها', 'permission' => 'exams.view', 'icon' => '▤', 'requiresAcademy' => true],
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣'],
             ['route' => 'owner.reports.index', 'label' => 'گزارش', 'permission' => 'reports.view', 'icon' => '↗'],
         ],
@@ -32,6 +35,8 @@
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-children-title', 'activeRoute' => null, 'label' => 'فرزندان', 'permission' => 'dashboard.view', 'icon' => '◎'],
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-live-title', 'activeRoute' => null, 'label' => 'جلسات', 'permission' => 'dashboard.view', 'icon' => '◷'],
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-results-title', 'activeRoute' => null, 'label' => 'نتایج', 'permission' => 'dashboard.view', 'icon' => '↗'],
+            ['route' => 'parent.messages.index', 'activeRoute' => 'parent.messages.*', 'label' => 'پیام‌ها', 'permission' => 'dashboard.view', 'icon' => '✉'],
+            ['route' => 'parent.counseling.index', 'activeRoute' => 'parent.counseling.*', 'label' => 'مشاوره', 'permission' => 'dashboard.view', 'icon' => '◷'],
             ['route' => 'library.index', 'activeRoute' => 'library.index', 'label' => 'خریدها', 'permission' => 'courses.view', 'icon' => '▣'],
         ],
         default => [],
@@ -51,7 +56,12 @@
         ->filter(fn (array $item) => !$user || collect($item['permissions'] ?? [$item['permission'] ?? null])->filter()->contains(fn (string $permission) => $user->hasPermission($permission)))
         ->filter(fn (array $item) => empty($item['requiresAcademy']) || $academy)
         ->map(function (array $item) use ($academy) {
-            if ($academy && in_array($item['route'], ['owner.people.index', 'owner.classrooms.index'], true)) {
+            if ($academy && in_array($item['route'], [
+                'owner.people.index', 'owner.classrooms.index', 'owner.attendance.index',
+                'owner.assignments.index', 'owner.schedules.index', 'owner.meetings.index',
+                'owner.messages.index', 'owner.counseling.index', 'owner.exams.index',
+                'owner.recordings.index', 'owner.teacher-payments.index',
+            ], true)) {
                 $item['urlArgs'] = [$academy];
             }
 
