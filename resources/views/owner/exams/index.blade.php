@@ -7,7 +7,12 @@
 <div class="space-y-6">
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div><p class="text-xs font-black text-[var(--panel-primary)]">ارزیابی آموزشی</p><h1 class="mt-1 text-2xl font-black">آزمون‌ها و نتایج</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">آزمون‌های مربوط به همین آموزشگاه، وضعیت انتشار و تعداد تلاش‌های دانش‌آموزان را بررسی کنید. برای جزئیات و نمره‌ها، آزمون را باز کنید.</p></div>
-        <a href="{{ route('owner.dashboard') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">بازگشت به داشبورد</a>
+        <div class="flex flex-wrap gap-2">
+            @if(auth()->user()->hasPermission('exams.manage'))
+                <a href="{{ route('owner.exams.create', $academy) }}" class="inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">+ ساخت آزمون</a>
+            @endif
+            <a href="{{ route('owner.dashboard') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">بازگشت به داشبورد</a>
+        </div>
     </header>
 
     <section class="grid gap-3 sm:grid-cols-3">

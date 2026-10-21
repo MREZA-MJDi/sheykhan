@@ -6,7 +6,14 @@
 @section('content')
 <div class="space-y-6">
     <header class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div><a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-bold text-[var(--panel-primary)]">← بازگشت به آزمون‌ها</a><h1 class="mt-2 break-words text-2xl font-black">{{ $exam->title }}</h1><p class="mt-2 text-sm leading-7 text-slate-500">{{ $exam->course?->title }} · {{ $exam->classroom?->title ?: 'همه کلاس‌های دوره' }} · مدرس: {{ $exam->teacher?->name ?: '—' }}</p></div>
+        <div>
+            <a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-bold text-[var(--panel-primary)]">← بازگشت به آزمون‌ها</a>
+            <h1 class="mt-2 break-words text-2xl font-black">{{ $exam->title }}</h1>
+            <p class="mt-2 text-sm leading-7 text-slate-500">{{ $exam->course?->title }} · {{ $exam->classroom?->title ?: 'همه کلاس‌های دوره' }} · مدرس: {{ $exam->teacher?->name ?: '—' }}</p>
+        </div>
+        @if(auth()->user()->hasPermission('exams.manage') && (int) $exam->attempts_count === 0)
+            <a href="{{ route('owner.exams.edit', [$academy, $exam->id]) }}" class="inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">ویرایش مشخصات و سؤال‌ها</a>
+        @endif
         <span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold">{{ ['draft' => 'پیش‌نویس', 'published' => 'منتشرشده', 'closed' => 'بسته‌شده'][$exam->status] ?? $exam->status }}</span>
     </header>
 
@@ -25,6 +32,23 @@
             <button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">ذخیره وضعیت</button>
         </form>
     @endif
+
+    <section class="dashboard-panel overflow-hidden">
+        <div class="border-b border-slate-100 p-5"><h2 class="font-black">سؤال‌های آزمون</h2><p class="mt-1 text-sm text-slate-500">برای حفظ سابقه نمره‌دهی، پس از اولین تلاش ویرایش سؤال‌ها قفل می‌شود.</p></div>
+        <div class="divide-y divide-slate-100">
+            @forelse($exam->questions as $question)
+                <article class="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold text-[var(--panel-primary)]">سؤال {{ \App\Support\PersianUi::digits($loop->iteration) }} · {{ ['text' => 'تشریحی', 'single' => 'تک‌گزینه‌ای', 'multiple' => 'چندپاسخی', 'checkbox' => 'چندپاسخی'][$question->type] ?? $question->type }}</p>
+                        <h3 class="mt-1 whitespace-pre-line break-words text-sm font-bold leading-7">{{ $question->question }}</h3>
+                    </div>
+                    <span class="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ \App\Support\PersianUi::digits($question->score) }} امتیاز</span>
+                </article>
+            @empty
+                <div class="p-6 text-center text-sm text-slate-500">هنوز سؤالی برای این آزمون تعریف نشده است.</div>
+            @endforelse
+        </div>
+    </section>
 
     <section class="dashboard-panel overflow-hidden">
         <div class="border-b border-slate-100 p-5"><h2 class="font-black">نتایج و تلاش‌های دانش‌آموزان</h2><p class="mt-1 text-sm text-slate-500">نمره‌ی خالی به معنی نمره‌ی صفر نیست؛ ممکن است تلاش هنوز تصحیح نشده باشد.</p></div>
