@@ -39,6 +39,8 @@
         <a href="{{ route('teacher.attendance.index') }}" class="role-nav-link {{ request()->routeIs('teacher.attendance.*') || request()->routeIs('teacher.classrooms.attendance.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>حضور و غیاب</span>
         </a>
+        <a href="{{ route('teacher.messages.index') }}" class="role-nav-link {{ request()->routeIs('teacher.messages.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام‌های اولیا</span></a>
+        <a href="{{ route('teacher.meetings.index') }}" class="role-nav-link {{ request()->routeIs('teacher.meetings.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>جلسات با اولیا</span></a>
         <a href="{{ route('teacher.students.index') }}" class="role-nav-link {{ request()->routeIs('teacher.students.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>دانش‌آموزان</span>
         </a>
@@ -48,6 +50,7 @@
 
         <div class="role-sidebar-label mt-6">حساب</div>
 
+        <a href="{{ route('teacher.payments.index') }}" class="role-nav-link {{ request()->routeIs('teacher.payments.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حقوق و پرداخت‌ها</span></a>
         <a href="{{ route('teacher.profile.edit') }}" class="role-nav-link {{ request()->routeIs('teacher.profile.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>پروفایل من</span>
         </a>
