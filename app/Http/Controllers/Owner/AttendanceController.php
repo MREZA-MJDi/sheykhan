@@ -7,6 +7,9 @@ use App\Models\Academy;
 use App\Models\Attendance;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -70,5 +73,50 @@ final class AttendanceController extends Controller
             ->get(['id', 'title', 'course_id']);
 
         return view('owner.attendance.index', compact('academy', 'filters', 'summary', 'attendances', 'classrooms'));
+    }
+
+    public function update(Academy $academy, int $attendance, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
+    {
+        abort_unless(
+            $workspace->canManageAcademy($request->user(), $academy)
+            && $request->user()->hasPermission('attendance.manage'),
+            403
+        );
+
+        $data = $request->validate([
+            'status' => ['required', Rule::in(['present', 'late', 'absent', 'excused'])],
+            'scheduled_minutes' => ['nullable', 'integer', 'between:0,1440'],
+            'attended_minutes' => ['nullable', 'integer', 'between:0,1440'],
+            'note' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        if (($data['scheduled_minutes'] ?? null) !== null
+            && ($data['attended_minutes'] ?? null) !== null
+            && (int) $data['attended_minutes'] > (int) $data['scheduled_minutes']) {
+            throw ValidationException::withMessages([
+                'attended_minutes' => 'مدت حضور نمی‌تواند از مدت برنامه‌ریزی‌شده بیشتر باشد.',
+            ]);
+        }
+
+        DB::transaction(function () use ($academy, $attendance, $request, $data): void {
+            $record = Attendance::query()
+                ->whereKey($attendance)
+                ->whereHas('classroom', fn ($classroom) => $classroom->where('academy_id', $academy->id))
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $record->forceFill([
+                'status' => $data['status'],
+                'scheduled_minutes' => $data['scheduled_minutes'] ?? null,
+                'attended_minutes' => $data['attended_minutes'] ?? null,
+                'note' => filled($data['note'] ?? null) ? trim($data['note']) : null,
+                'marked_by' => $request->user()->id,
+            ])->save();
+        });
+
+        return redirect()->route('owner.attendance.index', [
+            'academy' => $academy->id,
+            ...$request->only(['q', 'classroom_id', 'attendance_date', 'status']),
+        ])->with('success', 'رکورد حضور و غیاب به‌روزرسانی شد.');
     }
 }
