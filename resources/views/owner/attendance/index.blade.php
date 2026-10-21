@@ -51,6 +51,23 @@
                         @if($attendance->marker)<span class="text-xs text-slate-500">ثبت توسط {{ $attendance->marker->name }}</span>@endif
                     </div>
                     @if($attendance->note)<p class="text-xs leading-6 text-slate-500 sm:basis-full">{{ $attendance->note }}</p>@endif
+                    @if(auth()->user()->hasPermission('attendance.manage'))
+                        <details class="w-full rounded-xl border border-slate-200 bg-white p-3 sm:basis-full">
+                            <summary class="cursor-pointer text-xs font-black text-[var(--panel-primary)]">اصلاح وضعیت، مدت حضور یا یادداشت</summary>
+                            <form method="POST" action="{{ route('owner.attendance.update', [$academy, $attendance->id]) }}" class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                                @csrf @method('PATCH')
+                                <label class="grid gap-1 text-xs font-bold">وضعیت
+                                    <select name="status" class="min-h-10 rounded-lg border border-slate-200 px-3 text-sm">
+                                        @foreach($statusLabels as $key => $label)<option value="{{ $key }}" @selected($attendance->status === $key)>{{ $label }}</option>@endforeach
+                                    </select>
+                                </label>
+                                <label class="grid gap-1 text-xs font-bold">مدت برنامه‌ریزی‌شده (دقیقه)<input type="number" name="scheduled_minutes" min="0" max="1440" value="{{ $attendance->scheduled_minutes }}" class="min-h-10 rounded-lg border border-slate-200 px-3 text-sm"></label>
+                                <label class="grid gap-1 text-xs font-bold">مدت حضور (دقیقه)<input type="number" name="attended_minutes" min="0" max="1440" value="{{ $attendance->attended_minutes }}" class="min-h-10 rounded-lg border border-slate-200 px-3 text-sm"></label>
+                                <label class="grid gap-1 text-xs font-bold">یادداشت<input name="note" maxlength="1000" value="{{ $attendance->note }}" class="min-h-10 rounded-lg border border-slate-200 px-3 text-sm"></label>
+                                <div class="sm:col-span-2 xl:col-span-4 flex flex-wrap items-center justify-between gap-2"><p class="text-xs text-slate-500">آخرین ویرایش با نام کاربر ثبت‌کننده نگهداری می‌شود.</p><button class="min-h-10 rounded-lg bg-[var(--panel-primary)] px-4 text-xs font-black text-white">ذخیره اصلاحات</button></div>
+                            </form>
+                        </details>
+                    @endif
                 </article>
             @empty
                 <div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm leading-7 text-slate-500">رکوردی با این فیلترها پیدا نشد. فیلترها را تغییر بده یا پاک کن.</div>
