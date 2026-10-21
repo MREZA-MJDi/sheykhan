@@ -95,6 +95,19 @@
                             <span class="role-nav-icon"></span><span>هماهنگی جلسات</span>
                         </a>
                     @endif
+                    @if($user->hasPermission('parents.view'))
+                        <a href="{{ route('owner.messages.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.messages.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام‌های اولیا</span></a>
+                        <a href="{{ route('owner.counseling.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.counseling.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>جلسات مشاوره</span></a>
+                    @endif
+                    @if($user->hasPermission('exams.view'))
+                        <a href="{{ route('owner.exams.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.exams.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>آزمون‌ها و نتایج</span></a>
+                    @endif
+                    @if($user->hasPermission('live_classes.view'))
+                        <a href="{{ route('owner.recordings.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.recordings.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>آرشیو ضبط کلاس‌ها</span></a>
+                    @endif
+                    @if($user->hasPermission('teacher_payments.view'))
+                        <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.teacher-payments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حقوق مدرس‌ها</span></a>
+                    @endif
                 </div>
             </div>
         @empty
