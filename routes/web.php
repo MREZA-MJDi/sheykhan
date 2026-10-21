@@ -140,18 +140,18 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::patch('/courses/{course}', [OwnerCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
-    Route::get('/academy/{academy}/messages', [\\App\\Http\\Controllers\\Owner\\ParentMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('messages.index');
-    Route::patch('/academy/{academy}/messages/{message}/reply', [\\App\\Http\\Controllers\\Owner\\ParentMessageController::class, 'reply'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('messages.reply');
-    Route::get('/academy/{academy}/counseling', [\\App\\Http\\Controllers\\Owner\\CounselingRequestController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('counseling.index');
-    Route::patch('/academy/{academy}/counseling/{counselingRequest}', [\\App\\Http\\Controllers\\Owner\\CounselingRequestController::class, 'update'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('counseling.update');
-    Route::get('/academy/{academy}/exams', [\\App\\Http\\Controllers\\Owner\\ExamController::class, 'index'])->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.index');
-    Route::get('/academy/{academy}/exams/{exam}', [\\App\\Http\\Controllers\\Owner\\ExamController::class, 'show'])->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.show');
-    Route::patch('/academy/{academy}/exams/{exam}/status', [\\App\\Http\\Controllers\\Owner\\ExamController::class, 'updateStatus'])->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.status');
-    Route::get('/academy/{academy}/recordings', [\\App\\Http\\Controllers\\Owner\\RecordingController::class, 'index'])->middleware('permission:live_classes.view')->withoutScopedBindings()->name('recordings.index');
-    Route::patch('/academy/{academy}/recordings/{liveClass}', [\\App\\Http\\Controllers\\Owner\\RecordingController::class, 'updatePublication'])->middleware('permission:live_classes.manage')->withoutScopedBindings()->name('recordings.update');
-    Route::get('/academy/{academy}/teacher-payments', [\\App\\Http\\Controllers\\Owner\\TeacherPaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->withoutScopedBindings()->name('teacher-payments.index');
-    Route::post('/academy/{academy}/teacher-payments', [\\App\\Http\\Controllers\\Owner\\TeacherPaymentController::class, 'store'])->middleware(['permission:teacher_payments.manage', 'throttle:10,1'])->withoutScopedBindings()->name('teacher-payments.store');
-    Route::patch('/academy/{academy}/teacher-payments/{payment}/status', [\\App\\Http\\Controllers\\Owner\\TeacherPaymentController::class, 'updateStatus'])->middleware('permission:teacher_payments.manage')->withoutScopedBindings()->name('teacher-payments.status');
+    Route::get('/academy/{academy}/messages', [\App\Http\Controllers\Owner\ParentMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('messages.index');
+    Route::patch('/academy/{academy}/messages/{message}/reply', [\App\Http\Controllers\Owner\ParentMessageController::class, 'reply'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('messages.reply');
+    Route::get('/academy/{academy}/counseling', [\App\Http\Controllers\Owner\CounselingRequestController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('counseling.index');
+    Route::patch('/academy/{academy}/counseling/{counselingRequest}', [\App\Http\Controllers\Owner\CounselingRequestController::class, 'update'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('counseling.update');
+    Route::get('/academy/{academy}/exams', [\App\Http\Controllers\Owner\ExamController::class, 'index'])->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.index');
+    Route::get('/academy/{academy}/exams/{exam}', [\App\Http\Controllers\Owner\ExamController::class, 'show'])->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.show');
+    Route::patch('/academy/{academy}/exams/{exam}/status', [\App\Http\Controllers\Owner\ExamController::class, 'updateStatus'])->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.status');
+    Route::get('/academy/{academy}/recordings', [\App\Http\Controllers\Owner\RecordingController::class, 'index'])->middleware('permission:live_classes.view')->withoutScopedBindings()->name('recordings.index');
+    Route::patch('/academy/{academy}/recordings/{liveClass}', [\App\Http\Controllers\Owner\RecordingController::class, 'updatePublication'])->middleware('permission:live_classes.manage')->withoutScopedBindings()->name('recordings.update');
+    Route::get('/academy/{academy}/teacher-payments', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->withoutScopedBindings()->name('teacher-payments.index');
+    Route::post('/academy/{academy}/teacher-payments', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'store'])->middleware(['permission:teacher_payments.manage', 'throttle:10,1'])->withoutScopedBindings()->name('teacher-payments.store');
+    Route::patch('/academy/{academy}/teacher-payments/{payment}/status', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'updateStatus'])->middleware('permission:teacher_payments.manage')->withoutScopedBindings()->name('teacher-payments.status');
 
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
     Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->middleware('permission:academy.view')->name('website.index');
@@ -236,10 +236,10 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->middleware('permission:exams.view')->name('exams.attempts');
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])->middleware('permission:exams.manage')->name('exam-attempts.grade');
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
-    Route::get('/messages', [\\App\\Http\\Controllers\\Teacher\\ParentMessageController::class, 'index'])->middleware('permission:parent_messages.view')->name('messages.index');
-    Route::get('/meetings', [\\App\\Http\\Controllers\\Teacher\\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
-    Route::patch('/meetings/{meeting}/status', [\\App\\Http\\Controllers\\Teacher\\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
-    Route::get('/payments', [\\App\\Http\\Controllers\\Teacher\\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
+    Route::get('/messages', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'index'])->middleware('permission:parent_messages.view')->name('messages.index');
+    Route::get('/meetings', [\App\Http\Controllers\Teacher\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
+    Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\Teacher\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
+    Route::get('/payments', [\App\Http\Controllers\Teacher\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
     Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->middleware('permission:live_classes.manage')->name('live-classes.create');
     Route::post('/live-classes', [TeacherLiveClassController::class, 'store'])->middleware('permission:live_classes.manage')->name('live-classes.store');
@@ -287,10 +287,10 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 });
 Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
-    Route::get('/messages', [\\App\\Http\\Controllers\\ParentPortal\\CommunicationController::class, 'messages'])->name('messages.index');
-    Route::post('/messages', [\\App\\Http\\Controllers\\ParentPortal\\CommunicationController::class, 'storeMessage'])->middleware('throttle:10,1')->name('messages.store');
-    Route::get('/counseling', [\\App\\Http\\Controllers\\ParentPortal\\CommunicationController::class, 'counseling'])->name('counseling.index');
-    Route::post('/counseling', [\\App\\Http\\Controllers\\ParentPortal\\CommunicationController::class, 'storeCounseling'])->middleware('throttle:6,1')->name('counseling.store');
+    Route::get('/messages', [\App\Http\Controllers\ParentPortal\CommunicationController::class, 'messages'])->name('messages.index');
+    Route::post('/messages', [\App\Http\Controllers\ParentPortal\CommunicationController::class, 'storeMessage'])->middleware('throttle:10,1')->name('messages.store');
+    Route::get('/counseling', [\App\Http\Controllers\ParentPortal\CommunicationController::class, 'counseling'])->name('counseling.index');
+    Route::post('/counseling', [\App\Http\Controllers\ParentPortal\CommunicationController::class, 'storeCounseling'])->middleware('throttle:6,1')->name('counseling.store');
 });
 
 Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'])
