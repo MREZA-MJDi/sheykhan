@@ -107,6 +107,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->middleware('permission:academy.view')->name('people.index');
     Route::get('/academy/{academy}/people/student-options', [OwnerPeopleController::class, 'studentOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.student-options');
     Route::get('/academy/{academy}/attendance', [OwnerAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
+    Route::patch('/academy/{academy}/attendance/{attendance}', [\App\Http\Controllers\Owner\AttendanceController::class, 'update'])->middleware('permission:attendance.manage')->withoutScopedBindings()->name('attendance.update');
     Route::get('/academy/{academy}/meetings', [OwnerMeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
     Route::post('/academy/{academy}/meetings', [OwnerMeetingController::class, 'store'])->middleware(['permission:live_classes.manage','throttle:20,1'])->name('meetings.store');
     Route::patch('/academy/{academy}/meetings/{meeting}/status', [OwnerMeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
