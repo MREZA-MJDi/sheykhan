@@ -102,7 +102,7 @@ class PhaseOneAdminTeacherCompletionTest extends TestCase
 
         $this->actingAs($owner)->patch(route('owner.attendance.update', [$otherAcademy, $attendance->id]), [
             'status' => 'absent', 'scheduled_minutes' => 60, 'attended_minutes' => 0,
-        ])->assertNotFound();
+        ])->assertForbidden();
 
         $this->assertSame('present', $attendance->fresh()->status);
     }
