@@ -1,7 +1,7 @@
 @extends('layouts.teacher')
 
-@section('title', 'داشبورد استاد | شیخان')
-@section('header-title', 'داشبورد استاد')
+@section('title', 'داشبورد مدرس | شیخان')
+@section('header-title', 'داشبورد مدرس')
 
 @section('content')
     @php
@@ -24,7 +24,7 @@
                 <span class="teacher-welcome-kicker">گزارش آموزشی</span>
 
                 <h1>
-                    سلام استاد {{ $teacher->name }} 👋
+                    سلام {{ $teacher->name }} 👋
                 </h1>
 
                 <p>
