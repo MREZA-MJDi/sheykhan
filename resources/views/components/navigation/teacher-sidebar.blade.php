@@ -2,11 +2,11 @@
     <div class="role-sidebar-brand">
         <a href="{{ route('teacher.dashboard') }}" class="role-brand">
             <span class="role-brand-mark">ش</span>
-            <span><strong>شیخان</strong><small>پنل استاد</small></span>
+            <span><strong>شیخان</strong><small>پنل مدرس</small></span>
         </a>
     </div>
 
-    <nav class="role-sidebar-nav" aria-label="منوی استاد">
+    <nav class="role-sidebar-nav" aria-label="منوی مدرس">
         <div class="role-sidebar-label">آموزش</div>
 
         <a href="{{ route('teacher.dashboard') }}" class="role-nav-link {{ request()->routeIs('teacher.dashboard') ? 'is-active' : '' }}">
