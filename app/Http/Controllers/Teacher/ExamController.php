@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Exam;
 use App\Services\TeacherWorkspaceService;
+use App\Services\ExamQuestionWriter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -30,7 +31,8 @@ class ExamController extends Controller
 
     public function store(
         StoreExamRequest $request,
-        TeacherWorkspaceService $workspace
+        TeacherWorkspaceService $workspace,
+        ExamQuestionWriter $questionWriter
     ): RedirectResponse {
         $course = $workspace->courseOwnedBy($request->user(), (int) $request->validated('course_id'));
 
@@ -42,19 +44,10 @@ class ExamController extends Controller
         $payload = $request->safe()->except(['course_id', 'questions']);
         $payload['teacher_id'] = $request->user()->id;
 
-        DB::transaction(function () use ($course, $payload, $request): void {
+        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
             $exam = $course->exams()->create($payload);
-
-            foreach ($request->validated('questions', []) as $index => $question) {
-                $exam->questions()->create([
-                    'type' => $question['type'] ?? 'text',
-                    'question' => $question['question'],
-                    'options' => $question['options'] ?? null,
-                    'correct_answer' => $question['correct_answer'] ?? null,
-                    'score' => $question['score'] ?? 1,
-                    'sort_order' => $index,
-                ]);
-            }
+            $questionWriter->storeQuestions($exam, $request->validated('questions', []));
+            return $exam;
         });
 
         return redirect()->route('teacher.exams.index')

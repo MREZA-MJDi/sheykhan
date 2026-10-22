@@ -79,18 +79,25 @@ final class OwnerWorkspaceService
         $teachers = $academy->users()
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'active')
+            ->where('users.status', 'active')
             ->orderBy('users.name')
             ->get(['users.id', 'users.name']);
 
         $courses = $academy->courses()
-            ->with('classrooms:id,academy_id,course_id,title,status,capacity')
             ->select('id', 'title')
             ->orderBy('title')
             ->get();
 
+        $classrooms = $academy->classrooms()
+            ->where('status', 'active')
+            ->with('course:id,title')
+            ->orderBy('title')
+            ->get(['id', 'academy_id', 'course_id', 'title', 'code', 'capacity']);
+
         return [
             'teacherOptions' => $teachers,
             'courseOptions' => $courses,
+            'classroomOptions' => $classrooms,
         ];
     }
 
@@ -119,7 +126,7 @@ final class OwnerWorkspaceService
                 'is_verified' => true,
             ]);
 
-            $academy->teachers()->syncWithoutDetaching([
+            $academy->users()->syncWithoutDetaching([
                 $teacher->id => [
                     'role' => 'teacher',
                     'status' => 'active',
@@ -143,7 +150,7 @@ final class OwnerWorkspaceService
         abort_if(!$membership, 404);
 
         DB::transaction(function () use ($academy, $teacher): void {
-            $academy->teachers()->updateExistingPivot($teacher->id, [
+            $academy->users()->updateExistingPivot($teacher->id, [
                 'status' => 'archived',
             ]);
 
@@ -163,7 +170,7 @@ final class OwnerWorkspaceService
         abort_if(!$membership, 404);
 
         DB::transaction(function () use ($academy, $teacher, $membership): void {
-            $academy->teachers()->updateExistingPivot($teacher->id, [
+            $academy->users()->updateExistingPivot($teacher->id, [
                 'status' => 'active',
                 'joined_at' => $membership->pivot->joined_at ?? now(),
             ]);
@@ -216,5 +223,58 @@ final class OwnerWorkspaceService
         $course->teachers()->syncWithoutDetaching([
             $teacherId => ['is_primary' => false],
         ]);
+    }
+
+    public function assignTeacherToClass(User $owner, Academy $academy, int $teacherId, int $classroomId): void
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $initialClassroom = $academy->classrooms()->whereKey($classroomId)->first();
+
+        if (!$initialClassroom) {
+            throw ValidationException::withMessages([
+                'classroom_id' => 'کلاس انتخاب‌شده متعلق به این آموزشگاه نیست.',
+            ]);
+        }
+
+        $courseId = (int) $initialClassroom->course_id;
+
+        DB::transaction(function () use ($academy, $teacherId, $classroomId, $courseId): void {
+            // Use a consistent course -> classroom lock order for registration and reassignment.
+            $course = $academy->courses()->whereKey($courseId)->lockForUpdate()->first();
+            $classroom = $academy->classrooms()->whereKey($classroomId)->lockForUpdate()->first();
+
+            if (!$course || !$classroom || (int) $classroom->course_id !== $courseId) {
+                throw ValidationException::withMessages([
+                    'classroom_id' => 'کلاس در این آموزشگاه تغییر کرده است؛ صفحه را تازه‌سازی کنید.',
+                ]);
+            }
+
+            if ($classroom->status !== 'active') {
+                throw ValidationException::withMessages([
+                    'classroom_id' => 'فقط می‌توان به کلاس فعال مدرس اختصاص داد.',
+                ]);
+            }
+
+            $teacher = $academy->users()
+                ->whereKey($teacherId)
+                ->wherePivot('role', 'teacher')
+                ->wherePivot('status', 'active')
+                ->where('users.status', 'active')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$teacher) {
+                throw ValidationException::withMessages([
+                    'teacher_id' => 'مدرس انتخاب‌شده عضو فعال این آموزشگاه نیست.',
+                ]);
+            }
+
+            // Keep the class-to-course-teacher relationship consistent atomically.
+            $course->teachers()->syncWithoutDetaching([
+                $teacherId => ['is_primary' => false],
+            ]);
+            $classroom->teachers()->sync([$teacherId]);
+        }, 3);
     }
 }

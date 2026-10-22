@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Academy extends Model
 {
@@ -117,6 +118,21 @@ class Academy extends Model
     public function studentOnboardings(): HasMany
     {
         return $this->hasMany(StudentOnboarding::class);
+    }
+
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(AcademyMeeting::class);
+    }
+
+    public function schedules(): HasManyThrough
+    {
+        return $this->hasManyThrough(ClassSchedule::class, Classroom::class, 'academy_id', 'classroom_id', 'id', 'id');
+    }
+
+    public function assignments(): HasManyThrough
+    {
+        return $this->hasManyThrough(Assignment::class, Course::class, 'academy_id', 'course_id', 'id', 'id');
     }
 
     public function financialTransactions(): HasMany

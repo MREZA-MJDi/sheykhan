@@ -9,6 +9,10 @@ use App\Http\Controllers\Owner\ClassroomController as OwnerClassroomController;
 use App\Http\Controllers\Owner\CourseController as OwnerCourseController;
 use App\Http\Controllers\Owner\CourseMediaController as OwnerCourseMediaController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
+use App\Http\Controllers\Owner\AttendanceController as OwnerAttendanceController;
+use App\Http\Controllers\Owner\MeetingController as OwnerMeetingController;
+use App\Http\Controllers\Owner\AssignmentController as OwnerAssignmentController;
+use App\Http\Controllers\Owner\ScheduleController as OwnerScheduleController;
 use App\Http\Controllers\Owner\EnrollmentController as OwnerEnrollmentController;
 use App\Http\Controllers\Owner\PeopleController as OwnerPeopleController;
 use App\Http\Controllers\Owner\ReportController as OwnerReportController;
@@ -94,13 +98,27 @@ Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutC
     Route::get('/orders/{order}/files/{file}/download', [\App\Http\Controllers\Commerce\OrderController::class, 'download'])->middleware('throttle:20,1')->name('orders.files.download');
 });
 
-Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
+Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
     Route::get('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'edit'])->middleware('permission:academy.view')->name('academy.banners.edit');
     Route::patch('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'update'])->middleware('permission:academy.manage')->name('academy.banners.update');
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->middleware('permission:academy.view')->name('people.index');
+    Route::get('/academy/{academy}/people/student-options', [OwnerPeopleController::class, 'studentOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.student-options');
+    Route::get('/academy/{academy}/attendance', [OwnerAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
+    Route::patch('/academy/{academy}/attendance/{attendance}', [\App\Http\Controllers\Owner\AttendanceController::class, 'update'])->middleware('permission:attendance.manage')->withoutScopedBindings()->name('attendance.update');
+    Route::get('/academy/{academy}/meetings', [OwnerMeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
+    Route::post('/academy/{academy}/meetings', [OwnerMeetingController::class, 'store'])->middleware(['permission:live_classes.manage','throttle:20,1'])->name('meetings.store');
+    Route::patch('/academy/{academy}/meetings/{meeting}/status', [OwnerMeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
+    Route::get('/academy/{academy}/schedules', [OwnerScheduleController::class, 'index'])->middleware('permission:live_classes.view')->name('schedules.index');
+    Route::post('/academy/{academy}/classrooms/{classroom}/schedules', [OwnerScheduleController::class, 'store'])->middleware(['permission:live_classes.manage','throttle:20,1'])->name('schedules.store');
+    Route::delete('/academy/{academy}/classrooms/{classroom}/schedules/{schedule}', [OwnerScheduleController::class, 'destroy'])->middleware('permission:live_classes.manage')->name('schedules.destroy');
+    Route::get('/academy/{academy}/assignments/create', [OwnerAssignmentController::class, 'create'])->middleware('permission:courses.manage')->name('assignments.create');
+    Route::post('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'store'])->middleware(['permission:courses.manage','throttle:20,1'])->name('assignments.store');
+    Route::get('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'index'])->middleware('permission:courses.view')->name('assignments.index');
+    Route::get('/academy/{academy}/assignments/{assignment}', [OwnerAssignmentController::class, 'show'])->middleware('permission:courses.view')->name('assignments.show');
+    Route::patch('/academy/{academy}/assignments/{assignment}/submissions/{submission}', [OwnerAssignmentController::class, 'grade'])->middleware('permission:courses.manage')->name('assignments.grade');
     Route::get('/academy/{academy}/classrooms', [OwnerClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
     Route::get('/academy/{academy}/classrooms/create', [OwnerClassroomController::class, 'create'])->middleware('permission:classrooms.manage')->name('classrooms.create');
     Route::post('/academy/{academy}/classrooms', [OwnerClassroomController::class, 'store'])->middleware('permission:classrooms.manage')->name('classrooms.store');
@@ -113,6 +131,7 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::patch('/academy/{academy}/people/teachers/{teacher}/restore', [OwnerPeopleController::class, 'restoreTeacher'])->middleware('permission:teachers.manage')->name('people.restore-teacher');
     Route::patch('/academy/{academy}/people/teachers/{teacher}/visibility', [OwnerPeopleController::class, 'updateTeacherVisibility'])->middleware('permission:teachers.manage')->name('people.teacher-visibility');
     Route::post('/academy/{academy}/people/assign-teacher', [OwnerPeopleController::class, 'assignTeacher'])->middleware('permission:teachers.manage')->name('people.assign-teacher');
+    Route::post('/academy/{academy}/people/assign-class-teacher', [OwnerPeopleController::class, 'assignClassTeacher'])->middleware(['permission:teachers.manage','throttle:20,1'])->name('people.assign-class-teacher');
     Route::post('/academy/{academy}/people/enroll-student', [OwnerEnrollmentController::class, 'store'])->middleware('permission:enrollments.manage')->name('people.enroll-student');
     Route::get('/courses', [OwnerCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
     Route::get('/courses/create', [OwnerCourseController::class, 'create'])->middleware('permission:courses.manage')->name('courses.create');
@@ -122,6 +141,23 @@ Route::middleware(['auth','active','role:academy-owner'])->prefix('owner')->name
     Route::patch('/courses/{course}', [OwnerCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
+    Route::get('/academy/{academy}/messages', [\App\Http\Controllers\Owner\ParentMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('messages.index');
+    Route::patch('/academy/{academy}/messages/{message}/reply', [\App\Http\Controllers\Owner\ParentMessageController::class, 'reply'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('messages.reply');
+    Route::get('/academy/{academy}/counseling', [\App\Http\Controllers\Owner\CounselingRequestController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('counseling.index');
+    Route::patch('/academy/{academy}/counseling/{counselingRequest}', [\App\Http\Controllers\Owner\CounselingRequestController::class, 'update'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('counseling.update');
+    Route::get('/academy/{academy}/exams/create', [\App\Http\Controllers\Owner\ExamController::class, 'create'])->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.create');
+    Route::post('/academy/{academy}/exams', [\App\Http\Controllers\Owner\ExamController::class, 'store'])->middleware(['permission:exams.manage','throttle:10,1'])->withoutScopedBindings()->name('exams.store');
+    Route::get('/academy/{academy}/exams/{exam}/edit', [\App\Http\Controllers\Owner\ExamController::class, 'edit'])->whereNumber('exam')->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.edit');
+    Route::patch('/academy/{academy}/exams/{exam}', [\App\Http\Controllers\Owner\ExamController::class, 'update'])->whereNumber('exam')->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.update');
+    Route::get('/academy/{academy}/exams', [\App\Http\Controllers\Owner\ExamController::class, 'index'])->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.index');
+    Route::get('/academy/{academy}/exams/{exam}', [\App\Http\Controllers\Owner\ExamController::class, 'show'])->whereNumber('exam')->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.show');
+    Route::patch('/academy/{academy}/exams/{exam}/status', [\App\Http\Controllers\Owner\ExamController::class, 'updateStatus'])->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.status');
+    Route::get('/academy/{academy}/recordings', [\App\Http\Controllers\Owner\RecordingController::class, 'index'])->middleware('permission:live_classes.view')->withoutScopedBindings()->name('recordings.index');
+    Route::patch('/academy/{academy}/recordings/{liveClass}', [\App\Http\Controllers\Owner\RecordingController::class, 'updatePublication'])->middleware('permission:live_classes.manage')->withoutScopedBindings()->name('recordings.update');
+    Route::get('/academy/{academy}/teacher-payments', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->withoutScopedBindings()->name('teacher-payments.index');
+    Route::post('/academy/{academy}/teacher-payments', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'store'])->middleware(['permission:teacher_payments.manage', 'throttle:10,1'])->withoutScopedBindings()->name('teacher-payments.store');
+    Route::patch('/academy/{academy}/teacher-payments/{payment}/status', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'updateStatus'])->middleware('permission:teacher_payments.manage')->withoutScopedBindings()->name('teacher-payments.status');
+
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
     Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->middleware('permission:academy.view')->name('website.index');
     Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->middleware('permission:academy.view')->name('website.hero.edit');
@@ -205,6 +241,10 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->middleware('permission:exams.view')->name('exams.attempts');
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])->middleware('permission:exams.manage')->name('exam-attempts.grade');
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
+    Route::get('/messages', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'index'])->middleware('permission:parent_messages.view')->name('messages.index');
+    Route::get('/meetings', [\App\Http\Controllers\Teacher\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
+    Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\Teacher\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
+    Route::get('/payments', [\App\Http\Controllers\Teacher\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
     Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->middleware('permission:live_classes.manage')->name('live-classes.create');
     Route::post('/live-classes', [TeacherLiveClassController::class, 'store'])->middleware('permission:live_classes.manage')->name('live-classes.store');
@@ -254,7 +294,7 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
 });
 
-Route::middleware(['auth','active','permission:seo.manage'])
+Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'])
     ->prefix('owner')
     ->name('owner.')
     ->group(function () {

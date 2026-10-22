@@ -20,9 +20,13 @@
             : ($avatarMedia ? route('media.view', $avatarMedia) : null);
     }
 
+    $seoOnlyRole = $role === 'owner'
+        && ($topbarUser?->hasRole('seo-specialist') ?? false)
+        && ! ($topbarUser?->hasRole('academy-owner') ?? false);
+
     $roleLabels = [
-        'owner' => 'مدیریت آموزشگاه',
-        'teacher' => 'پنل استاد',
+        'owner' => $seoOnlyRole ? 'پنل متخصص SEO' : 'کارتابل ادمین / منشی',
+        'teacher' => 'پنل مدرس',
         'student' => 'پنل دانش‌آموز',
         'parent' => 'پنل والد',
     ];

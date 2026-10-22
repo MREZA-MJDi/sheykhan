@@ -11,17 +11,17 @@
             <p class="teacher-workspace-description">فقط دانش‌آموزانی که در کلاس‌های تحت مدیریت شما عضو فعال هستند نمایش داده می‌شوند.</p>
         </div>
         <div class="teacher-workspace-actions">
-            @foreach(['name'=>'نام','progress'=>'درس‌های دیده‌شده','assignments'=>'تکالیف','exams'=>'آزمون‌ها'] as $key=>$label)
+            @foreach(['name'=>'نام','progress'=>'درس‌های دارای فعالیت','assignments'=>'ارسال تکلیف','exams'=>'تلاش آزمون'] as $key=>$label)
                 <a href="{{ request()->fullUrlWithQuery(['sort'=>$key,'direction'=>$studentSort === $key && $studentDirection === 'asc' ? 'desc' : 'asc','page'=>null]) }}" class="teacher-workspace-btn {{ $studentSort === $key ? 'primary' : 'secondary' }}">{{ $label }}{{ $studentSort === $key ? ($studentDirection === 'asc' ? ' ↑' : ' ↓') : '' }}</a>
             @endforeach
         </div>
     </header>
 
     <section class="teacher-workspace-card">
-        <div class="teacher-workspace-card-head"><div><h2>فهرست دانش‌آموزان</h2><p>مرتب‌سازی با شمارنده‌های واقعی فعالیت آموزشی انجام می‌شود.</p></div><span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($students->total()) }} نفر</span></div>
+        <div class="teacher-workspace-card-head"><div><h2>فهرست دانش‌آموزان</h2><p>این اعداد تعداد رکوردهای فعالیت هستند، نه نمرهٔ نهایی: درس‌های دارای رکورد پیشرفت، پاسخ‌های تکلیف ارسال‌شده و تلاش‌های آزمون.</p></div><span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($students->total()) }} نفر</span></div>
         <div class="teacher-workspace-table-wrap">
             <table class="teacher-workspace-table">
-                <thead><tr><th>دانش‌آموز</th><th>پایه</th><th>درس‌های دیده‌شده</th><th>تکالیف</th><th>آزمون‌ها</th></tr></thead>
+                <thead><tr><th>دانش‌آموز</th><th>پایه</th><th>درس‌های دارای فعالیت</th><th>ارسال تکلیف</th><th>تلاش آزمون</th></tr></thead>
                 <tbody>
                 @forelse($students as $student)
                     <tr>

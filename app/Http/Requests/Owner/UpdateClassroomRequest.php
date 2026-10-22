@@ -27,7 +27,7 @@ class UpdateClassroomRequest extends FormRequest
                     fn ($query) => $query->where('academy_id', $academyId)
                 ),
             ],
-            'teacher_ids' => ['required', 'array', 'min:1'],
+            'teacher_ids' => ['required', 'array', 'size:1'],
             'teacher_ids.*' => ['integer', 'distinct', 'exists:users,id'],
             'grade_id' => ['nullable', 'integer', 'exists:academic_grades,id'],
             'academic_year_id' => ['nullable', 'integer', 'exists:academic_years,id'],
@@ -54,7 +54,7 @@ class UpdateClassroomRequest extends FormRequest
             'course_id.required' => 'انتخاب دوره الزامی است.',
             'course_id.exists' => 'دوره انتخاب‌شده متعلق به این آموزشگاه نیست.',
             'teacher_ids.required' => 'حداقل یک مدرس برای کلاس انتخاب کنید.',
-            'teacher_ids.min' => 'کلاس باید حداقل یک مدرس داشته باشد.',
+            'teacher_ids.size' => 'هر کلاس باید دقیقاً یک مدرس مسئول داشته باشد.',
             'title.required' => 'عنوان کلاس الزامی است.',
             'code.required' => 'کد کلاس الزامی است.',
             'code.unique' => 'این کد کلاس در این آموزشگاه قبلاً استفاده شده است.',

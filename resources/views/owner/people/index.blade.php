@@ -3,7 +3,7 @@
 @section('header-title','اعضای آموزشگاه')
 @section('content')
 <div class="space-y-6 panel-page-enter">
-<div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اتصال مدرس به دوره و ثبت‌نام امن.</p></div>
+<div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اختصاص مسئول کلاس و ثبت‌نام امن.</p></div>
 <div class="grid gap-5 xl:grid-cols-3">
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-confirm="حساب مدرس ساخته شود؟">@csrf
 <label class="grid gap-1"><span class="text-xs font-bold">نام و نام خانوادگی</span><input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="name"/></label>
@@ -14,18 +14,28 @@
 <label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="experience_years"/></label>
 <button class="rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت حساب مدرس</button></form></section>
 
-<section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">اختصاص مدرس به دوره</h2><p class="mt-1 text-xs text-slate-500">فقط مدرس فعال و دوره همین آموزشگاه.</p></div><form method="POST" action="{{ route('owner.people.assign-teacher',$academy) }}" class="mt-5 grid gap-3">@csrf
-<label class="grid gap-1"><span class="text-xs font-bold">مدرس</span><select name="teacher_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($teacherOptions as $teacher)<option value="{{ $teacher->id }}">{{ $teacher->name }}</option>@empty<option value="">مدرسی وجود ندارد</option>@endforelse</select><x-owner.field-error field="teacher_id"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><x-owner.field-error field="course_id"/></label>
-<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$teacherOptions->count() || !$courseOptions->count())>اختصاص دوره</button></form></section>
+<section class="dashboard-panel p-5 sm:p-7">
+<div><h2 class="text-base font-black">اختصاص مدرس مسئول به کلاس</h2><p class="mt-1 text-xs leading-6 text-slate-500">هر کلاس یک مدرس فعال مسئول دارد. اتصال مدرس به دوره نیز در همین عملیات تکمیل می‌شود.</p></div>
+<form method="POST" action="{{ route('owner.people.assign-class-teacher',$academy) }}" class="mt-5 grid gap-3">@csrf
+<label class="grid gap-1"><span class="text-xs font-bold">کلاس فعال</span><select name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($classroomOptions as $classroom)<option value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->course?->title ?? 'بدون دوره' }}</option>@empty<option value="">کلاس فعالی وجود ندارد</option>@endforelse</select><x-owner.field-error field="classroom_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">مدرس فعال</span><select name="teacher_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($teacherOptions as $teacher)<option value="{{ $teacher->id }}">{{ $teacher->name }}</option>@empty<option value="">مدرسی وجود ندارد</option>@endforelse</select><x-owner.field-error field="teacher_id"/></label>
+<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$teacherOptions->count() || !$classroomOptions->count())>ثبت مدرس کلاس</button></form></section>
 
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ثبت‌نام دانش‌آموز</h2><p class="mt-1 text-xs text-slate-500">duplicate-safe، کنترل ظرفیت و ثبت مالی در backend.</p></div><form method="POST" action="{{ route('owner.people.enroll-student',$academy) }}" class="mt-5 grid gap-3">@csrf
 <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key',(string)\Illuminate\Support\Str::uuid()) }}">
-<label class="grid gap-1"><span class="text-xs font-bold">دانش‌آموز</span><select name="student_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($students as $student)<option value="{{ $student->id }}">{{ $student->name }}</option>@empty<option value="">دانش‌آموزی وجود ندارد</option>@endforelse</select><x-owner.field-error field="student_id"/></label>
+<div class="owner-student-picker" data-student-picker data-options-url="{{ route('owner.people.student-options',$academy) }}">
+<label for="owner-enrollment-student-search" class="mb-1 block text-xs font-bold">دانش‌آموز (جست‌وجوی صفحه‌بندی‌شده)</label>
+<input id="owner-enrollment-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-enrollment-student-results" placeholder="نام یا ایمیل را وارد کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+<input type="hidden" name="student_id" data-student-id value="{{ old('student_id') }}">
+<input type="hidden" name="student_label" data-student-label value="{{ old('student_label') }}">
+<div id="owner-enrollment-student-results" data-student-results class="owner-student-picker-results" role="listbox"></div>
+<button type="button" data-student-more class="owner-student-picker-more" hidden>نمایش نتایج بعدی</button>
+<p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو حرف از نام یا ایمیل را جست‌وجو کن.</p>
+<x-owner.field-error field="student_id"/></div>
 <label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree()?'رایگان':number_format((float)$course->price,0,'.',',').' تومان' }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><x-owner.field-error field="course_id"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">بدون کلاس</option>@foreach($courseOptions as $course)@foreach($course->classrooms as $classroom)<option data-course-id="{{ $course->id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach @endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><x-owner.field-error field="classroom_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="" selected disabled>ابتدا کلاس را انتخاب کن</option>@foreach($classroomOptions as $classroom)<option data-course-id="{{ $classroom->course_id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><x-owner.field-error field="classroom_id"/></label>
 <label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی</span><input name="paid_amount" type="number" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="paid_amount"/></label>
-<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$students->count() || !$courseOptions->count())>ثبت‌نام دانش‌آموز</button></form></section>
+<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$courseOptions->count())>ثبت‌نام دانش‌آموز</button></form></section>
 </div>
 
 <section class="dashboard-panel p-5 sm:p-7">
@@ -146,9 +156,18 @@
     </div>
     <div class="mt-4 grid gap-2">
         @forelse($items as $person)
-            <div class="rounded-xl bg-slate-50 p-3">
-                <strong class="text-xs">{{ $person->name }}</strong>
-                <span class="mt-1 block text-[9px] text-slate-500">{{ $person->email }}</span>
+            <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
+                <div class="min-w-0">
+                    <strong class="text-xs">{{ $person->name }}</strong>
+                    <span class="mt-1 block break-all text-[9px] text-slate-500">{{ $person->email }}</span>
+                </div>
+                @if($title === 'مدرس‌ها')
+                    <form method="POST" action="{{ route('owner.people.archive-teacher', [$academy, $person]) }}" class="shrink-0">
+                        @csrf
+                        @method('PATCH')
+                        <button class="rounded-lg border border-amber-200 bg-white px-2.5 py-2 text-[9px] font-black text-amber-700">آرشیو عضویت</button>
+                    </form>
+                @endif
             </div>
         @empty
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">عضوی نیست.</div>
@@ -178,7 +197,11 @@
                     <strong class="text-xs">{{ $teacher->name }}</strong>
                     <span class="mt-1 block text-[9px] text-slate-500">{{ $teacher->email }}</span>
                 </div>
-                <span class="rounded-full bg-amber-50 px-2.5 py-1 text-[9px] font-black text-amber-700">آرشیوشده</span>
+                <form method="POST" action="{{ route('owner.people.restore-teacher', [$academy, $teacher]) }}" class="shrink-0">
+                    @csrf
+                    @method('PATCH')
+                    <button class="rounded-lg border border-emerald-200 bg-white px-2.5 py-2 text-[9px] font-black text-emerald-700">بازگردانی</button>
+                </form>
             </div>
         @empty
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">مدرس آرشیوشده‌ای وجود ندارد.</div>

@@ -14,12 +14,12 @@
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
-                <small>مدیریت آموزشگاه</small>
+                <small>{{ $seoOnly ? 'پنل متخصص SEO' : 'کارتابل ادمین / منشی' }}</small>
             </span>
         </a>
     </div>
 
-    <nav class="role-sidebar-nav" aria-label="منوی مدیریت آموزشگاه">
+    <nav class="role-sidebar-nav" aria-label="{{ $seoOnly ? 'منوی متخصص SEO' : 'منوی کارتابل ادمین / منشی' }}">
         @if(! $seoOnly)
             <div class="role-sidebar-label">مرکز کنترل</div>
 
@@ -29,7 +29,7 @@
             </a>
         @endif
 
-        @if($user->hasPermission('seo.manage'))
+        @if($seoOnly && $user->hasPermission('seo.manage'))
             <div class="role-sidebar-label mt-6">بهینه‌سازی سایت</div>
             <a href="{{ route('owner.seo.index') }}"
                class="role-nav-link {{ request()->routeIs('owner.seo.*') ? 'is-active' : '' }}">
@@ -66,6 +66,47 @@
                            class="role-nav-link {{ request()->routeIs('owner.classrooms.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
                             <span class="role-nav-icon"></span><span>کلاس‌ها</span>
                         </a>
+                    @endif
+
+                    @if($user->hasPermission('attendance.view'))
+                        <a href="{{ route('owner.attendance.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.attendance.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>حضور و غیاب</span>
+                        </a>
+                    @endif
+
+                    @if($user->hasPermission('courses.view'))
+                        <a href="{{ route('owner.assignments.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.assignments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>تکالیف و تصحیح</span>
+                        </a>
+                    @endif
+
+                    @if($user->hasPermission('live_classes.view'))
+                        <a href="{{ route('owner.schedules.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.schedules.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>لینک کلاس آنلاین</span>
+                        </a>
+                    @endif
+
+                    @if($user->hasPermission('live_classes.view'))
+                        <a href="{{ route('owner.meetings.index', $academy) }}"
+                           class="role-nav-link {{ request()->routeIs('owner.meetings.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
+                            <span class="role-nav-icon"></span><span>هماهنگی جلسات</span>
+                        </a>
+                    @endif
+                    @if($user->hasPermission('parents.view'))
+                        <a href="{{ route('owner.messages.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.messages.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام‌های اولیا</span></a>
+                        <a href="{{ route('owner.counseling.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.counseling.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>جلسات مشاوره</span></a>
+                    @endif
+                    @if($user->hasPermission('exams.view'))
+                        <a href="{{ route('owner.exams.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.exams.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>آزمون‌ها و نتایج</span></a>
+                    @endif
+                    @if($user->hasPermission('live_classes.view'))
+                        <a href="{{ route('owner.recordings.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.recordings.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>آرشیو ضبط کلاس‌ها</span></a>
+                    @endif
+                    @if($user->hasPermission('teacher_payments.view'))
+                        <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.teacher-payments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حقوق مدرس‌ها</span></a>
                     @endif
                 </div>
             </div>

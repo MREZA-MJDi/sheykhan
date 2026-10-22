@@ -20,9 +20,11 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_owner_seo_index_renders_real_content_in_the_shared_panel(): void
+    public function test_seo_specialist_has_a_separate_global_seo_workspace_while_owner_has_no_seo_access(): void
     {
-        [$owner, $academy] = $this->ownerWithPermissions(['seo.manage', 'academy.view', 'blog.manage', 'content.manage']);
+        [$owner, $academy] = $this->ownerWithPermissions([
+            'dashboard.view', 'seo.manage', 'academy.view', 'blog.manage', 'content.manage',
+        ]);
 
         $course = Course::query()->create([
             'academy_id' => $academy->id,
@@ -64,39 +66,61 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             'created_by' => $owner->id,
         ]);
 
-        $routes = [
+        foreach ([
             route('owner.blog.index'),
             route('owner.blog.create'),
             route('owner.blog.edit', $post),
             route('owner.content.index'),
             route('owner.content.create'),
             route('owner.content.edit', $item),
+        ] as $url) {
+            $this->actingAs($owner)->get($url)->assertOk();
+        }
+
+        $this->actingAs($owner)->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertDontSee('SEO و دیده‌شدن')
+            ->assertDontSee(route('owner.seo.index'), false);
+
+        foreach ([
             route('owner.seo.index'),
             route('owner.seo.edit', ['course', $course->id]),
             route('owner.seo.edit', ['blog', $post->id]),
             route('owner.seo.edit', ['content', $item->id]),
             route('owner.seo.edit', ['academy', $academy->id]),
-        ];
-
-        foreach ($routes as $url) {
-            $this->actingAs($owner)->get($url)->assertOk();
+        ] as $url) {
+            $this->actingAs($owner)->get($url)->assertForbidden();
         }
 
-        $response = $this->actingAs($owner)
+        $seoSpecialist = $this->seoSpecialist();
+        $this->actingAs($seoSpecialist)
             ->get(route('owner.seo.index'))
             ->assertOk()
-            ->assertSee('SEO و دیده‌شدن')
-            ->assertSee('دوره SEO آزمایشی')
-            ->assertSee('مقاله SEO آزمایشی')
-            ->assertSee('محتوای آموزشگاه SEO')
-            ->assertSee('role-sidebar owner-sidebar', false);
+            ->assertSee('مرکز کنترل SEO شیخان')
+            ->assertSee('دوره SEO آزمایشی');
 
-        $response->assertSee(route('owner.seo.index'), false);
+        $this->actingAs($seoSpecialist)
+            ->get(route('owner.seo.edit', ['course', $course->id]))
+            ->assertOk();
+
+        $this->actingAs($seoSpecialist)
+            ->patch(route('owner.seo.update', ['course', $course->id]), [
+                'title' => 'عنوان SEO اختصاصی',
+                'description' => 'توضیح صفحه',
+                'robots' => 'index,follow',
+            ])
+            ->assertRedirect(route('owner.seo.index'));
+
+        $this->assertDatabaseHas('seo_metas', [
+            'seoable_type' => Course::class,
+            'seoable_id' => $course->id,
+            'title' => 'عنوان SEO اختصاصی',
+        ]);
     }
 
-    public function test_owner_can_manage_own_blog_post_but_not_another_owner_post(): void
+        public function test_owner_can_manage_own_blog_post_but_cannot_manage_seo_metadata(): void
     {
-        [$ownerA, $academyA] = $this->ownerWithPermissions(['blog.manage', 'seo.manage']);
+        [$ownerA] = $this->ownerWithPermissions(['blog.manage', 'seo.manage']);
         [$ownerB] = $this->ownerWithPermissions(['blog.manage']);
 
         $ownPost = BlogPost::create([
@@ -115,13 +139,8 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $this->actingAs($ownerA)
-            ->get(route('owner.blog.edit', $ownPost))
-            ->assertOk();
-
-        $this->actingAs($ownerA)
-            ->get(route('owner.blog.edit', $otherPost))
-            ->assertNotFound();
+        $this->actingAs($ownerA)->get(route('owner.blog.edit', $ownPost))->assertOk();
+        $this->actingAs($ownerA)->get(route('owner.blog.edit', $otherPost))->assertNotFound();
 
         $this->actingAs($ownerA)
             ->patch(route('owner.seo.update', ['blog', $ownPost->id]), [
@@ -130,12 +149,11 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
                 'robots' => 'index,follow',
                 'schema_json' => '{"@context":"https://schema.org","@type":"Article"}',
             ])
-            ->assertRedirect(route('owner.seo.index'));
+            ->assertForbidden();
 
-        $this->assertDatabaseHas('seo_metas', [
+        $this->assertDatabaseMissing('seo_metas', [
             'seoable_type' => BlogPost::class,
             'seoable_id' => $ownPost->id,
-            'title' => 'SEO مقاله من',
         ]);
 
         $this->actingAs($ownerA)
@@ -143,11 +161,10 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
                 'title' => 'نباید ثبت شود',
                 'robots' => 'index,follow',
             ])
-            ->assertNotFound();
+            ->assertForbidden();
     }
 
-
-    public function test_owner_can_manage_seo_for_owned_product_but_not_another_owners_product(): void
+        public function test_owner_cannot_manage_seo_for_owned_or_foreign_products(): void
     {
         [$ownerA, $academyA] = $this->ownerWithPermissions(['seo.manage']);
         [, $academyB] = $this->ownerWithPermissions();
@@ -188,32 +205,28 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         ]);
 
         $this->actingAs($ownerA)
+            ->get(route('owner.seo.edit', ['product', $myProduct->id]))
+            ->assertForbidden();
+
+        $this->actingAs($ownerA)
             ->patch(route('owner.seo.update', ['product', $myProduct->id]), [
                 'title' => 'عنوان SEO محصول من',
                 'description' => 'توضیح اختصاصی محصول',
                 'robots' => 'index,follow',
             ])
-            ->assertRedirect(route('owner.seo.index'));
-
-        $this->assertDatabaseHas('seo_metas', [
-            'seoable_type' => Product::class,
-            'seoable_id' => $myProduct->id,
-            'title' => 'عنوان SEO محصول من',
-        ]);
+            ->assertForbidden();
 
         $this->actingAs($ownerA)
             ->get(route('owner.seo.edit', ['product', $otherProduct->id]))
-            ->assertNotFound();
+            ->assertForbidden();
 
-        $this->actingAs($ownerA)
-            ->patch(route('owner.seo.update', ['product', $otherProduct->id]), [
-                'title' => 'تغییر غیرمجاز',
-                'robots' => 'index,follow',
-            ])
-            ->assertNotFound();
+        $this->assertDatabaseMissing('seo_metas', [
+            'seoable_type' => Product::class,
+            'seoable_id' => $myProduct->id,
+        ]);
     }
 
-    public function test_owner_finance_page_exposes_only_owned_academies(): void
+        public function test_owner_finance_page_exposes_only_owned_academies(): void
     {
         [$ownerA, $academyA] = $this->ownerWithPermissions(['finance.view']);
         [$ownerB, $academyB] = $this->ownerWithPermissions(['finance.view']);
@@ -248,7 +261,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         $response->assertDontSee('9,900,000');
     }
 
-    public function test_owner_can_manage_seo_for_owned_academy_content(): void
+    public function test_owner_can_manage_owned_academy_content_but_not_its_seo_metadata(): void
     {
         [$owner, $academy] = $this->ownerWithPermissions(['content.manage', 'seo.manage']);
 
@@ -275,17 +288,42 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
                 'description' => 'توضیح متا',
                 'robots' => 'index,follow',
             ])
-            ->assertRedirect(route('owner.seo.index'));
+            ->assertForbidden();
 
-        $this->assertDatabaseHas('seo_metas', [
+        $this->assertDatabaseMissing('seo_metas', [
             'seoable_type' => $content->getMorphClass(),
             'seoable_id' => $content->id,
-            'title' => 'آزمون آزمایشی | SEO',
         ]);
 
         $this->get(route('academy.content.show', [$academy, $content]))
             ->assertOk()
-            ->assertSee('آزمون آزمایشی | SEO', false);
+            ->assertSee('آزمون آزمایشی', false);
+    }
+
+        private function seoSpecialist(): User
+    {
+        $role = Role::firstOrCreate(
+            ['slug' => 'seo-specialist'],
+            ['name' => 'متخصص SEO', 'description' => 'مدیریت SEO صفحات عمومی سایت']
+        );
+
+        $permissionIds = [];
+        foreach (['dashboard.view', 'seo.manage'] as $name) {
+            $permission = Permission::firstOrCreate(
+                ['name' => $name],
+                ['label' => $name, 'group' => explode('.', $name)[0]]
+            );
+            $permissionIds[] = $permission->id;
+        }
+        $role->permissions()->syncWithoutDetaching($permissionIds);
+
+        $user = User::factory()->create([
+            'name' => 'متخصص SEO',
+            'email' => Str::random(8) . '@seo.test',
+        ]);
+        $user->roles()->attach($role->id);
+
+        return $user;
     }
 
     private function ownerWithPermissions(array $permissions = []): array

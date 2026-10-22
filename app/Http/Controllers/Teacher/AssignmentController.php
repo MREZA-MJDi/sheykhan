@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Assignment\StoreAssignmentRequest;
 use App\Models\Assignment;
+use App\Services\MediaService;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Throwable;
 
 class AssignmentController extends Controller
 {
@@ -29,22 +32,44 @@ class AssignmentController extends Controller
 
     public function store(
         StoreAssignmentRequest $request,
-        TeacherWorkspaceService $workspace
+        TeacherWorkspaceService $workspace,
+        MediaService $media
     ): RedirectResponse {
-        $course = $workspace->courseOwnedBy($request->user(), (int) $request->validated('course_id'));
+        $courseId = (int) $request->validated('course_id');
+        $course = $workspace->courseOwnedBy($request->user(), $courseId);
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, (int) $request->validated('course_id'));
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, $courseId);
         }
 
-        $payload = $request->safe()->except('course_id');
+        $payload = $request->safe()->except(['course_id', 'handout']);
         $payload['teacher_id'] = $request->user()->id;
+        $uploaded = null;
 
-        $course->assignments()->create($payload);
+        try {
+            DB::transaction(function () use ($course, $payload, $request, $media, &$uploaded): void {
+                $assignment = $course->assignments()->create($payload);
+
+                if ($request->hasFile('handout')) {
+                    $uploaded = $media->upload($request->file('handout'), $assignment, [
+                        'disk' => 'local',
+                        'directory' => 'assignments/' . $assignment->id,
+                        'collection' => 'assignment-handout',
+                        'visibility' => 'private',
+                    ]);
+                }
+            }, 3);
+        } catch (Throwable $exception) {
+            if ($uploaded) {
+                $media->delete($uploaded);
+            }
+
+            throw $exception;
+        }
 
         return redirect()->route('teacher.assignments.index')
-            ->with('success', 'تکلیف با موفقیت ساخته شد.');
+            ->with('success', 'تکلیف با موفقیت ساخته شد؛ فایل راهنما در فضای خصوصی ذخیره شد.');
     }
 
     public function submissions(

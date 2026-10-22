@@ -1,8 +1,6 @@
 @import 'tailwindcss' source(none);
 @import './components.css';
 
-@source '../../resources/views';
-
 @theme {
     --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
 }

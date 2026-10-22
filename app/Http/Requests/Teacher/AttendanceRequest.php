@@ -28,8 +28,10 @@ class AttendanceRequest extends FormRequest
     {
         return [
             'attendance_date' => ['required', 'date_format:Y-m-d'],
-            'attendance' => ['required', 'array'],
-            'attendance.*' => [Rule::in(['present', 'absent', 'late', 'excused'])],
+            'attendance' => ['required', 'array', 'min:1'],
+            'attendance.*' => ['required', Rule::in(['present', 'absent', 'late', 'excused'])],
+            'attendance_minutes' => ['nullable', 'array'],
+            'attendance_minutes.*' => ['nullable', 'integer', 'min:0', 'max:1440'],
         ];
     }
 }

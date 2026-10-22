@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/css/teacher.css',
                 'resources/css/teacher-workspace.css',
                 'resources/js/teacher.js',
+                'resources/js/exam-builder.js',
                 'resources/css/student.css',
                 'resources/js/student.js',
                 'resources/css/parent.css',

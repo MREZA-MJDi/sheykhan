@@ -14,7 +14,7 @@ final class TeacherAccessService
 {
     public function canTeachCourse(User $teacher, Course|int $course): bool
     {
-        if (!$teacher->hasRole('teacher')) {
+        if (! $teacher->hasRole('teacher')) {
             return false;
         }
 
@@ -39,19 +39,45 @@ final class TeacherAccessService
 
     public function canManageAssignment(User $teacher, Assignment $assignment): bool
     {
-        return (int) $assignment->teacher_id === (int) $teacher->id
-            && $this->canTeachCourse($teacher, (int) $assignment->course_id);
+        if (
+            (int) $assignment->teacher_id !== (int) $teacher->id
+            || ! $this->canTeachCourse($teacher, (int) $assignment->course_id)
+        ) {
+            return false;
+        }
+
+        if ($assignment->classroom_id === null) {
+            return true;
+        }
+
+        $classroom = $assignment->classroom;
+        return $classroom !== null
+            && (int) $classroom->course_id === (int) $assignment->course_id
+            && $this->canManageClassroom($teacher, $classroom);
     }
 
     public function canManageExam(User $teacher, Exam $exam): bool
     {
-        return (int) $exam->teacher_id === (int) $teacher->id
-            && $this->canTeachCourse($teacher, (int) $exam->course_id);
+        if (
+            (int) $exam->teacher_id !== (int) $teacher->id
+            || ! $this->canTeachCourse($teacher, (int) $exam->course_id)
+        ) {
+            return false;
+        }
+
+        if ($exam->classroom_id === null) {
+            return true;
+        }
+
+        $classroom = $exam->classroom;
+        return $classroom !== null
+            && (int) $classroom->course_id === (int) $exam->course_id
+            && $this->canManageClassroom($teacher, $classroom);
     }
 
     public function canManageClassroom(User $teacher, Classroom $classroom): bool
     {
-        if (!$teacher->hasRole('teacher')) {
+        if (! $teacher->hasRole('teacher')) {
             return false;
         }
 
@@ -69,12 +95,26 @@ final class TeacherAccessService
             })
             ->where('ct.classroom_id', $classroom->id)
             ->where('ct.teacher_id', $teacher->id)
+            ->where('classrooms.status', '=', 'active')
             ->exists();
     }
 
     public function canManageLiveClass(User $teacher, LiveClass $liveClass): bool
     {
-        return (int) $liveClass->teacher_id === (int) $teacher->id
-            && $this->canTeachCourse($teacher, (int) $liveClass->course_id);
+        if (
+            (int) $liveClass->teacher_id !== (int) $teacher->id
+            || ! $this->canTeachCourse($teacher, (int) $liveClass->course_id)
+        ) {
+            return false;
+        }
+
+        if ($liveClass->classroom_id === null) {
+            return true;
+        }
+
+        $classroom = $liveClass->classroom;
+        return $classroom !== null
+            && (int) $classroom->course_id === (int) $liveClass->course_id
+            && $this->canManageClassroom($teacher, $classroom);
     }
 }
