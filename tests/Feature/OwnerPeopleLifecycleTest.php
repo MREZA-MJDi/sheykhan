@@ -20,6 +20,14 @@ class OwnerPeopleLifecycleTest extends TestCase
     {
         [$owner, $academy, $teacher] = $this->makeWorkspace();
 
+        // The account has two distinct academy roles. Fixture creation uses the
+        // unscoped relation so the student role is explicit in the pivot row.
+        $academy->users()->attach($teacher->id, [
+            'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
         $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
             ->assertOk()
@@ -36,6 +44,12 @@ class OwnerPeopleLifecycleTest extends TestCase
             'role' => 'teacher',
             'status' => 'archived',
         ]);
+        $this->assertDatabaseHas('academy_user', [
+            'academy_id' => $academy->id,
+            'user_id' => $teacher->id,
+            'role' => 'student',
+            'status' => 'active',
+        ]);
 
         $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
@@ -51,6 +65,12 @@ class OwnerPeopleLifecycleTest extends TestCase
             'academy_id' => $academy->id,
             'user_id' => $teacher->id,
             'role' => 'teacher',
+            'status' => 'active',
+        ]);
+        $this->assertDatabaseHas('academy_user', [
+            'academy_id' => $academy->id,
+            'user_id' => $teacher->id,
+            'role' => 'student',
             'status' => 'active',
         ]);
     }
