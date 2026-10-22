@@ -122,6 +122,10 @@ final class StudentDashboardService
                 ->count('assignments.id')
             : 0;
 
+        if ($assignmentQuery) {
+            $this->scopeToStudentTeacherCohort($assignmentQuery, $student, 'assignments');
+        }
+
         $assignmentItems = $assignmentQuery
             ? (clone $assignmentQuery)
                 ->orderByRaw('CASE WHEN submissions.id IS NULL THEN 0 ELSE 1 END')
@@ -231,7 +235,9 @@ final class StudentDashboardService
         $assignmentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->where('submissions.student_id', $student->id)
-            ->whereIn('assignments.course_id', $courseIds)
+            ->whereIn('assignments.course_id', $courseIds);
+        $this->scopeToStudentTeacherCohort($assignmentResults, $student, 'assignments');
+        $assignmentResults = $assignmentResults
             ->whereNotNull('submissions.graded_at')
             ->latest('submissions.graded_at')
             ->limit(6)
@@ -252,7 +258,9 @@ final class StudentDashboardService
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
             ->where('attempts.student_id', $student->id)
-            ->whereIn('exams.course_id', $courseIds)
+            ->whereIn('exams.course_id', $courseIds);
+        $this->scopeToStudentTeacherCohort($examResults, $student, 'exams');
+        $examResults = $examResults
             ->whereNotNull('attempts.submitted_at')
             ->latest('attempts.submitted_at')
             ->limit(6)
@@ -338,6 +346,41 @@ final class StudentDashboardService
             'achievements' => $achievements,
             'achievementCount' => $achievementCount,
         ];
+    }
+
+    /**
+     * Keep every teacher-authored dashboard assessment inside the student's
+     * active teacher-led cohort. Course membership alone is not enough when a
+     * course is shared by multiple classrooms and teachers.
+     *
+     * @param \Illuminate\Database\Query\Builder $query
+     */
+    private function scopeToStudentTeacherCohort(
+        \Illuminate\Database\Query\Builder $query,
+        User $student,
+        string $assessmentTable
+    ): void {
+        $query->whereExists(function ($group) use ($student, $assessmentTable): void {
+            $group->selectRaw('1')
+                ->from('classroom_student as student_membership')
+                ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                ->join('course_enrollments as student_enrollment', function ($join) use ($student): void {
+                    $join->on('student_enrollment.classroom_id', '=', 'student_classroom.id')
+                        ->on('student_enrollment.course_id', '=', 'student_classroom.course_id')
+                        ->where('student_enrollment.student_id', '=', $student->id)
+                        ->where('student_enrollment.status', '=', 'active');
+                })
+                ->whereColumn('student_classroom.course_id', $assessmentTable . '.course_id')
+                ->whereColumn('teaching_assignment.teacher_id', $assessmentTable . '.teacher_id')
+                ->where('student_membership.student_id', $student->id)
+                ->where('student_membership.status', 'active')
+                ->where('student_classroom.status', 'active')
+                ->where(function ($scope) use ($assessmentTable): void {
+                    $scope->whereNull($assessmentTable . '.classroom_id')
+                        ->orWhereColumn($assessmentTable . '.classroom_id', 'student_classroom.id');
+                });
+        });
     }
 
     private function lessonStatsByCourse(int $studentId, $courseIds)
