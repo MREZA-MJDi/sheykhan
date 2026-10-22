@@ -12,6 +12,7 @@
 
                 <div class="site-navbar__links hidden items-center gap-1 lg:flex">
                     <a href="{{ route('home') }}" @if(request()->routeIs('home')) aria-current="page" @endif class="site-navbar__link rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('home') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">خانه</a>
+                    <a href="{{ route('home') }}#academy-story" class="site-navbar__link rounded-xl px-3.5 py-2.5 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]">آکادمی</a>
 
                     <div x-data="{ coursesOpen: false }" @keydown.escape.window="coursesOpen = false" class="relative">
                         <button type="button" @click="coursesOpen = !coursesOpen" @click.outside="coursesOpen = false" :aria-expanded="coursesOpen.toString()" @if(request()->routeIs('courses.*')) aria-current="page" @endif class="site-navbar__link site-navbar__link--dropdown inline-flex items-center gap-1 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition {{ request()->routeIs('courses.*') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">
@@ -109,6 +110,7 @@
 
                 <div class="site-navbar__mobile-links grid gap-1">
                     <a href="{{ route('home') }}" @click="isOpen = false" class="site-navbar__mobile-link rounded-xl px-4 py-3 text-sm font-semibold transition {{ request()->routeIs('home') ? 'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]' }}">خانه</a>
+                    <a href="{{ route('home') }}#academy-story" @click="isOpen = false" class="site-navbar__mobile-link rounded-xl px-4 py-3 text-sm font-semibold text-[var(--color-text-muted)] transition hover:bg-[var(--color-background-soft)] hover:text-[var(--color-text)]">آکادمی</a>
                     <details class="site-navbar__mobile-courses rounded-xl {{ request()->routeIs('courses.*') ? 'bg-[var(--color-primary-50)]' : '' }}">
                         <summary class="site-navbar__mobile-summary cursor-pointer list-none rounded-xl px-4 py-3 text-sm font-semibold text-[var(--color-text-muted)]">دوره‌ها</summary>
                         <div class="grid gap-1 px-2 pb-2">
