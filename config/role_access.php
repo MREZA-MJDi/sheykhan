@@ -20,7 +20,7 @@ return [
     ],
 
     // Demo credentials are available only on local/test environments.
-    'test_password' => app()->environment(['local', 'testing'])
+    'test_password' => in_array(env('APP_ENV', 'production'), ['local', 'testing'], true)
         ? (env('SEED_USER_PASSWORD') ?: 'Sheykhan@12345')
         : null,
 
