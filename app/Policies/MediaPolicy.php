@@ -12,15 +12,23 @@ use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Lesson;
 use App\Models\LiveClass;
+use App\Models\LearningResource;
 use App\Models\Media;
 use App\Models\User;
 use App\Services\CourseAccessService;
 use App\Services\StudentAccessService;
+use App\Services\TeacherAccessService;
 
 class MediaPolicy
 {
     public function view(User $user, Media $media): bool
     {
+        // "public" is not an override for course/lesson/assessment permissions.
+        // An accidentally public PDF must still stay behind its learning access rule.
+        if ($this->requiresProtectedDelivery($media)) {
+            return $this->canAccessProtectedMedia($user, $media);
+        }
+
         if ($media->visibility === 'public' || $media->uploaded_by === $user->id) {
             return true;
         }
@@ -30,8 +38,20 @@ class MediaPolicy
 
     public function download(User $user, Media $media): bool
     {
-        // Protected educational media is view-only for students.
-        // A purchase grants content access, not a file download capability.
+        $protectedLearningMedia = $this->requiresProtectedDelivery($media);
+
+        // Students download course materials only through the explicit resource
+        // route, which checks LearningResource.downloadable and the free-course
+        // entitlement. This generic route must never bypass that switch.
+        if ($user->hasRole('student') && $protectedLearningMedia) {
+            return false;
+        }
+
+        if ($protectedLearningMedia) {
+            return $this->canAccessProtectedMedia($user, $media)
+                || $media->uploaded_by === $user->id;
+        }
+
         if ($media->visibility === 'public') {
             return true;
         }
@@ -45,6 +65,43 @@ class MediaPolicy
         }
 
         return $this->canAccessProtectedMedia($user, $media);
+    }
+
+    /**
+     * Learning files must use authenticated routes that enforce course/class
+     * access. Public images (course covers, public profiles) remain public;
+     * public lesson attachments, PDFs, assessment files, resources, and
+     * recordings are treated as protected regardless of a mistaken visibility.
+     */
+    public function requiresProtectedDelivery(Media $media): bool
+    {
+        if (
+            LearningResource::query()->where('media_id', $media->id)->exists()
+            || LiveClass::query()->where('recording_media_id', $media->id)->exists()
+        ) {
+            return true;
+        }
+
+        foreach ($media->attachments()->with('mediable')->get() as $attachment) {
+            $model = $attachment->mediable;
+
+            if (
+                $model instanceof Lesson
+                || $model instanceof Classroom
+                || $model instanceof Assignment
+                || $model instanceof AssignmentSubmission
+                || $model instanceof Exam
+                || $model instanceof LiveClass
+            ) {
+                return true;
+            }
+
+            if ($model instanceof Course && !str_starts_with((string) $media->mime_type, 'image/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function canAccessProtectedMedia(User $user, Media $media): bool
@@ -107,39 +164,92 @@ class MediaPolicy
             if ($model instanceof Assignment) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom) {
-                    if ($this->classroomAccess($user, $model->classroom)) {
+                // Direct attachment URLs must use the same cohort policy as the
+                // assignment page; a shared public course is not a student roster.
+                if ($user->hasRole('student')) {
+                    if (app(StudentAccessService::class)->assignment($user, $model)) {
                         return true;
                     }
 
                     continue;
                 }
 
-                if ($model->course && $this->courseAccess($user, $model->course)) {
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageAssignment($user, $model)) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildWork = $user->children()->get()->contains(
+                        fn (User $child): bool => app(StudentAccessService::class)->assignment($child, $model)
+                    );
+
+                    if ($canAccessChildWork) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($model->course && (
+                    $this->academyOwner($user, $model->course->academy)
+                    || $this->courseAccess($user, $model->course)
+                )) {
                     return true;
                 }
             }
 
             if ($model instanceof AssignmentSubmission) {
-                $model->loadMissing(['assignment.course', 'assignment.classroom']);
+                $model->loadMissing(['assignment.course.academy', 'assignment.classroom']);
 
-                if (
-                    $model->student_id === $user->id
-                    || $model->graded_by === $user->id
-                    || $model->assignment?->teacher_id === $user->id
-                ) {
-                    return true;
+                $assignment = $model->assignment;
+                if (! $assignment) {
+                    continue;
                 }
 
-                if ($model->assignment?->classroom) {
-                    if ($this->classroomAccess($user, $model->assignment->classroom)) {
+                if ($user->hasRole('student')) {
+                    if (
+                        (int) $model->student_id === (int) $user->id
+                        && app(StudentAccessService::class)->assignment($user, $assignment)
+                    ) {
                         return true;
                     }
 
                     continue;
                 }
 
-                if ($model->assignment?->course && $this->courseAccess($user, $model->assignment->course)) {
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageAssignment($user, $assignment)) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildWork = $user->children()->get()->contains(
+                        fn (User $child): bool => (int) $model->student_id === (int) $child->id
+                            && app(StudentAccessService::class)->assignment($child, $assignment)
+                    );
+
+                    if ($canAccessChildWork) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($model->graded_by === $user->id) {
+                    return true;
+                }
+
+                if ($assignment->course && (
+                    $this->academyOwner($user, $assignment->course->academy)
+                    || $this->courseAccess($user, $assignment->course)
+                )) {
                     return true;
                 }
             }
@@ -147,11 +257,39 @@ class MediaPolicy
             if ($model instanceof Exam) {
                 $model->loadMissing(['course', 'classroom']);
 
-                if ($model->classroom) {
-                    return $this->classroomAccess($user, $model->classroom);
+                // Assessment attachments follow the exact class/teacher rule.
+                if ($user->hasRole('student')) {
+                    if (app(StudentAccessService::class)->exam($user, $model)) {
+                        return true;
+                    }
+
+                    continue;
                 }
 
-                if ($model->course && $this->courseAccess($user, $model->course)) {
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageExam($user, $model)) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildWork = $user->children()->get()->contains(
+                        fn (User $child): bool => app(StudentAccessService::class)->exam($child, $model)
+                    );
+
+                    if ($canAccessChildWork) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($model->course && (
+                    $this->academyOwner($user, $model->course->academy)
+                    || $this->courseAccess($user, $model->course)
+                )) {
                     return true;
                 }
             }

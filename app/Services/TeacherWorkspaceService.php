@@ -11,36 +11,80 @@ use App\Models\LiveClass;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 final class TeacherWorkspaceService
 {
     public function courses(User $teacher): Collection
     {
-        return $teacher->taughtCourses()
+        $courses = $teacher->taughtCourses()
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('academy:id,name')
-            ->withCount([
-                'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
-                'sections',
-            ])
+            ->withCount(['sections'])
             ->latest('courses.updated_at')
             ->get();
+
+        $this->attachTeacherVisibleStudentCounts($courses, $teacher);
+
+        return $courses;
     }
 
     public function coursesPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
-        return $teacher->taughtCourses()
+        $courses = $teacher->taughtCourses()
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('academy:id,name')
-            ->withCount([
-                'enrollments as active_students_count' => fn ($query) => $query->where('status', 'active'),
-                'sections',
-                'classrooms',
-            ])
+            ->withCount(['sections', 'classrooms'])
             ->latest('courses.updated_at')
             ->paginate($perPage)
             ->withQueryString();
+
+        $this->attachTeacherVisibleStudentCounts($courses, $teacher);
+
+        return $courses;
+    }
+
+    /**
+     * Counts only students in this teacher's active classroom cohorts. A course
+     * may be shared publicly and assigned to several teachers, so counting every
+     * active course enrollment here would inflate the number and expose a
+     * misleading roster metric.
+     */
+    private function attachTeacherVisibleStudentCounts($courses, User $teacher): void
+    {
+        $items = $courses instanceof LengthAwarePaginator
+            ? $courses->getCollection()
+            : $courses;
+
+        $courseIds = $items->pluck('id');
+        if ($courseIds->isEmpty()) {
+            return;
+        }
+
+        $counts = DB::table('classroom_teacher as assigned_teachers')
+            ->join('classrooms', 'classrooms.id', '=', 'assigned_teachers.classroom_id')
+            ->join('classroom_student as memberships', function ($join): void {
+                $join->on('memberships.classroom_id', '=', 'classrooms.id')
+                    ->where('memberships.status', '=', 'active');
+            })
+            ->join('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.classroom_id', '=', 'classrooms.id')
+                    ->on('enrollments.student_id', '=', 'memberships.student_id')
+                    ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                    ->where('enrollments.status', '=', 'active');
+            })
+            ->where('assigned_teachers.teacher_id', $teacher->id)
+            ->where('classrooms.status', 'active')
+            ->whereIn('classrooms.course_id', $courseIds)
+            ->groupBy('classrooms.course_id')
+            ->select('classrooms.course_id')
+            ->selectRaw('COUNT(DISTINCT memberships.student_id) as visible_student_count')
+            ->pluck('visible_student_count', 'course_id');
+
+        foreach ($items as $course) {
+            $course->setAttribute('active_students_count', (int) ($counts[$course->id] ?? 0));
+        }
     }
 
     public function classrooms(User $teacher): Collection
@@ -102,6 +146,7 @@ final class TeacherWorkspaceService
     public function students(User $teacher): Collection
     {
         $classroomIds = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->pluck('classrooms.id');
 
@@ -109,15 +154,24 @@ final class TeacherWorkspaceService
             return collect();
         }
 
+        $courseIds = DB::table('classrooms')->whereIn('id', $classroomIds)->distinct()->pluck('course_id');
+
         return User::query()
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active'))
             ->with('studentProfile')
             ->withCount([
-                'lessonProgress as progress_items_count',
-                'assignmentSubmissions',
-                'examAttempts',
+                'lessonProgress as progress_items_count' => fn ($query) => $query
+                    ->whereHas('lesson', fn ($lesson) => $lesson
+                        ->where('status', 'published')
+                        ->whereHas('section', fn ($section) => $section->whereIn('course_id', $courseIds))),
+                'assignmentSubmissions' => fn ($query) => $query->whereHas('assignment', fn ($assignment) => $assignment
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
+                'examAttempts' => fn ($query) => $query->whereHas('exam', fn ($exam) => $exam
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
             ])
             ->orderBy('name')
             ->get();
@@ -132,12 +186,15 @@ final class TeacherWorkspaceService
         // Use the same active-academy membership boundary as the other teacher
         // workspace queries. Archived memberships must not leak into the roster.
         $classroomIds = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
             return new LengthAwarePaginator([], 0, $perPage);
         }
+
+        $courseIds = DB::table('classrooms')->whereIn('id', $classroomIds)->distinct()->pluck('course_id');
 
         $allowedSorts = [
             'name' => 'name',
@@ -155,9 +212,16 @@ final class TeacherWorkspaceService
                 ->where('classroom_student.status', 'active'))
             ->with('studentProfile')
             ->withCount([
-                'lessonProgress as progress_items_count',
-                'assignmentSubmissions',
-                'examAttempts',
+                'lessonProgress as progress_items_count' => fn ($query) => $query
+                    ->whereHas('lesson', fn ($lesson) => $lesson
+                        ->where('status', 'published')
+                        ->whereHas('section', fn ($section) => $section->whereIn('course_id', $courseIds))),
+                'assignmentSubmissions' => fn ($query) => $query->whereHas('assignment', fn ($assignment) => $assignment
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
+                'examAttempts' => fn ($query) => $query->whereHas('exam', fn ($exam) => $exam
+                    ->where('teacher_id', $teacher->id)
+                    ->whereIn('course_id', $courseIds)),
             ])
             ->orderBy($sortColumn, $direction)
             ->orderBy('users.id')
@@ -205,7 +269,7 @@ final class TeacherWorkspaceService
         return LiveClass::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
-            ->with(['course:id,title', 'classroom:id,title'])
+            ->with(['course:id,title', 'classroom:id,title', 'recording:id,original_name,mime_type,size,status,visibility'])
             ->orderByDesc('scheduled_at')
             ->orderByDesc('id')
             ->paginate($perPage)
@@ -289,7 +353,28 @@ final class TeacherWorkspaceService
         $schedule->delete();
     }
 
-    public function markAttendance(User $teacher, Classroom $classroom, array $attendance, string $attendanceDate): void
+    public function scheduledMinutesForDate(Classroom $classroom, string $attendanceDate): int
+    {
+        $weekday = Carbon::parse($attendanceDate)->dayOfWeek;
+
+        return (int) $classroom->schedules()
+            ->where('weekday', $weekday)
+            ->get(['start_time', 'end_time'])
+            ->sum(function ($schedule): int {
+                [$startHour, $startMinute] = array_map('intval', explode(':', substr((string) $schedule->start_time, 0, 5)));
+                [$endHour, $endMinute] = array_map('intval', explode(':', substr((string) $schedule->end_time, 0, 5)));
+
+                return max(0, ($endHour * 60 + $endMinute) - ($startHour * 60 + $startMinute));
+            });
+    }
+
+    public function markAttendance(
+        User $teacher,
+        Classroom $classroom,
+        array $attendance,
+        string $attendanceDate,
+        array $attendanceMinutes = [],
+    ): void
     {
         // Keep ownership and student membership checks separate and batched.
         // This intentionally avoids loading the full Classroom model graph.
@@ -301,19 +386,68 @@ final class TeacherWorkspaceService
             ->map(static fn ($id): int => (int) $id)
             ->all();
 
-        DB::transaction(function () use ($teacher, $classroom, $attendance, $attendanceDate, $studentIds): void {
-            $allowedStudentIds = array_fill_keys($studentIds, true);
+        $allowed = array_fill_keys($studentIds, true);
+        $submittedIds = array_map('intval', array_keys($attendance));
+
+        if (array_diff($submittedIds, $studentIds) !== [] || array_diff($studentIds, $submittedIds) !== []) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'attendance' => 'فهرست دانش‌آموزان تغییر کرده است. صفحه را تازه کن و حضور همه دانش‌آموزان فعال را ثبت کن.',
+            ]);
+        }
+
+        $scheduledMinutes = $this->scheduledMinutesForDate($classroom, $attendanceDate);
+
+        foreach ($attendance as $studentId => $status) {
+            $id = (int) $studentId;
+            if (! isset($allowed[$id])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'attendance' => 'یک دانش‌آموز انتخاب‌شده عضو فعال این کلاس نیست.',
+                ]);
+            }
+
+            $rawMinutes = $attendanceMinutes[$studentId] ?? $attendanceMinutes[$id] ?? null;
+            $actualMinutes = $rawMinutes === '' || $rawMinutes === null ? null : (int) $rawMinutes;
+
+            if ($scheduledMinutes > 0 && $status === 'late' && $actualMinutes === null) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "attendance_minutes.{$studentId}" => 'برای دانش‌آموزی که با تأخیر آمده، دقیقه‌های حضور واقعی را وارد کن.',
+                ]);
+            }
+
+            if ($scheduledMinutes > 0 && $actualMinutes !== null && $actualMinutes > $scheduledMinutes) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "attendance_minutes.{$studentId}" => 'مدت حضور نمی‌تواند از مدت برنامه‌ریزی‌شده کلاس بیشتر باشد.',
+                ]);
+            }
+        }
+
+        DB::transaction(function () use ($teacher, $classroom, $attendance, $attendanceDate, $attendanceMinutes, $scheduledMinutes): void {
             $rows = [];
 
             foreach ($attendance as $studentId => $status) {
-                if (!isset($allowedStudentIds[(int) $studentId])) {
-                    continue;
+                $rawMinutes = $attendanceMinutes[$studentId] ?? $attendanceMinutes[(int) $studentId] ?? null;
+                $actualMinutes = $rawMinutes === '' || $rawMinutes === null ? null : (int) $rawMinutes;
+
+                if ($scheduledMinutes < 1) {
+                    $scheduledForRow = null;
+                    $attendedForRow = null;
+                } else {
+                    $scheduledForRow = $scheduledMinutes;
+                    $attendedForRow = match ($status) {
+                        'absent' => 0,
+                        'excused' => null,
+                        'present' => min($scheduledMinutes, $actualMinutes ?? $scheduledMinutes),
+                        'late' => $actualMinutes,
+                        default => null,
+                    };
                 }
 
                 $rows[] = [
                     'classroom_id' => $classroom->id,
                     'student_id' => (int) $studentId,
                     'attendance_date' => $attendanceDate,
+                    'scheduled_minutes' => $scheduledForRow,
+                    'attended_minutes' => $attendedForRow,
                     'marked_by' => $teacher->id,
                     'status' => $status,
                     'note' => null,
@@ -326,7 +460,7 @@ final class TeacherWorkspaceService
                 DB::table('attendances')->upsert(
                     $rows,
                     ['classroom_id', 'student_id', 'attendance_date'],
-                    ['marked_by', 'status', 'note', 'updated_at'],
+                    ['marked_by', 'status', 'scheduled_minutes', 'attended_minutes', 'note', 'updated_at'],
                 );
             }
         });

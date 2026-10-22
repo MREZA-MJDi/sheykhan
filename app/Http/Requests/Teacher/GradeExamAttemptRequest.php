@@ -16,7 +16,7 @@ class GradeExamAttemptRequest extends FormRequest
             return false;
         }
 
-        $attempt->loadMissing('exam:id,teacher_id');
+        $attempt->loadMissing('exam:id,teacher_id,course_id,classroom_id');
 
         return app(TeacherAccessService::class)->canManageExam($this->user(), $attempt->exam);
     }

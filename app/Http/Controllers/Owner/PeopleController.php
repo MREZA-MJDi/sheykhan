@@ -12,7 +12,9 @@ use App\Models\Academy;
 use App\Models\User;
 use App\Services\OwnerWorkspaceService;
 use App\Services\StudentOnboardingService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PeopleController extends Controller
@@ -27,6 +29,51 @@ class PeopleController extends Controller
             ...$people,
             ...$options,
         ]);
+    }
+
+    public function studentOptions(Request $request, Academy $academy, OwnerWorkspaceService $workspace): JsonResponse
+    {
+        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+        $term = trim((string) ($filters['q'] ?? ''));
+
+        if (mb_strlen($term) < 2) {
+            return response()->json([
+                'data' => [],
+                'meta' => ['current_page' => 1, 'last_page' => 1, 'next_page' => null, 'total' => 0],
+            ], 200, ['Cache-Control' => 'no-store']);
+        }
+
+        $students = $academy->users()
+            ->wherePivot('role', 'student')
+            ->wherePivot('status', 'active')
+            ->where('users.status', 'active')
+            ->where(function ($query) use ($term): void {
+                $query->where('users.name', 'like', '%' . $term . '%')
+                    ->orWhere('users.email', 'like', '%' . $term . '%');
+            })
+            ->select('users.id', 'users.name', 'users.email')
+            ->orderBy('users.name')
+            ->orderBy('users.id')
+            ->paginate(20, ['users.id', 'users.name', 'users.email'], 'page');
+
+        return response()->json([
+            'data' => $students->getCollection()->map(fn (User $student): array => [
+                'id' => (int) $student->id,
+                'name' => $student->name,
+                'email' => $student->email,
+            ])->values(),
+            'meta' => [
+                'current_page' => $students->currentPage(),
+                'last_page' => $students->lastPage(),
+                'next_page' => $students->hasMorePages() ? $students->currentPage() + 1 : null,
+                'total' => $students->total(),
+            ],
+        ], 200, ['Cache-Control' => 'no-store']);
     }
 
     public function onboardLegacyStudent(
@@ -117,5 +164,20 @@ class PeopleController extends Controller
         );
 
         return back()->with('success', 'مدرس به دوره اختصاص داده شد.');
+    }
+
+    public function assignClassTeacher(
+        \App\Http\Requests\Owner\AssignClassTeacherRequest $request,
+        Academy $academy,
+        OwnerWorkspaceService $workspace
+    ): RedirectResponse {
+        $workspace->assignTeacherToClass(
+            $request->user(),
+            $academy,
+            (int) $request->validated('teacher_id'),
+            (int) $request->validated('classroom_id'),
+        );
+
+        return back()->with('success', 'مدرس فعال به کلاس اختصاص داده شد؛ اتصال مدرس به دوره نیز تکمیل شد.');
     }
 }

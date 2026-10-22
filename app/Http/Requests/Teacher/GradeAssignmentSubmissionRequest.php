@@ -13,9 +13,19 @@ class GradeAssignmentSubmissionRequest extends FormRequest
     {
         $assignment = $this->route('assignment');
 
-        return $assignment instanceof Assignment
-            && $this->user()
-            && app(TeacherAccessService::class)->canManageAssignment($this->user(), $assignment);
+        $user = $this->user();
+        if (! $assignment instanceof Assignment || ! $user) {
+            return false;
+        }
+
+        $assignment->loadMissing('course.academy');
+
+        if ($user->hasRole('academy-owner')) {
+            return $user->hasPermission('courses.manage')
+                && (int) $assignment->course?->academy?->owner_id === (int) $user->id;
+        }
+
+        return app(TeacherAccessService::class)->canManageAssignment($user, $assignment);
     }
 
     public function rules(): array

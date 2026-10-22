@@ -15,23 +15,20 @@
             ['route' => 'teacher.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂'],
             ['route' => 'teacher.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦'],
             ['route' => 'teacher.assignments.index', 'label' => 'تکلیف', 'permission' => 'assignments.view', 'icon' => '✓'],
-            ['route' => 'teacher.exams.index', 'label' => 'آزمون', 'permission' => 'exams.view', 'icon' => '▤'],
-            ['route' => 'teacher.attendance.index', 'label' => 'حضور', 'permission' => 'attendance.view', 'icon' => '◷'],
-            ['route' => 'teacher.schedule.index', 'label' => 'برنامه', 'permission' => 'live_classes.view', 'icon' => '▦'],
-            ['route' => 'teacher.live-classes.index', 'label' => 'جلسات', 'permission' => 'live_classes.view', 'icon' => '◉'],
+            ['route' => 'teacher.live-classes.index', 'label' => 'کلاس آنلاین', 'permission' => 'live_classes.view', 'icon' => '◉'],
+            ['route' => 'teacher.messages.index', 'label' => 'پیام‌ها', 'permission' => 'parent_messages.view', 'icon' => '✉'],
         ],
         'owner' => [
             ['route' => 'owner.dashboard', 'label' => 'مرکز', 'permission' => 'dashboard.view', 'icon' => '⌂'],
             ['route' => 'owner.people.index', 'label' => 'اعضا', 'permissions' => ['students.view', 'teachers.view'], 'icon' => '◎', 'requiresAcademy' => true],
             ['route' => 'owner.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦', 'requiresAcademy' => true],
-            ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣'],
+            ['route' => 'owner.messages.index', 'label' => 'پیام‌ها', 'permission' => 'parents.view', 'icon' => '✉', 'requiresAcademy' => true],
+            ['route' => 'owner.exams.index', 'label' => 'آزمون‌ها', 'permission' => 'exams.view', 'icon' => '▤', 'requiresAcademy' => true],
             ['route' => 'owner.reports.index', 'label' => 'گزارش', 'permission' => 'reports.view', 'icon' => '↗'],
         ],
         'parent' => [
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard'), 'activeRoute' => 'parent.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂'],
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-children-title', 'activeRoute' => null, 'label' => 'فرزندان', 'permission' => 'dashboard.view', 'icon' => '◎'],
-            ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-live-title', 'activeRoute' => null, 'label' => 'جلسات', 'permission' => 'dashboard.view', 'icon' => '◷'],
-            ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-results-title', 'activeRoute' => null, 'label' => 'نتایج', 'permission' => 'dashboard.view', 'icon' => '↗'],
             ['route' => 'library.index', 'activeRoute' => 'library.index', 'label' => 'خریدها', 'permission' => 'courses.view', 'icon' => '▣'],
         ],
         default => [],
@@ -41,8 +38,6 @@
         // Keep the specialist inside the shared owner shell, but point the home
         // shortcut only to the page they are authorized to use.
         $items[0] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
-    } elseif ($role === 'owner' && $user?->hasPermission('seo.manage')) {
-        $items[] = ['route' => 'owner.seo.index', 'label' => 'SEO', 'permission' => 'seo.manage', 'icon' => '⌕'];
     }
 
     $academy = $role === 'owner'
@@ -53,7 +48,12 @@
         ->filter(fn (array $item) => !$user || collect($item['permissions'] ?? [$item['permission'] ?? null])->filter()->contains(fn (string $permission) => $user->hasPermission($permission)))
         ->filter(fn (array $item) => empty($item['requiresAcademy']) || $academy)
         ->map(function (array $item) use ($academy) {
-            if ($academy && in_array($item['route'], ['owner.people.index', 'owner.classrooms.index'], true)) {
+            if ($academy && in_array($item['route'], [
+                'owner.people.index', 'owner.classrooms.index', 'owner.attendance.index',
+                'owner.assignments.index', 'owner.schedules.index', 'owner.meetings.index',
+                'owner.messages.index', 'owner.counseling.index', 'owner.exams.index',
+                'owner.recordings.index', 'owner.teacher-payments.index',
+            ], true)) {
                 $item['urlArgs'] = [$academy];
             }
 
@@ -69,7 +69,9 @@
         aria-label="{{ match ($role) {
             'student' => 'دسترسی سریع دانش‌آموز',
             'teacher' => 'دسترسی سریع مدرس',
-            'owner' => 'دسترسی سریع مدیر آموزشگاه',
+            'owner' => ($user?->hasRole('seo-specialist') && ! $user?->hasRole('academy-owner'))
+                ? 'دسترسی سریع متخصص SEO'
+                : 'دسترسی سریع ادمین / منشی',
             default => 'دسترسی سریع',
         } }}"
     >

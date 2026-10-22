@@ -26,6 +26,18 @@
         <article class="student-lesson-content">{{ $assignment->instructions }}</article>
     @endif
 
+    @if($assignment->media?->isNotEmpty())
+        <section class="student-list" aria-label="فایل‌های راهنمای تکلیف">
+            @foreach($assignment->media as $handout)
+                <div class="student-list-row">
+                    <div class="student-date"><strong>PDF</strong><small>راهنما</small></div>
+                    <div class="student-row-content"><div class="student-row-title">{{ $handout->original_name ?? 'فایل تکلیف' }}</div><span class="student-row-meta">{{ $handout->mime_type ?? 'فایل پیوست' }}</span></div>
+                    <a class="student-action" href="{{ route('media.view', $handout) }}" target="_blank" rel="noopener">مشاهده امن</a>
+                </div>
+            @endforeach
+        </section>
+    @endif
+
     <div class="student-notice" style="margin-top:16px">
         <span class="student-notice-icon" aria-hidden="true">!</span>
         <div class="student-notice-copy">

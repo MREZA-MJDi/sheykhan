@@ -52,6 +52,37 @@
                             <a href="{{ $liveClass->meeting_url }}" target="_blank" rel="noopener noreferrer" class="teacher-workspace-link primary">ورود به جلسه</a>
                         @endif
                     </div>
+                    @if($liveClass->recording)
+                        @php
+                            $recordingIsReleased = $liveClass->isRecordingAvailable();
+                            $recordingIsScheduled = $liveClass->recording_released_at && $liveClass->recording_released_at->isFuture();
+                        @endphp
+                        <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-black text-slate-700">آرشیو ضبط جلسه</p>
+                                    <p class="mt-1 break-all text-sm font-bold">{{ $liveClass->recording->original_name ?: 'فایل ضبط‌شده' }}</p>
+                                    <p class="mt-1 text-xs leading-6 text-slate-500">
+                                        @if($liveClass->recording_released_at)
+                                            زمان انتشار: {{ App\Support\PersianUi::date($liveClass->recording_released_at) }} · {{ App\Support\PersianUi::time($liveClass->recording_released_at) }}
+                                        @else
+                                            هنوز زمان انتشار برای دانش‌آموزان تعیین نشده است.
+                                        @endif
+                                    </p>
+                                </div>
+                                <span class="teacher-workspace-chip {{ $recordingIsReleased ? 'success' : ($recordingIsScheduled ? '' : 'muted') }}">
+                                    {{ $recordingIsReleased ? 'قابل دسترسی برای دانش‌آموزان مجاز' : ($recordingIsScheduled ? 'در انتظار انتشار' : 'ثبت‌شده / مخفی') }}
+                                </span>
+                            </div>
+                            @if($liveClass->recording->status !== 'active')
+                                <p class="mt-2 text-xs leading-6 text-amber-800">وضعیت فایل نیازمند بررسی است؛ تا معتبر و فعال‌شدن فایل، دسترسی دانش‌آموزان تضمین نمی‌شود.</p>
+                            @endif
+                        </div>
+                    @else
+                        <div class="mt-4 rounded-xl border border-dashed border-slate-200 p-3 text-xs leading-6 text-slate-500">
+                            برای این جلسه هنوز فایل ضبط‌شده‌ای ثبت نشده است.
+                        </div>
+                    @endif
                     @if($liveClass->status !== 'cancelled')
                         <form method="POST" enctype="multipart/form-data" action="{{ route('teacher.live-classes.recording.store', $liveClass) }}" class="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(180px,.7fr)_auto] sm:items-end">
                             @csrf

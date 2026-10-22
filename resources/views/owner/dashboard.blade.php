@@ -1,7 +1,7 @@
 @extends('layouts.owner')
 
-@section('title', 'مدیریت آموزشگاه | شیخان')
-@section('header-title', 'داشبورد آموزشگاه')
+@section('title', 'کارتابل ادمین / منشی | شیخان')
+@section('header-title', 'کارتابل ادمین / منشی')
 
 @section('content')
     @php
@@ -32,7 +32,7 @@
         <section class="owner-hero relative overflow-hidden">
             <div class="owner-hero-copy relative z-10">
                 <span class="owner-kicker">
-                    مرکز کنترل آموزشگاه
+                    کارتابل ادمین / منشی
                 </span>
 
                 <h1 class="mt-3">
@@ -151,6 +151,54 @@
         </section>
 
         {{-- =========================================================
+            QUICK OPERATION LINKS
+        ========================================================== --}}
+        <section aria-labelledby="owner-quick-actions-title" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <h2 id="owner-quick-actions-title" class="sr-only">دسترسی سریع کارتابل</h2>
+            @if($firstAcademy)
+                <a href="{{ route('owner.people.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">ثبت‌نام و مدیریت اعضا</strong><small class="mt-1 block text-xs text-slate-500">دانش‌آموز، ولی و مدرس</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.attendance.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">سوابق حضور و غیاب</strong><small class="mt-1 block text-xs text-slate-500">جست‌وجو در تمام کلاس‌های آموزشگاه</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.meetings.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">هماهنگی با اولیا</strong><small class="mt-1 block text-xs text-slate-500">ثبت جلسه و اطلاع‌رسانی در پنل دو طرف</small></span><span aria-hidden="true" class="text-xl text-slate-500">←</span>
+                </a>
+                <a href="{{ route('owner.assignments.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">تکالیف و تصحیح</strong><small class="mt-1 block text-xs text-slate-500">بارگذاری راهنما و بررسی پاسخ‌ها</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.schedules.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">لینک کلاس‌های آنلاین</strong><small class="mt-1 block text-xs text-slate-500">زمان‌بندی هفتگی و لینک ورود هر کلاس</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.resources.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">ویدئو و منابع آموزشی</strong><small class="mt-1 block text-xs text-slate-500">فایل، جزوه و محتوای دوره</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.products.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">محصولات و کتاب‌ها</strong><small class="mt-1 block text-xs text-slate-500">مدیریت منابع قابل فروش</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.messages.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">پیام‌های اولیا</strong><small class="mt-1 block text-xs text-slate-500">انتقاد، پیشنهاد و پاسخ‌گویی</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.counseling.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">جلسات مشاوره</strong><small class="mt-1 block text-xs text-slate-500">بررسی درخواست‌ها و تعیین زمان</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.exams.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">آزمون‌ها و نتایج</strong><small class="mt-1 block text-xs text-slate-500">وضعیت انتشار و تلاش‌های دانش‌آموزان</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.recordings.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">آرشیو ضبط کلاس‌ها</strong><small class="mt-1 block text-xs text-slate-500">کنترل انتشار و دسترسی فایل‌ها</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+                <a href="{{ route('owner.teacher-payments.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <span><strong class="block text-sm font-black">حقوق مدرس‌ها</strong><small class="mt-1 block text-xs text-slate-500">ثبت سند و وضعیت پرداخت</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+                </a>
+            @endif
+            <a href="{{ route('owner.reports.index') }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                <span><strong class="block text-sm font-black">گزارش‌های آموزشی</strong><small class="mt-1 block text-xs text-slate-500">عملکرد دوره، کلاس، مدرس و تکلیف</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+            </a>
+        </section>
+
+        {{-- =========================================================
             PRIMARY METRICS
         ========================================================== --}}
         <section class="owner-stats">
@@ -208,7 +256,9 @@
                     {{ $metrics['pendingReviews'] ?? 0 }}
                     بررسی ·
                     {{ $metrics['capacityAlerts'] ?? 0 }}
-                    کلاس نزدیک ظرفیت
+                    کلاس نزدیک ظرفیت ·
+                    {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher'] ?? 0) }}
+                    کلاس بدون مدرس
                 </small>
             </article>
 

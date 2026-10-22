@@ -492,8 +492,131 @@ function bootBannerEditors() {
         window.addEventListener('pagehide', releaseObjectUrl, { once: true });
     });
 }
+function bootOwnerStudentPicker() {
+    document.querySelectorAll('[data-student-picker]').forEach((picker) => {
+        if (picker.dataset.bound === 'true') return;
+        picker.dataset.bound = 'true';
+        const form = picker.closest('form');
+        const search = picker.querySelector('[data-student-search]');
+        const studentId = picker.querySelector('[data-student-id]');
+        const studentLabel = picker.querySelector('[data-student-label]');
+        const results = picker.querySelector('[data-student-results]');
+        const status = picker.querySelector('[data-student-status]');
+        const more = picker.querySelector('[data-student-more]');
+        if (!form || !search || !studentId || !studentLabel || !results || !status || !more) return;
+
+        let timer = null;
+        let controller = null;
+        let requestVersion = 0;
+        let nextPage = null;
+        let activeQuery = '';
+
+        const clearResults = () => {
+            results.replaceChildren();
+            more.hidden = true;
+            nextPage = null;
+        };
+
+        const appendStudent = (student) => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className = 'owner-student-picker-option';
+            option.setAttribute('role', 'option');
+            const name = document.createElement('span');
+            name.textContent = student.name || 'بدون نام';
+            const email = document.createElement('small');
+            email.textContent = student.email || 'بدون ایمیل';
+            option.append(name, email);
+            option.addEventListener('click', () => {
+                studentId.value = String(student.id);
+                studentLabel.value = (student.name || 'بدون نام') + ' — ' + (student.email || '');
+                search.value = studentLabel.value;
+                clearResults();
+                status.textContent = 'دانش‌آموز انتخاب شد: ' + (student.name || student.email);
+                search.setAttribute('aria-expanded', 'false');
+            });
+            results.append(option);
+        };
+
+        const loadStudents = async (query, page = 1, append = false) => {
+            if (controller) controller.abort();
+            controller = new AbortController();
+            const localController = controller;
+            const version = ++requestVersion;
+            activeQuery = query;
+            if (!append) clearResults();
+            more.disabled = true;
+            status.textContent = 'در حال جست‌وجوی دانش‌آموزان…';
+            search.setAttribute('aria-expanded', 'true');
+            const url = new URL(picker.dataset.optionsUrl, window.location.origin);
+            url.searchParams.set('q', query);
+            url.searchParams.set('page', String(page));
+
+            try {
+                const response = await fetch(url, {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    signal: localController.signal,
+                });
+                if (!response.ok) throw new Error('student search request failed');
+                const payload = await response.json();
+                if (version !== requestVersion) return;
+                const students = Array.isArray(payload.data) ? payload.data : [];
+                students.forEach(appendStudent);
+                nextPage = payload.meta && payload.meta.next_page ? payload.meta.next_page : null;
+                more.hidden = !nextPage;
+                more.disabled = false;
+                if (!students.length && !append) {
+                    status.textContent = 'دانش‌آموز فعالی با این نام یا ایمیل پیدا نشد.';
+                } else if (nextPage) {
+                    status.textContent = String(payload.meta.total || students.length) + ' نتیجه؛ برای دیدن موارد بیشتر از دکمه پایین استفاده کن.';
+                } else {
+                    status.textContent = students.length ? 'انتهای نتایج جست‌وجو.' : 'نتیجه بیشتری وجود ندارد.';
+                }
+            } catch (error) {
+                if (error && error.name === 'AbortError') return;
+                if (version !== requestVersion) return;
+                status.textContent = 'جست‌وجو انجام نشد. دوباره تلاش کن.';
+                more.hidden = true;
+                more.disabled = false;
+            }
+        };
+
+        search.addEventListener('input', () => {
+            const query = search.value.trim();
+            if (studentLabel.value !== query) studentId.value = '';
+            if (timer) window.clearTimeout(timer);
+            if (controller) controller.abort();
+            requestVersion++;
+            clearResults();
+            if (query.length < 2) {
+                status.textContent = 'حداقل دو حرف از نام یا ایمیل را وارد کن.';
+                search.setAttribute('aria-expanded', 'false');
+                return;
+            }
+            timer = window.setTimeout(() => loadStudents(query), 250);
+        });
+
+        more.addEventListener('click', () => {
+            if (nextPage) loadStudents(activeQuery, nextPage, true);
+        });
+        form.addEventListener('submit', (event) => {
+            if (studentId.value) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            status.textContent = 'ابتدا یک دانش‌آموز را از نتایج جست‌وجو انتخاب کن.';
+            search.focus();
+        });
+        if (studentId.value && studentLabel.value) {
+            search.value = studentLabel.value;
+            status.textContent = 'انتخاب قبلی حفظ شده است؛ در صورت نیاز دوباره جست‌وجو کن.';
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     bootPanel();
+    bootOwnerStudentPicker();
     bootBannerEditors();
 
     document.querySelectorAll('form').forEach((form) => {

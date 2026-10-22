@@ -36,10 +36,18 @@ final class CourseAccessService
 
     public function canDownload(User $user, Course $course): bool
     {
-        // Purchasing a protected course grants learning access, not file download rights.
-        // Neither students nor parents can download course media as a raw file.
-        // Parents monitor progress; students consume lessons inside the protected viewer.
-        if ($user->hasAnyRole(['student', 'parent'])) {
+        // A free course may expose an explicitly downloadable learning resource,
+        // but only to a student who already has valid access to that course.
+        // Payment for a paid course grants protected in-platform viewing, never
+        // raw-file download rights. The resource-level downloadable flag is
+        // checked separately by StudentLearningResourceService.
+        if ($user->hasRole('student')) {
+            return $course->isFree()
+                && app(StudentAccessService::class)->course($user, $course);
+        }
+
+        // Parents follow learning progress, but do not inherit file download rights.
+        if ($user->hasRole('parent')) {
             return false;
         }
 

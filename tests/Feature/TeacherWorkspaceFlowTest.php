@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Academy;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\CourseManagementService;
 use App\Services\TeacherWorkspaceService;
 use App\Services\MeetingLinkService;
 use Carbon\Carbon;
@@ -85,6 +86,283 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.courses.edit', $unassignedCourse))
             ->assertForbidden();
+    }
+
+    public function test_partial_course_update_preserves_fields_that_were_not_sent(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update([
+            'level' => 'پیشرفته',
+            'short_description' => 'خلاصه اصلی',
+            'description' => 'توضیح کامل اصلی',
+            'duration_minutes' => 180,
+        ]);
+
+        $updated = app(CourseManagementService::class)->update(
+            $teacher,
+            $course,
+            ['title' => 'ریاضی هفتم — عنوان اصلاح‌شده'],
+        );
+
+        $this->assertSame('پیشرفته', $updated->level);
+        $this->assertSame('خلاصه اصلی', $updated->short_description);
+        $this->assertSame('توضیح کامل اصلی', $updated->description);
+        $this->assertSame(180, (int) $updated->duration_minutes);
+    }
+
+    public function test_exam_builder_persists_essay_single_and_multi_choice_questions_correctly(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $classroom = Classroom::where('course_id', $course->id)
+            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.create'))
+            ->assertOk()
+            ->assertSee('data-question-correct', false)
+            ->assertSee('data-correct-answer-choices', false);
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'آزمون قالب‌های سؤال - تست',
+                'description' => 'بررسی مسیر واقعی ذخیره و تصحیح سؤال‌ها',
+                'duration_minutes' => 45,
+                'attempts_allowed' => 1,
+                'starts_at' => now()->subMinute()->toDateTimeString(),
+                'ends_at' => now()->addDay()->toDateTimeString(),
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'راه‌حل خود را توضیح بده.',
+                        'score' => 3,
+                    ],
+                    [
+                        'type' => 'single',
+                        'question' => '۲ + ۲ چند می‌شود؟',
+                        'options' => ['۳', '۴', '۵'],
+                        'correct_answer' => '۴',
+                        'score' => 1,
+                    ],
+                    [
+                        'type' => 'multiple',
+                        'question' => 'کدام گزینه‌ها عدد زوج‌اند؟',
+                        'options' => ['۱', '۲', '۳', '۴'],
+                        'correct_answer' => ['۲', '۴'],
+                        'score' => 2,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $exam = \App\Models\Exam::where('title', 'آزمون قالب‌های سؤال - تست')->firstOrFail();
+        $questions = $exam->questions()->orderBy('sort_order')->get();
+
+        $this->assertCount(3, $questions);
+        $this->assertSame('text', $questions[0]->type);
+        $this->assertNull($questions[0]->options);
+        $this->assertNull($questions[0]->correct_answer);
+
+        $this->assertSame('single', $questions[1]->type);
+        $this->assertSame(['۳', '۴', '۵'], $questions[1]->options);
+        $this->assertSame('۴', $questions[1]->correct_answer);
+
+        $this->assertSame('multiple', $questions[2]->type);
+        $this->assertSame(['۱', '۲', '۳', '۴'], $questions[2]->options);
+        $this->assertSame(['۲', '۴'], json_decode($questions[2]->correct_answer, true));
+    }
+
+    public function test_essay_exam_submission_waits_for_teacher_review_then_shows_the_final_score(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update(['access_type' => 'free', 'price' => 0]);
+
+        $classroom = Classroom::where('course_id', $course->id)
+            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'آزمون تشریحی - گردش کار کامل',
+                'description' => 'یک سؤال تشریحی و یک سؤال تستی',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'starts_at' => now()->subMinute()->toDateTimeString(),
+                'ends_at' => now()->addDay()->toDateTimeString(),
+                'status' => 'published',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'روش حل را با توضیح بنویس.',
+                        'score' => 2,
+                    ],
+                    [
+                        'type' => 'single',
+                        'question' => '۳ + ۴ چند می‌شود؟',
+                        'options' => ['۶', '۷', '۸'],
+                        'correct_answer' => '۷',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $exam = \App\Models\Exam::where('title', 'آزمون تشریحی - گردش کار کامل')->firstOrFail();
+        $essay = $exam->questions()->where('type', 'text')->firstOrFail();
+        $choice = $exam->questions()->where('type', 'single')->firstOrFail();
+
+        $this->actingAs($student)
+            ->get(route('student.exams.show', $exam))
+            ->assertOk()
+            ->assertSee('آزمون تشریحی - گردش کار کامل');
+
+        $this->actingAs($student)
+            ->post(route('student.exams.start', $exam))
+            ->assertRedirect();
+
+        $attempt = \App\Models\ExamAttempt::where('exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->firstOrFail();
+
+        $this->actingAs($student)
+            ->get(route('student.exams.attempt', [$exam, $attempt]))
+            ->assertOk()
+            ->assertSee('textarea', false)
+            ->assertSee('type="radio"', false);
+
+        $this->actingAs($student)
+            ->post(route('student.exam-attempts.submit', $attempt), [
+                'answers' => [
+                    $essay->id => 'ابتدا داده‌ها را جای‌گذاری می‌کنم و سپس نتیجه را توضیح می‌دهم.',
+                    $choice->id => '۷',
+                ],
+            ])
+            ->assertRedirect(route('student.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $attempt->refresh();
+        $this->assertSame('pending_review', $attempt->status);
+        $this->assertNull($attempt->score);
+
+        $essayAnswer = $attempt->answers()->where('question_id', $essay->id)->firstOrFail();
+        $choiceAnswer = $attempt->answers()->where('question_id', $choice->id)->firstOrFail();
+
+        $this->assertSame('ابتدا داده‌ها را جای‌گذاری می‌کنم و سپس نتیجه را توضیح می‌دهم.', $essayAnswer->answer);
+        $this->assertNull($essayAnswer->score);
+        $this->assertTrue((bool) $choiceAnswer->is_correct);
+        $this->assertSame(1.0, (float) $choiceAnswer->score);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.attempts', $exam))
+            ->assertOk()
+            ->assertSee('روش حل را با توضیح بنویس.')
+            ->assertSee('بازبینی دستی');
+
+        $this->actingAs($teacher)
+            ->patch(route('teacher.exam-attempts.grade-manual', $attempt), [
+                'answers' => [
+                    $essayAnswer->id => 2,
+                    $choiceAnswer->id => 1,
+                ],
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $attempt->refresh();
+        $this->assertSame('graded', $attempt->status);
+        $this->assertSame(3.0, (float) $attempt->score);
+        $this->assertNotNull($attempt->answers()->where('question_id', $essay->id)->firstOrFail()->score);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.result', $exam))
+            ->assertOk()
+            ->assertSee('۳');
+    }
+
+    public function test_exam_builder_rejects_a_correct_answer_that_is_not_one_of_the_options(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.create'))
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'title' => 'آزمون پاسخ ناسازگار - تست',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'single',
+                        'question' => 'یک سؤال تستی',
+                        'options' => ['گزینه الف', 'گزینه ب'],
+                        'correct_answer' => 'گزینه ج',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('questions.0.correct_answer');
+
+        $this->assertDatabaseMissing('exams', ['title' => 'آزمون پاسخ ناسازگار - تست']);
+    }
+
+    public function test_exam_builder_retains_question_options_after_validation_and_escapes_quotes_safely(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.create'))
+            ->followingRedirects()
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'title' => 'آزمون حفظ وضعیت فرم - تست',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'multiple',
+                        'question' => "سؤال با عنوان 'ویژه' باقی بماند",
+                        'options' => ['گزینه اول', 'گزینه دوم'],
+                        'correct_answer' => ['گزینه خارج از فهرست'],
+                        'score' => 2,
+                    ],
+                ],
+            ])
+            ->assertOk()
+            ->assertSee('data-initial-questions', false)
+            ->assertSee('سؤال با عنوان', false)
+            ->assertSee('\u0027ویژه\u0027', false)
+            ->assertSee('گزینه اول', false)
+            ->assertSee('گزینه دوم', false)
+            ->assertSee('تمام پاسخ‌های صحیح باید از بین گزینه‌های همین سؤال انتخاب شوند.');
+
+        $this->assertDatabaseMissing('exams', [
+            'title' => 'آزمون حفظ وضعیت فرم - تست',
+        ]);
     }
 
     public function test_teacher_can_create_a_course_section_for_owned_course(): void
@@ -310,13 +588,17 @@ class TeacherWorkspaceFlowTest extends TestCase
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $classroom = Classroom::whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))->firstOrFail();
         $student = $classroom->students()->wherePivot('status', 'active')->firstOrFail();
+        $attendance = $classroom->students()
+            ->wherePivot('status', 'active')
+            ->pluck('users.id')
+            ->mapWithKeys(static fn ($studentId) => [(int) $studentId => 'present'])
+            ->all();
+        $attendance[$student->id] = 'absent';
 
         $this->actingAs($teacher)
             ->post(route('teacher.classrooms.attendance.store', $classroom), [
                 'attendance_date' => '۱۴۰۵/۰۷/۱۶',
-                'attendance' => [
-                    $student->id => 'absent',
-                ],
+                'attendance' => $attendance,
             ])
             ->assertRedirect()
             ->assertSessionHasNoErrors();

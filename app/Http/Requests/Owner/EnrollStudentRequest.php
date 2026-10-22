@@ -17,7 +17,7 @@ class EnrollStudentRequest extends FormRequest
         return [
             'student_id' => ['required', 'integer', 'exists:users,id'],
             'course_id' => ['required', 'integer', 'exists:courses,id'],
-            'classroom_id' => ['nullable', 'integer', 'exists:classrooms,id'],
+            'classroom_id' => ['required', 'integer', 'exists:classrooms,id'],
             'paid_amount' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
             'idempotency_key' => ['required', 'uuid'],
         ];
@@ -30,6 +30,7 @@ class EnrollStudentRequest extends FormRequest
             'student_id.exists' => 'دانش‌آموز انتخاب‌شده معتبر نیست.',
             'course_id.required' => 'انتخاب دوره الزامی است.',
             'course_id.exists' => 'دوره انتخاب‌شده معتبر نیست.',
+            'classroom_id.required' => 'انتخاب کلاس برای ثبت‌نام الزامی است.',
             'classroom_id.exists' => 'کلاس انتخاب‌شده معتبر نیست.',
             'paid_amount.numeric' => 'مبلغ پرداختی باید عددی باشد.',
             'paid_amount.min' => 'مبلغ پرداختی نمی‌تواند منفی باشد.',

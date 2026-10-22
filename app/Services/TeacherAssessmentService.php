@@ -21,7 +21,17 @@ final class TeacherAssessmentService
         int $teacherId
     ): AssignmentSubmission {
         $teacher = User::query()->find($teacherId);
-        if (!$teacher || $submission->assignment_id !== $assignment->id || !app(TeacherAccessService::class)->canManageAssignment($teacher, $assignment)) {
+        $assignment->loadMissing('course.academy');
+        $isAcademyOwner = $teacher
+            && $teacher->hasRole('academy-owner')
+            && $teacher->hasPermission('courses.manage')
+            && (int) $assignment->course?->academy?->owner_id === (int) $teacher->id;
+
+        if (
+            ! $teacher
+            || (int) $submission->assignment_id !== (int) $assignment->id
+            || (! $isAcademyOwner && ! app(TeacherAccessService::class)->canManageAssignment($teacher, $assignment))
+        ) {
             throw new AccessDeniedHttpException();
         }
 

@@ -179,12 +179,12 @@ final class CourseManagementService
                         $data['slug'],
                         $course->id
                     ),
-                'level' => $data['level'] ?? null,
+                'level' => array_key_exists('level', $data) ? $data['level'] : $course->level,
                 'status' => $status,
                 'access_type' => $accessType,
-                'short_description' => $data['short_description'] ?? null,
-                'description' => $data['description'] ?? null,
-                'duration_minutes' => $data['duration_minutes'] ?? 0,
+                'short_description' => array_key_exists('short_description', $data) ? $data['short_description'] : $course->short_description,
+                'description' => array_key_exists('description', $data) ? $data['description'] : $course->description,
+                'duration_minutes' => array_key_exists('duration_minutes', $data) ? $data['duration_minutes'] : $course->duration_minutes,
                 'price' => $accessType === 'free'
                     ? 0
                     : ($data['price'] ?? $course->price),

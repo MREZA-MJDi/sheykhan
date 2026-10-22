@@ -10,6 +10,7 @@ use App\Models\CourseEnrollment;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\OwnerCacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -58,6 +59,34 @@ class OwnerClassroomManagementTest extends TestCase
             ->assertOk()
             ->assertViewHas('classroom', fn (Classroom $item) => $item->is($classroom))
             ->assertViewHas('activities');
+    }
+
+    public function test_owner_cannot_create_classroom_with_more_than_one_teacher(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        $secondTeacher = User::factory()->create(['email' => 'second-class-teacher@test.local']);
+        $teacherRole = Role::query()->where('slug', 'teacher')->firstOrFail();
+        $secondTeacher->roles()->attach($teacherRole->id);
+        $academy->users()->attach($secondTeacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $course->teachers()->attach($secondTeacher->id, ['is_primary' => false]);
+
+        $this->actingAs($owner)
+            ->post(route('owner.classrooms.store', $academy), [
+                'course_id' => $course->id,
+                'teacher_ids' => [$teacher->id, $secondTeacher->id],
+                'title' => 'کلاس با دو مدرس',
+                'code' => 'TWO-TEACHERS',
+                'capacity' => 20,
+                'status' => 'active',
+            ])
+            ->assertSessionHasErrors('teacher_ids');
+
+        $this->assertDatabaseCount('classrooms', 0);
     }
 
     public function test_owner_cannot_create_classroom_with_teacher_not_assigned_to_the_course(): void
@@ -218,6 +247,96 @@ class OwnerClassroomManagementTest extends TestCase
 
         $this->assertTrue($activities->contains(fn (array $activity) => $activity['type'] === 'assignment'));
         $this->assertTrue($activities->contains(fn (array $activity) => $activity['type'] === 'enrollment'));
+    }
+
+    public function test_owner_classroom_list_is_paginated_and_headline_totals_cover_all_pages(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        for ($i = 1; $i <= 13; $i++) {
+            $classroom = Classroom::create([
+                'academy_id' => $academy->id,
+                'course_id' => $course->id,
+                'title' => 'کلاس صفحه‌بندی ' . $i,
+                'code' => 'PAG-' . str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+                'capacity' => 10,
+                'status' => 'active',
+            ]);
+            $classroom->teachers()->attach($teacher->id);
+        }
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.index', $academy))
+            ->assertOk()
+            ->assertViewHas('classrooms', fn ($classrooms) => $classrooms->total() === 13 && $classrooms->count() === 12)
+            ->assertViewHas('summary', fn (array $summary) => $summary['total'] === 13
+                && $summary['active_count'] === 13
+                && $summary['capacity_total'] === 130)
+            ->assertSee('page=2', false);
+    }
+
+    public function test_owner_classroom_detail_paginates_the_entire_active_roster(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس با فهرست بلند',
+            'code' => 'ROSTER-' . Str::random(6),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $classroom->teachers()->attach($teacher->id);
+
+        for ($i = 1; $i <= 13; $i++) {
+            $student = User::factory()->create([
+                'name' => 'دانش‌آموز فهرست ' . $i,
+                'email' => 'roster-' . Str::random(8) . '@test.local',
+            ]);
+            $classroom->students()->attach($student->id, [
+                'status' => 'active',
+                'enrolled_at' => now(),
+            ]);
+        }
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.show', [$academy, $classroom]))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students) => $students->total() === 13 && $students->count() === 12)
+            ->assertSee('دانش‌آموز فهرست 1')
+            ->assertSee('students_page=2', false)
+            ->assertSee('فهرست دانش‌آموزان کلاس');
+    }
+
+    public function test_successful_owner_mutations_invalidate_dashboard_and_report_caches(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+        $cache = app(OwnerCacheService::class);
+
+        $cache->rememberDashboard($owner, fn () => ['snapshot' => 'stale-dashboard']);
+        $cache->rememberReport($owner, fn () => ['snapshot' => 'stale-report']);
+
+        $this->actingAs($owner)
+            ->post(route('owner.classrooms.store', $academy), [
+                'course_id' => $course->id,
+                'teacher_ids' => [$teacher->id],
+                'title' => 'کلاس پس از تغییر کش',
+                'code' => 'CACHE-' . Str::random(6),
+                'capacity' => 20,
+                'status' => 'active',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertSame(
+            ['snapshot' => 'fresh-dashboard'],
+            $cache->rememberDashboard($owner, fn () => ['snapshot' => 'fresh-dashboard'])
+        );
+        $this->assertSame(
+            ['snapshot' => 'fresh-report'],
+            $cache->rememberReport($owner, fn () => ['snapshot' => 'fresh-report'])
+        );
     }
 
     private function workspace(): array
