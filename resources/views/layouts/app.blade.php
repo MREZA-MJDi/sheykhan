@@ -10,10 +10,6 @@
     @stack('styles')
 </head>
 <body class="sheykhan-site">
-    @if (request()->routeIs('home'))
-        @include('components.branding.tiamir-intro')
-    @endif
-
     <div id="app">
         <x-navigation.navbar />
         <main id="main-content" class="home-page">

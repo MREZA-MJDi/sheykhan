@@ -1,5 +1,4 @@
 import Alpine from 'alpinejs';
-import './tiamir-intro.js';
 
 window.Alpine = window.Alpine || Alpine;
 
