@@ -29,14 +29,14 @@ final class ShowcaseController extends Controller
                 ->where('academy_id', $academy->id)
                 ->with(['grade:id,title', 'media:id,original_name,visibility,status'])
                 ->orderByDesc('updated_at')
-                ->limit(30)
-                ->get(),
+                ->paginate(15, ['*'], 'achievements_page')
+                ->withQueryString(),
             'testimonials' => Testimonial::query()
                 ->where('academy_id', $academy->id)
                 ->with(['media:id,original_name,mime_type,visibility,status'])
                 ->orderByDesc('updated_at')
-                ->limit(30)
-                ->get(),
+                ->paginate(15, ['*'], 'testimonials_page')
+                ->withQueryString(),
             'grades' => \App\Models\AcademicGrade::query()->orderBy('sort_order')->orderBy('title')->get(['id', 'title']),
         ]);
     }

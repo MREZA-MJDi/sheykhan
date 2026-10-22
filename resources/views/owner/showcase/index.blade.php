@@ -83,6 +83,9 @@
                     @if($item->status === 'published')<form method="POST" action="{{ route('owner.achievements.withdraw', [$academy, $item]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">حذف از نمایش</button></form>@endif
                 </article>
             @empty<p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز موردی ثبت نشده است.</p>@endforelse
+            @if($achievements->hasPages())
+                <div class="mt-4 border-t border-slate-100 pt-4 text-sm">{{ $achievements->links('components.navigation.pagination') }}</div>
+            @endif
         </div>
     </section>
 
@@ -95,6 +98,9 @@
                     @if($item->status === 'approved')<form method="POST" action="{{ route('owner.testimonials.withdraw', [$academy, $item]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">حذف از نمایش</button></form>@endif
                 </article>
             @empty<p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز موردی ثبت نشده است.</p>@endforelse
+            @if($testimonials->hasPages())
+                <div class="mt-4 border-t border-slate-100 pt-4 text-sm">{{ $testimonials->links('components.navigation.pagination') }}</div>
+            @endif
         </div>
     </section>
 </div>

@@ -49,7 +49,7 @@
 
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">عنوان جلسه</span>
-                    <input name="title" value="{{ old('title', 'هماهنگی با آقای سبحانی') }}" required maxlength="255" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <input name="title" value="{{ old('title') }}" placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده" required maxlength="255" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <x-owner.field-error field="title"/>
                 </label>
 
