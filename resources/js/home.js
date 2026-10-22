@@ -1,3 +1,4 @@
+import './persian-calendar.js';
 import Alpine from 'alpinejs';
 
 window.Alpine = window.Alpine || Alpine;

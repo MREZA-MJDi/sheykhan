@@ -1,5 +1,7 @@
 @import './panel-base.css';
 
+@import './persian-calendar.css';
+
 @source '../../resources/views/teacher';
 @source '../../resources/views/layouts/teacher.blade.php';
 @source '../../resources/views/components';

@@ -1,3 +1,4 @@
+import './persian-calendar.js';
 import { bootPanel } from './panel-base.js';
 import './exam-builder.js';
 
