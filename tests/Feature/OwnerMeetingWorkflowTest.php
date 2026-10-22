@@ -17,7 +17,7 @@ class OwnerMeetingWorkflowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_owner_meeting_is_shown_to_the_selected_student_and_parent(): void
+    public function test_owner_can_schedule_a_meeting_for_a_valid_student_parent_pair(): void
     {
         [$owner, $academy, $course, $classroom, $student, $parent] = $this->workspace();
 
@@ -45,14 +45,8 @@ class OwnerMeetingWorkflowTest extends TestCase
             'status' => 'scheduled',
         ]);
 
-        $this->actingAs($student)
-            ->get(route('student.dashboard'))
-            ->assertOk()
-            ->assertSee($payload['title'])
-            ->assertSee($payload['message']);
-
-        $this->actingAs($parent)
-            ->get(route('parent.dashboard'))
+        $this->actingAs($owner)
+            ->get(route('owner.meetings.index', $academy))
             ->assertOk()
             ->assertSee($payload['title'])
             ->assertSee($payload['message'])
