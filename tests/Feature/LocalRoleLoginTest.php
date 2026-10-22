@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use Tests\\TestCase;
+use Tests\TestCase;
 
 class LocalRoleLoginTest extends TestCase
 {
@@ -16,7 +16,7 @@ class LocalRoleLoginTest extends TestCase
             ->assertSee('student.armin@sheykhan.test')
             ->assertSee('parent.armin@sheykhan.test')
             ->assertSee('seo@sheykhan.test')
-            ->assertSee(config('role_access.test_password'))
+            ->assertSee((string) config('role_access.test_password'))
             ->assertSee('data-test-login-fill', false);
     }
 
