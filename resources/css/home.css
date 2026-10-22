@@ -1,6 +1,5 @@
 @import 'tailwindcss' source(none);
 @import './components.css';
-@import './tiamir-intro.css';
 @import './home-meraki-hero.css';
 @import './public-experience.css';
 @source '../../resources/views';
