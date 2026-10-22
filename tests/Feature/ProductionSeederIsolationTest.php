@@ -15,7 +15,7 @@ class ProductionSeederIsolationTest extends TestCase
         $this->app->detectEnvironment(static fn (): string => 'production');
 
         try {
-            $this->seed();
+            $this->artisan('db:seed', ['--force' => true])->assertExitCode(0);
 
             $this->assertDatabaseMissing('users', ['email' => 'owner@sheykhan.test']);
             $this->assertDatabaseCount('courses', 0);
