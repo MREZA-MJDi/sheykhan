@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Services\LegacyWordPressPassword;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 
@@ -21,6 +22,17 @@ final class ImportLegacyStudents extends Command
     protected $description = 'Safely import the 55 verified WordPress students without executing destructive SQL from the source dump';
 
     private const EXPECTED_COUNT = 55;
+
+    /**
+     * Approved identities from the verified legacy export allow-list.
+     * A different set of 55 rows must never be silently imported.
+     */
+    private const EXPECTED_LEGACY_IDS = [
+        8, 58, 101, 109, 110, 112, 113, 114, 115, 116, 117, 118, 119, 120,
+        121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134,
+        135, 136, 137, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+        150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
+    ];
 
     private const USER_COLUMNS = [
         'name', 'email', 'password', 'mobile', 'status',
@@ -96,8 +108,8 @@ final class ImportLegacyStudents extends Command
         $this->info('منبع معتبر: ' . count($rows) . ' دانش‌آموز یکتا.');
         $this->line('حساب جدید: ' . $newCount);
         $this->line('هویت legacy موجود: ' . $existingCount);
-        $this->line('هش‌های WordPress bcrypt قابل تبدیل به Laravel: ' . collect($rows)->where('password_kind', 'wp-bcrypt')->count());
-        $this->line('هش قدیمی phpass که هنگام اولین ورود تبدیل می‌شود: ' . collect($rows)->where('password_kind', 'phpass')->count());
+        $this->line('حساب‌های دارای رمز موقت و اجبار تغییر در اولین ورود: ' . collect($rows)->where('password_kind', 'wp-bcrypt')->count());
+        $this->line('حساب‌های phpass که رمز قبلی خود را حفظ می‌کنند: ' . collect($rows)->where('password_kind', 'phpass')->count());
         $this->line($this->option('block-unlisted')
             ? 'Optional cleanup enabled: other WordPress-source users will lose the student role, have student memberships archived and be blocked; their profiles will be preserved.'
             : 'No DELETE or account blocking is enabled by default.');
@@ -105,6 +117,14 @@ final class ImportLegacyStudents extends Command
         if (! $this->option('apply')) {
             $this->comment('Dry-run است؛ دیتابیس تغییر نکرد. برای اعمال صریحاً گزینه --apply را اضافه کن.');
             return self::SUCCESS;
+        }
+
+        $temporaryPassword = config('legacy_students.temporary_password');
+        $forcedPasswordCount = collect($rows)->where('password_kind', 'wp-bcrypt')->count();
+        if ($forcedPasswordCount > 0 && (! is_string($temporaryPassword) || strlen($temporaryPassword) < 8)) {
+            $this->error('برای اعمال انتقال، مقدار SHEYKHAN_LEGACY_STUDENT_TEMP_PASSWORD باید در فایل خصوصی .env تنظیم شده و حداقل ۸ کاراکتر داشته باشد.');
+            $this->line('برای محیط واقعی از رمز موقت قوی و محدود به این مهاجرت استفاده کن؛ این مقدار را در Git ثبت نکن.');
+            return self::FAILURE;
         }
 
         $result = [
@@ -115,9 +135,10 @@ final class ImportLegacyStudents extends Command
             'created_profiles' => 0,
             'student_role_links' => 0,
             'blocked_users' => 0,
+            'forced_password_changes' => 0,
         ];
 
-        DB::transaction(function () use ($rows, &$result, $academy): void {
+        DB::transaction(function () use ($rows, &$result, $academy, $temporaryPassword): void {
             $now = now();
             $studentRoleId = DB::table('roles')->where('slug', 'student')->value('id');
 
@@ -150,12 +171,16 @@ final class ImportLegacyStudents extends Command
                     $userId = (int) DB::table('users')->insertGetId([
                         'name' => $row['name'],
                         'email' => $row['email'],
-                        // Preserve the exact legacy hash. The AuthService verifies it
-                        // through LegacyWordPressPasswordService and upgrades it only
-                        // after the student successfully logs in.
-                        'password' => $row['password'],
+                        // The 54 verified WordPress bcrypt accounts receive the
+                        // private, configured temporary password and are gated to
+                        // the mandatory change screen after first login. The single
+                        // phpass account keeps its legacy hash and existing login path.
+                        'password' => $row['password_kind'] === 'wp-bcrypt'
+                            ? Hash::make((string) $temporaryPassword)
+                            : $row['password'],
                         'mobile' => $row['mobile'],
                         'status' => 'active',
+                        'must_change_password' => $row['password_kind'] === 'wp-bcrypt',
                         'legacy_source' => 'wordpress',
                         'legacy_id' => $row['legacy_id'],
                         'email_verified_at' => null,
@@ -163,6 +188,9 @@ final class ImportLegacyStudents extends Command
                         'updated_at' => $now,
                     ]);
                     $result['created_users']++;
+                    if ($row['password_kind'] === 'wp-bcrypt') {
+                        $result['forced_password_changes']++;
+                    }
                 }
 
                 $result['student_role_links'] += DB::table('role_user')->insertOrIgnore([
@@ -258,11 +286,12 @@ final class ImportLegacyStudents extends Command
 
         $this->newLine();
         $this->info('Import انجام شد.');
-        $this->table(['Created users', 'Existing users', 'Created profiles', 'New student-role links'], [[
+        $this->table(['Created users', 'Existing users', 'Created profiles', 'New student-role links', 'Forced password changes'], [[
             $result['created_users'],
             $result['existing_users'],
             $result['created_profiles'],
             $result['student_role_links'],
+            $result['forced_password_changes'],
         ]]);
         $this->warn('This SQL contains identities only. Course enrollment, purchase/payment evidence, course/teacher assignment, classroom roster and weekly schedules were not inferred or created.');
 
@@ -272,7 +301,7 @@ final class ImportLegacyStudents extends Command
     private function requiredSchemaGaps(): array
     {
         $required = [
-            'users' => ['name', 'email', 'password', 'mobile', 'status', 'legacy_source', 'legacy_id', 'created_at', 'updated_at'],
+            'users' => ['name', 'email', 'password', 'must_change_password', 'mobile', 'status', 'legacy_source', 'legacy_id', 'created_at', 'updated_at'],
             'roles' => ['name', 'slug', 'description', 'created_at', 'updated_at'],
             'role_user' => ['role_id', 'user_id'],
             'student_profiles' => [
@@ -370,9 +399,17 @@ final class ImportLegacyStudents extends Command
             $rows[] = $data;
         }
 
-        $ids = collect($rows)->pluck('legacy_id');
-        if (count($rows) !== self::EXPECTED_COUNT || $ids->unique()->count() !== self::EXPECTED_COUNT) {
-            throw new RuntimeException('تعداد یا شناسه‌های یکتای فایل با مجموعهٔ تأییدشدهٔ ۵۵ دانش‌آموز تطبیق ندارد.');
+        $ids = collect($rows)->pluck('legacy_id')->map(static fn ($id): int => (int) $id)->all();
+        $expectedIds = self::EXPECTED_LEGACY_IDS;
+        sort($ids);
+        sort($expectedIds);
+
+        if (
+            count($rows) !== self::EXPECTED_COUNT
+            || count(array_unique($ids)) !== self::EXPECTED_COUNT
+            || $ids !== $expectedIds
+        ) {
+            throw new RuntimeException('تعداد یا شناسه‌های legacy با فهرست دقیق ۵۵ دانش‌آموز تأییدشده مطابقت ندارد.');
         }
 
         return $rows;
