@@ -136,6 +136,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::patch('/academy/{academy}/classrooms/{classroom}', [OwnerClassroomController::class, 'update'])->middleware('permission:classrooms.manage')->name('classrooms.update');
     Route::post('/academy/{academy}/people/legacy-students', [OwnerPeopleController::class, 'onboardLegacyStudent'])->middleware('permission:onboarding.manage')->name('people.legacy-students.store');
     Route::post('/academy/{academy}/people/store-teacher', [OwnerPeopleController::class, 'storeTeacher'])->middleware('permission:teachers.manage')->name('people.store-teacher');
+    Route::post('/academy/{academy}/people/store-parent', [OwnerPeopleController::class, 'storeParent'])->middleware(['permission:parents.manage','throttle:10,1'])->name('people.store-parent');
     Route::patch('/academy/{academy}/people/teachers/{teacher}/archive', [OwnerPeopleController::class, 'archiveTeacher'])->middleware('permission:teachers.manage')->name('people.archive-teacher');
     Route::patch('/academy/{academy}/people/teachers/{teacher}/restore', [OwnerPeopleController::class, 'restoreTeacher'])->middleware('permission:teachers.manage')->name('people.restore-teacher');
     Route::patch('/academy/{academy}/people/teachers/{teacher}/visibility', [OwnerPeopleController::class, 'updateTeacherVisibility'])->middleware('permission:teachers.manage')->name('people.teacher-visibility');
@@ -251,6 +252,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])->middleware('permission:exams.manage')->name('exam-attempts.grade');
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
     Route::get('/messages', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'index'])->middleware('permission:parent_messages.view')->name('messages.index');
+    Route::patch('/messages/{message}/reply', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'reply'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('messages.reply');
     Route::get('/meetings', [\App\Http\Controllers\Teacher\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
     Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\Teacher\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
     Route::get('/payments', [\App\Http\Controllers\Teacher\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
@@ -301,6 +303,12 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 });
 Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('parent.')->group(function () {
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/messages', [\App\Http\Controllers\ParentPortal\MessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages', [\App\Http\Controllers\ParentPortal\MessageController::class, 'store'])->middleware('throttle:5,1')->name('messages.store');
+    Route::get('/counseling', [\App\Http\Controllers\ParentPortal\CounselingRequestController::class, 'index'])->name('counseling.index');
+    Route::post('/counseling', [\App\Http\Controllers\ParentPortal\CounselingRequestController::class, 'store'])->middleware('throttle:5,1')->name('counseling.store');
+    Route::get('/attendance', [\App\Http\Controllers\ParentPortal\AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/results', [\App\Http\Controllers\ParentPortal\ResultController::class, 'index'])->name('results.index');
 });
 
 Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'])

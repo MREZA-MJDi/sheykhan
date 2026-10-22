@@ -23,6 +23,18 @@
         <a href="{{ route('parent.dashboard') }}#parent-results-title" class="role-nav-link">
             <span class="role-nav-icon"></span><span>نتیجه‌های اخیر</span>
         </a>
+        <a href="{{ route('parent.attendance.index') }}" class="role-nav-link {{ request()->routeIs('parent.attendance.*') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>حضور و غیاب</span>
+        </a>
+        <a href="{{ route('parent.results.index') }}" class="role-nav-link {{ request()->routeIs('parent.results.*') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>نتایج تکالیف و آزمون‌ها</span>
+        </a>
+        <a href="{{ route('parent.messages.index') }}" class="role-nav-link {{ request()->routeIs('parent.messages.*') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>پیام‌ها و درخواست‌ها</span>
+        </a>
+        <a href="{{ route('parent.counseling.index') }}" class="role-nav-link {{ request()->routeIs('parent.counseling.*') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>درخواست مشاوره</span>
+        </a>
 
         <div class="role-sidebar-label mt-6">دسترسی‌ها</div>
         @if(\Illuminate\Support\Facades\Route::has('library.index'))
