@@ -20,8 +20,13 @@ class PublicHomeSmokeTest extends TestCase
 
         $home->assertOk()
             ->assertSee('هر قدم کوچک')
+            ->assertSee('home-academy-story', false)
+            ->assertSee('home-paths__intro', false)
+            ->assertSee('دسترسی سریع به بخش‌های شیخان')
             ->assertSee('data-home-hero', false)
             ->assertSee('sheykhan-home-hero__title', false)
+            ->assertDontSee('data-tiamir-intro', false)
+            ->assertDontSee('data-tiamir-canvas', false)
             ->assertDontSee('pater/pater.css')
             ->assertDontSee('js/demo4.js')
             ->assertDontSee('home-banner-slider');
@@ -127,6 +132,9 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringContainsString('data-home-hero', $blade);
         $this->assertStringContainsString('aria-labelledby', $blade);
         $this->assertStringContainsString('prefers-reduced-motion', $styles);
+        $this->assertStringContainsString('sheykhan-hero-image-drift', $styles);
+        $this->assertStringNotContainsString('tiamir-intro.css', $homeStyles);
+        $this->assertStringNotContainsString("@source '../../resources/views';", $homeStyles);
         $this->assertStringContainsString('.home-banner-grid', $homeStyles);
         $this->assertStringContainsString('.home-banner-media img', $homeStyles);
     }
