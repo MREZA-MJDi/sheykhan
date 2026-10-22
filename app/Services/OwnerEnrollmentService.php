@@ -214,12 +214,17 @@ final class OwnerEnrollmentService
                         ->lockForUpdate()
                         ->first();
 
-                    $oldClassroom?->students()
-                        ->wherePivot('status', 'active')
-                        ->updateExistingPivot($student->id, [
-                            'status' => 'transferred',
-                            'completed_at' => null,
-                        ]);
+                    if ($oldClassroom) {
+                        DB::table('classroom_student')
+                            ->where('classroom_id', $oldClassroom->id)
+                            ->where('student_id', $student->id)
+                            ->where('status', 'active')
+                            ->update([
+                                'status' => 'transferred',
+                                'completed_at' => null,
+                                'updated_at' => now(),
+                            ]);
+                    }
                 }
 
                 $enrollment->update([

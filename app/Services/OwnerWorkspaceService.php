@@ -150,9 +150,16 @@ final class OwnerWorkspaceService
         abort_if(!$membership, 404);
 
         DB::transaction(function () use ($academy, $teacher): void {
-            $academy->users()->updateExistingPivot($teacher->id, [
-                'status' => 'archived',
-            ]);
+            $updated = DB::table('academy_user')
+                ->where('academy_id', $academy->id)
+                ->where('user_id', $teacher->id)
+                ->where('role', 'teacher')
+                ->update([
+                    'status' => 'archived',
+                    'updated_at' => now(),
+                ]);
+
+            abort_unless($updated === 1, 404);
 
             app(TeacherDirectoryService::class)->clearPublicCache();
         });
@@ -170,10 +177,17 @@ final class OwnerWorkspaceService
         abort_if(!$membership, 404);
 
         DB::transaction(function () use ($academy, $teacher, $membership): void {
-            $academy->users()->updateExistingPivot($teacher->id, [
-                'status' => 'active',
-                'joined_at' => $membership->pivot->joined_at ?? now(),
-            ]);
+            $updated = DB::table('academy_user')
+                ->where('academy_id', $academy->id)
+                ->where('user_id', $teacher->id)
+                ->where('role', 'teacher')
+                ->update([
+                    'status' => 'active',
+                    'joined_at' => $membership->pivot->joined_at ?? now(),
+                    'updated_at' => now(),
+                ]);
+
+            abort_unless($updated === 1, 404);
 
             app(TeacherDirectoryService::class)->clearPublicCache();
         });
