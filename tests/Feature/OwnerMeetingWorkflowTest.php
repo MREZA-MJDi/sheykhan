@@ -103,6 +103,17 @@ class OwnerMeetingWorkflowTest extends TestCase
             ->assertDontSee('SEO و دیده‌شدن');
     }
 
+    public function test_meeting_form_does_not_prepopulate_a_personal_demo_title(): void
+    {
+        [$owner, $academy] = $this->workspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.meetings.index', $academy))
+            ->assertOk()
+            ->assertDontSee('value="هماهنگی با آقای سبحانی"', false)
+            ->assertSee('placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده"', false);
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create([
