@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureActiveTeacherMembership;
 use App\Http\Middleware\InvalidateOwnerDashboardCache;
+use App\Http\Middleware\RequirePasswordChange;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -30,6 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'active-teacher' => EnsureActiveTeacherMembership::class,
             'owner.cache.invalidate' => InvalidateOwnerDashboardCache::class,
         ]);
+
+        $middleware->appendToGroup('web', [RequirePasswordChange::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (ModelNotFoundException $e, Request $request) {

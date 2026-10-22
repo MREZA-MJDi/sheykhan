@@ -4,16 +4,27 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class LegacyStudentImportTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const APPROVED_LEGACY_IDS = [
+        8, 58, 101, 109, 110, 112, 113, 114, 115, 116, 117, 118, 119, 120,
+        121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134,
+        135, 136, 137, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+        150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
+    ];
+
     public function test_import_is_dry_run_by_default_and_never_touches_unlisted_legacy_users(): void
     {
+        config(['legacy_students.temporary_password' => '12345678']);
+
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
         $this->seed(\Database\Seeders\AcademicReferenceSeeder::class);
         $this->seed(\Database\Seeders\AcademyFoundationSeeder::class);
@@ -31,7 +42,7 @@ class LegacyStudentImportTest extends TestCase
 
             $this->assertSame(
                 0,
-                DB::table('users')->where('legacy_source', 'wordpress')->whereBetween('legacy_id', [2001, 2055])->count()
+                DB::table('users')->where('legacy_source', 'wordpress')->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)->count()
             );
 
             $this->assertDatabaseHas('users', [
@@ -48,7 +59,7 @@ class LegacyStudentImportTest extends TestCase
 
             $this->assertSame(
                 55,
-                DB::table('users')->where('legacy_source', 'wordpress')->whereBetween('legacy_id', [2001, 2055])->count()
+                DB::table('users')->where('legacy_source', 'wordpress')->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)->count()
             );
 
             $this->assertSame(
@@ -63,7 +74,7 @@ class LegacyStudentImportTest extends TestCase
             $importedUserIds = DB::table('users')
                 ->select('id')
                 ->where('legacy_source', 'wordpress')
-                ->whereBetween('legacy_id', [2001, 2055]);
+                ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS);
 
             $this->assertSame(
                 55,
@@ -82,11 +93,62 @@ class LegacyStudentImportTest extends TestCase
                     ->whereIn('user_id', DB::table('users')
                         ->select('id')
                         ->where('legacy_source', 'wordpress')
-                        ->whereBetween('legacy_id', [2001, 2055]))
+                        ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS))
                     ->count()
             );
 
+            // The 54 WordPress bcrypt accounts use the configured temporary password
+            // and must change it before accessing any authenticated page.
+            $this->post(route('login.store'), [
+                'identifier' => '8',
+                'password' => '12345678',
+            ])->assertRedirect(route('password.change.show'))->assertSessionHasNoErrors();
+
+            $this->assertAuthenticated();
+            $loginUserId = (int) DB::table('users')
+                ->where('legacy_source', 'wordpress')
+                ->where('legacy_id', 8)
+                ->value('id');
+            $importedUser = User::query()->findOrFail($loginUserId);
+            $this->assertTrue($importedUser->must_change_password);
+            $this->assertTrue(Hash::check('12345678', (string) $importedUser->password));
+
+            $this->assertSame(
+                54,
+                DB::table('users')
+                    ->where('legacy_source', 'wordpress')
+                    ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)
+                    ->where('must_change_password', true)
+                    ->count()
+            );
+            $this->assertDatabaseHas('users', [
+                'legacy_source' => 'wordpress',
+                'legacy_id' => 58,
+                'must_change_password' => false,
+            ]);
+
+            $this->get(route('dashboard'))->assertRedirect(route('password.change.show'));
+            $this->get(route('password.change.show'))->assertOk();
+
+            $newPassword = 'New-Sheykhan-Passphrase-2026!';
+            $this->put(route('password.change.update'), [
+                'password' => $newPassword,
+                'password_confirmation' => $newPassword,
+            ])->assertRedirect(route('dashboard'));
+
+            $importedUser->refresh();
+            $this->assertFalse($importedUser->must_change_password);
+            $this->assertTrue(Hash::check($newPassword, (string) $importedUser->password));
+
+            $afterPasswordChange = $this->get(route('dashboard'));
+            $this->assertNotSame(
+                route('password.change.show'),
+                $afterPasswordChange->headers->get('Location'),
+                'A student who has changed their password must no longer be blocked by the first-login gate.'
+            );
+
             // An unrelated imported user outside the source list must retain
+            // their account status, student role and profile untouched.
             // their account status, student role and profile untouched.
             $this->assertDatabaseHas('users', [
                 'legacy_source' => 'wordpress',
@@ -108,7 +170,7 @@ class LegacyStudentImportTest extends TestCase
                     ->whereIn('user_id', DB::table('users')
                         ->select('id')
                         ->where('legacy_source', 'wordpress')
-                        ->whereBetween('legacy_id', [2001, 2055]))
+                        ->whereIn('legacy_id', self::APPROVED_LEGACY_IDS))
                     ->count()
             );
 
@@ -121,7 +183,7 @@ class LegacyStudentImportTest extends TestCase
 
             $this->assertSame(
                 55,
-                DB::table('users')->where('legacy_source', 'wordpress')->whereBetween('legacy_id', [2001, 2055])->count()
+                DB::table('users')->where('legacy_source', 'wordpress')->whereIn('legacy_id', self::APPROVED_LEGACY_IDS)->count()
             );
             $this->assertSame(
                 55,
@@ -130,6 +192,15 @@ class LegacyStudentImportTest extends TestCase
                     ->where('status', 'active')
                     ->count()
             );
+            $this->assertDatabaseHas('users', [
+                'legacy_source' => 'wordpress',
+                'legacy_id' => 8,
+                'must_change_password' => false,
+            ]);
+            $this->assertTrue(Hash::check($newPassword, (string) DB::table('users')
+                ->where('legacy_source', 'wordpress')
+                ->where('legacy_id', 8)
+                ->value('password')));
         } finally {
             @unlink($path);
         }
@@ -181,14 +252,17 @@ class LegacyStudentImportTest extends TestCase
         }
 
         $statements = [];
-        for ($index = 1; $index <= 55; $index++) {
-            $legacyId = 2000 + $index;
+        $plainPassword = 'legacy-import-test-password';
+        $prehashed = base64_encode(hash_hmac('sha384', $plainPassword, 'wp-sha384', true));
+        $validWordPressBcrypt = '$wp' . password_hash($prehashed, PASSWORD_BCRYPT, ['cost' => 4]);
+
+        foreach (self::APPROVED_LEGACY_IDS as $index => $legacyId) {
             $name = $index === 1 ? 'Student (test case)' : 'Imported student ' . $index;
-            // Exercise both supported WordPress hash families without using any
-            // of the actual private source's personal data or hashes.
+            // Exercise a valid WordPress 6.8+ wrapped bcrypt hash and the phpass
+            // format without using any real student's personal data or hash.
             $hash = $index === 1
                 ? '$P$B12345678abcdefghijklmnopqrstuv'
-                : '$wp$2y$10$' . str_repeat(chr(65 + ($index % 26)), 53);
+                : $validWordPressBcrypt;
 
             $statements[] = "INSERT INTO users (name, email, password, mobile, status, legacy_source, legacy_id, created_at, updated_at) VALUES ('{$name}', NULL, '{$hash}', NULL, 'active', 'wordpress', {$legacyId}, '2025-01-01 00:00:00', '2025-01-01 00:00:00') ON DUPLICATE KEY UPDATE name=VALUES(name), email=VALUES(email), password=VALUES(password), status='active', updated_at=VALUES(updated_at);";
         }

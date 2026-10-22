@@ -89,6 +89,13 @@
         </button>
     </form>
 
+    <div class="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4">
+        <strong class="block text-sm font-black text-[var(--color-text)]">دانش‌آموز سامانه قبلی شیخان هستی؟</strong>
+        <p class="mt-2 text-xs leading-7 text-[var(--color-text-secondary)]">
+            اگر از سامانه قبلی شیخان وارد می‌شوی، شناسهٔ عددی کاربر قدیمی را وارد کن و از رمز موقتی که آموزشگاه در اختیارت گذاشته استفاده کن. برای امنیت حساب، بعد از اولین ورود باید رمز اختصاصی جدید تعیین کنی و تا آن زمان پنل باز نمی‌شود. اگر شناسه یا رمز موقت را نداری، با آموزشگاه تماس بگیر.
+        </p>
+    </div>
+
     <div class="my-6 flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
         <span class="h-px flex-1 bg-[var(--color-border)]"></span>
         <span>یا</span>
@@ -103,6 +110,7 @@
     </p>
 </div>
 
+@if(app()->environment('local', 'testing'))
 <div class="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4">
     <div class="flex items-start justify-between gap-3">
         <div>
@@ -207,8 +215,10 @@
         </div>
     @endif
 </div>
+@endif
 @endsection
 
+@if(app()->environment('local', 'testing'))
 @push('scripts')
 <script>
 (() => {
@@ -278,4 +288,5 @@
 })();
 </script>
 @endpush
+@endif
 
