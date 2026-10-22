@@ -28,8 +28,10 @@
         ],
         'parent' => [
             ['route' => 'parent.dashboard', 'url' => route('parent.dashboard'), 'activeRoute' => 'parent.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂'],
-            ['route' => 'parent.dashboard', 'url' => route('parent.dashboard') . '#parent-children-title', 'activeRoute' => null, 'label' => 'فرزندان', 'permission' => 'dashboard.view', 'icon' => '◎'],
-            ['route' => 'library.index', 'activeRoute' => 'library.index', 'label' => 'خریدها', 'permission' => 'courses.view', 'icon' => '▣'],
+            ['route' => 'parent.attendance.index', 'activeRoute' => 'parent.attendance.*', 'label' => 'حضور', 'permission' => 'dashboard.view', 'icon' => '✓'],
+            ['route' => 'parent.results.index', 'activeRoute' => 'parent.results.*', 'label' => 'نتایج', 'permission' => 'dashboard.view', 'icon' => '↗'],
+            ['route' => 'parent.messages.index', 'activeRoute' => 'parent.messages.*', 'label' => 'پیام‌ها', 'permission' => 'dashboard.view', 'icon' => '✉'],
+            ['route' => 'parent.counseling.index', 'activeRoute' => 'parent.counseling.*', 'label' => 'مشاوره', 'permission' => 'dashboard.view', 'icon' => '◷'],
         ],
         default => [],
     };

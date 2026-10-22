@@ -4,6 +4,59 @@
 @section('content')
 <div class="space-y-6 panel-page-enter">
 <div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اختصاص مسئول کلاس و ثبت‌نام امن.</p></div>
+
+@if(session('temporary_parent_password'))
+<section class="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950" role="status">
+    <h2 class="font-black">رمز موقت والد — فقط همین یک‌بار</h2>
+    <p class="mt-1 text-sm leading-6">این رمز را از راه امن به والد تحویل دهید. حساب مجبور است در اولین ورود رمز را عوض کند؛ برای امنیت، صفحه را دوباره بارگذاری نکنید تا رمز از پیام موقت حذف شود.</p>
+    <div class="mt-3 grid gap-2 sm:grid-cols-2">
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">ایمیل</span><strong class="mt-1 block break-all text-sm">{{ session('temporary_parent_email') }}</strong></div>
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">رمز موقت</span><code class="mt-1 block break-all text-base font-black">{{ session('temporary_parent_password') }}</code></div>
+    </div>
+</section>
+@endif
+
+<section class="dashboard-panel p-5 sm:p-7">
+    <div>
+        <h2 class="text-base font-black">ساخت حساب والد و اتصال به دانش‌آموز</h2>
+        <p class="mt-1 max-w-3xl text-xs leading-6 text-slate-500">اگر ایمیل از قبل متعلق به حساب والد فعال باشد، همان حساب متصل می‌شود و رمز آن تغییر نمی‌کند. در غیر این صورت حساب والد ساخته می‌شود و رمز موقت یک‌باره نمایش داده خواهد شد.</p>
+    </div>
+    <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}" class="mt-5 grid gap-3 sm:grid-cols-2" data-confirm="حساب والد ساخته یا به دانش‌آموز متصل شود؟">
+        @csrf
+        <label class="grid gap-1 text-xs font-bold">نام والد
+            <input name="name" value="{{ old('name') }}" minlength="2" maxlength="100" required autocomplete="name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            @error('name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        </label>
+        <label class="grid gap-1 text-xs font-bold">ایمیل والد
+            <input type="email" name="email" value="{{ old('email') }}" maxlength="255" required autocomplete="email" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            @error('email')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        </label>
+        <label class="grid gap-1 text-xs font-bold">موبایل (اختیاری)
+            <input type="tel" name="mobile" value="{{ old('mobile') }}" maxlength="30" autocomplete="tel" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            @error('mobile')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        </label>
+        <label class="grid gap-1 text-xs font-bold">نوع ارتباط با دانش‌آموز
+            <select name="relation" required class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                <option value="مادر" @selected(old('relation') === 'مادر')>مادر</option>
+                <option value="پدر" @selected(old('relation') === 'پدر')>پدر</option>
+                <option value="سرپرست" @selected(old('relation') === 'سرپرست')>سرپرست</option>
+                <option value="سایر" @selected(old('relation') === 'سایر')>سایر</option>
+            </select>
+            @error('relation')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        </label>
+        <label class="grid gap-1 text-xs font-bold sm:col-span-2">دانش‌آموز این آموزشگاه
+            <select name="student_id" required class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                <option value="">انتخاب دانش‌آموز فعال</option>
+                @foreach($students as $studentOption)
+                    <option value="{{ $studentOption->id }}" @selected((string) old('student_id') === (string) $studentOption->id)>{{ $studentOption->name }} — {{ $studentOption->email }}</option>
+                @endforeach
+            </select>
+            @error('student_id')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+            @if($students->isEmpty())<span class="font-normal text-amber-700">ابتدا یک دانش‌آموز فعال به آموزشگاه اضافه کنید.</span>@endif
+        </label>
+        <div class="sm:col-span-2"><button @disabled($students->count() === 0) class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ساخت حساب / اتصال والد</button></div>
+    </form>
+</section>
 <div class="grid gap-5 xl:grid-cols-3">
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-confirm="حساب مدرس ساخته شود؟">@csrf
 <label class="grid gap-1"><span class="text-xs font-bold">نام و نام خانوادگی</span><input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="name"/></label>

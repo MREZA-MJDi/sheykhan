@@ -34,6 +34,7 @@ class RolePermissionSeeder extends Seeder
             ['name'=>'parents.view','label'=>'مشاهده والدین','group'=>'parents'],
             ['name'=>'parents.manage','label'=>'مدیریت والدین','group'=>'parents'],
             ['name'=>'parent_messages.view','label'=>'مشاهده پیام‌های اولیا','group'=>'parent_messages'],
+            ['name'=>'parent_messages.manage','label'=>'پاسخ به پیام‌های اولیا','group'=>'parent_messages'],
             ['name'=>'teacher_payments.view','label'=>'مشاهده حقوق ثبت‌شده مدرس‌ها','group'=>'teacher_payments'],
             ['name'=>'teacher_payments.manage','label'=>'مدیریت سندهای پرداخت مدرس‌ها','group'=>'teacher_payments'],
 
@@ -133,7 +134,7 @@ class RolePermissionSeeder extends Seeder
                 'classrooms.view','classrooms.manage',
                 'students.view',
                 'assignments.view','assignments.manage',
-                'parent_messages.view',
+                'parent_messages.view','parent_messages.manage',
                 'teacher_payments.view',
                 'exams.view','exams.manage',
                 'attendance.view','attendance.manage',

@@ -7,10 +7,12 @@ use App\Http\Requests\Owner\AssignTeacherCourseRequest;
 use App\Http\Requests\Owner\EnrollStudentRequest;
 use App\Http\Requests\Owner\LegacyStudentOnboardingRequest;
 use App\Http\Requests\Owner\StoreTeacherRequest;
+use App\Http\Requests\Owner\StoreParentRequest;
 use App\Http\Requests\Owner\UpdateTeacherVisibilityRequest;
 use App\Models\Academy;
 use App\Models\User;
 use App\Services\OwnerWorkspaceService;
+use App\Services\ParentOnboardingService;
 use App\Services\StudentOnboardingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -108,6 +110,32 @@ class PeopleController extends Controller
         );
 
         return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.');
+    }
+
+    public function storeParent(
+        StoreParentRequest $request,
+        Academy $academy,
+        ParentOnboardingService $onboarding,
+        OwnerWorkspaceService $workspace
+    ): RedirectResponse {
+        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+
+        $result = $onboarding->createOrLink($academy, $request->validated());
+
+        $response = back()->with(
+            'success',
+            $result['created']
+                ? 'حساب والد ساخته شد و به دانش‌آموز متصل شد. رمز موقت فقط همین یک‌بار نمایش داده می‌شود.'
+                : 'حساب والد موجود به دانش‌آموز متصل شد؛ رمز عبور حساب تغییر نکرد.'
+        );
+
+        if ($result['temporary_password']) {
+            $response
+                ->with('temporary_parent_password', $result['temporary_password'])
+                ->with('temporary_parent_email', $result['parent']->email);
+        }
+
+        return $response;
     }
 
     public function archiveTeacher(
