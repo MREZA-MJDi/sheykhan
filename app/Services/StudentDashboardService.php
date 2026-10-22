@@ -29,11 +29,52 @@ final class StudentDashboardService
             ->with([
                 'course:id,academy_id,title,slug,level,access_type,price',
                 'course.academy:id,name',
-                'course.teachers:id,name',
             ])
             ->latest('started_at')
             ->limit(6)
             ->get();
+
+        // The same published course may have multiple teacher-led cohorts.
+        // Resolve teachers only through this student's active classroom membership
+        // and matching active course enrollment; course.teachers would leak every
+        // teacher assigned to the shared course into every student's dashboard.
+        $teacherIds = $courseIds->isEmpty()
+            ? collect()
+            : DB::table('classroom_student as student_membership')
+                ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                ->join('course_enrollments as student_enrollment', function ($join) use ($student): void {
+                    $join->on('student_enrollment.classroom_id', '=', 'student_classroom.id')
+                        ->on('student_enrollment.course_id', '=', 'student_classroom.course_id')
+                        ->where('student_enrollment.student_id', '=', $student->id)
+                        ->where('student_enrollment.status', '=', 'active');
+                })
+                ->join('courses as enrolled_courses', 'enrolled_courses.id', '=', 'student_enrollment.course_id')
+                ->join('users as teachers', 'teachers.id', '=', 'teaching_assignment.teacher_id')
+                ->join('academy_user as teacher_membership', function ($join): void {
+                    $join->on('teacher_membership.academy_id', '=', 'enrolled_courses.academy_id')
+                        ->on('teacher_membership.user_id', '=', 'teaching_assignment.teacher_id')
+                        ->where('teacher_membership.role', '=', 'teacher')
+                        ->where('teacher_membership.status', '=', 'active');
+                })
+                ->whereIn('student_classroom.course_id', $courseIds->all())
+                ->where('student_membership.student_id', $student->id)
+                ->where('student_membership.status', 'active')
+                ->where('student_classroom.status', 'active')
+                ->where('teachers.status', 'active')
+                ->whereNull('teachers.deleted_at')
+                ->distinct()
+                ->pluck('teaching_assignment.teacher_id');
+
+        $teachers = $teacherIds->isEmpty()
+            ? collect()
+            : User::query()
+                ->whereIn('id', $teacherIds)
+                ->where('status', 'active')
+                ->whereNull('deleted_at')
+                ->orderBy('name')
+                ->limit(3)
+                ->get(['id', 'name']);
 
         $progress = $this->progressByCourse($student->id, $courseIds);
         $lessonStats = $this->lessonStatsByCourse($student->id, $courseIds);
@@ -277,7 +318,7 @@ final class StudentDashboardService
             'student' => $student,
             'profile' => $student->studentProfile,
             'courses' => $courses,
-            'teachers' => $courses->flatMap(fn ($course) => $course->teachers ?? [])->unique('id')->values()->take(3),
+            'teachers' => $teachers,
             'overallProgress' => round($overallProgress),
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
