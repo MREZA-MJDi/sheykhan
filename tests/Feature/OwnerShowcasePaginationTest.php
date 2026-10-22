@@ -1,17 +1,17 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Models\\Achievement;
-use App\\Models\\Academy;
-use App\\Models\\Permission;
-use App\\Models\\Role;
-use App\\Models\\Testimonial;
-use App\\Models\\User;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Illuminate\\Pagination\\LengthAwarePaginator;
-use Illuminate\\Support\\Str;
-use Tests\\TestCase;
+use App\Models\Achievement;
+use App\Models\Academy;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Testimonial;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 class OwnerShowcasePaginationTest extends TestCase
 {
