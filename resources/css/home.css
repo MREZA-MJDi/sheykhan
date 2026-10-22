@@ -2,6 +2,8 @@
 @import './components.css';
 @import './home-meraki-hero.css';
 @import './public-experience.css';
+@import './persian-calendar.css';
+
 @source '../../resources/views/pages';
 @source '../../resources/views/auth';
 @source '../../resources/views/layouts/app.blade.php';
