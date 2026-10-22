@@ -23,6 +23,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Run Jalali calendar conversion tests
+        run: npm run test:calendar
       - name: Build production assets
         run: npm run build
 
