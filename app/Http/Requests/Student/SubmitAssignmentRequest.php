@@ -19,7 +19,7 @@ class SubmitAssignmentRequest extends FormRequest
             'attachments.*' => [
                 'file',
                 'max:10240',
-                'mimetypes:application/pdf,text/plain,image/jpeg,image/png,image/webp,application/zip',
+                'mimetypes:application/pdf,text/plain,image/jpeg,image/png,image/webp,application/zip,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text',
             ],
         ];
     }

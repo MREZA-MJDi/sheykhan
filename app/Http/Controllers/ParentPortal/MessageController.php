@@ -32,13 +32,60 @@ final class MessageController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $outgoingTeacherMessages = TeacherDirectMessage::query()
+            ->where('sender_type', 'parent')
+            ->where('sender_id', $request->user()->id)
+            ->with(['teacher:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title', 'responder:id,name'])
+            ->latest()
+            ->paginate(10, ['*'], 'outgoing_teacher_messages_page')
+            ->withQueryString();
+
         return view('parent.messages.index', [
             'messages' => $messages,
             'contactableChildren' => $portal->contactableChildren($request->user()),
+            'teacherTargets' => $portal->contactableTeacherTargets($request->user()),
             'teacherMessages' => $teacherMessages,
+            'outgoingTeacherMessages' => $outgoingTeacherMessages,
         ]);
     }
 
+
+    public function storeToTeacher(Request $request, ParentPortalService $portal): RedirectResponse
+    {
+        $data = $request->validate([
+            'teacher_target' => ['required', 'string', 'regex:/^classroom:\d+:\d+:\d+$/'],
+            'teacher_category' => ['required', 'string', 'in:question,suggestion,complaint,other'],
+            'teacher_subject' => ['required', 'string', 'min:3', 'max:180'],
+            'teacher_body' => ['required', 'string', 'min:5', 'max:10000'],
+        ], [
+            'teacher_target.required' => 'فرزند، کلاس و مدرس مرتبط را انتخاب کنید.',
+            'teacher_subject.required' => 'موضوع پیام را وارد کنید.',
+            'teacher_body.required' => 'متن پیام را وارد کنید.',
+        ]);
+
+        $parent = $request->user();
+        $target = $portal->contactableTeacherTargets($parent)->firstWhere('key', $data['teacher_target']);
+        abort_unless($target, 404, 'مدرس انتخاب‌شده به کلاس فعال فرزند شما مرتبط نیست.');
+
+        TeacherDirectMessage::query()->create([
+            'academy_id' => $target->academy_id,
+            'teacher_id' => $target->teacher_id,
+            'sender_id' => $parent->id,
+            'sender_type' => 'parent',
+            'recipient_type' => 'teacher',
+            'recipient_id' => $target->teacher_id,
+            'student_id' => $target->student_id,
+            'course_id' => $target->course_id,
+            'classroom_id' => $target->classroom_id,
+            'category' => $data['teacher_category'],
+            'subject' => trim($data['teacher_subject']),
+            'body' => trim($data['teacher_body']),
+            'status' => 'sent',
+        ]);
+
+        return redirect()->route('parent.messages.index')
+            ->with('success', 'پیام شما برای مدرس همین کلاس ارسال شد.');
+    }
 
     public function replyToTeacherMessage(Request $request, int $message): RedirectResponse
     {

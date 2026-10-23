@@ -53,6 +53,7 @@ final class ResultController extends Controller
             ->selectRaw('students.name as student_name')
             ->selectRaw('assignments.title as title')
             ->selectRaw('submissions.score as score')
+            ->selectRaw('submissions.feedback as feedback')
             ->selectRaw('submissions.graded_at as occurred_at')
             ->selectRaw("'تصحیح‌شده' as status_label");
 
@@ -93,6 +94,7 @@ final class ResultController extends Controller
             ->selectRaw('students.name as student_name')
             ->selectRaw('exams.title as title')
             ->selectRaw("CASE WHEN attempts.status = 'graded' THEN attempts.score ELSE NULL END as score")
+            ->selectRaw('NULL as feedback')
             ->selectRaw('attempts.submitted_at as occurred_at')
             ->selectRaw("CASE WHEN attempts.status = 'graded' THEN 'تصحیح‌شده' ELSE 'در انتظار بررسی' END as status_label");
 

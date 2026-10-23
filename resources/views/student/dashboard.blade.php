@@ -296,6 +296,9 @@
                         </a>
                     @endif
                 @endforeach
+                <a href="{{ route('courses.index') }}"><i>▣</i><span>دوره‌های عمومی</span><small>دوره‌هایی که به‌صورت عمومی منتشر شده‌اند</small></a>
+                <a href="{{ route('store.index') }}"><i>▤</i><span>فروشگاه کتاب و محصولات</span><small>مشاهده محصولات قابل خرید سایت</small></a>
+                <a href="{{ route('blog.index') }}"><i>✦</i><span>محتوای عمومی و مقالات</span><small>مطالب منتشرشده توسط تیم شیخان</small></a>
             </div>
         </section>
 

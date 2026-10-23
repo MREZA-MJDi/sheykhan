@@ -46,6 +46,11 @@
                 <a href="{{ route('parent.results.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">
                     نتایج آموزشی <span aria-hidden="true">←</span>
                 </a>
+                <a href="{{ route('parent.counseling.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">درخواست مشاوره</a>
+                <a href="{{ route('parent.attendance.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">حضور و غیاب</a>
+                <a href="{{ route('courses.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">دوره‌های عمومی</a>
+                <a href="{{ route('store.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">فروشگاه و کتاب‌ها</a>
+                <a href="{{ route('blog.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">محتوای عمومی</a>
             </div>
 
             <span class="parent-orb" aria-hidden="true"></span>
@@ -110,6 +115,34 @@
                                 <div class="parent-child-stat">
                                     <span>وضعیت</span>
                                     <strong>{{ $child->status === 'active' ? 'فعال' : 'غیرفعال' }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 border-t border-slate-100 pt-4">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <h4 class="text-sm font-black">پیشرفت هر دوره و کلاس</h4>
+                                    <span class="text-xs text-slate-500">ثبت‌نام‌های فعال و قابل دسترس</span>
+                                </div>
+                                <div class="mt-3 space-y-3">
+                                    @forelse($child->dashboard_courses_detail ?? collect() as $courseProgress)
+                                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                            <div class="flex flex-wrap items-start justify-between gap-2">
+                                                <div class="min-w-0">
+                                                    <strong class="text-sm">{{ $courseProgress->course_title }}</strong>
+                                                    <p class="mt-1 text-xs text-slate-500">{{ $courseProgress->classroom_title ?: 'دوره' }} · {{ \App\Support\PersianUi::digits($courseProgress->completed_lessons) }} از {{ \App\Support\PersianUi::digits($courseProgress->total_lessons) }} درس کامل</p>
+                                                </div>
+                                                <b class="text-sm font-black">{{ \App\Support\PersianUi::digits($courseProgress->progress_average) }}٪</b>
+                                            </div>
+                                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-200"><span class="block h-full rounded-full bg-[var(--panel-primary)]" style="width: {{ $courseProgress->progress_average }}%"></span></div>
+                                        </div>
+                                    @empty
+                                        <p class="rounded-xl bg-slate-50 p-3 text-xs leading-6 text-slate-500">دورهٔ فعال و قابل دسترسی برای نمایش جزئیات پیشرفت پیدا نشد.</p>
+                                    @endforelse
+                                </div>
+                                <div class="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
+                                    <span>حضور ثبت‌شده: {{ \App\Support\PersianUi::digits($child->dashboard_attendance_total ?? 0) }}</span>
+                                    <span>حضور: {{ \App\Support\PersianUi::digits($child->dashboard_attendance_present ?? 0) }}</span>
+                                    <span>غیبت: {{ \App\Support\PersianUi::digits($child->dashboard_attendance_absent ?? 0) }}</span>
                                 </div>
                             </div>
                         </article>
@@ -178,20 +211,21 @@
                         @forelse($recentResults as $result)
                             <article class="parent-row">
                                 <div class="parent-date">
-                                    <strong>{{ \App\Support\PersianUi::digits($result->score ?? 0) }}</strong>
-                                    <small>نمره</small>
+                                    <strong>{{ $result->score === null ? '—' : \App\Support\PersianUi::digits($result->score) }}</strong>
+                                    <small>{{ ($result->result_type ?? 'assignment') === 'exam' ? 'آزمون' : 'تکلیف' }}</small>
                                 </div>
 
                                 <div class="min-w-0">
                                     <div class="parent-row-title">{{ $result->title }}</div>
                                     <span class="parent-row-meta">
-                                        {{ $result->student_name }}
-                                        ·
-                                        {{ \App\Support\PersianUi::date($result->graded_at instanceof \Carbon\CarbonInterface ? $result->graded_at : \Carbon\Carbon::parse($result->graded_at)) }}
+                                        {{ $result->student_name }} · {{ \App\Support\PersianUi::date($result->occurred_at) }} · {{ $result->status_label ?? 'ثبت‌شده' }}
                                     </span>
+                                    @if(filled($result->feedback ?? null))
+                                        <p class="mt-2 whitespace-pre-line text-xs leading-6 text-slate-600">بازخورد مدرس: {{ $result->feedback }}</p>
+                                    @endif
                                 </div>
 
-                                <span class="parent-score">ثبت</span>
+                                <span class="parent-score">{{ $result->status_label ?? 'ثبت' }}</span>
                             </article>
                         @empty
                             <div class="parent-row">
@@ -205,6 +239,54 @@
                 </section>
 
             </div>
+
+            <section class="parent-panel dashboard-panel mt-5 p-5 sm:p-6" aria-labelledby="parent-tasks-title">
+                <div class="parent-panel-head">
+                    <div>
+                        <span class="parent-kicker" style="color:var(--panel-primary)">پیگیری روزانه</span>
+                        <h2 id="parent-tasks-title">تکالیف در جریان فرزندان</h2>
+                        <p>تکالیف منتشرشده‌ای که هنوز برای فرزند ارسال نشده‌اند.</p>
+                    </div>
+                    <a href="{{ route('parent.results.index') }}" class="text-sm font-black text-[var(--panel-primary)]">نتایج و بازخوردها ←</a>
+                </div>
+                <div class="mt-4 space-y-2">
+                    @forelse($pendingAssignmentItems ?? collect() as $task)
+                        <article class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="min-w-0">
+                                <strong class="text-sm">{{ $task->title }}</strong>
+                                <p class="mt-1 text-xs text-slate-500">{{ $task->student_name }} · {{ $task->course_title }}</p>
+                            </div>
+                            <span class="text-xs {{ $task->due_at && $task->due_at->isPast() ? 'font-bold text-rose-700' : 'text-slate-500' }}">{{ $task->due_at ? ($task->due_at->isPast() ? 'مهلت گذشته · '.\App\Support\PersianUi::date($task->due_at) : 'موعد · '.\App\Support\PersianUi::date($task->due_at)) : 'بدون موعد' }}</span>
+                        </article>
+                    @empty
+                        <div class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">در حال حاضر تکلیف ارسال‌نشده‌ای برای نمایش وجود ندارد.</div>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="parent-panel dashboard-panel mt-5 p-5 sm:p-6" aria-labelledby="parent-attendance-title">
+                <div class="parent-panel-head">
+                    <div>
+                        <span class="parent-kicker" style="color:var(--panel-primary)">سوابق کلاس</span>
+                        <h2 id="parent-attendance-title">آخرین حضور و غیاب‌ها</h2>
+                        <p>رکوردهای ثبت‌شده در سامانه برای فرزندان متصل.</p>
+                    </div>
+                    <a href="{{ route('parent.attendance.index') }}" class="text-sm font-black text-[var(--panel-primary)]">همه سوابق ←</a>
+                </div>
+                <div class="mt-4 space-y-2">
+                    @forelse($recentAttendance ?? collect() as $record)
+                        <article class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <strong class="text-sm">{{ $record->student_name }} · {{ $record->classroom_title }}</strong>
+                                <p class="mt-1 text-xs text-slate-500">{{ $record->course_title ?: 'کلاس' }} · {{ \App\Support\PersianUi::date($record->attendance_date) }}</p>
+                            </div>
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold">{{ match($record->status) { 'present' => 'حاضر', 'absent' => 'غایب', 'late' => 'با تأخیر', 'excused' => 'موجه', default => $record->status } }} @if($record->attended_minutes !== null) · {{ \App\Support\PersianUi::digits($record->attended_minutes) }} دقیقه @endif</span>
+                        </article>
+                    @empty
+                        <div class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">هنوز رکورد حضور و غیابی برای نمایش وجود ندارد.</div>
+                    @endforelse
+                </div>
+            </section>
         @endif
 
     </div>
