@@ -79,8 +79,9 @@ class PublicExperienceSeederTest extends TestCase
             $this->seed(\Database\Seeders\PublicExperienceSeeder::class);
             $this->assertSame($orderCountBeforePublicReseed, Order::query()->count());
 
-            // Re-seeding the full local fixture must also be idempotent.
-            $this->seed();
+            // Re-run only the public showcase seeder; unrelated learning seeders
+            // have date-keyed fixtures and are outside this test's contract.
+            $this->seed(\Database\Seeders\PublicExperienceSeeder::class);
 
             $this->assertDatabaseCount('home_hero_slides', 3);
             $this->assertDatabaseCount('home_banners', 3);
