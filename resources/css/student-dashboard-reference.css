@@ -443,3 +443,26 @@ a.sdr-item-row:hover { border-color: #108ec3; background: #2d3a51; }
     .sdr-btn, .sdr-course-row, .sdr-shortcut { transition: none !important; }
     .sdr-btn:hover, .sdr-course-row:hover, .sdr-shortcut:hover { transform: none; }
 }
+
+
+/* Keep the floating mobile role navigation visually consistent with the dark dashboard. */
+.student-shell-dashboard .role-mobile-bottom-nav {
+    border-color: #39445a;
+    background: rgba(29, 38, 57, .96);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .3);
+}
+.student-shell-dashboard .role-mobile-bottom-nav a { color: #aebbd0; }
+.student-shell-dashboard .role-mobile-bottom-nav a.is-active {
+    background: #29374e;
+    color: #f5fbff;
+}
+.student-shell-dashboard .role-mobile-bottom-icon {
+    border-color: #3a4860;
+    background: #263148;
+    color: #a8bad2;
+}
+.student-shell-dashboard .role-mobile-bottom-nav a.is-active .role-mobile-bottom-icon {
+    border-color: #0b9bdb;
+    background: #087fb9;
+    color: #fff;
+}
