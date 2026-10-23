@@ -843,3 +843,33 @@
 .public-store-page .grid > .product-card:hover img,
 .public-courses-page .grid > article:hover img,
 .public-courses-page .grid > .edu-card:hover img { transform:scale(1.04); }
+
+
+/* Keyboard users can bypass repeated navigation on all public/auth pages. */
+.site-skip-link {
+    position: fixed;
+    z-index: 2000;
+    inset-block-start: .75rem;
+    inset-inline-start: .75rem;
+    max-width: calc(100vw - 1.5rem);
+    transform: translateY(-180%);
+    border: 1px solid var(--color-border-strong);
+    border-radius: .875rem;
+    padding: .8rem 1rem;
+    background: #fff;
+    color: var(--color-text);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, .16);
+    font-size: .875rem;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform .16s ease;
+}
+.site-skip-link:focus,
+.site-skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 3px solid var(--color-primary-500);
+    outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-skip-link { transition: none; }
+}

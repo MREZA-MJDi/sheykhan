@@ -10,6 +10,7 @@
     @stack('styles')
 </head>
 <body class="sheykhan-site">
+    <a class="site-skip-link" href="#main-content">رفتن به محتوای اصلی</a>
     <div id="app">
         <x-navigation.navbar />
         <main id="main-content" class="home-page">
