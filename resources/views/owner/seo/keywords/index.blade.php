@@ -28,7 +28,10 @@
     <section class="dashboard-panel owner-panel seo-keyword-tools">
         <div class="owner-panel-head">
             <div><h2>ورود و خروج دسته‌ای</h2><p>برای صدها یا هزاران عبارت از CSV استفاده کن؛ موارد تکراری دوباره ساخته نمی‌شوند.</p></div>
-            <a href="{{ route('owner.seo.keywords.export') }}" class="course-action-btn">خروجی CSV با فیلترهای فعلی ↓</a>
+            <div class="seo-keyword-hero-actions">
+                <a href="{{ route('owner.seo.keywords.template') }}" class="course-action-btn">دانلود قالب CSV</a>
+                <a href="{{ route('owner.seo.keywords.export') }}" class="course-action-btn">خروجی CSV با فیلترهای فعلی ↓</a>
+            </div>
         </div>
         <form method="POST" action="{{ route('owner.seo.keywords.import') }}" enctype="multipart/form-data" class="seo-keyword-import">
             @csrf
