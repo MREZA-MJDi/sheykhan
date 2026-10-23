@@ -30,6 +30,7 @@ class StoreExamRequest extends FormRequest
             'questions.*.options' => ['nullable', 'array', 'max:30'],
             'questions.*.options.*' => ['nullable', 'string', 'max:500'],
             'questions.*.correct_answer' => ['nullable'],
+            'questions.*.expected_answer' => ['nullable', 'string', 'max:15000'],
             'questions.*.correct_answer.*' => ['string', 'max:500'],
             'questions.*.score' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ];
