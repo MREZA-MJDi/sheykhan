@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParentMessage;
+use App\Models\TeacherDirectMessage;
 use App\Models\User;
 use App\Services\ParentPortalService;
 use Illuminate\Http\RedirectResponse;
@@ -15,6 +16,14 @@ final class MessageController extends Controller
 {
     public function index(Request $request, ParentPortalService $portal): View
     {
+        $teacherMessages = TeacherDirectMessage::query()
+            ->where('recipient_type', 'parent')
+            ->where('recipient_id', $request->user()->id)
+            ->with(['teacher:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title'])
+            ->latest()
+            ->paginate(10, ['*'], 'teacher_messages_page')
+            ->withQueryString();
+
         $messages = ParentMessage::query()
             ->where('parent_id', $request->user()->id)
             ->with(['student:id,name', 'academy:id,name', 'responder:id,name'])
@@ -26,7 +35,36 @@ final class MessageController extends Controller
         return view('parent.messages.index', [
             'messages' => $messages,
             'contactableChildren' => $portal->contactableChildren($request->user()),
+            'teacherMessages' => $teacherMessages,
         ]);
+    }
+
+
+    public function replyToTeacherMessage(Request $request, int $message): RedirectResponse
+    {
+        $data = $request->validate([
+            'response' => ['required', 'string', 'min:2', 'max:5000'],
+        ], [
+            'response.required' => 'متن پاسخ را وارد کنید.',
+            'response.min' => 'پاسخ باید حداقل دو کاراکتر داشته باشد.',
+        ]);
+
+        $record = TeacherDirectMessage::query()
+            ->whereKey($message)
+            ->where('recipient_type', 'parent')
+            ->where('recipient_id', $request->user()->id)
+            ->where('status', 'sent')
+            ->firstOrFail();
+
+        $record->forceFill([
+            'response' => trim($data['response']),
+            'responded_by' => $request->user()->id,
+            'responded_at' => now(),
+            'status' => 'responded',
+        ])->save();
+
+        return redirect()->route('parent.messages.index')
+            ->with('success', 'پاسخ شما برای مدرس ثبت شد.');
     }
 
     public function store(Request $request, ParentPortalService $portal): RedirectResponse

@@ -7,6 +7,7 @@ use App\Models\AcademyMeeting;
 use App\Models\Classroom;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
 final class OwnerMeetingService
@@ -147,11 +148,11 @@ final class OwnerMeetingService
             }
 
             if ($status === 'scheduled') {
-                if (blank($scheduledAt) || now()->gte(\\Illuminate\\Support\\Carbon::parse($scheduledAt))) {
+                if (blank($scheduledAt) || now()->gte(Carbon::parse($scheduledAt))) {
                     throw ValidationException::withMessages(['scheduled_at' => 'برای تأیید پیشنهاد، زمان آینده را مشخص کنید.']);
                 }
 
-                if ($scheduledEndAt && \\Illuminate\\Support\\Carbon::parse($scheduledEndAt)->lte(\\Illuminate\\Support\\Carbon::parse($scheduledAt))) {
+                if ($scheduledEndAt && Carbon::parse($scheduledEndAt)->lte(Carbon::parse($scheduledAt))) {
                     throw ValidationException::withMessages(['scheduled_end_at' => 'زمان پایان باید بعد از زمان شروع باشد.']);
                 }
 

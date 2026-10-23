@@ -130,5 +130,8 @@
 
             <div>{{ $messages->links() }}</div>
         </section>
+
+        @include('components.communication.teacher-direct-messages-inbox', ['messages' => $teacherMessages, 'recipientType' => 'student'])
+
     </div>
 @endsection
