@@ -1,7 +1,3 @@
-@import './persian-calendar.css';
-@import './communication-pages.css';
-@import './panel-base.css';
-
 @source '../../resources/views/parent';
 @source '../../resources/views/layouts/parent.blade.php';
 @source '../../resources/views/components';
@@ -86,7 +82,6 @@
     .parent-row { grid-template-columns:58px minmax(0,1fr); }
     .parent-score { grid-column:2; }
 }
-
 
 .parent-progress-method {
     margin: 0 0 1.25rem;
