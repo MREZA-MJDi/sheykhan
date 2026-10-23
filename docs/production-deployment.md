@@ -17,6 +17,26 @@ The workflow runs only from `main`, requires an explicit `deploy` confirmation, 
 
 The pre-deploy snapshots live on the same server disk and are rollback aids, not offsite disaster-recovery backups. Configure a separate encrypted offsite backup schedule and test restoration. The workflow does not configure the server, create database users, enable HTTPS, provision the gateway, or upload real academy content. Those are one-time infrastructure/business setup tasks. A passing deployment does not replace post-deploy smoke tests.
 
+## Private staging: quick-login test accounts
+
+Use this only on a private staging host, never as a public production convenience. Set the staging environment and a unique password in the server's private .env:
+
+    APP_ENV=staging
+    APP_DEBUG=false
+    SHOW_TEST_ACCOUNTS=true
+    SEED_USER_PASSWORD=replace-with-a-unique-long-staging-secret
+
+Then run the role and demo identity seeders intentionally:
+
+    php artisan db:seed --class="Database\Seeders\RolePermissionSeeder"
+    php artisan db:seed --class="Database\Seeders\AcademyFoundationSeeder"
+    php artisan config:clear
+    php artisan config:cache
+
+The login screen includes the demo password only when test-login access is explicitly enabled and a seed password is configured. Local/testing may use the documented disposable default; staging must supply its own password. The SEO test identity is seo@sheykhan.test; it receives the restricted seo-specialist role, not academy-owner privileges. These seeders create synthetic demo identities and should not be run against a live customer database.
+
+If the host must keep APP_ENV=production, set SHOW_TEST_ACCOUNTS=true, configure SEED_USER_PASSWORD, and set TEST_ACCOUNTS_ALLOWED_IPS to a comma-separated list of trusted public client IPs. The panel remains hidden to other IPs. Remove the allow-list and disable test accounts once testing is finished.
+
 ## Before first production use
 1. Snapshot/back up the DB and private uploaded files. Verify that the backup can be restored.
 2. Review migrations with production data assumptions in mind.
