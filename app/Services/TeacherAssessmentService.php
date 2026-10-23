@@ -1,91 +1,211 @@
-@extends('layouts.owner')
+<?php
 
-@section('title', $exam->title . ' | نتیجه آزمون')
-@section('header-title', 'جزئیات آزمون')
+namespace App\Services;
 
-@section('content')
-<div class="space-y-6">
-    <header class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-            <a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-bold text-[var(--panel-primary)]">← بازگشت به آزمون‌ها</a>
-            <h1 class="mt-2 break-words text-2xl font-black">{{ $exam->title }}</h1>
-            <p class="mt-2 text-sm leading-7 text-slate-500">{{ $exam->course?->title }} · {{ $exam->classroom?->title ?: 'همه کلاس‌های دوره' }} · مدرس: {{ $exam->teacher?->name ?: '—' }}</p>
-        </div>
-        @if(auth()->user()->hasPermission('exams.manage') && (int) $exam->attempts_count === 0)
-            <a href="{{ route('owner.exams.edit', [$academy, $exam->id]) }}" class="inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">ویرایش مشخصات و سؤال‌ها</a>
-        @endif
-        <span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold">{{ ['draft' => 'پیش‌نویس', 'published' => 'منتشرشده', 'closed' => 'بسته‌شده'][$exam->status] ?? $exam->status }}</span>
-    </header>
+use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
+use App\Models\ExamAttempt;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use App\Services\TeacherAccessService;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <article class="owner-stat-card"><span>تعداد سؤال‌ها</span><strong>{{ \App\Support\PersianUi::digits($exam->questions->count()) }}</strong><small>ثبت‌شده در آزمون</small></article>
-        <article class="owner-stat-card"><span>تلاش‌ها</span><strong>{{ \App\Support\PersianUi::digits($exam->attempts_count) }}</strong><small>همه تلاش‌ها</small></article>
-        <article class="owner-stat-card"><span>ارسال‌شده</span><strong>{{ \App\Support\PersianUi::digits($summary['submitted']) }}</strong><small>پایان‌یافته</small></article>
-        <article class="owner-stat-card"><span>میانگین نمره ثبت‌شده</span><strong>{{ $summary['average'] === null ? '—' : \App\Support\PersianUi::digits(number_format((float) $summary['average'], 2)) }}</strong><small>فقط تلاش‌های دارای نمره</small></article>
-    </section>
+final class TeacherAssessmentService
+{
+    public function gradeAssignment(
+        Assignment $assignment,
+        AssignmentSubmission $submission,
+        float $score,
+        ?string $feedback,
+        int $teacherId
+    ): AssignmentSubmission {
+        $teacher = User::query()->find($teacherId);
+        $assignment->loadMissing('course.academy');
+        $isAcademyOwner = $teacher
+            && $teacher->hasRole('academy-owner')
+            && $teacher->hasPermission('courses.manage')
+            && (int) $assignment->course?->academy?->owner_id === (int) $teacher->id;
 
-    @if(auth()->user()->hasPermission('exams.manage'))
-        <form method="POST" action="{{ route('owner.exams.status', [$academy, $exam->id]) }}" class="dashboard-panel flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
-            @csrf @method('PATCH')
-            <div class="flex-1"><h2 class="font-black">مدیریت وضعیت انتشار</h2><p class="mt-1 text-xs leading-6 text-slate-500">آزمونی که سؤال ندارد منتشر نمی‌شود. تغییر وضعیت، سؤال‌ها یا نتیجه‌های ثبت‌شده را حذف نمی‌کند.</p></div>
-            <label class="grid gap-1 text-xs font-bold">وضعیت<select name="status" class="min-h-11 min-w-44 rounded-xl border border-slate-200 px-3 text-sm"><option value="draft" @selected($exam->status === 'draft')>پیش‌نویس</option><option value="published" @selected($exam->status === 'published')>منتشرشده</option><option value="closed" @selected($exam->status === 'closed')>بسته‌شده</option></select></label>
-            <button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">ذخیره وضعیت</button>
-        </form>
-    @endif
+        if (
+            ! $teacher
+            || (int) $submission->assignment_id !== (int) $assignment->id
+            || (! $isAcademyOwner && ! app(TeacherAccessService::class)->canManageAssignment($teacher, $assignment))
+        ) {
+            throw new AccessDeniedHttpException();
+        }
 
-    <section class="dashboard-panel overflow-hidden">
-        <div class="border-b border-slate-100 p-5"><h2 class="font-black">سؤال‌های آزمون</h2><p class="mt-1 text-sm text-slate-500">برای حفظ سابقه نمره‌دهی، پس از اولین تلاش ویرایش سؤال‌ها قفل می‌شود.</p></div>
-        <div class="divide-y divide-slate-100">
-            @forelse($exam->questions as $question)
-                <article class="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div class="min-w-0">
-                        <p class="text-xs font-bold text-[var(--panel-primary)]">سؤال {{ \App\Support\PersianUi::digits($loop->iteration) }} · {{ ['text' => 'تشریحی', 'single' => 'تک‌گزینه‌ای', 'multiple' => 'چندپاسخی', 'checkbox' => 'چندپاسخی'][$question->type] ?? $question->type }}</p>
-                        <h3 class="mt-1 whitespace-pre-line break-words text-sm font-bold leading-7">{{ $question->question }}</h3>
-                    </div>
-                    <span class="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ \App\Support\PersianUi::digits($question->score) }} امتیاز</span>
-                </article>
-            @empty
-                <div class="p-6 text-center text-sm text-slate-500">هنوز سؤالی برای این آزمون تعریف نشده است.</div>
-            @endforelse
-        </div>
-    </section>
+        return DB::transaction(function () use ($assignment, $submission, $score, $feedback, $teacherId): AssignmentSubmission {
+            $lockedSubmission = AssignmentSubmission::query()
+                ->whereKey($submission->id)
+                ->where('assignment_id', $assignment->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-    <section class="dashboard-panel overflow-hidden">
-        <div class="border-b border-slate-100 p-5"><h2 class="font-black">نتایج و تلاش‌های دانش‌آموزان</h2><p class="mt-1 text-sm text-slate-500">نمره‌ی خالی به معنی نمره‌ی صفر نیست؛ ممکن است تلاش هنوز تصحیح نشده باشد.</p></div>
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[700px] text-right">
-                <thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">دانش‌آموز</th><th class="px-4 py-3">شماره تلاش</th><th class="px-4 py-3">شروع</th><th class="px-4 py-3">ارسال</th><th class="px-4 py-3">نمره</th><th class="px-4 py-3">وضعیت</th><th class="px-4 py-3">تصحیح دستی</th></tr></thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($attempts as $attempt)
-                        <tr><td class="px-4 py-4 text-sm font-bold">{{ $attempt->student?->name ?: 'حساب حذف‌شده' }}</td><td class="px-4 py-4 text-sm">{{ \App\Support\PersianUi::digits($attempt->attempt_number) }}</td><td class="px-4 py-4 text-xs">{{ $attempt->started_at ? \App\Support\PersianUi::date($attempt->started_at) . ' ' . \App\Support\PersianUi::time($attempt->started_at) : '—' }}</td><td class="px-4 py-4 text-xs">{{ $attempt->submitted_at ? \App\Support\PersianUi::date($attempt->submitted_at) . ' ' . \App\Support\PersianUi::time($attempt->submitted_at) : 'در جریان' }}</td><td class="px-4 py-4 text-sm font-black">{{ $attempt->score === null ? 'تصحیح نشده' : \App\Support\PersianUi::digits($attempt->score) }}</td><td class="px-4 py-4 text-xs">{{ $attempt->status }}</td>
-<td class="px-4 py-4 align-top text-xs">
-    @if(auth()->user()->hasPermission('exams.manage') && $attempt->submitted_at && $attempt->answers->isNotEmpty())
-        <details class="min-w-64">
-            <summary class="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 font-black text-[var(--panel-primary)]">ثبت / اصلاح نمره</summary>
-            <form method="POST" action="{{ route('owner.exams.attempts.grade', [$academy, $exam->id, $attempt->id]) }}" class="mt-3 grid gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3">
-                @csrf @method('PATCH')
-                @foreach($attempt->answers as $answer)
-                    <label class="grid gap-1">
-                        <span class="font-bold leading-6">{{ $answer->question?->question ?? 'سؤال حذف‌شده' }}</span>
-                        <span class="text-slate-500">پاسخ: {{ is_array($answer->answer) ? implode('، ', $answer->answer) : ($answer->answer ?: 'بدون پاسخ') }}</span>
-                        <span class="text-slate-500">حداکثر {{ \App\Support\PersianUi::digits($answer->question?->score ?? 0) }} امتیاز</span>
-                        <input type="number" name="scores[{{ $answer->id }}]" min="0" max="{{ $answer->question?->score ?? 0 }}" step="0.01" value="{{ old('scores.'.$answer->id, $answer->score) }}" required class="min-h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm">
-                    </label>
-                @endforeach
-                <button type="submit" class="min-h-10 rounded-lg bg-[var(--panel-primary)] px-3 font-black text-white">ذخیره نمره‌ها</button>
-            </form>
-        </details>
-    @else
-        <span class="text-slate-400">{{ $attempt->submitted_at ? 'پاسخی برای تصحیح وجود ندارد' : 'پس از ارسال فعال می‌شود' }}</span>
-    @endif
-</td></tr>
-                    @empty
-                        <tr><td colspan="7" class="px-4 py-12 text-center text-sm text-slate-500">هنوز تلاشی برای این آزمون ثبت نشده است.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="p-4">{{ $attempts->links() }}</div>
-    </section>
-</div>
-@endsection
+            if ($lockedSubmission->submitted_at === null) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'score' => 'پاسخی که هنوز ارسال نشده است قابل تصحیح نیست.',
+                ]);
+            }
+
+            $lockedSubmission->update([
+                'score' => $score,
+                'feedback' => $feedback,
+                'graded_at' => now(),
+                'graded_by' => $teacherId,
+            ]);
+
+            return $lockedSubmission->refresh();
+        });
+    }
+
+    public function gradeExamAttemptAutomatically(ExamAttempt $attempt, int $teacherId): ExamAttempt
+    {
+        $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
+
+        $teacher = User::query()->find($teacherId);
+        if (!$teacher || !app(TeacherAccessService::class)->canManageExam($teacher, $attempt->exam)) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return DB::transaction(function () use ($attempt): ExamAttempt {
+            $attempt = ExamAttempt::query()
+                ->whereKey($attempt->id)
+                ->lockForUpdate()
+                ->with(['exam.questions', 'answers.question'])
+                ->firstOrFail();
+
+            if (!in_array($attempt->status, ['submitted', 'pending_review', 'needs_review'], true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'attempt' => 'این آزمون هنوز توسط دانش‌آموز ارسال نشده است.',
+                ]);
+            }
+
+            $total = 0.0;
+            $requiresManualReview = false;
+
+            foreach ($attempt->answers as $answer) {
+                $question = $answer->question;
+
+                if (!$question || $question->correct_answer === null) {
+                    $requiresManualReview = true;
+                    continue;
+                }
+
+                $correct = $this->matches($question->correct_answer, $answer->answer, $question->type);
+                $score = $correct ? (float) $question->score : 0.0;
+
+                $answer->update([
+                    'is_correct' => $correct,
+                    'score' => $score,
+                ]);
+
+                $total += $score;
+            }
+
+            $attempt->update([
+                'score' => $total,
+                'status' => $requiresManualReview ? 'needs_review' : 'graded',
+            ]);
+
+            return $attempt->refresh();
+        });
+    }
+
+    public function gradeExamAttemptManually(
+        ExamAttempt $attempt,
+        array $scores,
+        int $teacherId
+    ): ExamAttempt {
+        $attempt->loadMissing(['exam.course.academy', 'answers.question']);
+
+        $teacher = User::query()->find($teacherId);
+        $isAcademyOwner = $teacher
+            && $teacher->hasRole('academy-owner')
+            && $teacher->hasPermission('exams.manage')
+            && (int) $attempt->exam?->course?->academy?->owner_id === (int) $teacher->id;
+
+        if (!$teacher || (!$isAcademyOwner && !app(TeacherAccessService::class)->canManageExam($teacher, $attempt->exam))) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return DB::transaction(function () use ($attempt, $scores): ExamAttempt {
+            $attempt = ExamAttempt::query()
+                ->whereKey($attempt->id)
+                ->lockForUpdate()
+                ->with(['exam.questions', 'answers.question'])
+                ->firstOrFail();
+
+            if (!in_array($attempt->status, ['submitted', 'pending_review', 'needs_review', 'graded'], true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'attempt' => 'این آزمون هنوز توسط دانش‌آموز ارسال نشده است.',
+                ]);
+            }
+
+            $total = 0.0;
+
+            foreach ($attempt->answers as $answer) {
+                if (!array_key_exists($answer->id, $scores) || $scores[$answer->id] === null || $scores[$answer->id] === '') {
+                    $total += (float) ($answer->score ?? 0);
+                    continue;
+                }
+
+                $question = $answer->question;
+                $score = min(
+                    (float) $scores[$answer->id],
+                    (float) ($question?->score ?? $scores[$answer->id])
+                );
+
+                $answer->update([
+                    'score' => $score,
+                    'is_correct' => null,
+                ]);
+
+                $total += $score;
+            }
+
+            $attempt->update([
+                'score' => $total,
+                'status' => 'graded',
+            ]);
+
+            return $attempt->refresh();
+        });
+    }
+
+
+    private function matches($expected, $actual, ?string $type): bool
+    {
+        if (in_array($type, ['multiple', 'checkbox'], true)) {
+            $expected = $this->normalizeChoiceList($expected);
+            $actual = $this->normalizeChoiceList($actual);
+
+            return $expected === $actual;
+        }
+
+        return mb_strtolower(trim((string) $expected)) === mb_strtolower(trim((string) $actual));
+    }
+
+    private function normalizeChoiceList(mixed $value): array
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $value = $decoded;
+            } else {
+                $value = preg_split('/\s*[,،]\s*/u', $value, -1, PREG_SPLIT_NO_EMPTY);
+            }
+        }
+
+        $value = is_array($value) ? $value : [$value];
+        $value = array_map(
+            static fn ($item) => trim((string) $item),
+            $value
+        );
+        $value = array_values(array_unique(array_filter($value, static fn ($item) => $item !== '')));
+        sort($value);
+
+        return $value;
+    }
+}
