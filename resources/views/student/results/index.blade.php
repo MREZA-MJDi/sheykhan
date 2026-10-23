@@ -10,7 +10,15 @@
 @forelse($results as $result)
 <article class="student-workspace-row">
 <div class="student-workspace-date"><strong>{{ $result->score !== null ? App\Support\PersianUi::digits($result->score) : '—' }}</strong><small>نمره</small></div>
-<div class="student-workspace-row-main"><strong>{{ $result->title }}</strong><span>{{ $result->occurred_at ? App\Support\PersianUi::date($result->occurred_at) : '—' }}</span></div>
+<div class="student-workspace-row-main">
+    <strong>{{ $result->title }}</strong>
+    <span>{{ $result->occurred_at ? App\Support\PersianUi::date($result->occurred_at) : '—' }}</span>
+    @if($result->result_type === 'exam')
+        <a class="student-result-detail-link" href="{{ route('student.exams.result', $result->target_id) }}">نمایش کارنامهٔ آزمون ←</a>
+    @elseif($result->result_type === 'assignment')
+        <a class="student-result-detail-link" href="{{ route('student.assignments.show', $result->target_id) }}">مشاهدهٔ بازخورد تکلیف ←</a>
+    @endif
+</div>
 <span class="student-workspace-status {{ $result->status_label === 'تصحیح‌شده' ? 'success' : (str_contains($result->status_label, 'موقت') ? 'info' : 'warning') }}">{{ $result->status_label }}</span>
 </article>
 @empty<div class="student-workspace-empty"><strong>هنوز نتیجه‌ای ثبت نشده است.</strong><span>بعد از ارزیابی، نتایج در اینجا دیده می‌شوند.</span></div>@endforelse
