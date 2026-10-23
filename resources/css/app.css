@@ -1,0 +1,12 @@
+/* Sheykhan shared application foundation.
+ * Role-specific presentation belongs in home.css, student.css, teacher.css,
+ * admin.css, seo.css, or parent.css. Shared responsive and panel foundations live here.
+ */
+@import './panel-base.css';
+@import './communication-pages.css';
+@import './persian-calendar.css';
+@import './homeroom-dashboard-theme.css';
+@import './panel-unified.css';
+
+@source '../../resources/views';
+@source '../../resources/views/components';
