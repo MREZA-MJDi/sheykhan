@@ -358,7 +358,7 @@
                             <button type="button" class="course-date-now" @click="setNow()">همین الان</button>
                         </div>
                         <div class="mt-2 grid gap-2 sm:grid-cols-[1fr_7.5rem]">
-                            <input type="text" x-model="publishedDate" dir="ltr" inputmode="numeric" maxlength="10" placeholder="۱۴۰۵/۰۷/۰۲" class="course-input text-left" aria-label="تاریخ انتشار شمسی">
+                            <input type="text" data-jalali-visible-date x-model="publishedDate" dir="ltr" inputmode="numeric" maxlength="10" placeholder="۱۴۰۵/۰۷/۰۲" class="course-input text-left" aria-label="تاریخ انتشار شمسی">
                             <input type="text" x-model="publishedTime" dir="ltr" inputmode="numeric" maxlength="5" placeholder="۱۸:۳۰" class="course-input text-left" aria-label="ساعت انتشار">
                         </div>
                         <input x-ref="publishedAt" type="hidden" name="published_at" value="{{ $initialPublishedAt }}">
