@@ -70,22 +70,30 @@ class StoreExamRequest extends FormRequest
                     (array) ($question['options'] ?? []),
                     static fn ($option) => is_string($option) && trim($option) !== ''
                 ));
+                $correct = $question['correct_answer'] ?? null;
+                $multi = in_array($type, ['multiple', 'checkbox'], true);
 
-                if ($type === 'single' && count($options) !== 4) {
+                // A draft can be saved while the teacher is still composing a
+                // question. Strict option/key validation is required on publish.
+                if ($status === 'published' && $type === 'single' && count($options) !== 4) {
                     $validator->errors()->add("questions.{$index}.options", 'برای سؤال چهارگزینه‌ای باید دقیقاً چهار گزینه وارد کنی.');
-                }
-
-                if (count($options) < 2) {
-                    $validator->errors()->add("questions.{$index}.options", 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
-                    continue;
                 }
 
                 if (count(array_unique($options)) !== count($options)) {
                     $validator->errors()->add("questions.{$index}.options", 'گزینه‌های تکراری مجاز نیستند؛ هر گزینه را فقط یک بار وارد کن.');
                 }
 
-                $correct = $question['correct_answer'] ?? null;
-                $multi = in_array($type, ['multiple', 'checkbox'], true);
+                if (count($options) < 2) {
+                    if ($status !== 'published' && ($correct === null || $correct === '' || $correct === [])) {
+                        continue;
+                    }
+                    $validator->errors()->add("questions.{$index}.options", 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
+                    continue;
+                }
+
+                if ($status !== 'published' && ($correct === null || $correct === '' || $correct === [])) {
+                    continue;
+                }
 
                 if ($multi) {
                     if (! is_array($correct) || $correct === []) {
