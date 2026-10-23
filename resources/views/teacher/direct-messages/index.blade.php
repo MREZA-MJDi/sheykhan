@@ -46,11 +46,29 @@
         @forelse($messages as $message)
             <article class="dashboard-panel p-5 sm:p-6">
                 <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div><h3 class="font-black">{{ $message->subject }}</h3><p class="mt-1 text-xs text-slate-500">{{ $message->recipient_type === 'parent' ? 'ولی' : 'دانش‌آموز' }}: {{ $message->recipient?->name }} · {{ $message->student?->name }} · {{ $message->classroom?->title }}</p></div>
-                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ $message->status === 'responded' ? 'پاسخ داده شده' : 'ارسال شده' }}</span>
+                    <div>
+                        <h3 class="font-black">{{ $message->subject }}</h3>
+                        @if(($message->sender_type ?? 'teacher') === 'parent')
+                            <p class="mt-1 text-xs text-slate-500">پیام دریافتی از والد: {{ $message->sender?->name }} · فرزند {{ $message->student?->name }} · {{ $message->course?->title }} / {{ $message->classroom?->title }}</p>
+                        @else
+                            <p class="mt-1 text-xs text-slate-500">ارسال‌شده به {{ $message->recipient_type === 'parent' ? 'ولی' : 'دانش‌آموز' }}: {{ $message->recipient?->name }} · {{ $message->student?->name }} · {{ $message->classroom?->title }}</p>
+                        @endif
+                    </div>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ $message->status === 'responded' ? 'پاسخ داده شده' : ((($message->sender_type ?? 'teacher') === 'parent') ? 'در انتظار پاسخ شما' : 'ارسال شده') }}</span>
                 </div>
                 <p class="mt-3 whitespace-pre-line text-sm leading-7 text-slate-700">{{ $message->body }}</p>
-                @if($message->response)<div class="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-7">{{ $message->response }}<p class="mt-2 text-xs text-emerald-800">پاسخ از طرف {{ $message->responder?->name ?? 'مخاطب' }}</p></div>@endif
+                @if(($message->sender_type ?? 'teacher') === 'parent' && $message->status === 'sent')
+                    <form method="POST" action="{{ route('teacher.direct-messages.reply', $message->id) }}" class="mt-4 grid gap-3 border-t border-slate-100 pt-4">
+                        @csrf @method('PATCH')
+                        <label class="grid gap-1 text-sm font-bold">پاسخ به والد<textarea name="response" rows="3" minlength="2" maxlength="5000" required class="rounded-xl border border-slate-300 px-3 py-3 text-sm leading-7"></textarea></label>
+                        <button class="min-h-10 justify-self-start rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ارسال پاسخ</button>
+                    </form>
+                @elseif($message->response)
+                    <div class="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-7">
+                        {{ $message->response }}
+                        <p class="mt-2 text-xs text-emerald-800">{{ (($message->sender_type ?? 'teacher') === 'parent') ? 'پاسخ شما' : ('پاسخ از طرف ' . ($message->responder?->name ?? 'مخاطب')) }}</p>
+                    </div>
+                @endif
             </article>
         @empty
             <div class="dashboard-panel p-8 text-center text-sm text-slate-500">هنوز پیامی از این صفحه ارسال نشده است.</div>

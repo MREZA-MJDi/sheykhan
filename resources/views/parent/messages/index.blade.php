@@ -58,6 +58,51 @@
         @endif
     </section>
 
+    <section class="parent-panel dashboard-panel p-5 sm:p-7">
+        <div>
+            <h2 class="text-lg font-black">ارسال پیام مستقیم به مدرس</h2>
+            <p class="mt-1 text-sm leading-7 text-slate-500">فقط مدرس‌های کلاس فعال فرزندت قابل انتخاب‌اند. پیام و پاسخ در همین بخش می‌ماند.</p>
+        </div>
+        @if($teacherTargets->isEmpty())
+            <p class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-900">برای این حساب، مدرس فعالی در کلاس ثبت‌نام‌شده و قابل‌دسترسی فرزند پیدا نشد.</p>
+        @else
+            <form method="POST" action="{{ route('parent.messages.teacher.store') }}" class="mt-4 grid gap-4 sm:grid-cols-2">
+                @csrf
+                <label class="grid gap-1 text-sm font-bold sm:col-span-2">
+                    مدرس، فرزند، دوره و کلاس
+                    <select name="teacher_target" required class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                        <option value="">انتخاب مدرس از کلاس فعال</option>
+                        @foreach($teacherTargets as $target)
+                            <option value="{{ $target->key }}" @selected(old('teacher_target') === $target->key)>{{ $target->teacher_name }} — {{ $target->student_name }} / {{ $target->course_title }} / {{ $target->classroom_title }}</option>
+                        @endforeach
+                    </select>
+                    @error('teacher_target')<span class="text-xs font-normal text-rose-600">{{ $message }}</span>@enderror
+                </label>
+                <label class="grid gap-1 text-sm font-bold">
+                    نوع پیام
+                    <select name="teacher_category" required class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                        <option value="question" @selected(old('teacher_category', 'question') === 'question')>پرسش</option>
+                        <option value="suggestion" @selected(old('teacher_category') === 'suggestion')>پیشنهاد</option>
+                        <option value="complaint" @selected(old('teacher_category') === 'complaint')>انتقاد یا شکایت</option>
+                        <option value="other" @selected(old('teacher_category') === 'other')>سایر</option>
+                    </select>
+                    @error('teacher_category')<span class="text-xs font-normal text-rose-600">{{ $message }}</span>@enderror
+                </label>
+                <label class="grid gap-1 text-sm font-bold">
+                    موضوع
+                    <input name="teacher_subject" value="{{ old('teacher_subject') }}" minlength="3" maxlength="180" required class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+                    @error('teacher_subject')<span class="text-xs font-normal text-rose-600">{{ $message }}</span>@enderror
+                </label>
+                <label class="grid gap-1 text-sm font-bold sm:col-span-2">
+                    متن پیام
+                    <textarea name="teacher_body" rows="4" minlength="5" maxlength="10000" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm leading-7">{{ old('teacher_body') }}</textarea>
+                    @error('teacher_body')<span class="text-xs font-normal text-rose-600">{{ $message }}</span>@enderror
+                </label>
+                <div class="sm:col-span-2"><button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ارسال پیام به مدرس</button></div>
+            </form>
+        @endif
+    </section>
+
     <section class="space-y-4">
         <div><h2 class="text-xl font-black">سوابق پیام‌ها</h2><p class="mt-1 text-sm text-slate-500">پیام‌ها فقط برای حساب والد ثبت‌کننده نمایش داده می‌شوند.</p></div>
         @php($statuses = ['open' => 'در انتظار بررسی', 'in_review' => 'در حال پیگیری', 'responded' => 'پاسخ داده‌شده', 'closed' => 'بسته‌شده'])
@@ -87,6 +132,36 @@
             <div class="parent-panel dashboard-panel p-8 text-center"><h3 class="font-black">هنوز پیامی ثبت نشده است.</h3><p class="mt-2 text-sm text-slate-500">از فرم بالا برای ارسال پرسش، پیشنهاد یا انتقاد استفاده کن.</p></div>
         @endforelse
         <div>{{ $messages->links() }}</div>
+    </section>
+
+    <section class="space-y-4">
+        <div>
+            <h2 class="text-xl font-black">پیام‌های ارسالی به مدرس</h2>
+            <p class="mt-1 text-sm text-slate-500">پیام‌هایی که خودت آغاز کرده‌ای و پاسخ مدرس.</p>
+        </div>
+        @forelse($outgoingTeacherMessages as $message)
+            <article class="parent-panel dashboard-panel p-5 sm:p-6">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <h3 class="font-black">{{ $message->subject }}</h3>
+                        <p class="mt-1 text-xs text-slate-500">{{ $message->teacher?->name }} · {{ $message->student?->name }} · {{ $message->course?->title }} / {{ $message->classroom?->title }}</p>
+                    </div>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ $message->status === 'responded' ? 'پاسخ داده شده' : 'در انتظار پاسخ مدرس' }}</span>
+                </div>
+                <p class="mt-3 whitespace-pre-line text-sm leading-7 text-slate-700">{{ $message->body }}</p>
+                @if($message->response)
+                    <div class="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                        <p class="text-xs font-black text-emerald-800">پاسخ مدرس @if($message->responder) · {{ $message->responder->name }} @endif</p>
+                        <p class="mt-2 whitespace-pre-line text-sm leading-7">{{ $message->response }}</p>
+                    </div>
+                @else
+                    <p class="mt-3 text-xs text-slate-500">پاسخ این پیام هنوز ثبت نشده است.</p>
+                @endif
+            </article>
+        @empty
+            <div class="parent-panel dashboard-panel p-6 text-center text-sm text-slate-500">هنوز پیام مستقیمی به مدرس ارسال نشده است.</div>
+        @endforelse
+        @if($outgoingTeacherMessages->hasPages())<div>{{ $outgoingTeacherMessages->links() }}</div>@endif
     </section>
 
     @include('components.communication.teacher-direct-messages-inbox', ['messages' => $teacherMessages, 'recipientType' => 'parent'])

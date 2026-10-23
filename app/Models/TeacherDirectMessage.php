@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 final class TeacherDirectMessage extends Model
 {
     protected $fillable = [
-        'academy_id', 'teacher_id', 'recipient_type', 'recipient_id', 'student_id',
+        'academy_id', 'teacher_id', 'sender_id', 'sender_type', 'recipient_type', 'recipient_id', 'student_id',
         'course_id', 'classroom_id', 'category', 'subject', 'body', 'response',
         'responded_by', 'responded_at', 'status',
     ];
@@ -19,6 +19,7 @@ final class TeacherDirectMessage extends Model
     }
 
     public function academy(): BelongsTo { return $this->belongsTo(Academy::class); }
+    public function sender(): BelongsTo { return $this->belongsTo(User::class, 'sender_id'); }
     public function teacher(): BelongsTo { return $this->belongsTo(User::class, 'teacher_id'); }
     public function recipient(): BelongsTo { return $this->belongsTo(User::class, 'recipient_id'); }
     public function student(): BelongsTo { return $this->belongsTo(User::class, 'student_id'); }
