@@ -7,7 +7,7 @@
     <section class="public-store-page">
         <x-layout.section spacing="lg">
             <x-layout.container size="wide">
-                <header class="mb-10 sm:mb-12">
+                <header class="public-page-intro mb-10 sm:mb-12">
                     <div class="max-w-3xl">
                         <span class="ui-eyebrow mb-4">فروشگاه آموزشی شیخان</span>
 
@@ -20,6 +20,18 @@
                         </p>
                     </div>
                 </header>
+
+                @if(filled($activeCategory ?? null))
+                    <div class="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] px-4 py-3 sm:px-5" role="status" aria-live="polite">
+                        <p class="text-sm font-semibold text-[var(--color-text)]">
+                            فیلتر فعال:
+                            <strong class="font-black text-[var(--color-primary-700)]">{{ data_get(collect($categories ?? [])->firstWhere('slug', $activeCategory), 'name', $activeCategory) }}</strong>
+                        </p>
+                        <a href="{{ route('store.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--color-primary-200)] bg-white px-4 py-2 text-xs font-black text-[var(--color-primary-700)] transition hover:bg-[var(--color-primary-100)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]">
+                            پاک کردن فیلتر
+                        </a>
+                    </div>
+                @endif
 
                 @if(count($categories))
                     <section aria-labelledby="store-categories-title">
@@ -36,7 +48,7 @@
                         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             @foreach($categories as $index => $category)
                                 <a
-                                    href="{{ url('/store?category=' . urlencode($category['slug'])) }}"
+                                    href="{{ route('store.index', ['category' => $category['slug']]) }}"
                                     class="group relative overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-sm)] transition duration-300 hover:-translate-y-1 hover:border-[var(--color-primary-200)] hover:shadow-[var(--shadow-md)] sm:p-6"
                                 >
                                     <div class="flex items-start justify-between gap-5">

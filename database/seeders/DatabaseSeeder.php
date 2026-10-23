@@ -39,6 +39,9 @@ class DatabaseSeeder extends Seeder
                 SystemSeeder::class,
                 OnboardingSeeder::class,
                 AuditSeeder::class,
+                // Local-only art and catalog content for reviewing the public site.
+                // The seeder is idempotent and preserves owner-uploaded media.
+                PublicExperienceSeeder::class,
             ]);
         }
     }

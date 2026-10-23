@@ -7,7 +7,7 @@
     <section class="public-teachers-page">
         <x-layout.section spacing="lg">
             <x-layout.container size="wide">
-                <header class="mb-10 sm:mb-12">
+                <header class="public-page-intro mb-10 sm:mb-12">
                     <div class="max-w-3xl">
                         <span class="ui-eyebrow mb-4">مدرس‌های شیخان</span>
 

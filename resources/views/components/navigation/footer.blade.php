@@ -33,6 +33,7 @@
                         <a class="transition hover:text-[var(--color-text)]" href="{{ route('courses.index') }}">همه دوره‌ها</a>
                         <a class="transition hover:text-[var(--color-text)]" href="{{ route('teachers.index') }}">مدرس‌ها</a>
                         <a class="transition hover:text-[var(--color-text)]" href="{{ route('blog.index') }}">مقالات</a>
+                        <a class="transition hover:text-[var(--color-text)]" href="{{ route('store.index') }}">فروشگاه آموزشی</a>
                     </div>
                 </div>
 

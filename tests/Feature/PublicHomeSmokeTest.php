@@ -19,6 +19,8 @@ class PublicHomeSmokeTest extends TestCase
         $home = $this->get(route('home'));
 
         $home->assertOk()
+            ->assertSee('site-skip-link', false)
+            ->assertSee(route('store.index'), false)
             ->assertSee('هر قدم کوچک')
             ->assertSee('home-academy-story', false)
             ->assertSee('home-paths__intro', false)
@@ -34,11 +36,15 @@ class PublicHomeSmokeTest extends TestCase
         $this->get(route('courses.index'))
             ->assertOk()
             ->assertSee('public-page-intro--courses', false);
-        $this->get(route('teachers.index'))->assertOk();
+        $this->get(route('teachers.index'))
+            ->assertOk()
+            ->assertSee('public-page-intro', false);
         $this->get(route('blog.index'))
             ->assertOk()
             ->assertSee('public-page-intro--editorial', false);
-        $this->get(route('store.index'))->assertOk();
+        $this->get(route('store.index'))
+            ->assertOk()
+            ->assertSee('public-page-intro', false);
     }
 
     public function test_homepage_remains_available_when_a_real_public_banner_is_configured(): void
