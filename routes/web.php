@@ -18,6 +18,7 @@ use App\Http\Controllers\Owner\EnrollmentController as OwnerEnrollmentController
 use App\Http\Controllers\Owner\PeopleController as OwnerPeopleController;
 use App\Http\Controllers\Owner\ReportController as OwnerReportController;
 use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
+use App\Http\Controllers\ParentPortal\ResourceController as ParentResourceController;
 use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
 use App\Http\Controllers\PublicSite\TeacherController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 use App\Http\Controllers\Student\ExamController as StudentExamController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use App\Http\Controllers\Student\LessonProgressController as StudentLessonProgressController;
+use App\Http\Controllers\Student\StudentMessageController;
 use App\Http\Controllers\Student\LiveClassController as StudentLiveClassController;
 use App\Http\Controllers\Student\NoteController as StudentNoteController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
@@ -52,6 +54,7 @@ use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
 use App\Http\Controllers\Teacher\LessonController as TeacherLessonController;
 use App\Http\Controllers\Teacher\LessonMediaController as TeacherLessonMediaController;
 use App\Http\Controllers\Teacher\LiveClassController as TeacherLiveClassController;
+use App\Http\Controllers\Teacher\StudentMessageController as TeacherStudentMessageController;
 use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -253,6 +256,9 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
     Route::get('/messages', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'index'])->middleware('permission:parent_messages.view')->name('messages.index');
     Route::patch('/messages/{message}/reply', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'reply'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('messages.reply');
+    Route::get('/student-messages', [TeacherStudentMessageController::class, 'index'])->middleware('permission:student_messages.view')->name('student-messages.index');
+    Route::patch('/student-messages/{message}/reply', [TeacherStudentMessageController::class, 'reply'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('student-messages.reply');
+    Route::patch('/student-messages/{message}/close', [TeacherStudentMessageController::class, 'close'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('student-messages.close');
     Route::get('/meetings', [\App\Http\Controllers\Teacher\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
     Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\Teacher\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
     Route::get('/payments', [\App\Http\Controllers\Teacher\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
@@ -264,6 +270,9 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
 
 Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', StudentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+
+    Route::get('/messages', [StudentMessageController::class, 'index'])->middleware('permission:student_messages.view')->name('messages.index');
+    Route::post('/messages', [StudentMessageController::class, 'store'])->middleware(['permission:student_messages.manage','throttle:5,1'])->name('messages.store');
 
     Route::get('/courses', [StudentCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
     Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->middleware('permission:courses.view')->name('courses.show');
@@ -309,6 +318,8 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
     Route::post('/counseling', [\App\Http\Controllers\ParentPortal\CounselingRequestController::class, 'store'])->middleware('throttle:5,1')->name('counseling.store');
     Route::get('/attendance', [\App\Http\Controllers\ParentPortal\AttendanceController::class, 'index'])->name('attendance.index');
     Route::get('/results', [\App\Http\Controllers\ParentPortal\ResultController::class, 'index'])->name('results.index');
+    Route::get('/resources', [ParentResourceController::class, 'index'])->name('resources.index');
+    Route::get('/resources/{resource}/view', [ParentResourceController::class, 'view'])->whereNumber('resource')->name('resources.view');
 });
 
 Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'])

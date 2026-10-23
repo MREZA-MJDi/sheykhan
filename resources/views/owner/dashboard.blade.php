@@ -113,7 +113,7 @@
         </section>
 
 
-        <section class="owner-focus-card" aria-labelledby="owner-focus-title">
+        <section class="owner-focus-card {{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}" aria-labelledby="owner-focus-title">
             <div class="owner-focus-status" aria-hidden="true">
                 <span class="{{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}"></span>
             </div>

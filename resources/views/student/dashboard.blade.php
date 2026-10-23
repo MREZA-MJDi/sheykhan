@@ -55,6 +55,9 @@
                         </a>
                     @endif
                     <a href="{{ route('student.courses.index') }}" class="student-ui-secondary">مسیرهای یادگیری</a>
+                    @if(auth()->user()?->hasPermission('student_messages.view'))
+                        <a href="{{ route('student.messages.index') }}" class="student-ui-secondary">پیام به مدرس</a>
+                    @endif
                 </div>
                 <div class="student-ui-hero-meta">
                     <span><b>{{ App\Support\PersianUi::digits($studyStreak) }}</b> روز پیوسته</span>

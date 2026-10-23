@@ -145,6 +145,9 @@
         <section class="teacher-task-board" aria-labelledby="teacher-task-board-title">
             <div class="teacher-board-head"><div><span>کارهای من</span><h2 id="teacher-task-board-title">امروز چه چیزی نیاز به توجه دارد؟</h2></div><a href="{{ route('teacher.assignments.index') }}">همه فعالیت‌ها ←</a></div>
             <div class="teacher-board-cards">
+                @if(auth()->user()?->hasPermission('student_messages.view'))
+                    <a class="teacher-board-card is-blue" href="{{ route('teacher.student-messages.index') }}"><div class="teacher-board-icon">✉</div><div><small>ارتباط با دانش‌آموز</small><strong>پیام‌ها و پاسخ‌ها</strong><span>رسیدگی به مکاتبات دانش‌آموزان کلاس‌ها و دوره‌های خودت</span></div><b>←</b></a>
+                @endif
                 <a class="teacher-board-card is-purple" href="{{ route('teacher.assignments.index') }}"><div class="teacher-board-icon">✓</div><div><small>تکالیف</small><strong>{{ App\Support\PersianUi::digits($pendingAssignmentReviews) }} مورد برای تصحیح</strong><span>نمره و بازخورد دانش‌آموزان</span></div><b>→</b></a>
                 <a class="teacher-board-card is-orange" href="{{ route('teacher.exams.index') }}"><div class="teacher-board-icon">▤</div><div><small>آزمون‌ها</small><strong>{{ App\Support\PersianUi::digits($pendingExamReviews) }} مورد برای بررسی</strong><span>پاسخ‌ها و نتایج ارسال‌شده</span></div><b>→</b></a>
                 <a class="teacher-board-card is-green" href="{{ route('teacher.classrooms.index') }}"><div class="teacher-board-icon">◷</div><div><small>کلاس‌ها</small><strong>{{ App\Support\PersianUi::digits($metrics['weeklySessions'] ?? 0) }} جلسه این هفته</strong><span>{{ App\Support\PersianUi::digits($metrics['studentCount'] ?? 0) }} دانش‌آموز فعال</span></div><b>→</b></a>

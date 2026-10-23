@@ -18,6 +18,7 @@ export default defineConfig({
                 'resources/js/student.js',
                 'resources/css/parent.css',
                 'resources/js/parent.js',
+                'resources/css/homeroom-dashboard-theme.css',
             ],
             refresh: true,
         }),

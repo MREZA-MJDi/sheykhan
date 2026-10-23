@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @php($isSeoOnlyUser = auth()->user()?->hasRole('seo-specialist') && ! auth()->user()?->hasRole('academy-owner'))
     <title>@yield('title', $isSeoOnlyUser ? 'پنل متخصص SEO | شیخان' : 'کارتابل ادمین / منشی | شیخان')</title>
-    @vite(['resources/css/owner.css','resources/js/owner.js'])
+    @vite(['resources/css/owner.css','resources/css/homeroom-dashboard-theme.css','resources/js/owner.js'])
     @stack('styles')
 </head>
 <body class="owner-shell">
