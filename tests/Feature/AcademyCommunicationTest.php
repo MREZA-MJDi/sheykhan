@@ -21,6 +21,12 @@ class AcademyCommunicationTest extends TestCase
     {
         $w = $this->workspace();
 
+        $this->actingAs($w['owner'])
+            ->get(route('owner.communications.index', $w['academy']))
+            ->assertOk()
+            ->assertSee('اطلاعیه و پیام به خانواده‌ها')
+            ->assertSee('همه خانواده‌های آموزشگاه');
+
         $this->actingAs($w['owner'])->post(route('owner.communications.store', $w['academy']), [
             'target' => 'all_parents',
             'category' => 'announcement',
@@ -65,6 +71,12 @@ class AcademyCommunicationTest extends TestCase
     public function test_teacher_can_message_one_class_family_group_and_one_student_privately(): void
     {
         $w = $this->workspace();
+
+        $this->actingAs($w['teacher'])
+            ->get(route('teacher.communications.index'))
+            ->assertOk()
+            ->assertSee('ارسال پیام و اطلاعیه')
+            ->assertSee('کلاس یک');
 
         $this->actingAs($w['teacher'])->post(route('teacher.communications.store'), [
             'target' => 'classroom:' . $w['classroom']->id . ':parents',
