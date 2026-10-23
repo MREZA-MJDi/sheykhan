@@ -2689,3 +2689,38 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+
+.student-shell .student-result-detail-link {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin-top: 6px;
+    color: var(--panel-primary);
+    font-size: 10px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.student-shell .student-result-detail-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.student-dashboard-reference .sdr-result-link {
+    display: inline-flex;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.student-dashboard-reference .sdr-result-link strong {
+    color: #e4ebf7;
+    transition: color .16s ease;
+}
+
+.student-dashboard-reference .sdr-result-link:hover strong {
+    color: #5dd5ec;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
