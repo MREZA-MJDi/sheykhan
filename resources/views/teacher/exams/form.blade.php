@@ -39,6 +39,7 @@
                             <option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>
                         @endforeach
                     </select>
+                    <small class="teacher-exam-field-help">آزمون، پاسخ‌ها و نتیجه‌ها به این دوره وصل می‌شوند. فقط دوره‌هایی را می‌بینی که مجاز به مدیریتشان هستی.</small>
                 </label>
 
                 <label class="teacher-form-field">
@@ -49,25 +50,30 @@
                             <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>
                         @endforeach
                     </select>
+                    <small class="teacher-exam-field-help">اگر یک کلاس را انتخاب کنی فقط همان گروه آزمون را می‌بیند؛ اگر خالی بماند، آزمون برای دانش‌آموزان مجاز تمام کلاس‌های این دوره در دسترس خواهد بود.</small>
                 </label>
 
                 <label class="teacher-form-field md:col-span-2">
                     <span>عنوان آزمون</span>
                     <input name="title" data-exam-title value="{{ old('title') }}" placeholder="مثلاً آزمون فصل‌های اول فیزیک" required maxlength="255">
+                    <small class="teacher-exam-field-help">عنوانی روشن بنویس؛ همین عنوان در فهرست آزمون‌ها و بالای برگهٔ دانش‌آموز نمایش داده می‌شود.</small>
                 </label>
 
                 <label class="teacher-form-field">
                     <span>مدت آزمون <small>دقیقه</small></span>
-                    <input type="number" name="duration_minutes" data-exam-duration value="{{ old('duration_minutes',$exam->duration_minutes) }}" min="1" inputmode="numeric">
+                    <input type="number" name="duration_minutes" data-exam-duration value="{{ old('duration_minutes',$exam->duration_minutes) }}" min="0" inputmode="numeric">
+                    <small class="teacher-exam-field-help">مدت برحسب دقیقه است؛ عدد ۰ یعنی آزمون زمان‌سنج ندارد. پایان بازهٔ آزمون همچنان در سمت سرور کنترل می‌شود.</small>
                 </label>
 
                 <label class="teacher-form-field">
                     <span>تعداد دفعات مجاز</span>
                     <input type="number" name="attempts_allowed" value="{{ old('attempts_allowed',$exam->attempts_allowed) }}" min="1" inputmode="numeric" required>
+                    <small class="teacher-exam-field-help">حداکثر تعداد دفعاتی که هر دانش‌آموز می‌تواند برگه را شروع و تحویل کند؛ حداقل یک بار.</small>
                 </label>
 
                 <x-teacher.jalali-datetime name="starts_at" :value="old('starts_at')" label="شروع آزمون" />
                 <x-teacher.jalali-datetime name="ends_at" :value="old('ends_at')" label="پایان آزمون" />
+                <p class="teacher-exam-date-help md:col-span-2">تاریخ‌ها اختیاری‌اند. قبل از زمان شروع، آزمون باز نمی‌شود؛ بعد از زمان پایان هم سرور ارسال پاسخ را نمی‌پذیرد.</p>
 
                 <label class="teacher-form-field">
                     <span>وضعیت انتشار</span>
@@ -76,6 +82,7 @@
                         <option value="published" @selected(old('status',$exam->status)==='published')>منتشرشده</option>
                         <option value="closed" @selected(old('status',$exam->status)==='closed')>بسته</option>
                     </select>
+                    <small class="teacher-exam-field-help">پیش‌نویس به دانش‌آموز نمایش داده نمی‌شود. وضعیت منتشرشده آزمون را برای افراد واجد دسترسی قابل مشاهده می‌کند؛ وضعیت بسته جلوی شروع و تحویل جدید را می‌گیرد.</small>
                 </label>
 
                 <label class="teacher-form-field md:col-span-2">
@@ -182,6 +189,7 @@
                     <label class="teacher-form-field teacher-exam-score-field">
                         <span>نمرهٔ این سؤال</span>
                         <input data-name="score" type="number" value="1" min="0" max="999999.99" step="0.25" inputmode="decimal" required>
+                        <small class="teacher-exam-field-help">حداکثر امتیاز سؤال؛ نمرهٔ کل برگه خودکار بالای صفحه جمع می‌شود.</small>
                     </label>
                 </div>
 
