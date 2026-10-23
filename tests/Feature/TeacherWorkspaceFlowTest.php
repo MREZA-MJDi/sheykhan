@@ -303,6 +303,38 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertSee('۳');
     }
 
+    public function test_exam_builder_requires_exactly_four_options_for_single_choice_questions(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.create'))
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'title' => 'آزمون چهارگزینه‌ای ناقص - تست',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'single',
+                        'question' => 'کدام گزینه درست است؟',
+                        'options' => ['گزینه الف', 'گزینه ب', 'گزینه ج'],
+                        'correct_answer' => 'گزینه ب',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('questions.0.options');
+
+        $this->assertDatabaseMissing('exams', [
+            'title' => 'آزمون چهارگزینه‌ای ناقص - تست',
+        ]);
+    }
+
     public function test_exam_builder_rejects_a_correct_answer_that_is_not_one_of_the_options(): void
     {
         $this->seed();
