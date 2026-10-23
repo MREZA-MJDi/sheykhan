@@ -37,7 +37,6 @@ final class StudentResultService
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
             ->whereIn('exams.course_id', $courseIds)
-            ->where('exams.status', 'published')
             ->where(function ($query) use ($classroomIds): void {
                 $query->whereNull('exams.classroom_id')
                     ->orWhereIn('exams.classroom_id', $classroomIds);
