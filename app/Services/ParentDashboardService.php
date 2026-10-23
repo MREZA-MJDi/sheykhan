@@ -170,6 +170,32 @@ final class ParentDashboardService
             ->limit(8)
             ->get();
 
+
+        $upcomingMeetings = DB::table('academy_meetings')
+            ->join('courses', 'courses.id', '=', 'academy_meetings.course_id')
+            ->where('academy_meetings.parent_id', $parent->id)
+            ->whereIn('academy_meetings.student_id', $childIds)
+            ->where('academy_meetings.status', 'scheduled')
+            ->whereBetween('academy_meetings.scheduled_at', [now(), now()->addDays(30)])
+            ->orderBy('academy_meetings.scheduled_at')
+            ->limit(8)
+            ->get([
+                'academy_meetings.id',
+                'academy_meetings.student_id',
+                'academy_meetings.title',
+                'academy_meetings.message',
+                'academy_meetings.scheduled_at',
+                'academy_meetings.course_id',
+                'courses.title as course_title',
+            ])
+            ->map(function ($item): object {
+                $item->scheduled_at = $item->scheduled_at instanceof \Carbon\CarbonInterface
+                    ? $item->scheduled_at
+                    : Carbon::parse($item->scheduled_at);
+                $item->kind = 'meeting';
+                return $item;
+            });
+
         $recentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->join('users', 'users.id', '=', 'submissions.student_id')
@@ -184,16 +210,24 @@ final class ParentDashboardService
                 'submissions.graded_at',
             ]);
 
+        $liveItems = $upcomingLiveClasses->map(function ($item): object {
+            $item->scheduled_at = $item->scheduled_at instanceof \Carbon\CarbonInterface
+                ? $item->scheduled_at
+                : Carbon::parse($item->scheduled_at);
+            $item->kind = 'live_class';
+            return $item;
+        });
+
+        $upcomingItems = $liveItems->concat($upcomingMeetings)
+            ->sortBy('scheduled_at')
+            ->take(8)
+            ->values();
+
         return [
             'parent' => $parent,
             'children' => $children,
             'overallProgress' => round((float) $progress->avg() ),
-            'upcomingLiveClasses' => $upcomingLiveClasses->map(function ($item) {
-                $item->scheduled_at = $item->scheduled_at instanceof \Carbon\CarbonInterface
-                    ? $item->scheduled_at
-                    : Carbon::parse($item->scheduled_at);
-                return $item;
-            }),
+            'upcomingLiveClasses' => $upcomingItems,
             'recentResults' => $recentResults->map(function ($item) {
                 $item->graded_at = $item->graded_at instanceof \Carbon\CarbonInterface
                     ? $item->graded_at

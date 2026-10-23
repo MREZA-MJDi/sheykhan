@@ -7,6 +7,7 @@ use App\Models\AcademyMeeting;
 use App\Models\Classroom;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
 final class OwnerMeetingService
@@ -55,7 +56,7 @@ final class OwnerMeetingService
                 'student:id,name',
                 'guardian:id,name',
             ])
-            ->orderByRaw("CASE WHEN status = 'scheduled' THEN 0 ELSE 1 END")
+            ->orderByRaw("CASE WHEN status = 'proposed' THEN 0 WHEN status = 'scheduled' THEN 1 ELSE 2 END")
             ->orderBy('scheduled_at')
             ->paginate(15)
             ->withQueryString();
@@ -129,16 +130,46 @@ final class OwnerMeetingService
         ]);
     }
 
-    public function changeStatus(User $owner, Academy $academy, AcademyMeeting $meeting, string $status): void
-    {
+    public function changeStatus(
+        User $owner,
+        Academy $academy,
+        AcademyMeeting $meeting,
+        string $status,
+        ?string $scheduledAt = null,
+        ?string $scheduledEndAt = null,
+    ): void {
         $this->authorizeAcademy($owner, $academy);
         abort_unless($owner->hasPermission('live_classes.manage'), 403);
         abort_unless((int) $meeting->academy_id === (int) $academy->id, 404);
 
+        if ($meeting->status === 'proposed') {
+            if (!in_array($status, ['scheduled', 'declined'], true)) {
+                throw ValidationException::withMessages(['status' => 'پیشنهاد مدرس فقط قابل تأیید یا رد است.']);
+            }
+
+            if ($status === 'scheduled') {
+                if (blank($scheduledAt) || now()->gte(Carbon::parse($scheduledAt))) {
+                    throw ValidationException::withMessages(['scheduled_at' => 'برای تأیید پیشنهاد، زمان آینده را مشخص کنید.']);
+                }
+
+                if ($scheduledEndAt && Carbon::parse($scheduledEndAt)->lte(Carbon::parse($scheduledAt))) {
+                    throw ValidationException::withMessages(['scheduled_end_at' => 'زمان پایان باید بعد از زمان شروع باشد.']);
+                }
+
+                $meeting->update([
+                    'status' => 'scheduled',
+                    'scheduled_at' => $scheduledAt,
+                    'scheduled_end_at' => $scheduledEndAt,
+                ]);
+                return;
+            }
+
+            $meeting->update(['status' => 'declined']);
+            return;
+        }
+
         if (!in_array($status, ['scheduled', 'completed', 'cancelled'], true)) {
-            throw ValidationException::withMessages([
-                'status' => 'وضعیت انتخاب‌شده معتبر نیست.',
-            ]);
+            throw ValidationException::withMessages(['status' => 'وضعیت انتخاب‌شده معتبر نیست.']);
         }
 
         $meeting->update(['status' => $status]);

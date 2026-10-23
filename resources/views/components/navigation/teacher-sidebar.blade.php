@@ -42,6 +42,7 @@
         <a href="{{ route('teacher.messages.index') }}" class="role-nav-link {{ request()->routeIs('teacher.messages.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام‌های اولیا</span></a>
         @if(auth()->user()?->hasPermission('student_messages.view'))
             <a href="{{ route('teacher.student-messages.index') }}" class="role-nav-link {{ request()->routeIs('teacher.student-messages.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام‌های دانش‌آموزان</span></a>
+            <a href="{{ route('teacher.direct-messages.index') }}" class="role-nav-link {{ request()->routeIs('teacher.direct-messages.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام مستقیم به خانواده و دانش‌آموز</span></a>
         @endif
         <a href="{{ route('teacher.meetings.index') }}" class="role-nav-link {{ request()->routeIs('teacher.meetings.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>جلسات با اولیا</span></a>
         <a href="{{ route('teacher.students.index') }}" class="role-nav-link {{ request()->routeIs('teacher.students.*') ? 'is-active' : '' }}">

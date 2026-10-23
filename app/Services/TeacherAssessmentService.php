@@ -117,10 +117,15 @@ final class TeacherAssessmentService
         array $scores,
         int $teacherId
     ): ExamAttempt {
-        $attempt->loadMissing(['exam:id,course_id,classroom_id,teacher_id', 'answers.question']);
+        $attempt->loadMissing(['exam.course.academy', 'answers.question']);
 
         $teacher = User::query()->find($teacherId);
-        if (!$teacher || !app(TeacherAccessService::class)->canManageExam($teacher, $attempt->exam)) {
+        $isAcademyOwner = $teacher
+            && $teacher->hasRole('academy-owner')
+            && $teacher->hasPermission('exams.manage')
+            && (int) $attempt->exam?->course?->academy?->owner_id === (int) $teacher->id;
+
+        if (!$teacher || (!$isAcademyOwner && !app(TeacherAccessService::class)->canManageExam($teacher, $attempt->exam))) {
             throw new AccessDeniedHttpException();
         }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\StudentMessage;
+use App\Models\TeacherDirectMessage;
 use App\Models\User;
 use App\Services\StudentAccessService;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,14 @@ final class StudentMessageController extends Controller
     public function index(Request $request): View
     {
         $student = $request->user();
+
+        $teacherMessages = TeacherDirectMessage::query()
+            ->where('recipient_type', 'student')
+            ->where('recipient_id', $student->id)
+            ->with(['teacher:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title'])
+            ->latest()
+            ->paginate(10, ['*'], 'teacher_messages_page')
+            ->withQueryString();
 
         $messages = StudentMessage::query()
             ->where('student_id', $student->id)
@@ -34,7 +43,36 @@ final class StudentMessageController extends Controller
         return view('student.messages.index', [
             'messages' => $messages,
             'contactableTargets' => $this->contactableTargets($student),
+            'teacherMessages' => $teacherMessages,
         ]);
+    }
+
+
+    public function replyToTeacherMessage(Request $request, int $message): RedirectResponse
+    {
+        $data = $request->validate([
+            'response' => ['required', 'string', 'min:2', 'max:5000'],
+        ], [
+            'response.required' => 'متن پاسخ را وارد کن.',
+            'response.min' => 'پاسخ باید حداقل دو کاراکتر داشته باشد.',
+        ]);
+
+        $record = TeacherDirectMessage::query()
+            ->whereKey($message)
+            ->where('recipient_type', 'student')
+            ->where('recipient_id', $request->user()->id)
+            ->where('status', 'sent')
+            ->firstOrFail();
+
+        $record->forceFill([
+            'response' => trim($data['response']),
+            'responded_by' => $request->user()->id,
+            'responded_at' => now(),
+            'status' => 'responded',
+        ])->save();
+
+        return redirect()->route('student.messages.index')
+            ->with('success', 'پاسخت برای مدرس ثبت شد.');
     }
 
     public function store(Request $request): RedirectResponse

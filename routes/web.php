@@ -165,7 +165,9 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/exams', [\App\Http\Controllers\Owner\ExamController::class, 'index'])->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.index');
     Route::get('/academy/{academy}/exams/{exam}', [\App\Http\Controllers\Owner\ExamController::class, 'show'])->whereNumber('exam')->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.show');
     Route::patch('/academy/{academy}/exams/{exam}/status', [\App\Http\Controllers\Owner\ExamController::class, 'updateStatus'])->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.status');
+    Route::patch('/academy/{academy}/exams/{exam}/attempts/{attempt}/grade', [\App\Http\Controllers\Owner\ExamController::class, 'gradeAttempt'])->middleware(['permission:exams.manage','throttle:20,1'])->withoutScopedBindings()->name('exams.attempts.grade');
     Route::get('/academy/{academy}/recordings', [\App\Http\Controllers\Owner\RecordingController::class, 'index'])->middleware('permission:live_classes.view')->withoutScopedBindings()->name('recordings.index');
+    Route::post('/academy/{academy}/recordings/{liveClass}', [\App\Http\Controllers\Owner\RecordingController::class, 'upload'])->middleware(['permission:live_classes.manage','throttle:5,1'])->withoutScopedBindings()->name('recordings.upload');
     Route::patch('/academy/{academy}/recordings/{liveClass}', [\App\Http\Controllers\Owner\RecordingController::class, 'updatePublication'])->middleware('permission:live_classes.manage')->withoutScopedBindings()->name('recordings.update');
     Route::get('/academy/{academy}/teacher-payments', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->withoutScopedBindings()->name('teacher-payments.index');
     Route::post('/academy/{academy}/teacher-payments', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'store'])->middleware(['permission:teacher_payments.manage', 'throttle:10,1'])->withoutScopedBindings()->name('teacher-payments.store');
@@ -256,10 +258,13 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
     Route::get('/messages', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'index'])->middleware('permission:parent_messages.view')->name('messages.index');
     Route::patch('/messages/{message}/reply', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'reply'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('messages.reply');
+    Route::get('/direct-messages', [\App\Http\Controllers\Teacher\DirectMessageController::class, 'index'])->middleware('permission:parent_messages.manage')->name('direct-messages.index');
+    Route::post('/direct-messages', [\App\Http\Controllers\Teacher\DirectMessageController::class, 'store'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('direct-messages.store');
     Route::get('/student-messages', [TeacherStudentMessageController::class, 'index'])->middleware('permission:student_messages.view')->name('student-messages.index');
     Route::patch('/student-messages/{message}/reply', [TeacherStudentMessageController::class, 'reply'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('student-messages.reply');
     Route::patch('/student-messages/{message}/close', [TeacherStudentMessageController::class, 'close'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('student-messages.close');
     Route::get('/meetings', [\App\Http\Controllers\Teacher\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
+    Route::post('/meetings/proposals', [\App\Http\Controllers\Teacher\MeetingController::class, 'propose'])->middleware(['permission:live_classes.manage','throttle:10,1'])->name('meetings.proposals.store');
     Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\Teacher\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
     Route::get('/payments', [\App\Http\Controllers\Teacher\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
@@ -273,6 +278,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 
     Route::get('/messages', [StudentMessageController::class, 'index'])->middleware('permission:student_messages.view')->name('messages.index');
     Route::post('/messages', [StudentMessageController::class, 'store'])->middleware(['permission:student_messages.manage','throttle:5,1'])->name('messages.store');
+    Route::patch('/messages/from-teacher/{message}/reply', [StudentMessageController::class, 'replyToTeacherMessage'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('teacher-messages.reply');
 
     Route::get('/courses', [StudentCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
     Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->middleware('permission:courses.view')->name('courses.show');
@@ -314,6 +320,7 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
     Route::get('/dashboard', ParentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/messages', [\App\Http\Controllers\ParentPortal\MessageController::class, 'index'])->name('messages.index');
     Route::post('/messages', [\App\Http\Controllers\ParentPortal\MessageController::class, 'store'])->middleware('throttle:5,1')->name('messages.store');
+    Route::patch('/teacher-messages/{message}/reply', [\App\Http\Controllers\ParentPortal\MessageController::class, 'replyToTeacherMessage'])->middleware('throttle:10,1')->name('teacher-messages.reply');
     Route::get('/counseling', [\App\Http\Controllers\ParentPortal\CounselingRequestController::class, 'index'])->name('counseling.index');
     Route::post('/counseling', [\App\Http\Controllers\ParentPortal\CounselingRequestController::class, 'store'])->middleware('throttle:5,1')->name('counseling.store');
     Route::get('/attendance', [\App\Http\Controllers\ParentPortal\AttendanceController::class, 'index'])->name('attendance.index');

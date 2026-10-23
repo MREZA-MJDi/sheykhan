@@ -123,8 +123,8 @@
                     <div class="parent-panel-head">
                         <div>
                             <span class="parent-kicker" style="color: var(--panel-primary)">هفت روز آینده</span>
-                            <h2 id="parent-live-title">جلسات آنلاین پیش‌رو</h2>
-                            <p>جلسه‌های نزدیک هر فرزند در یک لیست زمانی.</p>
+                            <h2 id="parent-live-title">جلسات و هماهنگی‌های پیش‌رو</h2>
+                            <p>جلسه‌های آنلاین و زمان‌های هماهنگی تأییدشده برای فرزندانت.</p>
                         </div>
                     </div>
 
@@ -151,7 +151,7 @@
                                 </div>
 
                                 <span class="parent-score">
-                                    آنلاین
+                                    {{ ($item->kind ?? 'live_class') === 'meeting' ? 'هماهنگی' : 'آنلاین' }}
                                 </span>
                             </article>
                         @empty

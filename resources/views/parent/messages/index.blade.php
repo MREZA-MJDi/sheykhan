@@ -88,5 +88,8 @@
         @endforelse
         <div>{{ $messages->links() }}</div>
     </section>
+
+    @include('components.communication.teacher-direct-messages-inbox', ['messages' => $teacherMessages, 'recipientType' => 'parent'])
+
 </div>
 @endsection
