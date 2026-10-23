@@ -26,11 +26,11 @@ Use this only on a private staging host, never as a public production convenienc
     SHOW_TEST_ACCOUNTS=true
     SEED_USER_PASSWORD=replace-with-a-unique-long-staging-secret
 
-Then run the role and demo identity seeders intentionally:
+Clear cached configuration, seed the role and demo identities, then rebuild the cache:
 
+    php artisan config:clear
     php artisan db:seed --class="Database\Seeders\RolePermissionSeeder"
     php artisan db:seed --class="Database\Seeders\AcademyFoundationSeeder"
-    php artisan config:clear
     php artisan config:cache
 
 The login screen includes the demo password only when test-login access is explicitly enabled and a seed password is configured. Local/testing may use the documented disposable default; staging must supply its own password. The SEO test identity is seo@sheykhan.test; it receives the restricted seo-specialist role, not academy-owner privileges. These seeders create synthetic demo identities and should not be run against a live customer database.

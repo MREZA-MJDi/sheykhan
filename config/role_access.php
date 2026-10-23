@@ -7,8 +7,11 @@ $showTestAccounts = filter_var(
     FILTER_VALIDATE_BOOLEAN
 );
 $seedUserPassword = trim((string) env('SEED_USER_PASSWORD', ''));
-$testPasswordAvailable = $showTestAccounts
-    && ($seedUserPassword !== '' || in_array($appEnvironment, ['local', 'testing'], true));
+$seedPasswordAvailable = $seedUserPassword !== ''
+    || in_array($appEnvironment, ['local', 'testing'], true);
+$seedPassword = $seedPasswordAvailable
+    ? ($seedUserPassword !== '' ? $seedUserPassword : 'Sheykhan@12345')
+    : null;
 
 return [
     'dashboard_routes' => [
@@ -22,9 +25,8 @@ return [
     // Local/testing gets a documented disposable password; other environments
     // must set a unique SEED_USER_PASSWORD before demo credentials are rendered.
     'show_test_accounts' => $showTestAccounts,
-    'test_password' => $testPasswordAvailable
-        ? ($seedUserPassword !== '' ? $seedUserPassword : 'Sheykhan@12345')
-        : null,
+    'seed_password' => $seedPassword,
+    'test_password' => $showTestAccounts ? $seedPassword : null,
     'allowed_test_ips' => array_values(array_filter(array_map(
         'trim',
         explode(',', (string) env('TEST_ACCOUNTS_ALLOWED_IPS', ''))
