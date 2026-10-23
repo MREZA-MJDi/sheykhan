@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\LiveClass;
+use App\Models\Media;
+use App\Services\MediaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Throwable;
 use Illuminate\Validation\ValidationException;
 
 final class RecordingController extends Controller
@@ -19,7 +22,6 @@ final class RecordingController extends Controller
         $this->authorizeAcademy($request, $academy, 'live_classes.view');
 
         $recordings = LiveClass::query()
-            ->whereNotNull('recording_media_id')
             ->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))
             ->with([
                 'course:id,academy_id,title',
@@ -39,6 +41,60 @@ final class RecordingController extends Controller
         ];
 
         return view('owner.recordings.index', compact('academy', 'recordings', 'stats'));
+    }
+
+
+    public function upload(Request $request, Academy $academy, int $liveClass, MediaService $media): RedirectResponse
+    {
+        $this->authorizeAcademy($request, $academy, 'live_classes.manage');
+
+        $data = $request->validate([
+            'recording' => ['required', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime,video/x-matroska', 'max:204800'],
+        ], [
+            'recording.required' => 'فایل ضبط ویدئویی را انتخاب کنید.',
+            'recording.mimetypes' => 'فقط ویدئوهای MP4، WebM، MOV یا MKV پذیرفته می‌شوند.',
+            'recording.max' => 'حجم ویدئو نباید بیشتر از ۲۰۰ مگابایت باشد.',
+        ]);
+
+        $record = LiveClass::query()
+            ->whereKey($liveClass)
+            ->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))
+            ->firstOrFail();
+
+        $uploaded = $media->upload($data['recording'], null, [
+            'disk' => 'local',
+            'directory' => 'live-class-recordings/' . $record->id,
+            'collection' => 'recordings',
+            'visibility' => 'private',
+        ]);
+
+        $previousMediaId = $record->recording_media_id;
+
+        try {
+            DB::transaction(function () use ($record, $uploaded): void {
+                $record->forceFill([
+                    'recording_media_id' => $uploaded->id,
+                    'recording_released_at' => null,
+                    'recording_visibility' => 'private',
+                    'ended_at' => $record->ended_at ?: now(),
+                    'status' => 'completed',
+                ])->save();
+            });
+        } catch (Throwable $exception) {
+            $media->delete($uploaded);
+            throw $exception;
+        }
+
+        if ($previousMediaId && (int) $previousMediaId !== (int) $uploaded->id) {
+            $previous = Media::query()->find($previousMediaId);
+            if ($previous && $previous->attachments()->doesntExist()
+                && ! LiveClass::query()->where('recording_media_id', $previous->id)->exists()) {
+                $media->delete($previous);
+            }
+        }
+
+        return redirect()->route('owner.recordings.index', $academy)
+            ->with('success', 'فایل ضبط در فضای خصوصی ذخیره شد. برای نمایش به دانش‌آموزان، زمان انتشار را در همین صفحه تنظیم کنید.');
     }
 
     public function updatePublication(Request $request, Academy $academy, int $liveClass): RedirectResponse
