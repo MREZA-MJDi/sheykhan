@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/js/teacher.js',
                 'resources/js/exam-builder.js',
                 'resources/css/student.css',
+                'resources/css/student-dashboard-reference.css',
                 'resources/js/student.js',
                 'resources/css/parent.css',
                 'resources/js/parent.js',
