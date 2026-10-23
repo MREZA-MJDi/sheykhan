@@ -53,7 +53,7 @@ class StudentPortalSmokeTest extends TestCase
             ->assertOk()
             ->assertSee('خانه یادگیری من')
             ->assertSee('قدم بعدی')
-            ->assertSee('ریتم یادگیری')
+            ->assertSee('ریتم مطالعه')
             ->assertDontSee("@yield('header-title'");
     }
 }
