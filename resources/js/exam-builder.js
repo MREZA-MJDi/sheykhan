@@ -309,8 +309,9 @@ const initializeExamBuilder = () => {
         const referenceAnswer = item.querySelector('[data-name="expected_answer"]');
 
         if (prompt) prompt.value = typeof initial.question === 'string' ? initial.question : '';
-        if (type && ['text', 'single', 'multiple', 'checkbox'].includes(initial.type)) {
-            type.value = initial.type;
+        const initialType = initial.type === 'multiple_choice' ? 'single' : initial.type;
+        if (type && ['text', 'single', 'multiple', 'checkbox'].includes(initialType)) {
+            type.value = initialType;
         }
         if (score && initial.score !== undefined && initial.score !== null) score.value = initial.score;
         if (referenceAnswer && typeof initial.expected_answer === 'string') {
