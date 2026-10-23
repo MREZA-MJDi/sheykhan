@@ -7,6 +7,8 @@ use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Academy;
 use App\Models\Course;
 use App\Models\Exam;
+use App\Models\ExamAttempt;
+use App\Services\TeacherAssessmentService;
 use App\Models\User;
 use App\Services\ExamQuestionWriter;
 use Illuminate\Database\Eloquent\Builder;
@@ -135,7 +137,7 @@ final class ExamController extends Controller
         $record = $this->ownedExam($academy, $exam);
         $record->load(['course:id,academy_id,title', 'classroom:id,title', 'teacher:id,name', 'questions:id,exam_id,type,question,score,sort_order']);
         $record->loadCount('attempts');
-        $attempts = $record->attempts()->with('student:id,name')->orderByDesc('submitted_at')->orderByDesc('id')->paginate(25)->withQueryString();
+        $attempts = $record->attempts()->with(['student:id,name', 'answers.question'])->orderByDesc('submitted_at')->orderByDesc('id')->paginate(25)->withQueryString();
         $summary = [
             'submitted' => $record->attempts()->whereNotNull('submitted_at')->count(),
             'graded' => $record->attempts()->whereNotNull('score')->count(),
@@ -144,6 +146,36 @@ final class ExamController extends Controller
         return view('owner.exams.show', compact('academy', 'record') + [
             'exam' => $record, 'attempts' => $attempts, 'summary' => $summary,
         ]);
+    }
+
+
+    public function gradeAttempt(
+        Request $request,
+        Academy $academy,
+        int $exam,
+        int $attempt,
+        TeacherAssessmentService $assessments
+    ): RedirectResponse {
+        $this->authorizeAcademy($request, $academy, 'exams.manage');
+        $ownedExam = $this->ownedExam($academy, $exam);
+        $record = ExamAttempt::query()
+            ->where('exam_id', $ownedExam->id)
+            ->with('answers.question')
+            ->findOrFail($attempt);
+
+        $data = $request->validate([
+            'scores' => ['required', 'array'],
+            'scores.*' => ['nullable', 'numeric', 'min:0', 'max:100000'],
+        ], [
+            'scores.required' => 'نمرهٔ هر پاسخ را بررسی و ثبت کنید.',
+            'scores.*.numeric' => 'نمره باید عددی باشد.',
+            'scores.*.min' => 'نمره نمی‌تواند منفی باشد.',
+        ]);
+
+        $assessments->gradeExamAttemptManually($record, $data['scores'], (int) $request->user()->id);
+
+        return redirect()->route('owner.exams.show', [$academy, $ownedExam->id])
+            ->with('success', 'نمره‌های این تلاش ذخیره شد و نتیجه در کارتابل دانش‌آموز به‌روزرسانی شد.');
     }
 
     public function updateStatus(Request $request, Academy $academy, int $exam): RedirectResponse

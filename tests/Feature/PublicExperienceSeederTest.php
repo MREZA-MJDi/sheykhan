@@ -86,8 +86,10 @@ class PublicExperienceSeederTest extends TestCase
             $this->assertDatabaseCount('home_hero_slides', 3);
             $this->assertDatabaseCount('home_banners', 3);
             $this->assertDatabaseCount('courses', 3);
-            $this->assertDatabaseCount('products', 3);
-            $this->assertDatabaseCount('product_files', 3);
+            // Three catalog items come from CommerceSeeder and three workbooks
+            // from PublicExperienceSeeder; the combined public catalog is stable.
+            $this->assertDatabaseCount('products', 6);
+            $this->assertDatabaseCount('product_files', 6);
         } finally {
             $this->app->detectEnvironment(static fn (): string => 'testing');
         }
