@@ -66,6 +66,7 @@ final class SeoKeywordController extends Controller
     {
         $this->authorizeSeoSpecialist();
         $data = $request->validate($this->rules());
+        $data['keyword'] = preg_replace('/\\s+/u', ' ', trim($data['keyword'])) ?? trim($data['keyword']);
         $key = $this->normalizeKeyword($data['keyword']);
 
         if (SeoKeyword::where('keyword_key', $key)->exists()) {
@@ -348,7 +349,7 @@ final class SeoKeywordController extends Controller
             'position' => isset($data['observed_position']) && $data['observed_position'] !== ''
                 ? (int) $data['observed_position']
                 : null,
-            'observed_on' => $data['observed_on'] ?: now()->toDateString(),
+            'observed_on' => ($data['observed_on'] ?? null) ?: now()->toDateString(),
             'notes' => $data['observation_notes'] ?? null,
             'search_volume' => isset($data['search_volume']) && $data['search_volume'] !== ''
                 ? (int) $data['search_volume']
