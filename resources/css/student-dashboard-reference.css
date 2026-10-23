@@ -25,12 +25,18 @@
     color-scheme: dark;
 }
 .student-shell-dashboard .role-layout {
+    direction: ltr;
     grid-template-columns: 244px minmax(0, 1fr);
     background: #171e2f;
 }
+.student-shell-dashboard .role-content { direction: rtl; }
+.student-shell-dashboard .role-sidebar { direction: rtl; }
+.student-shell-dashboard .role-topbar { direction: rtl; }
+.student-shell-dashboard .role-mobile-bottom-nav { direction: rtl; }
 .student-shell-dashboard .role-sidebar {
     width: 244px;
-    border-left-color: #30394f;
+    border-right: 1px solid #30394f;
+    border-left: 0;
     background: #1c2538;
     box-shadow: 10px 0 28px rgba(0, 0, 0, .12);
     color: #eaf0fb;
@@ -53,7 +59,7 @@
 .student-shell-dashboard .role-nav-link.is-active {
     border-color: rgba(36, 184, 225, .17);
     background: #29374e;
-    box-shadow: inset -3px 0 #12b9e7;
+    box-shadow: inset 3px 0 #12b9e7;
     color: #f5fbff;
 }
 .student-shell-dashboard .role-nav-link:hover {
