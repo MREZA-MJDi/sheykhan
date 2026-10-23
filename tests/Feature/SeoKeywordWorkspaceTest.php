@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\Role;
 use App\Models\SeoKeyword;
 use App\Models\SeoKeywordRanking;
-use App\Models\SeoKeywordRanking;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
