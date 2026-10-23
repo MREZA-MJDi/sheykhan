@@ -133,6 +133,37 @@ final class StudentAccessService
         );
     }
 
+    /**
+     * Historical results remain available after an exam closes, but only to a
+     * student who had access to the same course/classroom and submitted an attempt.
+     */
+    public function canViewExamResult(User $student, Exam $exam): bool
+    {
+        if (! $student->hasRole('student')) {
+            return false;
+        }
+
+        $exam->loadMissing(['course', 'classroom']);
+
+        if (! $exam->course || ! $this->course($student, $exam->course)) {
+            return false;
+        }
+
+        if (! $this->studentBelongsToTeacherGroup(
+            $student,
+            (int) $exam->course_id,
+            (int) $exam->teacher_id,
+            $exam->classroom_id === null ? null : (int) $exam->classroom_id,
+        )) {
+            return false;
+        }
+
+        return $exam->attempts()
+            ->where('student_id', $student->id)
+            ->whereNotNull('submitted_at')
+            ->exists();
+    }
+
     public function liveClass(User $student, LiveClass $liveClass): bool
     {
         if (!$student->hasRole('student')) {
