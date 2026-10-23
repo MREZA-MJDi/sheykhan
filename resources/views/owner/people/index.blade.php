@@ -48,7 +48,7 @@
             <select name="student_id" required class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
                 <option value="">انتخاب دانش‌آموز فعال</option>
                 @foreach($students as $studentOption)
-                    <option value="{{ $studentOption->id }}" @selected((string) old('student_id') === (string) $studentOption->id)>{{ $studentOption->name }} — {{ $studentOption->email }}</option>
+                    <option value="{{ $studentOption->id }}" @selected((string) old('student_id') === (string) $studentOption->id)>{{ $studentOption->name }}</option>
                 @endforeach
             </select>
             @error('student_id')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
@@ -78,16 +78,16 @@
 <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key',(string)\Illuminate\Support\Str::uuid()) }}">
 <div class="owner-student-picker" data-student-picker data-options-url="{{ route('owner.people.student-options',$academy) }}">
 <label for="owner-enrollment-student-search" class="mb-1 block text-xs font-bold">دانش‌آموز (جست‌وجوی صفحه‌بندی‌شده)</label>
-<input id="owner-enrollment-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-enrollment-student-results" placeholder="نام یا ایمیل را وارد کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+<input id="owner-enrollment-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-enrollment-student-results" placeholder="نام یا ایمیل را برای جست‌وجو وارد کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
 <input type="hidden" name="student_id" data-student-id value="{{ old('student_id') }}">
 <input type="hidden" name="student_label" data-student-label value="{{ old('student_label') }}">
 <div id="owner-enrollment-student-results" data-student-results class="owner-student-picker-results" role="listbox"></div>
 <button type="button" data-student-more class="owner-student-picker-more" hidden>نمایش نتایج بعدی</button>
-<p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو حرف از نام یا ایمیل را جست‌وجو کن.</p>
+<p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو حرف از نام یا ایمیل را برای جست‌وجو وارد کن؛ ایمیل در نتایج نمایش داده نمی‌شود.</p>
 <x-owner.field-error field="student_id"/></div>
-<label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree()?'رایگان':number_format((float)$course->price,0,'.',',').' تومان' }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><x-owner.field-error field="course_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree() ? 'رایگان' : \App\Support\PersianUi::money($course->price) }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><x-owner.field-error field="course_id"/></label>
 <label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="" selected disabled>ابتدا کلاس را انتخاب کن</option>@foreach($classroomOptions as $classroom)<option data-course-id="{{ $classroom->course_id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><x-owner.field-error field="classroom_id"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی</span><input name="paid_amount" type="number" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="paid_amount"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی (تومان)</span><input name="paid_amount" type="number" data-money-input data-money-unit="تومان" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="paid_amount"/></label>
 <button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$courseOptions->count())>ثبت‌نام دانش‌آموز</button></form></section>
 </div>
 
@@ -177,7 +177,7 @@
                     </p>
                 </div>
                 <div class="text-[9px] text-slate-500">
-                    {{ optional($entry->activated_at)->format('Y/m/d H:i') }}
+                    {{ \App\Support\PersianUi::dateTime($entry->activated_at) }}
                     <span class="mx-1">·</span>
                     <span class="font-bold text-emerald-700">{{ $entry->status === 'activated' ? 'فعال' : $entry->status }}</span>
                 </div>
@@ -212,7 +212,9 @@
             <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                 <div class="min-w-0">
                     <strong class="text-xs">{{ $person->name }}</strong>
-                    <span class="mt-1 block break-all text-[9px] text-slate-500">{{ $person->email }}</span>
+                    @if($title !== 'دانش‌آموزان')
+                        <span class="mt-1 block break-all text-[9px] text-slate-500">{{ $person->email }}</span>
+                    @endif
                 </div>
                 @if($title === 'مدرس‌ها')
                     <form method="POST" action="{{ route('owner.people.archive-teacher', [$academy, $person]) }}" class="shrink-0">

@@ -45,7 +45,7 @@ class PublicReleaseIntegrityTest extends TestCase
         $response
             ->assertOk()
             ->assertSee(route('store.product.show', $product), false)
-            ->assertSee(\App\Support\PersianUi::money(250000), false);
+            ->assertSee(\App\Support\PersianUi::moneyInCurrency(250000, $product->currency), false);
     }
 
     public function test_sitemap_excludes_content_that_public_route_rejects(): void

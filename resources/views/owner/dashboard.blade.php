@@ -102,11 +102,11 @@
                     <small>درآمد خالص ثبت‌شده</small>
 
                     <strong>
-                        {{ number_format($sales, 0, '.', ',') }}
+                        {{ \App\Support\PersianUi::number($sales) }}
                     </strong>
 
                     <span>
-                        از ledger پرداخت‌های تکمیل‌شده
+                        تومان · از دفتر پرداخت‌های تکمیل‌شده
                     </span>
                 </div>
             </div>
@@ -122,11 +122,11 @@
                 <span class="owner-focus-kicker">صف امروز</span>
                 <h2 id="owner-focus-title">
                     @if(($metrics['classroomsWithoutTeacher'] ?? 0) > 0)
-                        {{ $metrics['classroomsWithoutTeacher'] }} کلاس بدون مدرس داری.
+                        {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher']) }} کلاس بدون مدرس داری.
                     @elseif(($metrics['capacityAlerts'] ?? 0) > 0)
-                        {{ $metrics['capacityAlerts'] }} کلاس نزدیک ظرفیت است.
+                        {{ \App\Support\PersianUi::digits($metrics['capacityAlerts']) }} کلاس نزدیک ظرفیت است.
                     @elseif(($metrics['pendingReviews'] ?? 0) > 0)
-                        {{ $metrics['pendingReviews'] }} مورد هنوز نیازمند بررسی است.
+                        {{ \App\Support\PersianUi::digits($metrics['pendingReviews']) }} مورد هنوز نیازمند بررسی است.
                     @else
                         امروز مورد بحرانی برای پیگیری نداری.
                     @endif
@@ -227,7 +227,7 @@
                     @if($attendanceRate === null)
                         حضور امروز ثبت نشده
                     @else
-                        حضور امروز {{ $attendanceRate }}٪
+                        حضور امروز {{ \App\Support\PersianUi::digits($attendanceRate) }}٪
                     @endif
                 </small>
             </article>
@@ -249,13 +249,13 @@
                 <span>نیازمند توجه</span>
 
                 <strong>
-                    {{ $attentionCount }}
+                    {{ \App\Support\PersianUi::digits($attentionCount) }}
                 </strong>
 
                 <small>
-                    {{ $metrics['pendingReviews'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['pendingReviews'] ?? 0) }}
                     بررسی ·
-                    {{ $metrics['capacityAlerts'] ?? 0 }}
+                    {{ \App\Support\PersianUi::digits($metrics['capacityAlerts'] ?? 0) }}
                     کلاس نزدیک ظرفیت ·
                     {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher'] ?? 0) }}
                     کلاس بدون مدرس
@@ -277,7 +277,7 @@
 
                 <div class="mt-2 flex items-end gap-2">
                     <strong class="text-2xl font-black">
-                        {{ $attendanceRate === null ? '—' : $attendanceRate . '٪' }}
+                        {{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) . '٪' }}
                     </strong>
 
                     <span class="pb-1 text-[10px] text-slate-400">
@@ -293,11 +293,11 @@
 
                 <div class="mt-2 flex items-end gap-2">
                     <strong class="text-2xl font-black">
-                        {{ $metrics['published'] ?? 0 }}
+                        {{ \App\Support\PersianUi::digits($metrics['published'] ?? 0) }}
                     </strong>
 
                     <span class="pb-1 text-[10px] text-slate-400">
-                        از {{ $metrics['courses'] ?? 0 }} دوره
+                        از {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }} دوره
                     </span>
                 </div>
             </article>
@@ -309,15 +309,15 @@
 
                 <div class="mt-3 flex flex-wrap gap-2">
                     <span class="owner-pill">
-                        {{ $metrics['pendingReviews'] ?? 0 }} تکلیف معوق
+                        {{ \App\Support\PersianUi::digits($metrics['pendingReviews'] ?? 0) }} تکلیف معوق
                     </span>
 
                     <span class="owner-pill">
-                        {{ $metrics['capacityAlerts'] ?? 0 }} ظرفیت بالا
+                        {{ \App\Support\PersianUi::digits($metrics['capacityAlerts'] ?? 0) }} ظرفیت بالا
                     </span>
 
                     <span class="owner-pill">
-                        {{ $metrics['classroomsWithoutTeacher'] ?? 0 }} بدون مدرس
+                        {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher'] ?? 0) }} بدون مدرس
                     </span>
                 </div>
             </article>
@@ -472,7 +472,7 @@
 
                                 <div class="rounded-xl bg-white p-3 text-center">
                                     <strong class="block text-sm font-black text-slate-950">
-                                        {{ $classroom->active_students_count }}
+                                        {{ \App\Support\PersianUi::digits($classroom->active_students_count) }}
                                     </strong>
 
                                     <span class="text-[9px] text-slate-400">
@@ -482,7 +482,7 @@
 
                                 <div class="rounded-xl bg-white p-3 text-center">
                                     <strong class="block text-sm font-black text-slate-950">
-                                        {{ $classroom->capacity ?? '∞' }}
+                                        {{ $classroom->capacity === null ? '∞' : \App\Support\PersianUi::digits($classroom->capacity) }}
                                     </strong>
 
                                     <span class="text-[9px] text-slate-400">
@@ -492,7 +492,7 @@
 
                                 <div class="rounded-xl bg-white p-3 text-center">
                                     <strong class="block text-sm font-black text-slate-950">
-                                        {{ $classroom->capacity_remaining ?? '∞' }}
+                                        {{ $classroom->capacity_remaining === null ? '∞' : \App\Support\PersianUi::digits($classroom->capacity_remaining) }}
                                     </strong>
 
                                     <span class="text-[9px] text-slate-400">
@@ -502,7 +502,7 @@
 
                                 <div class="rounded-xl bg-white p-3 text-center">
                                     <strong class="block text-sm font-black text-slate-950">
-                                        {{ $classroom->today_attendance_rate === null ? '—' : $classroom->today_attendance_rate . '٪' }}
+                                        {{ $classroom->today_attendance_rate === null ? '—' : \App\Support\PersianUi::digits($classroom->today_attendance_rate) . '٪' }}
                                     </strong>
 
                                     <span class="text-[9px] text-slate-400">
@@ -521,7 +521,7 @@
                                         <span>پرشدگی</span>
 
                                         <strong>
-                                            {{ $classroom->occupancy_percent }}٪
+                                            {{ \App\Support\PersianUi::digits($classroom->occupancy_percent) }}٪
                                         </strong>
                                     </div>
 
@@ -602,11 +602,11 @@
                                 </div>
 
                                 <div class="owner-row-meta">
-                                    {{ $teacher->course_count }} دوره
+                                    {{ \App\Support\PersianUi::digits($teacher->course_count) }} دوره
                                     ·
-                                    {{ $teacher->student_count }} دانش‌آموز
+                                    {{ \App\Support\PersianUi::digits($teacher->student_count) }} دانش‌آموز
                                     ·
-                                    {{ $teacher->pending_reviews }} بررسی معوق
+                                    {{ \App\Support\PersianUi::digits($teacher->pending_reviews) }} بررسی معوق
                                 </div>
 
                                 <div class="owner-progress">
@@ -618,7 +618,7 @@
 
                             <div class="owner-teacher-metric">
                                 <strong>
-                                    {{ $teacher->progress_average }}٪
+                                    {{ \App\Support\PersianUi::digits($teacher->progress_average) }}٪
                                 </strong>
 
                                 <small>
@@ -725,7 +725,7 @@
                             <div class="owner-row-meta truncate">
                                 {{ $course->academy?->name ?? 'بدون آموزشگاه' }}
                                 ·
-                                {{ $course->active_students_count }} دانش‌آموز
+                                {{ \App\Support\PersianUi::digits($course->active_students_count) }} دانش‌آموز
                             </div>
                         </div>
 

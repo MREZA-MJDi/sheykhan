@@ -1,15 +1,17 @@
 <?php
 
 $appEnvironment = (string) env('APP_ENV', 'production');
-$defaultShowTestAccounts = in_array($appEnvironment, ['local', 'testing'], true);
+$seedUserPassword = trim((string) env('SEED_USER_PASSWORD', ''));
+$localOrTesting = in_array($appEnvironment, ['local', 'testing'], true);
+
+// Local/testing gets a disposable password. Outside those environments, seeded
+// credentials are shown only when an explicit password has been configured.
+$defaultShowTestAccounts = $localOrTesting || $seedUserPassword !== '';
 $showTestAccounts = filter_var(
     env('SHOW_TEST_ACCOUNTS', $defaultShowTestAccounts),
     FILTER_VALIDATE_BOOLEAN
 );
-$seedUserPassword = trim((string) env('SEED_USER_PASSWORD', ''));
-$seedPasswordAvailable = $seedUserPassword !== ''
-    || in_array($appEnvironment, ['local', 'testing'], true)
-    || $showTestAccounts;
+$seedPasswordAvailable = $seedUserPassword !== '' || $localOrTesting;
 $seedPassword = $seedPasswordAvailable
     ? ($seedUserPassword !== '' ? $seedUserPassword : 'Sheykhan@12345')
     : null;
@@ -23,11 +25,11 @@ return [
         'parent' => 'parent.dashboard',
     ],
 
-    // Local/testing gets a documented disposable password; other environments
-    // must set a unique SEED_USER_PASSWORD before demo credentials are rendered.
+    // Configuring SEED_USER_PASSWORD enables the visible role panel by default.
+    // Set SHOW_TEST_ACCOUNTS=false to explicitly hide it in any environment.
     'show_test_accounts' => $showTestAccounts,
     'seed_password' => $seedPassword,
-    'test_password' => $showTestAccounts ? $seedPassword : null,
+    'test_password' => $showTestAccounts && $seedPasswordAvailable ? $seedPassword : null,
 
     'test_accounts' => [
         ['role' => 'مدیر آموزشگاه', 'role_key' => 'academy-owner', 'name' => 'مدیر آموزشگاه', 'username' => 'owner@sheykhan.test'],

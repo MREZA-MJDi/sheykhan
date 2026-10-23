@@ -43,7 +43,7 @@
         ] as [$label,$value,$hint])
             <article class="course-stat">
                 <span>{{ $label }}</span>
-                <strong>{{ $value }}</strong>
+                <strong>{{ \App\Support\PersianUi::digits($value) }}</strong>
                 <small>{{ $hint }}</small>
             </article>
         @endforeach
@@ -56,7 +56,7 @@
                     <h2 class="text-base font-black">ساختار محتوا</h2>
                     <p class="mt-1 text-xs text-[var(--color-text-muted)]">بخش‌ها و درس‌های دوره.</p>
                 </div>
-                <span class="course-count-badge">{{ $course->sections->count() }} بخش</span>
+                <span class="course-count-badge">{{ \App\Support\PersianUi::digits($course->sections->count()) }} بخش</span>
             </div>
 
             <div class="mt-5 grid gap-3">
@@ -69,7 +69,7 @@
                                     <p class="mt-1 text-xs leading-6 text-[var(--color-text-secondary)]">{{ $section->description }}</p>
                                 @endif
                             </div>
-                            <span class="shrink-0 text-[10px] text-[var(--color-text-muted)]">{{ $section->lessons->count() }} درس</span>
+                            <span class="shrink-0 text-[10px] text-[var(--color-text-muted)]">{{ \App\Support\PersianUi::digits($section->lessons->count()) }} درس</span>
                         </div>
                         <div class="mt-3 grid gap-2">
                             @forelse($section->lessons as $lesson)
@@ -133,7 +133,7 @@
                             <strong class="min-w-0 truncate text-xs">{{ $exam->title }}</strong>
                             <span class="text-[9px] {{ $exam->status==='published'?'text-[var(--color-success-700)]':'text-[var(--color-text-muted)]' }}">{{ $exam->status==='published'?'منتشر':'پیش‌نویس' }}</span>
                         </div>
-                        <div class="mt-1 truncate text-[9px] text-[var(--color-text-muted)]">{{ $exam->teacher?->name ?: 'بدون مدرس' }} · {{ $exam->questions_count }} سؤال · {{ $exam->attempts_count }} تلاش</div>
+                        <div class="mt-1 truncate text-[9px] text-[var(--color-text-muted)]">{{ $exam->teacher?->name ?: 'بدون مدرس' }} · {{ \App\Support\PersianUi::digits($exam->questions_count) }} سؤال · {{ \App\Support\PersianUi::digits($exam->attempts_count) }} تلاش</div>
                     </div>
                 @empty
                     <div class="course-empty-note">آزمونی برای این دوره ثبت نشده است.</div>
@@ -151,9 +151,9 @@
                     <div class="course-list-card">
                         <div class="flex items-center justify-between gap-3">
                             <strong class="min-w-0 truncate text-xs">{{ $assignment->title }}</strong>
-                            <span class="text-[9px] font-bold">{{ $assignment->pending_submissions_count }} مورد نیازمند بررسی</span>
+                            <span class="text-[9px] font-bold">{{ \App\Support\PersianUi::digits($assignment->pending_submissions_count) }} مورد نیازمند بررسی</span>
                         </div>
-                        <div class="mt-1 truncate text-[9px] text-[var(--color-text-muted)]">{{ $assignment->teacher?->name ?: 'بدون مدرس' }} · {{ $assignment->submissions_count }} ارسال</div>
+                        <div class="mt-1 truncate text-[9px] text-[var(--color-text-muted)]">{{ $assignment->teacher?->name ?: 'بدون مدرس' }} · {{ \App\Support\PersianUi::digits($assignment->submissions_count) }} ارسال</div>
                     </div>
                 @empty
                     <div class="course-empty-note">تکلیفی برای این دوره ثبت نشده است.</div>

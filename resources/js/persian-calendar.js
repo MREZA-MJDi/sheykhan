@@ -80,7 +80,7 @@ function makeCalendar(field, dateInput, sourceType, source = null) {
         const weekday = new Date(Date.UTC(Number(first[1]), Number(first[2]) - 1, Number(first[3]), 12)).getUTCDay();
         const offset = (weekday + 1) % 7;
         const selected = parseJalali(dateInput.value);
-        const today = jalaliFromIso(todayIso());
+        const today = currentJalaliMonth();
         const bounds = constraints();
 
         for (let blank = 0; blank < offset; blank++) {

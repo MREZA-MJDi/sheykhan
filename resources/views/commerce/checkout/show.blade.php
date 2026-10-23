@@ -62,7 +62,7 @@
                     <span class="mt-2 inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-[var(--color-text-muted)]">{{ $product->category?->name }}</span>
                     <div class="mt-6 border-t border-[var(--color-border)] pt-5">
                         <span class="text-xs font-bold text-[var(--color-text-muted)]">مبلغ سفارش</span>
-                        <strong class="mt-2 block text-2xl font-black text-[var(--color-primary-600)]">{{ \App\Support\PersianUi::money($price) }}</strong>
+                        <strong class="mt-2 block text-2xl font-black text-[var(--color-primary-600)]">{{ \App\Support\PersianUi::moneyInCurrency($price, $product->currency) }}</strong>
                     </div>
                 </aside>
             </div>

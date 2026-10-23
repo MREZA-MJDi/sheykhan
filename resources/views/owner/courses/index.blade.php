@@ -27,7 +27,7 @@
                     <span>{{ $label }}</span>
                     <i aria-hidden="true"></i>
                 </div>
-                <strong>{{ number_format($value) }}</strong>
+                <strong>{{ \App\Support\PersianUi::number($value) }}</strong>
                 <small>{{ $hint }}</small>
             </article>
         @endforeach
@@ -53,7 +53,7 @@
                 <p class="mt-1 text-xs text-[var(--color-text-muted)]">برای دیدن جزئیات «بازبینی» و برای تغییرات «ویرایش» را بزن.</p>
             </div>
             @if($courses->total())
-                <span class="course-count-badge">{{ number_format($courses->total()) }} دوره</span>
+                <span class="course-count-badge">{{ \App\Support\PersianUi::number($courses->total()) }} دوره</span>
             @endif
         </div>
 
@@ -75,7 +75,7 @@
                             <div class="min-w-0">
                                 <div class="truncate text-sm font-black">{{ $course->title }}</div>
                                 <div class="mt-1 text-[11px] text-[var(--color-text-muted)]">
-                                    {{ $course->sections_count }} بخش
+                                    {{ \App\Support\PersianUi::digits($course->sections_count) }} بخش
                                     <span class="mx-1">·</span>
                                     {{ $course->academy?->name }}
                                 </div>
@@ -131,7 +131,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
                             <h3 class="truncate text-sm font-black">{{ $course->title }}</h3>
-                            <p class="mt-1 text-[11px] text-[var(--color-text-muted)]">{{ $course->academy?->name }} · {{ $course->sections_count }} بخش</p>
+                            <p class="mt-1 text-[11px] text-[var(--color-text-muted)]">{{ $course->academy?->name }} · {{ \App\Support\PersianUi::digits($course->sections_count) }} بخش</p>
                         </div>
                         <span class="course-status-badge {{ $course->status }}">
                             <i aria-hidden="true"></i>

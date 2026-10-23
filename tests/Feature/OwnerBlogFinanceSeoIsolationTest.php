@@ -257,8 +257,8 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             ->get(route('owner.finance.index'))
             ->assertOk();
 
-        $response->assertSee('1,250,000');
-        $response->assertDontSee('9,900,000');
+        $response->assertSee(\App\Support\PersianUi::number(1250000));
+        $response->assertDontSee(\App\Support\PersianUi::number(9900000));
     }
 
     public function test_owner_can_manage_owned_academy_content_but_not_its_seo_metadata(): void

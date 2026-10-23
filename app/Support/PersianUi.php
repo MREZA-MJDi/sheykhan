@@ -15,9 +15,32 @@ final class PersianUi
         ]);
     }
 
+    public static function number(int|float|string $value, int $fractionDigits = 0): string
+    {
+        $fractionDigits = max(0, min(6, $fractionDigits));
+        $formatted = number_format((float) $value, $fractionDigits, '.', ',');
+        $formatted = str_replace([',', '.'], ['٬', '٫'], $formatted);
+
+        return self::digits($formatted);
+    }
+
     public static function money(int|float|string $amount): string
     {
-        return self::digits(number_format((float) $amount, 0, '.', ',')) . ' تومان';
+        return self::number($amount) . ' تومان';
+    }
+
+    public static function moneyRial(int|float|string $amount): string
+    {
+        return self::number($amount) . ' ریال';
+    }
+
+    public static function moneyInCurrency(int|float|string $amount, ?string $currency): string
+    {
+        return match (strtoupper(trim((string) $currency))) {
+            'IRR', 'RIAL', 'RIALS' => self::moneyRial($amount),
+            'IRT', 'TOMAN', 'TOMANS' => self::money($amount),
+            default => self::money($amount),
+        };
     }
 
 
@@ -88,6 +111,15 @@ final class PersianUi
         }
 
         return self::digits($date->format('H:i'));
+    }
+
+    public static function dateTime(CarbonInterface|string|null $date): string
+    {
+        if (!$date) {
+            return '—';
+        }
+
+        return self::date($date) . ' · ' . self::time($date);
     }
 
     public static function calendar(?CarbonInterface $date = null): array

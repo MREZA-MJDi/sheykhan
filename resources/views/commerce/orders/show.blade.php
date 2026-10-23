@@ -15,7 +15,7 @@
                         <strong>{{ match($order->status) { 'pending' => 'در انتظار رسید/بررسی', 'paid' => 'پرداخت تأییدشده', 'payment_failed' => 'پرداخت ردشده', 'cancelled' => 'لغوشده', default => $order->status } }}</strong>
                     </p>
                     <div class="mt-5 grid gap-4 sm:grid-cols-2">
-                        <div class="rounded-xl bg-[var(--color-background-soft)] p-4"><span class="text-xs text-[var(--color-text-muted)]">مبلغ</span><strong class="mt-1 block text-xl font-black">{{ \App\Support\PersianUi::money($order->total) }}</strong></div>
+                        <div class="rounded-xl bg-[var(--color-background-soft)] p-4"><span class="text-xs text-[var(--color-text-muted)]">مبلغ</span><strong class="mt-1 block text-xl font-black">{{ \App\Support\PersianUi::moneyInCurrency($order->total, $order->currency) }}</strong></div>
                         <div class="rounded-xl bg-[var(--color-background-soft)] p-4"><span class="text-xs text-[var(--color-text-muted)]">ثبت سفارش</span><strong class="mt-1 block text-sm">{{ \App\Support\PersianUi::date($order->created_at) }}</strong></div>
                     </div>
                 </header>
@@ -60,7 +60,7 @@
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
                                 <strong class="break-words">{{ $item->product_title_snapshot ?: ($item->course?->title ?: ($item->product?->title ?: 'محتوای سفارش')) }}</strong>
-                                        <p class="mt-1 text-xs text-[var(--color-text-muted)]">{{ \App\Support\PersianUi::money($item->total_price) }}</p>
+                                        <p class="mt-1 text-xs text-[var(--color-text-muted)]">{{ \App\Support\PersianUi::moneyInCurrency($item->total_price, $order->currency) }}</p>
                                     </div>
                                     <span class="inline-flex rounded-full px-3 py-1.5 text-xs font-bold {{ $order->status === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800' }}">
                                         {{ $order->status === 'paid' ? 'دسترسی فعال' : 'قفل تا تأیید پرداخت' }}

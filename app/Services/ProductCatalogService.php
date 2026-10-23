@@ -51,7 +51,7 @@ class ProductCatalogService
                     'title' => $product->title,
                     'category' => $product->category?->name,
                     'category_slug' => $product->category?->slug,
-                    'price' => $this->formatPrice($product->sale_price ?? $product->price),
+                    'price' => $this->formatPrice($product->sale_price ?? $product->price, $product->currency),
                     'image' => $product->media->first()?->url(),
                     'href' => route('store.product.show', $product),
                 ])
@@ -75,8 +75,8 @@ class ProductCatalogService
         );
     }
 
-    private function formatPrice(int|float|string $price): string
+    private function formatPrice(int|float|string $price, ?string $currency): string
     {
-        return PersianUi::money($price);
+        return PersianUi::moneyInCurrency($price, $currency);
     }
 }

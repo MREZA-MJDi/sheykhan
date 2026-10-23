@@ -94,7 +94,7 @@ final class CourseCheckoutController extends Controller
                 'order_number' => 'SHK-' . now()->format('ymdHis') . '-' . Str::upper(Str::random(8)),
                 'buyer_id' => $buyer->id,
                 'status' => 'pending',
-                'currency' => 'IRR',
+                'currency' => 'IRT',
                 'subtotal' => $unitPrice,
                 'discount' => 0,
                 'total' => $unitPrice,
@@ -131,7 +131,7 @@ final class CourseCheckoutController extends Controller
             $order->payments()->create([
                 'gateway' => 'manual_transfer',
                 'amount' => $unitPrice,
-                'currency' => 'IRR',
+                'currency' => 'IRT',
                 'status' => 'pending',
             ]);
 

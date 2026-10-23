@@ -46,7 +46,7 @@
                     <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                         <div class="min-w-0 flex-1">
                             <strong class="block text-sm font-black">{{ $submission->student?->name ?? 'دانش‌آموز در دسترس نیست' }}</strong>
-                            <p class="mt-1 break-all text-xs text-slate-500">{{ $submission->student?->email ?? '—' }}</p>
+                            
                             <p class="mt-1 text-xs text-slate-500">ارسال: {{ $submission->submitted_at ? \App\Support\PersianUi::date($submission->submitted_at).' · '.\App\Support\PersianUi::time($submission->submitted_at) : '—' }}</p>
                             <div class="mt-3 whitespace-pre-line rounded-xl bg-white p-4 text-sm leading-8 text-slate-700">{{ $submission->content ?: 'پاسخ متنی ندارد؛ پیوست‌ها را بررسی کن.' }}</div>
                             @if($submission->media?->isNotEmpty())

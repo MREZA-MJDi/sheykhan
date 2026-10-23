@@ -3,14 +3,6 @@
 @section('title', 'ورود | شیخان')
 
 @section('content')
-@php
-    $testAccounts = config('role_access.test_accounts', []);
-    $testPassword = config('role_access.test_password');
-    $dashboardRoutes = config('role_access.dashboard_routes', []);
-    $showTestAccounts = config('role_access.show_test_accounts')
-        && filled($testPassword);
-@endphp
-
 <div class="rounded-[2rem] border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-xl)] sm:p-8">
     <div class="mb-8">
         <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-primary-50)] text-lg font-black text-[var(--color-primary-700)]">ش</div>
@@ -117,11 +109,11 @@
     <div class="flex items-start justify-between gap-3">
         <div>
             <div class="text-sm font-black text-[var(--color-text)]">
-                حساب‌های تست همکار
+                ورود سریع به نقش‌های سامانه
             </div>
 
             <p class="mt-1 text-xs leading-6 text-[var(--color-text-muted)]">
-                همه حساب‌ها از Seeder واقعی دیتابیس ساخته شده‌اند و مسیر صحیح داشبورد هر نقش نیز نمایش داده می‌شود.
+                فقط حساب‌های فعالِ موجود در دیتابیس که نقش آن‌ها تأیید شده است نمایش داده می‌شوند. برای ورود سریع، دکمهٔ پر کردن فرم را بزن.
             </p>
         </div>
 
@@ -207,7 +199,7 @@
         </div>
     @empty
         <div class="mt-3 rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-xs text-[var(--color-text-muted)]">
-            حساب تستی در تنظیمات تعریف نشده است.
+            حساب فعالی برای نمایش پیدا نشد. وجود حساب و نقش آن را در دیتابیس بررسی کن.
         </div>
     @endforelse
 

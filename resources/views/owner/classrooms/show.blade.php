@@ -96,7 +96,7 @@
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
                                 <h3 class="text-xs font-black">{{ $activity['title'] }}</h3>
-                                <time class="text-[9px] text-slate-400">{{ $activity['timestamp']->format('Y/m/d H:i') }}</time>
+                                <time class="text-[9px] text-slate-400">{{ \App\Support\PersianUi::dateTime($activity['timestamp']) }}</time>
                             </div>
                             <p class="mt-1 text-xs leading-6 text-slate-500">{{ $activity['description'] }}</p>
                         </div>
@@ -144,7 +144,7 @@
                     @forelse($students as $student)
                         <div class="rounded-xl bg-slate-50 p-3">
                             <strong class="text-xs">{{ $student->name }}</strong>
-                            <span class="mt-1 block truncate text-[9px] text-slate-500">{{ $student->email ?: 'ایمیل ثبت نشده' }}</span>
+                            
                         </div>
                     @empty
                         <div class="rounded-xl bg-slate-50 p-4 text-center text-xs leading-6 text-slate-500">
@@ -169,7 +169,7 @@
                     <div class="rounded-xl bg-slate-50 p-3">
                         <strong class="block text-xs">{{ $item->title }}</strong>
                         <span class="mt-1 block text-[9px] text-slate-500">
-                            {{ \Illuminate\Support\Carbon::parse($item->scheduled_at)->format('Y/m/d H:i') }}
+                            {{ \App\Support\PersianUi::dateTime($item->scheduled_at) }}
                         </span>
                     </div>
                 @empty
@@ -185,7 +185,7 @@
                     <div class="rounded-xl bg-slate-50 p-3">
                         <strong class="block text-xs">{{ $item->title }}</strong>
                         <span class="mt-1 block text-[9px] text-slate-500">
-                            {{ $item->due_at ? \Illuminate\Support\Carbon::parse($item->due_at)->format('Y/m/d H:i') : 'بدون مهلت' }}
+                            {{ $item->due_at ? \App\Support\PersianUi::dateTime($item->due_at) : 'بدون مهلت' }}
                         </span>
                     </div>
                 @empty
@@ -201,7 +201,7 @@
                     <div class="rounded-xl bg-slate-50 p-3">
                         <strong class="block text-xs">{{ $item->title }}</strong>
                         <span class="mt-1 block text-[9px] text-slate-500">
-                            {{ $item->starts_at ? \Illuminate\Support\Carbon::parse($item->starts_at)->format('Y/m/d H:i') : 'زمان‌بندی نشده' }}
+                            {{ $item->starts_at ? \App\Support\PersianUi::dateTime($item->starts_at) : 'زمان‌بندی نشده' }}
                         </span>
                     </div>
                 @empty

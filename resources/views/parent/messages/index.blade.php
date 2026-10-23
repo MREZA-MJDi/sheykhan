@@ -4,21 +4,21 @@
 @section('header-title', 'پیام‌ها و پیگیری‌ها')
 
 @section('content')
-<div class="parent-dashboard space-y-6">
-    <header class="parent-panel dashboard-panel p-5 sm:p-7">
+<div class="communication-page parent-dashboard space-y-6">
+    <header class="communication-page__hero parent-panel dashboard-panel p-5 sm:p-7">
         <p class="parent-kicker" style="color:var(--panel-primary)">ارتباط با آموزشگاه</p>
         <h1 class="mt-1 text-2xl font-black">پیام‌ها، پرسش‌ها و پیشنهادها</h1>
         <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">هر پیام به فرزند و آموزشگاه مشخصی متصل می‌شود. وضعیت پیگیری و پاسخ رسمی را همین‌جا می‌بینی.</p>
     </header>
 
-    <section class="parent-panel dashboard-panel p-5 sm:p-7">
+    <section class="communication-page__card parent-panel dashboard-panel p-5 sm:p-7">
         <h2 class="text-lg font-black">ثبت پیام جدید</h2>
         @if($contactableChildren->isEmpty())
             <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-900">
                 هنوز حساب فرزند شما به یک آموزشگاه فعال متصل نشده است. از مدیر آموزشگاه بخواهید حساب والد و دانش‌آموز را به هم متصل کند.
             </div>
         @else
-            <form method="POST" action="{{ route('parent.messages.store') }}" class="mt-4 grid gap-4 sm:grid-cols-2">
+            <form method="POST" action="{{ route('parent.messages.store') }}" class="communication-page__form communication-page__form--two-column mt-4 grid gap-4 sm:grid-cols-2">
                 @csrf
                 <label class="grid gap-1 text-sm font-bold sm:col-span-2">
                     فرزند و آموزشگاه
@@ -52,7 +52,7 @@
                     @error('body')<span class="text-xs font-normal text-rose-600">{{ $message }}</span>@enderror
                 </label>
                 <div class="sm:col-span-2">
-                    <button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ثبت پیام و شروع پیگیری</button>
+                    <button class="communication-page__button min-h-11 rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ثبت پیام و شروع پیگیری</button>
                 </div>
             </form>
         @endif
@@ -103,7 +103,7 @@
         @endif
     </section>
 
-    <section class="space-y-4" aria-labelledby="parent-academy-notices-title">
+    <section class="communication-page__message-list space-y-4" aria-labelledby="parent-academy-notices-title">
         <div>
             <span class="text-xs font-black text-[var(--panel-accent)]">اطلاعیه‌های مهم</span>
             <h2 id="parent-academy-notices-title" class="mt-1 text-xl font-black">پیام‌های آموزشگاه و مدرس‌ها</h2>
@@ -126,9 +126,9 @@
                             <h3 class="break-words text-lg font-black text-[var(--panel-text)]">{{ $notice->subject }}</h3>
                             <p class="mt-1 text-xs text-[var(--panel-muted)]">{{ $notice->academy?->name }} · {{ $notice->sender?->name }} · {{ \App\Support\PersianUi::date($notice->published_at ?? $notice->created_at) }}</p>
                         </div>
-                        <span class="rounded-full px-3 py-1.5 text-xs font-black {{ $noticeTone === 'rose' ? 'bg-rose-50 text-rose-800' : ($noticeTone === 'violet' ? 'bg-violet-50 text-violet-800' : 'bg-teal-50 text-teal-800') }}">{{ $noticeLabel }}</span>
+                        <span class="communication-page__status rounded-full px-3 py-1.5 text-xs font-black {{ $noticeTone === 'rose' ? 'bg-rose-50 text-rose-800' : ($noticeTone === 'violet' ? 'bg-violet-50 text-violet-800' : 'bg-teal-50 text-teal-800') }}">{{ $noticeLabel }}</span>
                     </div>
-                    <p class="mt-4 whitespace-pre-line break-words rounded-xl bg-[var(--panel-bg)] p-4 text-sm leading-7 text-[var(--panel-text-secondary)]">{{ $notice->body }}</p>
+                    <p class="communication-page__body mt-4 whitespace-pre-line break-words rounded-xl bg-[var(--panel-bg)] p-4 text-sm leading-7 text-[var(--panel-text-secondary)]">{{ $notice->body }}</p>
                     @if($notice->student)
                         <p class="mt-3 text-xs text-[var(--panel-muted)]">دانش‌آموز مرتبط: {{ $notice->student->name }}</p>
                     @endif
@@ -145,18 +145,18 @@
         @php($statuses = ['open' => 'در انتظار بررسی', 'in_review' => 'در حال پیگیری', 'responded' => 'پاسخ داده‌شده', 'closed' => 'بسته‌شده'])
         @php($categories = ['question' => 'پرسش', 'suggestion' => 'پیشنهاد', 'complaint' => 'انتقاد یا شکایت', 'other' => 'سایر'])
         @forelse($messages as $message)
-            <article class="parent-panel dashboard-panel p-5 sm:p-6">
+            <article class="communication-page__message parent-panel dashboard-panel p-5 sm:p-6">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div class="min-w-0">
                         <p class="text-xs font-bold text-[var(--panel-primary)]">{{ $message->student?->name }} · {{ $message->academy?->name }}</p>
                         <h3 class="mt-1 break-words text-lg font-black">{{ $message->subject }}</h3>
                     </div>
-                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ $statuses[$message->status] ?? $message->status }}</span>
+                    <span class="communication-page__status rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ $statuses[$message->status] ?? $message->status }}</span>
                 </div>
-                <p class="mt-3 whitespace-pre-line break-words text-sm leading-7 text-slate-700">{{ $message->body }}</p>
+                <p class="communication-page__body mt-3 whitespace-pre-line break-words text-sm leading-7 text-slate-700">{{ $message->body }}</p>
                 <p class="mt-3 text-xs text-slate-500">{{ $categories[$message->category] ?? 'پیام' }} · {{ \App\Support\PersianUi::date($message->created_at) }}</p>
                 @if($message->response)
-                    <div class="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                    <div class="communication-page__response mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4">
                         <p class="text-xs font-black text-emerald-800">پاسخ آموزشگاه @if($message->responder) · {{ $message->responder->name }} @endif</p>
                         <p class="mt-2 whitespace-pre-line break-words text-sm leading-7 text-emerald-950">{{ $message->response }}</p>
                         @if($message->responded_at)<p class="mt-2 text-[11px] text-emerald-800">{{ \App\Support\PersianUi::date($message->responded_at) }} · {{ \App\Support\PersianUi::time($message->responded_at) }}</p>@endif
@@ -166,7 +166,7 @@
                 @endif
             </article>
         @empty
-            <div class="parent-panel dashboard-panel p-8 text-center"><h3 class="font-black">هنوز پیامی ثبت نشده است.</h3><p class="mt-2 text-sm text-slate-500">از فرم بالا برای ارسال پرسش، پیشنهاد یا انتقاد استفاده کن.</p></div>
+            <div class="communication-page__empty parent-panel dashboard-panel p-8 text-center"><h3 class="font-black">هنوز پیامی ثبت نشده است.</h3><p class="mt-2 text-sm text-slate-500">از فرم بالا برای ارسال پرسش، پیشنهاد یا انتقاد استفاده کن.</p></div>
         @endforelse
         <div>{{ $messages->links() }}</div>
     </section>
@@ -185,9 +185,9 @@
                     </div>
                     <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ $message->status === 'responded' ? 'پاسخ داده شده' : 'در انتظار پاسخ مدرس' }}</span>
                 </div>
-                <p class="mt-3 whitespace-pre-line text-sm leading-7 text-slate-700">{{ $message->body }}</p>
+                <p class="communication-page__body mt-3 whitespace-pre-line text-sm leading-7 text-slate-700">{{ $message->body }}</p>
                 @if($message->response)
-                    <div class="mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                    <div class="communication-page__response mt-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4">
                         <p class="text-xs font-black text-emerald-800">پاسخ مدرس @if($message->responder) · {{ $message->responder->name }} @endif</p>
                         <p class="mt-2 whitespace-pre-line text-sm leading-7">{{ $message->response }}</p>
                     </div>

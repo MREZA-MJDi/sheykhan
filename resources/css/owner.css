@@ -1,6 +1,7 @@
 @import './panel-base.css';
 
 @import './persian-calendar.css';
+@import './communication-pages.css';
 
 @source '../../resources/views/owner';
 @source '../../resources/views/layouts/owner.blade.php';

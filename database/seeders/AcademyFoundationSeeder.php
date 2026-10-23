@@ -23,6 +23,8 @@ class AcademyFoundationSeeder extends Seeder
         }
 
         $owner=$this->user('owner@sheykhan.test','مدیر آکادمی شیخان','owner','academy-owner');
+        // Mirror the local demo-role surface in tests without granting academy membership.
+        $this->user('seo@sheykhan.test','متخصص SEO','seo-specialist','seo-specialist');
         $teacherSeeds=[['teacher.math@sheykhan.test','سمیه احمدی','math'],['teacher.science@sheykhan.test','علی رضایی','science'],['teacher.gifted@sheykhan.test','نگار کریمی','gifted']];
         $teachers=collect($teacherSeeds)->map(fn($x)=>$this->user($x[0],$x[1],'teacher-'.$x[2],'teacher'));
         foreach($teachers as $t){TeacherProfile::firstOrCreate(['user_id'=>$t->id],['bio'=>'مدرس آکادمی شیخان با تمرکز بر آموزش مفهومی و حل مسئله.','specialization'=>'آموزش و حل مسئله','education'=>'کارشناسی مرتبط','experience_years'=>7,'is_verified'=>true]);}

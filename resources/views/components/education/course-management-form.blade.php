@@ -56,11 +56,11 @@
         },
         formatPrice(value) {
             const digits = this.normalizeDigits(value).replace(/\D/g, '');
-            return digits ? Number(digits).toLocaleString('en-US') : '';
+            return digits ? new Intl.NumberFormat('fa-IR', { useGrouping: true, maximumFractionDigits: 0 }).format(Number(digits)) : '';
         },
         syncPrice() {
             const digits = this.normalizeDigits(this.priceDisplay).replace(/\D/g, '');
-            this.priceDisplay = digits ? Number(digits).toLocaleString('en-US') : '';
+            this.priceDisplay = digits ? new Intl.NumberFormat('fa-IR', { useGrouping: true, maximumFractionDigits: 0 }).format(Number(digits)) : '';
             if (this.$refs.priceRaw) {
                 this.$refs.priceRaw.value = this.accessType === 'free' ? '0' : digits;
             }
@@ -358,7 +358,7 @@
                             <button type="button" class="course-date-now" @click="setNow()">همین الان</button>
                         </div>
                         <div class="mt-2 grid gap-2 sm:grid-cols-[1fr_7.5rem]">
-                            <input type="text" x-model="publishedDate" dir="ltr" inputmode="numeric" maxlength="10" placeholder="۱۴۰۵/۰۷/۰۲" class="course-input text-left" aria-label="تاریخ انتشار شمسی">
+                            <input type="text" data-jalali-visible-date x-model="publishedDate" dir="ltr" inputmode="numeric" maxlength="10" placeholder="۱۴۰۵/۰۷/۰۲" class="course-input text-left" aria-label="تاریخ انتشار شمسی">
                             <input type="text" x-model="publishedTime" dir="ltr" inputmode="numeric" maxlength="5" placeholder="۱۸:۳۰" class="course-input text-left" aria-label="ساعت انتشار">
                         </div>
                         <input x-ref="publishedAt" type="hidden" name="published_at" value="{{ $initialPublishedAt }}">
