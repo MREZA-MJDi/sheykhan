@@ -59,7 +59,7 @@
             <label for="assignment-content">پاسخ شما</label>
             <textarea id="assignment-content" name="content" rows="8" maxlength="30000" placeholder="پاسخ، راه‌حل یا توضیحات خودت را بنویس...">{{ $submission?->content }}</textarea>
             <label for="assignment-attachments">پیوست (حداکثر ۳ فایل)</label>
-            <input id="assignment-attachments" type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip">
+            <input id="assignment-attachments" type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt">
             <div class="student-detail-actions">
                 <button type="submit" class="student-welcome-action primary">{{ $submission?->submitted_at ? 'به‌روزرسانی پاسخ' : 'ارسال پاسخ' }}</button>
             </div>

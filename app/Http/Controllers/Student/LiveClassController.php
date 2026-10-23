@@ -63,9 +63,78 @@ class LiveClassController extends Controller
             $schedule->can_join = $access->isClassScheduleJoinWindowOpen($schedule);
         });
 
+        // Keep the full recording archive separate from dated upcoming sessions.
+        // This query mirrors the protected MediaPolicy cohort/entitlement checks,
+        // so same-course students in another teacher group cannot discover links.
+        $recordings = $courseIds->isEmpty()
+            ? LiveClass::query()->whereRaw('1 = 0')->paginate(12, ['*'], 'recordings_page')
+            : LiveClass::query()
+                ->whereIn('course_id', $courseIds)
+                ->whereIn('status', ['completed', 'published'])
+                ->whereNotNull('recording_media_id')
+                ->whereNotNull('recording_released_at')
+                ->where('recording_released_at', '<=', now())
+                ->where('scheduled_at', '<=', now())
+                ->whereHas('recording', fn ($media) => $media
+                    ->where('status', 'active')
+                    ->where('visibility', 'private'))
+                ->whereExists(function ($membership) use ($student): void {
+                    $membership->selectRaw('1')
+                        ->from('classroom_student as student_membership')
+                        ->join('classrooms as enrolled_classroom', 'enrolled_classroom.id', '=', 'student_membership.classroom_id')
+                        ->join('classroom_teacher as teaching_assignment', function ($join): void {
+                            $join->on('teaching_assignment.classroom_id', '=', 'enrolled_classroom.id')
+                                ->on('teaching_assignment.teacher_id', '=', 'live_classes.teacher_id');
+                        })
+                        ->join('course_enrollments as enrollment', function ($join) use ($student): void {
+                            $join->on('enrollment.classroom_id', '=', 'enrolled_classroom.id')
+                                ->on('enrollment.course_id', '=', 'enrolled_classroom.course_id')
+                                ->where('enrollment.student_id', '=', $student->id)
+                                ->where('enrollment.status', '=', 'active');
+                        })
+                        ->join('courses as enrolled_courses', 'enrolled_courses.id', '=', 'enrollment.course_id')
+                        ->whereColumn('enrolled_classroom.course_id', 'live_classes.course_id')
+                        ->where('enrolled_classroom.status', 'active')
+                        ->where('student_membership.student_id', $student->id)
+                        ->where('student_membership.status', 'active')
+                        ->where(function ($classroom) {
+                            $classroom->whereNull('live_classes.classroom_id')
+                                ->orWhereColumn('live_classes.classroom_id', 'enrolled_classroom.id');
+                        })
+                        ->where(function ($entitlement): void {
+                            $entitlement->where('enrolled_courses.access_type', 'free')
+                                ->orWhere(function ($paid): void {
+                                    $paid->where('enrollment.payment_status', 'paid')
+                                        ->where('enrollment.paid_amount', '>', 0)
+                                        ->where(function ($amount): void {
+                                            $amount->whereNull('enrollment.price_amount')
+                                                ->orWhereColumn('enrollment.paid_amount', '>=', 'enrollment.price_amount');
+                                        })
+                                        ->whereExists(function ($transaction): void {
+                                            $transaction->selectRaw('1')
+                                                ->from('financial_transactions')
+                                                ->whereColumn('financial_transactions.enrollment_id', 'enrollment.id')
+                                                ->where('financial_transactions.status', 'completed')
+                                                ->where('financial_transactions.amount', '>', 0);
+                                        });
+                                });
+                        });
+                })
+                ->with([
+                    'course:id,title',
+                    'classroom:id,title',
+                    'teacher:id,name',
+                    'recording:id,disk,path,original_name,mime_type,size,status,visibility',
+                ])
+                ->orderByDesc('recording_released_at')
+                ->orderByDesc('id')
+                ->paginate(12, ['*'], 'recordings_page')
+                ->withQueryString();
+
         return view('student.live-classes.index', [
             'classes' => $classes,
             'weeklySchedules' => $weeklySchedules,
+            'recordings' => $recordings,
         ]);
     }
 

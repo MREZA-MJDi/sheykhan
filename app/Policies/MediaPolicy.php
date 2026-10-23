@@ -128,11 +128,7 @@ class MediaPolicy
                     return false;
                 }
 
-                if ($liveClass->classroom) {
-                    return $this->classroomAccess($user, $liveClass->classroom);
-                }
-
-                return $liveClass->course && $this->courseAccess($user, $liveClass->course);
+                return $this->canAccessLiveClassRecording($user, $liveClass);
             })
         ) {
             return true;
@@ -313,13 +309,11 @@ class MediaPolicy
                     continue;
                 }
 
-                if ($model->classroom) {
-                    return $this->classroomAccess($user, $model->classroom);
-                }
-
-                if ($model->course && $this->courseAccess($user, $model->course)) {
+                if ($this->canAccessLiveClassRecording($user, $model)) {
                     return true;
                 }
+
+                continue;
             }
         }
 
@@ -340,6 +334,37 @@ class MediaPolicy
                 ->wherePivot('role', 'owner')
                 ->wherePivot('status', 'active')
                 ->exists();
+    }
+
+    /**
+     * Recordings use the exact teacher-cohort enrollment rule enforced by
+     * StudentAccessService for session access. Course access plus a classroom
+     * pivot alone is not enough when the same course has multiple cohorts.
+     */
+    private function canAccessLiveClassRecording(User $user, LiveClass $liveClass): bool
+    {
+        $liveClass->loadMissing(['course', 'classroom']);
+
+        if (! $liveClass->isRecordingAvailable()) {
+            return false;
+        }
+
+        if ($user->hasRole('student')) {
+            return app(StudentAccessService::class)->liveClass($user, $liveClass);
+        }
+
+        if ($user->hasRole('parent')) {
+            return $user->children()
+                ->where('users.status', 'active')
+                ->get()
+                ->contains(fn (User $child): bool => app(StudentAccessService::class)->liveClass($child, $liveClass));
+        }
+
+        if ($liveClass->classroom) {
+            return $this->classroomAccess($user, $liveClass->classroom);
+        }
+
+        return $liveClass->course && $this->courseAccess($user, $liveClass->course);
     }
 
     private function classroomAccess(User $user, Classroom $classroom): bool

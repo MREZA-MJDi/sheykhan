@@ -111,6 +111,13 @@ class StudentSessionAccessTest extends TestCase
 
         $released = $this->makeSession($course, $classroom, 'ضبط منتشرشده', now()->subDay(), 'completed', now()->subHour());
         $unreleased = $this->makeSession($course, $classroom, 'ضبط منتشرنشده', now()->subDay(), 'completed', now()->addHour());
+        $oldReleased = $this->makeSession($course, $classroom, 'ضبط قدیمی منتشرشده', now()->subDays(90), 'completed', now()->subDays(89));
+
+        $this->actingAs($inside)
+            ->get(route('student.live-classes.index'))
+            ->assertOk()
+            ->assertSee('آرشیو ضبط‌های منتشرشده')
+            ->assertSee('ضبط قدیمی منتشرشده');
 
         $this->actingAs($inside)
             ->get(route('media.view', $released->recording))
@@ -136,6 +143,35 @@ class StudentSessionAccessTest extends TestCase
             ->get(route('media.view', $released->recording))
             ->assertForbidden()
             ->assertSee('دسترسی این فایل برای حساب شما فعال نیست.');
+
+        // An active classroom pivot does not override an enrollment that points
+        // to another teacher cohort for the same shared course.
+        $otherClassroom = $course->classrooms()->create([
+            'academy_id' => $course->academy_id,
+            'title' => 'کلاس دیگر برای تست مجوز ضبط',
+            'code' => 'SEC-' . strtoupper(str()->random(6)),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $otherClassroom->teachers()->attach($teacher->id);
+        $outside->classroomsAsStudent()->syncWithoutDetaching([
+            $classroom->id => ['status' => 'active', 'enrolled_at' => now()],
+            $otherClassroom->id => ['status' => 'active', 'enrolled_at' => now()],
+        ]);
+        $outside->enrollments()->updateOrCreate(
+            ['course_id' => $course->id],
+            [
+                'classroom_id' => $otherClassroom->id,
+                'status' => 'active',
+                'paid_amount' => 0,
+                'started_at' => now(),
+            ]
+        );
+
+        $this->actingAs($outside->fresh())
+            ->get(route('media.view', $released->recording))
+            ->assertForbidden();
 
         // Classroom membership alone must not bypass paid course access.
         $inside->enrollments()

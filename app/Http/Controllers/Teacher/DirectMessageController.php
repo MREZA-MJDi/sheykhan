@@ -21,7 +21,7 @@ final class DirectMessageController extends Controller
 
         $messages = TeacherDirectMessage::query()
             ->where('teacher_id', $teacher->id)
-            ->with(['recipient:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title', 'responder:id,name'])
+            ->with(['sender:id,name', 'recipient:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title', 'responder:id,name'])
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -98,6 +98,8 @@ final class DirectMessageController extends Controller
         TeacherDirectMessage::query()->create([
             'academy_id' => $classroom->academy_id,
             'teacher_id' => $teacher->id,
+            'sender_id' => $teacher->id,
+            'sender_type' => 'teacher',
             'recipient_type' => $recipientType,
             'recipient_id' => $recipient->id,
             'student_id' => $student->id,
@@ -111,6 +113,38 @@ final class DirectMessageController extends Controller
 
         return redirect()->route('teacher.direct-messages.index')
             ->with('success', 'پیام برای مخاطب انتخاب‌شده ارسال شد.');
+    }
+
+    public function replyToParentMessage(Request $request, int $message): RedirectResponse
+    {
+        $teacher = $request->user();
+        abort_unless($teacher->hasPermission('parent_messages.manage'), 403);
+
+        $data = $request->validate([
+            'response' => ['required', 'string', 'min:2', 'max:5000'],
+        ], [
+            'response.required' => 'متن پاسخ را وارد کن.',
+            'response.min' => 'پاسخ باید حداقل دو کاراکتر داشته باشد.',
+        ]);
+
+        $record = TeacherDirectMessage::query()
+            ->whereKey($message)
+            ->where('teacher_id', $teacher->id)
+            ->where('recipient_type', 'teacher')
+            ->where('recipient_id', $teacher->id)
+            ->where('sender_type', 'parent')
+            ->where('status', 'sent')
+            ->firstOrFail();
+
+        $record->forceFill([
+            'response' => trim($data['response']),
+            'responded_by' => $teacher->id,
+            'responded_at' => now(),
+            'status' => 'responded',
+        ])->save();
+
+        return redirect()->route('teacher.direct-messages.index')
+            ->with('success', 'پاسخ برای والد ثبت شد.');
     }
 
     /**
