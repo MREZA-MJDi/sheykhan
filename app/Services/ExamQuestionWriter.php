@@ -23,6 +23,9 @@ final class ExamQuestionWriter
                 'question' => $question['question'],
                 'options' => $options,
                 'correct_answer' => $correctAnswer,
+                'expected_answer' => isset($question['expected_answer']) && is_string($question['expected_answer'])
+                    ? trim($question['expected_answer'])
+                    : null,
                 'score' => $question['score'] ?? 1,
                 'sort_order' => $index,
             ]);
