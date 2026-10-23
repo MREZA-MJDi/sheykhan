@@ -266,6 +266,7 @@ final class StudentDashboardService
             ->latest('submissions.graded_at')
             ->limit(6)
             ->get([
+                'assignments.id as target_id',
                 'assignments.title',
                 'submissions.score',
                 'submissions.graded_at as occurred_at',
@@ -289,6 +290,7 @@ final class StudentDashboardService
             ->latest('attempts.submitted_at')
             ->limit(6)
             ->get([
+                'exams.id as target_id',
                 'exams.title',
                 'attempts.score',
                 'attempts.submitted_at as occurred_at',
