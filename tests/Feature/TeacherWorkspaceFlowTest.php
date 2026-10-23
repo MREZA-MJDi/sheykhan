@@ -145,8 +145,8 @@ class TeacherWorkspaceFlowTest extends TestCase
                     [
                         'type' => 'single',
                         'question' => 'سؤال چهارگزینه‌ای اولیه',
-                        'options' => ['الف', 'ب', 'ج', 'د'],
-                        'correct_answer' => 'ب',
+                        // Drafts can be resumed before the teacher finishes the options and key.
+                        'options' => ['الف', 'ب'],
                         'score' => 1,
                     ],
                 ],
