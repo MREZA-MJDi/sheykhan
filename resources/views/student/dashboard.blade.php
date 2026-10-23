@@ -197,7 +197,7 @@
                             @forelse($recentResults->take(5) as $result)
                                 <article class="sdr-item-row">
                                     <div><strong>{{ $result->title }}</strong><small>{{ $result->status_label ?? 'ثبت‌شده' }} · {{ $result->occurred_at ? App\Support\PersianUi::date($result->occurred_at) : '—' }}</small></div>
-                                    <span class="sdr-score">{{ $result->score === null ? '—' : App\Support\PersianUi::digits($result->score) }}</span>
+                                    <span class="sdr-score {{ !empty($result->is_provisional) ? 'is-provisional' : '' }}">{{ $result->score === null ? '—' : App\Support\PersianUi::digits($result->score) }}</span>
                                 </article>
                             @empty
                                 <div class="sdr-muted-empty">هنوز نتیجه‌ای برای نمایش ثبت نشده است.</div>
