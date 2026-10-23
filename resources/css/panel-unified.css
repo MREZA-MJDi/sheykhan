@@ -5039,3 +5039,146 @@
         transition: none !important;
     }
 }
+
+
+
+/* Complete the light student dashboard treatment for every compact widget. */
+.student-shell-dashboard .sdr-activity-total { color: #6958df; }
+.student-shell-dashboard .sdr-chart { border-radius: 12px; }
+.student-shell-dashboard .sdr-chart-day strong { color: #687390; }
+.student-shell-dashboard .sdr-chart-track {
+    border-color: #e2e6f4;
+    border-radius: 8px 8px 4px 4px;
+    background: #f0f2fa;
+}
+.student-shell-dashboard .sdr-chart-track i { background: linear-gradient(180deg,#20bfd0,#168fe2); }
+.student-shell-dashboard .sdr-chart-day:nth-child(3n + 2) .sdr-chart-track i { background: linear-gradient(180deg,#9b85ff,#6956e4); }
+.student-shell-dashboard .sdr-chart-day small { color: #7e89a3; }
+.student-shell-dashboard .sdr-chart-caption { border-top-color: #e5e9f4; color: #7f89a2; }
+
+.student-shell-dashboard .sdr-item-row,
+.student-shell-dashboard .sdr-resource-row,
+.student-shell-dashboard .sdr-shortcut {
+    border-color: #e4e8f4;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#fff,#fafbff);
+}
+.student-shell-dashboard a.sdr-item-row:hover,
+.student-shell-dashboard .sdr-resource-row:hover,
+.student-shell-dashboard .sdr-shortcut:hover {
+    transform: translateY(-1px);
+    border-color: #d4ceff;
+    background: #fbfaff;
+    box-shadow: 0 8px 19px rgba(46,48,107,.055);
+}
+.student-shell-dashboard .sdr-item-row strong,
+.student-shell-dashboard .sdr-resource-row strong,
+.student-shell-dashboard .sdr-shortcut strong,
+.student-shell-dashboard .sdr-session-copy strong,
+.student-shell-dashboard .sdr-achievement strong { color: #292e50; }
+.student-shell-dashboard .sdr-item-row small,
+.student-shell-dashboard .sdr-resource-row small,
+.student-shell-dashboard .sdr-shortcut small,
+.student-shell-dashboard .sdr-session-copy small,
+.student-shell-dashboard .sdr-achievement small { color: #7f89a2; }
+.student-shell-dashboard .sdr-item-mark { background: #eaf7ff; color: #168fca; }
+.student-shell-dashboard .sdr-item-mark.done { background: #e8f8f0; color: #1e986c; }
+.student-shell-dashboard .sdr-score { background: #f1efff; color: #6654db; }
+.student-shell-dashboard .sdr-score.is-provisional { border: 1px solid #f1d6a6; background: #fff6e5; color: #99620f; }
+.student-shell-dashboard .sdr-resource-icon { background: #e6f8f1; color: #1a9a72; }
+.student-shell-dashboard .sdr-resource-row em { color: #188dc4; }
+.student-shell-dashboard .sdr-shortcut i { background: #e7f6ff; color: #168fc8; }
+.student-shell-dashboard .sdr-shortcut:nth-child(4n + 2) i { background: #fff0f5; color: #cb5a83; }
+.student-shell-dashboard .sdr-shortcut:nth-child(4n + 3) i { background: #e7f8ef; color: #18865f; }
+.student-shell-dashboard .sdr-shortcut:nth-child(4n) i { background: #f1edff; color: #715bdf; }
+
+.student-shell-dashboard .sdr-session-row { border-top-color: #e8ebf5; }
+.student-shell-dashboard .sdr-session-icon { background: #e8f7ff; color: #168fc9; }
+.student-shell-dashboard .sdr-status { border: 1px solid #f0d8de; border-radius: 999px; background: #fff0f3; color: #b64e66; }
+.student-shell-dashboard .sdr-status.good { border-color: #c8ebdb; background: #eaf9f1; color: #177b54; }
+.student-shell-dashboard .sdr-status.wait { border-color: #f1dfb9; background: #fff8e8; color: #986513; }
+
+.student-shell-dashboard .sdr-progress-widget {
+    border-color: #e2e6f4;
+    border-radius: 16px;
+    background: linear-gradient(135deg,#fff,#f8faff);
+    box-shadow: 0 8px 23px rgba(39,45,91,.05);
+}
+.student-shell-dashboard .sdr-progress-ring {
+    border-color: #e4e6f3;
+    background: conic-gradient(#25bdb9 var(--progress), #7462ed 0 100%);
+    box-shadow: inset 0 0 0 9px #fff;
+}
+.student-shell-dashboard .sdr-progress-ring strong { color: #252a49; }
+.student-shell-dashboard .sdr-progress-copy strong { color: #292e50; }
+.student-shell-dashboard .sdr-progress-copy p { color: #7f89a3; }
+.student-shell-dashboard .sdr-progress-copy a { color: #6555d9 !important; }
+
+.student-shell-dashboard .sdr-calendar-month { color: #292e50; }
+.student-shell-dashboard .sdr-calendar-week span { color: #7f89a3; }
+.student-shell-dashboard .sdr-calendar-days span,
+.student-shell-dashboard .sdr-calendar-days i { color: #5d6884; }
+.student-shell-dashboard .sdr-calendar-days span.today {
+    background: linear-gradient(135deg,#8878ff,#6251df);
+    color: #fff;
+    box-shadow: 0 5px 13px rgba(103,84,233,.23);
+}
+.student-shell-dashboard .sdr-schedule {
+    border: 1px solid #e5e9f4;
+    border-inline-start: 3px solid #1cbac0;
+    border-radius: 11px;
+    background: linear-gradient(120deg,#fff,#f7fcff);
+}
+.student-shell-dashboard .sdr-schedule time { color: #168fbc; }
+.student-shell-dashboard .sdr-schedule strong { color: #292e50; }
+.student-shell-dashboard .sdr-schedule small { color: #818ba3; }
+.student-shell-dashboard .sdr-reminder {
+    border-color: #e5e9f4;
+    border-radius: 11px;
+    background: linear-gradient(135deg,#fff,#fafbff);
+}
+.student-shell-dashboard .sdr-reminder-icon { background: #efedff; color: #705bdd; }
+.student-shell-dashboard .sdr-reminder strong { color: #292e50; }
+.student-shell-dashboard .sdr-reminder small { color: #7f89a3; }
+.student-shell-dashboard .sdr-reminder em { color: #148cba; }
+.student-shell-dashboard .sdr-profile {
+    border-color: #e3e7f4;
+    border-radius: 15px;
+    background: linear-gradient(135deg,#fff,#f8faff);
+}
+.student-shell-dashboard .sdr-profile img { border-color: #e5e1ff; }
+.student-shell-dashboard .sdr-profile span,
+.student-shell-dashboard .sdr-profile small { color: #7f89a3; }
+.student-shell-dashboard .sdr-profile strong { color: #292e50; }
+.student-shell-dashboard .sdr-achievement { border-top-color: #e8ebf5; }
+.student-shell-dashboard .sdr-achievement i { background: #fff6de; color: #b78116; }
+
+/* Utility-driven messaging/settings pages are given the same card language too. */
+.teacher-shell .role-main :is(.mx-auto.max-w-6xl.space-y-6, .space-y-6) {
+    color: #303555;
+}
+
+.teacher-shell .role-main :is(.mx-auto.max-w-6xl.space-y-6, .space-y-6) > :is(.rounded-3xl, .rounded-2xl, .dashboard-panel) {
+    border-color: #e2e6f4 !important;
+    border-radius: 19px !important;
+    background-color: rgba(255,255,255,.97) !important;
+    box-shadow: 0 8px 25px rgba(38,45,93,.05) !important;
+}
+
+.student-shell .role-main :is(.mx-auto.max-w-6xl.space-y-6, .space-y-6) {
+    color: #303555;
+}
+
+.student-shell .role-main :is(.mx-auto.max-w-6xl.space-y-6, .space-y-6) > :is(.rounded-3xl, .rounded-2xl, .dashboard-panel) {
+    border-color: #e2e6f4 !important;
+    border-radius: 19px !important;
+    background-color: rgba(255,255,255,.97) !important;
+    box-shadow: 0 8px 25px rgba(38,45,93,.05) !important;
+}
+
+.teacher-shell .role-main .owner-stat-card {
+    border-color: #e2e6f4;
+    border-radius: 16px;
+    background: linear-gradient(145deg,#fff,#f9faff);
+    box-shadow: 0 7px 21px rgba(38,45,93,.05);
+}
