@@ -169,6 +169,7 @@ const initializeExamBuilder = () => {
             const type = item.querySelector('[data-name="type"]')?.value || 'text';
             const foot = item.querySelector('[data-question-foot-note]');
             if (number) number.textContent = `سؤال ${toFaDigits(index + 1)}`;
+            item.dataset.questionType = type;
             if (kind) {
                 kind.textContent = typeLabel(type);
                 kind.dataset.questionType = type;
