@@ -2595,3 +2595,97 @@
         box-shadow: none;
     }
 }
+
+
+.teacher-shell .teacher-exam-review-options {
+    display: grid;
+    gap: 8px;
+    margin-top: 13px;
+}
+
+.teacher-shell .teacher-exam-review-options-label {
+    color: #667085;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.teacher-shell .teacher-exam-review-options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.teacher-shell .teacher-exam-review-option {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #e1e6ee;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.teacher-shell .teacher-exam-review-option.is-correct {
+    border-color: #a9dec3;
+    background: #f0fbf5;
+}
+
+.teacher-shell .teacher-exam-review-option.is-selected:not(.is-correct) {
+    border-color: #a9c9f5;
+    background: #f1f7ff;
+}
+
+.teacher-shell .teacher-exam-review-option.is-selected.is-correct {
+    border-color: #5bbb8b;
+    box-shadow: inset 0 0 0 1px #5bbb8b;
+}
+
+.teacher-shell .teacher-exam-review-option-marker {
+    width: 29px;
+    height: 29px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #eef1f6;
+    color: #475467;
+    font-size: 11px;
+    font-weight: 950;
+}
+
+.teacher-shell .teacher-exam-review-option.is-correct .teacher-exam-review-option-marker {
+    background: #d9f4e5;
+    color: #167449;
+}
+
+.teacher-shell .teacher-exam-review-option-text {
+    min-width: 0;
+    color: #344054;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell .teacher-exam-review-option > small {
+    grid-column: 2;
+    display: inline-flex;
+    width: fit-content;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #dff6e9;
+    color: #176b48;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.teacher-shell .teacher-exam-review-option > small.is-selected-label {
+    background: #e6f0ff;
+    color: #245ca8;
+}
+
+@media (max-width: 640px) {
+    .teacher-shell .teacher-exam-review-options-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
