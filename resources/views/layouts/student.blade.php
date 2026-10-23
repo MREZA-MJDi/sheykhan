@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل دانش‌آموز | شیخان')</title>
-    @vite(['resources/css/student.css', 'resources/js/student.js'])
+    @vite(['resources/css/app.css', 'resources/css/student.css', 'resources/js/app.js', 'resources/js/student.js'])
     @stack('styles')
 </head>
-<body>
+<body class="student-shell">
     <div class="role-layout">
         <main class="role-main">
             @yield('content')
