@@ -291,6 +291,24 @@ final class SeoKeywordController extends Controller
             ->with('success', "ورود CSV تمام شد: {$added} کلمهٔ جدید اضافه شد و {$skipped} ردیف تکراری و {$invalidRows} ردیف نامعتبر رد شد. رتبه‌های واردشده با منبع CSV علامت‌گذاری شده‌اند.");
     }
 
+    public function template(): StreamedResponse
+    {
+        $this->authorizeSeoSpecialist();
+
+        return response()->streamDownload(function (): void {
+            $output = fopen('php://output', 'wb');
+            fwrite($output, "\\xEF\\xBB\\xBF");
+            fputcsv($output, [
+                'keyword', 'cluster', 'intent', 'target_url', 'priority', 'status',
+                'search_volume', 'target_position', 'observed_position', 'observed_on', 'notes',
+            ]);
+            fclose($output);
+        }, 'sheykhan-seo-keywords-template.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-store, private',
+        ]);
+    }
+
     public function export(Request $request): StreamedResponse
     {
         $this->authorizeSeoSpecialist();
