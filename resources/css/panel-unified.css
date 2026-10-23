@@ -2489,3 +2489,9 @@
         transition: none !important;
     }
 }
+
+.student-dashboard-reference .sdr-score.is-provisional {
+    border-color: #f3d7a6;
+    background: #fff7e6;
+    color: #925f0d;
+}
