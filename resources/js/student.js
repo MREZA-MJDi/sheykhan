@@ -1,0 +1,1 @@
+/* Legacy student interaction layer removed. Add replacement UI behavior here. */

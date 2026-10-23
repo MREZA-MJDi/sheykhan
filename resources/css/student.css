@@ -1,0 +1,4 @@
+/* Student frontend placeholder. Add the replacement design here. */
+@source '../../resources/views/student';
+@source '../../resources/views/layouts/student.blade.php';
+@source '../../resources/views/components';

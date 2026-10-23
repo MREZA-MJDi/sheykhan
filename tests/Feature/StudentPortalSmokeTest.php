@@ -51,9 +51,8 @@ class StudentPortalSmokeTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('خانه یادگیری من')
-            ->assertSee('قدم بعدی')
-            ->assertSee('ریتم مطالعه')
-            ->assertDontSee("@yield('header-title'");
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertSee('role-layout', false)
+            ->assertDontSee('sdr-hero', false);
     }
 }

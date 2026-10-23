@@ -12,42 +12,29 @@ class StudentTeacherDashboardContractTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_student_dashboard_exposes_the_full_learning_workspace(): void
+    public function test_student_dashboard_renders_the_temporary_backend_connected_shell(): void
     {
         $this->seed();
 
-        $student = User::query()
-            ->where('email', 'student.armin@sheykhan.test')
-            ->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
 
-        $response = $this->actingAs($student)
+        $this->actingAs($student)
             ->get(route('student.dashboard'))
-            ->assertOk();
-
-        $response
-            ->assertSee('دوره‌های فعال')
-            ->assertSee('جلسه‌های ثبت‌شده')
-            ->assertSee('تکلیف‌های من')
-            ->assertSee('جزوه‌ها و فایل‌ها')
-            ->assertSee('آخرین نتیجه‌ها')
-            ->assertSee('student-dashboard-reference', false)
-            ->assertSee('sdr-hero', false)
-            ->assertSee('sdr-btn', false);
+            ->assertOk()
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertDontSee('student-dashboard-reference', false)
+            ->assertDontSee('sdr-hero', false);
     }
 
     public function test_teacher_dashboard_exposes_teaching_workflow_without_financial_kpi(): void
     {
         $this->seed();
 
-        $teacher = User::query()
-            ->where('email', 'teacher.math@sheykhan.test')
-            ->firstOrFail();
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
 
-        $response = $this->actingAs($teacher)
+        $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
-            ->assertOk();
-
-        $response
+            ->assertOk()
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
             ->assertSee('جلسات این هفته')
@@ -59,7 +46,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertDontSee('فروش دوره‌ها');
     }
 
-    public function test_dashboard_focus_components_have_loaded_stylesheet_contracts(): void
+    public function test_student_and_teacher_stylesheet_entrypoints_are_kept_separate(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
@@ -74,11 +61,10 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('.teacher-focus-card {', $teacherCss);
         $this->assertStringContainsString('.teacher-focus-action {', $teacherCss);
         $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
-
-        $this->assertStringContainsString('.student-focus-card {', $studentCss);
-        $this->assertStringContainsString('.student-focus-action {', $studentCss);
-        $this->assertStringContainsString('.student-ui-hero-glow {', $studentCss);
+        $this->assertStringContainsString("@source '../../resources/views/student';", $studentCss);
+        $this->assertStringContainsString("@source '../../resources/views/layouts/student.blade.php';", $studentCss);
         $this->assertStringContainsString('resources/css/student.css', $studentLayout);
+        $this->assertStringContainsString('resources/js/student.js', $studentLayout);
     }
 
     public function test_persian_calendar_conversion_is_jalali(): void
@@ -92,7 +78,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertSame(30, $calendar['days_in_month']);
     }
 
-    public function test_student_calendar_is_rendered_as_jalali_and_teacher_dashboard_uses_persian_date(): void
+    public function test_student_workspace_no_longer_renders_the_legacy_calendar_and_teacher_dashboard_remains_available(): void
     {
         $this->seed();
 
@@ -102,13 +88,11 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('تقویم')
-            ->assertSee(PersianUi::calendar(now())['month_label'])
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertDontSee('تقویم')
             ->assertDontSee(now()->format('F Y'));
 
-        $this->actingAs($teacher)
-            ->get(route('teacher.dashboard'))
-            ->assertOk();
+        $this->actingAs($teacher)->get(route('teacher.dashboard'))->assertOk();
     }
 
     public function test_teacher_jalali_calendar_has_esfand_leap_year_detection(): void
@@ -126,27 +110,16 @@ class StudentTeacherDashboardContractTest extends TestCase
 
         $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
 
-        $this->actingAs($teacher)
-            ->get(route('teacher.assignments.index'))
-            ->assertOk();
-
-        $this->actingAs($teacher)
-            ->get(route('teacher.exams.index'))
-            ->assertOk();
-
-        $this->actingAs($teacher)
-            ->get(route('teacher.live-classes.index'))
-            ->assertOk();
+        $this->actingAs($teacher)->get(route('teacher.assignments.index'))->assertOk();
+        $this->actingAs($teacher)->get(route('teacher.exams.index'))->assertOk();
+        $this->actingAs($teacher)->get(route('teacher.live-classes.index'))->assertOk();
     }
-
 
     public function test_parent_dashboard_explains_progress_and_uses_published_active_course_content(): void
     {
         $this->seed();
 
-        $parent = User::query()
-            ->where('email', 'parent.armin@sheykhan.test')
-            ->firstOrFail();
+        $parent = User::query()->where('email', 'parent.armin@sheykhan.test')->firstOrFail();
 
         $this->actingAs($parent)
             ->get(route('parent.dashboard'))
@@ -155,6 +128,4 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('درس‌های منتشرشده')
             ->assertSee('دوره‌های فعال');
     }
-
-
 }
