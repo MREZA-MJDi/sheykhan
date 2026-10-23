@@ -1,0 +1,608 @@
+/*
+ * Sheykhan unified panel layer
+ * Shared visual rules for every student/teacher route. Kept after role styles
+ * so page-specific components inherit one consistent interaction language.
+ */
+
+.student-shell,
+.teacher-shell {
+    --panel-space-1: 6px;
+    --panel-space-2: 10px;
+    --panel-space-3: 14px;
+    --panel-space-4: 18px;
+    --panel-space-5: 24px;
+    --panel-space-6: 32px;
+    --panel-control-height: 44px;
+    --panel-focus-ring: color-mix(in srgb, var(--panel-primary) 22%, transparent);
+}
+
+.student-shell .role-layout,
+.teacher-shell .role-layout {
+    background: transparent;
+}
+
+.student-shell .role-content,
+.teacher-shell .role-content {
+    min-width: 0;
+}
+
+.student-shell .role-main,
+.teacher-shell .role-main {
+    min-width: 0;
+    color: var(--panel-text);
+    line-height: 1.85;
+}
+
+.student-shell .role-main :is(h1, h2, h3, h4),
+.teacher-shell .role-main :is(h1, h2, h3, h4) {
+    text-wrap: pretty;
+}
+
+.student-shell .role-main :is(p, li, dd),
+.teacher-shell .role-main :is(p, li, dd) {
+    overflow-wrap: anywhere;
+}
+
+.student-shell .role-main :is(a, button, input, select, textarea, summary),
+.teacher-shell .role-main :is(a, button, input, select, textarea, summary) {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.student-shell .role-main :is(a, button, input, select, textarea, summary):focus-visible,
+.teacher-shell .role-main :is(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid var(--panel-focus-ring);
+    outline-offset: 2px;
+}
+
+/* Sidebar, topbar and navigation share the same quiet, high-contrast shell. */
+.student-shell .role-sidebar,
+.teacher-shell .role-sidebar {
+    border-color: color-mix(in srgb, var(--panel-primary) 9%, var(--panel-border));
+    background: var(--panel-surface);
+}
+
+.student-shell .role-topbar,
+.teacher-shell .role-topbar {
+    border-color: color-mix(in srgb, var(--panel-primary) 9%, var(--panel-border));
+    background: color-mix(in srgb, var(--panel-surface) 94%, transparent);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.student-shell .role-nav-link,
+.teacher-shell .role-nav-link {
+    border: 1px solid transparent;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.student-shell .role-nav-link.is-active,
+.teacher-shell .role-nav-link.is-active {
+    border-color: color-mix(in srgb, var(--panel-primary) 15%, transparent);
+    background: var(--panel-primary-soft);
+    color: var(--panel-primary-dark);
+    box-shadow: inset -3px 0 var(--panel-primary);
+}
+
+.student-shell .role-nav-link:hover:not(.is-active),
+.teacher-shell .role-nav-link:hover:not(.is-active) {
+    background: color-mix(in srgb, var(--panel-primary-soft) 62%, var(--panel-surface));
+    color: var(--panel-primary-dark);
+}
+
+/* A single page-heading rhythm across list, calendar, messaging and form screens. */
+.student-shell .student-workspace-page,
+.teacher-shell .teacher-workspace-page,
+.student-shell .role-main > .space-y-6,
+.teacher-shell .role-main > .space-y-6 {
+    display: grid;
+    gap: clamp(14px, 1.8vw, 22px);
+    min-width: 0;
+}
+
+.student-shell .student-workspace-head,
+.teacher-shell .teacher-workspace-head {
+    align-items: center;
+    gap: 18px;
+    padding: 2px 1px 4px;
+}
+
+.student-shell .student-workspace-kicker,
+.teacher-shell .teacher-workspace-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--panel-primary);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.student-shell .student-workspace-title,
+.teacher-shell .teacher-workspace-title {
+    margin: 5px 0 0;
+    color: var(--panel-text);
+    font-size: clamp(22px, 2vw, 30px);
+    font-weight: 900;
+    line-height: 1.55;
+    letter-spacing: -.025em;
+}
+
+.student-shell .student-workspace-description,
+.teacher-shell .teacher-workspace-description {
+    max-width: 760px;
+    margin: 6px 0 0;
+    color: var(--panel-muted);
+    font-size: 12px;
+    line-height: 2;
+}
+
+.student-shell .student-workspace-actions,
+.teacher-shell .teacher-workspace-actions {
+    gap: 9px;
+}
+
+.student-shell .student-workspace-btn,
+.teacher-shell .teacher-workspace-btn {
+    min-height: var(--panel-control-height);
+    border: 1px solid transparent;
+    border-radius: 13px;
+    padding-inline: 16px;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.5;
+    transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
+}
+
+.student-shell .student-workspace-btn.primary,
+.teacher-shell .teacher-workspace-btn.primary {
+    background: linear-gradient(135deg, var(--panel-primary), color-mix(in srgb, var(--panel-primary) 76%, #8d77ed));
+    color: #fff;
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--panel-primary) 17%, transparent);
+}
+
+.student-shell .student-workspace-btn.secondary,
+.teacher-shell .teacher-workspace-btn.secondary {
+    border-color: var(--panel-border);
+    background: var(--panel-surface);
+    color: var(--panel-text-secondary);
+}
+
+.student-shell .student-workspace-btn:hover,
+.teacher-shell .teacher-workspace-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.student-shell .student-workspace-btn:active,
+.teacher-shell .teacher-workspace-btn:active {
+    transform: translateY(0);
+}
+
+/* Shared surface language for every common content panel. */
+.student-shell .role-main :is(
+    .student-workspace-card, .student-panel, .student-focus-card,
+    .teacher-workspace-card, .teacher-form-section, .teacher-form-shell,
+    .teacher-panel, .teacher-task-board, .teacher-progress-card,
+    .teacher-focus-card, .teacher-board-card, .dashboard-panel,
+    .fz-surface, .edu-card, .edu-feature-card
+),
+.teacher-shell .role-main :is(
+    .student-workspace-card, .student-panel, .student-focus-card,
+    .teacher-workspace-card, .teacher-form-section, .teacher-form-shell,
+    .teacher-panel, .teacher-task-board, .teacher-progress-card,
+    .teacher-focus-card, .teacher-board-card, .dashboard-panel,
+    .fz-surface, .edu-card, .edu-feature-card
+) {
+    min-width: 0;
+    border-color: color-mix(in srgb, var(--panel-primary) 11%, var(--panel-border));
+    border-radius: 20px;
+    background-color: var(--panel-surface);
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.student-shell .student-workspace-card,
+.teacher-shell .teacher-workspace-card {
+    overflow: hidden;
+}
+
+.student-shell .student-workspace-card-head,
+.teacher-shell .teacher-workspace-card-head {
+    gap: 14px;
+    padding: 17px 20px;
+    border-bottom-color: color-mix(in srgb, var(--panel-primary) 9%, var(--panel-border));
+}
+
+.student-shell .student-workspace-card-head h2,
+.teacher-shell .teacher-workspace-card-head h2 {
+    color: var(--panel-text);
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.7;
+}
+
+.student-shell .student-workspace-card-head p,
+.teacher-shell .teacher-workspace-card-head p {
+    color: var(--panel-muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.student-shell .student-workspace-list,
+.teacher-shell .teacher-workspace-list {
+    gap: 10px;
+    padding: 14px;
+}
+
+.student-shell .student-workspace-row,
+.teacher-shell .teacher-workspace-item {
+    min-width: 0;
+    border-color: color-mix(in srgb, var(--panel-primary) 8%, var(--panel-border));
+    border-radius: 15px;
+    background: color-mix(in srgb, var(--panel-surface) 88%, var(--panel-bg));
+    transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.student-shell .student-workspace-row:hover,
+.teacher-shell .teacher-workspace-item:hover {
+    border-color: color-mix(in srgb, var(--panel-primary) 28%, var(--panel-border));
+    background: var(--panel-surface);
+    box-shadow: var(--panel-shadow-xs);
+    transform: translateY(-1px);
+}
+
+.student-shell .student-workspace-row-main,
+.teacher-shell .teacher-workspace-item-main {
+    min-width: 0;
+}
+
+.student-shell .student-workspace-row :is(strong, h3, a),
+.teacher-shell .teacher-workspace-item :is(strong, h3, a) {
+    overflow-wrap: anywhere;
+}
+
+.student-shell .student-workspace-empty,
+.teacher-shell .teacher-workspace-empty {
+    padding: clamp(24px, 4vw, 40px);
+    border: 1px dashed color-mix(in srgb, var(--panel-primary) 26%, var(--panel-border));
+    border-radius: 17px;
+    background: color-mix(in srgb, var(--panel-primary-soft) 30%, var(--panel-surface));
+    color: var(--panel-muted);
+    text-align: center;
+}
+
+.student-shell .student-pagination,
+.teacher-shell .teacher-workspace-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+}
+
+/* Numeric summaries and progress are colorful but still use a stable palette. */
+.student-shell .student-workspace-status,
+.teacher-shell .teacher-workspace-chip,
+.student-shell .student-status,
+.teacher-shell .teacher-status {
+    display: inline-flex;
+    min-height: 26px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 1px solid color-mix(in srgb, var(--panel-primary) 13%, var(--panel-border));
+    border-radius: 999px;
+    padding: 4px 10px;
+    background: var(--panel-primary-soft);
+    color: var(--panel-primary-dark);
+    font-size: 10px;
+    font-weight: 850;
+    line-height: 1.5;
+    white-space: normal;
+}
+
+.student-shell .student-progress-track,
+.teacher-shell .teacher-progress-track,
+.teacher-shell .teacher-track {
+    overflow: hidden;
+    border-radius: 999px;
+}
+
+.student-shell .student-progress-track span,
+.teacher-shell .teacher-progress-track span {
+    transition: width .35s ease;
+}
+
+/* Forms: readable labels, consistent controls, clear validation and submission. */
+.student-shell .role-main form label,
+.teacher-shell .role-main form label,
+.student-shell .student-form label,
+.teacher-shell .teacher-form-field label {
+    display: block;
+    color: var(--panel-text-secondary);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.9;
+}
+
+.student-shell .role-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), select, textarea),
+.teacher-shell .role-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), select, textarea) {
+    min-width: 0;
+    max-width: 100%;
+    min-height: var(--panel-control-height);
+    border: 1px solid color-mix(in srgb, var(--panel-primary) 10%, var(--panel-border));
+    border-radius: 12px;
+    background-color: var(--panel-surface);
+    color: var(--panel-text);
+    box-shadow: 0 1px 2px rgba(20, 28, 48, .025);
+    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.student-shell .role-main textarea,
+.teacher-shell .role-main textarea {
+    min-height: 112px;
+    padding-block: 10px;
+    resize: vertical;
+}
+
+.student-shell .role-main :is(input, select, textarea):focus,
+.teacher-shell .role-main :is(input, select, textarea):focus {
+    border-color: var(--panel-primary);
+    box-shadow: 0 0 0 4px var(--panel-focus-ring);
+    outline: 0;
+}
+
+.student-shell .role-main input[type="checkbox"],
+.student-shell .role-main input[type="radio"],
+.teacher-shell .role-main input[type="checkbox"],
+.teacher-shell .role-main input[type="radio"] {
+    accent-color: var(--panel-primary);
+}
+
+.student-shell .role-main :is(input, select, textarea)[aria-invalid="true"],
+.teacher-shell .role-main :is(input, select, textarea)[aria-invalid="true"],
+.student-shell .role-main :is(input, select, textarea].is-invalid,
+.teacher-shell .role-main :is(input, select, textarea].is-invalid {
+    border-color: var(--panel-danger);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--panel-danger) 13%, transparent);
+}
+
+.student-shell .student-profile-facts,
+.teacher-shell .teacher-form-actions,
+.student-shell .student-form-actions {
+    gap: 10px;
+}
+
+/* Alerts, errors and success notices get a consistent affordance. */
+.student-shell .teacher-workspace-alert,
+.teacher-shell .teacher-workspace-alert,
+.student-shell .student-workspace-alert,
+.teacher-shell .student-workspace-alert,
+.student-shell .role-main [role="alert"],
+.teacher-shell .role-main [role="alert"],
+.student-shell .role-main [role="status"],
+.teacher-shell .role-main [role="status"] {
+    border-radius: 14px;
+    padding: 12px 15px;
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.student-shell .teacher-workspace-alert.success,
+.teacher-shell .teacher-workspace-alert.success,
+.student-shell .role-main [role="status"],
+.teacher-shell .role-main [role="status"] {
+    border-color: #bde8d0;
+    background: #edfaf2;
+    color: #176844;
+}
+
+.student-shell .teacher-workspace-alert.error,
+.teacher-shell .teacher-workspace-alert.error,
+.student-shell .role-main [role="alert"],
+.teacher-shell .role-main [role="alert"] {
+    border-color: #f2c8cd;
+    background: #fff1f2;
+    color: #a82839;
+}
+
+/* Tables, attachments and long records remain usable at narrow widths. */
+.student-shell .role-main table,
+.teacher-shell .role-main table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+}
+
+.student-shell .role-main :is(th, td),
+.teacher-shell .role-main :is(th, td) {
+    padding: 12px 14px;
+    border-bottom: 1px solid color-mix(in srgb, var(--panel-primary) 8%, var(--panel-border));
+    text-align: right;
+    vertical-align: middle;
+    line-height: 1.8;
+}
+
+.student-shell .role-main th,
+.teacher-shell .role-main th {
+    background: color-mix(in srgb, var(--panel-primary-soft) 52%, var(--panel-surface));
+    color: var(--panel-text-secondary);
+    font-size: 11px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.student-shell .role-main tr:last-child td,
+.teacher-shell .role-main tr:last-child td {
+    border-bottom: 0;
+}
+
+.student-shell .role-main :is(.overflow-x-auto, [class*="overflow-x-auto"]),
+.teacher-shell .role-main :is(.overflow-x-auto, [class*="overflow-x-auto"]) {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+}
+
+.student-shell .role-main :is(.jalali-calendar-popup, .jalali-calendar),
+.teacher-shell .role-main :is(.jalali-calendar-popup, .jalali-calendar) {
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    background: var(--panel-surface);
+    box-shadow: var(--panel-shadow);
+}
+
+.student-shell .role-main .jalali-calendar-day,
+.teacher-shell .role-main .jalali-calendar-day {
+    border-radius: 10px;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+
+/* Utility-first pages (messaging, exam answers, resources) share the same theme. */
+.student-shell .role-main .bg-white,
+.teacher-shell .role-main .bg-white {
+    background-color: var(--panel-surface);
+}
+
+.student-shell .role-main .text-slate-900,
+.student-shell .role-main .text-slate-800,
+.teacher-shell .role-main .text-slate-900,
+.teacher-shell .role-main .text-slate-800 {
+    color: var(--panel-text);
+}
+
+.student-shell .role-main .text-slate-700,
+.student-shell .role-main .text-slate-600,
+.student-shell .role-main .text-slate-500,
+.teacher-shell .role-main .text-slate-700,
+.teacher-shell .role-main .text-slate-600,
+.teacher-shell .role-main .text-slate-500 {
+    color: var(--panel-text-secondary);
+}
+
+.student-shell .role-main .border-slate-100,
+.student-shell .role-main .border-slate-200,
+.student-shell .role-main .border-slate-300,
+.teacher-shell .role-main .border-slate-100,
+.teacher-shell .role-main .border-slate-200,
+.teacher-shell .role-main .border-slate-300 {
+    border-color: var(--panel-border);
+}
+
+.student-shell .role-main :is(.text-rose-600, .text-rose-700),
+.teacher-shell .role-main :is(.text-rose-600, .text-rose-700) {
+    color: var(--panel-danger-dark);
+}
+
+.student-shell .role-main :is(.bg-rose-50, .bg-rose-50\/70),
+.teacher-shell .role-main :is(.bg-rose-50, .bg-rose-50\/70) {
+    background-color: var(--panel-danger-soft);
+}
+
+.student-shell .role-main :is(.text-emerald-800, .text-emerald-900),
+.teacher-shell .role-main :is(.text-emerald-800, .text-emerald-900) {
+    color: var(--panel-success-dark);
+}
+
+.student-shell .role-main :is(.bg-emerald-50, .bg-emerald-50\/70),
+.teacher-shell .role-main :is(.bg-emerald-50, .bg-emerald-50\/70) {
+    background-color: var(--panel-success-soft);
+}
+
+.student-shell .role-main :is(.text-amber-800, .text-amber-900),
+.teacher-shell .role-main :is(.text-amber-800, .text-amber-900) {
+    color: var(--panel-warning-dark);
+}
+
+.student-shell .role-main :is(.bg-amber-50, .bg-amber-50\/70),
+.teacher-shell .role-main :is(.bg-amber-50, .bg-amber-50\/70) {
+    background-color: var(--panel-warning-soft);
+}
+
+.student-shell .role-main :is(.shadow-sm, .shadow-md),
+.teacher-shell .role-main :is(.shadow-sm, .shadow-md) {
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.student-shell .role-main :is(.rounded-2xl, .rounded-3xl),
+.teacher-shell .role-main :is(.rounded-2xl, .rounded-3xl) {
+    border-radius: 20px;
+}
+
+/* Responsive behavior applies across all nested routes, not just home. */
+@media (max-width: 980px) {
+    .student-shell .role-main,
+    .teacher-shell .role-main {
+        padding: 18px;
+    }
+
+    .student-shell .student-workspace-head,
+    .teacher-shell .teacher-workspace-head {
+        align-items: flex-start;
+    }
+
+    .student-shell .role-main :is(.teacher-workspace-stats, .teacher-stats, .student-stats, .student-ui-metrics, .student-stats-grid),
+    .teacher-shell .role-main :is(.teacher-workspace-stats, .teacher-stats, .student-stats, .student-ui-metrics, .student-stats-grid) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .student-shell .role-main,
+    .teacher-shell .role-main {
+        padding: 14px;
+    }
+
+    .student-shell .student-workspace-head,
+    .teacher-shell .teacher-workspace-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .student-shell .student-workspace-actions,
+    .teacher-shell .teacher-workspace-actions,
+    .student-shell .teacher-workspace-actions,
+    .teacher-shell .student-workspace-actions {
+        width: 100%;
+    }
+
+    .student-shell .student-workspace-actions > *,
+    .teacher-shell .teacher-workspace-actions > *,
+    .student-shell .student-workspace-head > a,
+    .teacher-shell .teacher-workspace-head > a {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+
+    .student-shell .student-workspace-card-head,
+    .teacher-shell .teacher-workspace-card-head {
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .student-shell .student-workspace-list,
+    .teacher-shell .teacher-workspace-list {
+        padding: 10px;
+    }
+
+    .student-shell .role-main :is(th, td),
+    .teacher-shell .role-main :is(th, td) {
+        padding: 10px;
+        font-size: 11px;
+    }
+
+    .student-shell .role-main :is(.teacher-workspace-stats, .teacher-stats, .student-stats, .student-ui-metrics, .student-stats-grid),
+    .teacher-shell .role-main :is(.teacher-workspace-stats, .teacher-stats, .student-stats, .student-ui-metrics, .student-stats-grid) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .student-shell *,
+    .teacher-shell * {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
