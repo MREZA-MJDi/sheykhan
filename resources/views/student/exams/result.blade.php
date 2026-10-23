@@ -15,7 +15,7 @@
             <h1 class="student-workspace-title">{{ $exam->title }}</h1>
             <p class="student-workspace-description">{{ $exam->course?->title }} · نتیجهٔ هر تلاش و وضعیت تصحیح را اینجا می‌بینی.</p>
         </div>
-        <a class="student-workspace-btn secondary" href="{{ route('student.exams.show', $exam) }}">بازگشت به آزمون</a>
+        <a class="student-workspace-btn secondary" href="{{ $exam->status === 'published' ? route('student.exams.show', $exam) : route('student.results.index') }}">{{ $exam->status === 'published' ? 'بازگشت به آزمون' : 'بازگشت به کارنامه' }}</a>
     </header>
 
     <section class="student-exam-results-card" aria-labelledby="exam-result-title">
