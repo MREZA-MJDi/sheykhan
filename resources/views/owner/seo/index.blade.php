@@ -12,8 +12,16 @@
             <p>{{ ($isGlobal ?? false) ? 'متادیتا و داده‌های ساختاریافتهٔ صفحات عمومی و منتشرشده را از یک مرکز مدیریت کن؛ ممیزی زیر پیشنهادهای قابل اقدام را از رکوردهای واقعی استخراج می‌کند.' : 'عنوان، توضیح، تصویر اشتراک‌گذاری، آدرس اصلی و داده‌های ساختاریافته را برای صفحات عمومی مدیریت کن.' }}</p>
         </div>
 
-        <a href="{{ route('home') }}" target="_blank" rel="noopener" class="website-open-btn">مشاهده سایت ↗</a>
+        <div class="seo-console-hero-actions">
+            <a href="{{ route('owner.seo.keywords.index') }}" class="course-action-btn primary">مدیریت کلمات کلیدی و رتبه‌ها ↗</a>
+            <a href="{{ route('home') }}" target="_blank" rel="noopener" class="website-open-btn">مشاهده سایت ↗</a>
+        </div>
     </section>
+
+    <nav class="seo-console-switcher" aria-label="بخش‌های پنل SEO">
+        <a href="{{ route('owner.seo.index') }}" class="is-active">ممیزی صفحات و متادیتا</a>
+        <a href="{{ route('owner.seo.keywords.index') }}">فهرست کلمات کلیدی، خوشه‌ها و تاریخچهٔ رتبه</a>
+    </nav>
 
     <section class="dashboard-panel owner-panel p-4 sm:p-5">
         <div class="flex flex-wrap items-start justify-between gap-4">
