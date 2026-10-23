@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Role;
 use App\Models\SeoKeyword;
 use App\Models\SeoKeywordRanking;
+use App\Models\SeoKeywordRanking;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -64,9 +65,12 @@ class SeoKeywordWorkspaceTest extends TestCase
         $this->assertDatabaseHas('seo_keyword_rankings', [
             'seo_keyword_id' => $keyword->id,
             'position' => 14,
-            'observed_on' => '2026-10-20',
             'source' => 'manual',
         ]);
+        $this->assertSame(
+            '2026-10-20',
+            SeoKeywordRanking::query()->where('seo_keyword_id', $keyword->id)->firstOrFail()->observed_on->toDateString()
+        );
     }
 
     public function test_normalized_duplicate_keywords_are_rejected(): void
@@ -111,8 +115,11 @@ class SeoKeywordWorkspaceTest extends TestCase
             'seo_keyword_id' => $keyword->id,
             'position' => 9,
             'source' => 'csv_import',
-            'observed_on' => '2026-10-22',
         ]);
+        $this->assertSame(
+            '2026-10-22',
+            SeoKeywordRanking::query()->where('seo_keyword_id', $keyword->id)->firstOrFail()->observed_on->toDateString()
+        );
     }
 
     public function test_keyword_workspace_is_not_available_to_non_seo_accounts(): void
