@@ -176,19 +176,48 @@ final class AcademyMessageController extends Controller
 
     private function activeStudentInClassroom(Classroom $classroom, int $studentId): User
     {
-        return $classroom->students()->whereKey($studentId)->where('users.status', 'active')->wherePivot('status', 'active')
+        $student = User::query()->whereKey($studentId)->where('status', 'active')
             ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
-            ->whereHas('academies', fn ($academies) => $academies->where('academies.id', $classroom->academy_id)
-                ->where('academies.status', 'active')->wherePivot('role', 'student')->wherePivot('status', 'active'))
             ->firstOrFail();
+
+        $hasActiveRoster = DB::table('classroom_student')
+            ->where('classroom_id', $classroom->id)
+            ->where('student_id', $student->id)
+            ->where('status', 'active')
+            ->exists();
+
+        $hasActiveMembership = DB::table('academy_user as membership')
+            ->join('academies', 'academies.id', '=', 'membership.academy_id')
+            ->where('membership.user_id', $student->id)
+            ->where('membership.academy_id', $classroom->academy_id)
+            ->where('membership.role', 'student')
+            ->where('membership.status', 'active')
+            ->where('academies.status', 'active')
+            ->exists();
+
+        abort_unless($hasActiveRoster && $hasActiveMembership, 404);
+
+        return $student;
     }
 
     private function activeParentForStudent(Classroom $classroom, User $student, int $parentId): User
     {
-        return $student->parents()->whereKey($parentId)->where('users.status', 'active')
+        $parent = $student->parents()->whereKey($parentId)->where('users.status', 'active')
             ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'parent'))
-            ->whereHas('academies', fn ($academies) => $academies->where('academies.id', $classroom->academy_id)
-                ->where('academies.status', 'active')->wherePivot('role', 'parent')->wherePivot('status', 'active'))
             ->firstOrFail();
+
+        $hasActiveMembership = DB::table('academy_user as membership')
+            ->join('academies', 'academies.id', '=', 'membership.academy_id')
+            ->where('membership.user_id', $parent->id)
+            ->where('membership.academy_id', $classroom->academy_id)
+            ->where('membership.role', 'parent')
+            ->where('membership.status', 'active')
+            ->where('academies.status', 'active')
+            ->exists();
+
+        abort_unless($hasActiveMembership, 404);
+
+        return $parent;
     }
+
 }
