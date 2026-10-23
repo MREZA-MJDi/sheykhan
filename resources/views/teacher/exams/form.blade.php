@@ -108,6 +108,7 @@
                         <strong data-exam-total-score>۰</strong>
                         <span>نمرهٔ کل</span>
                     </div>
+                    <button type="button" data-print-exam class="teacher-workspace-btn secondary">چاپ برگهٔ سؤال‌ها</button>
                     <button type="button" data-exam-add-question class="teacher-workspace-btn primary">＋ افزودن سؤال</button>
                 </div>
             </header>
@@ -167,6 +168,7 @@
                     <div class="teacher-exam-question-editor-heading">
                         <span class="teacher-exam-question-number" data-question-number>سؤال ۱</span>
                         <span class="teacher-exam-question-kind" data-question-kind>تشریحی</span>
+                        <span class="teacher-exam-print-score" data-print-score>۱ نمره</span>
                     </div>
                     <button type="button" data-exam-remove-question class="teacher-exam-remove-question">حذف سؤال</button>
                 </header>
