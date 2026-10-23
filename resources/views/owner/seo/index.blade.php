@@ -40,6 +40,11 @@
                 <strong class="mt-1 block text-2xl font-black text-slate-900">{{ $stats['pagesWithFindings'] ?? 0 }}</strong>
                 <small class="mt-1 block text-xs text-slate-500">بر اساس صفحات عمومی منتشرشده</small>
             </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <span class="block text-xs text-slate-500">صفحات با متادیتای تکراری</span>
+                <strong class="mt-1 block text-2xl font-black text-slate-900">{{ $stats['duplicatePages'] ?? 0 }}</strong>
+                <small class="mt-1 block text-xs text-slate-500">عنوان، توضیحات یا canonical مشترک</small>
+            </div>
             <div class="rounded-xl border border-amber-200 bg-amber-50 p-3">
                 <span class="block text-xs text-amber-800">صفحه با noindex</span>
                 <strong class="mt-1 block text-2xl font-black text-amber-900">{{ $stats['noindex'] ?? 0 }}</strong>

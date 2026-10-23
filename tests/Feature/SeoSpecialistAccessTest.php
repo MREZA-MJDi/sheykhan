@@ -79,6 +79,21 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_audit_flags_duplicate_public_page_titles(): void
+    {
+        [$specialist, $course] = $this->makeSeoWorkspace();
+
+        $duplicate = $course->replicate(['slug']);
+        $duplicate->slug = 'seo-duplicate-' . Str::lower(Str::random(8));
+        $duplicate->save();
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index'))
+            ->assertOk()
+            ->assertSee('عنوان SEO تکراری')
+            ->assertSee('صفحات با متادیتای تکراری');
+    }
+
     public function test_seo_specialist_can_update_only_the_seo_metadata_of_a_public_course(): void
     {
         [$specialist, $course] = $this->makeSeoWorkspace();

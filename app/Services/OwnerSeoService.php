@@ -119,6 +119,8 @@ final class OwnerSeoService
             ))
         )->values();
 
+        $items = $this->appendDuplicateFindings($items);
+
         return [
             'academies' => collect(),
             'courses' => collect(),
@@ -227,6 +229,88 @@ final class OwnerSeoService
         return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     }
 
+    /**
+     * Detect repeated stored titles, descriptions and canonical URLs across
+     * all currently published public records in this overview.
+     */
+    private function appendDuplicateFindings(Collection $items): Collection
+    {
+        $rules = [
+            'title' => [
+                'field' => 'audit_title',
+                'key' => 'duplicate_title',
+                'title' => 'عنوان SEO تکراری',
+                'detail' => 'چند صفحهٔ عمومی عنوان یکسان یا بسیار مشابه دارند؛ عنوان هر صفحه را بر اساس هدف جستجوی مستقل بازنویسی کن.',
+                'severity' => 'warning',
+            ],
+            'description' => [
+                'field' => 'audit_description',
+                'key' => 'duplicate_description',
+                'title' => 'توضیحات SEO تکراری',
+                'detail' => 'چند صفحه توضیحات متای یکسان دارند؛ برای هر صفحه توضیحی متمایز و مرتبط بنویس.',
+                'severity' => 'warning',
+            ],
+            'canonical' => [
+                'field' => 'canonical_url',
+                'key' => 'duplicate_canonical',
+                'title' => 'Canonical مشترک بین چند صفحه',
+                'detail' => 'چند صفحه به یک canonical سفارشی اشاره می‌کنند؛ بررسی کن این ادغام عمدی است و آدرس صفحهٔ اصلی درست انتخاب شده است.',
+                'severity' => 'critical',
+            ],
+        ];
+
+        foreach ($rules as $kind => $rule) {
+            $groups = $items->map(function (array $item, int $index) use ($kind, $rule): ?array {
+                $raw = trim((string) ($item[$rule['field']] ?? ''));
+                if ($raw === '') {
+                    return null;
+                }
+
+                if ($kind === 'canonical') {
+                    $normalized = rtrim($raw, '/');
+                } else {
+                    $normalized = mb_strtolower(strip_tags($raw));
+                    $normalized = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $normalized) ?? $normalized;
+                    $normalized = preg_replace('/\s+/u', ' ', trim($normalized)) ?? trim($normalized);
+                }
+
+                if ($normalized === '') {
+                    return null;
+                }
+
+                return [
+                    'index' => $index,
+                    'value' => $normalized,
+                    'label' => (string) $item['label'],
+                ];
+            })->filter()->groupBy('value');
+
+            foreach ($groups as $entries) {
+                if ($entries->count() < 2) {
+                    continue;
+                }
+
+                $labels = $entries->pluck('label')->take(3)->implode('، ');
+                $remaining = $entries->count() - 3;
+                $affectedPages = $labels . ($remaining > 0 ? " و {$remaining} صفحهٔ دیگر" : '');
+
+                foreach ($entries as $entry) {
+                    $item = $items->get($entry['index']);
+                    $item['issues'][] = [
+                        'key' => $rule['key'],
+                        'severity' => $rule['severity'],
+                        'title' => $rule['title'],
+                        'detail' => $rule['detail'] . ' نمونهٔ صفحه‌های درگیر: ' . $affectedPages . '.',
+                    ];
+                    $item['issue_count'] = count($item['issues']);
+                    $items->put($entry['index'], $item);
+                }
+            }
+        }
+
+        return $items->values();
+    }
+
     private function statsFor(Collection $items): array
     {
         return [
@@ -236,6 +320,9 @@ final class OwnerSeoService
             'needsWork' => $items->where('score', '<', 80)->count(),
             'pagesWithFindings' => $items->where('issue_count', '>', 0)->count(),
             'totalFindings' => (int) $items->sum('issue_count'),
+            'duplicatePages' => $items->filter(fn (array $item): bool => collect($item['issues'] ?? [])->contains(
+                fn (array $issue): bool => str_starts_with((string) ($issue['key'] ?? ''), 'duplicate_')
+            ))->count(),
             'noindex' => $items->filter(
                 fn (array $item): bool => str_starts_with((string) ($item['robots'] ?? ''), 'noindex')
             )->count(),
@@ -354,6 +441,9 @@ final class OwnerSeoService
             'robots' => $seo?->robots ?: 'index,follow',
             'score' => $score,
             'status' => $score >= 80 ? 'ready' : ($score > 0 ? 'partial' : 'empty'),
+            'audit_title' => trim((string) ($seo?->title ?: $label)),
+            'audit_description' => trim((string) ($seo?->description ?? '')),
+            'canonical_url' => trim((string) ($seo?->canonical_url ?? '')),
             'issues' => $issues,
             'issue_count' => count($issues),
         ];
