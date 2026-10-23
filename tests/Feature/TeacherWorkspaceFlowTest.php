@@ -486,7 +486,7 @@ class TeacherWorkspaceFlowTest extends TestCase
                 'title' => 'آزمون چهارگزینه‌ای ناقص - تست',
                 'duration_minutes' => 30,
                 'attempts_allowed' => 1,
-                'status' => 'draft',
+                'status' => 'published',
                 'questions' => [
                     [
                         'type' => 'single',
