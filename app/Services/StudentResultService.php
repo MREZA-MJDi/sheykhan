@@ -28,6 +28,7 @@ final class StudentResultService
             ->whereNotNull('submissions.graded_at')
             ->selectRaw("'assignment' as result_type")
             ->selectRaw('submissions.id as result_id')
+            ->selectRaw('assignments.id as target_id')
             ->selectRaw('assignments.title as title')
             ->selectRaw('submissions.score as score')
             ->selectRaw('submissions.graded_at as occurred_at')
@@ -36,7 +37,6 @@ final class StudentResultService
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
             ->whereIn('exams.course_id', $courseIds)
-            ->where('exams.status', 'published')
             ->where(function ($query) use ($classroomIds): void {
                 $query->whereNull('exams.classroom_id')
                     ->orWhereIn('exams.classroom_id', $classroomIds);
@@ -45,10 +45,11 @@ final class StudentResultService
             ->whereNotNull('attempts.submitted_at')
             ->selectRaw("'exam' as result_type")
             ->selectRaw('attempts.id as result_id')
+            ->selectRaw('exams.id as target_id')
             ->selectRaw('exams.title as title')
-            ->selectRaw("CASE WHEN attempts.status = 'graded' THEN attempts.score ELSE NULL END as score")
+            ->selectRaw("CASE WHEN attempts.status IN ('graded', 'needs_review') THEN attempts.score ELSE NULL END as score")
             ->selectRaw('attempts.submitted_at as occurred_at')
-            ->selectRaw("CASE WHEN attempts.status = 'graded' THEN 'تصحیح‌شده' ELSE 'در انتظار بررسی' END as status_label");
+            ->selectRaw("CASE WHEN attempts.status = 'graded' THEN 'تصحیح‌شده' WHEN attempts.status = 'needs_review' THEN 'نمره موقت · در انتظار تصحیح تشریحی' WHEN attempts.status = 'pending_review' THEN 'در صف تصحیح مدرس' ELSE 'ارسال‌شده' END as status_label");
 
         return DB::query()
             ->fromSub($assignmentResults->unionAll($examResults), 'student_results')

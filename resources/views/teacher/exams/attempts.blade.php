@@ -67,7 +67,24 @@
 
                     <div class="teacher-exam-answer-paper">
                         @forelse($attempt->exam->questions as $question)
-                            @php($answer = $attempt->answers->firstWhere('question_id', $question->id))
+                            @php
+                                $answer = $attempt->answers->firstWhere('question_id', $question->id);
+                                $decodedCorrectChoices = json_decode((string) $question->correct_answer, true);
+                                $correctChoices = json_last_error() === JSON_ERROR_NONE && is_array($decodedCorrectChoices)
+                                    ? array_map('strval', $decodedCorrectChoices)
+                                    : ($question->correct_answer !== null ? [(string) $question->correct_answer] : []);
+                                $studentRawAnswer = $answer?->answer;
+                                if (is_string($studentRawAnswer)) {
+                                    $decodedStudentAnswer = json_decode($studentRawAnswer, true);
+                                    $selectedChoices = json_last_error() === JSON_ERROR_NONE && is_array($decodedStudentAnswer)
+                                        ? array_map('strval', $decodedStudentAnswer)
+                                        : ($studentRawAnswer !== '' ? [$studentRawAnswer] : []);
+                                } else {
+                                    $selectedChoices = is_array($studentRawAnswer)
+                                        ? array_map('strval', $studentRawAnswer)
+                                        : [];
+                                }
+                            @endphp
                             <article class="teacher-exam-answer-row">
                                 <div class="teacher-exam-answer-number">{{ App\Support\PersianUi::digits($loop->iteration) }}</div>
 
@@ -77,11 +94,32 @@
                                         <span>{{ App\Support\PersianUi::digits($question->score) }} امتیاز</span>
                                     </div>
 
+
+                                    @if($question->type !== 'text' && is_array($question->options) && count($question->options))
+                                        <div class="teacher-exam-review-options">
+                                            <span class="teacher-exam-review-options-label">گزینه‌های سؤال</span>
+                                            <div class="teacher-exam-review-options-grid">
+                                                @foreach($question->options as $option)
+                                                    @php
+                                                        $optionText = (string) $option;
+                                                        $isCorrectOption = in_array($optionText, $correctChoices, true);
+                                                        $isSelectedOption = in_array($optionText, $selectedChoices, true);
+                                                    @endphp
+                                                    <div class="teacher-exam-review-option {{ $isCorrectOption ? 'is-correct' : '' }} {{ $isSelectedOption ? 'is-selected' : '' }}">
+                                                        <span class="teacher-exam-review-option-marker">{{ ['الف', 'ب', 'ج', 'د'][$loop->index] ?? App\Support\PersianUi::digits($loop->iteration) }}</span>
+                                                        <span class="teacher-exam-review-option-text">{{ $optionText }}</span>
+                                                        @if($isCorrectOption)<small>پاسخ صحیح</small>@endif
+                                                        @if($isSelectedOption)<small class="is-selected-label">انتخاب دانش‌آموز</small>@endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                     <div class="teacher-exam-answer-value {{ $answer && $answer->is_correct !== null ? ($answer->is_correct ? "is-correct" : "is-wrong") : "" }}">
                                         <span>پاسخ دانش‌آموز</span>
                                         <p>
-                                            @if($answer?->answer)
-                                                {{ is_array($answer->answer) ? implode('، ', $answer->answer) : $answer->answer }}
+                                            @if($selectedChoices !== [])
+                                                {{ implode('، ', $selectedChoices) }}
                                             @else
                                                 بدون پاسخ
                                             @endif
@@ -92,6 +130,18 @@
                                         <span class="teacher-exam-answer-result {{ $answer->is_correct ? 'correct' : 'wrong' }}">
                                             {{ $answer->is_correct ? 'پاسخ صحیح' : 'پاسخ نادرست' }}
                                         </span>
+                                    @endif
+
+                                    @if($question->type === 'text' && filled($question->expected_answer))
+                                        <div class="teacher-exam-reference-answer">
+                                            <span>پاسخ مرجع معلم <small>فقط برای تصحیح</small></span>
+                                            <p>{{ $question->expected_answer }}</p>
+                                        </div>
+                                    @elseif($question->type !== 'text' && $correctChoices !== [])
+                                        <div class="teacher-exam-reference-answer is-key">
+                                            <span>کلید پاسخ صحیح <small>برای مدرس</small></span>
+                                            <p>{{ implode('، ', $correctChoices) }}</p>
+                                        </div>
                                     @endif
                                 </div>
 

@@ -75,7 +75,7 @@ class ExamController extends Controller
 
     public function result(Exam $exam, StudentExamService $exams): View
     {
-        $exam = $exams->find(request()->user(), $exam);
+        $exam = $exams->findForResults(request()->user(), $exam);
 
         return view('student.exams.result', [
             'exam' => $exam,

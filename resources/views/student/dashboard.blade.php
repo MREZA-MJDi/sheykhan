@@ -196,8 +196,17 @@
                         <div class="sdr-item-list">
                             @forelse($recentResults->take(5) as $result)
                                 <article class="sdr-item-row">
-                                    <div><strong>{{ $result->title }}</strong><small>{{ $result->status_label ?? 'ثبت‌شده' }} · {{ $result->occurred_at ? App\Support\PersianUi::date($result->occurred_at) : '—' }}</small></div>
-                                    <span class="sdr-score">{{ $result->score === null ? '—' : App\Support\PersianUi::digits($result->score) }}</span>
+                                    <div>
+                                        @if($result->type === 'exam')
+                                            <a class="sdr-result-link" href="{{ route('student.exams.result', $result->target_id) }}"><strong>{{ $result->title }}</strong></a>
+                                        @elseif($result->type === 'assignment')
+                                            <a class="sdr-result-link" href="{{ route('student.assignments.show', $result->target_id) }}"><strong>{{ $result->title }}</strong></a>
+                                        @else
+                                            <strong>{{ $result->title }}</strong>
+                                        @endif
+                                        <small>{{ $result->status_label ?? 'ثبت‌شده' }} · {{ $result->occurred_at ? App\Support\PersianUi::date($result->occurred_at) : '—' }}</small>
+                                    </div>
+                                    <span class="sdr-score {{ !empty($result->is_provisional) ? 'is-provisional' : '' }}">{{ $result->score === null ? '—' : App\Support\PersianUi::digits($result->score) }}</span>
                                 </article>
                             @empty
                                 <div class="sdr-muted-empty">هنوز نتیجه‌ای برای نمایش ثبت نشده است.</div>

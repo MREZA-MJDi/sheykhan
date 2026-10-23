@@ -95,12 +95,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerValue = exam.querySelector('[data-timer-value]');
     const saveState = exam.querySelector('[data-save-state]');
     const submitButton = exam.querySelector('[data-submit-exam]');
+    const confirmation = exam.querySelector('[data-exam-confirmation]');
+    const confirmationSummary = exam.querySelector('[data-exam-submit-summary]');
+    const confirmationConfirm = exam.querySelector('[data-confirm-exam-submit]');
+    const confirmationCancelButtons = [...exam.querySelectorAll('[data-cancel-exam-submit]')];
     const storageKey = exam.dataset.storageKey;
     const deadline = Number(exam.dataset.deadline || 0) * 1000;
     const hasTimer = exam.dataset.hasTimer === '1';
     let current = 0;
     let flagged = new Set();
     let submitted = false;
+    let confirmationAccepted = false;
     let timerId = null;
 
     const fa = (value) => String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
@@ -318,18 +323,65 @@ document.addEventListener('DOMContentLoaded', () => {
     exam.querySelector('[data-mobile-question-prev]')?.addEventListener('click', () => goTo(current - 1));
     exam.querySelector('[data-mobile-question-next]')?.addEventListener('click', () => goTo(current + 1));
 
+    const closeSubmitConfirmation = () => {
+        if (!confirmation || confirmation.hidden) return;
+        confirmation.hidden = true;
+        document.body.style.overflow = '';
+        submitButton?.focus();
+    };
+
+    const openSubmitConfirmation = () => {
+        if (!confirmation || submitted) return;
+        confirmationAccepted = false;
+
+        const unanswered = questions.filter((question) => !hasAnswer(question)).length;
+        const answered = questions.length - unanswered;
+
+        const answeredCount = confirmation.querySelector('[data-confirm-answered]');
+        const unansweredCount = confirmation.querySelector('[data-confirm-unanswered]');
+        const totalCount = confirmation.querySelector('[data-confirm-total]');
+        if (answeredCount) answeredCount.textContent = fa(answered);
+        if (unansweredCount) unansweredCount.textContent = fa(unanswered);
+        if (totalCount) totalCount.textContent = fa(questions.length);
+
+        if (confirmationSummary) {
+            confirmationSummary.textContent = unanswered > 0
+                ? `${fa(unanswered)} سؤال هنوز بدون پاسخ است. می‌توانی به برگه برگردی یا همین حالا تحویل نهایی بدهی.`
+                : 'همهٔ سؤال‌ها پاسخ دارند. پس از تأیید، پاسخ‌ها برای مدرس ثبت می‌شوند.';
+        }
+
+        confirmation.classList.toggle('has-unanswered', unanswered > 0);
+        confirmation.hidden = false;
+        document.body.style.overflow = 'hidden';
+        confirmationCancelButtons[confirmationCancelButtons.length - 1]?.focus();
+    };
+
+    submitButton?.addEventListener('click', openSubmitConfirmation);
+    confirmationCancelButtons.forEach((button) => {
+        button.addEventListener('click', closeSubmitConfirmation);
+    });
+
+    confirmationConfirm?.addEventListener('click', () => {
+        if (!form || submitted) return;
+        confirmationAccepted = true;
+        closeSubmitConfirmation();
+        // Native validation still runs, but the custom confirmation is not shown twice.
+        form.requestSubmit();
+    });
+
+    confirmation?.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closeSubmitConfirmation();
+        }
+    });
+
     form?.addEventListener('submit', (event) => {
         if (submitted) return;
 
-        const unanswered = questions.filter((question) => !hasAnswer(question)).length;
-        if (unanswered > 0) {
-            const message = `${fa(unanswered)} سؤال هنوز بدون پاسخ است. مطمئنی می‌خواهی برگه را تحویل بدهی؟`;
-            if (!window.confirm(message)) {
-                event.preventDefault();
-                return;
-            }
-        } else if (!window.confirm('همه‌چیز آماده است؟ بعد از تحویل دیگر نمی‌توانی پاسخ‌ها را تغییر بدهی.')) {
+        if (!confirmationAccepted) {
             event.preventDefault();
+            openSubmitConfirmation();
             return;
         }
 
@@ -340,7 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         submitButton?.setAttribute('disabled', 'disabled');
         submitButton?.setAttribute('aria-busy', 'true');
-        submitButton?.querySelector('span') && (submitButton.querySelector('span').textContent = 'در حال تحویل…');
+        if (submitButton?.querySelector('span')) {
+            submitButton.querySelector('span').textContent = 'در حال تحویل…';
+        }
     });
 
     const visibilityHandler = () => {

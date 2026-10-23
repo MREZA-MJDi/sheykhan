@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Exam;
-use App\Services\TeacherWorkspaceService;
 use App\Services\ExamQuestionWriter;
+use App\Services\TeacherAccessService;
+use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ExamController extends Controller
@@ -26,6 +28,7 @@ class ExamController extends Controller
             'courses' => $workspace->courses(request()->user()),
             'classrooms' => $workspace->classrooms(request()->user()),
             'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
+            'initialQuestions' => [],
         ]);
     }
 
@@ -34,11 +37,12 @@ class ExamController extends Controller
         TeacherWorkspaceService $workspace,
         ExamQuestionWriter $questionWriter
     ): RedirectResponse {
-        $course = $workspace->courseOwnedBy($request->user(), (int) $request->validated('course_id'));
+        $courseId = (int) $request->validated('course_id');
+        $course = $workspace->courseOwnedBy($request->user(), $courseId);
 
         $classroomId = $request->validated('classroom_id');
         if ($classroomId) {
-            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, (int) $request->validated('course_id'));
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, $courseId);
         }
 
         $payload = $request->safe()->except(['course_id', 'questions']);
@@ -54,7 +58,97 @@ class ExamController extends Controller
             ->with('success', 'آزمون با موفقیت ساخته شد.');
     }
 
-    public function attempts(Exam $exam, \App\Services\TeacherAccessService $access): View
+    public function edit(
+        Exam $exam,
+        TeacherWorkspaceService $workspace,
+        TeacherAccessService $access
+    ): View|RedirectResponse {
+        abort_unless($access->canManageExam(request()->user(), $exam), 403);
+
+        if ($exam->attempts()->exists()) {
+            return redirect()->route('teacher.exams.index')
+                ->with('warning', 'این آزمون قبلاً شروع شده است؛ برای حفظ صحت پاسخ‌ها و نمره‌ها، متن و کلید آن قفل شده است.');
+        }
+
+        $exam->load('questions');
+        $initialQuestions = $exam->questions
+            ->sortBy('sort_order')
+            ->map(function ($question): array {
+                $correctAnswer = $question->correct_answer;
+                if (in_array($question->type, ['multiple', 'checkbox'], true) && is_string($correctAnswer)) {
+                    $decoded = json_decode($correctAnswer, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $correctAnswer = $decoded;
+                    }
+                }
+
+                return [
+                    // The legacy database default represents a single-answer
+                    // choice question; map it into the current four-choice editor.
+                    'type' => $question->type === 'multiple_choice' ? 'single' : $question->type,
+                    'question' => $question->question,
+                    'options' => $question->options ?? [],
+                    'correct_answer' => $correctAnswer,
+                    'expected_answer' => $question->expected_answer,
+                    'score' => $question->score,
+                ];
+            })
+            ->values()
+            ->all();
+
+        return view('teacher.exams.form', [
+            'courses' => $workspace->courses(request()->user()),
+            'classrooms' => $workspace->classrooms(request()->user()),
+            'exam' => $exam,
+            'initialQuestions' => $initialQuestions,
+        ]);
+    }
+
+    public function update(
+        StoreExamRequest $request,
+        Exam $exam,
+        TeacherWorkspaceService $workspace,
+        TeacherAccessService $access,
+        ExamQuestionWriter $questionWriter
+    ): RedirectResponse {
+        abort_unless($access->canManageExam($request->user(), $exam), 403);
+
+        $courseId = (int) $request->validated('course_id');
+        $course = $workspace->courseOwnedBy($request->user(), $courseId);
+
+        $classroomId = $request->validated('classroom_id');
+        if ($classroomId) {
+            $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, $courseId);
+        }
+
+        $payload = $request->safe()->except(['course_id', 'questions']);
+        $payload['course_id'] = $course->id;
+        $payload['teacher_id'] = $request->user()->id;
+
+        DB::transaction(function () use ($exam, $payload, $request, $questionWriter, $access): void {
+            $lockedExam = Exam::query()
+                ->whereKey($exam->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            abort_unless($access->canManageExam($request->user(), $lockedExam), 403);
+
+            if ($lockedExam->attempts()->exists()) {
+                throw ValidationException::withMessages([
+                    'exam' => 'یک دانش‌آموز این آزمون را شروع کرده است؛ برای حفظ پاسخ‌ها و نمره‌ها، دیگر نمی‌توان برگه را تغییر داد.',
+                ]);
+            }
+
+            $lockedExam->update($payload);
+            $lockedExam->questions()->delete();
+            $questionWriter->storeQuestions($lockedExam->refresh(), $request->validated('questions', []));
+        });
+
+        return redirect()->route('teacher.exams.index')
+            ->with('success', 'ویرایش برگهٔ آزمون با موفقیت ذخیره شد.');
+    }
+
+    public function attempts(Exam $exam, TeacherAccessService $access): View
     {
         abort_unless($access->canManageExam(request()->user(), $exam), 403);
 

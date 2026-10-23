@@ -19,7 +19,7 @@ class StoreExamRequest extends FormRequest
             'classroom_id' => ['nullable', 'integer', 'exists:classrooms,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'duration_minutes' => ['sometimes', 'integer', 'min:0'],
+            'duration_minutes' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'attempts_allowed' => ['sometimes', 'integer', 'min:1', 'max:255'],
@@ -30,6 +30,7 @@ class StoreExamRequest extends FormRequest
             'questions.*.options' => ['nullable', 'array', 'max:30'],
             'questions.*.options.*' => ['nullable', 'string', 'max:500'],
             'questions.*.correct_answer' => ['nullable'],
+            'questions.*.expected_answer' => ['nullable', 'string', 'max:15000'],
             'questions.*.correct_answer.*' => ['string', 'max:500'],
             'questions.*.score' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ];
@@ -69,18 +70,30 @@ class StoreExamRequest extends FormRequest
                     (array) ($question['options'] ?? []),
                     static fn ($option) => is_string($option) && trim($option) !== ''
                 ));
+                $correct = $question['correct_answer'] ?? null;
+                $multi = in_array($type, ['multiple', 'checkbox'], true);
 
-                if (count($options) < 2) {
-                    $validator->errors()->add("questions.{$index}.options", 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
-                    continue;
+                // A draft can be saved while the teacher is still composing a
+                // question. Strict option/key validation is required on publish.
+                if ($status === 'published' && $type === 'single' && count($options) !== 4) {
+                    $validator->errors()->add("questions.{$index}.options", 'برای سؤال چهارگزینه‌ای باید دقیقاً چهار گزینه وارد کنی.');
                 }
 
                 if (count(array_unique($options)) !== count($options)) {
                     $validator->errors()->add("questions.{$index}.options", 'گزینه‌های تکراری مجاز نیستند؛ هر گزینه را فقط یک بار وارد کن.');
                 }
 
-                $correct = $question['correct_answer'] ?? null;
-                $multi = in_array($type, ['multiple', 'checkbox'], true);
+                if (count($options) < 2) {
+                    if ($status !== 'published' && ($correct === null || $correct === '' || $correct === [])) {
+                        continue;
+                    }
+                    $validator->errors()->add("questions.{$index}.options", 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
+                    continue;
+                }
+
+                if ($status !== 'published' && ($correct === null || $correct === '' || $correct === [])) {
+                    continue;
+                }
 
                 if ($multi) {
                     if (! is_array($correct) || $correct === []) {

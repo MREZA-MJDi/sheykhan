@@ -266,6 +266,7 @@ final class StudentDashboardService
             ->latest('submissions.graded_at')
             ->limit(6)
             ->get([
+                'assignments.id as target_id',
                 'assignments.title',
                 'submissions.score',
                 'submissions.graded_at as occurred_at',
@@ -289,6 +290,7 @@ final class StudentDashboardService
             ->latest('attempts.submitted_at')
             ->limit(6)
             ->get([
+                'exams.id as target_id',
                 'exams.title',
                 'attempts.score',
                 'attempts.submitted_at as occurred_at',
@@ -299,10 +301,16 @@ final class StudentDashboardService
                     ? Carbon::parse($result->occurred_at)
                     : null;
                 $result->type = 'exam';
-                $result->status_label = $result->status === 'graded'
-                    ? 'تصحیح‌شده'
-                    : 'در انتظار بررسی';
-                if ($result->status !== 'graded') {
+                $result->status_label = match ($result->status) {
+                    'graded' => 'تصحیح‌شده',
+                    'needs_review' => 'نمره موقت · در انتظار تصحیح تشریحی',
+                    'pending_review' => 'در صف تصحیح مدرس',
+                    default => 'ارسال‌شده',
+                };
+                // A mixed exam may have an objective-only provisional score while
+                // its essay answers are still waiting for the teacher.
+                $result->is_provisional = $result->status === 'needs_review' && $result->score !== null;
+                if (!in_array($result->status, ['graded', 'needs_review'], true)) {
                     $result->score = null;
                 }
                 return $result;

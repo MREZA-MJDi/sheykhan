@@ -113,6 +113,124 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertSame(180, (int) $updated->duration_minutes);
     }
 
+    public function test_exam_can_be_edited_before_attempt_and_is_locked_after_student_starts(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $classroom = Classroom::where('course_id', $course->id)
+            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'برگهٔ قابل ویرایش - تست',
+                'description' => 'راهنمای اولیه',
+                'duration_minutes' => 45,
+                'attempts_allowed' => 1,
+                'starts_at' => now()->subMinute()->toDateTimeString(),
+                'ends_at' => now()->addDay()->toDateTimeString(),
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'سؤال تشریحی اولیه',
+                        'expected_answer' => 'پاسخ مرجع اولیه',
+                        'score' => 2,
+                    ],
+                    [
+                        'type' => 'single',
+                        'question' => 'سؤال چهارگزینه‌ای اولیه',
+                        // Drafts can be resumed before the teacher finishes the options and key.
+                        'options' => ['الف', 'ب'],
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $exam = \App\Models\Exam::where('title', 'برگهٔ قابل ویرایش - تست')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.edit', $exam))
+            ->assertOk()
+            ->assertSee('ویرایش برگهٔ امتحانی')
+            ->assertSee('سؤال تشریحی اولیه')
+            ->assertSee('پاسخ مرجع اولیه');
+
+        $this->actingAs($teacher)
+            ->patch(route('teacher.exams.update', $exam), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'برگهٔ ویرایش‌شده - تست',
+                'description' => 'راهنمای اصلاح‌شده',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'starts_at' => now()->subMinute()->toDateTimeString(),
+                'ends_at' => now()->addDay()->toDateTimeString(),
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'سؤال تشریحی اصلاح‌شده',
+                        'expected_answer' => 'پاسخ مرجع اصلاح‌شده',
+                        'score' => 3,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $exam->refresh();
+        $questions = $exam->questions()->orderBy('sort_order')->get();
+        $this->assertSame('برگهٔ ویرایش‌شده - تست', $exam->title);
+        $this->assertSame('راهنمای اصلاح‌شده', $exam->description);
+        $this->assertCount(1, $questions);
+        $this->assertSame('سؤال تشریحی اصلاح‌شده', $questions[0]->question);
+        $this->assertSame('پاسخ مرجع اصلاح‌شده', $questions[0]->expected_answer);
+
+        \App\Models\ExamAttempt::create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'attempt_number' => 1,
+            'started_at' => now(),
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.edit', $exam))
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHas('warning');
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.edit', $exam))
+            ->patch(route('teacher.exams.update', $exam), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'نباید تغییر کند',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'تغییر غیرمجاز',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.edit', $exam))
+            ->assertSessionHasErrors('exam');
+
+        $this->assertSame('برگهٔ ویرایش‌شده - تست', $exam->fresh()->title);
+        $this->assertSame('سؤال تشریحی اصلاح‌شده', $exam->questions()->firstOrFail()->question);
+    }
+
     public function test_exam_builder_persists_essay_single_and_multi_choice_questions_correctly(): void
     {
         $this->seed();
@@ -144,12 +262,13 @@ class TeacherWorkspaceFlowTest extends TestCase
                     [
                         'type' => 'text',
                         'question' => 'راه‌حل خود را توضیح بده.',
+                        'expected_answer' => 'راهنمای خصوصی آزمون: ابتدا داده‌ها را مشخص کن و سپس مراحل حل را توضیح بده.',
                         'score' => 3,
                     ],
                     [
                         'type' => 'single',
                         'question' => '۲ + ۲ چند می‌شود؟',
-                        'options' => ['۳', '۴', '۵'],
+                        'options' => ['۳', '۴', '۵', '۶'],
                         'correct_answer' => '۴',
                         'score' => 1,
                     ],
@@ -172,9 +291,10 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertSame('text', $questions[0]->type);
         $this->assertNull($questions[0]->options);
         $this->assertNull($questions[0]->correct_answer);
+        $this->assertSame('راهنمای خصوصی آزمون: ابتدا داده‌ها را مشخص کن و سپس مراحل حل را توضیح بده.', $questions[0]->expected_answer);
 
         $this->assertSame('single', $questions[1]->type);
-        $this->assertSame(['۳', '۴', '۵'], $questions[1]->options);
+        $this->assertSame(['۳', '۴', '۵', '۶'], $questions[1]->options);
         $this->assertSame('۴', $questions[1]->correct_answer);
 
         $this->assertSame('multiple', $questions[2]->type);
@@ -210,12 +330,13 @@ class TeacherWorkspaceFlowTest extends TestCase
                     [
                         'type' => 'text',
                         'question' => 'روش حل را با توضیح بنویس.',
+                        'expected_answer' => 'راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.',
                         'score' => 2,
                     ],
                     [
                         'type' => 'single',
                         'question' => '۳ + ۴ چند می‌شود؟',
-                        'options' => ['۶', '۷', '۸'],
+                        'options' => ['۶', '۷', '۸', '۹'],
                         'correct_answer' => '۷',
                         'score' => 1,
                     ],
@@ -231,7 +352,8 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.show', $exam))
             ->assertOk()
-            ->assertSee('آزمون تشریحی - گردش کار کامل');
+            ->assertSee('آزمون تشریحی - گردش کار کامل')
+            ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         $this->actingAs($student)
             ->post(route('student.exams.start', $exam))
@@ -245,7 +367,12 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->get(route('student.exams.attempt', [$exam, $attempt]))
             ->assertOk()
             ->assertSee('textarea', false)
-            ->assertSee('type="radio"', false);
+            ->assertSee('type="radio"', false)
+            ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
+
+        // Simulate the final timer-triggered request arriving three seconds
+        // after the deadline; the bounded server grace must preserve the answer sheet.
+        $attempt->update(['started_at' => now()->subMinutes(30)->subSeconds(3)]);
 
         $this->actingAs($student)
             ->post(route('student.exam-attempts.submit', $attempt), [
@@ -273,7 +400,35 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->get(route('teacher.exams.attempts', $exam))
             ->assertOk()
             ->assertSee('روش حل را با توضیح بنویس.')
+            ->assertSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.')
+            ->assertSee('کلید پاسخ صحیح')
             ->assertSee('بازبینی دستی');
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.exam-attempts.grade', $attempt))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $attempt->refresh();
+        $this->assertSame('needs_review', $attempt->status);
+        $this->assertSame(1.0, (float) $attempt->score);
+
+        // Provisional auto-grading must still count toward the attempt limit.
+        $this->actingAs($student)
+            ->post(route('student.exams.start', $exam))
+            ->assertSessionHasErrors('exam');
+
+        $this->actingAs($student)
+            ->get(route('student.exams.result', $exam))
+            ->assertOk()
+            ->assertSee('نمرهٔ موقت تستی')
+            ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
+
+        $this->actingAs($student)
+            ->get(route('student.results.index'))
+            ->assertOk()
+            ->assertSee('نمره موقت')
+            ->assertSee('آزمون تشریحی - گردش کار کامل');
 
         $this->actingAs($teacher)
             ->patch(route('teacher.exam-attempts.grade-manual', $attempt), [
@@ -293,7 +448,60 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
+            ->assertSee('نمرهٔ نهایی')
             ->assertSee('۳');
+
+        // Closing the exam blocks new attempts, but must not hide the student's submitted grade.
+        $exam->update(['status' => 'closed']);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.show', $exam))
+            ->assertNotFound();
+
+        $this->actingAs($student)
+            ->get(route('student.exams.result', $exam))
+            ->assertOk()
+            ->assertSee('نمرهٔ نهایی')
+            ->assertSee('تصحیح کامل شد')
+            ->assertSee('۳');
+
+        $this->actingAs($student)
+            ->get(route('student.results.index'))
+            ->assertOk()
+            ->assertSee('آزمون تشریحی - گردش کار کامل')
+            ->assertSee('تصحیح‌شده');
+    }
+
+    public function test_exam_builder_requires_exactly_four_options_for_single_choice_questions(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.create'))
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'title' => 'آزمون چهارگزینه‌ای ناقص - تست',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'published',
+                'questions' => [
+                    [
+                        'type' => 'single',
+                        'question' => 'کدام گزینه درست است؟',
+                        'options' => ['گزینه الف', 'گزینه ب', 'گزینه ج'],
+                        'correct_answer' => 'گزینه ب',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('questions.0.options');
+
+        $this->assertDatabaseMissing('exams', [
+            'title' => 'آزمون چهارگزینه‌ای ناقص - تست',
+        ]);
     }
 
     public function test_exam_builder_rejects_a_correct_answer_that_is_not_one_of_the_options(): void

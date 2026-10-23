@@ -73,6 +73,22 @@
                         </div>
                     </div>
 
+                    <header class="student-exam-sheet-heading">
+                        <div class="student-exam-sheet-brand">
+                            <span class="student-exam-sheet-mark" aria-hidden="true">ش</span>
+                            <div>
+                                <span>شیخان · برگهٔ پاسخ</span>
+                                <h2>{{ $attempt->exam->title }}</h2>
+                                <p>پاسخ هر سؤال را در فضای مشخص‌شده وارد کن.</p>
+                            </div>
+                        </div>
+                        <div class="student-exam-sheet-identity">
+                            <div><span>نام دانش‌آموز</span><strong>{{ auth()->user()->name }}</strong></div>
+                            <div><span>تاریخ</span><strong>{{ App\Support\PersianUi::date(now()) }}</strong></div>
+                            <div><span>مدت</span><strong>{{ $durationSeconds > 0 ? App\Support\PersianUi::digits((int) $attempt->exam->duration_minutes) . ' دقیقه' : 'بدون محدودیت' }}</strong></div>
+                        </div>
+                    </header>
+
                     @if($attempt->exam->description)
                         <div class="student-exam-intro">
                             <span class="student-exam-intro-icon">✦</span>
@@ -101,13 +117,14 @@
                                     $decoded = json_decode((string) $savedAnswer, true);
                                     $savedMultiple = json_last_error() === JSON_ERROR_NONE && is_array($decoded)
                                         ? array_map('strval', $decoded)
-                                        : preg_split('/s*,s*/', (string) $savedAnswer);
+                                        : preg_split('/\\s*,\\s*/', (string) $savedAnswer);
                                 }
                             @endphp
 
                             <section
                                 id="exam-question-{{ $question->id }}"
                                 class="student-exam-question"
+                                data-question-type="{{ $question->type }}"
                                 data-exam-question
                                 data-question-number="{{ $loop->iteration }}"
                             >
@@ -119,7 +136,7 @@
                                     <div class="student-exam-question-meta">
                                         <div>
                                             <span class="student-exam-question-label">
-                                                {{ $question->type === 'text' ? 'تشریحی' : 'گزینه‌ای' }}
+                                                {{ in_array($question->type, ['single', 'multiple_choice'], true) ? 'چهارگزینه‌ای' : (in_array($question->type, ['multiple', 'checkbox'], true) ? 'چندپاسخی' : 'تشریحی') }}
                                             </span>
                                             <span class="student-exam-score">
                                                 {{ App\Support\PersianUi::digits($question->score) }} امتیاز
@@ -149,7 +166,7 @@
                                                     @checked((string) $savedAnswer === (string) $option)
                                                     data-answer-input
                                                 >
-                                                <span class="student-exam-option-mark">{{ chr(65 + $loop->index) }}</span>
+                                                <span class="student-exam-option-mark">{{ ['الف', 'ب', 'ج', 'د'][$loop->index] ?? App\Support\PersianUi::digits($loop->iteration) }}</span>
                                                 <span class="student-exam-option-copy">{{ $option }}</span>
                                                 <span class="student-exam-option-check">✓</span>
                                             </label>
@@ -174,6 +191,7 @@
                                     </div>
                                 @else
                                     <label class="student-exam-text-answer">
+                                        <span class="student-exam-answer-space-label">فضای پاسخ شما</span>
                                         <textarea
                                             name="answers[{{ $question->id }}]"
                                             rows="7"
@@ -200,7 +218,7 @@
                             <strong>قبل از تحویل، پاسخ‌هایت را یک‌بار مرور کن.</strong>
                             <p>پس از تحویل، تغییر پاسخ‌ها ممکن نیست و نتیجه برای معلم ارسال می‌شود.</p>
                         </div>
-                        <button type="submit" class="student-exam-submit" data-submit-exam>
+                        <button type="button" class="student-exam-submit" data-submit-exam>
                             <span>تحویل برگه</span>
                             <i aria-hidden="true">←</i>
                         </button>
@@ -260,6 +278,25 @@
                 <button type="button" data-mobile-question-prev>↑</button>
                 <span><strong data-mobile-current>۱</strong> / {{ App\Support\PersianUi::digits($questions->count()) }}</span>
                 <button type="button" data-mobile-question-next>↓</button>
+            </div>
+            <div class="student-exam-confirmation" data-exam-confirmation hidden>
+                <button type="button" class="student-exam-confirmation-backdrop" data-cancel-exam-submit tabindex="-1" aria-label="بستن تأییدیه"></button>
+                <section class="student-exam-confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="exam-submit-confirm-title" aria-describedby="exam-submit-confirm-copy">
+                    <span class="student-exam-confirmation-mark" aria-hidden="true">✓</span>
+                    <span class="student-exam-confirmation-kicker">پایان آزمون</span>
+                    <h2 id="exam-submit-confirm-title">برگه را تحویل می‌دهی؟</h2>
+                    <p id="exam-submit-confirm-copy" data-exam-submit-summary>قبل از ثبت نهایی، وضعیت پاسخ‌هایت را بررسی کن.</p>
+                    <div class="student-exam-confirmation-stats">
+                        <div><span>پاسخ‌داده‌شده</span><strong data-confirm-answered>۰</strong></div>
+                        <div><span>بدون پاسخ</span><strong data-confirm-unanswered>۰</strong></div>
+                        <div><span>کل سؤال‌ها</span><strong data-confirm-total>۰</strong></div>
+                    </div>
+                    <p class="student-exam-confirmation-warning">بعد از تحویل، دیگر امکان تغییر پاسخ‌ها وجود ندارد.</p>
+                    <div class="student-exam-confirmation-actions">
+                        <button type="button" class="student-exam-confirmation-secondary" data-cancel-exam-submit>بازگشت و بازبینی</button>
+                        <button type="button" class="student-exam-confirmation-primary" data-confirm-exam-submit>بله، تحویل برگه</button>
+                    </div>
+                </section>
             </div>
         </form>
     </div>

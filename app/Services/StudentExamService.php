@@ -81,6 +81,20 @@ final class StudentExamService
         ]);
     }
 
+    public function findForResults(User $student, Exam $exam): Exam
+    {
+        abort_unless(app(StudentAccessService::class)->canViewExamResult($student, $exam), 404);
+
+        return $exam->load([
+            'course:id,academy_id,title,slug',
+            'classroom:id,academy_id,title,code,course_id',
+            'questions:id,exam_id,type,question,options,score,sort_order',
+            'attempts' => fn ($query) => $query
+                ->where('student_id', $student->id)
+                ->latest('attempt_number'),
+        ]);
+    }
+
     public function start(User $student, Exam $exam): ExamAttempt
     {
         return DB::transaction(function () use ($student, $exam): ExamAttempt {
@@ -111,7 +125,7 @@ final class StudentExamService
             $completedAttempts = ExamAttempt::query()
                 ->where('exam_id', $exam->id)
                 ->where('student_id', $student->id)
-                ->whereIn('status', ['graded', 'submitted', 'pending_review'])
+                ->whereIn('status', ['graded', 'submitted', 'pending_review', 'needs_review'])
                 ->count();
 
             if ($completedAttempts >= max(1, (int) $exam->attempts_allowed)) {
@@ -143,8 +157,18 @@ final class StudentExamService
             $studentCanAccessExam = app(StudentAccessService::class)->exam($student, $exam);
             $timedOut = $this->hasTimedOut($attempt, $exam);
             $examIsOpen = $this->isOpen($exam);
+            $withinTimeoutGrace = $timedOut && $this->withinTimeoutSubmissionGrace($attempt, $exam);
 
-            if (!$studentCanAccessExam || !$examIsOpen || $timedOut) {
+            // If the timer submits the current sheet just as the server deadline
+            // crosses, preserve that final snapshot during a short grace period.
+            // The server remains authoritative; submissions later than this
+            // bounded window or after access is revoked are still rejected.
+            if (
+                !$studentCanAccessExam
+                || $exam->status !== 'published'
+                || ($timedOut && !$withinTimeoutGrace)
+                || (!$examIsOpen && !$withinTimeoutGrace)
+            ) {
                 $attempt->status = 'submitted';
                 $attempt->submitted_at = now();
                 $attempt->save();
@@ -156,8 +180,8 @@ final class StudentExamService
                         ? 'این آزمون توسط مدرس بسته شده است. پاسخ‌ها ثبت نشدند.'
                         : 'دسترسی شما به این آزمون دیگر فعال نیست. پاسخ‌ها ثبت نشدند.')
                     : ($timedOut
-                        ? 'زمان آزمون شما به پایان رسیده است. پاسخ‌ها ثبت نشدند.'
-                        : 'این آزمون در حال حاضر باز نیست.');
+                        ? 'زمان آزمون شما به پایان رسیده است و مهلت کوتاه تحویل هم سپری شده؛ پاسخ‌ها ثبت نشدند.'
+                        : 'این آزمون در حال حاضر باز نیست؛ پاسخ‌ها ثبت نشدند.');
 
                 return ['failure' => $message, 'attempt' => $attempt];
             }
@@ -233,6 +257,24 @@ final class StudentExamService
 
         return (!$exam->starts_at || $now->gte($exam->starts_at))
             && (!$exam->ends_at || $now->lte($exam->ends_at));
+    }
+
+    private function withinTimeoutSubmissionGrace(ExamAttempt $attempt, Exam $exam): bool
+    {
+        $deadline = null;
+
+        if ((int) $exam->duration_minutes > 0 && $attempt->started_at) {
+            $deadline = $attempt->started_at->copy()->addMinutes((int) $exam->duration_minutes);
+        }
+
+        if ($exam->ends_at && (!$deadline || $exam->ends_at->lt($deadline))) {
+            $deadline = $exam->ends_at->copy();
+        }
+
+        // Allow a short server-side buffer for the browser's timer-triggered POST
+        // to reach the server. This is intentionally bounded rather than accepting
+        // arbitrary late submissions.
+        return $deadline !== null && now()->lte($deadline->copy()->addSeconds(10));
     }
 
     private function hasTimedOut(ExamAttempt $attempt, Exam $exam): bool
