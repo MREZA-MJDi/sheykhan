@@ -163,6 +163,14 @@ const initializeExamBuilder = () => {
             durationPreview.textContent = duration > 0 ? `${toFaDigits(duration)} دقیقه` : 'بدون محدودیت';
         }
 
+        const descriptionInput = examBuilder.querySelector('[data-exam-description]');
+        const descriptionPreview = examBuilder.querySelector('[data-exam-preview-description]');
+        if (descriptionPreview) {
+            const description = descriptionInput?.value.trim() || '';
+            descriptionPreview.textContent = description;
+            descriptionPreview.hidden = !description;
+        }
+
         questions.forEach((item, index) => {
             const number = item.querySelector('[data-question-number]');
             const kind = item.querySelector('[data-question-kind]');
@@ -202,6 +210,8 @@ const initializeExamBuilder = () => {
         const referenceWrapper = item.querySelector('[data-question-reference]');
         const type = typeField?.value || 'text';
         const options = readQuestionOptions(item);
+        const answerSpace = item.querySelector('[data-answer-space-preview]');
+        if (answerSpace) answerSpace.classList.toggle('hidden', type !== 'text');
         const previousSelection = [...item.querySelectorAll('[data-correct-answer-choice]:checked')]
             .map((input) => input.value);
 
@@ -322,6 +332,7 @@ const initializeExamBuilder = () => {
     examBuilder.querySelector('[data-exam-title]')?.addEventListener('input', updatePaperSummary);
     examBuilder.querySelector('[data-course-select]')?.addEventListener('change', updatePaperSummary);
     examBuilder.querySelector('[data-exam-duration]')?.addEventListener('input', updatePaperSummary);
+    examBuilder.querySelector('[data-exam-description]')?.addEventListener('input', updatePaperSummary);
 
     if (initialQuestions.length) {
         initialQuestions.forEach((question) => addQuestion(question, false));
