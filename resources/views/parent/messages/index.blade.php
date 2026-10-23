@@ -103,6 +103,43 @@
         @endif
     </section>
 
+    <section class="space-y-4" aria-labelledby="parent-academy-notices-title">
+        <div>
+            <span class="text-xs font-black text-[var(--panel-accent)]">اطلاعیه‌های مهم</span>
+            <h2 id="parent-academy-notices-title" class="mt-1 text-xl font-black">پیام‌های آموزشگاه و مدرس‌ها</h2>
+            <p class="mt-1 text-sm leading-7 text-[var(--panel-muted)]">اطلاعیه‌های عمومی آموزشگاه، پیام‌های مخصوص کلاس فرزندت و پیام‌های مستقیم به حساب تو در اینجا نمایش داده می‌شوند.</p>
+        </div>
+        @forelse($academyMessages as $notice)
+            @php
+                $noticeLabel = match($notice->audience) {
+                    'all_parents' => 'اطلاعیه عمومی',
+                    'classroom_parents' => 'اطلاعیه کلاس ' . ($notice->classroom?->title ?? ''),
+                    default => 'پیام خصوصی',
+                };
+                $noticeTone = $notice->category === 'important' ? 'rose' : ($notice->audience === 'all_parents' ? 'violet' : 'teal');
+            @endphp
+            <article class="parent-panel dashboard-panel overflow-hidden">
+                <div class="h-1.5 {{ $noticeTone === 'rose' ? 'bg-rose-500' : ($noticeTone === 'violet' ? 'bg-violet-500' : 'bg-teal-500') }}"></div>
+                <div class="p-5 sm:p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h3 class="break-words text-lg font-black text-[var(--panel-text)]">{{ $notice->subject }}</h3>
+                            <p class="mt-1 text-xs text-[var(--panel-muted)]">{{ $notice->academy?->name }} · {{ $notice->sender?->name }} · {{ \App\Support\PersianUi::date($notice->published_at ?? $notice->created_at) }}</p>
+                        </div>
+                        <span class="rounded-full px-3 py-1.5 text-xs font-black {{ $noticeTone === 'rose' ? 'bg-rose-50 text-rose-800' : ($noticeTone === 'violet' ? 'bg-violet-50 text-violet-800' : 'bg-teal-50 text-teal-800') }}">{{ $noticeLabel }}</span>
+                    </div>
+                    <p class="mt-4 whitespace-pre-line break-words rounded-xl bg-[var(--panel-bg)] p-4 text-sm leading-7 text-[var(--panel-text-secondary)]">{{ $notice->body }}</p>
+                    @if($notice->student)
+                        <p class="mt-3 text-xs text-[var(--panel-muted)]">دانش‌آموز مرتبط: {{ $notice->student->name }}</p>
+                    @endif
+                </div>
+            </article>
+        @empty
+            <div class="parent-panel dashboard-panel p-6 text-center text-sm leading-7 text-[var(--panel-muted)]">فعلاً اطلاعیه‌ای برای خانواده‌ات منتشر نشده است.</div>
+        @endforelse
+        @if($academyMessages->hasPages())<div>{{ $academyMessages->onEachSide(1)->links() }}</div>@endif
+    </section>
+
     <section class="space-y-4">
         <div><h2 class="text-xl font-black">سوابق پیام‌ها</h2><p class="mt-1 text-sm text-slate-500">پیام‌ها فقط برای حساب والد ثبت‌کننده نمایش داده می‌شوند.</p></div>
         @php($statuses = ['open' => 'در انتظار بررسی', 'in_review' => 'در حال پیگیری', 'responded' => 'پاسخ داده‌شده', 'closed' => 'بسته‌شده'])
