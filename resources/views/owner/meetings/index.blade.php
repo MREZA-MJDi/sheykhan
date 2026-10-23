@@ -5,7 +5,7 @@
 
 @section('content')
 @php
-    $statusLabels = ['scheduled' => 'برنامه‌ریزی‌شده', 'completed' => 'برگزارشده', 'cancelled' => 'لغوشده'];
+    $statusLabels = ['proposed' => 'پیشنهاد مدرس · در انتظار بررسی', 'scheduled' => 'برنامه‌ریزی‌شده', 'completed' => 'برگزارشده', 'cancelled' => 'لغوشده', 'declined' => 'پیشنهاد ردشده'];
 @endphp
 
 <div class="space-y-6 panel-page-enter">
@@ -96,7 +96,7 @@
                             <h3 class="text-sm font-black">{{ $meeting->title }}</h3>
                             <p class="mt-1 text-xs leading-6 text-slate-500">{{ $meeting->classroom?->title ?? 'کلاس' }} · {{ $meeting->course?->title ?? 'دوره' }}</p>
                             <p class="mt-1 text-xs leading-6 text-slate-600">دانش‌آموز: {{ $meeting->student?->name ?? '—' }} · ولی: {{ $meeting->guardian?->name ?? '—' }}</p>
-                            <p class="mt-1 text-xs text-slate-500">{{ \App\Support\PersianUi::date($meeting->scheduled_at) }} · {{ \App\Support\PersianUi::time($meeting->scheduled_at) }}</p>
+                            <p class="mt-1 text-xs text-slate-500">{{ $meeting->status === 'proposed' ? 'زمان پیشنهادی مدرس: ' : 'زمان جلسه: ' }}{{ \App\Support\PersianUi::date($meeting->scheduled_at) }} · {{ \App\Support\PersianUi::time($meeting->scheduled_at) }}</p>
                             @if($meeting->message)<p class="mt-2 text-xs leading-6 text-slate-500">{{ $meeting->message }}</p>@endif
                         </div>
                         @if(auth()->user()->hasPermission('live_classes.manage'))
@@ -104,10 +104,19 @@
                             @csrf @method('PATCH')
                             <label class="sr-only" for="meeting-status-{{ $meeting->id }}">وضعیت جلسه</label>
                             <select id="meeting-status-{{ $meeting->id }}" name="status" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs">
-                                @foreach($statusLabels as $status => $label)
+                                @php($meetingStatusOptions = $meeting->status === 'proposed' ? ['scheduled' => 'تأیید و زمان‌بندی', 'declined' => 'رد پیشنهاد'] : ['scheduled' => 'برنامه‌ریزی‌شده', 'completed' => 'برگزارشده', 'cancelled' => 'لغوشده'])
+                                @foreach($meetingStatusOptions as $status => $label)
                                     <option value="{{ $status }}" @selected($meeting->status === $status)>{{ $label }}</option>
                                 @endforeach
                             </select>
+                            @if($meeting->status === 'proposed')
+                                <label class="grid gap-1 text-[10px] font-bold text-slate-600">زمان نهایی
+                                    <input type="datetime-local" name="scheduled_at" value="{{ $meeting->scheduled_at?->format('Y-m-d\\TH:i') }}" min="{{ now()->format('Y-m-d\\TH:i') }}" required class="min-h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs">
+                                </label>
+                                <label class="grid gap-1 text-[10px] font-bold text-slate-600">پایان (اختیاری)
+                                    <input type="datetime-local" name="scheduled_end_at" value="{{ $meeting->scheduled_end_at?->format('Y-m-d\\TH:i') }}" min="{{ now()->format('Y-m-d\\TH:i') }}" class="min-h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs">
+                                </label>
+                            @endif
                             <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700">ذخیره وضعیت</button>
                         </form>
                         @else

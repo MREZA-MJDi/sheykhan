@@ -37,10 +37,16 @@ final class MeetingController extends Controller
         OwnerMeetingService $meetings
     ): RedirectResponse {
         $data = $request->validate([
-            'status' => ['required', Rule::in(['scheduled', 'completed', 'cancelled'])],
+            'status' => ['required', Rule::in(['scheduled', 'completed', 'cancelled', 'declined'])],
+            'scheduled_at' => [Rule::requiredIf(fn () => $meeting->status === 'proposed' && $request->input('status') === 'scheduled'), 'nullable', 'date', 'after:now'],
+            'scheduled_end_at' => ['nullable', 'date', 'after:scheduled_at'],
+        ], [
+            'scheduled_at.required' => 'برای تأیید پیشنهاد مدرس، زمان نهایی را مشخص کن.',
+            'scheduled_at.after' => 'زمان جلسه باید در آینده باشد.',
+            'scheduled_end_at.after' => 'زمان پایان باید بعد از زمان شروع باشد.',
         ]);
 
-        $meetings->changeStatus($request->user(), $academy, $meeting, $data['status']);
+        $meetings->changeStatus($request->user(), $academy, $meeting, $data['status'], $data['scheduled_at'] ?? null, $data['scheduled_end_at'] ?? null);
 
         return redirect()->route('owner.meetings.index', $academy)
             ->with('success', 'وضعیت جلسه به‌روزرسانی شد.');

@@ -262,6 +262,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::patch('/student-messages/{message}/reply', [TeacherStudentMessageController::class, 'reply'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('student-messages.reply');
     Route::patch('/student-messages/{message}/close', [TeacherStudentMessageController::class, 'close'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('student-messages.close');
     Route::get('/meetings', [\App\Http\Controllers\Teacher\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
+    Route::post('/meetings/proposals', [\App\Http\Controllers\Teacher\MeetingController::class, 'propose'])->middleware(['permission:live_classes.manage','throttle:10,1'])->name('meetings.proposals.store');
     Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\Teacher\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
     Route::get('/payments', [\App\Http\Controllers\Teacher\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
