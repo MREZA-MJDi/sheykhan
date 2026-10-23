@@ -144,6 +144,7 @@ class TeacherWorkspaceFlowTest extends TestCase
                     [
                         'type' => 'text',
                         'question' => 'راه‌حل خود را توضیح بده.',
+                        'expected_answer' => 'راهنمای خصوصی آزمون: ابتدا داده‌ها را مشخص کن و سپس مراحل حل را توضیح بده.',
                         'score' => 3,
                     ],
                     [
@@ -172,6 +173,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertSame('text', $questions[0]->type);
         $this->assertNull($questions[0]->options);
         $this->assertNull($questions[0]->correct_answer);
+        $this->assertSame('راهنمای خصوصی آزمون: ابتدا داده‌ها را مشخص کن و سپس مراحل حل را توضیح بده.', $questions[0]->expected_answer);
 
         $this->assertSame('single', $questions[1]->type);
         $this->assertSame(['۳', '۴', '۵'], $questions[1]->options);
@@ -210,6 +212,7 @@ class TeacherWorkspaceFlowTest extends TestCase
                     [
                         'type' => 'text',
                         'question' => 'روش حل را با توضیح بنویس.',
+                        'expected_answer' => 'راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.',
                         'score' => 2,
                     ],
                     [
@@ -245,7 +248,8 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->get(route('student.exams.attempt', [$exam, $attempt]))
             ->assertOk()
             ->assertSee('textarea', false)
-            ->assertSee('type="radio"', false);
+            ->assertSee('type="radio"', false)
+            ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         $this->actingAs($student)
             ->post(route('student.exam-attempts.submit', $attempt), [
@@ -273,6 +277,8 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->get(route('teacher.exams.attempts', $exam))
             ->assertOk()
             ->assertSee('روش حل را با توضیح بنویس.')
+            ->assertSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.')
+            ->assertSee('کلید پاسخ صحیح')
             ->assertSee('بازبینی دستی');
 
         $this->actingAs($teacher)
@@ -293,6 +299,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
+            ->assertSee('نمرهٔ نهایی')
             ->assertSee('۳');
     }
 
