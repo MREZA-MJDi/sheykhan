@@ -167,8 +167,12 @@ const initializeExamBuilder = () => {
             const number = item.querySelector('[data-question-number]');
             const kind = item.querySelector('[data-question-kind]');
             const type = item.querySelector('[data-name="type"]')?.value || 'text';
+            const scoreInput = item.querySelector('[data-name="score"]');
+            const score = Number(scoreInput?.value || 0);
+            const printScore = item.querySelector('[data-print-score]');
             const foot = item.querySelector('[data-question-foot-note]');
             if (number) number.textContent = `سؤال ${toFaDigits(index + 1)}`;
+            if (printScore) printScore.textContent = `${formatScore(score)} نمره`;
             item.dataset.questionType = type;
             if (kind) {
                 kind.textContent = typeLabel(type);
@@ -314,6 +318,7 @@ const initializeExamBuilder = () => {
         initialQuestions = [];
     }
 
+    examBuilder.querySelector('[data-print-exam]')?.addEventListener('click', () => window.print());
     examBuilder.querySelector('[data-exam-title]')?.addEventListener('input', updatePaperSummary);
     examBuilder.querySelector('[data-course-select]')?.addEventListener('change', updatePaperSummary);
     examBuilder.querySelector('[data-exam-duration]')?.addEventListener('input', updatePaperSummary);
