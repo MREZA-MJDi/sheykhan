@@ -107,7 +107,7 @@
 
                                 <x-education.product-card
                                     :title="$product->title"
-                                    :price="\App\Support\PersianUi::money($price)"
+                                    :price="\App\Support\PersianUi::moneyInCurrency($price, $product->currency)"
                                     :category="$product->category?->name"
                                     :image="$media?->url()"
                                     :description="$product->description ?? null"

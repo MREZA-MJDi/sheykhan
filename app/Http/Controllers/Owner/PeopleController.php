@@ -58,16 +58,15 @@ class PeopleController extends Controller
                 $query->where('users.name', 'like', '%' . $term . '%')
                     ->orWhere('users.email', 'like', '%' . $term . '%');
             })
-            ->select('users.id', 'users.name', 'users.email')
+            ->select('users.id', 'users.name')
             ->orderBy('users.name')
             ->orderBy('users.id')
-            ->paginate(20, ['users.id', 'users.name', 'users.email'], 'page');
+            ->paginate(20, ['users.id', 'users.name'], 'page');
 
         return response()->json([
             'data' => $students->getCollection()->map(fn (User $student): array => [
                 'id' => (int) $student->id,
                 'name' => $student->name,
-                'email' => $student->email,
             ])->values(),
             'meta' => [
                 'current_page' => $students->currentPage(),

@@ -45,6 +45,8 @@ class CourseCheckoutFlowTest extends TestCase
 
         $response->assertRedirect(route('orders.show', $order));
         $this->assertSame('pending', $order->status);
+        $this->assertSame('IRT', $order->currency);
+        $this->assertSame('IRT', $order->payments()->firstOrFail()->currency);
         $this->assertNull($order->paid_at);
         $this->assertSame($course->id, (int) $item->course_id);
         $this->assertNull($item->product_id);

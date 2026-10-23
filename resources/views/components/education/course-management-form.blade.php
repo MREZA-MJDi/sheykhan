@@ -56,11 +56,11 @@
         },
         formatPrice(value) {
             const digits = this.normalizeDigits(value).replace(/\D/g, '');
-            return digits ? Number(digits).toLocaleString('en-US') : '';
+            return digits ? new Intl.NumberFormat('fa-IR', { useGrouping: true, maximumFractionDigits: 0 }).format(Number(digits)) : '';
         },
         syncPrice() {
             const digits = this.normalizeDigits(this.priceDisplay).replace(/\D/g, '');
-            this.priceDisplay = digits ? Number(digits).toLocaleString('en-US') : '';
+            this.priceDisplay = digits ? new Intl.NumberFormat('fa-IR', { useGrouping: true, maximumFractionDigits: 0 }).format(Number(digits)) : '';
             if (this.$refs.priceRaw) {
                 this.$refs.priceRaw.value = this.accessType === 'free' ? '0' : digits;
             }

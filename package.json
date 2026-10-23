@@ -5,7 +5,8 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "test:calendar": "node --test tests/js/persian-calendar.test.mjs"
+        "test:calendar": "node --test tests/js/persian-calendar.test.mjs",
+        "test:js": "node --test tests/js/persian-calendar.test.mjs tests/js/persian-money.test.mjs"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

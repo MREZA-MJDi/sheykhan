@@ -23,8 +23,8 @@
                 <label><span>نوع محصول</span><select name="product_type" required><option value="book" @selected(old('product_type')==='book')>کتاب / تألیف و ترجمه</option><option value="booklet" @selected(old('product_type')==='booklet')>جزوه</option><option value="exam" @selected(old('product_type')==='exam')>آزمون</option><option value="digital" @selected(old('product_type')==='digital')>محصول دیجیتال</option><option value="file" @selected(old('product_type')==='file')>فایل آموزشی</option></select></label>
             </div>
             <div class="owner-form-two">
-                <label><span>قیمت (ریال)</span><input type="number" name="price" min="0" max="1000000000000" step="1" value="{{ old('price', 0) }}" required></label>
-                <label><span>قیمت تخفیف (ریال، اختیاری)</span><input type="number" name="sale_price" min="0" max="1000000000000" step="1" value="{{ old('sale_price') }}"></label>
+                <label><span>قیمت (ریال)</span><input type="number" name="price" data-money-input data-money-unit="ریال" min="0" max="1000000000000" step="1" value="{{ old('price', 0) }}" required></label>
+                <label><span>قیمت تخفیف (ریال، اختیاری)</span><input type="number" name="sale_price" data-money-input data-money-unit="ریال" min="0" max="1000000000000" step="1" value="{{ old('sale_price') }}"></label>
             </div>
             <label><span>نسخه فایل (مثلاً 1.0)</span><input name="version" value="{{ old('version','1.0') }}" maxlength="32"></label>
         </section>
@@ -57,7 +57,7 @@
             <article class="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-slate-200 p-4">
                 <div class="min-w-0">
                     <strong>{{ $product->title }}</strong>
-                    <p class="mt-1 text-xs text-slate-500">{{ $product->category?->name }} · {{ \App\Support\PersianUi::money($product->sale_price ?? $product->price) }} · {{ $product->status }}</p>
+                    <p class="mt-1 text-xs text-slate-500">{{ $product->category?->name }} · {{ \App\Support\PersianUi::moneyInCurrency($product->sale_price ?? $product->price, $product->currency) }} · {{ $product->status }}</p>
                     <p class="mt-1 text-xs text-slate-500">PDF: {{ $product->files->where('is_preview', false)->count() ? 'ثبت شده' : 'ثبت نشده' }} · فایل اصلی خصوصی</p>
                     <a class="mt-2 inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('store.product.show', $product) }}" target="_blank" rel="noopener noreferrer">مشاهده صفحه محصول ←</a>
                 </div>

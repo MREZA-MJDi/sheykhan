@@ -1,4 +1,5 @@
 import './persian-calendar.js';
+import './persian-money.js';
 import { bootPanel } from './panel-base.js';
 
 function formatUploadSize(bytes) {
@@ -525,15 +526,13 @@ function bootOwnerStudentPicker() {
             option.setAttribute('role', 'option');
             const name = document.createElement('span');
             name.textContent = student.name || 'بدون نام';
-            const email = document.createElement('small');
-            email.textContent = student.email || 'بدون ایمیل';
-            option.append(name, email);
+            option.append(name);
             option.addEventListener('click', () => {
                 studentId.value = String(student.id);
-                studentLabel.value = (student.name || 'بدون نام') + ' — ' + (student.email || '');
+                studentLabel.value = student.name || 'بدون نام';
                 search.value = studentLabel.value;
                 clearResults();
-                status.textContent = 'دانش‌آموز انتخاب شد: ' + (student.name || student.email);
+                status.textContent = 'دانش‌آموز انتخاب شد: ' + (student.name || 'بدون نام');
                 search.setAttribute('aria-expanded', 'false');
             });
             results.append(option);

@@ -102,11 +102,11 @@
                     <small>درآمد خالص ثبت‌شده</small>
 
                     <strong>
-                        {{ number_format($sales, 0, '.', ',') }}
+                        {{ \App\Support\PersianUi::number($sales) }}
                     </strong>
 
                     <span>
-                        از ledger پرداخت‌های تکمیل‌شده
+                        تومان · از دفتر پرداخت‌های تکمیل‌شده
                     </span>
                 </div>
             </div>
