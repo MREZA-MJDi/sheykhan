@@ -36,6 +36,18 @@
                 </span>
             </div>
 
+            <div class="mt-5 flex flex-wrap gap-2" aria-label="اقدام‌های سریع خانواده">
+                <a href="{{ route('parent.resources.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-black text-indigo-700 shadow-sm transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">
+                    جزوه‌ها و منابع فرزندان <span aria-hidden="true">←</span>
+                </a>
+                <a href="{{ route('parent.messages.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">
+                    پیام به آموزشگاه <span aria-hidden="true">←</span>
+                </a>
+                <a href="{{ route('parent.results.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">
+                    نتایج آموزشی <span aria-hidden="true">←</span>
+                </a>
+            </div>
+
             <span class="parent-orb" aria-hidden="true"></span>
         </section>
 

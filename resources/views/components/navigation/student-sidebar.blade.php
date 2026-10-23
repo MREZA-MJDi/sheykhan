@@ -56,6 +56,13 @@
             </a>
         @endif
 
+        <div class="role-sidebar-label mt-6">ارتباط</div>
+        @if($studentUser->hasPermission('student_messages.view'))
+            <a href="{{ route('student.messages.index') }}" class="role-nav-link {{ request()->routeIs('student.messages.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>پیام به مدرس‌ها</span>
+            </a>
+        @endif
+
         <div class="role-sidebar-label mt-6">عملکرد و حساب</div>
 
         @if($studentUser->hasPermission('results.view'))

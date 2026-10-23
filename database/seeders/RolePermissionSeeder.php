@@ -35,6 +35,8 @@ class RolePermissionSeeder extends Seeder
             ['name'=>'parents.manage','label'=>'مدیریت والدین','group'=>'parents'],
             ['name'=>'parent_messages.view','label'=>'مشاهده پیام‌های اولیا','group'=>'parent_messages'],
             ['name'=>'parent_messages.manage','label'=>'پاسخ به پیام‌های اولیا','group'=>'parent_messages'],
+            ['name'=>'student_messages.view','label'=>'مشاهده مکاتبات دانش‌آموزان','group'=>'student_messages'],
+            ['name'=>'student_messages.manage','label'=>'ارسال و پاسخ به مکاتبات دانش‌آموزان','group'=>'student_messages'],
             ['name'=>'teacher_payments.view','label'=>'مشاهده حقوق ثبت‌شده مدرس‌ها','group'=>'teacher_payments'],
             ['name'=>'teacher_payments.manage','label'=>'مدیریت سندهای پرداخت مدرس‌ها','group'=>'teacher_payments'],
 
@@ -135,6 +137,7 @@ class RolePermissionSeeder extends Seeder
                 'students.view',
                 'assignments.view','assignments.manage',
                 'parent_messages.view','parent_messages.manage',
+                'student_messages.view','student_messages.manage',
                 'teacher_payments.view',
                 'exams.view','exams.manage',
                 'attendance.view','attendance.manage',
@@ -147,6 +150,7 @@ class RolePermissionSeeder extends Seeder
             'student' => [
                 'dashboard.view','academy.view',
                 'courses.view','lessons.view','lessons.progress',
+                'student_messages.view','student_messages.manage',
                 'classrooms.view',
                 'assignments.view','assignments.submit',
                 'exams.view','exams.attempt',

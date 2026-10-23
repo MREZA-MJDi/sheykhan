@@ -29,6 +29,9 @@
         <a href="{{ route('parent.results.index') }}" class="role-nav-link {{ request()->routeIs('parent.results.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>نتایج تکالیف و آزمون‌ها</span>
         </a>
+        <a href="{{ route('parent.resources.index') }}" class="role-nav-link {{ request()->routeIs('parent.resources.*') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>جزوه‌ها و منابع فرزندان</span>
+        </a>
         <a href="{{ route('parent.messages.index') }}" class="role-nav-link {{ request()->routeIs('parent.messages.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>پیام‌ها و درخواست‌ها</span>
         </a>
