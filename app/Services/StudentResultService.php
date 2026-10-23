@@ -46,9 +46,9 @@ final class StudentResultService
             ->selectRaw("'exam' as result_type")
             ->selectRaw('attempts.id as result_id')
             ->selectRaw('exams.title as title')
-            ->selectRaw("CASE WHEN attempts.status = 'graded' THEN attempts.score ELSE NULL END as score")
+            ->selectRaw("CASE WHEN attempts.status IN ('graded', 'needs_review') THEN attempts.score ELSE NULL END as score")
             ->selectRaw('attempts.submitted_at as occurred_at')
-            ->selectRaw("CASE WHEN attempts.status = 'graded' THEN 'تصحیح‌شده' ELSE 'در انتظار بررسی' END as status_label");
+            ->selectRaw("CASE WHEN attempts.status = 'graded' THEN 'تصحیح‌شده' WHEN attempts.status = 'needs_review' THEN 'نمره موقت · در انتظار تصحیح تشریحی' WHEN attempts.status = 'pending_review' THEN 'در صف تصحیح مدرس' ELSE 'ارسال‌شده' END as status_label");
 
         return DB::query()
             ->fromSub($assignmentResults->unionAll($examResults), 'student_results')
