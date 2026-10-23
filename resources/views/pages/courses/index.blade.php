@@ -213,4 +213,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="بعد از انتخاب دوره"
+        title="با شناخت مسیر، آگاهانه شروع کن"
+        description="جزئیات دوره‌ها را بررسی کن، مدرس را بشناس و برای ادامه‌ی یادگیری وارد کارتابل خودت شو."
+        :primary-href="route('teachers.index')"
+        primary-label="شناخت مدرس‌ها"
+        :secondary-href="route('login')"
+        secondary-label="ورود به کارتابل"
+    />
 @endsection
