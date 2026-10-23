@@ -27,10 +27,6 @@ return [
     'show_test_accounts' => $showTestAccounts,
     'seed_password' => $seedPassword,
     'test_password' => $showTestAccounts ? $seedPassword : null,
-    'allowed_test_ips' => array_values(array_filter(array_map(
-        'trim',
-        explode(',', (string) env('TEST_ACCOUNTS_ALLOWED_IPS', ''))
-    ))),
 
     'test_accounts' => [
         ['role' => 'مدیر آموزشگاه', 'role_key' => 'academy-owner', 'name' => 'مدیر آموزشگاه', 'username' => 'owner@sheykhan.test'],
