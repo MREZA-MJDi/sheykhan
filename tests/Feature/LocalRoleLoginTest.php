@@ -28,6 +28,7 @@ class LocalRoleLoginTest extends TestCase
     public function test_staging_can_enable_quick_fill_with_a_private_seed_password(): void
     {
         $previousEnvironment = $this->app['env'];
+        config(['role_access.seed_password' => 'Staging-Only-Secret-2026']);
 
         $this->seed();
 
@@ -60,6 +61,17 @@ class LocalRoleLoginTest extends TestCase
             ->assertOk()
             ->assertSee('owner@sheykhan.test')
             ->assertDontSee('student.armin@sheykhan.test');
+    }
+
+    public function test_role_credentials_are_hidden_when_the_configured_password_does_not_match_the_account(): void
+    {
+        $this->seed();
+        config(['role_access.test_password' => 'password-that-does-not-match']);
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertDontSee('owner@sheykhan.test')
+            ->assertSee('حساب فعالی برای نمایش پیدا نشد');
     }
 
     public function test_demo_credentials_are_not_rendered_outside_local_and_testing(): void

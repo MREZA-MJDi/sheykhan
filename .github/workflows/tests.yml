@@ -56,7 +56,7 @@ jobs:
         run: |
           npm audit fix --package-lock-only
           npm ci
-          npm run test:calendar
+          npm run test:js
           npm run build
 
       - name: Inspect frontend dependency advisories

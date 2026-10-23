@@ -164,7 +164,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->get($searchUrl . '?q=student-30%40test.local')
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('data.0.email', 'student-30@test.local');
+            ->assertJsonMissingPath('data.0.email');
 
         $this->actingAs($owner)
             ->get($searchUrl . '?q=student-')
@@ -178,7 +178,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertOk()
             ->assertJsonPath('meta.current_page', 2)
             ->assertJsonCount(10, 'data')
-            ->assertJsonPath('data.9.email', 'student-30@test.local');
+            ->assertJsonMissingPath('data.9.email');
     }
 
     public function test_owner_can_assign_a_single_teacher_to_a_class_from_the_people_page(): void

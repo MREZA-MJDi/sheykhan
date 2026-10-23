@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
     formatJalali,
@@ -60,4 +61,12 @@ test('Jalali-to-Gregorian and Gregorian-to-Jalali round-trip across month bounda
 test('ISO input without a valid Gregorian date is not silently normalized', () => {
     assert.equal(jalaliFromIso('not-a-date'), null);
     assert.equal(parseJalali('۱۴۰۵/۰۲/۳۲'), null);
+});
+
+
+test('calendar renderer uses a defined current-month helper', () => {
+    const source = readFileSync(new URL('../../resources/js/persian-calendar.js', import.meta.url), 'utf8');
+
+    assert.match(source, /const today = currentJalaliMonth\(\);/);
+    assert.doesNotMatch(source, /\btodayIso\(\)/);
 });

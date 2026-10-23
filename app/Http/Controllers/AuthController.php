@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
 use App\Services\DashboardRedirector;
@@ -30,15 +31,22 @@ class AuthController extends Controller
                 ->whereIn('email', $configuredAccounts->pluck('username')->all())
                 ->where('status', 'active')
                 ->with('roles:id,slug')
-                ->get(['id', 'name', 'email'])
+                ->get(['id', 'name', 'email', 'password'])
                 ->keyBy('email');
 
             $testAccounts = $configuredAccounts
-                ->filter(function (array $account) use ($usersByEmail): bool {
+                ->filter(function (array $account) use ($usersByEmail, $testPassword): bool {
                     $user = $usersByEmail->get($account['username']);
+                    if ($user === null || ! $user->roles->contains('slug', $account['role_key'])) {
+                        return false;
+                    }
 
-                    return $user !== null
-                        && $user->roles->contains('slug', $account['role_key']);
+                    // Show credentials only if the password still authenticates this persisted user.
+                    try {
+                        return Hash::check((string) $testPassword, (string) $user->getAuthPassword());
+                    } catch (\Throwable) {
+                        return false;
+                    }
                 })
                 ->map(function (array $account) use ($usersByEmail): array {
                     $account['name'] = $usersByEmail->get($account['username'])->name;
