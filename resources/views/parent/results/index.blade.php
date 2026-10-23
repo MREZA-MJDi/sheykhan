@@ -20,6 +20,9 @@
                     </div>
                     <h2 class="mt-2 break-words text-base font-black">{{ $result->title }}</h2>
                     <p class="mt-1 text-xs text-slate-500">{{ $result->student_name }} · {{ \App\Support\PersianUi::date($result->occurred_at) }}</p>
+                    @if(filled($result->feedback ?? null))
+                        <p class="mt-2 whitespace-pre-line text-sm leading-7 text-slate-600">بازخورد مدرس: {{ $result->feedback }}</p>
+                    @endif
                 </div>
                 <div class="shrink-0 text-right">
                     <small class="block text-xs text-slate-500">نمره</small>
