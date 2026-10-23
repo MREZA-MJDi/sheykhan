@@ -345,6 +345,7 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
     ->group(function () {
         // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
         Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('seo.index');
+        Route::get('/seo/keywords/template', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'template'])->name('seo.keywords.template');
         Route::get('/seo/keywords/export', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'export'])->name('seo.keywords.export');
         Route::post('/seo/keywords/import', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'import'])->middleware('throttle:10,1')->name('seo.keywords.import');
         Route::get('/seo/keywords', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'index'])->name('seo.keywords.index');
