@@ -86,17 +86,61 @@ class PublicExperienceSeederTest extends TestCase
             $this->assertDatabaseCount('home_hero_slides', 3);
             $this->assertDatabaseCount('home_banners', 3);
             $this->assertDatabaseCount('courses', 3);
-            $this->assertDatabaseCount('products', 3);
-            $this->assertDatabaseCount('product_files', 3);
+            // CommerceSeeder already creates three catalog items; the public
+            // showcase adds three workbooks, and repeat runs must stay stable.
+            $this->assertDatabaseCount('products', 6);
+            $this->assertDatabaseCount('product_files', 6);
         } finally {
             $this->app->detectEnvironment(static fn (): string => 'testing');
+        }
+    }
+
+
+    public function test_explicit_opt_in_allows_showcase_seed_on_isolated_nonlocal_database(): void
+    {
+        Storage::fake('local');
+        config(['legacy_students.import_on_db_seed' => false]);
+
+        $key = 'SHEYKHAN_ENABLE_PUBLIC_EXPERIENCE_SEEDER';
+        $previousEnv = $_ENV[$key] ?? null;
+        $previousServer = $_SERVER[$key] ?? null;
+        $previousProcessEnv = getenv($key);
+
+        putenv($key . '=true');
+        $_ENV[$key] = 'true';
+        $_SERVER[$key] = 'true';
+
+        try {
+            $this->seed(\Database\Seeders\PublicExperienceSeeder::class);
+
+            $this->assertDatabaseCount('home_hero_slides', 3);
+            $this->assertDatabaseCount('home_banners', 3);
+            $this->assertDatabaseCount('courses', 3);
+        } finally {
+            if ($previousEnv === null) {
+                unset($_ENV[$key]);
+            } else {
+                $_ENV[$key] = $previousEnv;
+            }
+
+            if ($previousServer === null) {
+                unset($_SERVER[$key]);
+            } else {
+                $_SERVER[$key] = $previousServer;
+            }
+
+            if ($previousProcessEnv === false) {
+                putenv($key);
+            } else {
+                putenv($key . '=' . $previousProcessEnv);
+            }
         }
     }
 
     public function test_local_showcase_seeder_refuses_to_run_outside_local_environment(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('PublicExperienceSeeder is local-demo content only');
+        $this->expectExceptionMessage('SHEYKHAN_ENABLE_PUBLIC_EXPERIENCE_SEEDER=true is explicitly set');
 
         $this->seed(\Database\Seeders\PublicExperienceSeeder::class);
     }

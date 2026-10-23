@@ -31,8 +31,11 @@ use RuntimeException;
 /**
  * Builds a polished local showcase of the public Sheykhan experience.
  *
- * This intentionally creates demo identities/content and must never run in
- * production. The default DatabaseSeeder invokes it only for APP_ENV=local.
+ * This intentionally creates demo identities/content and is local-only by
+ * default. An isolated test/staging database can opt in for one explicit run
+ * with SHEYKHAN_ENABLE_PUBLIC_EXPERIENCE_SEEDER=true; never use that flag on
+ * the real production database. The default DatabaseSeeder invokes it only
+ * for APP_ENV=local.
  * It does not create fake purchases, payment transactions, consent records,
  * student results, or claims of real-world admission success.
  */
@@ -40,9 +43,14 @@ final class PublicExperienceSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment('local')) {
+        $explicitlyEnabled = filter_var(
+            env('SHEYKHAN_ENABLE_PUBLIC_EXPERIENCE_SEEDER', false),
+            FILTER_VALIDATE_BOOL,
+        );
+
+        if (! app()->environment('local') && ! $explicitlyEnabled) {
             throw new RuntimeException(
-                'PublicExperienceSeeder is local-demo content only. Set APP_ENV=local to run it.'
+                'PublicExperienceSeeder is disabled outside local unless SHEYKHAN_ENABLE_PUBLIC_EXPERIENCE_SEEDER=true is explicitly set for an isolated test database.'
             );
         }
 
