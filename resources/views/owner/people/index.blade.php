@@ -177,7 +177,7 @@
                     </p>
                 </div>
                 <div class="text-[9px] text-slate-500">
-                    {{ optional($entry->activated_at)->format('Y/m/d H:i') }}
+                    {{ \App\Support\PersianUi::dateTime($entry->activated_at) }}
                     <span class="mx-1">·</span>
                     <span class="font-bold text-emerald-700">{{ $entry->status === 'activated' ? 'فعال' : $entry->status }}</span>
                 </div>

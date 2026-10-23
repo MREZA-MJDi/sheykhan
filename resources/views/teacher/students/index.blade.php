@@ -25,7 +25,7 @@
                 <tbody>
                 @forelse($students as $student)
                     <tr>
-                        <td><strong>{{ $student->name }}</strong><div style="margin-top:3px;color:#98a0ae;font-size:7px">{{ $student->email }}</div></td>
+                        <td><strong>{{ $student->name }}</strong></td>
                         <td>{{ $student->studentProfile?->grade ?? '—' }}</td>
                         <td>{{ App\Support\PersianUi::digits($student->progress_items_count) }}</td>
                         <td>{{ App\Support\PersianUi::digits($student->assignment_submissions_count) }}</td>

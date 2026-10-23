@@ -14,7 +14,7 @@
         <div class="owner-panel-head"><div><h2>تراکنش‌ها</h2><p>فقط آموزشگاه‌های متعلق به این Owner</p></div></div>
         <div class="mt-4 overflow-x-auto"><table class="w-full min-w-[720px] text-right"><thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">زمان</th><th class="px-4 py-3">آموزشگاه</th><th class="px-4 py-3">کاربر</th><th class="px-4 py-3">دوره</th><th class="px-4 py-3">نوع</th><th class="px-4 py-3">مبلغ</th></tr></thead><tbody class="divide-y divide-slate-100">
         @forelse($transactions as $tx)
-            <tr><td class="px-4 py-3 text-xs">{{ $tx->occurred_at?->format('Y/m/d H:i') }}</td><td class="px-4 py-3 text-xs font-bold">{{ $tx->academy?->name }}</td><td class="px-4 py-3 text-xs">{{ $tx->user?->name ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->enrollment?->course?->title ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->type === 'refund' ? 'بازپرداخت' : 'دریافت' }}</td><td class="px-4 py-3 text-xs font-black">{{ \App\Support\PersianUi::number($tx->amount) }} تومان</td></tr>
+            <tr><td class="px-4 py-3 text-xs">{{ \App\Support\PersianUi::dateTime($tx->occurred_at) }}</td><td class="px-4 py-3 text-xs font-bold">{{ $tx->academy?->name }}</td><td class="px-4 py-3 text-xs">{{ $tx->user?->name ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->enrollment?->course?->title ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->type === 'refund' ? 'بازپرداخت' : 'دریافت' }}</td><td class="px-4 py-3 text-xs font-black">{{ \App\Support\PersianUi::number($tx->amount) }} تومان</td></tr>
         @empty
             <tr><td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">تراکنشی ثبت نشده است.</td></tr>
         @endforelse

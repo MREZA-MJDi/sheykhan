@@ -42,7 +42,7 @@
                 <article class="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="min-w-0">
                         <strong class="block text-sm font-black">{{ $attendance->student?->name ?? 'حساب دانش‌آموز در دسترس نیست' }}</strong>
-                        <p class="mt-1 break-all text-xs text-slate-500">{{ $attendance->student?->email ?? '—' }}</p>
+
                         <p class="mt-1 text-xs text-slate-600">{{ $attendance->classroom?->title ?? 'کلاس' }} · {{ $attendance->classroom?->course?->title ?? 'دوره' }}</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">

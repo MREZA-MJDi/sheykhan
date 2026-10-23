@@ -23,7 +23,7 @@
                     <div class="grid gap-2 text-xs text-slate-600 sm:grid-cols-3">
                         <div class="rounded-lg bg-slate-50 p-3">وضعیت رسید: <strong>{{ $payment->proof_uploaded_at ? 'ارسال شده' : 'ارسال نشده' }}</strong></div>
                         <div class="rounded-lg bg-slate-50 p-3">کد رهگیری: <strong>{{ $payment->tracking_code ?: 'ثبت نشده' }}</strong></div>
-                        <div class="rounded-lg bg-slate-50 p-3">زمان رسید: <strong>{{ $payment->proof_uploaded_at?->format('Y-m-d H:i') ?? '—' }}</strong></div>
+                        <div class="rounded-lg bg-slate-50 p-3">زمان رسید: <strong>{{ \App\Support\PersianUi::dateTime($payment->proof_uploaded_at) }}</strong></div>
                     </div>
                     @if($order->status === 'pending' && $payment->status === 'pending' && $payment->proof_media_id)
                         <div class="grid gap-4 border-t border-slate-200 pt-4 lg:grid-cols-2">

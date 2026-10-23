@@ -113,6 +113,15 @@ final class PersianUi
         return self::digits($date->format('H:i'));
     }
 
+    public static function dateTime(CarbonInterface|string|null $date): string
+    {
+        if (!$date) {
+            return '—';
+        }
+
+        return self::date($date) . ' · ' . self::time($date);
+    }
+
     public static function calendar(?CarbonInterface $date = null): array
     {
         $date ??= now();
