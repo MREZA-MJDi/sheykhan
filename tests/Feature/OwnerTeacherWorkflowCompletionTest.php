@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\AcademyMeeting;
+use App\Models\Assignment;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Exam;
@@ -219,6 +220,125 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         ]);
     }
 
+    public function test_parent_can_message_only_the_active_class_teacher_and_teacher_can_reply(): void
+    {
+        $workspace = $this->workspace();
+        $parent = $workspace['parent'];
+        $teacher = $workspace['teacher'];
+        $student = $workspace['student'];
+        $classroom = $workspace['classroom'];
+
+        $target = 'classroom:' . $classroom->id . ':' . $student->id . ':' . $teacher->id;
+
+        $this->actingAs($parent)
+            ->get(route('parent.messages.index'))
+            ->assertOk()
+            ->assertSee('ارسال پیام مستقیم به مدرس')
+            ->assertSee($teacher->name);
+
+        // A parent cannot forge another user's ID to message a teacher who is
+        // not assigned to the child's currently active classroom.
+        $invalidTarget = 'classroom:' . $classroom->id . ':' . $student->id . ':' . $workspace['owner']->id;
+        $this->actingAs($parent)
+            ->post(route('parent.messages.teacher.store'), [
+                'teacher_target' => $invalidTarget,
+                'teacher_category' => 'question',
+                'teacher_subject' => 'پیام به مدرس نامرتبط',
+                'teacher_body' => 'این پیام نباید به مدرس خارج از کلاس ارسال شود.',
+            ])
+            ->assertNotFound();
+
+        $this->actingAs($parent)
+            ->post(route('parent.messages.teacher.store'), [
+                'teacher_target' => $target,
+                'teacher_category' => 'question',
+                'teacher_subject' => 'پیگیری روند یادگیری فرزند',
+                'teacher_body' => 'لطفاً درباره پیشرفت فرزندم در این کلاس راهنمایی بدهید.',
+            ])
+            ->assertRedirect(route('parent.messages.index'))
+            ->assertSessionHas('success');
+
+        $message = TeacherDirectMessage::query()
+            ->where('sender_id', $parent->id)
+            ->where('sender_type', 'parent')
+            ->sole();
+
+        $this->assertDatabaseHas('teacher_direct_messages', [
+            'id' => $message->id,
+            'teacher_id' => $teacher->id,
+            'recipient_type' => 'teacher',
+            'recipient_id' => $teacher->id,
+            'student_id' => $student->id,
+            'classroom_id' => $classroom->id,
+            'status' => 'sent',
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.direct-messages.index'))
+            ->assertOk()
+            ->assertSee('پیگیری روند یادگیری فرزند')
+            ->assertSee($parent->name)
+            ->assertSee('پاسخ به والد');
+
+        $this->actingAs($teacher)
+            ->patch(route('teacher.direct-messages.reply', $message->id), [
+                'response' => 'پیشرفت فرزند شما در این کلاس ثبت شده و تمرین هفته هم در دسترس است.',
+            ])
+            ->assertRedirect(route('teacher.direct-messages.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('teacher_direct_messages', [
+            'id' => $message->id,
+            'status' => 'responded',
+            'responded_by' => $teacher->id,
+            'response' => 'پیشرفت فرزند شما در این کلاس ثبت شده و تمرین هفته هم در دسترس است.',
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('parent.messages.index'))
+            ->assertOk()
+            ->assertSee('پیشرفت فرزند شما در این کلاس ثبت شده و تمرین هفته هم در دسترس است.');
+    }
+
+    public function test_student_can_submit_a_word_document_for_an_accessible_assignment(): void
+    {
+        Storage::fake('local');
+        $workspace = $this->workspace();
+        $assignment = Assignment::query()->create([
+            'course_id' => $workspace['course']->id,
+            'classroom_id' => $workspace['classroom']->id,
+            'teacher_id' => $workspace['teacher']->id,
+            'title' => 'ارسال فایل Word',
+            'instructions' => 'پاسخ را در قالب Word ارسال کن.',
+            'due_at' => now()->addDay(),
+            'max_score' => 100,
+            'status' => 'published',
+        ]);
+
+        $file = UploadedFile::fake()->create(
+            'answer.docx',
+            12,
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        );
+
+        $this->actingAs($workspace['student'])
+            ->post(route('student.assignments.submit', $assignment), [
+                'content' => null,
+                'attachments' => [$file],
+            ])
+            ->assertRedirect(route('student.assignments.show', $assignment))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('assignment_submissions', [
+            'assignment_id' => $assignment->id,
+            'student_id' => $workspace['student']->id,
+        ]);
+        $this->assertDatabaseHas('media', [
+            'original_name' => 'answer.docx',
+            'status' => 'active',
+        ]);
+    }
+
     public function test_teacher_can_propose_a_family_meeting_owner_can_approve_it_and_both_dashboards_show_it(): void
     {
         $workspace = $this->workspace();
@@ -303,7 +423,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         ]);
         $studentRole = $this->role('student', [
             'dashboard.view', 'student_messages.view', 'student_messages.manage',
-            'live_classes.view', 'courses.view', 'assignments.view', 'results.view',
+            'live_classes.view', 'courses.view', 'assignments.view', 'assignments.submit', 'results.view',
             'resources.view', 'profile.view',
         ]);
         $parentRole = $this->role('parent', ['dashboard.view']);
