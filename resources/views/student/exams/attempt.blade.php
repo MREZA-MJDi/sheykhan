@@ -166,7 +166,7 @@
                                                     @checked((string) $savedAnswer === (string) $option)
                                                     data-answer-input
                                                 >
-                                                <span class="student-exam-option-mark">{{ ['الف', 'ب', 'ج', 'د'][$loop->index] ?? App\\Support\\PersianUi::digits($loop->iteration) }}</span>
+                                                <span class="student-exam-option-mark">{{ ['الف', 'ب', 'ج', 'د'][$loop->index] ?? App\Support\PersianUi::digits($loop->iteration) }}</span>
                                                 <span class="student-exam-option-copy">{{ $option }}</span>
                                                 <span class="student-exam-option-check">✓</span>
                                             </label>
