@@ -472,3 +472,89 @@ a.sdr-item-row:hover { border-color: #108ec3; background: #2d3a51; }
     background: #087fb9;
     color: #fff;
 }
+
+
+/* Persian RTL dashboard: place the primary navigation on the right side. */
+.student-shell-dashboard .role-layout {
+    direction: rtl;
+    grid-template-columns: 244px minmax(0, 1fr);
+}
+.student-shell-dashboard .role-sidebar {
+    width: 244px;
+    border-right: 0;
+    border-left: 1px solid #30394f;
+    box-shadow: -10px 0 28px rgba(0, 0, 0, .12);
+}
+.student-shell-dashboard .role-nav-link.is-active {
+    box-shadow: inset -3px 0 #12b9e7;
+}
+
+/* Course blocks use confident, full-color paper-like tiles instead of muted gray rows. */
+.sdr-course-row {
+    --course-tile-bg: #168fe1;
+    --course-tile-edge: #0879c7;
+    --course-tile-shadow: rgba(11, 112, 187, .2);
+    position: relative;
+    isolation: isolate;
+    border: 1px solid var(--course-tile-edge);
+    border-radius: 12px;
+    background: var(--course-tile-bg);
+    box-shadow: 0 8px 18px var(--course-tile-shadow);
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.sdr-course-row:nth-child(4n + 1) {
+    --course-tile-bg: #e94e62;
+    --course-tile-edge: #d93d53;
+    --course-tile-shadow: rgba(217, 61, 83, .2);
+}
+.sdr-course-row:nth-child(4n + 2) {
+    --course-tile-bg: #168fe1;
+    --course-tile-edge: #0879c7;
+    --course-tile-shadow: rgba(11, 112, 187, .2);
+}
+.sdr-course-row:nth-child(4n + 3) {
+    --course-tile-bg: #12a77d;
+    --course-tile-edge: #078d68;
+    --course-tile-shadow: rgba(7, 141, 104, .2);
+}
+.sdr-course-row:nth-child(4n) {
+    --course-tile-bg: #e7a92d;
+    --course-tile-edge: #ca8b14;
+    --course-tile-shadow: rgba(202, 139, 20, .2);
+}
+.sdr-course-row:hover {
+    border-color: var(--course-tile-edge);
+    background: var(--course-tile-bg);
+    filter: saturate(1.08) brightness(1.03);
+    box-shadow: 0 12px 24px var(--course-tile-shadow);
+    transform: translateY(-2px);
+}
+.sdr-course-mark,
+.sdr-course-row:nth-child(4n + 2) .sdr-course-mark,
+.sdr-course-row:nth-child(4n + 3) .sdr-course-mark,
+.sdr-course-row:nth-child(4n) .sdr-course-mark {
+    border: 1px solid rgba(255, 255, 255, .38);
+    background: rgba(255, 255, 255, .18);
+    color: #fff;
+}
+.sdr-course-copy small,
+.sdr-course-copy strong,
+.sdr-course-copy p { color: rgba(255, 255, 255, .94); }
+.sdr-course-copy small { color: rgba(255, 255, 255, .77); }
+.sdr-course-track { background: rgba(34, 35, 48, .2); }
+.sdr-course-track i { background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); }
+.sdr-course-open {
+    border-color: rgba(255, 255, 255, .48);
+    background: rgba(255, 255, 255, .94);
+    color: var(--course-tile-edge) !important;
+    box-shadow: 0 4px 10px rgba(24, 30, 50, .1);
+}
+.sdr-course-open:hover {
+    border-color: #fff;
+    background: #fff;
+    color: #202b41 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    .sdr-course-row { transition: none !important; }
+    .sdr-course-row:hover { transform: none; }
+}
