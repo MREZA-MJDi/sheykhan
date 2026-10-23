@@ -144,6 +144,35 @@ class StudentSessionAccessTest extends TestCase
             ->assertForbidden()
             ->assertSee('دسترسی این فایل برای حساب شما فعال نیست.');
 
+        // An active classroom pivot does not override an enrollment that points
+        // to another teacher cohort for the same shared course.
+        $otherClassroom = $course->classrooms()->create([
+            'academy_id' => $course->academy_id,
+            'title' => 'کلاس دیگر برای تست مجوز ضبط',
+            'code' => 'SEC-' . strtoupper(str()->random(6)),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $otherClassroom->teachers()->attach($teacher->id);
+        $outside->classroomsAsStudent()->syncWithoutDetaching([
+            $classroom->id => ['status' => 'active', 'enrolled_at' => now()],
+            $otherClassroom->id => ['status' => 'active', 'enrolled_at' => now()],
+        ]);
+        $outside->enrollments()->updateOrCreate(
+            ['course_id' => $course->id],
+            [
+                'classroom_id' => $otherClassroom->id,
+                'status' => 'active',
+                'paid_amount' => 0,
+                'started_at' => now(),
+            ]
+        );
+
+        $this->actingAs($outside->fresh())
+            ->get(route('media.view', $released->recording))
+            ->assertForbidden();
+
         // Classroom membership alone must not bypass paid course access.
         $inside->enrollments()
             ->where('course_id', $course->id)
