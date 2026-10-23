@@ -3788,3 +3788,11 @@
     .teacher-shell *::after,
     .student-shell *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+
+.student-shell-dashboard .sdr-teacher-avatar-image {
+    object-fit: cover;
+    border: 2px solid #e1ddff;
+    background: #efedff;
+    box-shadow: 0 4px 11px rgba(61,53,143,.12);
+}
