@@ -32,8 +32,12 @@
         @if($seoOnly && $user->hasPermission('seo.manage'))
             <div class="role-sidebar-label mt-6">بهینه‌سازی سایت</div>
             <a href="{{ route('owner.seo.index') }}"
-               class="role-nav-link {{ request()->routeIs('owner.seo.*') ? 'is-active' : '' }}">
-                <span class="role-nav-icon"></span><span>SEO و دیده‌شدن</span>
+               class="role-nav-link {{ request()->routeIs('owner.seo.index', 'owner.seo.edit', 'owner.seo.update') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>ممیزی SEO صفحات</span>
+            </a>
+            <a href="{{ route('owner.seo.keywords.index') }}"
+               class="role-nav-link {{ request()->routeIs('owner.seo.keywords.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>کلمات کلیدی و رتبه</span>
             </a>
         @endif
 
