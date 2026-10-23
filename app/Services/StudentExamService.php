@@ -81,6 +81,20 @@ final class StudentExamService
         ]);
     }
 
+    public function findForResults(User $student, Exam $exam): Exam
+    {
+        abort_unless(app(StudentAccessService::class)->canViewExamResult($student, $exam), 404);
+
+        return $exam->load([
+            'course:id,academy_id,title,slug',
+            'classroom:id,academy_id,title,code,course_id',
+            'questions:id,exam_id,type,question,options,score,sort_order',
+            'attempts' => fn ($query) => $query
+                ->where('student_id', $student->id)
+                ->latest('attempt_number'),
+        ]);
+    }
+
     public function start(User $student, Exam $exam): ExamAttempt
     {
         return DB::transaction(function () use ($student, $exam): ExamAttempt {
