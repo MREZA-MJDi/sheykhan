@@ -112,7 +112,7 @@ final class SeoKeywordController extends Controller
         $data = $request->validate($this->rules());
         $key = $this->normalizeKeyword($data['keyword']);
 
-        if (SeoKeyword::where('keyword_key', $key)->whereKeyNot($keyword->id)->exists()) {
+        if (SeoKeyword::where('keyword_key', $key)->where('id', '<>', $keyword->id)->exists()) {
             return back()->withInput()->withErrors([
                 'keyword' => 'این عبارت با رکورد دیگری تکراری است.',
             ]);
