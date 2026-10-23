@@ -8,7 +8,8 @@ $showTestAccounts = filter_var(
 );
 $seedUserPassword = trim((string) env('SEED_USER_PASSWORD', ''));
 $seedPasswordAvailable = $seedUserPassword !== ''
-    || in_array($appEnvironment, ['local', 'testing'], true);
+    || in_array($appEnvironment, ['local', 'testing'], true)
+    || $showTestAccounts;
 $seedPassword = $seedPasswordAvailable
     ? ($seedUserPassword !== '' ? $seedUserPassword : 'Sheykhan@12345')
     : null;
