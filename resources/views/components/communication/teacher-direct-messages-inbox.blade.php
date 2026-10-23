@@ -1,10 +1,11 @@
 @php
     $teacherMessageStatuses = ['sent' => 'در انتظار پاسخ', 'responded' => 'پاسخ داده شد'];
 @endphp
-<section class="parent-panel dashboard-panel mt-6 space-y-4 p-5 sm:p-7" aria-labelledby="teacher-direct-inbox-title">
+<section class="mt-6 space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7" aria-labelledby="teacher-direct-inbox-title">
     <div>
-        <h2 id="teacher-direct-inbox-title" class="text-lg font-black">پیام مستقیم مدرس‌ها</h2>
-        <p class="mt-1 text-sm leading-7 text-slate-500">پیام‌های مستقیمی که مدرس برایت فرستاده و پاسخ‌هایی که ثبت کرده‌ای در اینجا باقی می‌مانند.</p>
+        <span class="text-xs font-black text-[var(--panel-primary)]">ارتباط آموزشی</span>
+        <h2 id="teacher-direct-inbox-title" class="mt-1 text-lg font-black text-slate-900">{{ $recipientType === 'student' ? 'پیام‌های دریافتی از مدرس' : 'پیام مستقیم مدرس‌ها' }}</h2>
+        <p class="mt-1 text-sm leading-7 text-slate-500">{{ $recipientType === 'student' ? 'پیام‌های مدرس و پاسخ‌هایی که برای او فرستاده‌ای در همین کارتابل باقی می‌مانند.' : 'پیام‌های مستقیمی که مدرس برایت فرستاده و پاسخ‌هایی که ثبت کرده‌ای در همین کارتابل می‌مانند.' }}</p>
     </div>
     @forelse($messages as $message)
         <article class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
