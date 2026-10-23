@@ -450,6 +450,26 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertOk()
             ->assertSee('نمرهٔ نهایی')
             ->assertSee('۳');
+
+        // Closing the exam blocks new attempts, but must not hide the student's submitted grade.
+        $exam->update(['status' => 'closed']);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.show', $exam))
+            ->assertNotFound();
+
+        $this->actingAs($student)
+            ->get(route('student.exams.result', $exam))
+            ->assertOk()
+            ->assertSee('نمرهٔ نهایی')
+            ->assertSee('تصحیح کامل شد')
+            ->assertSee('۳');
+
+        $this->actingAs($student)
+            ->get(route('student.results.index'))
+            ->assertOk()
+            ->assertSee('آزمون تشریحی - گردش کار کامل')
+            ->assertSee('تصحیح‌شده');
     }
 
     public function test_exam_builder_requires_exactly_four_options_for_single_choice_questions(): void
