@@ -19,7 +19,7 @@ class StoreExamRequest extends FormRequest
             'classroom_id' => ['nullable', 'integer', 'exists:classrooms,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'duration_minutes' => ['sometimes', 'integer', 'min:0'],
+            'duration_minutes' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'attempts_allowed' => ['sometimes', 'integer', 'min:1', 'max:255'],
