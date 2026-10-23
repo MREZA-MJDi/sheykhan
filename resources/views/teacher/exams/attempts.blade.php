@@ -77,7 +77,7 @@
                                         <span>{{ App\Support\PersianUi::digits($question->score) }} امتیاز</span>
                                     </div>
 
-                                    <div class="teacher-exam-answer-value">
+                                    <div class="teacher-exam-answer-value {{ $answer && $answer->is_correct !== null ? ($answer->is_correct ? "is-correct" : "is-wrong") : "" }}">
                                         <span>پاسخ دانش‌آموز</span>
                                         <p>
                                             @if($answer?->answer)
