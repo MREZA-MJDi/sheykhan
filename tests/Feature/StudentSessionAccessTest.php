@@ -111,6 +111,13 @@ class StudentSessionAccessTest extends TestCase
 
         $released = $this->makeSession($course, $classroom, 'ضبط منتشرشده', now()->subDay(), 'completed', now()->subHour());
         $unreleased = $this->makeSession($course, $classroom, 'ضبط منتشرنشده', now()->subDay(), 'completed', now()->addHour());
+        $oldReleased = $this->makeSession($course, $classroom, 'ضبط قدیمی منتشرشده', now()->subDays(90), 'completed', now()->subDays(89));
+
+        $this->actingAs($inside)
+            ->get(route('student.live-classes.index'))
+            ->assertOk()
+            ->assertSee('آرشیو ضبط‌های منتشرشده')
+            ->assertSee('ضبط قدیمی منتشرشده');
 
         $this->actingAs($inside)
             ->get(route('media.view', $released->recording))

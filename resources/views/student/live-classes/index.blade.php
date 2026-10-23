@@ -55,5 +55,37 @@
         @endforelse
     </div>
 </section>
+
+<section class="student-workspace-card mt-6" aria-labelledby="released-recordings-title">
+    <div class="student-workspace-card-head">
+        <div>
+            <h2 id="released-recordings-title">آرشیو ضبط‌های منتشرشده</h2>
+            <p>همهٔ ضبط‌های منتشرشده برای کلاس‌های قابل‌دسترسی شما، حتی جلسه‌های قدیمی‌تر؛ ویدئو در خود شیخان و با دسترسی محافظت‌شده پخش می‌شود.</p>
+        </div>
+    </div>
+    <div class="student-workspace-list">
+        @forelse($recordings as $recording)
+            <article class="student-workspace-row">
+                <div class="student-workspace-date">
+                    <strong>{{ App\Support\PersianUi::date($recording->recording_released_at) }}</strong>
+                    <small>{{ App\Support\PersianUi::time($recording->recording_released_at) }}</small>
+                </div>
+                <div class="student-workspace-row-main">
+                    <strong>{{ $recording->title }}</strong>
+                    <span>{{ $recording->course?->title }} @if($recording->classroom) · {{ $recording->classroom->title }} @endif @if($recording->teacher) · {{ $recording->teacher->name }} @endif</span>
+                </div>
+                <a class="student-workspace-status success" href="{{ route('media.view', $recording->recording) }}">مشاهده ضبط ←</a>
+            </article>
+        @empty
+            <div class="student-workspace-empty">
+                <strong>هنوز ضبط منتشرشده‌ای در دسترس نیست.</strong>
+                <span>ضبط پس از بارگذاری، تأیید و رسیدن زمان انتشار اینجا نمایش داده می‌شود.</span>
+            </div>
+        @endforelse
+    </div>
+    @if($recordings->hasPages())
+        <nav class="student-pagination" aria-label="صفحه‌بندی آرشیو ضبط‌ها">{{ $recordings->links() }}</nav>
+    @endif
+</section>
 </div>
 @endsection
