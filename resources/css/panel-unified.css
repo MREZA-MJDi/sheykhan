@@ -376,10 +376,10 @@
 .teacher-shell .teacher-workspace-alert,
 .student-shell .student-workspace-alert,
 .teacher-shell .student-workspace-alert,
-.student-shell .role-main [role="alert"],
-.teacher-shell .role-main [role="alert"],
-.student-shell .role-main [role="status"],
-.teacher-shell .role-main [role="status"] {
+.student-shell .role-main [role="alert"]:not(.ui-flash),
+.teacher-shell .role-main [role="alert"]:not(.ui-flash),
+.student-shell .role-main [role="status"]:not(.ui-flash),
+.teacher-shell .role-main [role="status"]:not(.ui-flash) {
     border-radius: 14px;
     padding: 12px 15px;
     font-size: 12px;
@@ -388,8 +388,8 @@
 
 .student-shell .teacher-workspace-alert.success,
 .teacher-shell .teacher-workspace-alert.success,
-.student-shell .role-main [role="status"],
-.teacher-shell .role-main [role="status"] {
+.student-shell .role-main [role="status"]:not(.ui-flash),
+.teacher-shell .role-main [role="status"]:not(.ui-flash) {
     border-color: #bde8d0;
     background: #edfaf2;
     color: #176844;
@@ -397,7 +397,7 @@
 
 .student-shell .teacher-workspace-alert.error,
 .teacher-shell .teacher-workspace-alert.error,
-.student-shell .role-main [role="alert"],
+.student-shell .role-main [role="alert"]:not(.ui-flash),
 .teacher-shell .role-main [role="alert"] {
     border-color: #f2c8cd;
     background: #fff1f2;
