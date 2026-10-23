@@ -240,9 +240,11 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/students', function (\App\Services\TeacherWorkspaceService $workspace) {
         $sort = request()->string('sort')->toString() ?: 'name';
         $direction = request()->string('direction')->toString() ?: 'asc';
+        $search = trim(request()->string('q')->toString());
 
         return view('teacher.students.index', [
-            'students' => $workspace->studentsPaginated(request()->user(), 20, $sort, $direction),
+            'students' => $workspace->studentsPaginated(request()->user(), 20, $sort, $direction, $search),
+            'studentSearch' => mb_substr($search, 0, 100),
             'studentSort' => in_array($sort, ['name', 'progress', 'assignments', 'exams'], true) ? $sort : 'name',
             'studentDirection' => $direction === 'desc' ? 'desc' : 'asc',
         ]);
