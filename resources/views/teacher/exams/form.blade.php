@@ -88,6 +88,7 @@
                 <label class="teacher-form-field md:col-span-2">
                     <span>راهنمای آزمون <small>اختیاری · برای دانش‌آموز نمایش داده می‌شود</small></span>
                     <textarea name="description" data-exam-description rows="3" placeholder="زمان‌بندی، منابع مجاز یا توضیح لازم برای دانش‌آموز...">{{ old('description') }}</textarea>
+                    <small class="teacher-exam-field-help">این متن پیش از شروع و بالای برگهٔ پاسخ دانش‌آموز نمایش داده می‌شود؛ مثلاً منابع مجاز، نحوهٔ پاسخ یا نکتهٔ مهم آزمون.</small>
                 </label>
             </div>
         </section>
@@ -137,6 +138,7 @@
                     </div>
 
                     <p class="teacher-exam-sheet-note">به متن هر سؤال دقت کن و پاسخ را در فضای مشخص‌شده بنویس. برای سؤال چهارگزینه‌ای فقط گزینهٔ درست را انتخاب کن.</p>
+                    <p class="teacher-exam-sheet-description" data-exam-preview-description hidden></p>
 
                     <div class="teacher-exam-questions" data-exam-questions></div>
 
@@ -222,6 +224,11 @@
                     <span>پاسخ مرجع معلم <small>فقط برای راهنمایی در تصحیح؛ به دانش‌آموز نشان داده نمی‌شود.</small></span>
                     <textarea data-name="expected_answer" rows="3" maxlength="15000" placeholder="پاسخ نمونه، مراحل حل یا نکته‌هایی که باید در پاسخ دانش‌آموز دیده شود..."></textarea>
                 </label>
+
+                <div class="teacher-exam-answer-space-preview" data-answer-space-preview>
+                    <span>فضای پاسخ دانش‌آموز</span>
+                    <div class="teacher-exam-answer-writing-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+                </div>
 
                 <footer class="teacher-exam-question-editor-foot">
                     <span data-question-foot-note>دانش‌آموز برای این سؤال فضای نوشتن پاسخ خواهد داشت.</span>
