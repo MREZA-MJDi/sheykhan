@@ -111,6 +111,7 @@ final class SeoKeywordController extends Controller
     {
         $this->authorizeSeoSpecialist();
         $data = $request->validate($this->rules());
+        $data['keyword'] = preg_replace('/\\s+/u', ' ', trim($data['keyword'])) ?? trim($data['keyword']);
         $key = $this->normalizeKeyword($data['keyword']);
 
         if (SeoKeyword::where('keyword_key', $key)->where('id', '<>', $keyword->id)->exists()) {
@@ -244,11 +245,13 @@ final class SeoKeywordController extends Controller
             fclose($stream);
         }
 
-        $existingKeys = array_fill_keys(
-            SeoKeyword::whereIn('keyword_key', collect($rows)->pluck('keyword_key')->unique()->all())
-                ->pluck('keyword_key')->all(),
-            true
-        );
+        $existingKeys = [];
+        $uniqueKeys = collect($rows)->pluck('keyword_key')->unique()->values();
+        foreach ($uniqueKeys->chunk(500) as $keyChunk) {
+            foreach (SeoKeyword::whereIn('keyword_key', $keyChunk->all())->pluck('keyword_key') as $existingKey) {
+                $existingKeys[$existingKey] = true;
+            }
+        }
 
         $added = 0;
         $skipped = 0;
@@ -378,14 +381,22 @@ final class SeoKeywordController extends Controller
             'created_by' => $userId,
         ]);
 
-        $keyword->update([
-            'last_observed_position' => $data['position'],
-            'last_observed_at' => $data['observed_on'] ?? now()->toDateString(),
-            'last_observed_source' => $source,
-            ...(isset($data['search_volume']) && $data['search_volume'] !== null
-                ? ['search_volume' => $data['search_volume'], 'volume_source' => $source]
-                : []),
-        ]);
+        $observedOn = $data['observed_on'] ?? now()->toDateString();
+        $isLatestObservation = $keyword->last_observed_at === null
+            || \Illuminate\Support\Carbon::parse($observedOn)->greaterThanOrEqualTo($keyword->last_observed_at);
+
+        // Keep the headline position tied to the newest observation; an imported
+        // historical CSV row must not overwrite a newer manually recorded rank.
+        if ($isLatestObservation) {
+            $keyword->update([
+                'last_observed_position' => $data['position'],
+                'last_observed_at' => $observedOn,
+                'last_observed_source' => $source,
+                ...(isset($data['search_volume']) && $data['search_volume'] !== null
+                    ? ['search_volume' => $data['search_volume'], 'volume_source' => $source]
+                    : []),
+            ]);
+        }
     }
 
     private function filteredQuery(Request $request)
