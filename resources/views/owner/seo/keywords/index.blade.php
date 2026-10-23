@@ -97,6 +97,9 @@
                             @else
                                 <span class="seo-keyword-missing">ثبت نشده</span>
                             @endif
+                            @if($item->target_position)
+                                <small class="seo-keyword-source">هدف: #{{ number_format($item->target_position) }}</small>
+                            @endif
                         </td>
                         <td data-label="وضعیت"><span class="seo-keyword-status is-{{ $item->status }}">{{ $statusLabels[$item->status] ?? $item->status }}</span></td>
                         <td data-label="عملیات">
