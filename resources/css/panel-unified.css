@@ -359,8 +359,8 @@
 
 .student-shell .role-main :is(input, select, textarea)[aria-invalid="true"],
 .teacher-shell .role-main :is(input, select, textarea)[aria-invalid="true"],
-.student-shell .role-main :is(input, select, textarea].is-invalid,
-.teacher-shell .role-main :is(input, select, textarea].is-invalid {
+.student-shell .role-main :is(input.is-invalid, select.is-invalid, textarea.is-invalid),
+.teacher-shell .role-main :is(input.is-invalid, select.is-invalid, textarea.is-invalid) {
     border-color: var(--panel-danger);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--panel-danger) 13%, transparent);
 }
