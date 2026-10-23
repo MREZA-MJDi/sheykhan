@@ -48,6 +48,10 @@ class LocalRoleLoginTest extends TestCase
     {
         $previousEnvironment = $this->app['env'];
         $this->app['env'] = 'production';
+        config([
+            'role_access.show_test_accounts' => false,
+            'role_access.test_password' => null,
+        ]);
 
         try {
             $this->get(route('login'))
