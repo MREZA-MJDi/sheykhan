@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Question extends Model
 {
     use HasFactory, HasMedia;
-    protected $fillable=['exam_id','type','question','options','correct_answer','score','sort_order'];
+    protected $fillable=['exam_id','type','question','options','correct_answer','expected_answer','score','sort_order'];
     protected $casts=['options'=>'array','score'=>'decimal:2'];
     public function exam(): BelongsTo { return $this->belongsTo(Exam::class); }
 }
