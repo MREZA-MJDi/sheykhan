@@ -22,7 +22,6 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->get(route('student.dashboard'))
             ->assertOk()
             ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
-            ->assertDontSee('student-dashboard-reference', false)
             ->assertDontSee('sdr-hero', false);
     }
 
@@ -64,6 +63,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString("@source '../../resources/views/student';", $studentCss);
         $this->assertStringContainsString("@source '../../resources/views/layouts/student.blade.php';", $studentCss);
         $this->assertStringContainsString('resources/css/student.css', $studentLayout);
+        $this->assertStringNotContainsString('resources/css/student-dashboard-reference.css', $studentLayout);
         $this->assertStringContainsString('resources/js/student.js', $studentLayout);
     }
 

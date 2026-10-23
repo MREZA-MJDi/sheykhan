@@ -20,7 +20,6 @@ class StudentDashboardReferenceDesignTest extends TestCase
             ->get(route('student.dashboard'))
             ->assertOk()
             ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
-            ->assertDontSee('student-dashboard-reference', false)
             ->assertDontSee('sdr-hero', false);
     }
 
@@ -38,13 +37,12 @@ class StudentDashboardReferenceDesignTest extends TestCase
             ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
     }
 
-    public function test_legacy_dashboard_styles_are_removed_from_the_placeholder_stylesheet(): void
+    public function test_legacy_dashboard_stylesheet_is_removed_from_the_repository(): void
     {
-        $stylesheet = file_get_contents(resource_path('css/student-dashboard-reference.css'));
+        $this->assertFileDoesNotExist(resource_path('css/student-dashboard-reference.css'));
 
-        $this->assertIsString($stylesheet);
-        $this->assertStringNotContainsString('.student-shell-dashboard .role-sidebar', $stylesheet);
-        $this->assertStringNotContainsString('.sdr-course-row:nth-child(4n + 1)', $stylesheet);
-        $this->assertStringContainsString('Legacy student dashboard styles removed', $stylesheet);
+        $vite = file_get_contents(base_path('vite.config.js'));
+        $this->assertIsString($vite);
+        $this->assertStringNotContainsString('resources/css/student-dashboard-reference.css', $vite);
     }
 }
