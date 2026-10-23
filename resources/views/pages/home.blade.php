@@ -329,6 +329,9 @@
         </x-layout.container>
     </section>
 
+
+    @include('components.branding.home-learning-workflow')
+
     {{-- Teachers: an empty directory still offers a clear next step. --}}
     <section id="teachers-section" class="home-section">
         <x-layout.container size="wide">
@@ -563,8 +566,6 @@
         </x-layout.container>
     </section>
     @endif
-
-    @include('components.branding.home-learning-workflow')
 
     {{-- CTA --}}
     <section id="start-learning" class="home-section home-start-learning">
