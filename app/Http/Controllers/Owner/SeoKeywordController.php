@@ -297,7 +297,7 @@ final class SeoKeywordController extends Controller
 
         return response()->streamDownload(function (): void {
             $output = fopen('php://output', 'wb');
-            fwrite($output, "\\xEF\\xBB\\xBF");
+            fwrite($output, "\xEF\xBB\xBF");
             fputcsv($output, [
                 'keyword', 'cluster', 'intent', 'target_url', 'priority', 'status',
                 'search_volume', 'target_position', 'observed_position', 'observed_on', 'notes',
