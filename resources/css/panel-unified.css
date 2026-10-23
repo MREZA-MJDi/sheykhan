@@ -2495,3 +2495,27 @@
     background: #fff7e6;
     color: #925f0d;
 }
+
+
+.teacher-shell .teacher-exam-field-help,
+.teacher-shell .teacher-exam-date-help {
+    display: block;
+    margin-top: 1px;
+    color: #778399;
+    font-size: 11px;
+    font-weight: 550;
+    line-height: 1.9;
+}
+
+.teacher-shell .teacher-exam-date-help {
+    padding: 11px 13px;
+    border: 1px solid color-mix(in srgb, var(--panel-primary) 14%, var(--panel-border));
+    border-radius: 12px;
+    background: var(--panel-primary-soft);
+    color: var(--panel-text-secondary);
+}
+
+.teacher-shell .teacher-exam-builder-form .teacher-exam-question-config .teacher-form-field > .teacher-exam-field-help {
+    color: #778399;
+    font-size: 10px;
+}
