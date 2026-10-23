@@ -181,8 +181,13 @@ final class TeacherWorkspaceService
         User $teacher,
         int $perPage = 20,
         string $sort = 'name',
-        string $direction = 'asc'
+        string $direction = 'asc',
+        string $search = ''
     ): LengthAwarePaginator {
+        // Keep the roster small, searchable and limited to active classes visible
+        // to this teacher; never fetch the complete academy roster into memory.
+        $search = trim(mb_substr($search, 0, 100));
+
         // Use the same active-academy membership boundary as the other teacher
         // workspace queries. Archived memberships must not leak into the roster.
         $classroomIds = $teacher->classroomsAsTeacher()
@@ -210,7 +215,22 @@ final class TeacherWorkspaceService
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active'))
-            ->with('studentProfile')
+            ->with([
+                'studentProfile',
+                'studentProfile.media' => fn ($query) => $query
+                    ->wherePivot('collection', 'student-avatar')
+                    ->orderByPivot('sort_order'),
+            ])
+            ->when($search !== '', function ($query) use ($search): void {
+                $needle = '%' . addcslashes($search, '\\%_') . '%';
+                $query->where(function ($studentQuery) use ($needle): void {
+                    $studentQuery
+                        ->where('users.name', 'like', $needle)
+                        ->orWhere('users.email', 'like', $needle)
+                        ->orWhereHas('studentProfile', fn ($profileQuery) => $profileQuery
+                            ->where('student_number', 'like', $needle));
+                });
+            })
             ->withCount([
                 'lessonProgress as progress_items_count' => fn ($query) => $query
                     ->whereHas('lesson', fn ($lesson) => $lesson
