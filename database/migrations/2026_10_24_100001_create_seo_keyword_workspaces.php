@@ -31,10 +31,29 @@ return new class extends Migration
             $table->index(['cluster', 'intent']);
             $table->index(['last_observed_at', 'last_observed_position']);
         });
+
+        Schema::create('seo_keyword_rankings', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('seo_keyword_id')->constrained('seo_keywords')->cascadeOnDelete();
+            $table->date('observed_on');
+            $table->unsignedSmallInteger('position')->nullable();
+            $table->unsignedInteger('search_volume')->nullable();
+            $table->unsignedBigInteger('impressions')->nullable();
+            $table->unsignedInteger('clicks')->nullable();
+            $table->decimal('ctr', 8, 4)->nullable();
+            $table->string('source', 32)->default('manual');
+            $table->string('notes', 500)->nullable();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamps();
+
+            $table->index(['seo_keyword_id', 'observed_on']);
+            $table->index(['observed_on', 'source']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('seo_keyword_rankings');
         Schema::dropIfExists('seo_keywords');
     }
 };
