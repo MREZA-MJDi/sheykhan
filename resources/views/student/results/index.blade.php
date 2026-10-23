@@ -11,7 +11,7 @@
 <article class="student-workspace-row">
 <div class="student-workspace-date"><strong>{{ $result->score !== null ? App\Support\PersianUi::digits($result->score) : '—' }}</strong><small>نمره</small></div>
 <div class="student-workspace-row-main"><strong>{{ $result->title }}</strong><span>{{ $result->occurred_at ? App\Support\PersianUi::date($result->occurred_at) : '—' }}</span></div>
-<span class="student-workspace-status {{ $result->score !== null ? 'success' : 'warning' }}">{{ $result->status_label }}</span>
+<span class="student-workspace-status {{ $result->status_label === 'تصحیح‌شده' ? 'success' : (str_contains($result->status_label, 'موقت') ? 'info' : 'warning') }}">{{ $result->status_label }}</span>
 </article>
 @empty<div class="student-workspace-empty"><strong>هنوز نتیجه‌ای ثبت نشده است.</strong><span>بعد از ارزیابی، نتایج در اینجا دیده می‌شوند.</span></div>@endforelse
 </div>
