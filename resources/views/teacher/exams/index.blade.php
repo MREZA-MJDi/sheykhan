@@ -41,6 +41,11 @@
                         <span class="teacher-workspace-chip {{ $exam->status === 'published' ? 'success' : ($exam->status === 'closed' ? 'danger' : 'muted') }}">{{ $exam->status === 'published' ? 'منتشرشده' : ($exam->status === 'closed' ? 'بسته' : 'پیش‌نویس') }}</span>
                         <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($exam->submitted_attempts_count) }} ارسال</span>
                         <span class="teacher-workspace-chip {{ $exam->submitted_attempts_count > $exam->graded_attempts_count ? 'warning' : 'success' }}">{{ App\Support\PersianUi::digits($exam->graded_attempts_count) }} تصحیح‌شده</span>
+                        @if((int) $exam->attempts_count === 0)
+                            <a href="{{ route('teacher.exams.edit', $exam) }}" class="teacher-workspace-link secondary">ویرایش برگه</a>
+                        @else
+                            <span class="teacher-workspace-chip muted" title="برای حفظ اعتبار پاسخ‌ها و نمره‌ها، برگه پس از شروع اولین تلاش قفل می‌شود.">برگه قفل است</span>
+                        @endif
                         <a href="{{ route('teacher.exams.attempts',$exam) }}" class="teacher-workspace-link primary">مشاهده پاسخ‌ها</a>
                     </div>
                 </article>
