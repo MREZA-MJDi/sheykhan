@@ -26,12 +26,13 @@ class StudentTeacherDashboardContractTest extends TestCase
 
         $response
             ->assertSee('دوره‌های فعال')
-            ->assertSee('جلسات کلاس')
-            ->assertSee('تکالیف من')
-            ->assertSee('جزوه‌ها و فایل‌های من')
+            ->assertSee('جلسه‌های ثبت‌شده')
+            ->assertSee('تکلیف‌های من')
+            ->assertSee('جزوه‌ها و فایل‌ها')
             ->assertSee('آخرین نتیجه‌ها')
-            ->assertSee('student-focus-card')
-            ->assertSee('student-focus-action');
+            ->assertSee('student-dashboard-reference', false)
+            ->assertSee('sdr-hero', false)
+            ->assertSee('sdr-btn', false);
     }
 
     public function test_teacher_dashboard_exposes_teaching_workflow_without_financial_kpi(): void
