@@ -72,6 +72,11 @@ final class StudentDashboardService
                 ->whereIn('id', $teacherIds)
                 ->where('status', 'active')
                 ->whereNull('deleted_at')
+                ->with([
+                    'teacherProfile.media' => fn ($query) => $query
+                        ->wherePivot('collection', 'teacher-avatar')
+                        ->orderByPivot('sort_order'),
+                ])
                 ->orderBy('name')
                 ->limit(3)
                 ->get(['id', 'name']);
