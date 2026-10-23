@@ -234,7 +234,86 @@ final class OwnerSeoService
             'configured' => $items->where('score', '>', 0)->count(),
             'ready' => $items->where('score', '>=', 80)->count(),
             'needsWork' => $items->where('score', '<', 80)->count(),
+            'pagesWithFindings' => $items->where('issue_count', '>', 0)->count(),
+            'totalFindings' => (int) $items->sum('issue_count'),
+            'noindex' => $items->filter(
+                fn (array $item): bool => str_starts_with((string) ($item['robots'] ?? ''), 'noindex')
+            )->count(),
         ];
+    }
+
+    /**
+     * Audit stored SEO overrides against the output conventions used by this app.
+     * Length ranges are editorial guidance, not a prediction of search rankings.
+     */
+    private function auditIssues(string $type, ?object $seo): array
+    {
+        $issues = [];
+        $title = trim((string) ($seo?->title ?? ''));
+        $description = trim((string) ($seo?->description ?? ''));
+
+        if ($title === '') {
+            $issues[] = [
+                'severity' => 'warning',
+                'title' => 'عنوان SEO اختصاصی تنظیم نشده',
+                'detail' => 'عنوان اصلی صفحه به‌عنوان مقدار جایگزین استفاده می‌شود؛ برای کنترل بهتر عنوان نتیجه، یک عنوان توصیفی و یکتا ثبت کن.',
+            ];
+        } else {
+            $length = mb_strlen($title);
+            if ($length < 30 || $length > 60) {
+                $issues[] = [
+                    'severity' => 'info',
+                    'title' => 'طول عنوان خارج از بازهٔ راهنمایی است',
+                    'detail' => "عنوان فعلی {$length} کاراکتر دارد. بازهٔ ۳۰ تا ۶۰ فقط راهنمای ویرایشی است؛ وضوح و یکتایی عنوان را در اولویت بگذار.",
+                ];
+            }
+        }
+
+        if ($description === '') {
+            $issues[] = [
+                'severity' => 'warning',
+                'title' => 'توضیحات SEO اختصاصی تنظیم نشده',
+                'detail' => 'ممکن است قالب از توضیحات صفحه استفاده کند یا توضیحات خالی بماند؛ خروجی HTML را بررسی و توضیحی یکتا ثبت کن.',
+            ];
+        } else {
+            $length = mb_strlen($description);
+            if ($length < 70 || $length > 160) {
+                $issues[] = [
+                    'severity' => 'info',
+                    'title' => 'طول توضیحات خارج از بازهٔ راهنمایی است',
+                    'detail' => "توضیحات فعلی {$length} کاراکتر دارد. بازهٔ ۷۰ تا ۱۶۰ یک راهنمای نگارشی است و نمایش نهایی snippet تضمین‌شده نیست.",
+                ];
+            }
+        }
+
+        if (blank($seo?->og_image_url)) {
+            $issues[] = [
+                'severity' => 'info',
+                'title' => 'تصویر OG اختصاصی ثبت نشده',
+                'detail' => 'در برخی صفحات تصویر رسانهٔ خود محتوا جایگزین می‌شود؛ کارت اشتراک‌گذاری لینک را برای تصویر، برش و تناسب آن بررسی کن.',
+            ];
+        }
+
+        // Course, blog, product and teacher pages have built-in JSON-LD fallbacks.
+        // Public academy content does not currently get the same type-specific fallback.
+        if ($type === 'content' && blank($seo?->schema_json)) {
+            $issues[] = [
+                'severity' => 'info',
+                'title' => 'دادهٔ ساختاریافتهٔ اختصاصی تنظیم نشده',
+                'detail' => 'برای محتوای مقاله‌ای، در صورت تطابق با محتوای واقعی صفحه، تعریف Article/VideoObject را بررسی کن؛ دادهٔ ساختاریافته نباید اطلاعات ساختگی داشته باشد.',
+            ];
+        }
+
+        $robots = trim((string) ($seo?->robots ?: 'index,follow'));
+        if (str_starts_with($robots, 'noindex')) {
+            array_unshift($issues, [
+                'severity' => 'critical',
+                'title' => 'صفحه روی noindex تنظیم شده',
+                'detail' => 'این صفحه از نتایج جستجو کنار گذاشته می‌شود. اگر این تصمیم عمدی نیست، robots را به index,follow تغییر بده.',
+            ]);
+        }
+
+        return $issues;
     }
 
     private function mapItem(
@@ -256,6 +335,7 @@ final class OwnerSeoService
 
         $filled = collect($fields)->filter(fn ($value) => filled($value))->count();
         $score = (int) round(($filled / count($fields)) * 100);
+        $issues = $this->auditIssues($type, $seo);
         $url = match ($type) {
             'course' => route('courses.show', $model),
             'content' => $model->academy ? route('academy.content.show', [$model->academy->slug, $model->slug]) : null,
@@ -274,6 +354,8 @@ final class OwnerSeoService
             'robots' => $seo?->robots ?: 'index,follow',
             'score' => $score,
             'status' => $score >= 80 ? 'ready' : ($score > 0 ? 'partial' : 'empty'),
+            'issues' => $issues,
+            'issue_count' => count($issues),
         ];
     }
 }

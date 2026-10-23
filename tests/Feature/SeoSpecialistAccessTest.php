@@ -22,6 +22,31 @@ class SeoSpecialistAccessTest extends TestCase
         $this->withoutVite();
     }
 
+    public function test_quick_login_seo_identity_authenticates_to_only_the_seo_console(): void
+    {
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+
+        $password = (string) config('role_access.test_password');
+        $seoRole = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
+        $user = User::factory()->create([
+            'name' => 'متخصص SEO تست',
+            'email' => 'seo@sheykhan.test',
+            'password' => $password,
+            'status' => 'active',
+        ]);
+        $user->roles()->attach($seoRole->id);
+
+        $this->post(route('login.store'), [
+            'identifier' => 'seo@sheykhan.test',
+            'password' => $password,
+        ])->assertRedirect(route('owner.seo.index'));
+
+        $this->assertAuthenticatedAs($user);
+
+        $this->get(route('owner.dashboard'))->assertForbidden();
+        $this->get(route('owner.seo.index'))->assertOk();
+    }
+
     public function test_seo_specialist_can_audit_public_pages_across_the_site_without_owner_permissions(): void
     {
         [$specialist, $course] = $this->makeSeoWorkspace();
@@ -36,6 +61,10 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('SEO Visible Course')
             ->assertSee(route('courses.show', $course), false)
             ->assertSee('صفحات عمومی و منتشرشده')
+            ->assertSee('ممیزی کیفیت فنی SEO')
+            ->assertSee('عنوان SEO اختصاصی تنظیم نشده')
+            ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
+            ->assertSee('بررسی robots.txt')
             ->assertSee('role-sidebar owner-sidebar', false)
             ->assertSee('شیخان · پنل متخصص SEO')
             ->assertSee('پنل متخصص SEO</small>', false)
