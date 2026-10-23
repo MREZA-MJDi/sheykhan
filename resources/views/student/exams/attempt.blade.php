@@ -124,6 +124,7 @@
                             <section
                                 id="exam-question-{{ $question->id }}"
                                 class="student-exam-question"
+                                data-question-type="{{ $question->type }}"
                                 data-exam-question
                                 data-question-number="{{ $loop->iteration }}"
                             >
