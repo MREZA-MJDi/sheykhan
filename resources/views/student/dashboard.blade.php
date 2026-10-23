@@ -298,8 +298,13 @@
                     <div class="sdr-card-head"><div><span class="sdr-card-kicker">همراهان یادگیری</span><h2 id="sdr-teachers-title">اساتید دوره‌های من</h2></div></div>
                     <div class="sdr-teacher-list">
                         @forelse($teachers as $teacherItem)
+                            @php($teacherAvatar = $teacherItem->teacherProfile?->media?->first())
                             <article class="sdr-teacher-row">
-                                <span class="sdr-teacher-avatar" aria-hidden="true">{{ mb_substr(trim($teacherItem->name), 0, 1) }}</span>
+                                @if($teacherAvatar?->url())
+                                    <img class="sdr-teacher-avatar sdr-teacher-avatar-image" src="{{ $teacherAvatar->url() }}" alt="" width="39" height="39" loading="lazy" decoding="async">
+                                @else
+                                    <span class="sdr-teacher-avatar" aria-hidden="true">{{ mb_substr(trim($teacherItem->name), 0, 1) }}</span>
+                                @endif
                                 <div class="sdr-teacher-copy"><strong>{{ $teacherItem->name }}</strong><span>استاد مرتبط با کلاس‌های فعال تو</span></div>
                                 <span class="sdr-teacher-tag">استاد</span>
                             </article>

@@ -18,6 +18,17 @@
         $topbarAvatar = $avatarMedia?->visibility === 'public'
             ? $avatarMedia->url()
             : ($avatarMedia ? route('media.view', $avatarMedia) : null);
+    } elseif ($role === 'student' && $topbarUser) {
+        $topbarUser->loadMissing([
+            'studentProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'student-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+
+        $avatarMedia = $topbarUser->studentProfile?->media?->first();
+        $topbarAvatar = $avatarMedia?->visibility === 'public'
+            ? $avatarMedia->url()
+            : ($avatarMedia ? route('media.view', $avatarMedia) : null);
     }
 
     $seoOnlyRole = $role === 'owner'
