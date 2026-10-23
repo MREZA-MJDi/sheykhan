@@ -83,7 +83,9 @@ class ExamController extends Controller
                 }
 
                 return [
-                    'type' => $question->type,
+                    // The legacy database default represents a single-answer
+                    // choice question; map it into the current four-choice editor.
+                    'type' => $question->type === 'multiple_choice' ? 'single' : $question->type,
                     'question' => $question->question,
                     'options' => $question->options ?? [],
                     'correct_answer' => $correctAnswer,
