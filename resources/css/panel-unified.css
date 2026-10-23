@@ -606,3 +606,31 @@
         transition-duration: .01ms !important;
     }
 }
+
+
+/* The student home dashboard keeps its dark workspace variant, while its card
+   geometry and interaction states follow the same component system as inner pages. */
+.student-shell-dashboard .sdr-card {
+    border-color: color-mix(in srgb, var(--panel-primary) 16%, var(--panel-border));
+    border-radius: 20px;
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.student-shell-dashboard .sdr-kpi {
+    border-color: color-mix(in srgb, var(--kpi-color, var(--panel-primary)) 22%, var(--panel-border));
+    border-radius: 17px;
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.student-shell-dashboard :is(
+    .sdr-course-row, .sdr-item-row, .sdr-shortcut, .sdr-session-row,
+    .sdr-teacher-row, .sdr-resource-row, .sdr-achievement, .sdr-reminder
+) {
+    border-radius: 14px;
+    transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.student-shell-dashboard :is(.sdr-card, .sdr-kpi, .sdr-course-row, .sdr-item-row, .sdr-shortcut, .sdr-session-row, .sdr-teacher-row, .sdr-resource-row, .sdr-achievement, .sdr-reminder):focus-within {
+    outline: 2px solid color-mix(in srgb, var(--panel-primary) 28%, transparent);
+    outline-offset: 2px;
+}
