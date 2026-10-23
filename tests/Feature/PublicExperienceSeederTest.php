@@ -64,8 +64,8 @@ class PublicExperienceSeederTest extends TestCase
             $this->get(route('courses.show', $course))->assertOk();
             $this->get(route('teachers.show', $teacher))->assertOk();
             $this->get(route('blog.show', $post->slug))->assertOk();
-            $this->get(route('store.product.show', $product))->assertOk();
-            $this->get(route('academy.content.show', [$academy, $article]))->assertOk();
+            $this->get(route('store.product.show', ['product' => $product->slug]))->assertOk();
+            $this->get(route('academy.content.show', ['academy' => $academy->slug, 'content' => $article->slug]))->assertOk();
 
             $this->get(route('store.index', ['category' => 'booklets']))
                 ->assertOk()
