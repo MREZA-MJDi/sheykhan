@@ -43,4 +43,18 @@ class StudentDashboardReferenceDesignTest extends TestCase
             ->assertDontSee('student-shell-dashboard', false)
             ->assertSee('role-layout', false);
     }
+
+    public function test_student_dashboard_styles_are_rtl_with_distinct_solid_course_tiles(): void
+    {
+        $stylesheet = file_get_contents(resource_path('css/student-dashboard-reference.css'));
+
+        $this->assertIsString($stylesheet);
+        $this->assertStringContainsString('direction: rtl;', $stylesheet);
+        $this->assertStringContainsString('.student-shell-dashboard .role-sidebar', $stylesheet);
+        $this->assertStringContainsString('#e94e62', $stylesheet);
+        $this->assertStringContainsString('#168fe1', $stylesheet);
+        $this->assertStringContainsString('#12a77d', $stylesheet);
+        $this->assertStringContainsString('.sdr-course-row:nth-child(4n + 1)', $stylesheet);
+    }
+
 }
