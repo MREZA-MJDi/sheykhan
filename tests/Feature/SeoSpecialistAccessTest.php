@@ -60,7 +60,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertOk()
             ->assertSee('SEO Visible Course')
             ->assertSee(route('courses.show', $course), false)
-            ->assertSee('صفحات عمومی و منتشرشده')
+            ->assertSee('صفحات عمومی و منتشرشده را از یک مرکز مدیریت کن')
             ->assertSee('ممیزی کیفیت فنی SEO')
             ->assertSee('عنوان SEO اختصاصی تنظیم نشده')
             ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
