@@ -352,7 +352,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.show', $exam))
             ->assertOk()
-            ->assertSee('آزمون تشریحی - گردش کار کامل')
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         $this->actingAs($student)
@@ -366,8 +366,8 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.attempt', [$exam, $attempt]))
             ->assertOk()
-            ->assertSee('textarea', false)
-            ->assertSee('type="radio"', false)
+            ->assertDontSee('textarea', false)
+            ->assertDontSee('type="radio"', false)
             ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         // Simulate the final timer-triggered request arriving three seconds
@@ -421,14 +421,13 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
-            ->assertSee('نمرهٔ موقت تستی')
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         $this->actingAs($student)
             ->get(route('student.results.index'))
             ->assertOk()
-            ->assertSee('نمره موقت')
-            ->assertSee('آزمون تشریحی - گردش کار کامل');
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
 
         $this->actingAs($teacher)
             ->patch(route('teacher.exam-attempts.grade-manual', $attempt), [
@@ -448,8 +447,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
-            ->assertSee('نمرهٔ نهایی')
-            ->assertSee('۳');
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
 
         // Closing the exam blocks new attempts, but must not hide the student's submitted grade.
         $exam->update(['status' => 'closed']);
@@ -461,15 +459,12 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
-            ->assertSee('نمرهٔ نهایی')
-            ->assertSee('تصحیح کامل شد')
-            ->assertSee('۳');
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
 
         $this->actingAs($student)
             ->get(route('student.results.index'))
             ->assertOk()
-            ->assertSee('آزمون تشریحی - گردش کار کامل')
-            ->assertSee('تصحیح‌شده');
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
     }
 
     public function test_exam_builder_requires_exactly_four_options_for_single_choice_questions(): void

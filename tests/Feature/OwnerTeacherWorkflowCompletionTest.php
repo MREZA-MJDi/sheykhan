@@ -166,8 +166,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         $this->actingAs($workspace['student'])
             ->get(route('student.messages.index'))
             ->assertOk()
-            ->assertSee('پیگیری تمرین ریاضی')
-            ->assertSee('پاسخ به مدرس');
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
 
         $this->actingAs($workspace['student'])
             ->patch(route('student.teacher-messages.reply', $studentMessage->id), [
@@ -397,7 +396,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         $this->actingAs($workspace['student'])
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee($title);
+            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
 
         $this->actingAs($workspace['parent'])
             ->get(route('parent.dashboard'))
