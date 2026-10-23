@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let current = 0;
     let flagged = new Set();
     let submitted = false;
+    let confirmationAccepted = false;
     let timerId = null;
 
     const fa = (value) => String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
@@ -331,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const openSubmitConfirmation = () => {
         if (!confirmation || submitted) return;
+        confirmationAccepted = false;
 
         const unanswered = questions.filter((question) => !hasAnswer(question)).length;
         const answered = questions.length - unanswered;
@@ -361,11 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmationConfirm?.addEventListener('click', () => {
         if (!form || submitted) return;
-        confirmationConfirm.disabled = true;
-        confirmationConfirm.setAttribute('aria-busy', 'true');
-        confirmationConfirm.textContent = 'در حال تحویل…';
+        confirmationAccepted = true;
         closeSubmitConfirmation();
-        // Request the native form submission only after the student confirms.
+        // Native validation still runs, but the custom confirmation is not shown twice.
         form.requestSubmit();
     });
 
@@ -378,12 +378,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form?.addEventListener('submit', (event) => {
         if (submitted) return;
-        event.preventDefault();
-        openSubmitConfirmation();
-    });
 
-    form?.addEventListener('submit', (event) => {
-        if (submitted || event.defaultPrevented) return;
+        if (!confirmationAccepted) {
+            event.preventDefault();
+            openSubmitConfirmation();
+            return;
+        }
+
         submitted = true;
         try {
             sessionStorage.removeItem(storageKey);
@@ -391,7 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         submitButton?.setAttribute('disabled', 'disabled');
         submitButton?.setAttribute('aria-busy', 'true');
-        submitButton?.querySelector('span') && (submitButton.querySelector('span').textContent = 'در حال تحویل…');
+        if (submitButton?.querySelector('span')) {
+            submitButton.querySelector('span').textContent = 'در حال تحویل…';
+        }
     });
 
     const visibilityHandler = () => {
