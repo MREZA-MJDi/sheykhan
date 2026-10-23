@@ -174,6 +174,7 @@
                 <label class="teacher-form-field teacher-exam-question-prompt">
                     <span>متن سؤال</span>
                     <textarea data-name="question" rows="3" required maxlength="5000" placeholder="صورت سؤال را روشن و دقیق بنویس..."></textarea>
+                    <small class="teacher-exam-field-help">صورت سؤال را کامل و مستقل بنویس. کلید پاسخ و پاسخ مرجع را در فیلدهای جداگانه قرار بده.</small>
                 </label>
 
                 <div class="teacher-exam-question-config">
@@ -185,6 +186,7 @@
                             <option value="multiple" hidden data-legacy-question-type>چندپاسخی · سؤال قدیمی</option>
                             <option value="checkbox" hidden data-legacy-question-type>چندپاسخی · سؤال قدیمی</option>
                         </select>
+                        <small class="teacher-exam-field-help">تشریحی برای نوشتن پاسخ است و مدرس آن را تصحیح می‌کند؛ چهارگزینه‌ای یک پاسخ صحیح دارد و خودکار نمره می‌گیرد.</small>
                     </label>
                     <label class="teacher-form-field teacher-exam-score-field">
                         <span>نمرهٔ این سؤال</span>
