@@ -255,6 +255,8 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/exams', [TeacherExamController::class, 'index'])->middleware('permission:exams.view')->name('exams.index');
     Route::get('/exams/create', [TeacherExamController::class, 'create'])->middleware('permission:exams.manage')->name('exams.create');
     Route::post('/exams', [TeacherExamController::class, 'store'])->middleware('permission:exams.manage')->name('exams.store');
+    Route::get('/exams/{exam}/edit', [TeacherExamController::class, 'edit'])->middleware('permission:exams.manage')->name('exams.edit');
+    Route::patch('/exams/{exam}', [TeacherExamController::class, 'update'])->middleware('permission:exams.manage')->name('exams.update');
     Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->middleware('permission:exams.view')->name('exams.attempts');
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])->middleware('permission:exams.manage')->name('exam-attempts.grade');
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
