@@ -255,6 +255,7 @@ final class TeacherWorkspaceService
             ->with(['course:id,title', 'classroom:id,title'])
             ->withCount([
                 'questions',
+                'attempts as attempts_count',
                 // Attempts move straight to pending_review or graded when submitted;
                 // count submission timestamps rather than a transient status name.
                 'attempts as submitted_attempts_count' => fn ($query) => $query->whereNotNull('submitted_at'),
