@@ -29,7 +29,7 @@ class LocalRoleLoginTest extends TestCase
             config([
                 'role_access.show_test_accounts' => true,
                 'role_access.test_password' => 'Staging-Only-Secret-2026',
-                'role_access.allowed_test_ips' => [],
+                'role_access.allowed_test_ips' => ['127.0.0.1'],
             ]);
 
             $this->get(route('login'))

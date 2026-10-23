@@ -10,7 +10,7 @@
     $showTestAccounts = config('role_access.show_test_accounts')
         && filled($testPassword)
         && (
-            app()->environment(['local', 'testing', 'staging'])
+            app()->environment(['local', 'testing'])
             || in_array(request()->ip(), config('role_access.allowed_test_ips', []), true)
         );
 @endphp

@@ -24,6 +24,7 @@ Use this only on a private staging host, never as a public production convenienc
     APP_ENV=staging
     APP_DEBUG=false
     SHOW_TEST_ACCOUNTS=true
+    TEST_ACCOUNTS_ALLOWED_IPS=YOUR_PUBLIC_IP
     SEED_USER_PASSWORD=replace-with-a-unique-long-staging-secret
 
 Clear cached configuration, seed the role and demo identities, then rebuild the cache:
@@ -33,9 +34,9 @@ Clear cached configuration, seed the role and demo identities, then rebuild the 
     php artisan db:seed --class="Database\Seeders\AcademyFoundationSeeder"
     php artisan config:cache
 
-The login screen includes the demo password only when test-login access is explicitly enabled and a seed password is configured. Local/testing may use the documented disposable default; staging must supply its own password. The SEO test identity is seo@sheykhan.test; it receives the restricted seo-specialist role, not academy-owner privileges. These seeders create synthetic demo identities and should not be run against a live customer database.
+The login screen includes the demo password only when test-login access is explicitly enabled, a seed password is configured, and the requester IP is allow-listed. Local/testing may use the documented disposable default; staging must supply its own password and trusted public IP. The SEO test identity is seo@sheykhan.test; it receives the restricted seo-specialist role, not academy-owner privileges. These seeders create synthetic demo identities and should not be run against a live customer database.
 
-If the host must keep APP_ENV=production, set SHOW_TEST_ACCOUNTS=true, configure SEED_USER_PASSWORD, and set TEST_ACCOUNTS_ALLOWED_IPS to a comma-separated list of trusted public client IPs. The panel remains hidden to other IPs. Remove the allow-list and disable test accounts once testing is finished.
+If the host must keep APP_ENV=production, set SHOW_TEST_ACCOUNTS=true, configure SEED_USER_PASSWORD, and set TEST_ACCOUNTS_ALLOWED_IPS to a comma-separated list of trusted public client IPs; the same allow-list requirement applies to staging. The panel remains hidden to other IPs. Ensure Laravel's trusted-proxy configuration makes request()->ip() resolve to the actual client IP. Remove the allow-list and disable test accounts once testing is finished.
 
 ## Before first production use
 1. Snapshot/back up the DB and private uploaded files. Verify that the backup can be restored.
