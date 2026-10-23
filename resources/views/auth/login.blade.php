@@ -8,11 +8,7 @@
     $testPassword = config('role_access.test_password');
     $dashboardRoutes = config('role_access.dashboard_routes', []);
     $showTestAccounts = config('role_access.show_test_accounts')
-        && filled($testPassword)
-        && (
-            app()->environment(['local', 'testing'])
-            || in_array(request()->ip(), config('role_access.allowed_test_ips', []), true)
-        );
+        && filled($testPassword);
 @endphp
 
 <div class="rounded-[2rem] border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-xl)] sm:p-8">
