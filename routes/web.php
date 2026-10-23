@@ -154,6 +154,8 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::patch('/courses/{course}', [OwnerCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
+    Route::get('/academy/{academy}/communications', [\App\Http\Controllers\Owner\AcademyMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('communications.index');
+    Route::post('/academy/{academy}/communications', [\App\Http\Controllers\Owner\AcademyMessageController::class, 'store'])->middleware(['permission:parents.manage','throttle:10,1'])->withoutScopedBindings()->name('communications.store');
     Route::get('/academy/{academy}/messages', [\App\Http\Controllers\Owner\ParentMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('messages.index');
     Route::patch('/academy/{academy}/messages/{message}/reply', [\App\Http\Controllers\Owner\ParentMessageController::class, 'reply'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('messages.reply');
     Route::get('/academy/{academy}/counseling', [\App\Http\Controllers\Owner\CounselingRequestController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('counseling.index');
@@ -260,6 +262,8 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::patch('/messages/{message}/reply', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'reply'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('messages.reply');
     Route::get('/direct-messages', [\App\Http\Controllers\Teacher\DirectMessageController::class, 'index'])->middleware('permission:parent_messages.manage')->name('direct-messages.index');
     Route::post('/direct-messages', [\App\Http\Controllers\Teacher\DirectMessageController::class, 'store'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('direct-messages.store');
+    Route::get('/communications', [\App\Http\Controllers\Teacher\AcademyMessageController::class, 'index'])->middleware('permission:parent_messages.manage')->name('communications.index');
+    Route::post('/communications', [\App\Http\Controllers\Teacher\AcademyMessageController::class, 'store'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('communications.store');
     Route::patch('/direct-messages/{message}/reply', [\App\Http\Controllers\Teacher\DirectMessageController::class, 'replyToParentMessage'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('direct-messages.reply');
     Route::get('/student-messages', [TeacherStudentMessageController::class, 'index'])->middleware('permission:student_messages.view')->name('student-messages.index');
     Route::patch('/student-messages/{message}/reply', [TeacherStudentMessageController::class, 'reply'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('student-messages.reply');

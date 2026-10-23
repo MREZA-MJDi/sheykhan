@@ -131,6 +131,34 @@
             <div>{{ $messages->links() }}</div>
         </section>
 
+        <section class="space-y-4" aria-labelledby="student-academy-notices-title">
+            <div>
+                <span class="text-xs font-black text-[var(--panel-accent)]">پیام‌های دریافتی</span>
+                <h2 id="student-academy-notices-title" class="mt-1 text-xl font-black text-[var(--panel-text)]">پیام مستقیم آموزشگاه و مدرس</h2>
+            </div>
+            @forelse($academyMessages as $notice)
+                <article class="dashboard-panel overflow-hidden">
+                    <div class="h-1.5 {{ $notice->category === 'important' ? 'bg-rose-500' : 'bg-violet-500' }}"></div>
+                    <div class="p-5 sm:p-6">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <h3 class="break-words text-lg font-black text-[var(--panel-text)]">{{ $notice->subject }}</h3>
+                                <p class="mt-1 text-xs text-[var(--panel-muted)]">{{ $notice->academy?->name }} · {{ $notice->sender?->name }} · {{ \App\Support\PersianUi::date($notice->published_at ?? $notice->created_at) }}</p>
+                            </div>
+                            <span class="rounded-full px-3 py-1.5 text-xs font-black {{ $notice->category === 'important' ? 'bg-rose-50 text-rose-800' : 'bg-violet-50 text-violet-800' }}">{{ $notice->category === 'important' ? 'مهم' : 'پیام مستقیم' }}</span>
+                        </div>
+                        <p class="mt-4 whitespace-pre-line break-words rounded-xl bg-[var(--panel-bg)] p-4 text-sm leading-7 text-[var(--panel-text-secondary)]">{{ $notice->body }}</p>
+                        @if($notice->classroom)
+                            <p class="mt-3 text-xs text-[var(--panel-muted)]">کلاس: {{ $notice->classroom->title }}</p>
+                        @endif
+                    </div>
+                </article>
+            @empty
+                <div class="dashboard-panel p-6 text-center text-sm leading-7 text-[var(--panel-muted)]">فعلاً پیام مستقیمی برای این حساب ارسال نشده است.</div>
+            @endforelse
+            @if($academyMessages->hasPages())<div>{{ $academyMessages->onEachSide(1)->links() }}</div>@endif
+        </section>
+
         @include('components.communication.teacher-direct-messages-inbox', ['messages' => $teacherMessages, 'recipientType' => 'student'])
 
     </div>

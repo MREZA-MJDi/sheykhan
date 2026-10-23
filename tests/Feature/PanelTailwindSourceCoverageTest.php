@@ -34,4 +34,62 @@ class PanelTailwindSourceCoverageTest extends TestCase
         $this->assertStringContainsString('rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7', $view);
         $this->assertStringNotContainsString('parent-panel', $view);
     }
+
+    public function test_role_dashboards_have_distinct_accents_and_semantic_answer_states(): void
+    {
+        $theme = file_get_contents(resource_path('css/homeroom-dashboard-theme.css'));
+        $teacherAttempts = file_get_contents(resource_path('views/teacher/exams/attempts.blade.php'));
+
+        $this->assertIsString($theme);
+        $this->assertIsString($teacherAttempts);
+        $this->assertStringContainsString('.owner-shell {', $theme);
+        $this->assertStringContainsString('.teacher-shell {', $theme);
+        $this->assertStringContainsString('.student-shell {', $theme);
+        $this->assertStringContainsString('.parent-shell {', $theme);
+        $this->assertStringContainsString('.teacher-exam-answer-value.is-correct', $theme);
+        $this->assertStringContainsString('.teacher-exam-answer-value.is-wrong', $theme);
+        $this->assertStringContainsString('is-correct', $teacherAttempts);
+        $this->assertStringContainsString('is-wrong', $teacherAttempts);
+    }
+
+    public function test_parent_hero_styles_the_real_h1_used_by_the_dashboard(): void
+    {
+        $css = file_get_contents(resource_path('css/parent.css'));
+        $view = file_get_contents(resource_path('views/parent/dashboard.blade.php'));
+
+        $this->assertIsString($css);
+        $this->assertIsString($view);
+        $this->assertStringContainsString('.parent-hero :is(h1, h2)', $css);
+        $this->assertStringContainsString('<h1>', $view);
+    }
+
+    public function test_teacher_messaging_tabs_follow_their_individual_permissions(): void
+    {
+        $view = file_get_contents(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
+
+        $this->assertIsString($view);
+        $this->assertMatchesRegularExpression(
+            '/hasPermission\(\x27parent_messages\.view\x27\).*?teacher\.messages\.index/s',
+            $view
+        );
+        $this->assertMatchesRegularExpression(
+            '/hasPermission\(\x27student_messages\.view\x27\).*?teacher\.student-messages\.index/s',
+            $view
+        );
+        $this->assertMatchesRegularExpression(
+            '/hasPermission\(\x27parent_messages\.manage\x27\).*?teacher\.direct-messages\.index/s',
+            $view
+        );
+    }
+
+    public function test_public_catalog_styles_include_colorful_but_scoped_card_states(): void
+    {
+        $css = file_get_contents(resource_path('css/public-experience.css'));
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('.public-store-page .edu-card:nth-child(4n + 2)', $css);
+        $this->assertStringContainsString('.public-blog-page .public-blog-card:nth-child(4n + 3)', $css);
+        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
+    }
+
 }

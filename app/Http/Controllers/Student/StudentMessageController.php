@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademyMessage;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\StudentMessage;
@@ -19,6 +20,22 @@ final class StudentMessageController extends Controller
     public function index(Request $request): View
     {
         $student = $request->user();
+
+        $studentAcademyIds = $student->academies()
+            ->where('academies.status', 'active')
+            ->wherePivot('role', 'student')
+            ->wherePivot('status', 'active')
+            ->pluck('academies.id');
+
+        $academyMessages = AcademyMessage::query()
+            ->whereIn('academy_id', $studentAcademyIds)
+            ->where('audience', 'student')
+            ->where('recipient_id', $student->id)
+            ->where('student_id', $student->id)
+            ->with(['sender:id,name', 'academy:id,name', 'classroom:id,title', 'course:id,title'])
+            ->latest()
+            ->paginate(10, ['*'], 'academy_messages_page')
+            ->withQueryString();
 
         $teacherMessages = TeacherDirectMessage::query()
             ->where('recipient_type', 'student')
@@ -43,6 +60,7 @@ final class StudentMessageController extends Controller
         return view('student.messages.index', [
             'messages' => $messages,
             'contactableTargets' => $this->contactableTargets($student),
+            'academyMessages' => $academyMessages,
             'teacherMessages' => $teacherMessages,
         ]);
     }

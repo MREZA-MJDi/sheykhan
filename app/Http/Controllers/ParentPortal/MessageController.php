@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademyMessage;
 use App\Models\ParentMessage;
 use App\Models\TeacherDirectMessage;
 use App\Models\User;
 use App\Services\ParentPortalService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
@@ -16,6 +18,46 @@ final class MessageController extends Controller
 {
     public function index(Request $request, ParentPortalService $portal): View
     {
+        $parent = $request->user();
+        $parentAcademyIds = $parent->academies()
+            ->where('academies.status', 'active')
+            ->wherePivot('role', 'parent')
+            ->wherePivot('status', 'active')
+            ->pluck('academies.id');
+
+        $academyMessages = AcademyMessage::query()
+            ->whereIn('academy_id', $parentAcademyIds)
+            ->where(function (Builder $visible) use ($parent): void {
+                $visible->where('audience', 'all_parents')
+                    ->orWhere(fn (Builder $direct) => $direct
+                        ->where('audience', 'parent')
+                        ->where('recipient_id', $parent->id))
+                    ->orWhere(function (Builder $classroomNotice) use ($parent): void {
+                        $classroomNotice->where('audience', 'classroom_parents')
+                            ->whereExists(function ($membership) use ($parent): void {
+                                $membership->selectRaw('1')
+                                    ->from('classroom_student as cs')
+                                    ->join('classrooms as cr', 'cr.id', '=', 'cs.classroom_id')
+                                    ->join('academy_user as student_membership', function ($join): void {
+                                        $join->on('student_membership.user_id', '=', 'cs.student_id')
+                                            ->on('student_membership.academy_id', '=', 'cr.academy_id')
+                                            ->where('student_membership.role', '=', 'student')
+                                            ->where('student_membership.status', '=', 'active');
+                                    })
+                                    ->join('parent_student as parent_link', 'parent_link.student_id', '=', 'cs.student_id')
+                                    ->whereColumn('cs.classroom_id', 'academy_messages.classroom_id')
+                                    ->whereColumn('cr.academy_id', 'academy_messages.academy_id')
+                                    ->where('parent_link.parent_id', $parent->id)
+                                    ->where('cs.status', 'active')
+                                    ->where('cr.status', 'active');
+                            });
+                    });
+            })
+            ->with(['sender:id,name', 'recipient:id,name', 'student:id,name', 'academy:id,name', 'classroom:id,title', 'course:id,title'])
+            ->latest()
+            ->paginate(10, ['*'], 'academy_messages_page')
+            ->withQueryString();
+
         $teacherMessages = TeacherDirectMessage::query()
             ->where('recipient_type', 'parent')
             ->where('recipient_id', $request->user()->id)
@@ -43,6 +85,7 @@ final class MessageController extends Controller
         return view('parent.messages.index', [
             'messages' => $messages,
             'contactableChildren' => $portal->contactableChildren($request->user()),
+            'academyMessages' => $academyMessages,
             'teacherTargets' => $portal->contactableTeacherTargets($request->user()),
             'teacherMessages' => $teacherMessages,
             'outgoingTeacherMessages' => $outgoingTeacherMessages,
