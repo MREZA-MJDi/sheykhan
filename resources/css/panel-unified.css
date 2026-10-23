@@ -2724,3 +2724,53 @@
     text-decoration: underline;
     text-underline-offset: 3px;
 }
+
+
+.teacher-shell .teacher-exam-sheet-description {
+    margin: 14px 0 18px;
+    padding: 12px 14px;
+    border: 1px solid #dce5f3;
+    border-radius: 11px;
+    background: #f7faff;
+    color: #475467;
+    font-size: 11px;
+    line-height: 2;
+    white-space: pre-line;
+}
+
+.teacher-shell .teacher-exam-answer-space-preview {
+    display: grid;
+    gap: 8px;
+    margin-top: 15px;
+    padding: 13px 14px 11px;
+    border: 1px dashed #d5dce8;
+    border-radius: 12px;
+    background: #fcfdff;
+}
+
+.teacher-shell .teacher-exam-answer-space-preview > span {
+    color: #8b95a7;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.teacher-shell .teacher-exam-answer-writing-lines {
+    display: grid;
+    gap: 18px;
+}
+
+.teacher-shell .teacher-exam-answer-writing-lines i {
+    display: block;
+    height: 1px;
+    border-bottom: 1px solid #e4e9f2;
+}
+
+@media print {
+    .teacher-shell .teacher-exam-sheet-description[hidden] {
+        display: none !important;
+    }
+
+    .teacher-shell .teacher-exam-answer-space-preview {
+        display: none !important;
+    }
+}
