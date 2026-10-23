@@ -65,7 +65,7 @@ const initializeExamBuilder = () => {
         });
     };
 
-    const renderCorrectAnswer = (item, index, type, options, previousSelection) => {
+    const renderCorrectAnswer = (item, index, type, options, previousSelection, requireCorrectAnswer) => {
         const wrapper = item.querySelector('[data-question-correct]');
         const choices = item.querySelector('[data-correct-answer-choices]');
         const label = item.querySelector('[data-correct-answer-label]');
@@ -102,7 +102,7 @@ const initializeExamBuilder = () => {
                 input.dataset.correctAnswerChoice = '1';
                 input.checked = previousSelection.includes(option);
                 input.setAttribute('aria-label', `پاسخ صحیح: ${option}`);
-                if (!multi) input.required = true;
+                if (!multi) input.required = Boolean(requireCorrectAnswer);
 
                 const marker = document.createElement('span');
                 marker.className = 'teacher-exam-correct-choice-marker';
@@ -210,26 +210,36 @@ const initializeExamBuilder = () => {
         const referenceWrapper = item.querySelector('[data-question-reference]');
         const type = typeField?.value || 'text';
         const options = readQuestionOptions(item);
+        const questionPrompt = item.querySelector('[data-name="question"]');
+        const referenceAnswer = item.querySelector('[data-name="expected_answer"]');
+        const status = examBuilder.querySelector('[name="status"]')?.value || 'draft';
+        const hasDraftContent = Boolean(
+            questionPrompt?.value.trim()
+            || options.length
+            || referenceAnswer?.value.trim()
+        );
+        const isEmptyDraftRow = status === 'draft' && !hasDraftContent;
         const answerSpace = item.querySelector('[data-answer-space-preview]');
         if (answerSpace) answerSpace.classList.toggle('hidden', type !== 'text');
         const previousSelection = [...item.querySelectorAll('[data-correct-answer-choice]:checked')]
             .map((input) => input.value);
 
+        if (questionPrompt) questionPrompt.required = !isEmptyDraftRow;
         if (optionsWrapper) optionsWrapper.classList.toggle('hidden', type === 'text');
         if (referenceWrapper) referenceWrapper.classList.toggle('hidden', type !== 'text');
 
-        // New four-option questions require all four fields in the browser.
-        // Server validation remains compatible with previously saved question types.
+        // An incomplete draft can be saved and resumed later. Publishing turns
+        // on the stricter browser checks that mirror server-side validation.
         item.querySelectorAll('[data-option-entry]').forEach((field) => {
-            field.required = type === 'single';
-            field.setAttribute('aria-required', type === 'single' ? 'true' : 'false');
+            field.required = status === 'published' && type === 'single';
+            field.setAttribute('aria-required', field.required ? 'true' : 'false');
         });
 
         const optionText = item.querySelector('[data-name="options_text"]');
         if (optionText && type === 'text') optionText.removeAttribute('required');
 
         serializeOptions(item, index, type === 'text' ? [] : options);
-        renderCorrectAnswer(item, index, type, options, previousSelection);
+        renderCorrectAnswer(item, index, type, options, previousSelection, status === 'published');
     };
 
     const syncQuestions = () => {
@@ -240,7 +250,7 @@ const initializeExamBuilder = () => {
     };
 
     container.addEventListener('input', (event) => {
-        const field = event.target.closest('[data-option-entry], [data-name="options_text"], [data-name="score"]');
+        const field = event.target.closest('[data-option-entry], [data-name="options_text"], [data-name="score"], [data-name="question"], [data-name="expected_answer"]');
         if (!field) return;
         const item = field.closest('[data-exam-question]');
         if (!item) return;
@@ -259,6 +269,22 @@ const initializeExamBuilder = () => {
                 updatePaperSummary();
             }
         }
+    });
+
+    examBuilder.querySelector('[name="status"]')?.addEventListener('change', syncQuestions);
+
+    examBuilder.addEventListener('submit', () => {
+        if (examBuilder.querySelector('[name="status"]')?.value !== 'draft') return;
+
+        const blankRows = [...container.querySelectorAll('[data-exam-question]')].filter((item) => {
+            const question = item.querySelector('[data-name="question"]')?.value.trim() || '';
+            const answer = item.querySelector('[data-name="expected_answer"]')?.value.trim() || '';
+            const options = readQuestionOptions(item);
+            return !question && !answer && options.length === 0;
+        });
+
+        blankRows.forEach((item) => item.remove());
+        if (blankRows.length) syncQuestions();
     });
 
     container.addEventListener('click', (event) => {
