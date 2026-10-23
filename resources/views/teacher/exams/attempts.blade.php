@@ -118,8 +118,8 @@
                                     <div class="teacher-exam-answer-value {{ $answer && $answer->is_correct !== null ? ($answer->is_correct ? "is-correct" : "is-wrong") : "" }}">
                                         <span>پاسخ دانش‌آموز</span>
                                         <p>
-                                            @if($answer?->answer)
-                                                {{ is_array($answer->answer) ? implode('، ', $answer->answer) : $answer->answer }}
+                                            @if($selectedChoices !== [])
+                                                {{ implode('، ', $selectedChoices) }}
                                             @else
                                                 بدون پاسخ
                                             @endif
