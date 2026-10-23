@@ -93,6 +93,24 @@
                                             {{ $answer->is_correct ? 'پاسخ صحیح' : 'پاسخ نادرست' }}
                                         </span>
                                     @endif
+
+                                    @if($question->type === 'text' && filled($question->expected_answer))
+                                        <div class="teacher-exam-reference-answer">
+                                            <span>پاسخ مرجع معلم <small>فقط برای تصحیح</small></span>
+                                            <p>{{ $question->expected_answer }}</p>
+                                        </div>
+                                    @elseif($question->type !== 'text' && filled($question->correct_answer))
+                                        @php
+                                            $referenceChoices = json_decode((string) $question->correct_answer, true);
+                                            $referenceChoices = json_last_error() === JSON_ERROR_NONE && is_array($referenceChoices)
+                                                ? $referenceChoices
+                                                : [$question->correct_answer];
+                                        @endphp
+                                        <div class="teacher-exam-reference-answer is-key">
+                                            <span>کلید پاسخ صحیح <small>برای مدرس</small></span>
+                                            <p>{{ implode('، ', array_map('strval', $referenceChoices)) }}</p>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="teacher-exam-answer-score">
