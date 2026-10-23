@@ -345,6 +345,16 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
     ->group(function () {
         // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
         Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('seo.index');
+        Route::get('/seo/keywords/template', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'template'])->name('seo.keywords.template');
+        Route::get('/seo/keywords/export', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'export'])->name('seo.keywords.export');
+        Route::post('/seo/keywords/import', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'import'])->middleware('throttle:10,1')->name('seo.keywords.import');
+        Route::get('/seo/keywords', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'index'])->name('seo.keywords.index');
+        Route::get('/seo/keywords/create', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'create'])->name('seo.keywords.create');
+        Route::post('/seo/keywords', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'store'])->middleware('throttle:30,1')->name('seo.keywords.store');
+        Route::get('/seo/keywords/{keyword}/edit', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'edit'])->whereNumber('keyword')->name('seo.keywords.edit');
+        Route::patch('/seo/keywords/{keyword}', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'update'])->whereNumber('keyword')->name('seo.keywords.update');
+        Route::post('/seo/keywords/{keyword}/rankings', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'storeRanking'])->whereNumber('keyword')->middleware('throttle:60,1')->name('seo.keywords.rankings.store');
+        Route::delete('/seo/keywords/{keyword}', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'destroy'])->whereNumber('keyword')->name('seo.keywords.destroy');
         Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.edit');
         Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.update');
     });

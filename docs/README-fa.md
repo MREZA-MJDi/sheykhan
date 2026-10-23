@@ -16,6 +16,7 @@
 | ورود امن دانش‌آموزهای قدیمی WordPress | [راهنمای Import دانش‌آموزها](LEGACY_STUDENT_IMPORT_FA.md) |
 | استقرار سرور sheykhan روی پورت 8082 | [راهنمای VPS](vps-sheykhan-8082.md) |
 | گردش کار Cowork/Claude | [راهنمای Cowork](claude-cowork-workflow.md) |
+| مدیریت SEO و فهرست کلمات کلیدی | [راهنمای پنل SEO و کلمات کلیدی](SEO_KEYWORD_WORKSPACE_FA.md) |
 
 ## قرارداد مستندسازی
 
