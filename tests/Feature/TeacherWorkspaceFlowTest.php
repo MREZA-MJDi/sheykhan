@@ -252,6 +252,10 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertSee('type="radio"', false)
             ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
+        // Simulate the final timer-triggered request arriving three seconds
+        // after the deadline; the bounded server grace must preserve the answer sheet.
+        $attempt->update(['started_at' => now()->subMinutes(30)->subSeconds(3)]);
+
         $this->actingAs($student)
             ->post(route('student.exam-attempts.submit', $attempt), [
                 'answers' => [
@@ -290,6 +294,11 @@ class TeacherWorkspaceFlowTest extends TestCase
         $attempt->refresh();
         $this->assertSame('needs_review', $attempt->status);
         $this->assertSame(1.0, (float) $attempt->score);
+
+        // Provisional auto-grading must still count toward the attempt limit.
+        $this->actingAs($student)
+            ->post(route('student.exams.start', $exam))
+            ->assertSessionHasErrors('exam');
 
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
