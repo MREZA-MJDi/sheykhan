@@ -188,6 +188,30 @@ final class StudentDashboardService
                     return $class;
                 });
 
+
+        $upcomingMeetings = DB::table('academy_meetings')
+            ->join('courses', 'courses.id', '=', 'academy_meetings.course_id')
+            ->leftJoin('classrooms', 'classrooms.id', '=', 'academy_meetings.classroom_id')
+            ->where('academy_meetings.student_id', $student->id)
+            ->where('academy_meetings.status', 'scheduled')
+            ->whereBetween('academy_meetings.scheduled_at', [now(), now()->addDays(30)])
+            ->orderBy('academy_meetings.scheduled_at')
+            ->limit(6)
+            ->get([
+                'academy_meetings.id',
+                'academy_meetings.title',
+                'academy_meetings.message',
+                'academy_meetings.scheduled_at',
+                'courses.title as course_title',
+                'classrooms.title as classroom_title',
+            ])
+            ->map(function ($item): object {
+                $item->scheduled_at = $item->scheduled_at instanceof \Carbon\CarbonInterface
+                    ? $item->scheduled_at
+                    : Carbon::parse($item->scheduled_at);
+                return $item;
+            });
+
         $sessions = $courseIds->isEmpty()
             ? collect()
             : LiveClass::query()
@@ -331,6 +355,7 @@ final class StudentDashboardService
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
             'upcomingLiveClasses' => $upcomingLive,
+            'upcomingMeetings' => $upcomingMeetings,
             'assignments' => $assignmentItems,
             'recentResults' => $recentResults,
             'resources' => $resources,

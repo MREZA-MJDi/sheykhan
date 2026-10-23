@@ -116,6 +116,32 @@
             </section>
         @endif
 
+
+        @if(collect($upcomingMeetings ?? [])->isNotEmpty())
+            <section class="student-workspace-card mt-5" aria-labelledby="student-upcoming-meetings-title">
+                <div class="student-workspace-card-head">
+                    <div>
+                        <h2 id="student-upcoming-meetings-title">جلسات هماهنگی تأییدشده</h2>
+                        <p>زمان‌هایی که آموزشگاه برای هماهنگی با تو و خانواده ثبت کرده است.</p>
+                    </div>
+                </div>
+                <div class="student-workspace-list">
+                    @foreach($upcomingMeetings as $meeting)
+                        <article class="student-workspace-row">
+                            <div class="student-workspace-date"><strong>◷</strong><small>جلسه</small></div>
+                            <div class="student-workspace-row-main">
+                                <strong>{{ $meeting->title }}</strong>
+                                <span>{{ $meeting->course_title }} · {{ $meeting->classroom_title ?: 'جلسه آموزشگاه' }}</span>
+                                <span>{{ App\Support\PersianUi::date($meeting->scheduled_at) }} · {{ App\Support\PersianUi::time($meeting->scheduled_at) }}</span>
+                                @if($meeting->message)<span>{{ $meeting->message }}</span>@endif
+                            </div>
+                            <span class="student-workspace-status success">تأییدشده</span>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         <section class="student-focus-card" data-student-focus aria-labelledby="student-focus-title">
             <div class="student-focus-art" aria-hidden="true">
                 <span class="student-focus-spark s1">✦</span>
