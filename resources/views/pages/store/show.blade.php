@@ -125,4 +125,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="منبع در بستر آموزش"
+        title="برای این منبع، مسیر یادگیری پیدا کن"
+        description="منابع آموزشی بیشترین فایده را در کنار دوره، تمرین و پیگیری نتیجه دارند."
+        :primary-href="route('courses.index')"
+        primary-label="مشاهده دوره‌ها"
+        :secondary-href="route('store.index')"
+        secondary-label="بازگشت به فروشگاه"
+    />
 @endsection
