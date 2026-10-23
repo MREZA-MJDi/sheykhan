@@ -200,6 +200,7 @@ final class SeoKeywordController extends Controller
             }
 
             $rows = [];
+            $invalidRows = 0;
             $line = 1;
             while (($cells = fgetcsv($stream)) !== false) {
                 $line++;
@@ -214,11 +215,13 @@ final class SeoKeywordController extends Controller
                     continue;
                 }
                 if (mb_strlen($rawKeyword) > 255) {
+                    $invalidRows++;
                     continue;
                 }
 
                 $targetUrl = trim((string) ($mapped['target_url'] ?? ''));
                 if ($targetUrl !== '' && filter_var($targetUrl, FILTER_VALIDATE_URL) === false) {
+                    $invalidRows++;
                     continue;
                 }
 
@@ -285,7 +288,7 @@ final class SeoKeywordController extends Controller
         });
 
         return redirect()->route('owner.seo.keywords.index')
-            ->with('success', "ورود CSV تمام شد: {$added} کلمهٔ جدید اضافه شد و {$skipped} ردیف تکراری رد شد. رتبه‌های واردشده با منبع CSV علامت‌گذاری شده‌اند.");
+            ->with('success', "ورود CSV تمام شد: {$added} کلمهٔ جدید اضافه شد و {$skipped} ردیف تکراری و {$invalidRows} ردیف نامعتبر رد شد. رتبه‌های واردشده با منبع CSV علامت‌گذاری شده‌اند.");
     }
 
     public function export(Request $request): StreamedResponse
