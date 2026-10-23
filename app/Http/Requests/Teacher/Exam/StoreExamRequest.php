@@ -71,6 +71,10 @@ class StoreExamRequest extends FormRequest
                     static fn ($option) => is_string($option) && trim($option) !== ''
                 ));
 
+                if ($type === 'single' && count($options) !== 4) {
+                    $validator->errors()->add("questions.{$index}.options", 'برای سؤال چهارگزینه‌ای باید دقیقاً چهار گزینه وارد کنی.');
+                }
+
                 if (count($options) < 2) {
                     $validator->errors()->add("questions.{$index}.options", 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
                     continue;
