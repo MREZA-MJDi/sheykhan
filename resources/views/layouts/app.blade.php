@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-seo.head :seo-meta="$seoMeta ?? null" />
 
-    @vite(['resources/css/home.css', 'resources/js/home.js'])
+    @vite(['resources/css/app.css', 'resources/css/home.css', 'resources/js/app.js', 'resources/js/home.js'])
     @stack('styles')
 </head>
 <body class="sheykhan-site">
