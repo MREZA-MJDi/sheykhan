@@ -7,6 +7,12 @@
     $testAccounts = config('role_access.test_accounts', []);
     $testPassword = config('role_access.test_password');
     $dashboardRoutes = config('role_access.dashboard_routes', []);
+    $showTestAccounts = config('role_access.show_test_accounts')
+        && filled($testPassword)
+        && (
+            app()->environment(['local', 'testing'])
+            || in_array(request()->ip(), config('role_access.allowed_test_ips', []), true)
+        );
 @endphp
 
 <div class="rounded-[2rem] border border-[var(--color-border)] bg-white p-6 shadow-[var(--shadow-xl)] sm:p-8">
@@ -110,7 +116,7 @@
     </p>
 </div>
 
-@if(app()->environment('local', 'testing'))
+@if($showTestAccounts)
 <div class="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4">
     <div class="flex items-start justify-between gap-3">
         <div>
@@ -218,7 +224,7 @@
 @endif
 @endsection
 
-@if(app()->environment('local', 'testing'))
+@if($showTestAccounts)
 @push('scripts')
 <script>
 (() => {

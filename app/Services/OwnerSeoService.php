@@ -119,6 +119,8 @@ final class OwnerSeoService
             ))
         )->values();
 
+        $items = $this->appendDuplicateFindings($items);
+
         return [
             'academies' => collect(),
             'courses' => collect(),
@@ -227,6 +229,88 @@ final class OwnerSeoService
         return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     }
 
+    /**
+     * Detect repeated stored titles, descriptions and canonical URLs across
+     * all currently published public records in this overview.
+     */
+    private function appendDuplicateFindings(Collection $items): Collection
+    {
+        $rules = [
+            'title' => [
+                'field' => 'audit_title',
+                'key' => 'duplicate_title',
+                'title' => 'عنوان SEO تکراری',
+                'detail' => 'چند صفحهٔ عمومی عنوان یکسان یا بسیار مشابه دارند؛ عنوان هر صفحه را بر اساس هدف جستجوی مستقل بازنویسی کن.',
+                'severity' => 'warning',
+            ],
+            'description' => [
+                'field' => 'audit_description',
+                'key' => 'duplicate_description',
+                'title' => 'توضیحات SEO تکراری',
+                'detail' => 'چند صفحه توضیحات متای یکسان دارند؛ برای هر صفحه توضیحی متمایز و مرتبط بنویس.',
+                'severity' => 'warning',
+            ],
+            'canonical' => [
+                'field' => 'canonical_url',
+                'key' => 'duplicate_canonical',
+                'title' => 'Canonical مشترک بین چند صفحه',
+                'detail' => 'چند صفحه به یک canonical سفارشی اشاره می‌کنند؛ بررسی کن این ادغام عمدی است و آدرس صفحهٔ اصلی درست انتخاب شده است.',
+                'severity' => 'critical',
+            ],
+        ];
+
+        foreach ($rules as $kind => $rule) {
+            $groups = $items->map(function (array $item, int $index) use ($kind, $rule): ?array {
+                $raw = trim((string) ($item[$rule['field']] ?? ''));
+                if ($raw === '') {
+                    return null;
+                }
+
+                if ($kind === 'canonical') {
+                    $normalized = rtrim($raw, '/');
+                } else {
+                    $normalized = mb_strtolower(strip_tags($raw));
+                    $normalized = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $normalized) ?? $normalized;
+                    $normalized = preg_replace('/\s+/u', ' ', trim($normalized)) ?? trim($normalized);
+                }
+
+                if ($normalized === '') {
+                    return null;
+                }
+
+                return [
+                    'index' => $index,
+                    'value' => $normalized,
+                    'label' => (string) $item['label'],
+                ];
+            })->filter()->groupBy('value');
+
+            foreach ($groups as $entries) {
+                if ($entries->count() < 2) {
+                    continue;
+                }
+
+                $labels = $entries->pluck('label')->take(3)->implode('، ');
+                $remaining = $entries->count() - 3;
+                $affectedPages = $labels . ($remaining > 0 ? " و {$remaining} صفحهٔ دیگر" : '');
+
+                foreach ($entries as $entry) {
+                    $item = $items->get($entry['index']);
+                    $item['issues'][] = [
+                        'key' => $rule['key'],
+                        'severity' => $rule['severity'],
+                        'title' => $rule['title'],
+                        'detail' => $rule['detail'] . ' نمونهٔ صفحه‌های درگیر: ' . $affectedPages . '.',
+                    ];
+                    $item['issue_count'] = count($item['issues']);
+                    $items->put($entry['index'], $item);
+                }
+            }
+        }
+
+        return $items->values();
+    }
+
     private function statsFor(Collection $items): array
     {
         return [
@@ -234,7 +318,89 @@ final class OwnerSeoService
             'configured' => $items->where('score', '>', 0)->count(),
             'ready' => $items->where('score', '>=', 80)->count(),
             'needsWork' => $items->where('score', '<', 80)->count(),
+            'pagesWithFindings' => $items->where('issue_count', '>', 0)->count(),
+            'totalFindings' => (int) $items->sum('issue_count'),
+            'duplicatePages' => $items->filter(fn (array $item): bool => collect($item['issues'] ?? [])->contains(
+                fn (array $issue): bool => str_starts_with((string) ($issue['key'] ?? ''), 'duplicate_')
+            ))->count(),
+            'noindex' => $items->filter(
+                fn (array $item): bool => str_starts_with((string) ($item['robots'] ?? ''), 'noindex')
+            )->count(),
         ];
+    }
+
+    /**
+     * Audit stored SEO overrides against the output conventions used by this app.
+     * Length ranges are editorial guidance, not a prediction of search rankings.
+     */
+    private function auditIssues(string $type, ?object $seo): array
+    {
+        $issues = [];
+        $title = trim((string) ($seo?->title ?? ''));
+        $description = trim((string) ($seo?->description ?? ''));
+
+        if ($title === '') {
+            $issues[] = [
+                'severity' => 'warning',
+                'title' => 'عنوان SEO اختصاصی تنظیم نشده',
+                'detail' => 'عنوان اصلی صفحه به‌عنوان مقدار جایگزین استفاده می‌شود؛ برای کنترل بهتر عنوان نتیجه، یک عنوان توصیفی و یکتا ثبت کن.',
+            ];
+        } else {
+            $length = mb_strlen($title);
+            if ($length < 30 || $length > 60) {
+                $issues[] = [
+                    'severity' => 'info',
+                    'title' => 'طول عنوان خارج از بازهٔ راهنمایی است',
+                    'detail' => "عنوان فعلی {$length} کاراکتر دارد. بازهٔ ۳۰ تا ۶۰ فقط راهنمای ویرایشی است؛ وضوح و یکتایی عنوان را در اولویت بگذار.",
+                ];
+            }
+        }
+
+        if ($description === '') {
+            $issues[] = [
+                'severity' => 'warning',
+                'title' => 'توضیحات SEO اختصاصی تنظیم نشده',
+                'detail' => 'ممکن است قالب از توضیحات صفحه استفاده کند یا توضیحات خالی بماند؛ خروجی HTML را بررسی و توضیحی یکتا ثبت کن.',
+            ];
+        } else {
+            $length = mb_strlen($description);
+            if ($length < 70 || $length > 160) {
+                $issues[] = [
+                    'severity' => 'info',
+                    'title' => 'طول توضیحات خارج از بازهٔ راهنمایی است',
+                    'detail' => "توضیحات فعلی {$length} کاراکتر دارد. بازهٔ ۷۰ تا ۱۶۰ یک راهنمای نگارشی است و نمایش نهایی snippet تضمین‌شده نیست.",
+                ];
+            }
+        }
+
+        if (blank($seo?->og_image_url)) {
+            $issues[] = [
+                'severity' => 'info',
+                'title' => 'تصویر OG اختصاصی ثبت نشده',
+                'detail' => 'در برخی صفحات تصویر رسانهٔ خود محتوا جایگزین می‌شود؛ کارت اشتراک‌گذاری لینک را برای تصویر، برش و تناسب آن بررسی کن.',
+            ];
+        }
+
+        // Course, blog, product and teacher pages have built-in JSON-LD fallbacks.
+        // Public academy content does not currently get the same type-specific fallback.
+        if ($type === 'content' && blank($seo?->schema_json)) {
+            $issues[] = [
+                'severity' => 'info',
+                'title' => 'دادهٔ ساختاریافتهٔ اختصاصی تنظیم نشده',
+                'detail' => 'برای محتوای مقاله‌ای، در صورت تطابق با محتوای واقعی صفحه، تعریف Article/VideoObject را بررسی کن؛ دادهٔ ساختاریافته نباید اطلاعات ساختگی داشته باشد.',
+            ];
+        }
+
+        $robots = trim((string) ($seo?->robots ?: 'index,follow'));
+        if (str_starts_with($robots, 'noindex')) {
+            array_unshift($issues, [
+                'severity' => 'critical',
+                'title' => 'صفحه روی noindex تنظیم شده',
+                'detail' => 'این صفحه از نتایج جستجو کنار گذاشته می‌شود. اگر این تصمیم عمدی نیست، robots را به index,follow تغییر بده.',
+            ]);
+        }
+
+        return $issues;
     }
 
     private function mapItem(
@@ -256,6 +422,7 @@ final class OwnerSeoService
 
         $filled = collect($fields)->filter(fn ($value) => filled($value))->count();
         $score = (int) round(($filled / count($fields)) * 100);
+        $issues = $this->auditIssues($type, $seo);
         $url = match ($type) {
             'course' => route('courses.show', $model),
             'content' => $model->academy ? route('academy.content.show', [$model->academy->slug, $model->slug]) : null,
@@ -274,6 +441,11 @@ final class OwnerSeoService
             'robots' => $seo?->robots ?: 'index,follow',
             'score' => $score,
             'status' => $score >= 80 ? 'ready' : ($score > 0 ? 'partial' : 'empty'),
+            'audit_title' => trim((string) ($seo?->title ?: $label)),
+            'audit_description' => trim((string) ($seo?->description ?? '')),
+            'canonical_url' => trim((string) ($seo?->canonical_url ?? '')),
+            'issues' => $issues,
+            'issue_count' => count($issues),
         ];
     }
 }

@@ -163,7 +163,7 @@ class AcademyFoundationSeeder extends Seeder
     {
         // Keep the documented demo credentials usable even when the user
         // already existed from an earlier seed with an old password/status.
-        $seedPassword = env('SEED_USER_PASSWORD');
+        $seedPassword = config('role_access.seed_password');
         if (blank($seedPassword) && ! app()->environment(['local', 'testing'])) {
             throw new \RuntimeException(
                 'Set SEED_USER_PASSWORD before seeding demo accounts outside local/testing environments.'

@@ -1,16 +1,19 @@
 <?php
 
-return [
+$appEnvironment = (string) env('APP_ENV', 'production');
+$defaultShowTestAccounts = in_array($appEnvironment, ['local', 'testing'], true);
+$showTestAccounts = filter_var(
+    env('SHOW_TEST_ACCOUNTS', $defaultShowTestAccounts),
+    FILTER_VALIDATE_BOOLEAN
+);
+$seedUserPassword = trim((string) env('SEED_USER_PASSWORD', ''));
+$seedPasswordAvailable = $seedUserPassword !== ''
+    || in_array($appEnvironment, ['local', 'testing'], true);
+$seedPassword = $seedPasswordAvailable
+    ? ($seedUserPassword !== '' ? $seedUserPassword : 'Sheykhan@12345')
+    : null;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Role dashboard routes
-    |--------------------------------------------------------------------------
-    |
-    | Keep role entry points in one place so authentication UI and future
-    | navigation do not drift away from the actual route names.
-    |
-    */
+return [
     'dashboard_routes' => [
         'seo-specialist' => 'owner.seo.index',
         'academy-owner' => 'owner.dashboard',
@@ -19,18 +22,21 @@ return [
         'parent' => 'parent.dashboard',
     ],
 
-    // Demo credentials are available only on local/test environments.
-    'test_password' => in_array(env('APP_ENV', 'production'), ['local', 'testing'], true)
-        ? (env('SEED_USER_PASSWORD') ?: 'Sheykhan@12345')
-        : null,
+    // Local/testing gets a documented disposable password; other environments
+    // must set a unique SEED_USER_PASSWORD before demo credentials are rendered.
+    'show_test_accounts' => $showTestAccounts,
+    'seed_password' => $seedPassword,
+    'test_password' => $showTestAccounts ? $seedPassword : null,
+    'allowed_test_ips' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('TEST_ACCOUNTS_ALLOWED_IPS', ''))
+    ))),
 
     'test_accounts' => [
-        ['role' => 'مدیر آموزشگاه / منشی', 'role_key' => 'academy-owner', 'name' => 'مدیر آموزشگاه', 'username' => 'owner@sheykhan.test'],
-        ['role' => 'مدرس', 'role_key' => 'teacher', 'name' => 'سمیه احمدی · ریاضی', 'username' => 'teacher.math@sheykhan.test'],
+        ['role' => 'مدیر آموزشگاه', 'role_key' => 'academy-owner', 'name' => 'مدیر آموزشگاه', 'username' => 'owner@sheykhan.test'],
+        ['role' => 'معلم', 'role_key' => 'teacher', 'name' => 'سمیه احمدی · ریاضی', 'username' => 'teacher.math@sheykhan.test'],
         ['role' => 'دانش‌آموز', 'role_key' => 'student', 'name' => 'آرین محمدی', 'username' => 'student.armin@sheykhan.test'],
-        ['role' => 'والد', 'role_key' => 'parent', 'name' => 'مریم محمدی', 'username' => 'parent.armin@sheykhan.test'],
+        ['role' => 'اولیا', 'role_key' => 'parent', 'name' => 'مریم محمدی', 'username' => 'parent.armin@sheykhan.test'],
         ['role' => 'متخصص SEO', 'role_key' => 'seo-specialist', 'name' => 'متخصص SEO', 'username' => 'seo@sheykhan.test'],
     ],
-
-
 ];
