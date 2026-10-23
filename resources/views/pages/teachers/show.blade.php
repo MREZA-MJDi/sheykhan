@@ -311,4 +311,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="قدم بعدی"
+        title="این تخصص را به یک مسیر آموزشی وصل کن"
+        description="دوره‌های منتشرشده را بررسی کن و ببین کدام مسیر با نیاز آموزشی تو هماهنگ‌تر است."
+        :primary-href="route('courses.index')"
+        primary-label="مشاهده دوره‌ها"
+        :secondary-href="route('register')"
+        secondary-label="شروع یادگیری"
+    />
 @endsection
