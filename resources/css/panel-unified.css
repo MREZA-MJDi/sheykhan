@@ -5182,3 +5182,54 @@
     background: linear-gradient(145deg,#fff,#f9faff);
     box-shadow: 0 7px 21px rgba(38,45,93,.05);
 }
+
+
+
+/* Heading-only pages (messages, parent contact, meetings, payments) get a
+   shared editorial masthead even where their legacy markup uses utility classes. */
+.teacher-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1),
+.teacher-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1),
+.student-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1),
+.student-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(20px,2.5vw,29px);
+    border: 1px solid #e0e4f7;
+    border-radius: 21px;
+    background:
+        radial-gradient(circle at 96% 0%,rgba(112,97,246,.12),transparent 14rem),
+        radial-gradient(circle at 4% 100%,rgba(40,198,196,.09),transparent 13rem),
+        linear-gradient(120deg,#fff 0%,#fafaff 62%,#f5fcff 100%);
+    box-shadow: 0 8px 24px rgba(45,48,110,.045);
+}
+
+.teacher-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1) h1,
+.teacher-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1) h1,
+.student-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1) h1,
+.student-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1) h1 {
+    color: #242947;
+    font-size: clamp(23px,2.5vw,31px);
+    font-weight: 950;
+    letter-spacing: -.035em;
+    line-height: 1.65;
+}
+
+.teacher-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1) p,
+.teacher-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1) p,
+.student-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1) p,
+.student-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1) p {
+    color: #77829d;
+    font-size: 12px;
+    line-height: 2;
+}
+
+@media (max-width: 640px) {
+    .teacher-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1),
+    .teacher-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1),
+    .student-shell .role-main > .space-y-6 > :first-child:not(.rounded-3xl):has(h1),
+    .student-shell .role-main > .mx-auto.max-w-6xl.space-y-6 > :first-child:not(.rounded-3xl):has(h1) {
+        padding: 18px;
+        border-radius: 17px;
+    }
+}
