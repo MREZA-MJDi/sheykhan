@@ -1,25 +1,28 @@
 @extends('layouts.teacher')
 
-@section('title','آزمون جدید | شیخان')
-@section('header-title','طراحی برگه آزمون')
+@section('title', ($exam->exists ? 'ویرایش آزمون' : 'آزمون جدید') . ' | شیخان')
+@section('header-title', $exam->exists ? 'ویرایش برگه آزمون' : 'طراحی برگه آزمون')
 
 @section('content')
 <div class="teacher-form-shell teacher-exam-builder-shell">
     <div class="teacher-form-head teacher-exam-page-head">
         <div>
             <span class="teacher-form-kicker">آزمون‌ساز شیخان</span>
-            <h1>طراحی برگهٔ امتحانی</h1>
-            <p>سؤال‌ها را مانند یک برگهٔ امتحان مرتب کن، نوع هر سؤال را انتخاب کن و کلید پاسخ یا پاسخ مرجع معلم را ثبت کن.</p>
+            <h1>{{ $exam->exists ? 'ویرایش برگهٔ امتحانی' : 'طراحی برگهٔ امتحانی' }}</h1>
+            <p>{{ $exam->exists ? 'اطلاعات و سؤال‌های آزمون را اصلاح کن. بعد از شروع اولین تلاش، برای حفظ پاسخ‌ها و نمره‌ها امکان ویرایش برگه بسته می‌شود.' : 'سؤال‌ها را مانند یک برگهٔ امتحان مرتب کن، نوع هر سؤال را انتخاب کن و کلید پاسخ یا پاسخ مرجع معلم را ثبت کن.' }}</p>
         </div>
         <a href="{{ route('teacher.exams.index') }}" class="teacher-workspace-btn secondary">بازگشت به آزمون‌ها</a>
     </div>
 
     <form method="POST"
-          action="{{ route('teacher.exams.store') }}"
+          action="{{ $exam->exists ? route('teacher.exams.update', $exam) : route('teacher.exams.store') }}"
           class="teacher-exam-builder-form"
           data-exam-builder
-          data-initial-questions="{{ json_encode(old('questions', []), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+          data-initial-questions="{{ json_encode(old('questions', $initialQuestions ?? []), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
         @csrf
+        @if($exam->exists)
+            @method('PATCH')
+        @endif
 
         <section class="teacher-form-section teacher-exam-settings-section" aria-labelledby="exam-settings-title">
             <header class="teacher-exam-section-head">
@@ -36,7 +39,7 @@
                     <span>دوره</span>
                     <select name="course_id" data-course-select required>
                         @foreach($courses as $course)
-                            <option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>
+                            <option value="{{ $course->id }}" @selected(old('course_id', $exam->course_id) == $course->id)>{{ $course->title }}</option>
                         @endforeach
                     </select>
                     <small class="teacher-exam-field-help">آزمون، پاسخ‌ها و نتیجه‌ها به این دوره وصل می‌شوند. فقط دوره‌هایی را می‌بینی که مجاز به مدیریتشان هستی.</small>
@@ -47,7 +50,7 @@
                     <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
                         <option value="">همهٔ دانش‌آموزان دوره</option>
                         @foreach($classrooms as $classroom)
-                            <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>
+                            <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id', $exam->classroom_id) == $classroom->id)>{{ $classroom->title }}</option>
                         @endforeach
                     </select>
                     <small class="teacher-exam-field-help">اگر یک کلاس را انتخاب کنی فقط همان گروه آزمون را می‌بیند؛ اگر خالی بماند، آزمون برای دانش‌آموزان مجاز تمام کلاس‌های این دوره در دسترس خواهد بود.</small>
@@ -55,7 +58,7 @@
 
                 <label class="teacher-form-field md:col-span-2">
                     <span>عنوان آزمون</span>
-                    <input name="title" data-exam-title value="{{ old('title') }}" placeholder="مثلاً آزمون فصل‌های اول فیزیک" required maxlength="255">
+                    <input name="title" data-exam-title value="{{ old('title', $exam->title) }}" placeholder="مثلاً آزمون فصل‌های اول فیزیک" required maxlength="255">
                     <small class="teacher-exam-field-help">عنوانی روشن بنویس؛ همین عنوان در فهرست آزمون‌ها و بالای برگهٔ دانش‌آموز نمایش داده می‌شود.</small>
                 </label>
 
@@ -71,8 +74,8 @@
                     <small class="teacher-exam-field-help">حداکثر تعداد دفعاتی که هر دانش‌آموز می‌تواند برگه را شروع و تحویل کند؛ حداقل یک بار.</small>
                 </label>
 
-                <x-teacher.jalali-datetime name="starts_at" :value="old('starts_at')" label="شروع آزمون" />
-                <x-teacher.jalali-datetime name="ends_at" :value="old('ends_at')" label="پایان آزمون" />
+                <x-teacher.jalali-datetime name="starts_at" :value="old('starts_at', $exam->starts_at?->toDateTimeString())" label="شروع آزمون" />
+                <x-teacher.jalali-datetime name="ends_at" :value="old('ends_at', $exam->ends_at?->toDateTimeString())" label="پایان آزمون" />
                 <p class="teacher-exam-date-help md:col-span-2">تاریخ‌ها اختیاری‌اند. قبل از زمان شروع، آزمون باز نمی‌شود؛ بعد از زمان پایان هم سرور ارسال پاسخ را نمی‌پذیرد.</p>
 
                 <label class="teacher-form-field">
@@ -87,7 +90,7 @@
 
                 <label class="teacher-form-field md:col-span-2">
                     <span>راهنمای آزمون <small>اختیاری · برای دانش‌آموز نمایش داده می‌شود</small></span>
-                    <textarea name="description" data-exam-description rows="3" placeholder="زمان‌بندی، منابع مجاز یا توضیح لازم برای دانش‌آموز...">{{ old('description') }}</textarea>
+                    <textarea name="description" data-exam-description rows="3" placeholder="زمان‌بندی، منابع مجاز یا توضیح لازم برای دانش‌آموز...">{{ old('description', $exam->description) }}</textarea>
                     <small class="teacher-exam-field-help">این متن پیش از شروع و بالای برگهٔ پاسخ دانش‌آموز نمایش داده می‌شود؛ مثلاً منابع مجاز، نحوهٔ پاسخ یا نکتهٔ مهم آزمون.</small>
                 </label>
             </div>
@@ -121,7 +124,7 @@
                             <span class="teacher-exam-sheet-mark" aria-hidden="true">ش</span>
                             <div>
                                 <span>شیخان · برگهٔ ارزیابی</span>
-                                <h3 data-exam-preview-title>{{ old('title') ?: 'عنوان آزمون شما' }}</h3>
+                                <h3 data-exam-preview-title>{{ old('title', $exam->title) ?: 'عنوان آزمون شما' }}</h3>
                                 <p data-exam-preview-course>دورهٔ انتخاب‌شده</p>
                             </div>
                         </div>
@@ -161,7 +164,7 @@
 
         <div class="teacher-exam-final-actions">
             <a href="{{ route('teacher.exams.index') }}" class="teacher-workspace-btn secondary">انصراف</a>
-            <button type="submit" class="teacher-workspace-btn primary">ذخیره و ساخت آزمون</button>
+            <button type="submit" class="teacher-workspace-btn primary">{{ $exam->exists ? 'ذخیرهٔ تغییرات آزمون' : 'ذخیره و ساخت آزمون' }}</button>
         </div>
 
         <template data-exam-question-template>
