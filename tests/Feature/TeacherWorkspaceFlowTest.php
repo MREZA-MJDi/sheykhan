@@ -113,6 +113,124 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertSame(180, (int) $updated->duration_minutes);
     }
 
+    public function test_exam_can_be_edited_before_attempt_and_is_locked_after_student_starts(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $classroom = Classroom::where('course_id', $course->id)
+            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.exams.store'), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'برگهٔ قابل ویرایش - تست',
+                'description' => 'راهنمای اولیه',
+                'duration_minutes' => 45,
+                'attempts_allowed' => 1,
+                'starts_at' => now()->subMinute()->toDateTimeString(),
+                'ends_at' => now()->addDay()->toDateTimeString(),
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'سؤال تشریحی اولیه',
+                        'expected_answer' => 'پاسخ مرجع اولیه',
+                        'score' => 2,
+                    ],
+                    [
+                        'type' => 'single',
+                        'question' => 'سؤال چهارگزینه‌ای اولیه',
+                        'options' => ['الف', 'ب', 'ج', 'د'],
+                        'correct_answer' => 'ب',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $exam = \App\Models\Exam::where('title', 'برگهٔ قابل ویرایش - تست')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.edit', $exam))
+            ->assertOk()
+            ->assertSee('ویرایش برگهٔ امتحانی')
+            ->assertSee('سؤال تشریحی اولیه')
+            ->assertSee('پاسخ مرجع اولیه');
+
+        $this->actingAs($teacher)
+            ->patch(route('teacher.exams.update', $exam), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'برگهٔ ویرایش‌شده - تست',
+                'description' => 'راهنمای اصلاح‌شده',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'starts_at' => now()->subMinute()->toDateTimeString(),
+                'ends_at' => now()->addDay()->toDateTimeString(),
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'سؤال تشریحی اصلاح‌شده',
+                        'expected_answer' => 'پاسخ مرجع اصلاح‌شده',
+                        'score' => 3,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHasNoErrors();
+
+        $exam->refresh();
+        $questions = $exam->questions()->orderBy('sort_order')->get();
+        $this->assertSame('برگهٔ ویرایش‌شده - تست', $exam->title);
+        $this->assertSame('راهنمای اصلاح‌شده', $exam->description);
+        $this->assertCount(1, $questions);
+        $this->assertSame('سؤال تشریحی اصلاح‌شده', $questions[0]->question);
+        $this->assertSame('پاسخ مرجع اصلاح‌شده', $questions[0]->expected_answer);
+
+        \App\Models\ExamAttempt::create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'attempt_number' => 1,
+            'started_at' => now(),
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.edit', $exam))
+            ->assertRedirect(route('teacher.exams.index'))
+            ->assertSessionHas('warning');
+
+        $this->actingAs($teacher)
+            ->from(route('teacher.exams.edit', $exam))
+            ->patch(route('teacher.exams.update', $exam), [
+                'course_id' => $course->id,
+                'classroom_id' => $classroom->id,
+                'title' => 'نباید تغییر کند',
+                'duration_minutes' => 30,
+                'attempts_allowed' => 1,
+                'status' => 'draft',
+                'questions' => [
+                    [
+                        'type' => 'text',
+                        'question' => 'تغییر غیرمجاز',
+                        'score' => 1,
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('teacher.exams.edit', $exam))
+            ->assertSessionHasErrors('exam');
+
+        $this->assertSame('برگهٔ ویرایش‌شده - تست', $exam->fresh()->title);
+        $this->assertSame('سؤال تشریحی اصلاح‌شده', $exam->questions()->firstOrFail()->question);
+    }
+
     public function test_exam_builder_persists_essay_single_and_multi_choice_questions_correctly(): void
     {
         $this->seed();
