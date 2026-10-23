@@ -1,10 +1,6 @@
-import './persian-calendar.js';
-import { bootPanel } from './panel-base.js';
 import './exam-builder.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    bootPanel();
-
     // Preview profile images before upload; the server remains authoritative for validation.
     const profileForm = document.querySelector('[data-teacher-profile-form]');
     if (profileForm) {
