@@ -234,7 +234,8 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.show', $exam))
             ->assertOk()
-            ->assertSee('آزمون تشریحی - گردش کار کامل');
+            ->assertSee('آزمون تشریحی - گردش کار کامل')
+            ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         $this->actingAs($student)
             ->post(route('student.exams.start', $exam))
@@ -280,6 +281,27 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.')
             ->assertSee('کلید پاسخ صحیح')
             ->assertSee('بازبینی دستی');
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.exam-attempts.grade', $attempt))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $attempt->refresh();
+        $this->assertSame('needs_review', $attempt->status);
+        $this->assertSame(1.0, (float) $attempt->score);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.result', $exam))
+            ->assertOk()
+            ->assertSee('نمرهٔ موقت تستی')
+            ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
+
+        $this->actingAs($student)
+            ->get(route('student.results.index'))
+            ->assertOk()
+            ->assertSee('نمره موقت')
+            ->assertSee('آزمون تشریحی - گردش کار کامل');
 
         $this->actingAs($teacher)
             ->patch(route('teacher.exam-attempts.grade-manual', $attempt), [
