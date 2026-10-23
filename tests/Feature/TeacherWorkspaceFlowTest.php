@@ -150,7 +150,7 @@ class TeacherWorkspaceFlowTest extends TestCase
                     [
                         'type' => 'single',
                         'question' => '۲ + ۲ چند می‌شود؟',
-                        'options' => ['۳', '۴', '۵'],
+                        'options' => ['۳', '۴', '۵', '۶'],
                         'correct_answer' => '۴',
                         'score' => 1,
                     ],
@@ -176,7 +176,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertSame('راهنمای خصوصی آزمون: ابتدا داده‌ها را مشخص کن و سپس مراحل حل را توضیح بده.', $questions[0]->expected_answer);
 
         $this->assertSame('single', $questions[1]->type);
-        $this->assertSame(['۳', '۴', '۵'], $questions[1]->options);
+        $this->assertSame(['۳', '۴', '۵', '۶'], $questions[1]->options);
         $this->assertSame('۴', $questions[1]->correct_answer);
 
         $this->assertSame('multiple', $questions[2]->type);
@@ -218,7 +218,7 @@ class TeacherWorkspaceFlowTest extends TestCase
                     [
                         'type' => 'single',
                         'question' => '۳ + ۴ چند می‌شود؟',
-                        'options' => ['۶', '۷', '۸'],
+                        'options' => ['۶', '۷', '۸', '۹'],
                         'correct_answer' => '۷',
                         'score' => 1,
                     ],
