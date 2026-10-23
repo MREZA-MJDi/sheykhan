@@ -8,15 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('parent_student', function (Blueprint $table): void {
-            $table->index('student_id', 'parent_student_student_id_idx');
-        });
+        // In MySQL/MariaDB, the foreign key may already have created a usable
+        // single-column index. Add one explicitly only on engines that lack it.
+        if (! Schema::hasIndex('parent_student', ['student_id'])) {
+            Schema::table('parent_student', function (Blueprint $table): void {
+                $table->index('student_id', 'parent_student_student_id_idx');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('parent_student', function (Blueprint $table): void {
-            $table->dropIndex('parent_student_student_id_idx');
-        });
+        if (Schema::hasIndex('parent_student', 'parent_student_student_id_idx')) {
+            Schema::table('parent_student', function (Blueprint $table): void {
+                $table->dropIndex('parent_student_student_id_idx');
+            });
+        }
     }
 };
