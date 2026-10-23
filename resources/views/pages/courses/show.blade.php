@@ -547,4 +547,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="ادامه‌ی مسیر"
+        title="کلاس و مدرس را هم بشناس"
+        description="برای تصمیم بهتر، مسیر آموزشی را در کنار اطلاعات مدرس بررسی کن و پس از انتخاب، با حساب خود ادامه بده."
+        :primary-href="route('teachers.index')"
+        primary-label="آشنایی با مدرس‌ها"
+        :secondary-href="route('login')"
+        secondary-label="ورود به کارتابل"
+    />
 @endsection

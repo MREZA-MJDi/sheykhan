@@ -131,4 +131,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="منابع در کنار آموزش"
+        title="منبع مناسب را کنار مسیر درست قرار بده"
+        description="منابع آموزشی وقتی مؤثرترند که با دوره و برنامه‌ی یادگیری هماهنگ باشند."
+        :primary-href="route('courses.index')"
+        primary-label="دیدن دوره‌ها"
+        :secondary-href="route('blog.index')"
+        secondary-label="خواندن مقاله‌ها"
+    />
 @endsection

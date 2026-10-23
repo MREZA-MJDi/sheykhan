@@ -218,4 +218,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="از مطالعه تا تمرین"
+        title="یادگرفته‌ها را وارد عمل کن"
+        description="مطالعه را با یک مسیر آموزشی، تمرین هدفمند و پیگیری نتیجه کامل کن."
+        :primary-href="route('courses.index')"
+        primary-label="انتخاب دوره"
+        :secondary-href="route('store.index')"
+        secondary-label="منابع آموزشی"
+    />
 @endsection

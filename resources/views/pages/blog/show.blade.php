@@ -262,4 +262,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="از ایده تا اجرا"
+        title="یادگیری را با تمرین ادامه بده"
+        description="نکته‌های این مطلب را با یک دوره‌ی آموزشی و منابع مناسب به برنامه‌ی مطالعه‌ات تبدیل کن."
+        :primary-href="route('courses.index')"
+        primary-label="انتخاب دوره"
+        :secondary-href="route('store.index')"
+        secondary-label="منابع آموزشی"
+    />
 @endsection

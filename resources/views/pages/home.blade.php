@@ -175,8 +175,7 @@
         </x-layout.container>
     </section>
 
-    @if(count($courseCards))
-    {{-- Courses --}}
+    {{-- Courses: keep the discovery section visible even before the first course is published. --}}
     <section id="featured-courses" class="home-section home-soft">
         <x-layout.container size="wide">
             <div class="home-heading">
@@ -213,10 +212,8 @@
         </x-layout.container>
     </section>
 
-    @endif
 
-    {{-- Latest articles are shown only when there are real published posts. --}}
-    @if($latestPosts->isNotEmpty())
+    {{-- Keep the journal discovery area visible when no post has been published yet. --}}
     {{-- Latest articles --}}
     <section id="academy-journal" class="home-section home-blog">
         <x-layout.container size="wide">
@@ -277,7 +274,6 @@
         </x-layout.container>
     </section>
 
-    @endif
 
     {{-- Why Sheykhan --}}
     <section id="learning-experience" class="home-section home-dark">
@@ -333,8 +329,10 @@
         </x-layout.container>
     </section>
 
-    @if(count($teacherCards))
-    {{-- Teachers --}}
+
+    @include('components.branding.home-learning-workflow')
+
+    {{-- Teachers: an empty directory still offers a clear next step. --}}
     <section id="teachers-section" class="home-section">
         <x-layout.container size="wide">
             <div class="home-heading">
@@ -363,11 +361,9 @@
         </x-layout.container>
     </section>
 
-    @endif
 
     {{-- Live classes --}}
-    @if(count($liveClassCards))
-        <section id="upcoming-classes" class="home-section home-soft">
+    <section id="upcoming-classes" class="home-section home-soft">
             <x-layout.container size="wide">
                 <div class="home-heading">
                     <div>
@@ -376,7 +372,7 @@
                     </div>
                 </div>
                 <div class="home-live-grid">
-                    @foreach($liveClassCards as $class)
+                    @forelse($liveClassCards as $class)
                         <x-education.live-class-card
                             :title="$class['title']"
                             :course="$class['course']"
@@ -386,14 +382,14 @@
                             :status="$class['status']"
                             :href="$class['href']"
                         />
-                    @endforeach
+                    @empty
+                        <div class="home-empty-state"><strong>در حال حاضر کلاس آینده‌ای برای نمایش منتشر نشده است.</strong><span>برنامه کلاس‌ها پس از ثبت و انتشار توسط آموزشگاه در این بخش قرار می‌گیرد.</span><a href="{{ route('courses.index') }}">مشاهده دوره‌ها ←</a></div>
+                    @endforelse
                 </div>
             </x-layout.container>
         </section>
-    @endif
 
     {{-- Educational store --}}
-    @if(count($storeCategories) || count($productCards))
     <section id="educational-store" class="home-section">
         <x-layout.container size="wide">
             <div class="home-heading">
@@ -436,7 +432,6 @@
             @endif
         </x-layout.container>
     </section>
-    @endif
 
     {{-- Academy editorial content: show only content paths that have public material. --}}
     @php

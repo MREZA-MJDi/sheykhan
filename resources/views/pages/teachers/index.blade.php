@@ -67,4 +67,13 @@
             </x-layout.container>
         </x-layout.section>
     </section>
+    <x-branding.public-next-step
+        eyebrow="انتخاب مسیر آموزشی"
+        title="مدرس را با دوره‌ی مناسب همراه کن"
+        description="بعد از آشنایی با تخصص مدرس‌ها، دوره‌های منتشرشده را ببین و مسیر مناسب خودت را پیدا کن."
+        :primary-href="route('courses.index')"
+        primary-label="دیدن دوره‌ها"
+        :secondary-href="route('register')"
+        secondary-label="شروع یادگیری"
+    />
 @endsection

@@ -977,3 +977,30 @@
     .public-store-page .edu-card { transition: none; }
     .public-store-page .edu-card:hover { transform: none; }
 }
+
+
+
+/* A consistent next action closes the loop on each public catalog/editorial screen. */
+.public-next-step { padding-block: clamp(2.5rem,5vw,4.5rem); }
+.public-next-step__card {
+    display:flex; align-items:center; justify-content:space-between; gap:2rem;
+    padding:clamp(1.5rem,3vw,2.5rem);
+    border:1px solid #e3e6ed; border-radius:26px;
+    background:radial-gradient(circle at 5% 0%,rgba(91,91,214,.08),transparent 17rem),linear-gradient(135deg,#fff 0%,#f8f9fc 100%);
+    box-shadow:0 16px 40px rgba(20,31,52,.055);
+}
+.public-next-step__copy { min-width:0; max-width:740px; }
+.public-next-step__copy>span { display:inline-flex; align-items:center; gap:.5rem; color:#5b59c8; font-size:.75rem; font-weight:950; }
+.public-next-step__copy>span::before { content:""; width:.42rem; height:.42rem; border-radius:50%; background:#16a085; }
+.public-next-step__copy h2 { margin:.5rem 0 0; color:#20283a; font-size:clamp(1.35rem,2.4vw,2rem); line-height:1.7; font-weight:950; letter-spacing:-.025em; }
+.public-next-step__copy p { margin:.45rem 0 0; color:#687386; font-size:.88rem; line-height:2.1; }
+.public-next-step__actions { display:flex; flex:0 0 auto; flex-wrap:wrap; gap:.65rem; }
+.public-next-step__button { display:inline-flex; align-items:center; justify-content:center; gap:.6rem; min-height:45px; padding:.7rem 1rem; border-radius:12px; font-size:.77rem; font-weight:900; text-decoration:none; transition:transform .18s ease,background .18s ease,border-color .18s ease; }
+.public-next-step__button:hover { transform:translateY(-2px); }
+.public-next-step__button--primary { background:#5559c9; color:#fff; box-shadow:0 8px 18px rgba(85,89,201,.16); }
+.public-next-step__button--primary:hover { background:#464ab7; color:#fff; }
+.public-next-step__button--secondary { border:1px solid #e1e5ec; background:#fff; color:#364157; }
+.public-next-step__button--secondary:hover { background:#f5f6fb; color:#252d42; }
+@media(max-width:850px) { .public-next-step__card { align-items:stretch; flex-direction:column; gap:1.2rem; } .public-next-step__actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:560px) { .public-next-step { padding-block:2.25rem; } .public-next-step__card { padding:1.2rem; border-radius:19px; } .public-next-step__copy p { font-size:.82rem; } .public-next-step__actions { grid-template-columns:minmax(0,1fr); } .public-next-step__button { width:100%; } }
+@media(prefers-reduced-motion:reduce) { .public-next-step__button { transition:none; } .public-next-step__button:hover { transform:none; } }
