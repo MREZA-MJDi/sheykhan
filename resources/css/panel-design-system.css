@@ -1,0 +1,291 @@
+/*
+ * Sheykhan Panel Design System
+ * Shared foundations for student, teacher, parent and owner/admin workspaces.
+ * Role-specific pages retain their domain layouts; shared primitives keep the
+ * same spacing, surfaces, controls, feedback and responsive behavior.
+ */
+:root {
+    --pds-font: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
+    --pds-bg: #edf3fb;
+    --pds-surface: #ffffff;
+    --pds-surface-soft: #f7faff;
+    --pds-ink: #1d2f45;
+    --pds-muted: #5f7489;
+    --pds-border: #dce6f0;
+    --pds-primary: #315f9b;
+    --pds-primary-hover: #264c80;
+    --pds-primary-soft: #eaf2ff;
+    --pds-accent: #1f9cae;
+    --pds-success: #19764e;
+    --pds-success-bg: #edf9f3;
+    --pds-warning: #945b0b;
+    --pds-warning-bg: #fff8e8;
+    --pds-danger: #b42336;
+    --pds-danger-bg: #fff1f3;
+    --pds-radius-sm: 10px;
+    --pds-radius-md: 16px;
+    --pds-radius-lg: 22px;
+    --pds-shadow-sm: 0 3px 10px rgba(33, 57, 89, .045);
+    --pds-shadow-md: 0 9px 24px rgba(33, 57, 89, .065);
+    --pds-focus: 0 0 0 3px rgba(49, 95, 155, .19);
+}
+body.student-shell,
+body.teacher-shell {
+    --pds-primary: #315f9b;
+    --pds-primary-hover: #264c80;
+    --pds-primary-soft: #eaf2ff;
+    --pds-accent: #1f9cae;
+    --pds-bg: #edf4fb;
+}
+body.owner-shell,
+body.parent-shell {
+    --pds-primary: #5362d8;
+    --pds-primary-hover: #414eb9;
+    --pds-primary-soft: #eef0ff;
+    --pds-accent: #247c9b;
+    --pds-bg: #f3f6fb;
+}
+/* The app frame owns its page margins; avoid doubling body + frame padding. */
+body.student-shell,
+body.teacher-shell { padding: 0 !important; }
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) {
+    font-family: var(--pds-font);
+    color: var(--pds-ink);
+    background-color: var(--pds-bg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) :is(*, *::before, *::after) {
+    box-sizing: border-box;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) :is(h1, h2, h3, h4) {
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) :is(p, small, label, td, th) {
+    overflow-wrap: anywhere;
+}
+
+/* Teacher and student share the same page frame and the same surface rhythm. */
+.student-shell .app,
+.teacher-shell .app {
+    width: min(calc(100% - 32px), 1320px);
+    max-width: 1320px;
+    min-width: 0;
+    min-height: calc(100dvh - 48px);
+    margin: 24px auto;
+    padding: 16px;
+    grid-template-columns: 230px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 18px;
+    border: 1px solid rgba(255,255,255,.62);
+    border-radius: 28px;
+    background: rgba(255,255,255,.33);
+    box-shadow: 8px 12px 30px rgba(44, 70, 105, .13), -4px -4px 14px rgba(255,255,255,.38);
+}
+.student-shell .side,
+.teacher-shell .sb {
+    border-radius: 24px;
+    background: linear-gradient(180deg, #315f9b 0%, #264c80 58%, #1c3d6a 100%);
+    box-shadow: 0 9px 24px rgba(30, 59, 99, .17);
+}
+.student-shell .mn,
+.teacher-shell .mn {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+    border: 1px solid rgba(255,255,255,.78);
+    border-radius: 23px;
+    background: rgba(255,255,255,.59);
+    box-shadow: inset 0 1px 4px rgba(255,255,255,.56);
+}
+.student-shell .side .nv,
+.teacher-shell .sb .nv {
+    border-radius: 12px;
+    transition: color .16s ease, background .16s ease, border-color .16s ease;
+}
+.student-shell .side .nv:focus-visible,
+.teacher-shell .sb .nv:focus-visible {
+    outline: 2px solid #a9e5ed;
+    outline-offset: 2px;
+}
+
+/* Shared owner/parent content frame. */
+.owner-shell .role-layout,
+.parent-shell .role-layout {
+    align-items: stretch;
+    gap: 18px;
+}
+.owner-shell .role-content,
+.parent-shell .role-content { min-width: 0; }
+.owner-shell .role-main,
+.parent-shell .role-main {
+    min-width: 0;
+    width: 100%;
+    padding: clamp(16px, 2vw, 28px);
+}
+.owner-shell .role-main > *,
+.parent-shell .role-main > * { min-width: 0; }
+
+/* Cards are quiet paper-like surfaces, not stacked borders and loud shadows. */
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.dashboard-panel, .owner-panel, .owner-stat-card, .owner-summary-kpi,
+    .parent-panel, .parent-child, .teacher-workspace-card, .teacher-workspace-stat,
+    .teacher-workspace-item, .course-stat, .course-page-card, .role-panel-card) {
+    border-radius: var(--pds-radius-md);
+    box-shadow: var(--pds-shadow-sm);
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.dashboard-panel, .owner-panel, .parent-panel, .parent-child, .teacher-workspace-card, .teacher-workspace-stat, .role-panel-card) {
+    min-width: 0;
+}
+
+/* Forms: consistent labels, input height, borders, focus and validation readability. */
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.role-main, .mn, .workspace-content)
+:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+    select, textarea) {
+    max-width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    border-color: var(--pds-border);
+    border-radius: var(--pds-radius-sm);
+    font: inherit;
+    font-size: 13px;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.role-main, .mn, .workspace-content) textarea {
+    min-height: 100px;
+    line-height: 1.9;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.role-main, .mn, .workspace-content) :is(input, select, textarea):focus-visible {
+    outline: 0;
+    border-color: var(--pds-primary);
+    box-shadow: var(--pds-focus);
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.role-main, .mn, .workspace-content) label {
+    line-height: 1.85;
+}
+
+/* Consistent table behavior, even for legacy pages with utility-class markup. */
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.role-main, .mn, .workspace-content) table {
+    max-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.role-main, .mn, .workspace-content) :is(th, td) {
+    line-height: 1.85;
+    vertical-align: middle;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.table-responsive, .overflow-x-auto, .teacher-workspace-table-wrap, .owner-table-wrap) {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Feedback uses the same radius and clear semantic colors across every role. */
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is([role="alert"], .alert, .flash-message, .feedback-message, .form-error) {
+    border-radius: 12px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.text-rose-600, .text-red-600, .text-danger) { color: var(--pds-danger); }
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(.text-emerald-700, .text-green-700, .text-success) { color: var(--pds-success); }
+
+/* Shared mobile navigation: stable touch targets and safe-area spacing. */
+.role-mobile-bottom-nav {
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
+    border: 1px solid rgba(255,255,255,.62);
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(30, 53, 86, .22);
+    backdrop-filter: blur(16px);
+}
+.role-mobile-bottom-nav :is(a, button) {
+    min-width: 42px;
+    min-height: 42px;
+    border-radius: 12px;
+    touch-action: manipulation;
+}
+.role-mobile-bottom-nav :is(a, button):focus-visible {
+    outline: 2px solid #b7e9f0;
+    outline-offset: 2px;
+}
+.role-mobile-more-dialog { max-width: min(92vw, 440px); }
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell)
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline-offset: 2px;
+}
+:where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) button {
+    touch-action: manipulation;
+}
+@media (max-width: 1000px) {
+    .student-shell .app,
+    .teacher-shell .app {
+        width: min(calc(100% - 20px), 900px);
+        grid-template-columns: 205px minmax(0, 1fr);
+        gap: 12px;
+        padding: 12px;
+        margin: 10px auto;
+    }
+    .owner-shell .role-layout,
+    .parent-shell .role-layout { gap: 12px; }
+    /* Owner's bottom bar is enabled below 1050px; reserve its full height. */
+    .owner-shell .role-main { padding: 18px 18px calc(132px + env(safe-area-inset-bottom, 0px)); }
+    .parent-shell .role-main { padding: 18px; }
+}
+@media (max-width: 760px) {
+    .student-shell .app,
+    .teacher-shell .app {
+        display: block;
+        width: 100%;
+        min-height: 100dvh;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+    .student-shell .side,
+    .teacher-shell .sb { display: none !important; }
+    .student-shell .mn,
+    .teacher-shell .mn {
+        min-height: 100dvh;
+        padding: 14px 12px calc(116px + env(safe-area-inset-bottom, 0px));
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+    .owner-shell .role-main { padding: 14px 12px calc(132px + env(safe-area-inset-bottom, 0px)); }
+    .parent-shell .role-main { padding: 14px 12px 24px; }
+    /* The student sidebar becomes hidden at this breakpoint; expose its bottom nav. */
+    .student-shell .role-mobile-bottom-nav,
+    .teacher-shell .role-mobile-bottom-nav { display: grid !important; }
+}
+@media (max-width: 420px) {
+    .student-shell .mn,
+    .teacher-shell .mn { padding-inline: 9px; }
+    .owner-shell .role-main,
+    .parent-shell .role-main { padding-inline: 10px; }
+    .role-mobile-bottom-nav { left: 7px; right: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    :where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) *,
+    :where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) *::before,
+    :where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}

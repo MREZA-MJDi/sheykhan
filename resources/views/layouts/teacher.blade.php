@@ -16,7 +16,7 @@
             }
         } catch (_) {}
     </script>
-    @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/js/app.js', 'resources/js/teacher.js'])
+    @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/css/panel-design-system.css', 'resources/js/app.js', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
 <body class="teacher-shell">

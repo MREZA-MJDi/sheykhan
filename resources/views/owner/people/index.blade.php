@@ -5,10 +5,10 @@
 <div class="space-y-6 panel-page-enter">
 <div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اختصاص مسئول کلاس و ثبت‌نام امن.</p></div>
 
-@if(empty($academicGradesAvailable) || empty($studentOnboardingAvailable))
+@if(empty($academicGradesAvailable) || empty($studentOnboardingAvailable) || empty($studentOnboardingHistoryAvailable))
 <section class="owner-schema-warning" role="status" aria-live="polite">
     <strong>بخشی از امکانات ورود دانش‌آموز قدیمی موقتاً غیرفعال است.</strong>
-    <p>فهرست اعضای آموزشگاه در دسترس است؛ برای فعال‌شدن همهٔ امکانات، Migrationهای مربوط به پایه‌های تحصیلی و سوابق ورود دانش‌آموز باید روی سرور بررسی شوند.</p>
+    <p>فهرست اعضای آموزشگاه در دسترس است؛ برای فعال‌شدن تاریخچه ورود دانش‌آموز، Migrationهای پایه‌های تحصیلی و سوابق ورود باید هر دو روی سرور کامل باشند.</p>
     @if(empty($academicGradesAvailable))<p>ساختار جدول پایه‌های تحصیلی کامل نیست.</p>@endif
     @if(empty($studentOnboardingAvailable))<p>ساختار جدول سوابق ورود دانش‌آموز کامل نیست.</p>@endif
 </section>
@@ -99,13 +99,13 @@
 <button type="button" data-student-more class="owner-student-picker-more" hidden>نمایش نتایج بعدی</button>
 <p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو حرف از نام یا ایمیل را برای جست‌وجو وارد کن؛ ایمیل در نتایج نمایش داده نمی‌شود.</p>
 <x-owner.field-error field="student_id"/></div>
-<label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree() ? 'رایگان' : \App\Support\PersianUi::money($course->price) }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><small class="owner-field-help">دوره‌ای را انتخاب کن که ثبت‌نام دانش‌آموز در آن انجام می‌شود؛ مبلغ و دسترسی براساس دوره بررسی می‌شوند.</small><x-owner.field-error field="course_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree() ? 'رایگان' : (is_numeric($course->price) ? \App\Support\PersianUi::money($course->price) : 'قیمت تعیین نشده') }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><small class="owner-field-help">دوره‌ای را انتخاب کن که ثبت‌نام دانش‌آموز در آن انجام می‌شود؛ مبلغ و دسترسی براساس دوره بررسی می‌شوند.</small><x-owner.field-error field="course_id"/></label>
 <label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="" selected disabled>ابتدا کلاس را انتخاب کن</option>@foreach($classroomOptions as $classroom)<option data-course-id="{{ $classroom->course_id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><small class="owner-field-help">کلاسی را انتخاب کن که به همین دوره تعلق دارد؛ کلاس‌های دیگر معتبر نیستند.</small><x-owner.field-error field="classroom_id"/></label>
 <label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی (تومان)</span><input name="paid_amount" type="number" data-money-input data-money-unit="تومان" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">مبلغ پرداخت‌شده را به تومان وارد کن؛ اگر پرداختی ثبت نشده است خالی بگذار.</small><x-owner.field-error field="paid_amount"/></label>
 <button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$courseOptions->count())>ثبت‌نام دانش‌آموز</button></form></section>
 </div>
 
-@if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable))
+@if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
 <section class="dashboard-panel p-5 sm:p-7">
     <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -179,7 +179,7 @@
 </section>
 @endif
 
-@if(!empty($studentOnboardingAvailable))
+@if(!empty($studentOnboardingHistoryAvailable))
 <section class="dashboard-panel p-5 sm:p-7">
     <div class="flex items-center justify-between gap-3">
         <div>
@@ -221,7 +221,7 @@
 @else
 <section class="dashboard-panel p-5 sm:p-7">
     <h2 class="font-black">سوابق ورود دانش‌آموز</h2>
-    <p class="mt-2 text-sm text-slate-600">به دلیل آماده‌نبودن جدول سوابق، تاریخچه فعلاً قابل نمایش نیست. فهرست سایر اعضا در دسترس است.</p>
+    <p class="mt-2 text-sm text-slate-600">به دلیل کامل نبودن ساختار پایه‌های تحصیلی یا سوابق ورود، تاریخچه فعلاً قابل نمایش نیست. فهرست سایر اعضا در دسترس است.</p>
 </section>
 @endif
 

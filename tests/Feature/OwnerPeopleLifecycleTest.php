@@ -146,6 +146,43 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('موقتاً غیرفعال');
     }
 
+    public function test_people_workspace_stays_available_when_academic_grade_schema_is_missing(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        // Simulate a partial production migration: the onboarding table and its
+        // columns exist, but the academic-grade table used by requestedGrade
+        // has not been deployed. The page must not query that missing relation.
+        Schema::shouldReceive('hasTable')
+            ->andReturnUsing(fn (string $table): bool => $table !== 'academic_grades');
+        Schema::shouldReceive('hasColumn')->andReturn(true);
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertSee('فهرست اعضای آموزشگاه در دسترس است')
+            ->assertSee('ساخت حساب مدرس')
+            ->assertSee('ساخت حساب والد و اتصال به دانش‌آموز')
+            ->assertSee('تاریخچه فعلاً قابل نمایش نیست');
+    }
+
+    public function test_people_workspace_loads_price_fields_for_paid_course_options(): void
+    {
+        [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
+        $course->update([
+            'access_type' => 'paid',
+            'price' => 250000,
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertSee(\App\Support\PersianUi::money($course->fresh()->price))
+            ->assertDontSee('قیمت تعیین نشده')
+            ->assertSee('ساخت حساب مدرس')
+            ->assertSee('ساخت حساب والد و اتصال به دانش‌آموز');
+    }
+
     public function test_student_roster_and_enrollment_search_are_server_paginated(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
