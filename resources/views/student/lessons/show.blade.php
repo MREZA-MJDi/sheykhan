@@ -57,7 +57,7 @@
         <form method="POST" action="{{ route('student.lessons.notes.store', $lesson->id) }}">
             @csrf
             <label for="lesson-note" style="display:block;font-size:12px;margin-bottom:8px">یادداشت شخصی</label>
-            <textarea class="fld" id="lesson-note" name="content" rows="4" maxlength="20000" required placeholder="نکته‌های مهم این درس را بنویس...">{{ old('content', $lesson->noteForStudent?->content ?? '') }}</textarea>
+            <textarea class="fld" id="lesson-note" name="content" rows="4" maxlength="20000" required placeholder="نکته‌های مهم این درس را بنویس...">{{ old('content', $note?->content ?? '') }}</textarea>
             <div class="frm"><button class="btn s" type="submit">ذخیره یادداشت</button></div>
         </form>
     </div>
