@@ -29,7 +29,8 @@
                 }
 
                 if (previewUrl) URL.revokeObjectURL(previewUrl);
-                previewUrl = URL.createObjectURL(file);
+                const currentPreviewUrl = URL.createObjectURL(file);
+                previewUrl = currentPreviewUrl;
                 const image = new Image();
                 image.alt = 'پیش‌نمایش تصویر پروفایل';
                 image.width = 100;
@@ -38,15 +39,15 @@
                 image.loading = 'eager';
                 image.style.cssText = 'width:100%;height:100%;object-fit:cover';
                 image.onload = () => {
-                    if (previewUrl) URL.revokeObjectURL(previewUrl);
-                    previewUrl = null;
+                    URL.revokeObjectURL(currentPreviewUrl);
+                    if (previewUrl === currentPreviewUrl) previewUrl = null;
                 };
                 image.onerror = () => {
-                    if (previewUrl) URL.revokeObjectURL(previewUrl);
-                    previewUrl = null;
+                    URL.revokeObjectURL(currentPreviewUrl);
+                    if (previewUrl === currentPreviewUrl) previewUrl = null;
                     avatarInput.value = '';
                 };
-                image.src = previewUrl;
+                image.src = currentPreviewUrl;
                 avatarPreview.replaceChildren(image);
             });
         }
@@ -71,7 +72,8 @@
                         submitted = true;
                         const submitButton = form.querySelector('[type="submit"]');
                         if (typeof form.requestSubmit === 'function') {
-                            form.requestSubmit(submitButton || undefined);
+                            if (submitButton) form.requestSubmit(submitButton);
+                            else form.requestSubmit();
                         } else {
                             form.submit();
                         }
@@ -84,6 +86,17 @@
             render();
             const interval = window.setInterval(tick, 1000);
             if (remaining <= 0) tick();
+        });
+
+        document.querySelectorAll('[data-mark-complete]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const form = button.closest('[data-progress-form]');
+                const progress = form?.querySelector('[data-progress-value]');
+                if (!form || !progress) return;
+                progress.value = '100';
+                if (typeof form.requestSubmit === 'function') form.requestSubmit();
+                else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            });
         });
 
         document.querySelectorAll('[data-progress-form]').forEach((form) => {
