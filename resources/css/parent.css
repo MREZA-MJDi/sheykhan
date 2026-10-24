@@ -222,3 +222,28 @@
     .parent-dashboard .parent-hero { padding: 22px 18px; border-radius: 20px; }
     .parent-dashboard .parent-child { padding: 14px; }
 }
+
+
+/* Parent workspace inherits the same compact inputs and card rhythm as admin/teacher. */
+.parent-shell .role-main {
+    width:min(100%,1500px);
+    max-width:1500px;
+    min-width:0;
+    margin-inline:auto;
+    padding:clamp(14px,1.8vw,28px);
+    padding-bottom:calc(28px + env(safe-area-inset-bottom,0px));
+}
+.parent-shell .role-main :is(.parent-dashboard,.panel-page-enter) { display:grid;gap:clamp(12px,1.3vw,18px);min-width:0; }
+.parent-shell .role-main :is(.dashboard-panel,.parent-card,.parent-child,.parent-progress-method) { min-width:0; }
+.parent-shell .role-main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:46px;
+    padding:10px 12px;border-radius:11px;font-size:13px;line-height:1.55;
+}
+.parent-shell .role-main textarea { min-height:104px;resize:vertical; }
+.parent-shell .role-main :is(button,a.btn) { min-height:42px;border-radius:11px;touch-action:manipulation; }
+.parent-shell .parent-dashboard .parent-hero { padding:clamp(16px,2vw,28px); }
+@media(max-width:600px) {
+    .parent-shell .role-main { padding:12px;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px)); }
+    .parent-shell .role-main :is(.dashboard-panel,.parent-card,.parent-child) { padding:12px; }
+    .parent-shell .role-main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea) { min-height:46px; }
+}

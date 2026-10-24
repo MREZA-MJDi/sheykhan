@@ -2030,3 +2030,61 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
     .owner-recent-login-row { align-items:flex-start;flex-wrap:wrap; }
     .owner-recent-login-row time { margin-inline-start:50px; }
 }
+
+
+/* Consistent compact scale and full-width controls for owner/admin workspace pages. */
+.owner-shell .role-main {
+    width:min(100%,1600px);
+    max-width:1600px;
+    min-width:0;
+    margin-inline:auto;
+    padding:clamp(14px,1.8vw,28px);
+    padding-bottom:36px;
+}
+.owner-shell .role-main > .panel-page-enter {
+    gap:clamp(12px,1.25vw,18px)!important;
+    min-width:0;
+}
+.owner-shell .role-main :is(.dashboard-panel,.owner-panel,.owner-form-card,.owner-workspace-card) {
+    min-width:0;
+    padding:clamp(13px,1.3vw,20px);
+    border-radius:16px;
+}
+.owner-shell .role-main :is(h1,.text-2xl) {
+    font-size:clamp(20px,2.1vw,30px);
+    line-height:1.55;
+}
+.owner-shell .role-main :is(h2,.text-base) { line-height:1.65; }
+.owner-shell .role-main :is(p,.owner-field-help) { line-height:1.8; }
+.owner-shell .role-main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:46px;
+    padding:10px 12px;
+    border-radius:11px;
+    font-size:13px;
+    line-height:1.55;
+}
+.owner-shell .role-main textarea { min-height:104px;resize:vertical; }
+.owner-shell .role-main :is(button,.owner-btn) {
+    min-height:42px;
+    border-radius:11px;
+    touch-action:manipulation;
+}
+.owner-shell .owner-dashboard { gap:clamp(12px,1.2vw,18px); }
+.owner-shell .owner-dashboard .owner-hero { padding:clamp(18px,2vw,30px); }
+.owner-shell .owner-dashboard .owner-focus-card { padding:14px 18px; }
+.owner-shell .owner-dashboard .owner-stat-card { min-height:108px; }
+.owner-shell .owner-dashboard .owner-stats { gap:clamp(9px,1vw,14px); }
+.owner-shell .owner-dashboard .owner-stat-card strong { font-size:clamp(23px,2.1vw,32px); }
+@media(max-width:760px) {
+    .owner-shell .role-main { padding:12px;padding-bottom:28px; }
+    .owner-shell .role-main :is(.dashboard-panel,.owner-panel,.owner-form-card,.owner-workspace-card) { padding:12px; }
+    .owner-shell .owner-dashboard { gap:12px; }
+    .owner-shell .owner-dashboard .owner-hero { grid-template-columns:minmax(0,1fr);padding:16px; }
+    .owner-shell .owner-dashboard .owner-hero-art { min-height:0;justify-items:start; }
+    .owner-shell .owner-dashboard .owner-focus-card { grid-template-columns:25px minmax(0,1fr);gap:10px;padding:13px; }
+    .owner-shell .owner-dashboard .owner-focus-actions { grid-column:1/-1; }
+}

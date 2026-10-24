@@ -2680,3 +2680,158 @@ th{font-weight:600}td{padding:12px}
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 {display:grid;place-items:center;overflow:hidden;border:2px solid var(--sf);border-radius:50%;width:36px;height:36px;}
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 img {display:block;width:100%;height:100%;object-fit:cover;}
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row:hover {background:color-mix(in srgb,var(--sk) 15%,var(--sf));border-color:var(--sk);}
+
+
+/* Final compact layout scale for the teacher workspace. */
+.teacher-shell .role-main {
+    width:min(100%, 1600px);
+    max-width:1600px;
+    min-width:0;
+    margin-inline:auto;
+    padding:clamp(14px,1.8vw,28px);
+    padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));
+}
+.teacher-shell .teacher-dashboard-page,
+.teacher-shell .teacher-workspace-page,
+.teacher-shell .teacher-live-form,
+.teacher-shell .teacher-live-classes-page {
+    display:grid;
+    gap:clamp(12px,1.25vw,18px);
+    width:100%;
+    max-width:1480px;
+    min-width:0;
+    margin-inline:auto;
+}
+.teacher-shell :is(.teacher-workspace-head,.teacher-live-form-head,.teacher-form-head) {
+    gap:12px;
+    margin-bottom:0;
+}
+.teacher-shell :is(.teacher-workspace-title,.teacher-live-form-head h1,.teacher-form-head h1) {
+    font-size:clamp(20px,2.15vw,30px);
+    line-height:1.55;
+}
+.teacher-shell :is(.teacher-workspace-description,.teacher-workspace-head-copy p,.teacher-live-form-head p,.teacher-form-head p) {
+    max-width:70ch;
+    margin-block:4px 0;
+    font-size:11px;
+    line-height:1.8;
+}
+.teacher-shell .teacher-workspace-grid {
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));
+    align-items:start;
+    gap:clamp(10px,1.15vw,16px);
+}
+.teacher-shell .teacher-workspace-card,
+.teacher-shell .teacher-live-form-section,
+.teacher-shell .teacher-form-section,
+.teacher-shell .teacher-form-side {
+    min-width:0;
+    padding:clamp(13px,1.3vw,20px);
+    border-radius:16px;
+}
+.teacher-shell .teacher-workspace-card-head { gap:10px; margin-bottom:10px; }
+.teacher-shell .teacher-workspace-card-head h2,
+.teacher-shell .teacher-workspace-card-head h3 { font-size:14px;line-height:1.65; }
+.teacher-shell .teacher-workspace-card-head p { margin-top:3px;font-size:10px;line-height:1.7; }
+.teacher-shell .teacher-workspace-form-grid {
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
+    align-items:start;
+    gap:12px;
+}
+.teacher-shell .teacher-live-form-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+}
+.teacher-shell .teacher-live-form-section-wide { grid-column:1/-1; }
+.teacher-shell .teacher-live-form-section-head { gap:9px;margin-bottom:12px; }
+.teacher-shell .teacher-live-form-section-head h2 { font-size:13px;line-height:1.65; }
+.teacher-shell .teacher-live-form-section-head p { font-size:10px;line-height:1.7;margin-top:2px; }
+.teacher-shell .role-main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:46px;
+    padding:10px 12px;
+    border-radius:11px;
+    font-size:13px;
+    line-height:1.55;
+}
+.teacher-shell .role-main textarea { min-height:104px;resize:vertical; }
+.teacher-shell .role-main :is(button,a.teacher-workspace-btn,a.teacher-live-form-actions a) {
+    touch-action:manipulation;
+}
+.teacher-shell .teacher-workspace-btn,
+.teacher-shell .teacher-live-form-actions :is(a,button) {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:44px;
+    padding:10px 16px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:900;
+}
+.teacher-shell .teacher-workspace-item {
+    min-width:0;
+    gap:12px;
+    padding:12px;
+    border-radius:13px;
+}
+.teacher-shell .teacher-workspace-item-meta { gap:6px; flex-wrap:wrap; }
+.teacher-shell .teacher-workspace-item-actions { gap:8px; }
+.teacher-shell .teacher-dashboard-hero {
+    position:relative;
+    display:grid;
+    grid-template-columns:82px minmax(0,1fr);
+    gap:16px;
+    align-items:center;
+    min-height:0;
+    padding:clamp(15px,1.8vw,24px);
+    border-radius:18px;
+}
+.teacher-shell .teacher-dashboard-avatar { width:82px;height:82px; }
+.teacher-shell .teacher-dashboard-hero h1 { font-size:clamp(22px,2vw,30px);line-height:1.55; }
+.teacher-shell .teacher-dashboard-hero p { margin:3px 0 8px;font-size:11px;line-height:1.7; }
+.teacher-shell .teacher-dashboard-hero-actions { display:flex;flex-wrap:wrap;gap:8px; }
+.teacher-shell .teacher-dashboard-hero-actions a {
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    min-height:38px;padding:8px 12px;border-radius:10px;
+    font-size:10px;font-weight:950;text-decoration:none;
+}
+.teacher-shell .teacher-dashboard-primary-action { background:#075985;color:#fff;box-shadow:0 4px 10px rgba(7,89,133,.18); }
+.teacher-shell .teacher-dashboard-primary-action:hover { background:#06466c; }
+.teacher-shell .teacher-dashboard-secondary-action { border:1px solid #8bbce3;background:#fff;color:#075985; }
+.teacher-shell .teacher-dashboard-avatar [data-avatar-fallback] {
+    display:grid;place-items:center;width:100%;height:100%;color:#fff;font-size:32px;font-weight:950;
+}
+.teacher-shell .teacher-dashboard-avatar [data-avatar-fallback][hidden] { display:none!important; }
+.teacher-shell .teacher-dashboard-hero-meta { display:none; }
+.teacher-shell .teacher-dashboard-page { gap:14px; }
+.teacher-shell #teacher-dashboard .k6 { gap:10px; }
+.teacher-shell #teacher-dashboard .k6 > .teacher-kpi { min-height:142px; }
+.teacher-shell #teacher-dashboard :is(.cd,.teacher-progress-panel,.teacher-activity-panel) { min-width:0; }
+@media(max-width:900px) {
+    .teacher-shell .role-main { padding:14px;padding-bottom:calc(104px + env(safe-area-inset-bottom,0px)); }
+    .teacher-shell .teacher-live-form-grid { grid-template-columns:minmax(0,1fr); }
+    .teacher-shell .teacher-live-form-section-wide { grid-column:auto; }
+}
+@media(max-width:600px) {
+    .teacher-shell .role-main { padding:12px;padding-bottom:calc(108px + env(safe-area-inset-bottom,0px)); }
+    .teacher-shell .teacher-workspace-grid { grid-template-columns:minmax(0,1fr); }
+    .teacher-shell .teacher-dashboard-hero { grid-template-columns:60px minmax(0,1fr);gap:11px;padding:13px;border-radius:15px; }
+    .teacher-shell .teacher-dashboard-avatar { width:60px;height:60px;border-width:3px; }
+    .teacher-shell .teacher-dashboard-hero h1 { font-size:19px;line-height:1.5; }
+    .teacher-shell .teacher-dashboard-hero-actions a { min-height:36px;padding:7px 9px; }
+    .teacher-shell .teacher-workspace-card,
+    .teacher-shell .teacher-live-form-section,
+    .teacher-shell .teacher-form-section,
+    .teacher-shell .teacher-form-side { padding:12px;border-radius:14px; }
+    .teacher-shell .teacher-workspace-item { align-items:stretch;flex-direction:column; }
+    .teacher-shell .teacher-workspace-item-actions { width:100%;justify-content:space-between;flex-wrap:wrap; }
+    .teacher-shell .teacher-workspace-form-grid { grid-template-columns:minmax(0,1fr); }
+}
+@media(max-width:380px) {
+    .teacher-shell .teacher-dashboard-hero { grid-template-columns:minmax(0,1fr); }
+    .teacher-shell .teacher-dashboard-avatar { width:56px;height:56px; }
+}
