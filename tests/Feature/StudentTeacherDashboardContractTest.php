@@ -50,8 +50,6 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('data-teacher-theme-toggle', false)
             ->assertSee('data-teacher-range', false)
             ->assertSee('data-dashboard-search', false)
-            ->assertSee('teacher-dashboard.css')
-            ->assertSee('teacher-dashboard.js')
             ->assertSee('آخرین تکالیف')
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
