@@ -8,8 +8,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 final class OwnerAccessIsolationTest extends TestCase
@@ -76,6 +76,55 @@ final class OwnerAccessIsolationTest extends TestCase
                 ->get(route($routeName, $foreignAcademy))
                 ->assertNotFound();
         }
+    }
+
+    public function test_owner_cannot_open_or_edit_a_foreign_classroom_through_an_owned_academy_url(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $ownedAcademy = $owner->ownedAcademies()->where('status', 'active')->firstOrFail();
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+        $ownerRole->permissions()->sync(
+            Permission::query()->whereIn('name', [
+                'classrooms.view',
+                'classrooms.manage',
+            ])->pluck('id')
+        );
+        $owner->unsetRelation('roles');
+        Cache::flush();
+
+        $foreignOwner = User::factory()->create(['status' => 'active']);
+        $foreignAcademy = Academy::query()->create([
+            'owner_id' => $foreignOwner->id,
+            'name' => 'آکادمی کلاس خارجی',
+            'slug' => 'foreign-classroom-' . Str::lower(Str::random(10)),
+            'status' => 'active',
+        ]);
+        $foreignCourse = $foreignAcademy->courses()->create([
+            'created_by' => $foreignOwner->id,
+            'title' => 'دوره متعلق به آموزشگاه دیگر',
+            'slug' => 'foreign-course-' . Str::lower(Str::random(10)),
+            'status' => 'draft',
+            'access_type' => 'free',
+            'price' => 0,
+        ]);
+        $foreignClassroom = $foreignAcademy->classrooms()->create([
+            'course_id' => $foreignCourse->id,
+            'title' => 'کلاس خارج از محدوده',
+            'code' => 'FOREIGN-' . Str::upper(Str::random(6)),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.show', [$ownedAcademy, $foreignClassroom]))
+            ->assertNotFound();
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.edit', [$ownedAcademy, $foreignClassroom]))
+            ->assertNotFound();
     }
 
     public function test_owner_cannot_create_messages_or_teacher_payments_for_a_foreign_academy(): void
