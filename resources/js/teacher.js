@@ -1,4 +1,3 @@
-import '../css/teacher.css';
 import './exam-builder.js';
 import './teacher/app.js';
 
