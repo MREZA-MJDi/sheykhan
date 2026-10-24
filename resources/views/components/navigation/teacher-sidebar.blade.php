@@ -1,4 +1,4 @@
-<aside class="role-sidebar teacher-sidebar">
+<aside id="teacher-dashboard-sidebar" class="role-sidebar teacher-sidebar">
     <div class="role-sidebar-brand">
         <a href="{{ route('teacher.dashboard') }}" class="role-brand" title="داشبورد شیخان" aria-label="داشبورد شیخان">
             <span class="role-brand-mark" aria-hidden="true">ش</span>

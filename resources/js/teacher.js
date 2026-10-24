@@ -1,37 +1,6 @@
 import './exam-builder.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Theme preference only changes presentation; Laravel stays authoritative for every action.
-    const teacherThemeKey = 'sheykhan.teacher.theme';
-    const applyTeacherTheme = (value) => {
-        const theme = value === 'dark' ? 'dark' : 'light';
-        document.body.dataset.teacherTheme = theme;
-
-        document.querySelectorAll('[data-teacher-theme-toggle]').forEach((button) => {
-            button.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
-            button.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
-            const label = button.querySelector('[data-theme-label]');
-            const moon = button.querySelector('[data-theme-moon]');
-            const sun = button.querySelector('[data-theme-sun]');
-            if (label) label.textContent = theme === 'dark' ? 'تم روشن' : 'تم تیره';
-            if (moon) moon.hidden = theme === 'dark';
-            if (sun) sun.hidden = theme !== 'dark';
-        });
-    };
-
-    let initialTeacherTheme = 'light';
-    try { initialTeacherTheme = localStorage.getItem(teacherThemeKey) || 'light'; }
-    catch { /* Storage may be disabled by the browser. */ }
-    applyTeacherTheme(initialTeacherTheme);
-
-    document.querySelectorAll('[data-teacher-theme-toggle]').forEach((button) => {
-        button.addEventListener('click', () => {
-            const nextTheme = document.body.dataset.teacherTheme === 'dark' ? 'light' : 'dark';
-            applyTeacherTheme(nextTheme);
-            try { localStorage.setItem(teacherThemeKey, nextTheme); }
-            catch { /* Keep the selected theme for this page view. */ }
-        });
-    });
     // Preview profile images before upload; the server remains authoritative for validation.
     const profileForm = document.querySelector('[data-teacher-profile-form]');
     if (profileForm) {
@@ -187,66 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         providerSelect.addEventListener('change', syncMeetingProvider);
         syncMeetingProvider();
     });
-
-    const dashboard = document.querySelector('[data-teacher-dashboard]');
-
-    if (dashboard) {
-        const buttons = dashboard.querySelectorAll('[data-teacher-range]');
-        const bars = dashboard.querySelectorAll('[data-teacher-bars] [data-chart-bar]');
-        const emptyState = dashboard.querySelector('[data-chart-empty]');
-        const chartBars = dashboard.querySelector('[data-teacher-bars]');
-
-        let datasets = {};
-        try { datasets = JSON.parse(dashboard.dataset.chart || '{}'); }
-        catch { datasets = {}; }
-
-        const toPersianDigits = (value) => String(value).replace(/\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
-        const applyChart = (range) => {
-            const dataset = datasets[range] || {};
-            const values = Array.isArray(dataset.values) ? dataset.values : [];
-            const labels = Array.isArray(dataset.labels) ? dataset.labels : [];
-
-            buttons.forEach((button) => {
-                const selected = button.dataset.teacherRange === range;
-                button.classList.toggle('active', selected);
-                button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-            });
-
-            bars.forEach((bar, index) => {
-                const rawValue = Number(values[index]);
-                const value = Number.isFinite(rawValue) ? Math.max(0, Math.min(100, rawValue)) : 0;
-                const column = bar.closest('[data-chart-column]');
-                if (column) column.hidden = index >= values.length;
-                bar.style.height = value + '%';
-                const label = column?.querySelector('[data-chart-label]');
-                const valueLabel = column?.querySelector('[data-chart-value]');
-                if (label) label.textContent = labels[index] ?? '';
-                if (valueLabel) valueLabel.textContent = toPersianDigits(String(Math.round(value * 10) / 10) + '٪');
-            });
-
-            if (emptyState) emptyState.hidden = values.length > 0;
-            if (chartBars) chartBars.setAttribute('aria-label', values.length > 0
-                ? 'نمودار فعالیت ثبت‌شده در بازه ' + (range === 'month' ? 'ماهانه' : 'هفتگی')
-                : 'برای این بازه داده‌ای ثبت نشده است');
-        };
-
-        buttons.forEach((button) => button.addEventListener('click', () => {
-            applyChart(button.dataset.teacherRange || 'week');
-        }));
-        applyChart(buttons[0]?.dataset.teacherRange || 'week');
-
-        const searchInput = dashboard.querySelector('[data-dashboard-search]');
-        if (searchInput) {
-            const searchableItems = dashboard.querySelectorAll('[data-dashboard-searchable]');
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.trim().toLocaleLowerCase();
-                searchableItems.forEach((item) => {
-                    item.hidden = query.length > 0 && !item.textContent.toLocaleLowerCase().includes(query);
-                });
-            });
-        }
-    }
-
 
     const teacherJalaliFields = document.querySelectorAll('[data-teacher-jalali]');
 
