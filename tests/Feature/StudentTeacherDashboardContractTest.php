@@ -21,7 +21,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertSee('student-shell')
             ->assertDontSee('sdr-hero', false);
     }
 
@@ -88,7 +88,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertSee('student-shell')
             ->assertDontSee('تقویم')
             ->assertDontSee(now()->format('F Y'));
 
