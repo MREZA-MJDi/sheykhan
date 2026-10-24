@@ -106,8 +106,8 @@ class StudentDashboardBackendContractTest extends TestCase
             ->assertOk()
             ->getContent();
 
-        // Sidebar, account shortcut and welcome hero all use the same persisted photo.
-        $this->assertSame(3, substr_count($html, e($avatarUrl)));
+        // Sidebar, account shortcut, welcome hero and account modal use the same persisted photo.
+        $this->assertSame(4, substr_count($html, e($avatarUrl)));
         $this->assertStringContainsString('data-avatar-fallback', $html);
     }
 

@@ -74,19 +74,19 @@ class PanelTailwindSourceCoverageTest extends TestCase
 
     public function test_teacher_messaging_tabs_follow_their_individual_permissions(): void
     {
-        $view = file_get_contents(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
+        $view = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
 
         $this->assertIsString($view);
         $this->assertMatchesRegularExpression(
-            '/hasPermission\(\x27parent_messages\.view\x27\).*?teacher\.messages\.index/s',
+            '/\x27url\x27 => route\(\x27teacher\.messages\.index\x27\).*?\x27permission\x27 => \x27parent_messages\.view\x27/s',
             $view
         );
         $this->assertMatchesRegularExpression(
-            '/hasPermission\(\x27student_messages\.view\x27\).*?teacher\.student-messages\.index/s',
+            '/\x27url\x27 => route\(\x27teacher\.student-messages\.index\x27\).*?\x27permission\x27 => \x27student_messages\.view\x27/s',
             $view
         );
         $this->assertMatchesRegularExpression(
-            '/hasPermission\(\x27parent_messages\.manage\x27\).*?teacher\.direct-messages\.index/s',
+            '/\x27url\x27 => route\(\x27teacher\.direct-messages\.index\x27\).*?\x27permission\x27 => \x27parent_messages\.manage\x27/s',
             $view
         );
     }

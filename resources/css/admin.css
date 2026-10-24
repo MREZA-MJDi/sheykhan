@@ -1162,3 +1162,236 @@ select.course-input{padding-inline-end:36px}
 @media(max-width:1200px){.seo-keyword-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.seo-keyword-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.seo-keyword-filter-actions{align-self:end}}
 @media(max-width:900px){.seo-keyword-form-page .owner-form-grid{grid-template-columns:minmax(0,1fr)}.seo-keyword-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-keyword-observation-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.seo-console-hero-actions{align-items:stretch;flex-direction:column}.seo-console-hero-actions>*{width:100%}.seo-console-switcher{display:grid;grid-template-columns:1fr}.seo-keyword-tools,.seo-keyword-list-panel,.seo-keyword-history{padding:13px}.seo-keyword-stats{grid-template-columns:1fr 1fr;gap:8px}.seo-keyword-filters{grid-template-columns:minmax(0,1fr)}.seo-keyword-filter-actions{display:grid;grid-template-columns:1fr 1fr}.seo-keyword-import{align-items:stretch;flex-direction:column}.seo-keyword-import>*{width:100%}.seo-keyword-observation-form{grid-template-columns:minmax(0,1fr)}.seo-keyword-observation-form .seo-keyword-observation-note{grid-column:auto}.seo-keyword-danger-zone{align-items:stretch;flex-direction:column}.seo-keyword-danger-zone button{width:100%}}
+
+
+/* Owner/admin UI — align with the teacher ZIP design tokens.
+   Intentionally CSS-only: Blade structure, routes, permissions and form behavior stay untouched. */
+.owner-shell{
+    --bg:#070d22;--sf:#0d1733;--s2:#121e42;--bd:#1f2d5c;
+    --tx:#e6ebfa;--mu:#8c98c6;--mt:#8c98c6;
+    --ac:#6c8cff;--on:#071033;--ok:#3ddc97;--wr:#ffb454;--er:#ff6b7a;
+    --vi:#b08cff;--sk:#5cc8ff;--sh:0 1px 2px rgba(0,0,0,.45);
+    --panel-bg:var(--sf);--panel-text:var(--tx);--panel-muted:var(--mu);
+    --panel-border:var(--bd);--panel-primary:var(--ac);
+    --panel-primary-soft:rgba(108,140,255,.14);
+    --color-primary-50:#111b3a;--color-primary-100:#18264a;--color-primary-200:#273a6b;
+    --color-primary-300:#3b5597;--color-primary-400:#526fc7;--color-primary-500:#6c8cff;
+    --color-primary-600:#5878ef;--color-primary-700:#4766d8;--color-primary-800:#3049a5;--color-primary-900:#1e3278;
+    background:var(--bg)!important;color:var(--tx)!important;color-scheme:dark;
+    font-family:Vazirmatn,Tahoma,sans-serif;font-size:13.5px;line-height:1.7;
+}
+.owner-shell .role-layout,.owner-shell .role-content{background:var(--bg)!important;min-width:0}
+.owner-shell .role-sidebar{
+    color:var(--tx);background:var(--sf)!important;border-left:1px solid var(--bd)!important;
+    box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+.owner-shell .role-sidebar-brand{border-bottom:1px solid var(--bd)!important}
+.owner-shell .role-brand strong,.owner-shell .role-brand small{color:var(--tx)}
+.owner-shell .role-brand small{color:var(--mu)}
+.owner-shell .role-brand-mark{
+    color:#fff;background:linear-gradient(135deg,var(--ac),#8a67ee)!important;
+    border:0!important;border-radius:10px;box-shadow:0 6px 18px rgba(108,140,255,.2)!important
+}
+.owner-shell .role-sidebar-label{color:var(--mu)!important}
+.owner-shell .role-nav-link{
+    min-height:42px;border-radius:10px;color:var(--mu)!important;
+    transition:background-color .15s ease,color .15s ease
+}
+.owner-shell .role-nav-link:hover{background:var(--s2)!important;color:var(--tx)!important}
+.owner-shell .role-nav-link.is-active{
+    color:var(--ac)!important;background:rgba(108,140,255,.15)!important;
+    box-shadow:inset -2px 0 0 var(--ac)!important;font-weight:800
+}
+.owner-shell .role-topbar{
+    color:var(--tx);background:rgba(13,23,51,.94)!important;
+    border-bottom:1px solid var(--bd)!important;box-shadow:none!important;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)
+}
+.owner-shell .role-topbar-eyebrow,.owner-shell .role-topbar h1{color:var(--tx)}
+.owner-shell .role-topbar-site{color:var(--mu)}
+.owner-shell .role-topbar-site:hover{color:var(--ac)}
+.owner-shell .role-user-chip{border:1px solid var(--bd);border-radius:12px;background:var(--s2)}
+.owner-shell .role-user-copy strong{color:var(--tx)}
+.owner-shell .role-user-copy small{color:var(--mu)}
+.owner-shell .role-logout-btn{border:1px solid var(--bd);border-radius:10px;color:var(--tx);background:var(--s2)}
+.owner-shell .role-logout-btn:hover{border-color:var(--er);color:var(--er)}
+.owner-shell .role-main{padding:24px 28px 42px;color:var(--tx)}
+.owner-shell :is(h1,h2,h3,h4,h5){color:var(--tx);letter-spacing:-.01em}
+.owner-shell :is(p,small,.text-slate-500,.text-slate-400){line-height:1.85}
+.owner-shell :is(a,button):focus-visible{outline:3px solid rgba(108,140,255,.32);outline-offset:3px}
+
+/* Dashboard surfaces and hierarchy */
+.owner-shell .owner-dashboard{gap:14px;color:var(--tx)}
+.owner-shell .owner-dashboard :is(.owner-hero,.owner-focus-card,.owner-stat-card,.owner-panel,
+ .dashboard-panel,.panel-card,.course-info-strip,.course-status-guide,.owner-empty,
+ .owner-teacher-row,.owner-course-row,.owner-live-row,.owner-alert-row){
+    border:1px solid var(--bd)!important;border-radius:15px;background:var(--sf)!important;
+    color:var(--tx);box-shadow:var(--sh)!important
+}
+.owner-shell .owner-hero{
+    min-height:0;grid-template-columns:minmax(0,1fr);padding:26px;
+    background:linear-gradient(125deg,rgba(108,140,255,.08),transparent 60%),var(--sf)!important;
+    color:var(--tx)!important;position:relative;overflow:hidden
+}
+.owner-shell .owner-hero h1{color:var(--tx)!important;font-size:clamp(23px,2.3vw,31px);line-height:1.65}
+.owner-shell .owner-kicker,.owner-shell .owner-focus-kicker{color:var(--ac)!important;opacity:1;font-weight:800}
+.owner-shell .owner-hero p,.owner-shell .owner-focus-copy p{color:var(--mu)!important;line-height:1.95}
+.owner-shell .owner-hero-art{min-height:0;position:static;margin-top:18px}
+.owner-shell .owner-orb{background:rgba(108,140,255,.09)!important}
+.owner-shell .owner-hero-stat{
+    position:static;display:block;width:auto;max-width:300px;padding:14px 16px;
+    border:1px solid var(--bd);border-radius:13px;background:var(--s2);color:var(--tx);
+    box-shadow:none;backdrop-filter:none
+}
+.owner-shell .owner-hero-stat small,.owner-shell .owner-hero-stat span{color:var(--mu);opacity:1}
+.owner-shell .owner-hero-stat strong{color:var(--tx)}
+.owner-shell .owner-hero-actions{gap:9px}
+.owner-shell .owner-btn,.owner-shell .course-primary-btn{
+    min-height:42px;padding-inline:15px;border:1px solid var(--ac);border-radius:10px;
+    background:var(--ac)!important;color:#071033!important;box-shadow:none!important;font-weight:800
+}
+.owner-shell .owner-btn:hover,.owner-shell .course-primary-btn:hover{filter:brightness(1.08)}
+.owner-shell .owner-btn.ghost,.owner-shell .course-secondary-btn,.owner-shell .course-action-btn{
+    border:1px solid var(--bd);border-radius:10px;background:var(--s2)!important;
+    color:var(--tx)!important;box-shadow:none!important
+}
+.owner-shell .owner-btn.ghost:hover,.owner-shell .course-secondary-btn:hover,
+.owner-shell .course-action-btn:hover{background:#19274d!important;border-color:#344a80}
+.owner-shell .owner-focus-card{gap:14px}
+.owner-shell .owner-focus-copy h2{color:var(--tx)!important}
+.owner-shell .owner-focus-actions a,.owner-shell .owner-link{color:var(--ac)!important;font-weight:800}
+.owner-shell .owner-focus-status span{box-shadow:none}
+.owner-shell .owner-stat-card{padding:18px}
+.owner-shell .owner-stat-card>strong,.owner-shell .course-stat strong{color:var(--tx)!important}
+.owner-shell .owner-stat-card>span,.owner-shell .owner-stat-card>small,
+.owner-shell .course-stat span,.owner-shell .course-stat small{color:var(--mu)!important}
+.owner-shell .owner-panel-head{border-bottom-color:var(--bd)!important}
+.owner-shell .owner-panel-head :is(h2,h3),.owner-shell .owner-panel-head p{color:var(--tx)}
+.owner-shell .owner-panel-head p{color:var(--mu)}
+.owner-shell .owner-progress,.owner-shell .pb{background:var(--s2)!important;box-shadow:none}
+.owner-shell .owner-progress>span,.owner-shell .pb i{background:var(--ac)!important}
+.owner-shell .owner-pill,.owner-shell .course-status-badge,.owner-shell .course-access-badge{
+    border:1px solid var(--bd);border-radius:9px;background:var(--s2);color:var(--mu);box-shadow:none
+}
+.owner-shell .owner-pill.success,.owner-shell .course-status-badge.published{
+    border-color:rgba(61,220,151,.28);background:rgba(61,220,151,.1);color:var(--ok)
+}
+.owner-shell .owner-pill.banner{background:var(--s2);color:var(--mu)}
+.owner-shell .owner-avatar{border-radius:10px;box-shadow:none}
+.owner-shell .owner-empty{border-style:dashed!important;color:var(--mu);padding:18px;line-height:1.9}
+.owner-shell .owner-course-row:hover,.owner-shell .owner-teacher-row:hover,
+.owner-shell .owner-live-row:hover,.owner-shell .owner-alert-row:hover{
+    background:var(--s2)!important;border-color:#344a80!important
+}
+.owner-shell .owner-row-title{color:var(--tx)}
+.owner-shell .owner-row-meta{color:var(--mu)}
+.owner-shell .course-page{color:var(--tx)}
+.owner-shell .course-stat,.owner-shell .course-count-badge,.owner-shell .course-mini-badge{
+    border:1px solid var(--bd);border-radius:13px;background:var(--sf)!important;color:var(--tx);box-shadow:none
+}
+.owner-shell .course-stat::after{background:var(--ac)}
+.owner-shell .course-action-btn.primary{background:rgba(108,140,255,.16)!important;border-color:rgba(108,140,255,.35);color:var(--ac)!important}
+.owner-shell .course-action-btn.danger{background:rgba(255,107,122,.1)!important;border-color:rgba(255,107,122,.3);color:var(--er)!important}
+.owner-shell .course-table-row{border-bottom:1px solid var(--bd)}
+.owner-shell .course-table-row:hover{background:var(--s2)!important}
+.owner-shell table{color:var(--tx)}
+.owner-shell table thead th,.owner-shell table th{color:var(--mu);border-color:var(--bd);background:var(--s2)}
+.owner-shell table td{color:var(--tx);border-color:var(--bd)}
+.owner-shell table tbody tr:hover td{background:var(--s2)}
+.owner-shell .owner-dashboard :is(.bg-white,.bg-slate-50,.bg-slate-100){
+    background:var(--sf)!important
+}
+.owner-shell .owner-dashboard :is(.text-slate-950,.text-slate-900,.text-slate-800,.text-slate-700){
+    color:var(--tx)!important
+}
+.owner-shell .owner-dashboard :is(.text-slate-600,.text-slate-500,.text-slate-400){
+    color:var(--mu)!important
+}
+.owner-shell .owner-dashboard :is(.border-slate-100,.border-slate-200,.border-slate-300){
+    border-color:var(--bd)!important
+}
+.owner-shell :is(input,select,textarea,.course-input,.course-static-field){
+    min-height:40px;border:1px solid var(--bd)!important;border-radius:10px;
+    background:var(--s2)!important;color:var(--tx)!important;box-shadow:none
+}
+.owner-shell :is(input,select,textarea,.course-input):focus{
+    border-color:var(--ac)!important;box-shadow:0 0 0 3px rgba(108,140,255,.14)!important;outline:none
+}
+.owner-shell :is(input,textarea)::placeholder{color:var(--mu)}
+.owner-shell .owner-student-picker-option,.owner-shell .owner-student-picker-more{
+    background:var(--s2)!important;border-color:var(--bd)!important;color:var(--tx)!important
+}
+.owner-shell .owner-student-picker-option span{color:var(--tx)}
+.owner-shell .owner-student-picker-option small,.owner-shell .owner-student-picker-status{color:var(--mu)}
+.owner-shell .owner-student-picker-option:hover,.owner-shell .owner-student-picker-option:focus-visible{
+    border-color:var(--ac)!important;background:rgba(108,140,255,.12)!important
+}
+
+/* SEO console inherits the same panel palette when the shared owner shell hosts it. */
+.owner-shell .seo-console-switcher,.owner-shell .seo-keyword-csv-help,
+.owner-shell .seo-keyword-csv-help,.owner-shell .seo-keyword-observation-form{
+    background:var(--s2)!important;border-color:var(--bd)!important;color:var(--mu)
+}
+.owner-shell .seo-console-switcher a{color:var(--mu)}
+.owner-shell .seo-console-switcher a.is-active{
+    background:var(--sf);border-color:var(--bd);color:var(--ac);box-shadow:none
+}
+.owner-shell .seo-keyword-filters label,.owner-shell .seo-keyword-observation-form label{color:var(--mu)}
+.owner-shell .seo-keyword-filters input,.owner-shell .seo-keyword-filters select,
+.owner-shell .seo-keyword-observation-form input{
+    border-color:var(--bd);background:var(--s2);color:var(--tx)
+}
+.owner-shell .seo-keyword-table thead th{background:var(--s2);border-color:var(--bd);color:var(--mu)}
+.owner-shell .seo-keyword-table tbody td{border-color:var(--bd);color:var(--mu)}
+.owner-shell .seo-keyword-primary,.owner-shell .seo-keyword-history h3{color:var(--tx)}
+.owner-shell .seo-keyword-cluster,.owner-shell .seo-keyword-source,.owner-shell .seo-keyword-notes,
+.owner-shell .seo-keyword-intent{color:var(--mu)}
+.owner-shell .seo-keyword-template{background:var(--sf);color:var(--tx)}
+.owner-shell .seo-keyword-priority,.owner-shell .seo-keyword-status{background:var(--s2);border-color:var(--bd);color:var(--mu)}
+body.owner-shell .role-mobile-bottom-nav{
+    background:rgba(13,23,51,.97)!important;color:var(--tx)!important;border-color:var(--bd)!important;
+    box-shadow:0 -8px 30px rgba(0,0,0,.25)!important;backdrop-filter:blur(14px)
+}
+body.owner-shell [data-role-more-panel]{
+    background:var(--sf)!important;color:var(--tx)!important;border-color:var(--bd)!important
+}
+@media(max-width:1000px){.owner-shell .role-main{padding:20px 18px 36px}}
+@media(max-width:760px){
+    .owner-shell .role-main{padding:16px 13px 32px}
+    .owner-shell .owner-hero{padding:19px;border-radius:13px}
+    .owner-shell .owner-hero h1{font-size:23px}
+    .owner-shell .owner-hero-actions>*{flex:1 1 auto}
+    .owner-shell .owner-stat-card{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){
+    .owner-shell *,.owner-shell *::before,.owner-shell *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+
+
+/* The owner shell is dark, so the mobile "More" sheet must use the same surface.
+   Keep the full-screen overlay transparent; only its backdrop dims the page. */
+body.owner-shell [data-role-more-panel]{
+    background:transparent!important;color:var(--tx)!important;border-color:transparent!important
+}
+body.owner-shell .role-mobile-more-dialog{
+    background:var(--sf)!important;color:var(--tx)!important;border-color:var(--bd)!important
+}
+body.owner-shell .role-mobile-more-head{border-bottom-color:var(--bd)!important}
+body.owner-shell .role-mobile-more-head button{
+    background:var(--s2)!important;color:var(--tx)!important;border:1px solid var(--bd)
+}
+body.owner-shell .role-mobile-more-links>a,
+body.owner-shell .role-mobile-more-links>form>button{
+    background:var(--s2)!important;color:var(--tx)!important;border-color:var(--bd)!important
+}
+body.owner-shell .role-mobile-more-links>a:hover,
+body.owner-shell .role-mobile-more-links>a.is-active{
+    background:rgba(108,140,255,.15)!important;color:var(--ac)!important;border-color:rgba(108,140,255,.35)!important
+}
+body.owner-shell .role-mobile-more-links .role-mobile-bottom-icon{
+    background:var(--bg)!important;color:var(--ac)!important
+}
+body.owner-shell .role-mobile-more-links>form>button,
+body.owner-shell .role-mobile-more-links>form>button.danger{
+    background:rgba(255,107,122,.1)!important;color:var(--er)!important;border-color:rgba(255,107,122,.3)!important
+}
