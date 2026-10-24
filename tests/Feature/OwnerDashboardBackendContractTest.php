@@ -205,7 +205,11 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('دوره‌های منتشرشده')
             ->assertDontSee('حضور امروز')
             ->assertDontSee('درآمد خالص ثبت‌شده')
-            ->assertDontSee('گزارش‌های آموزشی');
+            ->assertDontSee('گزارش‌های آموزشی')
+            ->assertDontSee('href="' . route('owner.finance.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.website.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.content.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.blog.index') . '"', false);
 
         $this->get(route('owner.people.index', $academy))->assertForbidden();
     }
