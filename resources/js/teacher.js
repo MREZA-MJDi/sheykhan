@@ -2,6 +2,17 @@ import './exam-builder.js';
 import './teacher/app.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // A removed or inaccessible saved profile photo should fall back to the real name initial.
+    document.querySelectorAll('[data-avatar-image]').forEach((image) => {
+        const fallback = image.parentElement?.querySelector('[data-avatar-fallback]');
+        if (!fallback) return;
+        const showFallback = () => {
+            image.hidden = true;
+            fallback.hidden = false;
+        };
+        image.addEventListener('error', showFallback, { once: true });
+        if (image.complete && image.naturalWidth === 0) showFallback();
+    });
     // Preview profile images before upload; the server remains authoritative for validation.
     const profileForm = document.querySelector('[data-teacher-profile-form]');
     if (profileForm) {

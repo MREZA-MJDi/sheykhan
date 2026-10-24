@@ -210,7 +210,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('class="hero"', false)
             ->assertSee(route('media.public', $media), false)
             ->assertSee('تصویر پروفایل ' . $student->name, false)
-            ->assertDontSee('<use href="#avatar"/>', false);
+            ->assertSee('class="student-dashboard-avatar-initial"', false);
     }
 
     public function test_teacher_dashboard_hides_workflows_without_view_permissions(): void

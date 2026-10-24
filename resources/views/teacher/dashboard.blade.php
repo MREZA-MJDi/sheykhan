@@ -105,10 +105,14 @@
             <div class="teacher-dashboard-hero-copy">
                 <span class="section-kicker">خلاصه وضعیت آموزشی · {{ $dashboardDateLabel }}</span>
                 <h1>سلام استاد {{ $teacherUser?->name }} <span aria-hidden="true">👋</span></h1>
-                <p>کلاس‌ها، ارزیابی‌ها و جلسه‌های پیش‌رو را از همین پنل پیگیری کن.</p>
-                <div class="teacher-dashboard-hero-meta">
-                    <span aria-hidden="true"></span>
-                    <small>شاخص‌ها از سوابق واقعی کلاس‌ها، ارزیابی‌ها و پیشرفت ثبت‌شده محاسبه می‌شوند.</small>
+                <p>نمای کلاس‌ها و کارهای نیازمند پیگیری.</p>
+                <div class="teacher-dashboard-hero-actions">
+                    @if($focusRoute)
+                        <a class="teacher-dashboard-primary-action" href="{{ $focusRoute }}">{{ $focusLabel }} <span aria-hidden="true">←</span></a>
+                    @endif
+                    @if($canViewLiveClasses)
+                        <a class="teacher-dashboard-secondary-action" href="{{ route('teacher.schedule.index') }}">برنامه هفتگی</a>
+                    @endif
                 </div>
             </div>
         </header>
