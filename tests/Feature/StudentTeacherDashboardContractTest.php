@@ -39,11 +39,14 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
             ->assertSee('جلسات این هفته')
-            ->assertSee('نیازمند بررسی')
+            ->assertSee('تکلیف‌های منتظر تصحیح')
+            ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت دانش‌آموزان')
-            ->assertSee('مرکز توجه')
-            ->assertSee('teacher-focus-card')
-            ->assertSee('teacher-focus-action')
+            ->assertSee('td-focus-card', false)
+            ->assertSee('td-focus-action', false)
+            ->assertSee('td-dashboard', false)
+            ->assertSee('data-teacher-theme-toggle', false)
+            ->assertSee('آخرین تکالیف')
             ->assertDontSee('فروش دوره‌ها');
     }
 
@@ -63,6 +66,8 @@ class StudentTeacherDashboardContractTest extends TestCase
 
         $this->assertStringContainsString('.teacher-focus-card {', $teacherCss);
         $this->assertStringContainsString('.teacher-focus-action {', $teacherCss);
+        $this->assertStringContainsString("@import './teacher-dashboard.css';", $teacherCss);
+        $this->assertStringContainsString('.td-dashboard {', file_get_contents(resource_path('css/teacher-dashboard.css')));
         $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
         // Tailwind source scanning is centralized in app.css (source(none));
         // the role stylesheet is plain CSS and stays focused on component styling.
