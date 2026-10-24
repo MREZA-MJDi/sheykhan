@@ -13,7 +13,6 @@ export default defineConfig({
                 'resources/css/student.css',
                 'resources/js/student.js',
                 'resources/css/teacher.css',
-                'resources/css/teacher-dashboard-polish.css',
                 'resources/js/teacher.js',
                 'resources/css/admin.css',
                 'resources/css/owner-design-system.css',
