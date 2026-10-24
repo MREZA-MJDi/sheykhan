@@ -111,6 +111,51 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertStringContainsString('data-avatar-fallback', $html);
     }
 
+    public function test_private_student_avatar_uses_authenticated_media_route_on_all_surfaces(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $profile = StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+
+        $media = Media::create([
+            'uploaded_by' => $student->id,
+            'disk' => 'local',
+            'path' => 'students/' . $student->id . '/private-avatar.jpg',
+            'original_name' => 'private-avatar.jpg',
+            'file_name' => 'private-avatar.jpg',
+            'mime_type' => 'image/jpeg',
+            'extension' => 'jpg',
+            'size' => 1024,
+            'checksum' => hash('sha256', 'student-private-avatar-test'),
+            'visibility' => 'private',
+            'collection' => 'student-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+
+        $profile->media()->attach($media->id, [
+            'collection' => 'student-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $avatarUrl = route('media.view', $media);
+        $payload = app(StudentDashboardService::class)->build($student->fresh());
+
+        $this->assertSame($avatarUrl, $payload['studentAvatarUrl']);
+
+        $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee($avatarUrl, false);
+
+        $this->actingAs($student)
+            ->get(route('student.profile.edit'))
+            ->assertOk()
+            ->assertSee($avatarUrl, false);
+    }
+
     public function test_pending_assignment_kpi_is_not_limited_to_the_dashboard_list(): void
     {
         $this->seed();
