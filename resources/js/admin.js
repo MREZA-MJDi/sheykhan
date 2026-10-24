@@ -1,3 +1,4 @@
+import '../css/admin.css';
 /* Admin role behavior. Shared behavior is initialized by app.js. */
 import './exam-builder.js';
 function formatUploadSize(bytes) {
