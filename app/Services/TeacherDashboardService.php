@@ -234,6 +234,10 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
             })
+            ->join('users as learners', function ($join): void {
+                $join->on('learners.id', '=', 'enrollments.student_id')
+                    ->where('learners.status', '=', 'active');
+            })
             ->leftJoin('classrooms', function ($join): void {
                 $join->on('classrooms.id', '=', 'enrollments.classroom_id')
                     ->on('classrooms.course_id', '=', 'courses.id')
