@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Academy;
+use App\Models\ClassSchedule;
 use App\Support\PersianUi;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,6 +17,20 @@ class WeeklyScheduleCalendarTest extends TestCase
     {
         $this->seed();
         $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $classroom = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
+            ->firstOrFail();
+
+        // Include an imported/migrated slot with a blank provider URL so the red state is covered.
+        ClassSchedule::query()->create([
+            'classroom_id' => $classroom->id,
+            'weekday' => 5,
+            'start_time' => '15:00',
+            'end_time' => '16:00',
+            'room' => 'کلاس تست بدون لینک',
+            'provider' => 'Jitsi',
+            'meeting_url' => null,
+        ]);
 
         $this->actingAs($teacher)
             ->get(route('teacher.schedule.index'))
@@ -31,4 +47,24 @@ class WeeklyScheduleCalendarTest extends TestCase
             ->assertSee('سرویس و لینک ورود را وصل کن', false)
             ->assertSee('lang="fa-IR"', false);
     }
+
+
+    public function test_owner_weekly_schedule_page_uses_the_same_jalali_calendar(): void
+    {
+        $this->seed();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = Academy::query()->where('slug', 'sheykhan-academy')->firstOrFail();
+
+        $this->actingAs($owner)
+            ->get(route('owner.schedules.index', $academy))
+            ->assertOk()
+            ->assertSee('data-weekly-calendar', false)
+            ->assertSee('برنامهٔ کلاس‌ها در یک نگاه', false)
+            ->assertSee('ساعت تهران (Asia/Tehran)', false)
+            ->assertSee('Google Meet', false)
+            ->assertSee('Zoom', false)
+            ->assertSee('۲. سرویس و لینک ورود را وصل کن', false);
+    }
+
 }
