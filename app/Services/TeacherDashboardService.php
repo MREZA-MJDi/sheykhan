@@ -190,6 +190,19 @@ final class TeacherDashboardService
             });
 
 
+        $avatarUsers = User::query()
+            ->whereIn('id', $topStudents->pluck('id')->all())
+            ->with(['studentProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'student-avatar')
+                ->orderByPivot('sort_order')])
+            ->get(['id'])
+            ->keyBy('id');
+
+        $topStudents->each(function ($row) use ($avatarUsers): void {
+            $avatar = $avatarUsers->get((int) $row->id)?->studentProfile?->media?->first();
+            $row->avatar_url = $avatar && $avatar->visibility === 'public' ? $avatar->url() : null;
+        });
+
         return [
             'teacher' => $teacher,
             'dashboardDate' => PersianUi::date(now()),

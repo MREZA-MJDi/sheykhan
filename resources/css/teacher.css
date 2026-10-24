@@ -2658,3 +2658,25 @@ th{font-weight:600}td{padding:12px}
     .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi,
     .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card { transition:none; }
 }
+
+
+/* Anchor cards keep the same real spacing as their former article shells. */
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .sv > a.teacher-student-row {
+    display:grid;grid-template-columns:36px minmax(0,1fr);grid-template-areas:"avatar name" "avatar progress";
+    align-items:center;gap:2px 10px;min-width:0;padding:11px;border:1px solid var(--bd);
+    border-radius:12px;background:color-mix(in srgb,var(--sk) 7%,var(--sf));color:var(--tx);
+}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs > a.teacher-course-card {
+    display:flex;flex-direction:column;gap:8px;min-width:0;min-height:150px;padding:14px;
+    border:2px solid color-mix(in srgb,var(--c,var(--sk)) 54%,var(--bd));border-radius:13px;
+    background:color-mix(in srgb,var(--c,var(--sk)) 17%,var(--sf));color:var(--tx);overflow-wrap:anywhere;text-decoration:none;
+}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.ok { --c:#087f5b; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.sk { --c:#075985; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.vi { --c:#5b21b6; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.wr { --c:#a65b00; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card > small { color:inherit;opacity:.86;font-size:10px;line-height:1.7; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .tg { background:var(--c);border-color:var(--c);color:#fff; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 {display:grid;place-items:center;overflow:hidden;border:2px solid var(--sf);border-radius:50%;width:36px;height:36px;}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 img {display:block;width:100%;height:100%;object-fit:cover;}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row:hover {background:color-mix(in srgb,var(--sk) 15%,var(--sf));border-color:var(--sk);}

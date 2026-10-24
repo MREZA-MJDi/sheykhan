@@ -80,16 +80,11 @@ class StudentTeacherDashboardContractTest extends TestCase
         $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $classroom = $teacher->classroomsAsTeacher()
             ->where('classrooms.status', 'active')
-            ->whereHas('students', fn ($query) => $query
-                ->wherePivot('status', 'active')
-                ->whereHas('enrollments', fn ($enrollments) => $enrollments
-                    ->whereColumn('course_enrollments.classroom_id', 'classrooms.id')
-                    ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
-                    ->where('course_enrollments.status', 'active')))
             ->firstOrFail();
 
         $student = $classroom->students()
             ->wherePivot('status', 'active')
+            ->where('users.status', 'active')
             ->whereHas('enrollments', fn ($query) => $query
                 ->where('course_id', $classroom->course_id)
                 ->where('classroom_id', $classroom->id)
