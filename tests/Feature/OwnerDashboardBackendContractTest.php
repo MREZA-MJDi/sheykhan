@@ -184,7 +184,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('href="#owner-academies"', false)
             ->assertDontSee('<a class="owner-stat-card', false)
             ->assertSee('class="owner-stat-card tone-indigo"', false)
-            ->assertSee('جزئیات هر آموزشگاه از منوی کناری')
+            ->assertSee('برای مدیریت هر آموزشگاه، از منوی کناری وارد همان آموزشگاه شو.')
             ->assertSee('owner-classroom-overview', false);
     }
 
