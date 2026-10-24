@@ -15,10 +15,10 @@
 
         $ownerUser = auth()->user();
         $firstAcademy = $academies->first();
-        $canOpenPeople = $canViewAcademy && (bool) $firstAcademy;
 
         // Keep visible links and metrics in sync with the permission on their GET route.
         $canViewAcademy = (bool) $ownerUser?->hasPermission('academy.view');
+        $canOpenPeople = $canViewAcademy && (bool) $firstAcademy;
         $canViewClassrooms = (bool) $ownerUser?->hasPermission('classrooms.view') && (bool) $firstAcademy;
         $canViewCourses = (bool) $ownerUser?->hasPermission('courses.view');
         $canViewAttendance = (bool) $ownerUser?->hasPermission('attendance.view') && (bool) $firstAcademy;
@@ -464,15 +464,14 @@
                                     </span>
                                 </div>
 
-                                <div class="rounded-xl bg-white p-3 text-center">
-                                    <strong class="block text-sm font-black text-slate-950">
-                                        {{ $classroom->today_attendance_rate === null ? '—' : \App\Support\PersianUi::digits($classroom->today_attendance_rate) . '٪' }}
-                                    </strong>
-
-                                    <span class="text-[9px] text-slate-400">
-                                        حضور امروز
-                                    </span>
-                                </div>
+                                @if($canViewAttendance)
+                                    <div class="rounded-xl bg-white p-3 text-center">
+                                        <strong class="block text-sm font-black text-slate-950">
+                                            {{ $classroom->today_attendance_rate === null ? '—' : \App\Support\PersianUi::digits($classroom->today_attendance_rate) . '٪' }}
+                                        </strong>
+                                        <span class="text-[9px] text-slate-400">حضور امروز</span>
+                                    </div>
+                                @endif
 
                             </div>
 
