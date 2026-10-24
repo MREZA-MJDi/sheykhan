@@ -14,6 +14,13 @@ final class StudentDashboardService
 {
     public function build(User $student): array
     {
+        // Student photos live in the student-avatar media collection, not users.avatar_url.
+        $student->loadMissing([
+            'studentProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'student-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+
         $access = app(StudentAccessService::class);
         $courseIds = $access->enrolledCourseIds($student);
 
@@ -83,7 +90,9 @@ final class StudentDashboardService
 
         $progress = $this->progressByCourse($student->id, $courseIds);
         $lessonStats = $this->lessonStatsByCourse($student->id, $courseIds);
-        $nextLessons = $this->nextLessonsByCourse($student->id, $courseIds);
+        // The home page only displays six courses; scope next-lesson lookup to that bounded set.
+        $displayedCourseIds = $enrollments->pluck('course_id')->filter()->unique()->values();
+        $nextLessons = $this->nextLessonsByCourse($student->id, $displayedCourseIds);
         $learningActivity = $this->learningActivity($student->id, $courseIds);
 
         $courses = $enrollments->map(function ($enrollment) use ($progress, $lessonStats, $nextLessons) {
@@ -362,6 +371,7 @@ final class StudentDashboardService
         return [
             'student' => $student,
             'profile' => $student->studentProfile,
+            'studentAvatarUrl' => $student->studentProfile?->media?->first()?->url(),
             'courses' => $courses,
             'teachers' => $teachers,
             'overallProgress' => round($overallProgress),
@@ -507,6 +517,7 @@ final class StudentDashboardService
             ];
         }
 
+        // Aggregate watch activity in SQL so PHP receives at most one row per day.
         $rows = DB::table('lesson_progress')
             ->join('lessons', 'lessons.id', '=', 'lesson_progress.lesson_id')
             ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
@@ -514,21 +525,21 @@ final class StudentDashboardService
             ->whereIn('course_sections.course_id', $courseIds)
             ->whereNotNull('lesson_progress.last_watched_at')
             ->where('lesson_progress.last_watched_at', '>=', now()->subDays(13)->startOfDay())
-            ->orderByDesc('lesson_progress.last_watched_at')
-            ->get([
-                'lesson_progress.seconds_watched',
-                'lesson_progress.last_watched_at',
-            ]);
+            ->selectRaw('DATE(lesson_progress.last_watched_at) as study_date')
+            ->selectRaw('SUM(lesson_progress.seconds_watched) as watched_seconds')
+            ->groupByRaw('DATE(lesson_progress.last_watched_at)')
+            ->orderByDesc('study_date')
+            ->get();
 
         $studyDates = $rows
-            ->map(fn ($row) => Carbon::parse($row->last_watched_at)->toDateString())
+            ->map(fn ($row) => Carbon::parse($row->study_date)->toDateString())
             ->unique()
             ->values();
 
-        $recentCutoff = now()->subDays(6)->startOfDay();
+        $recentCutoff = now()->subDays(6)->toDateString();
         $studySeconds = $rows
-            ->filter(fn ($row) => Carbon::parse($row->last_watched_at)->greaterThanOrEqualTo($recentCutoff))
-            ->sum(fn ($row) => (int) $row->seconds_watched);
+            ->filter(fn ($row) => (string) $row->study_date >= $recentCutoff)
+            ->sum(fn ($row) => (int) $row->watched_seconds);
 
         $anchor = Carbon::today();
         if (!$studyDates->contains($anchor->toDateString())) {
@@ -579,8 +590,9 @@ final class StudentDashboardService
     private function studyWeek($rows): array
     {
         $minutesByDate = collect($rows)
-            ->groupBy(fn ($row) => Carbon::parse($row->last_watched_at)->toDateString())
-            ->map(fn ($items) => (int) floor($items->sum(fn ($row) => (int) $row->seconds_watched) / 60));
+            ->mapWithKeys(fn ($row) => [
+                Carbon::parse($row->study_date)->toDateString() => (int) floor((int) $row->watched_seconds / 60),
+            ]);
 
         $week = [];
 
