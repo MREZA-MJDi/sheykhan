@@ -225,7 +225,7 @@ class OwnerDashboardBackendContractTest extends TestCase
 
         $this->get(route('owner.communications.index', $academy))
             ->assertOk()
-            ->assertSee('حالت مشاهده')
+            ->assertSee('این حساب دسترسی مشاهده دارد')
             ->assertDontSee('action="' . route('owner.communications.store', $academy) . '"', false);
 
         $this->get(route('owner.messages.index', $academy))
