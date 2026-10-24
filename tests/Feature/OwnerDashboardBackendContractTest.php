@@ -160,6 +160,32 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->get(route('owner.people.index', $academy))->assertForbidden();
     }
 
+
+    public function test_owner_read_only_parent_message_permission_keeps_get_navigation_available(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail();
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+        $ownerRole->permissions()->sync(
+            Permission::query()
+                ->whereIn('name', ['dashboard.view', 'academy.view', 'parents.view'])
+                ->pluck('id')
+        );
+        $owner->unsetRelation('roles');
+        Cache::flush();
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('href="' . route('owner.people.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false);
+
+        $this->get(route('owner.communications.index', $academy))->assertOk();
+    }
+
     public function test_owner_dashboard_cache_is_per_owner_and_can_be_invalidated_after_a_write(): void
     {
         Cache::flush();
