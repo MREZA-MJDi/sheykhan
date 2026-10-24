@@ -7,6 +7,9 @@ use App\Models\Attendance;
 use App\Models\CounselingRequest;
 use App\Models\Exam;
 use App\Models\LiveClass;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -341,6 +344,89 @@ final class OwnerAccessIsolationTest extends TestCase
             $releasedAt->toDateTimeString(),
             $foreignLiveClass->recording_released_at?->toDateTimeString()
         );
+    }
+
+    public function test_owner_cannot_review_an_order_payment_from_another_academy(): void
+    {
+        [$owner, $ownedAcademy] = $this->ownerAndAcademyWithPermissions(['orders.view', 'orders.manage']);
+
+        $foreignOwner = User::factory()->create(['status' => 'active']);
+        $foreignAcademy = $this->createForeignAcademy($foreignOwner, 'آموزشگاه سفارش خارجی');
+        $category = ProductCategory::query()->create([
+            'name' => 'دسته سفارش خارجی',
+            'slug' => 'foreign-order-' . Str::lower(Str::random(8)),
+            'description' => 'دسته برای تست جداسازی سفارش‌ها',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+        $product = Product::query()->create([
+            'academy_id' => $foreignAcademy->id,
+            'category_id' => $category->id,
+            'created_by' => $foreignOwner->id,
+            'title' => 'محصول آموزشگاه دیگر',
+            'slug' => 'foreign-product-' . Str::lower(Str::random(10)),
+            'product_type' => 'exam',
+            'delivery_type' => 'download',
+            'price' => 250000,
+            'currency' => 'IRR',
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+        ]);
+        $buyer = User::factory()->create(['status' => 'active']);
+        $order = Order::query()->create([
+            'order_number' => 'SHK-' . Str::upper(Str::random(12)),
+            'buyer_id' => $buyer->id,
+            'status' => 'pending',
+            'currency' => 'IRR',
+            'subtotal' => 250000,
+            'discount' => 0,
+            'total' => 250000,
+            'legal_consent_completed' => true,
+        ]);
+        $item = $order->items()->create([
+            'product_id' => $product->id,
+            'beneficiary_id' => $buyer->id,
+            'product_title_snapshot' => $product->title,
+            'unit_price' => 250000,
+            'quantity' => 1,
+            'total_price' => 250000,
+        ]);
+        $payment = $order->payments()->create([
+            'gateway' => 'manual_transfer',
+            'amount' => 250000,
+            'currency' => 'IRR',
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.orders.index', $ownedAcademy))
+            ->assertOk()
+            ->assertDontSee($order->order_number);
+
+        $this->actingAs($owner)
+            ->get(route('owner.orders.proof', [$ownedAcademy, $order, $payment]))
+            ->assertNotFound();
+
+        $this->actingAs($owner)
+            ->post(route('owner.orders.confirm', [$ownedAcademy, $order, $payment]), [
+                'tracking_code' => 'FOREIGN-ORDER-REVIEW',
+                'review_note' => 'تلاش غیرمجاز برای تأیید',
+                'bank_statement_checked' => '1',
+            ])
+            ->assertNotFound();
+
+        $this->actingAs($owner)
+            ->post(route('owner.orders.reject', [$ownedAcademy, $order, $payment]), [
+                'review_note' => 'تلاش غیرمجاز برای رد',
+                'bank_statement_checked' => '1',
+            ])
+            ->assertNotFound();
+
+        $this->assertSame('pending', $order->fresh()->status);
+        $this->assertSame('pending', $payment->fresh()->status);
+        $this->assertDatabaseMissing('product_entitlements', [
+            'order_item_id' => $item->id,
+        ]);
     }
 
     /**
