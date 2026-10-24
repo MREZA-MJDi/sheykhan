@@ -165,3 +165,60 @@
     .parent-dashboard .parent-child { transition:none !important; }
     .parent-dashboard .parent-child:hover { transform:none; }
 }
+
+
+/* Parent and Owner dashboards share one calm, readable visual language. */
+.parent-shell {
+    --panel-primary: #4f46e5;
+    --panel-primary-soft: #eeedff;
+    --panel-border: #dfe6f0;
+    --panel-text: #17243b;
+    --panel-text-secondary: #40516a;
+    --panel-muted: #5c6b82;
+    --panel-shadow-soft: 0 8px 24px rgba(31,52,86,.055);
+}
+.parent-dashboard .parent-hero {
+    border: 0;
+    border-radius: 24px;
+    padding: clamp(22px, 2.6vw, 38px);
+    background:
+        radial-gradient(circle at 91% 7%, rgba(178,170,255,.24), transparent 18rem),
+        linear-gradient(125deg, #312e81 0%, #4f46e5 58%, #7068e8 100%);
+    box-shadow: 0 18px 42px rgba(79,70,229,.18);
+}
+.parent-dashboard .parent-hero h1,
+.parent-dashboard .parent-hero h2 { color: #fff; font-size: clamp(23px,2.3vw,32px); font-weight: 900; line-height: 1.6; }
+.parent-dashboard .parent-hero p { color: rgba(255,255,255,.82); font-size: 13px; line-height: 2; }
+.parent-dashboard .parent-kicker { color: #e0e7ff; font-size: 11px; }
+.parent-dashboard .parent-child,
+.parent-dashboard .parent-panel {
+    border: 1px solid var(--panel-border);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--panel-shadow-soft);
+}
+.parent-dashboard .parent-child { padding: clamp(15px, 1.7vw, 22px); }
+.parent-dashboard .parent-child-stat {
+    border: 1px solid #edf0f6;
+    border-radius: 12px;
+    background: #f8faff;
+}
+.parent-dashboard .parent-child-stat span { color: var(--panel-muted); font-size: 11px; }
+.parent-dashboard .parent-child-stat strong { color: var(--panel-text); font-size: clamp(17px,1.8vw,22px); }
+.parent-dashboard .parent-row { border: 1px solid #edf0f6; background: #fafbff; }
+.parent-dashboard .parent-date { border-color: #e3e7f2; }
+.parent-dashboard .parent-score { color: #3730a3; }
+.parent-dashboard .parent-progress-method {
+    border-color: #dfe6f0;
+    border-radius: 14px;
+    background: rgba(255,255,255,.82);
+    color: #5c6b82;
+}
+.parent-shell :is(a,button,input,select,textarea):focus-visible {
+    outline: 3px solid rgba(79,70,229,.28);
+    outline-offset: 2px;
+}
+@media (max-width: 600px) {
+    .parent-dashboard .parent-hero { padding: 22px 18px; border-radius: 20px; }
+    .parent-dashboard .parent-child { padding: 14px; }
+}
