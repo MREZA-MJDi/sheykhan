@@ -66,6 +66,10 @@ class StudentPortalSmokeTest extends TestCase
         $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
         $exam = Exam::where('course_id', $course->id)->firstOrFail();
 
+        // Historical results stay available even after the teacher closes the exam.
+        $exam->status = 'draft';
+        $exam->save();
+
         $attempt = ExamAttempt::query()->create([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
@@ -106,6 +110,30 @@ class StudentPortalSmokeTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.attempt', ['exam' => $exam->id, 'attempt' => $attempt->id]))
             ->assertNotFound();
+    }
+
+
+    public function test_student_can_render_an_in_progress_exam_attempt(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $exam = Exam::where('course_id', $course->id)->firstOrFail();
+
+        $attempt = ExamAttempt::query()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'attempt_number' => 1,
+            'started_at' => now(),
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.attempt', ['exam' => $exam->id, 'attempt' => $attempt->id]))
+            ->assertOk()
+            ->assertSee('exam-form', false)
+            ->assertSee($exam->title);
     }
 
 }
