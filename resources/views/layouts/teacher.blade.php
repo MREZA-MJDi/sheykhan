@@ -99,7 +99,7 @@
 
         <div class="mn">
             @include('teacher.partials.topbar')
-            <main class="workspace-content">
+            <main class="workspace-content role-main">
                 <div class="flash-wrap"><x-ui.flash-messages /></div>
                 @yield('content')
             </main>
