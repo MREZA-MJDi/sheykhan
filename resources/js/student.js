@@ -223,7 +223,7 @@ import '../css/student.css';
                 return;
             }
             if (event.key !== 'Tab') return;
-            const focusable = Array.from(profileModal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),[tabindex="0"]'))
+            const focusable = Array.from(profileModal.querySelectorAll('a[href],button:not([disabled]):not(.student-profile-backdrop),input:not([disabled]),[tabindex="0"]'))
                 .filter((element) => element.getClientRects().length > 0);
             if (!focusable.length) return;
             const first = focusable[0];
