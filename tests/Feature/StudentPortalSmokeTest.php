@@ -73,7 +73,7 @@ class StudentPortalSmokeTest extends TestCase
         $attempt = ExamAttempt::query()->create([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'attempt_number' => 1,
+            'attempt_number' => ((int) ExamAttempt::query()->where('exam_id', $exam->id)->where('student_id', $student->id)->max('attempt_number')) + 1,
             'started_at' => now()->subMinutes(10),
             'submitted_at' => now()->subMinutes(1),
             'score' => 8,
@@ -102,7 +102,7 @@ class StudentPortalSmokeTest extends TestCase
         $attempt = ExamAttempt::query()->create([
             'exam_id' => $exam->id,
             'student_id' => $teacher->id,
-            'attempt_number' => 1,
+            'attempt_number' => ((int) ExamAttempt::query()->where('exam_id', $exam->id)->where('student_id', $teacher->id)->max('attempt_number')) + 1,
             'started_at' => now(),
             'status' => 'in_progress',
         ]);
