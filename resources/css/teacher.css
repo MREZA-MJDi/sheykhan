@@ -635,3 +635,124 @@ th{font-weight:600}td{padding:12px}
         isolation:isolate;
     }
 }
+
+
+/* Responsive shell correction: keep the full teacher sidebar at laptop/tablet widths. */
+@media (min-width: 761px) and (max-width: 1000px) {
+    .teacher-shell .app {
+        display: grid !important;
+        grid-template-columns: clamp(218px, 25vw, 246px) minmax(0, 1fr);
+        width: 100%;
+        max-width: none;
+        min-height: 100dvh;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .teacher-shell .sb {
+        display: flex !important;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100dvh;
+        min-height: 0;
+        align-items: stretch;
+        padding: 14px 10px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        border-radius: 0;
+        border-inline-end: 1px solid var(--bd);
+        border-bottom: 0;
+    }
+
+    .teacher-shell .sb .lg,
+    .teacher-shell .sb .gl,
+    .teacher-shell .sb .us {
+        display: flex;
+    }
+
+    .teacher-shell .sb .lg { width: 100%; padding: 2px 8px 14px; }
+    .teacher-shell .sb .gl { width: 100%; justify-content: flex-start; }
+    .teacher-shell .sb .nv {
+        width: 100%;
+        min-height: 40px;
+        padding: 8px 9px;
+        justify-content: flex-start;
+        gap: 8px;
+        font-size: 11px;
+        white-space: normal;
+        text-align: start;
+    }
+    .teacher-shell .sb .nv .nav-label {
+        display: inline;
+        font-size: 11px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+    .teacher-shell .sb .nav-footer {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid var(--bd);
+    }
+    .teacher-shell .sb .nav-footer form,
+    .teacher-shell .sb .nav-footer .nv { width: 100%; }
+
+    .teacher-shell .mn {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        padding: 18px 16px 28px;
+        border-radius: 0;
+    }
+
+    .teacher-shell .role-mobile-bottom-nav { display: none !important; }
+    .teacher-shell .dh { grid-template-columns: minmax(0, 1fr); }
+    .teacher-shell .dh > .col { grid-template-columns: minmax(0, 1fr); }
+    .teacher-shell .k6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Phones use the shared bottom navigation; tablet and desktop navigation stays in the sidebar. */
+@media (max-width: 760px) {
+    .teacher-shell .app {
+        display: block !important;
+        width: 100%;
+        max-width: none;
+        min-height: 100dvh;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .teacher-shell .sb { display: none !important; }
+    .teacher-shell .role-mobile-bottom-nav { display: grid !important; }
+    .teacher-shell .mn {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        padding: 14px 12px calc(132px + env(safe-area-inset-bottom, 0px));
+        border-radius: 0;
+    }
+    .teacher-shell .dh { grid-template-columns: minmax(0, 1fr); }
+    .teacher-shell .dh > .col { grid-template-columns: minmax(0, 1fr); }
+    .teacher-shell .k6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 761px) {
+    .teacher-shell .role-mobile-bottom-nav { display: none !important; }
+}
+
+.teacher-shell .dashboard-search-empty {
+    margin: 0 0 16px;
+    padding: 13px 16px;
+    border: 1px dashed var(--bd);
+    border-radius: 12px;
+    background: var(--sf);
+    color: var(--mu);
+    font-size: 13px;
+    line-height: 1.9;
+}
