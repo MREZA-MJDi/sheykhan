@@ -38,7 +38,7 @@
             ['route' => 'teacher.students.index', 'label' => 'دانش‌آموزان', 'permission' => 'students.view', 'icon' => '◎', 'primary' => false],
             ['route' => 'teacher.payments.index', 'label' => 'حقوق و پرداخت‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'teacher.profile.edit', 'label' => 'پروفایل من', 'permission' => 'profile.view', 'icon' => '⚙', 'primary' => false],
-            ['route' => 'teacher.dashboard', 'url' => route('teacher.dashboard') . '#teacher-progress', 'activeRoute' => 'teacher.dashboard', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false, 'noActive' => true],
+            ['route' => 'teacher.dashboard', 'url' => route('teacher.dashboard') . '#teacher-progress', 'activeRoute' => 'teacher.dashboard', 'label' => 'گزارش عملکرد', 'permissions' => ['reports.view', 'dashboard.view'], 'icon' => '↗', 'primary' => false, 'noActive' => true],
         ],
         'owner' => [
             ['route' => 'owner.dashboard', 'label' => 'مرکز کنترل', 'permission' => 'dashboard.view', 'icon' => '⌂', 'primary' => true],
