@@ -10,8 +10,8 @@ class RoleMobileNavigationRouteContractTest extends TestCase
 
     public function test_every_literal_route_reference_in_blade_views_resolves(): void
     {
-        $directory = new \\RecursiveDirectoryIterator(resource_path('views'), \\FilesystemIterator::SKIP_DOTS);
-        $files = new \\RecursiveIteratorIterator($directory);
+        $directory = new \RecursiveDirectoryIterator(resource_path('views'), \FilesystemIterator::SKIP_DOTS);
+        $files = new \RecursiveIteratorIterator($directory);
         $missing = [];
 
         foreach ($files as $file) {
