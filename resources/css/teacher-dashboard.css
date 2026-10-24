@@ -1108,12 +1108,40 @@
 /* Reference design: a narrow icon rail on the teacher dashboard only. */
 @media (min-width: 901px) {
     .teacher-dashboard-shell.teacher-shell .role-layout {
+        width: min(calc(100% - 28px), 1640px);
+        max-width: 1640px;
+        min-height: calc(100vh - 28px);
+        margin: 14px auto;
         grid-template-columns: 76px minmax(0, 1fr);
+        border: 1px solid var(--panel-border);
+        border-radius: 26px;
+        background: var(--panel-surface);
+        box-shadow: var(--panel-shadow-soft);
+    }
+    .teacher-dashboard-shell.teacher-shell .role-content {
+        min-width: 0;
+        background: var(--panel-bg);
+        border-start-start-radius: 26px;
+        border-end-start-radius: 26px;
+    }
+    .teacher-dashboard-shell.teacher-shell .role-topbar {
+        padding: 14px 20px;
+        border-radius: 0;
+        background: var(--panel-surface);
+    }
+    .teacher-dashboard-shell.teacher-shell .role-main {
+        min-width: 0;
+        padding: 18px 24px 32px;
+        background: var(--panel-bg);
+        border-start-start-radius: 26px;
+        border-end-start-radius: 26px;
     }
     .teacher-dashboard-shell.teacher-shell .role-sidebar {
+        position: sticky;
+        top: 14px;
         width: 76px;
         min-width: 76px;
-        height: 100vh;
+        height: calc(100vh - 28px);
         padding: 14px 9px;
         align-items: center;
         gap: 4px;
@@ -1124,6 +1152,9 @@
         width: 100%;
         padding: 4px 0 12px;
         border: 0;
+    }
+    .teacher-dashboard-shell.teacher-shell .role-sidebar-brand::after {
+        display: none;
     }
     .teacher-dashboard-shell.teacher-shell .role-brand {
         justify-content: center;
