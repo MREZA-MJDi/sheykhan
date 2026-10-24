@@ -36,7 +36,15 @@
         $courseCards = collect($courseProgress ?? []);
         $featuredStudents = collect($topStudents ?? []);
         $recentAssignments = collect($activities ?? []);
-        $todayList = collect($todaySessions ?? []);
+        $todayList = collect($todaySessions ?? [])->map(function (array $session): array {
+            $session['status'] = (string) ($session['status'] ?? 'برنامه‌ریزی‌شده');
+            $session['tone'] = $session['status'] === 'در حال برگزاری'
+                ? 'er'
+                : ($session['status'] === 'پایان یافته' ? 'mu' : 'sk');
+            $session['can_join'] = ! empty($session['can_join']) && filled($session['meeting_url'] ?? null);
+
+            return $session;
+        });
         $upcomingList = collect($upcomingClasses ?? []);
         $weekChart = $chart['week'] ?? ['labels' => [], 'values' => []];
         $monthChart = $chart['month'] ?? ['labels' => [], 'values' => []];
@@ -223,20 +231,16 @@
                         <section class="cd" aria-labelledby="teacher-today-heading">
                             <h3 id="teacher-today-heading">برنامه امروز <a href="{{ route('teacher.schedule.index') }}">برنامه کامل ←</a></h3>
                             @forelse($todayList as $session)
-                                @php
-                                    $sessionStatus = (string) ($session['status'] ?? 'برنامه‌ریزی‌شده');
-                                    $sessionTone = $sessionStatus === 'در حال برگزاری' ? 'er' : ($sessionStatus === 'پایان یافته' ? 'mu' : 'sk');
-                                @endphp
-                                @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))
-                                    <a class="ls {{ $sessionTone }}" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer" data-dashboard-searchable>
+                                @if($session['can_join'])
+                                    <a class="ls {{ $session['tone'] }}" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer" data-dashboard-searchable>
                                 @else
-                                    <div class="ls {{ $sessionTone }}" data-dashboard-searchable>
+                                    <div class="ls {{ $session['tone'] }}" data-dashboard-searchable>
                                 @endif
-                                    @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))<span class="jn">ورود ↗</span>@endif
+                                    @if($session['can_join'])<span class="jn">ورود ↗</span>@endif
                                     <b>{{ $session['title'] ?? 'جلسه آموزشی' }}</b>
                                     <small>{{ $session['time'] ?? '—' }} · {{ $session['meta'] ?? '' }}</small>
-                                    <small>{{ $sessionStatus }}</small>
-                                @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))</a>@else</div>@endif
+                                    <small>{{ $session['status'] }}</small>
+                                @if($session['can_join'])</a>@else</div>@endif
                             @empty
                                 <div class="empty-state">برای امروز جلسه‌ای در برنامه ثبت نشده است.</div>
                             @endforelse
