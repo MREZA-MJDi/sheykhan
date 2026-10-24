@@ -969,6 +969,7 @@ th{font-weight:600}td{padding:12px}
     color: var(--tx);
 }
 #teacher-dashboard .teacher-dashboard-hero {
+    position: relative;
     display: grid;
     grid-template-columns: clamp(100px,12vw,158px) minmax(0,1fr);
     align-items: center;
