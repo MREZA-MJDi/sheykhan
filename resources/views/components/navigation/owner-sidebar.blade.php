@@ -1,16 +1,60 @@
 @php
     $user = auth()->user();
     $seoOnly = $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
-    $academies = ($seoOnly || ! $user->hasPermission('academy.view'))
-        ? collect()
-        : $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
+    $academyScopedPermissions = [
+        'academy.view', 'classrooms.view', 'attendance.view', 'courses.view',
+        'live_classes.view', 'parents.view', 'exams.view', 'teacher_payments.view',
+        'content.manage', 'products.view', 'orders.view',
+    ];
+    $canUseAcademyScope = ! $seoOnly && collect($academyScopedPermissions)
+        ->contains(fn (string $permission) => $user->hasPermission($permission));
+    $academies = $canUseAcademyScope
+        ? $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get()
+        : collect();
+    $firstAcademy = $academies->first();
+
+    $ownerPanelHomeUrl = route('home');
+    if ($seoOnly && $user->hasPermission('seo.manage')) {
+        $ownerPanelHomeUrl = route('owner.seo.index');
+    } elseif (! $seoOnly && $user->hasPermission('dashboard.view')) {
+        $ownerPanelHomeUrl = route('owner.dashboard');
+    } elseif ($user->hasPermission('academy.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.people.index', $firstAcademy);
+    } elseif ($user->hasPermission('classrooms.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.classrooms.index', $firstAcademy);
+    } elseif ($user->hasPermission('attendance.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.attendance.index', $firstAcademy);
+    } elseif ($user->hasPermission('courses.view')) {
+        $ownerPanelHomeUrl = route('owner.courses.index');
+    } elseif ($user->hasPermission('live_classes.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.meetings.index', $firstAcademy);
+    } elseif ($user->hasPermission('parents.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.messages.index', $firstAcademy);
+    } elseif ($user->hasPermission('exams.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.exams.index', $firstAcademy);
+    } elseif ($user->hasPermission('teacher_payments.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.teacher-payments.index', $firstAcademy);
+    } elseif ($user->hasPermission('content.manage') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.resources.index', $firstAcademy);
+    } elseif ($user->hasPermission('products.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.products.index', $firstAcademy);
+    } elseif ($user->hasPermission('orders.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.orders.index', $firstAcademy);
+    } elseif ($user->hasPermission('finance.view')) {
+        $ownerPanelHomeUrl = route('owner.finance.index');
+    } elseif ($user->hasPermission('legal.manage')) {
+        $ownerPanelHomeUrl = route('owner.legal-documents.index');
+    } elseif ($user->hasPermission('reports.view')) {
+        $ownerPanelHomeUrl = route('owner.reports.index');
+    }
+
     $routeAcademy = request()->route('academy');
     $routeAcademyId = $routeAcademy instanceof \App\Models\Academy ? $routeAcademy->getKey() : $routeAcademy;
 @endphp
 
 <aside class="role-sidebar owner-sidebar">
     <div class="role-sidebar-brand">
-        <a href="{{ $seoOnly ? route('owner.seo.index') : route('owner.dashboard') }}" class="role-brand">
+        <a href="{{ $ownerPanelHomeUrl }}" class="role-brand">
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
@@ -49,7 +93,7 @@
             </a>
         @endif
 
-        @if(! $seoOnly)
+        @if($canUseAcademyScope)
         <div class="role-sidebar-label mt-6">عملیات آموزشگاه</div>
 
         @forelse($academies as $academy)
