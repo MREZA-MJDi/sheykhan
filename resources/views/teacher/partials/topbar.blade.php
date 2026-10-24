@@ -7,11 +7,26 @@
     <div class="sp">
         @if($teacherTopbarUser?->hasPermission('profile.view'))
             <a class="me" href="{{ route('teacher.profile.edit') }}" aria-label="رفتن به پروفایل مدرس">
-                <span class="av">{{ \Illuminate\Support\Str::substr(trim((string) $teacherTopbarUser->name), 0, 1) ?: 'م' }}</span>
+                <span class="av">
+                    @if($teacherPanelAvatarUrl)
+                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="36" height="36" loading="eager" decoding="async">
+                    @else
+                        {{ \Illuminate\Support\Str::substr(trim((string) $teacherTopbarUser->name), 0, 1) ?: 'م' }}
+                    @endif
+                </span>
                 <span>{{ $teacherTopbarUser->name }}</span>
             </a>
         @else
-            <span class="me"><span class="av">{{ \Illuminate\Support\Str::substr(trim((string) ($teacherTopbarUser?->name ?? 'م')), 0, 1) ?: 'م' }}</span><span>{{ $teacherTopbarUser?->name }}</span></span>
+            <span class="me">
+                <span class="av">
+                    @if($teacherPanelAvatarUrl)
+                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="36" height="36" loading="eager" decoding="async">
+                    @else
+                        {{ \Illuminate\Support\Str::substr(trim((string) ($teacherTopbarUser?->name ?? 'م')), 0, 1) ?: 'م' }}
+                    @endif
+                </span>
+                <span>{{ $teacherTopbarUser?->name }}</span>
+            </span>
         @endif
         <button class="ib" id="th" type="button" aria-label="تغییر تم" title="تغییر تم" aria-pressed="false">
             <svg class="i" aria-hidden="true"><use href="#mo"/></svg>
