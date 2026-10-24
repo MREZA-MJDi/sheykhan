@@ -56,6 +56,7 @@ use App\Http\Controllers\Teacher\LessonMediaController as TeacherLessonMediaCont
 use App\Http\Controllers\Teacher\LiveClassController as TeacherLiveClassController;
 use App\Http\Controllers\Teacher\StudentMessageController as TeacherStudentMessageController;
 use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
+use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -237,18 +238,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->middleware('permission:live_classes.view')->name('schedule.index');
     Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->middleware('permission:live_classes.manage')->name('schedule.store');
     Route::delete('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->middleware('permission:live_classes.manage')->name('schedule.destroy');
-    Route::get('/students', function (\App\Services\TeacherWorkspaceService $workspace) {
-        $sort = request()->string('sort')->toString() ?: 'name';
-        $direction = request()->string('direction')->toString() ?: 'asc';
-        $search = trim(request()->string('q')->toString());
-
-        return view('teacher.students.index', [
-            'students' => $workspace->studentsPaginated(request()->user(), 20, $sort, $direction, $search),
-            'studentSearch' => mb_substr($search, 0, 100),
-            'studentSort' => in_array($sort, ['name', 'progress', 'assignments', 'exams'], true) ? $sort : 'name',
-            'studentDirection' => $direction === 'desc' ? 'desc' : 'asc',
-        ]);
-    })->middleware('permission:students.view')->name('students.index');
+    Route::get('/students', [TeacherStudentController::class, 'index'])->middleware('permission:students.view')->name('students.index');
     Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->middleware('permission:assignments.view')->name('assignments.index');
     Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->middleware('permission:assignments.manage')->name('assignments.create');
     Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->middleware('permission:assignments.manage')->name('assignments.store');

@@ -30,6 +30,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             'teacher.classrooms.index',
             'teacher.schedule.index',
             'teacher.attendance.index',
+            'teacher.students.index',
             'teacher.assignments.index',
             'teacher.exams.index',
             'teacher.live-classes.index',
