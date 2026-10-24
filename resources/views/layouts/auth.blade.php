@@ -9,11 +9,6 @@
     <title>@yield('title', 'حساب کاربری | شیخان')</title>
     <meta name="description" content="@yield('description', 'ورود و ثبت‌نام در شیخان')">
 
-    @vite([
-        'resources/css/home.css',
-        'resources/js/home.js',
-    ])
-
     @stack('styles')
 </head>
 <body class="sheykhan-site min-h-screen">
