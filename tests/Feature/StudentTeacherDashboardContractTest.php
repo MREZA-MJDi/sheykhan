@@ -40,7 +40,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
             ->assertSee('کلاس‌های آنلاین این هفته')
-            ->assertSee('تکلیف‌های منتظر تصحیح')
+            ->assertSee('تکالیف منتظر تصحیح')
             ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت دانش‌آموزان')
             ->assertSee('tdb-focus-card', false)
