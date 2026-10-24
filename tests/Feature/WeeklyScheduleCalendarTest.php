@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Support\PersianUi;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -21,7 +22,7 @@ class WeeklyScheduleCalendarTest extends TestCase
             ->assertSee('data-weekly-calendar', false)
             ->assertSee('تقویم هفتگی', false)
             ->assertSee('ساعت تهران (Asia/Tehran)', false)
-            ->assertSee('زمستان', false)
+            ->assertSee(PersianUi::calendar(now('Asia/Tehran'))['month_label'], false)
             ->assertSee('لینک آماده', false)
             ->assertSee('لینک نیازمند بررسی', false)
             ->assertSee('Jitsi', false)
