@@ -17,11 +17,11 @@ final class StudentCourseService
         return Course::query()
             ->whereIn('id', $courseIds)
             ->published()
-            ->with([
-                'academy:id,name',
-                'teachers:id,name',
-                'sections:id,course_id,title,sort_order',
-                'sections.lessons:id,course_section_id,title,slug,type,summary,content,duration_seconds,is_free,status,published_at,sort_order',
+            ->with(['academy:id,name'])
+            ->withCount([
+                'lessons as published_lessons_count' => fn ($lessons) => $lessons
+                    ->where('lessons.status', 'published')
+                    ->where(fn ($query) => $query->whereNull('lessons.published_at')->orWhere('lessons.published_at', '<=', now())),
             ])
             ->orderBy('title');
     }
