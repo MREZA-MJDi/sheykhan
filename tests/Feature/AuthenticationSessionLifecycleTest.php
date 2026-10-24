@@ -14,7 +14,7 @@ class AuthenticationSessionLifecycleTest extends TestCase
     {
         $this->seed();
 
-        $password = (string) config('role_access.test_password');
+        $password = (string) (config('role_access.seed_password') ?? 'Sheykhan@12345');
         $accounts = [
             ['owner@sheykhan.test', 'owner.dashboard'],
             ['teacher.math@sheykhan.test', 'teacher.dashboard'],
@@ -58,7 +58,7 @@ class AuthenticationSessionLifecycleTest extends TestCase
 
         $response = $this->from(route('login'))->post(route('login.store'), [
             'identifier' => $student->email,
-            'password' => (string) config('role_access.test_password'),
+            'password' => (string) (config('role_access.seed_password') ?? 'Sheykhan@12345'),
         ]);
 
         $response->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
