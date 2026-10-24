@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="owner-sidebar-academy-links">
-                    @if($user->hasPermission('students.view') || $user->hasPermission('teachers.view'))
+                    @if($user->hasPermission('academy.view'))
                         <a href="{{ route('owner.people.index', $academy) }}"
                            class="role-nav-link {{ request()->routeIs('owner.people.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
                             <span class="role-nav-icon"></span><span>اعضا</span>
@@ -101,9 +101,7 @@
                     @endif
                     @if($user->hasPermission('parents.view'))
                         <a href="{{ route('owner.messages.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.messages.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام‌های اولیا</span></a>
-                        @if($user->hasPermission('parents.manage'))
-                            <a href="{{ route('owner.communications.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.communications.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ارسال اطلاعیه و پیام</span></a>
-                        @endif
+                        <a href="{{ route('owner.communications.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.communications.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ارسال اطلاعیه و پیام</span></a>
                         <a href="{{ route('owner.counseling.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.counseling.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>جلسات مشاوره</span></a>
                     @endif
                     @if($user->hasPermission('exams.view'))
