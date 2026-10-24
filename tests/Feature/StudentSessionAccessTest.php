@@ -68,7 +68,7 @@ class StudentSessionAccessTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.live-classes.index'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('student-shell');
 
         $this->actingAs($student)
             ->get(route('student.schedule.join', $schedule))
@@ -113,7 +113,7 @@ class StudentSessionAccessTest extends TestCase
         $this->actingAs($inside)
             ->get(route('student.live-classes.index'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('student-shell');
 
         $this->actingAs($inside)
             ->get(route('media.view', $released->recording))
