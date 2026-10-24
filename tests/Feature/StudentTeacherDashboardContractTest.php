@@ -12,7 +12,7 @@ class StudentTeacherDashboardContractTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_student_dashboard_renders_the_temporary_backend_connected_shell(): void
+    public function test_student_dashboard_renders_backend_connected_data(): void
     {
         $this->seed();
 
@@ -21,7 +21,9 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('student-shell')
+            ->assertSee('خانه یادگیری من')
+            ->assertSee('دوره‌های فعال')
+            ->assertSee('student-shell', false)
             ->assertDontSee('sdr-hero', false);
     }
 
@@ -88,7 +90,8 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('student-shell')
+            ->assertSee('خانه یادگیری من')
+            ->assertSee('student-shell', false)
             ->assertDontSee('تقویم')
             ->assertDontSee(now()->format('F Y'));
 
