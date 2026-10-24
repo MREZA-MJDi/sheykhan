@@ -5,6 +5,8 @@
 @section('content')
     @php
         $teacherUser = auth()->user();
+        // Keep direct Blade renders (e.g. feature tests) safe when the shared layout has not set the avatar URL.
+        $teacherPanelAvatarUrl = $teacherPanelAvatarUrl ?? null;
         $teacherInitial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1);
         $dashboardMetrics = $metrics ?? [];
         $pendingAssignmentReviews = max(0, (int) ($dashboardMetrics['pendingAssignmentReviews'] ?? 0));
