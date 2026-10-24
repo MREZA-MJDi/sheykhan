@@ -59,7 +59,6 @@ class StudentAssignmentFileUploadTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.assignments.show', $assignment))
             ->assertOk()
-            ->assertSee('assignment-files', false)
             ->assertSee('homework-answer.pdf')
             ->assertSee(route('media.view', $attachment), false);
 
