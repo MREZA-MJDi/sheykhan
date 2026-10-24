@@ -13,15 +13,47 @@
             'archived' => 'آرشیو',
         ];
 
+        $ownerUser = auth()->user();
         $firstAcademy = $academies->first();
 
-        $attentionCount =
-            (int) ($metrics['pendingReviews'] ?? 0) +
-            (int) ($metrics['capacityAlerts'] ?? 0) +
-            (int) ($metrics['classroomsWithoutTeacher'] ?? 0);
+        // Keep visible links and metrics in sync with the permission on their GET route.
+        $canViewAcademy = (bool) $ownerUser?->hasPermission('academy.view');
+        $canViewClassrooms = (bool) $ownerUser?->hasPermission('classrooms.view') && (bool) $firstAcademy;
+        $canViewCourses = (bool) $ownerUser?->hasPermission('courses.view');
+        $canViewAttendance = (bool) $ownerUser?->hasPermission('attendance.view') && (bool) $firstAcademy;
+        $canViewFinance = (bool) $ownerUser?->hasPermission('finance.view');
+        $canViewReports = (bool) $ownerUser?->hasPermission('reports.view');
+        $canViewAssignments = $canViewCourses && (bool) $firstAcademy;
+        $canViewMeetings = (bool) $ownerUser?->hasPermission('live_classes.view') && (bool) $firstAcademy;
+        $canViewMessages = (bool) $ownerUser?->hasPermission('parents.view') && (bool) $firstAcademy;
+        $canManageContent = (bool) $ownerUser?->hasPermission('content.manage') && (bool) $firstAcademy;
+        $canViewProducts = (bool) $ownerUser?->hasPermission('products.view') && (bool) $firstAcademy;
+        $canViewOrders = (bool) $ownerUser?->hasPermission('orders.view') && (bool) $firstAcademy;
+        $canViewLegalDocuments = (bool) $ownerUser?->hasPermission('legal.manage');
+        $canViewExams = (bool) $ownerUser?->hasPermission('exams.view') && (bool) $firstAcademy;
+        $canViewTeacherPayments = (bool) $ownerUser?->hasPermission('teacher_payments.view') && (bool) $firstAcademy;
+        $canViewRecordings = (bool) $ownerUser?->hasPermission('live_classes.view') && (bool) $firstAcademy;
 
-        $sales = (float) ($metrics['sales'] ?? 0);
-        $attendanceRate = $metrics['todayAttendanceRate'] ?? null;
+        // Suppress numbers for workflows the account cannot open.
+        $visiblePendingReviews = $canViewAssignments ? max(0, (int) ($metrics['pendingReviews'] ?? 0)) : 0;
+        $visibleCapacityAlerts = $canViewClassrooms ? max(0, (int) ($metrics['capacityAlerts'] ?? 0)) : 0;
+        $visibleClassroomsWithoutTeacher = $canViewClassrooms ? max(0, (int) ($metrics['classroomsWithoutTeacher'] ?? 0)) : 0;
+        $attentionCount = $visiblePendingReviews + $visibleCapacityAlerts + $visibleClassroomsWithoutTeacher;
+        $sales = $canViewFinance ? (float) ($metrics['sales'] ?? 0) : 0;
+        $attendanceRate = $canViewAttendance ? ($metrics['todayAttendanceRate'] ?? null) : null;
+
+        $focusRoute = null;
+        if ($visibleClassroomsWithoutTeacher > 0 && $firstAcademy) {
+            $focusRoute = route('owner.classrooms.index', $firstAcademy);
+        } elseif ($visibleCapacityAlerts > 0 && $firstAcademy) {
+            $focusRoute = route('owner.classrooms.index', $firstAcademy);
+        } elseif ($visiblePendingReviews > 0 && $firstAcademy) {
+            $focusRoute = route('owner.assignments.index', $firstAcademy);
+        } elseif ($canViewReports) {
+            $focusRoute = route('owner.reports.index');
+        } elseif ($canViewCourses) {
+            $focusRoute = route('owner.courses.index');
+        }
     @endphp
 
     <div class="owner-dashboard space-y-6 pb-8">
@@ -49,67 +81,43 @@
                 </p>
 
                 <div class="owner-hero-actions mt-6">
-                    @if($firstAcademy)
-                        <a
-                            href="{{ route('owner.classrooms.index', $firstAcademy) }}"
-                            class="owner-btn"
-                        >
-                            مدیریت کلاس‌ها
-                        </a>
-
-                        <a
-                            href="{{ route('owner.people.index', $firstAcademy) }}"
-                            class="owner-btn ghost"
-                        >
-                            مدیریت اعضا
-                        </a>
-
-                        <a href="{{ route('owner.resources.index', $firstAcademy) }}" class="owner-btn ghost">
-                            جزوه‌ها و فایل‌ها
-                        </a>
-
-                        <a href="{{ route('owner.products.index', $firstAcademy) }}" class="owner-btn ghost">
-                            کتابخانه، جزوه و آزمون
-                        </a>
-
-                        <a href="{{ route('owner.showcase.index', $firstAcademy) }}" class="owner-btn ghost">
-                            افتخارآفرینان و رضایتمندی
-                        </a>
-
-                        <a href="{{ route('owner.orders.index', $firstAcademy) }}" class="owner-btn ghost">
-                            سفارش‌ها و رسیدها
-                        </a>
-
-                        <a href="{{ route('owner.legal-documents.index') }}" class="owner-btn ghost">
-                            اسناد حقوقی و کپی‌رایت
-                        </a>
+                    @if($canViewClassrooms)
+                        <a href="{{ route('owner.classrooms.index', $firstAcademy) }}" class="owner-btn">مدیریت کلاس‌ها</a>
                     @endif
-
-                    <a
-                        href="{{ route('owner.reports.index') }}"
-                        class="owner-btn ghost"
-                    >
-                        گزارش‌ها
-                    </a>
-                </div>
+                    @if($canViewAcademy && $firstAcademy)
+                        <a href="{{ route('owner.people.index', $firstAcademy) }}" class="owner-btn ghost">مدیریت اعضا</a>
+                    @endif
+                    @if($canManageContent)
+                        <a href="{{ route('owner.resources.index', $firstAcademy) }}" class="owner-btn ghost">جزوه‌ها و فایل‌ها</a>
+                        <a href="{{ route('owner.showcase.index', $firstAcademy) }}" class="owner-btn ghost">افتخارآفرینان و رضایتمندی</a>
+                    @endif
+                    @if($canViewProducts)
+                        <a href="{{ route('owner.products.index', $firstAcademy) }}" class="owner-btn ghost">کتابخانه، جزوه و آزمون</a>
+                    @endif
+                    @if($canViewOrders)
+                        <a href="{{ route('owner.orders.index', $firstAcademy) }}" class="owner-btn ghost">سفارش‌ها و رسیدها</a>
+                    @endif
+                    @if($canViewLegalDocuments)
+                        <a href="{{ route('owner.legal-documents.index') }}" class="owner-btn ghost">اسناد حقوقی و کپی‌رایت</a>
+                    @endif
+                    @if($canViewReports)
+                        <a href="{{ route('owner.reports.index') }}" class="owner-btn ghost">گزارش‌ها</a>
+                    @endif
+                </div>          </div>
             </div>
 
-            <div class="owner-hero-art" aria-hidden="true">
-                <div class="owner-orb one"></div>
-                <div class="owner-orb two"></div>
-
-                <div class="owner-hero-stat">
-                    <small>درآمد خالص ثبت‌شده</small>
-
-                    <strong>
-                        {{ \App\Support\PersianUi::number($sales) }}
-                    </strong>
-
-                    <span>
-                        تومان · از دفتر پرداخت‌های تکمیل‌شده
-                    </span>
-                </div>
-            </div>
+            @if($canViewFinance)
+                <a class="owner-hero-art owner-hero-finance-link" href="{{ route('owner.finance.index') }}" aria-label="مشاهده دفتر مالی">
+                    <div class="owner-orb one"></div>
+                    <div class="owner-orb two"></div>
+                    <div class="owner-hero-stat">
+                        <small>درآمد خالص ثبت‌شده</small>
+                        <strong>{{ \App\Support\PersianUi::number($sales) }}</strong>
+                        <span>تومان · از دفتر پرداخت‌های تکمیل‌شده</span>
+                        <span class="owner-finance-link-label">مشاهده دفتر مالی ←</span>
+                    </div>
+                </a>
+            @endif
         </section>
 
 
