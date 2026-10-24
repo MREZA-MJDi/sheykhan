@@ -98,6 +98,7 @@
         'owner.assignments.index', 'owner.schedules.index', 'owner.meetings.index',
         'owner.messages.index', 'owner.communications.index', 'owner.counseling.index',
         'owner.exams.index', 'owner.recordings.index', 'owner.teacher-payments.index',
+        'owner.resources.index', 'owner.showcase.index', 'owner.products.index', 'owner.orders.index',
         'owner.academy.banners.edit', 'owner.academy.edit',
     ];
 
