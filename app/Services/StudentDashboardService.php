@@ -21,6 +21,11 @@ final class StudentDashboardService
                 ->orderByPivot('sort_order'),
         ]);
 
+        $avatarMedia = $student->studentProfile?->media?->first();
+        $studentAvatarUrl = $avatarMedia?->visibility === 'public'
+            ? $avatarMedia->url()
+            : ($avatarMedia ? route('media.view', $avatarMedia) : null);
+
         $access = app(StudentAccessService::class);
         $courseIds = $access->enrolledCourseIds($student);
 
@@ -433,7 +438,7 @@ final class StudentDashboardService
         return [
             'student' => $student,
             'profile' => $student->studentProfile,
-            'studentAvatarUrl' => $student->studentProfile?->media?->first()?->url(),
+            'studentAvatarUrl' => $studentAvatarUrl,
             'courses' => $courses,
             'teachers' => $teachers,
             'overallProgress' => round($overallProgress),

@@ -254,12 +254,14 @@ button.btn,button.pill{font:inherit}
 ========================================================== */
 html { scroll-behavior: smooth; }
 body {
-  padding: clamp(8px, 1.45vw, 24px);
+  /* Preserve visible breathing room from the viewport at every desktop width. */
+  padding: clamp(14px, 1.6vw, 30px);
   overflow-x: clip;
 }
 .app {
-  width: min(100%, 1560px);
-  max-width: 1560px;
+  /* Larger content canvas without stretching edge-to-edge on wide monitors. */
+  width: min(100%, 1640px);
+  max-width: 1640px;
   grid-template-columns: clamp(232px, 18vw, 282px) minmax(0, 1fr);
   gap: clamp(14px, 1.45vw, 22px);
   padding: clamp(12px, 1.35vw, 20px);

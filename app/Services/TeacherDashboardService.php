@@ -7,6 +7,7 @@ use App\Models\ExamAttempt;
 use App\Models\LiveClass;
 use App\Models\User;
 use App\Support\PersianUi;
+use App\Services\MeetingLinkService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +16,7 @@ final class TeacherDashboardService
     public function build(User $teacher): array
     {
         $activeAcademyIds = $teacher->academies()
+            ->where('academies.status', 'active')
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'active')
             ->pluck('academies.id');
@@ -48,7 +50,9 @@ final class TeacherDashboardService
 
         $weekStart = now()->startOfWeek(Carbon::SATURDAY);
         $weekEnd = now()->endOfWeek(Carbon::FRIDAY);
-        $weeklyProgress = $this->progressAverage($teacher->id, $courseIds);
+        // Shared-course eligibility is resolved once and reused by all progress queries.
+        $exclusiveCourseIds = $this->exclusiveCourseIdsForTeacher($teacher->id, $courseIds);
+        $weeklyProgress = $this->progressAverage($teacher->id, $courseIds, $exclusiveCourseIds);
         $pendingAssignmentReviews = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->where('assignments.teacher_id', $teacher->id)
@@ -84,21 +88,48 @@ final class TeacherDashboardService
         $upcomingClasses = LiveClass::query()
             ->whereIn('course_id', $courseIds)
             ->where('teacher_id', $teacher->id)
-            ->whereBetween('scheduled_at', [now(), now()->addDays(7)])
-            ->where('status', 'scheduled')
+            ->whereIn('status', ['scheduled', 'live'])
+            ->where(function ($window): void {
+                $window->whereBetween('scheduled_at', [now(), now()->addDays(7)])
+                    ->orWhere(function ($running): void {
+                        $running->where('status', 'live')
+                            ->where('scheduled_at', '<=', now())
+                            ->where(function ($end): void {
+                                $end->where('scheduled_end_at', '>=', now())
+                                    ->orWhere(function ($legacy): void {
+                                        // Legacy rows without an end time use the model's max allowed duration.
+                                        $legacy->whereNull('scheduled_end_at')
+                                            ->where('scheduled_at', '>=', now()->subHours(24));
+                                    });
+                            });
+                    });
+            })
             ->with([
                 'course:id,title',
                 'classroom:id,title',
             ])
+            ->orderByRaw("CASE WHEN status = 'live' THEN 0 ELSE 1 END")
             ->orderBy('scheduled_at')
+            ->orderBy('id')
             ->limit(6)
-            ->get();
+            ->get()
+            ->map(function (LiveClass $liveClass): LiveClass {
+                $liveClass->setAttribute(
+                    'can_join',
+                    app(MeetingLinkService::class)->urlMatchesProvider(
+                        (string) $liveClass->provider,
+                        (string) $liveClass->meeting_url,
+                    ),
+                );
 
-        $weekChart = $this->weeklyChart($teacher->id, $courseIds, $weekStart, $weekEnd);
+                return $liveClass;
+            });
+
+        $weekChart = $this->weeklyChart($teacher->id, $courseIds, $exclusiveCourseIds, $weekStart, $weekEnd);
 
         $chart = [
             'week' => $weekChart,
-            'month' => $this->monthlyChart($teacher->id, $courseIds),
+            'month' => $this->monthlyChart($teacher->id, $courseIds, $exclusiveCourseIds),
         ];
 
         $activities = Assignment::query()
@@ -115,7 +146,7 @@ final class TeacherDashboardService
             ->limit(6)
             ->get();
 
-        $courseProgress = $this->courseProgress($teacher->id, $courseIds);
+        $courseProgress = $this->courseProgress($teacher->id, $courseIds, $exclusiveCourseIds);
         $topStudents = DB::table('classroom_student as memberships')
             ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
             ->join('classroom_teacher as classroom_teachers', function ($join) use ($teacher): void {
@@ -129,6 +160,9 @@ final class TeacherDashboardService
                     ->where('enrollments.status', '=', 'active');
             })
             ->join('users', 'users.id', '=', 'memberships.student_id')
+            ->where('users.status', 'active')
+            ->where('classrooms.status', 'active')
+            ->whereIn('classrooms.academy_id', $activeAcademyIds)
             ->leftJoin('course_sections', 'course_sections.course_id', '=', 'enrollments.course_id')
             ->leftJoin('lessons', 'lessons.course_section_id', '=', 'course_sections.id')
             ->leftJoin('lesson_progress as progress', function ($join): void {
@@ -193,9 +227,8 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
      * only when the course has one assigned teacher; otherwise ownership of a
      * shared public course must not expose another teacher's cohort.
      */
-    private function teacherLearningMatrix(int $teacherId, $courseIds)
+    private function teacherLearningMatrix(int $teacherId, $courseIds, $exclusiveCourseIds)
     {
-        $exclusiveCourseIds = $this->exclusiveCourseIdsForTeacher($teacherId, $courseIds);
 
         return DB::table('course_teacher as course_teachers')
             ->join('courses', 'courses.id', '=', 'course_teachers.course_id')
@@ -247,15 +280,15 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             });
     }
 
-    private function progressAverage(int $teacherId, $courseIds): float
+    private function progressAverage(int $teacherId, $courseIds, $exclusiveCourseIds): float
     {
-        return (float) ($this->teacherLearningMatrix($teacherId, $courseIds)
+        return (float) ($this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
             ->avg(DB::raw('COALESCE(progress.progress_percent, 0)')) ?? 0);
     }
 
-    private function courseProgress(int $teacherId, $courseIds)
+    private function courseProgress(int $teacherId, $courseIds, $exclusiveCourseIds)
     {
-        return $this->teacherLearningMatrix($teacherId, $courseIds)
+        return $this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
             ->groupBy('courses.id', 'courses.title')
             ->orderByDesc('courses.id')
             ->get([
@@ -272,13 +305,13 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             });
     }
 
-    private function weeklyChart(int $teacherId, $courseIds, Carbon $from, Carbon $to): array
+    private function weeklyChart(int $teacherId, $courseIds, $exclusiveCourseIds, Carbon $from, Carbon $to): array
     {
         $labels = [];
         $values = [];
         $dayMap = [0 => 'ی', 1 => 'د', 2 => 'س', 3 => 'چ', 4 => 'پ', 5 => 'ج', 6 => 'ش'];
 
-        $rows = $this->teacherLearningMatrix($teacherId, $courseIds)
+        $rows = $this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
             ->whereNotNull('progress.last_watched_at')
             ->whereBetween('progress.last_watched_at', [$from, $to])
             ->groupBy(DB::raw('DATE(progress.last_watched_at)'))
@@ -294,55 +327,49 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         return compact('labels', 'values');
     }
 
-    private function monthlyChart(int $teacherId, $courseIds): array
+    private function monthlyChart(int $teacherId, $courseIds, $exclusiveCourseIds): array
     {
         $from = now()->subDays(30)->startOfDay();
         $to = now()->endOfDay();
 
-        $weekExpression = match (DB::getDriverName()) {
-            'sqlite' => "strftime('%W', progress.last_watched_at)",
-            'mysql', 'mariadb' => "WEEK(progress.last_watched_at, 1)",
-            'pgsql' => "EXTRACT(WEEK FROM progress.last_watched_at)",
-            default => "EXTRACT(WEEK FROM progress.last_watched_at)",
-        };
-
-        $rows = $this->teacherLearningMatrix($teacherId, $courseIds)
+        // Aggregate one row per date in SQL. Seven bounded 5-day buckets avoid
+        // week-number/year-boundary differences between MySQL, SQLite and PostgreSQL.
+        $dailyValues = $this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
             ->whereNotNull('progress.last_watched_at')
             ->whereBetween('progress.last_watched_at', [$from, $to])
-            ->selectRaw("{$weekExpression} as week_number, AVG(progress.progress_percent) as value")
-            ->groupBy(DB::raw($weekExpression))
-            ->pluck('value', 'week_number');
+            ->groupBy(DB::raw('DATE(progress.last_watched_at)'))
+            ->selectRaw('DATE(progress.last_watched_at) as day, AVG(progress.progress_percent) as value')
+            ->pluck('value', 'day');
+
+        $periods = array_fill(0, 7, []);
+        foreach ($dailyValues as $day => $value) {
+            $date = Carbon::parse($day)->startOfDay();
+            $offset = min(6, intdiv((int) max(0, $from->diffInDays($date)), 5));
+            $periods[$offset][] = (float) $value;
+        }
 
         $labels = [];
         $values = [];
-
-        for ($index = 3; $index >= 0; $index--) {
-            $date = now()->subWeeks($index);
-            $week = match (DB::getDriverName()) {
-                'pgsql' => (string) (int) $date->format('W'),
-                default => (int) $date->format('W'),
-            };
-
-            $labels[] = $this->faDigits('هفته ' . (4 - $index));
-            $values[] = round((float) ($rows[$week] ?? 0));
-        }
-
-        while (count($values) < 7) {
-            array_unshift($values, $values[0] ?? 0);
-            array_unshift($labels, '');
+        for ($index = 0; $index < 7; $index++) {
+            $periodStart = $from->copy()->addDays($index * 5);
+            $labels[] = $this->faDigits('بازه ' . ($index + 1));
+            $values[] = $periods[$index] === []
+                ? 0
+                : (int) round(array_sum($periods[$index]) / count($periods[$index]));
         }
 
         return ['labels' => $labels, 'values' => $values];
     }
 
-        private function todaySessions(User $teacher, $classrooms, $courseIds)
+    private function todaySessions(User $teacher, $classrooms, $courseIds)
     {
         $weekday = now()->dayOfWeek;
+        $meetingLinks = app(MeetingLinkService::class);
 
-        $scheduled = $classrooms->flatMap(function ($classroom) use ($weekday) {
+        $scheduled = $classrooms->flatMap(function ($classroom) use ($weekday, $meetingLinks) {
             return $classroom->schedules
                 ->where('weekday', $weekday)
-                ->map(function ($schedule) use ($classroom) {
+                ->map(function ($schedule) use ($classroom, $meetingLinks) {
                     $start = Carbon::parse($schedule->start_time);
                     $end = Carbon::parse($schedule->end_time);
                     $now = now();
@@ -360,6 +387,12 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
                         'meta' => $classroom->title,
                         'status' => $status,
                         'type' => 'class',
+                        'meeting_url' => $schedule->meeting_url,
+                        'can_join' => $status !== 'پایان یافته'
+                            && $meetingLinks->urlMatchesProvider(
+                                (string) $schedule->provider,
+                                (string) $schedule->meeting_url,
+                            ),
                     ];
                 });
         });
@@ -372,18 +405,26 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             ->with(['course:id,title', 'classroom:id,title'])
             ->orderBy('scheduled_at')
             ->get()
-            ->map(function (LiveClass $item) {
-                $ended = $item->ended_at !== null
-                    || ($item->scheduled_end_at !== null && $item->scheduled_end_at->isPast());
+            ->map(function (LiveClass $item) use ($meetingLinks) {
+                $scheduledEnd = $item->scheduled_end_at
+                    ?? $item->scheduled_at->copy()->addMinutes(max(1, (int) ($item->duration_minutes ?? 60)));
+                $ended = $item->ended_at !== null || $scheduledEnd->isPast();
+                $status = $ended
+                    ? 'پایان یافته'
+                    : ($item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده');
 
                 return [
                     'time' => $this->faDigits($item->scheduled_at->format('H:i')),
                     'title' => $item->title,
                     'meta' => $item->classroom?->title ?? $item->course?->title,
-                    'status' => $ended
-                        ? 'پایان یافته'
-                        : ($item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده'),
+                    'status' => $status,
                     'type' => 'online',
+                    'meeting_url' => $item->meeting_url,
+                    'can_join' => $status !== 'پایان یافته'
+                        && $meetingLinks->urlMatchesProvider(
+                            (string) $item->provider,
+                            (string) $item->meeting_url,
+                        ),
                 ];
             });
 

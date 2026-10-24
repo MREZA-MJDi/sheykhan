@@ -17,7 +17,10 @@
             ->wherePivot('collection', 'student-avatar')
             ->orderByPivot('sort_order'),
     ]);
-    $studentShellAvatarUrl = $studentShellUser?->studentProfile?->media?->first()?->url();
+    $studentShellAvatar = $studentShellUser?->studentProfile?->media?->first();
+    $studentShellAvatarUrl = $studentShellAvatar?->visibility === 'public'
+        ? $studentShellAvatar->url()
+        : ($studentShellAvatar ? route('media.view', $studentShellAvatar) : null);
 @endphp
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>

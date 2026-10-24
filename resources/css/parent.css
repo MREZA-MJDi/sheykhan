@@ -1,4 +1,5 @@
 @import './communication-pages.css';
+@import './homeroom-dashboard-theme.css';
 @source '../../resources/views/parent';
 @source '../../resources/views/layouts/parent.blade.php';
 @source '../../resources/views/components';

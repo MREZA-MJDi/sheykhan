@@ -874,4 +874,48 @@ class TeacherWorkspaceFlowTest extends TestCase
             $workspace->students($teacher)->pluck('email')->all()
         );
     }
+    public function test_teacher_dashboard_surfaces_running_sessions_and_validates_join_links(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $classroom = Classroom::where('course_id', $course->id)
+            ->whereHas('teachers', fn ($query) => $query->whereKey($teacher->id))
+            ->firstOrFail();
+
+        $live = \App\Models\LiveClass::create([
+            'course_id' => $course->id,
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'جلسه در حال برگزاری برای تست داشبورد',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-running-test-room',
+            'scheduled_at' => now()->subMinutes(5),
+            'scheduled_end_at' => now()->addMinutes(35),
+            'duration_minutes' => 40,
+            'status' => 'live',
+        ]);
+
+        $payload = app(\App\Services\TeacherDashboardService::class)->build($teacher);
+        $session = $payload['upcomingClasses']->firstWhere('id', $live->id);
+
+        $this->assertNotNull($session, 'A currently running session should appear in the dashboard list.');
+        $this->assertTrue($session->can_join);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee('teacher-live-join', false)
+            ->assertSee($live->meeting_url, false);
+
+        $live->update(['meeting_url' => 'javascript:alert(1)']);
+        $payload = app(\App\Services\TeacherDashboardService::class)->build($teacher);
+        $session = $payload['upcomingClasses']->firstWhere('id', $live->id);
+
+        $this->assertNotNull($session);
+        $this->assertFalse($session->can_join);
+    }
+
+
 }

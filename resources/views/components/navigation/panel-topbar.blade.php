@@ -78,9 +78,26 @@
         <a href="{{ $topbarUserUrl }}" class="role-user-chip" aria-label="{{ $topbarUserLinkLabel }}">
             <span class="role-user-avatar role-user-avatar-image">
                 @if($topbarAvatar)
-                    <img src="{{ $topbarAvatar }}" alt="" loading="lazy">
+                    <img
+                        data-profile-avatar
+                        data-fallback-src="{{ asset('images/default-account-avatar.svg') }}"
+                        src="{{ $topbarAvatar }}"
+                        alt=""
+                        width="40"
+                        height="40"
+                        loading="eager"
+                        decoding="async"
+                    >
                 @else
-                    <img src="{{ asset('images/default-account-avatar.svg') }}" alt="" loading="lazy">
+                    <img
+                        data-profile-avatar
+                        src="{{ asset('images/default-account-avatar.svg') }}"
+                        alt=""
+                        width="40"
+                        height="40"
+                        loading="eager"
+                        decoding="async"
+                    >
                 @endif
             </span>
             <span class="role-user-copy">
