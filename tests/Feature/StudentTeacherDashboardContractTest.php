@@ -49,10 +49,13 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('id="teacher-dashboard"', false)
             ->assertSee('class="ph teacher-dashboard-hero"', false)
             ->assertSee('class="teacher-dashboard-avatar"', false)
-            ->assertSee('class="teacher-kpi vi"', false)
-            ->assertDontSee('<a class="teacher-kpi', false)
-            ->assertDontSee('<a class="teacher-student-row', false)
-            ->assertDontSee('<a class="teacher-course-card', false)
+            ->assertSee('class="teacher-kpi sk"', false)
+            ->assertSee('سلام استاد سمیه احمدی', false)
+            ->assertSee('teacher-classroom-roster-card', false)
+            ->assertSee('مشاهده جزئیات', false)
+            ->assertSee('<a class="teacher-kpi', false)
+            ->assertSee('<a class="teacher-student-row', false)
+            ->assertSee('<a class="teacher-course-card', false)
             ->assertSee('id="teacher-progress"', false)
             ->assertSee('data-dashboard-chart', false)
             ->assertSee('data-chart-range="week"', false)
@@ -66,6 +69,63 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('data-dashboard-search-empty', false)
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
+    }
+
+
+    public function test_teacher_dashboard_roster_uses_real_student_profile_photos(): void
+    {
+        $this->seed();
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $classroom = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
+            ->whereHas('students', fn ($query) => $query
+                ->wherePivot('status', 'active')
+                ->whereHas('enrollments', fn ($enrollments) => $enrollments
+                    ->whereColumn('course_enrollments.classroom_id', 'classrooms.id')
+                    ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                    ->where('course_enrollments.status', 'active')))
+            ->firstOrFail();
+
+        $student = $classroom->students()
+            ->wherePivot('status', 'active')
+            ->whereHas('enrollments', fn ($query) => $query
+                ->where('course_id', $classroom->course_id)
+                ->where('classroom_id', $classroom->id)
+                ->where('status', 'active'))
+            ->firstOrFail();
+
+        $profile = \App\Models\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+        $path = 'students/' . $student->id . '/avatar.webp';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'real-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
+            'uploaded_by' => $student->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'student-avatar.webp',
+            'file_name' => 'avatar.webp',
+            'mime_type' => 'image/webp',
+            'extension' => 'webp',
+            'size' => 19,
+            'checksum' => hash('sha256', 'real-avatar-fixture'),
+            'visibility' => 'public',
+            'collection' => 'student-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $profile->media()->attach($media->id, [
+            'collection' => 'student-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee(route('media.public', $media), false)
+            ->assertSee('teacher-roster-avatar', false)
+            ->assertSee($student->name, false);
     }
 
     public function test_teacher_dashboard_hides_workflows_without_view_permissions(): void
