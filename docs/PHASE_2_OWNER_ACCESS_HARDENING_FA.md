@@ -46,6 +46,9 @@
 | `GET owner.teacher-payments.index` | `teacher_payments.view` | فهرست و جمع مبلغ فقط از `academy_id` همان Academy؛ مدرس‌های مقصد باید عضو فعال همان Academy باشند. | workspace خارجی باید با پاسخ `403` یا `404` رد شود. |
 | `POST owner.teacher-payments.store`, `PATCH owner.teacher-payments.status` | `teacher_payments.manage` | مالکیت Academy؛ ثبت سند فقط برای مدرس فعال عضو همان Academy؛ ویرایش سند با `academy_id` و ID محدود می‌شود. | ایجاد پرداخت برای Academy خارجی باید 404 شود و هیچ سندی درج نشود. |
 | `GET/PATCH owner.classrooms.show/edit/update` | `classrooms.view` / `classrooms.manage` | `scopeBindings()` باید Classroom را به Academy موجود در URL محدود کند؛ binding رکورد مستقیم، مرز مالکیت را دور نمی‌زند. | تست جزئیات و ویرایش کلاس خارجی از URL آموزشگاه مالک فعلی؛ انتظار 404. |
+| `GET owner.orders.index` | `orders.view` | مالکیت Academy و فهرست سفارش‌هایی که محصول یا دورهٔ متعلق به همان Academy دارند. | تست می‌کند سفارش آموزشگاه دوم در فهرست مدیر فعلی نمایش داده نشود. |
+| `GET owner.orders.proof` | `orders.view` | سفارش باید به Academy مسیر تعلق داشته باشد؛ پرداخت باید متعلق به همان سفارش باشد؛ فایل رسید باید فعال و خصوصی باشد. | دریافت رسید یک سفارش خارجی باید 404 شود. |
+| `POST owner.orders.confirm/reject` | `orders.manage` | مالکیت Academy، تطابق payment.order_id با سفارش، وضعیت قابل بررسی، تطابق مبلغ و رسید خصوصی؛ تغییرات در transaction و با row lock انجام می‌شود. | تأیید/رد سفارش آموزشگاه دوم باید 404 شود؛ سفارش و پرداخت pending بمانند و entitlement ایجاد نشود. |
 
 ### نگاشت تست‌ها به ماتریس
 
@@ -53,6 +56,7 @@
 - `test_unscoped_owner_workspaces_reject_an_academy_owned_by_another_user`: هفت صفحهٔ workspace شامل حضور، ارتباطات، پیام‌ها، مشاوره، آزمون، ضبط و پرداخت مدرس.
 - `test_owner_cannot_open_or_edit_a_foreign_classroom_through_an_owned_academy_url`: IDOR در binding کلاس.
 - `test_owner_cannot_create_messages_or_teacher_payments_for_a_foreign_academy`: عدم درج پیام و پرداخت با Academy خارجی.
+- `test_owner_cannot_review_an_order_payment_from_another_academy`: عدم نمایش سفارش خارجی و رد دریافت رسید/تأیید/رد پرداخت بدون ایجاد دسترسی خرید.
 - تست‌های جدید attendance، counseling، exam status و recording publication: عملیات تغییردهنده با رکورد واقعی از Academy دوم و URL حاوی Academy متعلق به کاربر جاری.
 
 ## اجرای بررسی‌ها
