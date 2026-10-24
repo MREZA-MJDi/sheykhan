@@ -1,3 +1,4 @@
+import '../css/home.css';
 import './persian-calendar.js';
 import Alpine from 'alpinejs';
 
