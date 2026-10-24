@@ -18,6 +18,9 @@ final class CounselingRequest extends Model
         'details',
         'preferred_at',
         'scheduled_at',
+        'proposed_at',
+        'proposed_by',
+        'proposal_notes',
         'status',
         'response_notes',
         'handled_by',
@@ -29,6 +32,7 @@ final class CounselingRequest extends Model
         return [
             'preferred_at' => 'datetime',
             'scheduled_at' => 'datetime',
+            'proposed_at' => 'datetime',
             'handled_at' => 'datetime',
         ];
     }
@@ -51,5 +55,10 @@ final class CounselingRequest extends Model
     public function handler(): BelongsTo
     {
         return $this->belongsTo(User::class, 'handled_by');
+    }
+
+    public function proposer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'proposed_by');
     }
 }

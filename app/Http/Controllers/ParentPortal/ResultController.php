@@ -11,30 +11,58 @@ final class ResultController extends Controller
 {
     public function index(Request $request): View
     {
-        $childIds = $request->user()->children()
-            ->where('users.status', 'active')
-            ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
-            ->select('users.id');
+        $parentId = (int) $request->user()->id;
 
-        $assignmentResults = DB::table('assignment_submissions as submissions')
-            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-            ->join('users as students', 'students.id', '=', 'submissions.student_id')
-            ->whereIn('submissions.student_id', $childIds)
-            ->whereNotNull('submissions.graded_at')
+        // Build rows from active course enrollments, then LEFT JOIN a submission.
+        // This intentionally keeps assignments visible before the student submits.
+        $assignmentResults = DB::table('assignments')
+            ->join('courses', 'courses.id', '=', 'assignments.course_id')
+            ->join('academies', 'academies.id', '=', 'courses.academy_id')
+            ->join('course_enrollments as enrollments', 'enrollments.course_id', '=', 'courses.id')
+            ->join('users as students', 'students.id', '=', 'enrollments.student_id')
+            ->join('parent_student as parent_links', function ($join) use ($parentId): void {
+                $join->on('parent_links.student_id', '=', 'students.id')
+                    ->where('parent_links.parent_id', '=', $parentId);
+            })
+            ->join('academy_user as student_membership', function ($join): void {
+                $join->on('student_membership.user_id', '=', 'students.id')
+                    ->on('student_membership.academy_id', '=', 'courses.academy_id')
+                    ->where('student_membership.role', '=', 'student')
+                    ->where('student_membership.status', '=', 'active');
+            })
+            ->join('academy_user as parent_membership', function ($join) use ($parentId): void {
+                $join->on('parent_membership.user_id', '=', 'parent_links.parent_id')
+                    ->on('parent_membership.academy_id', '=', 'courses.academy_id')
+                    ->where('parent_membership.role', '=', 'parent')
+                    ->where('parent_membership.status', '=', 'active');
+            })
+            ->leftJoin('assignment_submissions as submissions', function ($join): void {
+                $join->on('submissions.assignment_id', '=', 'assignments.id')
+                    ->on('submissions.student_id', '=', 'students.id');
+            })
+            ->where('students.status', 'active')
+            ->whereNull('students.deleted_at')
+            ->where('academies.status', 'active')
+            ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
             ->where('assignments.status', 'published')
-            ->whereExists(function ($enrollments): void {
-                $enrollments->selectRaw('1')
-                    ->from('course_enrollments as enrollments')
-                    ->whereColumn('enrollments.student_id', 'submissions.student_id')
-                    ->whereColumn('enrollments.course_id', 'assignments.course_id')
-                    ->where('enrollments.status', 'active')
-                    ->where(function ($access): void {
-                        $access->where('enrollments.paid_amount', '>', 0)
-                            ->orWhereExists(function ($free): void {
-                                $free->selectRaw('1')
-                                    ->from('courses as free_courses')
-                                    ->whereColumn('free_courses.id', 'assignments.course_id')
-                                    ->where('free_courses.access_type', 'free');
+            ->where('enrollments.status', 'active')
+            ->where(function ($access): void {
+                $access->where('courses.access_type', 'free')
+                    ->orWhere(function ($paid): void {
+                        $paid->where('enrollments.payment_status', 'paid')
+                            ->where('enrollments.paid_amount', '>', 0)
+                            ->where(function ($amount): void {
+                                $amount->whereNull('enrollments.price_amount')
+                                    ->orWhereColumn('enrollments.paid_amount', '>=', 'enrollments.price_amount');
+                            })
+                            ->whereExists(function ($transaction): void {
+                                $transaction->selectRaw('1')
+                                    ->from('financial_transactions')
+                                    ->whereColumn('financial_transactions.enrollment_id', 'enrollments.id')
+                                    ->where('financial_transactions.status', 'completed')
+                                    ->where('financial_transactions.amount', '>', 0);
                             });
                     });
             })
@@ -44,25 +72,55 @@ final class ResultController extends Controller
                         $membership->selectRaw('1')
                             ->from('classroom_student as membership')
                             ->whereColumn('membership.classroom_id', 'assignments.classroom_id')
-                            ->whereColumn('membership.student_id', 'submissions.student_id')
+                            ->whereColumn('membership.student_id', 'students.id')
                             ->where('membership.status', 'active');
                     });
             })
             ->selectRaw("'assignment' as result_type")
-            ->selectRaw('submissions.id as result_id')
+            ->selectRaw('assignments.id as result_id')
             ->selectRaw('students.name as student_name')
             ->selectRaw('assignments.title as title')
             ->selectRaw('submissions.score as score')
             ->selectRaw('submissions.feedback as feedback')
-            ->selectRaw('submissions.graded_at as occurred_at')
-            ->selectRaw("'تصحیح‌شده' as status_label");
+            ->selectRaw('assignments.due_at as due_at')
+            ->selectRaw('submissions.submitted_at as submitted_at')
+            ->selectRaw('COALESCE(submissions.graded_at, submissions.submitted_at, assignments.created_at) as occurred_at')
+            ->selectRaw("CASE
+                WHEN submissions.id IS NULL OR submissions.submitted_at IS NULL THEN 'ارسال نشده'
+                WHEN submissions.graded_at IS NULL THEN 'ارسال‌شده · در انتظار تصحیح'
+                ELSE 'تصحیح‌شده'
+            END as status_label");
 
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
+            ->join('courses', 'courses.id', '=', 'exams.course_id')
+            ->join('academies', 'academies.id', '=', 'courses.academy_id')
             ->join('users as students', 'students.id', '=', 'attempts.student_id')
-            ->whereIn('attempts.student_id', $childIds)
-            ->whereNotNull('attempts.submitted_at')
+            ->join('parent_student as parent_links', function ($join) use ($parentId): void {
+                $join->on('parent_links.student_id', '=', 'students.id')
+                    ->where('parent_links.parent_id', '=', $parentId);
+            })
+            ->join('academy_user as student_membership', function ($join): void {
+                $join->on('student_membership.user_id', '=', 'students.id')
+                    ->on('student_membership.academy_id', '=', 'courses.academy_id')
+                    ->where('student_membership.role', '=', 'student')
+                    ->where('student_membership.status', '=', 'active');
+            })
+            ->join('academy_user as parent_membership', function ($join) use ($parentId): void {
+                $join->on('parent_membership.user_id', '=', 'parent_links.parent_id')
+                    ->on('parent_membership.academy_id', '=', 'courses.academy_id')
+                    ->where('parent_membership.role', '=', 'parent')
+                    ->where('parent_membership.status', '=', 'active');
+            })
+            ->where('students.status', 'active')
+            ->whereNull('students.deleted_at')
+            ->where('academies.status', 'active')
+            ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
             ->where('exams.status', 'published')
+            ->whereNotNull('attempts.submitted_at')
+            ->where('attempts.status', '!=', 'in_progress')
             ->whereExists(function ($enrollments): void {
                 $enrollments->selectRaw('1')
                     ->from('course_enrollments as enrollments')
@@ -70,12 +128,21 @@ final class ResultController extends Controller
                     ->whereColumn('enrollments.course_id', 'exams.course_id')
                     ->where('enrollments.status', 'active')
                     ->where(function ($access): void {
-                        $access->where('enrollments.paid_amount', '>', 0)
-                            ->orWhereExists(function ($free): void {
-                                $free->selectRaw('1')
-                                    ->from('courses as free_courses')
-                                    ->whereColumn('free_courses.id', 'exams.course_id')
-                                    ->where('free_courses.access_type', 'free');
+                        $access->where('courses.access_type', 'free')
+                            ->orWhere(function ($paid): void {
+                                $paid->where('enrollments.payment_status', 'paid')
+                                    ->where('enrollments.paid_amount', '>', 0)
+                                    ->where(function ($amount): void {
+                                        $amount->whereNull('enrollments.price_amount')
+                                            ->orWhereColumn('enrollments.paid_amount', '>=', 'enrollments.price_amount');
+                                    })
+                                    ->whereExists(function ($transaction): void {
+                                        $transaction->selectRaw('1')
+                                            ->from('financial_transactions')
+                                            ->whereColumn('financial_transactions.enrollment_id', 'enrollments.id')
+                                            ->where('financial_transactions.status', 'completed')
+                                            ->where('financial_transactions.amount', '>', 0);
+                                    });
                             });
                     });
             })
@@ -95,8 +162,14 @@ final class ResultController extends Controller
             ->selectRaw('exams.title as title')
             ->selectRaw("CASE WHEN attempts.status = 'graded' THEN attempts.score ELSE NULL END as score")
             ->selectRaw('NULL as feedback')
+            ->selectRaw('NULL as due_at')
+            ->selectRaw('attempts.submitted_at as submitted_at')
             ->selectRaw('attempts.submitted_at as occurred_at')
-            ->selectRaw("CASE WHEN attempts.status = 'graded' THEN 'تصحیح‌شده' ELSE 'در انتظار بررسی' END as status_label");
+            ->selectRaw("CASE
+                WHEN attempts.status = 'graded' THEN 'تصحیح‌شده'
+                WHEN attempts.status IN ('needs_review', 'pending_review') THEN 'در انتظار بررسی مدرس'
+                ELSE 'ارسال‌شده'
+            END as status_label");
 
         $results = DB::query()
             ->fromSub($assignmentResults->unionAll($examResults), 'child_results')

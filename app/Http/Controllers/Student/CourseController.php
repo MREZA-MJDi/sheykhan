@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Services\StudentCourseService;
+use App\Services\SpotPlayerService;
+use App\Models\SpotPlayerLicense;
 use Illuminate\View\View;
 
 class CourseController extends Controller
@@ -48,9 +50,17 @@ class CourseController extends Controller
             $lesson->is_completed = $lesson->student_progress >= 100;
         });
 
+        $spotplayerLicense = SpotPlayerLicense::query()
+            ->where('student_id', request()->user()->id)
+            ->where('course_id', $course->id)
+            ->where('status', 'active')
+            ->first();
+
         return view('student.courses.show', [
             'course' => $course,
             'lessons' => $lessons,
+            'spotplayerLicense' => $spotplayerLicense,
+            'spotplayerConfigured' => app(SpotPlayerService::class)->isConfigured(),
         ]);
     }
 }

@@ -265,6 +265,8 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/meetings', [\App\Http\Controllers\Teacher\MeetingController::class, 'index'])->middleware('permission:live_classes.view')->name('meetings.index');
     Route::post('/meetings/proposals', [\App\Http\Controllers\Teacher\MeetingController::class, 'propose'])->middleware(['permission:live_classes.manage','throttle:10,1'])->name('meetings.proposals.store');
     Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\Teacher\MeetingController::class, 'updateStatus'])->middleware('permission:live_classes.manage')->name('meetings.status');
+    Route::get('/counseling-requests', [\App\Http\Controllers\Teacher\CounselingRequestController::class, 'index'])->middleware('permission:live_classes.view')->name('counseling-requests.index');
+    Route::post('/counseling-requests/{counselingRequest}/propose', [\App\Http\Controllers\Teacher\CounselingRequestController::class, 'propose'])->whereNumber('counselingRequest')->middleware(['permission:live_classes.manage','throttle:10,1'])->name('counseling-requests.propose');
     Route::get('/payments', [\App\Http\Controllers\Teacher\PaymentController::class, 'index'])->middleware('permission:teacher_payments.view')->name('payments.index');
     Route::get('/live-classes', [TeacherLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
     Route::get('/live-classes/create', [TeacherLiveClassController::class, 'create'])->middleware('permission:live_classes.manage')->name('live-classes.create');
@@ -281,6 +283,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 
     Route::get('/courses', [StudentCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
     Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->middleware('permission:courses.view')->name('courses.show');
+    Route::post('/courses/{course}/spotplayer-license', [\App\Http\Controllers\Student\SpotPlayerLicenseController::class, 'store'])->middleware(['permission:courses.view','throttle:5,1'])->name('courses.spotplayer-license');
     Route::get('/lessons/{lesson}', [StudentLessonController::class, 'show'])->middleware('permission:lessons.view')->name('lessons.show');
     Route::patch('/lessons/{lesson}/progress', [StudentLessonProgressController::class, 'update'])->middleware(['permission:lessons.progress','throttle:30,1'])->name('lessons.progress.update');
 

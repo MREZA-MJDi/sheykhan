@@ -55,7 +55,7 @@
 
     <section class="space-y-4">
         <div><h2 class="text-xl font-black">وضعیت درخواست‌ها</h2><p class="mt-1 text-sm text-slate-500">وضعیت درخواست‌ها و زمان نهایی جلسه پس از ثبت توسط آموزشگاه به‌روز می‌شود.</p></div>
-        @php($labels = ['requested' => 'در انتظار بررسی', 'scheduled' => 'زمان جلسه تعیین شده', 'completed' => 'برگزارشده', 'declined' => 'پذیرفته نشد', 'cancelled' => 'لغوشده'])
+        @php($labels = ['requested' => 'در انتظار بررسی', 'proposed' => 'پیشنهاد زمان از مدرس · در انتظار تأیید آموزشگاه', 'scheduled' => 'زمان جلسه تعیین شده', 'completed' => 'برگزارشده', 'declined' => 'پذیرفته نشد', 'cancelled' => 'لغوشده'])
         @forelse($requests as $item)
             <article class="parent-panel dashboard-panel p-5 sm:p-6">
                 <div class="flex flex-wrap items-start justify-between gap-3">
@@ -67,6 +67,13 @@
                     <div class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">زمان پیشنهادی شما</p><p class="mt-1 text-sm font-bold">{{ $item->preferred_at ? \App\Support\PersianUi::date($item->preferred_at).' · '.\App\Support\PersianUi::time($item->preferred_at) : 'ثبت نشده' }}</p></div>
                     <div class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">زمان قطعی</p><p class="mt-1 text-sm font-bold">{{ $item->scheduled_at ? \App\Support\PersianUi::date($item->scheduled_at).' · '.\App\Support\PersianUi::time($item->scheduled_at) : 'هنوز تعیین نشده' }}</p></div>
                 </div>
+                @if($item->proposed_at)
+                    <div class="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
+                        <p class="text-xs font-black text-blue-800">{{ $item->status === 'scheduled' ? 'زمان پیشنهادی مدرس · تأییدشده توسط آموزشگاه' : 'زمان پیشنهادی مدرس · هنوز قطعی نیست' }}</p>
+                        <p class="mt-2 text-sm font-bold">{{ \App\Support\PersianUi::date($item->proposed_at).' · '.\App\Support\PersianUi::time($item->proposed_at) }}</p>
+                        @if($item->proposal_notes)<p class="mt-2 whitespace-pre-line text-sm leading-7 text-blue-950">{{ $item->proposal_notes }}</p>@endif
+                    </div>
+                @endif
                 @if($item->response_notes)<div class="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4"><p class="text-xs font-black text-emerald-800">پاسخ آموزشگاه</p><p class="mt-2 whitespace-pre-line text-sm leading-7 text-emerald-950">{{ $item->response_notes }}</p></div>@endif
                 @if($item->handler)<p class="mt-3 text-xs text-slate-500">آخرین پیگیری توسط {{ $item->handler->name }}</p>@endif
             </article>

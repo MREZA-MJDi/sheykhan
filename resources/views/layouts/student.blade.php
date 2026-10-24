@@ -71,6 +71,7 @@
    <a href="{{ route('student.assignments.index') }}" class="{{ request()->routeIs('student.assignments.*') ? 'on' : '' }}" @if(request()->routeIs('student.assignments.*')) aria-current="page" @endif><svg class="i" aria-hidden="true"><use href="#i-task"/></svg>تکالیف</a>
    <a href="{{ route('student.exams.index') }}" class="{{ request()->routeIs('student.exams.*','student.exam-attempts.*') ? 'on' : '' }}" @if(request()->routeIs('student.exams.*','student.exam-attempts.*')) aria-current="page" @endif><svg class="i" aria-hidden="true"><use href="#i-exam"/></svg>آزمون‌ها</a>
    <a href="{{ route('student.resources.index') }}" class="{{ request()->routeIs('student.resources.*') ? 'on' : '' }}" @if(request()->routeIs('student.resources.*')) aria-current="page" @endif><svg class="i" aria-hidden="true"><use href="#i-file"/></svg>جزوه‌ها و منابع</a>
+   <a href="{{ route('store.index') }}" class="{{ request()->routeIs('store.*') ? 'on' : '' }}" @if(request()->routeIs('store.*')) aria-current="page" @endif><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>کتاب‌ها و محصولات</a>
    <a href="{{ route('library.index') }}"><svg class="i" aria-hidden="true"><use href="#i-cart"/></svg>کتابخانه و خریدها</a>
    <h6>ارتباط</h6>
    <a href="{{ route('student.messages.index') }}" class="{{ request()->routeIs('student.messages.*','student.teacher-messages.*') ? 'on' : '' }}" @if(request()->routeIs('student.messages.*','student.teacher-messages.*')) aria-current="page" @endif><svg class="i" aria-hidden="true"><use href="#i-msg"/></svg>پیام به مدرس‌ها</a>

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Course extends Model {
  use HasFactory, HasMedia, HasSeoMeta;
- protected $fillable=['academy_id','created_by','title','slug','short_description','description','level','status','access_type','price','duration_minutes','published_at'];
+ protected $fillable=['academy_id','created_by','title','slug','short_description','description','level','status','access_type','price','duration_minutes','published_at','spotplayer_course_id'];
  protected $casts=['price'=>'decimal:2','published_at'=>'datetime'];
  public function academy(): BelongsTo{return $this->belongsTo(Academy::class);}
  public function creator(): BelongsTo{return $this->belongsTo(User::class,'created_by');}
@@ -24,6 +24,7 @@ class Course extends Model {
  public function assignments(): HasMany{return $this->hasMany(Assignment::class);}
  public function exams(): HasMany{return $this->hasMany(Exam::class);}
  public function liveClasses(): HasMany{return $this->hasMany(LiveClass::class);}
+ public function spotplayerLicenses(): HasMany{return $this->hasMany(SpotPlayerLicense::class);}
  public function learningResources(): HasMany{return $this->hasMany(LearningResource::class);}
  public function scopePublished(Builder $query): Builder{return $query->where('status','published')->whereNotNull('published_at')->where('published_at','<=',now());}
  public function isPublished(): bool{return $this->status==='published' && $this->published_at?->isPast();}

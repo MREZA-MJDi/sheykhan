@@ -45,6 +45,7 @@ class StoreCourseRequest extends FormRequest
                 Rule::when($this->input('access_type') === 'paid', ['min:0.01']),
             ],
             'published_at' => ['nullable', 'date'],
+            'spotplayer_course_id' => ['sometimes', 'nullable', 'string', 'max:120', 'regex:/^[A-Za-z0-9_-]+$/'],
         ];
     }
 
