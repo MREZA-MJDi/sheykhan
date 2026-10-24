@@ -37,7 +37,7 @@
             </div>
             <div>
                 <label for="profile-grade">پایه تحصیلی</label>
-                <input class="fld" id="profile-grade" value="{{ $student->studentProfile?->gradeRelation?->name ?? $student->studentProfile?->grade ?? '—' }}" readonly>
+                <input class="fld" id="profile-grade" value="{{ $student->studentProfile?->gradeRelation?->title ?? $student->studentProfile?->grade ?? '—' }}" readonly>
             </div>
             <div>
                 <label for="profile-number">شماره دانش‌آموزی</label>
