@@ -63,6 +63,7 @@ final class AcademyMessageController extends Controller
             'targetOptions' => $targets,
             'storeRoute' => route('owner.communications.store', $academy),
             'backRoute' => route('owner.dashboard'),
+            'canManage' => $request->user()->hasPermission('parents.manage'),
             'messages' => $messages,
         ]);
     }
