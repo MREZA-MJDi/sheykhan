@@ -1366,3 +1366,32 @@ body.owner-shell [data-role-more-panel]{
 @media(prefers-reduced-motion:reduce){
     .owner-shell *,.owner-shell *::before,.owner-shell *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
+
+
+/* The owner shell is dark, so the mobile "More" sheet must use the same surface.
+   Keep the full-screen overlay transparent; only its backdrop dims the page. */
+body.owner-shell [data-role-more-panel]{
+    background:transparent!important;color:var(--tx)!important;border-color:transparent!important
+}
+body.owner-shell .role-mobile-more-dialog{
+    background:var(--sf)!important;color:var(--tx)!important;border-color:var(--bd)!important
+}
+body.owner-shell .role-mobile-more-head{border-bottom-color:var(--bd)!important}
+body.owner-shell .role-mobile-more-head button{
+    background:var(--s2)!important;color:var(--tx)!important;border:1px solid var(--bd)
+}
+body.owner-shell .role-mobile-more-links>a,
+body.owner-shell .role-mobile-more-links>form>button{
+    background:var(--s2)!important;color:var(--tx)!important;border-color:var(--bd)!important
+}
+body.owner-shell .role-mobile-more-links>a:hover,
+body.owner-shell .role-mobile-more-links>a.is-active{
+    background:rgba(108,140,255,.15)!important;color:var(--ac)!important;border-color:rgba(108,140,255,.35)!important
+}
+body.owner-shell .role-mobile-more-links .role-mobile-bottom-icon{
+    background:var(--bg)!important;color:var(--ac)!important
+}
+body.owner-shell .role-mobile-more-links>form>button,
+body.owner-shell .role-mobile-more-links>form>button.danger{
+    background:rgba(255,107,122,.1)!important;color:var(--er)!important;border-color:rgba(255,107,122,.3)!important
+}
