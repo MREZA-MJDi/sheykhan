@@ -12,11 +12,15 @@
         $canViewStudents = (bool) auth()->user()?->hasPermission('students.view');
         $canViewAssignments = (bool) auth()->user()?->hasPermission('assignments.view');
         $canViewExams = (bool) auth()->user()?->hasPermission('exams.view');
+        $canManageAssignments = (bool) auth()->user()?->hasPermission('assignments.manage');
+        $canManageExams = (bool) auth()->user()?->hasPermission('exams.manage');
         $canViewAttendance = (bool) auth()->user()?->hasPermission('attendance.view');
         $canViewLiveClasses = (bool) auth()->user()?->hasPermission('live_classes.view');
         $canViewParentMessages = (bool) auth()->user()?->hasPermission('parent_messages.view');
-        $canReviewPendingAssignments = $canViewAssignments && $pendingAssignmentReviews > 0;
-        $canReviewPendingExams = $canViewExams && $pendingExamReviews > 0;
+        $hasPendingAssignments = $canViewAssignments && $pendingAssignmentReviews > 0;
+        $hasPendingExams = $canViewExams && $pendingExamReviews > 0;
+        $canReviewPendingAssignments = $hasPendingAssignments && $canManageAssignments;
+        $canReviewPendingExams = $hasPendingExams && $canManageExams;
         $pendingReviews = (int) ($canViewAssignments ? $pendingAssignmentReviews : 0)
             + (int) ($canViewExams ? $pendingExamReviews : 0);
         $activeClasses = max(0, (int) ($dashboardMetrics['activeClasses'] ?? 0));
@@ -30,19 +34,19 @@
         $monthChart = $chart['month'] ?? ['labels' => [], 'values' => []];
         $chartSlots = max(count($weekChart['values'] ?? []), count($monthChart['values'] ?? []));
         $dashboardDateLabel = $dashboardDate ?? \App\Support\PersianUi::date(now());
-        $focusRoute = $canReviewPendingAssignments
+        $focusRoute = $hasPendingAssignments
             ? route('teacher.assignments.index')
-            : ($canReviewPendingExams
+            : ($hasPendingExams
                 ? route('teacher.exams.index')
                 : ($canViewClassrooms
                     ? route('teacher.classrooms.index')
                     : ($canViewCourses
                         ? route('teacher.courses.index')
                         : ($canViewLiveClasses ? route('teacher.schedule.index') : null))));
-        $focusLabel = $canReviewPendingAssignments
-            ? 'شروع تصحیح تکالیف'
-            : ($canReviewPendingExams
-                ? 'بررسی آزمون‌ها'
+        $focusLabel = $hasPendingAssignments
+            ? ($canReviewPendingAssignments ? 'شروع تصحیح تکالیف' : 'مشاهده تکالیف')
+            : ($hasPendingExams
+                ? ($canReviewPendingExams ? 'بررسی آزمون‌ها' : 'مشاهده آزمون‌ها')
                 : ($canViewClassrooms ? 'مدیریت کلاس‌ها' : ($canViewCourses ? 'مدیریت دوره‌ها' : 'مشاهده برنامه')));
         $kpis = [
             ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'route' => 'teacher.classrooms.index', 'tone' => 'indigo', 'icon' => 'classes', 'permission' => 'classrooms.view'],
@@ -130,9 +134,19 @@
                     @endif
                 </h2>
                 <p>
-                    @if($canReviewPendingAssignments)
-                        بازخورد به‌موقع به دانش‌آموز کمک می‌کند مسیر بعدی یادگیری را روشن‌تر ببیند.
-                    @elseif($canReviewPendingExams)
+                    @if($hasPendingAssignments)
+                        @if($canManageAssignments)
+                            بازخورد به‌موقع به دانش‌آموز کمک می‌کند مسیر بعدی یادگیری را روشن‌تر ببیند.
+                        @else
+                            تکالیف قابل مشاهده‌اند، اما برای ثبت بازخورد به مجوز مدیریت تکالیف نیاز است.
+                        @endif
+                    @elseif($hasPendingExams)
+                        @if($canManageExams)
+                            پاسخ‌های ارسال‌شده را از بخش آزمون‌ها بررسی و نهایی کن.
+                        @else
+                            آزمون‌ها قابل مشاهده‌اند، اما برای ثبت نمره به مجوز مدیریت آزمون‌ها نیاز است.
+                        @endif
+                    @elseif(false)
                         پاسخ‌های ارسال‌شده را از بخش آزمون‌ها بررسی و نهایی کن.
                     @elseif($activeClasses > 0 && $canViewClassrooms)
                         برنامه جلسات، دوره‌ها و پیگیری‌های آموزشی در همین صفحه در دسترس‌اند.
