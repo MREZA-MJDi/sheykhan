@@ -366,8 +366,9 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.attempt', [$exam, $attempt]))
             ->assertOk()
-            ->assertDontSee('textarea', false)
-            ->assertDontSee('type="radio"', false)
+            ->assertSee('textarea', false)
+            ->assertSee('type="radio"', false)
+            ->assertSee('روش حل را با توضیح بنویس.')
             ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         // Simulate the final timer-triggered request arriving three seconds
