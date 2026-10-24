@@ -174,17 +174,60 @@ final class StudentDashboardService
             ? collect()
             : DB::table('live_classes')
                 ->join('courses', 'courses.id', '=', 'live_classes.course_id')
-                ->leftJoin('classroom_student', function ($join) use ($student): void {
-                    $join->on('classroom_student.classroom_id', '=', 'live_classes.classroom_id')
-                        ->where('classroom_student.student_id', '=', $student->id)
-                        ->where('classroom_student.status', '=', 'active');
-                })
                 ->whereIn('live_classes.course_id', $courseIds)
-                ->whereBetween('live_classes.scheduled_at', [now()->subHours(6), now()->addDays(7)])
                 ->whereIn('live_classes.status', ['scheduled', 'live'])
-                ->where(function ($query) {
-                    $query->whereNull('live_classes.classroom_id')
-                        ->orWhereNotNull('classroom_student.student_id');
+                ->where(function ($window): void {
+                    $window
+                        ->whereBetween('live_classes.scheduled_at', [now()->subHours(6), now()->addDays(7)])
+                        ->orWhere(function ($active): void {
+                            $active->where('live_classes.status', 'live')
+                                ->where('live_classes.scheduled_end_at', '>=', now());
+                        });
+                })
+                // Resolve join eligibility in the SQL query so the dashboard does not
+                // show a teacher's session to a student in a different classroom/cohort.
+                // The join endpoint repeats the authorization check before redirecting.
+                ->whereExists(function ($membership) use ($student): void {
+                    $membership->selectRaw('1')
+                        ->from('classroom_student as eligible_student')
+                        ->join('classrooms as eligible_classroom', 'eligible_classroom.id', '=', 'eligible_student.classroom_id')
+                        ->join('classroom_teacher as eligible_teacher', function ($join): void {
+                            $join->on('eligible_teacher.classroom_id', '=', 'eligible_classroom.id')
+                                ->on('eligible_teacher.teacher_id', '=', 'live_classes.teacher_id');
+                        })
+                        ->join('course_enrollments as eligible_enrollment', function ($join) use ($student): void {
+                            $join->on('eligible_enrollment.classroom_id', '=', 'eligible_classroom.id')
+                                ->on('eligible_enrollment.course_id', '=', 'eligible_classroom.course_id')
+                                ->where('eligible_enrollment.student_id', '=', $student->id)
+                                ->where('eligible_enrollment.status', '=', 'active');
+                        })
+                        ->join('courses as eligible_course', 'eligible_course.id', '=', 'eligible_enrollment.course_id')
+                        ->whereColumn('eligible_classroom.course_id', 'live_classes.course_id')
+                        ->where('eligible_student.student_id', $student->id)
+                        ->where('eligible_student.status', 'active')
+                        ->where('eligible_classroom.status', 'active')
+                        ->where(function ($classroom): void {
+                            $classroom->whereNull('live_classes.classroom_id')
+                                ->orWhereColumn('live_classes.classroom_id', 'eligible_classroom.id');
+                        })
+                        ->where(function ($entitlement): void {
+                            $entitlement->where('eligible_course.access_type', 'free')
+                                ->orWhere(function ($paid): void {
+                                    $paid->where('eligible_enrollment.payment_status', 'paid')
+                                        ->where('eligible_enrollment.paid_amount', '>', 0)
+                                        ->where(function ($amount): void {
+                                            $amount->whereNull('eligible_enrollment.price_amount')
+                                                ->orWhereColumn('eligible_enrollment.paid_amount', '>=', 'eligible_enrollment.price_amount');
+                                        })
+                                        ->whereExists(function ($transaction): void {
+                                            $transaction->selectRaw('1')
+                                                ->from('financial_transactions')
+                                                ->whereColumn('financial_transactions.enrollment_id', 'eligible_enrollment.id')
+                                                ->where('financial_transactions.status', 'completed')
+                                                ->where('financial_transactions.amount', '>', 0);
+                                        });
+                                });
+                        });
                 })
                 ->orderBy('live_classes.scheduled_at')
                 ->limit(5)
