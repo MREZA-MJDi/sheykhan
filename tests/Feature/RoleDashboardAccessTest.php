@@ -26,7 +26,9 @@ class RoleDashboardAccessTest extends TestCase
 
             $this->actingAs($user)
                 ->get(route($route))
-                ->assertOk();
+                ->assertOk()
+                ->assertSee('role-mobile-bottom-nav', false)
+                ->assertSee('data-role-more-open', false);
         }
     }
 
