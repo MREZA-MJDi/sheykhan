@@ -232,9 +232,18 @@
                                 </span>
                             </div>
 
-                            <span class="teacher-type-badge">
-                                آنلاین
-                            </span>
+                            <div class="teacher-upcoming-actions">
+                                <span class="teacher-type-badge">آنلاین</span>
+                                @if($item->can_join && filled($item->meeting_url))
+                                    <a
+                                        class="teacher-live-join"
+                                        href="{{ $item->meeting_url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="ورود به جلسه آنلاین {{ $item->title }}"
+                                    >ورود به جلسه <span aria-hidden="true">↗</span></a>
+                                @endif
+                            </div>
                         </article>
                     @empty
                         <div class="teacher-empty">
