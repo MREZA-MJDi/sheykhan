@@ -53,13 +53,16 @@
                 <label for="answer-{{ $question->id }}" style="display:block;font-size:12px;margin-bottom:8px">پاسخ تشریحی</label>
                 <textarea class="fld" id="answer-{{ $question->id }}" name="answers[{{ $question->id }}]" rows="5" maxlength="10000">{{ old('answers.'.$question->id, is_string($savedValue) ? $savedValue : '') }}</textarea>
             @elseif(in_array($question->type, ['checkbox','multiple'], true))
+                @php
+                    $submittedValues = old('answers.'.$question->id, $savedArray);
+                    $submittedValues = is_array($submittedValues) ? array_map('strval', $submittedValues) : [(string) $submittedValues];
+                @endphp
                 @foreach($options as $optionKey => $optionLabel)
-                    @php $optionValue = (string) $optionKey; $isChecked = is_array($savedArray) && in_array($optionValue, array_map('strval', $savedArray), true); @endphp
+                    @php $optionValue = (string) $optionKey; $isChecked = in_array($optionValue, $submittedValues, true); @endphp
                     <label>
                         <input type="{{ $question->type === 'checkbox' ? 'checkbox' : 'radio' }}"
                                name="{{ $question->type === 'checkbox' ? 'answers['.$question->id.'][]' : 'answers['.$question->id.']' }}"
-                               value="{{ $optionValue }}"
-                               @checked(old('answers.'.$question->id, $isChecked ? $optionValue : null) == $optionValue)>
+                               value="{{ $optionValue }}" @checked($isChecked)>
                         <span>{{ is_array($optionLabel) ? ($optionLabel['text'] ?? $optionLabel['label'] ?? json_encode($optionLabel, JSON_UNESCAPED_UNICODE)) : $optionLabel }}</span>
                     </label>
                 @endforeach
