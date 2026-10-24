@@ -41,17 +41,22 @@ class PanelTailwindSourceCoverageTest extends TestCase
 
     public function test_role_dashboards_have_distinct_accents_and_semantic_answer_states(): void
     {
-        $theme = file_get_contents(resource_path('css/homeroom-dashboard-theme.css'));
+        $admin = file_get_contents(resource_path('css/admin.css'));
+        $teacher = file_get_contents(resource_path('css/teacher.css'));
+        $student = file_get_contents(resource_path('css/student.css'));
+        $parent = file_get_contents(resource_path('css/parent.css'));
         $teacherAttempts = file_get_contents(resource_path('views/teacher/exams/attempts.blade.php'));
 
-        $this->assertIsString($theme);
-        $this->assertIsString($teacherAttempts);
-        $this->assertStringContainsString('.owner-shell {', $theme);
-        $this->assertStringContainsString('.teacher-shell {', $theme);
-        $this->assertStringContainsString('.student-shell {', $theme);
-        $this->assertStringContainsString('.parent-shell {', $theme);
-        $this->assertStringContainsString('.teacher-exam-answer-value.is-correct', $theme);
-        $this->assertStringContainsString('.teacher-exam-answer-value.is-wrong', $theme);
+        foreach ([$admin, $teacher, $student, $parent, $teacherAttempts] as $source) {
+            $this->assertIsString($source);
+        }
+
+        $this->assertStringContainsString('.owner-shell{', $admin);
+        $this->assertStringContainsString('.teacher-shell{', $teacher);
+        $this->assertStringContainsString('.student-shell', $student);
+        $this->assertStringContainsString('.parent-shell', $parent);
+        $this->assertStringContainsString('.teacher-exam-answer-value.is-correct', $teacher);
+        $this->assertStringContainsString('.teacher-exam-answer-value.is-wrong', $teacher);
         $this->assertStringContainsString('is-correct', $teacherAttempts);
         $this->assertStringContainsString('is-wrong', $teacherAttempts);
     }
