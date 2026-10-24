@@ -41,6 +41,7 @@
                 ['label' => 'پیام مستقیم', 'icon' => 'mail', 'url' => route('teacher.direct-messages.index'), 'active' => 'teacher.direct-messages.*', 'permission' => 'parent_messages.manage'],
                 ['label' => 'اطلاعیه‌های کلاس', 'icon' => 'bell', 'url' => route('teacher.communications.index'), 'active' => 'teacher.communications.*', 'permission' => 'parent_messages.manage'],
                 ['label' => 'جلسات با اولیا', 'icon' => 'hs', 'url' => route('teacher.meetings.index'), 'active' => 'teacher.meetings.*', 'permission' => 'live_classes.view'],
+                ['label' => 'درخواست‌های مشاوره', 'icon' => 'hs', 'url' => route('teacher.counseling-requests.index'), 'active' => 'teacher.counseling-requests.*', 'permission' => 'live_classes.view'],
                 ['label' => 'دانش‌آموزان', 'icon' => 'users', 'url' => route('teacher.students.index'), 'active' => 'teacher.students.*', 'permission' => 'students.view'],
                 ['label' => 'گزارش عملکرد', 'icon' => 'chart', 'url' => route('teacher.dashboard') . '#teacher-progress', 'active' => 'teacher.dashboard', 'permissions' => ['reports.view', 'dashboard.view']],
             ]],
