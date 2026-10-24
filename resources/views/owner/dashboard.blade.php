@@ -214,6 +214,9 @@
                     <a href="{{ $ownerAcademyHref('owner.messages.index') }}" class="dashboard-panel owner-quick-action">
                         <span><strong>پیام‌های اولیا</strong><small>پیگیری و پاسخ‌گویی</small></span><span aria-hidden="true">←</span>
                     </a>
+                    <a href="{{ $ownerAcademyHref('owner.communications.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>اطلاعیه و ارتباطات</strong><small>ارسال پیام‌های رسمی آموزشگاه</small></span><span aria-hidden="true">←</span>
+                    </a>
                     <a href="{{ $ownerAcademyHref('owner.counseling.index') }}" class="dashboard-panel owner-quick-action">
                         <span><strong>جلسات مشاوره</strong><small>بررسی درخواست‌ها</small></span><span aria-hidden="true">←</span>
                     </a>
