@@ -61,7 +61,6 @@
             ['route' => 'owner.academy.banners.edit', 'label' => 'بنرهای سایت', 'permission' => 'academy.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.finance.index', 'label' => 'مالی و پرداخت‌ها', 'permission' => 'finance.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.academy.edit', 'label' => 'تنظیمات آموزشگاه', 'permission' => 'academy.view', 'icon' => '⚙', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.reports.index', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false],
         ],
         'parent' => [
             ['route' => 'parent.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂', 'primary' => true],
