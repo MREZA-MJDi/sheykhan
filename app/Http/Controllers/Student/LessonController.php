@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
+use App\Models\LessonNote;
 use App\Services\StudentAccessService;
 use App\Services\StudentCourseService;
 use Illuminate\View\View;
@@ -32,12 +33,18 @@ class LessonController extends Controller
         $lesson->student_progress = (float) ($progress->get($lesson->id)->progress_percent ?? 0);
         $lesson->seconds_watched = (int) ($progress->get($lesson->id)->seconds_watched ?? 0);
 
+        $note = LessonNote::query()
+            ->where('lesson_id', $lesson->id)
+            ->where('user_id', request()->user()->id)
+            ->first();
+
         return view('student.lessons.show', [
             'lesson' => $lesson,
             'course' => $course,
             'lessons' => $lessons,
             'previousLesson' => $previous,
             'nextLesson' => $next,
+            'note' => $note,
         ]);
     }
 }

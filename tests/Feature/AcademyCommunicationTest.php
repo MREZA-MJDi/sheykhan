@@ -46,7 +46,7 @@ class AcademyCommunicationTest extends TestCase
             ->assertOk()->assertSee('اطلاعیه شروع ترم');
 
         $this->actingAs($w['student'])->get(route('student.messages.index'))
-            ->assertOk()->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertOk()->assertSee('پیام‌های من');
     }
 
     public function test_owner_private_message_is_visible_only_to_the_selected_parent(): void
@@ -98,7 +98,7 @@ class AcademyCommunicationTest extends TestCase
         ])->assertRedirect(route('teacher.communications.index'));
 
         $this->actingAs($w['student'])->get(route('student.messages.index'))
-            ->assertOk()->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertOk()->assertSee('پیام خصوصی دانش‌آموز');
         $this->actingAs($w['otherStudent'])->get(route('student.messages.index'))
             ->assertOk()->assertDontSee('پیام خصوصی دانش‌آموز');
     }

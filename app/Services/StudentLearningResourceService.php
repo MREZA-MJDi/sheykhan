@@ -26,7 +26,7 @@ final class StudentLearningResourceService
                 'course:id,academy_id,title,status,published_at,access_type',
                 'classroom:id,academy_id,title,course_id,status',
                 'lesson:id,title,course_section_id',
-                'academy:id',
+                'academy:id,name',
                 'media:id,disk,path,original_name,mime_type,size,status',
             ])
             ->whereIn('academy_id', $academyIds)

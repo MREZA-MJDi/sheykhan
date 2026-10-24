@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Exam;
-use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -51,8 +50,10 @@ class StudentPortalSmokeTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
-            ->assertSee('role-layout', false)
+            ->assertSee('خانه یادگیری من')
+            ->assertSee('دوره‌های فعال')
+            ->assertSee('student-shell', false)
+            ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('sdr-hero', false);
     }
 }

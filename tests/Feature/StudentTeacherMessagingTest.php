@@ -27,7 +27,8 @@ class StudentTeacherMessagingTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.messages.index'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('پیام‌های من')
+            ->assertSee('پیام جدید به مدرس');
 
         $this->actingAs($student)
             ->post(route('student.messages.store'), [
@@ -83,7 +84,8 @@ class StudentTeacherMessagingTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.messages.index'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('پیام‌های من')
+            ->assertSee('ابتدا صورت سؤال را به دو بخش تقسیم کن و هر بخش را جدا حل کن.');
     }
 
     public function test_student_cannot_message_a_teacher_of_another_classroom_group_in_the_same_course(): void

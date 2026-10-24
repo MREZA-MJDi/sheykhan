@@ -10,7 +10,7 @@ class StudentDashboardReferenceDesignTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_student_dashboard_is_ready_for_replacement_ui_without_legacy_design(): void
+    public function test_student_dashboard_uses_the_new_role_shell_and_backend_data(): void
     {
         $this->seed();
 
@@ -19,11 +19,15 @@ class StudentDashboardReferenceDesignTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertSee('خانه یادگیری من')
+            ->assertSee('دوره‌های فعال')
+            ->assertSee('تکالیف ارسال‌نشده')
+            ->assertSee('student-shell', false)
+            ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('sdr-hero', false);
     }
 
-    public function test_other_student_routes_use_the_neutral_placeholder_shell(): void
+    public function test_student_course_page_uses_the_new_role_shell_and_real_course_content(): void
     {
         $this->seed();
 
@@ -32,9 +36,10 @@ class StudentDashboardReferenceDesignTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.courses.index'))
             ->assertOk()
-            ->assertDontSee('student-shell-dashboard', false)
-            ->assertSee('role-layout', false)
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('دوره‌های در دسترس')
+            ->assertSee('student-shell', false)
+            ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertDontSee('student-shell-dashboard', false);
     }
 
     public function test_legacy_dashboard_stylesheet_is_removed_from_the_repository(): void
