@@ -7,7 +7,7 @@
     <title>@yield('title', 'پنل دانش‌آموز') · شیخان</title>
     <script>
         try {
-            const savedStudentTheme = localStorage.getItem('sheykhan.student.theme');
+            const savedStudentTheme = localStorage.getItem('sheykhan.panel.theme') || localStorage.getItem('sheykhan.student.theme') || localStorage.getItem('theme');
             if (savedStudentTheme === 'dark' || savedStudentTheme === 'light') {
                 document.documentElement.dataset.theme = savedStudentTheme;
             }
