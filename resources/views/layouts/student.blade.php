@@ -10,6 +10,15 @@
     @stack('styles')
 </head>
 <body class="student-shell">
+@php
+    $studentShellUser = auth()->user();
+    $studentShellUser?->loadMissing([
+        'studentProfile.media' => fn ($query) => $query
+            ->wherePivot('collection', 'student-avatar')
+            ->orderByPivot('sort_order'),
+    ]);
+    $studentShellAvatarUrl = $studentShellUser?->studentProfile?->media?->first()?->url();
+@endphp
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="avatar" viewBox="0 0 120 120"><ellipse cx="60" cy="118" rx="52" ry="34" fill="#1f2f55"/><path d="M38 96q22 14 44 0l6 20H32z" fill="#27396a"/><rect x="51" y="78" width="18" height="16" rx="7" fill="#e3b48f"/><circle cx="60" cy="54" r="26" fill="#f2cba8"/><path d="M32 50q-2-26 28-28t30 26q-6-14-30-14T32 50z" fill="#1f2a4a"/><path d="M31 52q-1-34 29-34t29 34" fill="none" stroke="#2a3a5e" stroke-width="5" stroke-linecap="round"/><rect x="22" y="44" width="11" height="22" rx="5.5" fill="#33496f"/><rect x="87" y="44" width="11" height="22" rx="5.5" fill="#33496f"/><path d="M46 56q5 4 10 0M64 56q5 4 10 0" fill="none" stroke="#3a2a2a" stroke-width="2.4" stroke-linecap="round"/><path d="M52 68q8 6 16 0" fill="none" stroke="#b0705a" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="44" cy="63" rx="4" ry="2.4" fill="#eba48f" opacity=".6"/><ellipse cx="76" cy="63" rx="4" ry="2.4" fill="#eba48f" opacity=".6"/></symbol>
@@ -34,10 +43,11 @@
  <aside class="side">
   <div class="me">
    <div class="av">
-    @if(auth()->user()?->avatar_url)
-      <img src="{{ auth()->user()->avatar_url }}" alt="" width="104" height="104" loading="lazy" decoding="async">
+    @if($studentShellAvatarUrl)
+      <img data-avatar-image src="{{ $studentShellAvatarUrl }}" alt="تصویر پروفایل {{ $studentShellUser?->name }}" width="104" height="104" loading="eager" decoding="async" fetchpriority="high">
+      <svg data-avatar-fallback hidden viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
     @else
-      <svg viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
+      <svg data-avatar-fallback viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
     @endif
    </div>
    <h3>سلام {{ auth()->user()->name }}!</h3>
@@ -75,7 +85,14 @@
     <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
     <input type="search" name="q" value="{{ request('q') }}" placeholder="جست‌وجوی دوره‌های من..." aria-label="جست‌وجوی دوره‌های من">
    </form>
-   <a class="ib pr" href="{{ route('student.profile.edit') }}" aria-label="حساب کاربری"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg></a>
+   <a class="ib pr" href="{{ route('student.profile.edit') }}" aria-label="حساب کاربری">
+      @if($studentShellAvatarUrl)
+        <img data-avatar-image src="{{ $studentShellAvatarUrl }}" alt="" width="46" height="46" loading="eager" decoding="async">
+        <svg data-avatar-fallback hidden class="i" aria-hidden="true"><use href="#i-user"/></svg>
+      @else
+        <svg data-avatar-fallback class="i" aria-hidden="true"><use href="#i-user"/></svg>
+      @endif
+   </a>
   </header>
   @if(session('success') || session('status'))
    <div class="card flash" role="status">{{ session('success') ?? session('status') }}</div>

@@ -32,7 +32,8 @@ class StudentPortalUiContractTest extends TestCase
             $this->actingAs($student)
                 ->get(route($route))
                 ->assertOk()
-                ->assertSee('role-layout', false);
+                ->assertSee('student-shell', false)
+                ->assertSee('class="app"', false);
         }
     }
 

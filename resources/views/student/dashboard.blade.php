@@ -14,10 +14,11 @@
 <section class="page" id="dashboard">
     <div class="hero">
         <div class="av" aria-hidden="true">
-            @if(auth()->user()?->avatar_url)
-                <img src="{{ auth()->user()->avatar_url }}" alt="" width="150" height="150" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">
+            @if($studentAvatarUrl ?? null)
+                <img data-avatar-image src="{{ $studentAvatarUrl }}" alt="تصویر پروفایل {{ $student->name }}" width="160" height="160" loading="eager" decoding="async" fetchpriority="high">
+                <svg data-avatar-fallback hidden viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
             @else
-                <svg viewBox="0 0 120 120" width="100%" height="100%"><use href="#avatar"/></svg>
+                <svg data-avatar-fallback viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
             @endif
         </div>
         <div class="txt">
@@ -47,8 +48,8 @@
         <a class="st s3" href="{{ route('student.live-classes.index') }}">
             <div class="ic"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
             <small>کلاس‌های پیش‌رو</small>
-            <b>{{ \App\Support\PersianUi::digits($classes->count()) }}</b>
-            <span>در بازهٔ برنامه‌ریزی‌شده</span>
+            <b>{{ \App\Support\PersianUi::digits($upcomingLiveClassCount ?? $classes->count()) }}</b>
+            <span>جلسه‌های فعال و ۷ روز آینده</span>
         </a>
         <a class="st s4" href="{{ route('student.achievements.index') }}">
             <div class="ic"><svg class="i" aria-hidden="true"><use href="#i-trophy"/></svg></div>
@@ -71,7 +72,13 @@
                         <b>{{ $class->title }}</b>
                         <span>{{ $class->course_title ?? 'کلاس آنلاین' }} · {{ \App\Support\PersianUi::dateTime($class->scheduled_at) }}</span>
                     </div>
-                    <a class="pl" href="{{ route('student.live-classes.index') }}" aria-label="دیدن برنامه کلاس‌ها"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg></a>
+                    @if(!empty($class->can_join))
+                        <a class="pl student-dashboard-join" href="{{ route('student.live-classes.join', $class->id) }}" aria-label="ورود به جلسه آنلاین {{ $class->title }}">
+                            <svg class="i" aria-hidden="true"><use href="#i-play"/></svg><span>ورود</span>
+                        </a>
+                    @else
+                        <a class="pl" href="{{ route('student.live-classes.index') }}" aria-label="دیدن برنامه کلاس‌ها"><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg></a>
+                    @endif
                 </div>
             @empty
                 <div class="empty">در حال حاضر کلاس پیش‌رویی در برنامه‌ات ثبت نشده است.</div>

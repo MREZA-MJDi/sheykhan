@@ -12,9 +12,10 @@
         <div class="avu">
             <div class="avp" data-avatar-preview>
                 @if($avatar && $avatar->url())
-                    <img src="{{ $avatar->url() }}" alt="تصویر پروفایل فعلی" width="100" height="100" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">
+                    <img data-avatar-image src="{{ $avatar->url() }}" alt="تصویر پروفایل فعلی" width="100" height="100" loading="eager" decoding="async">
+                    <svg data-avatar-fallback hidden viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
                 @else
-                    <svg viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
+                    <svg data-avatar-fallback viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
                 @endif
             </div>
             <div>

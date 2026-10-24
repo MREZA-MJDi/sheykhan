@@ -14,6 +14,13 @@ final class StudentDashboardService
 {
     public function build(User $student): array
     {
+        // Student photos live in the student-avatar media collection, not users.avatar_url.
+        $student->loadMissing([
+            'studentProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'student-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+
         $access = app(StudentAccessService::class);
         $courseIds = $access->enrolledCourseIds($student);
 
@@ -83,7 +90,9 @@ final class StudentDashboardService
 
         $progress = $this->progressByCourse($student->id, $courseIds);
         $lessonStats = $this->lessonStatsByCourse($student->id, $courseIds);
-        $nextLessons = $this->nextLessonsByCourse($student->id, $courseIds);
+        // The home page only displays six courses; scope next-lesson lookup to that bounded set.
+        $displayedCourseIds = $enrollments->pluck('course_id')->filter()->unique()->values();
+        $nextLessons = $this->nextLessonsByCourse($student->id, $displayedCourseIds);
         $learningActivity = $this->learningActivity($student->id, $courseIds);
 
         $courses = $enrollments->map(function ($enrollment) use ($progress, $lessonStats, $nextLessons) {
@@ -161,37 +170,99 @@ final class StudentDashboardService
                 })
             : collect();
 
-        $upcomingLive = $courseIds->isEmpty()
-            ? collect()
+        $upcomingLiveQuery = $courseIds->isEmpty()
+            ? null
             : DB::table('live_classes')
                 ->join('courses', 'courses.id', '=', 'live_classes.course_id')
-                ->leftJoin('classroom_student', function ($join) use ($student): void {
-                    $join->on('classroom_student.classroom_id', '=', 'live_classes.classroom_id')
-                        ->where('classroom_student.student_id', '=', $student->id)
-                        ->where('classroom_student.status', '=', 'active');
-                })
                 ->whereIn('live_classes.course_id', $courseIds)
-                ->whereBetween('live_classes.scheduled_at', [now(), now()->addDays(7)])
-                ->where('live_classes.status', 'scheduled')
-                ->where(function ($query) {
-                    $query->whereNull('live_classes.classroom_id')
-                        ->orWhereNotNull('classroom_student.student_id');
+                ->whereIn('live_classes.status', ['scheduled', 'live'])
+                ->where(function ($window): void {
+                    $window
+                        ->whereBetween('live_classes.scheduled_at', [now()->subHours(6), now()->addDays(7)])
+                        ->orWhere(function ($active): void {
+                            $active->where('live_classes.status', 'live')
+                                ->where('live_classes.scheduled_end_at', '>=', now());
+                        });
                 })
+                // Resolve join eligibility in the SQL query so the dashboard does not
+                // show a teacher's session to a student in a different classroom/cohort.
+                // The join endpoint repeats the authorization check before redirecting.
+                ->whereExists(function ($membership) use ($student): void {
+                    $membership->selectRaw('1')
+                        ->from('classroom_student as eligible_student')
+                        ->join('classrooms as eligible_classroom', 'eligible_classroom.id', '=', 'eligible_student.classroom_id')
+                        ->join('classroom_teacher as eligible_teacher', function ($join): void {
+                            $join->on('eligible_teacher.classroom_id', '=', 'eligible_classroom.id')
+                                ->on('eligible_teacher.teacher_id', '=', 'live_classes.teacher_id');
+                        })
+                        ->join('course_enrollments as eligible_enrollment', function ($join) use ($student): void {
+                            $join->on('eligible_enrollment.classroom_id', '=', 'eligible_classroom.id')
+                                ->on('eligible_enrollment.course_id', '=', 'eligible_classroom.course_id')
+                                ->where('eligible_enrollment.student_id', '=', $student->id)
+                                ->where('eligible_enrollment.status', '=', 'active');
+                        })
+                        ->join('courses as eligible_course', 'eligible_course.id', '=', 'eligible_enrollment.course_id')
+                        ->whereColumn('eligible_classroom.course_id', 'live_classes.course_id')
+                        ->where('eligible_student.student_id', $student->id)
+                        ->where('eligible_student.status', 'active')
+                        ->where('eligible_classroom.status', 'active')
+                        ->where(function ($classroom): void {
+                            $classroom->whereNull('live_classes.classroom_id')
+                                ->orWhereColumn('live_classes.classroom_id', 'eligible_classroom.id');
+                        })
+                        ->where(function ($entitlement): void {
+                            $entitlement->where('eligible_course.access_type', 'free')
+                                ->orWhere(function ($paid): void {
+                                    $paid->where('eligible_enrollment.payment_status', 'paid')
+                                        ->where('eligible_enrollment.paid_amount', '>', 0)
+                                        ->where(function ($amount): void {
+                                            $amount->whereNull('eligible_enrollment.price_amount')
+                                                ->orWhereColumn('eligible_enrollment.paid_amount', '>=', 'eligible_enrollment.price_amount');
+                                        })
+                                        ->whereExists(function ($transaction): void {
+                                            $transaction->selectRaw('1')
+                                                ->from('financial_transactions')
+                                                ->whereColumn('financial_transactions.enrollment_id', 'eligible_enrollment.id')
+                                                ->where('financial_transactions.status', 'completed')
+                                                ->where('financial_transactions.amount', '>', 0);
+                                        });
+                                });
+                        });
+                });
+
+        // The KPI is an exact count; only the preview list is limited to five rows.
+        $upcomingLiveClassCount = $upcomingLiveQuery
+            ? (clone $upcomingLiveQuery)->count('live_classes.id')
+            : 0;
+
+        $upcomingLive = $upcomingLiveQuery
+            ? (clone $upcomingLiveQuery)
+                ->orderByRaw("CASE WHEN live_classes.status = 'live' THEN 0 ELSE 1 END")
                 ->orderBy('live_classes.scheduled_at')
                 ->limit(5)
                 ->get([
                     'live_classes.id',
                     'live_classes.title',
+                    'live_classes.course_id',
+                    'live_classes.classroom_id',
+                    'live_classes.teacher_id',
                     'live_classes.scheduled_at',
+                    'live_classes.scheduled_end_at',
+                    'live_classes.duration_minutes',
+                    'live_classes.provider',
+                    'live_classes.meeting_url',
+                    'live_classes.status',
                     'courses.title as course_title',
                 ])
-                ->map(function ($class): object {
-                    $class->scheduled_at = $class->scheduled_at
-                        ? Carbon::parse($class->scheduled_at)
-                        : null;
+                ->map(function ($class) use ($access): object {
+                    // Hydrate the selected columns into a model without another SQL query.
+                    $liveClass = (new LiveClass())->newFromBuilder((array) $class);
+                    $class->scheduled_at = $liveClass->scheduled_at;
+                    $class->can_join = $access->isLiveClassJoinWindowOpen($liveClass);
 
                     return $class;
-                });
+                })
+            : collect();
 
 
         $upcomingMeetings = DB::table('academy_meetings')
@@ -362,12 +433,14 @@ final class StudentDashboardService
         return [
             'student' => $student,
             'profile' => $student->studentProfile,
+            'studentAvatarUrl' => $student->studentProfile?->media?->first()?->url(),
             'courses' => $courses,
             'teachers' => $teachers,
             'overallProgress' => round($overallProgress),
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
             'upcomingLiveClasses' => $upcomingLive,
+            'upcomingLiveClassCount' => $upcomingLiveClassCount,
             'upcomingMeetings' => $upcomingMeetings,
             'assignments' => $assignmentItems,
             'recentResults' => $recentResults,
@@ -507,6 +580,7 @@ final class StudentDashboardService
             ];
         }
 
+        // Aggregate watch activity in SQL so PHP receives at most one row per day.
         $rows = DB::table('lesson_progress')
             ->join('lessons', 'lessons.id', '=', 'lesson_progress.lesson_id')
             ->join('course_sections', 'course_sections.id', '=', 'lessons.course_section_id')
@@ -514,21 +588,21 @@ final class StudentDashboardService
             ->whereIn('course_sections.course_id', $courseIds)
             ->whereNotNull('lesson_progress.last_watched_at')
             ->where('lesson_progress.last_watched_at', '>=', now()->subDays(13)->startOfDay())
-            ->orderByDesc('lesson_progress.last_watched_at')
-            ->get([
-                'lesson_progress.seconds_watched',
-                'lesson_progress.last_watched_at',
-            ]);
+            ->selectRaw('DATE(lesson_progress.last_watched_at) as study_date')
+            ->selectRaw('SUM(lesson_progress.seconds_watched) as watched_seconds')
+            ->groupByRaw('DATE(lesson_progress.last_watched_at)')
+            ->orderByDesc('study_date')
+            ->get();
 
         $studyDates = $rows
-            ->map(fn ($row) => Carbon::parse($row->last_watched_at)->toDateString())
+            ->map(fn ($row) => Carbon::parse($row->study_date)->toDateString())
             ->unique()
             ->values();
 
-        $recentCutoff = now()->subDays(6)->startOfDay();
+        $recentCutoff = now()->subDays(6)->toDateString();
         $studySeconds = $rows
-            ->filter(fn ($row) => Carbon::parse($row->last_watched_at)->greaterThanOrEqualTo($recentCutoff))
-            ->sum(fn ($row) => (int) $row->seconds_watched);
+            ->filter(fn ($row) => (string) $row->study_date >= $recentCutoff)
+            ->sum(fn ($row) => (int) $row->watched_seconds);
 
         $anchor = Carbon::today();
         if (!$studyDates->contains($anchor->toDateString())) {
@@ -579,8 +653,9 @@ final class StudentDashboardService
     private function studyWeek($rows): array
     {
         $minutesByDate = collect($rows)
-            ->groupBy(fn ($row) => Carbon::parse($row->last_watched_at)->toDateString())
-            ->map(fn ($items) => (int) floor($items->sum(fn ($row) => (int) $row->seconds_watched) / 60));
+            ->mapWithKeys(fn ($row) => [
+                Carbon::parse($row->study_date)->toDateString() => (int) floor((int) $row->watched_seconds / 60),
+            ]);
 
         $week = [];
 

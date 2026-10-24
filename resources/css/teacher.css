@@ -1,3 +1,4 @@
+@import './communication-pages.css';
 @source '../../resources/views/teacher';
 @source '../../resources/views/layouts/teacher.blade.php';
 @source '../../resources/views/components';
@@ -271,6 +272,26 @@
     border:1px solid #e9edf2;
     border-radius:10px;
     background:#fafbfc;
+}
+
+.teacher-exam-answer-value.is-correct {
+    border-color: #b8e5c9;
+    background: #f0fbf4;
+}
+
+.teacher-exam-answer-value.is-wrong {
+    border-color: #f4c5cb;
+    background: #fff5f6;
+}
+
+.teacher-exam-answer-value.is-correct {
+    border-color: #b8e5c9;
+    background: #f0fbf4;
+}
+
+.teacher-exam-answer-value.is-wrong {
+    border-color: #f4c5cb;
+    background: #fff5f6;
 }
 .teacher-exam-answer-value > span{
     display:block;

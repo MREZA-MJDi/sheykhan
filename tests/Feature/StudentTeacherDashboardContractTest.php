@@ -51,20 +51,27 @@ class StudentTeacherDashboardContractTest extends TestCase
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
+        $appCss = file_get_contents(resource_path('css/app.css'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
 
         $this->assertIsString($teacherCss);
         $this->assertIsString($studentCss);
+        $this->assertIsString($appCss);
         $this->assertIsString($teacherLayout);
         $this->assertIsString($studentLayout);
 
         $this->assertStringContainsString('.teacher-focus-card {', $teacherCss);
         $this->assertStringContainsString('.teacher-focus-action {', $teacherCss);
         $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
-        $this->assertStringContainsString("@source '../../resources/views/student';", $studentCss);
-        $this->assertStringContainsString("@source '../../resources/views/layouts/student.blade.php';", $studentCss);
+        // Tailwind source scanning is centralized in app.css (source(none));
+        // the role stylesheet is plain CSS and stays focused on component styling.
+        $this->assertStringContainsString("@source '../../resources/views';", $appCss);
+        $this->assertStringContainsString("@source '../../resources/views/components';", $appCss);
+        $this->assertStringContainsString('resources/css/app.css', $studentLayout);
         $this->assertStringContainsString('resources/css/student.css', $studentLayout);
+        $this->assertStringContainsString('#dashboard.page', $studentCss);
+        $this->assertStringContainsString('@media (max-width: 640px)', $studentCss);
         $this->assertStringNotContainsString('resources/css/student-dashboard-reference.css', $studentLayout);
         $this->assertStringContainsString('resources/js/student.js', $studentLayout);
     }
