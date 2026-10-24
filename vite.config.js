@@ -16,6 +16,7 @@ export default defineConfig({
                 'resources/js/teacher.js',
                 'resources/css/admin.css',
                 'resources/css/owner-design-system.css',
+                'resources/css/owner-dashboard-polish.css',
                 'resources/js/admin.js',
                 'resources/css/parent.css',
                 'resources/js/parent.js',
