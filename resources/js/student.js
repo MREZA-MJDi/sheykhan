@@ -11,6 +11,20 @@
     };
 
     ready(() => {
+        // A stale or missing media file must never leave a broken-image icon in the UI.
+        document.querySelectorAll('[data-avatar-image]').forEach((image) => {
+            const fallback = image.parentElement?.querySelector('[data-avatar-fallback]');
+            if (!fallback) return;
+
+            const useFallback = () => {
+                image.hidden = true;
+                fallback.hidden = false;
+            };
+
+            image.addEventListener('error', useFallback, { once: true });
+            if (image.complete && image.naturalWidth === 0) useFallback();
+        });
+
         const avatarInput = document.querySelector('[data-avatar-input]');
         const avatarPreview = document.querySelector('[data-avatar-preview]');
         let previewUrl = null;
@@ -46,6 +60,14 @@
                     URL.revokeObjectURL(currentPreviewUrl);
                     if (previewUrl === currentPreviewUrl) previewUrl = null;
                     avatarInput.value = '';
+                    const fallback = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    fallback.setAttribute('viewBox', '0 0 120 120');
+                    fallback.setAttribute('aria-hidden', 'true');
+                    fallback.style.cssText = 'width:100%;height:100%';
+                    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                    use.setAttribute('href', '#avatar');
+                    fallback.append(use);
+                    avatarPreview.replaceChildren(fallback);
                 };
                 image.src = currentPreviewUrl;
                 avatarPreview.replaceChildren(image);
