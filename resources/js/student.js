@@ -1,3 +1,4 @@
+import '../css/student.css';
 /* Lightweight student-only interactions; data and authorization remain server-owned. */
 (() => {
     'use strict';
