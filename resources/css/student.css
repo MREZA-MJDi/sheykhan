@@ -723,7 +723,7 @@ body {
 .student-shell .role-mobile-bottom-icon{background:rgba(255,255,255,.45)}
 .student-shell .role-mobile-bottom-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @keyframes student-menu-enter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
-@media(max-width:700px){.student-shell .main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}.student-profile-dialog{padding:16px;border-radius:21px}.student-profile-modal{padding:12px}}
+@media(max-width:700px){.student-shell .app .side{display:none!important}.student-shell .main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}.student-profile-dialog{padding:16px;border-radius:21px}.student-profile-modal{padding:12px}}
 @media(prefers-reduced-motion:reduce){.student-profile-dialog{animation:none}}
 
 :root[data-theme="dark"] .student-profile-dialog{background:#17283b;color:#e6eef6;border-color:rgba(255,255,255,.14)}
