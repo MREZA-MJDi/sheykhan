@@ -106,6 +106,8 @@
         </div>
     </div>
 
+    <x-navigation.role-mobile-nav role="teacher" />
+
     @include('teacher.partials.overlays')
     @stack('scripts')
 </body>
