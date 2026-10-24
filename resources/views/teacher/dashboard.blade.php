@@ -67,13 +67,14 @@
                 ? ($canManageExams ? 'بررسی آزمون‌ها' : 'مشاهده آزمون‌ها')
                 : ($canViewClassrooms ? 'مدیریت کلاس‌ها' : ($canViewCourses ? 'مدیریت دوره‌ها' : 'مشاهده برنامه')));
 
+        // KPIs are summaries; the canonical navigation lives in the shared sidebar.
         $kpis = [
-            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'route' => 'teacher.classrooms.index', 'tone' => 'vi', 'icon' => 'users', 'permission' => 'classrooms.view'],
-            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'route' => 'teacher.courses.index', 'tone' => 'ok', 'icon' => 'book', 'permission' => 'courses.view'],
-            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده', 'route' => 'teacher.schedule.index', 'tone' => 'wr', 'icon' => 'vid', 'permission' => 'live_classes.view'],
-            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'دانش‌آموزان کلاس‌های شما', 'route' => 'teacher.students.index', 'tone' => 'sk', 'icon' => 'hs', 'permission' => 'students.view'],
-            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'ارسال‌شده و نیازمند بازخورد', 'route' => 'teacher.assignments.index', 'tone' => 'er', 'icon' => 'file', 'permission' => 'assignments.view'],
-            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'پاسخ‌های نیازمند ارزیابی', 'route' => 'teacher.exams.index', 'tone' => 'vi', 'icon' => 'clip', 'permission' => 'exams.view'],
+            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'tone' => 'vi', 'icon' => 'users', 'permission' => 'classrooms.view'],
+            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'tone' => 'ok', 'icon' => 'book', 'permission' => 'courses.view'],
+            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده', 'tone' => 'wr', 'icon' => 'vid', 'permission' => 'live_classes.view'],
+            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'دانش‌آموزان کلاس‌های شما', 'tone' => 'sk', 'icon' => 'hs', 'permission' => 'students.view'],
+            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'ارسال‌شده و نیازمند بازخورد', 'tone' => 'er', 'icon' => 'file', 'permission' => 'assignments.view'],
+            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'پاسخ‌های نیازمند ارزیابی', 'tone' => 'vi', 'icon' => 'clip', 'permission' => 'exams.view'],
         ];
         $kpis = array_values(array_filter($kpis, fn ($item) => $teacherUser?->hasPermission($item['permission'])));
 
@@ -107,13 +108,12 @@
 
             <section class="k6" aria-label="شاخص‌های آموزشی">
                 @forelse($kpis as $metric)
-                    <a class="{{ $metric['tone'] }}" style="--c:var(--{{ $metric['tone'] === 'vi' ? 'vi' : $metric['tone'] }})"
-                       href="{{ route($metric['route']) }}" data-dashboard-searchable>
+                    <article class="teacher-kpi {{ $metric['tone'] }}" style="--c:var(--{{ $metric['tone'] }})" data-dashboard-searchable>
                         <span class="k6-label">{{ $metric['label'] }}</span>
                         <i aria-hidden="true"><svg class="i"><use href="#{{ $metric['icon'] }}"/></svg></i>
                         <b>{{ $metric['value'] }}</b>
                         <small>{{ $metric['hint'] }}</small>
-                    </a>
+                    </article>
                 @empty
                     <div class="cd empty-state">برای این حساب هنوز شاخصی با دسترسی مجاز وجود ندارد.</div>
                 @endforelse
