@@ -616,3 +616,22 @@ th{font-weight:600}td{padding:12px}
     .teacher-shell .teacher-submission-row{grid-template-columns:minmax(0,1fr);padding:13px}
     .teacher-shell .teacher-submission-grade{width:100%!important;max-width:none}
 }
+
+
+/* Fixed tablet bottom bar: keep it out of document flow and above safe-area insets. */
+@media(min-width:701px) and (max-width:1000px){
+    .teacher-shell .role-mobile-bottom-nav{
+        position:fixed!important;
+        left:max(12px,env(safe-area-inset-left,0px));
+        right:max(12px,env(safe-area-inset-right,0px));
+        bottom:calc(12px + env(safe-area-inset-bottom,0px));
+        z-index:120;
+        display:grid!important;
+        grid-template-columns:repeat(var(--role-mobile-nav-items,5),minmax(0,1fr));
+        gap:5px;
+        padding:7px;
+        border:1px solid var(--bd);
+        border-radius:20px;
+        isolation:isolate;
+    }
+}
