@@ -163,6 +163,21 @@ final class CourseManagementService
             ]);
         }
 
+        if (array_key_exists('spotplayer_course_id', $data)) {
+            $requestedSpotPlayerCourseId = filled($data['spotplayer_course_id'] ?? null)
+                ? trim((string) $data['spotplayer_course_id'])
+                : null;
+
+            if (
+                $requestedSpotPlayerCourseId !== $course->spotplayer_course_id
+                && $course->spotplayerLicenses()->where('status', 'active')->exists()
+            ) {
+                throw ValidationException::withMessages([
+                    'spotplayer_course_id' => 'شناسهٔ دورهٔ SpotPlayer تا وقتی لایسنس فعال دارد قابل تغییر نیست؛ ابتدا دسترسی‌های فعلی را در پنل SpotPlayer بررسی کن.',
+                ]);
+            }
+        }
+
         $academy = $this->resolveAcademy($user, (int) $course->academy_id);
 
         return DB::transaction(function () use ($user, $course, $academy, $data): Course {
