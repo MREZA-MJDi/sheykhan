@@ -740,3 +740,43 @@ body {
 :root[data-theme="dark"] .student-profile-dialog-person small{color:#a9bccd}
 :root[data-theme="dark"] .student-profile-dialog-actions form>button.danger{background:rgba(116,36,48,.35);border-color:rgba(239,91,107,.28);color:#ffb2ba}
 :root[data-theme="dark"] .student-profile-dialog-actions form>button.danger .i{color:#ffb2ba}
+
+
+/* Student workspace rhythm: consistent section gaps, readable text and mobile breathing room. */
+.student-shell .app{gap:clamp(18px,2vw,28px)}
+.student-shell .main{gap:clamp(18px,2vw,24px);min-width:0}
+.student-shell .top{gap:12px;row-gap:10px}
+.student-shell .top h1{line-height:1.65;overflow-wrap:anywhere}
+.student-shell #dashboard.page{gap:18px}
+.student-shell #dashboard .hero{margin:0 0 2px;gap:16px;padding:clamp(18px,2vw,26px)}
+.student-shell #dashboard .hero h2{line-height:1.75;text-wrap:balance}
+.student-shell #dashboard .hero p{line-height:2.05}
+.student-shell #dashboard .stats{gap:14px}
+.student-shell #dashboard .row{gap:18px}
+.student-shell #dashboard .card{padding:clamp(16px,1.6vw,22px);margin:0;min-width:0}
+.student-shell #dashboard .chead{gap:12px;margin-block-end:14px;flex-wrap:wrap}
+.student-shell #dashboard .st{gap:9px}
+.student-shell #dashboard .st b{line-height:1.5}
+.student-shell .main :is(p,li){line-height:1.95}
+.student-shell .main :is(a,button){touch-action:manipulation}
+.student-shell .main :is(button,.btn,.pill){min-height:40px}
+@media(max-width:900px){
+  .student-shell .app{gap:0;padding:14px}
+  .student-shell .main{gap:17px}
+}
+@media(max-width:700px){
+  .student-shell .main{gap:15px;padding-bottom:calc(116px + env(safe-area-inset-bottom))}
+  .student-shell #dashboard.page{gap:15px}
+  .student-shell #dashboard .hero{gap:11px;padding:17px}
+  .student-shell #dashboard .stats{gap:10px}
+  .student-shell #dashboard .row{gap:14px}
+  .student-shell #dashboard .card{padding:16px}
+  .student-shell #dashboard .chead{margin-block-end:12px}
+}
+@media(max-width:380px){
+  .student-shell .app{padding:8px}
+  .student-shell .main{gap:13px}
+  .student-shell #dashboard .hero{padding:13px}
+  .student-shell #dashboard .card{padding:13px}
+  .student-shell #dashboard .stats{gap:8px}
+}
