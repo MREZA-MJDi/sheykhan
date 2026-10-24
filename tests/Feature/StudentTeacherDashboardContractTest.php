@@ -41,7 +41,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertOk()
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
-            ->assertSee('کلاس‌های آنلاین این هفته')
+            ->assertSee('جلسات این هفته')
             ->assertSee('تکالیف منتظر تصحیح')
             ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت ثبت‌شده')
@@ -52,7 +52,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('id="gs"', false)
             ->assertSee('role-mobile-bottom-nav', false)
             ->assertSee('data-role-more-open', false)
-            ->assertSee('آخرین تکالیف')
+            ->assertSee('آخرین فعالیت‌ها')
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
     }
