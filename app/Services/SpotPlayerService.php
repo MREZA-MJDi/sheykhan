@@ -122,7 +122,7 @@ final class SpotPlayerService
                 'status' => 'active',
                 'issued_at' => now(),
             ]);
-        }, 3);
+        }, 1);
     }
 
     private function normalizeLicenseUrl(string $url): ?string

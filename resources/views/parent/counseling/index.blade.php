@@ -69,7 +69,7 @@
                 </div>
                 @if($item->proposed_at)
                     <div class="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
-                        <p class="text-xs font-black text-blue-800">زمان پیشنهادی مدرس · هنوز قطعی نیست</p>
+                        <p class="text-xs font-black text-blue-800">{{ $item->status === 'scheduled' ? 'زمان پیشنهادی مدرس · تأییدشده توسط آموزشگاه' : 'زمان پیشنهادی مدرس · هنوز قطعی نیست' }}</p>
                         <p class="mt-2 text-sm font-bold">{{ \App\Support\PersianUi::date($item->proposed_at).' · '.\App\Support\PersianUi::time($item->proposed_at) }}</p>
                         @if($item->proposal_notes)<p class="mt-2 whitespace-pre-line text-sm leading-7 text-blue-950">{{ $item->proposal_notes }}</p>@endif
                     </div>
