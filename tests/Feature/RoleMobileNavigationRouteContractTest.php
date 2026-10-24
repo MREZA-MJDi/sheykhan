@@ -47,10 +47,10 @@ class RoleMobileNavigationRouteContractTest extends TestCase
         $this->assertIsString($sidebar);
 
         foreach ([
-            "route('owner.resources.index', $academy)",
-            "route('owner.showcase.index', $academy)",
-            "route('owner.products.index', $academy)",
-            "route('owner.orders.index', $academy)",
+            'route(\'owner.resources.index\', $academy)',
+            'route(\'owner.showcase.index\', $academy)',
+            'route(\'owner.products.index\', $academy)',
+            'route(\'owner.orders.index\', $academy)',
             "route('owner.legal-documents.index')",
         ] as $destination) {
             $this->assertStringContainsString($destination, $sidebar, 'Desktop owner sidebar missing ' . $destination);
