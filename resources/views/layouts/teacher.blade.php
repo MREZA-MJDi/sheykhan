@@ -19,7 +19,7 @@
     @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/js/app.js', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
-<body>
+<body class="teacher-shell">
     @php
         $teacherPanelUser = auth()->user();
         $teacherNavGroups = [
