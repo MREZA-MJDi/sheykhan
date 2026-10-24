@@ -328,43 +328,36 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         $from = now()->subDays(30)->startOfDay();
         $to = now()->endOfDay();
 
-        $weekExpression = match (DB::getDriverName()) {
-            'sqlite' => "strftime('%W', progress.last_watched_at)",
-            'mysql', 'mariadb' => "WEEK(progress.last_watched_at, 1)",
-            'pgsql' => "EXTRACT(WEEK FROM progress.last_watched_at)",
-            default => "EXTRACT(WEEK FROM progress.last_watched_at)",
-        };
-
-        $rows = $this->teacherLearningMatrix($teacherId, $courseIds)
+        // Aggregate one row per date in SQL. Seven bounded 5-day buckets avoid
+        // week-number/year-boundary differences between MySQL, SQLite and PostgreSQL.
+        $dailyValues = $this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
             ->whereNotNull('progress.last_watched_at')
             ->whereBetween('progress.last_watched_at', [$from, $to])
-            ->selectRaw("{$weekExpression} as week_number, AVG(progress.progress_percent) as value")
-            ->groupBy(DB::raw($weekExpression))
-            ->pluck('value', 'week_number');
+            ->groupBy(DB::raw('DATE(progress.last_watched_at)'))
+            ->selectRaw('DATE(progress.last_watched_at) as day, AVG(progress.progress_percent) as value')
+            ->pluck('value', 'day');
+
+        $periods = array_fill(0, 7, []);
+        foreach ($dailyValues as $day => $value) {
+            $date = Carbon::parse($day)->startOfDay();
+            $offset = min(6, intdiv(max(0, $from->diffInDays($date)), 5));
+            $periods[$offset][] = (float) $value;
+        }
 
         $labels = [];
         $values = [];
-
-        for ($index = 3; $index >= 0; $index--) {
-            $date = now()->subWeeks($index);
-            $week = match (DB::getDriverName()) {
-                'pgsql' => (string) (int) $date->format('W'),
-                default => (int) $date->format('W'),
-            };
-
-            $labels[] = $this->faDigits('هفته ' . (4 - $index));
-            $values[] = round((float) ($rows[$week] ?? 0));
-        }
-
-        while (count($values) < 7) {
-            array_unshift($values, $values[0] ?? 0);
-            array_unshift($labels, '');
+        for ($index = 0; $index < 7; $index++) {
+            $periodStart = $from->copy()->addDays($index * 5);
+            $labels[] = $this->faDigits('بازه ' . ($index + 1));
+            $values[] = $periods[$index] === []
+                ? 0
+                : (int) round(array_sum($periods[$index]) / count($periods[$index]));
         }
 
         return ['labels' => $labels, 'values' => $values];
     }
 
-        private function todaySessions(User $teacher, $classrooms, $courseIds)
+    private function todaySessions(User $teacher, $classrooms, $courseIds)
     {
         $weekday = now()->dayOfWeek;
         $meetingLinks = app(MeetingLinkService::class);
