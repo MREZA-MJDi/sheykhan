@@ -23,6 +23,7 @@ class StudentDashboardReferenceDesignTest extends TestCase
             ->assertSee('دوره‌های فعال')
             ->assertSee('تکالیف ارسال‌نشده')
             ->assertSee('student-shell', false)
+            ->assertSee('data-avatar-fallback', false)
             ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('sdr-hero', false);
     }
