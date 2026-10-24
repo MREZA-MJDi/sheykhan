@@ -272,7 +272,18 @@ class OwnerClassroomManagementTest extends TestCase
             ->assertViewHas('summary', fn (array $summary) => $summary['total'] === 13
                 && $summary['active_count'] === 13
                 && $summary['capacity_total'] === 130)
-            ->assertSee('page=2', false);
+            ->assertSee('page=2', false)
+            ->assertSee('owner-classroom-filters', false)
+            ->assertSee('owner-classroom-result-count', false);
+
+        $filteredUrl = route('owner.classrooms.index', $academy) . '?q=' . rawurlencode('PAG-003');
+
+        $this->actingAs($owner)
+            ->get($filteredUrl)
+            ->assertOk()
+            ->assertViewHas('classrooms', fn ($classrooms) => $classrooms->total() === 1
+                && $classrooms->count() === 1
+                && $classrooms->first()->code === 'PAG-003');
     }
 
     public function test_owner_classroom_detail_paginates_the_entire_active_roster(): void
