@@ -1852,3 +1852,47 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
     .owner-shell .owner-stat-card.is-actionable { transition: none; }
     .owner-shell .owner-stat-card.is-actionable:hover { transform: none; }
 }
+
+
+/* Make every owner/secretary feature page use the same content rhythm. */
+.owner-shell .role-main :is(.panel-page-enter, .communication-page) {
+    display: grid;
+    align-content: start;
+    gap: var(--owner-page-gap, 20px);
+    min-width: 0;
+}
+.owner-shell .role-main :is(.panel-page-enter, .communication-page) > * {
+    min-width: 0;
+    margin-block-start: 0;
+}
+.owner-shell .role-main .panel-page-enter > :is(header, .flex.flex-col.gap-4, .flex.flex-col.gap-3) {
+    gap: clamp(12px, 1.5vw, 20px);
+}
+.owner-shell .role-main .panel-page-enter :is(h1, h2, h3) {
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+}
+.owner-shell .role-main .panel-page-enter :is(h1, h2) { line-height: 1.55; }
+.owner-shell .role-main .panel-page-enter > section,
+.owner-shell .role-main .communication-page > section {
+    min-width: 0;
+}
+.owner-shell .role-main .owner-stat-card:not(.is-actionable) {
+    cursor: default;
+}
+.owner-shell .role-main .owner-stat-card.is-actionable:active {
+    transform: translateY(0);
+}
+.owner-shell .role-main .owner-panel :is(a, button):focus-visible,
+.owner-shell .role-main .panel-page-enter :is(a, button):focus-visible {
+    outline: 2px solid var(--panel-primary, var(--ac));
+    outline-offset: 3px;
+}
+@media (max-width: 760px) {
+    .owner-shell .role-main :is(.panel-page-enter, .communication-page) {
+        gap: 16px;
+    }
+    .owner-shell .role-main .panel-page-enter > :is(header, .flex.flex-col.gap-4, .flex.flex-col.gap-3) {
+        align-items: stretch;
+    }
+}
