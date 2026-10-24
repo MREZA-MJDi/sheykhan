@@ -217,10 +217,16 @@ final class OwnerDashboardService
                 : null;
         });
 
-        $activeStudentCounts = DB::table('classroom_student')
-            ->where('status', 'active')
-            ->groupBy('classroom_id')
-            ->select('classroom_id', DB::raw('COUNT(*) AS active_students_count'));
+        $activeStudentCounts = DB::table('classroom_student as memberships')
+            ->join('users as roster_users', 'roster_users.id', '=', 'memberships.student_id')
+            ->where('memberships.status', 'active')
+            ->where('roster_users.status', 'active')
+            ->whereNull('roster_users.deleted_at')
+            ->groupBy('memberships.classroom_id')
+            ->select(
+                'memberships.classroom_id',
+                DB::raw('COUNT(DISTINCT memberships.student_id) AS active_students_count')
+            );
 
         $capacityAlerts = DB::query()
             ->from('classrooms as classrooms')
