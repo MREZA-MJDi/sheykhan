@@ -6,14 +6,18 @@ use Tests\TestCase;
 
 class PanelTailwindSourceCoverageTest extends TestCase
 {
-    public function test_student_styles_scan_student_views_layout_and_shared_components(): void
+    public function test_student_views_are_scanned_by_the_shared_tailwind_entrypoint(): void
     {
-        $css = file_get_contents(resource_path('css/student.css'));
+        $css = file_get_contents(resource_path('css/app.css'));
+        $layout = file_get_contents(resource_path('views/layouts/student.blade.php'));
 
         $this->assertIsString($css);
-        $this->assertStringContainsString("@source '../../resources/views/student';", $css);
-        $this->assertStringContainsString("@source '../../resources/views/layouts/student.blade.php';", $css);
+        $this->assertIsString($layout);
+        $this->assertStringContainsString("@import 'tailwindcss' source(none);", $css);
+        $this->assertStringContainsString("@source '../../resources/views';", $css);
         $this->assertStringContainsString("@source '../../resources/views/components';", $css);
+        $this->assertStringContainsString('resources/css/app.css', $layout);
+        $this->assertStringContainsString('resources/css/student.css', $layout);
     }
 
     public function test_parent_styles_scan_parent_views_layout_and_shared_components(): void
