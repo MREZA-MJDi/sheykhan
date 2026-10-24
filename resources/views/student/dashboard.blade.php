@@ -48,8 +48,8 @@
         <a class="st s3" href="{{ route('student.live-classes.index') }}">
             <div class="ic"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
             <small>کلاس‌های پیش‌رو</small>
-            <b>{{ \App\Support\PersianUi::digits($classes->count()) }}</b>
-            <span>در بازهٔ برنامه‌ریزی‌شده</span>
+            <b>{{ \App\Support\PersianUi::digits($upcomingLiveClassCount ?? $classes->count()) }}</b>
+            <span>جلسه‌های فعال و ۷ روز آینده</span>
         </a>
         <a class="st s4" href="{{ route('student.achievements.index') }}">
             <div class="ic"><svg class="i" aria-hidden="true"><use href="#i-trophy"/></svg></div>
