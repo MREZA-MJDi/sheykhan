@@ -96,6 +96,10 @@
                 </div>
             </header>
 
+            <p class="dashboard-search-empty" data-dashboard-search-empty role="status" aria-live="polite" hidden>
+                موردی با این عبارت پیدا نشد. عبارت دیگری را امتحان کن.
+            </p>
+
             <section class="k6" aria-label="شاخص‌های آموزشی">
                 @forelse($kpis as $metric)
                     <a class="{{ $metric['tone'] }}" style="--c:var(--{{ $metric['tone'] === 'vi' ? 'vi' : $metric['tone'] }})"
