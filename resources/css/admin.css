@@ -1900,3 +1900,55 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
         align-items: stretch;
     }
 }
+
+
+/* Final dashboard layout guard: alert surfaces must never stretch into a full-height yellow column. */
+.owner-shell .owner-dashboard {
+    align-items: stretch;
+    align-content: start;
+    grid-auto-rows: max-content;
+}
+.owner-shell .owner-dashboard > .owner-focus-card {
+    height: fit-content !important;
+    min-height: 0 !important;
+    align-self: start;
+    grid-row: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert {
+    background: #fff8e9 !important;
+    border: 1px solid #f0d49d !important;
+    color: #774900;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-copy,
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-copy h2 {
+    color: #774900 !important;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-copy p,
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-kicker {
+    color: #855f21 !important;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.is-clear {
+    height: fit-content !important;
+    min-height: 0 !important;
+    align-self: start;
+}
+@media (max-width: 760px) {
+    .owner-shell .owner-dashboard { gap: 14px; }
+    .owner-shell .owner-dashboard > .owner-focus-card {
+        grid-template-columns: 28px minmax(0,1fr);
+        gap: 10px;
+        padding: 13px;
+        border-radius: 15px;
+    }
+    .owner-shell .owner-dashboard > .owner-focus-card .owner-focus-copy h2 {
+        font-size: clamp(13px, 3.6vw, 16px);
+        line-height: 1.8;
+    }
+    .owner-shell .owner-dashboard > .owner-focus-card .owner-focus-copy p {
+        font-size: 11px;
+        line-height: 1.8;
+    }
+}
