@@ -56,8 +56,16 @@
             <div class="chead"><h2>{{ $submission ? 'ارسال نسخهٔ اصلاح‌شده' : 'ارسال پاسخ تکلیف' }}</h2><span class="tag w">تا پایان مهلت</span></div>
             <label for="assignment-content" style="display:block;font-size:12px;margin-bottom:8px">توضیح یا پاسخ متنی</label>
             <textarea class="fld" id="assignment-content" name="content" rows="5" maxlength="30000" placeholder="پاسخ خودت را اینجا بنویس...">{{ old('content', $submission?->content) }}</textarea>
-            <label for="assignment-files" style="display:block;font-size:12px;margin:14px 0 8px">فایل‌های پاسخ (حداکثر ۳ فایل، هرکدام حداکثر ۱۰ مگابایت)</label>
-            <input class="fld" id="assignment-files" type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt">
+            <div class="assignment-upload-box">
+                <div class="assignment-upload-heading">
+                    <span class="assignment-upload-heading-icon" aria-hidden="true">⇧</span>
+                    <span>فایل پاسخ خودت را پیوست کن</span>
+                </div>
+                <label for="assignment-files" style="display:block;font-size:12px;font-weight:800;margin-top:4px">انتخاب فایل (PDF و سایر فرمت‌های مجاز)</label>
+                <input class="fld" id="assignment-files" data-assignment-file-upload type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" aria-describedby="assignment-files-help assignment-files-selection">
+                <p class="assignment-upload-help" id="assignment-files-help">حداکثر ۳ فایل، هرکدام تا ۱۰ مگابایت. فایل‌های پاسخ به‌صورت خصوصی ذخیره می‌شوند و فقط افراد مجاز به تکلیف دسترسی دارند.</p>
+                <p class="assignment-upload-selection" id="assignment-files-selection" data-assignment-files-selection aria-live="polite">هنوز فایلی انتخاب نشده است.</p>
+            </div>
             <div class="frm"><button class="btn s" type="submit">ثبت پاسخ</button><span>پس از تصحیح مدرس، ارسال مجدد بسته می‌شود.</span></div>
         </form>
     @elseif($submission?->graded_at)

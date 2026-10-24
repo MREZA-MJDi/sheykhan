@@ -1395,3 +1395,207 @@ body.owner-shell .role-mobile-more-links>form>button,
 body.owner-shell .role-mobile-more-links>form>button.danger{
     background:rgba(255,107,122,.1)!important;color:var(--er)!important;border-color:rgba(255,107,122,.3)!important
 }
+
+
+/* Dashboard layout contract: stable container width, section rhythm, and tablet navigation. */
+.owner-shell .role-layout{
+    grid-template-columns:clamp(236px,17vw,280px) minmax(0,1fr);
+    width:100%;
+    max-width:1920px;
+    margin-inline:auto;
+    align-items:stretch;
+}
+.owner-shell .role-content{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    width:100%;
+}
+.owner-shell .role-topbar{
+    width:100%;
+    flex:0 0 auto;
+    padding-inline:clamp(18px,2.1vw,36px);
+}
+.owner-shell .role-main{
+    width:min(100%,1600px);
+    max-width:1600px;
+    min-width:0;
+    margin-inline:auto;
+    padding:clamp(18px,2.2vw,36px);
+    padding-bottom:42px;
+}
+.owner-shell .owner-dashboard{
+    display:grid;
+    width:100%;
+    max-width:1560px;
+    min-width:0;
+    margin-inline:auto;
+    gap:clamp(14px,1.5vw,24px);
+}
+.owner-shell .owner-dashboard > *{min-width:0}
+.owner-shell .owner-hero{
+    display:grid;
+    grid-template-columns:minmax(0,1.4fr) minmax(240px,.6fr);
+    align-items:center;
+    gap:clamp(18px,2vw,34px);
+    min-width:0;
+    padding:clamp(22px,2.4vw,38px);
+    border-radius:22px;
+    background:
+        radial-gradient(circle at 92% 5%,rgba(108,140,255,.17),transparent 19rem),
+        linear-gradient(120deg,#0d1733,#111f43 72%,#152750)!important;
+    box-shadow:0 18px 46px rgba(1,7,24,.18)!important;
+}
+.owner-shell .owner-hero-copy{min-width:0}
+.owner-shell .owner-hero h1{
+    max-width:22ch;
+    font-size:clamp(24px,2.5vw,36px);
+    line-height:1.65;
+    overflow-wrap:anywhere;
+}
+.owner-shell .owner-hero p{max-width:66ch;margin-block:12px 20px}
+.owner-shell .owner-hero-art{
+    position:relative!important;
+    display:grid!important;
+    align-items:center;
+    justify-items:end;
+    min-width:0;
+    min-height:150px;
+    margin:0;
+}
+.owner-shell .owner-orb{display:block!important;pointer-events:none}
+.owner-shell .owner-orb.one{inset-inline-end:5%;top:-24px;width:190px;height:190px}
+.owner-shell .owner-orb.two{inset-inline-start:4%;bottom:-18px;width:112px;height:112px}
+.owner-shell .owner-hero-stat{
+    position:relative;
+    z-index:1;
+    width:min(100%,320px);
+    max-width:320px;
+    padding:clamp(16px,1.6vw,24px);
+    border-radius:18px;
+    background:rgba(18,30,66,.86);
+    border-color:rgba(140,152,198,.3);
+    box-shadow:0 20px 42px rgba(0,0,0,.18);
+}
+.owner-shell .owner-hero-stat strong{font-size:clamp(26px,2.5vw,36px);overflow-wrap:anywhere}
+.owner-shell .owner-hero-actions{gap:9px}
+.owner-shell .owner-hero-actions .owner-btn{max-width:100%;white-space:normal;text-align:center}
+.owner-shell .owner-focus-card{
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr) auto;
+    align-items:center;
+    gap:16px;
+    min-width:0;
+    padding:18px clamp(16px,2vw,26px);
+}
+.owner-shell .owner-focus-copy{min-width:0}
+.owner-shell .owner-focus-copy h2{font-size:clamp(15px,1.4vw,19px);line-height:1.8;overflow-wrap:anywhere}
+.owner-shell .owner-focus-actions{max-width:100%;white-space:normal}
+.owner-shell .owner-stats{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:clamp(10px,1.2vw,16px);
+}
+.owner-shell .owner-stat-card{
+    min-width:0;
+    min-height:126px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:5px;
+    padding:clamp(14px,1.4vw,22px);
+}
+.owner-shell .owner-stat-card strong{font-size:clamp(23px,2vw,30px);line-height:1.4;overflow-wrap:anywhere}
+.owner-shell .owner-dashboard > section[aria-labelledby="owner-quick-actions-title"]{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+}
+.owner-shell .owner-grid{
+    grid-template-columns:minmax(0,1.25fr) minmax(290px,.85fr);
+    align-items:start;
+    gap:clamp(12px,1.5vw,22px);
+}
+.owner-shell .owner-grid > *,
+.owner-shell .owner-panel,
+.owner-shell .dashboard-panel{min-width:0}
+.owner-shell .owner-panel{padding:clamp(16px,1.5vw,24px)}
+.owner-shell .owner-panel-head{gap:12px;flex-wrap:wrap}
+.owner-shell .owner-panel-head :is(h2,h3){font-size:clamp(14px,1.15vw,17px);line-height:1.7}
+.owner-shell .owner-dashboard :is(.owner-teacher-list,.owner-live-list,.owner-course-list){min-width:0}
+.owner-shell .owner-dashboard :is(.owner-teacher-row,.owner-live-row,.owner-course-row){
+    min-width:0;
+    gap:12px;
+    overflow-wrap:anywhere;
+}
+.owner-shell .owner-dashboard .owner-row-title{overflow-wrap:anywhere}
+.owner-shell .owner-dashboard .tw,
+.owner-shell .owner-dashboard .table-wrap{max-width:100%;overflow-x:auto}
+.owner-shell .owner-dashboard table{min-width:560px}
+.owner-shell .owner-dashboard :is(a,button,input,select,textarea){max-width:100%}
+@media(max-width:1320px){
+    .owner-shell .owner-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .owner-shell .owner-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:1050px){
+    .owner-shell .owner-hero{grid-template-columns:minmax(0,1fr) minmax(220px,.65fr)}
+    .owner-shell .owner-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .owner-shell .owner-dashboard > section[aria-labelledby="owner-quick-actions-title"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1050px){
+    .owner-shell .role-layout{display:block;min-height:100dvh}
+    .owner-shell .role-sidebar{display:none!important}
+    .owner-shell .role-content{width:100%;max-width:none}
+    .owner-shell .role-topbar{position:sticky;top:0;z-index:60;padding-inline:18px}
+    .owner-shell .role-mobile-menu{display:none!important}
+    .owner-shell .role-main{
+        width:100%;
+        max-width:none;
+        padding:clamp(16px,3vw,26px) clamp(14px,2.5vw,24px) calc(132px + env(safe-area-inset-bottom,0px));
+    }
+    .owner-shell .role-mobile-bottom-nav{display:grid!important}
+    .owner-shell .owner-hero{grid-template-columns:minmax(0,1fr) minmax(200px,.55fr)}
+}
+@media(max-width:760px){
+    .owner-shell .role-topbar{min-height:66px;padding-inline:14px}
+    .owner-shell .owner-hero{grid-template-columns:minmax(0,1fr);padding:20px;border-radius:20px}
+    .owner-shell .owner-hero-art{justify-items:stretch;min-height:0;margin-top:6px}
+    .owner-shell .owner-hero-stat{width:100%;max-width:none}
+    .owner-shell .owner-hero-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+    .owner-shell .owner-focus-card{grid-template-columns:30px minmax(0,1fr);gap:12px;padding:15px}
+    .owner-shell .owner-focus-actions{grid-column:2}
+    .owner-shell .owner-grid{grid-template-columns:minmax(0,1fr)}
+    .owner-shell .owner-dashboard > section[aria-labelledby="owner-quick-actions-title"]{grid-template-columns:minmax(0,1fr)}
+    .owner-shell .owner-panel{padding:15px}
+}
+@media(max-width:430px){
+    .owner-shell .role-main{padding-inline:11px}
+    .owner-shell .owner-stats{grid-template-columns:minmax(0,1fr)}
+    .owner-shell .owner-stat-card{min-height:96px}
+    .owner-shell .owner-hero-actions{grid-template-columns:minmax(0,1fr)}
+    .owner-shell .owner-focus-card{grid-template-columns:minmax(0,1fr)}
+    .owner-shell .owner-focus-status{display:none}
+    .owner-shell .owner-focus-actions{grid-column:1}
+}
+@media(prefers-reduced-motion:reduce){
+    .owner-shell .owner-dashboard *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+
+
+/* The shared role bar remains fixed at tablet widths as well as phone widths. */
+@media(min-width:701px) and (max-width:1050px){
+    .owner-shell .role-mobile-bottom-nav{
+        position:fixed!important;
+        left:max(12px,env(safe-area-inset-left,0px));
+        right:max(12px,env(safe-area-inset-right,0px));
+        bottom:calc(12px + env(safe-area-inset-bottom,0px));
+        z-index:120;
+        display:grid!important;
+        grid-template-columns:repeat(var(--role-mobile-nav-items,5),minmax(0,1fr));
+        gap:5px;
+        padding:7px;
+        border:1px solid var(--bd);
+        border-radius:20px;
+        isolation:isolate;
+    }
+}
