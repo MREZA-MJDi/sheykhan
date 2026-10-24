@@ -1,0 +1,967 @@
+/* Owner dashboard presentation layer.
+ * Keep dashboard-specific visual rules here instead of appending another set
+ * of overrides to the shared admin stylesheet.
+ */
+.owner-shell .role-main > .owner-dashboard {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    gap: 16px;
+    color: #1d2940;
+}
+
+.owner-shell .owner-dashboard > * {
+    min-width: 0;
+}
+
+/* Compact, content-first welcome header */
+.owner-shell .owner-dashboard .owner-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(245px, .52fr);
+    align-items: center;
+    gap: clamp(18px, 2vw, 30px);
+    min-height: 0;
+    padding: clamp(20px, 2.2vw, 30px);
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 86% 18%, rgba(167, 180, 255, .24), transparent 28%),
+        linear-gradient(125deg, #172648 0%, #293d75 58%, #4b48c8 100%);
+    box-shadow: 0 14px 34px rgba(28, 43, 88, .12);
+}
+
+.owner-shell .owner-dashboard .owner-hero-copy {
+    min-width: 0;
+}
+
+.owner-shell .owner-dashboard .owner-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #dce5ff !important;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0;
+    opacity: 1;
+}
+
+.owner-shell .owner-dashboard .owner-kicker::before {
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 50%;
+    background: #80e2bd;
+    content: "";
+    box-shadow: 0 0 0 4px rgba(128, 226, 189, .12);
+}
+
+.owner-shell .owner-dashboard .owner-hero h1 {
+    max-width: 720px;
+    margin: 8px 0 0;
+    color: #fff !important;
+    font-size: clamp(23px, 2.1vw, 31px);
+    font-weight: 850;
+    line-height: 1.65;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+}
+
+.owner-shell .owner-dashboard .owner-hero p {
+    max-width: 64ch;
+    margin: 9px 0 0;
+    color: rgba(245, 248, 255, .82) !important;
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.owner-shell .owner-dashboard .owner-hero-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+    color: rgba(247, 249, 255, .78);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.owner-shell .owner-dashboard .owner-hero-meta-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #7ee0b8;
+}
+
+.owner-shell .owner-dashboard .owner-hero-actions {
+    display: none !important;
+}
+
+.owner-shell .owner-dashboard .owner-hero-art {
+    display: block !important;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    isolation: isolate;
+}
+
+.owner-shell .owner-dashboard .owner-orb.one {
+    width: 155px;
+    height: 155px;
+    top: -24px;
+    right: 7%;
+    background: rgba(255, 255, 255, .06);
+}
+
+.owner-shell .owner-dashboard .owner-orb.two {
+    width: 88px;
+    height: 88px;
+    bottom: -14px;
+    left: 8%;
+    background: rgba(153, 222, 255, .11);
+}
+
+.owner-shell .owner-dashboard .owner-hero-stat {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 7px;
+    width: 100%;
+    max-width: 330px;
+    min-height: 0;
+    margin-inline-start: auto;
+    padding: 18px 20px;
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 17px;
+    background: rgba(255, 255, 255, .11);
+    box-shadow: 0 12px 28px rgba(10, 18, 46, .13);
+    backdrop-filter: blur(10px);
+}
+
+.owner-shell .owner-dashboard .owner-hero-stat small {
+    color: rgba(255, 255, 255, .78) !important;
+    font-size: 11px;
+    font-weight: 750;
+    opacity: 1;
+}
+
+.owner-shell .owner-dashboard .owner-hero-stat strong {
+    color: #fff !important;
+    font-size: clamp(23px, 2.4vw, 32px);
+    font-weight: 900;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+
+.owner-shell .owner-dashboard .owner-hero-stat span {
+    color: rgba(255, 255, 255, .77) !important;
+    font-size: 10px;
+    line-height: 1.8;
+    opacity: 1;
+}
+
+.owner-shell .owner-dashboard .owner-finance-link-label {
+    margin-top: 3px;
+    color: #fff !important;
+    font-weight: 800;
+}
+
+/* Action-needed strip: only meaningful exceptions stand out. */
+.owner-shell .owner-dashboard .owner-focus-card {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 14px 17px;
+    border: 1px solid #e8edf5;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(24, 39, 75, .035);
+}
+
+.owner-shell .owner-dashboard .owner-focus-card.has-alert {
+    border-color: #f1d7ac !important;
+    background: #fffaf0 !important;
+}
+
+.owner-shell .owner-dashboard .owner-focus-card.is-clear {
+    border-color: #d4eadc !important;
+    background: #f6fcf8 !important;
+}
+
+.owner-shell .owner-dashboard .owner-focus-status span {
+    display: block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #40b781;
+    box-shadow: none;
+}
+
+.owner-shell .owner-dashboard .owner-focus-status span.has-alert {
+    background: #df9b32;
+    box-shadow: none;
+    animation: none;
+}
+
+.owner-shell .owner-dashboard .owner-focus-copy {
+    min-width: 0;
+    color: #1e2a40;
+}
+
+.owner-shell .owner-dashboard .owner-focus-kicker {
+    color: #596ad7 !important;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.owner-shell .owner-dashboard .owner-focus-copy h2 {
+    margin: 2px 0;
+    color: #1d2940 !important;
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 850;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-focus-copy p {
+    margin: 3px 0 0;
+    color: #68758a !important;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.owner-shell .owner-dashboard .owner-focus-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid #d9def8;
+    border-radius: 10px;
+    background: #fff;
+    color: #4f46c9 !important;
+    font-size: 11px;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.owner-shell .owner-dashboard .owner-focus-actions a:hover {
+    background: #f4f5ff;
+    transform: none;
+}
+
+/* KPI cards share one scale; accent is semantic, not decoration overload. */
+.owner-shell .owner-dashboard .owner-stats {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 11px;
+    align-items: stretch;
+}
+
+.owner-shell .owner-dashboard .owner-stat-card {
+    --stat-accent: #5b5bd6;
+    --stat-soft: #eff0ff;
+    --stat-symbol: "•";
+    position: relative;
+    display: grid;
+    align-content: space-between;
+    gap: 9px;
+    min-width: 0;
+    min-height: 126px;
+    padding: 17px 15px 13px;
+    overflow: hidden;
+    border: 1px solid #e8ecf4;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fff 0%, #fcfdff 100%);
+    box-shadow: 0 5px 16px rgba(24, 39, 75, .045);
+    text-decoration: none;
+    transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+.owner-shell .owner-dashboard .owner-stat-card::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    width: auto;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    background: var(--stat-accent);
+    content: "";
+}
+
+.owner-shell .owner-dashboard .owner-stat-card::after {
+    position: absolute;
+    top: 14px;
+    left: 13px;
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--stat-soft);
+    color: var(--stat-accent);
+    content: var(--stat-symbol);
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.owner-shell .owner-dashboard .owner-stat-card.tone-indigo {
+    --stat-accent: #5558d8;
+    --stat-soft: #eeeeff;
+    --stat-symbol: "▦";
+}
+
+.owner-shell .owner-dashboard .owner-stat-card.tone-cyan {
+    --stat-accent: #087fa5;
+    --stat-soft: #e6f7fb;
+    --stat-symbol: "●";
+}
+
+.owner-shell .owner-dashboard .owner-stat-card.tone-violet {
+    --stat-accent: #8754c8;
+    --stat-soft: #f3eaff;
+    --stat-symbol: "✦";
+}
+
+.owner-shell .owner-dashboard .owner-stat-card.tone-blue {
+    --stat-accent: #3377c8;
+    --stat-soft: #eaf3ff;
+    --stat-symbol: "▤";
+}
+
+.owner-shell .owner-dashboard .owner-stat-card.tone-emerald {
+    --stat-accent: #198b66;
+    --stat-soft: #e6f8ef;
+    --stat-symbol: "✓";
+}
+
+.owner-shell .owner-dashboard .owner-stat-card.tone-amber {
+    --stat-accent: #b7791f;
+    --stat-soft: #fff4d8;
+    --stat-symbol: "!";
+}
+
+.owner-shell .owner-dashboard .owner-stat-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    min-height: 28px;
+    padding-inline-end: 23px;
+    color: #69768c !important;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-stat-label i {
+    flex: none;
+    color: var(--stat-accent) !important;
+    font-size: 13px;
+    font-style: normal;
+}
+
+.owner-shell .owner-dashboard .owner-stat-card > strong {
+    display: block;
+    margin-top: 1px;
+    color: #1b2941 !important;
+    font-size: clamp(23px, 1.9vw, 30px);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -.025em;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-stat-card > small {
+    color: #778398 !important;
+    font-size: 9px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-stat-card.is-actionable:hover {
+    border-color: color-mix(in srgb, var(--stat-accent) 30%, #e8ecf4);
+    box-shadow: 0 10px 24px rgba(24, 39, 75, .08);
+    transform: translateY(-1px);
+}
+
+.owner-shell .owner-dashboard .owner-stat-card:focus-visible,
+.owner-shell .owner-dashboard .owner-panel a:focus-visible,
+.owner-shell .owner-dashboard .owner-classroom-item a:focus-visible {
+    outline: 3px solid rgba(79, 70, 229, .28);
+    outline-offset: 2px;
+}
+
+/* Academy picker only appears for accounts that own more than one academy. */
+.owner-shell .owner-dashboard #owner-academies {
+    min-width: 0;
+}
+
+.owner-shell .owner-dashboard #owner-academies > .owner-panel-head {
+    margin-bottom: 12px;
+}
+
+.owner-shell .owner-dashboard #owner-academies .dashboard-panel {
+    border: 1px solid #e7ebf3;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 5px 16px rgba(24, 39, 75, .04);
+}
+
+.owner-shell .owner-dashboard .owner-academy-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 17px;
+    padding-top: 14px;
+    border-top: 1px solid #edf0f6;
+}
+
+.owner-shell .owner-dashboard .owner-academy-card-footer p {
+    margin: 0;
+    color: #68758b !important;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.owner-shell .owner-dashboard .owner-btn-compact {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex: none;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid #dfe4f8;
+    border-radius: 10px;
+    background: #f5f6ff;
+    color: #4d4cc8 !important;
+    font-size: 11px;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+/* Capacity chart: one row per real active classroom, no fabricated series. */
+.owner-shell .owner-dashboard .owner-classroom-overview,
+.owner-shell .owner-dashboard .owner-panel {
+    min-width: 0;
+    padding: clamp(16px, 1.6vw, 22px);
+    border: 1px solid #e8ecf3;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 7px 22px rgba(24, 39, 75, .04);
+}
+
+.owner-shell .owner-dashboard .owner-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #edf0f6;
+}
+
+.owner-shell .owner-dashboard .owner-panel-head h2 {
+    margin: 0;
+    color: #1e2b43 !important;
+    font-size: 16px;
+    font-weight: 850;
+    line-height: 1.6;
+}
+
+.owner-shell .owner-dashboard .owner-panel-head p {
+    margin: 4px 0 0;
+    color: #778398 !important;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.owner-shell .owner-dashboard .owner-panel-head .owner-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: none;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid #e5e8f2;
+    border-radius: 9px;
+    background: #fbfcff;
+    color: #5353ca !important;
+    font-size: 10px;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-item {
+    display: grid;
+    align-content: start;
+    gap: 13px;
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #e9edf4;
+    border-radius: 14px;
+    background: #fcfdff;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-copy {
+    min-width: 0;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-copy h3 {
+    margin: 0;
+    color: #23314a !important;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-copy p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 5px;
+    margin: 3px 0 0;
+    color: #7a879a !important;
+    font-size: 10px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-actions {
+    display: grid;
+    justify-items: end;
+    gap: 6px;
+    flex: none;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 2px 8px;
+    border: 1px solid #e3e8f1;
+    border-radius: 99px;
+    background: #f3f5f9;
+    color: #667287;
+    font-size: 9px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-status.is-running {
+    border-color: #bdebd6;
+    background: #eaf9f1;
+    color: #147b54;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-status.is-scheduled {
+    border-color: #cde2ff;
+    background: #eef6ff;
+    color: #2864aa;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-status.is-finished {
+    border-color: #e6e8ed;
+    background: #f6f7f9;
+    color: #697386;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-details {
+    color: #5657cd !important;
+    font-size: 10px;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-stat {
+    display: grid;
+    align-content: center;
+    gap: 4px;
+    min-width: 0;
+    min-height: 55px;
+    padding: 8px 7px;
+    border: 1px solid #edf0f6;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-stat span {
+    color: #7a879a !important;
+    font-size: 9px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-stat strong {
+    color: #25334b !important;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-capacity-chart {
+    display: grid;
+    gap: 7px;
+}
+
+.owner-shell .owner-dashboard .owner-capacity-labels {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: #778398;
+    font-size: 10px;
+}
+
+.owner-shell .owner-dashboard .owner-capacity-labels strong {
+    color: #35445c;
+    font-size: 10px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+
+.owner-shell .owner-dashboard .owner-capacity-track {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: #eaf0f6;
+}
+
+.owner-shell .owner-dashboard .owner-capacity-track > span {
+    display: block;
+    height: 100%;
+    min-width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+}
+
+.owner-shell .owner-dashboard .owner-capacity-track > span.is-healthy {
+    background: linear-gradient(90deg, #24a878, #5acba0);
+}
+
+.owner-shell .owner-dashboard .owner-capacity-track > span.is-warning {
+    background: linear-gradient(90deg, #e9a23b, #f2c35c);
+}
+
+.owner-shell .owner-dashboard .owner-capacity-track > span.is-critical {
+    background: linear-gradient(90deg, #e36a64, #ed927b);
+}
+
+.owner-shell .owner-dashboard .owner-capacity-unset {
+    margin: 0;
+    color: #8994a6 !important;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-live {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid #ccefe0;
+    border-radius: 10px;
+    background: #f0fbf6;
+    color: #176d50;
+    font-size: 10px;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-live > span:first-child {
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 50%;
+    background: #1cad76;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-live strong {
+    flex: none;
+    font-weight: 900;
+}
+
+.owner-shell .owner-dashboard .owner-classroom-live > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    color: #2e6d56;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.owner-shell .owner-dashboard .owner-dashboard-empty {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px dashed #dce3ed;
+    border-radius: 13px;
+    background: #fafbfe;
+}
+
+.owner-shell .owner-dashboard .owner-dashboard-empty-mark {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: none;
+    place-items: center;
+    border-radius: 12px;
+    background: #eef0ff;
+    color: #5557d3;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.owner-shell .owner-dashboard .owner-dashboard-empty strong {
+    color: #334159 !important;
+    font-size: 12px;
+}
+
+.owner-shell .owner-dashboard .owner-dashboard-empty p {
+    margin: 3px 0 0;
+    color: #7a879a !important;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+/* Existing teacher, meeting, and course summaries use the same density. */
+.owner-shell .owner-dashboard .owner-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
+}
+
+.owner-shell .owner-dashboard :is(.owner-teacher-list, .owner-live-list, .owner-course-list) {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+    min-width: 0;
+}
+
+.owner-shell .owner-dashboard :is(.owner-teacher-row, .owner-live-row, .owner-course-row) {
+    min-width: 0;
+    padding: 10px 11px;
+    border: 1px solid #ebeff5;
+    border-radius: 12px;
+    background: #fcfdff;
+    gap: 10px;
+}
+
+.owner-shell .owner-dashboard .owner-row-title {
+    color: #2b3850 !important;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+.owner-shell .owner-dashboard .owner-row-meta {
+    color: #7b879a !important;
+    font-size: 10px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.owner-shell .owner-dashboard .owner-progress {
+    height: 6px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: #e9edf5 !important;
+}
+
+.owner-shell .owner-dashboard .owner-progress > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #5b5bd6, #8b83f1) !important;
+}
+
+.owner-shell .owner-dashboard .owner-empty {
+    padding: 15px;
+    border: 1px dashed #e0e6ef;
+    border-radius: 12px;
+    background: #fafbfe !important;
+    color: #7a879a !important;
+    font-size: 11px;
+    line-height: 1.9;
+}
+
+.owner-shell .owner-dashboard :is(a, button):focus-visible {
+    outline: 3px solid rgba(79, 70, 229, .28);
+    outline-offset: 2px;
+}
+
+/* Responsive density is based on the available dashboard width. */
+@media (max-width: 1250px) {
+    .owner-shell .owner-dashboard .owner-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .owner-shell .owner-dashboard .owner-hero {
+        grid-template-columns: minmax(0, 1fr) minmax(220px, .62fr);
+    }
+}
+
+@media (max-width: 980px) {
+    .owner-shell .owner-dashboard .owner-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .owner-shell .owner-dashboard .owner-hero-stat {
+        max-width: none;
+    }
+
+    .owner-shell .owner-dashboard .owner-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .owner-shell .owner-dashboard .owner-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 680px) {
+    .owner-shell .owner-dashboard .owner-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .owner-shell .owner-dashboard .owner-stat-card {
+        min-height: 116px;
+        padding: 15px 12px 12px;
+    }
+
+    .owner-shell .owner-dashboard .owner-stat-card::after {
+        top: 12px;
+        left: 11px;
+        width: 27px;
+        height: 27px;
+    }
+
+    .owner-shell .owner-dashboard .owner-stat-label {
+        padding-inline-end: 18px;
+        font-size: 10px;
+    }
+
+    .owner-shell .owner-dashboard .owner-stat-card > strong {
+        font-size: 23px;
+    }
+
+    .owner-shell .owner-dashboard .owner-classroom-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .owner-shell .owner-dashboard .owner-classroom-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .owner-shell .owner-dashboard .owner-focus-card {
+        grid-template-columns: 9px minmax(0, 1fr);
+        gap: 10px;
+        padding: 13px;
+    }
+
+    .owner-shell .owner-dashboard .owner-focus-actions {
+        grid-column: 2;
+    }
+
+    .owner-shell .owner-dashboard .owner-focus-actions a {
+        width: fit-content;
+    }
+}
+
+@media (max-width: 430px) {
+    .owner-shell .owner-dashboard {
+        gap: 12px;
+    }
+
+    .owner-shell .owner-dashboard .owner-hero {
+        gap: 14px;
+        padding: 17px;
+        border-radius: 17px;
+    }
+
+    .owner-shell .owner-dashboard .owner-hero h1 {
+        font-size: 22px;
+    }
+
+    .owner-shell .owner-dashboard .owner-hero p {
+        font-size: 11px;
+    }
+
+    .owner-shell .owner-dashboard .owner-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .owner-shell .owner-dashboard .owner-stat-card > small {
+        font-size: 9px;
+    }
+
+    .owner-shell .owner-dashboard .owner-classroom-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .owner-shell .owner-dashboard .owner-classroom-heading {
+        flex-direction: column;
+    }
+
+    .owner-shell .owner-dashboard .owner-classroom-actions {
+        display: flex;
+        align-items: center;
+        justify-items: start;
+    }
+
+    .owner-shell .owner-dashboard .owner-academy-card-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .owner-shell .owner-dashboard .owner-panel,
+    .owner-shell .owner-dashboard .owner-classroom-overview {
+        padding: 14px;
+    }
+
+    .owner-shell .owner-dashboard .owner-panel-head {
+        flex-wrap: wrap;
+        align-items: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .owner-shell .owner-dashboard *,
+    .owner-shell .owner-dashboard *::before,
+    .owner-shell .owner-dashboard *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}
