@@ -42,6 +42,7 @@ final class TeacherDashboardService
                 ->whereIn('memberships.classroom_id', $classroomIds)
                 ->where('memberships.status', 'active')
                 ->where('users.status', 'active')
+                ->whereNull('users.deleted_at')
                 ->distinct()
                 ->count('memberships.student_id')
             : 0;
