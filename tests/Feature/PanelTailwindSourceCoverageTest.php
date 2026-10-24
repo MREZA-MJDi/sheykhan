@@ -53,7 +53,7 @@ class PanelTailwindSourceCoverageTest extends TestCase
 
         $this->assertStringContainsString('.owner-shell{', $admin);
         $this->assertStringContainsString('.teacher-shell{', $teacher);
-        $this->assertStringContainsString('.student-shell', $student);
+        $this->assertStringContainsString('#dashboard.page', $student);
         $this->assertStringContainsString('.parent-shell', $parent);
         $this->assertStringContainsString('.teacher-exam-answer-value.is-correct', $teacher);
         $this->assertStringContainsString('.teacher-exam-answer-value.is-wrong', $teacher);
