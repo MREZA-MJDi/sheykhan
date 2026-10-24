@@ -46,7 +46,7 @@ const bootRoleMobileNavigation = () => {
                 return;
             }
             if (event.key !== 'Tab') return;
-            const focusable = Array.from(panel.querySelectorAll('a[href],button:not([disabled]),[tabindex="0"]'))
+            const focusable = Array.from(panel.querySelectorAll('a[href],button:not([disabled]):not(.role-mobile-more-backdrop),[tabindex="0"]'))
                 .filter((element) => element.getClientRects().length > 0);
             if (!focusable.length) return;
             const first = focusable[0];
