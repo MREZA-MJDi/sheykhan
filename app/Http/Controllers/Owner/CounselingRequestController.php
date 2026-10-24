@@ -8,6 +8,7 @@ use App\Models\CounselingRequest as ParentCounselingRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 final class CounselingRequestController extends Controller
 {
@@ -17,7 +18,7 @@ final class CounselingRequestController extends Controller
 
         $requests = ParentCounselingRequest::query()
             ->where('academy_id', $academy->id)
-            ->with(['parent:id,name,mobile', 'student:id,name', 'handler:id,name'])
+            ->with(['parent:id,name,mobile', 'student:id,name', 'handler:id,name', 'proposer:id,name'])
             ->orderByRaw("CASE WHEN status = 'requested' THEN 0 WHEN status = 'scheduled' THEN 1 ELSE 2 END")
             ->latest()
             ->paginate(20)
@@ -25,6 +26,7 @@ final class CounselingRequestController extends Controller
 
         $stats = [
             'requested' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'requested')->count(),
+            'proposed' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'proposed')->count(),
             'scheduled' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'scheduled')->count(),
             'completed' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'completed')->count(),
         ];
@@ -38,7 +40,7 @@ final class CounselingRequestController extends Controller
 
         $data = $request->validate([
             'status' => ['required', 'string', 'in:scheduled,completed,declined,cancelled'],
-            'scheduled_at' => ['nullable', 'date', 'after:now', 'required_if:status,scheduled'],
+            'scheduled_at' => ['nullable', 'date', Rule::requiredIf(fn () => $request->input('status') === 'scheduled'), Rule::when($request->input('status') === 'scheduled', ['after:now'])],
             'response_notes' => ['nullable', 'string', 'max:3000'],
         ], [
             'scheduled_at.required_if' => 'برای تأیید جلسه، زمان پیشنهادی را مشخص کنید.',
