@@ -780,3 +780,40 @@ body {
   .student-shell #dashboard .card{padding:13px}
   .student-shell #dashboard .stats{gap:8px}
 }
+
+
+/* Student dashboard: full-bleed responsive shell and clear scroll space above fixed mobile nav. */
+@media (max-width: 700px) {
+  html { scroll-padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
+  body.student-shell {
+    padding: 0;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+  .student-shell .app {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100dvh;
+    margin: 0 auto;
+    border-radius: 0;
+    padding: 10px;
+    gap: 12px;
+  }
+  .student-shell .main {
+    min-width: 0;
+    padding-bottom: calc(142px + env(safe-area-inset-bottom, 0px)) !important;
+    scroll-padding-bottom: calc(142px + env(safe-area-inset-bottom, 0px));
+  }
+  .student-shell .role-mobile-bottom-nav {
+    width: auto;
+    max-width: 680px;
+    margin-inline: auto;
+  }
+  .student-shell .main > :last-child { margin-bottom: 0; }
+}
+@media (max-width: 380px) {
+  .student-shell .app { padding: 8px; }
+  .student-shell .main {
+    padding-bottom: calc(136px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
