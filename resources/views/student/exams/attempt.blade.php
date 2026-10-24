@@ -58,17 +58,26 @@
                     $submittedValues = is_array($submittedValues) ? array_map('strval', $submittedValues) : [(string) $submittedValues];
                 @endphp
                 @foreach($options as $optionKey => $optionLabel)
-                    @php $optionValue = (string) $optionKey; $isChecked = in_array($optionValue, $submittedValues, true); @endphp
+                    @php
+                        $optionValue = is_int($optionKey)
+                            ? (string) (is_array($optionLabel) ? ($optionLabel['value'] ?? $optionLabel['id'] ?? $optionLabel['text'] ?? $optionLabel['label'] ?? $optionKey) : $optionLabel)
+                            : (string) $optionKey;
+                        $isChecked = in_array($optionValue, $submittedValues, true);
+                    @endphp
                     <label>
-                        <input type="{{ $question->type === 'checkbox' ? 'checkbox' : 'radio' }}"
-                               name="{{ $question->type === 'checkbox' ? 'answers['.$question->id.'][]' : 'answers['.$question->id.']' }}"
+                        <input type="checkbox"
+                               name="answers[{{ $question->id }}][]"
                                value="{{ $optionValue }}" @checked($isChecked)>
                         <span>{{ is_array($optionLabel) ? ($optionLabel['text'] ?? $optionLabel['label'] ?? json_encode($optionLabel, JSON_UNESCAPED_UNICODE)) : $optionLabel }}</span>
                     </label>
                 @endforeach
             @else
                 @foreach($options as $optionKey => $optionLabel)
-                    @php $optionValue = (string) $optionKey; @endphp
+                    @php
+                        $optionValue = is_int($optionKey)
+                            ? (string) (is_array($optionLabel) ? ($optionLabel['value'] ?? $optionLabel['id'] ?? $optionLabel['text'] ?? $optionLabel['label'] ?? $optionKey) : $optionLabel)
+                            : (string) $optionKey;
+                    @endphp
                     <label>
                         <input type="radio" name="answers[{{ $question->id }}]" value="{{ $optionValue }}" @checked((string) old('answers.'.$question->id, $savedValue) === $optionValue)>
                         <span>{{ is_array($optionLabel) ? ($optionLabel['text'] ?? $optionLabel['label'] ?? json_encode($optionLabel, JSON_UNESCAPED_UNICODE)) : $optionLabel }}</span>
