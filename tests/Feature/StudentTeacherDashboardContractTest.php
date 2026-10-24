@@ -45,6 +45,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('td-focus-card', false)
             ->assertSee('td-focus-action', false)
             ->assertSee('td-dashboard', false)
+            ->assertSee('teacher-dashboard-shell', false)
             ->assertSee('data-teacher-theme-toggle', false)
             ->assertSee('آخرین تکالیف')
             ->assertDontSee('فروش دوره‌ها');
@@ -53,12 +54,16 @@ class StudentTeacherDashboardContractTest extends TestCase
     public function test_student_and_teacher_stylesheet_entrypoints_are_kept_separate(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
+        $teacherDashboardCss = file_get_contents(resource_path('css/teacher-dashboard.css'));
+        $teacherSidebar = file_get_contents(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $appCss = file_get_contents(resource_path('css/app.css'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
 
         $this->assertIsString($teacherCss);
+        $this->assertIsString($teacherDashboardCss);
+        $this->assertIsString($teacherSidebar);
         $this->assertIsString($studentCss);
         $this->assertIsString($appCss);
         $this->assertIsString($teacherLayout);
@@ -67,7 +72,11 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('.teacher-focus-card {', $teacherCss);
         $this->assertStringContainsString('.teacher-focus-action {', $teacherCss);
         $this->assertStringContainsString("@import './teacher-dashboard.css';", $teacherCss);
-        $this->assertStringContainsString('.td-dashboard {', file_get_contents(resource_path('css/teacher-dashboard.css')));
+        $this->assertStringContainsString('.td-dashboard {', $teacherDashboardCss);
+        $this->assertStringContainsString('.teacher-dashboard-shell.teacher-shell .role-layout', $teacherDashboardCss);
+        $this->assertStringContainsString('@media (min-width: 901px)', $teacherDashboardCss);
+        $this->assertStringContainsString('aria-label="دوره‌های من"', $teacherSidebar);
+        $this->assertStringContainsString("request()->routeIs('teacher.dashboard')", $teacherLayout);
         $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
         // Tailwind source scanning is centralized in app.css (source(none));
         // the role stylesheet is plain CSS and stays focused on component styling.
