@@ -8,7 +8,7 @@
     <header class="parent-panel dashboard-panel p-5 sm:p-7">
         <p class="parent-kicker" style="color:var(--panel-primary)">نتیجه و بازخورد</p>
         <h1 class="mt-1 text-2xl font-black">نتیجهٔ تکالیف و آزمون‌ها</h1>
-        <p class="mt-2 text-sm leading-7 text-slate-500">فقط تکالیف تصحیح‌شده و تلاش‌های ثبت‌شدهٔ آزمون برای دانش‌آموزان متصل به این حساب نمایش داده می‌شود.</p>
+        <p class="mt-2 text-sm leading-7 text-slate-500">وضعیت تکالیف، مهلت ارسال، ارسال‌های در انتظار تصحیح، نمره و بازخورد را فقط برای فرزندان متصل و دوره‌های دارای دسترسی معتبر ببین.</p>
     </header>
     <section class="space-y-3">
         @forelse($results as $result)
@@ -19,7 +19,9 @@
                         <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold">{{ $result->status_label }}</span>
                     </div>
                     <h2 class="mt-2 break-words text-base font-black">{{ $result->title }}</h2>
-                    <p class="mt-1 text-xs text-slate-500">{{ $result->student_name }} · {{ \App\Support\PersianUi::date($result->occurred_at) }}</p>
+                    <p class="mt-1 text-xs text-slate-500">{{ $result->student_name }} · بروزرسانی: {{ \App\Support\PersianUi::date($result->occurred_at) }}</p>
+                    @if($result->due_at)<p class="mt-1 text-xs text-slate-500">مهلت ارسال: {{ \App\Support\PersianUi::date($result->due_at) }}</p>@endif
+                    @if($result->submitted_at)<p class="mt-1 text-xs text-slate-500">زمان ارسال: {{ \App\Support\PersianUi::date($result->submitted_at).' · '.\App\Support\PersianUi::time($result->submitted_at) }}</p>@endif
                     @if(filled($result->feedback ?? null))
                         <p class="mt-2 whitespace-pre-line text-sm leading-7 text-slate-600">بازخورد مدرس: {{ $result->feedback }}</p>
                     @endif
@@ -30,7 +32,7 @@
                 </div>
             </article>
         @empty
-            <div class="parent-panel dashboard-panel p-8 text-center"><h2 class="font-black">نتیجه‌ای برای نمایش ثبت نشده است.</h2><p class="mt-2 text-sm text-slate-500">پس از تصحیح تکلیف یا ثبت نتیجهٔ آزمون، موارد مجاز در این صفحه قرار می‌گیرند.</p></div>
+            <div class="parent-panel dashboard-panel p-8 text-center"><h2 class="font-black">نتیجه‌ای برای نمایش ثبت نشده است.</h2><p class="mt-2 text-sm text-slate-500">تکالیف منتشرشده و مرتبط، حتی پیش از ارسال پاسخ، در این صفحه نمایش داده می‌شوند.</p></div>
         @endforelse
         <div>{{ $results->links() }}</div>
     </section>
