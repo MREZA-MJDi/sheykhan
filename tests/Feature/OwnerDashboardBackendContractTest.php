@@ -111,7 +111,7 @@ class OwnerDashboardBackendContractTest extends TestCase
     }
 
 
-    public function test_owner_dashboard_kpis_and_shortcuts_link_to_registered_permission_scoped_workspaces(): void
+    public function test_owner_dashboard_uses_one_sidebar_navigation_and_permission_scoped_kpis(): void
     {
         $this->seed();
         Cache::flush();
@@ -149,11 +149,15 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.blog.index') . '"', false)
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false)
             ->assertSee('aria-label="کلاس‌های فعال"', false)
-            ->assertSee('owner-quick-actions', false);
+            ->assertSee('class="owner-stat-card tone-indigo"', false)
+            ->assertSee('owner-classroom-overview', false)
+            ->assertDontSee('owner-quick-actions', false)
+            ->assertDontSee('owner-footer-actions', false)
+            ->assertDontSee('<a class="owner-stat-card', false);
     }
 
 
-    public function test_multi_academy_kpis_route_to_academy_picker_instead_of_first_academy_only(): void
+    public function test_multi_academy_dashboard_keeps_kpis_non_navigational_and_scoped_routes_in_sidebar(): void
     {
         $this->seed();
         Cache::flush();
@@ -169,11 +173,12 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->actingAs($owner)
             ->get(route('owner.dashboard'))
             ->assertOk()
-            ->assertSee('id="owner-academies"', false)
-            ->assertSee('href="#owner-academies" aria-label="کلاس‌های فعال"', false)
-            ->assertSee('href="#owner-academies" aria-label="دانش‌آموزان فعال"', false)
-            ->assertSee('href="#owner-academies" aria-label="مدرس‌های فعال"', false)
-            ->assertSee('href="#owner-academies" aria-label="حضور امروز"', false);
+            ->assertDontSee('id="owner-academies"', false)
+            ->assertDontSee('href="#owner-academies"', false)
+            ->assertDontSee('<a class="owner-stat-card', false)
+            ->assertSee('class="owner-stat-card tone-indigo"', false)
+            ->assertSee('جزئیات هر آموزشگاه از منوی کناری')
+            ->assertSee('owner-classroom-overview', false);
     }
 
     public function test_owner_dashboard_hides_ungranted_kpis_and_shortcuts(): void
@@ -196,7 +201,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->get(route('owner.dashboard'))
             ->assertOk()
             ->assertSee('کلاس‌های فعال')
-            ->assertSee('id="owner-academies"', false)
+            ->assertSee('owner-classroom-overview', false)
             ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
             ->assertDontSee('ثبت‌نام و مدیریت اعضا')
             ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
@@ -264,6 +269,40 @@ class OwnerDashboardBackendContractTest extends TestCase
             'status' => 'responded',
             'response' => 'پاسخ غیرمجاز',
         ])->assertForbidden();
+    }
+
+    public function test_owner_capacity_alerts_ignore_inactive_and_soft_deleted_student_memberships(): void
+    {
+        $this->seed();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail();
+        $course = $academy->courses()->firstOrFail();
+        $service = app(OwnerDashboardService::class);
+        $beforeAlerts = (int) $service->build($owner)['metrics']['capacityAlerts'];
+
+        $classroom = $academy->classrooms()->create([
+            'course_id' => $course->id,
+            'title' => 'کلاس تست ظرفیت کاربران حذف‌شده',
+            'code' => 'CAP-' . Str::upper(Str::random(8)),
+            'capacity' => 1,
+            'status' => 'active',
+        ]);
+
+        $student = User::factory()->create(['status' => 'active']);
+        $classroom->students()->attach($student->id, [
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
+
+        // Soft-deleting the account must immediately stop it counting toward live capacity.
+        $student->delete();
+
+        $this->assertSame(
+            $beforeAlerts,
+            (int) $service->build($owner)['metrics']['capacityAlerts'],
+            'Soft-deleted accounts must not trigger false classroom capacity alerts.'
+        );
     }
 
     public function test_owner_dashboard_cache_is_per_owner_and_can_be_invalidated_after_a_write(): void
