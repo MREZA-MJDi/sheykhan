@@ -37,11 +37,27 @@ class ExamController extends Controller
         ]);
     }
 
-    public function attempt(Exam $exam, ExamAttempt $attempt, StudentExamService $exams, StudentAccessService $access): View
+    public function attempt(Exam $exam, ExamAttempt $attempt, StudentAccessService $access): View|RedirectResponse
     {
-        abort_unless($attempt->student_id === request()->user()->id, 404);
+        $student = request()->user();
+
+        abort_unless($attempt->student_id === $student->id, 404);
         abort_unless((int) $attempt->exam_id === (int) $exam->id, 404);
-        abort_unless($access->exam(request()->user(), $exam), 404);
+
+        if ($attempt->status !== 'in_progress') {
+            abort_unless(
+                in_array($attempt->status, ['graded', 'needs_review', 'pending_review', 'submitted'], true)
+                    && $attempt->submitted_at !== null,
+                404,
+            );
+            abort_unless($access->canViewExamResult($student, $exam), 404);
+
+            return redirect()
+                ->route('student.exams.result', ['exam' => $exam->id])
+                ->with('status', 'این تلاش قبلاً ارسال شده است؛ نتیجهٔ آن را از این صفحه ببین.');
+        }
+
+        abort_unless($access->exam($student, $exam), 404);
 
         $attempt = $attempt->load([
             'exam:id,course_id,title,duration_minutes,starts_at,ends_at,status',
@@ -50,8 +66,6 @@ class ExamController extends Controller
                 ->orderBy('sort_order'),
             'answers:id,exam_attempt_id,question_id,answer',
         ]);
-
-        abort_unless($attempt->status === 'in_progress', 404);
 
         return view('student.exams.attempt', [
             'attempt' => $attempt,
