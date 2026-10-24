@@ -337,7 +337,7 @@
                                     اعضا
                                 </a>
 
-                                @if($userCanViewClassrooms = (bool) auth()->user()?->hasPermission('classrooms.view'))
+                                @if($canViewClassrooms)
                                     <a href="{{ route('owner.classrooms.index', $academy) }}" class="owner-pill justify-center">کلاس‌ها</a>
                                 @endif
 
