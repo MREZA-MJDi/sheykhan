@@ -793,3 +793,103 @@
     .owner-shell .role-main .owner-skeleton,
     .owner-shell .role-main [data-skeleton="true"] { animation: none; }
 }
+
+
+/* Focused owner dashboard summary — keep rosters on the dedicated classroom page. */
+.owner-shell .owner-classroom-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    min-width: 0;
+}
+.owner-shell .owner-classroom-summary-card {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--bd);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--panel-shadow-xs);
+}
+.owner-shell .owner-classroom-summary-card > span {
+    color: var(--mu);
+    font-size: 12px;
+    font-weight: 800;
+}
+.owner-shell .owner-classroom-summary-card > strong {
+    color: var(--tx);
+    font-size: clamp(24px, 2vw, 31px);
+    font-weight: 900;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+}
+.owner-shell .owner-classroom-summary-card > small {
+    color: var(--mu);
+    font-size: 11px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+.owner-shell .owner-classroom-summary-card.needs-attention {
+    border-color: #f0d0ae;
+    background: #fffaf4;
+}
+.owner-shell .owner-classroom-summary-card.needs-attention > strong { color: #98540b; }
+.owner-shell .owner-classroom-summary-card.is-healthy {
+    border-color: #c9e8d5;
+    background: #f7fcf8;
+}
+.owner-shell .owner-classroom-summary-card.is-healthy > strong { color: #19764e; }
+.owner-shell .owner-capacity-summary {
+    display: grid;
+    gap: 13px;
+    margin-top: 16px;
+    padding: 17px 18px;
+    border: 1px solid var(--bd);
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fff, #f8f9ff);
+}
+.owner-shell .owner-capacity-summary-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.owner-shell .owner-capacity-summary-meta > div { min-width: 0; }
+.owner-shell .owner-capacity-summary-meta strong { color: var(--tx); font-size: 14px; font-weight: 900; }
+.owner-shell .owner-capacity-summary-meta p { margin: 3px 0 0; color: var(--mu); font-size: 11px; line-height: 1.8; }
+.owner-shell .owner-capacity-summary-meta .owner-capacity-summary-value {
+    color: var(--ac);
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.owner-shell .owner-capacity-summary-track {
+    height: 11px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e9edf7;
+}
+.owner-shell .owner-capacity-summary-track span {
+    display: block;
+    height: 100%;
+    max-width: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #6366f1, #24a8bc);
+    transition: width .2s ease;
+}
+.owner-shell .owner-capacity-summary-empty {
+    margin: 0;
+    color: var(--mu);
+    font-size: 12px;
+}
+@media (max-width: 1050px) {
+    .owner-shell .owner-classroom-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .owner-shell .owner-classroom-summary-grid { grid-template-columns: minmax(0, 1fr); }
+    .owner-shell .owner-classroom-summary-card { padding: 14px; }
+    .owner-shell .owner-capacity-summary { padding: 14px; }
+    .owner-shell .owner-capacity-summary-meta { align-items: flex-start; }
+}
