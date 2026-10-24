@@ -20,16 +20,31 @@
         <div class="teacher-workspace-card-head"><div><h2>پاسخ‌های دانش‌آموزان</h2><p>هر پاسخ در همین صفحه قابل نمره‌دهی و بازخورد است.</p></div><span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($submissions->total()) }} پاسخ</span></div>
         <div class="teacher-workspace-list">
             @forelse($submissions as $submission)
-                <article class="teacher-workspace-item" style="align-items:start">
+                <article class="teacher-workspace-item teacher-submission-row">
                     <div class="teacher-workspace-item-main">
                         <strong class="teacher-workspace-item-title">{{ $submission->student?->name ?: 'دانش‌آموز' }}</strong>
                         <div class="teacher-workspace-item-meta">
                             <span>تحویل {{ $submission->submitted_at ? App\Support\PersianUi::date($submission->submitted_at).' · '.App\Support\PersianUi::time($submission->submitted_at) : '—' }}</span>
                             @if($submission->graded_at)<span>تصحیح‌شده</span>@else<span>در انتظار تصحیح</span>@endif
                         </div>
-                        <div style="margin-top:10px;padding:12px;border-radius:12px;background:#f8f9fb;color:#4c586b;font-size:9px;line-height:2;white-space:pre-line">{{ $submission->content ?: 'پاسخ متنی ثبت نشده است.' }}</div>
+                        <div class="teacher-submission-answer">{{ $submission->content ?: 'پاسخ متنی ثبت نشده است.' }}</div>
+                        @if($submission->media->isNotEmpty())
+                            <div class="teacher-submission-files" aria-label="فایل‌های پیوست پاسخ">
+                                <strong class="teacher-submission-files-title">فایل‌های پیوست پاسخ</strong>
+                                @foreach($submission->media as $attachment)
+                                    <a class="teacher-submission-file" href="{{ route('media.view', $attachment) }}" target="_blank" rel="noopener noreferrer" aria-label="مشاهده فایل {{ $attachment->original_name }}">
+                                        <span class="teacher-submission-file-type" aria-hidden="true">{{ strtoupper($attachment->extension ?: 'FILE') }}</span>
+                                        <span class="teacher-submission-file-copy">
+                                            <strong>{{ $attachment->original_name }}</strong>
+                                            <small>{{ \App\Support\PersianUi::number((int) ceil(((int) $attachment->size) / 1024)) }} کیلوبایت</small>
+                                        </span>
+                                        <span class="teacher-submission-file-open">مشاهده ↗</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
-                    <form method="POST" action="{{ route('teacher.assignments.submissions.update',[$assignment,$submission]) }}" style="width:min(320px,100%);display:grid;gap:8px">
+                    <form class="teacher-submission-grade" method="POST" action="{{ route('teacher.assignments.submissions.update',[$assignment,$submission]) }}" style="width:min(320px,100%);display:grid;gap:8px">
                         @csrf @method('PATCH')
                         <label class="teacher-workspace-field"><span>نمره</span><input type="number" step="0.01" min="0" max="{{ $assignment->max_score ?? 999999 }}" name="score" value="{{ $submission->score }}" required></label>
                         <label class="teacher-workspace-field"><span>بازخورد</span><textarea name="feedback" rows="4">{{ $submission->feedback }}</textarea></label>
