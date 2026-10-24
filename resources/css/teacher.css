@@ -336,3 +336,17 @@ th{font-weight:600}td{padding:12px}
   .teacher-workspace-item-actions>*{flex:1}
 }
 
+
+
+/* Mobile uses the shared role bottom bar; no compressed duplicate sidebar. */
+@media(max-width:700px){
+  .teacher-shell .app{grid-template-columns:minmax(0,1fr);margin:0;border:0;border-radius:0;min-height:100dvh}
+  .teacher-shell .sb{display:none}
+  .teacher-shell .mn{border-radius:0;min-width:0;width:100%;padding:14px 12px calc(105px + env(safe-area-inset-bottom))}
+  .teacher-shell .role-mobile-bottom-nav{background:color-mix(in srgb,var(--sf) 91%,transparent);border-color:var(--bd);box-shadow:0 16px 40px rgba(5,10,28,.25)}
+  .teacher-shell .role-mobile-bottom-nav a{color:var(--mu);font-size:9px}
+  .teacher-shell .role-mobile-bottom-nav a.is-active{background:color-mix(in srgb,var(--ac) 15%,transparent);color:var(--ac)}
+  .teacher-shell .role-mobile-bottom-icon{background:var(--s2)}
+  .teacher-shell .role-mobile-bottom-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+}
+@media(max-width:380px){.teacher-shell .role-mobile-bottom-nav{left:5px;right:5px;padding:5px;gap:2px}.teacher-shell .role-mobile-bottom-nav a{font-size:8px}.teacher-shell .mn{padding-inline:9px}}
