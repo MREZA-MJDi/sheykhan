@@ -81,7 +81,10 @@ class AssignmentController extends Controller
         return view('teacher.assignments.submissions', [
             'assignment' => $assignment->load('classroom:id,title'),
             'submissions' => $assignment->submissions()
-                ->with('student:id,name')
+                ->with([
+                    'student:id,name',
+                    'media:id,original_name,mime_type,extension,size,status',
+                ])
                 ->latest('submitted_at')
                 ->paginate(15)
                 ->withQueryString(),
