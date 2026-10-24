@@ -1,5 +1,6 @@
 /* Admin role stylesheet. New admin UI can replace this legacy transition layer. */
 @import './communication-pages.css';
+@import './communication-pages.css';
 @source '../../resources/views/owner';
 @source '../../resources/views/layouts/owner.blade.php';
 @source '../../resources/views/components';
