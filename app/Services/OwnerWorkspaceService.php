@@ -79,7 +79,13 @@ final class OwnerWorkspaceService
             }
         }
 
-        $onboardings = $studentOnboardingAvailable
+        // Onboarding history eagerly loads requestedGrade. If a deployment has
+        // the onboarding table but has not applied the academic-grade migration,
+        // that relationship query would turn the entire Members page into a 500.
+        // Treat the history panel as optional until both parts of its schema exist.
+        $studentOnboardingHistoryAvailable = $studentOnboardingAvailable && $academicGradesAvailable;
+
+        $onboardings = $studentOnboardingHistoryAvailable
             ? StudentOnboarding::query()
                 ->where('academy_id', $academy->id)
                 ->with([
@@ -114,6 +120,7 @@ final class OwnerWorkspaceService
                 : collect(),
             'academicGradesAvailable' => $academicGradesAvailable,
             'studentOnboardingAvailable' => $studentOnboardingAvailable,
+            'studentOnboardingHistoryAvailable' => $studentOnboardingHistoryAvailable,
             'onboardings' => $onboardings,
         ];
     }
