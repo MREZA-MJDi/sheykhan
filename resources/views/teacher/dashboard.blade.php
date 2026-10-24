@@ -40,7 +40,8 @@
         $upcomingList = collect($upcomingClasses ?? []);
         $weekChart = $chart['week'] ?? ['labels' => [], 'values' => []];
         $monthChart = $chart['month'] ?? ['labels' => [], 'values' => []];
-        $chartSlots = count($weekChart['values'] ?? []);
+        $chartHasSignal = collect($weekChart['values'] ?? [])->contains(fn ($value) => (float) $value > 0);
+        $chartSlots = $chartHasSignal ? count($weekChart['values'] ?? []) : 0;
         $dashboardDateLabel = $dashboardDate ?? \App\Support\PersianUi::date(now());
         $focusRoute = $hasPendingAssignments
             ? route('teacher.assignments.index')
