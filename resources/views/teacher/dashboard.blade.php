@@ -84,7 +84,13 @@
 
     <div id="teacher-dashboard" class="teacher-dashboard-page">
         <header class="ph teacher-dashboard-hero">
-            <div class="teacher-dashboard-avatar" aria-hidden="true"><span>{{ $teacherInitial }}</span></div>
+            <div class="teacher-dashboard-avatar" aria-hidden="true">
+                    @if($teacherPanelAvatarUrl)
+                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="104" height="104" loading="eager" decoding="async">
+                    @else
+                        <span>{{ $teacherInitial }}</span>
+                    @endif
+                </div>
             <div class="teacher-dashboard-hero-copy">
                 <span class="section-kicker">خلاصه وضعیت آموزشی · {{ $dashboardDateLabel }}</span>
                 <h1>سلام، {{ $teacherUser?->name }} <span aria-hidden="true">👋</span></h1>
