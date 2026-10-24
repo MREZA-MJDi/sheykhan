@@ -1,0 +1,1013 @@
+/*
+ * Sheykhan role-dashboard visual layer
+ * Homeroom-inspired: warm paper surfaces, indigo navigation, coral for emphasis.
+ * This file is deliberately loaded after each role's stylesheet and does not
+ * replace business-specific classes, data, permissions, or page behavior.
+ */
+
+.owner-shell,
+.teacher-shell,
+.student-shell,
+.parent-shell {
+    --panel-bg: #faf7f2;
+    --panel-surface: #fffdf9;
+    --panel-text: #29263a;
+    --panel-text-secondary: #5e5a70;
+    --panel-muted: #7f7a8e;
+    --panel-subtle: #a29bad;
+    --panel-border: #ebe5dc;
+    --panel-primary: #4f46e5;
+    --panel-primary-dark: #3730a3;
+    --panel-primary-soft: #eeedff;
+    --panel-primary-soft-strong: #dfddff;
+    --panel-success: #19835b;
+    --panel-success-soft: #eaf7ef;
+    --panel-success-border: #cfeadb;
+    --panel-success-dark: #176844;
+    --panel-warning: #c17b19;
+    --panel-warning-soft: #fff5df;
+    --panel-warning-dark: #965b0a;
+    --panel-danger: #d94c5c;
+    --panel-danger-soft: #fff0f1;
+    --panel-danger-border: #f6d5d8;
+    --panel-danger-dark: #a82839;
+    --panel-shadow-xs: 0 3px 10px rgba(49, 39, 81, .035);
+    --panel-shadow-soft: 0 8px 24px rgba(49, 39, 81, .055);
+    --panel-shadow: 0 16px 36px rgba(49, 39, 81, .075);
+    --panel-shadow-lg: 0 22px 52px rgba(49, 39, 81, .11);
+    --panel-radius-sm: 12px;
+    --panel-radius-md: 16px;
+    --panel-radius-lg: 22px;
+    background:
+        radial-gradient(circle at 100% 0, rgba(79, 70, 229, .055), transparent 27rem),
+        var(--panel-bg);
+    color: var(--panel-text);
+}
+
+.owner-shell .role-layout,
+.teacher-shell .role-layout,
+.student-shell .role-layout,
+.parent-shell .role-layout {
+    background: transparent;
+}
+
+.owner-shell .role-sidebar,
+.teacher-shell .role-sidebar,
+.student-shell .role-sidebar,
+.parent-shell .role-sidebar {
+    border-color: #eee7de;
+    background: rgba(255, 253, 249, .96);
+    box-shadow: 0 0 36px rgba(49, 39, 81, .025);
+}
+
+.owner-shell .role-sidebar-brand,
+.teacher-shell .role-sidebar-brand,
+.student-shell .role-sidebar-brand,
+.parent-shell .role-sidebar-brand {
+    border-bottom-color: #eee7de;
+}
+
+.owner-shell .role-topbar,
+.teacher-shell .role-topbar,
+.student-shell .role-topbar,
+.parent-shell .role-topbar {
+    border-bottom-color: rgba(235, 229, 220, .9);
+    background: rgba(255, 253, 249, .88);
+}
+
+.owner-shell .role-main,
+.teacher-shell .role-main,
+.student-shell .role-main,
+.parent-shell .role-main {
+    padding: clamp(16px, 2.2vw, 30px);
+}
+
+.owner-shell .role-nav-link.is-active,
+.teacher-shell .role-nav-link.is-active,
+.student-shell .role-nav-link.is-active,
+.parent-shell .role-nav-link.is-active {
+    color: #4338ca;
+    background: #eeedff;
+    box-shadow: inset -3px 0 #4f46e5;
+}
+
+.owner-shell .role-nav-link:hover,
+.teacher-shell .role-nav-link:hover,
+.student-shell .role-nav-link:hover,
+.parent-shell .role-nav-link:hover {
+    background-color: #f3f0ff;
+    color: #4338ca;
+}
+
+/* Owner + teacher are the operational workspaces of phase 1. */
+.owner-shell .owner-hero,
+.teacher-shell .teacher-welcome-card {
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 8% 100%, rgba(255, 122, 92, .24), transparent 28%),
+        linear-gradient(125deg, #3730a3 0%, #4f46e5 58%, #6559df 100%);
+    box-shadow: 0 20px 46px rgba(79, 70, 229, .16);
+}
+
+.owner-shell .owner-hero-stat,
+.teacher-shell .teacher-visual-card {
+    border-color: rgba(255, 255, 255, .2);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .13);
+    box-shadow: 0 16px 35px rgba(31, 27, 92, .1);
+}
+
+.owner-shell .owner-stat-card,
+.owner-shell .dashboard-panel,
+.owner-shell .owner-academy-card,
+.teacher-shell .teacher-stat,
+.teacher-shell .teacher-panel,
+.teacher-shell .teacher-task-board,
+.teacher-shell .teacher-progress-card,
+.teacher-shell .teacher-focus-card,
+.teacher-shell .teacher-board-card {
+    border-color: var(--panel-border);
+    border-radius: 20px;
+    background-color: var(--panel-surface);
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.owner-shell .owner-stat-card,
+.teacher-shell .teacher-stat {
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.owner-shell .owner-stat-card:hover,
+.teacher-shell .teacher-stat:hover {
+    transform: translateY(-2px);
+    border-color: #d8d3f8;
+    box-shadow: var(--panel-shadow);
+}
+
+.owner-shell .owner-progress span,
+.teacher-shell .teacher-progress-track span,
+.teacher-shell .teacher-track span {
+    background: linear-gradient(90deg, #4f46e5, #8880f0);
+}
+
+.owner-shell .owner-pill.banner,
+.teacher-shell .teacher-status.live {
+    border-color: #f7d3c8;
+    background: #fff0eb;
+    color: #b94b33;
+}
+
+.owner-shell .owner-focus-card.has-alert,
+.teacher-shell .teacher-focus-card.has-pending {
+    border-color: #f4d2c8;
+    background: linear-gradient(110deg, #fffdf9, #fff4ef);
+}
+
+.owner-shell .owner-focus-card.has-alert .owner-focus-status span {
+    background: #ff7a5c;
+    box-shadow: 0 0 0 6px rgba(255, 122, 92, .12);
+}
+
+.teacher-shell .teacher-focus-card.has-pending .teacher-focus-mark span {
+    background: #ff7a5c;
+}
+
+.teacher-shell .teacher-board-card.is-blue {
+    background: linear-gradient(135deg, #4f46e5, #766cf0);
+}
+
+.owner-shell .owner-hero-actions .owner-btn.ghost,
+.teacher-shell .teacher-secondary-hero-btn {
+    border-color: rgba(255, 255, 255, .25);
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+}
+
+.owner-shell .owner-hero-actions .owner-btn,
+.teacher-shell .teacher-primary-btn {
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(30, 26, 80, .12);
+}
+
+/* Student and parent keep their learning/family-specific hierarchy but share
+   the same calmer surface and navigation language. */
+.student-shell .student-ui-hero,
+.parent-shell .parent-hero {
+    border-radius: 24px;
+    box-shadow: 0 20px 42px rgba(79, 70, 229, .12);
+}
+
+.student-shell .student-ui-hero {
+    border-color: #ebe5dc;
+    background:
+        radial-gradient(circle at 10% 100%, rgba(255, 122, 92, .16), transparent 30%),
+        linear-gradient(125deg, #fffdf9 0%, #f7f4ff 68%, #fff4ef 100%);
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.student-shell .student-ui-hero h2 {
+    color: #29263a;
+}
+
+.student-shell .student-ui-hero p {
+    color: #6f6a7e;
+}
+
+.student-shell .student-ui-primary {
+    background: #4f46e5;
+    color: #fff;
+    box-shadow: 0 9px 20px rgba(79, 70, 229, .16);
+}
+
+.student-shell .student-ui-secondary {
+    border-color: #e5dfd5;
+    background: #fffdf9;
+    color: #514d62;
+}
+
+.student-shell .student-ui-hero-meta span {
+    color: #7f7a8e;
+}
+
+.student-shell .student-ui-hero-meta b {
+    color: #4f46e5;
+}
+
+.parent-shell .parent-hero {
+    background:
+        radial-gradient(circle at 10% 100%, rgba(255, 122, 92, .2), transparent 30%),
+        linear-gradient(125deg, #3730a3 0%, #4f46e5 62%, #6559df 100%);
+}
+
+.student-shell .student-focus-card,
+.student-shell .student-workspace-card,
+.student-shell .student-ui-metric,
+.student-shell .student-stat-card,
+.parent-shell .parent-panel,
+.parent-shell .parent-child,
+.parent-shell .dashboard-panel {
+    border-color: var(--panel-border);
+    border-radius: 20px;
+    background-color: var(--panel-surface);
+    box-shadow: var(--panel-shadow-soft);
+}
+
+.student-shell .student-progress-track span,
+.student-shell .student-focus-progress-track span,
+.parent-shell .parent-progress-track span {
+    background: linear-gradient(90deg, #4f46e5, #8b82f1);
+}
+
+.student-shell .student-focus-action,
+.parent-shell .parent-primary-btn {
+    background: #4f46e5;
+    box-shadow: 0 8px 18px rgba(79, 70, 229, .16);
+}
+
+/* New inbox/library screens use the same spacing, readable text and clear focus. */
+.student-shell .role-main form label,
+.teacher-shell .role-main form label,
+.parent-shell .role-main form label {
+    line-height: 1.8;
+}
+
+.student-shell .role-main input,
+.student-shell .role-main select,
+.student-shell .role-main textarea,
+.teacher-shell .role-main input,
+.teacher-shell .role-main select,
+.teacher-shell .role-main textarea,
+.parent-shell .role-main input,
+.parent-shell .role-main select,
+.parent-shell .role-main textarea {
+    max-width: 100%;
+}
+
+.owner-shell .owner-empty,
+.teacher-shell .teacher-empty,
+.student-shell .student-workspace-empty,
+.parent-shell .parent-empty {
+    border-color: #e7dfd4;
+    background: rgba(255, 253, 249, .72);
+}
+
+@media (max-width: 900px) {
+    .owner-shell .owner-hero,
+    .teacher-shell .teacher-welcome-card,
+    .student-shell .student-ui-hero,
+    .parent-shell .parent-hero {
+        border-radius: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .owner-shell .owner-stats,
+    .teacher-shell .teacher-stats {
+        gap: 10px;
+    }
+
+    .owner-shell .owner-stat-card,
+    .teacher-shell .teacher-stat {
+        border-radius: 16px;
+    }
+
+    .owner-shell .owner-hero,
+    .teacher-shell .teacher-welcome-card {
+        box-shadow: 0 12px 28px rgba(79, 70, 229, .12);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .owner-shell .owner-stat-card,
+    .teacher-shell .teacher-stat {
+        transition: none;
+    }
+    .owner-shell .owner-stat-card:hover,
+    .teacher-shell .teacher-stat:hover {
+        transform: none;
+    }
+}
+
+
+/* =========================================================
+   FINAL ROLE POLISH — distinct, purposeful color systems
+   Green = success/correct, red = error, amber = attention.
+========================================================= */
+.owner-shell {
+    --panel-primary: #5b52d5; --panel-primary-dark: #4038ad;
+    --panel-primary-soft: #f0eeff; --panel-primary-soft-strong: #dfdcff;
+    --panel-accent: #0e9f9a; --panel-accent-soft: #e4faf8;
+    --color-primary-50: #f0eeff; --color-primary-100: #dfdcff;
+    --color-primary-200: #c9c4ff; --color-primary-600: #5b52d5; --color-primary-700: #4038ad;
+}
+.teacher-shell {
+    --panel-primary: #2867d8; --panel-primary-dark: #1e4fae;
+    --panel-primary-soft: #eaf2ff; --panel-primary-soft-strong: #d7e6ff;
+    --panel-accent: #0c9a8b; --panel-accent-soft: #e4faf5;
+    --color-primary-50: #eaf2ff; --color-primary-100: #d7e6ff;
+    --color-primary-200: #bdd6ff; --color-primary-600: #2867d8; --color-primary-700: #1e4fae;
+}
+.student-shell {
+    --panel-primary: #7652cf; --panel-primary-dark: #5937ae;
+    --panel-primary-soft: #f2ecff; --panel-primary-soft-strong: #e4d8ff;
+    --panel-accent: #ec8741; --panel-accent-soft: #fff1e5;
+    --color-primary-50: #f2ecff; --color-primary-100: #e4d8ff;
+    --color-primary-200: #d1bdff; --color-primary-600: #7652cf; --color-primary-700: #5937ae;
+}
+.parent-shell {
+    --panel-primary: #16845e; --panel-primary-dark: #106347;
+    --panel-primary-soft: #e8f8ef; --panel-primary-soft-strong: #c9efd9;
+    --panel-accent: #d9577c; --panel-accent-soft: #fff0f5;
+    --color-primary-50: #e8f8ef; --color-primary-100: #c9efd9;
+    --color-primary-200: #a5e3be; --color-primary-600: #16845e; --color-primary-700: #106347;
+}
+.owner-shell .role-brand-mark,
+.teacher-shell .role-brand-mark,
+.student-shell .role-brand-mark,
+.parent-shell .role-brand-mark {
+    background: linear-gradient(140deg, var(--panel-primary), var(--panel-accent));
+}
+.owner-shell .role-nav-link.is-active,
+.teacher-shell .role-nav-link.is-active,
+.student-shell .role-nav-link.is-active,
+.parent-shell .role-nav-link.is-active {
+    color: var(--panel-primary-dark); background: var(--panel-primary-soft);
+    box-shadow: inset -3px 0 var(--panel-primary);
+}
+.owner-shell .role-nav-link:hover,
+.teacher-shell .role-nav-link:hover,
+.student-shell .role-nav-link:hover,
+.parent-shell .role-nav-link:hover {
+    background-color: color-mix(in srgb, var(--panel-primary-soft) 72%, white);
+    color: var(--panel-primary-dark);
+}
+
+/* Dashboard metrics use a restrained pastel spectrum rather than identical tiles. */
+.owner-shell .owner-stat-card,
+.teacher-shell .teacher-stat,
+.teacher-shell .teacher-workspace-stat,
+.student-shell .student-stat-card,
+.student-shell .student-ui-metric,
+.parent-shell .parent-child-stat {
+    position: relative; overflow: hidden;
+    border-color: color-mix(in srgb, var(--metric-accent, var(--panel-primary)) 18%, var(--panel-border));
+    border-top: 3px solid var(--metric-accent, var(--panel-primary));
+    background: linear-gradient(145deg, var(--metric-wash, #fff), var(--panel-surface));
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.owner-shell .owner-stat-card:nth-child(4n + 1),
+.teacher-shell .teacher-stat:nth-child(4n + 1),
+.teacher-shell .teacher-workspace-stat:nth-child(4n + 1),
+.student-shell .student-stat-card:nth-child(4n + 1),
+.student-shell .student-ui-metric:nth-child(4n + 1),
+.parent-shell .parent-child-stat:nth-child(4n + 1) { --metric-accent:#635bdb; --metric-wash:#f3f1ff; }
+.owner-shell .owner-stat-card:nth-child(4n + 2),
+.teacher-shell .teacher-stat:nth-child(4n + 2),
+.teacher-shell .teacher-workspace-stat:nth-child(4n + 2),
+.student-shell .student-stat-card:nth-child(4n + 2),
+.student-shell .student-ui-metric:nth-child(4n + 2),
+.parent-shell .parent-child-stat:nth-child(4n + 2) { --metric-accent:#159b87; --metric-wash:#edfbf6; }
+.owner-shell .owner-stat-card:nth-child(4n + 3),
+.teacher-shell .teacher-stat:nth-child(4n + 3),
+.teacher-shell .teacher-workspace-stat:nth-child(4n + 3),
+.student-shell .student-stat-card:nth-child(4n + 3),
+.student-shell .student-ui-metric:nth-child(4n + 3),
+.parent-shell .parent-child-stat:nth-child(4n + 3) { --metric-accent:#e28a3e; --metric-wash:#fff6eb; }
+.owner-shell .owner-stat-card:nth-child(4n),
+.teacher-shell .teacher-stat:nth-child(4n),
+.teacher-shell .teacher-workspace-stat:nth-child(4n),
+.student-shell .student-stat-card:nth-child(4n),
+.student-shell .student-ui-metric:nth-child(4n),
+.parent-shell .parent-child-stat:nth-child(4n) { --metric-accent:#d45a82; --metric-wash:#fff1f5; }
+.owner-shell .owner-stat-card:hover,
+.teacher-shell .teacher-stat:hover,
+.teacher-shell .teacher-workspace-stat:hover,
+.student-shell .student-stat-card:hover,
+.student-shell .student-ui-metric:hover,
+.parent-shell .parent-child-stat:hover { transform: translateY(-2px); box-shadow: var(--panel-shadow); }
+
+.owner-shell .dashboard-panel, .teacher-shell .dashboard-panel,
+.student-shell .dashboard-panel, .parent-shell .dashboard-panel,
+.teacher-shell .teacher-workspace-card {
+    border-color: color-mix(in srgb, var(--panel-primary) 12%, var(--panel-border));
+}
+.owner-shell .role-main :is(input, select, textarea),
+.teacher-shell .role-main :is(input, select, textarea),
+.student-shell .role-main :is(input, select, textarea),
+.parent-shell .role-main :is(input, select, textarea) { accent-color: var(--panel-primary); }
+
+/* Exam answers are fully highlighted, not just tagged with a small chip. */
+.teacher-exam-answer-value { padding:12px 14px; border:1px solid var(--panel-border); border-radius:14px; background:#f8fafc; }
+.teacher-exam-answer-value.is-correct,
+.teacher-exam-answer-result.correct { border-color:#9bd9b2; background:#eaf8ef; color:#176844; }
+.teacher-exam-answer-value.is-wrong,
+.teacher-exam-answer-result.wrong { border-color:#f0b5bc; background:#fff0f1; color:#a82839; }
+
+.parent-shell .parent-hero {
+    background:
+        radial-gradient(circle at 90% 0%, rgba(255,255,255,.18), transparent 18rem),
+        radial-gradient(circle at 4% 100%, rgba(217,87,124,.24), transparent 25rem),
+        linear-gradient(122deg, #105b45 0%, #16845e 58%, #1ab58b 100%);
+    box-shadow: 0 22px 48px rgba(22,132,94,.18);
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-shell .owner-stat-card, .teacher-shell .teacher-stat,
+    .teacher-shell .teacher-workspace-stat, .student-shell .student-stat-card,
+    .student-shell .student-ui-metric, .parent-shell .parent-child-stat { transition:none; }
+    .owner-shell .owner-stat-card:hover, .teacher-shell .teacher-stat:hover,
+    .teacher-shell .teacher-workspace-stat:hover, .student-shell .student-stat-card:hover,
+    .student-shell .student-ui-metric:hover, .parent-shell .parent-child-stat:hover { transform:none; }
+}
+
+
+/* =========================================================
+   Admin + Parent dashboard refresh (October 2026)
+   Scoped to the two dashboard roots. This layer changes no
+   routes, data contracts, permissions, or form behavior.
+========================================================= */
+
+/* Admin: operational overview, dark ink + jade signal color. */
+.owner-shell .owner-dashboard {
+    --owner-dash-ink: #20223a;
+    --owner-dash-muted: #77778d;
+    --owner-dash-border: #e8e6ef;
+    --owner-dash-surface: #fffefa;
+    display: grid;
+    gap: 21px;
+    color: var(--owner-dash-ink);
+}
+
+.owner-shell .owner-dashboard .owner-hero {
+    position: relative;
+    isolation: isolate;
+    min-height: 270px;
+    grid-template-columns: minmax(0, 1.22fr) minmax(230px, .78fr);
+    gap: clamp(20px, 3vw, 42px);
+    padding: clamp(24px, 3.3vw, 40px);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 30px;
+    background:
+        radial-gradient(circle at 8% 8%, rgba(76, 218, 181, .18), transparent 20rem),
+        radial-gradient(circle at 100% 0%, rgba(139, 123, 255, .23), transparent 22rem),
+        linear-gradient(128deg, #171a32 0%, #252947 54%, #155e5b 100%);
+    box-shadow: 0 24px 56px rgba(32, 35, 75, .17);
+    color: #fff;
+}
+
+.owner-shell .owner-dashboard .owner-hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-end: -86px;
+    bottom: -172px;
+    width: 310px;
+    height: 310px;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 50%;
+    box-shadow: 0 0 0 28px rgba(255,255,255,.035), 0 0 0 62px rgba(255,255,255,.022);
+    pointer-events: none;
+}
+
+.owner-shell .owner-dashboard .owner-hero-copy { min-width: 0; }
+.owner-shell .owner-dashboard .owner-kicker {
+    color: #9cf0d8 !important;
+    font-size: 10px;
+    letter-spacing: .025em;
+    opacity: 1;
+}
+.owner-shell .owner-dashboard .owner-hero h1 {
+    max-width: 760px;
+    margin-top: 10px;
+    color: #fff !important;
+    font-size: clamp(25px, 3vw, 39px);
+    font-weight: 950;
+    line-height: 1.65;
+    letter-spacing: -.035em;
+    text-wrap: pretty;
+}
+.owner-shell .owner-dashboard .owner-hero p {
+    max-width: 700px;
+    color: rgba(246, 248, 255, .76) !important;
+    font-size: 12px;
+    line-height: 2.1;
+}
+.owner-shell .owner-dashboard .owner-hero-actions { gap: 9px; }
+.owner-shell .owner-dashboard .owner-hero-actions .owner-btn {
+    min-height: 43px;
+    padding-inline: 15px;
+    border: 1px solid transparent !important;
+    border-radius: 13px;
+    background: #c8f5e5 !important;
+    color: #153d35 !important;
+    box-shadow: 0 7px 18px rgba(10, 20, 35, .10);
+    font-size: 10px;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.owner-shell .owner-dashboard .owner-hero-actions .owner-btn.ghost {
+    border-color: rgba(255,255,255,.2) !important;
+    background: rgba(255,255,255,.075) !important;
+    color: #f5f6ff !important;
+    box-shadow: none;
+    backdrop-filter: blur(8px);
+}
+.owner-shell .owner-dashboard .owner-hero-actions .owner-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(8, 14, 34, .2);
+}
+.owner-shell .owner-dashboard .owner-hero-actions .owner-btn.ghost:hover {
+    background: rgba(255,255,255,.15) !important;
+}
+.owner-shell .owner-dashboard .owner-hero-art { min-width: 0; isolation: isolate; }
+.owner-shell .owner-dashboard .owner-orb { opacity: .78; filter: blur(1px); }
+.owner-shell .owner-dashboard .owner-hero-stat {
+    top: 34px;
+    right: 15%;
+    width: min(230px, 90%);
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 22px;
+    background: rgba(255,255,255,.105);
+    box-shadow: 0 18px 42px rgba(10, 18, 39, .16);
+    backdrop-filter: blur(16px);
+}
+.owner-shell .owner-dashboard .owner-hero-stat small,
+.owner-shell .owner-dashboard .owner-hero-stat span {
+    color: rgba(249,250,255,.78) !important;
+    opacity: 1;
+}
+.owner-shell .owner-dashboard .owner-hero-stat strong {
+    color: #fff !important;
+    font-size: clamp(25px, 2.6vw, 32px);
+    letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+.owner-shell .owner-dashboard .owner-focus-card {
+    gap: 14px;
+    border: 1px solid #e7e6ef;
+    border-radius: 21px;
+    background: linear-gradient(120deg, #fffefa, #fbfaf6);
+    box-shadow: 0 8px 22px rgba(34, 34, 65, .035);
+}
+.owner-shell .owner-dashboard .owner-focus-card.has-alert {
+    border-color: #f1d7b1;
+    background: linear-gradient(115deg, #fffaf0, #fffefa 72%);
+}
+.owner-shell .owner-dashboard .owner-focus-card.is-clear {
+    border-color: #cfeadf;
+    background: linear-gradient(115deg, #f2fcf7, #fffefa 72%);
+}
+.owner-shell .owner-dashboard .owner-focus-copy h2 {
+    color: #27283f;
+    font-size: 14px;
+    font-weight: 950;
+    line-height: 1.9;
+}
+.owner-shell .owner-dashboard .owner-focus-copy p {
+    color: #73758b;
+    font-size: 10px;
+    line-height: 2;
+}
+.owner-shell .owner-dashboard .owner-focus-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 13px;
+    border: 1px solid #dedbed;
+    border-radius: 11px;
+    background: #fff;
+    color: #4c4c87;
+    font-size: 10px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.owner-shell .owner-dashboard .owner-stats { gap: 13px; }
+.owner-shell .owner-dashboard .owner-stat-card {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    padding: 20px 19px 18px;
+    border: 1px solid var(--owner-dash-border) !important;
+    border-radius: 21px !important;
+    background: linear-gradient(145deg, #fffefa 0%, #fff 100%) !important;
+    box-shadow: 0 9px 26px rgba(38, 36, 68, .045) !important;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.owner-shell .owner-dashboard .owner-stat-card::before {
+    height: 3px;
+    background: linear-gradient(90deg, #6258d9, #9d8eff);
+}
+.owner-shell .owner-dashboard .owner-stat-card:nth-child(2)::before {
+    background: linear-gradient(90deg, #1e9f7a, #6bd6ac);
+}
+.owner-shell .owner-dashboard .owner-stat-card:nth-child(3)::before {
+    background: linear-gradient(90deg, #d99b43, #ef8a77);
+}
+.owner-shell .owner-dashboard .owner-stat-card:nth-child(4)::before {
+    background: linear-gradient(90deg, #4588c8, #7a70e9);
+}
+.owner-shell .owner-dashboard .owner-stat-card:hover {
+    transform: translateY(-3px);
+    border-color: #d6d2ed !important;
+    box-shadow: 0 16px 34px rgba(38, 36, 68, .09) !important;
+}
+.owner-shell .owner-dashboard .owner-stat-card span {
+    color: #77778c !important;
+    font-size: 10px;
+    font-weight: 800;
+}
+.owner-shell .owner-dashboard .owner-stat-card strong {
+    margin-top: 8px;
+    color: #24243d !important;
+    font-size: clamp(25px, 2.5vw, 31px);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.035em;
+}
+.owner-shell .owner-dashboard .owner-stat-card small {
+    color: #8d8da0 !important;
+    font-size: 9px;
+    line-height: 1.85;
+}
+.owner-shell .owner-dashboard :is(.owner-panel, .dashboard-panel, .owner-academy-card) {
+    border: 1px solid var(--owner-dash-border) !important;
+    border-radius: 21px !important;
+    background: var(--owner-dash-surface) !important;
+    box-shadow: 0 8px 24px rgba(38, 36, 68, .04) !important;
+}
+.owner-shell .owner-dashboard .dashboard-panel:is(a) {
+    min-height: 92px;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.owner-shell .owner-dashboard .dashboard-panel:is(a):hover {
+    transform: translateY(-2px);
+    border-color: #d3d0ee !important;
+    box-shadow: 0 15px 30px rgba(38, 36, 68, .075) !important;
+}
+.owner-shell .owner-dashboard .owner-panel-head { margin-bottom: 16px; }
+.owner-shell .owner-dashboard .owner-panel-head :is(h2, h3) {
+    color: #292941;
+    font-size: 15px;
+    font-weight: 950;
+    letter-spacing: -.02em;
+}
+.owner-shell .owner-dashboard .owner-panel-head p {
+    color: #818196;
+    font-size: 10px;
+    line-height: 1.9;
+}
+.owner-shell .owner-dashboard .owner-link {
+    color: #5d55c6;
+    font-size: 10px;
+}
+.owner-shell .owner-dashboard :is(.owner-course-row, .owner-teacher-row, .owner-live-row) {
+    border: 1px solid #efedf4 !important;
+    border-radius: 15px;
+    background: #fbfafc !important;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.owner-shell .owner-dashboard :is(.owner-course-row, .owner-teacher-row, .owner-live-row):hover {
+    border-color: #dcd8f2 !important;
+    background: #f8f7ff !important;
+}
+.owner-shell .owner-dashboard .owner-row-title { color: #2c2c45; font-size: 10px; }
+.owner-shell .owner-dashboard .owner-row-meta { color: #828299; font-size: 9px; line-height: 1.8; }
+.owner-shell .owner-dashboard .owner-avatar {
+    border: 1px solid #dfdef7;
+    border-radius: 13px;
+    background: #f0efff;
+    color: #5a50c6;
+}
+.owner-shell .owner-dashboard .owner-pill {
+    border-color: #e9e6f0;
+    border-radius: 999px;
+    background: #fff;
+    color: #727187;
+    font-size: 8px;
+}
+.owner-shell .owner-dashboard .owner-pill.success {
+    border-color: #ccebdd;
+    background: #effbf5;
+    color: #167653;
+}
+.owner-shell .owner-dashboard .owner-progress { height: 6px; background: #ecebf4; }
+.owner-shell .owner-dashboard .owner-progress span { background: linear-gradient(90deg, #5a55d6, #9c90ff); }
+.owner-shell .owner-dashboard .owner-empty {
+    border: 1px dashed #dedce8;
+    border-radius: 14px;
+    background: #fbfafc;
+    color: #89889c;
+    line-height: 1.9;
+}
+.owner-shell .owner-dashboard :is(a, button):focus-visible {
+    outline: 3px solid rgba(92, 83, 207, .3);
+    outline-offset: 3px;
+}
+
+/* Parent: calm family overview, a little warmer than the admin console. */
+.parent-shell .parent-dashboard {
+    display: grid;
+    gap: 21px;
+    color: #242f3c;
+}
+.parent-shell .parent-dashboard .parent-hero {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(24px, 3.4vw, 40px);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 30px;
+    background:
+        radial-gradient(circle at 92% 0%, rgba(130, 238, 200, .21), transparent 19rem),
+        radial-gradient(circle at 0% 100%, rgba(247, 142, 133, .2), transparent 21rem),
+        linear-gradient(124deg, #123d36 0%, #126952 58%, #16836e 100%);
+    box-shadow: 0 22px 48px rgba(19, 92, 72, .16);
+}
+.parent-shell .parent-dashboard .parent-hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 300px;
+    height: 300px;
+    inset-inline-end: -110px;
+    bottom: -205px;
+    border: 1px solid rgba(255,255,255,.17);
+    border-radius: 50%;
+    box-shadow: 0 0 0 30px rgba(255,255,255,.035), 0 0 0 65px rgba(255,255,255,.024);
+    pointer-events: none;
+}
+.parent-shell .parent-dashboard .parent-kicker {
+    color: #b8f4db !important;
+    font-size: 10px;
+    letter-spacing: .02em;
+}
+.parent-shell .parent-dashboard .parent-hero h1 {
+    max-width: 790px;
+    margin-top: 9px;
+    color: #fff;
+    font-size: clamp(25px, 3vw, 37px);
+    font-weight: 950;
+    line-height: 1.7;
+    letter-spacing: -.035em;
+    text-wrap: pretty;
+}
+.parent-shell .parent-dashboard .parent-hero p {
+    max-width: 760px;
+    color: rgba(247, 255, 251, .8);
+    font-size: 12px;
+    line-height: 2.1;
+}
+.parent-shell .parent-dashboard .parent-hero [aria-label="اقدام‌های سریع خانواده"] a {
+    min-height: 43px;
+    border-radius: 13px;
+    font-size: 10px;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.parent-shell .parent-dashboard .parent-hero [aria-label="اقدام‌های سریع خانواده"] a:first-child {
+    background: #d5f6e7;
+    color: #145545;
+    box-shadow: 0 8px 18px rgba(7, 40, 31, .12);
+}
+.parent-shell .parent-dashboard .parent-hero [aria-label="اقدام‌های سریع خانواده"] a:not(:first-child) {
+    border-color: rgba(255,255,255,.22);
+    background: rgba(255,255,255,.075);
+    color: #f5fffa;
+    backdrop-filter: blur(8px);
+}
+.parent-shell .parent-dashboard .parent-hero [aria-label="اقدام‌های سریع خانواده"] a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 11px 24px rgba(7, 40, 31, .12);
+}
+.parent-shell .parent-dashboard .parent-hero .rounded-full.bg-white\/10 {
+    border-color: rgba(255,255,255,.2);
+    background: rgba(255,255,255,.09);
+    backdrop-filter: blur(9px);
+}
+.parent-shell .parent-dashboard .parent-progress-method {
+    margin: -4px 0 0;
+    border: 1px solid #e9e5dc;
+    border-radius: 15px;
+    background: #fffefa;
+    color: #666978;
+    box-shadow: 0 5px 18px rgba(36, 45, 58, .025);
+    font-size: 10px;
+    line-height: 2;
+}
+.parent-shell .parent-dashboard .parent-child {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e8e5dc;
+    border-radius: 22px;
+    background: linear-gradient(145deg, #fffefa, #fff);
+    box-shadow: 0 9px 25px rgba(32, 54, 44, .04);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.parent-shell .parent-dashboard .parent-child::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #2aaa7b, #a1e5c6);
+    opacity: .9;
+}
+.parent-shell .parent-dashboard .parent-child:hover {
+    transform: translateY(-3px);
+    border-color: #cce6d9;
+    box-shadow: 0 16px 32px rgba(32, 54, 44, .08);
+}
+.parent-shell .parent-dashboard .parent-child-avatar {
+    border: 1px solid #d8eee2;
+    border-radius: 15px;
+    background: #eefaf3;
+    color: #177454;
+}
+.parent-shell .parent-dashboard .parent-child-name {
+    color: #25352f;
+    font-size: 13px;
+    font-weight: 950;
+}
+.parent-shell .parent-dashboard .parent-child-meta { color: #858b85; font-size: 9px; }
+.parent-shell .parent-dashboard .parent-child-stat {
+    position: relative;
+    border: 1px solid #eeeae2;
+    border-radius: 14px;
+    background: #faf9f5;
+}
+.parent-shell .parent-dashboard .parent-child-stat span {
+    color: #7b817c;
+    font-size: 9px;
+}
+.parent-shell .parent-dashboard .parent-child-stat strong {
+    color: #263b32;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+}
+.parent-shell .parent-dashboard .parent-grid { gap: 17px; }
+.parent-shell .parent-dashboard .parent-grid .parent-panel {
+    border: 1px solid #e9e5dc;
+    border-radius: 22px;
+    background: #fffefa;
+    box-shadow: 0 9px 26px rgba(35, 48, 41, .04);
+}
+.parent-shell .parent-dashboard .parent-panel-head :is(h2, h3) {
+    color: #273930;
+    font-size: 15px;
+    font-weight: 950;
+    letter-spacing: -.02em;
+}
+.parent-shell .parent-dashboard .parent-panel-head p {
+    color: #828780;
+    font-size: 10px;
+    line-height: 1.9;
+}
+.parent-shell .parent-dashboard .parent-row {
+    border: 1px solid transparent;
+    border-radius: 15px;
+    transition: background .16s ease, border-color .16s ease;
+}
+.parent-shell .parent-dashboard .parent-row:hover {
+    border-color: #e3eee6;
+    background: #f6fbf7;
+}
+.parent-shell .parent-dashboard .parent-date {
+    border-radius: 12px;
+    background: #eff8f2;
+    color: #237454;
+    font-weight: 900;
+}
+.parent-shell .parent-dashboard .parent-row-title {
+    color: #283a31;
+    font-weight: 900;
+}
+.parent-shell .parent-dashboard .parent-row-meta {
+    color: #818880;
+    line-height: 1.9;
+}
+.parent-shell .parent-dashboard .parent-score {
+    border: 1px solid #d9eee2;
+    border-radius: 999px;
+    background: #f0faf4;
+    color: #176a4c;
+    font-weight: 900;
+}
+.parent-shell .parent-dashboard :is(a, button):focus-visible {
+    outline: 3px solid rgba(28, 148, 103, .3);
+    outline-offset: 3px;
+}
+
+@media (max-width: 1050px) {
+    .owner-shell .owner-dashboard .owner-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .owner-shell .owner-dashboard .owner-hero-art {
+        min-height: 150px;
+    }
+    .owner-shell .owner-dashboard .owner-hero-stat {
+        top: 10px;
+        right: 10%;
+    }
+    .owner-shell .owner-dashboard .owner-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media (max-width: 760px) {
+    .owner-shell .owner-dashboard { gap: 15px; }
+    .owner-shell .owner-dashboard .owner-hero,
+    .parent-shell .parent-dashboard .parent-hero {
+        padding: 22px 19px;
+        border-radius: 23px;
+    }
+    .owner-shell .owner-dashboard .owner-hero h1,
+    .parent-shell .parent-dashboard .parent-hero h1 {
+        font-size: 24px;
+        line-height: 1.75;
+    }
+    .owner-shell .owner-dashboard .owner-hero-actions .owner-btn {
+        flex: 1 1 150px;
+    }
+    .owner-shell .owner-dashboard .owner-stats { gap: 9px; }
+    .owner-shell .owner-dashboard .owner-stat-card {
+        padding: 16px 13px;
+        border-radius: 17px !important;
+    }
+    .owner-shell .owner-dashboard .owner-panel,
+    .owner-shell .owner-dashboard .dashboard-panel,
+    .parent-shell .parent-dashboard .parent-panel {
+        border-radius: 17px !important;
+    }
+    .parent-shell .parent-dashboard { gap: 16px; }
+    .parent-shell .parent-dashboard .parent-children { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+    .owner-shell .owner-dashboard .owner-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .owner-shell .owner-dashboard .owner-hero-stat {
+        right: 50%;
+        width: min(245px, 90%);
+        transform: translateX(50%);
+    }
+    .owner-shell .owner-dashboard .owner-focus-card { grid-template-columns: 12px minmax(0, 1fr); }
+    .owner-shell .owner-dashboard .owner-focus-actions { grid-column: 2; }
+    .parent-shell .parent-dashboard .parent-child-stats { gap: 7px; }
+    .parent-shell .parent-dashboard .parent-child-stat { padding: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-shell .owner-dashboard *,
+    .owner-shell .owner-dashboard *::before,
+    .owner-shell .owner-dashboard *::after,
+    .parent-shell .parent-dashboard *,
+    .parent-shell .parent-dashboard *::before,
+    .parent-shell .parent-dashboard *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+    .owner-shell .owner-dashboard :is(.owner-stat-card, .dashboard-panel):hover,
+    .parent-shell .parent-dashboard .parent-child:hover,
+    .parent-shell .parent-dashboard .parent-hero [aria-label="اقدام‌های سریع خانواده"] a:hover {
+        transform: none !important;
+    }
+}
