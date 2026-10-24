@@ -121,15 +121,15 @@ final class StudentDashboardService
                         });
                 });
 
+        if ($assignmentQuery) {
+            $this->scopeToStudentTeacherCohort($assignmentQuery, $student, 'assignments');
+        }
+
         $pendingAssignments = $assignmentQuery
             ? (clone $assignmentQuery)
                 ->whereNull('submissions.id')
                 ->count('assignments.id')
             : 0;
-
-        if ($assignmentQuery) {
-            $this->scopeToStudentTeacherCohort($assignmentQuery, $student, 'assignments');
-        }
 
         $assignmentItems = $assignmentQuery
             ? (clone $assignmentQuery)
