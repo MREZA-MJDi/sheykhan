@@ -6,6 +6,8 @@ use App\Models\ParentProfile;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Models\AuditLog;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -61,6 +63,23 @@ final class AuthService
         Auth::login($user, $remember);
 
         request()->session()->regenerate();
+
+        // Store a lightweight audit event; credentials and login identifiers are never logged.
+        try {
+            if (Schema::hasTable('audit_logs')) {
+                AuditLog::create([
+                    'actor_id' => $user->id,
+                    'action' => 'user_login',
+                    'subject_type' => User::class,
+                    'subject_id' => $user->id,
+                    'new_values' => ['must_change_password' => (bool) $user->must_change_password],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => mb_substr((string) request()->userAgent(), 0, 2000),
+                ]);
+            }
+        } catch (\\Throwable $exception) {
+            report($exception);
+        }
 
         return $user;
     }
