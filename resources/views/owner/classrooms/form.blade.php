@@ -33,6 +33,7 @@
                     <input name="title" value="{{ old('title', $classroom->title) }}" required
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]"
                            placeholder="مثلاً کلاس وب مقدماتی">
+                    <small class="owner-field-help">نامی انتخاب کن که پایه، سطح یا گروه را برای تیم آموزش سریع مشخص کند.</small>
                     <x-owner.field-error field="title"/>
                 </label>
 
@@ -41,6 +42,7 @@
                     <input name="code" value="{{ old('code', $classroom->code) }}" required
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]"
                            placeholder="WEB-101">
+                    <small class="owner-field-help">یک کد کوتاه برای شناسایی داخلی کلاس وارد کن؛ کد باید در همان آموزشگاه یکتا باشد.</small>
                     <x-owner.field-error field="code"/>
                 </label>
 
@@ -57,6 +59,7 @@
                             </option>
                         @endforeach
                     </select>
+                    <small class="owner-field-help">دوره، محتوای آموزشی کلاس را مشخص می‌کند؛ فقط مدرس‌های اختصاص‌یافته به همین دوره قابل انتخاب‌اند.</small>
                     <x-owner.field-error field="course_id"/>
                 </label>
 
@@ -95,6 +98,7 @@
                             </option>
                         @endforeach
                     </select>
+                    <small class="owner-field-help">این مقدار اختیاری است و برای دسته‌بندی آموزشی و گزارش‌ها به کار می‌رود.</small>
                     <x-owner.field-error field="grade_id"/>
                 </label>
 
@@ -108,6 +112,7 @@
                             </option>
                         @endforeach
                     </select>
+                    <small class="owner-field-help">سال تحصیلی را برای مرتب‌سازی و گزارش‌گیری انتخاب کن؛ در صورت نیاز خالی بگذار.</small>
                     <x-owner.field-error field="academic_year_id"/>
                 </label>
 
@@ -117,6 +122,7 @@
                            value="{{ old('capacity', $classroom->capacity) }}"
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm"
                            placeholder="مثلاً 20">
+                    <small class="owner-field-help">بیشترین تعداد عضو فعال است؛ ظرفیت را کمتر از تعداد ثبت‌نام‌های فعلی قرار نده.</small>
                     <x-owner.field-error field="capacity"/>
                 </label>
 
@@ -126,6 +132,7 @@
                         <option value="active" @selected(old('status', $classroom->status ?? 'active') === 'active')>فعال</option>
                         <option value="archived" @selected(old('status', $classroom->status ?? 'active') === 'archived')>آرشیو</option>
                     </select>
+                    <small class="owner-field-help">با آرشیو کردن، کلاس از عملیات جاری خارج می‌شود؛ سوابق آن حفظ می‌شوند.</small>
                     <x-owner.field-error field="status"/>
                 </label>
 
@@ -134,6 +141,7 @@
                     <input name="starts_at" type="datetime-local"
                            value="{{ old('starts_at', $classroom->starts_at?->format('Y-m-d\\TH:i')) }}"
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <small class="owner-field-help">زمان شروع اختیاری است و برای نمایش برنامهٔ کلاس به کار می‌رود.</small>
                     <x-owner.field-error field="starts_at"/>
                 </label>
 
@@ -142,6 +150,7 @@
                     <input name="ends_at" type="datetime-local"
                            value="{{ old('ends_at', $classroom->ends_at?->format('Y-m-d\\TH:i')) }}"
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <small class="owner-field-help">اگر پایان را وارد می‌کنی، باید بعد از زمان شروع باشد.</small>
                     <x-owner.field-error field="ends_at"/>
                 </label>
 
@@ -149,6 +158,7 @@
                     <span class="text-xs font-black">توضیحات</span>
                     <textarea name="description" rows="5"
                               class="rounded-xl border border-slate-200 px-3 py-3 text-sm">{{ old('description', $classroom->description) }}</textarea>
+                    <small class="owner-field-help">توضیح اجرایی کلاس را بنویس و اطلاعات محرمانهٔ دانش‌آموزان را در این بخش قرار نده.</small>
                     <x-owner.field-error field="description"/>
                 </label>
             </div>

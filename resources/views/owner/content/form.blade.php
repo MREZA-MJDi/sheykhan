@@ -17,13 +17,13 @@
         @if($content->exists) @method('PATCH') @endif
         <section class="owner-form-section">
             <h2>اطلاعات اصلی</h2>
-            <label><span>آموزشگاه</span><select name="academy_id" required>{{-- Scoped again server-side --}}@foreach($academies as $academy)<option value="{{ $academy->id }}" @selected(old('academy_id',$content->academy_id)==$academy->id)>{{ $academy->name }}</option>@endforeach</select></label>
-            <label><span>دسته</span><select name="category_id" required>@foreach($categories as $category)<option value="{{ $category->id }}" @selected(old('category_id',$content->category_id)==$category->id)>{{ $category->title }}</option>@endforeach</select></label>
-            <div class="owner-form-two"><label><span>نوع</span><select name="type"><option value="article" @selected(old('type',$content->type)==='article')>مقاله</option><option value="video" @selected(old('type',$content->type)==='video')>ویدئو</option></select></label><label><span>وضعیت</span><select name="status"><option value="draft" @selected(old('status',$content->status)==='draft')>پیش‌نویس</option><option value="published" @selected(old('status',$content->status)==='published')>منتشرشده</option><option value="archived" @selected(old('status',$content->status)==='archived')>آرشیو</option></select></label></div>
-            <label><span>عنوان</span><input name="title" value="{{ old('title',$content->title) }}" required maxlength="255"></label>
-            <label><span>شناسه URL</span><input name="slug" value="{{ old('slug',$content->slug) }}" maxlength="255"></label>
-            <label><span>خلاصه</span><textarea name="excerpt" rows="3" maxlength="500">{{ old('excerpt',$content->excerpt) }}</textarea></label>
-            <label><span>متن محتوا</span><textarea name="body" rows="14">{{ old('body',$content->body) }}</textarea></label>
+            <label><span>آموزشگاه</span><select name="academy_id" required>{{-- Scoped again server-side --}}@foreach($academies as $academy)<option value="{{ $academy->id }}" @selected(old('academy_id',$content->academy_id)==$academy->id)>{{ $academy->name }}</option>@endforeach</select><small class="owner-field-help">محتوا به این آموزشگاه متصل می‌شود؛ محدودهٔ انتشار را پیش از ذخیره بررسی کن.</small></label>
+            <label><span>دسته</span><select name="category_id" required>@foreach($categories as $category)<option value="{{ $category->id }}" @selected(old('category_id',$content->category_id)==$category->id)>{{ $category->title }}</option>@endforeach</select><small class="owner-field-help">دسته‌ای را انتخاب کن که خواننده انتظار دارد محتوا را در آن پیدا کند.</small></label>
+            <div class="owner-form-two"><label><span>نوع</span><select name="type"><option value="article" @selected(old('type',$content->type)==='article')>مقاله</option><option value="video" @selected(old('type',$content->type)==='video')>ویدئو</option></select><small class="owner-field-help">برای نوع ویدئو، فایل واقعی و قابل پخش نیز باید ثبت شود.</small></label><label><span>وضعیت</span><select name="status"><option value="draft" @selected(old('status',$content->status)==='draft')>پیش‌نویس</option><option value="published" @selected(old('status',$content->status)==='published')>منتشرشده</option><option value="archived" @selected(old('status',$content->status)==='archived')>آرشیو</option></select><small class="owner-field-help">فقط محتوای منتشرشده در بخش عمومی نمایش داده می‌شود.</small></label></div>
+            <label><span>عنوان</span><input name="title" value="{{ old('title',$content->title) }}" required maxlength="255"><small class="owner-field-help">عنوان دقیق و کوتاه انتخاب کن؛ این متن تیتر اصلی صفحهٔ محتواست.</small></label>
+            <label><span>شناسه URL</span><input name="slug" value="{{ old('slug',$content->slug) }}" maxlength="255"><small class="owner-field-help">برای نشانی صفحه استفاده می‌شود؛ عبارت کوتاه و خوانا، بدون فاصله وارد کن.</small></label>
+            <label><span>خلاصه</span><textarea name="excerpt" rows="3" maxlength="500">{{ old('excerpt',$content->excerpt) }}</textarea><small class="owner-field-help">در چند جمله ارزش اصلی محتوا را توضیح بده؛ حداکثر ۵۰۰ نویسه.</small></label>
+            <label><span>متن محتوا</span><textarea name="body" rows="14">{{ old('body',$content->body) }}</textarea><small class="owner-field-help">متن کامل را با تیترهای منظم و پاراگراف‌های کوتاه بنویس تا خواندن آن در موبایل هم راحت باشد.</small></label>
             <label>
                 <span>فایل واقعی ویدئو (برای نوع «ویدئو» الزامی)</span>
                 <input type="file" name="video_file" accept=".mp4,.webm,.mov,video/mp4,video/webm,video/quicktime">
@@ -53,9 +53,9 @@
         <aside class="owner-form-side">
             <section class="owner-form-section">
                 <h2>انتشار</h2>
-                <label><span>تاریخ انتشار</span><input type="datetime-local" name="published_at" value="{{ old('published_at',$content->published_at?->format('Y-m-d\TH:i')) }}"></label>
-                <label><span>مدت ویدئو (ثانیه)</span><input type="number" name="video_duration_seconds" value="{{ old('video_duration_seconds',$content->video_duration_seconds) }}" min="1"></label>
-                <label><span>اولویت نمایش</span><input type="number" name="sort_order" value="{{ old('sort_order',$content->sort_order ?? 0) }}" min="0"></label>
+                <label><span>تاریخ انتشار</span><input type="datetime-local" name="published_at" value="{{ old('published_at',$content->published_at?->format('Y-m-d\TH:i')) }}"><small class="owner-field-help">زمان انتشار برای محتوای زمان‌بندی‌شده است؛ در غیر این صورت می‌توانی خالی بگذاری.</small></label>
+                <label><span>مدت ویدئو (ثانیه)</span><input type="number" name="video_duration_seconds" value="{{ old('video_duration_seconds',$content->video_duration_seconds) }}" min="1"><small class="owner-field-help">مدت کل فایل ویدئو را به ثانیه وارد کن.</small></label>
+                <label><span>اولویت نمایش</span><input type="number" name="sort_order" value="{{ old('sort_order',$content->sort_order ?? 0) }}" min="0"><small class="owner-field-help">عدد کمتر برای نمایش زودتر استفاده می‌شود؛ از صفر شروع کن.</small></label>
                 <label class="owner-check"><input type="checkbox" name="is_featured" value="1" @checked(old('is_featured',$content->is_featured))><span>محتوای منتخب</span></label>
             </section>
             <button type="submit" class="owner-primary-btn w-full">{{ $content->exists ? 'ذخیره تغییرات' : 'ساخت محتوا' }}</button>

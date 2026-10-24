@@ -547,7 +547,7 @@
 }
 .owner-shell .role-main button:active,
 .owner-shell .role-main a:active { transform: translateY(0); }
-.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([class*="text-rose-"]):not([class*="text-red-"]):not([class*="text-emerald-"]):not([class*="text-green-"]):not([data-variant="danger"]) {
+.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([class*="text-rose-"]):not([class*="text-red-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="text-emerald-"]):not([class*="text-green-"]):not([class*="bg-emerald-"]):not([class*="bg-green-"]):not([data-variant="danger"]) {
     min-height: 42px;
     border: 1px solid #4f46e5 !important;
     border-radius: 11px;
@@ -557,10 +557,25 @@
     font-weight: 800;
     cursor: pointer;
 }
-.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([class*="text-rose-"]):not([class*="text-red-"]):not([class*="text-emerald-"]):not([class*="text-green-"]):not([data-variant="danger"]):hover {
+.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([class*="text-rose-"]):not([class*="text-red-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="text-emerald-"]):not([class*="text-green-"]):not([class*="bg-emerald-"]):not([class*="bg-green-"]):not([data-variant="danger"]):hover {
     border-color: #4338ca !important;
     background: #4338ca !important;
 }
+
+/* Actionable schema notice: non-blocking supporting modules must not hide the primary workspace. */
+.owner-shell .role-main .owner-schema-warning {
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid #f0d49d;
+    border-radius: 14px;
+    background: #fff8e9;
+    color: #855000;
+    font-size: 13px;
+    line-height: 1.9;
+}
+.owner-shell .role-main .owner-schema-warning strong { color: #754500; font-size: 14px; }
+.owner-shell .role-main .owner-schema-warning p { margin: 0; color: #855000 !important; }
 
 /* Feedback system: success, warning, error and neutral information. */
 .owner-shell .role-main :is([role="alert"],[role="status"]).rounded-xl,
@@ -594,6 +609,19 @@
 .owner-shell .role-main :is([role="alert"],[role="status"]).bg-indigo-50,
 .owner-shell .role-main .alert-info {
     border-color: #cbd8fa !important; background: #f1f5ff !important; color: #29478d !important;
+}
+
+/* Minimum readable type scale: avoid legacy 7–10px labels across the owner area. */
+.owner-shell .role-main :is(small,.text-\[7px\],.text-\[8px\],.text-\[9px\],.text-\[10px\]) {
+    font-size: 11px !important;
+    line-height: 1.75 !important;
+}
+.owner-shell .role-main [class~="text-[7px]"],
+.owner-shell .role-main [class~="text-[8px]"],
+.owner-shell .role-main [class~="text-[9px]"],
+.owner-shell .role-main [class~="text-[10px]"] {
+    font-size: 11px !important;
+    line-height: 1.75 !important;
 }
 
 /* Tables, data lists, statuses, filters and pagination. */

@@ -10,6 +10,7 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class OwnerPeopleLifecycleTest extends TestCase
@@ -124,6 +125,25 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.courses.edit', $course))
             ->assertForbidden();
+    }
+
+    public function test_people_workspace_stays_available_when_onboarding_schema_is_missing(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        // Simulate a production deployment where the optional legacy-onboarding
+        // migration has not been applied yet, without dropping tables in CI.
+        Schema::shouldReceive('hasTable')
+            ->andReturnUsing(fn (string $table): bool => $table !== 'student_onboardings');
+        Schema::shouldReceive('hasColumn')->andReturn(true);
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertSee('بخشی از امکانات ورود دانش‌آموز قدیمی موقتاً غیرفعال است')
+            ->assertSee('ساخت حساب مدرس')
+            ->assertSee('سوابق ورود دانش‌آموز')
+            ->assertSee('موقتاً غیرفعال');
     }
 
     public function test_student_roster_and_enrollment_search_are_server_paginated(): void

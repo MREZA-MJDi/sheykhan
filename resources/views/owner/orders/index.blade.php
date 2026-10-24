@@ -35,15 +35,15 @@
                             <form method="POST" action="{{ route('owner.orders.confirm', [$academy, $order, $payment]) }}" class="space-y-3 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
                                 @csrf
                                 <h3 class="font-bold text-emerald-900">تأیید دریافت وجه</h3>
-                                <label class="grid gap-1 text-xs font-bold"><span>کد رهگیری واقعی بانک</span><input name="tracking_code" maxlength="128" required class="min-h-10 rounded-lg border border-slate-200 bg-white px-3"></label>
-                                <label class="grid gap-1 text-xs font-bold"><span>یادداشت بررسی (اختیاری)</span><textarea name="review_note" rows="2" maxlength="2000" class="rounded-lg border border-slate-200 bg-white p-3"></textarea></label>
+                                <label class="grid gap-1 text-xs font-bold"><span>کد رهگیری واقعی بانک</span><input name="tracking_code" maxlength="128" required class="min-h-10 rounded-lg border border-slate-200 bg-white px-3"><small class="owner-field-help">کد را دقیقاً از رسید یا گردش رسمی بانک وارد کن؛ شناسهٔ سفارش جایگزین آن نیست.</small></label>
+                                <label class="grid gap-1 text-xs font-bold"><span>یادداشت بررسی (اختیاری)</span><textarea name="review_note" rows="2" maxlength="2000" class="rounded-lg border border-slate-200 bg-white p-3"></textarea><small class="owner-field-help">اختلاف مبلغ، تاریخ یا نکتهٔ قابل پیگیری را برای سابقهٔ بررسی ثبت کن.</small></label>
                                 <label class="flex items-start gap-2 text-xs leading-6"><input type="checkbox" name="bank_statement_checked" value="1" required class="mt-1"><span>تأیید می‌کنم واریز را در گردش حساب بانک دیده‌ام و مبلغ دقیق سفارش دریافت شده است.</span></label>
                                 <button class="min-h-10 w-full rounded-xl bg-emerald-700 px-4 text-xs font-black text-white">تأیید وجه و فعال‌سازی محصول</button>
                             </form>
                             <form method="POST" action="{{ route('owner.orders.reject', [$academy, $order, $payment]) }}" class="space-y-3 rounded-xl border border-rose-200 p-4">
                                 @csrf
                                 <h3 class="font-bold text-rose-900">رد رسید</h3>
-                                <label class="grid gap-1 text-xs font-bold"><span>دلیل رد</span><textarea name="review_note" rows="2" required maxlength="2000" class="rounded-lg border border-slate-200 p-3"></textarea></label>
+                                <label class="grid gap-1 text-xs font-bold"><span>دلیل رد</span><textarea name="review_note" rows="2" required maxlength="2000" class="rounded-lg border border-slate-200 p-3"></textarea><small class="owner-field-help">دلیل مشخص و قابل‌پیگیری بنویس تا وضعیت برای خریدار و تیم پشتیبانی روشن باشد.</small></label>
                                 <label class="flex items-start gap-2 text-xs leading-6"><input type="checkbox" name="bank_statement_checked" value="1" required class="mt-1"><span>رسید یا تراکنش را بررسی کرده‌ام و دلیل رد را ثبت می‌کنم.</span></label>
                                 <button class="min-h-10 w-full rounded-xl border border-rose-300 px-4 text-xs font-black text-rose-800">رد رسید، بدون دسترسی محصول</button>
                             </form>
