@@ -200,6 +200,10 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertSame(1, substr_count($teacherCss, '@import'));
         $this->assertStringContainsString('.k6', $teacherCss);
         $this->assertStringContainsString('@media (max-width:980px)', $teacherCss);
+        $this->assertStringContainsString('@media (min-width: 761px) and (max-width: 1000px)', $teacherCss);
+        $this->assertStringContainsString('@media (max-width: 760px)', $teacherCss);
+        $this->assertStringContainsString('data-dashboard-search-empty', $dashboard);
+        $this->assertStringContainsString("main.querySelector('[data-dashboard-search-empty]')", $teacherAdapter);
         $this->assertStringContainsString("import './teacher/app.js';", $teacherJs);
         $this->assertStringNotContainsString("import '../css/app.css';", $appJs);
         $this->assertStringNotContainsString("import '../css/student.css';", $studentJs);
