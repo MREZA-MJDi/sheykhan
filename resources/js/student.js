@@ -179,7 +179,7 @@
         const setStudentTheme = (value) => {
             const theme = value === 'dark' ? 'dark' : 'light';
             document.documentElement.dataset.theme = theme;
-            try { localStorage.setItem('sheykhan.student.theme', theme); } catch (_) {}
+            try { localStorage.setItem('sheykhan.panel.theme', theme); localStorage.setItem('sheykhan.student.theme', theme); } catch (_) {}
             themeControls.forEach((button) => button.setAttribute('aria-pressed', String(theme === 'dark')));
             const state = profileModal?.querySelector('[data-student-theme-state]');
             const label = profileModal?.querySelector('[data-student-theme-label]');
