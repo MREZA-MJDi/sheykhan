@@ -92,7 +92,6 @@
                     <span class="owner-hero-meta-dot" aria-hidden="true"></span>
                     <span>نمای کلی شاخص‌ها و عملیات آموزشگاه</span>
                 </div>
-                </div>
             </div>
 
             @if($canViewFinance)
