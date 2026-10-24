@@ -10,6 +10,8 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 final class OwnerWorkspaceService
@@ -50,17 +52,35 @@ final class OwnerWorkspaceService
             ->orderBy('users.name')
             ->paginate(25, ['*'], 'archived_teachers_page');
 
-        return [
-            'teachers' => $activeTeachers,
-            'archivedTeachers' => $archivedTeachers,
-            'students' => $base('student', 'students_page'),
-            'parents' => $base('parent', 'parents_page'),
-            'grades' => AcademicGrade::query()
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->orderBy('title')
-                ->get(['id', 'title']),
-            'onboardings' => StudentOnboarding::query()
+        // These are supporting modules. A stale production schema must not
+        // take the entire people workspace offline while the roster tables work.
+        $academicGradesAvailable = Schema::hasTable('academic_grades')
+            && Schema::hasColumn('academic_grades', 'title')
+            && Schema::hasColumn('academic_grades', 'sort_order')
+            && Schema::hasColumn('academic_grades', 'is_active');
+
+        $studentOnboardingColumns = [
+            'academy_id',
+            'admin_id',
+            'student_id',
+            'entered_name',
+            'requested_grade_id',
+            'status',
+            'activated_at',
+        ];
+
+        $studentOnboardingAvailable = Schema::hasTable('student_onboardings');
+        if ($studentOnboardingAvailable) {
+            foreach ($studentOnboardingColumns as $column) {
+                if (! Schema::hasColumn('student_onboardings', $column)) {
+                    $studentOnboardingAvailable = false;
+                    break;
+                }
+            }
+        }
+
+        $onboardings = $studentOnboardingAvailable
+            ? StudentOnboarding::query()
                 ->where('academy_id', $academy->id)
                 ->with([
                     'student:id,name,email,mobile',
@@ -68,7 +88,33 @@ final class OwnerWorkspaceService
                     'admin:id,name',
                 ])
                 ->latest('activated_at')
-                ->paginate(15, ['*'], 'onboardings_page'),
+                ->paginate(15, ['*'], 'onboardings_page')
+            : new LengthAwarePaginator(
+                [],
+                0,
+                15,
+                LengthAwarePaginator::resolveCurrentPage('onboardings_page'),
+                [
+                    'path' => LengthAwarePaginator::resolveCurrentPath(),
+                    'pageName' => 'onboardings_page',
+                ],
+            );
+
+        return [
+            'teachers' => $activeTeachers,
+            'archivedTeachers' => $archivedTeachers,
+            'students' => $base('student', 'students_page'),
+            'parents' => $base('parent', 'parents_page'),
+            'grades' => $academicGradesAvailable
+                ? AcademicGrade::query()
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('title')
+                    ->get(['id', 'title'])
+                : collect(),
+            'academicGradesAvailable' => $academicGradesAvailable,
+            'studentOnboardingAvailable' => $studentOnboardingAvailable,
+            'onboardings' => $onboardings,
         ];
     }
 
