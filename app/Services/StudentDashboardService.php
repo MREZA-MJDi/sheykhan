@@ -246,10 +246,9 @@ final class StudentDashboardService
                     'courses.title as course_title',
                 ])
                 ->map(function ($class) use ($access): object {
-                    $class->scheduled_at = $class->scheduled_at
-                        ? Carbon::parse($class->scheduled_at)
-                        : null;
-                    $liveClass = LiveClass::query()->newFromBuilder((array) $class);
+                    // Hydrate the selected columns into a model without another SQL query.
+                    $liveClass = (new LiveClass())->newFromBuilder((array) $class);
+                    $class->scheduled_at = $liveClass->scheduled_at;
                     $class->can_join = $access->isLiveClassJoinWindowOpen($liveClass);
 
                     return $class;
