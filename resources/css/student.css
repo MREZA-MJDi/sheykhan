@@ -311,7 +311,7 @@ body {
 }
 #dashboard .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(124px, 15vw, 190px);
+  grid-template-columns: clamp(124px, 15vw, 190px) minmax(0, 1fr);
   align-items: center;
   gap: clamp(14px, 1.8vw, 26px);
   min-width: 0;
@@ -623,7 +623,7 @@ body {
   .app .side .prem { display: none; }
   .top { gap: 10px; }
   .search { flex: 1 1 220px; }
-  #dashboard .hero { grid-template-columns: minmax(0,1fr) 112px; min-height: 0; padding: 20px; }
+  #dashboard .hero { grid-template-columns: 112px minmax(0,1fr); min-height: 0; padding: 20px; }
   #dashboard .hero .av { width: 104px; height: 104px; }
   #dashboard .hero h2 { font-size: clamp(20px, 3vw, 27px); }
 }
