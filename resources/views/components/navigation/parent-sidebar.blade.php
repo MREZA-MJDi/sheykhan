@@ -45,6 +45,9 @@
                 <span class="role-nav-icon"></span><span>کتابخانه و خریدها</span>
             </a>
         @endif
+        <a href="{{ route('store.index') }}" class="role-nav-link {{ request()->routeIs('store.*') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>کتاب‌ها و محصولات منتشرشده</span>
+        </a>
         <a href="{{ route('courses.index') }}" class="role-nav-link">
             <span class="role-nav-icon"></span><span>کشف دوره‌ها</span>
         </a>
