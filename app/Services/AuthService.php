@@ -77,7 +77,7 @@ final class AuthService
                     'user_agent' => mb_substr((string) request()->userAgent(), 0, 2000),
                 ]);
             }
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             report($exception);
         }
 
