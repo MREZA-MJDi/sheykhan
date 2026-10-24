@@ -36,12 +36,14 @@
                 ? route('teacher.exams.index')
                 : ($canViewClassrooms
                     ? route('teacher.classrooms.index')
-                    : ($canViewLiveClasses ? route('teacher.schedule.index') : null)));
+                    : ($canViewCourses
+                        ? route('teacher.courses.index')
+                        : ($canViewLiveClasses ? route('teacher.schedule.index') : null))));
         $focusLabel = $canReviewPendingAssignments
             ? 'شروع تصحیح تکالیف'
             : ($canReviewPendingExams
                 ? 'بررسی آزمون‌ها'
-                : ($canViewClassrooms ? 'مدیریت کلاس‌ها' : 'مشاهده برنامه'));
+                : ($canViewClassrooms ? 'مدیریت کلاس‌ها' : ($canViewCourses ? 'مدیریت دوره‌ها' : 'مشاهده برنامه')));
         $kpis = [
             ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'route' => 'teacher.classrooms.index', 'tone' => 'indigo', 'icon' => 'classes', 'permission' => 'classrooms.view'],
             ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'route' => 'teacher.courses.index', 'tone' => 'blue', 'icon' => 'book', 'permission' => 'courses.view'],
