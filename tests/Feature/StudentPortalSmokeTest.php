@@ -87,7 +87,7 @@ class StudentPortalSmokeTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', ['exam' => $exam->id]))
             ->assertOk()
-            ->assertSee('تلاش ثبت‌شده');
+            ->assertSee('تصحیح‌شده');
     }
 
     public function test_only_the_owner_can_open_an_exam_attempt(): void
