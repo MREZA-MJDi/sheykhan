@@ -159,21 +159,17 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->whereIn('classrooms.academy_id', $activeAcademyIds)
             ->where('classrooms.status', 'active')
             ->pluck('classrooms.id');
+        $courseIds = $teacher->taughtCourses()
+            ->whereIn('courses.academy_id', $activeAcademyIds)
+            ->pluck('courses.id');
 
-        $student = User::query()
+        $studentWithEnrollment = User::query()
             ->where('status', 'active')
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active'))
-            ->firstOrFail();
-
-        // Select a student who is also actively enrolled in one of this teacher's courses.
-        $courseIds = $teacher->taughtCourses()
-            ->whereIn('courses.academy_id', $activeAcademyIds)
-            ->pluck('courses.id');
-        $studentWithEnrollment = User::query()
-            ->whereKey($student->id)
             ->whereHas('enrollments', fn ($query) => $query
+                ->whereIn('classroom_id', $classroomIds)
                 ->whereIn('course_id', $courseIds)
                 ->where('status', 'active'))
             ->firstOrFail();
