@@ -8,7 +8,7 @@
     @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/js/app.js', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
-<body class="teacher-shell">
+<body class="teacher-shell {{ request()->routeIs('teacher.dashboard') ? 'teacher-dashboard-shell' : '' }}">
     <div class="role-layout">
         <x-navigation.teacher-sidebar />
 
