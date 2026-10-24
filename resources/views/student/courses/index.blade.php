@@ -16,7 +16,7 @@
         <div class="g3">
             @forelse($courses as $course)
                 @php
-                    $lessonCount = $course->sections->sum(fn ($section) => $section->lessons->count());
+                    $lessonCount = (int) ($course->published_lessons_count ?? 0);
                     $progress = max(0, min(100, (float) ($course->learning_progress ?? 0)));
                 @endphp
                 <article class="card cc">
