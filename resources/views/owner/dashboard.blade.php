@@ -287,7 +287,7 @@
                     </article>
                 @endif
             @endif
-            @if(!$canViewClassrooms && !$canViewAcademy && !$canViewCourses && !$canViewAttendance && !$canViewReports && !$canViewAssignments)
+            @if(!$canViewClassrooms && !$canOpenPeople && !$canViewCourses && !$canViewAttendance && !$canViewReports && !$canViewAssignments)
                 <div class="dashboard-panel owner-empty" role="status">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های آموزشگاه برای این حساب فعال نیست.</div>
             @endif
         </section>
@@ -333,15 +333,45 @@
                                 </span>
                             </div>
 
-                            <div class="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
+                            <div class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
                                 @if($canViewAcademy)
                                     <a href="{{ route('owner.people.index', $academy) }}" class="owner-pill justify-center">اعضا</a>
                                 @endif
-
                                 @if($canViewClassrooms)
                                     <a href="{{ route('owner.classrooms.index', $academy) }}" class="owner-pill justify-center">کلاس‌ها</a>
                                 @endif
-
+                                @if($canViewAttendance)
+                                    <a href="{{ route('owner.attendance.index', $academy) }}" class="owner-pill justify-center">حضور و غیاب</a>
+                                @endif
+                                @if($canViewAssignments)
+                                    <a href="{{ route('owner.assignments.index', $academy) }}" class="owner-pill justify-center">تکالیف و تصحیح</a>
+                                @endif
+                                @if($canViewMeetings)
+                                    <a href="{{ route('owner.meetings.index', $academy) }}" class="owner-pill justify-center">هماهنگی جلسات</a>
+                                    <a href="{{ route('owner.schedules.index', $academy) }}" class="owner-pill justify-center">لینک کلاس آنلاین</a>
+                                    <a href="{{ route('owner.recordings.index', $academy) }}" class="owner-pill justify-center">آرشیو ضبط کلاس</a>
+                                @endif
+                                @if($canViewMessages)
+                                    <a href="{{ route('owner.messages.index', $academy) }}" class="owner-pill justify-center">پیام‌های اولیا</a>
+                                    <a href="{{ route('owner.communications.index', $academy) }}" class="owner-pill justify-center">اطلاعیه و پیام</a>
+                                    <a href="{{ route('owner.counseling.index', $academy) }}" class="owner-pill justify-center">جلسات مشاوره</a>
+                                @endif
+                                @if($canViewExams)
+                                    <a href="{{ route('owner.exams.index', $academy) }}" class="owner-pill justify-center">آزمون‌ها و نتایج</a>
+                                @endif
+                                @if($canViewTeacherPayments)
+                                    <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="owner-pill justify-center">حقوق مدرس‌ها</a>
+                                @endif
+                                @if($canManageContent)
+                                    <a href="{{ route('owner.resources.index', $academy) }}" class="owner-pill justify-center">ویدئو و منابع</a>
+                                    <a href="{{ route('owner.showcase.index', $academy) }}" class="owner-pill justify-center">افتخارآفرینان</a>
+                                @endif
+                                @if($canViewProducts)
+                                    <a href="{{ route('owner.products.index', $academy) }}" class="owner-pill justify-center">محصولات</a>
+                                @endif
+                                @if($canViewOrders)
+                                    <a href="{{ route('owner.orders.index', $academy) }}" class="owner-pill justify-center">سفارش‌ها</a>
+                                @endif
                                 @if($canViewAcademy)
                                     <a href="{{ route('owner.academy.edit', $academy) }}" class="owner-pill success justify-center">تنظیمات</a>
                                     <a href="{{ route('owner.academy.banners.edit', $academy) }}" class="owner-pill banner justify-center">بنرها</a>
