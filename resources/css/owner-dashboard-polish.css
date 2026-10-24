@@ -483,6 +483,20 @@
     line-height: 1.8;
 }
 
+.owner-shell .owner-dashboard .owner-panel-hint {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid #e8ecf4;
+    border-radius: 9px;
+    background: #f8faff;
+    color: #778398;
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.7;
+}
+
 .owner-shell .owner-dashboard .owner-panel-head .owner-link {
     display: inline-flex;
     align-items: center;
