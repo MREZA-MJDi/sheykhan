@@ -196,7 +196,8 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString('seo.css', $vite);
         $this->assertStringNotContainsString('seo.js', $vite);
 
-        $this->assertStringNotContainsString('@import', $teacherCss);
+        $this->assertSame(1, substr_count($teacherCss, "@import './communication-pages.css';"));
+        $this->assertSame(1, substr_count($teacherCss, '@import'));
         $this->assertStringContainsString('.k6', $teacherCss);
         $this->assertStringContainsString('@media (max-width:980px)', $teacherCss);
         $this->assertStringContainsString("import './teacher/app.js';", $teacherJs);
