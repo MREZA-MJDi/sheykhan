@@ -14,6 +14,10 @@ class AuthenticationSessionLifecycleTest extends TestCase
     {
         $this->seed();
 
+        // Exercise the production-style persistence backend rather than the
+        // default in-memory session driver used by the test environment.
+        config(['session.driver' => 'database']);
+
         $password = (string) (config('role_access.seed_password') ?? 'Sheykhan@12345');
         $accounts = [
             ['owner@sheykhan.test', 'owner.dashboard'],
