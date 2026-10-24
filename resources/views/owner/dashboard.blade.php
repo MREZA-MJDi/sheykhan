@@ -34,6 +34,10 @@
         $canViewExams = (bool) $ownerUser?->hasPermission('exams.view') && (bool) $firstAcademy;
         $canViewTeacherPayments = (bool) $ownerUser?->hasPermission('teacher_payments.view') && (bool) $firstAcademy;
         $canViewRecordings = (bool) $ownerUser?->hasPermission('live_classes.view') && (bool) $firstAcademy;
+        $canChooseAcademy = $canViewAcademy || $canViewClassrooms || $canViewAttendance
+            || $canViewMeetings || $canViewAssignments || $canViewMessages || $canManageContent
+            || $canViewProducts || $canViewOrders || $canViewExams || $canViewTeacherPayments
+            || $canViewRecordings;
         $hasMultipleAcademies = $academies->count() > 1;
         $ownerAcademyHref = fn (string $routeName): string => $hasMultipleAcademies
             ? '#owner-academies'
@@ -288,7 +292,7 @@
             @endif
         </section>
 
-        @if($canViewAcademy)
+        @if($canChooseAcademy)
         {{-- =========================================================
             ACADEMIES
         ========================================================== --}}
@@ -330,30 +334,18 @@
                             </div>
 
                             <div class="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
-                                <a
-                                    href="{{ route('owner.people.index', $academy) }}"
-                                    class="owner-pill justify-center"
-                                >
-                                    اعضا
-                                </a>
+                                @if($canViewAcademy)
+                                    <a href="{{ route('owner.people.index', $academy) }}" class="owner-pill justify-center">اعضا</a>
+                                @endif
 
                                 @if($canViewClassrooms)
                                     <a href="{{ route('owner.classrooms.index', $academy) }}" class="owner-pill justify-center">کلاس‌ها</a>
                                 @endif
 
-                                <a
-                                    href="{{ route('owner.academy.edit', $academy) }}"
-                                    class="owner-pill success justify-center"
-                                >
-                                    تنظیمات
-                                </a>
-
-                                <a
-                                    href="{{ route('owner.academy.banners.edit', $academy) }}"
-                                    class="owner-pill banner justify-center"
-                                >
-                                    بنرها
-                                </a>
+                                @if($canViewAcademy)
+                                    <a href="{{ route('owner.academy.edit', $academy) }}" class="owner-pill success justify-center">تنظیمات</a>
+                                    <a href="{{ route('owner.academy.banners.edit', $academy) }}" class="owner-pill banner justify-center">بنرها</a>
+                                @endif
                             </div>
                         </article>
                     @endforeach
