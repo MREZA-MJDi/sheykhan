@@ -42,14 +42,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const search = document.querySelector('[data-dashboard-search]');
-    const searchable = dashboard.querySelectorAll('[data-dashboard-searchable]');
+    const searchable = Array.from(dashboard.querySelectorAll('[data-dashboard-searchable]'));
+    const staticEmptyStates = dashboard.querySelectorAll('.tdb-empty:not([data-chart-empty]):not([data-dashboard-search-empty])');
+    const searchEmptyState = dashboard.querySelector('[data-dashboard-search-empty]');
+
     if (search) {
         search.addEventListener('input', () => {
             const query = search.value.trim().toLocaleLowerCase('fa');
+            let matches = 0;
+
             searchable.forEach((item) => {
-                item.hidden = query.length > 0
-                    && !item.textContent.toLocaleLowerCase('fa').includes(query);
+                const matchesQuery = query.length === 0
+                    || item.textContent.toLocaleLowerCase('fa').includes(query);
+                item.hidden = !matchesQuery;
+                if (matchesQuery) matches += 1;
             });
+
+            staticEmptyStates.forEach((state) => {
+                state.hidden = query.length > 0;
+            });
+            if (searchEmptyState) {
+                searchEmptyState.hidden = query.length === 0 || matches > 0;
+            }
         });
     }
 

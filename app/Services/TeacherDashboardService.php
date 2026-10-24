@@ -37,11 +37,13 @@ final class TeacherDashboardService
         $classroomIds = $classrooms->modelKeys();
 
         $studentCount = $classroomIds
-            ? DB::table('classroom_student')
-                ->whereIn('classroom_id', $classroomIds)
-                ->where('status', 'active')
+            ? DB::table('classroom_student as memberships')
+                ->join('users', 'users.id', '=', 'memberships.student_id')
+                ->whereIn('memberships.classroom_id', $classroomIds)
+                ->where('memberships.status', 'active')
+                ->where('users.status', 'active')
                 ->distinct()
-                ->count('student_id')
+                ->count('memberships.student_id')
             : 0;
 
         if ($courseIds->isEmpty()) {
@@ -52,7 +54,6 @@ final class TeacherDashboardService
         $weekEnd = now()->endOfWeek(Carbon::FRIDAY);
         // Shared-course eligibility is resolved once and reused by all progress queries.
         $exclusiveCourseIds = $this->exclusiveCourseIdsForTeacher($teacher->id, $courseIds);
-        $weeklyProgress = $this->progressAverage($teacher->id, $courseIds, $exclusiveCourseIds);
         $pendingAssignmentReviews = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->where('assignments.teacher_id', $teacher->id)
@@ -187,9 +188,7 @@ final class TeacherDashboardService
 
         return [
             'teacher' => $teacher,
-            'profile' => $teacher->teacherProfile,
             'dashboardDate' => PersianUi::date(now()),
-            'weeklyProgress' => round((float) $weeklyProgress),
             'completedSessions' => $completedSessions,
             'metrics' => [
                 'activeClasses' => count($classroomIds),
@@ -205,7 +204,6 @@ final class TeacherDashboardService
             'activities' => $activities,
             'courseProgress' => $courseProgress,
             'topStudents' => $topStudents,
-            'calendarEvents' => $this->calendarEvents($teacher, $courseIds),
         ];
     }
 
@@ -235,6 +233,10 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             ->join('course_enrollments as enrollments', function ($join): void {
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
+            })
+            ->join('users as learners', function ($join): void {
+                $join->on('learners.id', '=', 'enrollments.student_id')
+                    ->where('learners.status', '=', 'active');
             })
             ->leftJoin('classrooms', function ($join): void {
                 $join->on('classrooms.id', '=', 'enrollments.classroom_id')
@@ -278,12 +280,6 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
                     });
                 }
             });
-    }
-
-    private function progressAverage(int $teacherId, $courseIds, $exclusiveCourseIds): float
-    {
-        return (float) ($this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
-            ->avg(DB::raw('COALESCE(progress.progress_percent, 0)')) ?? 0);
     }
 
     private function courseProgress(int $teacherId, $courseIds, $exclusiveCourseIds)
@@ -431,49 +427,11 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         return $scheduled->concat($live)->sortBy('time')->values();
     }
 
-    private function calendarEvents(User $teacher, $courseIds): array
-    {
-        $from = now()->startOfDay();
-        $to = now()->addMonth()->endOfDay();
-
-        $events = [];
-
-        LiveClass::query()
-            ->whereIn('course_id', $courseIds)
-            ->where('teacher_id', $teacher->id)
-            ->whereIn('course_id', $courseIds)
-            ->whereBetween('scheduled_at', [$from, $to])
-            ->get(['scheduled_at', 'title'])
-            ->each(function ($event) use (&$events): void {
-                $events[$event->scheduled_at->format('Y-m-d')][] = [
-                    'type' => 'live',
-                    'title' => $event->title,
-                ];
-            });
-
-        Assignment::query()
-            ->where('teacher_id', $teacher->id)
-            ->whereIn('course_id', $courseIds)
-            ->whereNotNull('due_at')
-            ->whereBetween('due_at', [$from, $to])
-            ->get(['due_at', 'title'])
-            ->each(function ($event) use (&$events): void {
-                $events[$event->due_at->format('Y-m-d')][] = [
-                    'type' => 'assignment',
-                    'title' => $event->title,
-                ];
-            });
-
-        return $events;
-    }
-
     private function emptyState(User $teacher, $classrooms, int $studentCount): array
     {
         return [
             'teacher' => $teacher,
-            'profile' => $teacher->teacherProfile,
             'dashboardDate' => PersianUi::date(now()),
-            'weeklyProgress' => 0,
             'completedSessions' => 0,
             'metrics' => [
                 'activeClasses' => $classrooms->count(),
@@ -483,7 +441,7 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
                 'pendingExamReviews' => 0,
                 'pendingReviews' => 0,
             ],
-            'todaySessions' => collect(),
+            'todaySessions' => $this->todaySessions($teacher, $classrooms, collect()),
             'upcomingClasses' => collect(),
             'chart' => [
                 'week' => ['labels' => [], 'values' => []],
@@ -492,7 +450,6 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             'activities' => collect(),
             'courseProgress' => collect(),
             'topStudents' => collect(),
-            'calendarEvents' => [],
         ];
     }
 
