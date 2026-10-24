@@ -188,9 +188,14 @@
                                 </span>
                             </div>
 
-                            <span class="teacher-status {{ $isLive ? 'live' : '' }}">
-                                {{ $session['status'] ?? 'برنامه‌ریزی‌شده' }}
-                            </span>
+                            <div class="teacher-session-actions">
+                                <span class="teacher-status {{ $isLive ? 'live' : '' }}">
+                                    {{ $session['status'] ?? 'برنامه‌ریزی‌شده' }}
+                                </span>
+                                @if(!empty($session['can_join']) && filled($session['meeting_url']))
+                                    <a class="teacher-live-join" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به جلسه آنلاین {{ $session['title'] ?? 'کلاس' }}">ورود <span aria-hidden="true">↗</span></a>
+                                @endif
+                            </div>
                         </article>
                     @empty
                         <div class="teacher-empty">
