@@ -58,6 +58,7 @@ class UpdateCourseRequest extends FormRequest
                 ),
             ],
             'published_at' => ['nullable', 'date'],
+            'spotplayer_course_id' => ['sometimes', 'nullable', 'string', 'max:120', 'regex:/^[A-Za-z0-9_-]+$/'],
         ];
     }
 }
