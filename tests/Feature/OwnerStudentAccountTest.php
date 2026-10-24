@@ -36,11 +36,13 @@ class OwnerStudentAccountTest extends TestCase
         $response = $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy) . '?tab=create-student', [
                 'name' => 'آوا تستی',
+                'national_id' => '0012345678',
                 'email' => 'ava.created@student-test.example',
                 'mobile' => '09120001122',
                 'grade_id' => $gradeId,
                 'birth_date' => '2012-03-05',
                 'school_name' => 'مدرسه آزمایشی',
+                'notes' => 'یادداشت تستی',
             ])
             ->assertRedirect(route('owner.people.index', $academy) . '?tab=create-student')
             ->assertSessionHasNoErrors()
@@ -66,6 +68,15 @@ class OwnerStudentAccountTest extends TestCase
             'user_id' => $student->id,
             'grade_id' => $gradeId,
             'school_name' => 'مدرسه آزمایشی',
+            'national_id_lookup' => \\App\\Support\\NationalIdLookup::make('0012345678'),
+        ]);
+        $this->assertDatabaseHas('student_onboardings', [
+            'academy_id' => $academy->id,
+            'student_id' => $student->id,
+            'national_id_lookup' => \\App\\Support\\NationalIdLookup::make('0012345678'),
+            'source' => 'admin',
+            'status' => 'activated',
+            'notes' => 'یادداشت تستی',
         ]);
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'student_account_created',
@@ -105,6 +116,7 @@ class OwnerStudentAccountTest extends TestCase
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
                 'name' => 'دانش‌آموز تکراری',
+                'national_id' => '0011122233',
                 'email' => $existing->email,
                 'mobile' => '09120001122',
                 'grade_id' => $gradeId,
@@ -113,4 +125,43 @@ class OwnerStudentAccountTest extends TestCase
 
         $this->assertSame($userCountBefore, User::query()->count(), 'A rejected duplicate account must not create a user row.');
     }
+
+
+    public function test_student_account_creation_rejects_reused_national_id(): void
+    {
+        $this->seed();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = Academy::query()->where('slug', 'sheykhan-academy')->firstOrFail();
+        $gradeId = DB::table('academic_grades')->where('is_active', true)->orderBy('sort_order')->value('id');
+
+        $this->actingAs($owner)
+            ->post(route('owner.people.store-student', $academy), [
+                'name' => 'دانش‌آموز اول',
+                'national_id' => '0098765432',
+                'email' => 'first.national.id@student-test.example',
+                'mobile' => '09125550111',
+                'grade_id' => $gradeId,
+            ])
+            ->assertRedirect(route('owner.people.index', $academy) . '?tab=create-student')
+            ->assertSessionHasNoErrors();
+
+        $usersBefore = User::query()->count();
+
+        $this->actingAs($owner)
+            ->post(route('owner.people.store-student', $academy), [
+                'name' => 'دانش‌آموز دوم',
+                'national_id' => '۰۰۹۸۷۶۵۴۳۲',
+                'email' => 'second.national.id@student-test.example',
+                'mobile' => '09125550112',
+                'grade_id' => $gradeId,
+            ])
+            ->assertSessionHasErrors('national_id');
+
+        $this->assertSame($usersBefore, User::query()->count());
+        $this->assertDatabaseHas('student_profiles', [
+            'national_id_lookup' => \App\Support\NationalIdLookup::make('0098765432'),
+        ]);
+    }
+
 }

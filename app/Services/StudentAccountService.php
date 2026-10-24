@@ -7,6 +7,9 @@ use App\Models\AcademicGrade;
 use App\Models\AuditLog;
 use App\Models\Role;
 use App\Models\StudentProfile;
+use App\Models\StudentIdentityLock;
+use App\Models\StudentOnboarding;
+use App\Support\NationalIdLookup;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +29,40 @@ final class StudentAccountService
             403,
         );
 
-        return DB::transaction(function () use ($admin, $academy, $data): array {
+        if (! Schema::hasTable('student_identity_locks') || ! Schema::hasColumn('student_profiles', 'national_id_lookup')) {
+            throw ValidationException::withMessages([
+                'national_id' => 'ساختار امن تطبیق کد ملی هنوز کامل نیست؛ ابتدا migrationهای هویت دانش‌آموز را اجرا کن.',
+            ]);
+        }
+
+        $lookup = NationalIdLookup::make((string) $data['national_id']);
+
+        return DB::transaction(function () use ($admin, $academy, $data, $lookup): array {
+            DB::table('student_identity_locks')->insertOrIgnore([
+                'national_id_lookup' => $lookup,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $identityLock = StudentIdentityLock::query()
+                ->where('national_id_lookup', $lookup)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $existingIdentity = StudentProfile::query()
+                ->where('national_id_lookup', $lookup)
+                ->lockForUpdate()
+                ->exists();
+            $existingOnboarding = Schema::hasTable('student_onboardings')
+                ? StudentOnboarding::query()->where('national_id_lookup', $lookup)->exists()
+                : false;
+
+            if ($identityLock->user_id || $existingIdentity || $existingOnboarding) {
+                throw ValidationException::withMessages([
+                    'national_id' => 'برای این کد ملی از قبل حساب یا سابقه‌ای در سامانه وجود دارد؛ برای جلوگیری از تکرار از مسیر تطبیق دانش‌آموز قدیمی استفاده کن.',
+                ]);
+            }
+
             $grade = AcademicGrade::query()->where('is_active', true)
                 ->whereKey((int) $data['grade_id'])->lockForUpdate()->first();
 
@@ -71,6 +107,7 @@ final class StudentAccountService
                 'birth_date' => $data['birth_date'] ?? null,
                 'grade' => $grade->title,
                 'school_name' => filled($data['school_name'] ?? null) ? trim((string) $data['school_name']) : null,
+                'national_id_lookup' => $lookup,
             ];
             foreach ([
                 'grade_id' => (int) $grade->id,
@@ -82,6 +119,25 @@ final class StudentAccountService
                 if (Schema::hasColumn('student_profiles', $field)) $profileData[$field] = $value;
             }
             $profile = StudentProfile::query()->create($profileData);
+            $identityLock->forceFill(['user_id' => $student->id])->save();
+
+            if (Schema::hasTable('student_onboardings')) {
+                StudentOnboarding::query()->create([
+                    'academy_id' => $academy->id,
+                    'admin_id' => $admin->id,
+                    'student_id' => $student->id,
+                    'entered_name' => trim((string) $data['name']),
+                    'national_id_lookup' => $lookup,
+                    'requested_grade_id' => $grade->id,
+                    'school_name' => filled($data['school_name'] ?? null) ? trim((string) $data['school_name']) : null,
+                    'mobile' => $mobile,
+                    'source' => 'admin',
+                    'status' => 'activated',
+                    'notes' => filled($data['notes'] ?? null) ? trim((string) $data['notes']) : null,
+                    'verified_at' => now(),
+                    'activated_at' => now(),
+                ]);
+            }
 
             $academy->users()->syncWithoutDetaching([
                 $student->id => ['role' => 'student', 'status' => 'active', 'joined_at' => now()],
@@ -98,6 +154,7 @@ final class StudentAccountService
                         'student_id' => $student->id,
                         'grade_id' => $grade->id,
                         'student_number' => $studentNumber,
+                        'national_id_present' => true,
                         'mobile_present' => (bool) $mobile,
                         'must_change_password' => Schema::hasColumn('users', 'must_change_password'),
                     ],
