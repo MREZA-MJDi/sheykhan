@@ -351,7 +351,7 @@ final class OwnerAccessIsolationTest extends TestCase
         $this->seed();
         Cache::flush();
 
-        $owner = User::query()->where('email', 'owner@sheikhan.test')->firstOrFail();
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
         $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
         $permissionIds = Permission::query()->whereIn('name', $permissionNames)->pluck('id');
         $this->assertCount(
