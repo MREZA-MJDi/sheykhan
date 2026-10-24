@@ -5,10 +5,10 @@
 <div class="space-y-6 panel-page-enter">
 <div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اختصاص مسئول کلاس و ثبت‌نام امن.</p></div>
 
-@if(empty($academicGradesAvailable) || empty($studentOnboardingAvailable))
+@if(empty($academicGradesAvailable) || empty($studentOnboardingAvailable) || empty($studentOnboardingHistoryAvailable))
 <section class="owner-schema-warning" role="status" aria-live="polite">
     <strong>بخشی از امکانات ورود دانش‌آموز قدیمی موقتاً غیرفعال است.</strong>
-    <p>فهرست اعضای آموزشگاه در دسترس است؛ برای فعال‌شدن همهٔ امکانات، Migrationهای مربوط به پایه‌های تحصیلی و سوابق ورود دانش‌آموز باید روی سرور بررسی شوند.</p>
+    <p>فهرست اعضای آموزشگاه در دسترس است؛ برای فعال‌شدن تاریخچه ورود دانش‌آموز، Migrationهای پایه‌های تحصیلی و سوابق ورود باید هر دو روی سرور کامل باشند.</p>
     @if(empty($academicGradesAvailable))<p>ساختار جدول پایه‌های تحصیلی کامل نیست.</p>@endif
     @if(empty($studentOnboardingAvailable))<p>ساختار جدول سوابق ورود دانش‌آموز کامل نیست.</p>@endif
 </section>
@@ -105,7 +105,7 @@
 <button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$courseOptions->count())>ثبت‌نام دانش‌آموز</button></form></section>
 </div>
 
-@if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable))
+@if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
 <section class="dashboard-panel p-5 sm:p-7">
     <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -221,7 +221,7 @@
 @else
 <section class="dashboard-panel p-5 sm:p-7">
     <h2 class="font-black">سوابق ورود دانش‌آموز</h2>
-    <p class="mt-2 text-sm text-slate-600">به دلیل آماده‌نبودن جدول سوابق، تاریخچه فعلاً قابل نمایش نیست. فهرست سایر اعضا در دسترس است.</p>
+    <p class="mt-2 text-sm text-slate-600">به دلیل کامل نبودن ساختار پایه‌های تحصیلی یا سوابق ورود، تاریخچه فعلاً قابل نمایش نیست. فهرست سایر اعضا در دسترس است.</p>
 </section>
 @endif
 
