@@ -13,15 +13,52 @@
             'archived' => 'آرشیو',
         ];
 
+        $ownerUser = auth()->user();
         $firstAcademy = $academies->first();
 
-        $attentionCount =
-            (int) ($metrics['pendingReviews'] ?? 0) +
-            (int) ($metrics['capacityAlerts'] ?? 0) +
-            (int) ($metrics['classroomsWithoutTeacher'] ?? 0);
+        // Keep visible links and metrics in sync with the permission on their GET route.
+        $canViewAcademy = (bool) $ownerUser?->hasPermission('academy.view');
+        $canOpenPeople = $canViewAcademy && (bool) $firstAcademy;
+        $canViewClassrooms = (bool) $ownerUser?->hasPermission('classrooms.view') && (bool) $firstAcademy;
+        $canViewCourses = (bool) $ownerUser?->hasPermission('courses.view');
+        $canViewAttendance = (bool) $ownerUser?->hasPermission('attendance.view') && (bool) $firstAcademy;
+        $canViewFinance = (bool) $ownerUser?->hasPermission('finance.view');
+        $canViewReports = (bool) $ownerUser?->hasPermission('reports.view');
+        $canViewAssignments = $canViewCourses && (bool) $firstAcademy;
+        $canViewMeetings = (bool) $ownerUser?->hasPermission('live_classes.view') && (bool) $firstAcademy;
+        $canViewMessages = (bool) $ownerUser?->hasPermission('parents.view') && (bool) $firstAcademy;
+        $canManageContent = (bool) $ownerUser?->hasPermission('content.manage') && (bool) $firstAcademy;
+        $canViewProducts = (bool) $ownerUser?->hasPermission('products.view') && (bool) $firstAcademy;
+        $canViewOrders = (bool) $ownerUser?->hasPermission('orders.view') && (bool) $firstAcademy;
+        $canViewLegalDocuments = (bool) $ownerUser?->hasPermission('legal.manage');
+        $canViewExams = (bool) $ownerUser?->hasPermission('exams.view') && (bool) $firstAcademy;
+        $canViewTeacherPayments = (bool) $ownerUser?->hasPermission('teacher_payments.view') && (bool) $firstAcademy;
+        $canViewRecordings = (bool) $ownerUser?->hasPermission('live_classes.view') && (bool) $firstAcademy;
+        $canChooseAcademy = $canViewAcademy || $canViewClassrooms || $canViewAttendance
+            || $canViewMeetings || $canViewAssignments || $canViewMessages || $canManageContent
+            || $canViewProducts || $canViewOrders || $canViewExams || $canViewTeacherPayments
+            || $canViewRecordings;
+        $hasMultipleAcademies = $academies->count() > 1;
+        $ownerAcademyHref = fn (string $routeName): string => $hasMultipleAcademies
+            ? '#owner-academies'
+            : route($routeName, $firstAcademy);
 
-        $sales = (float) ($metrics['sales'] ?? 0);
-        $attendanceRate = $metrics['todayAttendanceRate'] ?? null;
+        // Suppress numbers for workflows the account cannot open.
+        $visiblePendingReviews = $canViewAssignments ? max(0, (int) ($metrics['pendingReviews'] ?? 0)) : 0;
+        $visibleCapacityAlerts = $canViewClassrooms ? max(0, (int) ($metrics['capacityAlerts'] ?? 0)) : 0;
+        $visibleClassroomsWithoutTeacher = $canViewClassrooms ? max(0, (int) ($metrics['classroomsWithoutTeacher'] ?? 0)) : 0;
+        $attentionCount = $visiblePendingReviews + $visibleCapacityAlerts + $visibleClassroomsWithoutTeacher;
+        $sales = $canViewFinance ? (float) ($metrics['sales'] ?? 0) : 0;
+        $attendanceRate = $canViewAttendance ? ($metrics['todayAttendanceRate'] ?? null) : null;
+
+        $focusRoute = null;
+        if ($visibleClassroomsWithoutTeacher > 0 && $firstAcademy) {
+            $focusRoute = $ownerAcademyHref('owner.classrooms.index');
+        } elseif ($visibleCapacityAlerts > 0 && $firstAcademy) {
+            $focusRoute = $ownerAcademyHref('owner.classrooms.index');
+        } elseif ($visiblePendingReviews > 0 && $firstAcademy) {
+            $focusRoute = $ownerAcademyHref('owner.assignments.index');
+        }
     @endphp
 
     <div class="owner-dashboard space-y-6 pb-8">
@@ -49,286 +86,217 @@
                 </p>
 
                 <div class="owner-hero-actions mt-6">
-                    @if($firstAcademy)
-                        <a
-                            href="{{ route('owner.classrooms.index', $firstAcademy) }}"
-                            class="owner-btn"
-                        >
-                            مدیریت کلاس‌ها
-                        </a>
-
-                        <a
-                            href="{{ route('owner.people.index', $firstAcademy) }}"
-                            class="owner-btn ghost"
-                        >
-                            مدیریت اعضا
-                        </a>
-
-                        <a href="{{ route('owner.resources.index', $firstAcademy) }}" class="owner-btn ghost">
-                            جزوه‌ها و فایل‌ها
-                        </a>
-
-                        <a href="{{ route('owner.products.index', $firstAcademy) }}" class="owner-btn ghost">
-                            کتابخانه، جزوه و آزمون
-                        </a>
-
-                        <a href="{{ route('owner.showcase.index', $firstAcademy) }}" class="owner-btn ghost">
-                            افتخارآفرینان و رضایتمندی
-                        </a>
-
-                        <a href="{{ route('owner.orders.index', $firstAcademy) }}" class="owner-btn ghost">
-                            سفارش‌ها و رسیدها
-                        </a>
-
-                        <a href="{{ route('owner.legal-documents.index') }}" class="owner-btn ghost">
-                            اسناد حقوقی و کپی‌رایت
-                        </a>
+                    @if($canViewClassrooms)
+                        <a href="{{ $ownerAcademyHref('owner.classrooms.index') }}" class="owner-btn">مدیریت کلاس‌ها</a>
                     @endif
-
-                    <a
-                        href="{{ route('owner.reports.index') }}"
-                        class="owner-btn ghost"
-                    >
-                        گزارش‌ها
-                    </a>
+                    @if($canViewAcademy && $firstAcademy)
+                        <a href="{{ $ownerAcademyHref('owner.people.index') }}" class="owner-btn ghost">مدیریت اعضا</a>
+                    @endif
+                    @if($canManageContent)
+                        <a href="{{ $ownerAcademyHref('owner.resources.index') }}" class="owner-btn ghost">جزوه‌ها و فایل‌ها</a>
+                        <a href="{{ $ownerAcademyHref('owner.showcase.index') }}" class="owner-btn ghost">افتخارآفرینان و رضایتمندی</a>
+                    @endif
+                    @if($canViewProducts)
+                        <a href="{{ $ownerAcademyHref('owner.products.index') }}" class="owner-btn ghost">کتابخانه، جزوه و آزمون</a>
+                    @endif
+                    @if($canViewOrders)
+                        <a href="{{ $ownerAcademyHref('owner.orders.index') }}" class="owner-btn ghost">سفارش‌ها و رسیدها</a>
+                    @endif
+                    @if($canViewLegalDocuments)
+                        <a href="{{ route('owner.legal-documents.index') }}" class="owner-btn ghost">اسناد حقوقی و کپی‌رایت</a>
+                    @endif
+                    @if($canViewReports)
+                        <a href="{{ route('owner.reports.index') }}" class="owner-btn ghost">گزارش‌ها</a>
+                    @endif
                 </div>
             </div>
 
-            <div class="owner-hero-art" aria-hidden="true">
-                <div class="owner-orb one"></div>
-                <div class="owner-orb two"></div>
-
-                <div class="owner-hero-stat">
-                    <small>درآمد خالص ثبت‌شده</small>
-
-                    <strong>
-                        {{ \App\Support\PersianUi::number($sales) }}
-                    </strong>
-
-                    <span>
-                        تومان · از دفتر پرداخت‌های تکمیل‌شده
-                    </span>
-                </div>
-            </div>
-        </section>
-
-
-        <section class="owner-focus-card {{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}" aria-labelledby="owner-focus-title">
-            <div class="owner-focus-status" aria-hidden="true">
-                <span class="{{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}"></span>
-            </div>
-
-            <div class="owner-focus-copy">
-                <span class="owner-focus-kicker">صف امروز</span>
-                <h2 id="owner-focus-title">
-                    @if(($metrics['classroomsWithoutTeacher'] ?? 0) > 0)
-                        {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher']) }} کلاس بدون مدرس داری.
-                    @elseif(($metrics['capacityAlerts'] ?? 0) > 0)
-                        {{ \App\Support\PersianUi::digits($metrics['capacityAlerts']) }} کلاس نزدیک ظرفیت است.
-                    @elseif(($metrics['pendingReviews'] ?? 0) > 0)
-                        {{ \App\Support\PersianUi::digits($metrics['pendingReviews']) }} مورد هنوز نیازمند بررسی است.
-                    @else
-                        امروز مورد بحرانی برای پیگیری نداری.
-                    @endif
-                </h2>
-                <p>
-                    این نوار فقط مواردی را بالا می‌آورد که از داده واقعی عملیات آموزشگاه می‌آیند؛
-                    اولویت را باز کن و مستقیم سراغ همان کار برو.
-                </p>
-            </div>
-
-            <div class="owner-focus-actions">
-                @if(($metrics['classroomsWithoutTeacher'] ?? 0) > 0 && $firstAcademy)
-                    <a href="{{ route('owner.classrooms.index', $firstAcademy) }}">تکمیل کلاس‌ها ←</a>
-                @elseif(($metrics['capacityAlerts'] ?? 0) > 0 && $firstAcademy)
-                    <a href="{{ route('owner.classrooms.index', $firstAcademy) }}">بررسی ظرفیت ←</a>
-                @elseif(($metrics['pendingReviews'] ?? 0) > 0)
-                    <a href="{{ route('owner.reports.index') }}">باز کردن گزارش ←</a>
-                @else
-                    <a href="{{ route('owner.courses.index') }}">مدیریت دوره‌ها ←</a>
-                @endif
-            </div>
-        </section>
-
-        {{-- =========================================================
-            QUICK OPERATION LINKS
-        ========================================================== --}}
-        <section aria-labelledby="owner-quick-actions-title" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <h2 id="owner-quick-actions-title" class="sr-only">دسترسی سریع کارتابل</h2>
-            @if($firstAcademy)
-                <a href="{{ route('owner.people.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">ثبت‌نام و مدیریت اعضا</strong><small class="mt-1 block text-xs text-slate-500">دانش‌آموز، ولی و مدرس</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.attendance.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">سوابق حضور و غیاب</strong><small class="mt-1 block text-xs text-slate-500">جست‌وجو در تمام کلاس‌های آموزشگاه</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.meetings.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">هماهنگی با اولیا</strong><small class="mt-1 block text-xs text-slate-500">ثبت جلسه و اطلاع‌رسانی در پنل دو طرف</small></span><span aria-hidden="true" class="text-xl text-slate-500">←</span>
-                </a>
-                <a href="{{ route('owner.assignments.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">تکالیف و تصحیح</strong><small class="mt-1 block text-xs text-slate-500">بارگذاری راهنما و بررسی پاسخ‌ها</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.schedules.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">لینک کلاس‌های آنلاین</strong><small class="mt-1 block text-xs text-slate-500">زمان‌بندی هفتگی و لینک ورود هر کلاس</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.resources.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">ویدئو و منابع آموزشی</strong><small class="mt-1 block text-xs text-slate-500">فایل، جزوه و محتوای دوره</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.products.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">محصولات و کتاب‌ها</strong><small class="mt-1 block text-xs text-slate-500">مدیریت منابع قابل فروش</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.messages.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">پیام‌های اولیا</strong><small class="mt-1 block text-xs text-slate-500">انتقاد، پیشنهاد و پاسخ‌گویی</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.counseling.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">جلسات مشاوره</strong><small class="mt-1 block text-xs text-slate-500">بررسی درخواست‌ها و تعیین زمان</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.exams.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">آزمون‌ها و نتایج</strong><small class="mt-1 block text-xs text-slate-500">وضعیت انتشار و تلاش‌های دانش‌آموزان</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.recordings.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">آرشیو ضبط کلاس‌ها</strong><small class="mt-1 block text-xs text-slate-500">کنترل انتشار و دسترسی فایل‌ها</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-                </a>
-                <a href="{{ route('owner.teacher-payments.index', $firstAcademy) }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                    <span><strong class="block text-sm font-black">حقوق مدرس‌ها</strong><small class="mt-1 block text-xs text-slate-500">ثبت سند و وضعیت پرداخت</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
+            @if($canViewFinance)
+                <a class="owner-hero-art owner-hero-finance-link" href="{{ route('owner.finance.index') }}" aria-label="مشاهده دفتر مالی">
+                    <div class="owner-orb one"></div>
+                    <div class="owner-orb two"></div>
+                    <div class="owner-hero-stat">
+                        <small>درآمد خالص ثبت‌شده</small>
+                        <strong>{{ \App\Support\PersianUi::number($sales) }}</strong>
+                        <span>تومان · از دفتر پرداخت‌های تکمیل‌شده</span>
+                        <span class="owner-finance-link-label">مشاهده دفتر مالی ←</span>
+                    </div>
                 </a>
             @endif
-            <a href="{{ route('owner.reports.index') }}" class="dashboard-panel flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                <span><strong class="block text-sm font-black">گزارش‌های آموزشی</strong><small class="mt-1 block text-xs text-slate-500">عملکرد دوره، کلاس، مدرس و تکلیف</small></span><span aria-hidden="true" class="text-xl text-[var(--panel-primary)]">←</span>
-            </a>
-        </section>
-
-        {{-- =========================================================
-            PRIMARY METRICS
-        ========================================================== --}}
-        <section class="owner-stats">
-
-            <article class="owner-stat-card">
-                <span>کلاس‌های فعال</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($metrics['classrooms'] ?? 0) }}
-                </strong>
-
-                <small>
-                    {{ \App\Support\PersianUi::digits($metrics['liveNow'] ?? 0) }}
-                    کلاس آنلاین در حال اجرا
-                </small>
-            </article>
-
-            <article class="owner-stat-card">
-                <span>دانش‌آموز فعال</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($metrics['students'] ?? 0) }}
-                </strong>
-
-                <small>
-                    @if($attendanceRate === null)
-                        حضور امروز ثبت نشده
-                    @else
-                        حضور امروز {{ \App\Support\PersianUi::digits($attendanceRate) }}٪
-                    @endif
-                </small>
-            </article>
-
-            <article class="owner-stat-card">
-                <span>مدرس فعال</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($metrics['teachers'] ?? 0) }}
-                </strong>
-
-                <small>
-                    {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }}
-                    دوره در آموزشگاه‌ها
-                </small>
-            </article>
-
-            <article class="owner-stat-card">
-                <span>نیازمند توجه</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($attentionCount) }}
-                </strong>
-
-                <small>
-                    {{ \App\Support\PersianUi::digits($metrics['pendingReviews'] ?? 0) }}
-                    بررسی ·
-                    {{ \App\Support\PersianUi::digits($metrics['capacityAlerts'] ?? 0) }}
-                    کلاس نزدیک ظرفیت ·
-                    {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher'] ?? 0) }}
-                    کلاس بدون مدرس
-                </small>
-            </article>
-
         </section>
 
 
-        {{-- =========================================================
-            QUICK CONTROL SUMMARY
-        ========================================================== --}}
-        <section class="grid gap-4 md:grid-cols-3">
-
-            <article class="dashboard-panel p-5">
-                <span class="text-[10px] font-bold text-slate-500">
-                    حضور امروز
-                </span>
-
-                <div class="mt-2 flex items-end gap-2">
-                    <strong class="text-2xl font-black">
-                        {{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) . '٪' }}
-                    </strong>
-
-                    <span class="pb-1 text-[10px] text-slate-400">
-                        بر اساس رکوردهای امروز
-                    </span>
+        @if($canViewClassrooms || $canViewAssignments || $canViewReports)
+            <section class="owner-focus-card {{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}" aria-labelledby="owner-focus-title">
+                <div class="owner-focus-status" aria-hidden="true">
+                    <span class="{{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}"></span>
                 </div>
-            </article>
-
-            <article class="dashboard-panel p-5">
-                <span class="text-[10px] font-bold text-slate-500">
-                    دوره‌های منتشرشده
-                </span>
-
-                <div class="mt-2 flex items-end gap-2">
-                    <strong class="text-2xl font-black">
-                        {{ \App\Support\PersianUi::digits($metrics['published'] ?? 0) }}
-                    </strong>
-
-                    <span class="pb-1 text-[10px] text-slate-400">
-                        از {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }} دوره
-                    </span>
+                <div class="owner-focus-copy">
+                    <span class="owner-focus-kicker">صف امروز</span>
+                    <h2 id="owner-focus-title">
+                        @if($visibleClassroomsWithoutTeacher > 0)
+                            {{ \App\Support\PersianUi::digits($visibleClassroomsWithoutTeacher) }} کلاس بدون مدرس داری.
+                        @elseif($visibleCapacityAlerts > 0)
+                            {{ \App\Support\PersianUi::digits($visibleCapacityAlerts) }} کلاس نزدیک ظرفیت است.
+                        @elseif($visiblePendingReviews > 0)
+                            {{ \App\Support\PersianUi::digits($visiblePendingReviews) }} مورد هنوز نیازمند بررسی است.
+                        @else
+                            امروز موردی برای پیگیری در بخش‌های مجاز این حساب ثبت نشده است.
+                        @endif
+                    </h2>
+                    <p>شاخص‌های این بخش فقط از داده‌های واقعی و قابل‌دسترسی همین کارتابل می‌آیند.</p>
                 </div>
-            </article>
+                @if($focusRoute)
+                    <div class="owner-focus-actions"><a href="{{ $focusRoute }}">رفتن به بخش مربوط ←</a></div>
+                @endif
+            </section>
+        @endif
 
-            <article class="dashboard-panel p-5">
-                <span class="text-[10px] font-bold text-slate-500">
-                    موارد کنترل
-                </span>
+        {{-- Permission-aware shortcuts: each link follows its destination GET permission. --}}
+        @if($canViewAcademy || $canViewAttendance || $canViewMeetings || $canViewAssignments || $canManageContent || $canViewProducts || $canViewMessages || $canViewExams || $canViewRecordings || $canViewTeacherPayments || $canViewReports || $canViewOrders || $canViewLegalDocuments)
+            <section aria-labelledby="owner-quick-actions-title" class="owner-quick-actions">
+                <h2 id="owner-quick-actions-title" class="sr-only">دسترسی سریع کارتابل</h2>
+                @if($canOpenPeople)
+                    <a href="{{ $ownerAcademyHref('owner.people.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>ثبت‌نام و مدیریت اعضا</strong><small>دانش‌آموز، ولی و مدرس</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewAttendance)
+                    <a href="{{ $ownerAcademyHref('owner.attendance.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>سوابق حضور و غیاب</strong><small>جست‌وجو در کلاس‌های آموزشگاه</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewMeetings)
+                    <a href="{{ $ownerAcademyHref('owner.meetings.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>هماهنگی با اولیا</strong><small>جلسات و اطلاع‌رسانی</small></span><span aria-hidden="true">←</span>
+                    </a>
+                    <a href="{{ $ownerAcademyHref('owner.schedules.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>لینک کلاس‌های آنلاین</strong><small>زمان‌بندی و لینک ورود هر کلاس</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewRecordings)
+                    <a href="{{ $ownerAcademyHref('owner.recordings.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>آرشیو ضبط کلاس‌ها</strong><small>انتشار و دسترسی فایل‌ها</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewAssignments)
+                    <a href="{{ $ownerAcademyHref('owner.assignments.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>تکالیف و تصحیح</strong><small>بررسی پاسخ‌های ارسال‌شده</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canManageContent)
+                    <a href="{{ $ownerAcademyHref('owner.resources.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>ویدئو و منابع آموزشی</strong><small>فایل، جزوه و محتوای دوره</small></span><span aria-hidden="true">←</span>
+                    </a>
+                    <a href="{{ $ownerAcademyHref('owner.showcase.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>افتخارآفرینان و رضایتمندی</strong><small>مدیریت محتوای نمایشی آموزشگاه</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewProducts)
+                    <a href="{{ $ownerAcademyHref('owner.products.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>محصولات و کتاب‌ها</strong><small>مدیریت منابع قابل فروش</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewOrders)
+                    <a href="{{ $ownerAcademyHref('owner.orders.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>سفارش‌ها و رسیدها</strong><small>بررسی سفارش و مدارک پرداخت</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewMessages)
+                    <a href="{{ $ownerAcademyHref('owner.messages.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>پیام‌های اولیا</strong><small>پیگیری و پاسخ‌گویی</small></span><span aria-hidden="true">←</span>
+                    </a>
+                    <a href="{{ $ownerAcademyHref('owner.counseling.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>جلسات مشاوره</strong><small>بررسی درخواست‌ها</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewExams)
+                    <a href="{{ $ownerAcademyHref('owner.exams.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>آزمون‌ها و نتایج</strong><small>انتشار و تلاش‌های دانش‌آموزان</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewTeacherPayments)
+                    <a href="{{ $ownerAcademyHref('owner.teacher-payments.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>حقوق مدرس‌ها</strong><small>ثبت سند و وضعیت پرداخت</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewReports)
+                    <a href="{{ route('owner.reports.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>گزارش‌های آموزشی</strong><small>عملکرد دوره، کلاس، مدرس و تکلیف</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewLegalDocuments)
+                    <a href="{{ route('owner.legal-documents.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>اسناد حقوقی و کپی‌رایت</strong><small>مستندات و ثبت اسناد</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+            </section>
+        @endif
 
-                <div class="mt-3 flex flex-wrap gap-2">
-                    <span class="owner-pill">
-                        {{ \App\Support\PersianUi::digits($metrics['pendingReviews'] ?? 0) }} تکلیف معوق
-                    </span>
-
-                    <span class="owner-pill">
-                        {{ \App\Support\PersianUi::digits($metrics['capacityAlerts'] ?? 0) }} ظرفیت بالا
-                    </span>
-
-                    <span class="owner-pill">
-                        {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher'] ?? 0) }} بدون مدرس
-                    </span>
-                </div>
-            </article>
-
+        {{-- The KPI band links to the matching accessible workspace. --}}
+        <section class="owner-stats" aria-label="شاخص‌های کارتابل">
+            @if($canViewClassrooms)
+                <a class="owner-stat-card is-actionable" href="{{ $ownerAcademyHref('owner.classrooms.index') }}" aria-label="کلاس‌های فعال">
+                    <span class="owner-stat-label">کلاس‌های فعال <i aria-hidden="true">↗</i></span>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['classrooms'] ?? 0) }}</strong>
+                    <small>{{ \App\Support\PersianUi::digits($metrics['liveNow'] ?? 0) }} کلاس آنلاین در حال اجرا</small>
+                </a>
+            @endif
+            @if($canOpenPeople)
+                <a class="owner-stat-card is-actionable" href="{{ $ownerAcademyHref('owner.people.index') }}" aria-label="دانش‌آموزان فعال">
+                    <span class="owner-stat-label">دانش‌آموز فعال <i aria-hidden="true">↗</i></span>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['students'] ?? 0) }}</strong>
+                    <small>فهرست اعضای آموزشگاه</small>
+                </a>
+                <a class="owner-stat-card is-actionable" href="{{ $ownerAcademyHref('owner.people.index') }}" aria-label="مدرس‌های فعال">
+                    <span class="owner-stat-label">مدرس فعال <i aria-hidden="true">↗</i></span>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['teachers'] ?? 0) }}</strong>
+                    <small>مدرس‌های آموزشگاه</small>
+                </a>
+            @endif
+            @if($canViewCourses)
+                <a class="owner-stat-card is-actionable" href="{{ route('owner.courses.index') }}" aria-label="دوره‌های منتشرشده">
+                    <span class="owner-stat-label">دوره‌های منتشرشده <i aria-hidden="true">↗</i></span>
+                    <strong>{{ \App\Support\PersianUi::digits($metrics['published'] ?? 0) }}</strong>
+                    <small>از {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }} دوره ثبت‌شده</small>
+                </a>
+            @endif
+            @if($canViewAttendance)
+                <a class="owner-stat-card is-actionable" href="{{ $ownerAcademyHref('owner.attendance.index') }}" aria-label="حضور امروز">
+                    <span class="owner-stat-label">حضور امروز <i aria-hidden="true">↗</i></span>
+                    <strong>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) . '٪' }}</strong>
+                    <small>{{ $attendanceRate === null ? 'رکورد حضور امروز ثبت نشده' : 'بر اساس رکوردهای امروز' }}</small>
+                </a>
+            @endif
+            @if($canViewClassrooms || $canViewAssignments || $canViewReports)
+                @if($focusRoute)
+                    <a class="owner-stat-card is-actionable" href="{{ $focusRoute }}" aria-label="موارد نیازمند توجه">
+                @else
+                    <article class="owner-stat-card">
+                @endif
+                    <span class="owner-stat-label">نیازمند توجه @if($focusRoute)<i aria-hidden="true">↗</i>@endif</span>
+                    <strong>{{ \App\Support\PersianUi::digits($attentionCount) }}</strong>
+                    <small>
+                        {{ \App\Support\PersianUi::digits($visiblePendingReviews) }} بررسی ·
+                        {{ \App\Support\PersianUi::digits($visibleCapacityAlerts) }} کلاس نزدیک ظرفیت ·
+                        {{ \App\Support\PersianUi::digits($visibleClassroomsWithoutTeacher) }} کلاس بدون مدرس
+                    </small>
+                @if($focusRoute)
+                    </a>
+                @else
+                    </article>
+                @endif
+            @endif
+            @if(!$canViewClassrooms && !$canOpenPeople && !$canViewCourses && !$canViewAttendance && !$canViewReports && !$canViewAssignments)
+                <div class="dashboard-panel owner-empty" role="status">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های آموزشگاه برای این حساب فعال نیست.</div>
+            @endif
         </section>
 
-
+        @if($canChooseAcademy)
         {{-- =========================================================
             ACADEMIES
         ========================================================== --}}
-        <section>
+        <section id="owner-academies">
             <div class="owner-panel-head mb-4">
                 <div>
                     <h2>آموزشگاه‌های شما</h2>
@@ -365,34 +333,49 @@
                                 </span>
                             </div>
 
-                            <div class="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
-                                <a
-                                    href="{{ route('owner.people.index', $academy) }}"
-                                    class="owner-pill justify-center"
-                                >
-                                    اعضا
-                                </a>
-
-                                <a
-                                    href="{{ route('owner.classrooms.index', $academy) }}"
-                                    class="owner-pill justify-center"
-                                >
-                                    کلاس‌ها
-                                </a>
-
-                                <a
-                                    href="{{ route('owner.academy.edit', $academy) }}"
-                                    class="owner-pill success justify-center"
-                                >
-                                    تنظیمات
-                                </a>
-
-                                <a
-                                    href="{{ route('owner.academy.banners.edit', $academy) }}"
-                                    class="owner-pill banner justify-center"
-                                >
-                                    بنرها
-                                </a>
+                            <div class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                                @if($canViewAcademy)
+                                    <a href="{{ route('owner.people.index', $academy) }}" class="owner-pill justify-center">اعضا</a>
+                                @endif
+                                @if($canViewClassrooms)
+                                    <a href="{{ route('owner.classrooms.index', $academy) }}" class="owner-pill justify-center">کلاس‌ها</a>
+                                @endif
+                                @if($canViewAttendance)
+                                    <a href="{{ route('owner.attendance.index', $academy) }}" class="owner-pill justify-center">حضور و غیاب</a>
+                                @endif
+                                @if($canViewAssignments)
+                                    <a href="{{ route('owner.assignments.index', $academy) }}" class="owner-pill justify-center">تکالیف و تصحیح</a>
+                                @endif
+                                @if($canViewMeetings)
+                                    <a href="{{ route('owner.meetings.index', $academy) }}" class="owner-pill justify-center">هماهنگی جلسات</a>
+                                    <a href="{{ route('owner.schedules.index', $academy) }}" class="owner-pill justify-center">لینک کلاس آنلاین</a>
+                                    <a href="{{ route('owner.recordings.index', $academy) }}" class="owner-pill justify-center">آرشیو ضبط کلاس</a>
+                                @endif
+                                @if($canViewMessages)
+                                    <a href="{{ route('owner.messages.index', $academy) }}" class="owner-pill justify-center">پیام‌های اولیا</a>
+                                    <a href="{{ route('owner.communications.index', $academy) }}" class="owner-pill justify-center">اطلاعیه و پیام</a>
+                                    <a href="{{ route('owner.counseling.index', $academy) }}" class="owner-pill justify-center">جلسات مشاوره</a>
+                                @endif
+                                @if($canViewExams)
+                                    <a href="{{ route('owner.exams.index', $academy) }}" class="owner-pill justify-center">آزمون‌ها و نتایج</a>
+                                @endif
+                                @if($canViewTeacherPayments)
+                                    <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="owner-pill justify-center">حقوق مدرس‌ها</a>
+                                @endif
+                                @if($canManageContent)
+                                    <a href="{{ route('owner.resources.index', $academy) }}" class="owner-pill justify-center">ویدئو و منابع</a>
+                                    <a href="{{ route('owner.showcase.index', $academy) }}" class="owner-pill justify-center">افتخارآفرینان</a>
+                                @endif
+                                @if($canViewProducts)
+                                    <a href="{{ route('owner.products.index', $academy) }}" class="owner-pill justify-center">محصولات</a>
+                                @endif
+                                @if($canViewOrders)
+                                    <a href="{{ route('owner.orders.index', $academy) }}" class="owner-pill justify-center">سفارش‌ها</a>
+                                @endif
+                                @if($canViewAcademy)
+                                    <a href="{{ route('owner.academy.edit', $academy) }}" class="owner-pill success justify-center">تنظیمات</a>
+                                    <a href="{{ route('owner.academy.banners.edit', $academy) }}" class="owner-pill banner justify-center">بنرها</a>
+                                @endif
                             </div>
                         </article>
                     @endforeach
@@ -403,12 +386,15 @@
                 </div>
             @endif
         </section>
+        @endif
+
+
 
 
         {{-- =========================================================
             TODAY'S CLASSROOMS
         ========================================================== --}}
-        @if($classrooms->isNotEmpty())
+        @if($canViewClassrooms && $classrooms->isNotEmpty())
             <section class="dashboard-panel owner-panel">
 
                 <div class="owner-panel-head">
@@ -422,7 +408,7 @@
 
                     @if($firstAcademy)
                         <a
-                            href="{{ route('owner.classrooms.index', $firstAcademy) }}"
+                            href="{{ $ownerAcademyHref('owner.classrooms.index') }}"
                             class="owner-link"
                         >
                             همه کلاس‌ها ←
@@ -500,15 +486,14 @@
                                     </span>
                                 </div>
 
-                                <div class="rounded-xl bg-white p-3 text-center">
-                                    <strong class="block text-sm font-black text-slate-950">
-                                        {{ $classroom->today_attendance_rate === null ? '—' : \App\Support\PersianUi::digits($classroom->today_attendance_rate) . '٪' }}
-                                    </strong>
-
-                                    <span class="text-[9px] text-slate-400">
-                                        حضور امروز
-                                    </span>
-                                </div>
+                                @if($canViewAttendance)
+                                    <div class="rounded-xl bg-white p-3 text-center">
+                                        <strong class="block text-sm font-black text-slate-950">
+                                            {{ $classroom->today_attendance_rate === null ? '—' : \App\Support\PersianUi::digits($classroom->today_attendance_rate) . '٪' }}
+                                        </strong>
+                                        <span class="text-[9px] text-slate-400">حضور امروز</span>
+                                    </div>
+                                @endif
 
                             </div>
 
@@ -562,11 +547,13 @@
         @endif
 
 
+@if($canViewReports || $canViewMeetings)
         {{-- =========================================================
             TEACHERS + UPCOMING LIVE CLASSES
         ========================================================== --}}
         <div class="owner-grid">
 
+@if($canViewReports)
             {{-- Teachers --}}
             <section class="dashboard-panel owner-panel">
 
@@ -637,6 +624,9 @@
             </section>
 
 
+@endif
+
+@if($canViewMeetings)
             {{-- Upcoming live classes --}}
             <section class="dashboard-panel owner-panel">
 
@@ -686,10 +676,15 @@
 
                 </div>
             </section>
+@endif
+
 
         </div>
 
 
+
+@endif
+@if($canViewCourses)
         {{-- =========================================================
             RECENT COURSES
         ========================================================== --}}
@@ -749,62 +744,29 @@
 
             </div>
         </section>
+@endif
 
 
-        {{-- =========================================================
-            FOOTER QUICK ACTIONS
-        ========================================================== --}}
-        @if($firstAcademy)
-            <section class="grid gap-3 sm:grid-cols-3">
 
-                <a
-                    href="{{ route('owner.classrooms.index', $firstAcademy) }}"
-                    class="dashboard-panel group p-5 transition hover:-translate-y-0.5 hover:border-slate-200"
-                >
-                    <span class="text-xs font-bold text-slate-500">
-                        عملیات
-                    </span>
 
-                    <strong class="mt-2 flex items-center justify-between text-sm font-black text-slate-950">
-                        مدیریت کلاس‌ها
-                        <span class="transition-transform group-hover:-translate-x-1">
-                            ←
-                        </span>
-                    </strong>
-                </a>
-
-                <a
-                    href="{{ route('owner.people.index', $firstAcademy) }}"
-                    class="dashboard-panel group p-5 transition hover:-translate-y-0.5 hover:border-slate-200"
-                >
-                    <span class="text-xs font-bold text-slate-500">
-                        اعضای آموزشگاه
-                    </span>
-
-                    <strong class="mt-2 flex items-center justify-between text-sm font-black text-slate-950">
-                        مدیریت دانش‌آموز و مدرس
-                        <span class="transition-transform group-hover:-translate-x-1">
-                            ←
-                        </span>
-                    </strong>
-                </a>
-
-                <a
-                    href="{{ route('owner.reports.index') }}"
-                    class="dashboard-panel group p-5 transition hover:-translate-y-0.5 hover:border-slate-200"
-                >
-                    <span class="text-xs font-bold text-slate-500">
-                        تحلیل
-                    </span>
-
-                    <strong class="mt-2 flex items-center justify-between text-sm font-black text-slate-950">
-                        گزارش‌های آموزشگاه
-                        <span class="transition-transform group-hover:-translate-x-1">
-                            ←
-                        </span>
-                    </strong>
-                </a>
-
+        {{-- Footer shortcuts follow the same destination permissions as the sidebar. --}}
+        @if($canViewClassrooms || $canViewAcademy || $canViewReports)
+            <section class="owner-footer-actions" aria-label="دسترسی‌های پایانی">
+                @if($canViewClassrooms)
+                    <a href="{{ $ownerAcademyHref('owner.classrooms.index') }}" class="dashboard-panel owner-footer-action">
+                        <span>عملیات</span><strong>مدیریت کلاس‌ها <i aria-hidden="true">←</i></strong>
+                    </a>
+                @endif
+                @if($canOpenPeople)
+                    <a href="{{ $ownerAcademyHref('owner.people.index') }}" class="dashboard-panel owner-footer-action">
+                        <span>اعضای آموزشگاه</span><strong>مدیریت دانش‌آموز و مدرس <i aria-hidden="true">←</i></strong>
+                    </a>
+                @endif
+                @if($canViewReports)
+                    <a href="{{ route('owner.reports.index') }}" class="dashboard-panel owner-footer-action">
+                        <span>تحلیل</span><strong>گزارش‌های آموزشگاه <i aria-hidden="true">←</i></strong>
+                    </a>
+                @endif
             </section>
         @endif
 

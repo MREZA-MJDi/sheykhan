@@ -32,6 +32,7 @@
         </div>
     @endif
 
+    @if($canManage)
     <section class="dashboard-panel p-5 sm:p-7">
         <h2 class="text-xl font-black text-[var(--panel-text)]">ارسال پیام تازه</h2>
         <p class="mt-1 text-sm leading-7 text-[var(--panel-muted)]">اطلاعیه عمومی، پیام خانواده‌های یک کلاس و پیام مستقیم، گیرنده‌های جداگانه دارند.</p>
@@ -71,6 +72,12 @@
             </form>
         @endif
     </section>
+    @else
+        <section class="dashboard-panel p-5 sm:p-7" role="status">
+            <h2 class="text-xl font-black text-[var(--panel-text)]">ارسال پیام تازه</h2>
+            <p class="mt-2 text-sm leading-7 text-[var(--panel-muted)]">این حساب دسترسی مشاهده دارد. برای ارسال اطلاعیه یا پیام، مجوز مدیریت پیام‌ها لازم است.</p>
+        </section>
+    @endif
 
     <section class="space-y-4">
         <div class="flex items-end justify-between gap-3">

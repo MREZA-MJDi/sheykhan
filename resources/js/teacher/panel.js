@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     themeButton?.addEventListener('click', () => applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
 
     if (searchInput && main) {
+        const emptySearchState = main.querySelector('[data-dashboard-search-empty]');
+        const emptyStates = Array.from(main.querySelectorAll('.empty-state'));
         const normalize = (value) => String(value || '')
             .toLocaleLowerCase('fa')
             .replace(/[يى]/g, 'ی')
@@ -45,9 +47,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         searchInput.addEventListener('input', () => {
             const query = normalize(searchInput.value);
+            let visibleCount = 0;
+
             collectTargets().forEach((element) => {
-                element.hidden = Boolean(query) && !normalize(element.textContent).includes(query);
+                const matches = !query || normalize(element.textContent).includes(query);
+                element.hidden = !matches;
+                if (matches) visibleCount += 1;
             });
+
+            // Empty-state copy describes the unfiltered dashboard, not a search result.
+            emptyStates.forEach((element) => { element.hidden = Boolean(query); });
+            if (emptySearchState) emptySearchState.hidden = !query || visibleCount > 0;
         });
     }
 

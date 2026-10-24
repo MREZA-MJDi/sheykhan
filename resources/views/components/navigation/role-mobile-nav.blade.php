@@ -38,30 +38,35 @@
             ['route' => 'teacher.students.index', 'label' => 'دانش‌آموزان', 'permission' => 'students.view', 'icon' => '◎', 'primary' => false],
             ['route' => 'teacher.payments.index', 'label' => 'حقوق و پرداخت‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'teacher.profile.edit', 'label' => 'پروفایل من', 'permission' => 'profile.view', 'icon' => '⚙', 'primary' => false],
-            ['route' => 'teacher.dashboard', 'url' => route('teacher.dashboard') . '#teacher-progress', 'activeRoute' => 'teacher.dashboard', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false, 'noActive' => true],
+            ['route' => 'teacher.dashboard', 'url' => route('teacher.dashboard') . '#teacher-progress', 'activeRoute' => 'teacher.dashboard', 'label' => 'گزارش عملکرد', 'permissions' => ['reports.view', 'dashboard.view'], 'icon' => '↗', 'primary' => false, 'noActive' => true],
         ],
         'owner' => [
             ['route' => 'owner.dashboard', 'label' => 'مرکز کنترل', 'permission' => 'dashboard.view', 'icon' => '⌂', 'primary' => true],
-            ['route' => 'owner.people.index', 'label' => 'اعضا', 'permissions' => ['students.view', 'teachers.view'], 'icon' => '◎', 'primary' => true, 'requiresAcademy' => true],
+            ['route' => 'owner.people.index', 'label' => 'اعضا', 'permission' => 'academy.view', 'icon' => '◎', 'primary' => true, 'requiresAcademy' => true],
             ['route' => 'owner.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦', 'primary' => true, 'requiresAcademy' => true],
             ['route' => 'owner.messages.index', 'label' => 'پیام‌ها', 'permission' => 'parents.view', 'icon' => '✉', 'primary' => true, 'requiresAcademy' => true],
             ['route' => 'owner.attendance.index', 'label' => 'حضور و غیاب', 'permission' => 'attendance.view', 'icon' => '✓', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.assignments.index', 'label' => 'تکالیف و تصحیح', 'permission' => 'courses.view', 'icon' => '✓', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.schedules.index', 'label' => 'لینک کلاس آنلاین', 'permission' => 'live_classes.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.meetings.index', 'label' => 'هماهنگی جلسات', 'permission' => 'live_classes.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.communications.index', 'label' => 'ارسال اطلاعیه و پیام', 'permission' => 'parents.manage', 'icon' => '✉', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.communications.index', 'label' => 'ارسال اطلاعیه و پیام', 'permission' => 'parents.view', 'icon' => '✉', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.counseling.index', 'label' => 'جلسات مشاوره', 'permission' => 'parents.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.exams.index', 'label' => 'آزمون‌ها و نتایج', 'permission' => 'exams.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.recordings.index', 'label' => 'آرشیو ضبط کلاس‌ها', 'permission' => 'live_classes.view', 'icon' => '◉', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.teacher-payments.index', 'label' => 'حقوق مدرس‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.resources.index', 'label' => 'ویدئو و منابع آموزشی', 'permission' => 'content.manage', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.showcase.index', 'label' => 'افتخارآفرینان و رضایتمندی', 'permission' => 'content.manage', 'icon' => '◎', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.products.index', 'label' => 'محصولات و منابع فروش', 'permission' => 'products.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.orders.index', 'label' => 'سفارش‌ها و رسیدها', 'permission' => 'orders.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣', 'primary' => false],
             ['route' => 'owner.website.index', 'label' => 'مرکز سایت', 'permission' => 'academy.view', 'icon' => '⌂', 'primary' => false],
             ['route' => 'owner.content.index', 'label' => 'محتوای آموزشگاه', 'permission' => 'content.manage', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.blog.index', 'label' => 'مقالات', 'permission' => 'blog.manage', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.academy.banners.edit', 'label' => 'بنرهای سایت', 'permission' => 'academy.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.finance.index', 'label' => 'مالی و پرداخت‌ها', 'permission' => 'finance.view', 'icon' => '▤', 'primary' => false],
+            ['route' => 'owner.legal-documents.index', 'label' => 'اسناد حقوقی و کپی‌رایت', 'permission' => 'legal.manage', 'icon' => '▤', 'primary' => false],
+            ['route' => 'owner.reports.index', 'label' => 'عملکرد و گزارش', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false],
             ['route' => 'owner.academy.edit', 'label' => 'تنظیمات آموزشگاه', 'permission' => 'academy.view', 'icon' => '⚙', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.reports.index', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false],
         ],
         'parent' => [
             ['route' => 'parent.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂', 'primary' => true],
@@ -80,7 +85,7 @@
         $items = [
             ['route' => 'owner.seo.index', 'label' => 'ممیزی SEO صفحات', 'permission' => 'seo.manage', 'icon' => '⌕', 'primary' => true],
             ['route' => 'owner.seo.keywords.index', 'label' => 'کلمات کلیدی و رتبه', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => true],
-            ['route' => 'owner.reports.index', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false],
+
         ];
     }
 
@@ -93,6 +98,7 @@
         'owner.assignments.index', 'owner.schedules.index', 'owner.meetings.index',
         'owner.messages.index', 'owner.communications.index', 'owner.counseling.index',
         'owner.exams.index', 'owner.recordings.index', 'owner.teacher-payments.index',
+        'owner.resources.index', 'owner.showcase.index', 'owner.products.index', 'owner.orders.index',
         'owner.academy.banners.edit', 'owner.academy.edit',
     ];
 

@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\Course;
+use App\Models\Permission;
+use App\Models\ParentMessage;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\OwnerCacheService;
 use App\Services\OwnerDashboardService;
@@ -105,6 +108,142 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->assertFalse($afterTeacher['classrooms']->contains(
             fn ($item): bool => $item->teachers->contains('id', $teacher->id)
         ));
+    }
+
+
+    public function test_owner_dashboard_kpis_and_shortcuts_link_to_registered_permission_scoped_workspaces(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail();
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.people.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.courses.index') . '"', false)
+            ->assertSee('href="' . route('owner.attendance.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.resources.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.showcase.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.products.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.orders.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.legal-documents.index') . '"', false)
+            ->assertSee('href="' . route('owner.reports.index') . '"', false)
+            ->assertSee('aria-label="کلاس‌های فعال"', false)
+            ->assertSee('owner-quick-actions', false);
+    }
+
+
+    public function test_multi_academy_kpis_route_to_academy_picker_instead_of_first_academy_only(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        Academy::query()->create([
+            'owner_id' => $owner->id,
+            'name' => 'آموزشگاه دوم',
+            'slug' => 'owner-second-' . Str::lower(Str::random(8)),
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('id="owner-academies"', false)
+            ->assertSee('href="#owner-academies" aria-label="کلاس‌های فعال"', false)
+            ->assertSee('href="#owner-academies" aria-label="دانش‌آموزان فعال"', false)
+            ->assertSee('href="#owner-academies" aria-label="مدرس‌های فعال"', false)
+            ->assertSee('href="#owner-academies" aria-label="حضور امروز"', false);
+    }
+
+    public function test_owner_dashboard_hides_ungranted_kpis_and_shortcuts(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail();
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+        $ownerRole->permissions()->sync(
+            Permission::query()
+                ->whereIn('name', ['dashboard.view', 'classrooms.view'])
+                ->pluck('id')
+        );
+        $owner->unsetRelation('roles');
+        Cache::flush();
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('کلاس‌های فعال')
+            ->assertSee('id="owner-academies"', false)
+            ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
+            ->assertDontSee('ثبت‌نام و مدیریت اعضا')
+            ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
+            ->assertDontSee('href="' . route('owner.academy.edit', $academy) . '"', false)
+            ->assertDontSee('href="' . route('owner.academy.banners.edit', $academy) . '"', false)
+            ->assertDontSee('دوره‌های منتشرشده')
+            ->assertDontSee('حضور امروز')
+            ->assertDontSee('درآمد خالص ثبت‌شده')
+            ->assertDontSee('گزارش‌های آموزشی');
+
+        $this->get(route('owner.people.index', $academy))->assertForbidden();
+    }
+
+
+    public function test_owner_read_only_parent_message_permission_keeps_get_navigation_available(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail();
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+        $ownerRole->permissions()->sync(
+            Permission::query()
+                ->whereIn('name', ['dashboard.view', 'academy.view', 'parents.view'])
+                ->pluck('id')
+        );
+        $owner->unsetRelation('roles');
+        Cache::flush();
+
+        $parent = User::query()->where('email', 'parent.armin@sheykhan.test')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $message = ParentMessage::query()->create([
+            'academy_id' => $academy->id,
+            'parent_id' => $parent->id,
+            'student_id' => $student->id,
+            'category' => 'question',
+            'subject' => 'پیام فقط‌خواندنی تست',
+            'body' => 'این پیام برای بررسی دسترسی مشاهده ثبت شده است.',
+            'status' => 'open',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('href="' . route('owner.people.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false);
+
+        $this->get(route('owner.communications.index', $academy))
+            ->assertOk()
+            ->assertSee('این حساب دسترسی مشاهده دارد')
+            ->assertDontSee('action="' . route('owner.communications.store', $academy) . '"', false);
+
+        $this->get(route('owner.messages.index', $academy))
+            ->assertOk()
+            ->assertSee('پیام فقط‌خواندنی تست')
+            ->assertSee('حالت فقط‌خواندنی')
+            ->assertDontSee('action="' . route('owner.messages.reply', [$academy, $message->id]) . '"', false);
+
+        $this->patch(route('owner.messages.reply', [$academy, $message->id]), [
+            'status' => 'responded',
+            'response' => 'پاسخ غیرمجاز',
+        ])->assertForbidden();
     }
 
     public function test_owner_dashboard_cache_is_per_owner_and_can_be_invalidated_after_a_write(): void

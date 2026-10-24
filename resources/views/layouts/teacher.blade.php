@@ -42,7 +42,7 @@
                 ['label' => 'اطلاعیه‌های کلاس', 'icon' => 'bell', 'url' => route('teacher.communications.index'), 'active' => 'teacher.communications.*', 'permission' => 'parent_messages.manage'],
                 ['label' => 'جلسات با اولیا', 'icon' => 'hs', 'url' => route('teacher.meetings.index'), 'active' => 'teacher.meetings.*', 'permission' => 'live_classes.view'],
                 ['label' => 'دانش‌آموزان', 'icon' => 'users', 'url' => route('teacher.students.index'), 'active' => 'teacher.students.*', 'permission' => 'students.view'],
-                ['label' => 'گزارش عملکرد', 'icon' => 'chart', 'url' => route('teacher.dashboard') . '#teacher-progress', 'active' => 'teacher.dashboard', 'permission' => 'reports.view'],
+                ['label' => 'گزارش عملکرد', 'icon' => 'chart', 'url' => route('teacher.dashboard') . '#teacher-progress', 'active' => 'teacher.dashboard', 'permissions' => ['reports.view', 'dashboard.view']],
             ]],
             ['label' => 'حساب', 'items' => [
                 ['label' => 'حقوق و پرداخت‌ها', 'icon' => 'wal', 'url' => route('teacher.payments.index'), 'active' => 'teacher.payments.*', 'permission' => 'teacher_payments.view'],
@@ -52,7 +52,8 @@
         foreach ($teacherNavGroups as &$teacherNavGroup) {
             $teacherNavGroup['items'] = array_values(array_filter(
                 $teacherNavGroup['items'],
-                fn ($item) => $teacherPanelUser?->hasPermission($item['permission'])
+                fn ($item) => collect($item['permissions'] ?? [$item['permission']])
+                    ->every(fn (string $permission) => $teacherPanelUser?->hasPermission($permission))
             ));
         }
         unset($teacherNavGroup);

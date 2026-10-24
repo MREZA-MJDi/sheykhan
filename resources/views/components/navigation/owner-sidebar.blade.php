@@ -1,16 +1,62 @@
 @php
     $user = auth()->user();
     $seoOnly = $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
-    $academies = $seoOnly
-        ? collect()
-        : $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
+    $academyScopedPermissions = [
+        'academy.view', 'classrooms.view', 'attendance.view', 'courses.view',
+        'live_classes.view', 'parents.view', 'exams.view', 'teacher_payments.view',
+        'content.manage', 'products.view', 'orders.view',
+    ];
+    $canUseAcademyScope = ! $seoOnly && collect($academyScopedPermissions)
+        ->contains(fn (string $permission) => $user->hasPermission($permission));
+    $academies = $canUseAcademyScope
+        ? $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get()
+        : collect();
+    $firstAcademy = $academies->first();
+
+    $ownerPanelHomeUrl = route('home');
+    if ($seoOnly) {
+        if ($user->hasPermission('seo.manage')) {
+            $ownerPanelHomeUrl = route('owner.seo.index');
+        }
+    } elseif ($user->hasPermission('dashboard.view')) {
+        $ownerPanelHomeUrl = route('owner.dashboard');
+    } elseif ($user->hasPermission('academy.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.people.index', $firstAcademy);
+    } elseif ($user->hasPermission('classrooms.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.classrooms.index', $firstAcademy);
+    } elseif ($user->hasPermission('attendance.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.attendance.index', $firstAcademy);
+    } elseif ($user->hasPermission('courses.view')) {
+        $ownerPanelHomeUrl = route('owner.courses.index');
+    } elseif ($user->hasPermission('live_classes.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.meetings.index', $firstAcademy);
+    } elseif ($user->hasPermission('parents.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.messages.index', $firstAcademy);
+    } elseif ($user->hasPermission('exams.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.exams.index', $firstAcademy);
+    } elseif ($user->hasPermission('teacher_payments.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.teacher-payments.index', $firstAcademy);
+    } elseif ($user->hasPermission('content.manage') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.resources.index', $firstAcademy);
+    } elseif ($user->hasPermission('products.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.products.index', $firstAcademy);
+    } elseif ($user->hasPermission('orders.view') && $firstAcademy) {
+        $ownerPanelHomeUrl = route('owner.orders.index', $firstAcademy);
+    } elseif ($user->hasPermission('finance.view')) {
+        $ownerPanelHomeUrl = route('owner.finance.index');
+    } elseif ($user->hasPermission('legal.manage')) {
+        $ownerPanelHomeUrl = route('owner.legal-documents.index');
+    } elseif ($user->hasPermission('reports.view')) {
+        $ownerPanelHomeUrl = route('owner.reports.index');
+    }
+
     $routeAcademy = request()->route('academy');
     $routeAcademyId = $routeAcademy instanceof \App\Models\Academy ? $routeAcademy->getKey() : $routeAcademy;
 @endphp
 
 <aside class="role-sidebar owner-sidebar">
     <div class="role-sidebar-brand">
-        <a href="{{ $seoOnly ? route('owner.seo.index') : route('owner.dashboard') }}" class="role-brand">
+        <a href="{{ $ownerPanelHomeUrl }}" class="role-brand">
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
@@ -20,11 +66,12 @@
     </div>
 
     <nav class="role-sidebar-nav" aria-label="{{ $seoOnly ? 'منوی متخصص SEO' : 'منوی کارتابل ادمین / منشی' }}">
-        @if(! $seoOnly)
+        @if(! $seoOnly && $user->hasPermission('dashboard.view'))
             <div class="role-sidebar-label">مرکز کنترل</div>
 
             <a href="{{ route('owner.dashboard') }}"
-               class="role-nav-link {{ request()->routeIs('owner.dashboard') ? 'is-active' : '' }}">
+               class="role-nav-link {{ request()->routeIs('owner.dashboard') ? 'is-active' : '' }}"
+               @if(request()->routeIs('owner.dashboard')) aria-current="page" @endif>
                 <span class="role-nav-icon"></span><span>داشبورد</span>
             </a>
         @endif
@@ -41,14 +88,14 @@
             </a>
         @endif
 
-        @if($user->hasPermission('reports.view'))
+        @if(! $seoOnly && $user->hasPermission('reports.view'))
             <a href="{{ route('owner.reports.index') }}"
                class="role-nav-link {{ request()->routeIs('owner.reports.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>عملکرد و گزارش</span>
             </a>
         @endif
 
-        @if(! $seoOnly)
+        @if($canUseAcademyScope)
         <div class="role-sidebar-label mt-6">عملیات آموزشگاه</div>
 
         @forelse($academies as $academy)
@@ -58,7 +105,7 @@
                 </div>
 
                 <div class="owner-sidebar-academy-links">
-                    @if($user->hasPermission('students.view') || $user->hasPermission('teachers.view'))
+                    @if($user->hasPermission('academy.view'))
                         <a href="{{ route('owner.people.index', $academy) }}"
                            class="role-nav-link {{ request()->routeIs('owner.people.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
                             <span class="role-nav-icon"></span><span>اعضا</span>
@@ -101,9 +148,7 @@
                     @endif
                     @if($user->hasPermission('parents.view'))
                         <a href="{{ route('owner.messages.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.messages.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>پیام‌های اولیا</span></a>
-                        @if($user->hasPermission('parents.manage'))
-                            <a href="{{ route('owner.communications.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.communications.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ارسال اطلاعیه و پیام</span></a>
-                        @endif
+                        <a href="{{ route('owner.communications.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.communications.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ارسال اطلاعیه و پیام</span></a>
                         <a href="{{ route('owner.counseling.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.counseling.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>جلسات مشاوره</span></a>
                     @endif
                     @if($user->hasPermission('exams.view'))
@@ -114,6 +159,16 @@
                     @endif
                     @if($user->hasPermission('teacher_payments.view'))
                         <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.teacher-payments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حقوق مدرس‌ها</span></a>
+                    @endif
+                    @if($user->hasPermission('content.manage'))
+                        <a href="{{ route('owner.resources.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.resources.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ویدئو و منابع آموزشی</span></a>
+                        <a href="{{ route('owner.showcase.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.showcase.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>افتخارآفرینان و رضایتمندی</span></a>
+                    @endif
+                    @if($user->hasPermission('products.view'))
+                        <a href="{{ route('owner.products.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.products.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>محصولات و منابع فروش</span></a>
+                    @endif
+                    @if($user->hasPermission('orders.view'))
+                        <a href="{{ route('owner.orders.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.orders.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>سفارش‌ها و رسیدها</span></a>
                     @endif
                 </div>
             </div>
@@ -165,6 +220,13 @@
                     </a>
                 @endif
             @endif
+        @endif
+
+        @if($user->hasPermission('legal.manage') && Route::has('owner.legal-documents.index'))
+            <div class="role-sidebar-label mt-6">اسناد و حقوقی</div>
+            <a href="{{ route('owner.legal-documents.index') }}" class="role-nav-link {{ request()->routeIs('owner.legal-documents.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>اسناد حقوقی و کپی‌رایت</span>
+            </a>
         @endif
 
         @if($user->hasPermission('finance.view') && Route::has('owner.finance.index'))

@@ -53,6 +53,10 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('role-mobile-bottom-nav', false)
             ->assertSee('data-role-more-open', false)
             ->assertSee('آخرین فعالیت‌ها')
+            ->assertSee('href="' . route('teacher.classrooms.index') . '"', false)
+            ->assertSee('href="' . route('teacher.courses.index') . '"', false)
+            ->assertSee('href="' . route('teacher.schedule.index') . '"', false)
+            ->assertSee('data-dashboard-search-empty', false)
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
     }
@@ -199,7 +203,13 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertSame(1, substr_count($teacherCss, "@import './communication-pages.css';"));
         $this->assertSame(1, substr_count($teacherCss, '@import'));
         $this->assertStringContainsString('.k6', $teacherCss);
+        $this->assertStringContainsString('.teacher-workspace-page', $teacherCss);
+        $this->assertStringContainsString('.teacher-form-section', $teacherCss);
         $this->assertStringContainsString('@media (max-width:980px)', $teacherCss);
+        $this->assertStringContainsString('@media (min-width: 761px) and (max-width: 1000px)', $teacherCss);
+        $this->assertStringContainsString('@media (max-width: 760px)', $teacherCss);
+        $this->assertStringContainsString('data-dashboard-search-empty', $dashboard);
+        $this->assertStringContainsString("main.querySelector('[data-dashboard-search-empty]')", $teacherAdapter);
         $this->assertStringContainsString("import './teacher/app.js';", $teacherJs);
         $this->assertStringNotContainsString("import '../css/app.css';", $appJs);
         $this->assertStringNotContainsString("import '../css/student.css';", $studentJs);

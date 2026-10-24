@@ -529,7 +529,7 @@ class OwnerReportingAndCourseShowTest extends TestCase
 
     public function test_owner_dashboard_explains_all_items_in_the_attention_total(): void
     {
-        [$owner, $academy, $course] = $this->ownerWorkspace(['dashboard.view']);
+        [$owner, $academy, $course] = $this->ownerWorkspace(['dashboard.view', 'classrooms.view']);
 
         Classroom::create([
             'academy_id' => $academy->id,

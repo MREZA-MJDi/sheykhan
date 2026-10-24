@@ -34,12 +34,16 @@
                 </div>
                 <p class="communication-page__body mt-4 whitespace-pre-line break-words text-sm leading-7 text-slate-700">{{ $message->body }}</p>
                 <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500"><span>{{ $categoryLabels[$message->category] ?? 'پیام' }}</span><span>{{ \App\Support\PersianUi::date($message->created_at) }}</span><span>{{ $message->parent?->mobile ?: $message->parent?->email }}</span></div>
+                @if($canManage)
                 <form method="POST" action="{{ route('owner.messages.reply', [$academy, $message->id]) }}" class="communication-page__form mt-5 grid gap-3 border-t border-slate-100 pt-4 md:grid-cols-[1fr_190px_auto] md:items-end">
                     @csrf @method('PATCH')
                     <label class="grid gap-1 text-xs font-bold">پاسخ برای ولی<textarea name="response" rows="3" maxlength="5000" class="rounded-xl border border-slate-200 px-3 py-2 text-sm leading-6" placeholder="پاسخ روشن و محترمانه بنویسید...">{{ $message->response }}</textarea></label>
                     <label class="grid gap-1 text-xs font-bold">وضعیت پیگیری<select name="status" required class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm"><option value="in_review" @selected($message->status === 'in_review')>در حال پیگیری</option><option value="responded" @selected($message->status === 'responded')>ثبت پاسخ و ارسال به والد</option><option value="closed" @selected($message->status === 'closed')>بستن پیام</option></select></label>
                     <button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">ذخیره</button>
                 </form>
+                @else
+                    <p class="mt-5 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500" role="status">این پیام در حالت فقط‌خواندنی است؛ برای ثبت پاسخ یا تغییر وضعیت به مجوز مدیریت پیام‌ها نیاز است.</p>
+                @endif
                 @if($message->responder)<p class="mt-3 text-xs text-slate-500">آخرین پاسخ توسط {{ $message->responder->name }} ثبت شده است.</p>@endif
             </article>
         @empty
