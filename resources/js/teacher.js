@@ -1,4 +1,5 @@
 import './exam-builder.js';
+import './teacher/app.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Preview profile images before upload; the server remains authoritative for validation.

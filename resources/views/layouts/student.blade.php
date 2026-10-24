@@ -1,10 +1,18 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل دانش‌آموز') · شیخان</title>
+    <script>
+        try {
+            const savedStudentTheme = localStorage.getItem('sheykhan.student.theme');
+            if (savedStudentTheme === 'dark' || savedStudentTheme === 'light') {
+                document.documentElement.dataset.theme = savedStudentTheme;
+            }
+        } catch (_) {}
+    </script>
     @vite(['resources/css/app.css', 'resources/css/student.css', 'resources/js/app.js', 'resources/js/student.js'])
     @stack('head')
     @stack('styles')
@@ -88,14 +96,14 @@
     <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
     <input type="search" name="q" value="{{ request('q') }}" placeholder="جست‌وجوی دوره‌های من..." aria-label="جست‌وجوی دوره‌های من">
    </form>
-   <a class="ib pr" href="{{ route('student.profile.edit') }}" aria-label="حساب کاربری">
+   <button class="ib pr" type="button" data-student-profile-open aria-haspopup="dialog" aria-controls="student-profile-modal" aria-label="باز کردن تنظیمات حساب کاربری">
       @if($studentShellAvatarUrl)
         <img data-avatar-image src="{{ $studentShellAvatarUrl }}" alt="" width="46" height="46" loading="eager" decoding="async">
         <svg data-avatar-fallback hidden class="i" aria-hidden="true"><use href="#i-user"/></svg>
       @else
         <svg data-avatar-fallback class="i" aria-hidden="true"><use href="#i-user"/></svg>
       @endif
-   </a>
+   </button>
   </header>
   @if(session('success') || session('status'))
    <div class="card flash" role="status">{{ session('success') ?? session('status') }}</div>
@@ -106,6 +114,56 @@
   @yield('content')
  </main>
 </div>
+
+<x-navigation.role-mobile-nav role="student" />
+
+<div id="student-profile-modal" class="student-profile-modal" hidden>
+    <button type="button" class="student-profile-backdrop" data-student-profile-close aria-label="بستن منوی حساب"></button>
+    <section class="student-profile-dialog" role="dialog" aria-modal="true" aria-labelledby="student-profile-dialog-title" tabindex="-1">
+        <header class="student-profile-dialog-head">
+            <div class="student-profile-dialog-person">
+                <span class="student-profile-dialog-avatar">
+                    @if($studentShellAvatarUrl)
+                        <img src="{{ $studentShellAvatarUrl }}" alt="" width="48" height="48" loading="eager">
+                    @else
+                        <svg class="i" aria-hidden="true"><use href="#i-user"/></svg>
+                    @endif
+                </span>
+                <span>
+                    <strong id="student-profile-dialog-title">{{ $studentShellUser?->name }}</strong>
+                    <small>حساب دانش‌آموز</small>
+                </span>
+            </div>
+            <button class="student-profile-dialog-close" type="button" data-student-profile-close aria-label="بستن پنجره">×</button>
+        </header>
+        <div class="student-profile-dialog-actions">
+            <a href="{{ route('student.profile.edit') }}">
+                <svg class="i" aria-hidden="true"><use href="#i-user"/></svg>
+                <span><strong>پروفایل و اطلاعات حساب</strong><small>ویرایش اطلاعات شخصی و تصویر پروفایل</small></span>
+                <span aria-hidden="true">←</span>
+            </a>
+            <button type="button" data-student-theme-toggle aria-pressed="false">
+                <svg class="i" aria-hidden="true"><use href="#i-note"/></svg>
+                <span><strong>حالت نمایش</strong><small data-student-theme-label>تغییر بین تم روشن و تیره</small></span>
+                <span class="student-profile-theme-state" data-student-theme-state>روشن</span>
+            </button>
+            <a href="{{ route('home') }}">
+                <svg class="i" aria-hidden="true"><use href="#i-home"/></svg>
+                <span><strong>مشاهده سایت</strong><small>رفتن به صفحه عمومی شیخان</small></span>
+                <span aria-hidden="true">↗</span>
+            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="danger">
+                    <svg class="i" aria-hidden="true"><use href="#i-user"/></svg>
+                    <span><strong>خروج از حساب</strong><small>پایان نشست فعلی</small></span>
+                    <span aria-hidden="true">←</span>
+                </button>
+            </form>
+        </div>
+    </section>
+</div>
+
 @stack('scripts')
 </body>
 </html>

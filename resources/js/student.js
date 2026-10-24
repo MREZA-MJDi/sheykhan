@@ -169,5 +169,71 @@
                 target.querySelector('input,textarea,button')?.focus({ preventScroll: true });
             });
         });
+
+        const profileModal = document.getElementById('student-profile-modal');
+        const profileOpeners = document.querySelectorAll('[data-student-profile-open]');
+        const profileCloseControls = profileModal?.querySelectorAll('[data-student-profile-close]') || [];
+        const themeControls = profileModal?.querySelectorAll('[data-student-theme-toggle]') || [];
+        let returnFocusTo = null;
+
+        const setStudentTheme = (value) => {
+            const theme = value === 'dark' ? 'dark' : 'light';
+            document.documentElement.dataset.theme = theme;
+            try { localStorage.setItem('sheykhan.student.theme', theme); } catch (_) {}
+            themeControls.forEach((button) => button.setAttribute('aria-pressed', String(theme === 'dark')));
+            const state = profileModal?.querySelector('[data-student-theme-state]');
+            const label = profileModal?.querySelector('[data-student-theme-label]');
+            if (state) state.textContent = theme === 'dark' ? 'تیره' : 'روشن';
+            if (label) label.textContent = theme === 'dark' ? 'تم تیره فعال است؛ برای تغییر بزن' : 'تم روشن فعال است؛ برای تغییر بزن';
+        };
+
+        setStudentTheme(document.documentElement.dataset.theme || 'light');
+        themeControls.forEach((button) => {
+            button.addEventListener('click', () => {
+                setStudentTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+            });
+        });
+
+        const closeProfileModal = () => {
+            if (!profileModal || profileModal.hidden) return;
+            profileModal.hidden = true;
+            document.body.classList.remove('student-profile-modal-open');
+            returnFocusTo?.focus({ preventScroll: true });
+        };
+
+        profileOpeners.forEach((button) => {
+            button.addEventListener('click', () => {
+                if (!profileModal) return;
+                returnFocusTo = button;
+                profileModal.hidden = false;
+                document.body.classList.add('student-profile-modal-open');
+                profileModal.querySelector('.student-profile-dialog')?.focus({ preventScroll: true });
+            });
+        });
+        profileCloseControls.forEach((button) => button.addEventListener('click', closeProfileModal));
+        profileModal?.addEventListener('click', (event) => {
+            if (event.target === profileModal) closeProfileModal();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (!profileModal || profileModal.hidden) return;
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeProfileModal();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+            const focusable = Array.from(profileModal.querySelectorAll('a[href],button:not([disabled]):not(.student-profile-backdrop),input:not([disabled]),[tabindex="0"]'))
+                .filter((element) => element.getClientRects().length > 0);
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        });
     });
 })();

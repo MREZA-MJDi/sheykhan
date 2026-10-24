@@ -41,18 +41,18 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertOk()
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
-            ->assertSee('کلاس‌های آنلاین این هفته')
+            ->assertSee('جلسات این هفته')
             ->assertSee('تکالیف منتظر تصحیح')
             ->assertSee('آزمون‌های منتظر بررسی')
-            ->assertSee('روند پیشرفت دانش‌آموزان')
-            ->assertSee('tdb-focus-card', false)
-            ->assertSee('tdb-focus-action', false)
-            ->assertSee('tdb-dashboard', false)
-            ->assertSee('teacher-dashboard-shell', false)
-            ->assertSee('data-teacher-theme-toggle', false)
-            ->assertSee('data-teacher-range', false)
-            ->assertSee('data-dashboard-search', false)
-            ->assertSee('آخرین تکالیف')
+            ->assertSee('روند پیشرفت ثبت‌شده')
+            ->assertSee('class="app"', false)
+            ->assertSee('id="teacher-progress"', false)
+            ->assertSee('data-dashboard-chart', false)
+            ->assertSee('data-chart-range="week"', false)
+            ->assertSee('id="gs"', false)
+            ->assertSee('role-mobile-bottom-nav', false)
+            ->assertSee('data-role-more-open', false)
+            ->assertSee('آخرین فعالیت‌ها')
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
     }
@@ -165,63 +165,76 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertSame($before - 1, $service->build($teacher)['metrics']['studentCount']);
     }
 
-    public function test_student_and_teacher_dashboard_assets_are_isolated_from_shared_teacher_assets(): void
+    public function test_teacher_and_student_portals_use_consolidated_assets_and_shared_mobile_navigation(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
-        $teacherDashboardCss = file_get_contents(resource_path('css/teacher-dashboard.css'));
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
-        $teacherDashboardJs = file_get_contents(resource_path('js/teacher-dashboard.js'));
-        $teacherSidebar = file_get_contents(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
+        $teacherAdapter = file_get_contents(resource_path('js/teacher/panel.js'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
+        $studentJs = file_get_contents(resource_path('js/student.js'));
         $appCss = file_get_contents(resource_path('css/app.css'));
+        $appJs = file_get_contents(resource_path('js/app.js'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
-        $teacherDashboardLayout = file_get_contents(resource_path('views/layouts/teacher-dashboard.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
+        $dashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
+        $mobileNavigation = file_get_contents(resource_path('views/components/navigation/role-mobile-nav.blade.php'));
+        $vite = file_get_contents(base_path('vite.config.js'));
 
-        $this->assertIsString($teacherCss);
-        $this->assertIsString($teacherDashboardCss);
-        $this->assertIsString($teacherJs);
-        $this->assertIsString($teacherDashboardJs);
-        $this->assertIsString($teacherSidebar);
-        $this->assertIsString($studentCss);
-        $this->assertIsString($appCss);
-        $this->assertIsString($teacherLayout);
-        $this->assertIsString($teacherDashboardLayout);
-        $this->assertIsString($studentLayout);
+        foreach ([$teacherCss, $teacherJs, $teacherAdapter, $studentCss, $studentJs, $appCss, $appJs,
+            $teacherLayout, $studentLayout, $dashboard, $mobileNavigation, $vite] as $content) {
+            $this->assertIsString($content);
+        }
 
-        $this->assertStringContainsString("@import './communication-pages.css';", $teacherCss);
-        $this->assertStringNotContainsString("@import './teacher-dashboard.css';", $teacherCss);
-        $this->assertStringNotContainsString('.teacher-focus-card {', $teacherCss);
-        $this->assertStringNotContainsString('.teacher-welcome-card {', $teacherCss);
-        $this->assertStringContainsString('.tdb-focus-card', $teacherDashboardCss);
-        $this->assertStringContainsString('.tdb-focus-action', $teacherDashboardCss);
-        $this->assertStringContainsString("@vite(['resources/css/teacher-dashboard.css', 'resources/js/teacher-dashboard.js'])", $teacherDashboardLayout);
-        $this->assertStringContainsString('.tdb-dashboard', $teacherDashboardCss);
-        $this->assertStringContainsString('body.teacher-dashboard-shell .tdb-app', $teacherDashboardCss);
-        $this->assertStringContainsString('@media(max-width:1250px)', $teacherDashboardCss);
-        $this->assertStringContainsString('body.teacher-dashboard-shell .tdb-dashboard', $teacherDashboardCss);
-        $this->assertStringContainsString('@media(max-width:720px)', $teacherDashboardCss);
-        $this->assertStringContainsString('data-teacher-theme-toggle', $teacherDashboardJs);
-        $this->assertStringContainsString('data-teacher-range', $teacherDashboardJs);
+        $this->assertFileDoesNotExist(resource_path('css/teacher-dashboard.css'));
+        $this->assertFileDoesNotExist(resource_path('js/teacher-dashboard.js'));
+        $this->assertFileDoesNotExist(resource_path('views/layouts/teacher-dashboard.blade.php'));
+        $this->assertFileDoesNotExist(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
+        $this->assertFileDoesNotExist(resource_path('css/seo.css'));
+        $this->assertFileDoesNotExist(resource_path('js/seo.js'));
+        $this->assertStringNotContainsString('teacher-dashboard.css', $vite);
+        $this->assertStringNotContainsString('teacher-dashboard.js', $vite);
+        $this->assertStringNotContainsString('seo.css', $vite);
+        $this->assertStringNotContainsString('seo.js', $vite);
+
+        $this->assertStringNotContainsString('@import', $teacherCss);
+        $this->assertStringContainsString('.k6', $teacherCss);
+        $this->assertStringContainsString('@media (max-width:980px)', $teacherCss);
+        $this->assertStringContainsString("import './teacher/app.js';", $teacherJs);
+        $this->assertStringNotContainsString("import '../css/app.css';", $appJs);
+        $this->assertStringNotContainsString("import '../css/student.css';", $studentJs);
+        $this->assertStringNotContainsString("import '../css/teacher.css';", $teacherJs);
+        foreach ([
+            'resources/css/app.css', 'resources/css/home.css', 'resources/css/student.css',
+            'resources/css/teacher.css', 'resources/css/admin.css', 'resources/css/parent.css',
+        ] as $entry) {
+            $this->assertSame(1, substr_count($vite, $entry), $entry . ' must be registered once in Vite.');
+        }
         $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $teacherJs);
-        $this->assertStringNotContainsString('[data-teacher-dashboard]', $teacherJs);
-        $this->assertStringContainsString('aria-label="دوره‌های من"', $teacherSidebar);
-        $this->assertStringContainsString('id="teacher-dashboard-sidebar"', $teacherSidebar);
-        $this->assertStringContainsString('resources/css/teacher-dashboard.css', $teacherDashboardLayout);
-        $this->assertStringContainsString('resources/js/teacher-dashboard.js', $teacherDashboardLayout);
-        $this->assertStringNotContainsString('resources/css/teacher.css', $teacherDashboardLayout);
-        $this->assertStringNotContainsString('resources/js/teacher.js', $teacherDashboardLayout);
-        $this->assertStringContainsString("request()->routeIs('teacher.dashboard')", $teacherLayout);
-        $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
-        // Tailwind source scanning remains centralized in app.css (source(none)).
+        $this->assertStringContainsString('Validate Esfand 30', $teacherJs);
+        $this->assertStringContainsString('data-dashboard-chart', $teacherAdapter);
+        $this->assertStringContainsString('data-chart-range', $teacherAdapter);
+
+        $this->assertStringContainsString('<x-navigation.role-mobile-nav role="teacher" />', $teacherLayout);
+        $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
+        $this->assertStringContainsString('id="student-profile-modal"', $studentLayout);
+        $this->assertStringContainsString('data-student-profile-open', $studentLayout);
+        $this->assertStringContainsString('data-student-theme-toggle', $studentJs);
+        $this->assertStringContainsString('student-profile-modal', $studentCss);
+        $this->assertStringContainsString('data-role-more-open', $mobileNavigation);
+        $this->assertStringContainsString('data-role-more-panel', $mobileNavigation);
+        $this->assertStringContainsString('Route::has($item[', $mobileNavigation);
+        $this->assertStringContainsString('bootRoleMobileNavigation', $appJs);
+        $this->assertStringContainsString('.role-mobile-bottom-nav', $appCss);
+        $this->assertStringContainsString('.role-mobile-more-dialog', $appCss);
+
+        $this->assertStringContainsString('id="teacher-progress"', $dashboard);
+        $this->assertStringContainsString('data-dashboard-chart', $dashboard);
+        $this->assertStringContainsString('$courseProgress', $dashboard);
+        $this->assertStringContainsString('$activities', $dashboard);
+        $this->assertStringContainsString('$todaySessions', $dashboard);
+        $this->assertStringNotContainsString('teacher-dashboard-shell', $dashboard);
         $this->assertStringContainsString("@source '../../resources/views';", $appCss);
         $this->assertStringContainsString("@source '../../resources/views/components';", $appCss);
-        $this->assertStringContainsString('resources/css/app.css', $studentLayout);
-        $this->assertStringContainsString('resources/css/student.css', $studentLayout);
-        $this->assertStringContainsString('#dashboard.page', $studentCss);
-        $this->assertStringContainsString('@media (max-width: 640px)', $studentCss);
-        $this->assertStringNotContainsString('resources/css/student-dashboard-reference.css', $studentLayout);
-        $this->assertStringContainsString('resources/js/student.js', $studentLayout);
     }
 
     public function test_persian_calendar_conversion_is_jalali(): void
