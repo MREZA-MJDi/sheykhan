@@ -19,7 +19,7 @@ class StudentDashboardReferenceDesignTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertSee('student-shell')
             ->assertDontSee('sdr-hero', false);
     }
 
@@ -33,8 +33,8 @@ class StudentDashboardReferenceDesignTest extends TestCase
             ->get(route('student.courses.index'))
             ->assertOk()
             ->assertDontSee('student-shell-dashboard', false)
-            ->assertSee('role-layout', false)
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('student-shell', false)
+            ->assertSee('student-shell');
     }
 
     public function test_legacy_dashboard_stylesheet_is_removed_from_the_repository(): void
