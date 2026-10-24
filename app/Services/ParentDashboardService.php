@@ -390,6 +390,14 @@ final class ParentDashboardService
             ->join('courses', 'courses.id', '=', 'live_classes.course_id')
             ->whereBetween('live_classes.scheduled_at', [now(), now()->addDays(7)])
             ->where('live_classes.status', 'scheduled')
+            ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
+            ->whereExists(function ($academy): void {
+                $academy->selectRaw('1')->from('academies')
+                    ->whereColumn('academies.id', 'courses.academy_id')
+                    ->where('academies.status', 'active');
+            })
             ->whereExists(function ($query) use ($childIds): void {
                 $query->selectRaw('1')
                     ->from('course_enrollments')
@@ -397,18 +405,43 @@ final class ParentDashboardService
                     ->where('course_enrollments.status', 'active')
                     ->whereColumn('course_enrollments.course_id', 'live_classes.course_id')
                     ->where(function ($scope): void {
-                        $scope->where('course_enrollments.paid_amount', '>', 0)
-                            ->orWhereExists(function ($free): void {
-                                $free->selectRaw('1')
-                                    ->from('courses')
-                                    ->whereColumn('courses.id', 'live_classes.course_id')
-                                    ->where('courses.access_type', 'free');
-                            });
+                        $scope->whereExists(function ($free): void {
+                            $free->selectRaw('1')->from('courses as free_courses')
+                                ->whereColumn('free_courses.id', 'live_classes.course_id')
+                                ->where('free_courses.access_type', 'free');
+                        })->orWhere(function ($paid): void {
+                            $paid->where('course_enrollments.payment_status', 'paid')
+                                ->where('course_enrollments.paid_amount', '>', 0)
+                                ->where(function ($amount): void {
+                                    $amount->whereNull('course_enrollments.price_amount')
+                                        ->orWhereColumn('course_enrollments.paid_amount', '>=', 'course_enrollments.price_amount');
+                                })
+                                ->whereExists(function ($transaction): void {
+                                    $transaction->selectRaw('1')->from('financial_transactions')
+                                        ->whereColumn('financial_transactions.enrollment_id', 'course_enrollments.id')
+                                        ->where('financial_transactions.status', 'completed')
+                                        ->where('financial_transactions.amount', '>', 0);
+                                });
+                        });
+                    })
+                    ->whereExists(function ($membership): void {
+                        $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                            ->whereColumn('enrolled_student_membership.academy_id', 'courses.academy_id')
+                            ->whereColumn('enrolled_student_membership.user_id', 'course_enrollments.student_id')
+                            ->where('enrolled_student_membership.role', 'student')
+                            ->where('enrolled_student_membership.status', 'active');
                     })
                     ->where(function ($classroomQuery): void {
-                        $classroomQuery
-                            ->whereNull('live_classes.classroom_id')
-                            ->orWhereColumn('course_enrollments.classroom_id', 'live_classes.classroom_id');
+                        $classroomQuery->whereNull('live_classes.classroom_id')
+                            ->orWhere(function ($specific): void {
+                                $specific->whereColumn('course_enrollments.classroom_id', 'live_classes.classroom_id')
+                                    ->whereExists(function ($membership): void {
+                                        $membership->selectRaw('1')->from('classroom_student')
+                                            ->whereColumn('classroom_student.classroom_id', 'live_classes.classroom_id')
+                                            ->whereColumn('classroom_student.student_id', 'course_enrollments.student_id')
+                                            ->where('classroom_student.status', 'active');
+                                    });
+                            });
                     });
             })
             ->select([
@@ -424,17 +457,43 @@ final class ParentDashboardService
                     ->where('status', 'active')
                     ->whereColumn('course_id', 'live_classes.course_id')
                     ->where(function ($scope): void {
-                        $scope->where('paid_amount', '>', 0)
-                            ->orWhereExists(function ($free): void {
-                                $free->selectRaw('1')
-                                    ->from('courses')
-                                    ->whereColumn('courses.id', 'live_classes.course_id')
-                                    ->where('courses.access_type', 'free');
-                            });
+                        $scope->whereExists(function ($free): void {
+                            $free->selectRaw('1')->from('courses as free_courses')
+                                ->whereColumn('free_courses.id', 'live_classes.course_id')
+                                ->where('free_courses.access_type', 'free');
+                        })->orWhere(function ($paid): void {
+                            $paid->where('course_enrollments.payment_status', 'paid')
+                                ->where('course_enrollments.paid_amount', '>', 0)
+                                ->where(function ($amount): void {
+                                    $amount->whereNull('course_enrollments.price_amount')
+                                        ->orWhereColumn('course_enrollments.paid_amount', '>=', 'course_enrollments.price_amount');
+                                })
+                                ->whereExists(function ($transaction): void {
+                                    $transaction->selectRaw('1')->from('financial_transactions')
+                                        ->whereColumn('financial_transactions.enrollment_id', 'course_enrollments.id')
+                                        ->where('financial_transactions.status', 'completed')
+                                        ->where('financial_transactions.amount', '>', 0);
+                                });
+                        });
+                    })
+                    ->whereExists(function ($membership): void {
+                        $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                            ->whereColumn('enrolled_student_membership.academy_id', 'courses.academy_id')
+                            ->whereColumn('enrolled_student_membership.user_id', 'course_enrollments.student_id')
+                            ->where('enrolled_student_membership.role', 'student')
+                            ->where('enrolled_student_membership.status', 'active');
                     })
                     ->where(function ($classroom): void {
                         $classroom->whereNull('live_classes.classroom_id')
-                            ->orWhereColumn('course_enrollments.classroom_id', 'live_classes.classroom_id');
+                            ->orWhere(function ($specific): void {
+                                $specific->whereColumn('course_enrollments.classroom_id', 'live_classes.classroom_id')
+                                    ->whereExists(function ($membership): void {
+                                        $membership->selectRaw('1')->from('classroom_student')
+                                            ->whereColumn('classroom_student.classroom_id', 'live_classes.classroom_id')
+                                            ->whereColumn('classroom_student.student_id', 'course_enrollments.student_id')
+                                            ->where('classroom_student.status', 'active');
+                                    });
+                            });
                     })
                     ->orderBy('student_id')
                     ->limit(1)
