@@ -596,6 +596,19 @@
     border-color: #cbd8fa !important; background: #f1f5ff !important; color: #29478d !important;
 }
 
+/* Minimum readable type scale: avoid legacy 7–10px labels across the owner area. */
+.owner-shell .role-main :is(small,.text-\[7px\],.text-\[8px\],.text-\[9px\],.text-\[10px\]) {
+    font-size: 11px !important;
+    line-height: 1.75 !important;
+}
+.owner-shell .role-main [class~="text-[7px]"],
+.owner-shell .role-main [class~="text-[8px]"],
+.owner-shell .role-main [class~="text-[9px]"],
+.owner-shell .role-main [class~="text-[10px]"] {
+    font-size: 11px !important;
+    line-height: 1.75 !important;
+}
+
 /* Tables, data lists, statuses, filters and pagination. */
 .owner-shell .role-main .overflow-x-auto,
 .owner-shell .role-main .overflow-auto,
