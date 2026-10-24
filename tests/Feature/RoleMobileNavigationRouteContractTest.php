@@ -24,7 +24,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
                 $this->fail('Unable to read Blade view: ' . $file->getPathname());
             }
 
-            preg_match_all('/\\broute\\s*\\(\\s*[\'"]([^\'"]+)[\'"]/', $source, $matches);
+            preg_match_all('/(?<!->)\\broute\\s*\\(\\s*[\'"]([^\'"]+)[\'"]/', $source, $matches);
 
             foreach (array_unique($matches[1] ?? []) as $name) {
                 if (! Route::has($name)) {
