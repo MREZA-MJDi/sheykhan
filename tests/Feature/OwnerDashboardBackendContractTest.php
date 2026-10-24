@@ -129,6 +129,30 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('owner-quick-actions', false);
     }
 
+
+    public function test_multi_academy_kpis_route_to_academy_picker_instead_of_first_academy_only(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        Academy::query()->create([
+            'owner_id' => $owner->id,
+            'name' => 'آموزشگاه دوم',
+            'slug' => 'owner-second-' . Str::lower(Str::random(8)),
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('id="owner-academies"', false)
+            ->assertSee('href="#owner-academies" aria-label="کلاس‌های فعال"', false)
+            ->assertSee('href="#owner-academies" aria-label="دانش‌آموزان فعال"', false)
+            ->assertSee('href="#owner-academies" aria-label="مدرس‌های فعال"', false)
+            ->assertSee('href="#owner-academies" aria-label="حضور امروز"', false);
+    }
+
     public function test_owner_dashboard_hides_ungranted_kpis_and_shortcuts(): void
     {
         $this->seed();
