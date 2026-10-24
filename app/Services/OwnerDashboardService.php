@@ -96,67 +96,31 @@ final class OwnerDashboardService
             )
             ->first();
 
-        $classrooms = (clone $classroomBase)
-            ->with([
-                'academy:id,name',
-                'course:id,title',
-                
-            ])
-            ->withCount([
-                'students as active_students_count' => fn ($query) => $query
-                    ->where('classroom_student.status', 'active')
-                    ->where('users.status', 'active'),
-            ])
-            ->orderByRaw('CASE WHEN starts_at IS NULL THEN 1 ELSE 0 END')
-            ->orderBy('starts_at')
-            ->limit(8)
-            ->get();
+        // Keep the dashboard analytical: fetch whole-academy aggregates instead
+        // of hydrating classroom cards that belong on the dedicated roster page.
+        $activeStudentCounts = DB::table('classroom_student as memberships')
+            ->join('users as roster_users', 'roster_users.id', '=', 'memberships.student_id')
+            ->where('memberships.status', 'active')
+            ->where('roster_users.status', 'active')
+            ->whereNull('roster_users.deleted_at')
+            ->groupBy('memberships.classroom_id')
+            ->select('memberships.classroom_id')
+            ->selectRaw('COUNT(DISTINCT memberships.student_id) AS active_students_count');
 
-        $classroomIdsForView = $classrooms->pluck('id');
+        $capacitySummary = DB::table('classrooms as classrooms')
+            ->leftJoinSub($activeStudentCounts, 'student_counts', 'student_counts.classroom_id', '=', 'classrooms.id')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->where('classrooms.status', 'active')
+            ->selectRaw('COALESCE(SUM(CASE WHEN classrooms.capacity IS NOT NULL THEN classrooms.capacity ELSE 0 END), 0) AS capacity_total')
+            ->selectRaw('COALESCE(SUM(CASE WHEN classrooms.capacity IS NOT NULL THEN COALESCE(student_counts.active_students_count, 0) ELSE 0 END), 0) AS capacity_used')
+            ->selectRaw('COALESCE(SUM(CASE WHEN classrooms.capacity IS NOT NULL THEN 1 ELSE 0 END), 0) AS configured_capacity_classrooms')
+            ->first();
 
-        // Only show teachers who still have an active teacher membership in
-        // the same academy as the classroom. A stale classroom_teacher pivot
-        // must not make an archived teacher look active in the dashboard.
-        $activeTeacherRowsByClassroom = DB::table('classroom_teacher as assignment')
-            ->join('classrooms as assigned_classroom', 'assigned_classroom.id', '=', 'assignment.classroom_id')
-            ->join('users as teacher_users', 'teacher_users.id', '=', 'assignment.teacher_id')
-            ->join('academy_user as teacher_membership', function ($join): void {
-                $join->on('teacher_membership.user_id', '=', 'assignment.teacher_id')
-                    ->on('teacher_membership.academy_id', '=', 'assigned_classroom.academy_id')
-                    ->where('teacher_membership.role', '=', 'teacher')
-                    ->where('teacher_membership.status', '=', 'active');
-            })
-            ->whereIn('assignment.classroom_id', $classroomIdsForView)
-            ->where('teacher_users.status', 'active')
-            ->whereNull('teacher_users.deleted_at')
-            ->get([
-                'assignment.classroom_id',
-                'teacher_users.id',
-                'teacher_users.name',
-            ])
-            ->groupBy('classroom_id');
-
-        $classrooms->each(function (Classroom $classroom) use ($activeTeacherRowsByClassroom): void {
-            $teacherRows = $activeTeacherRowsByClassroom->get($classroom->id, collect());
-            $classroom->setRelation('teachers', User::hydrate(
-                $teacherRows->map(fn ($teacher): array => [
-                    'id' => (int) $teacher->id,
-                    'name' => $teacher->name,
-                ])->all()
-            ));
-        });
-
-        $attendanceByClassroom = DB::table('attendances')
-            ->whereIn('classroom_id', $classroomIdsForView)
-            ->whereDate('attendance_date', today())
-            ->groupBy('classroom_id')
-            ->select(
-                'classroom_id',
-                DB::raw("SUM(CASE WHEN status IN ('present','late','absent') THEN 1 ELSE 0 END) AS total"),
-                DB::raw("SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) AS attended")
-            )
-            ->get()
-            ->keyBy('classroom_id');
+        $capacityTotal = (int) ($capacitySummary->capacity_total ?? 0);
+        $capacityUsed = (int) ($capacitySummary->capacity_used ?? 0);
+        $capacityRate = $capacityTotal > 0
+            ? min(100, (int) round(($capacityUsed / $capacityTotal) * 100))
+            : null;
 
         $now = now();
 
@@ -166,16 +130,11 @@ final class OwnerDashboardService
             ->whereHas('classroom', fn ($query) => $query
                 ->whereIn('academy_id', $academyIds)
                 ->where('status', 'active'))
-            ->with([
-                'course:id,title',
-                'teacher:id,name',
-                'classroom:id,title',
-            ])
             ->orderByDesc('scheduled_at')
             ->limit(32)
-            ->get();
+            ->get(['id', 'scheduled_at', 'scheduled_end_at', 'duration_minutes']);
 
-        $liveNowByClassroom = $liveNowClasses
+        $liveNowCount = $liveNowClasses
             ->filter(function (LiveClass $liveClass) use ($now): bool {
                 $start = $liveClass->scheduled_at;
                 $end = $liveClass->scheduled_end_at
@@ -184,7 +143,7 @@ final class OwnerDashboardService
 
                 return $start->lte($now) && $end->gte($now);
             })
-            ->keyBy('classroom_id');
+            ->count();
 
         $upcomingLiveClasses = LiveClass::query()
             ->whereIn('status', ['scheduled', 'live'])
@@ -200,33 +159,6 @@ final class OwnerDashboardService
             ->orderBy('scheduled_at')
             ->limit(8)
             ->get();
-
-        $classrooms->each(function (Classroom $classroom) use ($attendanceByClassroom, $liveNowByClassroom): void {
-            $attendance = $attendanceByClassroom->get($classroom->id);
-            $classroom->today_attendance_rate = $attendance && (int) $attendance->total > 0
-                ? round(((int) $attendance->attended / (int) $attendance->total) * 100, 1)
-                : null;
-
-            $classroom->live_now = $liveNowByClassroom->get($classroom->id);
-            $classroom->execution_status = $this->classroomStatus($classroom);
-            $classroom->capacity_remaining = $classroom->capacity === null
-                ? null
-                : max(0, (int) $classroom->capacity - (int) $classroom->active_students_count);
-            $classroom->occupancy_percent = $classroom->capacity && $classroom->capacity > 0
-                ? min(100, round(($classroom->active_students_count / $classroom->capacity) * 100, 1))
-                : null;
-        });
-
-        $activeStudentCounts = DB::table('classroom_student as memberships')
-            ->join('users as roster_users', 'roster_users.id', '=', 'memberships.student_id')
-            ->where('memberships.status', 'active')
-            ->where('roster_users.status', 'active')
-            ->whereNull('roster_users.deleted_at')
-            ->groupBy('memberships.classroom_id')
-            ->select(
-                'memberships.classroom_id',
-                DB::raw('COUNT(DISTINCT memberships.student_id) AS active_students_count')
-            );
 
         $capacityAlerts = DB::query()
             ->from('classrooms as classrooms')
@@ -340,12 +272,18 @@ final class OwnerDashboardService
                 'todayAttendanceRate' => $attendanceToday?->total
                     ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
                     : null,
-                'liveNow' => $liveNowByClassroom->count(),
+                'liveNow' => $liveNowCount,
                 'capacityAlerts' => $capacityAlerts,
                 'classroomsWithoutTeacher' => $classroomsWithoutTeacher,
             ],
             'teacherReports' => $teacherReports,
-            'classrooms' => $classrooms,
+            'capacity' => [
+                'total' => $capacityTotal,
+                'used' => $capacityUsed,
+                'remaining' => max(0, $capacityTotal - $capacityUsed),
+                'rate' => $capacityRate,
+                'configured_classrooms' => (int) ($capacitySummary->configured_capacity_classrooms ?? 0),
+            ],
             'upcomingLiveClasses' => $upcomingLiveClasses,
             'recentCourses' => Course::query()
                 ->whereIn('academy_id', $academyIds)
@@ -409,7 +347,7 @@ final class OwnerDashboardService
                 'classroomsWithoutTeacher' => 0,
             ],
             'teacherReports' => collect(),
-            'classrooms' => collect(),
+            'capacity' => ['total' => 0, 'used' => 0, 'remaining' => 0, 'rate' => null, 'configured_classrooms' => 0],
             'upcomingLiveClasses' => collect(),
             'recentCourses' => collect(),
         ];
