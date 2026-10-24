@@ -251,7 +251,7 @@
                             <span class="td-list-actions">
                                 <span class="td-status {{ $isLive ? 'is-live' : '' }}">{{ $session['status'] ?? 'برنامه‌ریزی‌شده' }}</span>
                                 @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))
-                                    <a class="td-join" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به جلسه آنلاین {{ $session['title'] ?? 'کلاس' }}">ورود <span aria-hidden="true">↗</span></a>
+                                    <a class="td-join teacher-live-join" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به جلسه آنلاین {{ $session['title'] ?? 'کلاس' }}">ورود <span aria-hidden="true">↗</span></a>
                                 @endif
                             </span>
                         </article>
@@ -338,7 +338,7 @@
                             <span class="td-list-actions">
                                 <span class="td-status {{ ($item->status ?? '') === 'live' ? 'is-live' : '' }}">{{ ($item->status ?? '') === 'live' ? 'در حال برگزاری' : 'زمان‌بندی‌شده' }}</span>
                                 @if($item->can_join && filled($item->meeting_url))
-                                    <a class="td-join" href="{{ $item->meeting_url }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به جلسه آنلاین {{ $item->title }}">ورود <span aria-hidden="true">↗</span></a>
+                                    <a class="td-join teacher-live-join" href="{{ $item->meeting_url }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به جلسه آنلاین {{ $item->title }}">ورود <span aria-hidden="true">↗</span></a>
                                 @endif
                             </span>
                         </article>
