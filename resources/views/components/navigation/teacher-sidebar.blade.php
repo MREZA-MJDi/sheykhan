@@ -65,7 +65,7 @@
         <a href="{{ route('teacher.students.index') }}" title="دانش‌آموزان" aria-label="دانش‌آموزان" class="role-nav-link {{ request()->routeIs('teacher.students.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.students.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20v-1a6 6 0 0 1 12 0v1M16 15a5 5 0 0 1 5 5"/></svg></span><span>دانش‌آموزان</span>
         </a>
-        <a href="{{ route('teacher.dashboard') }}#td-progress-title" title="گزارش عملکرد" aria-label="گزارش عملکرد" class="role-nav-link">
+        <a href="{{ route('teacher.dashboard') }}#tdb-progress" title="گزارش عملکرد" aria-label="گزارش عملکرد" class="role-nav-link">
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 17v-5M12 17V5M18 17v-9"/></svg></span><span>گزارش عملکرد</span>
         </a>
 
