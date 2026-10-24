@@ -16,8 +16,6 @@ export default defineConfig({
                 'resources/js/teacher.js',
                 'resources/css/admin.css',
                 'resources/js/admin.js',
-                'resources/css/seo.css',
-                'resources/js/seo.js',
                 'resources/css/parent.css',
                 'resources/js/parent.js',
             ],
