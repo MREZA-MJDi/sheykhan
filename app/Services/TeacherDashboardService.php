@@ -7,6 +7,7 @@ use App\Models\ExamAttempt;
 use App\Models\LiveClass;
 use App\Models\User;
 use App\Support\PersianUi;
+use App\Services\MeetingLinkService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -91,8 +92,21 @@ final class TeacherDashboardService
                 'classroom:id,title',
             ])
             ->orderBy('scheduled_at')
+            ->orderBy('id')
             ->limit(6)
-            ->get();
+            ->get()
+            ->map(function (LiveClass $liveClass): LiveClass {
+                // Keep external joining on the validated provider URL; no fake internal endpoint.
+                $liveClass->setAttribute(
+                    'can_join',
+                    app(MeetingLinkService::class)->urlMatchesProvider(
+                        (string) $liveClass->provider,
+                        (string) $liveClass->meeting_url,
+                    ),
+                );
+
+                return $liveClass;
+            });
 
         $weekChart = $this->weeklyChart($teacher->id, $courseIds, $weekStart, $weekEnd);
 
