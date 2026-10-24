@@ -34,7 +34,7 @@ class OwnerProductResourceManagementTest extends TestCase
             'currency' => 'IRR', 'status' => 'draft',
         ]);
         $oldPdf = app(MediaService::class)->upload(UploadedFile::fake()->create('old.pdf', 20, 'application/pdf'), null, [
-            'disk' => 'local', 'directory' => 'product-tests', 'collection' => 'product-source', 'visibility' => 'private',
+            'disk' => 'local', 'directory' => 'product-tests', 'collection' => 'product-source', 'visibility' => 'private', 'uploaded_by' => $owner->id,
         ]);
         ProductFile::query()->create([
             'product_id' => $product->id, 'media_id' => $oldPdf->id, 'version' => '1.0',
@@ -99,7 +99,7 @@ class OwnerProductResourceManagementTest extends TestCase
         Storage::fake('local');
         [$owner, $academy, $category, $course] = $this->workspace(true);
         $oldMedia = app(MediaService::class)->upload(UploadedFile::fake()->create('notes.pdf', 10, 'application/pdf'), null, [
-            'disk' => 'local', 'directory' => 'resource-tests', 'collection' => 'learning-resources', 'visibility' => 'private',
+            'disk' => 'local', 'directory' => 'resource-tests', 'collection' => 'learning-resources', 'visibility' => 'private', 'uploaded_by' => $owner->id,
         ]);
         $resource = LearningResource::query()->create([
             'academy_id' => $academy->id, 'course_id' => $course->id, 'media_id' => $oldMedia->id, 'uploaded_by' => $owner->id,
