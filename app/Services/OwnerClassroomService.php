@@ -24,6 +24,12 @@ final class OwnerClassroomService
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
         $academyId = (int) $academy->id;
+        $search = trim((string) request()->query('q', ''));
+        $status = in_array(request()->query('status'), ['active', 'archived'], true)
+            ? (string) request()->query('status')
+            : '';
+        $courseId = filter_var(request()->query('course_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: null;
+
         $classrooms = $academy->classrooms()
             ->with([
                 'course:id,title',
@@ -47,6 +53,16 @@ final class OwnerClassroomService
                     ->where('users.status', 'active')
                     ->whereNull('users.deleted_at'),
             ])
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($matches) use ($search): void {
+                    $matches->where('classrooms.title', 'like', '%' . $search . '%')
+                        ->orWhere('classrooms.code', 'like', '%' . $search . '%')
+                        ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                        ->orWhereHas('teachers', fn ($teacher) => $teacher->where('users.name', 'like', '%' . $search . '%'));
+                });
+            })
+            ->when($status !== '', fn ($query) => $query->where('classrooms.status', $status))
+            ->when($courseId !== null, fn ($query) => $query->where('classrooms.course_id', $courseId))
             ->latest()
             ->paginate(12)
             ->withQueryString();
