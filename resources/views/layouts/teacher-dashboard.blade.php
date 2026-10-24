@@ -26,10 +26,18 @@
                 </label>
 
                 <div class="tdb-topbar-actions">
-                    <a class="tdb-profile" href="{{ route('teacher.profile.edit') }}" aria-label="رفتن به پروفایل مدرس">
+                    @if(auth()->user()?->hasPermission('profile.view'))
+                        <a class="tdb-profile" href="{{ route('teacher.profile.edit') }}" aria-label="رفتن به پروفایل مدرس">
+                    @else
+                        <div class="tdb-profile">
+                    @endif
                         <span class="tdb-avatar" aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string) auth()->user()->name), 0, 1) ?: 'م' }}</span>
                         <span class="tdb-profile-copy"><strong>{{ auth()->user()->name }}</strong><small>پنل مدرس</small></span>
-                    </a>
+                    @if(auth()->user()?->hasPermission('profile.view'))
+                        </a>
+                    @else
+                        </div>
+                    @endif
                     <button class="tdb-icon-button" type="button" data-teacher-theme-toggle aria-label="فعال‌کردن تم تیره" aria-pressed="false" title="تغییر تم">
                         <svg data-theme-moon viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.7 8.7 0 1 0 20.5 14.2Z"></path></svg>
                         <svg data-theme-sun viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path></svg>
@@ -43,9 +51,7 @@
             </header>
 
             <main class="tdb-main">
-                @if(session('success'))
-                    <div class="tdb-flash" role="status">{{ session('success') }}</div>
-                @endif
+                <x-ui.flash-messages />
                 @yield('content')
             </main>
         </div>
