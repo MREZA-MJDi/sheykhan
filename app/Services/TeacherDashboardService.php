@@ -95,8 +95,12 @@ final class TeacherDashboardService
                         $running->where('status', 'live')
                             ->where('scheduled_at', '<=', now())
                             ->where(function ($end): void {
-                                $end->whereNull('scheduled_end_at')
-                                    ->orWhere('scheduled_end_at', '>=', now());
+                                $end->where('scheduled_end_at', '>=', now())
+                                    ->orWhere(function ($legacy): void {
+                                        // Legacy rows without an end time use the model's max allowed duration.
+                                        $legacy->whereNull('scheduled_end_at')
+                                            ->where('scheduled_at', '>=', now()->subHours(24));
+                                    });
                             });
                     });
             })
@@ -340,7 +344,7 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         $periods = array_fill(0, 7, []);
         foreach ($dailyValues as $day => $value) {
             $date = Carbon::parse($day)->startOfDay();
-            $offset = min(6, intdiv(max(0, $from->diffInDays($date)), 5));
+            $offset = min(6, intdiv((int) max(0, $from->diffInDays($date)), 5));
             $periods[$offset][] = (float) $value;
         }
 
@@ -384,10 +388,11 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
                         'status' => $status,
                         'type' => 'class',
                         'meeting_url' => $schedule->meeting_url,
-                        'can_join' => $meetingLinks->urlMatchesProvider(
-                            (string) $schedule->provider,
-                            (string) $schedule->meeting_url,
-                        ),
+                        'can_join' => $status !== 'پایان یافته'
+                            && $meetingLinks->urlMatchesProvider(
+                                (string) $schedule->provider,
+                                (string) $schedule->meeting_url,
+                            ),
                     ];
                 });
         });
@@ -401,22 +406,25 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             ->orderBy('scheduled_at')
             ->get()
             ->map(function (LiveClass $item) use ($meetingLinks) {
-                $ended = $item->ended_at !== null
-                    || ($item->scheduled_end_at !== null && $item->scheduled_end_at->isPast());
+                $scheduledEnd = $item->scheduled_end_at
+                    ?? $item->scheduled_at->copy()->addMinutes(max(1, (int) ($item->duration_minutes ?? 60)));
+                $ended = $item->ended_at !== null || $scheduledEnd->isPast();
+                $status = $ended
+                    ? 'پایان یافته'
+                    : ($item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده');
 
                 return [
                     'time' => $this->faDigits($item->scheduled_at->format('H:i')),
                     'title' => $item->title,
                     'meta' => $item->classroom?->title ?? $item->course?->title,
-                    'status' => $ended
-                        ? 'پایان یافته'
-                        : ($item->scheduled_at->isPast() ? 'در حال برگزاری' : 'شروع نشده'),
+                    'status' => $status,
                     'type' => 'online',
                     'meeting_url' => $item->meeting_url,
-                    'can_join' => $meetingLinks->urlMatchesProvider(
-                        (string) $item->provider,
-                        (string) $item->meeting_url,
-                    ),
+                    'can_join' => $status !== 'پایان یافته'
+                        && $meetingLinks->urlMatchesProvider(
+                            (string) $item->provider,
+                            (string) $item->meeting_url,
+                        ),
                 ];
             });
 
