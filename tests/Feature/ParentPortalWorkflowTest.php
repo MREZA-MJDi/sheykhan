@@ -10,6 +10,8 @@ use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use App\Models\LiveClass;
+use App\Services\ParentDashboardService;
 use App\Models\ParentMessage;
 use App\Models\Permission;
 use App\Models\Role;
@@ -260,6 +262,107 @@ class ParentPortalWorkflowTest extends TestCase
             'role' => 'parent',
             'status' => 'active',
         ]);
+    }
+
+
+    public function test_parent_dashboard_excludes_future_courses_and_partially_paid_learning_work(): void
+    {
+        $workspace = $this->workspace();
+        $student = $workspace['student'];
+        $owner = $workspace['owner'];
+        $teacher = $workspace['teacher'];
+        $academy = $workspace['academy'];
+
+        $futureCourse = Course::query()->create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره‌ای که هنوز منتشر نشده',
+            'slug' => 'parent-future-' . Str::lower(Str::random(8)),
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'published_at' => now()->addDay(),
+        ]);
+
+        $student->enrollments()->create([
+            'course_id' => $futureCourse->id,
+            'classroom_id' => null,
+            'status' => 'active',
+            'payment_status' => 'unpaid',
+            'paid_amount' => 0,
+            'started_at' => now(),
+        ]);
+
+        LiveClass::query()->create([
+            'course_id' => $futureCourse->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'جلسهٔ دورهٔ آینده',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/parent-future-course-test',
+            'scheduled_at' => now()->addDays(2),
+            'scheduled_end_at' => now()->addDays(2)->addMinutes(45),
+            'duration_minutes' => 45,
+            'status' => 'scheduled',
+        ]);
+
+        $partiallyPaidCourse = Course::query()->create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره با پرداخت ناقص',
+            'slug' => 'parent-partial-' . Str::lower(Str::random(8)),
+            'status' => 'published',
+            'access_type' => 'paid',
+            'price' => 20000,
+            'published_at' => now()->subDay(),
+        ]);
+
+        $student->enrollments()->create([
+            'course_id' => $partiallyPaidCourse->id,
+            'classroom_id' => null,
+            'status' => 'active',
+            'payment_status' => 'pending',
+            'price_amount' => 20000,
+            'paid_amount' => 1000,
+            'started_at' => now(),
+        ]);
+
+        Assignment::query()->create([
+            'course_id' => $partiallyPaidCourse->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'تکلیف دوره با پرداخت ناقص',
+            'instructions' => 'این تکلیف نباید در پنل والد نمایش داده شود.',
+            'due_at' => now()->addDays(3),
+            'max_score' => 100,
+            'status' => 'published',
+        ]);
+
+        LiveClass::query()->create([
+            'course_id' => $partiallyPaidCourse->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'جلسهٔ دوره با پرداخت ناقص',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/parent-partial-payment-test',
+            'scheduled_at' => now()->addDays(3),
+            'scheduled_end_at' => now()->addDays(3)->addMinutes(45),
+            'duration_minutes' => 45,
+            'status' => 'scheduled',
+        ]);
+
+        $payload = app(ParentDashboardService::class)->build($workspace['parent']);
+        $child = $payload['children']->firstWhere('id', $student->id);
+
+        $this->assertNotNull($child);
+        $this->assertSame(1, $child->dashboard_courses);
+        $this->assertSame(0, $child->dashboard_pending);
+        $this->assertFalse($payload['pendingAssignmentItems']->contains(
+            fn ($item) => $item->title === 'تکلیف دوره با پرداخت ناقص'
+        ));
+        $this->assertFalse($payload['upcomingLiveClasses']->contains(
+            fn ($item) => in_array($item->title, [
+                'جلسهٔ دورهٔ آینده',
+                'جلسهٔ دوره با پرداخت ناقص',
+            ], true)
+        ));
     }
 
     private function workspace(): array
