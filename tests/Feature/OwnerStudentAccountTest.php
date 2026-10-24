@@ -100,6 +100,7 @@ class OwnerStudentAccountTest extends TestCase
         $gradeId = DB::table('academic_grades')->where('is_active', true)->orderBy('sort_order')->value('id');
         $existing = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $existing->forceFill(['mobile' => '09120001122'])->save();
+        $userCountBefore = User::query()->count();
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
@@ -110,6 +111,6 @@ class OwnerStudentAccountTest extends TestCase
             ])
             ->assertSessionHasErrors(['email', 'mobile']);
 
-        $this->assertDatabaseMissing('users', ['email' => 'دانش‌آموز تکراری']);
+        $this->assertSame($userCountBefore, User::query()->count(), 'A rejected duplicate account must not create a user row.');
     }
 }
