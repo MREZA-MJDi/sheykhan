@@ -238,7 +238,8 @@ body.teacher-shell { padding: 0 !important; }
     }
     .owner-shell .role-layout,
     .parent-shell .role-layout { gap: 12px; }
-    .owner-shell .role-main,
+    /* Owner's bottom bar is enabled below 1050px; reserve its full height. */
+    .owner-shell .role-main { padding: 18px 18px calc(132px + env(safe-area-inset-bottom, 0px)); }
     .parent-shell .role-main { padding: 18px; }
 }
 @media (max-width: 760px) {
@@ -265,8 +266,11 @@ body.teacher-shell { padding: 0 !important; }
         background: transparent;
         box-shadow: none;
     }
-    .owner-shell .role-main,
-    .parent-shell .role-main { padding: 14px 12px calc(132px + env(safe-area-inset-bottom, 0px)); }
+    .owner-shell .role-main { padding: 14px 12px calc(132px + env(safe-area-inset-bottom, 0px)); }
+    .parent-shell .role-main { padding: 14px 12px 24px; }
+    /* The student sidebar becomes hidden at this breakpoint; expose its bottom nav. */
+    .student-shell .role-mobile-bottom-nav,
+    .teacher-shell .role-mobile-bottom-nav { display: grid !important; }
 }
 @media (max-width: 420px) {
     .student-shell .mn,
