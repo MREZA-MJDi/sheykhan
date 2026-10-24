@@ -1,4 +1,3 @@
-import '../css/app.css';
 /* Shared application behavior: calendars, Persian money, Alpine and responsive panel shell. */
 import './persian-calendar.js';
 import './persian-money.js';
