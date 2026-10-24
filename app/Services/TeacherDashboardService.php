@@ -284,7 +284,7 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
 
     private function courseProgress(int $teacherId, $courseIds, $exclusiveCourseIds)
     {
-        return $this->teacherLearningMatrix($teacherId, $courseIds)
+        return $this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
             ->groupBy('courses.id', 'courses.title')
             ->orderByDesc('courses.id')
             ->get([
@@ -307,7 +307,7 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         $values = [];
         $dayMap = [0 => 'ی', 1 => 'د', 2 => 'س', 3 => 'چ', 4 => 'پ', 5 => 'ج', 6 => 'ش'];
 
-        $rows = $this->teacherLearningMatrix($teacherId, $courseIds)
+        $rows = $this->teacherLearningMatrix($teacherId, $courseIds, $exclusiveCourseIds)
             ->whereNotNull('progress.last_watched_at')
             ->whereBetween('progress.last_watched_at', [$from, $to])
             ->groupBy(DB::raw('DATE(progress.last_watched_at)'))
