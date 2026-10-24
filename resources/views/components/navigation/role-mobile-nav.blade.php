@@ -23,7 +23,7 @@
         ],
         'teacher' => [
             ['route' => 'teacher.dashboard', 'label' => 'خانه', 'permission' => 'dashboard.view', 'icon' => '⌂', 'primary' => true],
-            ['route' => 'teacher.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦', 'primary' => true, 'requiresAcademy' => true],
+            ['route' => 'teacher.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦', 'primary' => true],
             ['route' => 'teacher.assignments.index', 'label' => 'تکالیف', 'permission' => 'assignments.view', 'icon' => '✓', 'primary' => true],
             ['route' => 'teacher.messages.index', 'label' => 'پیام‌های اولیا', 'permission' => 'parent_messages.view', 'icon' => '✉', 'primary' => true],
             ['route' => 'teacher.courses.index', 'label' => 'دوره‌های من', 'permission' => 'courses.view', 'icon' => '▣', 'primary' => false],
@@ -114,13 +114,6 @@
         ->values();
 
     $primaryItems = $visibleItems->filter(fn (array $item) => !empty($item['primary']))->take(4)->values();
-    $profileRoute = match ($role) {
-        'student' => $user?->hasPermission('profile.view') ? 'student.profile.edit' : null,
-        'teacher' => $user?->hasPermission('profile.view') ? 'teacher.profile.edit' : null,
-        'parent' => null,
-        'owner' => $seoOnly ? 'owner.seo.index' : 'owner.dashboard',
-        default => null,
-    };
 @endphp
 
 @if($visibleItems->isNotEmpty())
@@ -183,12 +176,6 @@
                         @if($active)<span class="role-mobile-more-current">فعلی</span>@endif
                     </a>
                 @endforeach
-                @if($profileRoute && \Illuminate\Support\Facades\Route::has($profileRoute))
-                    <a href="{{ route($profileRoute) }}">
-                        <x-navigation.mobile-nav-icon icon="⚙" />
-                        <span>پروفایل و تنظیمات حساب</span>
-                    </a>
-                @endif
                 <a href="{{ route('home') }}">
                     <x-navigation.mobile-nav-icon icon="⌂" />
                     <span>مشاهده سایت</span>
