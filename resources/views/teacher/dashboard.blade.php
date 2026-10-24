@@ -222,6 +222,7 @@
                     @if($canViewLiveClasses)
                         <section class="cd" aria-labelledby="teacher-today-heading">
                             <h3 id="teacher-today-heading">برنامه امروز <a href="{{ route('teacher.schedule.index') }}">برنامه کامل ←</a></h3>
+                            @php($canJoinSession = false)
                             @forelse($todayList as $session)
                                 @php
                                     $sessionStatus = (string) ($session['status'] ?? 'برنامه‌ریزی‌شده');
