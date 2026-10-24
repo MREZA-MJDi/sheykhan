@@ -562,6 +562,21 @@
     background: #4338ca !important;
 }
 
+/* Actionable schema notice: non-blocking supporting modules must not hide the primary workspace. */
+.owner-shell .role-main .owner-schema-warning {
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid #f0d49d;
+    border-radius: 14px;
+    background: #fff8e9;
+    color: #855000;
+    font-size: 13px;
+    line-height: 1.9;
+}
+.owner-shell .role-main .owner-schema-warning strong { color: #754500; font-size: 14px; }
+.owner-shell .role-main .owner-schema-warning p { margin: 0; color: #855000 !important; }
+
 /* Feedback system: success, warning, error and neutral information. */
 .owner-shell .role-main :is([role="alert"],[role="status"]).rounded-xl,
 .owner-shell .role-main :is([role="alert"],[role="status"]).rounded-2xl,
