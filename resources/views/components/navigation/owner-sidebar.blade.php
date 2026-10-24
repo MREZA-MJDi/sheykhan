@@ -14,9 +14,11 @@
     $firstAcademy = $academies->first();
 
     $ownerPanelHomeUrl = route('home');
-    if ($seoOnly && $user->hasPermission('seo.manage')) {
-        $ownerPanelHomeUrl = route('owner.seo.index');
-    } elseif (! $seoOnly && $user->hasPermission('dashboard.view')) {
+    if ($seoOnly) {
+        if ($user->hasPermission('seo.manage')) {
+            $ownerPanelHomeUrl = route('owner.seo.index');
+        }
+    } elseif ($user->hasPermission('dashboard.view')) {
         $ownerPanelHomeUrl = route('owner.dashboard');
     } elseif ($user->hasPermission('academy.view') && $firstAcademy) {
         $ownerPanelHomeUrl = route('owner.people.index', $firstAcademy);
@@ -86,7 +88,7 @@
             </a>
         @endif
 
-        @if($user->hasPermission('reports.view'))
+        @if(! $seoOnly && $user->hasPermission('reports.view'))
             <a href="{{ route('owner.reports.index') }}"
                class="role-nav-link {{ request()->routeIs('owner.reports.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>عملکرد و گزارش</span>
