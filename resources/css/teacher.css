@@ -2185,3 +2185,196 @@ th{font-weight:600}td{padding:12px}
         transition: none !important;
     }
 }
+
+
+/* Legacy teacher templates use Tailwind utility markup; normalize their surfaces
+   inside the role shell instead of loading a second stylesheet per feature. */
+.teacher-shell {
+    --panel-primary: #247c9b;
+    --color-primary-600: #247c9b;
+    --color-border: #d4e2ed;
+    --color-text: #1d2f45;
+    --color-text-secondary: #637b90;
+    --color-success-100: #bfe7d7;
+    --color-success-50: #edfaf4;
+    --color-success-700: #197658;
+}
+.teacher-shell .workspace-content > .space-y-6,
+.teacher-shell .workspace-content > .communication-page {
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    min-width: 0;
+    color: var(--tx);
+}
+.teacher-shell .workspace-content .space-y-6 > header,
+.teacher-shell .workspace-content .communication-page > header {
+    min-width: 0;
+    margin: 0;
+    padding: 0 0 15px;
+    border-bottom: 1px solid rgba(149,177,199,.42);
+}
+.teacher-shell .workspace-content .space-y-6 > header h1,
+.teacher-shell .workspace-content .communication-page > header h1 {
+    color: #1c354c;
+    font-size: clamp(22px, 2.1vw, 30px);
+    font-weight: 900;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.teacher-shell .workspace-content .space-y-6 > header p,
+.teacher-shell .workspace-content .communication-page > header p {
+    color: #637b90;
+    font-size: 12px;
+    line-height: 1.95;
+    overflow-wrap: anywhere;
+}
+.teacher-shell .workspace-content :is(.dashboard-panel,.communication-page__hero,.communication-page__card,.communication-page__message,.communication-page__empty) {
+    min-width: 0;
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 17px;
+    background: rgba(255,255,255,.8);
+    box-shadow: 6px 8px 19px rgba(52,76,102,.07), inset 1px 1px 2px rgba(255,255,255,.9);
+    color: #2b465d;
+}
+.teacher-shell .workspace-content .communication-page__hero {
+    padding: clamp(16px, 1.7vw, 24px);
+    background: linear-gradient(130deg, rgba(215,237,245,.9), rgba(230,228,251,.76));
+}
+.teacher-shell .workspace-content :is(.communication-page__card,.communication-page__message,.communication-page__empty,.dashboard-panel) {
+    overflow-wrap: anywhere;
+}
+.teacher-shell .workspace-content .dashboard-panel :is(h1,h2,h3,h4) {
+    color: #263f55;
+    overflow-wrap: anywhere;
+}
+.teacher-shell .workspace-content .dashboard-panel :is(p,small,span) {
+    overflow-wrap: anywhere;
+}
+.teacher-shell .workspace-content :is(.text-slate-950,.text-slate-900,.text-slate-800,.text-slate-700,.text-slate-600,.text-gray-900,.text-gray-800) {
+    color: #2d4a62;
+}
+.teacher-shell .workspace-content :is(.text-slate-500,.text-slate-400,.text-gray-500,.text-gray-600) {
+    color: #6c8295;
+}
+.teacher-shell .workspace-content :is(.bg-white,.bg-slate-50,.bg-slate-100,.bg-gray-50) {
+    background-color: rgba(242,248,252,.88);
+}
+.teacher-shell .workspace-content :is(.border-slate-100,.border-slate-200,.border-slate-300,.border-gray-200) {
+    border-color: #e0eaf2;
+}
+.teacher-shell .workspace-content :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]),select,textarea) {
+    max-width: 100%;
+    min-width: 0;
+    border-color: #d4e2ed;
+    border-radius: 10px;
+    background-color: rgba(255,255,255,.94);
+    color: #203b53;
+    font-size: 12px;
+}
+.teacher-shell .workspace-content :is(input,select,textarea):focus-visible {
+    outline: 2px solid #3996b2;
+    outline-offset: 2px;
+    border-color: #58a8bd;
+}
+.teacher-shell .workspace-content :is(button[type=submit],input[type=submit]) {
+    min-height: 40px;
+    border-radius: 11px;
+    background-color: #247c9b;
+    color: #fff;
+    font-weight: 850;
+    transition: filter .16s ease, transform .16s ease;
+}
+.teacher-shell .workspace-content :is(button[type=submit],input[type=submit]):hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+.teacher-shell .workspace-content table {
+    max-width: 100%;
+    color: #2d4a62;
+}
+.teacher-shell .workspace-content th {
+    background: #edf5fb;
+    color: #59758b;
+    font-size: 10px;
+    font-weight: 900;
+}
+.teacher-shell .workspace-content td {
+    border-color: #e4edf4;
+    color: #35536c;
+    font-size: 11px;
+}
+.teacher-shell .workspace-content tbody tr:hover { background: #f4f9fd; }
+.teacher-shell .workspace-content [role=alert] {
+    border-radius: 12px;
+    line-height: 1.85;
+}
+.teacher-shell .workspace-content .bg-emerald-50 {
+    border-color: #bfe7d7;
+    background: #edfaf4;
+    color: #197658;
+}
+.teacher-shell .workspace-content .bg-rose-50 {
+    border-color: #f1c6cd;
+    background: #fff1f3;
+    color: #b44352;
+}
+.teacher-shell .workspace-content .bg-amber-50 {
+    border-color: #f0deb7;
+    background: #fff8e7;
+    color: #916318;
+}
+.teacher-shell .workspace-content .communication-page__status,
+.teacher-shell .workspace-content .rounded-full.bg-slate-100 {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #dce7ef;
+    background: #f1f6fa;
+    color: #5c7589;
+}
+.teacher-shell .workspace-content .communication-page__button {
+    background: linear-gradient(145deg,#3a9bb2,#247c9b);
+    color: #fff;
+}
+.teacher-shell .workspace-content .communication-page__response {
+    border-color: #c7e9db;
+    background: #effaf5;
+    color: #2c6958;
+}
+:root[data-theme="dark"] .teacher-shell .workspace-content :is(.dashboard-panel,.communication-page__hero,.communication-page__card,.communication-page__message,.communication-page__empty) {
+    border-color: var(--bd);
+    background: var(--sf);
+    box-shadow: var(--sh);
+    color: var(--tx);
+}
+:root[data-theme="dark"] .teacher-shell .workspace-content .space-y-6 > header h1,
+:root[data-theme="dark"] .teacher-shell .workspace-content .communication-page > header h1,
+:root[data-theme="dark"] .teacher-shell .workspace-content .dashboard-panel :is(h1,h2,h3,h4) {
+    color: var(--tx);
+}
+:root[data-theme="dark"] .teacher-shell .workspace-content .space-y-6 > header p,
+:root[data-theme="dark"] .teacher-shell .workspace-content .communication-page > header p {
+    color: var(--mu);
+}
+:root[data-theme="dark"] .teacher-shell .workspace-content :is(.bg-white,.bg-slate-50,.bg-slate-100,.bg-gray-50) {
+    background-color: var(--s2);
+}
+:root[data-theme="dark"] .teacher-shell .workspace-content :is(.text-slate-950,.text-slate-900,.text-slate-800,.text-slate-700,.text-slate-600,.text-gray-900,.text-gray-800) {
+    color: var(--tx);
+}
+:root[data-theme="dark"] .teacher-shell .workspace-content :is(.text-slate-500,.text-slate-400,.text-gray-500,.text-gray-600) {
+    color: var(--mu);
+}
+@media (max-width: 760px) {
+    .teacher-shell .workspace-content .space-y-6 { gap: 12px; }
+    .teacher-shell .workspace-content .space-y-6 > header,
+    .teacher-shell .workspace-content .communication-page > header { padding-bottom: 12px; }
+    .teacher-shell .workspace-content .space-y-6 > header h1,
+    .teacher-shell .workspace-content .communication-page > header h1 { font-size: 22px; }
+    .teacher-shell .workspace-content .space-y-6 > header :is(a,button) { max-width: 100%; }
+    .teacher-shell .workspace-content .space-y-6 form { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .teacher-shell .workspace-content :is(a,button,input,select,textarea) { transition: none !important; }
+}
