@@ -318,5 +318,6 @@
                 @endif
             </aside>
         </div>
+        <p class="tdb-empty" data-dashboard-search-empty role="status" aria-live="polite" hidden>هیچ نتیجه‌ای با این عبارت پیدا نشد.</p>
     </section>
 @endsection
