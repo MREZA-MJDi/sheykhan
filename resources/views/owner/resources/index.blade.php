@@ -19,8 +19,8 @@
         @csrf
         <section class="owner-form-section">
             <h2>فایل جدید</h2>
-            <label><span>عنوان</span><input name="title" value="{{ old('title') }}" maxlength="255" required></label>
-            <label><span>توضیح کوتاه</span><textarea name="description" rows="3" maxlength="2000">{{ old('description') }}</textarea></label>
+            <label><span>عنوان</span><input name="title" value="{{ old('title') }}" maxlength="255" required><small class="owner-field-help">عنوانی مشخص انتخاب کن تا عضو آموزشگاه فایل را از فهرست منابع تشخیص بدهد.</small></label>
+            <label><span>توضیح کوتاه</span><textarea name="description" rows="3" maxlength="2000">{{ old('description') }}</textarea><small class="owner-field-help">خلاصهٔ کاربرد فایل، درس مرتبط و نکتهٔ مهم استفاده را بنویس.</small></label>
             <label>
                 <span>فایل</span>
                 <input type="file" name="file" required accept=".pdf,.mp4,.webm,.mov,.mp3,.m4a,.jpg,.jpeg,.png,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip" data-owner-resource-input aria-describedby="owner-resource-file-help owner-resource-file-feedback">
@@ -41,15 +41,15 @@
             </div>
             <p id="owner-resource-file-feedback" class="owner-image-feedback" data-owner-resource-feedback role="status" aria-live="polite">این بخش فایل خصوصی برای اعضای مجاز آموزشگاه می‌سازد؛ تصویر اینجا به بنر یا کاور عمومی سایت تبدیل نمی‌شود.</p>
             <div class="owner-form-two">
-                <label><span>دوره (اختیاری)</span><select name="course_id"><option value="">همهٔ دانش‌آموزان مجاز آموزشگاه</option>@foreach($courses as $course)<option value="{{ $course->id }}" @selected((string)old('course_id')===(string)$course->id)>{{ $course->title }}</option>@endforeach</select></label>
-                <label><span>کلاس (اختیاری)</span><select name="classroom_id"><option value="">بدون محدودیت کلاس</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)old('classroom_id')===(string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
+                <label><span>دوره (اختیاری)</span><select name="course_id"><option value="">همهٔ دانش‌آموزان مجاز آموزشگاه</option>@foreach($courses as $course)<option value="{{ $course->id }}" @selected((string)old('course_id')===(string)$course->id)>{{ $course->title }}</option>@endforeach</select><small class="owner-field-help">با انتخاب دوره، دسترسی به دانش‌آموزان مجاز همان دوره محدود می‌شود؛ برای دسترسی در سطح آموزشگاه خالی بگذار.</small></label>
+                <label><span>کلاس (اختیاری)</span><select name="classroom_id"><option value="">بدون محدودیت کلاس</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)old('classroom_id')===(string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select><small class="owner-field-help">در صورت انتخاب کلاس، دسترسی به همان گروه محدودتر می‌شود.</small></label>
             </div>
-            <label><span>درس مشخص (اختیاری)</span><select name="lesson_id"><option value="">بدون محدودیت درس</option>@foreach($lessons as $lesson)<option value="{{ $lesson->id }}" @selected((string)old('lesson_id')===(string)$lesson->id)>{{ $lesson->section?->course?->title }} — {{ $lesson->title }}</option>@endforeach</select></label>
+            <label><span>درس مشخص (اختیاری)</span><select name="lesson_id"><option value="">بدون محدودیت درس</option>@foreach($lessons as $lesson)<option value="{{ $lesson->id }}" @selected((string)old('lesson_id')===(string)$lesson->id)>{{ $lesson->section?->course?->title }} — {{ $lesson->title }}</option>@endforeach</select><small class="owner-field-help">این فایل را به درس مشخص وصل کن تا در زمینهٔ همان درس نمایش داده شود.</small></label>
         </section>
         <aside class="owner-form-side">
             <section class="owner-form-section">
                 <h2>دسترسی</h2>
-                <label><span>زمان انتشار (اختیاری)</span><input type="datetime-local" name="release_at" value="{{ old('release_at') }}"><small>قبل از این زمان دانش‌آموز فایل را نمی‌بیند.</small></label>
+                <label><span>زمان انتشار (اختیاری)</span><input type="datetime-local" name="release_at" value="{{ old('release_at') }}"><small>قبل از این زمان دانش‌آموز فایل را نمی‌بیند.</small><small class="owner-field-help">تا پیش از زمان تعیین‌شده فایل به دانش‌آموز نمایش داده نمی‌شود؛ برای انتشار فوری خالی بگذار.</small></label>
                 <p class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900">فایل‌های آموزشی دانش‌آموز همیشه از مسیر مشاهدهٔ احرازشده ارائه می‌شوند؛ دانلود مستقیم این بخش عمداً غیرفعال است. PDFهای فروشی را از مدیریت محصولات ثبت کن.</p>
             </section>
             <button type="submit" class="owner-primary-btn w-full">ثبت فایل خصوصی</button>
