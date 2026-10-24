@@ -66,6 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const values = Array.isArray(selected.values) ? selected.values : [];
             const count = Math.min(labels.length, values.length);
             bars.replaceChildren();
+            const hasProgressData = count > 0 && values.slice(0, count).some((value) => Number(value) > 0);
+            if (!hasProgressData) {
+                if (emptyState) emptyState.hidden = false;
+                return;
+            }
             for (let index = 0; index < count; index += 1) {
                 const value = Math.max(0, Math.min(100, Number(values[index]) || 0));
                 const column = document.createElement('div');
@@ -78,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 column.append(number, fill, label);
                 bars.appendChild(column);
             }
-            if (emptyState) emptyState.hidden = count > 0;
+            if (emptyState) emptyState.hidden = hasProgressData;
         };
         buttons.forEach((button) => {
             button.addEventListener('click', () => {
