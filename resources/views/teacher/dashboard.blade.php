@@ -259,7 +259,7 @@
                                         <small>{{ $class->classroom?->title ?? '' }} · {{ \App\Support\PersianUi::date($class->scheduled_at) }} {{ \App\Support\PersianUi::time($class->scheduled_at) }}</small>
                                     </span>
                                     @if($classCanJoin)
-                                        <a class="bg sk" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به {{ $class->course?->title ?? 'کلاس آنلاین' }}">ورود ↗</a>
+                                        <a class="bg sk teacher-live-join" data-teacher-live-join href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به {{ $class->course?->title ?? 'کلاس آنلاین' }}">ورود ↗</a>
                                     @else
                                         <span class="bg {{ $class->status === 'live' ? 'wr' : 'mu' }}">{{ $class->status === 'live' ? 'در حال بررسی لینک' : 'زمان‌بندی‌شده' }}</span>
                                     @endif
