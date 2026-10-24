@@ -199,6 +199,89 @@ class ParentPortalWorkflowTest extends TestCase
             ->assertDontSee($otherStudent->name);
     }
 
+    public function test_teacher_proposes_counseling_time_owner_confirms_it_and_parent_sees_final_status(): void
+    {
+        $workspace = $this->workspace();
+        $teacher = $workspace['teacher'];
+        $owner = $workspace['owner'];
+        $parent = $workspace['parent'];
+        $student = $workspace['student'];
+        $academy = $workspace['academy'];
+
+        $teacherRole = $teacher->roles()->where('roles.slug', 'teacher')->firstOrFail();
+        $permissionIds = [];
+        foreach (['live_classes.view', 'live_classes.manage'] as $permissionName) {
+            $permission = Permission::query()->firstOrCreate(
+                ['name' => $permissionName],
+                ['label' => $permissionName, 'group' => 'live_classes'],
+            );
+            $permissionIds[] = $permission->id;
+        }
+        $teacherRole->permissions()->syncWithoutDetaching($permissionIds);
+
+        $request = CounselingRequest::query()->create([
+            'academy_id' => $academy->id,
+            'parent_id' => $parent->id,
+            'student_id' => $student->id,
+            'subject' => 'هماهنگی برنامهٔ مطالعاتی',
+            'details' => 'درخواست مشاوره برای برنامهٔ هفتگی',
+            'preferred_at' => now()->addDays(4),
+            'status' => 'requested',
+        ]);
+
+        $proposedAt = now()->addDays(5)->setTime(13, 30);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.counseling-requests.index'))
+            ->assertOk()
+            ->assertSee('هماهنگی برنامهٔ مطالعاتی');
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.counseling-requests.propose', $request->id), [
+                'proposed_at' => $proposedAt->format('Y-m-d\TH:i'),
+                'proposal_notes' => 'می‌توانیم پس از کلاس آنلاین صحبت کنیم.',
+            ])
+            ->assertRedirect(route('teacher.counseling-requests.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('counseling_requests', [
+            'id' => $request->id,
+            'status' => 'proposed',
+            'proposed_by' => $teacher->id,
+            'proposal_notes' => 'می‌توانیم پس از کلاس آنلاین صحبت کنیم.',
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('parent.counseling.index'))
+            ->assertOk()
+            ->assertSee('پیشنهاد زمان از مدرس')
+            ->assertSee('می‌توانیم پس از کلاس آنلاین صحبت کنیم.');
+
+        $this->actingAs($owner)
+            ->patch(route('owner.counseling.update', [$academy, $request->id]), [
+                'status' => 'scheduled',
+                'scheduled_at' => $proposedAt->format('Y-m-d\TH:i'),
+                'response_notes' => 'زمان پیشنهادی مدرس تأیید شد.',
+            ])
+            ->assertRedirect(route('owner.counseling.index', $academy))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('counseling_requests', [
+            'id' => $request->id,
+            'status' => 'scheduled',
+            'scheduled_at' => $proposedAt->format('Y-m-d H:i:s'),
+            'handled_by' => $owner->id,
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('parent.counseling.index'))
+            ->assertOk()
+            ->assertSee('زمان جلسه تعیین شده')
+            ->assertSee('زمان قطعی')
+            ->assertSee('زمان پیشنهادی مدرس')
+            ->assertSee('زمان پیشنهادی مدرس تأیید شد.');
+    }
+
     public function test_parent_sees_unsubmitted_and_pending_assignment_statuses_but_not_other_classroom_work(): void
     {
         $workspace = $this->workspace();
