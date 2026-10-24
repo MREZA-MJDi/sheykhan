@@ -45,7 +45,7 @@ class TeacherLessonResourceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.resources.index'))
             ->assertOk()
-            ->assertSee('student-shell');
+            ->assertSee('منابع منتشرشده برای تو');
 
         $this->actingAs($student)
             ->get(route('student.resources.download', $resource))
