@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Academy;
 use App\Models\Course;
 use App\Models\Permission;
+use App\Models\ParentMessage;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\OwnerCacheService;
@@ -201,13 +202,39 @@ class OwnerDashboardBackendContractTest extends TestCase
         $owner->unsetRelation('roles');
         Cache::flush();
 
+        $parent = User::query()->where('email', 'parent.armin@sheykhan.test')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $message = ParentMessage::query()->create([
+            'academy_id' => $academy->id,
+            'parent_id' => $parent->id,
+            'student_id' => $student->id,
+            'category' => 'question',
+            'subject' => 'پیام فقط‌خواندنی تست',
+            'body' => 'این پیام برای بررسی دسترسی مشاهده ثبت شده است.',
+            'status' => 'open',
+        ]);
+
         $this->actingAs($owner)
             ->get(route('owner.dashboard'))
             ->assertOk()
             ->assertSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false);
 
-        $this->get(route('owner.communications.index', $academy))->assertOk();
+        $this->get(route('owner.communications.index', $academy))
+            ->assertOk()
+            ->assertSee('حالت مشاهده')
+            ->assertDontSee('action="' . route('owner.communications.store', $academy) . '"', false);
+
+        $this->get(route('owner.messages.index', $academy))
+            ->assertOk()
+            ->assertSee('پیام فقط‌خواندنی تست')
+            ->assertSee('حالت فقط‌خواندنی')
+            ->assertDontSee('action="' . route('owner.messages.reply', [$academy, $message->id]) . '"', false);
+
+        $this->patch(route('owner.messages.reply', [$academy, $message->id]), [
+            'status' => 'responded',
+            'response' => 'پاسخ غیرمجاز',
+        ])->assertForbidden();
     }
 
     public function test_owner_dashboard_cache_is_per_owner_and_can_be_invalidated_after_a_write(): void
