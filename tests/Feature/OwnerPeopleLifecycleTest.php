@@ -166,6 +166,22 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('تاریخچه فعلاً قابل نمایش نیست');
     }
 
+    public function test_people_workspace_handles_a_paid_course_without_a_configured_price(): void
+    {
+        [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
+        $course->update([
+            'access_type' => 'paid',
+            'price' => null,
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertSee('قیمت تعیین نشده')
+            ->assertSee('ساخت حساب مدرس')
+            ->assertSee('ساخت حساب والد و اتصال به دانش‌آموز');
+    }
+
     public function test_student_roster_and_enrollment_search_are_server_paginated(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
