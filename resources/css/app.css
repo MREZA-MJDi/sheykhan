@@ -1,7 +1,6 @@
 /* Shared app foundation: base styles, shared panel patterns, and responsive rules. */
 @import 'tailwindcss' source(none);
 @import './components.css';
-@import './communication-pages.css';
 @import './persian-calendar.css';
 
 @source '../../resources/views';
