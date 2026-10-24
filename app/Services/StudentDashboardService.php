@@ -170,8 +170,8 @@ final class StudentDashboardService
                 })
             : collect();
 
-        $upcomingLive = $courseIds->isEmpty()
-            ? collect()
+        $upcomingLiveQuery = $courseIds->isEmpty()
+            ? null
             : DB::table('live_classes')
                 ->join('courses', 'courses.id', '=', 'live_classes.course_id')
                 ->whereIn('live_classes.course_id', $courseIds)
@@ -228,7 +228,16 @@ final class StudentDashboardService
                                         });
                                 });
                         });
-                })
+                });
+
+        // The KPI is an exact count; only the preview list is limited to five rows.
+        $upcomingLiveClassCount = $upcomingLiveQuery
+            ? (clone $upcomingLiveQuery)->count('live_classes.id')
+            : 0;
+
+        $upcomingLive = $upcomingLiveQuery
+            ? (clone $upcomingLiveQuery)
+                ->orderByRaw("CASE WHEN live_classes.status = 'live' THEN 0 ELSE 1 END")
                 ->orderBy('live_classes.scheduled_at')
                 ->limit(5)
                 ->get([
@@ -252,7 +261,8 @@ final class StudentDashboardService
                     $class->can_join = $access->isLiveClassJoinWindowOpen($liveClass);
 
                     return $class;
-                });
+                })
+            : collect();
 
 
         $upcomingMeetings = DB::table('academy_meetings')
@@ -430,6 +440,7 @@ final class StudentDashboardService
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
             'upcomingLiveClasses' => $upcomingLive,
+            'upcomingLiveClassCount' => $upcomingLiveClassCount,
             'upcomingMeetings' => $upcomingMeetings,
             'assignments' => $assignmentItems,
             'recentResults' => $recentResults,
