@@ -10,6 +10,7 @@
 | فهم روشن هر داشبورد، فرایند دانش‌آموز پایه دهم/استاد چنددوره‌ای و ممیزی دسترسی مدرس | [راهنمای مسیرها، منطق داشبورد و import](PLATFORM_DASHBOARD_AND_LEGACY_IMPORT_FA.md) |
 | ساخت جلسه آنلاین، فرق دوره/گروه/برنامه هفتگی/جلسه تاریخ‌دار، لینک provider | [راهنمای کلاس آنلاین و برنامه هفتگی](ONLINE_CLASSES_AND_SCHEDULES_FA.md) |
 | URLها، Route nameها، نقش‌ها و Permissionها | [مرجع Route و دسترسی](ROUTES_AND_PERMISSIONS_FA.md) |
+| سخت‌سازی دسترسی Owner و جداسازی داده‌های آموزشگاه‌ها (فاز ۲) | [گزارش فاز ۲ — امنیت دسترسی Owner](PHASE_2_OWNER_ACCESS_HARDENING_FA.md) |
 | مرز مسئولیت نقش‌ها و گردش اصلی سیستم | [Workflow پلتفرم](platform-workflow.md) |
 | جدول‌ها، رابطه‌ها و تصمیم‌های دیتابیس | [طرح دیتابیس](database-schema.md) |
 | استقرار Production | [راهنمای استقرار](production-deployment.md) |
