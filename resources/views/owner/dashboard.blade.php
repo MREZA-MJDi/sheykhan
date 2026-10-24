@@ -175,110 +175,72 @@
             @endif
         </section>
 
-        {{-- Capacity chart and classroom status are calculated from active classroom records. --}}
+        {{-- The dashboard stays analytical; classroom cards and filters live on the dedicated roster page. --}}
         @if($canViewClassrooms)
+            @php
+                $capacityTotal = max(0, (int) data_get($capacity ?? [], 'total', 0));
+                $capacityUsed = max(0, (int) data_get($capacity ?? [], 'used', 0));
+                $capacityRemaining = max(0, (int) data_get($capacity ?? [], 'remaining', 0));
+                $capacityRate = data_get($capacity ?? [], 'rate');
+                $configuredCapacityClasses = max(0, (int) data_get($capacity ?? [], 'configured_classrooms', 0));
+                $capacityAlertsForView = max(0, (int) data_get($metrics, 'capacityAlerts', 0));
+                $classesWithoutTeacherForView = max(0, (int) data_get($metrics, 'classroomsWithoutTeacher', 0));
+            @endphp
             <section class="dashboard-panel owner-panel owner-classroom-overview" aria-labelledby="owner-classroom-title">
                 <div class="owner-panel-head">
                     <div>
-                        <h2 id="owner-classroom-title">وضعیت کلاس‌ها و ظرفیت</h2>
-                        <p>میزان تکمیل ظرفیت و وضعیت کلاس‌های فعال؛ فقط بر اساس رکوردهای موجود</p>
+                        <span class="owner-kicker">نگاه مدیریتی</span>
+                        <h2 id="owner-classroom-title">سلامت کلاس‌ها و ظرفیت</h2>
+                        <p>نمای کلی برای تصمیم‌گیری سریع؛ فهرست کامل، جست‌وجو و صفحه‌بندی در بخش کلاس‌ها قرار دارد.</p>
                     </div>
                     @if($firstAcademy && !$hasMultipleAcademies)
-                        <a href="{{ route('owner.classrooms.index', $firstAcademy) }}" class="owner-link">همه کلاس‌ها <span aria-hidden="true">←</span></a>
+                        <a href="{{ route('owner.classrooms.index', $firstAcademy) }}" class="owner-link">مدیریت کلاس‌ها <span aria-hidden="true">←</span></a>
                     @elseif($hasMultipleAcademies)
-                        <span class="owner-panel-hint">جزئیات هر آموزشگاه از منوی کناری</span>
+                        <span class="owner-panel-hint">برای مدیریت هر آموزشگاه، از منوی کناری وارد همان آموزشگاه شو.</span>
                     @endif
                 </div>
 
-                @if($classrooms->isNotEmpty())
-                    <div class="owner-classroom-list">
-                        @foreach($classrooms as $classroom)
-                            @php
-                                $occupancy = $classroom->occupancy_percent === null
-                                    ? null
-                                    : min(100, max(0, (float) $classroom->occupancy_percent));
-                                $occupancyTone = $occupancy !== null && $occupancy >= 90
-                                    ? 'is-critical'
-                                    : (($occupancy !== null && $occupancy >= 75) ? 'is-warning' : 'is-healthy');
-                                $statusTone = match ($classroom->execution_status) {
-                                    'running' => 'is-running',
-                                    'scheduled' => 'is-scheduled',
-                                    'finished' => 'is-finished',
-                                    default => 'is-active',
-                                };
-                            @endphp
-                            <article class="owner-classroom-item">
-                                <div class="owner-classroom-heading">
-                                    <div class="owner-classroom-copy">
-                                        <h3>{{ $classroom->title }}</h3>
-                                        <p>
-                                            {{ $classroom->course?->title ?? 'بدون دوره' }}
-                                            <span aria-hidden="true">·</span>
-                                            {{ $classroom->teachers->pluck('name')->join('، ') ?: 'بدون مدرس' }}
-                                        </p>
-                                    </div>
-                                    <div class="owner-classroom-actions">
-                                        <span class="owner-classroom-status {{ $statusTone }}">
-                                            {{ $executionLabels[$classroom->execution_status] ?? 'فعال' }}
-                                        </span>
-                                        <a href="{{ route('owner.classrooms.show', [$classroom->academy, $classroom]) }}" class="owner-classroom-details">جزئیات</a>
-                                    </div>
-                                </div>
+                <div class="owner-classroom-summary-grid">
+                    <article class="owner-classroom-summary-card">
+                        <span>کلاس‌های فعال</span>
+                        <strong>{{ \App\Support\PersianUi::digits(max(0, (int) data_get($metrics, 'classrooms', 0))) }}</strong>
+                        <small>در آموزشگاه‌های فعال شما</small>
+                    </article>
+                    <article class="owner-classroom-summary-card">
+                        <span>ظرفیت تعریف‌شده</span>
+                        <strong>{{ $capacityTotal > 0 ? \App\Support\PersianUi::digits($capacityTotal) : '—' }}</strong>
+                        <small>{{ $configuredCapacityClasses > 0 ? \App\Support\PersianUi::digits($configuredCapacityClasses) . ' کلاس دارای ظرفیت' : 'هنوز ظرفیتی تعریف نشده' }}</small>
+                    </article>
+                    <article class="owner-classroom-summary-card">
+                        <span>دانش‌آموز ثبت‌شده در ظرفیت</span>
+                        <strong>{{ $capacityTotal > 0 ? \App\Support\PersianUi::digits($capacityUsed) : '—' }}</strong>
+                        <small>{{ $capacityTotal > 0 ? \App\Support\PersianUi::digits($capacityRemaining) . ' ظرفیت باقی‌مانده' : 'برای رسم نمودار ظرفیت تعیین کنید' }}</small>
+                    </article>
+                    <article class="owner-classroom-summary-card {{ $capacityAlertsForView > 0 || $classesWithoutTeacherForView > 0 ? 'needs-attention' : 'is-healthy' }}">
+                        <span>نیازمند پیگیری</span>
+                        <strong>{{ \App\Support\PersianUi::digits($capacityAlertsForView + $classesWithoutTeacherForView) }}</strong>
+                        <small>{{ \App\Support\PersianUi::digits($capacityAlertsForView) }} نزدیک ظرفیت · {{ \App\Support\PersianUi::digits($classesWithoutTeacherForView) }} بدون مدرس فعال</small>
+                    </article>
+                </div>
 
-                                <div class="owner-classroom-stats">
-                                    <div class="owner-classroom-stat">
-                                        <span>دانش‌آموز فعال</span>
-                                        <strong>{{ \App\Support\PersianUi::digits($classroom->active_students_count) }}</strong>
-                                    </div>
-                                    <div class="owner-classroom-stat">
-                                        <span>ظرفیت کل</span>
-                                        <strong>{{ $classroom->capacity === null ? 'تعریف نشده' : \App\Support\PersianUi::digits($classroom->capacity) }}</strong>
-                                    </div>
-                                    <div class="owner-classroom-stat">
-                                        <span>ظرفیت خالی</span>
-                                        <strong>{{ $classroom->capacity_remaining === null ? '—' : \App\Support\PersianUi::digits($classroom->capacity_remaining) }}</strong>
-                                    </div>
-                                    @if($canViewAttendance)
-                                        <div class="owner-classroom-stat">
-                                            <span>حضور امروز</span>
-                                            <strong>{{ $classroom->today_attendance_rate === null ? 'ثبت نشده' : \App\Support\PersianUi::digits($classroom->today_attendance_rate) . '٪' }}</strong>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                @if($occupancy !== null)
-                                    <div class="owner-capacity-chart">
-                                        <div class="owner-capacity-labels">
-                                            <span>تکمیل ظرفیت</span>
-                                            <strong>{{ \App\Support\PersianUi::digits($occupancy) }}٪</strong>
-                                        </div>
-                                        <div class="owner-capacity-track" role="img" aria-label="تکمیل ظرفیت کلاس {{ $classroom->title }}: {{ \App\Support\PersianUi::digits($occupancy) }} درصد">
-                                            <span class="{{ $occupancyTone }}" style="width: {{ $occupancy }}%"></span>
-                                        </div>
-                                    </div>
-                                @else
-                                    <p class="owner-capacity-unset">برای این کلاس هنوز ظرفیتی تعریف نشده است؛ درصد پرشدگی محاسبه نمی‌شود.</p>
-                                @endif
-
-                                @if($classroom->live_now)
-                                    <div class="owner-classroom-live">
-                                        <span aria-hidden="true"></span>
-                                        <strong>در حال اجرا</strong>
-                                        <span>{{ $classroom->live_now->title }}</span>
-                                    </div>
-                                @endif
-                            </article>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="owner-dashboard-empty" role="status">
-                        <span class="owner-dashboard-empty-mark" aria-hidden="true">ک</span>
+                <div class="owner-capacity-summary">
+                    <div class="owner-capacity-summary-meta">
                         <div>
-                            <strong>هنوز کلاس فعالی ثبت نشده است.</strong>
-                            <p>پس از ثبت کلاس، ظرفیت و وضعیت آن در همین بخش نمایش داده می‌شود.</p>
+                            <strong>میزان استفاده از ظرفیت</strong>
+                            <p>فقط کلاس‌های فعال با ظرفیت تعریف‌شده محاسبه می‌شوند.</p>
                         </div>
+                        <strong class="owner-capacity-summary-value">
+                            {{ $capacityRate === null ? '—' : \App\Support\PersianUi::digits($capacityRate) . '٪' }}
+                        </strong>
                     </div>
-                @endif
+                    @if($capacityRate !== null)
+                        <div class="owner-capacity-summary-track" role="img" aria-label="استفاده از ظرفیت کل: {{ \App\Support\PersianUi::digits($capacityRate) }} درصد">
+                            <span style="width: {{ $capacityRate }}%"></span>
+                        </div>
+                    @else
+                        <p class="owner-capacity-summary-empty">برای نمایش نمودار، ظرفیت حداقل یک کلاس فعال را وارد کن.</p>
+                    @endif
+                </div>
             </section>
         @endif
 
