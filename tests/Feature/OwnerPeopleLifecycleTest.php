@@ -166,18 +166,19 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('تاریخچه فعلاً قابل نمایش نیست');
     }
 
-    public function test_people_workspace_handles_a_paid_course_without_a_configured_price(): void
+    public function test_people_workspace_loads_price_fields_for_paid_course_options(): void
     {
         [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
         $course->update([
             'access_type' => 'paid',
-            'price' => null,
+            'price' => 250000,
         ]);
 
         $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
             ->assertOk()
-            ->assertSee('قیمت تعیین نشده')
+            ->assertSee(\\App\\Support\\PersianUi::money($course->fresh()->price))
+            ->assertDontSee('قیمت تعیین نشده')
             ->assertSee('ساخت حساب مدرس')
             ->assertSee('ساخت حساب والد و اتصال به دانش‌آموز');
     }
