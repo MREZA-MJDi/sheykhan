@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -56,4 +57,55 @@ class StudentPortalSmokeTest extends TestCase
             ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('sdr-hero', false);
     }
+
+    public function test_completed_student_exam_attempt_redirects_to_results_instead_of_returning_a_404(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $exam = Exam::where('course_id', $course->id)->firstOrFail();
+
+        $attempt = ExamAttempt::query()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'attempt_number' => 1,
+            'started_at' => now()->subMinutes(10),
+            'submitted_at' => now()->subMinutes(1),
+            'score' => 8,
+            'status' => 'graded',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.attempt', ['exam' => $exam->id, 'attempt' => $attempt->id]))
+            ->assertRedirect(route('student.exams.result', ['exam' => $exam->id]));
+
+        $this->actingAs($student)
+            ->get(route('student.exams.result', ['exam' => $exam->id]))
+            ->assertOk()
+            ->assertSee('تلاش ثبت‌شده');
+    }
+
+    public function test_only_the_owner_can_open_an_exam_attempt(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $exam = Exam::where('course_id', $course->id)->firstOrFail();
+
+        $attempt = ExamAttempt::query()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $teacher->id,
+            'attempt_number' => 1,
+            'started_at' => now(),
+            'status' => 'in_progress',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.attempt', ['exam' => $exam->id, 'attempt' => $attempt->id]))
+            ->assertNotFound();
+    }
+
 }
