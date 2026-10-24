@@ -175,6 +175,26 @@
             @endif
         </section>
 
+        @if($canOpenPeople)
+            <section class="dashboard-panel owner-recent-student-logins" aria-labelledby="owner-recent-student-logins-heading">
+                <div class="owner-panel-head">
+                    <div><span class="owner-kicker">ورودهای ثبت‌شده</span><h2 id="owner-recent-student-logins-heading">ورود اخیر دانش‌آموزان</h2><p>گزارش ورود واقعی حساب‌ها؛ با هر ورود تازه می‌شود.</p></div>
+                    @if($firstAcademy)<a href="{{ route('owner.people.index', $firstAcademy) }}" class="owner-link">مدیریت اعضا ←</a>@endif
+                </div>
+                <div class="owner-recent-login-list">
+                    @forelse(($recentStudentLogins ?? collect()) as $login)
+                        <a class="owner-recent-login-row" href="{{ $firstAcademy ? route('owner.people.index', $firstAcademy) : '#' }}">
+                            <span class="owner-recent-login-avatar" aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string)($login->subject?->name ?? 'د')), 0, 1) }}</span>
+                            <span class="owner-recent-login-copy"><strong>{{ $login->subject?->name ?? 'حساب حذف‌شده' }}</strong><small>{{ $login->subject?->email ?? 'بدون ایمیل' }}</small></span>
+                            <time>{{ \App\Support\PersianUi::dateTime($login->created_at) }}</time>
+                        </a>
+                    @empty
+                        <div class="owner-recent-login-empty">هنوز ورود دانش‌آموزی در گزارش ثبت نشده است.</div>
+                    @endforelse
+                </div>
+            </section>
+        @endif
+
         {{-- The dashboard stays analytical; classroom cards and filters live on the dedicated roster page. --}}
         @if($canViewClassrooms)
             @php
