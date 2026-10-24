@@ -15,6 +15,7 @@
 
         $ownerUser = auth()->user();
         $firstAcademy = $academies->first();
+        $canOpenPeople = $canViewAcademy && (bool) $firstAcademy;
 
         // Keep visible links and metrics in sync with the permission on their GET route.
         $canViewAcademy = (bool) $ownerUser?->hasPermission('academy.view');
@@ -103,7 +104,7 @@
                     @if($canViewReports)
                         <a href="{{ route('owner.reports.index') }}" class="owner-btn ghost">گزارش‌ها</a>
                     @endif
-                </div>          </div>
+                </div>
             </div>
 
             @if($canViewFinance)
@@ -151,7 +152,7 @@
         @if($canViewAcademy || $canViewAttendance || $canViewMeetings || $canViewAssignments || $canManageContent || $canViewProducts || $canViewMessages || $canViewExams || $canViewRecordings || $canViewTeacherPayments || $canViewReports || $canViewOrders || $canViewLegalDocuments)
             <section aria-labelledby="owner-quick-actions-title" class="owner-quick-actions">
                 <h2 id="owner-quick-actions-title" class="sr-only">دسترسی سریع کارتابل</h2>
-                @if($canViewAcademy)
+                @if($canOpenPeople)
                     <a href="{{ route('owner.people.index', $firstAcademy) }}" class="dashboard-panel owner-quick-action">
                         <span><strong>ثبت‌نام و مدیریت اعضا</strong><small>دانش‌آموز، ولی و مدرس</small></span><span aria-hidden="true">←</span>
                     </a>
@@ -237,7 +238,7 @@
                     <small>{{ \App\Support\PersianUi::digits($metrics['liveNow'] ?? 0) }} کلاس آنلاین در حال اجرا</small>
                 </a>
             @endif
-            @if($canViewAcademy)
+            @if($canOpenPeople)
                 <a class="owner-stat-card is-actionable" href="{{ route('owner.people.index', $firstAcademy) }}" aria-label="دانش‌آموزان فعال">
                     <span class="owner-stat-label">دانش‌آموز فعال <i aria-hidden="true">↗</i></span>
                     <strong>{{ \App\Support\PersianUi::digits($metrics['students'] ?? 0) }}</strong>
@@ -286,25 +287,6 @@
                 <div class="dashboard-panel owner-empty" role="status">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های آموزشگاه برای این حساب فعال نیست.</div>
             @endif
         </section>
-
-        @if($canViewAttendance || $canViewCourses)
-            <section class="owner-summary-kpis" aria-label="شاخص‌های تکمیلی">
-                @if($canViewAttendance)
-                    <a href="{{ route('owner.attendance.index', $firstAcademy) }}" class="dashboard-panel owner-summary-kpi">
-                        <span class="owner-summary-label">حضور امروز</span>
-                        <strong>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) . '٪' }}</strong>
-                        <small>{{ $attendanceRate === null ? 'حضور امروز هنوز ثبت نشده' : 'بر اساس رکوردهای امروز' }}</small>
-                    </a>
-                @endif
-                @if($canViewCourses)
-                    <a href="{{ route('owner.courses.index') }}" class="dashboard-panel owner-summary-kpi">
-                        <span class="owner-summary-label">دوره‌های منتشرشده</span>
-                        <strong>{{ \App\Support\PersianUi::digits($metrics['published'] ?? 0) }}</strong>
-                        <small>از {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }} دوره ثبت‌شده</small>
-                    </a>
-                @endif
-            </section>
-        @endif
 
         @if($canViewAcademy)
         {{-- =========================================================
@@ -355,12 +337,9 @@
                                     اعضا
                                 </a>
 
-                                <a
-                                    href="{{ route('owner.classrooms.index', $academy) }}"
-                                    class="owner-pill justify-center"
-                                >
-                                    کلاس‌ها
-                                </a>
+                                @if($userCanViewClassrooms = (bool) auth()->user()?->hasPermission('classrooms.view'))
+                                    <a href="{{ route('owner.classrooms.index', $academy) }}" class="owner-pill justify-center">کلاس‌ها</a>
+                                @endif
 
                                 <a
                                     href="{{ route('owner.academy.edit', $academy) }}"
@@ -757,7 +736,7 @@
                         <span>عملیات</span><strong>مدیریت کلاس‌ها <i aria-hidden="true">←</i></strong>
                     </a>
                 @endif
-                @if($canViewAcademy)
+                @if($canOpenPeople)
                     <a href="{{ route('owner.people.index', $firstAcademy) }}" class="dashboard-panel owner-footer-action">
                         <span>اعضای آموزشگاه</span><strong>مدیریت دانش‌آموز و مدرس <i aria-hidden="true">←</i></strong>
                     </a>
