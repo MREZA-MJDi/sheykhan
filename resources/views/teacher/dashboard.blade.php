@@ -121,9 +121,9 @@
             <div class="tdb-focus-copy">
                 <span class="tdb-card-kicker">{{ $pendingReviews > 0 ? 'نیازمند توجه' : 'وضعیت امروز' }}</span>
                 <h2 class="tdb-focus-title" id="tdb-focus-title">
-                    @if($canReviewPendingAssignments)
+                    @if($hasPendingAssignments)
                         {{ \App\Support\PersianUi::digits($pendingAssignmentReviews) }} تکلیف برای تصحیح باقی مانده است.
-                    @elseif($canReviewPendingExams)
+                    @elseif($hasPendingExams)
                         {{ \App\Support\PersianUi::digits($pendingExamReviews) }} آزمون برای بررسی باقی مانده است.
                     @elseif($activeClasses > 0 && $canViewClassrooms)
                         کلاس‌ها آماده‌اند؛ برنامه امروزت را مرور کن.
@@ -146,8 +146,6 @@
                         @else
                             آزمون‌ها قابل مشاهده‌اند، اما برای ثبت نمره به مجوز مدیریت آزمون‌ها نیاز است.
                         @endif
-                    @elseif(false)
-                        پاسخ‌های ارسال‌شده را از بخش آزمون‌ها بررسی و نهایی کن.
                     @elseif($activeClasses > 0 && $canViewClassrooms)
                         برنامه جلسات، دوره‌ها و پیگیری‌های آموزشی در همین صفحه در دسترس‌اند.
                     @elseif($activeClasses > 0)
