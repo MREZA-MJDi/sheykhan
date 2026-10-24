@@ -2,7 +2,8 @@
 @section('title','اعضای آموزشگاه | شیخان')
 @section('header-title','اعضای آموزشگاه')
 @section('content')
-<div class="space-y-6 panel-page-enter">
+@php($activePeopleTab = request('tab') === 'create-student' ? 'create-student' : 'management')
+<div class="space-y-6 panel-page-enter owner-people-workspace">
 <div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اختصاص مسئول کلاس و ثبت‌نام امن.</p></div>
 
 @if(empty($academicGradesAvailable) || empty($studentOnboardingAvailable) || empty($studentOnboardingHistoryAvailable))
@@ -24,6 +25,59 @@
     </div>
 </section>
 @endif
+
+
+<div class="owner-people-tabs" data-owner-people-tabs data-initial-tab="{{ $activePeopleTab }}">
+    <nav class="owner-people-tabbar" role="tablist" aria-label="مدیریت اعضای آموزشگاه">
+        <button type="button" role="tab" id="owner-people-management-tab" aria-controls="owner-people-management-panel" data-owner-tab-button="management" aria-selected="{{ $activePeopleTab === 'management' ? 'true' : 'false' }}">
+            <span class="owner-people-tab-icon">☷</span><span>اعضا و عملیات</span>
+        </button>
+        <button type="button" role="tab" id="owner-people-create-student-tab" aria-controls="owner-people-create-student-panel" data-owner-tab-button="create-student" aria-selected="{{ $activePeopleTab === 'create-student' ? 'true' : 'false' }}">
+            <span class="owner-people-tab-icon">＋</span><span>ایجاد دانش‌آموز</span>
+        </button>
+    </nav>
+
+    <section class="owner-people-tab-panel owner-student-create-panel" id="owner-people-create-student-panel" role="tabpanel" aria-labelledby="owner-people-create-student-tab" data-owner-tab-panel="create-student" @if($activePeopleTab !== 'create-student') hidden @endif>
+        <header class="owner-student-create-head">
+            <div><span>حساب جدید</span><h2>ساخت حساب دانش‌آموز</h2><p>اطلاعات اصلی را وارد کن؛ کد دانش‌آموز و رمز اولیه را سامانه می‌سازد.</p></div>
+            <span class="owner-student-create-badge">رمز یک‌بار نمایش داده می‌شود</span>
+        </header>
+
+        @if(session('temporary_student_password'))
+            <section class="owner-student-credentials" role="status" aria-live="polite">
+                <div><strong>حساب ساخته شد</strong><p>این اطلاعات را از راه امن تحویل بده. رمز پس از خروج از این صفحه دوباره نمایش داده نمی‌شود.</p></div>
+                <div class="owner-student-credential-grid">
+                    <div><span>نام دانش‌آموز</span><strong>{{ session('temporary_student_name') }}</strong></div>
+                    <div><span>نام کاربری / ایمیل</span><strong dir="ltr">{{ session('temporary_student_email') }}</strong></div>
+                    <div><span>کد دانش‌آموز</span><strong dir="ltr">{{ session('temporary_student_number') }}</strong></div>
+                    <div><span>رمز اولیه</span><code dir="ltr">{{ session('temporary_student_password') }}</code></div>
+                </div>
+                <p class="owner-student-credential-warning">دانش‌آموز در اولین ورود باید رمز را تغییر دهد.</p>
+            </section>
+        @endif
+
+        @if($errors->any())
+            <div class="owner-student-create-errors" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>
+        @endif
+
+        <form method="POST" action="{{ route('owner.people.store-student', $academy) }}?tab=create-student" class="owner-student-create-form" autocomplete="off">
+            @csrf
+            <div class="owner-student-form-field"><label for="new-student-name">نام و نام خانوادگی</label><input id="new-student-name" name="name" value="{{ old('name') }}" minlength="2" maxlength="255" required autocomplete="name" placeholder="مثلاً آرش محمدی">@error('name')<small>{{ $message }}</small>@enderror</div>
+            <div class="owner-student-form-field"><label for="new-student-email">نام کاربری / ایمیل</label><input id="new-student-email" type="email" name="email" value="{{ old('email') }}" maxlength="255" required autocomplete="email" dir="ltr" placeholder="student@example.com">@error('email')<small>{{ $message }}</small>@enderror</div>
+            <div class="owner-student-form-field"><label for="new-student-mobile">شماره موبایل <em>اختیاری</em></label><input id="new-student-mobile" type="tel" name="mobile" value="{{ old('mobile') }}" inputmode="tel" maxlength="30" autocomplete="tel" placeholder="۰۹۱۲…">@error('mobile')<small>{{ $message }}</small>@enderror</div>
+            <div class="owner-student-form-field"><label for="new-student-grade">پایه تحصیلی</label><select id="new-student-grade" name="grade_id" required><option value="">انتخاب پایه</option>@foreach($grades as $grade)<option value="{{ $grade->id }}" @selected((string)old('grade_id') === (string)$grade->id)>{{ $grade->title }}</option>@endforeach</select>@error('grade_id')<small>{{ $message }}</small>@enderror</div>
+            <div class="owner-student-form-field"><label for="new-student-birth">تاریخ تولد <em>اختیاری</em></label><input id="new-student-birth" type="date" name="birth_date" value="{{ old('birth_date') }}" autocomplete="bday">@error('birth_date')<small>{{ $message }}</small>@enderror</div>
+            <div class="owner-student-form-field"><label for="new-student-school">نام مدرسه <em>اختیاری</em></label><input id="new-student-school" name="school_name" value="{{ old('school_name') }}" maxlength="255" placeholder="نام مدرسه">@error('school_name')<small>{{ $message }}</small>@enderror</div>
+            <footer class="owner-student-form-footer">
+                <div><strong>امنیت حساب</strong><span>رمز تصادفی قوی ساخته می‌شود و در اولین ورود باید عوض شود.</span></div>
+                <button type="submit" @disabled($grades->isEmpty())><span>＋</span> ساخت حساب دانش‌آموز</button>
+            </footer>
+            @if($grades->isEmpty())<p class="owner-student-no-grades">پایه فعالی در سامانه تعریف نشده است.</p>@endif
+        </form>
+    </section>
+
+    <div class="owner-people-tab-panel" id="owner-people-management-panel" role="tabpanel" aria-labelledby="owner-people-management-tab" data-owner-tab-panel="management" @if($activePeopleTab !== 'management') hidden @endif>
+
 
 <section class="dashboard-panel p-5 sm:p-7">
     <div>
@@ -296,5 +350,7 @@
     @endif
 </section>
 
+    </div>
+</div>
 </div>
 @endsection
