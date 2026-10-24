@@ -35,6 +35,7 @@ final class StudentAccessService
                         ->from('academy_user')
                         ->whereColumn('academy_user.academy_id', 'academies.id')
                         ->where('academy_user.user_id', $student->id)
+                        ->where('academy_user.role', 'student')
                         ->where('academy_user.status', 'active');
                 });
             })
@@ -358,6 +359,7 @@ final class StudentAccessService
     {
         return $student->academies()
             ->whereKey($academyId)
+            ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->exists();
     }

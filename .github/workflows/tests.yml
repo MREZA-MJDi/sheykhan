@@ -52,12 +52,11 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Resolve patched frontend dependency lockfile
-        run: |
-          npm audit fix --package-lock-only
-          npm ci
-          npm run test:js
-          npm run build
+      - name: Run frontend tests
+        run: npm run test:js
+
+      - name: Build production assets
+        run: npm run build
 
       - name: Inspect frontend dependency advisories
         if: always()
@@ -81,10 +80,10 @@ jobs:
           }, null, 2));
           NODE
 
-      - name: Export patched lockfile for review
+      - name: Export committed lockfile for review
         uses: actions/upload-artifact@v4
         with:
-          name: sheykhan-patched-package-lock
+          name: sheykhan-committed-package-lock
           path: package-lock.json
           retention-days: 1
 
