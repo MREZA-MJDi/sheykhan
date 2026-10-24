@@ -27,7 +27,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertDontSee('sdr-hero', false);
     }
 
-    public function test_teacher_dashboard_exposes_teaching_workflow_without_financial_kpi(): void
+    public function test_teacher_dashboard_exposes_backend_driven_teaching_workflow_without_financial_kpi(): void
     {
         $this->seed();
 
@@ -42,44 +42,63 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('تکلیف‌های منتظر تصحیح')
             ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت دانش‌آموزان')
-            ->assertSee('td-focus-card', false)
-            ->assertSee('td-focus-action', false)
-            ->assertSee('td-dashboard', false)
+            ->assertSee('tdb-focus-card', false)
+            ->assertSee('tdb-focus-action', false)
+            ->assertSee('tdb-dashboard', false)
             ->assertSee('teacher-dashboard-shell', false)
             ->assertSee('data-teacher-theme-toggle', false)
+            ->assertSee('data-teacher-range', false)
+            ->assertSee('data-dashboard-search', false)
+            ->assertSee('teacher-dashboard.css')
+            ->assertSee('teacher-dashboard.js')
             ->assertSee('آخرین تکالیف')
-            ->assertDontSee('فروش دوره‌ها');
+            ->assertDontSee('فروش دوره‌ها')
+            ->assertDontSee('td-dashboard', false);
     }
 
-    public function test_student_and_teacher_stylesheet_entrypoints_are_kept_separate(): void
+    public function test_student_and_teacher_dashboard_assets_are_isolated_from_shared_teacher_assets(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
         $teacherDashboardCss = file_get_contents(resource_path('css/teacher-dashboard.css'));
+        $teacherJs = file_get_contents(resource_path('js/teacher.js'));
+        $teacherDashboardJs = file_get_contents(resource_path('js/teacher-dashboard.js'));
         $teacherSidebar = file_get_contents(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $appCss = file_get_contents(resource_path('css/app.css'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
+        $teacherDashboardLayout = file_get_contents(resource_path('views/layouts/teacher-dashboard.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
 
         $this->assertIsString($teacherCss);
         $this->assertIsString($teacherDashboardCss);
+        $this->assertIsString($teacherJs);
+        $this->assertIsString($teacherDashboardJs);
         $this->assertIsString($teacherSidebar);
         $this->assertIsString($studentCss);
         $this->assertIsString($appCss);
         $this->assertIsString($teacherLayout);
+        $this->assertIsString($teacherDashboardLayout);
         $this->assertIsString($studentLayout);
 
-        $this->assertStringContainsString('.teacher-focus-card {', $teacherCss);
-        $this->assertStringContainsString('.teacher-focus-action {', $teacherCss);
-        $this->assertStringContainsString("@import './teacher-dashboard.css';", $teacherCss);
-        $this->assertStringContainsString('.td-dashboard {', $teacherDashboardCss);
-        $this->assertStringContainsString('.teacher-dashboard-shell.teacher-shell .role-layout', $teacherDashboardCss);
-        $this->assertStringContainsString('@media (min-width: 901px)', $teacherDashboardCss);
+        $this->assertStringContainsString("@import './communication-pages.css';", $teacherCss);
+        $this->assertStringNotContainsString("@import './teacher-dashboard.css';", $teacherCss);
+        $this->assertStringNotContainsString('.teacher-focus-card {', $teacherCss);
+        $this->assertStringNotContainsString('.teacher-welcome-card {', $teacherCss);
+        $this->assertStringContainsString('body.teacher-dashboard-shell .tdb-dashboard', $teacherDashboardCss);
+        $this->assertStringContainsString('@media(max-width:720px)', $teacherDashboardCss);
+        $this->assertStringContainsString('data-teacher-theme-toggle', $teacherDashboardJs);
+        $this->assertStringContainsString('data-teacher-range', $teacherDashboardJs);
+        $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $teacherJs);
+        $this->assertStringNotContainsString('[data-teacher-dashboard]', $teacherJs);
         $this->assertStringContainsString('aria-label="دوره‌های من"', $teacherSidebar);
+        $this->assertStringContainsString('id="teacher-dashboard-sidebar"', $teacherSidebar);
+        $this->assertStringContainsString('resources/css/teacher-dashboard.css', $teacherDashboardLayout);
+        $this->assertStringContainsString('resources/js/teacher-dashboard.js', $teacherDashboardLayout);
+        $this->assertStringNotContainsString('resources/css/teacher.css', $teacherDashboardLayout);
+        $this->assertStringNotContainsString('resources/js/teacher.js', $teacherDashboardLayout);
         $this->assertStringContainsString("request()->routeIs('teacher.dashboard')", $teacherLayout);
         $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
-        // Tailwind source scanning is centralized in app.css (source(none));
-        // the role stylesheet is plain CSS and stays focused on component styling.
+        // Tailwind source scanning remains centralized in app.css (source(none)).
         $this->assertStringContainsString("@source '../../resources/views';", $appCss);
         $this->assertStringContainsString("@source '../../resources/views/components';", $appCss);
         $this->assertStringContainsString('resources/css/app.css', $studentLayout);
