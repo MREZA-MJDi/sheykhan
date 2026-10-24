@@ -17,6 +17,9 @@
         } catch (_) {}
     </script>
     @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/js/app.js', 'resources/js/teacher.js'])
+    @if (request()->routeIs('teacher.dashboard'))
+        @vite(['resources/css/teacher-dashboard-polish.css'])
+    @endif
     @stack('styles')
 </head>
 <body class="teacher-shell">
