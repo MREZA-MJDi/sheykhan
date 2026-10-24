@@ -6821,3 +6821,61 @@
   .role-mobile-more-links{grid-template-columns:minmax(0,1fr)}
 }
 @media(prefers-reduced-motion:reduce){.role-mobile-more-dialog{animation:none}}
+
+
+/* Release hardening: shared mobile navigation and role workspace overflow */
+@media (max-width: 700px) {
+  html, body { min-height: 100%; }
+  body.owner-shell, body.teacher-shell, body.student-shell, body.parent-shell {
+    padding-bottom: 0;
+  }
+  .role-mobile-bottom-nav {
+    bottom: max(8px, env(safe-area-inset-bottom));
+    padding: 6px;
+    gap: 3px;
+    z-index: 120;
+    isolation: isolate;
+  }
+  .role-mobile-bottom-nav a,
+  .role-mobile-bottom-nav .role-mobile-more-trigger {
+    min-height: 54px;
+    padding: 5px 2px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .role-main,
+  .role-content,
+  .student-shell .main {
+    min-width: 0;
+    max-width: 100%;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+    scroll-margin-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  }
+  .role-main > :last-child,
+  .student-shell .main > :last-child {
+    margin-bottom: 0;
+  }
+  .role-mobile-more { z-index: 130; }
+  .role-mobile-more-dialog {
+    max-height: 82dvh;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media (max-width: 380px) {
+  .role-mobile-bottom-nav {
+    left: 5px;
+    right: 5px;
+    bottom: max(5px, env(safe-area-inset-bottom));
+    border-radius: 16px;
+    gap: 2px;
+    padding: 5px;
+  }
+  .role-mobile-bottom-nav a,
+  .role-mobile-bottom-nav .role-mobile-more-trigger {
+    min-height: 50px;
+    font-size: 8px;
+  }
+}
+@media (min-width: 701px) {
+  .role-mobile-bottom-nav { display: none !important; }
+}
