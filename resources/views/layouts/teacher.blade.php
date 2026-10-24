@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         try {
-            var savedTeacherTheme = localStorage.getItem('theme');
+            var savedTeacherTheme = localStorage.getItem('sheykhan.panel.theme') || localStorage.getItem('theme') || localStorage.getItem('sheykhan.student.theme');
             if (savedTeacherTheme === 'dark' || savedTeacherTheme === 'light') {
                 document.documentElement.dataset.theme = savedTeacherTheme;
             }
