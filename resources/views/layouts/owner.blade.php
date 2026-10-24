@@ -7,7 +7,7 @@
     @php($isSeoOnlyUser = auth()->user()?->hasRole('seo-specialist') && ! auth()->user()?->hasRole('academy-owner'))
     <title>@yield('title', $isSeoOnlyUser ? 'پنل متخصص SEO | شیخان' : 'کارتابل ادمین / منشی | شیخان')</title>
     @if ($isSeoOnlyUser)
-        @vite(['resources/css/app.css', 'resources/css/seo.css', 'resources/js/app.js', 'resources/js/seo.js'])
+        @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/js/app.js', 'resources/js/admin.js'])
     @else
         @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/js/app.js', 'resources/js/admin.js'])
     @endif
