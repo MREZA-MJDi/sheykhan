@@ -126,6 +126,12 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.courses.index') . '"', false)
             ->assertSee('href="' . route('owner.attendance.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.resources.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.showcase.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.products.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.orders.index', $academy) . '"', false)
+            ->assertSee('href="' . route('owner.legal-documents.index') . '"', false)
+            ->assertSee('href="' . route('owner.reports.index') . '"', false)
             ->assertSee('aria-label="کلاس‌های فعال"', false)
             ->assertSee('owner-quick-actions', false);
     }
