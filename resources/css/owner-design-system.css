@@ -547,7 +547,7 @@
 }
 .owner-shell .role-main button:active,
 .owner-shell .role-main a:active { transform: translateY(0); }
-.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not(.text-rose-600):not(.text-red-600):not([data-variant="danger"]) {
+.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([class*="text-rose-"]):not([class*="text-red-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="text-emerald-"]):not([class*="text-green-"]):not([class*="bg-emerald-"]):not([class*="bg-green-"]):not([data-variant="danger"]) {
     min-height: 42px;
     border: 1px solid #4f46e5 !important;
     border-radius: 11px;
@@ -557,7 +557,7 @@
     font-weight: 800;
     cursor: pointer;
 }
-.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not(.text-rose-600):not(.text-red-600):not([data-variant="danger"]):hover {
+.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([class*="text-rose-"]):not([class*="text-red-"]):not([class*="bg-rose-"]):not([class*="bg-red-"]):not([class*="text-emerald-"]):not([class*="text-green-"]):not([class*="bg-emerald-"]):not([class*="bg-green-"]):not([data-variant="danger"]):hover {
     border-color: #4338ca !important;
     background: #4338ca !important;
 }
