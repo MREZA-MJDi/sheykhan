@@ -24,7 +24,7 @@
             @foreach($assignment->media as $media)
                 <div class="trk">
                     <div class="th"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg></div>
-                    <div><b>{{ $media->original_name }}</b><span>{{ strtoupper($media->extension ?? '') }} · {{ \App\Support\PersianUi::number(((int) $media->size) / 1024) }} کیلوبایت</span></div>
+                    <div><b>{{ $media->original_name }}</b><span>{{ strtoupper(pathinfo((string) ($media->original_name ?? ''), PATHINFO_EXTENSION) ?: 'FILE') }} · {{ \App\Support\PersianUi::number(((int) $media->size) / 1024) }} کیلوبایت</span></div>
                     <a class="btn s" href="{{ route('media.view', $media->id) }}">مشاهده فایل</a>
                 </div>
             @endforeach
