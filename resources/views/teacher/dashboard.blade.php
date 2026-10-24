@@ -5,6 +5,7 @@
 @section('content')
     @php
         $teacherUser = auth()->user();
+        $teacherInitial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1);
         $dashboardMetrics = $metrics ?? [];
         $pendingAssignmentReviews = max(0, (int) ($dashboardMetrics['pendingAssignmentReviews'] ?? 0));
         $pendingExamReviews = max(0, (int) ($dashboardMetrics['pendingExamReviews'] ?? 0));
@@ -80,21 +81,25 @@
         $courseTones = ['ok', 'sk', 'vi', 'wr'];
     @endphp
 
-    <header class="ph">
-                <div>
-                    <span class="section-kicker">خلاصه وضعیت آموزشی · {{ $dashboardDateLabel }}</span>
-                    <h1>سلام، {{ $teacherUser?->name }} <span aria-hidden="true">👋</span></h1>
-                    <p>کلاس‌ها، ارزیابی‌ها و جلسه‌های پیش‌رو را از همین پنل پیگیری کن.</p>
-                </div>
-                <div class="ac">
-                    @if($canViewLiveClasses)
-                        <a class="bt g" href="{{ route('teacher.schedule.index') }}"><svg class="i" aria-hidden="true"><use href="#cal"/></svg> برنامه هفتگی</a>
-                    @endif
-                    @if($canViewAssignments)
-                        <a class="bt" href="{{ route('teacher.assignments.index') }}"><svg class="i" aria-hidden="true"><use href="#file"/></svg> مدیریت تکالیف</a>
-                    @endif
-                </div>
-            </header>
+    <div id="teacher-dashboard" class="teacher-dashboard-page">
+        <header class="ph teacher-dashboard-hero">
+            <div class="teacher-dashboard-avatar" aria-hidden="true"><span>{{ $teacherInitial }}</span></div>
+            <div class="teacher-dashboard-hero-copy">
+                <span class="section-kicker">خلاصه وضعیت آموزشی · {{ $dashboardDateLabel }}</span>
+                <h1>سلام، {{ $teacherUser?->name }} <span aria-hidden="true">👋</span></h1>
+                <p>کلاس‌ها، ارزیابی‌ها و جلسه‌های پیش‌رو را از همین پنل پیگیری کن.</p>
+                @if($canViewLiveClasses || $canViewAssignments)
+                    <div class="ac">
+                        @if($canViewLiveClasses)
+                            <a class="bt g" href="{{ route('teacher.schedule.index') }}"><svg class="i" aria-hidden="true"><use href="#cal"/></svg> برنامه هفتگی</a>
+                        @endif
+                        @if($canViewAssignments)
+                            <a class="bt" href="{{ route('teacher.assignments.index') }}"><svg class="i" aria-hidden="true"><use href="#file"/></svg> مدیریت تکالیف</a>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        </header>
 
             <p class="dashboard-search-empty" data-dashboard-search-empty role="status" aria-live="polite" hidden>
                 موردی با این عبارت پیدا نشد. عبارت دیگری را امتحان کن.
@@ -276,4 +281,5 @@
                 </aside>
             </div>
 
+    </div>
 @endsection
