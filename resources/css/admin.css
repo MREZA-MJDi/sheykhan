@@ -1580,3 +1580,22 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
 @media(prefers-reduced-motion:reduce){
     .owner-shell .owner-dashboard *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
+
+
+/* The shared role bar remains fixed at tablet widths as well as phone widths. */
+@media(min-width:701px) and (max-width:980px){
+    .owner-shell .role-mobile-bottom-nav{
+        position:fixed!important;
+        left:max(12px,env(safe-area-inset-left,0px));
+        right:max(12px,env(safe-area-inset-right,0px));
+        bottom:calc(12px + env(safe-area-inset-bottom,0px));
+        z-index:120;
+        display:grid!important;
+        grid-template-columns:repeat(var(--role-mobile-nav-items,5),minmax(0,1fr));
+        gap:5px;
+        padding:7px;
+        border:1px solid var(--bd);
+        border-radius:20px;
+        isolation:isolate;
+    }
+}
