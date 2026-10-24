@@ -34,14 +34,17 @@
         @csrf
         <label class="grid gap-1 text-xs font-bold">نام والد
             <input name="name" value="{{ old('name') }}" minlength="2" maxlength="100" required autocomplete="name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            <small class="owner-field-help">نام و نام خانوادگی والد را وارد کن؛ این نام در ارتباط‌ها و فهرست اعضا نمایش داده می‌شود.</small>
             @error('name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
         <label class="grid gap-1 text-xs font-bold">ایمیل والد
             <input type="email" name="email" value="{{ old('email') }}" maxlength="255" required autocomplete="email" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            <small class="owner-field-help">ایمیل معتبر و تحت کنترل والد را ثبت کن؛ برای ورود به حساب و بازیابی دسترسی استفاده می‌شود.</small>
             @error('email')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
         <label class="grid gap-1 text-xs font-bold">موبایل (اختیاری)
             <input type="tel" name="mobile" value="{{ old('mobile') }}" maxlength="30" autocomplete="tel" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            <small class="owner-field-help">اختیاری؛ شماره‌ای وارد کن که برای هماهنگی با خانواده قابل استفاده باشد.</small>
             @error('mobile')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
         <label class="grid gap-1 text-xs font-bold">نوع ارتباط با دانش‌آموز
@@ -51,6 +54,7 @@
                 <option value="سرپرست" @selected(old('relation') === 'سرپرست')>سرپرست</option>
                 <option value="سایر" @selected(old('relation') === 'سایر')>سایر</option>
             </select>
+            <small class="owner-field-help">نسبت والد با دانش‌آموز را مطابق ارتباط واقعی انتخاب کن.</small>
             @error('relation')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
         <label class="grid gap-1 text-xs font-bold sm:col-span-2">دانش‌آموز این آموزشگاه
@@ -60,6 +64,7 @@
                     <option value="{{ $studentOption->id }}" @selected((string) old('student_id') === (string) $studentOption->id)>{{ $studentOption->name }}</option>
                 @endforeach
             </select>
+            <small class="owner-field-help">فقط دانش‌آموز فعال همین آموزشگاه را انتخاب کن؛ ارتباط والد به همین دانش‌آموز ثبت می‌شود.</small>
             @error('student_id')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
             @if($students->isEmpty())<span class="font-normal text-amber-700">ابتدا یک دانش‌آموز فعال به آموزشگاه اضافه کنید.</span>@endif
         </label>
@@ -68,19 +73,19 @@
 </section>
 <div class="grid gap-5 xl:grid-cols-3">
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-confirm="حساب مدرس ساخته شود؟">@csrf
-<label class="grid gap-1"><span class="text-xs font-bold">نام و نام خانوادگی</span><input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="name"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">ایمیل</span><input name="email" type="email" value="{{ old('email') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="email"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">رمز عبور</span><input name="password" type="password" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="password"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">تکرار رمز عبور</span><input name="password_confirmation" type="password" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"></label>
-<label class="grid gap-1"><span class="text-xs font-bold">تخصص</span><input name="specialization" value="{{ old('specialization') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="specialization"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="experience_years"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">نام و نام خانوادگی</span><input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">نام کامل مدرس را وارد کن؛ در فهرست دوره‌ها و کلاس‌ها نمایش داده می‌شود.</small><x-owner.field-error field="name"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">ایمیل</span><input name="email" type="email" value="{{ old('email') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">ایمیل یکتا و قابل‌دسترسی مدرس؛ برای ورود به پنل استفاده خواهد شد.</small><x-owner.field-error field="email"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">رمز عبور</span><input name="password" type="password" required autocomplete="new-password" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">رمز قوی و اختصاصی بساز؛ آن را از راه امن به مدرس تحویل بده.</small><x-owner.field-error field="password"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">تکرار رمز عبور</span><input name="password_confirmation" type="password" required autocomplete="new-password" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">همان رمز بالا را دوباره وارد کن تا اشتباه تایپی مشخص شود.</small></label>
+<label class="grid gap-1"><span class="text-xs font-bold">تخصص</span><input name="specialization" value="{{ old('specialization') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">حوزه تخصصی اصلی مدرس، مانند ریاضی، فیزیک یا زبان.</small><x-owner.field-error field="specialization"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">سابقهٔ تدریس را به سال و در بازهٔ صفر تا ۸۰ وارد کن.</small><x-owner.field-error field="experience_years"/></label>
 <button class="rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت حساب مدرس</button></form></section>
 
 <section class="dashboard-panel p-5 sm:p-7">
 <div><h2 class="text-base font-black">اختصاص مدرس مسئول به کلاس</h2><p class="mt-1 text-xs leading-6 text-slate-500">هر کلاس یک مدرس فعال مسئول دارد. اتصال مدرس به دوره نیز در همین عملیات تکمیل می‌شود.</p></div>
 <form method="POST" action="{{ route('owner.people.assign-class-teacher',$academy) }}" class="mt-5 grid gap-3">@csrf
-<label class="grid gap-1"><span class="text-xs font-bold">کلاس فعال</span><select name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($classroomOptions as $classroom)<option value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->course?->title ?? 'بدون دوره' }}</option>@empty<option value="">کلاس فعالی وجود ندارد</option>@endforelse</select><x-owner.field-error field="classroom_id"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">مدرس فعال</span><select name="teacher_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($teacherOptions as $teacher)<option value="{{ $teacher->id }}">{{ $teacher->name }}</option>@empty<option value="">مدرسی وجود ندارد</option>@endforelse</select><x-owner.field-error field="teacher_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">کلاس فعال</span><select name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($classroomOptions as $classroom)<option value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->course?->title ?? 'بدون دوره' }}</option>@empty<option value="">کلاس فعالی وجود ندارد</option>@endforelse</select><small class="owner-field-help">فقط کلاس فعال آموزشگاه را انتخاب کن؛ این عملیات مدرس مسئول آن را تعیین می‌کند.</small><x-owner.field-error field="classroom_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">مدرس فعال</span><select name="teacher_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($teacherOptions as $teacher)<option value="{{ $teacher->id }}">{{ $teacher->name }}</option>@empty<option value="">مدرسی وجود ندارد</option>@endforelse</select><small class="owner-field-help">مدرس باید فعال و عضو همین آموزشگاه باشد؛ اتصال به دوره هم‌زمان تکمیل می‌شود.</small><x-owner.field-error field="teacher_id"/></label>
 <button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$teacherOptions->count() || !$classroomOptions->count())>ثبت مدرس کلاس</button></form></section>
 
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ثبت‌نام دانش‌آموز</h2><p class="mt-1 text-xs text-slate-500">duplicate-safe، کنترل ظرفیت و ثبت مالی در backend.</p></div><form method="POST" action="{{ route('owner.people.enroll-student',$academy) }}" class="mt-5 grid gap-3">@csrf
@@ -94,9 +99,9 @@
 <button type="button" data-student-more class="owner-student-picker-more" hidden>نمایش نتایج بعدی</button>
 <p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو حرف از نام یا ایمیل را برای جست‌وجو وارد کن؛ ایمیل در نتایج نمایش داده نمی‌شود.</p>
 <x-owner.field-error field="student_id"/></div>
-<label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree() ? 'رایگان' : \App\Support\PersianUi::money($course->price) }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><x-owner.field-error field="course_id"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="" selected disabled>ابتدا کلاس را انتخاب کن</option>@foreach($classroomOptions as $classroom)<option data-course-id="{{ $classroom->course_id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><x-owner.field-error field="classroom_id"/></label>
-<label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی (تومان)</span><input name="paid_amount" type="number" data-money-input data-money-unit="تومان" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="paid_amount"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree() ? 'رایگان' : \App\Support\PersianUi::money($course->price) }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><small class="owner-field-help">دوره‌ای را انتخاب کن که ثبت‌نام دانش‌آموز در آن انجام می‌شود؛ مبلغ و دسترسی براساس دوره بررسی می‌شوند.</small><x-owner.field-error field="course_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="" selected disabled>ابتدا کلاس را انتخاب کن</option>@foreach($classroomOptions as $classroom)<option data-course-id="{{ $classroom->course_id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><small class="owner-field-help">کلاسی را انتخاب کن که به همین دوره تعلق دارد؛ کلاس‌های دیگر معتبر نیستند.</small><x-owner.field-error field="classroom_id"/></label>
+<label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی (تومان)</span><input name="paid_amount" type="number" data-money-input data-money-unit="تومان" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">مبلغ پرداخت‌شده را به تومان وارد کن؛ اگر پرداختی ثبت نشده است خالی بگذار.</small><x-owner.field-error field="paid_amount"/></label>
 <button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white" @disabled(!$courseOptions->count())>ثبت‌نام دانش‌آموز</button></form></section>
 </div>
 
@@ -121,13 +126,13 @@
 
         <label class="grid gap-1">
             <span class="text-xs font-bold">نام و نام خانوادگی</span>
-            <input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="name">
+            <input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="name"><small class="owner-field-help">نام را مطابق اطلاعاتی وارد کن که امکان تطبیق آن با سوابق قدیمی وجود دارد.</small>
             <x-owner.field-error field="name"/>
         </label>
 
         <label class="grid gap-1">
             <span class="text-xs font-bold">کد ملی</span>
-            <input name="national_id" value="{{ old('national_id') }}" required inputmode="numeric" maxlength="10" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="off">
+            <input name="national_id" value="{{ old('national_id') }}" required inputmode="numeric" maxlength="10" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="off"><small class="owner-field-help">کد ملی فقط برای تطبیق هویت استفاده می‌شود؛ مقدار خام ذخیره نمی‌شود. عدد ۱۰ رقمی را دقیق وارد کن.</small>
             <span class="text-[9px] text-slate-400">فقط برای تطبیق هویت؛ مقدار خام ذخیره نمی‌شود.</span>
             <x-owner.field-error field="national_id"/>
         </label>
@@ -140,24 +145,25 @@
                     <option value="{{ $grade->id }}" @selected((string) old('grade_id') === (string) $grade->id)>{{ $grade->title }}</option>
                 @endforeach
             </select>
+            <small class="owner-field-help">پایهٔ تحصیلی فعلی دانش‌آموز را انتخاب کن تا سابقهٔ مهاجرت درست ثبت شود.</small>
             <x-owner.field-error field="grade_id"/>
         </label>
 
         <label class="grid gap-1">
             <span class="text-xs font-bold">موبایل <span class="font-normal text-slate-400">(اختیاری)</span></span>
-            <input name="mobile" value="{{ old('mobile') }}" inputmode="tel" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="tel">
+            <input name="mobile" value="{{ old('mobile') }}" inputmode="tel" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" autocomplete="tel"><small class="owner-field-help">اختیاری؛ فقط شماره‌ای را وارد کن که برای تماس با خانواده معتبر است.</small>
             <x-owner.field-error field="mobile"/>
         </label>
 
         <label class="grid gap-1 md:col-span-2">
             <span class="text-xs font-bold">نام مدرسه <span class="font-normal text-slate-400">(اختیاری)</span></span>
-            <input name="school_name" value="{{ old('school_name') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+            <input name="school_name" value="{{ old('school_name') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">اختیاری؛ نام مدرسهٔ قبلی برای تکمیل سوابق آموزشی.</small>
             <x-owner.field-error field="school_name"/>
         </label>
 
         <label class="grid gap-1 md:col-span-2">
             <span class="text-xs font-bold">یادداشت اپراتور <span class="font-normal text-slate-400">(اختیاری)</span></span>
-            <textarea name="notes" rows="3" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">{{ old('notes') }}</textarea>
+            <textarea name="notes" rows="3" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">{{ old('notes') }}</textarea><small class="owner-field-help">اختیاری؛ فقط نکتهٔ اجرایی لازم برای بررسی ثبت کن و از درج اطلاعات حساس غیرضروری پرهیز کن.</small>
             <x-owner.field-error field="notes"/>
         </label>
 
