@@ -39,19 +39,25 @@ final class OwnerDashboardService
             ->published()
             ->count();
 
-        $teacherCount = DB::table('academy_user')
-            ->whereIn('academy_id', $academyIds)
-            ->where('role', 'teacher')
-            ->where('status', 'active')
+        $teacherCount = DB::table('academy_user as membership')
+            ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
+            ->whereIn('membership.academy_id', $academyIds)
+            ->where('membership.role', 'teacher')
+            ->where('membership.status', 'active')
+            ->where('accounts.status', 'active')
+            ->whereNull('accounts.deleted_at')
             ->distinct()
-            ->count('user_id');
+            ->count('membership.user_id');
 
-        $studentCount = DB::table('academy_user')
-            ->whereIn('academy_id', $academyIds)
-            ->where('role', 'student')
-            ->where('status', 'active')
+        $studentCount = DB::table('academy_user as membership')
+            ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
+            ->whereIn('membership.academy_id', $academyIds)
+            ->where('membership.role', 'student')
+            ->where('membership.status', 'active')
+            ->where('accounts.status', 'active')
+            ->whereNull('accounts.deleted_at')
             ->distinct()
-            ->count('user_id');
+            ->count('membership.user_id');
 
         $classroomBase = Classroom::query()
             ->whereIn('academy_id', $academyIds)
@@ -98,7 +104,8 @@ final class OwnerDashboardService
             ])
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
-                    ->where('classroom_student.status', 'active'),
+                    ->where('classroom_student.status', 'active')
+                    ->where('users.status', 'active'),
             ])
             ->orderByRaw('CASE WHEN starts_at IS NULL THEN 1 ELSE 0 END')
             ->orderBy('starts_at')
@@ -121,6 +128,7 @@ final class OwnerDashboardService
             })
             ->whereIn('assignment.classroom_id', $classroomIdsForView)
             ->where('teacher_users.status', 'active')
+            ->whereNull('teacher_users.deleted_at')
             ->get([
                 'assignment.classroom_id',
                 'teacher_users.id',
@@ -238,7 +246,8 @@ final class OwnerDashboardService
                             ->where('teacher_membership.status', '=', 'active');
                     })
                     ->whereColumn('assignment.classroom_id', 'classrooms.id')
-                    ->where('teacher_users.status', '=', 'active');
+                    ->where('teacher_users.status', '=', 'active')
+                    ->whereNull('teacher_users.deleted_at');
             })
             ->count();
 
@@ -262,6 +271,7 @@ final class OwnerDashboardService
             })
             ->whereIn('courses.academy_id', $academyIds)
             ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->whereExists(function ($membership): void {
                 $membership->selectRaw('1')
                     ->from('academy_user as active_teacher_membership')
@@ -335,7 +345,9 @@ final class OwnerDashboardService
                 ->whereIn('academy_id', $academyIds)
                 ->with('academy:id,name')
                 ->withCount([
-                    'enrollments as active_students_count' => fn($query) => $query->where('status', 'active'),
+                    'enrollments as active_students_count' => fn ($query) => $query
+                        ->where('status', 'active')
+                        ->whereHas('student', fn ($student) => $student->where('users.status', 'active')),
                 ])
                 ->latest()
                 ->limit(6)

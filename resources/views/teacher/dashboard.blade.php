@@ -17,6 +17,7 @@
         $canViewAttendance = (bool) auth()->user()?->hasPermission('attendance.view');
         $canViewLiveClasses = (bool) auth()->user()?->hasPermission('live_classes.view');
         $canViewParentMessages = (bool) auth()->user()?->hasPermission('parent_messages.view');
+        $canViewReports = (bool) auth()->user()?->hasPermission('reports.view');
         $hasPendingAssignments = $canViewAssignments && $pendingAssignmentReviews > 0;
         $hasPendingExams = $canViewExams && $pendingExamReviews > 0;
         $canReviewPendingAssignments = $hasPendingAssignments && $canManageAssignments;
@@ -208,6 +209,7 @@
 
                 @endif
 
+                @if($canViewReports)
                 <section class="tdb-card" id="tdb-progress" aria-labelledby="tdb-progress-title">
                     <div class="tdb-card-head">
                         <div><span class="tdb-card-kicker">فعالیت ثبت‌شده در درس‌ها</span><h2 id="tdb-progress-title">روند پیشرفت دانش‌آموزان</h2></div>
@@ -229,6 +231,8 @@
                     </div>
                     <p class="tdb-chart-note">نمودار بر اساس داده‌های ثبت‌شدهٔ پیشرفت درس‌هاست؛ تاریخچهٔ دقیق تغییرات روزبه‌روز در همهٔ فعالیت‌ها ذخیره نمی‌شود.</p>
                 </section>
+
+                @endif
 
                 @if($canViewAssignments)
                 <section class="tdb-card" aria-labelledby="tdb-assignments-title">
@@ -284,6 +288,7 @@
 
                 @endif
 
+                @if($canViewAssignments || $canViewExams || $canViewAttendance || $canViewLiveClasses || $canViewParentMessages)
                 <section class="tdb-card" aria-labelledby="tdb-shortcuts-title">
                     <div class="tdb-card-head"><div><span class="tdb-card-kicker">دسترسی سریع</span><h2 id="tdb-shortcuts-title">مسیرهای پرکاربرد</h2></div></div>
                     <div class="tdb-shortcuts">
@@ -307,6 +312,7 @@
                         @endif
                     </div>
                 </section>
+                @endif
 
                 @if($canViewLiveClasses)
                 <section class="tdb-card" aria-labelledby="tdb-online-title">

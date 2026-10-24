@@ -55,6 +55,58 @@ class OwnerDashboardBackendContractTest extends TestCase
         ));
     }
 
+    public function test_owner_dashboard_rosters_exclude_inactive_user_accounts(): void
+    {
+        $this->seed();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $classroom = $course->classrooms()->where('code', 'MATH7-01')->firstOrFail();
+
+        $service = app(OwnerDashboardService::class);
+        $before = $service->build($owner);
+        $beforeClassroom = $before['classrooms']->firstWhere('id', $classroom->id);
+        $beforeCourse = $before['recentCourses']->firstWhere('id', $course->id);
+        $beforeTeacherReport = $before['teacherReports']->firstWhere('teacher_id', $teacher->id);
+
+        $this->assertGreaterThan(0, $before['metrics']['teachers']);
+        $this->assertGreaterThan(0, $before['metrics']['students']);
+        $this->assertNotNull($beforeClassroom);
+        $this->assertNotNull($beforeCourse);
+        $this->assertNotNull($beforeTeacherReport);
+        $this->assertGreaterThan(0, (int) $beforeClassroom->active_students_count);
+        $this->assertGreaterThan(0, (int) $beforeCourse->active_students_count);
+        $this->assertGreaterThan(0, (int) $beforeTeacherReport->student_count);
+
+        $beforeStudentCount = (int) $before['metrics']['students'];
+        $beforeClassroomRoster = (int) $beforeClassroom->active_students_count;
+        $beforeCourseRoster = (int) $beforeCourse->active_students_count;
+        $beforeTeacherRoster = (int) $beforeTeacherReport->student_count;
+        $beforeTeacherCount = (int) $before['metrics']['teachers'];
+
+        $student->forceFill(['status' => 'inactive'])->save();
+
+        $afterStudent = $service->build($owner);
+        $afterClassroom = $afterStudent['classrooms']->firstWhere('id', $classroom->id);
+        $afterCourse = $afterStudent['recentCourses']->firstWhere('id', $course->id);
+        $afterTeacherReport = $afterStudent['teacherReports']->firstWhere('teacher_id', $teacher->id);
+
+        $this->assertSame($beforeStudentCount - 1, (int) $afterStudent['metrics']['students']);
+        $this->assertSame($beforeClassroomRoster - 1, (int) $afterClassroom->active_students_count);
+        $this->assertLessThan($beforeCourseRoster, (int) $afterCourse->active_students_count);
+        $this->assertSame($beforeTeacherRoster - 1, (int) $afterTeacherReport->student_count);
+
+        $teacher->forceFill(['status' => 'inactive'])->save();
+
+        $afterTeacher = $service->build($owner);
+        $this->assertSame($beforeTeacherCount - 1, (int) $afterTeacher['metrics']['teachers']);
+        $this->assertFalse($afterTeacher['classrooms']->contains(
+            fn ($item): bool => $item->teachers->contains('id', $teacher->id)
+        ));
+    }
+
     public function test_owner_dashboard_cache_is_per_owner_and_can_be_invalidated_after_a_write(): void
     {
         Cache::flush();

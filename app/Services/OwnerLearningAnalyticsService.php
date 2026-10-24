@@ -55,6 +55,7 @@ final class OwnerLearningAnalyticsService
                     ->where('active_teacher_membership.status', '=', 'active');
             })
             ->where('active_teachers.status', '=', 'active')
+            ->whereNull('active_teachers.deleted_at')
             ->join('classroom_student as roster', function ($join): void {
                 $join->on('roster.classroom_id', '=', 'teacher_classrooms.id')
                     ->on('roster.student_id', '=', 'student_progress.student_id')
@@ -115,6 +116,11 @@ final class OwnerLearningAnalyticsService
                 $join->on('roster.classroom_id', '=', 'classrooms.id')
                     ->where('roster.status', '=', 'active');
             })
+            ->join('users as active_students', function ($join): void {
+                $join->on('active_students.id', '=', 'roster.student_id')
+                    ->where('active_students.status', '=', 'active')
+                    ->whereNull('active_students.deleted_at');
+            })
             ->join('course_enrollments as enrollment', function ($join): void {
                 $join->on('enrollment.classroom_id', '=', 'classrooms.id')
                     ->on('enrollment.course_id', '=', 'classrooms.course_id')
@@ -165,6 +171,11 @@ final class OwnerLearningAnalyticsService
     {
         return DB::table('course_enrollments as enrollments')
             ->join('courses as courses', 'courses.id', '=', 'enrollments.course_id')
+            ->join('users as enrolled_students', function ($join): void {
+                $join->on('enrolled_students.id', '=', 'enrollments.student_id')
+                    ->where('enrolled_students.status', '=', 'active')
+                    ->whereNull('enrolled_students.deleted_at');
+            })
             ->leftJoin('course_sections as sections', 'sections.course_id', '=', 'enrollments.course_id')
             ->leftJoin('lessons as lessons', function ($join): void {
                 $join->on('lessons.course_section_id', '=', 'sections.id')
@@ -196,6 +207,11 @@ final class OwnerLearningAnalyticsService
     private function studentProgressQuery($courseIds)
     {
         return DB::table('course_enrollments as enrollments')
+            ->join('users as enrolled_students', function ($join): void {
+                $join->on('enrolled_students.id', '=', 'enrollments.student_id')
+                    ->where('enrolled_students.status', '=', 'active')
+                    ->whereNull('enrolled_students.deleted_at');
+            })
             ->leftJoin('course_sections as sections', 'sections.course_id', '=', 'enrollments.course_id')
             ->leftJoin('lessons as lessons', function ($join): void {
                 $join->on('lessons.course_section_id', '=', 'sections.id')

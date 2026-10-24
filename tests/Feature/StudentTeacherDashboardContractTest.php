@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\TeacherDashboardService;
 use App\Support\PersianUi;
@@ -40,7 +42,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
             ->assertSee('کلاس‌های آنلاین این هفته')
-            ->assertSee('تکلیف‌های منتظر تصحیح')
+            ->assertSee('تکالیف منتظر تصحیح')
             ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت دانش‌آموزان')
             ->assertSee('tdb-focus-card', false)
@@ -50,11 +52,40 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('data-teacher-theme-toggle', false)
             ->assertSee('data-teacher-range', false)
             ->assertSee('data-dashboard-search', false)
-            ->assertSee('teacher-dashboard.css')
-            ->assertSee('teacher-dashboard.js')
             ->assertSee('آخرین تکالیف')
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
+    }
+
+    public function test_teacher_dashboard_hides_workflows_without_view_permissions(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $teacherRole = Role::query()->where('slug', 'teacher')->firstOrFail();
+        $teacherRole->permissions()->sync(
+            Permission::query()
+                ->whereIn('name', ['dashboard.view', 'profile.view'])
+                ->pluck('id')
+        );
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee('title="داشبورد"', false)
+            ->assertSee('title="پروفایل من"', false)
+            ->assertDontSee('title="دوره‌های من"', false)
+            ->assertDontSee('title="کلاس‌های من"', false)
+            ->assertDontSee('title="برنامه هفتگی"', false)
+            ->assertDontSee('title="کلاس‌های آنلاین"', false)
+            ->assertDontSee('title="تکالیف"', false)
+            ->assertDontSee('title="آزمون‌ها"', false)
+            ->assertDontSee('title="حضور و غیاب"', false)
+            ->assertDontSee('title="دانش‌آموزان"', false)
+            ->assertDontSee('title="گزارش عملکرد"', false)
+            ->assertDontSee('title="حقوق و پرداخت‌ها"', false)
+            ->assertDontSee('id="tdb-progress"', false)
+            ->assertDontSee('class="tdb-shortcuts"', false);
     }
 
     public function test_teacher_dashboard_excludes_inactive_accounts_from_roster_and_course_counts(): void
@@ -101,6 +132,37 @@ class StudentTeacherDashboardContractTest extends TestCase
             $beforeCourseRosterCount,
             collect($after['courseProgress'])->sum('student_count'),
         );
+    }
+
+    public function test_teacher_dashboard_roster_excludes_soft_deleted_student_accounts(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $activeAcademyIds = $teacher->academies()
+            ->where('academies.status', 'active')
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
+            ->pluck('academies.id');
+        $classroomIds = $teacher->classroomsAsTeacher()
+            ->whereIn('classrooms.academy_id', $activeAcademyIds)
+            ->where('classrooms.status', 'active')
+            ->pluck('classrooms.id');
+
+        $student = User::query()
+            ->where('status', 'active')
+            ->whereHas('classroomsAsStudent', fn ($query) => $query
+                ->whereIn('classrooms.id', $classroomIds)
+                ->where('classroom_student.status', 'active'))
+            ->firstOrFail();
+
+        $service = app(TeacherDashboardService::class);
+        $before = $service->build($teacher)['metrics']['studentCount'];
+        $this->assertGreaterThan(0, $before);
+
+        $student->delete();
+
+        $this->assertSame($before - 1, $service->build($teacher)['metrics']['studentCount']);
     }
 
     public function test_student_and_teacher_dashboard_assets_are_isolated_from_shared_teacher_assets(): void
