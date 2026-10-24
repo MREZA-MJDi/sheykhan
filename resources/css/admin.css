@@ -1625,6 +1625,10 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
     gap: var(--owner-page-gap);
     padding-bottom: 24px;
 }
+.owner-shell .owner-dashboard > * {
+    min-width: 0;
+    margin-block: 0;
+}
 .owner-shell .owner-hero {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(220px, .65fr);
@@ -1863,7 +1867,7 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
 }
 .owner-shell .role-main :is(.panel-page-enter, .communication-page) > * {
     min-width: 0;
-    margin-block-start: 0;
+    margin-block: 0;
 }
 .owner-shell .role-main .panel-page-enter > :is(header, .flex.flex-col.gap-4, .flex.flex-col.gap-3) {
     gap: clamp(12px, 1.5vw, 20px);
