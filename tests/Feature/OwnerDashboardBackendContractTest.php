@@ -118,6 +118,17 @@ class OwnerDashboardBackendContractTest extends TestCase
 
         $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
         $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail();
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+        $ownerRole->permissions()->sync(
+            Permission::query()->whereIn('name', [
+                'dashboard.view', 'academy.view', 'classrooms.view', 'courses.view', 'attendance.view',
+                'finance.view', 'reports.view', 'assignments.view', 'live_classes.view',
+                'parents.view', 'content.manage', 'blog.manage', 'products.view', 'orders.view',
+                'legal.manage', 'exams.view', 'teacher_payments.view',
+            ])->pluck('id')
+        );
+        $owner->unsetRelation('roles');
+        Cache::flush();
 
         $this->actingAs($owner)
             ->get(route('owner.dashboard'))
@@ -132,6 +143,11 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.orders.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.legal-documents.index') . '"', false)
             ->assertSee('href="' . route('owner.reports.index') . '"', false)
+            ->assertSee('href="' . route('owner.finance.index') . '"', false)
+            ->assertSee('href="' . route('owner.website.index') . '"', false)
+            ->assertSee('href="' . route('owner.content.index') . '"', false)
+            ->assertSee('href="' . route('owner.blog.index') . '"', false)
+            ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false)
             ->assertSee('aria-label="کلاس‌های فعال"', false)
             ->assertSee('owner-quick-actions', false);
     }
@@ -189,7 +205,11 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('دوره‌های منتشرشده')
             ->assertDontSee('حضور امروز')
             ->assertDontSee('درآمد خالص ثبت‌شده')
-            ->assertDontSee('گزارش‌های آموزشی');
+            ->assertDontSee('گزارش‌های آموزشی')
+            ->assertDontSee('href="' . route('owner.finance.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.website.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.content.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.blog.index') . '"', false);
 
         $this->get(route('owner.people.index', $academy))->assertForbidden();
     }
