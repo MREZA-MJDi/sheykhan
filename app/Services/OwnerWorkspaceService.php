@@ -137,7 +137,7 @@ final class OwnerWorkspaceService
             ->get(['users.id', 'users.name']);
 
         $courses = $academy->courses()
-            ->select('id', 'title')
+            ->select('id', 'title', 'access_type', 'price')
             ->orderBy('title')
             ->get();
 
