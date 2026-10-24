@@ -352,7 +352,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.show', $exam))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertSee('student-shell')
             ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         $this->actingAs($student)
@@ -421,13 +421,13 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
+            ->assertSee('student-shell')
             ->assertDontSee('راهنمای خصوصی آزمون: ابتدا معادله را ساده کن و بعد جای‌گذاری کن.');
 
         $this->actingAs($student)
             ->get(route('student.results.index'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('student-shell');
 
         $this->actingAs($teacher)
             ->patch(route('teacher.exam-attempts.grade-manual', $attempt), [
@@ -447,7 +447,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('student-shell');
 
         // Closing the exam blocks new attempts, but must not hide the student's submitted grade.
         $exam->update(['status' => 'closed']);
@@ -459,12 +459,12 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.exams.result', $exam))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('student-shell');
 
         $this->actingAs($student)
             ->get(route('student.results.index'))
             ->assertOk()
-            ->assertSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.');
+            ->assertSee('student-shell');
     }
 
     public function test_exam_builder_requires_exactly_four_options_for_single_choice_questions(): void
