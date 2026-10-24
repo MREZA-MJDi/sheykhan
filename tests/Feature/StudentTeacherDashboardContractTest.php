@@ -206,11 +206,12 @@ class StudentTeacherDashboardContractTest extends TestCase
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
         $dashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
+        $teacherProfileView = file_get_contents(resource_path('views/teacher/profile/edit.blade.php'));
         $mobileNavigation = file_get_contents(resource_path('views/components/navigation/role-mobile-nav.blade.php'));
         $vite = file_get_contents(base_path('vite.config.js'));
 
         foreach ([$teacherCss, $teacherJs, $teacherAdapter, $studentCss, $studentJs, $appCss, $appJs,
-            $teacherLayout, $studentLayout, $dashboard, $mobileNavigation, $vite] as $content) {
+            $teacherLayout, $studentLayout, $dashboard, $teacherProfileView, $mobileNavigation, $vite] as $content) {
             $this->assertIsString($content);
         }
 
@@ -261,6 +262,11 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('Validate Esfand 30', $teacherJs);
         $this->assertStringContainsString('data-dashboard-chart', $teacherAdapter);
         $this->assertStringContainsString('data-chart-range', $teacherAdapter);
+        $this->assertStringContainsString('data-teacher-preview-container="avatar"', $teacherProfileView);
+        $this->assertStringContainsString('data-teacher-preview-input="avatar"', $teacherProfileView);
+        $this->assertStringContainsString('data-teacher-preview-input="cover"', $teacherProfileView);
+        $this->assertStringContainsString('data-max-size-mb="3"', $teacherProfileView);
+        $this->assertStringContainsString('data-max-size-mb="5"', $teacherProfileView);
 
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="teacher" />', $teacherLayout);
         $this->assertStringContainsString('data-theme="light"', $teacherLayout);
