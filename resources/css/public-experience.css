@@ -1004,3 +1004,27 @@
 @media(max-width:850px) { .public-next-step__card { align-items:stretch; flex-direction:column; gap:1.2rem; } .public-next-step__actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:560px) { .public-next-step { padding-block:2.25rem; } .public-next-step__card { padding:1.2rem; border-radius:19px; } .public-next-step__copy p { font-size:.82rem; } .public-next-step__actions { grid-template-columns:minmax(0,1fr); } .public-next-step__button { width:100%; } }
 @media(prefers-reduced-motion:reduce) { .public-next-step__button { transition:none; } .public-next-step__button:hover { transform:none; } }
+
+
+/* Final public-page polish: consistent keyboard focus, touch targets and reduced motion. */
+.sheykhan-site :is(a,button,input,select,textarea,[tabindex]):focus-visible {
+    outline: 3px solid rgba(79,70,229,.32);
+    outline-offset: 3px;
+}
+.sheykhan-site :is(button,[type="submit"],[type="button"]) { touch-action: manipulation; }
+.sheykhan-site :is(input,select,textarea) { max-width: 100%; }
+@media (max-width: 640px) {
+    .public-blog-grid { grid-template-columns: minmax(0,1fr); }
+    .public-blog-card--featured { grid-column: auto; grid-template-columns: minmax(0,1fr); }
+    .public-blog-card--featured .public-blog-card__media { min-height: 220px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sheykhan-site *,
+    .sheykhan-site *::before,
+    .sheykhan-site *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
