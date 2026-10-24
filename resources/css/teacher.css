@@ -350,3 +350,7 @@ th{font-weight:600}td{padding:12px}
   .teacher-shell .role-mobile-bottom-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 }
 @media(max-width:380px){.teacher-shell .role-mobile-bottom-nav{left:5px;right:5px;padding:5px;gap:2px}.teacher-shell .role-mobile-bottom-nav a{font-size:8px}.teacher-shell .mn{padding-inline:9px}}
+
+/* Keep the shared role-main hooks for existing teacher page contracts without double padding. */
+.teacher-shell .mn>.workspace-content.role-main{padding:0!important;margin:0;min-width:0}
+.teacher-shell .workspace-content.role-main>*{min-width:0}
