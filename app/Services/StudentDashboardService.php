@@ -180,8 +180,8 @@ final class StudentDashboardService
                         ->where('classroom_student.status', '=', 'active');
                 })
                 ->whereIn('live_classes.course_id', $courseIds)
-                ->whereBetween('live_classes.scheduled_at', [now(), now()->addDays(7)])
-                ->where('live_classes.status', 'scheduled')
+                ->whereBetween('live_classes.scheduled_at', [now()->subHours(6), now()->addDays(7)])
+                ->whereIn('live_classes.status', ['scheduled', 'live'])
                 ->where(function ($query) {
                     $query->whereNull('live_classes.classroom_id')
                         ->orWhereNotNull('classroom_student.student_id');
@@ -191,13 +191,23 @@ final class StudentDashboardService
                 ->get([
                     'live_classes.id',
                     'live_classes.title',
+                    'live_classes.course_id',
+                    'live_classes.classroom_id',
+                    'live_classes.teacher_id',
                     'live_classes.scheduled_at',
+                    'live_classes.scheduled_end_at',
+                    'live_classes.duration_minutes',
+                    'live_classes.provider',
+                    'live_classes.meeting_url',
+                    'live_classes.status',
                     'courses.title as course_title',
                 ])
-                ->map(function ($class): object {
+                ->map(function ($class) use ($access): object {
                     $class->scheduled_at = $class->scheduled_at
                         ? Carbon::parse($class->scheduled_at)
                         : null;
+                    $liveClass = LiveClass::query()->newFromBuilder((array) $class);
+                    $class->can_join = $access->isLiveClassJoinWindowOpen($liveClass);
 
                     return $class;
                 });
