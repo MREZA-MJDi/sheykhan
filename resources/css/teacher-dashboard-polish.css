@@ -1,0 +1,516 @@
+/* Teacher dashboard presentation layer.
+ * Keep dashboard-specific changes isolated from teacher workspace pages.
+ */
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard {
+    display: grid;
+    align-content: start;
+    gap: 15px;
+    min-width: 0;
+    color: var(--tx);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard > * {
+    min-width: 0;
+    margin-block: 0;
+}
+
+/* Hero uses the existing role theme and stays compact. */
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
+    align-items: center;
+    gap: 18px;
+    margin: 0;
+    padding: clamp(18px, 2vw, 26px);
+    border-radius: 19px;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 {
+    font-size: clamp(22px, 2vw, 30px);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p {
+    max-width: 65ch;
+    margin-block: 7px 0;
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    color: #4b7187;
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-meta > span {
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 50%;
+    background: #27a87c;
+    box-shadow: 0 0 0 4px rgba(39, 168, 124, .12);
+}
+
+:root[data-theme="dark"] .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-meta {
+    color: var(--mu);
+}
+
+/* The KPI band is for scanning, not a second navigation menu. */
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 11px;
+    margin: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi {
+    --kpi-accent: var(--c, var(--ac));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 36px;
+    grid-template-areas:
+        "label icon"
+        "value icon"
+        "hint hint";
+    align-content: space-between;
+    align-items: start;
+    gap: 6px 12px;
+    min-width: 0;
+    min-height: 124px;
+    padding: 15px 16px 13px;
+    border: 1px solid color-mix(in srgb, var(--kpi-accent) 24%, var(--bd));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--kpi-accent) 7%, var(--sf));
+    box-shadow: var(--sh);
+    color: var(--tx);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.vi {
+    --kpi-accent: var(--vi);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.ok {
+    --kpi-accent: var(--ok);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.wr {
+    --kpi-accent: var(--wr);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.sk {
+    --kpi-accent: var(--sk);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.er {
+    --kpi-accent: var(--er);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 .k6-label {
+    grid-area: label;
+    min-width: 0;
+    padding-inline-end: 0;
+    color: var(--mu);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > i {
+    grid-area: icon;
+    position: static;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--kpi-accent) 25%, transparent);
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--kpi-accent) 14%, var(--sf));
+    color: var(--kpi-accent);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > i .i {
+    width: 19px;
+    height: 19px;
+    color: currentColor;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > b {
+    grid-area: value;
+    min-width: 0;
+    color: var(--tx);
+    font-size: clamp(23px, 2vw, 31px);
+    font-weight: 900;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > small {
+    grid-area: hint;
+    min-width: 0;
+    color: var(--mu);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+/* Attention banner and dashboard cards follow one visual rhythm. */
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 12px;
+    margin: 0;
+    padding: 13px 16px;
+    border-radius: 15px;
+    border: 1px solid color-mix(in srgb, var(--wr) 30%, var(--bd));
+    background: color-mix(in srgb, var(--wr) 7%, var(--sf));
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al.clear {
+    border-color: color-mix(in srgb, var(--ok) 28%, var(--bd));
+    background: color-mix(in srgb, var(--ok) 6%, var(--sf));
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy strong {
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy small {
+    color: var(--mu);
+    font-size: 10px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid color-mix(in srgb, var(--ac) 25%, var(--bd));
+    border-radius: 10px;
+    background: var(--sf);
+    color: var(--ac);
+    font-size: 10px;
+    font-weight: 850;
+    white-space: normal;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(270px, .85fr);
+    align-items: start;
+    gap: 14px;
+    min-width: 0;
+    margin: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > .col,
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > aside.col {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    min-width: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd {
+    min-width: 0;
+    margin: 0;
+    padding: clamp(15px, 1.5vw, 21px);
+    border: 1px solid var(--bd);
+    border-radius: 16px;
+    background: var(--sf);
+    box-shadow: var(--sh);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd > h3 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 12px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid var(--bd);
+    color: var(--tx);
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.75;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd > h3 a {
+    color: var(--ac);
+    font-size: 10px;
+    font-weight: 800;
+    white-space: normal;
+}
+
+/* Student and course summaries are cards, not repeated links to generic indexes. */
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .sv {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 8px;
+    min-width: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .sv > article.teacher-student-row {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    grid-template-areas: "avatar name" "avatar progress";
+    align-items: center;
+    gap: 2px 10px;
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--ac) 3%, var(--sf));
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 {
+    grid-area: avatar;
+    grid-row: 1 / span 2;
+    width: 36px;
+    height: 36px;
+    box-shadow: none;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row b {
+    min-width: 0;
+    color: var(--tx);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row small {
+    color: var(--mu);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    min-width: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs > article.teacher-course-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    min-height: 150px;
+    padding: 14px;
+    border: 1px solid var(--bd);
+    border-radius: 13px;
+    background: color-mix(in srgb, var(--c, var(--ac)) 8%, var(--sf));
+    color: var(--tx);
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.ok { --c: var(--ok); }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.sk { --c: var(--sk); }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.vi { --c: var(--vi); }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.wr { --c: var(--wr); }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card > b {
+    color: var(--tx);
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card > small {
+    color: var(--mu);
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .tg {
+    align-self: flex-start;
+    padding: 2px 9px;
+    border: 1px solid color-mix(in srgb, var(--c) 25%, var(--bd));
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--c) 10%, var(--sf));
+    color: var(--c);
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .pb {
+    width: 100%;
+    margin-top: auto;
+    height: 7px;
+    background: var(--s2);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .pb i {
+    background: var(--c, var(--ac));
+    opacity: .9;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl {
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+    padding: 11px 0;
+    border-color: var(--bd);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy b {
+    color: var(--tx);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy small {
+    color: var(--mu);
+    font-size: 10px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars {
+    align-items: stretch;
+    gap: 9px;
+    min-height: 170px;
+    height: 170px;
+    padding-top: 4px;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars > div {
+    min-width: 0;
+    color: var(--mu);
+    font-size: 9px;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars i {
+    width: min(100%, 38px);
+    min-height: 0;
+    border-radius: 7px 7px 3px 3px;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars small {
+    max-width: 100%;
+    font-size: 9px;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .muted-note,
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dashboard-search-empty {
+    margin-top: 10px;
+    padding: 11px 12px;
+    border: 1px dashed var(--bd);
+    border-radius: 10px;
+    background: var(--s2);
+    color: var(--mu);
+    font-size: 10px;
+    line-height: 1.85;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard :is(a, button, input):focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--ac) 72%, white);
+    outline-offset: 3px;
+}
+
+/* Explicit breakpoints avoid compressed labels inside a narrow dashboard shell. */
+@media (max-width: 1180px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > .col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > aside.col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > .col,
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > aside.col {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al {
+        grid-template-columns: 28px minmax(0, 1fr);
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al > a {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+@media (max-width: 420px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 26px;
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
+        gap: 8px;
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi {
+        min-height: 116px;
+        gap: 6px 8px;
+        padding: 12px;
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > b {
+        font-size: 22px;
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > i {
+        width: 30px;
+        height: 30px;
+    }
+
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *,
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *::before,
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
