@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\TeacherDashboardService;
 use App\Support\PersianUi;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,7 +28,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertDontSee('sdr-hero', false);
     }
 
-    public function test_teacher_dashboard_exposes_teaching_workflow_without_financial_kpi(): void
+    public function test_teacher_dashboard_exposes_backend_driven_teaching_workflow_without_financial_kpi(): void
     {
         $this->seed();
 
@@ -38,8 +39,8 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertOk()
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
-            ->assertSee('جلسات این هفته')
-            ->assertSee('تکالیف منتظر تصحیح')
+            ->assertSee('کلاس‌های آنلاین این هفته')
+            ->assertSee('تکلیف‌های منتظر تصحیح')
             ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت دانش‌آموزان')
             ->assertSee('tdb-focus-card', false)
@@ -47,42 +48,95 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('tdb-dashboard', false)
             ->assertSee('teacher-dashboard-shell', false)
             ->assertSee('data-teacher-theme-toggle', false)
+            ->assertSee('data-teacher-range', false)
+            ->assertSee('data-dashboard-search', false)
+            ->assertSee('teacher-dashboard.css')
+            ->assertSee('teacher-dashboard.js')
             ->assertSee('آخرین تکالیف')
-            ->assertDontSee('فروش دوره‌ها');
+            ->assertDontSee('فروش دوره‌ها')
+            ->assertDontSee('td-dashboard', false);
     }
 
-    public function test_student_and_teacher_stylesheet_entrypoints_are_kept_separate(): void
+    public function test_teacher_dashboard_student_count_excludes_inactive_accounts(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $activeAcademyIds = $teacher->academies()
+            ->where('academies.status', 'active')
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
+            ->pluck('academies.id');
+        $classroomIds = $teacher->classroomsAsTeacher()
+            ->whereIn('classrooms.academy_id', $activeAcademyIds)
+            ->where('classrooms.status', 'active')
+            ->pluck('classrooms.id');
+
+        $student = User::query()
+            ->where('status', 'active')
+            ->whereHas('classroomsAsStudent', fn ($query) => $query
+                ->whereIn('classrooms.id', $classroomIds)
+                ->where('classroom_student.status', 'active'))
+            ->firstOrFail();
+
+        $service = app(TeacherDashboardService::class);
+        $before = $service->build($teacher)['metrics']['studentCount'];
+        $this->assertGreaterThan(0, $before);
+
+        $student->forceFill(['status' => 'inactive'])->save();
+
+        $this->assertSame($before - 1, $service->build($teacher)['metrics']['studentCount']);
+    }
+
+    public function test_student_and_teacher_dashboard_assets_are_isolated_from_shared_teacher_assets(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
         $teacherDashboardCss = file_get_contents(resource_path('css/teacher-dashboard.css'));
-        $teacherDashboardLayout = file_get_contents(resource_path('views/layouts/teacher-dashboard.blade.php'));
+        $teacherJs = file_get_contents(resource_path('js/teacher.js'));
+        $teacherDashboardJs = file_get_contents(resource_path('js/teacher-dashboard.js'));
         $teacherSidebar = file_get_contents(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $appCss = file_get_contents(resource_path('css/app.css'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
+        $teacherDashboardLayout = file_get_contents(resource_path('views/layouts/teacher-dashboard.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
 
         $this->assertIsString($teacherCss);
         $this->assertIsString($teacherDashboardCss);
-        $this->assertIsString($teacherDashboardLayout);
+        $this->assertIsString($teacherJs);
+        $this->assertIsString($teacherDashboardJs);
         $this->assertIsString($teacherSidebar);
         $this->assertIsString($studentCss);
         $this->assertIsString($appCss);
         $this->assertIsString($teacherLayout);
+        $this->assertIsString($teacherDashboardLayout);
         $this->assertIsString($studentLayout);
 
+        $this->assertStringContainsString("@import './communication-pages.css';", $teacherCss);
+        $this->assertStringNotContainsString("@import './teacher-dashboard.css';", $teacherCss);
+        $this->assertStringNotContainsString('.teacher-focus-card {', $teacherCss);
+        $this->assertStringNotContainsString('.teacher-welcome-card {', $teacherCss);
         $this->assertStringContainsString('.tdb-focus-card', $teacherDashboardCss);
         $this->assertStringContainsString('.tdb-focus-action', $teacherDashboardCss);
         $this->assertStringContainsString("@vite(['resources/css/teacher-dashboard.css', 'resources/js/teacher-dashboard.js'])", $teacherDashboardLayout);
         $this->assertStringContainsString('.tdb-dashboard', $teacherDashboardCss);
         $this->assertStringContainsString('body.teacher-dashboard-shell .tdb-app', $teacherDashboardCss);
         $this->assertStringContainsString('@media(max-width:1250px)', $teacherDashboardCss);
+        $this->assertStringContainsString('body.teacher-dashboard-shell .tdb-dashboard', $teacherDashboardCss);
+        $this->assertStringContainsString('@media(max-width:720px)', $teacherDashboardCss);
+        $this->assertStringContainsString('data-teacher-theme-toggle', $teacherDashboardJs);
+        $this->assertStringContainsString('data-teacher-range', $teacherDashboardJs);
+        $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $teacherJs);
+        $this->assertStringNotContainsString('[data-teacher-dashboard]', $teacherJs);
         $this->assertStringContainsString('aria-label="دوره‌های من"', $teacherSidebar);
+        $this->assertStringContainsString('id="teacher-dashboard-sidebar"', $teacherSidebar);
+        $this->assertStringContainsString('resources/css/teacher-dashboard.css', $teacherDashboardLayout);
+        $this->assertStringContainsString('resources/js/teacher-dashboard.js', $teacherDashboardLayout);
+        $this->assertStringNotContainsString('resources/css/teacher.css', $teacherDashboardLayout);
+        $this->assertStringNotContainsString('resources/js/teacher.js', $teacherDashboardLayout);
         $this->assertStringContainsString("request()->routeIs('teacher.dashboard')", $teacherLayout);
-        $this->assertStringContainsString('data-teacher-theme-toggle', $teacherDashboardLayout);
         $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
-        // Tailwind source scanning is centralized in app.css (source(none));
-        // the role stylesheet is plain CSS and stays focused on component styling.
+        // Tailwind source scanning remains centralized in app.css (source(none)).
         $this->assertStringContainsString("@source '../../resources/views';", $appCss);
         $this->assertStringContainsString("@source '../../resources/views/components';", $appCss);
         $this->assertStringContainsString('resources/css/app.css', $studentLayout);
