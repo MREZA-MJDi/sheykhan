@@ -249,7 +249,8 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString("import '../css/teacher.css';", $teacherJs);
         foreach ([
             'resources/css/app.css', 'resources/css/home.css', 'resources/css/student.css',
-            'resources/css/teacher.css', 'resources/css/admin.css', 'resources/css/parent.css',
+            'resources/css/teacher.css', 'resources/css/teacher-dashboard-polish.css',
+            'resources/css/admin.css', 'resources/css/parent.css',
         ] as $entry) {
             $this->assertSame(1, substr_count($vite, $entry), $entry . ' must be registered once in Vite.');
         }
