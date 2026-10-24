@@ -11,6 +11,9 @@
     @else
         @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/css/owner-design-system.css', 'resources/js/app.js', 'resources/js/admin.js'])
     @endif
+    @if (request()->routeIs('owner.dashboard'))
+        @vite(['resources/css/owner-dashboard-polish.css'])
+    @endif
     @stack('styles')
 </head>
 <body class="owner-shell">
