@@ -38,7 +38,7 @@
             ['route' => 'teacher.students.index', 'label' => 'دانش‌آموزان', 'permission' => 'students.view', 'icon' => '◎', 'primary' => false],
             ['route' => 'teacher.payments.index', 'label' => 'حقوق و پرداخت‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'teacher.profile.edit', 'label' => 'پروفایل من', 'permission' => 'profile.view', 'icon' => '⚙', 'primary' => false],
-            ['route' => 'teacher.dashboard', 'url' => route('teacher.dashboard') . '#teacher-progress', 'activeRoute' => 'teacher.dashboard', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false],
+            ['route' => 'teacher.dashboard', 'url' => route('teacher.dashboard') . '#teacher-progress', 'activeRoute' => 'teacher.dashboard', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false, 'noActive' => true],
         ],
         'owner' => [
             ['route' => 'owner.dashboard', 'label' => 'مرکز کنترل', 'permission' => 'dashboard.view', 'icon' => '⌂', 'primary' => true],
@@ -50,7 +50,7 @@
             ['route' => 'owner.schedules.index', 'label' => 'لینک کلاس آنلاین', 'permission' => 'live_classes.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.meetings.index', 'label' => 'هماهنگی جلسات', 'permission' => 'live_classes.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.communications.index', 'label' => 'ارسال اطلاعیه و پیام', 'permission' => 'parents.manage', 'icon' => '✉', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.counseling.index', 'label' => 'جلسات مشاوره', 'permission' => 'counseling.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.counseling.index', 'label' => 'جلسات مشاوره', 'permission' => 'parents.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.exams.index', 'label' => 'آزمون‌ها و نتایج', 'permission' => 'exams.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.recordings.index', 'label' => 'آرشیو ضبط کلاس‌ها', 'permission' => 'live_classes.view', 'icon' => '◉', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.teacher-payments.index', 'label' => 'حقوق مدرس‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
@@ -97,7 +97,7 @@
     ];
 
     $visibleItems = collect($items)
-        ->filter(fn (array $item) => !$user || collect($item['permissions'] ?? [$item['permission'] ?? null])->filter()->contains(fn (string $permission) => $user->hasPermission($permission)))
+        ->filter(fn (array $item) => !$user || (!isset($item['permission']) && !isset($item['permissions'])) || collect($item['permissions'] ?? [$item['permission'] ?? null])->filter()->contains(fn (string $permission) => $user->hasPermission($permission)))
         ->filter(fn (array $item) => empty($item['requiresAcademy']) || $academy)
         ->filter(fn (array $item) => \Illuminate\Support\Facades\Route::has($item['route']))
         ->map(function (array $item) use ($academy, $academyRoutes) {
@@ -131,11 +131,11 @@
         @foreach($primaryItems as $item)
             @php
                 $activePattern = $item['activeRoute'] ?? $item['route'];
-                $active = request()->routeIs($activePattern)
+                $active = empty($item['noActive']) && (request()->routeIs($activePattern)
                     || (
                         str_ends_with($item['route'], '.index')
                         && request()->routeIs(str_replace('.index', '.*', $item['route']))
-                    );
+                    ));
             @endphp
             <a
                 href="{{ $item['url'] ?? route($item['route'], $item['urlArgs'] ?? []) }}"
