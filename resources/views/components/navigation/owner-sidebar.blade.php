@@ -1,7 +1,7 @@
 @php
     $user = auth()->user();
     $seoOnly = $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
-    $academies = $seoOnly
+    $academies = ($seoOnly || ! $user->hasPermission('academy.view'))
         ? collect()
         : $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get();
     $routeAcademy = request()->route('academy');
@@ -20,11 +20,12 @@
     </div>
 
     <nav class="role-sidebar-nav" aria-label="{{ $seoOnly ? 'منوی متخصص SEO' : 'منوی کارتابل ادمین / منشی' }}">
-        @if(! $seoOnly)
+        @if(! $seoOnly && $user->hasPermission('dashboard.view'))
             <div class="role-sidebar-label">مرکز کنترل</div>
 
             <a href="{{ route('owner.dashboard') }}"
-               class="role-nav-link {{ request()->routeIs('owner.dashboard') ? 'is-active' : '' }}">
+               class="role-nav-link {{ request()->routeIs('owner.dashboard') ? 'is-active' : '' }}"
+               @if(request()->routeIs('owner.dashboard')) aria-current="page" @endif>
                 <span class="role-nav-icon"></span><span>داشبورد</span>
             </a>
         @endif
