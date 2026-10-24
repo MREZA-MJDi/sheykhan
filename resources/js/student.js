@@ -237,3 +237,33 @@
         });
     });
 })();
+
+
+// Show the selected assignment attachments before submission without uploading them early.
+document.addEventListener('change', (event) => {
+    const input = event.target instanceof HTMLInputElement
+        ? event.target.closest('[data-assignment-file-upload]')
+        : null;
+
+    if (!input) return;
+
+    const output = input.form?.querySelector('[data-assignment-files-selection]');
+    if (!output) return;
+
+    const files = Array.from(input.files ?? []);
+    if (!files.length) {
+        output.textContent = 'هنوز فایلی انتخاب نشده است.';
+        return;
+    }
+
+    const sizeLabel = (bytes) => {
+        const kilobytes = Math.ceil(bytes / 1024);
+        return kilobytes >= 1024
+            ? `${(kilobytes / 1024).toLocaleString('fa-IR', { maximumFractionDigits: 1 })} مگابایت`
+            : `${kilobytes.toLocaleString('fa-IR')} کیلوبایت`;
+    };
+
+    output.textContent = files
+        .map((file) => `${file.name} · ${sizeLabel(file.size)}`)
+        .join('، ');
+});
