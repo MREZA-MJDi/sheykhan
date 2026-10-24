@@ -46,6 +46,9 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت ثبت‌شده')
             ->assertSee('class="app"', false)
+            ->assertSee('id="teacher-dashboard"', false)
+            ->assertSee('class="ph teacher-dashboard-hero"', false)
+            ->assertSee('class="teacher-dashboard-avatar"', false)
             ->assertSee('id="teacher-progress"', false)
             ->assertSee('data-dashboard-chart', false)
             ->assertSee('data-chart-range="week"', false)
@@ -203,6 +206,9 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertSame(1, substr_count($teacherCss, "@import './communication-pages.css';"));
         $this->assertSame(1, substr_count($teacherCss, '@import'));
         $this->assertStringContainsString('.k6', $teacherCss);
+        $this->assertStringContainsString('#teacher-dashboard .teacher-dashboard-hero', $teacherCss);
+        $this->assertStringContainsString('#teacher-dashboard .k6', $teacherCss);
+        $this->assertStringContainsString(':has(#teacher-dashboard)', $teacherCss);
         $this->assertStringContainsString('.teacher-workspace-page', $teacherCss);
         $this->assertStringContainsString('.teacher-form-section', $teacherCss);
         $this->assertStringContainsString('@media (max-width:980px)', $teacherCss);
@@ -226,6 +232,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('data-chart-range', $teacherAdapter);
 
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="teacher" />', $teacherLayout);
+        $this->assertStringContainsString("request()->routeIs('teacher.dashboard')", $teacherLayout);
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
         $this->assertStringContainsString('id="student-profile-modal"', $studentLayout);
         $this->assertStringContainsString('data-student-profile-open', $studentLayout);
