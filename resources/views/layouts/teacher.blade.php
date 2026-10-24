@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fa" dir="rtl" data-theme="{{ request()->routeIs('teacher.dashboard') ? 'light' : 'dark' }}">
+<html lang="fa" dir="rtl" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -17,14 +17,20 @@
         } catch (_) {}
     </script>
     @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/js/app.js', 'resources/js/teacher.js'])
-    @if (request()->routeIs('teacher.dashboard'))
-        @vite(['resources/css/teacher-dashboard-polish.css'])
-    @endif
     @stack('styles')
 </head>
 <body class="teacher-shell">
     @php
         $teacherPanelUser = auth()->user();
+        $teacherPanelUser?->loadMissing([
+            'teacherProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'teacher-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+        $teacherPanelAvatar = $teacherPanelUser?->teacherProfile?->media?->first();
+        $teacherPanelAvatarUrl = $teacherPanelAvatar?->visibility === 'public'
+            ? $teacherPanelAvatar->url()
+            : ($teacherPanelAvatar ? route('media.view', $teacherPanelAvatar) : null);
         $teacherNavGroups = [
             ['label' => '', 'items' => [
                 ['label' => 'داشبورد', 'icon' => 'home', 'url' => route('teacher.dashboard'), 'active' => 'teacher.dashboard', 'permission' => 'dashboard.view'],
@@ -97,7 +103,13 @@
                 </form>
             </div>
             <div class="us" title="{{ $teacherPanelUser?->name }}">
-                <span class="av">{{ $teacherPanelInitial }}</span>
+                <span class="av">
+                    @if($teacherPanelAvatarUrl)
+                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="36" height="36" loading="eager" decoding="async">
+                    @else
+                        {{ $teacherPanelInitial }}
+                    @endif
+                </span>
                 <div><b>{{ $teacherPanelUser?->name }}</b><small>پنل مدرس</small></div>
             </div>
         </nav>
