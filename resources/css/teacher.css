@@ -1665,3 +1665,48 @@
         backdrop-filter: none !important;
     }
 }
+
+/* Real meeting-entry actions used by the dashboard; links target validated provider URLs. */
+.teacher-shell .teacher-upcoming-actions,
+.teacher-shell .teacher-session-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    min-width: 0;
+    flex-wrap: wrap;
+}
+.teacher-shell .teacher-live-join {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid #dbd5ff;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#f2efff,#fff);
+    color: #5d4bd3;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1.6;
+    white-space: nowrap;
+}
+.teacher-shell .teacher-live-join:hover {
+    border-color: #afa2ff;
+    background: #ede8ff;
+}
+.teacher-shell .teacher-live-join:focus-visible {
+    outline: 3px solid rgba(111,92,245,.3);
+    outline-offset: 2px;
+}
+@media (max-width: 760px) {
+    .teacher-shell .teacher-upcoming-actions,
+    .teacher-shell .teacher-session-actions {
+        grid-column: 2;
+        justify-content: flex-start;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .teacher-shell .teacher-live-join { transition: none !important; }
+}
