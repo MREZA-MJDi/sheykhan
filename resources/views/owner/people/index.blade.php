@@ -179,7 +179,7 @@
 </section>
 @endif
 
-@if(!empty($studentOnboardingAvailable))
+@if(!empty($studentOnboardingHistoryAvailable))
 <section class="dashboard-panel p-5 sm:p-7">
     <div class="flex items-center justify-between gap-3">
         <div>
