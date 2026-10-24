@@ -725,3 +725,18 @@ body {
 @keyframes student-menu-enter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
 @media(max-width:700px){.student-shell .main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}.student-profile-dialog{padding:16px;border-radius:21px}.student-profile-modal{padding:12px}}
 @media(prefers-reduced-motion:reduce){.student-profile-dialog{animation:none}}
+
+:root[data-theme="dark"] .student-profile-dialog{background:#17283b;color:#e6eef6;border-color:rgba(255,255,255,.14)}
+:root[data-theme="dark"] .student-profile-dialog-head{border-color:rgba(255,255,255,.12)}
+:root[data-theme="dark"] .student-profile-dialog-avatar{background:#223a53;color:#b9d4ef}
+:root[data-theme="dark"] .student-profile-dialog-close{background:#223a53;color:#c5d4e4}
+:root[data-theme="dark"] .student-profile-dialog-actions>a,
+:root[data-theme="dark"] .student-profile-dialog-actions>button,
+:root[data-theme="dark"] .student-profile-dialog-actions form>button{background:#1d3249;border-color:rgba(255,255,255,.12);color:#e6eef6}
+:root[data-theme="dark"] .student-profile-dialog-actions>a:hover,
+:root[data-theme="dark"] .student-profile-dialog-actions>button:hover,
+:root[data-theme="dark"] .student-profile-dialog-actions form>button:hover{background:#25415f;border-color:rgba(139,178,255,.42)}
+:root[data-theme="dark"] .student-profile-dialog-actions small,
+:root[data-theme="dark"] .student-profile-dialog-person small{color:#a9bccd}
+:root[data-theme="dark"] .student-profile-dialog-actions form>button.danger{background:rgba(116,36,48,.35);border-color:rgba(239,91,107,.28);color:#ffb2ba}
+:root[data-theme="dark"] .student-profile-dialog-actions form>button.danger .i{color:#ffb2ba}
