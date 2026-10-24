@@ -129,6 +129,7 @@ final class CourseManagementService
                 'access_type' => $data['access_type'],
                 'short_description' => $data['short_description'] ?? null,
                 'description' => $data['description'] ?? null,
+                'spotplayer_course_id' => $data['spotplayer_course_id'] ?? null,
                 'duration_minutes' => $data['duration_minutes'] ?? 0,
                 'price' => $data['access_type'] === 'free' ? 0 : $data['price'],
                 'published_at' => ($data['status'] ?? 'draft') === 'published'
@@ -184,6 +185,7 @@ final class CourseManagementService
                 'access_type' => $accessType,
                 'short_description' => array_key_exists('short_description', $data) ? $data['short_description'] : $course->short_description,
                 'description' => array_key_exists('description', $data) ? $data['description'] : $course->description,
+                'spotplayer_course_id' => array_key_exists('spotplayer_course_id', $data) ? ($data['spotplayer_course_id'] ?: null) : $course->spotplayer_course_id,
                 'duration_minutes' => array_key_exists('duration_minutes', $data) ? $data['duration_minutes'] : $course->duration_minutes,
                 'price' => $accessType === 'free'
                     ? 0
