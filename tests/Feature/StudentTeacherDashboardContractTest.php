@@ -103,6 +103,37 @@ class StudentTeacherDashboardContractTest extends TestCase
         );
     }
 
+    public function test_teacher_dashboard_roster_excludes_soft_deleted_student_accounts(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $activeAcademyIds = $teacher->academies()
+            ->where('academies.status', 'active')
+            ->wherePivot('role', 'teacher')
+            ->wherePivot('status', 'active')
+            ->pluck('academies.id');
+        $classroomIds = $teacher->classroomsAsTeacher()
+            ->whereIn('classrooms.academy_id', $activeAcademyIds)
+            ->where('classrooms.status', 'active')
+            ->pluck('classrooms.id');
+
+        $student = User::query()
+            ->where('status', 'active')
+            ->whereHas('classroomsAsStudent', fn ($query) => $query
+                ->whereIn('classrooms.id', $classroomIds)
+                ->where('classroom_student.status', 'active'))
+            ->firstOrFail();
+
+        $service = app(TeacherDashboardService::class);
+        $before = $service->build($teacher)['metrics']['studentCount'];
+        $this->assertGreaterThan(0, $before);
+
+        $student->delete();
+
+        $this->assertSame($before - 1, $service->build($teacher)['metrics']['studentCount']);
+    }
+
     public function test_student_and_teacher_dashboard_assets_are_isolated_from_shared_teacher_assets(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
