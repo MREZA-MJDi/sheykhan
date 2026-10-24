@@ -6,6 +6,8 @@ use App\Models\Assignment;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
+use App\Models\Media;
+use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\StudentDashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,6 +63,50 @@ class StudentDashboardBackendContractTest extends TestCase
             $this->assertNotNull($result->occurred_at);
             $this->assertNotSame('', $result->status_label ?? '');
         }
+    }
+
+    public function test_persisted_student_avatar_is_shared_by_the_dashboard_shell_and_hero(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $profile = StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+
+        $media = Media::create([
+            'uploaded_by' => $student->id,
+            'disk' => 'local',
+            'path' => 'students/' . $student->id . '/avatar.jpg',
+            'original_name' => 'avatar.jpg',
+            'file_name' => 'avatar.jpg',
+            'mime_type' => 'image/jpeg',
+            'extension' => 'jpg',
+            'size' => 1024,
+            'checksum' => hash('sha256', 'student-avatar-test'),
+            'visibility' => 'public',
+            'collection' => 'student-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+
+        $profile->media()->attach($media->id, [
+            'collection' => 'student-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $avatarUrl = route('media.public', $media);
+        $payload = app(StudentDashboardService::class)->build($student->fresh());
+
+        $this->assertSame($avatarUrl, $payload['studentAvatarUrl']);
+
+        $html = $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->getContent();
+
+        // Sidebar, account shortcut and welcome hero all use the same persisted photo.
+        $this->assertSame(3, substr_count($html, e($avatarUrl)));
+        $this->assertStringContainsString('data-avatar-fallback', $html);
     }
 
     public function test_pending_assignment_kpi_is_not_limited_to_the_dashboard_list(): void
