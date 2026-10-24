@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -131,6 +132,45 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
             $this->actingAs($parent)
                 ->get(route($routeName))
                 ->assertOk($routeName . ' must render successfully from parent navigation.');
+        }
+    }
+
+    public function test_seo_specialist_navigation_pages_render(): void
+    {
+        $this->seed();
+
+        $specialist = User::factory()->create([
+            'email' => 'seo-navigation-' . uniqid() . '@test.local',
+            'status' => 'active',
+        ]);
+        $role = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
+        $specialist->roles()->attach($role->id);
+
+        foreach ([
+            'owner.seo.index',
+            'owner.seo.keywords.index',
+        ] as $routeName) {
+            $this->actingAs($specialist)
+                ->get(route($routeName))
+                ->assertOk($routeName . ' must render successfully from SEO-specialist navigation.');
+        }
+    }
+
+    public function test_primary_public_pages_render_for_guests(): void
+    {
+        $this->seed();
+
+        foreach ([
+            'home',
+            'courses.index',
+            'teachers.index',
+            'store.index',
+            'blog.index',
+            'seo.robots',
+            'seo.sitemap',
+        ] as $routeName) {
+            $this->get(route($routeName))
+                ->assertOk($routeName . ' must render successfully for a guest.');
         }
     }
 
