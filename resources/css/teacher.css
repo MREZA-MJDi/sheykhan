@@ -272,6 +272,16 @@
     border-radius:10px;
     background:#fafbfc;
 }
+
+.teacher-exam-answer-value.is-correct {
+    border-color: #b8e5c9;
+    background: #f0fbf4;
+}
+
+.teacher-exam-answer-value.is-wrong {
+    border-color: #f4c5cb;
+    background: #fff5f6;
+}
 .teacher-exam-answer-value > span{
     display:block;
     color:#9aa2b0;
