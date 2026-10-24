@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\User;
 use App\Services\StudentAssignmentService;
@@ -20,12 +21,17 @@ class StudentAssignmentFileUploadTest extends TestCase
         Storage::fake('local');
 
         $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $assignment = app(StudentAssignmentService::class)
-            ->query($student)
-            ->whereDoesntHave('submissions', fn ($query) => $query->where('student_id', $student->id))
-            ->firstOrFail();
-
-        $assignment->update(['due_at' => now()->addDays(2)]);
+        $template = app(StudentAssignmentService::class)->query($student)->firstOrFail();
+        $assignment = Assignment::query()->create([
+            'course_id' => $template->course_id,
+            'classroom_id' => $template->classroom_id,
+            'teacher_id' => $template->teacher_id,
+            'title' => 'PDF attachment submission test',
+            'instructions' => 'Attach a PDF file as the assignment answer.',
+            'due_at' => now()->addDays(2),
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
 
         $pdf = UploadedFile::fake()->create('homework-answer.pdf', 64, 'application/pdf');
 
