@@ -52,10 +52,19 @@ final class ParentDashboardService
             ->whereIn('enrollments.student_id', $childIds)
             ->where('enrollments.status', 'active')
             ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
             ->whereExists(function ($academy): void {
                 $academy->selectRaw('1')->from('academies')
                     ->whereColumn('academies.id', 'courses.academy_id')
-                    ->where('academies.status', 'active');
+                    ->where('academies.status', 'active')
+                    ->whereExists(function ($membership): void {
+                        $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                            ->whereColumn('enrolled_student_membership.academy_id', 'courses.academy_id')
+                            ->whereColumn('enrolled_student_membership.user_id', 'enrollments.student_id')
+                            ->where('enrolled_student_membership.role', 'student')
+                            ->where('enrolled_student_membership.status', 'active');
+                    });
             })
             ->where(function ($access): void {
                 $access->where('courses.access_type', 'free')
@@ -72,6 +81,15 @@ final class ParentDashboardService
                                     ->where('financial_transactions.status', 'completed')
                                     ->where('financial_transactions.amount', '>', 0);
                             });
+                    });
+            })
+            ->where(function ($classroom): void {
+                $classroom->whereNull('enrollments.classroom_id')
+                    ->orWhereExists(function ($membership): void {
+                        $membership->selectRaw('1')->from('classroom_student')
+                            ->whereColumn('classroom_student.classroom_id', 'enrollments.classroom_id')
+                            ->whereColumn('classroom_student.student_id', 'enrollments.student_id')
+                            ->where('classroom_student.status', 'active');
                     });
             })
             ->groupBy('enrollments.student_id')
@@ -102,10 +120,19 @@ final class ParentDashboardService
             ->whereIn('enrollments.student_id', $childIds)
             ->where('enrollments.status', 'active')
             ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
             ->whereExists(function ($academy): void {
                 $academy->selectRaw('1')->from('academies')
                     ->whereColumn('academies.id', 'courses.academy_id')
-                    ->where('academies.status', 'active');
+                    ->where('academies.status', 'active')
+                    ->whereExists(function ($membership): void {
+                        $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                            ->whereColumn('enrolled_student_membership.academy_id', 'courses.academy_id')
+                            ->whereColumn('enrolled_student_membership.user_id', 'enrollments.student_id')
+                            ->where('enrolled_student_membership.role', 'student')
+                            ->where('enrolled_student_membership.status', 'active');
+                    });
             })
             ->where(function ($access): void {
                 $access->where('courses.access_type', 'free')
@@ -163,13 +190,56 @@ final class ParentDashboardService
                             ->whereColumn('course_enrollments.student_id', 'students.id')
                             ->whereColumn('course_enrollments.course_id', 'assignments.course_id')
                             ->where('course_enrollments.status', 'active')
-                            ->where(function ($paid): void {
-                                $paid->where('course_enrollments.paid_amount', '>', 0)
-                                    ->orWhereExists(function ($free): void {
-                                        $free->selectRaw('1')
-                                            ->from('courses')
-                                            ->whereColumn('courses.id', 'assignments.course_id')
-                                            ->where('courses.access_type', 'free');
+                            ->whereExists(function ($course): void {
+                                $course->selectRaw('1')
+                                    ->from('courses')
+                                    ->whereColumn('courses.id', 'assignments.course_id')
+                                    ->where('courses.status', 'published')
+                                    ->whereNotNull('courses.published_at')
+                                    ->where('courses.published_at', '<=', now())
+                                    ->whereExists(function ($academy): void {
+                                        $academy->selectRaw('1')->from('academies')
+                                            ->whereColumn('academies.id', 'courses.academy_id')
+                                            ->where('academies.status', 'active')
+                                            ->whereExists(function ($membership): void {
+                                                $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                                                    ->whereColumn('enrolled_student_membership.academy_id', 'courses.academy_id')
+                                                    ->whereColumn('enrolled_student_membership.user_id', 'students.id')
+                                                    ->where('enrolled_student_membership.role', 'student')
+                                                    ->where('enrolled_student_membership.status', 'active');
+                                            });
+                                    });
+                            })
+                            ->where(function ($access): void {
+                                $access->whereExists(function ($free): void {
+                                    $free->selectRaw('1')->from('courses')
+                                        ->whereColumn('courses.id', 'course_enrollments.course_id')
+                                        ->where('courses.access_type', 'free');
+                                })->orWhere(function ($paid): void {
+                                    $paid->where('course_enrollments.payment_status', 'paid')
+                                        ->where('course_enrollments.paid_amount', '>', 0)
+                                        ->where(function ($amount): void {
+                                            $amount->whereNull('course_enrollments.price_amount')
+                                                ->orWhereColumn('course_enrollments.paid_amount', '>=', 'course_enrollments.price_amount');
+                                        })
+                                        ->whereExists(function ($transaction): void {
+                                            $transaction->selectRaw('1')->from('financial_transactions')
+                                                ->whereColumn('financial_transactions.enrollment_id', 'course_enrollments.id')
+                                                ->where('financial_transactions.status', 'completed')
+                                                ->where('financial_transactions.amount', '>', 0);
+                                        });
+                                });
+                            })
+                            ->where(function ($classroom): void {
+                                $classroom->whereNull('assignments.classroom_id')
+                                    ->orWhere(function ($specific): void {
+                                        $specific->whereColumn('course_enrollments.classroom_id', 'assignments.classroom_id')
+                                            ->whereExists(function ($membership): void {
+                                                $membership->selectRaw('1')->from('classroom_student')
+                                                    ->whereColumn('classroom_student.classroom_id', 'assignments.classroom_id')
+                                                    ->whereColumn('classroom_student.student_id', 'students.id')
+                                                    ->where('classroom_student.status', 'active');
+                                            });
                                     });
                             });
                     })
@@ -213,6 +283,20 @@ final class ParentDashboardService
             ->join('users as students', 'students.id', '=', 'enrollments.student_id')
             ->whereIn('students.id', $childIds)
             ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
+            ->whereExists(function ($academy): void {
+                $academy->selectRaw('1')->from('academies')
+                    ->whereColumn('academies.id', 'courses.academy_id')
+                    ->where('academies.status', 'active');
+            })
+            ->whereExists(function ($membership): void {
+                $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                    ->whereColumn('enrolled_student_membership.academy_id', 'courses.academy_id')
+                    ->whereColumn('enrolled_student_membership.user_id', 'students.id')
+                    ->where('enrolled_student_membership.role', 'student')
+                    ->where('enrolled_student_membership.status', 'active');
+            })
             ->where('assignments.status', 'published')
             ->where(function ($classroom): void {
                 $classroom->whereNull('assignments.classroom_id')
