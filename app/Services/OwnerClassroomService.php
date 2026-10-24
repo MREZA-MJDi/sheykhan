@@ -45,7 +45,7 @@ final class OwnerClassroomService
                             ->where('active_teacher_membership.role', 'teacher')
                             ->where('active_teacher_membership.status', 'active');
                     }),
-                'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
+                'schedules:id,classroom_id,weekday,start_time,end_time,room,provider,meeting_url',
             ])
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query

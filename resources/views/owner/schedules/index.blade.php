@@ -19,8 +19,10 @@
     </header>
 
     <section class="rounded-2xl border border-sky-100 bg-sky-50 p-4 text-xs leading-7 text-sky-900">
-        لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet و Zoom باید لینک دعوت واقعی را وارد کنی؛ شیخان لینک غیرواقعی برای این سرویس‌ها نمی‌سازد.
+        لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet و Zoom باید لینک دعوت واقعی را از همان سرویس وارد کنی؛ شیخان لینک ساختگی تولید نمی‌کند.
     </section>
+
+    <x-education.weekly-schedule-calendar :classrooms="$classrooms" />
 
     <section class="grid gap-4">
         @forelse($classrooms as $classroom)
@@ -69,8 +71,8 @@
                             </select>
                             <x-owner.field-error field="weekday"/>
                         </label>
-                        <label class="grid gap-1"><span class="text-xs font-bold">شروع</span><input type="time" name="start_time" value="{{ old('start_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="start_time"/></label>
-                        <label class="grid gap-1"><span class="text-xs font-bold">پایان</span><input type="time" name="end_time" value="{{ old('end_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="end_time"/></label>
+                        <label class="grid gap-1"><span class="text-xs font-bold">شروع · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="start_time" value="{{ old('start_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="start_time"/></label>
+                        <label class="grid gap-1"><span class="text-xs font-bold">پایان · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="end_time" value="{{ old('end_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="end_time"/></label>
                         <label class="grid gap-1"><span class="text-xs font-bold">اتاق / عنوان <small class="font-normal text-slate-400">اختیاری</small></span><input name="room" value="{{ old('room') }}" maxlength="255" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="مثلاً کلاس ۳"><x-owner.field-error field="room"/></label>
                         <label class="grid gap-1">
                             <span class="text-xs font-bold">سرویس</span>
