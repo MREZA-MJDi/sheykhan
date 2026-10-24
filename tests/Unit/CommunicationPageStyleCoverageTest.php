@@ -19,7 +19,7 @@ class CommunicationPageStyleCoverageTest extends TestCase
         foreach ([
             'resources/css/teacher.css',
             'resources/css/parent.css',
-            'resources/css/owner.css',
+            'resources/css/admin.css',
         ] as $stylesheet) {
             $this->assertStringContainsString("@import './communication-pages.css';", $this->source($stylesheet), $stylesheet);
         }
