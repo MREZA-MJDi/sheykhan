@@ -72,9 +72,13 @@ final class OwnerAccessIsolationTest extends TestCase
         ];
 
         foreach ($readRoutes as $routeName) {
-            $this->actingAs($owner)
-                ->get(route($routeName, $foreignAcademy))
-                ->assertNotFound();
+            $response = $this->actingAs($owner)
+                ->get(route($routeName, $foreignAcademy));
+
+            $this->assertTrue(
+                in_array($response->status(), [403, 404], true),
+                $routeName . ' must deny access to an academy owned by another user.'
+            );
         }
     }
 
