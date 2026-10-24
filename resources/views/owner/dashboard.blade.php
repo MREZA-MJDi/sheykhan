@@ -146,7 +146,6 @@
                 @endif
             </section>
         @endif
-        </section>
 
         {{-- Permission-aware shortcuts: each link follows its destination GET permission. --}}
         @if($canViewAcademy || $canViewAttendance || $canViewMeetings || $canViewAssignments || $canManageContent || $canViewProducts || $canViewMessages || $canViewExams || $canViewRecordings || $canViewTeacherPayments || $canViewReports || $canViewOrders || $canViewLegalDocuments)
@@ -288,73 +287,6 @@
             @endif
         </section>
 
-        {{-- =========================================================
-            PRIMARY METRICS
-        ========================================================== --}}
-        <section class="owner-stats">
-
-            <article class="owner-stat-card">
-                <span>کلاس‌های فعال</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($metrics['classrooms'] ?? 0) }}
-                </strong>
-
-                <small>
-                    {{ \App\Support\PersianUi::digits($metrics['liveNow'] ?? 0) }}
-                    کلاس آنلاین در حال اجرا
-                </small>
-            </article>
-
-            <article class="owner-stat-card">
-                <span>دانش‌آموز فعال</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($metrics['students'] ?? 0) }}
-                </strong>
-
-                <small>
-                    @if($attendanceRate === null)
-                        حضور امروز ثبت نشده
-                    @else
-                        حضور امروز {{ \App\Support\PersianUi::digits($attendanceRate) }}٪
-                    @endif
-                </small>
-            </article>
-
-            <article class="owner-stat-card">
-                <span>مدرس فعال</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($metrics['teachers'] ?? 0) }}
-                </strong>
-
-                <small>
-                    {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }}
-                    دوره در آموزشگاه‌ها
-                </small>
-            </article>
-
-            <article class="owner-stat-card">
-                <span>نیازمند توجه</span>
-
-                <strong>
-                    {{ \App\Support\PersianUi::digits($attentionCount) }}
-                </strong>
-
-                <small>
-                    {{ \App\Support\PersianUi::digits($metrics['pendingReviews'] ?? 0) }}
-                    بررسی ·
-                    {{ \App\Support\PersianUi::digits($metrics['capacityAlerts'] ?? 0) }}
-                    کلاس نزدیک ظرفیت ·
-                    {{ \App\Support\PersianUi::digits($metrics['classroomsWithoutTeacher'] ?? 0) }}
-                    کلاس بدون مدرس
-                </small>
-            </article>
-
-        </section>
-
-
         @if($canViewAttendance || $canViewCourses)
             <section class="owner-summary-kpis" aria-label="شاخص‌های تکمیلی">
                 @if($canViewAttendance)
@@ -374,6 +306,7 @@
             </section>
         @endif
 
+        @if($canViewAcademy)
         {{-- =========================================================
             ACADEMIES
         ========================================================== --}}
@@ -452,6 +385,9 @@
                 </div>
             @endif
         </section>
+        @endif
+
+
 
 
         {{-- =========================================================
