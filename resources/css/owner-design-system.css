@@ -40,6 +40,12 @@
     --panel-danger-soft: #fff0f1;
     --panel-danger-border: #f2cbd0;
     --panel-danger-dark: #912033;
+    --color-success-50: #effaf2;
+    --color-success-100: #c7e8d4;
+    --color-success-700: #17663d;
+    --color-danger-50: #fff0f1;
+    --color-danger-100: #f2cbd0;
+    --color-danger-600: #a51f32;
     --panel-shadow-xs: 0 2px 6px rgba(31, 52, 86, .04);
     --panel-shadow-soft: 0 8px 24px rgba(31, 52, 86, .055);
     --panel-shadow: 0 14px 34px rgba(31, 52, 86, .085);
@@ -491,7 +497,7 @@
 .owner-shell .role-main .text-amber-900 { color: #8a5200 !important; }
 
 /* Action hierarchy: primary, secondary, danger and inline actions have distinct roles. */
-.owner-shell .role-main :is(.owner-primary-btn,.course-primary-btn,.people-primary-btn,.banner-primary-btn) {
+.owner-shell .role-main :is(.owner-primary-btn,.course-primary-btn,.people-primary-btn,.banner-primary-btn,.course-action-btn.primary) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -509,7 +515,7 @@
     cursor: pointer;
     box-shadow: 0 5px 12px rgba(79,70,229,.12) !important;
 }
-.owner-shell .role-main :is(.owner-primary-btn,.course-primary-btn,.people-primary-btn,.banner-primary-btn):hover {
+.owner-shell .role-main :is(.owner-primary-btn,.course-primary-btn,.people-primary-btn,.banner-primary-btn,.course-action-btn.primary):hover {
     background: #4338ca !important;
     border-color: #4338ca !important;
     color: #fff !important;
@@ -541,11 +547,19 @@
 }
 .owner-shell .role-main button:active,
 .owner-shell .role-main a:active { transform: translateY(0); }
-.owner-shell .role-main :is(button[type="submit"],form button:not([type]),form input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([data-variant="danger"]) {
+.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not(.text-rose-600):not(.text-red-600):not([data-variant="danger"]) {
     min-height: 42px;
+    border: 1px solid #4f46e5 !important;
     border-radius: 11px;
+    background: #4f46e5 !important;
+    color: #fff !important;
     font: inherit;
     font-weight: 800;
+    cursor: pointer;
+}
+.owner-shell .role-main form :is(button[type="submit"],button:not([type]),input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not(.text-rose-600):not(.text-red-600):not([data-variant="danger"]):hover {
+    border-color: #4338ca !important;
+    background: #4338ca !important;
 }
 
 /* Feedback system: success, warning, error and neutral information. */
