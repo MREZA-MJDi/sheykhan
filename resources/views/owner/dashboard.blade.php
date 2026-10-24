@@ -31,6 +31,9 @@
         $canViewProducts = (bool) $ownerUser?->hasPermission('products.view') && (bool) $firstAcademy;
         $canViewOrders = (bool) $ownerUser?->hasPermission('orders.view') && (bool) $firstAcademy;
         $canViewLegalDocuments = (bool) $ownerUser?->hasPermission('legal.manage');
+        $canViewWebsite = $canViewAcademy;
+        $canViewContentLibrary = (bool) $ownerUser?->hasPermission('content.manage');
+        $canManageBlog = (bool) $ownerUser?->hasPermission('blog.manage');
         $canViewExams = (bool) $ownerUser?->hasPermission('exams.view') && (bool) $firstAcademy;
         $canViewTeacherPayments = (bool) $ownerUser?->hasPermission('teacher_payments.view') && (bool) $firstAcademy;
         $canViewRecordings = (bool) $ownerUser?->hasPermission('live_classes.view') && (bool) $firstAcademy;
@@ -153,12 +156,17 @@
         @endif
 
         {{-- Permission-aware shortcuts: each link follows its destination GET permission. --}}
-        @if($canViewAcademy || $canViewAttendance || $canViewMeetings || $canViewAssignments || $canManageContent || $canViewProducts || $canViewMessages || $canViewExams || $canViewRecordings || $canViewTeacherPayments || $canViewReports || $canViewOrders || $canViewLegalDocuments)
+        @if($canViewAcademy || $canViewAttendance || $canViewMeetings || $canViewAssignments || $canManageContent || $canViewProducts || $canViewMessages || $canViewExams || $canViewRecordings || $canViewTeacherPayments || $canViewReports || $canViewOrders || $canViewLegalDocuments || $canViewCourses || $canViewFinance || $canViewWebsite || $canViewContentLibrary || $canManageBlog)
             <section aria-labelledby="owner-quick-actions-title" class="owner-quick-actions">
                 <h2 id="owner-quick-actions-title" class="sr-only">دسترسی سریع کارتابل</h2>
                 @if($canOpenPeople)
                     <a href="{{ $ownerAcademyHref('owner.people.index') }}" class="dashboard-panel owner-quick-action">
                         <span><strong>ثبت‌نام و مدیریت اعضا</strong><small>دانش‌آموز، ولی و مدرس</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewCourses)
+                    <a href="{{ route('owner.courses.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>مدیریت دوره‌ها</strong><small>دوره‌های آموزشی و وضعیت انتشار</small></span><span aria-hidden="true">←</span>
                     </a>
                 @endif
                 @if($canViewAttendance)
@@ -228,6 +236,26 @@
                 @if($canViewLegalDocuments)
                     <a href="{{ route('owner.legal-documents.index') }}" class="dashboard-panel owner-quick-action">
                         <span><strong>اسناد حقوقی و کپی‌رایت</strong><small>مستندات و ثبت اسناد</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewFinance)
+                    <a href="{{ route('owner.finance.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>دفتر مالی آموزشگاه</strong><small>دریافت‌ها، بازپرداخت و تراکنش‌های قطعی</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewWebsite)
+                    <a href="{{ route('owner.website.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>مرکز کنترل سایت</strong><small>نمایش عمومی، بنرها و محتوای صفحهٔ اصلی</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canViewContentLibrary)
+                    <a href="{{ route('owner.content.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>مدیریت محتوای سایت</strong><small>مقاله‌ها و محتوای آموزشی آموزشگاه</small></span><span aria-hidden="true">←</span>
+                    </a>
+                @endif
+                @if($canManageBlog)
+                    <a href="{{ route('owner.blog.index') }}" class="dashboard-panel owner-quick-action">
+                        <span><strong>مجله و مقالات</strong><small>پیش‌نویس‌ها و انتشار مقالات</small></span><span aria-hidden="true">←</span>
                     </a>
                 @endif
             </section>
