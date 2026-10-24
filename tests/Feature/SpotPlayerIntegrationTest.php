@@ -40,7 +40,7 @@ final class SpotPlayerIntegrationTest extends TestCase
             ->post(route('student.courses.spotplayer-license', $course))
             ->assertRedirect(route('student.courses.show', $course));
 
-        $this->assertDatabaseCount('spotplayer_licenses', 1);
+        $this->assertDatabaseCount('spot_player_licenses', 1);
 
         $license = SpotPlayerLicense::query()
             ->where('student_id', $student->id)
@@ -61,7 +61,7 @@ final class SpotPlayerIntegrationTest extends TestCase
             ->post(route('student.courses.spotplayer-license', $course))
             ->assertRedirect(route('student.courses.show', $course));
 
-        $this->assertDatabaseCount('spotplayer_licenses', 1);
+        $this->assertDatabaseCount('spot_player_licenses', 1);
         Http::assertSentCount(1);
         Http::assertSent(fn ($request): bool =>
             $request->url() === 'https://panel.spotplayer.ir/license/edit/'
@@ -92,7 +92,7 @@ final class SpotPlayerIntegrationTest extends TestCase
             ->post(route('student.courses.spotplayer-license', $course))
             ->assertNotFound();
 
-        $this->assertDatabaseCount('spotplayer_licenses', 0);
+        $this->assertDatabaseCount('spot_player_licenses', 0);
         Http::assertNothingSent();
     }
 
@@ -118,6 +118,6 @@ final class SpotPlayerIntegrationTest extends TestCase
             ->assertRedirect(route('student.courses.show', $course))
             ->assertSessionHasErrors('spotplayer');
 
-        $this->assertDatabaseCount('spotplayer_licenses', 0);
+        $this->assertDatabaseCount('spot_player_licenses', 0);
     }
 }

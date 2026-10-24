@@ -58,27 +58,58 @@ final class CounselingRequestController extends Controller
     {
         return CounselingRequest::query()
             ->whereHas('academy', fn (Builder $academy) => $academy->where('academies.status', 'active'))
-            ->whereHas('student.parents', fn (Builder $parents) => $parents
-                ->whereColumn('users.id', 'counseling_requests.parent_id'))
-            ->where(function (Builder $scope) use ($teacher): void {
-                $scope->whereHas('student.classroomsAsStudent', fn (Builder $classrooms) => $classrooms
-                    ->where('classrooms.status', 'active')
-                    ->where('classroom_student.status', 'active')
-                    ->whereColumn('classrooms.academy_id', 'counseling_requests.academy_id')
-                    ->whereHas('teachers', fn (Builder $teachers) => $teachers->whereKey($teacher->id))
-                    ->whereHas('course.academy.users', fn (Builder $memberships) => $memberships
-                        ->whereKey($teacher->id)
-                        ->where('academy_user.role', 'teacher')
-                        ->where('academy_user.status', 'active')))
-                ->orWhereHas('student.enrollments', fn (Builder $enrollments) => $enrollments
-                    ->where('course_enrollments.status', 'active')
-                    ->whereHas('course', fn (Builder $courses) => $courses
+            ->whereExists(function ($parentLink): void {
+                $parentLink->selectRaw('1')
+                    ->from('parent_student as parent_links')
+                    ->whereColumn('parent_links.student_id', 'counseling_requests.student_id')
+                    ->whereColumn('parent_links.parent_id', 'counseling_requests.parent_id');
+            })
+            ->where(function ($scope) use ($teacher): void {
+                $scope->whereExists(function ($classroomScope) use ($teacher): void {
+                    $classroomScope->selectRaw('1')
+                        ->from('classroom_student as student_membership')
+                        ->join('classrooms', 'classrooms.id', '=', 'student_membership.classroom_id')
+                        ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'classrooms.id')
+                        ->join('academy_user as teacher_membership', function ($join): void {
+                            $join->on('teacher_membership.user_id', '=', 'teaching_assignment.teacher_id')
+                                ->on('teacher_membership.academy_id', '=', 'classrooms.academy_id')
+                                ->where('teacher_membership.role', '=', 'teacher')
+                                ->where('teacher_membership.status', '=', 'active');
+                        })
+                        ->join('academy_user as student_academy_membership', function ($join): void {
+                            $join->on('student_academy_membership.user_id', '=', 'student_membership.student_id')
+                                ->on('student_academy_membership.academy_id', '=', 'classrooms.academy_id')
+                                ->where('student_academy_membership.role', '=', 'student')
+                                ->where('student_academy_membership.status', '=', 'active');
+                        })
+                        ->whereColumn('student_membership.student_id', 'counseling_requests.student_id')
+                        ->whereColumn('classrooms.academy_id', 'counseling_requests.academy_id')
+                        ->where('classrooms.status', 'active')
+                        ->where('student_membership.status', 'active')
+                        ->where('teaching_assignment.teacher_id', $teacher->id);
+                })->orWhereExists(function ($courseScope) use ($teacher): void {
+                    $courseScope->selectRaw('1')
+                        ->from('course_enrollments as enrollments')
+                        ->join('courses', 'courses.id', '=', 'enrollments.course_id')
+                        ->join('course_teacher as teaching_assignment', 'teaching_assignment.course_id', '=', 'courses.id')
+                        ->join('academies', 'academies.id', '=', 'courses.academy_id')
+                        ->join('academy_user as teacher_membership', function ($join): void {
+                            $join->on('teacher_membership.user_id', '=', 'teaching_assignment.teacher_id')
+                                ->on('teacher_membership.academy_id', '=', 'courses.academy_id')
+                                ->where('teacher_membership.role', '=', 'teacher')
+                                ->where('teacher_membership.status', '=', 'active');
+                        })
+                        ->join('academy_user as student_membership', function ($join): void {
+                            $join->on('student_membership.user_id', '=', 'enrollments.student_id')
+                                ->on('student_membership.academy_id', '=', 'courses.academy_id')
+                                ->where('student_membership.role', '=', 'student')
+                                ->where('student_membership.status', '=', 'active');
+                        })
+                        ->whereColumn('enrollments.student_id', 'counseling_requests.student_id')
                         ->whereColumn('courses.academy_id', 'counseling_requests.academy_id')
-                        ->whereHas('teachers', fn (Builder $teachers) => $teachers->whereKey($teacher->id))
-                        ->whereHas('academy.users', fn (Builder $memberships) => $memberships
-                            ->whereKey($teacher->id)
-                            ->where('academy_user.role', 'teacher')
-                            ->where('academy_user.status', 'active'))));
+                        ->where('enrollments.status', 'active')
+                        ->where('academies.status', 'active')
+                        ->where('teaching_assignment.teacher_id', $teacher->id);
+                });
             });
-    }
-}
+    }}

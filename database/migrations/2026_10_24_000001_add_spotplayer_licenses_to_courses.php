@@ -12,7 +12,7 @@ return new class extends Migration
             $table->string('spotplayer_course_id', 120)->nullable()->after('slug');
         });
 
-        Schema::create('spotplayer_licenses', function (Blueprint $table): void {
+        Schema::create('spot_player_licenses', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('course_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
@@ -29,7 +29,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('spotplayer_licenses');
+        Schema::dropIfExists('spot_player_licenses');
 
         Schema::table('courses', function (Blueprint $table): void {
             $table->dropColumn('spotplayer_course_id');
