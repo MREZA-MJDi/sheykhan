@@ -70,7 +70,7 @@
                     window.clearInterval(interval);
                     if (!submitted && form) {
                         submitted = true;
-                        const submitButton = form.querySelector('[type="submit"]');
+                        const submitButton = form.querySelector('[type="submit"], [data-mark-complete]');
                         if (typeof form.requestSubmit === 'function') {
                             if (submitButton) form.requestSubmit(submitButton);
                             else form.requestSubmit();
