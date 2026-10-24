@@ -44,30 +44,35 @@
                             </option>
                         @endforeach
                     </select>
+                    <small class="owner-field-help">مخاطب از ارتباط‌های فعال همین آموزشگاه انتخاب می‌شود تا جلسه برای افراد درست ثبت شود.</small>
                     <x-owner.field-error field="meeting_target"/>
                 </label>
 
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">عنوان جلسه</span>
                     <input name="title" value="{{ old('title') }}" placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده" required maxlength="255" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <small class="owner-field-help">موضوع جلسه را واضح بنویس تا در برنامهٔ دانش‌آموز و ولی قابل تشخیص باشد.</small>
                     <x-owner.field-error field="title"/>
                 </label>
 
                 <label class="grid gap-1">
                     <span class="text-xs font-bold">زمان شروع</span>
                     <input type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <small class="owner-field-help">زمان شروع را دقیق انتخاب کن؛ این زمان برای هر دو مخاطب نمایش داده می‌شود.</small>
                     <x-owner.field-error field="scheduled_at"/>
                 </label>
 
                 <label class="grid gap-1">
                     <span class="text-xs font-bold">زمان پایان <span class="font-normal text-slate-400">(اختیاری)</span></span>
                     <input type="datetime-local" name="scheduled_end_at" value="{{ old('scheduled_end_at') }}" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <small class="owner-field-help">پایان اختیاری است؛ اگر وارد شود باید بعد از شروع جلسه باشد.</small>
                     <x-owner.field-error field="scheduled_end_at"/>
                 </label>
 
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">پیام برای دانش‌آموز و ولی <span class="font-normal text-slate-400">(اختیاری)</span></span>
                     <textarea name="message" rows="3" maxlength="1500" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="موضوع جلسه، توضیح لازم یا آمادگی موردنیاز...">{{ old('message') }}</textarea>
+                    <small class="owner-field-help">موضوع و آمادگی لازم را بنویس؛ این پیام برای دانش‌آموز و ولی ارسال می‌شود.</small>
                     <x-owner.field-error field="message"/>
                 </label>
 
