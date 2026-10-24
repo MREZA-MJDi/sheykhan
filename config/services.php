@@ -47,4 +47,12 @@ return [
         'binary' => env('PDF_WATERMARK_BINARY', 'gs'),
     ],
 
+    // SpotPlayer DRM: keep provider credentials server-side only.
+    'spotplayer' => [
+        'api_key' => env('SPOTPLAYER_API_KEY'),
+        'mode' => env('SPOTPLAYER_MODE', 'test'),
+        'max_active_devices' => (int) env('SPOTPLAYER_MAX_ACTIVE_DEVICES', 1),
+        'web_app_devices' => (int) env('SPOTPLAYER_WEB_APP_DEVICES', 1),
+    ],
+
 ];
