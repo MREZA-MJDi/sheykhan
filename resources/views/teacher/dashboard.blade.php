@@ -226,18 +226,17 @@
                                 @php
                                     $sessionStatus = (string) ($session['status'] ?? 'برنامه‌ریزی‌شده');
                                     $sessionTone = $sessionStatus === 'در حال برگزاری' ? 'er' : ($sessionStatus === 'پایان یافته' ? 'mu' : 'sk');
-                                    $canJoinSession = !empty($session['can_join']) && filled($session['meeting_url'] ?? null);
                                 @endphp
-                                @if($canJoinSession)
+                                @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))
                                     <a class="ls {{ $sessionTone }}" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer" data-dashboard-searchable>
                                 @else
                                     <div class="ls {{ $sessionTone }}" data-dashboard-searchable>
                                 @endif
-                                    @if($canJoinSession)<span class="jn">ورود ↗</span>@endif
+                                    @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))<span class="jn">ورود ↗</span>@endif
                                     <b>{{ $session['title'] ?? 'جلسه آموزشی' }}</b>
                                     <small>{{ $session['time'] ?? '—' }} · {{ $session['meta'] ?? '' }}</small>
                                     <small>{{ $sessionStatus }}</small>
-                                @if($canJoinSession)</a>@else</div>@endif
+                                @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))</a>@else</div>@endif
                             @empty
                                 <div class="empty-state">برای امروز جلسه‌ای در برنامه ثبت نشده است.</div>
                             @endforelse

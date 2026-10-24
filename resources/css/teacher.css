@@ -1,3 +1,5 @@
+@import './communication-pages.css';
+
 /* Teacher UI — consolidated ZIP design system. Single stylesheet; no dashboard duplicate. */
 
 /* ZIP 00-tokens — سرمه‌ای */
@@ -354,3 +356,17 @@ th{font-weight:600}td{padding:12px}
 /* Keep the shared role-main hooks for existing teacher page contracts without double padding. */
 .teacher-shell .mn>.workspace-content.role-main{padding:0!important;margin:0;min-width:0}
 .teacher-shell .workspace-content.role-main>*{min-width:0}
+
+
+/* Role scope is explicit for shared-shell and dashboard integrations. */
+.teacher-shell{color:var(--tx);background:var(--bg);min-height:100vh}
+
+/* Semantic answer feedback remains visible after stylesheet consolidation. */
+.teacher-exam-answer-value.is-correct{
+    color:var(--ok);border-color:color-mix(in srgb,var(--ok) 42%,var(--bd));
+    background:color-mix(in srgb,var(--ok) 12%,var(--sf))
+}
+.teacher-exam-answer-value.is-wrong{
+    color:var(--er);border-color:color-mix(in srgb,var(--er) 42%,var(--bd));
+    background:color-mix(in srgb,var(--er) 12%,var(--sf))
+}
