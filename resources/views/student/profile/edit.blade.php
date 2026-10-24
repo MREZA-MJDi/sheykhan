@@ -4,6 +4,11 @@
 @section('header-title', 'حساب کاربری')
 
 @section('content')
+@php
+    $avatarUrl = $avatar?->visibility === 'public'
+        ? $avatar->url()
+        : ($avatar ? route('media.view', $avatar) : null);
+@endphp
 <section class="page" id="profile">
     <form class="card" method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data">
         @csrf
@@ -11,8 +16,8 @@
         <div class="chead"><h2>اطلاعات حساب</h2></div>
         <div class="avu">
             <div class="avp" data-avatar-preview>
-                @if($avatar && $avatar->url())
-                    <img data-avatar-image src="{{ $avatar->url() }}" alt="تصویر پروفایل فعلی" width="100" height="100" loading="eager" decoding="async">
+                @if($avatarUrl)
+                    <img data-avatar-image src="{{ $avatarUrl }}" alt="تصویر پروفایل فعلی" width="100" height="100" loading="eager" decoding="async">
                     <svg data-avatar-fallback hidden viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
                 @else
                     <svg data-avatar-fallback viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
