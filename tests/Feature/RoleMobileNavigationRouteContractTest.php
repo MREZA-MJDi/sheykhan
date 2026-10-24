@@ -41,6 +41,26 @@ class RoleMobileNavigationRouteContractTest extends TestCase
         );
     }
 
+    public function test_owner_desktop_sidebar_exposes_scoped_content_commerce_and_legal_routes(): void
+    {
+        $sidebar = file_get_contents(resource_path('views/components/navigation/owner-sidebar.blade.php'));
+        $this->assertIsString($sidebar);
+
+        foreach ([
+            "route('owner.resources.index', $academy)",
+            "route('owner.showcase.index', $academy)",
+            "route('owner.products.index', $academy)",
+            "route('owner.orders.index', $academy)",
+            "route('owner.legal-documents.index')",
+        ] as $destination) {
+            $this->assertStringContainsString($destination, $sidebar, 'Desktop owner sidebar missing ' . $destination);
+        }
+
+        foreach (["content.manage", "products.view", "orders.view", "legal.manage"] as $permission) {
+            $this->assertStringContainsString("hasPermission('" . $permission . "')", $sidebar);
+        }
+    }
+
     public function test_every_declared_mobile_navigation_item_points_to_a_registered_route(): void
     {
         $path = resource_path('views/components/navigation/role-mobile-nav.blade.php');
@@ -59,5 +79,16 @@ class RoleMobileNavigationRouteContractTest extends TestCase
             $missing,
             'Mobile navigation routes must exist instead of silently disappearing from the menu: ' . implode(', ', $missing),
         );
+
+        foreach ([
+            'owner.resources.index',
+            'owner.showcase.index',
+            'owner.products.index',
+            'owner.orders.index',
+            'owner.legal-documents.index',
+            'owner.reports.index',
+        ] as $ownerRoute) {
+            $this->assertContains($ownerRoute, $routes, 'The owner mobile navigation must expose ' . $ownerRoute);
+        }
     }
 }
