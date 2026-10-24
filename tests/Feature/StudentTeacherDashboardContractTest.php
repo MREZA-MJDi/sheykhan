@@ -123,6 +123,96 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee($student->name, false);
     }
 
+
+    public function test_teacher_dashboard_hero_uses_the_saved_teacher_avatar(): void
+    {
+        $this->seed();
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $profile = \App\Models\TeacherProfile::query()->firstOrCreate(
+            ['user_id' => $teacher->id],
+            ['is_verified' => true, 'is_public' => true],
+        );
+        $profile->forceFill(['is_public' => true])->save();
+
+        $path = 'teachers/' . $teacher->id . '/teacher-avatar.webp';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'teacher-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
+            'uploaded_by' => $teacher->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'teacher-avatar.webp',
+            'file_name' => 'teacher-avatar.webp',
+            'mime_type' => 'image/webp',
+            'extension' => 'webp',
+            'size' => 22,
+            'checksum' => hash('sha256', 'teacher-avatar-fixture'),
+            'visibility' => 'public',
+            'collection' => 'teacher-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $profile->media()->wherePivot('collection', 'teacher-avatar')->get()->each(
+            fn ($old) => $profile->media()->detach($old->id)
+        );
+        $profile->media()->attach($media->id, [
+            'collection' => 'teacher-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee('class="teacher-dashboard-avatar"', false)
+            ->assertSee('data-avatar-image', false)
+            ->assertSee(route('media.public', $media), false)
+            ->assertSee('تصویر پروفایل سمیه احمدی', false);
+    }
+
+    public function test_student_dashboard_hero_uses_saved_avatar_and_never_displays_the_demo_person_when_missing(): void
+    {
+        $this->seed();
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $profile = \App\Models\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+        $path = 'students/' . $student->id . '/student-avatar.webp';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'student-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
+            'uploaded_by' => $student->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'student-avatar.webp',
+            'file_name' => 'student-avatar.webp',
+            'mime_type' => 'image/webp',
+            'extension' => 'webp',
+            'size' => 22,
+            'checksum' => hash('sha256', 'student-avatar-fixture'),
+            'visibility' => 'public',
+            'collection' => 'student-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $profile->media()->wherePivot('collection', 'student-avatar')->get()->each(
+            fn ($old) => $profile->media()->detach($old->id)
+        );
+        $profile->media()->attach($media->id, [
+            'collection' => 'student-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('class="hero"', false)
+            ->assertSee(route('media.public', $media), false)
+            ->assertSee('تصویر پروفایل ' . $student->name, false)
+            ->assertDontSee('<use href="#avatar"/>', false);
+    }
+
     public function test_teacher_dashboard_hides_workflows_without_view_permissions(): void
     {
         $this->seed();

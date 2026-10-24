@@ -5,9 +5,17 @@
 @section('content')
     @php
         $teacherUser = auth()->user();
-        // Keep direct Blade renders (e.g. feature tests) safe when the shared layout has not set the avatar URL.
-        $teacherPanelAvatarUrl = $teacherPanelAvatarUrl ?? null;
-        $teacherInitial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1);
+        // Section content is rendered independently of layout-local variables, so load the real profile photo here.
+        $teacherUser?->loadMissing([
+            'teacherProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'teacher-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+        $teacherAvatarMedia = $teacherUser?->teacherProfile?->media?->first();
+        $teacherPanelAvatarUrl = $teacherAvatarMedia?->visibility === 'public'
+            ? $teacherAvatarMedia->url()
+            : ($teacherAvatarMedia ? route('media.view', $teacherAvatarMedia) : null);
+        $teacherInitial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1) ?: 'م';
         $dashboardMetrics = $metrics ?? [];
         $pendingAssignmentReviews = max(0, (int) ($dashboardMetrics['pendingAssignmentReviews'] ?? 0));
         $pendingExamReviews = max(0, (int) ($dashboardMetrics['pendingExamReviews'] ?? 0));
@@ -88,7 +96,8 @@
         <header class="ph teacher-dashboard-hero">
             <div class="teacher-dashboard-avatar" aria-hidden="true">
                     @if($teacherPanelAvatarUrl)
-                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="104" height="104" loading="eager" decoding="async">
+                        <img data-avatar-image src="{{ $teacherPanelAvatarUrl }}" alt="تصویر پروفایل {{ $teacherUser?->name }}" width="104" height="104" loading="eager" decoding="async">
+                        <span data-avatar-fallback hidden>{{ $teacherInitial }}</span>
                     @else
                         <span>{{ $teacherInitial }}</span>
                     @endif
