@@ -20,8 +20,33 @@
         <div class="teacher-workspace-alert success">{{ session('success') }}</div>
     @endif
 
+    <form method="GET" action="{{ route('teacher.classrooms.index') }}" class="teacher-workspace-filters" role="search" aria-label="جست‌وجو و فیلتر کلاس‌ها">
+        <label class="teacher-workspace-filter-search">
+            <span>جست‌وجوی کلاس</span>
+            <input type="search" name="q" value="{{ request('q') }}" placeholder="نام کلاس، کد یا دوره…" autocomplete="off">
+        </label>
+        <label>
+            <span>وضعیت کلاس</span>
+            <select name="status">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="active" @selected(request('status') === 'active')>فعال</option>
+                <option value="archived" @selected(request('status') === 'archived')>آرشیو</option>
+            </select>
+        </label>
+        <div class="teacher-workspace-filter-actions">
+            <button type="submit" class="teacher-workspace-btn primary">جست‌وجو</button>
+            @if(request()->query())
+                <a href="{{ route('teacher.classrooms.index') }}" class="teacher-workspace-btn secondary">پاک‌کردن</a>
+            @endif
+        </div>
+        <p role="status" aria-live="polite">
+            نمایش {{ \App\Support\PersianUi::digits($classrooms->firstItem() ?? 0) }} تا {{ \App\Support\PersianUi::digits($classrooms->lastItem() ?? 0) }}
+            از {{ \App\Support\PersianUi::digits($classrooms->total()) }} نتیجه
+        </p>
+    </form>
+
     <section class="teacher-workspace-stats">
-        <div class="teacher-workspace-stat"><small>کلاس‌های فعال</small><strong>{{ App\Support\PersianUi::digits($classrooms->total()) }}</strong><span>تحت مدیریت شما</span></div>
+        <div class="teacher-workspace-stat"><small>نتایج فهرست</small><strong>{{ App\Support\PersianUi::digits($classrooms->total()) }}</strong><span>با فیلترهای انتخاب‌شده</span></div>
         <div class="teacher-workspace-stat"><small>در این صفحه</small><strong>{{ App\Support\PersianUi::digits($classrooms->count()) }}</strong><span>کلاس نمایش‌داده‌شده</span></div>
         <div class="teacher-workspace-stat"><small>دانش‌آموز فعال</small><strong>{{ App\Support\PersianUi::digits($classrooms->getCollection()->sum('active_students_count')) }}</strong><span>در کلاس‌های این صفحه</span></div>
         <div class="teacher-workspace-stat"><small>زمان‌های هفتگی</small><strong>{{ App\Support\PersianUi::digits($classrooms->getCollection()->sum('schedules_count')) }}</strong><span>برنامه ثبت‌شده</span></div>
