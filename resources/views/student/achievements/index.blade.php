@@ -17,11 +17,9 @@
                     @if($achievement->published_at)
                         <p>{{ \App\Support\PersianUi::date($achievement->published_at) }}</p>
                     @endif
-                    @foreach($achievement->media as $media)
-                        @if($media->url())
-                            <a class="btn s" href="{{ $media->url() }}" target="_blank" rel="noopener">مشاهده گواهی</a>
-                        @endif
-                    @endforeach
+                    @if($achievement->media?->url())
+                        <a class="btn s" href="{{ $achievement->media->url() }}" target="_blank" rel="noopener">مشاهده گواهی</a>
+                    @endif
                 </article>
             @empty
                 <div class="empty" style="grid-column:1/-1">هنوز دستاورد منتشرشده‌ای برای حساب تو ثبت نشده است.</div>
