@@ -24,6 +24,7 @@ class StudentDashboardBackendContractTest extends TestCase
         $payload = app(StudentDashboardService::class)->build($student);
 
         $this->assertArrayHasKey('courses', $payload);
+        $this->assertArrayHasKey('studentAvatarUrl', $payload);
         $this->assertArrayHasKey('resources', $payload);
         $this->assertArrayHasKey('recentResults', $payload);
         $this->assertArrayHasKey('pendingAssignments', $payload);
@@ -37,6 +38,11 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertArrayHasKey('achievements', $payload);
         $this->assertArrayHasKey('achievementCount', $payload);
         $this->assertCount(7, $payload['studyWeek']);
+        $this->assertCount(7, collect($payload['studyWeek'])->filter(
+            fn (array $day) => array_key_exists('minutes', $day)
+        ));
+        $this->assertIsNumeric($payload['overallProgress']);
+        $this->assertTrue($payload['resources']->count() <= 4);
 
         $course = $payload['courses']->firstWhere('slug', 'math-foundation-7');
 
