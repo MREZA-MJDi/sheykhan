@@ -59,7 +59,12 @@
                     <strong>{{ $product->title }}</strong>
                     <p class="mt-1 text-xs text-slate-500">{{ $product->category?->name }} · {{ \App\Support\PersianUi::moneyInCurrency($product->sale_price ?? $product->price, $product->currency) }} · {{ $product->status }}</p>
                     <p class="mt-1 text-xs text-slate-500">PDF: {{ $product->files->where('is_preview', false)->count() ? 'ثبت شده' : 'ثبت نشده' }} · فایل اصلی خصوصی</p>
-                    <a class="mt-2 inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('store.product.show', $product) }}" target="_blank" rel="noopener noreferrer">مشاهده صفحه محصول ←</a>
+                    <div class="mt-2 flex flex-wrap gap-3">
+                        <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.products.edit', [$academy, $product]) }}">ویرایش محصول و فایل‌ها</a>
+                        @if($product->status === 'published')
+                            <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('store.product.show', $product) }}" target="_blank" rel="noopener noreferrer">مشاهده صفحه عمومی ←</a>
+                        @endif
+                    </div>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     @if($product->status !== 'published')
