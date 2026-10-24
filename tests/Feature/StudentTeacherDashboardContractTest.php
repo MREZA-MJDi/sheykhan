@@ -57,7 +57,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertDontSee('td-dashboard', false);
     }
 
-    public function test_teacher_dashboard_student_count_excludes_inactive_accounts(): void
+    public function test_teacher_dashboard_excludes_inactive_accounts_from_roster_and_course_counts(): void
     {
         $this->seed();
 
@@ -71,21 +71,36 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->whereIn('classrooms.academy_id', $activeAcademyIds)
             ->where('classrooms.status', 'active')
             ->pluck('classrooms.id');
+        $courseIds = $teacher->taughtCourses()
+            ->whereIn('courses.academy_id', $activeAcademyIds)
+            ->pluck('courses.id');
 
         $student = User::query()
             ->where('status', 'active')
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active'))
+            ->whereHas('enrollments', fn ($query) => $query
+                ->whereIn('classroom_id', $classroomIds)
+                ->whereIn('course_id', $courseIds)
+                ->where('status', 'active'))
             ->firstOrFail();
 
         $service = app(TeacherDashboardService::class);
-        $before = $service->build($teacher)['metrics']['studentCount'];
-        $this->assertGreaterThan(0, $before);
+        $before = $service->build($teacher);
+        $beforeRosterCount = $before['metrics']['studentCount'];
+        $beforeCourseRosterCount = collect($before['courseProgress'])->sum('student_count');
+        $this->assertGreaterThan(0, $beforeRosterCount);
+        $this->assertGreaterThan(0, $beforeCourseRosterCount);
 
         $student->forceFill(['status' => 'inactive'])->save();
 
-        $this->assertSame($before - 1, $service->build($teacher)['metrics']['studentCount']);
+        $after = $service->build($teacher);
+        $this->assertSame($beforeRosterCount - 1, $after['metrics']['studentCount']);
+        $this->assertLessThan(
+            $beforeCourseRosterCount,
+            collect($after['courseProgress'])->sum('student_count'),
+        );
     }
 
     public function test_student_and_teacher_dashboard_assets_are_isolated_from_shared_teacher_assets(): void
