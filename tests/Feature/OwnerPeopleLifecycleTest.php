@@ -177,7 +177,7 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
             ->assertOk()
-            ->assertSee(\\App\\Support\\PersianUi::money($course->fresh()->price))
+            ->assertSee(\App\Support\PersianUi::money($course->fresh()->price))
             ->assertDontSee('قیمت تعیین نشده')
             ->assertSee('ساخت حساب مدرس')
             ->assertSee('ساخت حساب والد و اتصال به دانش‌آموز');
