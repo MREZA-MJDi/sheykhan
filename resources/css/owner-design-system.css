@@ -520,7 +520,7 @@
     border-color: #4338ca !important;
     color: #fff !important;
 }
-.owner-shell .role-main :is(.owner-secondary-btn,.course-secondary-btn,.course-action-btn,.owner-workspace-btn.secondary) {
+.owner-shell .role-main :is(.owner-secondary-btn,.course-secondary-btn,.course-action-btn:not(.primary),.owner-workspace-btn.secondary) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
