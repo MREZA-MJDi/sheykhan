@@ -70,7 +70,7 @@
                     window.clearInterval(interval);
                     if (!submitted && form) {
                         submitted = true;
-                        const submitButton = form.querySelector('[type="submit"], [data-mark-complete]');
+                        const submitButton = form.querySelector('[type="submit"]');
                         if (typeof form.requestSubmit === 'function') {
                             if (submitButton) form.requestSubmit(submitButton);
                             else form.requestSubmit();
@@ -102,7 +102,7 @@
         document.querySelectorAll('[data-progress-form]').forEach((form) => {
             form.addEventListener('submit', async (event) => {
                 event.preventDefault();
-                const submitButton = form.querySelector('[type="submit"]');
+                const submitButton = form.querySelector('[type="submit"], [data-mark-complete]');
                 const feedback = form.querySelector('[data-progress-feedback]');
                 if (submitButton) submitButton.disabled = true;
                 if (feedback) feedback.textContent = 'در حال ذخیره…';
