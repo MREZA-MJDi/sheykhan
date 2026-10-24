@@ -33,7 +33,9 @@ class StudentPortalUiContractTest extends TestCase
                 ->get(route($route))
                 ->assertOk()
                 ->assertSee('student-shell', false)
-                ->assertSee('class="app"', false);
+                ->assertSee('class="app"', false)
+                ->assertSee('role-mobile-bottom-nav', false)
+                ->assertSee('student-profile-modal', false);
         }
     }
 
