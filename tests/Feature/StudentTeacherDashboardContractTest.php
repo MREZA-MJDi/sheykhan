@@ -200,6 +200,15 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('.k6', $teacherCss);
         $this->assertStringContainsString('@media (max-width:980px)', $teacherCss);
         $this->assertStringContainsString("import './teacher/app.js';", $teacherJs);
+        $this->assertStringNotContainsString("import '../css/app.css';", $appJs);
+        $this->assertStringNotContainsString("import '../css/student.css';", $studentJs);
+        $this->assertStringNotContainsString("import '../css/teacher.css';", $teacherJs);
+        foreach ([
+            'resources/css/app.css', 'resources/css/home.css', 'resources/css/student.css',
+            'resources/css/teacher.css', 'resources/css/admin.css', 'resources/css/parent.css',
+        ] as $entry) {
+            $this->assertSame(1, substr_count($vite, $entry), $entry . ' must be registered once in Vite.');
+        }
         $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $teacherJs);
         $this->assertStringContainsString('Validate Esfand 30', $teacherJs);
         $this->assertStringContainsString('data-dashboard-chart', $teacherAdapter);
