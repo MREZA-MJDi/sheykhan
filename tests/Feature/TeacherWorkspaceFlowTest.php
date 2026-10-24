@@ -903,6 +903,12 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->assertNotNull($session, 'A currently running session should appear in the dashboard list.');
         $this->assertTrue($session->can_join);
 
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee('teacher-live-join', false)
+            ->assertSee($live->meeting_url, false);
+
         $live->update(['meeting_url' => 'javascript:alert(1)']);
         $payload = app(\App\Services\TeacherDashboardService::class)->build($teacher);
         $session = $payload['upcomingClasses']->firstWhere('id', $live->id);
