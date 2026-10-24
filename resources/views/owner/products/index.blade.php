@@ -14,19 +14,19 @@
         @csrf
         <section class="owner-form-section space-y-4">
             <h2>محصول جدید</h2>
-            <label><span>عنوان محصول</span><input name="title" value="{{ old('title') }}" required maxlength="255"></label>
-            <label><span>نامک (اختیاری)</span><input name="slug" value="{{ old('slug') }}" maxlength="255" placeholder="از عنوان ساخته می‌شود"></label>
-            <label><span>زیرعنوان</span><input name="subtitle" value="{{ old('subtitle') }}" maxlength="255"></label>
-            <label><span>شرح محصول</span><textarea name="description" rows="5" maxlength="12000">{{ old('description') }}</textarea></label>
+            <label><span>عنوان محصول</span><input name="title" value="{{ old('title') }}" required maxlength="255"><small class="owner-field-help">عنوانی بنویس که در کارت فروشگاه و رسید خرید به‌راحتی شناخته شود.</small></label>
+            <label><span>نامک (اختیاری)</span><input name="slug" value="{{ old('slug') }}" maxlength="255" placeholder="از عنوان ساخته می‌شود"><small class="owner-field-help">برای URL عمومی استفاده می‌شود؛ در صورت خالی بودن از عنوان ساخته می‌شود.</small></label>
+            <label><span>زیرعنوان</span><input name="subtitle" value="{{ old('subtitle') }}" maxlength="255"><small class="owner-field-help">یک جملهٔ کوتاه برای توضیح نوع یا ارزش محصول.</small></label>
+            <label><span>شرح محصول</span><textarea name="description" rows="5" maxlength="12000">{{ old('description') }}</textarea><small class="owner-field-help">محتوا، سطح مخاطب و آنچه خریدار دریافت می‌کند را توضیح بده؛ جزئیات تحویل فایل را هم روشن کن.</small></label>
             <div class="owner-form-two">
-                <label><span>گروه فروش</span><select name="category_id" required>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string)old('category_id')===(string)$category->id)>{{ $category->name }}</option>@endforeach</select></label>
-                <label><span>نوع محصول</span><select name="product_type" required><option value="book" @selected(old('product_type')==='book')>کتاب / تألیف و ترجمه</option><option value="booklet" @selected(old('product_type')==='booklet')>جزوه</option><option value="exam" @selected(old('product_type')==='exam')>آزمون</option><option value="digital" @selected(old('product_type')==='digital')>محصول دیجیتال</option><option value="file" @selected(old('product_type')==='file')>فایل آموزشی</option></select></label>
+                <label><span>گروه فروش</span><select name="category_id" required>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string)old('category_id')===(string)$category->id)>{{ $category->name }}</option>@endforeach</select><small class="owner-field-help">گروهی را انتخاب کن که مشتری انتظار دارد محصول را در آن پیدا کند.</small></label>
+                <label><span>نوع محصول</span><select name="product_type" required><option value="book" @selected(old('product_type')==='book')>کتاب / تألیف و ترجمه</option><option value="booklet" @selected(old('product_type')==='booklet')>جزوه</option><option value="exam" @selected(old('product_type')==='exam')>آزمون</option><option value="digital" @selected(old('product_type')==='digital')>محصول دیجیتال</option><option value="file" @selected(old('product_type')==='file')>فایل آموزشی</option></select><small class="owner-field-help">نوع محصول، شیوهٔ نمایش و بررسی فایل‌های لازم برای انتشار را تعیین می‌کند.</small></label>
             </div>
             <div class="owner-form-two">
-                <label><span>قیمت (ریال)</span><input type="number" name="price" data-money-input data-money-unit="ریال" min="0" max="1000000000000" step="1" value="{{ old('price', 0) }}" required></label>
-                <label><span>قیمت تخفیف (ریال، اختیاری)</span><input type="number" name="sale_price" data-money-input data-money-unit="ریال" min="0" max="1000000000000" step="1" value="{{ old('sale_price') }}"></label>
+                <label><span>قیمت (ریال)</span><input type="number" name="price" data-money-input data-money-unit="ریال" min="0" max="1000000000000" step="1" value="{{ old('price', 0) }}" required><small class="owner-field-help">مبلغ پایه را به ریال و بدون جداکننده وارد کن.</small></label>
+                <label><span>قیمت تخفیف (ریال، اختیاری)</span><input type="number" name="sale_price" data-money-input data-money-unit="ریال" min="0" max="1000000000000" step="1" value="{{ old('sale_price') }}"><small class="owner-field-help">اگر تخفیف ندارد خالی بگذار؛ مبلغ تخفیف باید از قیمت پایه بیشتر نباشد.</small></label>
             </div>
-            <label><span>نسخه فایل (مثلاً 1.0)</span><input name="version" value="{{ old('version','1.0') }}" maxlength="32"></label>
+            <label><span>نسخه فایل (مثلاً 1.0)</span><input name="version" value="{{ old('version','1.0') }}" maxlength="32"><small class="owner-field-help">برای محصولات فایل‌محور، شماره نسخه کمک می‌کند خریدار نسخهٔ دریافت‌شده را تشخیص بدهد.</small></label>
         </section>
         <aside class="owner-form-side space-y-4">
             <section class="owner-form-section space-y-4">
@@ -42,7 +42,7 @@
                     </label>
                     <span id="product-cover-feedback" class="owner-image-feedback" data-owner-cover-feedback role="status" aria-live="polite">این پیش‌نمایش مطابق نسبت تصویر کارت محصول است؛ فایل اصلی بدون تغییر ذخیره می‌شود.</span>
                 </section>
-                <label><span>PDF اصلی محصول</span><input type="file" name="pdf_file" accept="application/pdf,.pdf"><small>حداکثر ۵۰ مگابایت. در انتشار عمومی ضروری است.</small></label>
+                <label><span>PDF اصلی محصول</span><input type="file" name="pdf_file" accept="application/pdf,.pdf"><small class="owner-field-help">PDF واقعی محصول را بارگذاری کن؛ برای انتشار عمومی لازم است و حداکثر حجم ۵۰ مگابایت است.</small></label>
                 <label class="owner-check"><input type="checkbox" name="is_featured" value="1" @checked(old('is_featured'))><span>نمایش ویژه در صفحه اصلی</span></label>
                 <label class="owner-check"><input type="checkbox" name="publish" value="1" @checked(old('publish'))><span>انتشار عمومی (نیازمند PDF واقعی)</span></label>
             </section>
