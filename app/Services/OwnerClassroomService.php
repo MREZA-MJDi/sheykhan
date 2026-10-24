@@ -43,7 +43,9 @@ final class OwnerClassroomService
             ])
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
-                    ->where('classroom_student.status', 'active'),
+                    ->where('classroom_student.status', 'active')
+                    ->where('users.status', 'active')
+                    ->whereNull('users.deleted_at'),
             ])
             ->latest()
             ->paginate(12)
@@ -78,11 +80,14 @@ final class OwnerClassroomService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $activeStudentCounts = DB::table('classroom_student')
-            ->where('status', 'active')
-            ->groupBy('classroom_id')
-            ->select('classroom_id')
-            ->selectRaw('COUNT(*) AS active_students_count');
+        $activeStudentCounts = DB::table('classroom_student as memberships')
+            ->join('users as roster_users', 'roster_users.id', '=', 'memberships.student_id')
+            ->where('memberships.status', 'active')
+            ->where('roster_users.status', 'active')
+            ->whereNull('roster_users.deleted_at')
+            ->groupBy('memberships.classroom_id')
+            ->select('memberships.classroom_id')
+            ->selectRaw('COUNT(DISTINCT memberships.student_id) AS active_students_count');
 
         $summary = DB::table('classrooms as classrooms')
             ->leftJoinSub($activeStudentCounts, 'student_counts', 'student_counts.classroom_id', '=', 'classrooms.id')
@@ -98,9 +103,12 @@ final class OwnerClassroomService
 
         $uniqueActiveStudents = DB::table('classroom_student as roster')
             ->join('classrooms as classrooms', 'classrooms.id', '=', 'roster.classroom_id')
+            ->join('users as roster_users', 'roster_users.id', '=', 'roster.student_id')
             ->where('classrooms.academy_id', $academy->id)
             ->where('classrooms.status', 'active')
             ->where('roster.status', 'active')
+            ->where('roster_users.status', 'active')
+            ->whereNull('roster_users.deleted_at')
             ->distinct()
             ->count('roster.student_id');
 
@@ -251,6 +259,8 @@ final class OwnerClassroomService
 
         $activeStudentCount = $classroom->students()
             ->wherePivot('status', 'active')
+            ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->count();
 
         // Show a real, paginated roster instead of silently truncating the
