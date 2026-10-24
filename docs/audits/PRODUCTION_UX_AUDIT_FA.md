@@ -56,17 +56,19 @@
 
 شمارش اولیه‌ی بلوک‌های selector در فایل‌ها:
 
-| فایل | اندازه | خطوط | بلوک selector تقریبی | نمونه‌ی تکرار |
-|---|---:|---:|---:|---|
-| resources/css/app.css | 199.5 KB | 6,779 | 1,123 | .role-main × 8، .role-topbar × 6 |
-| resources/css/student.css | 40.1 KB | 691 | 404 | .app × 9، body × 7، .top h1 × 7 |
-| resources/css/teacher.css | 81.1 KB | 1,714 | 699 | .teacher-stats × 6، .teacher-stat × 5 |
-| resources/css/teacher-dashboard.css | 41.7 KB | 1,311 | 261 | .td-stats × 6، .td-header-actions × 4 |
-| resources/css/admin.css | 86.3 KB | 1,165 | 795 | .seo-keyword-stats × 4، .owner-hero × 3 |
-| resources/css/parent.css | 7.1 KB | 168 | 56 | .parent-dashboard .parent-child × 3 |
-| resources/css/communication-pages.css | 8.0 KB | 354 | ساختار نسبتاً منظم و namespaceدار | تکرار اصلی در بلوک‌های media |
+| فایل | اندازه | خطوط | بلوک‌های rule/header تقریبی | الگوهای تکراری / تکرار مازاد | نمونه‌ی تکرار |
+|---|---:|---:|---:|---:|---|
+| resources/css/app.css | 199.5 KB | 6,779 | 1,123 | 146 / 234 | .role-main × 8، .role-topbar × 6 |
+| resources/css/student.css | 40.1 KB | 691 | 439 | 83 / 133 | .app × 9، body × 7، .top h1 × 7 |
+| resources/css/teacher.css | 46.6 KB | 1,338 | 430 | 66 / 78 | .teacher-course-progress × 3، .teacher-workspace-grid × 3 |
+| resources/css/teacher-dashboard.css | 28.1 KB | 255 | 224 | 42 / 52 | body.teacher-dashboard-shell .tdb-topbar × 4 |
+| resources/css/admin.css | 86.3 KB | 1,165 | 850 | 99 / 131 | .seo-keyword-stats × 4، .owner-hero × 3 |
+| resources/css/parent.css | 7.1 KB | 168 | 63 | 9 / 10 | .parent-dashboard .parent-child × 3 |
+| resources/css/communication-pages.css | 8.0 KB | 354 | 48 | 5 / 5 | .communication-page و چند کلاس با پسوند مشترک × 2 |
 
-**تعریف آمار:** شمارنده‌ی بالا یک بررسی متنی از تکرار رشته‌ی selector در بلوک‌های CSS است، نه AST کامل CSS. تکرار ممکن است برای breakpoint، حالت hover یا theme عمدی باشد؛ پس اعداد، میزان overrideهای قابل بررسی‌اند، نه تعداد قطعی باگ یا حذف قطعی کد.
+**تعریف آمار CSS:** شمارنده از headerهای بلوک با regex استخراج شده و بعضی @media و @font-faceها را هم شامل می‌شود؛ بنابراین «بلوک rule/header» دقیق‌تر از «selector واقعی» است. ستون «الگوهای تکراری» تعداد headerهای یکتا با تکرار در همان فایل و «تکرار مازاد» مجموع occurrenceها بعد از اولین مورد است. یکسان بودن رشته‌ی header، لزوماً به معنی تکرار بی‌مصرف نیست؛ breakpoint و theme می‌توانند عمدی باشند.
+
+**اسکن کمکی JS (۸ فایل):** 1,524 وقوع خط نرمال‌شده با طول حداقل 28 کاراکتر بررسی شد؛ 77 الگوی خط دقیق بیش از یک بار دیده شد (122 occurrence مازاد) و 14 الگو در بیش از یک فایل هم وجود داشت. نمونه‌ها: تعریف syncClassrooms در admin.js و exam-builder.js؛ الگوی MutationObserver در persian-calendar.js و persian-money.js؛ و منطق انتخاب/preview فایل بین admin.js و teacher.js/student.js. این شمارش صرفاً exact-line heuristic است، نه تشخیص clone معنایی؛ قبل از استخراج utility باید رفتار و scope هر مورد مقایسه شود.
 
 **ریسک:** app.css هنوز selectorهای قدیمی teacher dashboard و exam editor را دارد، در حالی که teacher.css به teacher-dashboard.css هم import می‌کند. فایل‌های نقش نیز چند import مشترک دارند. باید با manifest و خروجی واقعی Vite بررسی شود که CSS مشترک چند بار در صفحه تحویل می‌شود.
 
@@ -98,13 +100,18 @@
 
 #### 7. JS نقش مالک بزرگ و مسئولیت‌های متعدد دارد
 
-| فایل | اندازه‌ی تقریبی | خطوط |
-|---|---:|---:|
-| resources/js/app.js | 0.4 KB | 14 |
-| resources/js/panel-base.js | 2.5 KB | 87 |
-| resources/js/student.js | 8.3 KB | 174 |
-| resources/js/teacher.js | 21.7 KB | 516 |
-| resources/js/admin.js | 59.4 KB | 1,338 |
+| فایل | اندازه‌ی تقریبی | خطوط | تکرار خط‌های بلند در همان فایل* |
+|---|---:|---:|---:|
+| resources/js/app.js | 0.4 KB | 15 | 0 |
+| resources/js/panel-base.js | 2.5 KB | 87 | 0 |
+| resources/js/student.js | 8.3 KB | 174 | 3 |
+| resources/js/teacher.js | 17.1 KB | 425 | 2 |
+| resources/js/admin.js | 59.4 KB | 1,338 | 83 |
+| resources/js/exam-builder.js | 17.3 KB | 378 | 4 |
+| resources/js/persian-calendar.js | 16.4 KB | 401 | 8 |
+| resources/js/persian-money.js | 7.0 KB | 192 | 3 |
+
+*«تکرار خط‌های بلند» یعنی occurrence اضافه‌ی خطوط نرمال‌شده‌ی 28 کاراکتر یا بیشتر در همان فایل؛ boilerplate و commentها تا حدی فیلتر شده‌اند. این سنجه، تکرار بلااستفاده یا یکسان بودن رفتار را اثبات نمی‌کند.*
 
 admin.js آپلود رسانه، progress، preview، crop بنر و چند تعامل دیگر را مدیریت می‌کند؛ teacher.js نیز theme، preview پروفایل، مدیریت لینک جلسه، chart، search و تبدیل تاریخ را در یک entry دارد.
 
