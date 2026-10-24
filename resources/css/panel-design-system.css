@@ -45,6 +45,9 @@ body.parent-shell {
     --pds-accent: #247c9b;
     --pds-bg: #f3f6fb;
 }
+/* The app frame owns its page margins; avoid doubling body + frame padding. */
+body.student-shell,
+body.teacher-shell { padding: 0 !important; }
 :where(body.student-shell, body.teacher-shell, body.owner-shell, body.parent-shell) {
     font-family: var(--pds-font);
     color: var(--pds-ink);
@@ -256,14 +259,14 @@ body.parent-shell {
     .student-shell .mn,
     .teacher-shell .mn {
         min-height: 100dvh;
-        padding: 14px 12px calc(105px + env(safe-area-inset-bottom, 0px));
+        padding: 14px 12px calc(116px + env(safe-area-inset-bottom, 0px));
         border: 0;
         border-radius: 0;
         background: transparent;
         box-shadow: none;
     }
     .owner-shell .role-main,
-    .parent-shell .role-main { padding: 14px 12px calc(104px + env(safe-area-inset-bottom, 0px)); }
+    .parent-shell .role-main { padding: 14px 12px calc(132px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (max-width: 420px) {
     .student-shell .mn,
