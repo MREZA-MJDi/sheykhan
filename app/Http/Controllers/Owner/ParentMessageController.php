@@ -46,7 +46,9 @@ final class ParentMessageController extends Controller
             'responded' => ParentMessage::query()->where('academy_id', $academy->id)->where('status', 'responded')->count(),
         ];
 
-        return view('owner.messages.index', compact('academy', 'messages', 'filters', 'stats'));
+        $canManage = $request->user()->hasPermission('parents.manage');
+
+        return view('owner.messages.index', compact('academy', 'messages', 'filters', 'stats', 'canManage'));
     }
 
     public function reply(Request $request, Academy $academy, int $message): RedirectResponse
