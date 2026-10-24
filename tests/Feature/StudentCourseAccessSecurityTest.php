@@ -134,4 +134,36 @@ class StudentCourseAccessSecurityTest extends TestCase
     }
 
 
+
+    public function test_active_non_student_academy_membership_does_not_preserve_student_course_access(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->with('sections.lessons')->firstOrFail();
+        $freeLesson = $course->sections->flatMap(fn ($section) => $section->lessons)->firstWhere('is_free', true);
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $access = app(StudentAccessService::class);
+
+        $this->assertNotNull($freeLesson);
+        $this->assertTrue($student->hasRole('student'));
+        $this->assertTrue($access->course($student, $course));
+        $this->assertTrue($access->enrolledCourseIds($student)->contains((int) $course->id));
+
+        // A stale active enrollment must not outlive the student's role within this academy.
+        $student->academies()->updateExistingPivot($course->academy_id, [
+            'role' => 'parent',
+            'status' => 'active',
+        ]);
+        $student = $student->fresh();
+
+        $this->assertTrue($student->hasRole('student'));
+        $this->assertFalse($access->course($student, $course));
+        $this->assertFalse($access->enrolledCourseIds($student)->contains((int) $course->id));
+        $this->assertFalse($access->lesson($student, $freeLesson));
+
+        $this->actingAs($student)
+            ->get(route('student.courses.show', $course))
+            ->assertNotFound();
+    }
+
 }
