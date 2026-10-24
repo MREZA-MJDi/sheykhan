@@ -12,33 +12,51 @@
         <a href="{{ route('teacher.dashboard') }}" title="داشبورد" aria-label="داشبورد" class="role-nav-link {{ request()->routeIs('teacher.dashboard') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.dashboard')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><span>داشبورد</span>
         </a>
+        @if(auth()->user()?->hasPermission('courses.view'))
         <a href="{{ route('teacher.courses.index') }}" title="دوره‌های من" aria-label="دوره‌های من" class="role-nav-link {{ request()->routeIs('teacher.courses.*') || request()->routeIs('teacher.lessons.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.courses.*') || request()->routeIs('teacher.lessons.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z"/><path d="M4 5.5V22M8 7h8M8 11h8"/></svg></span><span>دوره‌های من</span>
         </a>
+        @endif
+        @if(auth()->user()?->hasPermission('classrooms.view'))
         <a href="{{ route('teacher.classrooms.index') }}" title="کلاس‌های من" aria-label="کلاس‌های من" class="role-nav-link {{ request()->routeIs('teacher.classrooms.*') && !request()->routeIs('teacher.classrooms.attendance.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.classrooms.*') && !request()->routeIs('teacher.classrooms.attendance.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1"/></svg></span><span>کلاس‌های من</span>
         </a>
+        @endif
+        @if(auth()->user()?->hasPermission('live_classes.view'))
         <a href="{{ route('teacher.schedule.index') }}" title="برنامه هفتگی" aria-label="برنامه هفتگی" class="role-nav-link {{ request()->routeIs('teacher.schedule.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.schedule.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18M8 14h3M8 17h3"/></svg></span><span>برنامه هفتگی</span>
         </a>
+        @endif
+        @if(auth()->user()?->hasPermission('live_classes.view'))
         <a href="{{ route('teacher.live-classes.index') }}" title="کلاس‌های آنلاین" aria-label="کلاس‌های آنلاین" class="role-nav-link {{ request()->routeIs('teacher.live-classes.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.live-classes.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="m15 10 6-3v10l-6-3z"/></svg></span><span>کلاس‌های آنلاین</span>
         </a>
+        @endif
 
+        @if(auth()->user()?->hasAnyPermission(['assignments.view', 'exams.view']))
         <div class="role-sidebar-label mt-6">ارزیابی</div>
+        @endif
 
+        @if(auth()->user()?->hasPermission('assignments.view'))
         <a href="{{ route('teacher.assignments.index') }}" title="تکالیف" aria-label="تکالیف" class="role-nav-link {{ request()->routeIs('teacher.assignments.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.assignments.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4h8l3 3v13H5V4z"/><path d="M8 4v4h8V4M8 13l2 2 4-4"/></svg></span><span>تکالیف</span>
         </a>
+        @endif
+        @if(auth()->user()?->hasPermission('exams.view'))
         <a href="{{ route('teacher.exams.index') }}" title="آزمون‌ها" aria-label="آزمون‌ها" class="role-nav-link {{ request()->routeIs('teacher.exams.*') || request()->routeIs('teacher.exam-attempts.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.exams.*') || request()->routeIs('teacher.exam-attempts.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h10a2 2 0 0 1 2 2v16H5V5a2 2 0 0 1 2-2Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span>آزمون‌ها</span>
         </a>
+        @endif
 
+        @if(auth()->user()?->hasAnyPermission(['attendance.view', 'parent_messages.view', 'student_messages.view', 'parent_messages.manage', 'live_classes.view', 'students.view', 'reports.view']))
         <div class="role-sidebar-label mt-6">پیگیری</div>
+        @endif
 
+        @if(auth()->user()?->hasPermission('attendance.view'))
         <a href="{{ route('teacher.attendance.index') }}" title="حضور و غیاب" aria-label="حضور و غیاب" class="role-nav-link {{ request()->routeIs('teacher.attendance.*') || request()->routeIs('teacher.classrooms.attendance.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.attendance.*') || request()->routeIs('teacher.classrooms.attendance.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18M8 15l2 2 4-4"/></svg></span><span>حضور و غیاب</span>
         </a>
+        @endif
         @if(auth()->user()?->hasPermission('parent_messages.view'))
             <a href="{{ route('teacher.messages.index') }}" title="پیام‌های اولیا" aria-label="پیام‌های اولیا" class="role-nav-link {{ request()->routeIs('teacher.messages.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.messages.*')) aria-current="page" @endif>
                 <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4z"/><path d="M8 9h8M8 13h5"/></svg></span><span>پیام‌های اولیا</span>
@@ -59,24 +77,36 @@
                 <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10v4h4l10 5V5L7 10z"/><path d="M7 14l2 6h4l-3-4M21 9a4 4 0 0 1 0 6"/></svg></span><span>اطلاعیه برای خانواده‌های کلاس</span>
             </a>
         @endif
+        @if(auth()->user()?->hasPermission('live_classes.view'))
         <a href="{{ route('teacher.meetings.index') }}" title="جلسات با اولیا" aria-label="جلسات با اولیا" class="role-nav-link {{ request()->routeIs('teacher.meetings.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.meetings.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/><circle cx="12" cy="15" r="2.5"/><path d="M12 13.5v1.5l1 1"/></svg></span><span>جلسات با اولیا</span>
         </a>
+        @endif
+        @if(auth()->user()?->hasPermission('students.view'))
         <a href="{{ route('teacher.students.index') }}" title="دانش‌آموزان" aria-label="دانش‌آموزان" class="role-nav-link {{ request()->routeIs('teacher.students.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.students.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20v-1a6 6 0 0 1 12 0v1M16 15a5 5 0 0 1 5 5"/></svg></span><span>دانش‌آموزان</span>
         </a>
+        @endif
+        @if(auth()->user()?->hasPermission('reports.view'))
         <a href="{{ route('teacher.dashboard') }}#tdb-progress" title="گزارش عملکرد" aria-label="گزارش عملکرد" class="role-nav-link">
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 17v-5M12 17V5M18 17v-9"/></svg></span><span>گزارش عملکرد</span>
         </a>
+        @endif
 
+        @if(auth()->user()?->hasAnyPermission(['teacher_payments.view', 'profile.view']))
         <div class="role-sidebar-label mt-6">حساب</div>
+        @endif
 
+        @if(auth()->user()?->hasPermission('teacher_payments.view'))
         <a href="{{ route('teacher.payments.index') }}" title="حقوق و پرداخت‌ها" aria-label="حقوق و پرداخت‌ها" class="role-nav-link {{ request()->routeIs('teacher.payments.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.payments.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M16 14h2"/></svg></span><span>حقوق و پرداخت‌ها</span>
         </a>
+        @endif
+        @if(auth()->user()?->hasPermission('profile.view'))
         <a href="{{ route('teacher.profile.edit') }}" title="پروفایل من" aria-label="پروفایل من" class="role-nav-link {{ request()->routeIs('teacher.profile.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.profile.*')) aria-current="page" @endif>
             <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span>پروفایل من</span>
         </a>
+        @endif
     </nav>
 
     <div class="role-sidebar-footer">
