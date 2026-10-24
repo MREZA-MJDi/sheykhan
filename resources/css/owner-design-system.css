@@ -1,0 +1,753 @@
+/* Owner Design System — Phase 1
+   Shared visual contract for every academy-owner/secretary workspace.
+   Keep role-specific content and permissions in Blade; this file only standardizes presentation. */
+
+.owner-shell {
+    --bg: #f4f7fc;
+    --sf: #ffffff;
+    --s2: #f7f9fd;
+    --bd: #dfe6f0;
+    --tx: #17243b;
+    --mu: #5c6b82;
+    --mt: #5c6b82;
+    --ac: #4f46e5;
+    --on: #ffffff;
+    --ok: #16794c;
+    --wr: #9a5b00;
+    --er: #b42336;
+    --vi: #6941c6;
+    --sk: #087eae;
+    --sh: 0 8px 24px rgba(31, 52, 86, .055);
+    --panel-bg: #f4f7fc;
+    --panel-surface: #ffffff;
+    --panel-text: #17243b;
+    --panel-text-secondary: #40516a;
+    --panel-muted: #5c6b82;
+    --panel-subtle: #7c8799;
+    --panel-border: #dfe6f0;
+    --panel-primary: #4f46e5;
+    --panel-primary-dark: #3730a3;
+    --panel-primary-soft: #eeedff;
+    --panel-primary-soft-strong: #dfddff;
+    --panel-success: #16794c;
+    --panel-success-soft: #eaf7ef;
+    --panel-success-border: #c7e8d4;
+    --panel-success-dark: #176844;
+    --panel-warning: #9a5b00;
+    --panel-warning-soft: #fff6e5;
+    --panel-warning-dark: #7d4900;
+    --panel-danger: #b42336;
+    --panel-danger-soft: #fff0f1;
+    --panel-danger-border: #f2cbd0;
+    --panel-danger-dark: #912033;
+    --panel-shadow-xs: 0 2px 6px rgba(31, 52, 86, .04);
+    --panel-shadow-soft: 0 8px 24px rgba(31, 52, 86, .055);
+    --panel-shadow: 0 14px 34px rgba(31, 52, 86, .085);
+    --panel-shadow-lg: 0 22px 48px rgba(31, 52, 86, .12);
+    --panel-radius-sm: 10px;
+    --panel-radius-md: 14px;
+    --panel-radius-lg: 20px;
+    --owner-page-gap: clamp(16px, 1.6vw, 24px);
+    --owner-card-radius: 18px;
+    background: var(--bg) !important;
+    color: var(--tx) !important;
+    color-scheme: light;
+    font-family: Vazirmatn, Tahoma, sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+}
+.owner-shell .role-layout,
+.owner-shell .role-content { min-width: 0; background: transparent !important; }
+.owner-shell .role-layout {
+    grid-template-columns: clamp(232px, 18vw, 286px) minmax(0, 1fr);
+    width: 100%;
+    max-width: 1920px;
+    margin-inline: auto;
+    align-items: stretch;
+}
+.owner-shell .role-content { display: flex; flex-direction: column; width: 100%; }
+.owner-shell .role-sidebar {
+    color: var(--tx) !important;
+    background: rgba(255,255,255,.96) !important;
+    border-inline-end: 1px solid var(--bd) !important;
+    box-shadow: 0 8px 32px rgba(31,52,86,.035) !important;
+}
+.owner-shell .role-sidebar-brand { border-bottom: 1px solid var(--bd) !important; }
+.owner-shell .role-brand strong { color: var(--tx) !important; }
+.owner-shell .role-brand small,
+.owner-shell .role-sidebar-label { color: var(--mu) !important; }
+.owner-shell .role-brand-mark {
+    color: #fff !important;
+    background: linear-gradient(135deg, #4f46e5, #7c73ef) !important;
+    border: 0 !important;
+    box-shadow: 0 6px 16px rgba(79,70,229,.2) !important;
+}
+.owner-shell .role-nav-link {
+    min-height: 42px;
+    border-radius: 11px;
+    color: #52617a !important;
+    transition: background-color .16s ease, color .16s ease;
+}
+.owner-shell .role-nav-link:hover {
+    background: #f1f3ff !important;
+    color: #3730a3 !important;
+}
+.owner-shell .role-nav-link.is-active {
+    color: #3730a3 !important;
+    background: #eeedff !important;
+    box-shadow: inset -3px 0 #4f46e5 !important;
+    font-weight: 800;
+}
+.owner-shell .role-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    width: 100%;
+    flex: 0 0 auto;
+    padding-inline: clamp(16px, 2.2vw, 36px);
+    color: var(--tx) !important;
+    background: rgba(255,255,255,.94) !important;
+    border-bottom: 1px solid var(--bd) !important;
+    box-shadow: 0 4px 18px rgba(31,52,86,.035) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+.owner-shell .role-topbar-eyebrow,
+.owner-shell .role-topbar h1,
+.owner-shell .role-user-copy strong { color: var(--tx) !important; }
+.owner-shell .role-topbar-site,
+.owner-shell .role-user-copy small { color: var(--mu) !important; }
+.owner-shell .role-topbar-site:hover { color: var(--ac) !important; }
+.owner-shell .role-user-chip {
+    border: 1px solid var(--bd) !important;
+    border-radius: 12px;
+    background: var(--s2) !important;
+}
+.owner-shell .role-logout-btn {
+    border: 1px solid var(--bd) !important;
+    border-radius: 10px;
+    color: var(--tx) !important;
+    background: #fff !important;
+}
+.owner-shell .role-logout-btn:hover {
+    border-color: #e7a0aa !important;
+    color: var(--er) !important;
+    background: #fff5f6 !important;
+}
+.owner-shell .role-main {
+    width: min(100%, 1640px);
+    max-width: 1640px;
+    min-width: 0;
+    margin-inline: auto;
+    padding: clamp(18px, 2.2vw, 36px) clamp(14px, 2.2vw, 36px) calc(36px + env(safe-area-inset-bottom, 0px));
+    color: var(--tx) !important;
+    font-size: 14px;
+    line-height: 1.8;
+}
+.owner-shell .role-main > * { min-width: 0; }
+.owner-shell :is(h1,h2,h3,h4,h5,h6) {
+    color: var(--tx);
+    letter-spacing: -.015em;
+    overflow-wrap: anywhere;
+}
+.owner-shell .role-main h1 { font-size: clamp(24px, 2.3vw, 32px); font-weight: 850; line-height: 1.55; }
+.owner-shell .role-main h2 { font-size: clamp(17px, 1.45vw, 21px); font-weight: 800; line-height: 1.65; }
+.owner-shell .role-main h3 { font-size: clamp(15px, 1.2vw, 18px); font-weight: 800; line-height: 1.7; }
+.owner-shell .role-main p { line-height: 1.95; }
+.owner-shell .role-main :is(.text-slate-500,.text-slate-600,.text-slate-400,.text-gray-500,.text-gray-600) { color: var(--mu) !important; }
+.owner-shell .role-main :is(.text-slate-950,.text-slate-900,.text-slate-800,.text-slate-700,.text-gray-900,.text-gray-800) { color: var(--tx) !important; }
+.owner-shell .role-main :is(.border-slate-100,.border-slate-200,.border-slate-300,.border-gray-100,.border-gray-200) { border-color: var(--bd) !important; }
+.owner-shell .role-main :is(.bg-white,.bg-slate-50,.bg-slate-100,.bg-gray-50) { background-color: var(--sf) !important; }
+
+/* Page skeleton, section rhythm and page headings. */
+.owner-shell .role-main :is(.owner-dashboard,.panel-page-enter,.owner-form-shell,.owner-workspace-page,.course-page,.website-center,.website-hero-editor,.seo-console-page,.seo-keyword-page,.communication-page,.page-enter) {
+    min-width: 0;
+    width: 100%;
+    display: grid;
+    align-content: start;
+    gap: var(--owner-page-gap);
+}
+.owner-shell .role-main :is(.owner-dashboard,.panel-page-enter,.owner-form-shell,.owner-workspace-page,.course-page,.website-center,.website-hero-editor,.seo-console-page,.seo-keyword-page,.communication-page,.page-enter) > * {
+    min-width: 0;
+    margin-block: 0;
+}
+.owner-shell .role-main :is(.owner-workspace-head,.owner-form-head,.course-page-head,.website-hero-editor-head,.website-center-hero,.seo-console-hero) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: clamp(18px, 2.1vw, 28px);
+    border: 1px solid var(--bd);
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fff, #f7f8ff);
+    box-shadow: var(--panel-shadow-xs);
+}
+.owner-shell .role-main :is(.owner-workspace-head h1,.owner-form-head h1,.course-page-head h1,.website-hero-editor-head h1,.website-center-hero h1,.seo-console-hero h1) {
+    margin: 0;
+    font-size: clamp(23px, 2.2vw, 31px);
+    line-height: 1.55;
+    font-weight: 850;
+}
+.owner-shell .role-main :is(.owner-workspace-head p,.owner-form-head p,.course-page-head p,.website-hero-editor-head p,.website-center-hero p,.seo-console-hero p) {
+    max-width: 72ch;
+    margin-block-start: 7px;
+    color: var(--mu) !important;
+    font-size: 13px;
+    line-height: 1.95;
+}
+.owner-shell .role-main :is(.owner-kicker,.website-kicker,.course-kicker,.owner-form-head > div > span) {
+    color: var(--ac);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+.owner-shell .role-main :is(.owner-panel-head,.owner-workspace-card-head,.course-section-heading) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-block-end: 16px;
+}
+.owner-shell .role-main :is(.owner-panel-head h2,.owner-panel-head h3,.course-section-heading h2) { font-size: clamp(16px, 1.4vw, 20px); }
+.owner-shell .role-main :is(.owner-panel-head p,.owner-workspace-description,.course-section-heading p) {
+    color: var(--mu) !important;
+    font-size: 12px;
+    line-height: 1.9;
+}
+.owner-shell .role-main :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-summary-kpi,.owner-footer-action,.owner-form-section,.owner-workspace-card,.owner-workspace-stat,.course-stat,.website-hero-control-card,.website-hero-editor-card,.website-preview-card,.seo-keyword-tools,.seo-keyword-list-panel,.seo-keyword-history,.communication-page__card,.communication-page__hero) {
+    min-width: 0;
+    border: 1px solid var(--bd) !important;
+    border-radius: var(--owner-card-radius);
+    background: var(--sf) !important;
+    color: var(--tx) !important;
+    box-shadow: var(--panel-shadow-xs) !important;
+}
+.owner-shell .role-main :is(.owner-panel,.owner-form-section,.seo-keyword-tools,.seo-keyword-list-panel,.seo-keyword-history,.communication-page__card) { padding: clamp(16px, 1.8vw, 24px); }
+.owner-shell .role-main :is(.owner-stat-card,.owner-summary-kpi,.owner-footer-action,.owner-workspace-stat,.course-stat) { padding: clamp(16px, 1.7vw, 23px); }
+.owner-shell .role-main :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-summary-kpi,.owner-footer-action,.owner-workspace-card,.course-stat) :is(h2,h3,strong) { color: var(--tx); }
+.owner-shell .role-main :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-summary-kpi,.owner-footer-action,.owner-workspace-card,.course-stat) :is(p,small,.muted) { color: var(--mu); }
+.owner-shell .role-main :is(.owner-stat-card,.owner-summary-kpi,.owner-footer-action,.owner-quick-action,.course-action-btn,.owner-workspace-btn,.owner-primary-btn,.course-primary-btn) {
+    transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.owner-shell .role-main :is(.owner-stat-card.is-actionable,.owner-quick-action,.owner-footer-action,.course-action-btn,.owner-workspace-btn,.owner-primary-btn,.course-primary-btn):hover {
+    border-color: #c8c9f6 !important;
+}
+.owner-shell .role-main .owner-empty,
+.owner-shell .role-main .owner-no-results {
+    padding: clamp(18px, 2vw, 28px);
+    border: 1px dashed #c8d1e0 !important;
+    border-radius: 14px;
+    background: #f8faff !important;
+    color: var(--mu) !important;
+    line-height: 1.95;
+    overflow-wrap: anywhere;
+}
+
+/* Owner dashboard: preserve a clear hero, actionable status queue and readable KPI cards. */
+.owner-shell .owner-dashboard { gap: clamp(16px, 1.6vw, 24px); }
+.owner-shell .owner-dashboard .owner-hero {
+    min-height: 0;
+    gap: 24px;
+    padding: clamp(22px, 2.6vw, 38px);
+    border: 0 !important;
+    border-radius: 24px;
+    background: linear-gradient(125deg, #312e81 0%, #4f46e5 58%, #7068e8 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 18px 42px rgba(79,70,229,.18) !important;
+}
+.owner-shell .owner-dashboard .owner-hero :is(h1,h2,h3,p,.owner-kicker,.owner-finance-link-label,.owner-hero-stat,.owner-hero-stat strong,.owner-hero-stat small,.owner-hero-stat span) { color: #fff !important; }
+.owner-shell .owner-dashboard .owner-hero p { max-width: 66ch; color: rgba(255,255,255,.84) !important; font-size: 14px; line-height: 2; }
+.owner-shell .owner-dashboard .owner-kicker { color: #e0e7ff !important; font-size: 12px; }
+.owner-shell .owner-dashboard .owner-hero-art { min-width: 0; }
+.owner-shell .owner-dashboard .owner-hero-stat {
+    border: 1px solid rgba(255,255,255,.24) !important;
+    border-radius: 18px;
+    background: rgba(255,255,255,.13) !important;
+    box-shadow: inset 0 1px rgba(255,255,255,.16) !important;
+    backdrop-filter: blur(12px);
+}
+.owner-shell .owner-dashboard .owner-hero-actions { gap: 10px; }
+.owner-shell .owner-dashboard .owner-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid rgba(255,255,255,.55) !important;
+    border-radius: 12px;
+    background: #fff !important;
+    color: #3730a3 !important;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(20,18,68,.09) !important;
+}
+.owner-shell .owner-dashboard .owner-btn.ghost {
+    border-color: rgba(255,255,255,.35) !important;
+    background: rgba(255,255,255,.12) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.owner-shell .owner-dashboard .owner-btn:hover { transform: translateY(-1px); filter: brightness(1.02); }
+.owner-shell .owner-dashboard .owner-focus-card {
+    display: grid;
+    grid-template-columns: auto minmax(0,1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    border: 1px solid #d8e1ef !important;
+    border-radius: 18px;
+    background: #fff !important;
+    box-shadow: var(--panel-shadow-xs) !important;
+}
+.owner-shell .owner-dashboard .owner-focus-card.has-alert { border-color: #f1c9a9 !important; background: #fffaf4 !important; }
+.owner-shell .owner-dashboard .owner-focus-card.is-clear { border-color: #c7e8d4 !important; background: #f5fcf7 !important; }
+.owner-shell .owner-dashboard .owner-focus-copy h2 { margin: 3px 0; font-size: clamp(16px,1.5vw,20px); line-height: 1.7; }
+.owner-shell .owner-dashboard .owner-focus-copy p { margin: 5px 0 0; color: var(--mu) !important; font-size: 12px; }
+.owner-shell .owner-dashboard .owner-focus-kicker { color: var(--ac) !important; font-size: 11px; font-weight: 800; }
+.owner-shell .owner-dashboard .owner-focus-actions a { display: inline-flex; align-items: center; min-height: 40px; color: #4338ca !important; font-size: 13px; font-weight: 800; }
+.owner-shell .owner-dashboard .owner-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 12px;
+}
+.owner-shell .owner-dashboard .owner-quick-action {
+    min-height: 88px;
+    padding: 16px 18px;
+    border: 1px solid var(--bd) !important;
+    border-radius: 16px;
+    background: #fff !important;
+    color: var(--tx) !important;
+    box-shadow: var(--panel-shadow-xs) !important;
+}
+.owner-shell .owner-dashboard .owner-quick-action:hover {
+    transform: translateY(-1px);
+    background: #fafaff !important;
+    border-color: #c8c9f6 !important;
+    box-shadow: var(--panel-shadow-soft) !important;
+}
+.owner-shell .owner-dashboard .owner-quick-action strong { color: var(--tx) !important; font-size: 13px; line-height: 1.8; }
+.owner-shell .owner-dashboard .owner-quick-action small { color: var(--mu) !important; font-size: 12px; line-height: 1.8; }
+.owner-shell .owner-dashboard .owner-quick-action > span:last-child { color: var(--ac) !important; font-size: 18px; }
+.owner-shell .owner-dashboard .owner-stats { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px),1fr)); gap: 14px; }
+.owner-shell .owner-dashboard .owner-stat-card {
+    min-height: 126px;
+    gap: 8px;
+    border: 1px solid var(--bd) !important;
+    border-radius: 18px;
+    background: #fff !important;
+    box-shadow: var(--panel-shadow-xs) !important;
+    text-decoration: none;
+}
+.owner-shell .owner-dashboard .owner-stat-card:hover { transform: translateY(-2px); box-shadow: var(--panel-shadow) !important; }
+.owner-shell .owner-dashboard .owner-stat-label { color: var(--mu) !important; font-size: 12px; font-weight: 800; }
+.owner-shell .owner-dashboard .owner-stat-label i { color: var(--ac) !important; }
+.owner-shell .owner-dashboard .owner-stat-card > strong { color: var(--tx) !important; font-size: clamp(27px,2.2vw,36px); line-height: 1.35; font-weight: 850; }
+.owner-shell .owner-dashboard .owner-stat-card > small { color: var(--mu) !important; font-size: 12px; line-height: 1.8; }
+.owner-shell .owner-dashboard .owner-panel-head { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--bd); }
+.owner-shell .owner-dashboard .owner-panel-head h2 { font-size: clamp(17px,1.35vw,20px); color: var(--tx) !important; }
+.owner-shell .owner-dashboard .owner-panel-head p { color: var(--mu) !important; font-size: 12px; }
+.owner-shell .owner-dashboard :is(.owner-course-row,.owner-teacher-row,.owner-live-row,.owner-alert-row) {
+    background: #f8faff !important;
+    border: 1px solid #e7ecf4 !important;
+    border-radius: 14px;
+    color: var(--tx) !important;
+}
+.owner-shell .owner-dashboard :is(.owner-course-row,.owner-teacher-row,.owner-live-row,.owner-alert-row):hover { background: #f1f3ff !important; border-color: #d7d7fb !important; }
+.owner-shell .owner-dashboard .owner-row-title { color: var(--tx) !important; font-size: 13px; }
+.owner-shell .owner-dashboard .owner-row-meta { color: var(--mu) !important; font-size: 12px; line-height: 1.8; }
+.owner-shell .owner-dashboard .owner-pill {
+    min-height: 30px;
+    border: 1px solid var(--bd) !important;
+    border-radius: 999px;
+    background: #f7f9fc !important;
+    color: #52617a !important;
+    font-size: 11px;
+    font-weight: 700;
+}
+.owner-shell .owner-dashboard .owner-pill.success { color: #166534 !important; border-color: #b7e4c7 !important; background: #edf9f0 !important; }
+.owner-shell .owner-dashboard .owner-progress { background: #e7ebf4 !important; }
+.owner-shell .owner-dashboard .owner-progress > span { background: linear-gradient(90deg,#4f46e5,#8b83f1) !important; }
+.owner-shell .owner-dashboard .owner-avatar { background: #eeedff !important; color: #4338ca !important; }
+
+/* Forms: stable scale, explicit focus/error/disabled states, clear field explanations. */
+.owner-shell .role-main form { min-width: 0; }
+.owner-shell .role-main form :is(label:not(.owner-check):not(.owner-toggle),.owner-form-section label,.teacher-form-field,.people-field,.banner-field,.website-hero-upload-field,.seo-keyword-filters label,.seo-keyword-observation-form label) {
+    min-width: 0;
+    color: #29364d;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.75;
+}
+.owner-shell .role-main form label:has(input[type="checkbox"]),
+.owner-shell .role-main form label:has(input[type="radio"]),
+.owner-shell .role-main form label.owner-check,
+.owner-shell .role-main form label.owner-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-weight: 650;
+}
+.owner-shell .role-main form label > span:first-child { min-width: 0; }
+.owner-shell .role-main form label small,
+.owner-shell .role-main form .field-help,
+.owner-shell .role-main form .help-text,
+.owner-shell .role-main form [data-field-help],
+.owner-shell .role-main form .teacher-form-help {
+    display: block;
+    margin-block-start: 3px;
+    color: #637189 !important;
+    font-size: 12px !important;
+    font-weight: 450 !important;
+    line-height: 1.9 !important;
+}
+.owner-shell .role-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="submit"]):not([type="button"]),select,textarea,.course-input,.course-static-field,.seo-keyword-filters input,.seo-keyword-filters select,.seo-keyword-observation-form input) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e3 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #17243b !important;
+    box-shadow: inset 0 1px 2px rgba(20,35,60,.025) !important;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.55;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.owner-shell .role-main textarea { min-height: 112px; resize: vertical; }
+.owner-shell .role-main input[type="file"] {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 8px;
+    border: 1px dashed #b8c5d8 !important;
+    border-radius: 12px !important;
+    background: #f8faff !important;
+    color: #43526a !important;
+    font-size: 13px;
+}
+.owner-shell .role-main input[type="file"]::file-selector-button {
+    margin-inline-end: 10px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: #eeedff;
+    color: #3730a3;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+.owner-shell .role-main input::placeholder,
+.owner-shell .role-main textarea::placeholder { color: #8692a6 !important; opacity: 1; }
+.owner-shell .role-main :is(input,select,textarea,.course-input):focus,
+.owner-shell .role-main :is(input,select,textarea,.course-input):focus-visible {
+    outline: none !important;
+    border-color: #7169e8 !important;
+    box-shadow: 0 0 0 3px rgba(79,70,229,.14) !important;
+}
+.owner-shell .role-main :is(input,select,textarea)[aria-invalid="true"],
+.owner-shell .role-main .is-invalid,
+.owner-shell .role-main .field-error input,
+.owner-shell .role-main .field-error select,
+.owner-shell .role-main .field-error textarea { border-color: #d14355 !important; }
+.owner-shell .role-main :is(input,select,textarea)[aria-invalid="true"]:focus,
+.owner-shell .role-main .field-error :is(input,select,textarea):focus {
+    box-shadow: 0 0 0 3px rgba(209,67,85,.13) !important;
+}
+.owner-shell .role-main :is(input,select,textarea):disabled,
+.owner-shell .role-main :is(input,select,textarea)[readonly],
+.owner-shell .role-main button:disabled {
+    background: #eef2f7 !important;
+    color: #7a8799 !important;
+    border-color: #d9e0ea !important;
+    cursor: not-allowed;
+    opacity: .82;
+}
+.owner-shell .role-main input[type="checkbox"],
+.owner-shell .role-main input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    margin-block: 2px;
+    accent-color: #4f46e5;
+}
+.owner-shell .role-main :is(.text-rose-600,.text-rose-700,.text-red-600,.text-red-700,.field-error,.owner-inline-error,.course-inline-error,.owner-image-error,.seo-keyword-error) {
+    color: #b42336 !important;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.85;
+}
+.owner-shell .role-main .text-emerald-600,
+.owner-shell .role-main .text-emerald-700 { color: #16794c !important; }
+.owner-shell .role-main .text-amber-700,
+.owner-shell .role-main .text-amber-800,
+.owner-shell .role-main .text-amber-900 { color: #8a5200 !important; }
+
+/* Action hierarchy: primary, secondary, danger and inline actions have distinct roles. */
+.owner-shell .role-main :is(.owner-primary-btn,.course-primary-btn,.people-primary-btn,.banner-primary-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid #4f46e5 !important;
+    border-radius: 12px !important;
+    background: #4f46e5 !important;
+    color: #fff !important;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.55;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 5px 12px rgba(79,70,229,.12) !important;
+}
+.owner-shell .role-main :is(.owner-primary-btn,.course-primary-btn,.people-primary-btn,.banner-primary-btn):hover {
+    background: #4338ca !important;
+    border-color: #4338ca !important;
+    color: #fff !important;
+}
+.owner-shell .role-main :is(.owner-secondary-btn,.course-secondary-btn,.course-action-btn,.owner-workspace-btn.secondary) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid #cbd5e3 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #34445e !important;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.55;
+    text-decoration: none;
+}
+.owner-shell .role-main :is(.owner-danger-btn,.danger,.seo-keyword-delete,[data-variant="danger"]) {
+    border-color: #f1c4cb !important;
+    background: #fff2f4 !important;
+    color: #a51f32 !important;
+}
+.owner-shell .role-main :is(a,button):focus-visible {
+    outline: 3px solid rgba(79,70,229,.34) !important;
+    outline-offset: 3px;
+}
+.owner-shell .role-main button:active,
+.owner-shell .role-main a:active { transform: translateY(0); }
+.owner-shell .role-main :is(button[type="submit"],form button:not([type]),form input[type="submit"]):not(.owner-danger-btn):not(.danger):not(.seo-keyword-delete):not([data-variant="danger"]) {
+    min-height: 42px;
+    border-radius: 11px;
+    font: inherit;
+    font-weight: 800;
+}
+
+/* Feedback system: success, warning, error and neutral information. */
+.owner-shell .role-main :is([role="alert"],[role="status"]).rounded-xl,
+.owner-shell .role-main :is([role="alert"],[role="status"]).rounded-2xl,
+.owner-shell .role-main > :is([role="alert"],[role="status"]),
+.owner-shell .role-main .owner-feedback,
+.owner-shell .role-main .alert {
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.95;
+}
+.owner-shell .role-main :is([role="alert"],[role="status"]) :is(h2,h3,strong) { font-size: 14px; line-height: 1.8; }
+.owner-shell .role-main :is([role="alert"],[role="status"]) ul { display: grid; gap: 4px; margin-block-start: 8px; }
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-rose-50,
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-red-50,
+.owner-shell .role-main .alert-danger {
+    border-color: #f1c6cd !important; background: #fff1f3 !important; color: #9f2032 !important;
+}
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-amber-50,
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-yellow-50,
+.owner-shell .role-main .alert-warning {
+    border-color: #f0d49d !important; background: #fff8e9 !important; color: #855000 !important;
+}
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-emerald-50,
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-green-50,
+.owner-shell .role-main .alert-success {
+    border-color: #bce4c9 !important; background: #effaf2 !important; color: #17663d !important;
+}
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-blue-50,
+.owner-shell .role-main :is([role="alert"],[role="status"]).bg-indigo-50,
+.owner-shell .role-main .alert-info {
+    border-color: #cbd8fa !important; background: #f1f5ff !important; color: #29478d !important;
+}
+
+/* Tables, data lists, statuses, filters and pagination. */
+.owner-shell .role-main .overflow-x-auto,
+.owner-shell .role-main .overflow-auto,
+.owner-shell .role-main .table-responsive { max-width: 100%; min-width: 0; overscroll-behavior-inline: contain; }
+.owner-shell .role-main table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--tx);
+    font-size: 13px;
+    line-height: 1.8;
+}
+.owner-shell .role-main table thead th,
+.owner-shell .role-main table th {
+    padding: 12px 14px;
+    border-block: 1px solid var(--bd);
+    background: #f5f7fc !important;
+    color: #4c5b73 !important;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: start;
+    white-space: nowrap;
+}
+.owner-shell .role-main table thead th:first-child { border-start-start-radius: 10px; }
+.owner-shell .role-main table thead th:last-child { border-start-end-radius: 10px; }
+.owner-shell .role-main table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #e8edf4;
+    color: #34445e;
+    vertical-align: middle;
+}
+.owner-shell .role-main table tbody tr:hover td { background: #f8f9ff; }
+.owner-shell .role-main table :is(a,button) { font-weight: 750; }
+.owner-shell .role-main :is(.owner-pill,.owner-count-badge,.owner-status,.course-status-badge,.course-access-badge,.badge) {
+    max-width: 100%;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.owner-shell .role-main nav[role="navigation"],
+.owner-shell .role-main nav[aria-label*="agination"],
+.owner-shell .role-main .pagination,
+.owner-shell .role-main .pagination-links {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 100%;
+    margin-block-start: 16px;
+    color: var(--mu);
+    font-size: 12px;
+}
+.owner-shell .role-main nav[role="navigation"] a,
+.owner-shell .role-main nav[role="navigation"] span,
+.owner-shell .role-main nav[aria-label*="agination"] a,
+.owner-shell .role-main nav[aria-label*="agination"] span,
+.owner-shell .role-main .pagination a,
+.owner-shell .role-main .pagination span,
+.owner-shell .role-main .pagination-links a,
+.owner-shell .role-main .pagination-links span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 1px solid var(--bd);
+    border-radius: 10px;
+    background: #fff;
+    color: #34445e;
+    text-decoration: none;
+}
+.owner-shell .role-main nav[role="navigation"] [aria-current="page"],
+.owner-shell .role-main nav[aria-label*="agination"] [aria-current="page"],
+.owner-shell .role-main .pagination [aria-current="page"] {
+    border-color: #4f46e5;
+    background: #eeedff;
+    color: #3730a3;
+    font-weight: 850;
+}
+
+/* Graphs and progress meters stay legible in constrained containers. */
+.owner-shell .role-main :is([data-chart],.chart-container,.owner-chart,.report-chart,.chart-card) { min-width: 0; max-width: 100%; }
+.owner-shell .role-main :is(svg,canvas)[data-chart],
+.owner-shell .role-main :is(.chart-container,.owner-chart,.report-chart) canvas,
+.owner-shell .role-main :is(.chart-container,.owner-chart,.report-chart) svg { display: block; max-width: 100%; }
+.owner-shell .role-main :is(.owner-progress,.progress,.progress-track,.pb,[role="progressbar"]) { overflow: hidden; border-radius: 999px; }
+.owner-shell .role-main [role="progressbar"] { min-height: 8px; }
+
+/* Skeleton state contract for async widgets and future paginated workspaces. */
+.owner-shell .role-main .owner-skeleton,
+.owner-shell .role-main [data-skeleton="true"] {
+    display: block;
+    min-height: 12px;
+    border-radius: 9px;
+    background: linear-gradient(90deg,#edf0f7 25%,#f7f8fc 38%,#edf0f7 62%);
+    background-size: 400% 100%;
+    animation: owner-skeleton-shimmer 1.25s ease infinite;
+}
+.owner-shell .role-main .owner-skeleton-line { height: 12px; margin-block: 9px; }
+.owner-shell .role-main .owner-skeleton-title { width: min(65%,360px); height: 24px; margin-block: 8px 14px; }
+.owner-shell .role-main .owner-skeleton-card { min-height: 112px; border: 1px solid var(--bd); border-radius: 16px; }
+@keyframes owner-skeleton-shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
+/* Responsive contract: prevent overflow and keep the bottom navigation clear. */
+@media (max-width: 1320px) {
+    .owner-shell .owner-dashboard .owner-quick-actions { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .owner-shell .owner-dashboard .owner-grid { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 1050px) {
+    .owner-shell .role-layout { grid-template-columns: minmax(0,1fr); }
+    .owner-shell .role-sidebar { display: none !important; }
+    .owner-shell .role-main { width: 100%; max-width: none; padding: 20px 18px calc(132px + env(safe-area-inset-bottom,0px)); }
+    .owner-shell .role-mobile-bottom-nav {
+        display: grid !important;
+        border: 1px solid #dfe6f0 !important;
+        background: rgba(255,255,255,.96) !important;
+        color: var(--tx) !important;
+        box-shadow: 0 10px 34px rgba(31,52,86,.14) !important;
+        backdrop-filter: blur(14px);
+    }
+    .owner-shell .role-mobile-bottom-nav :is(a,button) { color: var(--mu) !important; }
+    .owner-shell .role-mobile-bottom-nav :is(a.is-active,[aria-current="page"],button[aria-expanded="true"]) {
+        color: #3730a3 !important;
+        background: #eeedff !important;
+    }
+}
+@media (max-width: 760px) {
+    .owner-shell .role-main { padding: 16px 13px calc(132px + env(safe-area-inset-bottom,0px)); }
+    .owner-shell .role-main :is(.owner-workspace-head,.owner-form-head,.course-page-head,.website-hero-editor-head,.website-center-hero,.seo-console-hero) {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 17px;
+        border-radius: 16px;
+    }
+    .owner-shell .role-main :is(.owner-workspace-head,.owner-form-head,.course-page-head,.website-hero-editor-head,.website-center-hero,.seo-console-hero) > a,
+    .owner-shell .role-main :is(.owner-primary-btn,.course-primary-btn,.people-primary-btn,.banner-primary-btn) { width: 100%; }
+    .owner-shell .owner-dashboard .owner-hero { grid-template-columns: minmax(0,1fr); padding: 21px; border-radius: 20px; }
+    .owner-shell .owner-dashboard .owner-hero-art { display: none; }
+    .owner-shell .owner-dashboard .owner-hero-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .owner-shell .owner-dashboard .owner-hero-actions > * { min-width: 0; width: 100%; justify-content: center; white-space: normal; }
+    .owner-shell .owner-dashboard .owner-focus-card { grid-template-columns: auto minmax(0,1fr); padding: 16px; }
+    .owner-shell .owner-dashboard .owner-focus-actions { grid-column: 2; }
+    .owner-shell .owner-dashboard .owner-quick-actions { grid-template-columns: minmax(0,1fr); }
+    .owner-shell .owner-dashboard .owner-quick-action { min-height: 72px; }
+    .owner-shell .role-main :is(.owner-form-grid,.owner-form-two,.seo-keyword-filters,.seo-keyword-observation-form) { grid-template-columns: minmax(0,1fr) !important; }
+    .owner-shell .role-main .owner-form-side { position: static; }
+    .owner-shell .role-main table { min-width: 620px; }
+}
+@media (max-width: 430px) {
+    .owner-shell .role-main { padding-inline: 10px; }
+    .owner-shell .owner-dashboard .owner-hero-actions,
+    .owner-shell .owner-dashboard .owner-stats { grid-template-columns: minmax(0,1fr); }
+    .owner-shell .owner-dashboard .owner-focus-card { grid-template-columns: minmax(0,1fr); }
+    .owner-shell .owner-dashboard .owner-focus-actions { grid-column: auto; }
+    .owner-shell .role-main :is(.owner-panel,.owner-form-section,.dashboard-panel,.owner-stat-card) { border-radius: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-shell .role-main *,
+    .owner-shell .role-main *::before,
+    .owner-shell .role-main *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+    .owner-shell .role-main .owner-skeleton,
+    .owner-shell .role-main [data-skeleton="true"] { animation: none; }
+}
