@@ -37,7 +37,7 @@
         <div class="role-sidebar-label mt-6">پیگیری</div>
 
         <a href="{{ route('teacher.attendance.index') }}" title="حضور و غیاب" aria-label="حضور و غیاب" class="role-nav-link {{ request()->routeIs('teacher.attendance.*') || request()->routeIs('teacher.classrooms.attendance.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.attendance.*') || request()->routeIs('teacher.classrooms.attendance.*')) aria-current="page" @endif>
-            <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18m3 2-3 3-2-2"/></svg></span><span>حضور و غیاب</span>
+            <span class="role-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18M8 15l2 2 4-4"/></svg></span><span>حضور و غیاب</span>
         </a>
         @if(auth()->user()?->hasPermission('parent_messages.view'))
             <a href="{{ route('teacher.messages.index') }}" title="پیام‌های اولیا" aria-label="پیام‌های اولیا" class="role-nav-link {{ request()->routeIs('teacher.messages.*') ? 'is-active' : '' }}" @if(request()->routeIs('teacher.messages.*')) aria-current="page" @endif>
