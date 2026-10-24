@@ -38,7 +38,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertOk()
             ->assertSee('کلاس‌های فعال')
             ->assertSee('دانش‌آموزان')
-            ->assertSee('جلسات این هفته')
+            ->assertSee('کلاس‌های آنلاین این هفته')
             ->assertSee('تکلیف‌های منتظر تصحیح')
             ->assertSee('آزمون‌های منتظر بررسی')
             ->assertSee('روند پیشرفت دانش‌آموزان')
