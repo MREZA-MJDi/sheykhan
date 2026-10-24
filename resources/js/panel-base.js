@@ -14,7 +14,31 @@ function bootAlpine() {
     window[ALPINE_BOOT_FLAG] = true;
 }
 
+function bootProfileAvatarFallback() {
+    document.querySelectorAll('img[data-profile-avatar]').forEach((image) => {
+        if (image.dataset.avatarFallbackBound === 'true') return;
+
+        image.dataset.avatarFallbackBound = 'true';
+        const fallbackUrl = image.dataset.fallbackSrc || '';
+
+        const recover = () => {
+            const currentSrc = image.getAttribute('src') || '';
+            if (fallbackUrl && currentSrc !== fallbackUrl && image.dataset.avatarFallbackAttempted !== 'true') {
+                image.dataset.avatarFallbackAttempted = 'true';
+                image.src = fallbackUrl;
+                return;
+            }
+
+            image.hidden = true;
+        };
+
+        image.addEventListener('error', recover);
+        if (image.complete && image.naturalWidth === 0) recover();
+    });
+}
+
 export function bootPanel() {
+    bootProfileAvatarFallback();
     bootAlpine();
 
     const openButton = document.querySelector('[data-role-menu-open]');
