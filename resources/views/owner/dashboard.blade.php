@@ -393,7 +393,7 @@
         {{-- =========================================================
             TODAY'S CLASSROOMS
         ========================================================== --}}
-        @if($classrooms->isNotEmpty())
+        @if($canViewClassrooms && $classrooms->isNotEmpty())
             <section class="dashboard-panel owner-panel">
 
                 <div class="owner-panel-head">
@@ -547,11 +547,13 @@
         @endif
 
 
+@if($canViewReports || $canViewMeetings)
         {{-- =========================================================
             TEACHERS + UPCOMING LIVE CLASSES
         ========================================================== --}}
         <div class="owner-grid">
 
+@if($canViewReports)
             {{-- Teachers --}}
             <section class="dashboard-panel owner-panel">
 
@@ -622,6 +624,9 @@
             </section>
 
 
+@endif
+
+@if($canViewMeetings)
             {{-- Upcoming live classes --}}
             <section class="dashboard-panel owner-panel">
 
@@ -671,10 +676,15 @@
 
                 </div>
             </section>
+@endif
+
 
         </div>
 
 
+
+@endif
+@if($canViewCourses)
         {{-- =========================================================
             RECENT COURSES
         ========================================================== --}}
@@ -734,62 +744,29 @@
 
             </div>
         </section>
+@endif
 
 
-        {{-- =========================================================
-            FOOTER QUICK ACTIONS
-        ========================================================== --}}
-        @if($firstAcademy)
-            <section class="grid gap-3 sm:grid-cols-3">
 
-                <a
-                    href="{{ route('owner.classrooms.index', $firstAcademy) }}"
-                    class="dashboard-panel group p-5 transition hover:-translate-y-0.5 hover:border-slate-200"
-                >
-                    <span class="text-xs font-bold text-slate-500">
-                        عملیات
-                    </span>
 
-                    <strong class="mt-2 flex items-center justify-between text-sm font-black text-slate-950">
-                        مدیریت کلاس‌ها
-                        <span class="transition-transform group-hover:-translate-x-1">
-                            ←
-                        </span>
-                    </strong>
-                </a>
-
-                <a
-                    href="{{ route('owner.people.index', $firstAcademy) }}"
-                    class="dashboard-panel group p-5 transition hover:-translate-y-0.5 hover:border-slate-200"
-                >
-                    <span class="text-xs font-bold text-slate-500">
-                        اعضای آموزشگاه
-                    </span>
-
-                    <strong class="mt-2 flex items-center justify-between text-sm font-black text-slate-950">
-                        مدیریت دانش‌آموز و مدرس
-                        <span class="transition-transform group-hover:-translate-x-1">
-                            ←
-                        </span>
-                    </strong>
-                </a>
-
-                <a
-                    href="{{ route('owner.reports.index') }}"
-                    class="dashboard-panel group p-5 transition hover:-translate-y-0.5 hover:border-slate-200"
-                >
-                    <span class="text-xs font-bold text-slate-500">
-                        تحلیل
-                    </span>
-
-                    <strong class="mt-2 flex items-center justify-between text-sm font-black text-slate-950">
-                        گزارش‌های آموزشگاه
-                        <span class="transition-transform group-hover:-translate-x-1">
-                            ←
-                        </span>
-                    </strong>
-                </a>
-
+        {{-- Footer shortcuts follow the same destination permissions as the sidebar. --}}
+        @if($canViewClassrooms || $canViewAcademy || $canViewReports)
+            <section class="owner-footer-actions" aria-label="دسترسی‌های پایانی">
+                @if($canViewClassrooms)
+                    <a href="{{ route('owner.classrooms.index', $firstAcademy) }}" class="dashboard-panel owner-footer-action">
+                        <span>عملیات</span><strong>مدیریت کلاس‌ها <i aria-hidden="true">←</i></strong>
+                    </a>
+                @endif
+                @if($canViewAcademy)
+                    <a href="{{ route('owner.people.index', $firstAcademy) }}" class="dashboard-panel owner-footer-action">
+                        <span>اعضای آموزشگاه</span><strong>مدیریت دانش‌آموز و مدرس <i aria-hidden="true">←</i></strong>
+                    </a>
+                @endif
+                @if($canViewReports)
+                    <a href="{{ route('owner.reports.index') }}" class="dashboard-panel owner-footer-action">
+                        <span>تحلیل</span><strong>گزارش‌های آموزشگاه <i aria-hidden="true">←</i></strong>
+                    </a>
+                @endif
             </section>
         @endif
 
