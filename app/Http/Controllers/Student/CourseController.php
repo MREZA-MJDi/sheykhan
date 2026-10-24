@@ -11,9 +11,17 @@ class CourseController extends Controller
 {
     public function index(StudentCourseService $courses): View
     {
-        $coursesList = $courses->query(request()->user())
-            ->paginate(12)
-            ->withQueryString();
+        $search = mb_substr(trim(request()->string('q')->toString()), 0, 100);
+        $query = $courses->query(request()->user());
+
+        if ($search !== '') {
+            $query->where(function ($builder) use ($search): void {
+                $builder->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('academy', fn ($academy) => $academy->where('name', 'like', '%' . $search . '%'));
+            });
+        }
+
+        $coursesList = $query->paginate(12)->withQueryString();
 
         $progress = $courses->progressByCourse(
             request()->user(),
@@ -24,7 +32,7 @@ class CourseController extends Controller
             $course->learning_progress = (float) ($progress[$course->id] ?? 0);
         });
 
-        return view('student.courses.index', ['courses' => $coursesList]);
+        return view('student.courses.index', ['courses' => $coursesList, 'courseSearch' => $search]);
     }
 
     public function show(Course $course, StudentCourseService $courses): View
