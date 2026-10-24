@@ -160,6 +160,16 @@
                     @if($user->hasPermission('teacher_payments.view'))
                         <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.teacher-payments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حقوق مدرس‌ها</span></a>
                     @endif
+                    @if($user->hasPermission('content.manage'))
+                        <a href="{{ route('owner.resources.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.resources.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ویدئو و منابع آموزشی</span></a>
+                        <a href="{{ route('owner.showcase.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.showcase.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>افتخارآفرینان و رضایتمندی</span></a>
+                    @endif
+                    @if($user->hasPermission('products.view'))
+                        <a href="{{ route('owner.products.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.products.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>محصولات و منابع فروش</span></a>
+                    @endif
+                    @if($user->hasPermission('orders.view'))
+                        <a href="{{ route('owner.orders.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.orders.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>سفارش‌ها و رسیدها</span></a>
+                    @endif
                 </div>
             </div>
         @empty
@@ -210,6 +220,13 @@
                     </a>
                 @endif
             @endif
+        @endif
+
+        @if($user->hasPermission('legal.manage') && Route::has('owner.legal-documents.index'))
+            <div class="role-sidebar-label mt-6">اسناد و حقوقی</div>
+            <a href="{{ route('owner.legal-documents.index') }}" class="role-nav-link {{ request()->routeIs('owner.legal-documents.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>اسناد حقوقی و کپی‌رایت</span>
+            </a>
         @endif
 
         @if($user->hasPermission('finance.view') && Route::has('owner.finance.index'))
