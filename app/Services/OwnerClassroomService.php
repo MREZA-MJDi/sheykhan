@@ -182,7 +182,7 @@ final class OwnerClassroomService
                 'grade_id' => $data['grade_id'] ?? null,
                 'academic_year_id' => $data['academic_year_id'] ?? null,
                 'title' => $data['title'],
-                'code' => $data['code'],
+                'code' => app(ClassroomCodeGenerator::class)->resolve($data['code'] ?? null),
                 'description' => $data['description'] ?? null,
                 'capacity' => $data['capacity'] ?? null,
                 'status' => $data['status'] ?? 'active',
