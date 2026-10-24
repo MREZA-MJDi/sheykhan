@@ -1542,7 +1542,7 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
     .owner-shell .owner-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
     .owner-shell .owner-dashboard > section[aria-labelledby="owner-quick-actions-title"]{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-@media(max-width:980px){
+@media(max-width:1050px){
     .owner-shell .role-layout{display:block;min-height:100dvh}
     .owner-shell .role-sidebar{display:none!important}
     .owner-shell .role-content{width:100%;max-width:none}
@@ -1583,7 +1583,7 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
 
 
 /* The shared role bar remains fixed at tablet widths as well as phone widths. */
-@media(min-width:701px) and (max-width:980px){
+@media(min-width:701px) and (max-width:1050px){
     .owner-shell .role-mobile-bottom-nav{
         position:fixed!important;
         left:max(12px,env(safe-area-inset-left,0px));
