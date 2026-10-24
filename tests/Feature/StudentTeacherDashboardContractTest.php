@@ -197,7 +197,6 @@ class StudentTeacherDashboardContractTest extends TestCase
     public function test_teacher_and_student_portals_use_consolidated_assets_and_shared_mobile_navigation(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
-        $teacherDashboardCss = file_get_contents(resource_path('css/teacher-dashboard-polish.css'));
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
         $teacherAdapter = file_get_contents(resource_path('js/teacher/panel.js'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
@@ -210,12 +209,13 @@ class StudentTeacherDashboardContractTest extends TestCase
         $mobileNavigation = file_get_contents(resource_path('views/components/navigation/role-mobile-nav.blade.php'));
         $vite = file_get_contents(base_path('vite.config.js'));
 
-        foreach ([$teacherCss, $teacherDashboardCss, $teacherJs, $teacherAdapter, $studentCss, $studentJs, $appCss, $appJs,
+        foreach ([$teacherCss, $teacherJs, $teacherAdapter, $studentCss, $studentJs, $appCss, $appJs,
             $teacherLayout, $studentLayout, $dashboard, $mobileNavigation, $vite] as $content) {
             $this->assertIsString($content);
         }
 
         $this->assertFileDoesNotExist(resource_path('css/teacher-dashboard.css'));
+        $this->assertFileDoesNotExist(resource_path('css/teacher-dashboard-polish.css'));
         $this->assertFileDoesNotExist(resource_path('js/teacher-dashboard.js'));
         $this->assertFileDoesNotExist(resource_path('views/layouts/teacher-dashboard.blade.php'));
         $this->assertFileDoesNotExist(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
@@ -225,10 +225,14 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString('teacher-dashboard.js', $vite);
         $this->assertStringNotContainsString('seo.css', $vite);
         $this->assertStringNotContainsString('seo.js', $vite);
-        $this->assertSame(1, substr_count($vite, 'resources/css/teacher-dashboard-polish.css'));
-        $this->assertStringContainsString("@vite(['resources/css/teacher-dashboard-polish.css'])", $teacherLayout);
-        $this->assertStringContainsString('.teacher-kpi', $teacherDashboardCss);
-        $this->assertStringContainsString('prefers-reduced-motion', $teacherDashboardCss);
+        $this->assertStringNotContainsString('teacher-dashboard-polish.css', $vite);
+        $this->assertStringNotContainsString('teacher-dashboard-polish.css', $teacherLayout);
+        $this->assertStringContainsString('.teacher-kpi', $teacherCss);
+        $this->assertStringContainsString('.teacher-workspace-page', $teacherCss);
+        $this->assertStringContainsString('.teacher-profile-avatar', $teacherCss);
+        $this->assertStringContainsString('prefers-reduced-motion', $teacherCss);
+        $this->assertStringContainsString('maxSizeMb > 0 && file.size > maxSizeMb * 1024 * 1024', $teacherAdapter);
+        $this->assertStringContainsString('teacher-cover-preview-label', $teacherAdapter);
 
         $this->assertSame(1, substr_count($teacherCss, "@import './communication-pages.css';"));
         $this->assertSame(1, substr_count($teacherCss, '@import'));
@@ -249,8 +253,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString("import '../css/teacher.css';", $teacherJs);
         foreach ([
             'resources/css/app.css', 'resources/css/home.css', 'resources/css/student.css',
-            'resources/css/teacher.css', 'resources/css/teacher-dashboard-polish.css',
-            'resources/css/admin.css', 'resources/css/parent.css',
+            'resources/css/teacher.css', 'resources/css/admin.css', 'resources/css/parent.css',
         ] as $entry) {
             $this->assertSame(1, substr_count($vite, $entry), $entry . ' must be registered once in Vite.');
         }
@@ -260,7 +263,9 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('data-chart-range', $teacherAdapter);
 
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="teacher" />', $teacherLayout);
-        $this->assertStringContainsString("request()->routeIs('teacher.dashboard')", $teacherLayout);
+        $this->assertStringContainsString('data-theme="light"', $teacherLayout);
+        $this->assertStringContainsString('teacherProfile.media', $teacherLayout);
+        $this->assertStringContainsString('$teacherPanelAvatarUrl', $teacherLayout);
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
         $this->assertStringContainsString('id="student-profile-modal"', $studentLayout);
         $this->assertStringContainsString('data-student-profile-open', $studentLayout);
