@@ -324,7 +324,7 @@
                 </div>
 
                 <div class="td-list td-upcoming-list">
-                    @forelse(collect($upcomingClasses ?? [])->take(5) as $item)
+                    @forelse(collect($upcomingClasses ?? [])->take(6) as $item)
                         <article class="td-list-item td-upcoming-item" data-dashboard-searchable>
                             <span class="td-time-box">
                                 <strong>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</strong>
