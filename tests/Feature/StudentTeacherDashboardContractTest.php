@@ -49,6 +49,10 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('id="teacher-dashboard"', false)
             ->assertSee('class="ph teacher-dashboard-hero"', false)
             ->assertSee('class="teacher-dashboard-avatar"', false)
+            ->assertSee('class="teacher-kpi vi"', false)
+            ->assertDontSee('<a class="teacher-kpi', false)
+            ->assertDontSee('<a class="teacher-student-row', false)
+            ->assertDontSee('<a class="teacher-course-card', false)
             ->assertSee('id="teacher-progress"', false)
             ->assertSee('data-dashboard-chart', false)
             ->assertSee('data-chart-range="week"', false)
@@ -163,18 +167,41 @@ class StudentTeacherDashboardContractTest extends TestCase
                 ->where('classroom_student.status', 'active'))
             ->firstOrFail();
 
+        // Select a student who is also actively enrolled in one of this teacher's courses.
+        $courseIds = $teacher->taughtCourses()
+            ->whereIn('courses.academy_id', $activeAcademyIds)
+            ->pluck('courses.id');
+        $studentWithEnrollment = User::query()
+            ->whereKey($student->id)
+            ->whereHas('enrollments', fn ($query) => $query
+                ->whereIn('course_id', $courseIds)
+                ->where('status', 'active'))
+            ->firstOrFail();
+
         $service = app(TeacherDashboardService::class);
-        $before = $service->build($teacher)['metrics']['studentCount'];
+        $beforeData = $service->build($teacher);
+        $before = $beforeData['metrics']['studentCount'];
+        $beforeCourseRosterCount = collect($beforeData['courseProgress'])->sum('student_count');
         $this->assertGreaterThan(0, $before);
+        $this->assertGreaterThan(0, $beforeCourseRosterCount);
 
-        $student->delete();
+        $studentWithEnrollment->delete();
 
-        $this->assertSame($before - 1, $service->build($teacher)['metrics']['studentCount']);
+        $afterData = $service->build($teacher);
+        $this->assertSame($before - 1, $afterData['metrics']['studentCount']);
+        $this->assertLessThan(
+            $beforeCourseRosterCount,
+            collect($afterData['courseProgress'])->sum('student_count')
+        );
+        $this->assertFalse($afterData['topStudents']->contains(
+            fn ($candidate): bool => (int) $candidate->id === (int) $studentWithEnrollment->id
+        ));
     }
 
     public function test_teacher_and_student_portals_use_consolidated_assets_and_shared_mobile_navigation(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
+        $teacherDashboardCss = file_get_contents(resource_path('css/teacher-dashboard-polish.css'));
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
         $teacherAdapter = file_get_contents(resource_path('js/teacher/panel.js'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
@@ -187,7 +214,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $mobileNavigation = file_get_contents(resource_path('views/components/navigation/role-mobile-nav.blade.php'));
         $vite = file_get_contents(base_path('vite.config.js'));
 
-        foreach ([$teacherCss, $teacherJs, $teacherAdapter, $studentCss, $studentJs, $appCss, $appJs,
+        foreach ([$teacherCss, $teacherDashboardCss, $teacherJs, $teacherAdapter, $studentCss, $studentJs, $appCss, $appJs,
             $teacherLayout, $studentLayout, $dashboard, $mobileNavigation, $vite] as $content) {
             $this->assertIsString($content);
         }
@@ -202,6 +229,10 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString('teacher-dashboard.js', $vite);
         $this->assertStringNotContainsString('seo.css', $vite);
         $this->assertStringNotContainsString('seo.js', $vite);
+        $this->assertSame(1, substr_count($vite, 'resources/css/teacher-dashboard-polish.css'));
+        $this->assertStringContainsString("@vite(['resources/css/teacher-dashboard-polish.css'])", $teacherLayout);
+        $this->assertStringContainsString('.teacher-kpi', $teacherDashboardCss);
+        $this->assertStringContainsString('prefers-reduced-motion', $teacherDashboardCss);
 
         $this->assertSame(1, substr_count($teacherCss, "@import './communication-pages.css';"));
         $this->assertSame(1, substr_count($teacherCss, '@import'));
