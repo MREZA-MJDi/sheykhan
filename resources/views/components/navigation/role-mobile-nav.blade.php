@@ -79,7 +79,7 @@
         $items = [
             ['route' => 'owner.seo.index', 'label' => 'ممیزی SEO صفحات', 'permission' => 'seo.manage', 'icon' => '⌕', 'primary' => true],
             ['route' => 'owner.seo.keywords.index', 'label' => 'کلمات کلیدی و رتبه', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => true],
-            ['route' => 'owner.reports.index', 'label' => 'گزارش عملکرد', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false],
+
         ];
     }
 
