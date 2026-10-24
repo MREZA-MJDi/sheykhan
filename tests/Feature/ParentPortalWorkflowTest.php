@@ -8,6 +8,7 @@ use App\Models\AssignmentSubmission;
 use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Course;
+use App\Models\CounselingRequest;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\LiveClass;
@@ -196,6 +197,80 @@ class ParentPortalWorkflowTest extends TestCase
             ->assertSee('آزمون نهایی والد')
             ->assertSee($student->name)
             ->assertDontSee($otherStudent->name);
+    }
+
+    public function test_parent_sees_unsubmitted_and_pending_assignment_statuses_but_not_other_classroom_work(): void
+    {
+        $workspace = $this->workspace();
+        $parent = $workspace['parent'];
+        $student = $workspace['student'];
+        $otherStudent = $workspace['unlinkedStudent'];
+        $course = $workspace['course'];
+        $classroom = $workspace['classroom'];
+        $teacher = $workspace['teacher'];
+
+        $unsubmitted = Assignment::query()->create([
+            'course_id' => $course->id,
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'تکلیف هنوز ارسال‌نشده والد',
+            'instructions' => 'ارسال یک پاسخ کوتاه',
+            'due_at' => now()->addDays(2),
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
+
+        $pending = Assignment::query()->create([
+            'course_id' => $course->id,
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'تکلیف ارسال‌شده منتظر تصحیح والد',
+            'instructions' => 'منتظر بررسی مدرس',
+            'due_at' => now()->addDay(),
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
+
+        AssignmentSubmission::query()->create([
+            'assignment_id' => $pending->id,
+            'student_id' => $student->id,
+            'content' => 'پاسخ دانش‌آموز',
+            'submitted_at' => now()->subHours(3),
+        ]);
+
+        $otherClassroom = Classroom::query()->create([
+            'academy_id' => $workspace['academy']->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس دیگر بدون این دانش‌آموز',
+            'code' => 'P-' . strtoupper(Str::random(6)),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $otherClassroom->teachers()->attach($teacher->id);
+        $otherClassroom->students()->attach($otherStudent->id, [
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
+
+        Assignment::query()->create([
+            'course_id' => $course->id,
+            'classroom_id' => $otherClassroom->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'تکلیف کلاس دیگر که نباید دیده شود',
+            'instructions' => 'فقط برای گروه دیگر',
+            'due_at' => now()->addDay(),
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('parent.results.index'))
+            ->assertOk()
+            ->assertSee('تکلیف هنوز ارسال‌نشده والد')
+            ->assertSee('ارسال نشده')
+            ->assertSee('تکلیف ارسال‌شده منتظر تصحیح والد')
+            ->assertSee('ارسال‌شده · در انتظار تصحیح')
+            ->assertDontSee('تکلیف کلاس دیگر که نباید دیده شود');
     }
 
     public function test_teacher_can_reply_only_to_a_message_from_a_student_they_teach(): void
