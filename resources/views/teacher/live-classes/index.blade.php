@@ -1,110 +1,14 @@
-@extends('layouts.teacher')
-@section('title','کلاس‌های آنلاین | شیخان')
-@section('header-title','کلاس‌های آنلاین')
-
-@section('content')
-<div class="teacher-workspace-page">
-    <header class="teacher-workspace-head">
-        <div class="teacher-workspace-head-copy">
-            <span class="teacher-workspace-kicker">جلسه آنلاین</span>
-            <h1 class="teacher-workspace-title">کلاس‌های آنلاین</h1>
-            <p class="teacher-workspace-description">جلسه را به دوره و در صورت نیاز به یک کلاس مشخص متصل کن و لینک ورود دانش‌آموز را امن و شفاف نگه دار.</p>
-        </div>
-        <a href="{{ route('teacher.live-classes.create') }}" class="teacher-workspace-btn primary">+ جلسه آنلاین جدید</a>
-    </header>
-
-    @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
-
-    <section class="teacher-workspace-stats">
-        <div class="teacher-workspace-stat"><small>کل جلسات</small><strong>{{ App\Support\PersianUi::digits($liveClasses->total()) }}</strong><span>جلسه ثبت‌شده</span></div>
-        <div class="teacher-workspace-stat"><small>برنامه‌ریزی‌شده</small><strong>{{ App\Support\PersianUi::digits($liveClasses->getCollection()->where('status','scheduled')->count()) }}</strong><span>در این صفحه</span></div>
-        <div class="teacher-workspace-stat"><small>در حال برگزاری</small><strong>{{ App\Support\PersianUi::digits($liveClasses->getCollection()->where('status','live')->count()) }}</strong><span>وضعیت فعلی</span></div>
-        <div class="teacher-workspace-stat"><small>لغوشده</small><strong>{{ App\Support\PersianUi::digits($liveClasses->getCollection()->where('status','cancelled')->count()) }}</strong><span>در این صفحه</span></div>
-    </section>
-
-    <section class="teacher-workspace-card">
-        <div class="teacher-workspace-card-head"><div><h2>جلسه‌های آنلاین</h2><p>جلسه‌های نزدیک به امروز را سریع پیدا کن و لینک ورود را باز کن.</p></div></div>
-        <div class="teacher-workspace-list">
-            @forelse($liveClasses as $liveClass)
-                @php
-                    $status = match($liveClass->status) {
-                        'scheduled' => ['برنامه‌ریزی‌شده',''],
-                        'live' => ['در حال برگزاری','success'],
-                        'ended' => ['پایان‌یافته','muted'],
-                        'cancelled' => ['لغوشده','danger'],
-                        default => [$liveClass->status,'muted'],
-                    };
-                @endphp
-                <article class="teacher-workspace-item">
-                    <div class="teacher-workspace-item-main">
-                        <strong class="teacher-workspace-item-title">{{ $liveClass->title }}</strong>
-                        <div class="teacher-workspace-item-meta">
-                            <span>{{ $liveClass->course?->title ?: 'دوره' }}</span>
-                            <span>{{ $liveClass->classroom?->title ?: 'همه دانش‌آموزان دوره' }}</span>
-                            <span>{{ App\Support\PersianUi::date($liveClass->scheduled_at).' · '.App\Support\PersianUi::time($liveClass->scheduled_at) }}</span>
-                            <span>{{ $liveClass->provider }}</span>
-                            <span>{{ App\Support\PersianUi::digits($liveClass->duration_minutes) }} دقیقه</span>
-                        </div>
-                    </div>
-                    <div class="teacher-workspace-item-actions">
-                        <span class="teacher-workspace-chip {{ $status[1] }}">{{ $status[0] }}</span>
-                        @if($liveClass->meeting_url && $liveClass->status !== 'cancelled')
-                            <a href="{{ $liveClass->meeting_url }}" target="_blank" rel="noopener noreferrer" class="teacher-workspace-link primary">ورود به جلسه</a>
-                        @endif
-                    </div>
-                    @if($liveClass->recording)
-                        @php
-                            $recordingIsReleased = $liveClass->isRecordingAvailable();
-                            $recordingIsScheduled = $liveClass->recording_released_at && $liveClass->recording_released_at->isFuture();
-                        @endphp
-                        <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-                            <div class="flex flex-wrap items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <p class="text-xs font-black text-slate-700">آرشیو ضبط جلسه</p>
-                                    <p class="mt-1 break-all text-sm font-bold">{{ $liveClass->recording->original_name ?: 'فایل ضبط‌شده' }}</p>
-                                    <p class="mt-1 text-xs leading-6 text-slate-500">
-                                        @if($liveClass->recording_released_at)
-                                            زمان انتشار: {{ App\Support\PersianUi::date($liveClass->recording_released_at) }} · {{ App\Support\PersianUi::time($liveClass->recording_released_at) }}
-                                        @else
-                                            هنوز زمان انتشار برای دانش‌آموزان تعیین نشده است.
-                                        @endif
-                                    </p>
-                                </div>
-                                <span class="teacher-workspace-chip {{ $recordingIsReleased ? 'success' : ($recordingIsScheduled ? '' : 'muted') }}">
-                                    {{ $recordingIsReleased ? 'قابل دسترسی برای دانش‌آموزان مجاز' : ($recordingIsScheduled ? 'در انتظار انتشار' : 'ثبت‌شده / مخفی') }}
-                                </span>
-                            </div>
-                            @if($liveClass->recording->status !== 'active')
-                                <p class="mt-2 text-xs leading-6 text-amber-800">وضعیت فایل نیازمند بررسی است؛ تا معتبر و فعال‌شدن فایل، دسترسی دانش‌آموزان تضمین نمی‌شود.</p>
-                            @endif
-                        </div>
-                    @else
-                        <div class="mt-4 rounded-xl border border-dashed border-slate-200 p-3 text-xs leading-6 text-slate-500">
-                            برای این جلسه هنوز فایل ضبط‌شده‌ای ثبت نشده است.
-                        </div>
-                    @endif
-                    @if($liveClass->status !== 'cancelled')
-                        <form method="POST" enctype="multipart/form-data" action="{{ route('teacher.live-classes.recording.store', $liveClass) }}" class="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(180px,.7fr)_auto] sm:items-end">
-                            @csrf
-                            <label class="grid gap-1 text-xs font-bold text-slate-700">
-                                ضبط جلسه (MP4 / WebM / MOV)
-                                <input type="file" name="recording" accept="video/mp4,video/webm,video/quicktime" required class="block w-full text-xs">
-                                <small class="font-normal text-slate-500">حداکثر ۲۰۰ مگابایت؛ فایل به‌صورت خصوصی ذخیره می‌شود.</small>
-                            </label>
-                            <label class="grid gap-1 text-xs font-bold text-slate-700">
-                                زمان انتشار (اختیاری)
-                                <input type="datetime-local" name="release_at" class="min-h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-normal">
-                                <small class="font-normal text-slate-500">خالی بماند، از همین حالا قابل مشاهده است.</small>
-                            </label>
-                            <button type="submit" class="teacher-workspace-link primary min-h-10">ذخیره ضبط</button>
-                        </form>
-                    @endif
-                </article>
-            @empty
-                <div class="teacher-workspace-empty"><strong>جلسه‌ای ثبت نشده است.</strong>اولین جلسه آنلاین را برای یک دوره یا کلاس برنامه‌ریزی کن.</div>
-            @endforelse
-        </div>
-        @if($liveClasses->hasPages())<div class="teacher-workspace-pagination">{{ $liveClasses->links('components.navigation.pagination') }}</div>@endif
-    </section>
-</div>
-@endsection
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>پنل مدرس</title>
+</head>
+<body>
+    <main>
+        <h1>پنل مدرس</h1>
+        <p>رابط کاربری بخش مدرس برای بازطراحی از نو خالی شده است.</p>
+    </main>
+</body>
+</html>
