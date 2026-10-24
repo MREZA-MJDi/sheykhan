@@ -5,9 +5,20 @@
 @section('content')
     @php
         $dashboardMetrics = $metrics ?? [];
-        $pendingReviews = max(0, (int) ($dashboardMetrics['pendingReviews'] ?? 0));
         $pendingAssignmentReviews = max(0, (int) ($dashboardMetrics['pendingAssignmentReviews'] ?? 0));
         $pendingExamReviews = max(0, (int) ($dashboardMetrics['pendingExamReviews'] ?? 0));
+        $canViewClassrooms = (bool) auth()->user()?->hasPermission('classrooms.view');
+        $canViewCourses = (bool) auth()->user()?->hasPermission('courses.view');
+        $canViewStudents = (bool) auth()->user()?->hasPermission('students.view');
+        $canViewAssignments = (bool) auth()->user()?->hasPermission('assignments.view');
+        $canViewExams = (bool) auth()->user()?->hasPermission('exams.view');
+        $canViewAttendance = (bool) auth()->user()?->hasPermission('attendance.view');
+        $canViewLiveClasses = (bool) auth()->user()?->hasPermission('live_classes.view');
+        $canViewParentMessages = (bool) auth()->user()?->hasPermission('parent_messages.view');
+        $canReviewPendingAssignments = $canViewAssignments && $pendingAssignmentReviews > 0;
+        $canReviewPendingExams = $canViewExams && $pendingExamReviews > 0;
+        $pendingReviews = (int) ($canViewAssignments ? $pendingAssignmentReviews : 0)
+            + (int) ($canViewExams ? $pendingExamReviews : 0);
         $activeClasses = max(0, (int) ($dashboardMetrics['activeClasses'] ?? 0));
         $studentCount = max(0, (int) ($dashboardMetrics['studentCount'] ?? 0));
         $weeklySessions = max(0, (int) ($dashboardMetrics['weeklySessions'] ?? 0));
@@ -19,19 +30,25 @@
         $monthChart = $chart['month'] ?? ['labels' => [], 'values' => []];
         $chartSlots = max(count($weekChart['values'] ?? []), count($monthChart['values'] ?? []));
         $dashboardDateLabel = $dashboardDate ?? \App\Support\PersianUi::date(now());
-        $focusRoute = $pendingAssignmentReviews > 0
+        $focusRoute = $canReviewPendingAssignments
             ? route('teacher.assignments.index')
-            : ($pendingExamReviews > 0 ? route('teacher.exams.index') : route('teacher.classrooms.index'));
-        $focusLabel = $pendingAssignmentReviews > 0
+            : ($canReviewPendingExams
+                ? route('teacher.exams.index')
+                : ($canViewClassrooms
+                    ? route('teacher.classrooms.index')
+                    : ($canViewLiveClasses ? route('teacher.schedule.index') : null)));
+        $focusLabel = $canReviewPendingAssignments
             ? 'شروع تصحیح تکالیف'
-            : ($pendingExamReviews > 0 ? 'بررسی آزمون‌ها' : 'مدیریت کلاس‌ها');
+            : ($canReviewPendingExams
+                ? 'بررسی آزمون‌ها'
+                : ($canViewClassrooms ? 'مدیریت کلاس‌ها' : 'مشاهده برنامه'));
         $kpis = [
-            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'route' => 'teacher.classrooms.index', 'tone' => 'indigo', 'icon' => 'classes'],
-            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'route' => 'teacher.courses.index', 'tone' => 'blue', 'icon' => 'book'],
-            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده', 'route' => 'teacher.schedule.index', 'tone' => 'cyan', 'icon' => 'clock'],
-            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'دانش‌آموزان کلاس‌های شما', 'route' => 'teacher.students.index', 'tone' => 'violet', 'icon' => 'students'],
-            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'ارسال‌شده و نیازمند بازخورد', 'route' => 'teacher.assignments.index', 'tone' => 'amber', 'icon' => 'assignment'],
-            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'پاسخ‌های نیازمند ارزیابی', 'route' => 'teacher.exams.index', 'tone' => 'rose', 'icon' => 'exam'],
+            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'route' => 'teacher.classrooms.index', 'tone' => 'indigo', 'icon' => 'classes', 'permission' => 'classrooms.view'],
+            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'route' => 'teacher.courses.index', 'tone' => 'blue', 'icon' => 'book', 'permission' => 'courses.view'],
+            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده', 'route' => 'teacher.schedule.index', 'tone' => 'cyan', 'icon' => 'clock', 'permission' => 'live_classes.view'],
+            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'دانش‌آموزان کلاس‌های شما', 'route' => 'teacher.students.index', 'tone' => 'violet', 'icon' => 'students', 'permission' => 'students.view'],
+            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'ارسال‌شده و نیازمند بازخورد', 'route' => 'teacher.assignments.index', 'tone' => 'amber', 'icon' => 'assignment', 'permission' => 'assignments.view'],
+            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'پاسخ‌های نیازمند ارزیابی', 'route' => 'teacher.exams.index', 'tone' => 'rose', 'icon' => 'exam', 'permission' => 'exams.view'],
         ];
     @endphp
 
@@ -43,19 +60,24 @@
                 <p>کلاس‌ها، ارزیابی‌ها و جلسه‌های پیش‌رو را از یک نمای یکپارچه پیگیری کن.</p>
             </div>
             <div class="tdb-actions">
+                @if($canViewLiveClasses)
                 <a class="tdb-button" href="{{ route('teacher.schedule.index') }}">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4m8-4v4M3 10h18"></path></svg>
                     برنامه هفتگی
                 </a>
+                @endif
+                @if($canViewAssignments)
                 <a class="tdb-button primary" href="{{ route('teacher.assignments.index') }}">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8l3 3v13H5V4z"></path><path d="M8 12h8M8 16h5"></path></svg>
                     مدیریت تکالیف
                 </a>
+                @endif
             </div>
         </header>
 
         <section class="tdb-kpis" aria-label="شاخص‌های آموزشی">
             @foreach($kpis as $metric)
+                @if(auth()->user()?->hasPermission($metric['permission']))
                 <a class="tdb-kpi {{ $metric['tone'] }}" href="{{ route($metric['route']) }}" data-dashboard-searchable>
                     <span class="tdb-kpi-top">
                         <span class="tdb-kpi-label">{{ $metric['label'] }}</span>
@@ -78,6 +100,7 @@
                     <strong>{{ $metric['value'] }}</strong>
                     <small>{{ $metric['hint'] }}</small>
                 </a>
+                @endif
             @endforeach
         </section>
 
@@ -92,33 +115,40 @@
             <div class="tdb-focus-copy">
                 <span class="tdb-card-kicker">{{ $pendingReviews > 0 ? 'نیازمند توجه' : 'وضعیت امروز' }}</span>
                 <h2 class="tdb-focus-title" id="tdb-focus-title">
-                    @if($pendingAssignmentReviews > 0)
+                    @if($canReviewPendingAssignments)
                         {{ \App\Support\PersianUi::digits($pendingAssignmentReviews) }} تکلیف برای تصحیح باقی مانده است.
-                    @elseif($pendingExamReviews > 0)
+                    @elseif($canReviewPendingExams)
                         {{ \App\Support\PersianUi::digits($pendingExamReviews) }} آزمون برای بررسی باقی مانده است.
-                    @elseif($activeClasses > 0)
+                    @elseif($activeClasses > 0 && $canViewClassrooms)
                         کلاس‌ها آماده‌اند؛ برنامه امروزت را مرور کن.
+                    @elseif($activeClasses > 0)
+                        وضعیت آموزشی شما به‌روز است؛ بخش‌های مجاز در دسترس‌اند.
                     @else
                         هنوز کلاس فعالی به این حساب متصل نشده است.
                     @endif
                 </h2>
                 <p>
-                    @if($pendingAssignmentReviews > 0)
+                    @if($canReviewPendingAssignments)
                         بازخورد به‌موقع به دانش‌آموز کمک می‌کند مسیر بعدی یادگیری را روشن‌تر ببیند.
-                    @elseif($pendingExamReviews > 0)
+                    @elseif($canReviewPendingExams)
                         پاسخ‌های ارسال‌شده را از بخش آزمون‌ها بررسی و نهایی کن.
-                    @elseif($activeClasses > 0)
+                    @elseif($activeClasses > 0 && $canViewClassrooms)
                         برنامه جلسات، دوره‌ها و پیگیری‌های آموزشی در همین صفحه در دسترس‌اند.
+                    @elseif($activeClasses > 0)
+                        از بخش‌های مجاز پنل برای ادامه کار استفاده کن.
                     @else
                         با اتصال کلاس یا دوره به حساب مدرس، اطلاعات واقعی آموزشی این صفحه نمایش داده می‌شود.
                     @endif
                 </p>
             </div>
-            <a class="tdb-focus-action" href="{{ $focusRoute }}">{{ $focusLabel }} <span aria-hidden="true">←</span></a>
+            @if($focusRoute)
+                <a class="tdb-focus-action" href="{{ $focusRoute }}">{{ $focusLabel }} <span aria-hidden="true">←</span></a>
+            @endif
         </section>
 
         <div class="tdb-layout">
             <div class="tdb-stack tdb-main-column">
+                @if($canViewStudents)
                 <section class="tdb-card" aria-labelledby="tdb-students-title">
                     <div class="tdb-card-head">
                         <div><span class="tdb-card-kicker">یادگیرندگان</span><h2 id="tdb-students-title">دانش‌آموزان با پیشرفت بالاتر</h2></div>
@@ -138,6 +168,9 @@
                     </div>
                 </section>
 
+                @endif
+
+                @if($canViewCourses)
                 <section class="tdb-card" aria-labelledby="tdb-courses-title">
                     <div class="tdb-card-head">
                         <div><span class="tdb-card-kicker">محتوای آموزشی</span><h2 id="tdb-courses-title">دوره‌های من</h2></div>
@@ -158,6 +191,8 @@
                         @endforelse
                     </div>
                 </section>
+
+                @endif
 
                 <section class="tdb-card" id="tdb-progress" aria-labelledby="tdb-progress-title">
                     <div class="tdb-card-head">
@@ -181,6 +216,7 @@
                     <p class="tdb-chart-note">نمودار بر اساس داده‌های ثبت‌شدهٔ پیشرفت درس‌هاست؛ تاریخچهٔ دقیق تغییرات روزبه‌روز در همهٔ فعالیت‌ها ذخیره نمی‌شود.</p>
                 </section>
 
+                @if($canViewAssignments)
                 <section class="tdb-card" aria-labelledby="tdb-assignments-title">
                     <div class="tdb-card-head">
                         <div><span class="tdb-card-kicker">پیگیری سریع</span><h2 id="tdb-assignments-title">آخرین تکالیف</h2></div>
@@ -202,9 +238,11 @@
                         @endforelse
                     </div>
                 </section>
+                @endif
             </div>
 
             <aside class="tdb-stack tdb-side-column">
+                @if($canViewLiveClasses)
                 <section class="tdb-card" aria-labelledby="tdb-today-title">
                     <div class="tdb-card-head">
                         <div><span class="tdb-card-kicker">{{ $dashboardDateLabel }}</span><h2 id="tdb-today-title">برنامه امروز</h2></div>
@@ -230,20 +268,33 @@
                     </div>
                 </section>
 
+                @endif
+
                 <section class="tdb-card" aria-labelledby="tdb-shortcuts-title">
                     <div class="tdb-card-head"><div><span class="tdb-card-kicker">دسترسی سریع</span><h2 id="tdb-shortcuts-title">مسیرهای پرکاربرد</h2></div></div>
                     <div class="tdb-shortcuts">
+                        @if($canViewAssignments)
                         <a href="{{ route('teacher.assignments.index') }}" class="tdb-shortcut" data-dashboard-searchable><span class="tdb-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4h8l3 3v13H5V4z"></path><path d="M8 12h8M8 16h5"></path></svg></span><span class="tdb-shortcut-copy"><strong>تکالیف</strong><small>{{ \App\Support\PersianUi::digits($pendingAssignmentReviews) }} مورد برای تصحیح</small></span><span class="tdb-shortcut-arrow" aria-hidden="true">←</span></a>
+                        @endif
+                        @if($canViewExams)
                         <a href="{{ route('teacher.exams.index') }}" class="tdb-shortcut" data-dashboard-searchable><span class="tdb-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h10a2 2 0 0 1 2 2v16H5V5a2 2 0 0 1 2-2Z"></path><path d="M8 8h8M8 12h8M8 16h5"></path></svg></span><span class="tdb-shortcut-copy"><strong>آزمون‌ها</strong><small>{{ \App\Support\PersianUi::digits($pendingExamReviews) }} مورد برای بررسی</small></span><span class="tdb-shortcut-arrow" aria-hidden="true">←</span></a>
+                        @endif
+                        @if($canViewAttendance)
                         <a href="{{ route('teacher.attendance.index') }}" class="tdb-shortcut" data-dashboard-searchable><span class="tdb-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></span><span class="tdb-shortcut-copy"><strong>حضور و غیاب</strong><small>ثبت و پیگیری حضور کلاس‌ها</small></span><span class="tdb-shortcut-arrow" aria-hidden="true">←</span></a>
+                        @endif
+                        @if($canViewLiveClasses)
                         <a href="{{ route('teacher.live-classes.index') }}" class="tdb-shortcut" data-dashboard-searchable><span class="tdb-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="14" rx="2"></rect><path d="m16 10 5-3v10l-5-3z"></path></svg></span><span class="tdb-shortcut-copy"><strong>کلاس‌های آنلاین</strong><small>جلسات زنده و زمان‌بندی‌شده</small></span><span class="tdb-shortcut-arrow" aria-hidden="true">←</span></a>
-                        @if(auth()->user()?->hasPermission('parent_messages.view'))
+                        @endif
+                        @if($canViewParentMessages)
                             <a href="{{ route('teacher.messages.index') }}" class="tdb-shortcut" data-dashboard-searchable><span class="tdb-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4z"></path><path d="M8 9h8m-8 4h5"></path></svg></span><span class="tdb-shortcut-copy"><strong>پیام‌های اولیا</strong><small>پاسخ و پیگیری مکاتبات</small></span><span class="tdb-shortcut-arrow" aria-hidden="true">←</span></a>
                         @endif
+                        @if($canViewLiveClasses)
                         <a href="{{ route('teacher.meetings.index') }}" class="tdb-shortcut" data-dashboard-searchable><span class="tdb-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8m-4-4v8"></path></svg></span><span class="tdb-shortcut-copy"><strong>جلسات با اولیا</strong><small>برنامه‌ریزی و پیگیری جلسه‌ها</small></span><span class="tdb-shortcut-arrow" aria-hidden="true">←</span></a>
+                        @endif
                     </div>
                 </section>
 
+                @if($canViewLiveClasses)
                 <section class="tdb-card" aria-labelledby="tdb-online-title">
                     <div class="tdb-card-head"><div><span class="tdb-card-kicker">هفت روز آینده</span><h2 id="tdb-online-title">کلاس‌های آنلاین</h2></div><a class="tdb-card-link" href="{{ route('teacher.live-classes.index') }}">همه جلسه‌ها <span aria-hidden="true">←</span></a></div>
                     <div class="tdb-list">
@@ -264,6 +315,7 @@
                         @endforelse
                     </div>
                 </section>
+                @endif
             </aside>
         </div>
     </section>
