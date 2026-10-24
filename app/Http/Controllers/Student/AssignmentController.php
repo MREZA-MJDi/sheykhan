@@ -21,8 +21,12 @@ class AssignmentController extends Controller
 
     public function show(Assignment $assignment, StudentAssignmentService $assignments): View
     {
+        $student = request()->user();
+        $assignment = $assignments->find($student, $assignment);
+
         return view('student.assignments.show', [
-            'assignment' => $assignments->find(request()->user(), $assignment),
+            'assignment' => $assignment,
+            'canSubmit' => $assignments->canSubmit($student, $assignment),
         ]);
     }
 
