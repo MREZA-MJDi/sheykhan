@@ -688,3 +688,40 @@ body {
   }
   #dashboard .card { background: rgba(255,255,255,.92); }
 }
+
+
+/* Accessible student account modal and bottom navigation integration */
+.student-profile-modal[hidden]{display:none!important}
+.student-profile-modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:18px}
+.student-profile-backdrop{position:absolute;inset:0;width:100%;height:100%;border:0;background:rgba(11,20,43,.5);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.student-profile-dialog{position:relative;z-index:1;width:min(100%,430px);border:1px solid var(--panel-b);border-radius:24px;padding:19px;background:rgba(255,255,255,.96);color:var(--text);box-shadow:0 24px 70px rgba(20,39,68,.25);outline:0;animation:student-menu-enter .18s ease-out}
+.student-profile-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:15px;border-bottom:1px solid rgba(87,110,145,.16)}
+.student-profile-dialog-person{display:flex;align-items:center;gap:11px;min-width:0}
+.student-profile-dialog-avatar{width:48px;height:48px;border-radius:16px;overflow:hidden;display:grid;place-items:center;background:var(--panel);color:var(--side);flex:none}
+.student-profile-dialog-avatar img{width:100%;height:100%;object-fit:cover}
+.student-profile-dialog-person strong,.student-profile-dialog-person small{display:block;overflow-wrap:anywhere}
+.student-profile-dialog-person strong{font-size:14px;font-weight:900}
+.student-profile-dialog-person small{font-size:11px;color:var(--muted);margin-top:2px}
+.student-profile-dialog-close{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:var(--panel);font-size:23px;color:var(--muted);flex:none}
+.student-profile-dialog-actions{display:grid;gap:8px;padding-top:14px}
+.student-profile-dialog-actions>a,.student-profile-dialog-actions>button,.student-profile-dialog-actions form>button{display:flex;align-items:center;gap:11px;width:100%;min-height:58px;padding:10px 12px;border:1px solid rgba(87,110,145,.14);border-radius:14px;background:rgba(245,248,253,.85);color:var(--text);text-align:start}
+.student-profile-dialog-actions>a:hover,.student-profile-dialog-actions>button:hover,.student-profile-dialog-actions form>button:hover{border-color:color-mix(in srgb,var(--side) 35%,transparent);background:var(--panel)}
+.student-profile-dialog-actions .i{width:20px;height:20px;color:var(--side);flex:none}
+.student-profile-dialog-actions span:nth-child(2){flex:1;min-width:0}
+.student-profile-dialog-actions strong,.student-profile-dialog-actions small{display:block}
+.student-profile-dialog-actions strong{font-size:12px;font-weight:900}
+.student-profile-dialog-actions small{font-size:10px;line-height:1.8;color:var(--muted);margin-top:2px}
+.student-profile-theme-state{font-size:10px;color:var(--side);font-weight:900;white-space:nowrap}
+.student-profile-dialog-actions form{margin:0}
+.student-profile-dialog-actions form>button.danger{border-color:rgba(217,73,86,.18);background:rgba(255,241,243,.8);color:#b42336}
+.student-profile-dialog-actions form>button.danger .i{color:#b42336}
+.student-profile-modal-open{overflow:hidden}
+.student-shell .main{min-width:0}
+.student-shell .role-mobile-bottom-nav{background:color-mix(in srgb,var(--panel,rgba(255,255,255,.9)) 84%,transparent);border-color:var(--panel-b,rgba(255,255,255,.7));box-shadow:0 15px 40px rgba(20,39,68,.22)}
+.student-shell .role-mobile-bottom-nav a{color:var(--muted);font-size:9px;gap:3px}
+.student-shell .role-mobile-bottom-nav a.is-active{color:var(--side);background:color-mix(in srgb,var(--panel,white) 70%,transparent)}
+.student-shell .role-mobile-bottom-icon{background:rgba(255,255,255,.45)}
+.student-shell .role-mobile-bottom-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@keyframes student-menu-enter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:700px){.student-shell .main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}.student-profile-dialog{padding:16px;border-radius:21px}.student-profile-modal{padding:12px}}
+@media(prefers-reduced-motion:reduce){.student-profile-dialog{animation:none}}
