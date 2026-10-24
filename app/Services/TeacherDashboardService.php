@@ -163,6 +163,7 @@ final class TeacherDashboardService
             })
             ->join('users', 'users.id', '=', 'memberships.student_id')
             ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->where('classrooms.status', 'active')
             ->whereIn('classrooms.academy_id', $activeAcademyIds)
             ->leftJoin('course_sections', 'course_sections.course_id', '=', 'enrollments.course_id')
@@ -237,7 +238,8 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             })
             ->join('users as learners', function ($join): void {
                 $join->on('learners.id', '=', 'enrollments.student_id')
-                    ->where('learners.status', '=', 'active');
+                    ->where('learners.status', '=', 'active')
+                    ->whereNull('learners.deleted_at');
             })
             ->leftJoin('classrooms', function ($join): void {
                 $join->on('classrooms.id', '=', 'enrollments.classroom_id')

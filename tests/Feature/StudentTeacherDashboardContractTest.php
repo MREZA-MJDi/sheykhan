@@ -49,6 +49,10 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('id="teacher-dashboard"', false)
             ->assertSee('class="ph teacher-dashboard-hero"', false)
             ->assertSee('class="teacher-dashboard-avatar"', false)
+            ->assertSee('class="teacher-kpi vi"', false)
+            ->assertDontSee('<a class="teacher-kpi', false)
+            ->assertDontSee('<a class="teacher-student-row', false)
+            ->assertDontSee('<a class="teacher-course-card', false)
             ->assertSee('id="teacher-progress"', false)
             ->assertSee('data-dashboard-chart', false)
             ->assertSee('data-chart-range="week"', false)
@@ -155,21 +159,39 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->whereIn('classrooms.academy_id', $activeAcademyIds)
             ->where('classrooms.status', 'active')
             ->pluck('classrooms.id');
+        $courseIds = $teacher->taughtCourses()
+            ->whereIn('courses.academy_id', $activeAcademyIds)
+            ->pluck('courses.id');
 
-        $student = User::query()
+        $studentWithEnrollment = User::query()
             ->where('status', 'active')
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
                 ->where('classroom_student.status', 'active'))
+            ->whereHas('enrollments', fn ($query) => $query
+                ->whereIn('classroom_id', $classroomIds)
+                ->whereIn('course_id', $courseIds)
+                ->where('status', 'active'))
             ->firstOrFail();
 
         $service = app(TeacherDashboardService::class);
-        $before = $service->build($teacher)['metrics']['studentCount'];
+        $beforeData = $service->build($teacher);
+        $before = $beforeData['metrics']['studentCount'];
+        $beforeCourseRosterCount = collect($beforeData['courseProgress'])->sum('student_count');
         $this->assertGreaterThan(0, $before);
+        $this->assertGreaterThan(0, $beforeCourseRosterCount);
 
-        $student->delete();
+        $studentWithEnrollment->delete();
 
-        $this->assertSame($before - 1, $service->build($teacher)['metrics']['studentCount']);
+        $afterData = $service->build($teacher);
+        $this->assertSame($before - 1, $afterData['metrics']['studentCount']);
+        $this->assertLessThan(
+            $beforeCourseRosterCount,
+            collect($afterData['courseProgress'])->sum('student_count')
+        );
+        $this->assertFalse($afterData['topStudents']->contains(
+            fn ($candidate): bool => (int) $candidate->id === (int) $studentWithEnrollment->id
+        ));
     }
 
     public function test_teacher_and_student_portals_use_consolidated_assets_and_shared_mobile_navigation(): void
@@ -184,15 +206,17 @@ class StudentTeacherDashboardContractTest extends TestCase
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
         $dashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
+        $teacherProfileView = file_get_contents(resource_path('views/teacher/profile/edit.blade.php'));
         $mobileNavigation = file_get_contents(resource_path('views/components/navigation/role-mobile-nav.blade.php'));
         $vite = file_get_contents(base_path('vite.config.js'));
 
         foreach ([$teacherCss, $teacherJs, $teacherAdapter, $studentCss, $studentJs, $appCss, $appJs,
-            $teacherLayout, $studentLayout, $dashboard, $mobileNavigation, $vite] as $content) {
+            $teacherLayout, $studentLayout, $dashboard, $teacherProfileView, $mobileNavigation, $vite] as $content) {
             $this->assertIsString($content);
         }
 
         $this->assertFileDoesNotExist(resource_path('css/teacher-dashboard.css'));
+        $this->assertFileDoesNotExist(resource_path('css/teacher-dashboard-polish.css'));
         $this->assertFileDoesNotExist(resource_path('js/teacher-dashboard.js'));
         $this->assertFileDoesNotExist(resource_path('views/layouts/teacher-dashboard.blade.php'));
         $this->assertFileDoesNotExist(resource_path('views/components/navigation/teacher-sidebar.blade.php'));
@@ -202,6 +226,14 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString('teacher-dashboard.js', $vite);
         $this->assertStringNotContainsString('seo.css', $vite);
         $this->assertStringNotContainsString('seo.js', $vite);
+        $this->assertStringNotContainsString('teacher-dashboard-polish.css', $vite);
+        $this->assertStringNotContainsString('teacher-dashboard-polish.css', $teacherLayout);
+        $this->assertStringContainsString('.teacher-kpi', $teacherCss);
+        $this->assertStringContainsString('.teacher-workspace-page', $teacherCss);
+        $this->assertStringContainsString('.teacher-profile-avatar', $teacherCss);
+        $this->assertStringContainsString('prefers-reduced-motion', $teacherCss);
+        $this->assertStringContainsString('maxSizeMb > 0 && file.size > maxSizeMb * 1024 * 1024', $teacherAdapter);
+        $this->assertStringContainsString('teacher-cover-preview-label', $teacherAdapter);
 
         $this->assertSame(1, substr_count($teacherCss, "@import './communication-pages.css';"));
         $this->assertSame(1, substr_count($teacherCss, '@import'));
@@ -230,9 +262,16 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('Validate Esfand 30', $teacherJs);
         $this->assertStringContainsString('data-dashboard-chart', $teacherAdapter);
         $this->assertStringContainsString('data-chart-range', $teacherAdapter);
+        $this->assertStringContainsString('data-teacher-preview-container="avatar"', $teacherProfileView);
+        $this->assertStringContainsString('data-teacher-preview-input="avatar"', $teacherProfileView);
+        $this->assertStringContainsString('data-teacher-preview-input="cover"', $teacherProfileView);
+        $this->assertStringContainsString('data-max-size-mb="3"', $teacherProfileView);
+        $this->assertStringContainsString('data-max-size-mb="5"', $teacherProfileView);
 
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="teacher" />', $teacherLayout);
-        $this->assertStringContainsString("request()->routeIs('teacher.dashboard')", $teacherLayout);
+        $this->assertStringContainsString('data-theme="light"', $teacherLayout);
+        $this->assertStringContainsString('teacherProfile.media', $teacherLayout);
+        $this->assertStringContainsString('$teacherPanelAvatarUrl', $teacherLayout);
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
         $this->assertStringContainsString('id="student-profile-modal"', $studentLayout);
         $this->assertStringContainsString('data-student-profile-open', $studentLayout);

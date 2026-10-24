@@ -140,18 +140,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const preview = document.querySelector('[data-teacher-preview-container="' + kind + '"]');
             const feedback = document.querySelector('[data-teacher-preview-feedback="' + kind + '"]');
             if (!file || !preview) return;
+
+            const maxSizeMb = Number(input.dataset.maxSizeMb || 0);
             if (!file.type.startsWith('image/')) {
-                if (feedback) feedback.textContent = 'لطفاً فایل تصویری انتخاب کنید.';
+                if (feedback) feedback.textContent = 'لطفاً یک فایل تصویری معتبر انتخاب کنید.';
                 input.value = '';
                 return;
             }
+            if (maxSizeMb > 0 && file.size > maxSizeMb * 1024 * 1024) {
+                if (feedback) feedback.textContent = 'حجم فایل نباید بیشتر از ' + fa(maxSizeMb) + ' مگابایت باشد.';
+                input.value = '';
+                return;
+            }
+
             const url = URL.createObjectURL(file);
             const image = document.createElement('img');
             image.src = url;
-            image.alt = 'پیش‌نمایش تصویر انتخاب‌شده';
+            image.alt = kind === 'avatar' ? 'پیش‌نمایش آواتار انتخاب‌شده' : 'پیش‌نمایش کاور انتخاب‌شده';
+            image.dataset.teacherPreviewImage = kind;
+            image.decoding = 'async';
             image.onload = () => URL.revokeObjectURL(url);
-            preview.replaceChildren(image);
-            if (feedback) feedback.textContent = file.name;
+            image.onerror = () => {
+                URL.revokeObjectURL(url);
+                image.remove();
+                if (feedback) feedback.textContent = 'نمایش این تصویر ممکن نشد؛ فایل دیگری انتخاب کنید.';
+            };
+
+            if (kind === 'cover') {
+                preview.classList.remove('no-cover');
+                preview.classList.add('has-cover');
+                preview.querySelectorAll('img').forEach((existing) => existing.remove());
+                const label = preview.querySelector('.teacher-cover-preview-label');
+                if (label) preview.insertBefore(image, label);
+                else preview.prepend(image);
+            } else {
+                preview.replaceChildren(image);
+            }
+
+            if (feedback) {
+                feedback.textContent = file.name + ' · ' + fa(Math.ceil(file.size / 1024)) + ' کیلوبایت · پیش‌نمایش آماده است.';
+            }
         });
     });
 

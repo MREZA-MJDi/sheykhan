@@ -67,13 +67,14 @@
                 ? ($canManageExams ? 'بررسی آزمون‌ها' : 'مشاهده آزمون‌ها')
                 : ($canViewClassrooms ? 'مدیریت کلاس‌ها' : ($canViewCourses ? 'مدیریت دوره‌ها' : 'مشاهده برنامه')));
 
+        // KPIs are summaries; the canonical navigation lives in the shared sidebar.
         $kpis = [
-            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'route' => 'teacher.classrooms.index', 'tone' => 'vi', 'icon' => 'users', 'permission' => 'classrooms.view'],
-            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'route' => 'teacher.courses.index', 'tone' => 'ok', 'icon' => 'book', 'permission' => 'courses.view'],
-            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده', 'route' => 'teacher.schedule.index', 'tone' => 'wr', 'icon' => 'vid', 'permission' => 'live_classes.view'],
-            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'دانش‌آموزان کلاس‌های شما', 'route' => 'teacher.students.index', 'tone' => 'sk', 'icon' => 'hs', 'permission' => 'students.view'],
-            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'ارسال‌شده و نیازمند بازخورد', 'route' => 'teacher.assignments.index', 'tone' => 'er', 'icon' => 'file', 'permission' => 'assignments.view'],
-            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'پاسخ‌های نیازمند ارزیابی', 'route' => 'teacher.exams.index', 'tone' => 'vi', 'icon' => 'clip', 'permission' => 'exams.view'],
+            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'tone' => 'vi', 'icon' => 'users', 'permission' => 'classrooms.view'],
+            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'tone' => 'ok', 'icon' => 'book', 'permission' => 'courses.view'],
+            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده', 'tone' => 'wr', 'icon' => 'vid', 'permission' => 'live_classes.view'],
+            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'دانش‌آموزان کلاس‌های شما', 'tone' => 'sk', 'icon' => 'hs', 'permission' => 'students.view'],
+            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'ارسال‌شده و نیازمند بازخورد', 'tone' => 'er', 'icon' => 'file', 'permission' => 'assignments.view'],
+            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'پاسخ‌های نیازمند ارزیابی', 'tone' => 'vi', 'icon' => 'clip', 'permission' => 'exams.view'],
         ];
         $kpis = array_values(array_filter($kpis, fn ($item) => $teacherUser?->hasPermission($item['permission'])));
 
@@ -83,21 +84,21 @@
 
     <div id="teacher-dashboard" class="teacher-dashboard-page">
         <header class="ph teacher-dashboard-hero">
-            <div class="teacher-dashboard-avatar" aria-hidden="true"><span>{{ $teacherInitial }}</span></div>
+            <div class="teacher-dashboard-avatar" aria-hidden="true">
+                    @if($teacherPanelAvatarUrl)
+                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="104" height="104" loading="eager" decoding="async">
+                    @else
+                        <span>{{ $teacherInitial }}</span>
+                    @endif
+                </div>
             <div class="teacher-dashboard-hero-copy">
                 <span class="section-kicker">خلاصه وضعیت آموزشی · {{ $dashboardDateLabel }}</span>
                 <h1>سلام، {{ $teacherUser?->name }} <span aria-hidden="true">👋</span></h1>
                 <p>کلاس‌ها، ارزیابی‌ها و جلسه‌های پیش‌رو را از همین پنل پیگیری کن.</p>
-                @if($canViewLiveClasses || $canViewAssignments)
-                    <div class="ac">
-                        @if($canViewLiveClasses)
-                            <a class="bt g" href="{{ route('teacher.schedule.index') }}"><svg class="i" aria-hidden="true"><use href="#cal"/></svg> برنامه هفتگی</a>
-                        @endif
-                        @if($canViewAssignments)
-                            <a class="bt" href="{{ route('teacher.assignments.index') }}"><svg class="i" aria-hidden="true"><use href="#file"/></svg> مدیریت تکالیف</a>
-                        @endif
-                    </div>
-                @endif
+                <div class="teacher-dashboard-hero-meta">
+                    <span aria-hidden="true"></span>
+                    <small>شاخص‌ها از سوابق واقعی کلاس‌ها، ارزیابی‌ها و پیشرفت ثبت‌شده محاسبه می‌شوند.</small>
+                </div>
             </div>
         </header>
 
@@ -107,13 +108,12 @@
 
             <section class="k6" aria-label="شاخص‌های آموزشی">
                 @forelse($kpis as $metric)
-                    <a class="{{ $metric['tone'] }}" style="--c:var(--{{ $metric['tone'] === 'vi' ? 'vi' : $metric['tone'] }})"
-                       href="{{ route($metric['route']) }}" data-dashboard-searchable>
+                    <article class="teacher-kpi {{ $metric['tone'] }}" style="--c:var(--{{ $metric['tone'] }})" data-dashboard-searchable>
                         <span class="k6-label">{{ $metric['label'] }}</span>
                         <i aria-hidden="true"><svg class="i"><use href="#{{ $metric['icon'] }}"/></svg></i>
                         <b>{{ $metric['value'] }}</b>
                         <small>{{ $metric['hint'] }}</small>
-                    </a>
+                    </article>
                 @empty
                     <div class="cd empty-state">برای این حساب هنوز شاخصی با دسترسی مجاز وجود ندارد.</div>
                 @endforelse
@@ -156,11 +156,11 @@
                             @if($featuredStudents->isNotEmpty())
                                 <div class="sv">
                                     @foreach($featuredStudents as $student)
-                                        <a href="{{ route('teacher.students.index') }}" data-dashboard-searchable>
+                                        <article class="teacher-student-row" data-dashboard-searchable>
                                             <span class="av2 {{ $studentTones[$loop->index % count($studentTones)] }}" style="background:color-mix(in srgb,var(--c) 78%,var(--sf))">{{ \Illuminate\Support\Str::substr(trim((string) ($student->name ?? 'د')), 0, 1) }}</span>
                                             <b>{{ $student->name }}</b>
                                             <small>{{ \App\Support\PersianUi::digits(max(0, min(100, (float) ($student->progress_average ?? 0)))) }}٪ پیشرفت</small>
-                                        </a>
+                                        </article>
                                     @endforeach
                                 </div>
                             @else
@@ -175,14 +175,13 @@
                             <div class="crs">
                                 @forelse($courseCards->take(6) as $course)
                                     @php($courseValue = max(0, min(100, (float) ($course->progress_average ?? 0))))
-                                    <a class="{{ $courseTones[$loop->index % count($courseTones)] }}" href="{{ route('teacher.courses.index') }}" data-dashboard-searchable>
+                                    <article class="teacher-course-card {{ $courseTones[$loop->index % count($courseTones)] }}" data-dashboard-searchable>
                                         <span class="tg">دوره</span>
                                         <b>{{ $course->title }}</b>
                                         <small>{{ \App\Support\PersianUi::digits($course->student_count ?? 0) }} دانش‌آموز</small>
                                         <div class="pb" role="progressbar" aria-label="میانگین پیشرفت {{ $course->title }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $courseValue }}"><i style="width:{{ $courseValue }}%"></i></div>
                                         <small>میانگین پیشرفت {{ \App\Support\PersianUi::digits($courseValue) }}٪</small>
-                                        <span class="go">نمایش دوره <span aria-hidden="true">←</span></span>
-                                    </a>
+                                    </article>
                                 @empty
                                     <div class="empty-state">برای دوره‌های شما هنوز دادهٔ پیشرفتی ثبت نشده است.</div>
                                 @endforelse
@@ -195,21 +194,21 @@
                             <h3 id="teacher-reviews-heading">آخرین فعالیت‌ها <a href="{{ $canViewAssignments ? route('teacher.assignments.index') : route('teacher.exams.index') }}">مشاهده موارد ←</a></h3>
                             @if($canViewAssignments)
                                 @forelse($recentAssignments->take(6) as $activity)
-                                    <a class="tl" href="{{ route('teacher.assignments.index') }}" data-dashboard-searchable>
+                                    <article class="tl" data-dashboard-searchable>
                                         <span class="content-icon"><svg class="i" aria-hidden="true"><use href="#file"/></svg></span>
                                         <span class="tl-copy"><b>{{ $activity->title }}</b><small>{{ $activity->classroom?->title ?? 'دوره' }} · @if($activity->due_at)مهلت {{ \App\Support\PersianUi::date($activity->due_at) }}@else بدون موعد مشخص@endif</small></span>
                                         <span class="bg {{ (int) ($activity->pending_review_count ?? 0) > 0 ? 'wr' : 'ok' }}">{{ \App\Support\PersianUi::digits($activity->pending_review_count ?? 0) }} منتظر بررسی</span>
-                                    </a>
+                                    </article>
                                 @empty
                                     <div class="empty-state">هنوز تکلیفی برای نمایش ثبت نشده است.</div>
                                 @endforelse
                             @endif
                             @if($canViewExams && $pendingExamReviews > 0)
-                                <a class="tl" href="{{ route('teacher.exams.index') }}" data-dashboard-searchable>
+                                <article class="tl" data-dashboard-searchable>
                                     <span class="content-icon"><svg class="i" aria-hidden="true"><use href="#clip"/></svg></span>
                                     <span class="tl-copy"><b>پاسخ‌های آزمون در انتظار بررسی</b><small>فهرست آزمون‌ها و پاسخ‌های ارسال‌شده</small></span>
                                     <span class="bg wr">{{ \App\Support\PersianUi::digits($pendingExamReviews) }}</span>
-                                </a>
+                                </article>
                             @endif
                         </section>
                     @endif
