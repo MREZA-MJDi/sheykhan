@@ -24,6 +24,12 @@ final class OwnerClassroomService
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
         $academyId = (int) $academy->id;
+        $search = trim((string) request()->query('q', ''));
+        $status = in_array(request()->query('status'), ['active', 'archived'], true)
+            ? (string) request()->query('status')
+            : '';
+        $courseId = filter_var(request()->query('course_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: null;
+
         $classrooms = $academy->classrooms()
             ->with([
                 'course:id,title',
@@ -43,8 +49,20 @@ final class OwnerClassroomService
             ])
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
-                    ->where('classroom_student.status', 'active'),
+                    ->where('classroom_student.status', 'active')
+                    ->where('users.status', 'active')
+                    ->whereNull('users.deleted_at'),
             ])
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($matches) use ($search): void {
+                    $matches->where('classrooms.title', 'like', '%' . $search . '%')
+                        ->orWhere('classrooms.code', 'like', '%' . $search . '%')
+                        ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                        ->orWhereHas('teachers', fn ($teacher) => $teacher->where('users.name', 'like', '%' . $search . '%'));
+                });
+            })
+            ->when($status !== '', fn ($query) => $query->where('classrooms.status', $status))
+            ->when($courseId !== null, fn ($query) => $query->where('classrooms.course_id', $courseId))
             ->latest()
             ->paginate(12)
             ->withQueryString();
@@ -78,11 +96,14 @@ final class OwnerClassroomService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $activeStudentCounts = DB::table('classroom_student')
-            ->where('status', 'active')
-            ->groupBy('classroom_id')
-            ->select('classroom_id')
-            ->selectRaw('COUNT(*) AS active_students_count');
+        $activeStudentCounts = DB::table('classroom_student as memberships')
+            ->join('users as roster_users', 'roster_users.id', '=', 'memberships.student_id')
+            ->where('memberships.status', 'active')
+            ->where('roster_users.status', 'active')
+            ->whereNull('roster_users.deleted_at')
+            ->groupBy('memberships.classroom_id')
+            ->select('memberships.classroom_id')
+            ->selectRaw('COUNT(DISTINCT memberships.student_id) AS active_students_count');
 
         $summary = DB::table('classrooms as classrooms')
             ->leftJoinSub($activeStudentCounts, 'student_counts', 'student_counts.classroom_id', '=', 'classrooms.id')
@@ -98,9 +119,12 @@ final class OwnerClassroomService
 
         $uniqueActiveStudents = DB::table('classroom_student as roster')
             ->join('classrooms as classrooms', 'classrooms.id', '=', 'roster.classroom_id')
+            ->join('users as roster_users', 'roster_users.id', '=', 'roster.student_id')
             ->where('classrooms.academy_id', $academy->id)
             ->where('classrooms.status', 'active')
             ->where('roster.status', 'active')
+            ->where('roster_users.status', 'active')
+            ->whereNull('roster_users.deleted_at')
             ->distinct()
             ->count('roster.student_id');
 
@@ -251,6 +275,8 @@ final class OwnerClassroomService
 
         $activeStudentCount = $classroom->students()
             ->wherePivot('status', 'active')
+            ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->count();
 
         // Show a real, paginated roster instead of silently truncating the

@@ -17,8 +17,9 @@ class ClassroomController extends Controller
     {
         $classrooms = $service->index(request()->user(), $academy);
         $summary = $service->indexSummary(request()->user(), $academy);
+        $courses = $academy->courses()->orderBy('title')->get(['courses.id', 'courses.title']);
 
-        return view('owner.classrooms.index', compact('academy', 'classrooms', 'summary'));
+        return view('owner.classrooms.index', compact('academy', 'classrooms', 'summary', 'courses'));
     }
 
     public function create(Academy $academy, OwnerClassroomService $service): View

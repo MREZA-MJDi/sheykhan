@@ -825,44 +825,83 @@ th{font-weight:600}td{padding:12px}
    entry. Dashboard and feature pages share tokens, surfaces and rhythm.
    ================================================================ */
 .teacher-shell {
+    --bg1: #bcd8f2;
+    --bg2: #82aee0;
+    --panel: rgba(255,255,255,.28);
+    --panel-b: rgba(255,255,255,.55);
+    --text: #1d2f45;
+    --muted: #4f6579;
     min-height: 100dvh;
     overflow-x: clip;
-    color: var(--tx);
-    background: linear-gradient(155deg, #dceaf7 0%, #edf5fb 56%, #d7e8f7 100%);
+    padding: 24px;
+    color: var(--text);
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    background-color: var(--bg2);
+    font-family: Vazirmatn, Tahoma, sans-serif;
 }
 .teacher-shell .app {
-    width: min(100% - 32px, 1680px);
-    max-width: 1680px;
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 22px;
+    width: min(100%, 1320px);
+    max-width: 1320px;
     min-width: 0;
-    min-height: calc(100dvh - 32px);
-    margin: 16px auto;
-    grid-template-columns: clamp(238px, 18vw, 270px) minmax(0, 1fr);
-    gap: 16px;
-    padding: 14px;
-    border: 1px solid rgba(255,255,255,.72);
-    border-radius: 28px;
-    background: rgba(255,255,255,.35);
-    box-shadow: 10px 14px 32px rgba(52,76,102,.16), -5px -5px 16px rgba(255,255,255,.46);
+    min-height: calc(100dvh - 48px);
+    margin: 0 auto;
+    padding: 18px;
+    border: 1px solid var(--panel-b);
+    border-radius: 34px;
+    background: var(--panel);
+    box-shadow: 8px 10px 22px rgba(52,76,102,.18), -6px -6px 16px rgba(255,255,255,.38);
 }
 .teacher-shell .sb {
     position: sticky;
-    top: 14px;
+    top: 24px;
     align-self: start;
-    height: calc(100dvh - 60px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    width: auto;
+    height: calc(100dvh - 84px);
     min-height: 0;
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 24px;
-    padding: 18px 12px;
-    background: linear-gradient(180deg, #315f9b 0%, #264c80 56%, #1c3d6a 100%);
-    box-shadow: 0 10px 24px rgba(27,56,96,.19);
-    color: #edf5fc;
+    max-height: 960px;
     overflow-x: hidden;
     overflow-y: auto;
+    padding: 22px 16px;
+    border: 0;
+    border-radius: 30px;
+    background: linear-gradient(180deg, #2a5190, #1d3b6e);
+    color: #e8f1f8;
+    box-shadow: 8px 10px 22px rgba(36,63,104,.22), inset 1px 1px 2px rgba(255,255,255,.12);
 }
 .teacher-shell .sb .lg,
 .teacher-shell .sb .gl,
 .teacher-shell .sb .us { color: #eef6fd; }
-.teacher-shell .sb .lg { width: 100%; padding: 2px 10px 16px; }
+.teacher-shell .sb .lg {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 2px 8px 16px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 900;
+}
+.teacher-shell .sb .lg .nav-label { display: inline; font-size: 15px; }
+.teacher-shell .sb .lg b {
+    display: grid;
+    flex: 0 0 34px;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    background: linear-gradient(140deg, #4fa9bf, #8377de);
+    color: #fff;
+    font-size: 15px;
+}
 .teacher-shell .sb .gl {
     width: 100%;
     justify-content: flex-start;
@@ -903,11 +942,10 @@ th{font-weight:600}td{padding:12px}
     box-shadow: inset 1px 1px 3px rgba(255,255,255,.7), 0 5px 11px rgba(10,31,57,.14);
 }
 .teacher-shell .sb .nav-footer {
+    display: grid;
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
     gap: 4px;
-    margin-top: auto;
+    margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid rgba(255,255,255,.16);
 }
@@ -915,15 +953,17 @@ th{font-weight:600}td{padding:12px}
 .teacher-shell .sb .nav-footer .nv { width: 100%; }
 .teacher-shell .sb .us {
     display: flex;
+    align-items: center;
     width: 100%;
     min-width: 0;
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: auto;
+    padding: 11px;
     gap: 10px;
-    border: 1px solid rgba(255,255,255,.19);
-    border-radius: 14px;
-    background: rgba(8,28,55,.18);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 15px;
+    background: rgba(255,255,255,.08);
 }
+.teacher-shell .sb .us > div { display: block; min-width: 0; }
 .teacher-shell .sb .us > div { min-width: 0; }
 .teacher-shell .sb .us b,
 .teacher-shell .sb .us small {
@@ -951,16 +991,42 @@ th{font-weight:600}td{padding:12px}
     object-position: center;
 }
 .teacher-shell .mn {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     width: 100%;
     max-width: none;
-    padding: clamp(17px, 2vw, 32px);
+    padding: clamp(18px, 2vw, 30px);
     border: 1px solid rgba(255,255,255,.72);
-    border-radius: 24px;
-    background: rgba(255,255,255,.55);
+    border-radius: 26px;
+    background: rgba(255,255,255,.56);
     box-shadow: inset 0 1px 4px rgba(255,255,255,.55);
-    color: var(--tx);
+    color: var(--text);
 }
+
+.teacher-shell .mn > .workspace-content.role-main { flex: 1 0 auto; min-width: 0; }
+:root[data-theme="dark"] .teacher-shell {
+    --bg1: #3a4c5f;
+    --bg2: #27384a;
+    --panel: rgba(255,255,255,.08);
+    --panel-b: rgba(255,255,255,.16);
+    --text: #e6eef6;
+    --muted: #a9bccd;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    color: var(--text);
+}
+:root[data-theme="dark"] .teacher-shell .app {
+    border-color: var(--panel-b);
+    background: var(--panel);
+    box-shadow: 8px 10px 22px rgba(0,0,0,.28), -4px -4px 12px rgba(255,255,255,.04);
+}
+:root[data-theme="dark"] .teacher-shell .mn {
+    border-color: var(--panel-b);
+    background: rgba(255,255,255,.06);
+    box-shadow: inset 0 1px 4px rgba(255,255,255,.04);
+    color: var(--text);
+}
+
 .teacher-shell .workspace-content,
 .teacher-shell .workspace-content.role-main {
     min-width: 0;
@@ -1447,6 +1513,63 @@ th{font-weight:600}td{padding:12px}
     outline-offset: 3px;
 }
 
+.teacher-shell .teacher-workspace-filters {
+    display: grid;
+    grid-template-columns: minmax(220px,1.5fr) minmax(170px,.75fr) auto;
+    align-items: end;
+    gap: 12px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,.88);
+    border-radius: 18px;
+    background: rgba(255,255,255,.78);
+    box-shadow: 6px 8px 19px rgba(52,76,102,.06), inset 1px 1px 2px rgba(255,255,255,.9);
+}
+.teacher-shell .teacher-workspace-filters label {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    color: #55748b;
+    font-size: 11px;
+    font-weight: 850;
+}
+.teacher-shell .teacher-workspace-filters input,
+.teacher-shell .teacher-workspace-filters select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid #cfdfec;
+    border-radius: 11px;
+    background: #fff;
+    color: #203d54;
+    outline: 0;
+}
+.teacher-shell .teacher-workspace-filter-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.teacher-shell .teacher-workspace-filters > p {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #637b90;
+    font-size: 11px;
+}
+.teacher-shell .teacher-workspace-filters :is(input,select,button,a):focus-visible {
+    outline: 3px solid rgba(36,124,155,.25);
+    outline-offset: 2px;
+}
+:root[data-theme="dark"] .teacher-shell .teacher-workspace-filters {
+    border-color: var(--bd);
+    background: var(--sf);
+    box-shadow: var(--sh);
+}
+:root[data-theme="dark"] .teacher-shell .teacher-workspace-filters label,
+:root[data-theme="dark"] .teacher-shell .teacher-workspace-filters > p { color: var(--mu); }
+:root[data-theme="dark"] .teacher-shell .teacher-workspace-filters input,
+:root[data-theme="dark"] .teacher-shell .teacher-workspace-filters select {
+    border-color: var(--bd);
+    background: var(--s2);
+    color: var(--tx);
+}
+
 /* Profile editor: avatar and cover share predictable preview behavior. */
 .teacher-shell .teacher-profile-editor {
     display: grid;
@@ -1596,9 +1719,12 @@ th{font-weight:600}td{padding:12px}
     .teacher-shell .teacher-workspace-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
     .teacher-shell .teacher-profile-editor-hero,
     .teacher-shell .teacher-cover-editor { grid-template-columns: minmax(115px,150px) minmax(0,1fr); }
+    .teacher-shell .teacher-workspace-filters { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .teacher-shell .teacher-workspace-filter-actions { grid-column: 1 / -1; }
 }
 @media (max-width: 1000px) {
-    .teacher-shell .app { width: min(100% - 20px, 1680px); grid-template-columns: 240px minmax(0,1fr); gap: 10px; padding: 10px; margin: 10px auto; min-height: calc(100dvh - 20px); }
+    .teacher-shell { padding: 14px; }
+    .teacher-shell .app { width: min(calc(100% - 20px), 1320px); grid-template-columns: 220px minmax(0,1fr); gap: 12px; padding: 12px; margin: 10px auto; min-height: calc(100dvh - 48px); }
     .teacher-shell .sb { top: 10px; height: calc(100dvh - 40px); padding: 14px 9px; }
     .teacher-shell .mn { padding: 18px; }
     .teacher-shell .teacher-workspace-item-actions { width: 100%; }
@@ -1607,7 +1733,11 @@ th{font-weight:600}td{padding:12px}
     .teacher-shell .role-mobile-bottom-nav { display: none !important; }
 }
 @media (max-width: 760px) {
-    .teacher-shell { background: linear-gradient(160deg,#dceaf7,#f2f7fb); }
+    .teacher-shell { padding: 0; background: linear-gradient(160deg,#dceaf7,#f2f7fb); }
+    .teacher-shell .teacher-workspace-filters { grid-template-columns: minmax(0,1fr); gap: 10px; padding: 13px; }
+    .teacher-shell .teacher-workspace-filter-actions { grid-column: auto; }
+    .teacher-shell .teacher-workspace-filter-actions > * { flex: 1 1 120px; }
+    .teacher-shell .teacher-workspace-filters > p { grid-column: auto; }
     .teacher-shell .app { display: block; width: 100%; margin: 0; min-height: 100dvh; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
     .teacher-shell .sb { display: none !important; }
     .teacher-shell .mn { width: 100%; min-height: 100dvh; padding: 12px 11px calc(110px + env(safe-area-inset-bottom)); border: 0; border-radius: 0; background: transparent; box-shadow: none; }
@@ -1655,6 +1785,8 @@ th{font-weight:600}td{padding:12px}
 }
 @media (max-width: 430px) {
     .teacher-shell .mn { padding-inline: 9px; }
+    .teacher-shell .teacher-workspace-filters { padding: 11px; }
+    .teacher-shell .teacher-workspace-filter-actions { flex-direction: column; }
     .teacher-shell .teacher-workspace-title,
     .teacher-shell .teacher-form-head h1 { font-size: 22px; }
     .teacher-shell .teacher-workspace-stats { gap: 7px; }
@@ -2378,3 +2510,5 @@ th{font-weight:600}td{padding:12px}
 @media (prefers-reduced-motion: reduce) {
     .teacher-shell .workspace-content :is(a,button,input,select,textarea) { transition: none !important; }
 }
+
+

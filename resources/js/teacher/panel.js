@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyTheme = (value) => {
         const theme = value === 'dark' ? 'dark' : 'light';
         root.dataset.theme = theme;
-        try { localStorage.setItem('theme', theme); } catch (_) {}
+        try { localStorage.setItem('sheykhan.panel.theme', theme); localStorage.setItem('theme', theme); } catch (_) {}
         if (themeButton) {
             themeButton.setAttribute('aria-pressed', String(theme === 'dark'));
             themeButton.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let savedTheme = root.dataset.theme === 'dark' ? 'dark' : 'light';
     try {
-        const stored = localStorage.getItem('theme');
+        const stored = localStorage.getItem('sheykhan.panel.theme') || localStorage.getItem('theme') || localStorage.getItem('sheykhan.student.theme');
         if (stored === 'dark' || stored === 'light') savedTheme = stored;
     } catch (_) {}
     applyTheme(savedTheme);

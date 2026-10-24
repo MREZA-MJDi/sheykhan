@@ -103,14 +103,29 @@ final class TeacherWorkspaceService
 
     public function classroomsPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
+        $search = trim((string) request()->query('q', ''));
+        $status = in_array(request()->query('status'), ['active', 'archived'], true)
+            ? (string) request()->query('status')
+            : '';
+
         return $teacher->classroomsAsTeacher()
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
-                    ->where('classroom_student.status', 'active'),
+                    ->where('classroom_student.status', 'active')
+                    ->where('users.status', 'active')
+                    ->whereNull('users.deleted_at'),
                 'schedules',
             ])
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($matches) use ($search): void {
+                    $matches->where('classrooms.title', 'like', '%' . $search . '%')
+                        ->orWhere('classrooms.code', 'like', '%' . $search . '%')
+                        ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'));
+                });
+            })
+            ->when($status !== '', fn ($query) => $query->where('classrooms.status', $status))
             ->orderBy('title')
             ->paginate($perPage)
             ->withQueryString();

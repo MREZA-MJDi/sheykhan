@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\OwnerCacheService;
 use App\Services\OwnerDashboardService;
+use App\Services\OwnerClassroomService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -70,7 +71,9 @@ class OwnerDashboardBackendContractTest extends TestCase
 
         $service = app(OwnerDashboardService::class);
         $before = $service->build($owner);
-        $beforeClassroom = $before['classrooms']->firstWhere('id', $classroom->id);
+        $classroomRosterService = app(OwnerClassroomService::class);
+        $academy = $classroom->academy;
+        $beforeClassroom = $classroomRosterService->index($owner, $academy)->getCollection()->firstWhere('id', $classroom->id);
         $beforeCourse = $before['recentCourses']->firstWhere('id', $course->id);
         $beforeTeacherReport = $before['teacherReports']->firstWhere('teacher_id', $teacher->id);
 
@@ -92,7 +95,7 @@ class OwnerDashboardBackendContractTest extends TestCase
         $student->forceFill(['status' => 'inactive'])->save();
 
         $afterStudent = $service->build($owner);
-        $afterClassroom = $afterStudent['classrooms']->firstWhere('id', $classroom->id);
+        $afterClassroom = $classroomRosterService->index($owner, $academy)->getCollection()->firstWhere('id', $classroom->id);
         $afterCourse = $afterStudent['recentCourses']->firstWhere('id', $course->id);
         $afterTeacherReport = $afterStudent['teacherReports']->firstWhere('teacher_id', $teacher->id);
 
@@ -105,9 +108,11 @@ class OwnerDashboardBackendContractTest extends TestCase
 
         $afterTeacher = $service->build($owner);
         $this->assertSame($beforeTeacherCount - 1, (int) $afterTeacher['metrics']['teachers']);
-        $this->assertFalse($afterTeacher['classrooms']->contains(
-            fn ($item): bool => $item->teachers->contains('id', $teacher->id)
-        ));
+        $afterTeacherClassroom = $classroomRosterService->index($owner, $academy)
+            ->getCollection()
+            ->firstWhere('id', $classroom->id);
+        $this->assertNotNull($afterTeacherClassroom);
+        $this->assertFalse($afterTeacherClassroom->teachers->contains('id', $teacher->id));
     }
 
 
@@ -151,6 +156,8 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('aria-label="کلاس‌های فعال"', false)
             ->assertSee('class="owner-stat-card tone-indigo"', false)
             ->assertSee('owner-classroom-overview', false)
+            ->assertSee('owner-classroom-summary-grid', false)
+            ->assertDontSee('owner-classroom-item', false)
             ->assertDontSee('owner-quick-actions', false)
             ->assertDontSee('owner-footer-actions', false)
             ->assertDontSee('<a class="owner-stat-card', false);
@@ -177,7 +184,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('href="#owner-academies"', false)
             ->assertDontSee('<a class="owner-stat-card', false)
             ->assertSee('class="owner-stat-card tone-indigo"', false)
-            ->assertSee('جزئیات هر آموزشگاه از منوی کناری')
+            ->assertSee('برای مدیریت هر آموزشگاه، از منوی کناری وارد همان آموزشگاه شو.')
             ->assertSee('owner-classroom-overview', false);
     }
 

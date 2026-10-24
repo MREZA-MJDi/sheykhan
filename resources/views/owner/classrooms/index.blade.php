@@ -52,6 +52,40 @@
         </article>
     </section>
 
+    <form method="GET" action="{{ route('owner.classrooms.index', $academy) }}" class="owner-classroom-filters" role="search" aria-label="جست‌وجو و فیلتر کلاس‌ها">
+        <label class="owner-classroom-filter-field owner-classroom-search">
+            <span>جست‌وجوی کلاس</span>
+            <input type="search" name="q" value="{{ request('q') }}" placeholder="نام کلاس، کد، دوره یا مدرس…" autocomplete="off">
+        </label>
+        <label class="owner-classroom-filter-field">
+            <span>وضعیت</span>
+            <select name="status">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="active" @selected(request('status') === 'active')>فعال</option>
+                <option value="archived" @selected(request('status') === 'archived')>آرشیو</option>
+            </select>
+        </label>
+        <label class="owner-classroom-filter-field">
+            <span>دوره</span>
+            <select name="course_id">
+                <option value="">همه دوره‌ها</option>
+                @foreach($courses as $course)
+                    <option value="{{ $course->id }}" @selected((string) request('course_id') === (string) $course->id)>{{ $course->title }}</option>
+                @endforeach
+            </select>
+        </label>
+        <div class="owner-classroom-filter-actions">
+            <button type="submit" class="owner-primary-btn">اعمال فیلتر</button>
+            @if(request()->query())
+                <a href="{{ route('owner.classrooms.index', $academy) }}" class="owner-workspace-btn">پاک‌کردن</a>
+            @endif
+        </div>
+        <p class="owner-classroom-result-count" role="status" aria-live="polite">
+            نمایش {{ \App\Support\PersianUi::digits($classrooms->firstItem() ?? 0) }} تا {{ \App\Support\PersianUi::digits($classrooms->lastItem() ?? 0) }}
+            از {{ \App\Support\PersianUi::digits($classrooms->total()) }} کلاس
+        </p>
+    </form>
+
     <div class="grid gap-4 xl:grid-cols-2">
         @forelse($classrooms as $classroom)
             @php

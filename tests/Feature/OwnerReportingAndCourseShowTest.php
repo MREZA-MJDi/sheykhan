@@ -513,12 +513,13 @@ class OwnerReportingAndCourseShowTest extends TestCase
         ]);
 
         $dashboard = app(\App\Services\OwnerDashboardService::class)->build($owner);
-        $classrooms = $dashboard['classrooms']->keyBy('id');
 
+        // The dashboard is now analytical and intentionally does not hydrate
+        // or return a full classroom roster. Live-session totals stay accurate.
+        $this->assertArrayNotHasKey('classrooms', $dashboard);
         $this->assertSame(1, (int) $dashboard['metrics']['liveNow']);
-        $this->assertNull($classrooms[$expiredClassroom->id]->live_now);
-        $this->assertSame($activeSession->id, $classrooms[$activeClassroom->id]->live_now->id);
 
+        // Full per-class live status belongs to the dedicated classroom detail.
         $classroomService = app(\App\Services\OwnerClassroomService::class);
         $expiredDetail = $classroomService->show($owner, $academy, $expiredClassroom);
         $activeDetail = $classroomService->show($owner, $academy, $activeClassroom);
