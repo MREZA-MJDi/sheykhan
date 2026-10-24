@@ -37,11 +37,13 @@ final class TeacherDashboardService
         $classroomIds = $classrooms->modelKeys();
 
         $studentCount = $classroomIds
-            ? DB::table('classroom_student')
-                ->whereIn('classroom_id', $classroomIds)
-                ->where('status', 'active')
+            ? DB::table('classroom_student as memberships')
+                ->join('users', 'users.id', '=', 'memberships.student_id')
+                ->whereIn('memberships.classroom_id', $classroomIds)
+                ->where('memberships.status', 'active')
+                ->where('users.status', 'active')
                 ->distinct()
-                ->count('student_id')
+                ->count('memberships.student_id')
             : 0;
 
         if ($courseIds->isEmpty()) {
