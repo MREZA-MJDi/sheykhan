@@ -30,4 +30,14 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
         $this->assertStringContainsString('@media (max-width: 380px)', $css);
     }
+    public function test_parent_mobile_navigation_does_not_cover_the_last_content_row(): void
+    {
+        $css = file_get_contents(resource_path('css/panel-design-system.css'));
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('@media (max-width: 700px)', $css);
+        $this->assertStringContainsString('.parent-shell .role-main {', $css);
+        $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
+    }
+
 }
