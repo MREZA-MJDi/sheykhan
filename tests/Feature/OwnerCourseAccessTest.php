@@ -104,14 +104,22 @@ class OwnerCourseAccessTest extends TestCase
                 'access_type' => 'free',
                 'price' => 0,
                 'duration_minutes' => 60,
+                'spotplayer_course_id' => 'spot-course-test-01',
             ])
             ->assertSessionHas('success');
 
         $course = Course::query()->where('academy_id', $academy->id)->firstOrFail();
 
+        $this->assertDatabaseHas('courses', [
+            'id' => $course->id,
+            'spotplayer_course_id' => 'spot-course-test-01',
+        ]);
+
         $this->actingAs($owner)
             ->get(route('owner.courses.edit', $course))
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('name="spotplayer_course_id"', false)
+            ->assertSee('spot-course-test-01');
 
         $this->actingAs($owner)
             ->patch(route('owner.courses.update', $course), [
@@ -122,6 +130,7 @@ class OwnerCourseAccessTest extends TestCase
                 'access_type' => 'free',
                 'price' => 0,
                 'duration_minutes' => 90,
+                'spotplayer_course_id' => 'spot-course-updated-01',
             ])
             ->assertSessionHas('success');
 
@@ -129,6 +138,7 @@ class OwnerCourseAccessTest extends TestCase
             'id' => $course->id,
             'title' => 'دوره به‌روزشده',
             'duration_minutes' => 90,
+            'spotplayer_course_id' => 'spot-course-updated-01',
         ]);
     }
 
