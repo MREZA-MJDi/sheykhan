@@ -48,7 +48,7 @@ final class OwnerMobileNavigationScopeTest extends TestCase
         $this->assertIsString($html);
         $this->assertSame(
             1,
-            preg_match('/<nav class="role-mobile-bottom-nav".*?<\/nav>/s', $html, $matches),
+            preg_match('/<nav\s+class="role-mobile-bottom-nav".*?<\/nav>/s', $html, $matches),
             'The owner mobile navigation should be rendered exactly once.'
         );
 
