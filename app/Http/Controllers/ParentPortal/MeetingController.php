@@ -26,8 +26,8 @@ final class MeetingController extends Controller
             ->whereHas('academies', fn ($academies) => $academies
                 ->whereIn('academies.id', $academyIds)
                 ->where('academies.status', 'active')
-                ->wherePivot('role', 'student')
-                ->wherePivot('status', 'active'))
+                ->where('academy_user.role', 'student')
+                ->where('academy_user.status', 'active'))
             ->pluck('users.id');
 
         $meetings = AcademyMeeting::query()
