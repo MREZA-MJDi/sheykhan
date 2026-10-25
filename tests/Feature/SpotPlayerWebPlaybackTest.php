@@ -76,7 +76,7 @@ final class SpotPlayerWebPlaybackTest extends TestCase
         Http::fake();
 
         $this->actingAs($student)
-            ->withCookie('SPOTPLAYER_X', $currentCookie)
+            ->withUnencryptedCookie('SPOTPLAYER_X', $currentCookie)
             ->get(route('student.courses.spotplayer-cookie', $course))
             ->assertNoContent();
 
