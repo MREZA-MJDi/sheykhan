@@ -6,11 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @php($isSeoOnlyUser = auth()->user()?->hasRole('seo-specialist') && ! auth()->user()?->hasRole('academy-owner'))
     <title>@yield('title', $isSeoOnlyUser ? 'پنل متخصص SEO | شیخان' : 'کارتابل ادمین / منشی | شیخان')</title>
-    @if ($isSeoOnlyUser)
-        @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/css/owner-design-system.css', 'resources/css/panel-design-system.css', 'resources/js/app.js', 'resources/js/admin.js'])
-    @else
-        @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/css/owner-design-system.css', 'resources/js/app.js', 'resources/js/admin.js'])
-    @endif
+    @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/css/owner-design-system.css', 'resources/css/panel-design-system.css', 'resources/js/app.js', 'resources/js/admin.js'])
     @if (request()->routeIs('owner.dashboard'))
         @vite(['resources/css/owner-dashboard-polish.css'])
     @endif
