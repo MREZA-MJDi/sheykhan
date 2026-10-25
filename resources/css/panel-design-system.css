@@ -391,3 +391,12 @@ body.teacher-shell { padding: 0 !important; }
     .weekly-calendar-guide-art { width:48px;height:48px;border-radius:12px; }
 }
 @media(prefers-reduced-motion:reduce) { .weekly-calendar * { transition:none !important; } }
+
+
+/* The parent bottom bar overlays content at phone widths; reserve enough scroll space
+   after the role-specific stylesheet so this rule cannot be reset by the shared frame. */
+@media (max-width: 700px) {
+    .parent-shell .role-main {
+        padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
