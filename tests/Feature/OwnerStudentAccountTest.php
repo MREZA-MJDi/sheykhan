@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\User;
+use App\Support\NationalIdLookup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -33,12 +34,15 @@ class OwnerStudentAccountTest extends TestCase
             ->assertSee('ساخت حساب دانش‌آموز', false)
             ->assertSee('owner-people-tabs', false);
 
+        $studentNationalId = $this->validNationalId(123456789);
+        $studentMobile = $this->mobileForTest(1111);
+
         $response = $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy) . '?tab=create-student', [
                 'name' => 'آوا تستی',
-                'national_id' => '0012345678',
+                'national_id' => $studentNationalId,
                 'email' => 'ava.created@student-test.example',
-                'mobile' => '09120001122',
+                'mobile' => $studentMobile,
                 'grade_id' => $gradeId,
                 'birth_date' => '2012-03-05',
                 'school_name' => 'مدرسه آزمایشی',
@@ -68,12 +72,12 @@ class OwnerStudentAccountTest extends TestCase
             'user_id' => $student->id,
             'grade_id' => $gradeId,
             'school_name' => 'مدرسه آزمایشی',
-            'national_id_lookup' => \\App\\Support\\NationalIdLookup::make('0012345678'),
+            'national_id_lookup' => NationalIdLookup::make($studentNationalId),
         ]);
         $this->assertDatabaseHas('student_onboardings', [
             'academy_id' => $academy->id,
             'student_id' => $student->id,
-            'national_id_lookup' => \\App\\Support\\NationalIdLookup::make('0012345678'),
+            'national_id_lookup' => NationalIdLookup::make($studentNationalId),
             'source' => 'admin',
             'status' => 'activated',
             'notes' => 'یادداشت تستی',
@@ -83,6 +87,8 @@ class OwnerStudentAccountTest extends TestCase
             'subject_type' => User::class,
             'subject_id' => $student->id,
         ]);
+
+        $this->post(route('logout'))->assertRedirect(route('home'));
 
         $this->post(route('login.store'), [
             'identifier' => 'ava.created@student-test.example',
@@ -109,16 +115,18 @@ class OwnerStudentAccountTest extends TestCase
         $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
         $academy = Academy::query()->where('slug', 'sheykhan-academy')->firstOrFail();
         $gradeId = DB::table('academic_grades')->where('is_active', true)->orderBy('sort_order')->value('id');
+        $duplicateNationalId = $this->validNationalId(234567890);
+        $duplicateMobile = $this->mobileForTest(2222);
         $existing = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
-        $existing->forceFill(['mobile' => '09120001122'])->save();
+        $existing->forceFill(['mobile' => $duplicateMobile])->save();
         $userCountBefore = User::query()->count();
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
                 'name' => 'دانش‌آموز تکراری',
-                'national_id' => '0011122233',
+                'national_id' => $duplicateNationalId,
                 'email' => $existing->email,
-                'mobile' => '09120001122',
+                'mobile' => $duplicateMobile,
                 'grade_id' => $gradeId,
             ])
             ->assertSessionHasErrors(['email', 'mobile']);
@@ -134,13 +142,16 @@ class OwnerStudentAccountTest extends TestCase
         $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
         $academy = Academy::query()->where('slug', 'sheykhan-academy')->firstOrFail();
         $gradeId = DB::table('academic_grades')->where('is_active', true)->orderBy('sort_order')->value('id');
+        $sharedNationalId = $this->validNationalId(987654321);
+        $firstMobile = $this->mobileForTest(3333);
+        $secondMobile = $this->mobileForTest(4444);
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
                 'name' => 'دانش‌آموز اول',
-                'national_id' => '0098765432',
+                'national_id' => $sharedNationalId,
                 'email' => 'first.national.id@student-test.example',
-                'mobile' => '09125550111',
+                'mobile' => $firstMobile,
                 'grade_id' => $gradeId,
             ])
             ->assertRedirect(route('owner.people.index', $academy) . '?tab=create-student')
@@ -151,16 +162,44 @@ class OwnerStudentAccountTest extends TestCase
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
                 'name' => 'دانش‌آموز دوم',
-                'national_id' => '۰۰۹۸۷۶۵۴۳۲',
+                'national_id' => $this->toPersianDigits($sharedNationalId),
                 'email' => 'second.national.id@student-test.example',
-                'mobile' => '09125550112',
+                'mobile' => $secondMobile,
                 'grade_id' => $gradeId,
             ])
             ->assertSessionHasErrors('national_id');
 
         $this->assertSame($usersBefore, User::query()->count());
         $this->assertDatabaseHas('student_profiles', [
-            'national_id_lookup' => \App\Support\NationalIdLookup::make('0098765432'),
+            'national_id_lookup' => \App\Support\NationalIdLookup::make($sharedNationalId),
+        ]);
+    }
+
+    private function validNationalId(int $seed): string
+    {
+        $digits = str_pad((string) ($seed % 1_000_000_000), 9, '0', STR_PAD_LEFT);
+        $sum = 0;
+
+        for ($index = 0; $index < 9; $index++) {
+            $sum += (int) $digits[$index] * (10 - $index);
+        }
+
+        $remainder = $sum % 11;
+        $checkDigit = $remainder < 2 ? $remainder : 11 - $remainder;
+
+        return $digits . $checkDigit;
+    }
+
+    private function mobileForTest(int $suffix): string
+    {
+        return '0912' . str_pad((string) $suffix, 7, '0', STR_PAD_LEFT);
+    }
+
+    private function toPersianDigits(string $value): string
+    {
+        return strtr($value, [
+            '0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴',
+            '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
         ]);
     }
 

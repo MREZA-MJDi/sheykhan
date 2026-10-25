@@ -30,4 +30,31 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
         $this->assertStringContainsString('@media (max-width: 380px)', $css);
     }
+    public function test_parent_mobile_navigation_does_not_cover_the_last_content_row(): void
+    {
+        $css = file_get_contents(resource_path('css/panel-design-system.css'));
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('@media (max-width: 700px)', $css);
+        $this->assertStringContainsString('.parent-shell .role-main {', $css);
+        $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
+    }
+
+    public function test_student_and_teacher_dashboard_shells_are_responsive_on_tablets_and_phones(): void
+    {
+        $css = file_get_contents(resource_path('css/panel-design-system.css'));
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('@media (min-width: 761px) and (max-width: 900px)', $css);
+        $this->assertStringContainsString('.student-shell .app,', $css);
+        $this->assertStringContainsString('.teacher-shell .app {', $css);
+        $this->assertStringContainsString('grid-template-columns: minmax(0, 1fr) !important;', $css);
+        $this->assertStringContainsString('@media (max-width: 760px)', $css);
+        $this->assertStringContainsString('body.student-shell,', $css);
+        $this->assertStringContainsString('body.teacher-shell {', $css);
+        $this->assertStringContainsString('padding: 8px !important;', $css);
+        $this->assertStringContainsString('border-radius: 20px;', $css);
+        $this->assertStringContainsString('padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)) !important;', $css);
+    }
+
 }

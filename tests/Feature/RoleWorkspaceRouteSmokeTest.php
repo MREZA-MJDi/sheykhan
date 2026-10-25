@@ -128,6 +128,7 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
             'parent.attendance.index',
             'parent.results.index',
             'parent.resources.index',
+            'parent.meetings.index',
         ] as $routeName) {
             $this->actingAs($parent)
                 ->get(route($routeName))

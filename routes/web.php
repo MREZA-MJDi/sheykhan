@@ -331,6 +331,7 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
     Route::post('/messages', [\App\Http\Controllers\ParentPortal\MessageController::class, 'store'])->middleware('throttle:5,1')->name('messages.store');
     Route::post('/messages/teacher', [\App\Http\Controllers\ParentPortal\MessageController::class, 'storeToTeacher'])->middleware('throttle:10,1')->name('messages.teacher.store');
     Route::patch('/teacher-messages/{message}/reply', [\App\Http\Controllers\ParentPortal\MessageController::class, 'replyToTeacherMessage'])->middleware('throttle:10,1')->name('teacher-messages.reply');
+    Route::get('/meetings', [\App\Http\Controllers\ParentPortal\MeetingController::class, 'index'])->name('meetings.index');
     Route::get('/counseling', [\App\Http\Controllers\ParentPortal\CounselingRequestController::class, 'index'])->name('counseling.index');
     Route::post('/counseling', [\App\Http\Controllers\ParentPortal\CounselingRequestController::class, 'store'])->middleware('throttle:5,1')->name('counseling.store');
     Route::get('/attendance', [\App\Http\Controllers\ParentPortal\AttendanceController::class, 'index'])->name('attendance.index');

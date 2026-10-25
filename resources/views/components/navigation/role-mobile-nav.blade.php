@@ -77,6 +77,7 @@
             ['route' => 'parent.messages.index', 'label' => 'پیام‌ها', 'permission' => 'dashboard.view', 'icon' => '✉', 'primary' => true],
             ['route' => 'parent.resources.index', 'label' => 'جزوه‌ها و منابع', 'permission' => 'dashboard.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'parent.counseling.index', 'label' => 'درخواست مشاوره', 'permission' => 'dashboard.view', 'icon' => '◷', 'primary' => false],
+            ['route' => 'parent.meetings.index', 'label' => 'جلسات برنامه‌ریزی‌شده', 'permission' => 'dashboard.view', 'icon' => '◷', 'primary' => false],
             ['route' => 'library.index', 'label' => 'کتابخانه و خریدها', 'icon' => '▣', 'primary' => false],
             ['route' => 'store.index', 'label' => 'کتاب‌ها و محصولات', 'icon' => '▣', 'primary' => false],
             ['route' => 'courses.index', 'label' => 'کشف دوره‌ها', 'icon' => '▣', 'primary' => false],
@@ -92,9 +93,17 @@
         ];
     }
 
-    $academy = $role === 'owner' && ! $seoOnly
-        ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->first()
-        : null;
+    $ownedAcademies = $role === 'owner' && ! $seoOnly
+        ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->get() ?? collect()
+        : collect();
+
+    // Keep scoped mobile links in the academy the owner is currently viewing.
+    // A fallback to the first active academy is only used on unscoped pages.
+    $routeAcademy = request()->route('academy');
+    $routeAcademyId = $routeAcademy instanceof \App\Models\Academy
+        ? (int) $routeAcademy->getKey()
+        : (is_numeric($routeAcademy) ? (int) $routeAcademy : null);
+    $academy = $ownedAcademies->firstWhere('id', $routeAcademyId) ?? $ownedAcademies->first();
 
     $academyRoutes = [
         'owner.people.index', 'owner.classrooms.index', 'owner.attendance.index',
@@ -180,6 +189,7 @@
                             );
                     @endphp
                     <a href="{{ $item['url'] ?? route($item['route'], $item['urlArgs'] ?? []) }}" class="{{ $active ? 'is-active' : '' }}">
+                        @if($active) aria-current="page" @endif
                         <x-navigation.mobile-nav-icon :icon="$item['icon']" />
                         <span>{{ $item['label'] }}</span>
                         @if($active)<span class="role-mobile-more-current">فعلی</span>@endif
