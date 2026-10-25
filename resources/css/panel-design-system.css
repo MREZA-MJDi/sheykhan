@@ -400,3 +400,63 @@ body.teacher-shell { padding: 0 !important; }
         padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
     }
 }
+
+
+/* Student dashboard tablet layout: the legacy .app frame must collapse before
+   its compact horizontal navigation is forced into a narrow sidebar column. */
+@media (min-width: 761px) and (max-width: 900px) {
+    .student-shell .app {
+        width: min(calc(100% - 20px), 900px);
+        max-width: 900px;
+        margin: 10px auto;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px;
+        padding: 12px;
+        border-radius: 22px;
+    }
+
+    .student-shell .app .side,
+    .student-shell .main {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
+/* Give the student dashboard a real gutter on phones rather than pressing the
+   legacy shell against the viewport edge; keep bottom-nav safe-area clearance. */
+@media (max-width: 760px) {
+    body.student-shell {
+        padding: 8px !important;
+        overflow-x: clip;
+    }
+
+    .student-shell .app {
+        width: 100%;
+        max-width: 100%;
+        min-height: calc(100dvh - 16px);
+        margin: 8px auto;
+        padding: 10px;
+        border-radius: 20px;
+    }
+
+    .student-shell .main {
+        min-width: 0;
+        padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
+@media (max-width: 380px) {
+    body.student-shell { padding: 6px !important; }
+
+    .student-shell .app {
+        min-height: calc(100dvh - 12px);
+        margin: 6px auto;
+        padding: 8px;
+        border-radius: 16px;
+    }
+
+    .student-shell .main {
+        padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
