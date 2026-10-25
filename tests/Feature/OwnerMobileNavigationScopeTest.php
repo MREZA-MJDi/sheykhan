@@ -20,6 +20,12 @@ final class OwnerMobileNavigationScopeTest extends TestCase
             ->where('email', 'owner@sheykhan.test')
             ->firstOrFail();
 
+        $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->orderBy('id')
+            ->firstOrFail()
+            ->update(['name' => 'AAA Seeded Academy']);
+
         $firstAcademy = $owner->ownedAcademies()
             ->where('status', 'active')
             ->orderBy('name')
@@ -27,7 +33,7 @@ final class OwnerMobileNavigationScopeTest extends TestCase
 
         $secondAcademy = Academy::query()->create([
             'owner_id' => $owner->id,
-            'name' => 'آموزشگاه دوم تست',
+            'name' => 'ZZZ Mobile Navigation Academy',
             'slug' => 'mobile-nav-' . Str::lower(Str::random(8)),
             'status' => 'active',
         ]);
