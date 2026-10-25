@@ -42,7 +42,8 @@
                                     const player = new window.SpotPlayer(
                                         playerElement,
                                         @json(route('student.courses.spotplayer-cookie', $course)),
-                                        false
+                                        false,
+                                        'SPOTPLAYER_X'
                                     );
 
                                     await player.Open(
