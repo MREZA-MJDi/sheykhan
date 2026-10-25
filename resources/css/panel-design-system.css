@@ -402,10 +402,11 @@ body.teacher-shell { padding: 0 !important; }
 }
 
 
-/* Student dashboard tablet layout: the legacy .app frame must collapse before
-   its compact horizontal navigation is forced into a narrow sidebar column. */
+/* Legacy student/teacher .app shells: collapse the compact nav before it gets
+   squeezed into a narrow tablet column, and keep comfortable phone gutters. */
 @media (min-width: 761px) and (max-width: 900px) {
-    .student-shell .app {
+    .student-shell .app,
+    .teacher-shell .app {
         width: min(calc(100% - 20px), 900px);
         max-width: 900px;
         margin: 10px auto;
@@ -416,22 +417,24 @@ body.teacher-shell { padding: 0 !important; }
     }
 
     .student-shell .app .side,
-    .student-shell .main {
+    .teacher-shell .app .sb,
+    .student-shell .main,
+    .teacher-shell .mn {
         width: 100%;
         max-width: 100%;
         min-width: 0;
     }
 }
 
-/* Give the student dashboard a real gutter on phones rather than pressing the
-   legacy shell against the viewport edge; keep bottom-nav safe-area clearance. */
 @media (max-width: 760px) {
-    body.student-shell {
+    body.student-shell,
+    body.teacher-shell {
         padding: 8px !important;
         overflow-x: clip;
     }
 
-    .student-shell .app {
+    .student-shell .app,
+    .teacher-shell .app {
         width: 100%;
         max-width: 100%;
         min-height: calc(100dvh - 16px);
@@ -440,23 +443,27 @@ body.teacher-shell { padding: 0 !important; }
         border-radius: 20px;
     }
 
-    .student-shell .main {
+    .student-shell .main,
+    .teacher-shell .mn {
         min-width: 0;
         padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)) !important;
     }
 }
 
 @media (max-width: 380px) {
-    body.student-shell { padding: 6px !important; }
+    body.student-shell,
+    body.teacher-shell { padding: 6px !important; }
 
-    .student-shell .app {
+    .student-shell .app,
+    .teacher-shell .app {
         min-height: calc(100dvh - 12px);
         margin: 6px auto;
         padding: 8px;
         border-radius: 16px;
     }
 
-    .student-shell .main {
+    .student-shell .main,
+    .teacher-shell .mn {
         padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
     }
 }
