@@ -20,7 +20,7 @@ final class SpotPlayerWebCookieController extends Controller
         );
         abort_if(blank($course->spotplayer_course_id), 404);
 
-        $currentCookie = (string) $request->cookie('X', '');
+        $currentCookie = (string) $request->cookie('SPOTPLAYER_X', '');
         $validCurrentCookie = preg_match('/\A[a-f0-9]{36,512}\z/i', $currentCookie) === 1;
         $expiresAt = $validCurrentCookie
             ? (int) hexdec(substr($currentCookie, 24, 12))
@@ -70,7 +70,7 @@ final class SpotPlayerWebCookieController extends Controller
         // SpotPlayer's official web-player API needs this cookie readable by its
         // JavaScript running in our page, so HttpOnly must remain false. Never log it.
         $cookie = cookie(
-            'X',
+            'SPOTPLAYER_X',
             $newCookie,
             576000,
             '/',
