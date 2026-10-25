@@ -61,6 +61,31 @@ class OwnerClassroomManagementTest extends TestCase
             ->assertViewHas('activities');
     }
 
+    public function test_owner_class_code_is_generated_when_not_supplied(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        $this->actingAs($owner)
+            ->post(route('owner.classrooms.store', $academy), [
+                'course_id' => $course->id,
+                'teacher_ids' => [$teacher->id],
+                'title' => 'کلاس با کد خودکار',
+                'capacity' => 20,
+                'status' => 'active',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+
+        $classroom = Classroom::query()->where('title', 'کلاس با کد خودکار')->firstOrFail();
+
+        $this->assertMatchesRegularExpression('/^SHK-[A-Z0-9]{8}$/', $classroom->code);
+        $this->assertDatabaseHas('classroom_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher->id,
+        ]);
+    }
+
     public function test_owner_cannot_create_classroom_with_more_than_one_teacher(): void
     {
         [$owner, $academy, $course, $teacher] = $this->workspace();

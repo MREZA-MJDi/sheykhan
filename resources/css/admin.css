@@ -1900,3 +1900,191 @@ body.owner-shell .role-mobile-more-links>form>button.danger{
         align-items: stretch;
     }
 }
+
+
+/* Final dashboard layout guard: alert surfaces must never stretch into a full-height yellow column. */
+.owner-shell .owner-dashboard {
+    align-items: stretch;
+    align-content: start;
+    grid-auto-rows: max-content;
+}
+.owner-shell .owner-dashboard > .owner-focus-card {
+    height: fit-content !important;
+    min-height: 0 !important;
+    align-self: start;
+    grid-row: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert {
+    background: #fff8e9 !important;
+    border: 1px solid #f0d49d !important;
+    color: #774900;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-copy,
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-copy h2 {
+    color: #774900 !important;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-copy p,
+.owner-shell .owner-dashboard > .owner-focus-card.has-alert .owner-focus-kicker {
+    color: #855f21 !important;
+}
+.owner-shell .owner-dashboard > .owner-focus-card.is-clear {
+    height: fit-content !important;
+    min-height: 0 !important;
+    align-self: start;
+}
+@media (max-width: 760px) {
+    .owner-shell .owner-dashboard { gap: 14px; }
+    .owner-shell .owner-dashboard > .owner-focus-card {
+        grid-template-columns: 28px minmax(0,1fr);
+        gap: 10px;
+        padding: 13px;
+        border-radius: 15px;
+    }
+    .owner-shell .owner-dashboard > .owner-focus-card .owner-focus-copy h2 {
+        font-size: clamp(13px, 3.6vw, 16px);
+        line-height: 1.8;
+    }
+    .owner-shell .owner-dashboard > .owner-focus-card .owner-focus-copy p {
+        font-size: 11px;
+        line-height: 1.8;
+    }
+}
+
+
+/* Compact, action-first owner people workspace and student-account creation tab. */
+.owner-shell .owner-people-workspace { gap:16px; }
+.owner-people-tabs { display:grid;gap:14px;min-width:0; }
+.owner-people-tabbar { display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px;border:1px solid #d8e3f0;border-radius:16px;background:#f5f8fc; }
+.owner-people-tabbar [data-owner-tab-button] { display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:8px 16px;border:1px solid transparent;border-radius:12px;background:transparent;color:#51677c;font:inherit;font-size:12px;font-weight:900;cursor:pointer;transition:background .15s ease,border-color .15s ease,box-shadow .15s ease; }
+.owner-people-tabbar [data-owner-tab-button]:hover { background:#e7eff9;color:#174d80; }
+.owner-people-tabbar [data-owner-tab-button].is-active,
+.owner-people-tabbar [data-owner-tab-button][aria-selected="true"] { background:#fff;border-color:#b8d0eb;color:#145b9c;box-shadow:0 4px 12px rgba(28,75,123,.1); }
+.owner-people-tab-icon { display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#e1edfa;color:#1b68ac;font-size:17px;line-height:1; }
+.owner-people-tabbar [data-owner-tab-button].is-active .owner-people-tab-icon { background:#1769aa;color:#fff; }
+.owner-people-tab-panel[hidden] { display:none!important; }
+.owner-student-create-panel { display:grid;gap:20px;min-width:0;padding:clamp(16px,2.1vw,28px);border:1px solid #cfe0f3;border-radius:22px;background:linear-gradient(135deg,#fafdff,#edf6ff 58%,#f6fffa);box-shadow:0 12px 32px rgba(18,66,119,.07); }
+.owner-student-create-head { display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap; }
+.owner-student-create-head > div { display:grid;gap:4px;min-width:0; }
+.owner-student-create-head > div > span { color:#1a68a7;font-size:10px;font-weight:950; }
+.owner-student-create-head h2 { margin:0;color:#163653;font-size:clamp(18px,1.8vw,24px);font-weight:950;line-height:1.7; }
+.owner-student-create-head p { margin:0;color:#59738b;font-size:11px;line-height:1.9; }
+.owner-student-create-badge { display:inline-flex;align-items:center;min-height:31px;padding:6px 10px;border:1px solid #efcf83;border-radius:999px;background:#fff2c9;color:#80520a;font-size:10px;font-weight:900; }
+.owner-student-create-form { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-width:0; }
+.owner-student-form-field { display:grid;align-content:start;gap:7px;min-width:0; }
+.owner-student-form-field label { color:#264963;font-size:11px;font-weight:900; }
+.owner-student-form-field em { margin-inline-start:4px;color:#70859a;font-size:9px;font-style:normal;font-weight:600; }
+.owner-student-form-field :is(input,select) { box-sizing:border-box;width:100%;min-width:0;min-height:48px;padding:11px 13px;border:1px solid #a8c5e3;border-radius:12px;background:#fff;color:#183b5a;font:inherit;font-size:13px;outline:none;transition:border-color .15s ease,box-shadow .15s ease; }
+.owner-student-form-field :is(input,select):focus { border-color:#2879c7;box-shadow:0 0 0 3px rgba(40,121,199,.13); }
+.owner-student-form-field :is(input,select)[aria-invalid="true"] { border-color:#dc354b;background:#fff7f8; }
+.owner-student-form-field small { color:#bf243b;font-size:10px;font-weight:800;line-height:1.8; }
+.owner-student-form-footer { display:flex;align-items:center;justify-content:space-between;gap:16px;grid-column:1/-1;padding-top:14px;border-top:1px solid #d9e7f4; }
+.owner-student-form-footer > div { display:grid;gap:3px;min-width:0; }
+.owner-student-form-footer > div strong { color:#24516f;font-size:11px;font-weight:950; }
+.owner-student-form-footer > div span { color:#607b91;font-size:10px;line-height:1.7; }
+.owner-student-form-footer button { display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:11px 18px;border:1px solid #145993;border-radius:13px;background:#1769aa;color:#fff;font-size:12px;font-weight:950;box-shadow:0 6px 15px rgba(23,105,170,.2);cursor:pointer;white-space:nowrap; }
+.owner-student-form-footer button:hover { background:#0e578f;transform:translateY(-1px); }
+.owner-student-form-footer button:disabled { opacity:.5;cursor:not-allowed;transform:none; }
+.owner-student-form-footer button span { font-size:19px;line-height:1; }
+.owner-student-no-grades { grid-column:1/-1;padding:10px 12px;border:1px solid #efcf83;border-radius:10px;background:#fff2c9;color:#80520a;font-size:11px; }
+.owner-student-create-errors { display:grid;gap:5px;padding:12px 14px;border:1px solid #efb5bd;border-radius:12px;background:#fff0f2;color:#9b2437;font-size:11px; }
+.owner-student-credentials { display:grid;gap:13px;padding:16px;border:1px solid #87d2ac;border-radius:16px;background:#eafff2;color:#135c3d; }
+.owner-student-credentials > div:first-child { display:grid;gap:4px; }
+.owner-student-credentials > div:first-child strong { font-size:14px;font-weight:950; }
+.owner-student-credentials > div:first-child p,.owner-student-credential-warning { margin:0;color:#327458;font-size:10px;line-height:1.8; }
+.owner-student-credential-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px; }
+.owner-student-credential-grid > div { display:grid;gap:5px;min-width:0;padding:11px 12px;border:1px solid #b3e4c9;border-radius:11px;background:#fff;color:#174e37; }
+.owner-student-credential-grid span { color:#56846d;font-size:9px;font-weight:800; }
+.owner-student-credential-grid strong,.owner-student-credential-grid code { font-size:12px;font-weight:950;overflow-wrap:anywhere; }
+.owner-student-credential-warning { padding-top:10px;border-top:1px solid #b3e4c9; }
+.owner-recent-student-logins { display:grid;gap:14px; }
+.owner-recent-login-list { display:grid;gap:8px; }
+.owner-recent-login-row { display:flex;align-items:center;gap:12px;min-width:0;padding:11px 12px;border:1px solid var(--bd,#dce6f0);border-radius:13px;background:var(--sf,#f7faff);color:var(--tx,#1d2f45);text-decoration:none;transition:background .15s ease,border-color .15s ease; }
+.owner-recent-login-row:hover { border-color:#72a9da;background:#eef7ff; }
+.owner-recent-login-avatar { display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:#dbeafe;color:#1d4e89;font-size:15px;font-weight:950; }
+.owner-recent-login-copy { display:grid;gap:3px;flex:1;min-width:0; }
+.owner-recent-login-copy strong { font-size:11px;font-weight:950; }
+.owner-recent-login-copy small { color:var(--muted,#657b90);font-size:10px;overflow-wrap:anywhere; }
+.owner-recent-login-row time { flex:none;color:var(--muted,#657b90);font-size:9px;white-space:nowrap; }
+.owner-recent-login-empty { padding:18px;border:1px dashed var(--bd,#dce6f0);border-radius:13px;color:var(--muted,#657b90);font-size:11px;text-align:center; }
+:root[data-theme="dark"] .owner-people-tabbar { background:#15263b;border-color:#2a4764; }
+:root[data-theme="dark"] .owner-people-tabbar [data-owner-tab-button] { color:#b9cee1; }
+:root[data-theme="dark"] .owner-people-tabbar [data-owner-tab-button].is-active { background:#203952;border-color:#3b668c;color:#e5f3ff; }
+:root[data-theme="dark"] .owner-student-create-panel { background:linear-gradient(135deg,#132238,#172d44 58%,#122d29);border-color:#2d516f; }
+:root[data-theme="dark"] .owner-student-create-head h2,.dark .owner-student-create-head h2 { color:#e6f4ff; }
+:root[data-theme="dark"] .owner-student-create-head p { color:#b1c6d8; }
+:root[data-theme="dark"] .owner-student-form-field label { color:#d2e9f9; }
+:root[data-theme="dark"] .owner-student-form-field :is(input,select) { background:#102137;border-color:#3a5a78;color:#e5f4ff; }
+:root[data-theme="dark"] .owner-student-form-footer { border-color:#2c4b67; }
+:root[data-theme="dark"] .owner-student-form-footer > div strong { color:#d8edfc; }
+:root[data-theme="dark"] .owner-student-form-footer > div span { color:#b0c7dc; }
+@media(max-width:650px) {
+    .owner-people-tabbar { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px; }
+    .owner-people-tabbar [data-owner-tab-button] { padding:8px;min-width:0;font-size:11px; }
+    .owner-student-create-form { grid-template-columns:minmax(0,1fr);gap:12px; }
+    .owner-student-form-footer { flex-direction:column;align-items:stretch; }
+    .owner-student-form-footer button { width:100%;white-space:normal; }
+    .owner-student-credential-grid { grid-template-columns:minmax(0,1fr); }
+    .owner-recent-login-row { align-items:flex-start;flex-wrap:wrap; }
+    .owner-recent-login-row time { margin-inline-start:50px; }
+}
+
+
+/* Consistent compact scale and full-width controls for owner/admin workspace pages. */
+.owner-shell .role-main {
+    width:min(100%,1600px);
+    max-width:1600px;
+    min-width:0;
+    margin-inline:auto;
+    padding:clamp(14px,1.8vw,28px);
+    padding-bottom:36px;
+}
+.owner-shell .role-main > .panel-page-enter {
+    gap:clamp(12px,1.25vw,18px)!important;
+    min-width:0;
+}
+.owner-shell .role-main :is(.dashboard-panel,.owner-panel,.owner-form-card,.owner-workspace-card) {
+    min-width:0;
+    padding:clamp(13px,1.3vw,20px);
+    border-radius:16px;
+}
+.owner-shell .role-main :is(h1,.text-2xl) {
+    font-size:clamp(20px,2.1vw,30px);
+    line-height:1.55;
+}
+.owner-shell .role-main :is(h2,.text-base) { line-height:1.65; }
+.owner-shell .role-main :is(p,.owner-field-help) { line-height:1.8; }
+.owner-shell .role-main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:46px;
+    padding:10px 12px;
+    border-radius:11px;
+    font-size:13px;
+    line-height:1.55;
+}
+.owner-shell .role-main textarea { min-height:104px;resize:vertical; }
+.owner-shell .role-main :is(button,.owner-btn) {
+    min-height:42px;
+    border-radius:11px;
+    touch-action:manipulation;
+}
+.owner-shell .owner-dashboard { gap:clamp(12px,1.2vw,18px); }
+.owner-shell .owner-dashboard .owner-hero { padding:clamp(18px,2vw,30px); }
+.owner-shell .owner-dashboard .owner-focus-card { padding:14px 18px; }
+.owner-shell .owner-dashboard .owner-stat-card { min-height:108px; }
+.owner-shell .owner-dashboard .owner-stats { gap:clamp(9px,1vw,14px); }
+.owner-shell .owner-dashboard .owner-stat-card strong { font-size:clamp(23px,2.1vw,32px); }
+@media(max-width:760px) {
+    .owner-shell .role-main { padding:12px;padding-bottom:28px; }
+    .owner-shell .role-main :is(.dashboard-panel,.owner-panel,.owner-form-card,.owner-workspace-card) { padding:12px; }
+    .owner-shell .owner-dashboard { gap:12px; }
+    .owner-shell .owner-dashboard .owner-hero { grid-template-columns:minmax(0,1fr);padding:16px; }
+    .owner-shell .owner-dashboard .owner-hero-art { min-height:0;justify-items:start; }
+    .owner-shell .owner-dashboard .owner-focus-card { grid-template-columns:25px minmax(0,1fr);gap:10px;padding:13px; }
+    .owner-shell .owner-dashboard .owner-focus-actions { grid-column:1/-1; }
+}

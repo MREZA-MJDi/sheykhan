@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\StoreClassroomRequest;
 use App\Models\Classroom;
 use App\Services\TeacherWorkspaceService;
+use App\Services\ClassroomCodeGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -22,7 +23,7 @@ class ClassroomController extends Controller
     {
         return view('teacher.classrooms.form', [
             'courses' => $workspace->courses(request()->user()),
-            'classroom' => new Classroom(),
+            'classroom' => new Classroom(['code' => app(ClassroomCodeGenerator::class)->generate()]),
         ]);
     }
 
@@ -36,7 +37,7 @@ class ClassroomController extends Controller
             'academy_id' => $course->academy_id,
             'course_id' => $course->id,
             'title' => $request->validated('title'),
-            'code' => $request->validated('code'),
+            'code' => app(ClassroomCodeGenerator::class)->resolve($request->validated('code') ?: null),
             'description' => $request->validated('description'),
             'capacity' => $request->validated('capacity'),
             'status' => 'active',

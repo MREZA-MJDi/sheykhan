@@ -31,12 +31,9 @@ class StoreClassroomRequest extends FormRequest
             'grade_id' => ['nullable', 'integer', 'exists:academic_grades,id'],
             'academic_year_id' => ['nullable', 'integer', 'exists:academic_years,id'],
             'title' => ['required', 'string', 'max:255'],
-            'code' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('classrooms', 'code')->where(fn ($query) => $query->where('academy_id', $academyId)),
-            ],
+            // The UI presents a read-only generated value; older clients may omit it.
+            // Uniqueness is rechecked by ClassroomCodeGenerator inside the write path.
+            'code' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string', 'max:5000'],
             'capacity' => ['nullable', 'integer', 'min:1', 'max:10000'],
             'starts_at' => ['nullable', 'date'],
@@ -54,8 +51,6 @@ class StoreClassroomRequest extends FormRequest
             'teacher_ids.size' => 'هر کلاس باید دقیقاً یک مدرس مسئول داشته باشد.',
             'teacher_ids.*.exists' => 'یکی از مدرس‌های انتخاب‌شده معتبر نیست.',
             'title.required' => 'عنوان کلاس الزامی است.',
-            'code.required' => 'کد کلاس الزامی است.',
-            'code.unique' => 'این کد کلاس در این آموزشگاه قبلاً استفاده شده است.',
             'capacity.min' => 'ظرفیت کلاس باید حداقل ۱ نفر باشد.',
             'ends_at.after_or_equal' => 'زمان پایان باید بعد از زمان شروع باشد.',
             'status.in' => 'وضعیت کلاس معتبر نیست.',

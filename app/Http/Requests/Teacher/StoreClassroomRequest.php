@@ -16,7 +16,7 @@ class StoreClassroomRequest extends FormRequest
         return [
             'course_id' => ['required', 'integer', 'exists:courses,id'],
             'title' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:50'],
+            'code' => ['sometimes', 'nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
             'capacity' => ['nullable', 'integer', 'min:1', 'max:10000'],
             'starts_at' => ['nullable', 'date'],
@@ -29,7 +29,6 @@ class StoreClassroomRequest extends FormRequest
         return [
             'course_id.required' => 'انتخاب دوره الزامی است.',
             'title.required' => 'عنوان کلاس الزامی است.',
-            'code.required' => 'کد کلاس الزامی است.',
             'capacity.min' => 'ظرفیت کلاس باید حداقل ۱ نفر باشد.',
             'ends_at.after_or_equal' => 'زمان پایان باید بعد از زمان شروع باشد.',
         ];

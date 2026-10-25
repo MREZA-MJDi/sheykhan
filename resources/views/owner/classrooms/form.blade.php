@@ -38,11 +38,11 @@
                 </label>
 
                 <label class="grid gap-1">
-                    <span class="text-xs font-black">کد کلاس</span>
-                    <input name="code" value="{{ old('code', $classroom->code) }}" required
-                           class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]"
-                           placeholder="WEB-101">
-                    <small class="owner-field-help">یک کد کوتاه برای شناسایی داخلی کلاس وارد کن؛ کد باید در همان آموزشگاه یکتا باشد.</small>
+                    <span class="text-xs font-black">کد داخلی کلاس · خودکار</span>
+                    <input name="code" value="{{ old('code', $classroom->code) }}" required readonly dir="ltr"
+                           class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-black tracking-wider text-slate-700 outline-none"
+                           aria-describedby="owner-classroom-code-help">
+                    <small id="owner-classroom-code-help" class="owner-field-help">کد را سامانه تولید می‌کند؛ نیازی به ساخت یا حفظ‌کردن کد دستی نیست.</small>
                     <x-owner.field-error field="code"/>
                 </label>
 

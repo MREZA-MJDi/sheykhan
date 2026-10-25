@@ -249,6 +249,7 @@ function enhanceNativeDateInput(source) {
     dateInput.autocomplete = 'off';
     dateInput.placeholder = '۱۴۰۵/۰۷/۰۲';
     dateInput.dir = 'ltr';
+    dateInput.lang = 'fa-IR';
     dateInput.required = required;
     dateInput.disabled = disabled;
     dateInput.setAttribute('aria-label', labelText + ' (شمسی)');
@@ -279,6 +280,7 @@ function enhanceNativeDateInput(source) {
         timeInput.disabled = disabled;
         timeInput.setAttribute('aria-label', 'ساعت ' + labelText);
         timeInput.lang = 'fa-IR';
+        timeInput.dir = 'ltr';
         timeInput.step = source.getAttribute('step') || '60';
         row.append(timeInput);
     }
@@ -337,7 +339,32 @@ function enhanceExistingJalaliField(dateInput) {
     const grid = dateInput.parentElement;
     if (!grid) return;
 
+    const field = dateInput.closest('[data-teacher-jalali]');
+    const target = field?.querySelector('[data-jalali-target]');
+    const timeInput = field?.querySelector('[data-jalali-visible-time]');
+    const dateOnly = field?.dataset.jalaliDateOnly === '1';
+    const originalValue = String(target?.value || '');
+
+    // Fill the visible Jalali date/time controls from the server's Gregorian value.
+    if (!dateInput.value.trim()) {
+        dateInput.value = formatJalali(originalValue);
+    }
+    if (timeInput && !timeInput.value) {
+        timeInput.value = originalValue.match(/T(\d{2}:\d{2})/)?.[1]
+            || originalValue.match(/ (\d{2}:\d{2})/)?.[1]
+            || '';
+    }
+
     dateInput.dataset.jalaliCalendarEnhanced = 'true';
+    dateInput.lang = 'fa-IR';
+    dateInput.dir = 'ltr';
+    dateInput.autocomplete = 'off';
+    if (timeInput) {
+        timeInput.lang = 'fa-IR';
+        timeInput.dir = 'ltr';
+        timeInput.step = '60';
+    }
+
     const wrapper = document.createElement('div');
     wrapper.className = 'jalali-calendar-visible-control';
     grid.insertBefore(wrapper, dateInput);
@@ -353,14 +380,48 @@ function enhanceExistingJalaliField(dateInput) {
 
     dateInput.setAttribute('aria-haspopup', 'dialog');
     dateInput.setAttribute('aria-expanded', 'false');
-    dateInput.autocomplete = 'off';
 
-    const field = dateInput.closest('[data-teacher-jalali]') || wrapper;
+    const syncHiddenValue = () => {
+        const parsed = parseJalali(dateInput.value);
+        if (!parsed) {
+            if (target) target.value = '';
+            dateInput.setCustomValidity(dateInput.value.trim()
+                ? 'تاریخ شمسی معتبر نیست؛ تاریخ را به شکل سال/ماه/روز وارد کن.'
+                : '');
+            return;
+        }
+
+        dateInput.value = formatJalali(parsed);
+        if (target) {
+            target.value = dateOnly
+                ? parsed.iso
+                : (timeInput?.value ? parsed.iso + 'T' + timeInput.value : '');
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+            target.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        dateInput.setCustomValidity(!dateOnly && timeInput && !timeInput.value
+            ? 'ساعت را هم انتخاب کن.'
+            : '');
+    };
+
+    dateInput.addEventListener('input', syncHiddenValue);
+    dateInput.addEventListener('change', syncHiddenValue);
+    timeInput?.addEventListener('input', syncHiddenValue);
+    timeInput?.addEventListener('change', syncHiddenValue);
+
     makeCalendar(wrapper, dateInput, 'jalali-text');
-    // The picker intentionally emits input/change so the existing Gregorian hidden-value sync runs.
-    dateInput.addEventListener('input', () => dateInput.setCustomValidity(''));
-}
+    syncHiddenValue();
 
+    field?.closest('form')?.addEventListener('reset', () => {
+        window.setTimeout(() => {
+            const value = String(target?.value || '');
+            dateInput.value = formatJalali(value);
+            if (timeInput) timeInput.value = value.match(/T(\d{2}:\d{2})/)?.[1] || '';
+            dateInput.setCustomValidity('');
+        }, 0);
+    });
+}
 function initPersianCalendars() {
     try {
         // A single shared picker upgrades native fields in every role and public form.

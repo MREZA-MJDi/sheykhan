@@ -14,7 +14,7 @@
             <div class="mt-5 grid gap-4 md:grid-cols-2">
                 <label class="teacher-form-field md:col-span-2"><span>دوره</span><select name="course_id" required>@foreach($courses as $course)<option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>@endforeach</select>@error('course_id')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
                 <label class="teacher-form-field"><span>عنوان کلاس</span><input name="title" value="{{ old('title',$classroom->title) }}" placeholder="مثلاً کلاس دهم - گروه A" required>@error('title')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
-                <label class="teacher-form-field"><span>کد کلاس</span><input name="code" value="{{ old('code',$classroom->code) }}" placeholder="مثلاً PHY10-A" required dir="ltr">@error('code')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
+                <label class="teacher-form-field"><span>کد داخلی کلاس · خودکار</span><input name="code" value="{{ old('code',$classroom->code) }}" required readonly dir="ltr" class="is-generated-code" aria-describedby="teacher-classroom-code-help"><small id="teacher-classroom-code-help">کد یکتا را شیخان تولید می‌کند؛ لازم نیست چیزی وارد کنی.</small>@error('code')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
                 <label class="teacher-form-field"><span>ظرفیت <small class="text-slate-400">اختیاری</small></span><input type="number" min="1" name="capacity" value="{{ old('capacity',$classroom->capacity) }}" placeholder="۳۰" inputmode="numeric"></label>
             </div>
         </section>

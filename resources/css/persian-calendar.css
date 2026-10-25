@@ -244,3 +244,33 @@
         min-height: 30px;
     }
 }
+
+
+/* Strong blue, Persian-localized date/time control treatment across all roles. */
+.jalali-calendar-date-input,
+.jalali-calendar-time-input {
+    border-color:#93c5fd;
+    background:#eff6ff;
+    color:#173b68;
+}
+.jalali-calendar-date-input:focus,
+.jalali-calendar-time-input:focus {
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,.16);
+}
+.jalali-calendar-open { border-color:#93c5fd;background:#dbeafe;color:#1d4ed8; }
+.jalali-calendar-open:hover { border-color:#2563eb;background:#bfdbfe; }
+.jalali-calendar-popup { border-color:#93c5fd;box-shadow:0 18px 48px rgba(37,99,235,.2); }
+.jalali-calendar-month-button:hover { background:#dbeafe;border-color:#93c5fd;color:#1d4ed8; }
+.jalali-calendar-day:hover:not(:disabled) { background:#dbeafe;color:#1d4ed8; }
+.jalali-calendar-day.is-today { border-color:#2563eb;color:#1d4ed8; }
+.jalali-calendar-day.is-selected { background:#2563eb;color:#fff;border-color:#2563eb; }
+.teacher-jalali-field,.teacher-jalali-field-grid { min-width:0;width:100%; }
+.teacher-jalali-field-grid { display:grid;grid-template-columns:minmax(0,1fr) minmax(104px,.45fr);gap:8px; }
+.teacher-jalali-field-grid.is-date-only { grid-template-columns:minmax(0,1fr); }
+.teacher-jalali-field-grid > input { min-width:0;box-sizing:border-box;width:100%; }
+.teacher-jalali-field > label > span { display:block;margin-bottom:7px; }
+.teacher-jalali-field em { display:block;margin-top:5px;color:var(--panel-muted,#62748a);font-size:10px; }
+@media(max-width:480px) {
+    .teacher-jalali-field-grid { grid-template-columns:minmax(0,1fr); }
+}

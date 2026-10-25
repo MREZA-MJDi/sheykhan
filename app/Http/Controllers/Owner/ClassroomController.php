@@ -8,6 +8,7 @@ use App\Http\Requests\Owner\UpdateClassroomRequest;
 use App\Models\Academy;
 use App\Models\Classroom;
 use App\Services\OwnerClassroomService;
+use App\Services\ClassroomCodeGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -26,7 +27,7 @@ class ClassroomController extends Controller
     {
         return view('owner.classrooms.form', [
             'academy' => $academy,
-            'classroom' => new Classroom(['status' => 'active']),
+            'classroom' => new Classroom(['status' => 'active', 'code' => app(ClassroomCodeGenerator::class)->generate()]),
             ...$service->formData(request()->user(), $academy),
             'selectedTeacherIds' => [],
         ]);

@@ -45,7 +45,7 @@ final class OwnerClassroomService
                             ->where('active_teacher_membership.role', 'teacher')
                             ->where('active_teacher_membership.status', 'active');
                     }),
-                'schedules:id,classroom_id,weekday,start_time,end_time,room,meeting_url',
+                'schedules:id,classroom_id,weekday,start_time,end_time,room,provider,meeting_url',
             ])
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
@@ -182,7 +182,7 @@ final class OwnerClassroomService
                 'grade_id' => $data['grade_id'] ?? null,
                 'academic_year_id' => $data['academic_year_id'] ?? null,
                 'title' => $data['title'],
-                'code' => $data['code'],
+                'code' => app(ClassroomCodeGenerator::class)->resolve($data['code'] ?? null),
                 'description' => $data['description'] ?? null,
                 'capacity' => $data['capacity'] ?? null,
                 'status' => $data['status'] ?? 'active',

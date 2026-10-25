@@ -16,9 +16,9 @@
         <div class="av" aria-hidden="true">
             @if($studentAvatarUrl ?? null)
                 <img data-avatar-image src="{{ $studentAvatarUrl }}" alt="تصویر پروفایل {{ $student->name }}" width="160" height="160" loading="eager" decoding="async" fetchpriority="high">
-                <svg data-avatar-fallback hidden viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
+                <span data-avatar-fallback class="student-dashboard-avatar-initial" hidden>{{ \Illuminate\Support\Str::substr(trim((string) ($student->name ?? 'د')), 0, 1) ?: 'د' }}</span>
             @else
-                <svg data-avatar-fallback viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
+                <span data-avatar-fallback class="student-dashboard-avatar-initial">{{ \Illuminate\Support\Str::substr(trim((string) ($student->name ?? 'د')), 0, 1) ?: 'د' }}</span>
             @endif
         </div>
         <div class="txt">
