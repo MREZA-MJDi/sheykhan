@@ -35,6 +35,9 @@
         <a href="{{ route('parent.messages.index') }}" class="role-nav-link {{ request()->routeIs('parent.messages.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>پیام‌ها و درخواست‌ها</span>
         </a>
+        <a href="{{ route('parent.meetings.index') }}" class="role-nav-link {{ request()->routeIs('parent.meetings.*') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>جلسات برنامه‌ریزی‌شده</span>
+        </a>
         <a href="{{ route('parent.counseling.index') }}" class="role-nav-link {{ request()->routeIs('parent.counseling.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>درخواست مشاوره</span>
         </a>
