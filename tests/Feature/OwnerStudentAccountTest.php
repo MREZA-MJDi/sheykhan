@@ -37,7 +37,7 @@ class OwnerStudentAccountTest extends TestCase
         $response = $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy) . '?tab=create-student', [
                 'name' => 'آوا تستی',
-                'national_id' => '0012345678',
+                'national_id' => '0087456321',
                 'email' => 'ava.created@student-test.example',
                 'mobile' => '09120001122',
                 'grade_id' => $gradeId,
@@ -69,12 +69,12 @@ class OwnerStudentAccountTest extends TestCase
             'user_id' => $student->id,
             'grade_id' => $gradeId,
             'school_name' => 'مدرسه آزمایشی',
-            'national_id_lookup' => NationalIdLookup::make('0012345678'),
+            'national_id_lookup' => NationalIdLookup::make('0087456321'),
         ]);
         $this->assertDatabaseHas('student_onboardings', [
             'academy_id' => $academy->id,
             'student_id' => $student->id,
-            'national_id_lookup' => NationalIdLookup::make('0012345678'),
+            'national_id_lookup' => NationalIdLookup::make('0087456321'),
             'source' => 'admin',
             'status' => 'activated',
             'notes' => 'یادداشت تستی',
