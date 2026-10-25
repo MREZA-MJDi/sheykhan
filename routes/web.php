@@ -291,6 +291,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
     Route::get('/courses', [StudentCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
     Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->middleware('permission:courses.view')->name('courses.show');
     Route::post('/courses/{course}/spotplayer-license', [\App\Http\Controllers\Student\SpotPlayerLicenseController::class, 'store'])->middleware(['permission:courses.view','throttle:5,1'])->name('courses.spotplayer-license');
+    Route::get('/courses/{course}/spotplayer-cookie', \App\Http\Controllers\Student\SpotPlayerWebCookieController::class)->middleware(['permission:courses.view','throttle:60,1'])->name('courses.spotplayer-cookie');
     Route::get('/lessons/{lesson}', [StudentLessonController::class, 'show'])->middleware('permission:lessons.view')->name('lessons.show');
     Route::patch('/lessons/{lesson}/progress', [StudentLessonProgressController::class, 'update'])->middleware(['permission:lessons.progress','throttle:30,1'])->name('lessons.progress.update');
 

@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->appendToGroup('web', [RequirePasswordChange::class]);
+        $middleware->encryptCookies(except: ['SPOTPLAYER_X']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (ModelNotFoundException $e, Request $request) {
