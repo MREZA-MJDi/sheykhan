@@ -93,9 +93,17 @@
         ];
     }
 
-    $academy = $role === 'owner' && ! $seoOnly
-        ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->first()
-        : null;
+    $ownedAcademies = $role === 'owner' && ! $seoOnly
+        ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->get() ?? collect()
+        : collect();
+
+    // Keep scoped mobile links in the academy the owner is currently viewing.
+    // A fallback to the first active academy is only used on unscoped pages.
+    $routeAcademy = request()->route('academy');
+    $routeAcademyId = $routeAcademy instanceof \\App\\Models\\Academy
+        ? (int) $routeAcademy->getKey()
+        : (is_numeric($routeAcademy) ? (int) $routeAcademy : null);
+    $academy = $ownedAcademies->firstWhere('id', $routeAcademyId) ?? $ownedAcademies->first();
 
     $academyRoutes = [
         'owner.people.index', 'owner.classrooms.index', 'owner.attendance.index',
