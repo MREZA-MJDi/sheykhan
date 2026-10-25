@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\User;
+use App\Support\NationalIdLookup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -68,12 +69,12 @@ class OwnerStudentAccountTest extends TestCase
             'user_id' => $student->id,
             'grade_id' => $gradeId,
             'school_name' => 'مدرسه آزمایشی',
-            'national_id_lookup' => \\App\\Support\\NationalIdLookup::make('0012345678'),
+            'national_id_lookup' => NationalIdLookup::make('0012345678'),
         ]);
         $this->assertDatabaseHas('student_onboardings', [
             'academy_id' => $academy->id,
             'student_id' => $student->id,
-            'national_id_lookup' => \\App\\Support\\NationalIdLookup::make('0012345678'),
+            'national_id_lookup' => NationalIdLookup::make('0012345678'),
             'source' => 'admin',
             'status' => 'activated',
             'notes' => 'یادداشت تستی',
