@@ -55,8 +55,10 @@ final class SpotPlayerIntegrationTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.courses.show', $course))
             ->assertOk()
-            ->assertSee('abcdef123456licensekey')
-            ->assertSee('https://app.spotplayer.ir/', false)
+            ->assertSee('spotplayer-player-' . $course->id, false)
+            ->assertSee('spotplayer-cookie', false)
+            ->assertSee('app-api.js', false)
+            ->assertDontSee('value="abcdef123456licensekey"', false)
             ->assertDontSee('fake-secret-key');
 
         $this->actingAs($student)
