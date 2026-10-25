@@ -40,4 +40,18 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
     }
 
+    public function test_student_dashboard_shell_collapses_on_tablets_and_keeps_phone_gutters(): void
+    {
+        $css = file_get_contents(resource_path('css/panel-design-system.css'));
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('@media (min-width: 761px) and (max-width: 900px)', $css);
+        $this->assertStringContainsString('grid-template-columns: minmax(0, 1fr) !important;', $css);
+        $this->assertStringContainsString('@media (max-width: 760px)', $css);
+        $this->assertStringContainsString('body.student-shell {', $css);
+        $this->assertStringContainsString('padding: 8px !important;', $css);
+        $this->assertStringContainsString('border-radius: 20px;', $css);
+        $this->assertStringContainsString('padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)) !important;', $css);
+    }
+
 }
