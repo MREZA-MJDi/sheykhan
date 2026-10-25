@@ -163,6 +163,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
             'owner.orders.index',
             'owner.legal-documents.index',
             'owner.reports.index',
+            'parent.meetings.index',
         ] as $ownerRoute) {
             $this->assertContains($ownerRoute, $routes, 'The owner mobile navigation must expose ' . $ownerRoute);
         }
