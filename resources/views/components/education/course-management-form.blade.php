@@ -280,20 +280,20 @@
                         <span class="course-label">توضیحات کامل</span>
                         <textarea name="description" rows="8" placeholder="سرفصل کلی، شیوه تدریس، پیش‌نیازها و هر توضیح مهم دیگر..." class="course-input min-h-48 py-3 leading-7">{{ old('description',$course->description) }}</textarea>
                         <x-owner.field-error field="description"/>
+                    </label>
 
-                        <label class="mt-4 block">
-                            <span class="course-label">شناسهٔ دوره در SpotPlayer <small>اختیاری</small></span>
-                            <input
-                                name="spotplayer_course_id"
-                                value="{{ old('spotplayer_course_id', $course->spotplayer_course_id) }}"
-                                maxlength="120"
-                                pattern="[A-Za-z0-9_-]+"
-                                autocomplete="off"
-                                placeholder="شناسهٔ دوره در پنل SpotPlayer"
-                                class="course-input">
-                            <span class="course-help">شناسه را پس از ایجاد دوره و بارگذاری ویدئوها در پنل SpotPlayer وارد کن. این شناسه با ID دوره در شیخان متفاوت است؛ لینک یا کلید API را اینجا وارد نکن.</span>
-                            <x-owner.field-error field="spotplayer_course_id"/>
-                        </label>
+                    <label class="course-field sm:col-span-2">
+                        <span class="course-label">شناسهٔ دوره در SpotPlayer <small>اختیاری</small></span>
+                        <input
+                            name="spotplayer_course_id"
+                            value="{{ old('spotplayer_course_id', $course->spotplayer_course_id) }}"
+                            maxlength="120"
+                            pattern="[A-Za-z0-9_-]+"
+                            autocomplete="off"
+                            placeholder="شناسهٔ دوره در پنل SpotPlayer"
+                            class="course-input">
+                        <span class="course-help">شناسه را پس از ایجاد دوره و بارگذاری ویدئوها در پنل SpotPlayer وارد کن. هر دورهٔ شیخان باید به شناسهٔ دورهٔ متناظر در SpotPlayer وصل شود. اینجا شناسهٔ دوره را وارد کن، نه API key یا کلید لایسنس.</span>
+                        <x-owner.field-error field="spotplayer_course_id"/>
                     </label>
                 </div>
             </section>
