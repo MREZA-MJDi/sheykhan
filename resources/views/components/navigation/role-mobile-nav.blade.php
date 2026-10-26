@@ -56,7 +56,7 @@
             ['route' => 'owner.exams.index', 'label' => 'آزمون‌ها و نتایج', 'permission' => 'exams.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.recordings.index', 'label' => 'آرشیو ضبط کلاس‌ها', 'permission' => 'live_classes.view', 'icon' => '◉', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.teacher-payments.index', 'label' => 'حقوق مدرس‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.resources.index', 'label' => 'ویدئو و منابع آموزشی', 'permission' => 'content.manage', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.resources.index', 'label' => 'ویدئو و منابع آموزشی', 'permission' => 'resources.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.products.index', 'label' => 'محصولات و منابع فروش', 'permission' => 'products.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.orders.index', 'label' => 'سفارش‌ها و رسیدها', 'permission' => 'orders.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣', 'primary' => false],
