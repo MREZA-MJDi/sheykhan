@@ -10,6 +10,7 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -238,6 +239,85 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertJsonMissingPath('data.9.email');
     }
 
+    public function test_assigning_an_existing_course_teacher_does_not_demote_the_primary_teacher(): void
+    {
+        [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
+
+        $this->actingAs($owner)
+            ->post(route('owner.people.assign-teacher', $academy), [
+                'teacher_id' => $teacher->id,
+                'course_id' => $course->id,
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('course_teacher', [
+            'course_id' => $course->id,
+            'teacher_id' => $teacher->id,
+            'is_primary' => true,
+        ]);
+    }
+
+    public function test_owner_created_teacher_password_is_hashed_and_requires_change_on_first_login(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+        $email = 'new-teacher-' . Str::random(8) . '@test.local';
+        $plainPassword = 'T!acher-password-2026';
+
+        $this->actingAs($owner)
+            ->post(route('owner.people.store-teacher', $academy), [
+                'name' => 'مدرس تازه',
+                'email' => $email,
+                'password' => $plainPassword,
+                'password_confirmation' => $plainPassword,
+                'specialization' => 'ریاضی',
+                'experience_years' => 4,
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success')
+            ->assertSessionHasNoErrors();
+
+        $teacher = User::query()->where('email', $email)->firstOrFail();
+
+        $this->assertTrue(Hash::check($plainPassword, $teacher->password));
+        $this->assertNotSame($plainPassword, $teacher->password);
+        $this->assertTrue($teacher->must_change_password);
+        $this->assertTrue($teacher->hasRole('teacher'));
+
+        $this->assertDatabaseHas('academy_user', [
+            'academy_id' => $academy->id,
+            'user_id' => $teacher->id,
+            'role' => 'teacher',
+            'status' => 'active',
+        ]);
+    }
+
+    public function test_active_member_rosters_exclude_inactive_user_accounts(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+        $studentRole = Role::create([
+            'name' => 'دانش‌آموز',
+            'slug' => 'student',
+            'description' => 'Student',
+        ]);
+        $inactiveStudent = User::factory()->create([
+            'name' => 'دانش‌آموز حساب غیرفعال',
+            'email' => 'inactive-student-' . Str::random(8) . '@test.local',
+            'status' => 'inactive',
+        ]);
+        $inactiveStudent->roles()->attach($studentRole->id);
+        $academy->users()->attach($inactiveStudent->id, [
+            'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertDontSee('دانش‌آموز حساب غیرفعال');
+    }
+
     public function test_owner_can_assign_a_single_teacher_to_a_class_from_the_people_page(): void
     {
         [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
@@ -265,6 +345,7 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->assertDatabaseHas('course_teacher', [
             'course_id' => $course->id,
             'teacher_id' => $teacher->id,
+            'is_primary' => true,
         ]);
         $this->assertSame(1, $classroom->teachers()->count());
     }
