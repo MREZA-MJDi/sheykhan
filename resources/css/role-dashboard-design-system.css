@@ -1,7 +1,7 @@
 /*
- * Sheykhan role dashboard design system.
- * Shared by Student and Teacher only; Owner/Admin styles are intentionally untouched.
- * Keep visual tokens and dashboard primitives here instead of adding per-page overrides.
+ * Shared visual tokens for the Student and Teacher workspaces.
+ * Role-specific layout and page behavior stay in student.css / teacher.css.
+ * Do not place role page layouts or Owner/Admin selectors in this file.
  */
 :root {
     --rds-canvas: #eef4fa;
@@ -11,7 +11,7 @@
     --rds-muted: #657b92;
     --rds-border: #dfe8f2;
     --rds-primary: #285888;
-    --rds-primary-strong: #1c426d;
+    --rds-primary-hover: #1c426d;
     --rds-accent: #159ca7;
     --rds-violet: #7162d8;
     --rds-success: #187654;
@@ -20,10 +20,10 @@
     --rds-warning-bg: #fff7e8;
     --rds-danger: #b42336;
     --rds-danger-bg: #fff0f2;
-    --rds-radius: 18px;
     --rds-radius-sm: 12px;
-    --rds-shadow: 0 8px 24px rgba(31, 57, 89, .055);
-    --rds-shadow-hover: 0 12px 28px rgba(31, 57, 89, .11);
+    --rds-radius-card: 17px;
+    --rds-shadow-card: 0 8px 24px rgba(31, 57, 89, .07);
+    --rds-shadow-hover: 0 12px 28px rgba(31, 57, 89, .12);
     --rds-focus: 0 0 0 3px rgba(21, 156, 167, .2);
 }
 
@@ -35,7 +35,7 @@
     --rds-muted: #a5b6ca;
     --rds-border: #2a3b50;
     --rds-primary: #a8cbff;
-    --rds-primary-strong: #d4e5ff;
+    --rds-primary-hover: #d4e5ff;
     --rds-accent: #65d2d0;
     --rds-violet: #b6a9ff;
     --rds-success: #88dfb6;
@@ -44,664 +44,68 @@
     --rds-warning-bg: #3b2d1a;
     --rds-danger: #ffb0ba;
     --rds-danger-bg: #3b202a;
-    --rds-shadow: 0 10px 28px rgba(0, 0, 0, .2);
+    --rds-shadow-card: 0 10px 28px rgba(0, 0, 0, .2);
     --rds-shadow-hover: 0 14px 32px rgba(0, 0, 0, .28);
     --rds-focus: 0 0 0 3px rgba(101, 210, 208, .24);
 }
 
-body.student-shell,
-body.teacher-shell {
-    background: var(--rds-canvas) !important;
-    background-image: none !important;
+/* Adapter tokens: legacy role styles consume these names. Keep the adapters here
+   so the two role stylesheets can evolve without growing separate color systems. */
+body.student-shell {
+    --bg1: var(--rds-canvas);
+    --bg2: var(--rds-canvas);
+    --panel: var(--rds-surface);
+    --panel-b: var(--rds-border);
+    --text: var(--rds-ink);
+    --muted: var(--rds-muted);
+    --side: #285888;
+    --side2: #1c426d;
+    --teal: var(--rds-accent);
+    --teal-d: #147d89;
+    --sh: var(--rds-shadow-card);
+    background: var(--rds-canvas);
     color: var(--rds-ink);
     font-family: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
 }
 
-.student-shell .role-dashboard,
-.teacher-shell .role-dashboard {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-content: start;
-    gap: 18px;
-    width: 100%;
-    min-width: 0;
+body.teacher-shell {
+    --bg: var(--rds-canvas);
+    --sf: var(--rds-surface);
+    --s2: var(--rds-surface-soft);
+    --bd: var(--rds-border);
+    --tx: var(--rds-ink);
+    --mu: var(--rds-muted);
+    --mt: var(--rds-muted);
+    --ac: var(--rds-primary);
+    --on: #ffffff;
+    --ok: var(--rds-success);
+    --wr: var(--rds-warning);
+    --er: var(--rds-danger);
+    --vi: var(--rds-violet);
+    --sk: #3988bd;
+    --sh: var(--rds-shadow-card);
+    background: var(--rds-canvas);
     color: var(--rds-ink);
+    font-family: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
 }
 
-.student-shell #dashboard.role-dashboard { gap: 18px; }
-.teacher-shell #teacher-dashboard.role-dashboard { gap: 18px; }
+:root[data-theme="dark"] body.teacher-shell { --on: #122033; }
 
-.student-shell .role-dashboard :is(h1, h2, h3, h4, p, small, strong, b, span),
-.teacher-shell .role-dashboard :is(h1, h2, h3, h4, p, small, strong, b, span) {
-    overflow-wrap: anywhere;
-}
-
-.student-shell #dashboard .hero,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-columns: 84px minmax(0, 1fr);
-    align-items: center;
-    gap: 18px;
-    min-width: 0;
-    min-height: 0;
-    margin: 0;
-    padding: clamp(20px, 2.5vw, 28px);
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, .17);
-    border-radius: 22px;
-    background:
-        radial-gradient(circle at 8% 5%, rgba(90, 211, 213, .22), transparent 14rem),
-        radial-gradient(circle at 96% 110%, rgba(159, 144, 255, .22), transparent 16rem),
-        linear-gradient(118deg, #214976 0%, #285d8e 56%, #176d78 100%);
-    box-shadow: 0 14px 34px rgba(25, 65, 103, .18);
-    color: #fff;
-}
-
-.student-shell #dashboard .hero::before,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero::before {
-    position: absolute;
-    z-index: -1;
-    inset-inline-end: -70px;
-    top: -145px;
-    width: 270px;
-    height: 270px;
-    border: 1px solid rgba(255, 255, 255, .11);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .035);
-    content: "";
-    pointer-events: none;
-}
-
-.student-shell #dashboard .hero::after,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero::after {
-    content: none;
-}
-
-.student-shell #dashboard .hero .av {
-    z-index: 1;
-    width: 84px;
-    height: 84px;
-    align-self: center;
-    flex: none;
-    overflow: hidden;
-    margin: 0;
-    border: 1px solid rgba(255, 255, 255, .28);
-    border-radius: 22px;
-    background: rgba(255, 255, 255, .14);
-    box-shadow: 0 8px 22px rgba(7, 26, 48, .16);
-}
-
-.student-shell #dashboard .hero .av img,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.student-shell #dashboard .hero .av .student-dashboard-avatar-initial {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    background: linear-gradient(145deg, #2a94a9, #4f62b4);
-    color: #fff;
-    font-size: 30px;
-    font-weight: 900;
-    line-height: 1;
-}
-
-.student-shell #dashboard .hero .av .student-dashboard-avatar-initial[hidden] { display: none !important; }
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar {
-    display: grid;
-    place-items: center;
-    width: 84px;
-    height: 84px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, .28);
-    border-radius: 22px;
-    background: rgba(255, 255, 255, .14);
-    box-shadow: 0 8px 22px rgba(7, 26, 48, .16);
-    color: #fff;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar > span[hidden] { display: none !important; }
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar > span {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: 100%;
-    color: #fff;
-    font-size: 28px;
-    font-weight: 900;
-}
-
-.student-shell #dashboard .hero .txt,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-copy {
-    position: relative;
-    z-index: 1;
-    min-width: 0;
-    color: #fff;
-}
-
-.student-shell #dashboard .hero h2,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 {
-    margin: 0 0 5px;
-    color: #fff;
-    font-size: clamp(21px, 2.1vw, 28px);
-    font-weight: 850;
-    line-height: 1.65;
-    letter-spacing: -.02em;
-    text-shadow: none;
-}
-
-.student-shell #dashboard .hero p,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p {
-    margin: 0 0 16px;
-    color: rgba(247, 251, 255, .83);
-    font-size: 13px;
-    line-height: 1.95;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .section-kicker {
-    display: block;
-    margin-bottom: 4px;
-    color: #bce5eb;
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.8;
-}
-
-.student-shell #dashboard .hero .btn,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions :is(a, button) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 42px;
-    max-width: 100%;
-    padding: 9px 16px;
-    border: 1px solid rgba(255, 255, 255, .18);
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 5px 14px rgba(8, 30, 52, .13);
-    color: #214d7c;
-    font-size: 12px;
-    font-weight: 850;
-    line-height: 1.65;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: none;
-    transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
-}
-
-.student-shell #dashboard .hero .btn:hover,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions :is(a, button):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(8, 30, 52, .2);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions .teacher-dashboard-secondary-action {
-    border-color: rgba(255, 255, 255, .44);
-    background: rgba(255, 255, 255, .1);
-    box-shadow: none;
-    color: #fff;
-    backdrop-filter: blur(8px);
-}
-
-.student-shell #dashboard .stats {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-    min-width: 0;
-}
-
-.student-shell #dashboard .st,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    min-width: 0;
-    min-height: 144px;
-    overflow: hidden;
-    padding: 17px;
-    border: 1px solid var(--rds-border) !important;
-    border-radius: 17px !important;
-    background: var(--rds-surface) !important;
-    box-shadow: var(--rds-shadow) !important;
-    color: var(--rds-ink);
-    text-decoration: none;
-    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-}
-
-.student-shell #dashboard .st::before,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi::before {
-    position: absolute;
-    inset: 0 0 auto;
-    height: 3px;
-    background: var(--rds-card-accent, var(--rds-accent));
-    content: "";
-}
-
-.student-shell #dashboard .st:nth-child(4n + 1),
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi:nth-child(4n + 1) { --rds-card-accent: #169ca8; }
-.student-shell #dashboard .st:nth-child(4n + 2),
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi:nth-child(4n + 2) { --rds-card-accent: #5684d9; }
-.student-shell #dashboard .st:nth-child(4n + 3),
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi:nth-child(4n + 3) { --rds-card-accent: #d99a3f; }
-.student-shell #dashboard .st:nth-child(4n),
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi:nth-child(4n) { --rds-card-accent: #8170dc; }
-
-.student-shell #dashboard .st:hover,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--rds-card-accent, var(--rds-accent)) 42%, var(--rds-border)) !important;
-    box-shadow: var(--rds-shadow-hover) !important;
-}
-
-.student-shell #dashboard .st .ic,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi > i {
-    position: absolute;
-    top: 14px;
-    inset-inline-end: 14px;
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    flex: none;
-    margin: 0 0 2px;
-    border: 1px solid color-mix(in srgb, var(--rds-card-accent, var(--rds-accent)) 20%, transparent);
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--rds-card-accent, var(--rds-accent)) 11%, var(--rds-surface));
-    color: var(--rds-card-accent, var(--rds-accent));
-    box-shadow: none;
-    font-style: normal;
-}
-
-.student-shell #dashboard .st .ic svg,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi > i svg {
-    width: 21px;
-    height: 21px;
-    color: currentColor;
-}
-
-.student-shell #dashboard .st small,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi .k6-label {
-    min-height: 42px;
-    padding-inline-end: 48px;
-    display: flex;
-    align-items: center;
-    margin: 0;
-    color: var(--rds-muted);
-    font-size: 11.5px;
-    font-weight: 750;
-    line-height: 1.8;
-}
-
-.student-shell #dashboard .st b,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi > b {
-    color: var(--rds-ink);
-    font-size: 26px;
-    font-weight: 900;
-    line-height: 1.25;
-    font-variant-numeric: tabular-nums;
-}
-
-.student-shell #dashboard .st span:not(.ic),
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi small {
-    color: var(--rds-muted);
-    font-size: 10.5px;
-    font-weight: 550;
-    line-height: 1.75;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi .teacher-kpi-action {
-    display: inline-flex;
-    margin-top: auto;
-    padding-top: 4px;
-    color: var(--rds-primary);
-    font-size: 10.5px;
-    font-weight: 800;
-}
-
-.student-shell #dashboard .row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    gap: 18px;
-    min-width: 0;
-}
-
-.student-shell #dashboard .card,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd {
-    min-width: 0;
-    margin: 0;
-    padding: clamp(17px, 1.7vw, 23px);
-    border: 1px solid var(--rds-border) !important;
-    border-radius: var(--rds-radius) !important;
-    background: var(--rds-surface) !important;
-    box-shadow: var(--rds-shadow) !important;
-    color: var(--rds-ink);
-}
-
-.student-shell #dashboard .card h2,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd > h3 {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 0;
-    color: var(--rds-ink);
-    font-size: 14px;
-    font-weight: 850;
-    line-height: 1.8;
-}
-
-.student-shell #dashboard .chead {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 0 0 14px;
-}
-
-.student-shell #dashboard .chead h2 { min-width: 0; }
-.student-shell #dashboard .chead h2 a { color: inherit; text-decoration: none; }
-.student-shell #dashboard .chead .pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 34px;
-    padding: 5px 11px;
-    border: 1px solid var(--rds-border);
-    border-radius: 10px;
-    background: var(--rds-surface-soft);
-    color: var(--rds-primary);
-    font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-.student-shell #dashboard .student-dashboard-subsection-head { margin-top: 18px; }
-
-.student-shell #dashboard .trk {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-    padding: 12px 0;
-    border-top: 1px solid var(--rds-border);
-    background: transparent;
-    box-shadow: none;
-}
-.student-shell #dashboard .trk:first-of-type { border-top: 0; }
-.student-shell #dashboard .th {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    flex: none;
-    border: 1px solid var(--rds-border);
-    border-radius: 12px;
-    background: var(--rds-surface-soft);
-    color: var(--rds-primary);
-}
-.student-shell #dashboard .th svg { width: 19px; height: 19px; color: currentColor; }
-.student-shell #dashboard .trk :is(a, strong, b) { overflow-wrap: anywhere; }
-.student-shell #dashboard .empty,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .empty-state {
-    padding: 16px;
-    border: 1px dashed var(--rds-border);
-    border-radius: 13px;
-    background: var(--rds-surface-soft);
-    color: var(--rds-muted);
-    font-size: 12px;
-    line-height: 1.9;
-    text-align: center;
-}
-
-.student-shell #dashboard .goalbox,
-.student-shell #dashboard .goal,
-.student-shell #dashboard .prog {
-    border-color: var(--rds-border);
-}
-.student-shell #dashboard .goalbox {
-    border-radius: 15px;
-    background: var(--rds-surface-soft);
-    box-shadow: none;
-}
-.student-shell #dashboard .goal {
-    box-shadow: inset 0 0 0 7px var(--rds-surface);
-}
-.student-shell #dashboard .goalbox :is(h3, strong, b) { color: var(--rds-ink); }
-.student-shell #dashboard .goalbox :is(p, small, span) { color: var(--rds-muted); }
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 12px;
-    min-width: 0;
-    margin: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(250px, .9fr);
-    align-items: start;
-    gap: 18px;
-    min-width: 0;
-    margin: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .col {
-    display: grid;
-    align-content: start;
-    gap: 18px;
-    min-width: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .sv,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-grid {
-    min-width: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard :is(.teacher-classroom-roster-card, .teacher-student-row, .teacher-course-card, .tl, .ls) {
-    border-color: var(--rds-border);
-    border-radius: 13px;
-    box-shadow: none;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card {
-    background: var(--rds-surface-soft);
-    color: var(--rds-ink);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row:hover,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card:hover,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card:hover {
-    border-color: color-mix(in srgb, var(--rds-accent) 36%, var(--rds-border));
-    box-shadow: var(--rds-shadow);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    min-width: 0;
-    margin: 0;
-    padding: 14px 16px;
-    border: 1px solid #f0d7a8;
-    border-radius: 15px;
-    background: var(--rds-warning-bg);
-    color: var(--rds-warning);
-    font-size: 12px;
-    line-height: 1.9;
-}
-:root[data-theme="dark"] .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al { border-color: #72582a; }
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al.clear {
-    border-color: color-mix(in srgb, var(--rds-success) 26%, var(--rds-border));
-    background: var(--rds-success-bg);
-    color: var(--rds-success);
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al-copy { min-width: 0; flex: 1 1 240px; }
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al-copy :is(strong, small) { display: block; color: inherit; line-height: 1.9; }
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al-copy small { opacity: .83; font-size: 11px; }
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al > a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 36px;
-    padding: 6px 11px;
-    border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
-    border-radius: 10px;
-    color: inherit;
-    font-size: 11px;
-    font-weight: 850;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.student-shell #dashboard :is(.pill, .btn),
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard :is(.bt, .teacher-dashboard-primary-action, .teacher-dashboard-secondary-action) {
-    touch-action: manipulation;
-}
-
-.student-shell #dashboard :is(a, button):focus-visible,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard :is(a, button, [tabindex]):focus-visible {
+/* Shared interaction contract, not shared page layout. */
+:where(body.student-shell, body.teacher-shell) :is(button, a, input, select, textarea, [tabindex]):focus-visible {
     outline: 3px solid var(--rds-accent);
     outline-offset: 3px;
     box-shadow: var(--rds-focus);
 }
 
-.student-shell #dashboard a,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard a {
-    text-underline-offset: 3px;
-}
-
-.student-shell #dashboard a:not(.btn):not(.pill):hover,
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd h3 a:hover {
-    color: var(--rds-primary);
-}
-
-@media (max-width: 1200px) {
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh { grid-template-columns: minmax(0, 1fr); }
-}
-
-@media (max-width: 1000px) {
-    .student-shell #dashboard .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .student-shell #dashboard .row { grid-template-columns: minmax(0, 1fr); }
-}
-
-@media (max-width: 760px) {
-    .student-shell .role-dashboard,
-    .teacher-shell .role-dashboard { gap: 15px; }
-
-    .student-shell #dashboard .hero,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
-        grid-template-columns: 62px minmax(0, 1fr);
-        gap: 12px;
-        padding: 18px;
-        border-radius: 18px;
-    }
-
-    .student-shell #dashboard .hero .av,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar {
-        width: 62px;
-        height: 62px;
-        border-radius: 17px;
-    }
-
-    .student-shell #dashboard .hero .av .student-dashboard-avatar-initial { border-radius: 16px; font-size: 23px; }
-
-    .student-shell #dashboard .hero h2,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 {
-        font-size: 20px;
-        line-height: 1.65;
-    }
-
-    .student-shell #dashboard .hero p,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p {
-        margin-bottom: 12px;
-        font-size: 12px;
-    }
-
-    .student-shell #dashboard .st,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi {
-        min-height: 132px;
-        padding: 14px;
-    }
-
-    .student-shell #dashboard .card,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd {
-        padding: 16px;
-        border-radius: 16px !important;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 { gap: 10px; }
-}
-
-@media (max-width: 520px) {
-    .student-shell #dashboard .hero,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
-        grid-template-columns: minmax(0, 1fr);
-        align-items: start;
-        padding: 17px;
-    }
-
-    .student-shell #dashboard .hero .av,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar {
-        width: 56px;
-        height: 56px;
-        border-radius: 15px;
-    }
-
-    .student-shell #dashboard .stats,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-    .student-shell #dashboard .st,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi {
-        min-height: 120px;
-        padding: 12px;
-    }
-
-    .student-shell #dashboard .st b,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi > b { font-size: 23px; }
-
-    .student-shell #dashboard .hero .btn,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions :is(a, button) {
-        max-width: 100%;
-        min-height: 40px;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions { align-items: stretch; }
+:where(body.student-shell, body.teacher-shell) :is(button, a) {
+    touch-action: manipulation;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .student-shell #dashboard *,
-    .student-shell #dashboard *::before,
-    .student-shell #dashboard *::after,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *::before,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *::after {
+    :where(body.student-shell, body.teacher-shell) *,
+    :where(body.student-shell, body.teacher-shell) *::before,
+    :where(body.student-shell, body.teacher-shell) *::after {
         scroll-behavior: auto !important;
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
