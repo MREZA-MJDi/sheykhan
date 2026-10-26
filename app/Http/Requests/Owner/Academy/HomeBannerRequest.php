@@ -8,7 +8,12 @@ class HomeBannerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasPermission('academy.manage') ?? false;
+        $user = $this->user();
+
+        return $user !== null
+            && $user->hasRole('seo-specialist')
+            && ! $user->hasRole('academy-owner')
+            && $user->hasPermission('seo.manage');
     }
 
     public function rules(): array
@@ -19,7 +24,7 @@ class HomeBannerRequest extends FormRequest
             'banners.*.title' => ['nullable', 'string', 'max:255'],
             'banners.*.description' => ['nullable', 'string', 'max:700'],
             'banners.*.cta_label' => ['nullable', 'string', 'max:80'],
-            'banners.*.cta_url' => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\\/\\/|\\/|#)/i'],
+            'banners.*.cta_url' => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\/\/|\/|#)/i'],
             'banners.*.is_active' => ['nullable', 'boolean'],
             'banners.*.crop_x' => ['nullable', 'integer', 'min:0', 'max:100'],
             'banners.*.crop_y' => ['nullable', 'integer', 'min:0', 'max:100'],

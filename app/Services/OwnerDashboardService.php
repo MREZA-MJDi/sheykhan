@@ -15,9 +15,17 @@ final class OwnerDashboardService
     {
     }
 
-    public function build(User $owner): array
+    public function build(User $owner, string $period = 'month'): array
     {
         abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission('dashboard.view'), 403);
+
+        $period = in_array($period, ['today', 'week', 'month'], true) ? $period : 'month';
+        $now = now();
+        $periodStart = match ($period) {
+            'today' => $now->copy()->startOfDay(),
+            'week' => $now->copy()->startOfWeek(Carbon::SATURDAY),
+            default => $now->copy()->startOfMonth(),
+        };
 
         $academies = $owner->ownedAcademies()
             ->where('status', 'active')
@@ -65,16 +73,26 @@ final class OwnerDashboardService
 
         $classroomCount = (clone $classroomBase)->count();
 
-        $revenue = (float)DB::table('financial_transactions')
+        $revenue = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
             ->where('type', 'enrollment_payment')
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [
+                $periodStart->toDateTimeString(),
+                $now->toDateTimeString(),
+            ])
             ->sum('amount');
 
-        $refunds = (float)DB::table('financial_transactions')
+        $refunds = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
             ->where('type', 'refund')
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [
+                $periodStart->toDateTimeString(),
+                $now->toDateTimeString(),
+            ])
             ->sum('amount');
 
         $pendingReviews = DB::table('assignment_submissions as submissions')
@@ -89,7 +107,10 @@ final class OwnerDashboardService
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
             ->whereIn('classrooms.academy_id', $academyIds)
             ->where('classrooms.status', 'active')
-            ->whereDate('attendances.attendance_date', today())
+            ->whereBetween('attendances.attendance_date', [
+                $periodStart->toDateString(),
+                $now->toDateString(),
+            ])
             ->selectRaw(
                 'SUM(CASE WHEN attendances.status IN (\'present\', \'late\', \'absent\') THEN 1 ELSE 0 END) AS total,
                  SUM(CASE WHEN attendances.status IN (\'present\', \'late\') THEN 1 ELSE 0 END) AS attended'
@@ -122,8 +143,6 @@ final class OwnerDashboardService
             ? min(100, (int) round(($capacityUsed / $capacityTotal) * 100))
             : null;
 
-        $now = now();
-
         $liveNowClasses = LiveClass::query()
             ->whereIn('status', ['scheduled', 'live'])
             ->where('scheduled_at', '<=', $now)
@@ -154,7 +173,7 @@ final class OwnerDashboardService
             ->with([
                 'course:id,title',
                 'teacher:id,name',
-                'classroom:id,title',
+                'classroom:id,title,academy_id',
             ])
             ->orderBy('scheduled_at')
             ->limit(8)
@@ -205,7 +224,8 @@ final class OwnerDashboardService
             })
             ->leftJoin('financial_transactions as transactions', function ($join): void {
                 $join->on('transactions.enrollment_id', '=', 'enrollments.id')
-                    ->where('transactions.status', '=', 'completed');
+                    ->where('transactions.status', '=', 'completed')
+                    ->whereIn('transactions.currency', ['IRT', 'TOMAN', 'TOMANS']);
             })
             ->whereIn('courses.academy_id', $academyIds)
             ->where('users.status', 'active')
@@ -270,6 +290,9 @@ final class OwnerDashboardService
                 'published' => $publishedCourseCount,
                 'pendingReviews' => (int) $pendingReviews,
                 'todayAttendanceRate' => $attendanceToday?->total
+                    ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
+                    : null,
+                'attendanceRate' => $attendanceToday?->total
                     ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
                     : null,
                 'liveNow' => $liveNowCount,
@@ -342,6 +365,7 @@ final class OwnerDashboardService
                 'published' => 0,
                 'pendingReviews' => 0,
                 'todayAttendanceRate' => null,
+                'attendanceRate' => null,
                 'liveNow' => 0,
                 'capacityAlerts' => 0,
                 'classroomsWithoutTeacher' => 0,

@@ -12,8 +12,14 @@ final class OwnerBlogService
 {
     public function index(User $owner): array
     {
-        $posts = BlogPost::query()
-            ->where('author_id', $owner->id)
+        $globalAccess = $this->isDedicatedSeoSpecialist($owner) && $owner->hasPermission('seo.manage');
+        $baseQuery = BlogPost::query();
+
+        if (! $globalAccess) {
+            $baseQuery->where('author_id', $owner->id);
+        }
+
+        $posts = (clone $baseQuery)
             ->with('category:id,name')
             ->latest('updated_at')
             ->paginate(20)
@@ -24,8 +30,8 @@ final class OwnerBlogService
             'categories' => BlogCategory::query()->orderBy('name')->get(['id','name']),
             'stats' => [
                 'total' => $posts->total(),
-                'published' => BlogPost::query()->where('author_id',$owner->id)->where('status','published')->count(),
-                'drafts' => BlogPost::query()->where('author_id',$owner->id)->where('status','draft')->count(),
+                'published' => (clone $baseQuery)->where('status', 'published')->count(),
+                'drafts' => (clone $baseQuery)->where('status', 'draft')->count(),
             ],
         ];
     }
@@ -37,9 +43,18 @@ final class OwnerBlogService
 
     public function owned(User $owner, BlogPost $post): BlogPost
     {
-        abort_unless((int) $post->author_id === (int) $owner->id, 404);
+        $isAuthor = (int) $post->author_id === (int) $owner->id;
+        $canManagePublicBlog = $this->isDedicatedSeoSpecialist($owner)
+            && $owner->hasPermission('seo.manage');
+
+        abort_unless($isAuthor || $canManagePublicBlog, 404);
 
         return $post;
+    }
+
+    private function isDedicatedSeoSpecialist(User $user): bool
+    {
+        return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     }
 
     public function create(User $owner, array $data): BlogPost

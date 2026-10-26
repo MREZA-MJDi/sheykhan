@@ -57,13 +57,9 @@
             ['route' => 'owner.recordings.index', 'label' => 'آرشیو ضبط کلاس‌ها', 'permission' => 'live_classes.view', 'icon' => '◉', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.teacher-payments.index', 'label' => 'حقوق مدرس‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.resources.index', 'label' => 'ویدئو و منابع آموزشی', 'permission' => 'content.manage', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.showcase.index', 'label' => 'افتخارآفرینان و رضایتمندی', 'permission' => 'content.manage', 'icon' => '◎', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.products.index', 'label' => 'محصولات و منابع فروش', 'permission' => 'products.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.orders.index', 'label' => 'سفارش‌ها و رسیدها', 'permission' => 'orders.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣', 'primary' => false],
-            ['route' => 'owner.website.index', 'label' => 'مرکز سایت', 'permission' => 'academy.view', 'icon' => '⌂', 'primary' => false],
-            ['route' => 'owner.content.index', 'label' => 'محتوای آموزشگاه', 'permission' => 'content.manage', 'icon' => '▤', 'primary' => false],
-            ['route' => 'owner.blog.index', 'label' => 'مقالات', 'permission' => 'blog.manage', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.academy.banners.edit', 'label' => 'بنرهای سایت', 'permission' => 'academy.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.finance.index', 'label' => 'مالی و پرداخت‌ها', 'permission' => 'finance.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.legal-documents.index', 'label' => 'اسناد حقوقی و کپی‌رایت', 'permission' => 'legal.manage', 'icon' => '▤', 'primary' => false],
@@ -89,12 +85,18 @@
         $items = [
             ['route' => 'owner.seo.index', 'label' => 'ممیزی SEO صفحات', 'permission' => 'seo.manage', 'icon' => '⌕', 'primary' => true],
             ['route' => 'owner.seo.keywords.index', 'label' => 'کلمات کلیدی و رتبه', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => true],
-
+            ['route' => 'owner.website.index', 'label' => 'مرکز سایت و بنرها', 'permission' => 'seo.manage', 'icon' => '⌂', 'primary' => true],
+            ['route' => 'owner.website.hero.edit', 'label' => 'مدیریت Hero', 'permission' => 'seo.manage', 'icon' => '▧', 'primary' => false],
+            ['route' => 'owner.content.index', 'label' => 'محتوای عمومی صفحات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
+            ['route' => 'owner.blog.index', 'label' => 'بلاگ و مقالات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
+            ['route' => 'owner.showcase.index', 'label' => 'افتخارآفرینان و رضایتمندی', 'permission' => 'seo.manage', 'icon' => '◎', 'primary' => false, 'requiresAcademy' => true],
         ];
     }
 
-    $ownedAcademies = $role === 'owner' && ! $seoOnly
-        ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->get() ?? collect()
+    $ownedAcademies = $role === 'owner'
+        ? ($seoOnly
+            ? \App\Models\Academy::query()->where('status', 'active')->orderBy('name')->get()
+            : ($user?->ownedAcademies()->where('status', 'active')->orderBy('name')->get() ?? collect()))
         : collect();
 
     // Keep scoped mobile links in the academy the owner is currently viewing.

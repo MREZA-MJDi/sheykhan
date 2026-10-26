@@ -7,7 +7,15 @@ use Illuminate\Validation\Rule;
 
 final class StoreBlogPostRequest extends FormRequest
 {
-    public function authorize(): bool { return $this->user()?->hasPermission('blog.manage') ?? false; }
+    public function authorize(): bool
+    {
+        $user = $this->user();
+
+        return $user !== null
+            && $user->hasRole('seo-specialist')
+            && ! $user->hasRole('academy-owner')
+            && $user->hasPermission('seo.manage');
+    }
     public function rules(): array {
         return [
             'category_id'=>['nullable','integer','exists:blog_categories,id'],

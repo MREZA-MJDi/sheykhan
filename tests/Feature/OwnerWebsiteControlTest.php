@@ -18,20 +18,24 @@ class OwnerWebsiteControlTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_academy_owner_can_open_website_control_center(): void
+    public function test_seo_specialist_can_open_website_control_center(): void
     {
-        [$owner, $academy] = $this->workspace();
+        [$owner, $academy, $seo] = $this->workspace();
 
         $this->actingAs($owner)
+            ->get(route('owner.website.index'))
+            ->assertForbidden();
+
+        $this->actingAs($seo)
             ->get(route('owner.website.index'))
             ->assertOk()
             ->assertViewIs('owner.website.index')
             ->assertViewHas('academies', fn ($academies) => $academies->contains($academy));
     }
 
-    public function test_academy_owner_can_update_non_destructive_banner_crop_position(): void
+    public function test_seo_specialist_can_update_non_destructive_banner_crop_position(): void
     {
-        [$owner, $academy] = $this->workspace();
+        [$owner, $academy, $seo] = $this->workspace();
 
         $media = Media::create([
             'uploaded_by' => $owner->id,
@@ -66,7 +70,7 @@ class OwnerWebsiteControlTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->actingAs($owner)
+        $this->actingAs($seo)
             ->patch(route('owner.academy.banners.update', $academy), [
                 'banners' => [
                     1 => [
@@ -89,7 +93,7 @@ class OwnerWebsiteControlTest extends TestCase
 
     public function test_failed_banner_update_removes_uploaded_files_after_database_rollback(): void
     {
-        [$owner, $academy] = $this->workspace();
+        [$owner, $academy, $seo] = $this->workspace();
         $otherUser = User::factory()->create();
 
         $unattachedMedia = Media::create([
@@ -110,7 +114,7 @@ class OwnerWebsiteControlTest extends TestCase
 
         Storage::fake('local');
 
-        $this->actingAs($owner)
+        $this->actingAs($seo)
             ->patch(route('owner.academy.banners.update', $academy), [
                 'banners' => [
                     1 => [
@@ -170,6 +174,23 @@ class OwnerWebsiteControlTest extends TestCase
             'status' => 'active',
         ]);
 
-        return [$owner, $academy];
+        $seoRole = Role::firstOrCreate(
+            ['slug' => 'seo-specialist'],
+            ['name' => 'متخصص SEO', 'description' => 'Public website content management']
+        );
+
+        $seoPermissions = collect(['dashboard.view', 'seo.manage'])->map(fn ($name) => Permission::firstOrCreate(
+            ['name' => $name],
+            ['label' => $name, 'group' => 'seo']
+        ));
+        $seoRole->permissions()->sync($seoPermissions->pluck('id'));
+
+        $seo = User::factory()->create([
+            'email' => 'seo-' . Str::random(8) . '@test.local',
+            'status' => 'active',
+        ]);
+        $seo->roles()->attach($seoRole->id);
+
+        return [$owner, $academy, $seo];
     }
 }

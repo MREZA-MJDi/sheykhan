@@ -244,17 +244,27 @@ final class OwnerContentService
 
     public function owned(User $owner, AcademyContent $content): AcademyContent
     {
-        abort_unless(
-            $owner->hasRole('academy-owner')
-                && $content->academy?->owner_id === $owner->id,
-            403
-        );
+        $academy = $content->academy;
+        $canManageOwnedAcademy = $owner->hasRole('academy-owner')
+            && (int) $academy?->owner_id === (int) $owner->id;
+        $canManagePublicContent = $this->isDedicatedSeoSpecialist($owner)
+            && $owner->hasPermission('seo.manage')
+            && $academy?->status === 'active';
+
+        abort_unless($canManageOwnedAcademy || $canManagePublicContent, 403);
 
         return $content;
     }
 
     private function ownedAcademies(User $owner)
     {
+        if ($this->isDedicatedSeoSpecialist($owner) && $owner->hasPermission('seo.manage')) {
+            return Academy::query()
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->get(['id', 'name', 'slug']);
+        }
+
         return $owner->ownedAcademies()
             ->where('status', 'active')
             ->orderBy('name')
@@ -263,10 +273,11 @@ final class OwnerContentService
 
     private function ownedAcademy(User $owner, int $academyId): Academy
     {
-        $academy = $owner->ownedAcademies()
-            ->where('status', 'active')
-            ->whereKey($academyId)
-            ->first();
+        $query = $this->isDedicatedSeoSpecialist($owner) && $owner->hasPermission('seo.manage')
+            ? Academy::query()->where('status', 'active')
+            : $owner->ownedAcademies()->where('status', 'active');
+
+        $academy = $query->whereKey($academyId)->first();
 
         if (!$academy) {
             throw ValidationException::withMessages([
@@ -275,6 +286,11 @@ final class OwnerContentService
         }
 
         return $academy;
+    }
+
+    private function isDedicatedSeoSpecialist(User $user): bool
+    {
+        return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     }
 
     private function uniqueSlug(Academy $academy, string $title, ?string $requested = null, ?int $ignoreId = null): string

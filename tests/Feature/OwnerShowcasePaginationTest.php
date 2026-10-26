@@ -23,7 +23,7 @@ class OwnerShowcasePaginationTest extends TestCase
         $this->withoutVite();
     }
 
-    public function test_owner_showcase_lists_are_paginated_without_hiding_older_records(): void
+    public function test_seo_showcase_lists_are_paginated_without_hiding_older_records(): void
     {
         [$owner, $academy] = $this->workspace();
 
@@ -80,14 +80,14 @@ class OwnerShowcasePaginationTest extends TestCase
 
         $role = Role::query()->create([
             'name' => 'مدیر آموزشگاه',
-            'slug' => 'academy-owner',
+            'slug' => 'seo-specialist',
             'description' => 'Owner showcase test',
         ]);
 
         $permission = Permission::query()->create([
-            'name' => 'content.manage',
-            'label' => 'مدیریت محتوا',
-            'group' => 'content',
+            'name' => 'seo.manage',
+            'label' => 'مدیریت SEO',
+            'group' => 'seo',
         ]);
 
         $role->permissions()->sync([$permission->id]);
