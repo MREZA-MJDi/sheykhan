@@ -21,6 +21,7 @@ export default defineConfig({
                 'resources/js/admin.js',
                 'resources/css/owner-dashboard-v2.css',
                 'resources/css/owner-admin-pages.css',
+                'resources/css/owner-seo-pages.css',
                 'resources/js/owner-dashboard.js',
                 'resources/js/owner-admin-pages.js',
                 'resources/css/parent.css',

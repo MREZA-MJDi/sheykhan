@@ -65,9 +65,13 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('عنوان SEO اختصاصی تنظیم نشده')
             ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
             ->assertSee('بررسی robots.txt')
-            ->assertSee('role-sidebar owner-sidebar', false)
-            ->assertSee('شیخان · پنل متخصص SEO')
-            ->assertSee('پنل متخصص SEO</small>', false)
+            ->assertSee('owner-admin-v2', false)
+            ->assertSee('سایت و SEO')
+            ->assertSee('آکادمی شیخان')
+            ->assertSee('SEO و محتوای عمومی')
+            ->assertDontSee('role-sidebar owner-sidebar', false)
+            ->assertDontSee('admin.css', false)
+            ->assertDontSee('owner-design-system.css', false)
             ->assertDontSee('کارتابل ادمین / منشی');
 
         $this->actingAs($specialist)
