@@ -261,6 +261,7 @@ class OwnerDashboardBackendContractTest extends TestCase
                 ->whereIn('name', ['dashboard.view', 'classrooms.view'])
                 ->pluck('id')
         );
+        $owner->roles()->sync([$ownerRole->id]);
         $owner->unsetRelation('roles');
         Cache::flush();
 
