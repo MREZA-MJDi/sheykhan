@@ -22,7 +22,7 @@ import './exam-builder.js';
     });
   });
   document.querySelectorAll('form[method="POST"],form[method="post"]').forEach((form) => {
-    if(form.dataset.ownerSubmitGuard==='bound') return;
+    if (form.action.includes('/logout') || form.dataset.ownerSubmitGuard === 'bound') return;
     form.dataset.ownerSubmitGuard='bound';
     form.addEventListener('submit',(event)=>{
       if(form.dataset.uploading==='true'||form.dataset.submitted==='true'){event.preventDefault();return;}
