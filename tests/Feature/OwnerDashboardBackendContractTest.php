@@ -128,7 +128,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             Permission::query()->whereIn('name', [
                 'dashboard.view', 'academy.view', 'classrooms.view', 'courses.view', 'attendance.view',
                 'finance.view', 'reports.view', 'assignments.view', 'live_classes.view',
-                'parents.view', 'content.manage', 'blog.manage', 'products.view', 'orders.view',
+                'parents.view', 'content.manage', 'products.view', 'orders.view',
                 'legal.manage', 'exams.view', 'teacher_payments.view',
             ])->pluck('id')
         );
@@ -143,24 +143,23 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.courses.index') . '"', false)
             ->assertSee('href="' . route('owner.attendance.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.resources.index', $academy) . '"', false)
-            ->assertSee('href="' . route('owner.showcase.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.products.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.orders.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.legal-documents.index') . '"', false)
             ->assertSee('href="' . route('owner.reports.index') . '"', false)
             ->assertSee('href="' . route('owner.finance.index') . '"', false)
-            ->assertSee('href="' . route('owner.website.index') . '"', false)
-            ->assertSee('href="' . route('owner.content.index') . '"', false)
-            ->assertSee('href="' . route('owner.blog.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.website.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.content.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.blog.index') . '"', false)
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false)
             ->assertSee('aria-label="کلاس‌های فعال"', false)
-            ->assertSee('class="owner-stat-card tone-indigo"', false)
-            ->assertSee('owner-classroom-overview', false)
-            ->assertSee('owner-classroom-summary-grid', false)
+            ->assertSee('class="card kpi c3" style="--c:#ff1f6b"', false)
+            ->assertSee('id="capacity-title"', false)
+            ->assertSee('id="course-publish-title"', false)
             ->assertDontSee('owner-classroom-item', false)
             ->assertDontSee('owner-quick-actions', false)
             ->assertDontSee('owner-footer-actions', false)
-            ->assertDontSee('<a class="owner-stat-card', false);
+            ->assertDontSee('<a class="card kpi', false);
     }
 
 
@@ -183,9 +182,9 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('id="owner-academies"', false)
             ->assertDontSee('href="#owner-academies"', false)
             ->assertDontSee('<a class="owner-stat-card', false)
-            ->assertSee('class="owner-stat-card tone-indigo"', false)
-            ->assertSee('برای مدیریت هر آموزشگاه، از منوی کناری وارد همان آموزشگاه شو.')
-            ->assertSee('owner-classroom-overview', false);
+            ->assertSee('class="card kpi c3" style="--c:#ff1f6b"', false)
+            ->assertSee('آموزشگاه دوم')
+            ->assertSee('id="capacity-title"', false);
     }
 
     public function test_owner_dashboard_hides_ungranted_kpis_and_shortcuts(): void
@@ -208,15 +207,16 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->get(route('owner.dashboard'))
             ->assertOk()
             ->assertSee('کلاس‌های فعال')
-            ->assertSee('owner-classroom-overview', false)
+            ->assertSee('id="capacity-title"', false)
             ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
-            ->assertDontSee('ثبت‌نام و مدیریت اعضا')
+            ->assertDontSee('دانش‌آموزان فعال')
+            ->assertDontSee('مدرس‌های فعال')
             ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.edit', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.banners.edit', $academy) . '"', false)
             ->assertDontSee('دوره‌های منتشرشده')
             ->assertDontSee('حضور امروز')
-            ->assertDontSee('درآمد خالص ثبت‌شده')
+            ->assertDontSee('خالص تراکنش‌های تکمیل‌شده')
             ->assertDontSee('گزارش‌های آموزشی')
             ->assertDontSee('href="' . route('owner.finance.index') . '"', false)
             ->assertDontSee('href="' . route('owner.website.index') . '"', false)

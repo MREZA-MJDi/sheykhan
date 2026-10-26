@@ -39,16 +39,10 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
             ['owner.communications.index', [$academy]],
             ['owner.counseling.index', [$academy]],
             ['owner.resources.index', [$academy]],
-            ['owner.showcase.index', [$academy]],
             ['owner.products.index', [$academy]],
             ['owner.orders.index', [$academy]],
             ['owner.academy.edit', [$academy]],
-            ['owner.academy.banners.edit', [$academy]],
             ['owner.courses.index', []],
-            ['owner.website.index', []],
-            ['owner.website.hero.edit', []],
-            ['owner.content.index', []],
-            ['owner.blog.index', []],
             ['owner.legal-documents.index', []],
             ['owner.finance.index', []],
             ['owner.reports.index', []],
@@ -58,6 +52,44 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
             $this->actingAs($owner)
                 ->get(route($routeName, $parameters))
                 ->assertOk($routeName . ' must render successfully from owner/admin navigation.');
+        }
+    }
+
+    public function test_public_site_controls_are_seo_only(): void
+    {
+        $this->seed();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('id')->firstOrFail();
+
+        $publicRoutes = [
+            ['owner.academy.banners.edit', [$academy]],
+            ['owner.website.index', []],
+            ['owner.website.hero.edit', []],
+            ['owner.content.index', []],
+            ['owner.content.create', []],
+            ['owner.blog.index', []],
+            ['owner.blog.create', []],
+            ['owner.showcase.index', [$academy]],
+        ];
+
+        foreach ($publicRoutes as [$routeName, $parameters]) {
+            $this->actingAs($owner)
+                ->get(route($routeName, $parameters))
+                ->assertForbidden($routeName . ' must not be accessible to an academy owner.');
+        }
+
+        $specialist = User::factory()->create([
+            'email' => 'seo-public-site-' . uniqid() . '@test.local',
+            'status' => 'active',
+        ]);
+        $role = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
+        $specialist->roles()->attach($role->id);
+
+        foreach ($publicRoutes as [$routeName, $parameters]) {
+            $this->actingAs($specialist)
+                ->get(route($routeName, $parameters))
+                ->assertOk($routeName . ' must render for the dedicated SEO specialist.');
         }
     }
 
