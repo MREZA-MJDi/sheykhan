@@ -45,7 +45,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertIsString($teacherStyles);
 
         foreach ([$studentStyles, $teacherStyles] as $styles) {
-            $this->assertStringContainsString('--rds-primary:', $styles);
+            $this->assertStringContainsString('var(--rds-primary', $styles);
             $this->assertStringContainsString('--rds-surface', $styles);
             $this->assertStringContainsString('focus-visible', $styles);
             $this->assertStringNotContainsString('role-dashboard-design-system.css', $styles);
