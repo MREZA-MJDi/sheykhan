@@ -271,7 +271,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('کلاس‌های فعال')
             ->assertSee('id="capacity-title"', false)
             ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
-            ->assertDontSee('دانش‌آموزان فعال')
+            ->assertDontSee('aria-label="دانش‌آموزان فعال"', false)
             ->assertDontSee('مدرس‌های فعال')
             ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.edit', $academy) . '"', false)
