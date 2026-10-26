@@ -343,7 +343,8 @@ class StudentTeacherDashboardContractTest extends TestCase
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
-        $teacherAdapter = file_get_contents(resource_path('js/teacher/panel.js'));
+        // The former adapter was consolidated into the role's single JavaScript entrypoint.
+        $teacherAdapter = $teacherJs;
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $studentJs = file_get_contents(resource_path('js/student.js'));
         $appCss = file_get_contents(resource_path('css/app.css'));
@@ -380,8 +381,9 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('maxSizeMb > 0 && file.size > maxSizeMb * 1024 * 1024', $teacherAdapter);
         $this->assertStringContainsString('teacher-cover-preview-label', $teacherAdapter);
 
-        $this->assertSame(1, substr_count($teacherCss, "@import './communication-pages.css';"));
-        $this->assertSame(1, substr_count($teacherCss, '@import'));
+        $this->assertStringContainsString('.communication-page__hero', $teacherCss);
+        $this->assertStringNotContainsString("@import './communication-pages.css';", $teacherCss);
+        $this->assertStringContainsString("@import 'tailwindcss' source(none);", $teacherCss);
         $this->assertStringContainsString('.k6', $teacherCss);
         $this->assertStringContainsString('#teacher-dashboard .teacher-dashboard-hero', $teacherCss);
         $this->assertStringContainsString('#teacher-dashboard .k6', $teacherCss);
@@ -393,13 +395,14 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('@media (max-width: 760px)', $teacherCss);
         $this->assertStringContainsString('data-dashboard-search-empty', $dashboard);
         $this->assertStringContainsString("main.querySelector('[data-dashboard-search-empty]')", $teacherAdapter);
-        $this->assertStringContainsString("import './teacher/app.js';", $teacherJs);
+        $this->assertStringNotContainsString("import './teacher/app.js';", $teacherJs);
+        $this->assertStringContainsString('bootRoleAvatarFallback();', $teacherJs);
         $this->assertStringNotContainsString("import '../css/app.css';", $appJs);
         $this->assertStringNotContainsString("import '../css/student.css';", $studentJs);
         $this->assertStringNotContainsString("import '../css/teacher.css';", $teacherJs);
         foreach ([
             'resources/css/app.css', 'resources/css/home.css', 'resources/css/student.css',
-            'resources/css/teacher.css', 'resources/css/admin.css', 'resources/css/parent.css',
+            'resources/css/teacher.css', 'resources/css/owner-dashboard-v2.css', 'resources/css/parent.css', 'resources/css/seo-dashboard.css',
         ] as $entry) {
             $this->assertSame(1, substr_count($vite, $entry), $entry . ' must be registered once in Vite.');
         }
