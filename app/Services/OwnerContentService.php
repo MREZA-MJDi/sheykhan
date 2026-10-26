@@ -15,6 +15,7 @@ final class OwnerContentService
 {
     public function index(User $owner): array
     {
+        $this->authorizePublicContentManagement($owner);
         $academies = $this->ownedAcademies($owner);
 
         $contents = AcademyContent::query()
@@ -35,6 +36,7 @@ final class OwnerContentService
 
     public function formData(User $owner, ?AcademyContent $content = null): array
     {
+        $this->authorizePublicContentManagement($owner);
         $academies = $this->ownedAcademies($owner);
         $academyId = $content?->academy_id ?: $academies->first()?->id;
 
@@ -53,6 +55,7 @@ final class OwnerContentService
 
     public function create(User $owner, array $data): AcademyContent
     {
+        $this->authorizePublicContentManagement($owner);
         $cover = $data['cover_image'] ?? null;
         $videoFile = $data['video_file'] ?? null;
         unset($data['cover_image'], $data['video_file']);
@@ -128,6 +131,7 @@ final class OwnerContentService
 
     public function update(User $owner, AcademyContent $content, array $data): AcademyContent
     {
+        $this->authorizePublicContentManagement($owner);
         $cover = $data['cover_image'] ?? null;
         $videoFile = $data['video_file'] ?? null;
         unset($data['cover_image'], $data['video_file']);
@@ -244,28 +248,16 @@ final class OwnerContentService
 
     public function owned(User $owner, AcademyContent $content): AcademyContent
     {
-        $academy = $content->academy;
-        $canManageOwnedAcademy = $owner->hasRole('academy-owner')
-            && (int) $academy?->owner_id === (int) $owner->id;
-        $canManagePublicContent = $this->isDedicatedSeoSpecialist($owner)
-            && $owner->hasPermission('seo.manage')
-            && $academy?->status === 'active';
+        $this->authorizePublicContentManagement($owner);
 
-        abort_unless($canManageOwnedAcademy || $canManagePublicContent, 403);
+        abort_unless($content->academy?->status === 'active', 404);
 
         return $content;
     }
 
     private function ownedAcademies(User $owner)
     {
-        if ($this->isDedicatedSeoSpecialist($owner) && $owner->hasPermission('seo.manage')) {
-            return Academy::query()
-                ->where('status', 'active')
-                ->orderBy('name')
-                ->get(['id', 'name', 'slug']);
-        }
-
-        return $owner->ownedAcademies()
+        return Academy::query()
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
@@ -273,11 +265,12 @@ final class OwnerContentService
 
     private function ownedAcademy(User $owner, int $academyId): Academy
     {
-        $query = $this->isDedicatedSeoSpecialist($owner) && $owner->hasPermission('seo.manage')
-            ? Academy::query()->where('status', 'active')
-            : $owner->ownedAcademies()->where('status', 'active');
+        $this->authorizePublicContentManagement($owner);
 
-        $academy = $query->whereKey($academyId)->first();
+        $academy = Academy::query()
+            ->where('status', 'active')
+            ->whereKey($academyId)
+            ->first();
 
         if (!$academy) {
             throw ValidationException::withMessages([
@@ -286,6 +279,14 @@ final class OwnerContentService
         }
 
         return $academy;
+    }
+
+    private function authorizePublicContentManagement(User $user): void
+    {
+        abort_unless(
+            $this->isDedicatedSeoSpecialist($user) && $user->hasPermission('seo.manage'),
+            403
+        );
     }
 
     private function isDedicatedSeoSpecialist(User $user): bool
