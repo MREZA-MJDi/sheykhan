@@ -24,7 +24,7 @@
     $canViewMeetings = (bool) $ownerUser?->hasPermission('live_classes.view') && $hasAcademy;
     $canViewParents = (bool) $ownerUser?->hasPermission('parents.view') && $hasAcademy;
     $canViewExams = (bool) $ownerUser?->hasPermission('exams.view') && $hasAcademy;
-    $canViewResources = (bool) $ownerUser?->hasPermission('content.manage') && $hasAcademy;
+    $canViewResources = (bool) $ownerUser?->hasPermission('resources.view') && $hasAcademy;
     $canViewProducts = (bool) $ownerUser?->hasPermission('products.view') && $hasAcademy;
     $canViewOrders = (bool) $ownerUser?->hasPermission('orders.view') && $hasAcademy;
     $canViewTeacherPayments = (bool) $ownerUser?->hasPermission('teacher_payments.view') && $hasAcademy;
@@ -174,7 +174,7 @@
                             <a class="ni" href="{{ route('owner.communications.index', $academy) }}" @if(request()->routeIs('owner.communications.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="اطلاعیه‌ها"><svg class="ic"><use href="#i-mega"/></svg><span>اطلاعیه‌ها</span></a>
                             <a class="ni" href="{{ route('owner.counseling.index', $academy) }}" @if(request()->routeIs('owner.counseling.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="جلسات مشاوره"><svg class="ic"><use href="#i-chat"/></svg><span>جلسات مشاوره</span></a>
                         @endif
-                        @if($ownerUser?->hasPermission('content.manage'))
+                        @if($ownerUser?->hasPermission('resources.view'))
                             <a class="ni" href="{{ route('owner.resources.index', $academy) }}" @if(request()->routeIs('owner.resources.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="منابع آموزشی"><svg class="ic"><use href="#i-book"/></svg><span>منابع آموزشی</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('products.view'))
@@ -325,9 +325,9 @@
         @if($canViewFinance)
             <section class="card kpi c3" style="--c:#ff9a1f" aria-label="خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}">
                 <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}</div>
-                <b>{{ \App\Support\PersianUi::number($sales) }}</b>
+                <b>{{ \App\Support\PersianUi::money($sales) }}</b>
                 <div class="metric-caption">پرداخت‌های ثبت‌شده منهای بازپرداخت‌های تکمیل‌شده</div>
-                <div class="metric-foot"><span>مبالغ به تومان؛ فقط تراکنش‌های ثبت‌شده با ارز IRT</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
+                <div class="metric-foot"><span>مبالغ به تومان؛ فقط تراکنش‌های تکمیل‌شده با ارز IRT/TOMAN/TOMANS</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
             </section>
         @endif
 
