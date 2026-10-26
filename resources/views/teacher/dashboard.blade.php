@@ -92,7 +92,7 @@
         $courseTones = ['ok', 'sk', 'vi', 'wr'];
     @endphp
 
-    <div id="teacher-dashboard" class="teacher-dashboard-page">
+    <div id="teacher-dashboard" class="teacher-dashboard-page role-dashboard role-dashboard--teacher" data-role="teacher">
         <header class="ph teacher-dashboard-hero">
             <div class="teacher-dashboard-avatar" aria-hidden="true">
                     @if($teacherPanelAvatarUrl)
