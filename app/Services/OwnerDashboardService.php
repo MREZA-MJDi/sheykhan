@@ -312,8 +312,8 @@ final class OwnerDashboardService
                 'todayAttendanceRate' => $attendanceToday?->total
                     ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
                     : null,
-                'attendanceRate' => $attendanceToday?->total
-                    ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
+                'attendanceRate' => $attendanceForPeriod?->total
+                    ? round(((int) $attendanceForPeriod->attended / (int) $attendanceForPeriod->total) * 100, 1)
                     : null,
                 'liveNow' => $liveNowCount,
                 'capacityAlerts' => $capacityAlerts,
