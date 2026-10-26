@@ -136,7 +136,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
             $this->assertStringContainsString("hasPermission('" . $permission . "')", $sidebar);
         }
 
-        $this->assertStringContainsString("$seoOnly && $user->hasPermission('seo.manage')", $sidebar);
+        $this->assertStringContainsString('$seoOnly && $user->hasPermission(\'seo.manage\')', $sidebar);
         $this->assertStringContainsString("route('owner.blog.index')", $sidebar);
         $this->assertStringContainsString("route('owner.content.index')", $sidebar);
     }
