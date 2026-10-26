@@ -325,9 +325,9 @@
         @if($canViewFinance)
             <section class="card kpi c3" style="--c:#ff9a1f" aria-label="خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}">
                 <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}</div>
-                <b>{{ \App\Support\PersianUi::number($sales) }}</b>
+                <b>{{ \App\Support\PersianUi::money($sales) }}</b>
                 <div class="metric-caption">پرداخت‌های ثبت‌شده منهای بازپرداخت‌های تکمیل‌شده</div>
-                <div class="metric-foot"><span>مبالغ به تومان؛ فقط تراکنش‌های ثبت‌شده با ارز IRT</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
+                <div class="metric-foot"><span>مبالغ بر حسب تومان؛ تراکنش‌های ریالی وارد این جمع نشده‌اند</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
             </section>
         @endif
 

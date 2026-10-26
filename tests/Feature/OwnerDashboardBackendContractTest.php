@@ -189,7 +189,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             Permission::query()->whereIn('name', [
                 'dashboard.view', 'academy.view', 'classrooms.view', 'courses.view', 'attendance.view',
                 'finance.view', 'reports.view', 'assignments.view', 'live_classes.view',
-                'parents.view', 'content.manage', 'products.view', 'orders.view',
+                'parents.view', 'resources.view', 'resources.manage', 'products.view', 'orders.view',
                 'legal.manage', 'exams.view', 'teacher_payments.view',
             ])->pluck('id')
         );

@@ -4,7 +4,7 @@
     $academyScopedPermissions = [
         'academy.view', 'classrooms.view', 'attendance.view', 'courses.view',
         'live_classes.view', 'parents.view', 'exams.view', 'teacher_payments.view',
-        'content.manage', 'products.view', 'orders.view',
+        'resources.view', 'products.view', 'orders.view',
     ];
     $canUseAcademyScope = ! $seoOnly && collect($academyScopedPermissions)
         ->contains(fn (string $permission) => $user->hasPermission($permission));
@@ -39,7 +39,7 @@
         $ownerPanelHomeUrl = route('owner.exams.index', $firstAcademy);
     } elseif ($user->hasPermission('teacher_payments.view') && $firstAcademy) {
         $ownerPanelHomeUrl = route('owner.teacher-payments.index', $firstAcademy);
-    } elseif ($user->hasPermission('content.manage') && $firstAcademy) {
+    } elseif ($user->hasPermission('resources.view') && $firstAcademy) {
         $ownerPanelHomeUrl = route('owner.resources.index', $firstAcademy);
     } elseif ($user->hasPermission('products.view') && $firstAcademy) {
         $ownerPanelHomeUrl = route('owner.products.index', $firstAcademy);
@@ -186,7 +186,7 @@
                     @if($user->hasPermission('teacher_payments.view'))
                         <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.teacher-payments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حقوق مدرس‌ها</span></a>
                     @endif
-                    @if($user->hasPermission('content.manage'))
+                    @if($user->hasPermission('resources.view'))
                         <a href="{{ route('owner.resources.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.resources.*') && (int) $routeAcademyId === (int) $academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ویدئو و منابع آموزشی</span></a>
                     @endif
                     @if($user->hasPermission('products.view'))
