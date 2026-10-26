@@ -51,4 +51,26 @@ class StudentTeacherDashboardBugFixTest extends TestCase
         $this->assertStringContainsString("['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه']", $source);
         $this->assertStringNotContainsString('PersianUi::digits($schedule->weekday)', $source);
     }
+
+    public function test_student_dashboard_recent_sessions_are_scoped_to_the_matching_active_teacher_cohort(): void
+    {
+        $source = file_get_contents(app_path('Services/StudentDashboardService.php'));
+
+        $this->assertIsString($source);
+        $this->assertStringContainsString("->on('recent_teacher_assignment.teacher_id', '=', 'live_classes.teacher_id')", $source);
+        $this->assertStringContainsString("->where('recent_enrollment.status', '=', 'active')", $source);
+        $this->assertStringContainsString("->where('recent_student_membership.status', 'active')", $source);
+        $this->assertStringContainsString("->orWhereColumn('live_classes.classroom_id', 'recent_classroom.id')", $source);
+        $this->assertStringContainsString("->whereColumn('financial_transactions.enrollment_id', 'recent_enrollment.id')", $source);
+    }
+
+    public function test_teacher_live_class_view_translates_completed_recording_statuses(): void
+    {
+        $source = file_get_contents(resource_path('views/teacher/live-classes/index.blade.php'));
+
+        $this->assertIsString($source);
+        $this->assertStringContainsString("'completed' => ['پایان‌یافته','muted']", $source);
+        $this->assertStringContainsString("'published' => ['ضبط منتشرشده','success']", $source);
+        $this->assertStringNotContainsString("default => [$liveClass->status,'muted']", $source);
+    }
 }
