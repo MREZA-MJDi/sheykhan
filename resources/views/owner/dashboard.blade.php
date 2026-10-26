@@ -241,6 +241,27 @@
     </aside>
 
     <main class="main" id="main" tabindex="-1">
+        @if(session('success') || session('error') || $errors->any())
+            <section class="owner-dashboard-feedback c12" aria-live="polite">
+                @if(session('success'))
+                    <div class="alert is-success" role="status">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div class="alert is-error" role="alert">{{ session('error') }}</div>
+                @endif
+                @if($errors->any())
+                    <div class="alert is-error" role="alert">
+                        <strong>اطلاعات فرم نیاز به اصلاح دارد.</strong>
+                        <ul>
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+            </section>
+        @endif
+
         <section class="ph c12">
             <div>
                 <span class="chip">کارتابل مدیر آموزشگاه</span>
@@ -308,7 +329,7 @@
                 <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده</div>
                 <b>{{ \App\Support\PersianUi::number($sales) }}</b>
                 <div class="metric-caption">پرداخت‌های ثبت‌شده منهای بازپرداخت‌های تکمیل‌شده</div>
-                <div class="metric-foot"><span>مبالغ با ارز پایه IRR جمع زده شده‌اند</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
+                <div class="metric-foot"><span>مبالغ به تومان؛ فقط تراکنش‌های ثبت‌شده با ارز IRT</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
             </section>
         @endif
 
@@ -432,7 +453,7 @@
                 </div>
                 <div class="tsc">
                     <table>
-                        <thead><tr><th>مدرس</th><th>دوره</th><th>دانش‌آموز فعال</th><th>پیشرفت میانگین</th><th>بررسی معوق</th><th>تراکنش منتسب</th></tr></thead>
+                        <thead><tr><th>مدرس</th><th>دوره</th><th>دانش‌آموز فعال</th><th>پیشرفت میانگین</th><th>بررسی معوق</th>@if($canViewFinance)<th>خالص تراکنش (تومان)</th>@endif</tr></thead>
                         <tbody>
                         @forelse($teacherReports as $teacher)
                             <tr>
@@ -444,10 +465,10 @@
                                     <div class="trk"><span class="fill" style="--c:#8b3dff;width:{{ min(100,max(0,(float)$teacher->progress_average)) }}%"></span></div>
                                 </td>
                                 <td>{{ \App\Support\PersianUi::digits($teacher->pending_reviews) }}</td>
-                                <td>{{ \App\Support\PersianUi::number($teacher->sales) }}</td>
+                                @if($canViewFinance)<td>{{ \App\Support\PersianUi::number($teacher->sales) }}</td>@endif
                             </tr>
                         @empty
-                            <tr><td colspan="6"><div class="card-empty">هنوز داده‌ای برای گزارش مدرس‌ها موجود نیست.</div></td></tr>
+                            <tr><td colspan="{{ $canViewFinance ? 6 : 5 }}"><div class="card-empty">هنوز داده‌ای برای گزارش مدرس‌ها موجود نیست.</div></td></tr>
                         @endforelse
                         </tbody>
                     </table>

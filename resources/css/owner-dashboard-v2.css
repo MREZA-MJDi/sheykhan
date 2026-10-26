@@ -198,3 +198,8 @@ dialog::backdrop{background:rgba(5,7,25,.7);backdrop-filter:blur(4px)}
   .bar{grid-template-columns:minmax(0,1fr) 44px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+.owner-dashboard-feedback .alert.is-success{border-color:rgba(46,230,166,.45);box-shadow:inset -3px 0 0 var(--ok)}
+.owner-dashboard-feedback .alert.is-error{border-color:rgba(255,31,107,.45);box-shadow:inset -3px 0 0 var(--pk)}
+.owner-dashboard-feedback ul{margin:8px 0 0;padding-inline-start:20px}
+.owner-dashboard-feedback li+li{margin-top:4px}

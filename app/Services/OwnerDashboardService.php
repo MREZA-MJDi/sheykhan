@@ -68,14 +68,14 @@ final class OwnerDashboardService
         $revenue = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
-            ->where('currency', 'IRR')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
             ->where('type', 'enrollment_payment')
             ->sum('amount');
 
         $refunds = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
-            ->where('currency', 'IRR')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
             ->where('type', 'refund')
             ->sum('amount');
 
@@ -207,7 +207,8 @@ final class OwnerDashboardService
             })
             ->leftJoin('financial_transactions as transactions', function ($join): void {
                 $join->on('transactions.enrollment_id', '=', 'enrollments.id')
-                    ->where('transactions.status', '=', 'completed');
+                    ->where('transactions.status', '=', 'completed')
+                    ->whereIn('transactions.currency', ['IRT', 'TOMAN', 'TOMANS']);
             })
             ->whereIn('courses.academy_id', $academyIds)
             ->where('users.status', 'active')
