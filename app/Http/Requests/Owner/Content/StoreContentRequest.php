@@ -9,7 +9,12 @@ final class StoreContentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasPermission('content.manage') ?? false;
+        $user = $this->user();
+
+        return $user !== null
+            && $user->hasRole('seo-specialist')
+            && ! $user->hasRole('academy-owner')
+            && $user->hasPermission('seo.manage');
     }
 
     public function rules(): array
@@ -40,10 +45,13 @@ final class StoreContentRequest extends FormRequest
 
     private function ownedAcademyIds(): array
     {
-        return $this->user()
-            ?->ownedAcademies()
+        if (! $this->authorize()) {
+            return [];
+        }
+
+        return \App\Models\Academy::query()
             ->where('status', 'active')
             ->pluck('id')
-            ->all() ?? [];
+            ->all();
     }
 }
