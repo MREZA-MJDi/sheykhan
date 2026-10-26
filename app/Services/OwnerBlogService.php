@@ -12,12 +12,8 @@ final class OwnerBlogService
 {
     public function index(User $owner): array
     {
-        $globalAccess = $this->isDedicatedSeoSpecialist($owner) && $owner->hasPermission('seo.manage');
+        $this->authorizePublicBlogManagement($owner);
         $baseQuery = BlogPost::query();
-
-        if (! $globalAccess) {
-            $baseQuery->where('author_id', $owner->id);
-        }
 
         $posts = (clone $baseQuery)
             ->with('category:id,name')
@@ -36,18 +32,16 @@ final class OwnerBlogService
         ];
     }
 
-    public function formData(): array
+    public function formData(User $owner): array
     {
+        $this->authorizePublicBlogManagement($owner);
+
         return ['categories' => BlogCategory::query()->orderBy('name')->get(['id','name'])];
     }
 
     public function owned(User $owner, BlogPost $post): BlogPost
     {
-        $isAuthor = (int) $post->author_id === (int) $owner->id;
-        $canManagePublicBlog = $this->isDedicatedSeoSpecialist($owner)
-            && $owner->hasPermission('seo.manage');
-
-        abort_unless($isAuthor || $canManagePublicBlog, 404);
+        $this->authorizePublicBlogManagement($owner);
 
         return $post;
     }
@@ -57,8 +51,17 @@ final class OwnerBlogService
         return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     }
 
+    private function authorizePublicBlogManagement(User $user): void
+    {
+        abort_unless(
+            $this->isDedicatedSeoSpecialist($user) && $user->hasPermission('seo.manage'),
+            403
+        );
+    }
+
     public function create(User $owner, array $data): BlogPost
     {
+        $this->authorizePublicBlogManagement($owner);
         $cover = $data['cover_image'] ?? null;
         unset($data['cover_image']);
 
