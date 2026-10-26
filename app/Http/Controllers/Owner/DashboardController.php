@@ -47,7 +47,7 @@ class DashboardController extends Controller
         if ($pendingReviews > 0 && $firstAcademy) {
             $data['notifications'][] = [
                 'title' => 'تکالیف بررسی‌نشده',
-                'detail' => \\App\\Support\\PersianUi::digits($pendingReviews) . ' ارسال منتظر بررسی است.',
+                'detail' => \App\Support\PersianUi::digits($pendingReviews) . ' ارسال منتظر بررسی است.',
                 'url' => route('owner.assignments.index', $firstAcademy),
                 'color' => '#ff1f6b',
             ];
@@ -55,7 +55,7 @@ class DashboardController extends Controller
         if ($classroomsWithoutTeacher > 0 && $firstAcademy) {
             $data['notifications'][] = [
                 'title' => 'کلاس بدون مدرس',
-                'detail' => \\App\\Support\\PersianUi::digits($classroomsWithoutTeacher) . ' کلاس مدرس فعال ندارد.',
+                'detail' => \App\Support\PersianUi::digits($classroomsWithoutTeacher) . ' کلاس مدرس فعال ندارد.',
                 'url' => route('owner.classrooms.index', $firstAcademy),
                 'color' => '#ff9a1f',
             ];
@@ -63,7 +63,7 @@ class DashboardController extends Controller
         if ($capacityAlerts > 0 && $firstAcademy) {
             $data['notifications'][] = [
                 'title' => 'کلاس نزدیک ظرفیت',
-                'detail' => \\App\\Support\\PersianUi::digits($capacityAlerts) . ' کلاس به ۹۰٪ ظرفیت رسیده است.',
+                'detail' => \App\Support\PersianUi::digits($capacityAlerts) . ' کلاس به ۹۰٪ ظرفیت رسیده است.',
                 'url' => route('owner.classrooms.index', $firstAcademy),
                 'color' => '#22d3ee',
             ];
