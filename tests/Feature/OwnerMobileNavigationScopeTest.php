@@ -48,19 +48,25 @@ final class OwnerMobileNavigationScopeTest extends TestCase
         $this->assertIsString($html);
         $this->assertSame(
             1,
-            preg_match('/<nav\s+class="role-mobile-bottom-nav".*?<\/nav>/s', $html, $matches),
-            'The owner mobile navigation should be rendered exactly once.'
+            preg_match('/<aside\\s+class="side card"\\s+id="side".*?<\\/aside>/s', $html, $matches),
+            'The independent owner sidebar should be rendered exactly once.'
         );
 
-        $this->assertStringContainsString(
-            'href="' . route('owner.people.index', $secondAcademy) . '"',
-            $matches[0],
-            'Mobile owner links should keep the academy currently being viewed.'
+        $sidebar = $matches[0];
+        $secondAcademyHref = 'href="' . route('owner.people.index', $secondAcademy) . '"';
+        $firstAcademyHref = 'href="' . route('owner.people.index', $firstAcademy) . '"';
+
+        $this->assertStringContainsString($secondAcademyHref, $sidebar);
+        $this->assertMatchesRegularExpression(
+            '/<a\\b[^>]*' . preg_quote($secondAcademyHref, '/') . '[^>]*aria-current="page"[^>]*>/',
+            $sidebar,
+            'The academy currently being viewed must be the active navigation destination.'
         );
-        $this->assertStringNotContainsString(
-            'href="' . route('owner.people.index', $firstAcademy) . '"',
-            $matches[0],
-            'Mobile owner links must not silently switch to the first academy.'
+        $this->assertStringContainsString($firstAcademyHref, $sidebar);
+        $this->assertDoesNotMatchRegularExpression(
+            '/<a\\b[^>]*' . preg_quote($firstAcademyHref, '/') . '[^>]*aria-current="page"[^>]*>/',
+            $sidebar,
+            'Other academy links must not be presented as the current page.'
         );
     }
 }
