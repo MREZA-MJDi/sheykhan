@@ -114,7 +114,7 @@ class OwnerWebsiteControlTest extends TestCase
 
         Storage::fake('local');
 
-        $this->actingAs($owner)
+        $this->actingAs($seo)
             ->patch(route('owner.academy.banners.update', $academy), [
                 'banners' => [
                     1 => [
