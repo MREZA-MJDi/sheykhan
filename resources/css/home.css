@@ -1,5 +1,5 @@
 @import 'tailwindcss' source(none);
-@import './components.css';
+/* Shared component rules were consolidated into app.css; the deleted legacy import is intentionally omitted. */
 /* Consolidated from home-meraki-hero.css. */
 /* Meraki-inspired full-bleed home hero. No extra CDN or JavaScript dependency. */
 .sheykhan-home-hero {
