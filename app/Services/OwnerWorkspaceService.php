@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -39,8 +40,10 @@ final class OwnerWorkspaceService
         $base = fn (string $role, string $pageName) => $academy->users()
             ->wherePivot('status', 'active')
             ->wherePivot('role', $role)
+            ->where('users.status', 'active')
             ->select('users.id', 'users.name', 'users.email')
             ->orderBy('users.name')
+            ->orderBy('users.id')
             ->paginate(25, ['*'], $pageName);
 
         $activeTeachers = $base('teacher', 'teachers_page');
@@ -50,6 +53,7 @@ final class OwnerWorkspaceService
             ->wherePivot('status', 'archived')
             ->select('users.id', 'users.name', 'users.email')
             ->orderBy('users.name')
+            ->orderBy('users.id')
             ->paginate(25, ['*'], 'archived_teachers_page');
 
         // These are supporting modules. A stale production schema must not
@@ -158,37 +162,58 @@ final class OwnerWorkspaceService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        return DB::transaction(function () use ($academy, $data): User {
-            $teacher = User::create([
-                'name' => $data['name'],
-                'email' => strtolower($data['email']),
-                'password' => $data['password'],
-            ]);
+        $email = mb_strtolower(trim((string) $data['email']), 'UTF-8');
 
-            $roleId = Role::query()->where('slug', 'teacher')->value('id');
-            abort_unless($roleId, 500, 'نقش مدرس در سیستم تعریف نشده است.');
-
-            $teacher->roles()->syncWithoutDetaching([$roleId]);
-
-            TeacherProfile::create([
-                'user_id' => $teacher->id,
-                'bio' => null,
-                'specialization' => $data['specialization'] ?? null,
-                'education' => null,
-                'experience_years' => $data['experience_years'] ?? 0,
-                'is_verified' => true,
-            ]);
-
-            $academy->users()->syncWithoutDetaching([
-                $teacher->id => [
-                    'role' => 'teacher',
+        try {
+            return DB::transaction(function () use ($academy, $data, $email): User {
+                $teacher = User::create([
+                    'name' => trim((string) $data['name']),
+                    'email' => $email,
                     'status' => 'active',
-                    'joined_at' => now(),
-                ],
-            ]);
+                    // User::casts() hashes raw passwords through the "hashed" cast.
+                    'password' => $data['password'],
+                ]);
 
-            return $teacher;
-        });
+                if (Schema::hasColumn('users', 'must_change_password')) {
+                    $teacher->forceFill(['must_change_password' => true])->save();
+                }
+
+                $roleId = Role::query()->where('slug', 'teacher')->value('id');
+                abort_unless($roleId, 500, 'نقش مدرس در سیستم تعریف نشده است.');
+
+                $teacher->roles()->syncWithoutDetaching([$roleId]);
+
+                TeacherProfile::create([
+                    'user_id' => $teacher->id,
+                    'bio' => null,
+                    'specialization' => $data['specialization'] ?? null,
+                    'education' => null,
+                    'experience_years' => $data['experience_years'] ?? 0,
+                    'is_verified' => true,
+                ]);
+
+                $academy->users()->syncWithoutDetaching([
+                    $teacher->id => [
+                        'role' => 'teacher',
+                        'status' => 'active',
+                        'joined_at' => now(),
+                    ],
+                ]);
+
+                return $teacher;
+            });
+        } catch (UniqueConstraintViolationException $exception) {
+            // The request's "unique" rule is only a preflight check. A concurrent
+            // create can still lose the database race; turn only an email conflict
+            // into a validation response and preserve unrelated integrity failures.
+            if (User::withTrashed()->where('email', $email)->exists()) {
+                throw ValidationException::withMessages([
+                    'email' => 'این ایمیل قبلاً استفاده شده است.',
+                ]);
+            }
+
+            throw $exception;
+        }
     }
 
     public function archiveTeacher(User $owner, Academy $academy, User $teacher): void
@@ -273,23 +298,33 @@ final class OwnerWorkspaceService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $isTeacher = $academy->users()
-            ->whereKey($teacherId)
-            ->wherePivot('role', 'teacher')
-            ->wherePivot('status', 'active')
-            ->exists();
+        DB::transaction(function () use ($academy, $teacherId, $courseId): void {
+            $course = $academy->courses()->whereKey($courseId)->lockForUpdate()->first();
 
-        if (!$isTeacher) {
-            throw ValidationException::withMessages([
-                'teacher_id' => 'این کاربر مدرس فعال این آموزشگاه نیست.',
-            ]);
-        }
+            if (! $course) {
+                throw ValidationException::withMessages([
+                    'course_id' => 'دوره انتخاب‌شده متعلق به این آموزشگاه نیست.',
+                ]);
+            }
 
-        $course = $academy->courses()->findOrFail($courseId);
+            $teacher = $academy->users()
+                ->whereKey($teacherId)
+                ->wherePivot('role', 'teacher')
+                ->wherePivot('status', 'active')
+                ->where('users.status', 'active')
+                ->lockForUpdate()
+                ->first();
 
-        $course->teachers()->syncWithoutDetaching([
-            $teacherId => ['is_primary' => false],
-        ]);
+            if (! $teacher) {
+                throw ValidationException::withMessages([
+                    'teacher_id' => 'این کاربر مدرس فعال این آموزشگاه نیست.',
+                ]);
+            }
+
+            // Empty pivot attributes mean "attach if absent". Existing course_teacher
+            // metadata (especially is_primary=true) is deliberately left unchanged.
+            $course->teachers()->syncWithoutDetaching([$teacherId]);
+        }, 3);
     }
 
     public function assignTeacherToClass(User $owner, Academy $academy, int $teacherId, int $classroomId): void
@@ -338,9 +373,12 @@ final class OwnerWorkspaceService
             }
 
             // Keep the class-to-course-teacher relationship consistent atomically.
-            $course->teachers()->syncWithoutDetaching([
-                $teacherId => ['is_primary' => false],
-            ]);
+            // Do not rewrite existing course pivot metadata: a teacher may already
+            // be the course's primary teacher before being assigned to this class.
+            $course->teachers()->syncWithoutDetaching([$teacherId]);
+
+            // The classroom form contract requires exactly one responsible teacher;
+            // sync is intentionally replacement semantics for the classroom pivot only.
             $classroom->teachers()->sync([$teacherId]);
         }, 3);
     }
