@@ -1,4 +1,4 @@
-import './exam-builder.js';
+import './teacher-exam-builder.js';
 import './teacher/app.js';
 
 document.addEventListener('DOMContentLoaded', () => {

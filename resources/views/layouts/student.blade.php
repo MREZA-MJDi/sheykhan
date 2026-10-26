@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل دانش‌آموز') · شیخان</title>
     @include('layouts.partials.panel-theme-init')
-    @vite(['resources/css/app.css', 'resources/css/student.css', 'resources/css/panel-design-system.css', 'resources/css/role-dashboard-design-system.css', 'resources/js/app.js', 'resources/js/student.js'])
+    @vite(['resources/css/student-foundation.css', 'resources/css/student.css', 'resources/css/student-panel-design-system.css', 'resources/css/student-role-dashboard-design-system.css', 'resources/js/student-foundation.js', 'resources/js/student.js'])
     @stack('head')
     @stack('styles')
 </head>

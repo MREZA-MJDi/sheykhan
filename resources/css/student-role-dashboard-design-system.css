@@ -1,0 +1,114 @@
+/*
+ * Shared visual tokens for the Student and Teacher workspaces.
+ * Role-specific layout and page behavior stay in student.css / teacher.css.
+ * Do not place role page layouts or Owner/Admin selectors in this file.
+ */
+:root {
+    --rds-canvas: #eef4fa;
+    --rds-surface: #ffffff;
+    --rds-surface-soft: #f7faff;
+    --rds-ink: #203650;
+    --rds-muted: #657b92;
+    --rds-border: #dfe8f2;
+    --rds-primary: #285888;
+    --rds-primary-hover: #1c426d;
+    --rds-accent: #159ca7;
+    --rds-violet: #7162d8;
+    --rds-success: #187654;
+    --rds-success-bg: #ecf9f2;
+    --rds-warning: #925d10;
+    --rds-warning-bg: #fff7e8;
+    --rds-danger: #b42336;
+    --rds-danger-bg: #fff0f2;
+    --rds-radius-sm: 12px;
+    --rds-radius-card: 17px;
+    --rds-shadow-card: 0 8px 24px rgba(31, 57, 89, .07);
+    --rds-shadow-hover: 0 12px 28px rgba(31, 57, 89, .12);
+    --rds-focus: 0 0 0 3px rgba(21, 156, 167, .2);
+}
+
+:root[data-theme="dark"] {
+    --rds-canvas: #0c1422;
+    --rds-surface: #131f30;
+    --rds-surface-soft: #17263a;
+    --rds-ink: #e6eef8;
+    --rds-muted: #a5b6ca;
+    --rds-border: #2a3b50;
+    --rds-primary: #a8cbff;
+    --rds-primary-hover: #d4e5ff;
+    --rds-accent: #65d2d0;
+    --rds-violet: #b6a9ff;
+    --rds-success: #88dfb6;
+    --rds-success-bg: #15372f;
+    --rds-warning: #f3c77d;
+    --rds-warning-bg: #3b2d1a;
+    --rds-danger: #ffb0ba;
+    --rds-danger-bg: #3b202a;
+    --rds-shadow-card: 0 10px 28px rgba(0, 0, 0, .2);
+    --rds-shadow-hover: 0 14px 32px rgba(0, 0, 0, .28);
+    --rds-focus: 0 0 0 3px rgba(101, 210, 208, .24);
+}
+
+/* Adapter tokens: legacy role styles consume these names. Keep the adapters here
+   so the two role stylesheets can evolve without growing separate color systems. */
+body.student-shell {
+    --bg1: var(--rds-canvas);
+    --bg2: var(--rds-canvas);
+    --panel: var(--rds-surface);
+    --panel-b: var(--rds-border);
+    --text: var(--rds-ink);
+    --muted: var(--rds-muted);
+    --side: #285888;
+    --side2: #1c426d;
+    --teal: var(--rds-accent);
+    --teal-d: #147d89;
+    --sh: var(--rds-shadow-card);
+    background: var(--rds-canvas);
+    color: var(--rds-ink);
+    font-family: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
+}
+
+body.teacher-shell {
+    --bg: var(--rds-canvas);
+    --sf: var(--rds-surface);
+    --s2: var(--rds-surface-soft);
+    --bd: var(--rds-border);
+    --tx: var(--rds-ink);
+    --mu: var(--rds-muted);
+    --mt: var(--rds-muted);
+    --ac: var(--rds-primary);
+    --on: #ffffff;
+    --ok: var(--rds-success);
+    --wr: var(--rds-warning);
+    --er: var(--rds-danger);
+    --vi: var(--rds-violet);
+    --sk: #3988bd;
+    --sh: var(--rds-shadow-card);
+    background: var(--rds-canvas);
+    color: var(--rds-ink);
+    font-family: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
+}
+
+:root[data-theme="dark"] body.teacher-shell { --on: #122033; }
+
+/* Shared interaction contract, not shared page layout. */
+:where(body.student-shell, body.teacher-shell) :is(button, a, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--rds-accent);
+    outline-offset: 3px;
+    box-shadow: var(--rds-focus);
+}
+
+:where(body.student-shell, body.teacher-shell) :is(button, a) {
+    touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :where(body.student-shell, body.teacher-shell) *,
+    :where(body.student-shell, body.teacher-shell) *::before,
+    :where(body.student-shell, body.teacher-shell) *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}

@@ -1,0 +1,276 @@
+/* Shared Jalali date picker for public pages and every role workspace. */
+.jalali-calendar-control,
+.jalali-calendar-visible-control {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.jalali-calendar-source {
+    position: absolute !important;
+    inline-size: 1px !important;
+    block-size: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.jalali-calendar-date-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.jalali-calendar-date-input,
+.jalali-calendar-time-input {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--panel-border, #d7deea);
+    border-radius: 12px;
+    background: var(--panel-input, #fff);
+    color: var(--panel-text, #344054);
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    outline: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.jalali-calendar-date-input {
+    flex: 1 1 0;
+    direction: ltr;
+    text-align: left;
+    cursor: text;
+}
+
+.jalali-calendar-time-input {
+    flex: 0 1 128px;
+    direction: ltr;
+    text-align: center;
+}
+
+.jalali-calendar-date-input:focus,
+.jalali-calendar-time-input:focus {
+    border-color: var(--panel-primary, #4f46e5);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--panel-primary, #4f46e5) 12%, transparent);
+}
+
+.jalali-calendar-date-input:disabled,
+.jalali-calendar-time-input:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    background: #f3f4f6;
+}
+
+.jalali-calendar-open {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 1px solid var(--panel-border, #d7deea);
+    border-radius: 12px;
+    background: var(--panel-surface, #fff);
+    color: var(--panel-primary, #4f46e5);
+    cursor: pointer;
+    transition: background .16s ease, border-color .16s ease;
+}
+
+.jalali-calendar-open:hover {
+    background: var(--panel-primary-soft, #f3f2ff);
+    border-color: var(--panel-primary, #4f46e5);
+}
+
+.jalali-calendar-open:focus-visible,
+.jalali-calendar-month-button:focus-visible,
+.jalali-calendar-day:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--panel-primary, #4f46e5) 35%, transparent);
+    outline-offset: 2px;
+}
+
+.jalali-calendar-open:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.jalali-calendar-open svg {
+    width: 20px;
+    height: 20px;
+}
+
+.jalali-calendar-popup[hidden] {
+    display: none !important;
+}
+
+.jalali-calendar-popup {
+    position: fixed;
+    z-index: 1200;
+    top: 12px;
+    left: 12px;
+    width: min(320px, calc(100vw - 32px));
+    padding: 14px;
+    border: 1px solid #e4e7ef;
+    border-radius: 16px;
+    background: #fff;
+    color: #202939;
+    direction: rtl;
+    box-shadow: 0 18px 48px rgba(16, 24, 40, .16);
+}
+
+.jalali-calendar-heading {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.jalali-calendar-month-label {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.jalali-calendar-month-button {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e7eaf1;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #344054;
+    font: inherit;
+    font-size: 23px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.jalali-calendar-weekdays,
+.jalali-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.jalali-calendar-weekdays {
+    margin-bottom: 5px;
+    color: #818a9a;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.jalali-calendar-weekdays span {
+    display: grid;
+    place-items: center;
+    min-height: 26px;
+}
+
+.jalali-calendar-day,
+.jalali-calendar-day-spacer {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    min-width: 0;
+    min-height: 32px;
+}
+
+.jalali-calendar-day {
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: #fff;
+    color: #344054;
+    font: inherit;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+
+.jalali-calendar-day:hover:not(:disabled) {
+    background: var(--panel-primary-soft, #f3f2ff);
+    color: var(--panel-primary, #4f46e5);
+}
+
+.jalali-calendar-day.is-today {
+    border-color: var(--panel-primary, #4f46e5);
+    font-weight: 900;
+}
+
+.jalali-calendar-day.is-selected {
+    background: var(--panel-primary, #4f46e5);
+    color: #fff;
+    font-weight: 900;
+}
+
+.jalali-calendar-day:disabled {
+    color: #c8cdd6;
+    background: #f8fafc;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+@media (max-width: 480px) {
+    .jalali-calendar-date-row {
+        flex-wrap: wrap;
+    }
+
+    .jalali-calendar-time-input {
+        flex: 1 1 110px;
+    }
+
+    .jalali-calendar-popup {
+        width: min(300px, calc(100vw - 24px));
+        padding: 10px;
+    }
+
+    .jalali-calendar-day,
+    .jalali-calendar-day-spacer {
+        min-height: 30px;
+    }
+}
+
+
+/* Strong blue, Persian-localized date/time control treatment across all roles. */
+.jalali-calendar-date-input,
+.jalali-calendar-time-input {
+    border-color:#93c5fd;
+    background:#eff6ff;
+    color:#173b68;
+}
+.jalali-calendar-date-input:focus,
+.jalali-calendar-time-input:focus {
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,.16);
+}
+.jalali-calendar-open { border-color:#93c5fd;background:#dbeafe;color:#1d4ed8; }
+.jalali-calendar-open:hover { border-color:#2563eb;background:#bfdbfe; }
+.jalali-calendar-popup { border-color:#93c5fd;box-shadow:0 18px 48px rgba(37,99,235,.2); }
+.jalali-calendar-month-button:hover { background:#dbeafe;border-color:#93c5fd;color:#1d4ed8; }
+.jalali-calendar-day:hover:not(:disabled) { background:#dbeafe;color:#1d4ed8; }
+.jalali-calendar-day.is-today { border-color:#2563eb;color:#1d4ed8; }
+.jalali-calendar-day.is-selected { background:#2563eb;color:#fff;border-color:#2563eb; }
+.teacher-jalali-field,.teacher-jalali-field-grid { min-width:0;width:100%; }
+.teacher-jalali-field-grid { display:grid;grid-template-columns:minmax(0,1fr) minmax(104px,.45fr);gap:8px; }
+.teacher-jalali-field-grid.is-date-only { grid-template-columns:minmax(0,1fr); }
+.teacher-jalali-field-grid > input { min-width:0;box-sizing:border-box;width:100%; }
+.teacher-jalali-field > label > span { display:block;margin-bottom:7px; }
+.teacher-jalali-field em { display:block;margin-top:5px;color:var(--panel-muted,#62748a);font-size:10px; }
+@media(max-width:480px) {
+    .teacher-jalali-field-grid { grid-template-columns:minmax(0,1fr); }
+}

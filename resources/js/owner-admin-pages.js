@@ -1,5 +1,5 @@
 /* New owner admin page behavior. Server routes and form submissions stay authoritative. */
-import './exam-builder.js';
+import './owner-exam-builder.js';
 (() => {
   'use strict';
   const formatSize = (bytes) => {
