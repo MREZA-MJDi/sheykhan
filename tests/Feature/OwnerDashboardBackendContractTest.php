@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\Course;
+use App\Models\FinancialTransaction;
 use App\Models\Permission;
 use App\Models\ParentMessage;
 use App\Models\Role;
@@ -13,6 +14,7 @@ use App\Services\OwnerDashboardService;
 use App\Services\OwnerClassroomService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -115,6 +117,65 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->assertFalse($afterTeacherClassroom->teachers->contains('id', $teacher->id));
     }
 
+
+    public function test_owner_dashboard_nets_current_period_toman_transactions_without_mixing_rials(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('id')->firstOrFail();
+        $academyIds = $owner->ownedAcademies()->where('status', 'active')->pluck('academies.id');
+        $periodStart = now()->copy()->startOfMonth();
+        $periodEnd = now();
+
+        $basePayments = (float) DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
+            ->where('type', 'enrollment_payment')
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [
+                $periodStart->toDateTimeString(),
+                $periodEnd->toDateTimeString(),
+            ])
+            ->sum('amount');
+        $baseRefunds = (float) DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
+            ->where('type', 'refund')
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [
+                $periodStart->toDateTimeString(),
+                $periodEnd->toDateTimeString(),
+            ])
+            ->sum('amount');
+
+        foreach ([
+            ['type' => 'enrollment_payment', 'amount' => 1250000, 'currency' => 'IRT', 'reference' => 'dash-pay-' . Str::random(8), 'occurred_at' => now()],
+            ['type' => 'refund', 'amount' => 250000, 'currency' => 'IRT', 'reference' => 'dash-refund-' . Str::random(8), 'occurred_at' => now()],
+            ['type' => 'enrollment_payment', 'amount' => 9900000, 'currency' => 'IRR', 'reference' => 'dash-rial-' . Str::random(8), 'occurred_at' => now()],
+            ['type' => 'enrollment_payment', 'amount' => 10000000, 'currency' => 'IRT', 'reference' => 'dash-old-' . Str::random(8), 'occurred_at' => now()->subMonths(2)],
+        ] as $transaction) {
+            FinancialTransaction::query()->create([
+                'academy_id' => $academy->id,
+                'user_id' => $owner->id,
+                'type' => $transaction['type'],
+                'status' => 'completed',
+                'amount' => $transaction['amount'],
+                'currency' => $transaction['currency'],
+                'reference' => $transaction['reference'],
+                'occurred_at' => $transaction['occurred_at'],
+            ]);
+        }
+
+        $dashboard = app(OwnerDashboardService::class)->build($owner, 'month');
+
+        $this->assertSame(
+            ($basePayments - $baseRefunds) + 1000000.0,
+            (float) $dashboard['metrics']['sales'],
+            'The dashboard should total current-month IRT/toman payments minus refunds, excluding rial-denominated and out-of-period transactions.'
+        );
+    }
 
     public function test_owner_dashboard_uses_one_sidebar_navigation_and_permission_scoped_kpis(): void
     {

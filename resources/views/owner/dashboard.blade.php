@@ -7,7 +7,7 @@
     $period = in_array($period ?? 'month', ['today', 'week', 'month'], true) ? ($period ?? 'month') : 'month';
     $periodCaption = $periodCaption ?? 'این ماه';
     $routeAcademyParam = request()->route('academy');
-    $currentRouteAcademyId = $routeAcademyParam instanceof \\App\\Models\\Academy
+    $currentRouteAcademyId = $routeAcademyParam instanceof \App\Models\Academy
         ? (int) $routeAcademyParam->getKey()
         : (int) ($routeAcademyParam ?? 0);
     $firstAcademy = $academies->first();
@@ -316,7 +316,7 @@
             <section class="card kpi c3" style="--c:#22d3ee" aria-label="نرخ حضور {{ $periodCaption }}">
                 <div class="kpi-head"><svg class="ic"><use href="#i-checksq"/></svg>حضور {{ $periodCaption }}</div>
                 <b>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) }}{{ $attendanceRate === null ? '' : '٪' }}</b>
-                <div class="metric-caption">{{ $attendanceRate === null ? 'در {{ $periodCaption }} رکورد حضور و غیاب ثبت نشده' : 'درصد حضور و تأخیر از کل رکوردهای معتبر {{ $periodCaption }}' }}</div>
+                <div class="metric-caption">{{ $attendanceRate === null ? ('در ' . $periodCaption . ' رکورد حضور و غیاب ثبت نشده') : ('درصد حضور و تأخیر از کل رکوردهای معتبر ' . $periodCaption) }}</div>
                 @if($attendanceRate !== null)<div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ min(100,max(0,(float)$attendanceRate)) }}%"></span></div>@endif
                 @if($firstAcademy)<div class="metric-foot"><span>حضور و غیاب</span><a class="table-link" href="{{ route('owner.attendance.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
             </section>

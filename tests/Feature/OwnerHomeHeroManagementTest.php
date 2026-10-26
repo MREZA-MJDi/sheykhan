@@ -219,12 +219,22 @@ class OwnerHomeHeroManagementTest extends TestCase
         $this->assertStringContainsString(route('media.public', $bannerMedia), $bannerMarkup);
     }
 
-    public function test_non_owner_cannot_manage_public_home_hero(): void
+    public function test_only_seo_specialists_can_manage_public_home_hero(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
             ->get(route('owner.website.hero.edit'))
+            ->assertForbidden();
+
+        [$owner] = $this->workspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.website.hero.edit'))
+            ->assertForbidden();
+
+        $this->actingAs($owner)
+            ->patch(route('owner.website.hero.update'), ['slot' => 1])
             ->assertForbidden();
     }
 
