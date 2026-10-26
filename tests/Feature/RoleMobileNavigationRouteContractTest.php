@@ -132,11 +132,11 @@ class RoleMobileNavigationRouteContractTest extends TestCase
             $this->assertStringContainsString($destination, $sidebar, 'Desktop owner sidebar missing ' . $destination);
         }
 
-        foreach (["content.manage", "products.view", "orders.view", "legal.manage"] as $permission) {
+        foreach (["resources.view", "products.view", "orders.view", "legal.manage"] as $permission) {
             $this->assertStringContainsString("hasPermission('" . $permission . "')", $sidebar);
         }
 
-        $this->assertStringContainsString("$seoOnly && $user->hasPermission('seo.manage')", $sidebar);
+        $this->assertStringContainsString('$seoOnly && $user->hasPermission(\'seo.manage\')', $sidebar);
         $this->assertStringContainsString("route('owner.blog.index')", $sidebar);
         $this->assertStringContainsString("route('owner.content.index')", $sidebar);
     }

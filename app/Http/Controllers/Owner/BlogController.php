@@ -15,7 +15,7 @@ final class BlogController extends Controller
     public function index(OwnerBlogService $blog): View { return view('owner.blog.index', $blog->index(request()->user())); }
 
     public function create(OwnerBlogService $blog): View {
-        return view('owner.blog.form', ['post'=>new BlogPost(['status'=>'draft']), ...$blog->formData()]);
+        return view('owner.blog.form', ['post'=>new BlogPost(['status'=>'draft']), ...$blog->formData(request()->user())]);
     }
 
     public function store(StoreBlogPostRequest $request, OwnerBlogService $blog): RedirectResponse {
@@ -25,7 +25,7 @@ final class BlogController extends Controller
 
     public function edit(BlogPost $post, OwnerBlogService $blog): View {
         $post=$blog->owned(request()->user(),$post);
-        return view('owner.blog.form',['post'=>$post,...$blog->formData()]);
+        return view('owner.blog.form',['post'=>$post,...$blog->formData(request()->user())]);
     }
 
     public function update(UpdateBlogPostRequest $request, BlogPost $post, OwnerBlogService $blog): RedirectResponse {

@@ -11,20 +11,6 @@
     };
 
     ready(() => {
-        // A stale or missing media file must never leave a broken-image icon in the UI.
-        document.querySelectorAll('[data-avatar-image]').forEach((image) => {
-            const fallback = image.parentElement?.querySelector('[data-avatar-fallback]');
-            if (!fallback) return;
-
-            const useFallback = () => {
-                image.hidden = true;
-                fallback.hidden = false;
-            };
-
-            image.addEventListener('error', useFallback, { once: true });
-            if (image.complete && image.naturalWidth === 0) useFallback();
-        });
-
         const avatarInput = document.querySelector('[data-avatar-input]');
         const avatarPreview = document.querySelector('[data-avatar-preview]');
         let previewUrl = null;

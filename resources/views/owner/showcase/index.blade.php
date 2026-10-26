@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends('layouts.seo-specialist')
 @section('title', 'افتخارآفرینان و رضایتمندی | شیخان')
 @section('header-title', 'افتخارآفرینان و رضایتمندی')
 @section('content')

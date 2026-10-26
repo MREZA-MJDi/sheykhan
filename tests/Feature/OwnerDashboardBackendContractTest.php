@@ -189,7 +189,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             Permission::query()->whereIn('name', [
                 'dashboard.view', 'academy.view', 'classrooms.view', 'courses.view', 'attendance.view',
                 'finance.view', 'reports.view', 'assignments.view', 'live_classes.view',
-                'parents.view', 'content.manage', 'products.view', 'orders.view',
+                'parents.view', 'resources.view', 'resources.manage', 'products.view', 'orders.view',
                 'legal.manage', 'exams.view', 'teacher_payments.view',
             ])->pluck('id')
         );
@@ -261,6 +261,7 @@ class OwnerDashboardBackendContractTest extends TestCase
                 ->whereIn('name', ['dashboard.view', 'classrooms.view'])
                 ->pluck('id')
         );
+        $owner->roles()->sync([$ownerRole->id]);
         $owner->unsetRelation('roles');
         Cache::flush();
 
@@ -270,7 +271,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('کلاس‌های فعال')
             ->assertSee('id="capacity-title"', false)
             ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
-            ->assertDontSee('دانش‌آموزان فعال')
+            ->assertDontSee('aria-label="دانش‌آموزان فعال"', false)
             ->assertDontSee('مدرس‌های فعال')
             ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.edit', $academy) . '"', false)

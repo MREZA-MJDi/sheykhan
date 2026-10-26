@@ -103,18 +103,26 @@ final class OwnerDashboardService
             ->whereNull('submissions.graded_at')
             ->count();
 
-        $attendanceToday = DB::table('attendances')
+        $attendanceBase = DB::table('attendances')
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
             ->whereIn('classrooms.academy_id', $academyIds)
-            ->where('classrooms.status', 'active')
-            ->whereBetween('attendances.attendance_date', [
-                $periodStart->toDateString(),
-                $now->toDateString(),
-            ])
-            ->selectRaw(
-                'SUM(CASE WHEN attendances.status IN (\'present\', \'late\', \'absent\') THEN 1 ELSE 0 END) AS total,
-                 SUM(CASE WHEN attendances.status IN (\'present\', \'late\') THEN 1 ELSE 0 END) AS attended'
-            )
+            ->where('classrooms.status', 'active');
+
+        $attendanceTotals = "SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS total,
+             SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended";
+
+        // The KPI labelled "today" must only use today's records; keep a separate
+        // range aggregate for the period selector. whereDate also works if a driver
+        // stores attendance_date as a datetime rather than a pure DATE column.
+        $attendanceToday = (clone $attendanceBase)
+            ->whereDate('attendances.attendance_date', '=', $now->toDateString())
+            ->selectRaw($attendanceTotals)
+            ->first();
+
+        $attendanceForPeriod = (clone $attendanceBase)
+            ->whereDate('attendances.attendance_date', '>=', $periodStart->toDateString())
+            ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
+            ->selectRaw($attendanceTotals)
             ->first();
 
         // Keep the dashboard analytical: fetch whole-academy aggregates instead
@@ -222,10 +230,22 @@ final class OwnerDashboardService
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
             })
-            ->leftJoin('financial_transactions as transactions', function ($join): void {
+            ->leftJoin('financial_transactions as transactions', function ($join) use ($periodStart, $now): void {
                 $join->on('transactions.enrollment_id', '=', 'enrollments.id')
                     ->where('transactions.status', '=', 'completed')
-                    ->whereIn('transactions.currency', ['IRT', 'TOMAN', 'TOMANS']);
+                    ->whereIn('transactions.currency', ['IRT', 'TOMAN', 'TOMANS'])
+                    ->where(function ($periodQuery) use ($periodStart, $now): void {
+                        $periodQuery->whereBetween('transactions.occurred_at', [
+                            $periodStart->toDateTimeString(),
+                            $now->toDateTimeString(),
+                        ])->orWhere(function ($fallbackQuery) use ($periodStart, $now): void {
+                            $fallbackQuery->whereNull('transactions.occurred_at')
+                                ->whereBetween('transactions.created_at', [
+                                    $periodStart->toDateTimeString(),
+                                    $now->toDateTimeString(),
+                                ]);
+                        });
+                    });
             })
             ->whereIn('courses.academy_id', $academyIds)
             ->where('users.status', 'active')
@@ -292,8 +312,8 @@ final class OwnerDashboardService
                 'todayAttendanceRate' => $attendanceToday?->total
                     ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
                     : null,
-                'attendanceRate' => $attendanceToday?->total
-                    ? round(((int) $attendanceToday->attended / (int) $attendanceToday->total) * 100, 1)
+                'attendanceRate' => $attendanceForPeriod?->total
+                    ? round(((int) $attendanceForPeriod->attended / (int) $attendanceForPeriod->total) * 100, 1)
                     : null,
                 'liveNow' => $liveNowCount,
                 'capacityAlerts' => $capacityAlerts,

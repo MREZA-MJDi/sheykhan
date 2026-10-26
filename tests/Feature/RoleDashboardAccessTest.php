@@ -24,11 +24,17 @@ class RoleDashboardAccessTest extends TestCase
         foreach ($accounts as [$email, $route]) {
             $user = User::where('email', $email)->firstOrFail();
 
-            $this->actingAs($user)
-                ->get(route($route))
-                ->assertOk()
-                ->assertSee('role-mobile-bottom-nav', false)
-                ->assertSee('data-role-more-open', false);
+            $response = $this->actingAs($user)->get(route($route))->assertOk();
+
+            if ($route === 'owner.dashboard') {
+                $response->assertSee('class="app"', false)
+                    ->assertSee('id="burger"', false)
+                    ->assertSee('id="side"', false)
+                    ->assertSee('id="main"', false);
+            } else {
+                $response->assertSee('role-mobile-bottom-nav', false)
+                    ->assertSee('data-role-more-open', false);
+            }
         }
     }
 
