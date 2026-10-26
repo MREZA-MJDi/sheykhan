@@ -11,7 +11,7 @@
     $pending = collect($assignments ?? [])->filter(fn ($item) => empty($item->submitted_at));
     $courseProgress = (int) ($overallProgress ?? 0);
 @endphp
-<section class="page role-dashboard role-dashboard--student" data-role="student" id="dashboard">
+<section class="page" id="dashboard">
     <div class="hero">
         <div class="av" aria-hidden="true">
             @if($studentAvatarUrl ?? null)
