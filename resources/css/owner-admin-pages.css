@@ -97,3 +97,12 @@
     .owner-admin-v2 .main-content :is(.owner-stat-card,.owner-panel,.dashboard-panel,.owner-form-shell,.owner-form-card,.owner-people-tab-panel){padding:14px}
     .owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters){align-items:stretch}
 }
+
+/* Page workspace roots occupy the full content track; only KPI/panel children use columns. */
+.owner-admin-v2 .main-content > :is(.panel-page-enter,.course-page,.owner-dashboard,.owner-workspace-page,.owner-people-workspace,.owner-form-shell,.owner-seo-page,.seo-keywords-page,.website-center,.website-hero-editor){
+    grid-column:1/-1;
+    width:100%;
+    min-width:0;
+    max-width:1500px;
+    margin-inline:auto;
+}
