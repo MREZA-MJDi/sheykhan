@@ -745,3 +745,159 @@ dialog::backdrop{background:rgba(5,7,25,.7);backdrop-filter:blur(4px)}
  .owner-admin-v2 .main-content .banner-submitbar .course-primary-btn{width:100%}
  .owner-admin-v2 .main-content .website-banner-mini{grid-template-columns:100px minmax(0,1fr)}
 }
+
+
+/* Owner communications workspace: the former shared sheet was consolidated here. */
+.owner-admin-v2 .main-content .communication-page{
+    display:grid;
+    align-content:start;
+    gap:16px;
+    min-width:0;
+    width:100%;
+}
+.owner-admin-v2 .main-content .communication-page__hero{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    min-width:0;
+    padding:0 0 16px;
+    border:0;
+    border-bottom:1px solid rgba(119,136,190,.22);
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content .communication-page__hero>div:first-child{min-width:0}
+.owner-admin-v2 .main-content .communication-page__hero h1{
+    margin:4px 0 0;
+    color:var(--oa-text)!important;
+    font-size:clamp(21px,2vw,28px);
+    font-weight:850;
+    line-height:1.55;
+}
+.owner-admin-v2 .main-content .communication-page__hero p{
+    max-width:75ch;
+    color:var(--oa-muted)!important;
+    font-size:12px;
+    line-height:1.9;
+}
+.owner-admin-v2 .main-content .communication-page__stats{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    min-width:0;
+}
+.owner-admin-v2 .main-content .communication-page__stat{
+    min-width:0;
+    padding:14px 16px;
+    border:1px solid rgba(119,136,190,.16);
+    border-radius:13px;
+    background:rgba(23,29,69,.62);
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content .communication-page__stat :is(span,small){display:block;color:var(--oa-muted);font-size:11px;line-height:1.8}
+.owner-admin-v2 .main-content .communication-page__stat strong{display:block;margin-top:5px;color:var(--oa-text);font-size:clamp(21px,2vw,28px);font-weight:850;line-height:1.4}
+.owner-admin-v2 .main-content .communication-page__card,
+.owner-admin-v2 .main-content .communication-page__message,
+.owner-admin-v2 .main-content .communication-page__empty{
+    min-width:0;
+    padding:16px;
+    border:1px solid rgba(119,136,190,.16);
+    border-radius:14px;
+    background:var(--oa-surface);
+    color:var(--oa-text);
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content .communication-page__message-list{display:grid;gap:12px;min-width:0}
+.owner-admin-v2 .main-content .communication-page__message :is(h2,h3){color:var(--oa-text)!important;font-size:15px;font-weight:800;line-height:1.7}
+.owner-admin-v2 .main-content .communication-page__message .communication-page__body{
+    color:#d8def7!important;
+    font-size:13px;
+    line-height:2;
+    overflow-wrap:anywhere;
+}
+.owner-admin-v2 .main-content .communication-page__message .communication-page__response{
+    margin-top:12px;
+    padding:12px;
+    border:1px solid rgba(34,211,238,.18);
+    border-radius:10px;
+    background:rgba(34,211,238,.055);
+    color:var(--oa-text);
+}
+.owner-admin-v2 .main-content .communication-page__message .communication-page__response :is(p,small){color:var(--oa-muted)!important}
+.owner-admin-v2 .main-content .communication-page__status{
+    display:inline-flex;
+    align-items:center;
+    min-height:26px;
+    padding:4px 10px;
+    border:1px solid rgba(119,136,190,.2);
+    border-radius:999px;
+    background:#202849;
+    color:#dce5ff;
+    font-size:10px;
+    font-weight:750;
+    white-space:nowrap;
+}
+.owner-admin-v2 .main-content .communication-page__form{
+    min-width:0;
+    margin-top:14px;
+}
+.owner-admin-v2 .main-content .communication-page__form label{
+    display:grid;
+    align-content:start;
+    gap:6px;
+    min-width:0;
+    color:var(--oa-muted);
+    font-size:11px;
+    font-weight:750;
+}
+.owner-admin-v2 .main-content .communication-page__form :is(input,select,textarea){
+    width:100%;
+    min-width:0;
+    min-height:42px;
+    padding:9px 11px;
+    border:1px solid rgba(119,136,190,.27);
+    border-radius:9px;
+    background:#0a0e27;
+    color:var(--oa-text);
+    font:inherit;
+    font-size:12px;
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content .communication-page__form textarea{min-height:86px;resize:vertical}
+.owner-admin-v2 .main-content .communication-page__form :is(input,select,textarea):focus-visible{
+    outline:2px solid color-mix(in srgb,var(--oa-accent) 55%,transparent);
+    outline-offset:2px;
+}
+.owner-admin-v2 .main-content .communication-page__button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    min-height:40px;
+    padding:9px 13px;
+    border:1px solid rgba(119,136,190,.22);
+    border-radius:10px;
+    background:#171e3d;
+    color:var(--oa-text)!important;
+    font-size:12px;
+    font-weight:750;
+    text-decoration:none;
+    cursor:pointer;
+}
+.owner-admin-v2 .main-content .communication-page__button:not(.communication-page__button--secondary){
+    background:var(--oa-accent);
+    border-color:transparent;
+    color:#071326!important;
+}
+.owner-admin-v2 .main-content .communication-page__empty{text-align:center;padding:28px 16px}
+.owner-admin-v2 .main-content .communication-page__empty h2{color:var(--oa-text)!important;font-size:15px;font-weight:800}
+.owner-admin-v2 .main-content .communication-page__empty p{color:var(--oa-muted)!important;font-size:12px;line-height:1.9}
+@media(max-width:760px){
+    .owner-admin-v2 .main-content .communication-page__hero{align-items:stretch;flex-direction:column}
+    .owner-admin-v2 .main-content .communication-page__stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .owner-admin-v2 .main-content :is(.communication-page__card,.communication-page__message,.communication-page__empty){padding:12px}
+    .owner-admin-v2 .main-content .communication-page__form{grid-template-columns:minmax(0,1fr)!important}
+    .owner-admin-v2 .main-content .communication-page__form .communication-page__button{width:100%}
+}
