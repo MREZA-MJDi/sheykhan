@@ -31,8 +31,10 @@
                         'scheduled' => ['برنامه‌ریزی‌شده',''],
                         'live' => ['در حال برگزاری','success'],
                         'ended' => ['پایان‌یافته','muted'],
+                        'completed' => ['پایان‌یافته','muted'],
+                        'published' => ['ضبط منتشرشده','success'],
                         'cancelled' => ['لغوشده','danger'],
-                        default => [$liveClass->status,'muted'],
+                        default => ['وضعیت نامشخص','muted'],
                     };
                 @endphp
                 <article class="teacher-workspace-item">
