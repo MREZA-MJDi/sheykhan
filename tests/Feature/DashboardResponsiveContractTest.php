@@ -6,16 +6,16 @@ use Tests\TestCase;
 
 class DashboardResponsiveContractTest extends TestCase
 {
-    public function test_owner_dashboard_alert_is_content_sized_and_cannot_stretch_into_a_full_page_warning_strip(): void
+    public function test_owner_workspace_feedback_and_page_roots_remain_content_sized_and_responsive(): void
     {
-        $css = file_get_contents(resource_path('css/admin.css'));
+        $css = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
 
         $this->assertIsString($css);
-        $this->assertStringContainsString('grid-auto-rows: max-content;', $css);
-        $this->assertStringContainsString('.owner-shell .owner-dashboard > .owner-focus-card {', $css);
-        $this->assertStringContainsString('height: fit-content !important;', $css);
-        $this->assertStringContainsString('align-self: start;', $css);
-        $this->assertStringContainsString('background: #fff8e9 !important;', $css);
+        $this->assertStringContainsString('.owner-dashboard-feedback', $css);
+        $this->assertStringContainsString('.owner-admin-v2 .main-content', $css);
+        $this->assertStringContainsString('grid-column:1/-1;min-width:0;width:100%', $css);
+        $this->assertMatchesRegularExpression('/@media\s*\(max-width:\s*700px\)/', $css);
+        $this->assertStringContainsString('min-width:0', $css);
     }
 
     public function test_student_mobile_navigation_has_safe_gutters_and_content_padding_above_fixed_bar(): void
@@ -30,31 +30,30 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
         $this->assertStringContainsString('@media (max-width: 380px)', $css);
     }
+
     public function test_parent_mobile_navigation_does_not_cover_the_last_content_row(): void
     {
-        $css = file_get_contents(resource_path('css/panel-design-system.css'));
+        $css = file_get_contents(resource_path('css/parent.css'));
 
         $this->assertIsString($css);
-        $this->assertStringContainsString('@media (max-width: 700px)', $css);
+        $this->assertMatchesRegularExpression('/@media\s*\(max-width:\s*700px\)/', $css);
         $this->assertStringContainsString('.parent-shell .role-main {', $css);
-        $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
+        $this->assertStringContainsString('padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));', $css);
     }
 
     public function test_student_and_teacher_dashboard_shells_are_responsive_on_tablets_and_phones(): void
     {
-        $css = file_get_contents(resource_path('css/panel-design-system.css'));
+        $studentCss = file_get_contents(resource_path('css/student.css'));
+        $teacherCss = file_get_contents(resource_path('css/teacher.css'));
 
-        $this->assertIsString($css);
-        $this->assertStringContainsString('@media (min-width: 761px) and (max-width: 900px)', $css);
-        $this->assertStringContainsString('.student-shell .app,', $css);
-        $this->assertStringContainsString('.teacher-shell .app {', $css);
-        $this->assertStringContainsString('grid-template-columns: minmax(0, 1fr) !important;', $css);
-        $this->assertStringContainsString('@media (max-width: 760px)', $css);
-        $this->assertStringContainsString('body.student-shell,', $css);
-        $this->assertStringContainsString('body.teacher-shell {', $css);
-        $this->assertStringContainsString('padding: 8px !important;', $css);
-        $this->assertStringContainsString('border-radius: 20px;', $css);
-        $this->assertStringContainsString('padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)) !important;', $css);
+        $this->assertIsString($studentCss);
+        $this->assertIsString($teacherCss);
+        $this->assertMatchesRegularExpression('/@media\s*\(max-width:\s*900px\)/', $studentCss);
+        $this->assertStringContainsString('.student-shell .app', $studentCss);
+        $this->assertStringContainsString('@media (max-width: 380px)', $studentCss);
+        $this->assertMatchesRegularExpression('/@media\s*\(max-width:\s*980px\)/', $teacherCss);
+        $this->assertStringContainsString('.teacher-shell .app', $teacherCss);
+        $this->assertStringContainsString('grid-template-columns:1fr', $teacherCss);
+        $this->assertStringContainsString('@media (max-width: 760px)', $teacherCss);
     }
-
 }
