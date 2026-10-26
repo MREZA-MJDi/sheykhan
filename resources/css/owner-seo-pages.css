@@ -1,17 +1,17 @@
 /* Shared SEO / public-site workspace skin. Semantic sections get a surface; utility wrappers do not. */
-.owner-admin-v2 .main-content > :is(.panel-page-enter,.owner-form-shell,.owner-seo-page,.website-center,.website-hero-editor,.course-page,.owner-workspace-page,.owner-people-workspace){
+.owner-admin-v2 .main-content > :is(.panel-page-enter,.owner-form-shell,.owner-seo-page,.website-center,.website-hero-editor,.banner-page,.course-page,.owner-workspace-page,.owner-people-workspace){
     grid-column:1/-1;
     width:100%;
     max-width:1500px;
     min-width:0;
     margin-inline:auto;
 }
-.owner-admin-v2 .main-content :is(.owner-seo-page,.seo-keywords-page,.website-center,.website-hero-editor,.owner-form-shell,.panel-page-enter){
+.owner-admin-v2 .main-content :is(.owner-seo-page,.seo-keywords-page,.website-center,.website-hero-editor,.banner-page,.owner-form-shell,.panel-page-enter){
     display:grid;
     gap:18px;
     align-content:start;
 }
-.owner-admin-v2 .main-content :is(.owner-seo-page,.seo-keywords-page,.website-center,.website-hero-editor,.owner-form-shell,.panel-page-enter)>:not([hidden]){
+.owner-admin-v2 .main-content :is(.owner-seo-page,.seo-keywords-page,.website-center,.website-hero-editor,.banner-page,.owner-form-shell,.panel-page-enter)>:not([hidden]){
     margin-block:0!important;
 }
 .owner-admin-v2 .main-content :is(.owner-seo-hero,.website-center-hero,.website-hero-editor-head,.seo-console-hero,.owner-form-head){
@@ -328,4 +328,83 @@
 }
 @media(prefers-reduced-motion:reduce){
     .owner-admin-v2 .main-content *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
+
+/* Banner editor: one section per slot, with the crop preview and controls sharing a single workspace. */
+.owner-admin-v2 .main-content .banner-page-head{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+    padding:0 0 17px;border:0;border-bottom:1px solid rgba(119,136,190,.22);
+    border-radius:0;background:transparent;box-shadow:none;
+}
+.owner-admin-v2 .main-content .banner-kicker{display:block;color:var(--oa-accent);font-size:11px;font-weight:800}
+.owner-admin-v2 .main-content .banner-page-head h1{margin:3px 0;color:var(--oa-text);font-size:clamp(22px,2vw,28px);line-height:1.55}
+.owner-admin-v2 .main-content .banner-page-head p{max-width:75ch;margin:6px 0 0;color:var(--oa-muted);font-size:11px;line-height:1.9}
+.owner-admin-v2 .main-content .banner-scope-note{padding-inline-start:10px;border-inline-start:2px solid var(--oa-accent)}
+.owner-admin-v2 .main-content .banner-slot-card{
+    min-width:0;padding:17px;border:1px solid rgba(119,136,190,.17);
+    border-radius:14px;background:var(--oa-surface);box-shadow:none;
+}
+.owner-admin-v2 .main-content .banner-slot-head{
+    display:flex;align-items:center;gap:12px;margin-bottom:15px;
+    padding-bottom:13px;border-bottom:1px solid rgba(119,136,190,.16);
+}
+.owner-admin-v2 .main-content .banner-slot-number{
+    display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:10px;
+    background:rgba(34,211,238,.1);color:var(--oa-accent);font-size:15px;font-weight:800;
+}
+.owner-admin-v2 .main-content .banner-slot-head>div:nth-child(2){min-width:0;flex:1}
+.owner-admin-v2 .main-content .banner-slot-head>div:nth-child(2)>span{color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .banner-slot-head h2{margin:2px 0;color:var(--oa-text);font-size:14px;font-weight:800}
+.owner-admin-v2 .main-content .banner-switch{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(119,136,190,.18);border-radius:9px;color:var(--oa-muted);font-size:11px}
+.owner-admin-v2 .main-content .banner-switch input{accent-color:var(--oa-accent)}
+.owner-admin-v2 .main-content .banner-editor-preview-wrap{display:grid;align-content:start;gap:12px;min-width:0}
+.owner-admin-v2 .main-content .banner-preview-card{min-width:0;overflow:hidden;border:0;border-radius:10px;background:transparent;box-shadow:none}
+.owner-admin-v2 .main-content .banner-preview{position:relative;display:grid;place-items:center;min-width:0;aspect-ratio:2.4/1;overflow:hidden;border-radius:10px;background:#080c1b}
+.owner-admin-v2 .main-content .banner-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.owner-admin-v2 .main-content .banner-preview-empty{position:relative;z-index:1;display:grid;gap:7px;justify-items:center;padding:24px;color:var(--oa-muted);text-align:center;font-size:11px}
+.owner-admin-v2 .main-content .banner-preview-empty strong{color:var(--oa-text);font-size:13px}
+.owner-admin-v2 .main-content .banner-preview-academy{position:absolute;inset-inline-start:10px;inset-block-end:10px;z-index:2;padding:4px 8px;border:1px solid rgba(255,255,255,.22);border-radius:7px;background:rgba(5,9,22,.58);color:white;font-size:9px}
+.owner-admin-v2 .main-content .banner-preview-body{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px solid rgba(119,136,190,.14)}
+.owner-admin-v2 .main-content .banner-preview-copy{min-width:0}
+.owner-admin-v2 .main-content .banner-preview-copy h3{margin:0;color:var(--oa-text);font-size:14px}
+.owner-admin-v2 .main-content .banner-preview-copy p{margin:4px 0 0;color:var(--oa-muted);font-size:10px;line-height:1.8}
+.owner-admin-v2 .main-content .banner-preview-cta{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:var(--oa-accent);color:#071326;font-size:10px;font-weight:800;white-space:nowrap}
+.owner-admin-v2 .main-content .banner-preview-caption{display:grid;gap:3px;color:var(--oa-muted);font-size:10px;line-height:1.8}
+.owner-admin-v2 .main-content .banner-preview-caption strong{color:var(--oa-text);font-size:11px}
+.owner-admin-v2 .main-content .banner-crop-tools{display:grid;gap:12px;padding:13px;border:1px solid rgba(119,136,190,.15);border-radius:10px;background:rgba(8,13,32,.35)}
+.owner-admin-v2 .main-content .banner-crop-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.owner-admin-v2 .main-content .banner-crop-head>div{display:grid;gap:4px;min-width:0}
+.owner-admin-v2 .main-content .banner-crop-head strong{color:var(--oa-text);font-size:12px}
+.owner-admin-v2 .main-content .banner-crop-head span{color:var(--oa-muted);font-size:10px;line-height:1.8}
+.owner-admin-v2 .main-content .banner-reset-btn{min-height:32px;padding:5px 10px;border:1px solid rgba(119,136,190,.2);border-radius:8px;background:#192143;color:var(--oa-text);font-size:10px;cursor:pointer}
+.owner-admin-v2 .main-content .banner-range{display:grid;gap:5px;color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .banner-range>span{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.owner-admin-v2 .main-content .banner-range b{color:var(--oa-text);font-weight:700}
+.owner-admin-v2 .main-content .banner-range output{color:var(--oa-accent);font-variant-numeric:tabular-nums}
+.owner-admin-v2 .main-content .banner-range input[type=range]{width:100%;accent-color:var(--oa-accent)}
+.owner-admin-v2 .main-content .banner-field{display:grid;gap:6px;min-width:0;color:var(--oa-muted);font-size:11px;font-weight:700}
+.owner-admin-v2 .main-content .banner-field small{color:var(--oa-muted);font-size:10px;line-height:1.8}
+.owner-admin-v2 .main-content .banner-file-meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .banner-file-feedback{color:var(--oa-muted);font-size:10px;line-height:1.8}
+.owner-admin-v2 .main-content .banner-submitbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0 0;border:0;border-top:1px solid rgba(119,136,190,.18);border-radius:0;background:transparent;box-shadow:none}
+.owner-admin-v2 .main-content .banner-submitbar>div{display:grid;gap:3px}
+.owner-admin-v2 .main-content .banner-submitbar strong{color:var(--oa-text);font-size:12px}
+.owner-admin-v2 .main-content .banner-submitbar span{color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .owner-content-row{grid-template-columns:minmax(0,1fr) auto auto}
+.owner-admin-v2 .main-content .website-banner-mini{grid-template-columns:minmax(0,150px) minmax(0,1fr)}
+.owner-admin-v2 .main-content .website-banner-mini-media{position:relative;min-width:0;aspect-ratio:16/7;overflow:hidden;border-radius:8px;background:#0a0e27}
+.owner-admin-v2 .main-content .website-banner-mini-media img{display:block;width:100%;height:100%;object-fit:cover}
+.owner-admin-v2 .main-content .website-banner-badge{position:absolute;inset-inline-end:7px;inset-block-start:7px;padding:3px 7px;border-radius:999px;background:rgba(5,9,22,.8);color:#fff;font-size:9px}
+.owner-admin-v2 .main-content .website-banner-mini-body{display:grid;align-content:center;gap:4px;min-width:0}
+.owner-admin-v2 .main-content .website-banner-mini-body strong{color:var(--oa-text);font-size:12px}
+.owner-admin-v2 .main-content .website-banner-mini-body span{color:var(--oa-muted);font-size:10px;overflow-wrap:anywhere}
+@media(max-width:760px){
+ .owner-admin-v2 .main-content .banner-page-head{align-items:stretch;flex-direction:column}
+ .owner-admin-v2 .main-content .banner-slot-card{padding:12px}
+ .owner-admin-v2 .main-content .banner-slot-head{align-items:flex-start;flex-wrap:wrap}
+ .owner-admin-v2 .main-content .banner-switch{margin-inline-start:auto}
+ .owner-admin-v2 .main-content .banner-preview{aspect-ratio:1.6/1}
+ .owner-admin-v2 .main-content .banner-submitbar{align-items:stretch;flex-direction:column}
+ .owner-admin-v2 .main-content .banner-submitbar .course-primary-btn{width:100%}
+ .owner-admin-v2 .main-content .website-banner-mini{grid-template-columns:100px minmax(0,1fr)}
 }
