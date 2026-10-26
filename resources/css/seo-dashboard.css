@@ -1,12 +1,11 @@
-/* SEO-specialist panel — standalone stylesheet entry for SEO and site-management pages. */
+/* SEO-specialist panel: independent CSS entry; no owner/admin design-system stylesheet is imported. */
 
 @import 'tailwindcss' source(none);
-
 @import './persian-calendar.css';
-
 @source '../../resources/views/owner';
+@source '../../resources/views/seo';
 @source '../../resources/views/components';
-@source '../../resources/views/layouts/owner.blade.php';
+@source '../../resources/views/layouts/seo-specialist.blade.php';
 
 @theme {
     --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;

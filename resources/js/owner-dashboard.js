@@ -1,9 +1,7 @@
-/* Academy-owner panel single entry. Only shared panel modules are the Jalali calendar and Persian input helpers. */
-
+/* Academy-owner single JS entry: owner interactions, exam editor, calendar and Persian input helpers. */
 import './persian-calendar.js';
-
 import './persian-money.js';
-
+import Alpine from 'alpinejs';
 /* Accessible interactions for the server-rendered owner dashboard. No demo records. */
 (() => {
     'use strict';
@@ -612,4 +610,61 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeExamBuilder, { once: true });
 } else {
     initializeExamBuilder();
+}
+
+
+const bootPanelAlpine = () => {
+    if (window.__sheykhanAlpineBooted) return;
+    const alpine = window.Alpine || Alpine;
+    window.Alpine = alpine;
+    if (!alpine || typeof alpine.start !== 'function') return;
+    alpine.start();
+    window.__sheykhanAlpineBooted = true;
+};
+const bootOwnerPeopleTabs = () => {
+    document.querySelectorAll('[data-owner-people-tabs]').forEach((root) => {
+        const buttons = Array.from(root.querySelectorAll('[data-owner-tab-button]'));
+        const panels = Array.from(root.querySelectorAll('[data-owner-tab-panel]'));
+        if (!buttons.length || !panels.length) return;
+
+        const activate = (key, moveFocus = false) => {
+            buttons.forEach((button) => {
+                const active = button.dataset.ownerTabButton === key;
+                button.setAttribute('aria-selected', active ? 'true' : 'false');
+                button.tabIndex = active ? 0 : -1;
+                button.classList.toggle('is-active', active);
+            });
+            panels.forEach((panel) => {
+                const active = panel.dataset.ownerTabPanel === key;
+                panel.hidden = !active;
+                panel.classList.toggle('is-active', active);
+            });
+            if (moveFocus) buttons.find((button) => button.dataset.ownerTabButton === key)?.focus();
+        };
+
+        buttons.forEach((button, index) => {
+            button.addEventListener('click', () => activate(button.dataset.ownerTabButton));
+            button.addEventListener('keydown', (event) => {
+                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                event.preventDefault();
+                const nextIndex = event.key === 'Home' ? 0
+                    : event.key === 'End' ? buttons.length - 1
+                    : (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
+                activate(buttons[nextIndex].dataset.ownerTabButton, true);
+            });
+        });
+
+        const requested = root.dataset.initialTab;
+        activate(buttons.some((button) => button.dataset.ownerTabButton === requested) ? requested : buttons[0].dataset.ownerTabButton);
+    });
+};
+
+const bootPanelEntry = () => {
+    bootPanelAlpine();
+    bootOwnerPeopleTabs();
+};
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootPanelEntry, { once: true });
+} else {
+    bootPanelEntry();
 }

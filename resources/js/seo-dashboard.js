@@ -1,9 +1,7 @@
-/* SEO-specialist panel single entry. Only shared panel modules are the Jalali calendar and Persian input helpers. */
-
+/* SEO-specialist single JS entry: SEO interactions, calendar and Persian input helpers. */
 import './persian-calendar.js';
-
 import './persian-money.js';
-
+import Alpine from 'alpinejs';
 /* Accessible interactions for the server-rendered owner dashboard. No demo records. */
 (() => {
     'use strict';
@@ -612,4 +610,24 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeExamBuilder, { once: true });
 } else {
     initializeExamBuilder();
+}
+
+
+const bootPanelAlpine = () => {
+    if (window.__sheykhanAlpineBooted) return;
+    const alpine = window.Alpine || Alpine;
+    window.Alpine = alpine;
+    if (!alpine || typeof alpine.start !== 'function') return;
+    alpine.start();
+    window.__sheykhanAlpineBooted = true;
+};
+
+const bootPanelEntry = () => {
+    bootPanelAlpine();
+    
+};
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootPanelEntry, { once: true });
+} else {
+    bootPanelEntry();
 }

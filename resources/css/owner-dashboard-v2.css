@@ -1,9 +1,7 @@
-/* Academy-owner panel — one stylesheet entry for dashboard, forms, and owner SEO routes. */
+/* Academy-owner panel: one standalone CSS entry for dashboard, admin sections and owner-side SEO pages. */
 
 @import 'tailwindcss' source(none);
-
 @import './persian-calendar.css';
-
 @source '../../resources/views/owner';
 @source '../../resources/views/components';
 @source '../../resources/views/layouts/owner.blade.php';
