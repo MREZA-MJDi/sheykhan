@@ -148,7 +148,7 @@ class OwnerProductResourceManagementTest extends TestCase
             ['slug' => 'academy-owner'],
             ['name' => 'مدیر آموزشگاه', 'description' => 'Owner']
         );
-        $permissions = collect(['products.view', 'products.manage', 'content.manage', 'academy.view', 'academy.manage', 'dashboard.view'])
+        $permissions = collect(['products.view', 'products.manage', 'resources.view', 'resources.manage', 'academy.view', 'academy.manage', 'dashboard.view'])
             ->map(fn ($name) => Permission::query()->firstOrCreate(['name' => $name], ['label' => $name, 'group' => 'owner']));
         $role->permissions()->syncWithoutDetaching($permissions->pluck('id'));
         $owner->roles()->attach($role->id);

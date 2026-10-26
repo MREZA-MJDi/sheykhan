@@ -83,6 +83,13 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             ->assertDontSee('SEO و دیده‌شدن')
             ->assertDontSee(route('owner.seo.index'), false);
 
+        try {
+            app(\\App\\Services\\OwnerBlogService::class)->index($owner);
+            $this->fail('Direct blog service access must not bypass the SEO-only role.');
+        } catch (\\Symfony\\Component\\HttpKernel\\Exception\\HttpException $exception) {
+            $this->assertSame(403, $exception->getStatusCode());
+        }
+
         foreach ([
             route('owner.seo.index'),
             route('owner.seo.edit', ['course', $course->id]),
