@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends('layouts.seo-specialist')
 
 @section('title', 'بنرهای صفحه اصلی | شیخان')
 @section('header-title', 'بنرهای صفحه اصلی')

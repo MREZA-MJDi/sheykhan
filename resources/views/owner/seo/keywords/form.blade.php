@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends('layouts.seo-specialist')
 
 @section('title', $keyword->exists ? 'ویرایش کلمهٔ کلیدی | شیخان' : 'افزودن کلمهٔ کلیدی | شیخان')
 @section('header-title', 'مدیریت کلمات کلیدی')

@@ -1,9 +1,4 @@
 /* Sheykhan owner dashboard — supplied dark RTL design, consolidated once. */
-@font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
-@font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-SemiBold.woff2') format('woff2');font-style:normal;font-weight:600;font-display:swap}
-@font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');font-style:normal;font-weight:700;font-display:swap}
-@font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-ExtraBold.woff2') format('woff2');font-style:normal;font-weight:800;font-display:swap}
 :root{--acc:#22d3ee;--tx:#e8ecff;--mu:#8d96c9;--bg:#0f1330;--c1:#1a2050;--c2:#0e1230;--in:#0a0e27;--ln:#2b3270;--sh:#070a20;--pk:#ff1f6b;--ok:#2ee6a6;--r:20px;color-scheme:dark;box-sizing:border-box}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}

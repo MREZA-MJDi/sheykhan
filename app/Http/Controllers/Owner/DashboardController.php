@@ -37,6 +37,38 @@ class DashboardController extends Controller
 
         $data['academies'] = $workspace->academies($owner);
 
+        $firstAcademy = $data['academies']->first();
+        $metrics = $data['metrics'] ?? [];
+        $data['notifications'] = [];
+        $pendingReviews = $owner->hasPermission('courses.view') ? (int) data_get($metrics, 'pendingReviews', 0) : 0;
+        $classroomsWithoutTeacher = $owner->hasPermission('classrooms.view') ? (int) data_get($metrics, 'classroomsWithoutTeacher', 0) : 0;
+        $capacityAlerts = $owner->hasPermission('classrooms.view') ? (int) data_get($metrics, 'capacityAlerts', 0) : 0;
+
+        if ($pendingReviews > 0 && $firstAcademy) {
+            $data['notifications'][] = [
+                'title' => 'تکالیف بررسی‌نشده',
+                'detail' => \\App\\Support\\PersianUi::digits($pendingReviews) . ' ارسال منتظر بررسی است.',
+                'url' => route('owner.assignments.index', $firstAcademy),
+                'color' => '#ff1f6b',
+            ];
+        }
+        if ($classroomsWithoutTeacher > 0 && $firstAcademy) {
+            $data['notifications'][] = [
+                'title' => 'کلاس بدون مدرس',
+                'detail' => \\App\\Support\\PersianUi::digits($classroomsWithoutTeacher) . ' کلاس مدرس فعال ندارد.',
+                'url' => route('owner.classrooms.index', $firstAcademy),
+                'color' => '#ff9a1f',
+            ];
+        }
+        if ($capacityAlerts > 0 && $firstAcademy) {
+            $data['notifications'][] = [
+                'title' => 'کلاس نزدیک ظرفیت',
+                'detail' => \\App\\Support\\PersianUi::digits($capacityAlerts) . ' کلاس به ۹۰٪ ظرفیت رسیده است.',
+                'url' => route('owner.classrooms.index', $firstAcademy),
+                'color' => '#22d3ee',
+            ];
+        }
+
         // Do not cache recent login events with the KPI aggregate; owners need this to refresh promptly.
         $academyIds = $data['academies']->pluck('id')->map(fn ($id) => (int) $id)->all();
         $data['recentStudentLogins'] = collect();

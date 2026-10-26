@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends('layouts.seo-specialist')
 
 @section('title', 'مدیریت اسلایدهای Hero | شیخان')
 @section('header-title', 'اسلایدهای Hero صفحه اصلی')
