@@ -13,6 +13,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
@@ -157,6 +158,81 @@ final class OwnerWorkspaceService
             now()->addMinutes(5),
             $detect,
         );
+    }
+
+    /**
+     * Server-side member directory used by the owner panel API.
+     *
+     * Cursor pagination is used by default for non-null stable sort keys. Email
+     * and membership joined_at can be null in legacy rows, so those sort modes
+     * deliberately use length-aware page pagination instead.
+     *
+     * @return CursorPaginator|LengthAwarePaginator
+     */
+    public function peopleDirectory(User $owner, Academy $academy, string $tab, array $filters): CursorPaginator|LengthAwarePaginator
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+
+        $tabs = [
+            'active-teachers' => ['teacher', 'active', true],
+            'archived-teachers' => ['teacher', 'archived', false],
+            'students' => ['student', 'active', true],
+            'parents' => ['parent', 'active', true],
+        ];
+
+        if (! isset($tabs[$tab])) {
+            throw ValidationException::withMessages([
+                'role' => 'نوع فهرست اعضا معتبر نیست.',
+            ]);
+        }
+
+        [$role, $membershipStatus, $activeAccountsOnly] = $tabs[$tab];
+        $perPage = (int) ($filters['per_page'] ?? 25);
+        $sort = (string) ($filters['sort'] ?? 'name');
+        $direction = (string) ($filters['direction'] ?? 'asc');
+        $term = trim((string) ($filters['q'] ?? ''));
+
+        $query = $academy->users()
+            ->wherePivot('role', $role)
+            ->wherePivot('status', $membershipStatus)
+            ->select('users.id', 'users.name', 'users.email', 'users.status', 'users.created_at');
+
+        if ($activeAccountsOnly) {
+            $query->where('users.status', 'active');
+        }
+
+        if ($term !== '') {
+            $query->where(function ($builder) use ($term): void {
+                $builder->where('users.name', 'like', '%' . $term . '%')
+                    ->orWhere('users.email', 'like', '%' . $term . '%');
+            });
+        }
+
+        $sortColumn = match ($sort) {
+            'email' => 'users.email',
+            'joined_at' => 'academy_user.joined_at',
+            'created_at' => 'users.created_at',
+            default => 'users.name',
+        };
+
+        // Always add a unique tie-breaker so ordering stays deterministic across pages.
+        $query->orderBy($sortColumn, $direction)->orderBy('users.id', $direction);
+
+        $queryString = array_intersect_key($filters, array_flip([
+            'q', 'sort', 'direction', 'per_page', 'page', 'cursor',
+        ]));
+
+        // Cursor pagination cannot reliably traverse nullable order values on all
+        // supported databases. Use cursor mode for the default non-null sort keys;
+        // keep page mode for nullable email/joined_at sort options.
+        $usesCursor = ! array_key_exists('page', $filters)
+            && ! in_array($sort, ['email', 'joined_at'], true);
+
+        $paginator = $usesCursor
+            ? $query->cursorPaginate($perPage, ['*'], 'cursor')
+            : $query->paginate($perPage, ['*'], 'page');
+
+        return $paginator->appends($queryString);
     }
 
     public function courseTeacherOptions(User $owner, Academy $academy): array
