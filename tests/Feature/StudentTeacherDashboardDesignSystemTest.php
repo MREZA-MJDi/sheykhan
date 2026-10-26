@@ -56,6 +56,25 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringNotContainsString('.admin-shell', $styles);
     }
 
+
+    public function test_avatar_fallback_behavior_is_shared_and_scoped_to_student_and_teacher(): void
+    {
+        $sharedScript = file_get_contents(resource_path('js/panel-base.js'));
+        $studentScript = file_get_contents(resource_path('js/student.js'));
+        $teacherScript = file_get_contents(resource_path('js/teacher.js'));
+
+        $this->assertIsString($sharedScript);
+        $this->assertIsString($studentScript);
+        $this->assertIsString($teacherScript);
+
+        $this->assertStringContainsString("document.body.matches('.student-shell, .teacher-shell')", $sharedScript);
+        $this->assertStringContainsString("document.querySelectorAll('img[data-avatar-image]')", $sharedScript);
+        $this->assertStringContainsString("image.addEventListener('error', showFallback, { once: true })", $sharedScript);
+        $this->assertStringNotContainsString("querySelectorAll('[data-avatar-image]')", $studentScript);
+        $this->assertStringNotContainsString("querySelectorAll('[data-avatar-image]')", $teacherScript);
+        $this->assertStringContainsString('bootRoleAvatarFallback();', $sharedScript);
+    }
+
     public function test_dashboard_markup_and_layout_rules_remain_role_specific(): void
     {
         $studentDashboard = file_get_contents(resource_path('views/student/dashboard.blade.php'));
