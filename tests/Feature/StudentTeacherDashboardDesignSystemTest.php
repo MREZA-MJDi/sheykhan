@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use Tests\\TestCase;
+use Tests\TestCase;
 
 class StudentTeacherDashboardDesignSystemTest extends TestCase
 {
@@ -32,20 +32,31 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringNotContainsString('fonts.googleapis.com', $teacherLayout);
     }
 
-    public function test_shared_dashboard_styles_are_scoped_to_student_and_teacher(): void
+    public function test_shared_dashboard_system_exposes_tokens_and_only_shared_interactions(): void
     {
         $styles = file_get_contents(resource_path('css/role-dashboard-design-system.css'));
+        $studentStyles = file_get_contents(resource_path('css/student.css'));
+        $teacherStyles = file_get_contents(resource_path('css/teacher.css'));
 
         $this->assertIsString($styles);
-        $this->assertStringContainsString('body.student-shell', $styles);
-        $this->assertStringContainsString('body.teacher-shell', $styles);
-        $this->assertStringContainsString('#dashboard.role-dashboard', $styles);
-        $this->assertStringContainsString('#teacher-dashboard.role-dashboard', $styles);
+        $this->assertIsString($studentStyles);
+        $this->assertIsString($teacherStyles);
+
+        $this->assertStringContainsString('--rds-primary:', $styles);
+        $this->assertStringContainsString('--bg1: var(--rds-canvas)', $styles);
+        $this->assertStringContainsString('--bg: var(--rds-canvas)', $styles);
+        $this->assertStringContainsString('focus-visible', $styles);
+        $this->assertStringContainsString('var(--rds-surface', $studentStyles);
+        $this->assertStringContainsString('var(--rds-surface', $teacherStyles);
+
+        // This file is only a token/interaction layer. Role-specific layouts stay in their own stylesheets.
+        $this->assertStringNotContainsString('#dashboard', $styles);
+        $this->assertStringNotContainsString('#teacher-dashboard', $styles);
         $this->assertStringNotContainsString('.owner-shell', $styles);
         $this->assertStringNotContainsString('.admin-shell', $styles);
     }
 
-    public function test_both_dashboard_templates_use_the_shared_design_contract(): void
+    public function test_both_dashboard_templates_use_role_specific_roots_with_the_shared_token_contract(): void
     {
         $studentDashboard = file_get_contents(resource_path('views/student/dashboard.blade.php'));
         $teacherDashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
