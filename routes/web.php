@@ -115,8 +115,6 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
-    Route::get('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'edit'])->middleware('permission:academy.view')->name('academy.banners.edit');
-    Route::patch('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'update'])->middleware('permission:academy.manage')->name('academy.banners.update');
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->middleware('permission:academy.view')->name('people.index');
     Route::get('/academy/{academy}/people/student-options', [OwnerPeopleController::class, 'studentOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.student-options');
     Route::get('/academy/{academy}/attendance', [OwnerAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
@@ -178,30 +176,12 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::patch('/academy/{academy}/teacher-payments/{payment}/status', [\App\Http\Controllers\Owner\TeacherPaymentController::class, 'updateStatus'])->middleware('permission:teacher_payments.manage')->withoutScopedBindings()->name('teacher-payments.status');
 
     Route::get('/reports', [OwnerReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
-    Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->middleware('permission:academy.view')->name('website.index');
-    Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->middleware('permission:academy.view')->name('website.hero.edit');
-    Route::patch('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'update'])->middleware('permission:academy.manage')->name('website.hero.update');
-    Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->middleware('permission:content.manage')->name('content.index');
-    Route::get('/academy/{academy}/showcase', [\App\Http\Controllers\Owner\ShowcaseController::class, 'index'])->middleware('permission:content.manage')->name('showcase.index');
-    Route::post('/academy/{academy}/achievements', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeAchievement'])->middleware(['permission:content.manage','throttle:10,1'])->name('achievements.store');
-    Route::patch('/academy/{academy}/achievements/{achievement}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawAchievement'])->middleware('permission:content.manage')->name('achievements.withdraw');
-    Route::post('/academy/{academy}/testimonials', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeTestimonial'])->middleware(['permission:content.manage','throttle:10,1'])->name('testimonials.store');
-    Route::patch('/academy/{academy}/testimonials/{testimonial}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawTestimonial'])->middleware('permission:content.manage')->name('testimonials.withdraw');
     Route::get('/academy/{academy}/resources', [\App\Http\Controllers\Owner\LearningResourceController::class, 'index'])->middleware('permission:content.manage')->name('resources.index');
     Route::post('/academy/{academy}/resources', [\App\Http\Controllers\Owner\LearningResourceController::class, 'store'])->middleware(['permission:content.manage','throttle:10,1'])->name('resources.store');
     Route::get('/academy/{academy}/resources/{resource}/edit', [\App\Http\Controllers\Owner\LearningResourceController::class, 'edit'])->whereNumber('resource')->middleware('permission:content.manage')->withoutScopedBindings()->name('resources.edit');
     Route::patch('/academy/{academy}/resources/{resource}', [\App\Http\Controllers\Owner\LearningResourceController::class, 'update'])->whereNumber('resource')->middleware(['permission:content.manage','throttle:10,1'])->withoutScopedBindings()->name('resources.update');
     Route::patch('/academy/{academy}/resources/{resource}/archive', [\App\Http\Controllers\Owner\LearningResourceController::class, 'archive'])->whereNumber('resource')->middleware('permission:content.manage')->withoutScopedBindings()->name('resources.archive');
     Route::patch('/academy/{academy}/resources/{resource}/restore', [\App\Http\Controllers\Owner\LearningResourceController::class, 'restore'])->whereNumber('resource')->middleware('permission:content.manage')->withoutScopedBindings()->name('resources.restore');
-    Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->middleware('permission:content.manage')->name('content.create');
-    Route::post('/content', [\App\Http\Controllers\Owner\ContentController::class, 'store'])->middleware('permission:content.manage')->name('content.store');
-    Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->whereNumber('content')->middleware('permission:content.manage')->name('content.edit');
-    Route::patch('/content/{content}', [\App\Http\Controllers\Owner\ContentController::class, 'update'])->whereNumber('content')->middleware('permission:content.manage')->name('content.update');
-    Route::get('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'index'])->middleware('permission:blog.manage')->name('blog.index');
-    Route::get('/blog/create', [\App\Http\Controllers\Owner\BlogController::class, 'create'])->middleware('permission:blog.manage')->name('blog.create');
-    Route::post('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'store'])->middleware('permission:blog.manage')->name('blog.store');
-    Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->whereNumber('post')->middleware('permission:blog.manage')->name('blog.edit');
-    Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->whereNumber('post')->middleware('permission:blog.manage')->name('blog.update');
     Route::get('/academy/{academy}/products', [\App\Http\Controllers\Owner\ProductManagementController::class, 'index'])->middleware('permission:products.view')->name('products.index');
     Route::post('/academy/{academy}/products', [\App\Http\Controllers\Owner\ProductManagementController::class, 'store'])->middleware(['permission:products.manage','throttle:10,1'])->name('products.store');
     Route::get('/academy/{academy}/products/{product}/edit', [\App\Http\Controllers\Owner\ProductManagementController::class, 'edit'])->whereNumber('product')->middleware('permission:products.manage')->withoutScopedBindings()->name('products.edit');
@@ -345,6 +325,32 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
     ->prefix('owner')
     ->name('owner.')
     ->group(function () {
+        // Public website content and page-level controls are restricted to the dedicated SEO role.
+        // Academy operations (members, classes, courses, commerce, messaging and finance) stay owner-scoped.
+        Route::get('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'edit'])->name('academy.banners.edit');
+        Route::patch('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'update'])->middleware('throttle:10,1')->name('academy.banners.update');
+        Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->name('website.index');
+        Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->name('website.hero.edit');
+        Route::patch('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'update'])->middleware('throttle:10,1')->name('website.hero.update');
+
+        Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->name('content.index');
+        Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->name('content.create');
+        Route::post('/content', [\App\Http\Controllers\Owner\ContentController::class, 'store'])->middleware('throttle:10,1')->name('content.store');
+        Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->whereNumber('content')->name('content.edit');
+        Route::patch('/content/{content}', [\App\Http\Controllers\Owner\ContentController::class, 'update'])->middleware('throttle:10,1')->name('content.update');
+
+        Route::get('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'index'])->name('blog.index');
+        Route::get('/blog/create', [\App\Http\Controllers\Owner\BlogController::class, 'create'])->name('blog.create');
+        Route::post('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'store'])->middleware('throttle:10,1')->name('blog.store');
+        Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->whereNumber('post')->name('blog.edit');
+        Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->middleware('throttle:10,1')->name('blog.update');
+
+        Route::get('/academy/{academy}/showcase', [\App\Http\Controllers\Owner\ShowcaseController::class, 'index'])->name('showcase.index');
+        Route::post('/academy/{academy}/achievements', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeAchievement'])->middleware('throttle:10,1')->name('achievements.store');
+        Route::patch('/academy/{academy}/achievements/{achievement}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawAchievement'])->name('achievements.withdraw');
+        Route::post('/academy/{academy}/testimonials', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeTestimonial'])->middleware('throttle:10,1')->name('testimonials.store');
+        Route::patch('/academy/{academy}/testimonials/{testimonial}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawTestimonial'])->name('testimonials.withdraw');
+
         // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
         Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('seo.index');
         Route::get('/seo/keywords/template', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'template'])->name('seo.keywords.template');
