@@ -253,7 +253,16 @@ final class OwnerContentService
     {
         $this->authorizePublicContentManagement($owner);
 
-        abort_unless($content->academy?->status === 'active', 404);
+        // SEO manages public content across active academies, not just the
+        // specialist's own academy. Check the published domain record directly
+        // so an implicitly loaded/scoped relation cannot hide another active academy.
+        $activeAcademyExists = Academy::query()
+            ->withoutGlobalScopes()
+            ->whereKey((int) $content->academy_id)
+            ->where('status', 'active')
+            ->exists();
+
+        abort_unless($activeAcademyExists, 404);
 
         return $content;
     }
