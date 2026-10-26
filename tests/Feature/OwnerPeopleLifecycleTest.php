@@ -261,7 +261,7 @@ class OwnerPeopleLifecycleTest extends TestCase
     public function test_owner_created_teacher_password_is_hashed_and_requires_change_on_first_login(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
-        $email = 'new-teacher-' . Str::random(8) . '@test.local';
+        $email = 'new-teacher-' . Str::lower(Str::random(8)) . '@test.local';
         $plainPassword = 'T!acher-password-2026';
 
         $this->actingAs($owner)
