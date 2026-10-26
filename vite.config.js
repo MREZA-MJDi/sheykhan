@@ -17,6 +17,7 @@ export default defineConfig({
                 'resources/css/admin.css',
                 'resources/css/owner-design-system.css',
                 'resources/css/panel-design-system.css',
+                'resources/css/role-dashboard-design-system.css',
                 'resources/js/admin.js',
                 'resources/css/owner-dashboard-v2.css',
                 'resources/css/owner-admin-pages.css',
