@@ -90,7 +90,7 @@
 .owner-admin-v2 .main-content h1{
     font-size:clamp(1.25rem,1.7vw,1.65rem);
 }
-.owner-admin-v2 .main-content :is(button,a).focus-visible{
+.owner-admin-v2 .main-content :is(button,a):focus-visible{
     outline-offset:3px;
 }
 @media(max-width:700px){
