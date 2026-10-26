@@ -56,18 +56,22 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringNotContainsString('.admin-shell', $styles);
     }
 
-    public function test_both_dashboard_templates_use_role_specific_roots_with_the_shared_token_contract(): void
+    public function test_dashboard_markup_and_layout_rules_remain_role_specific(): void
     {
         $studentDashboard = file_get_contents(resource_path('views/student/dashboard.blade.php'));
         $teacherDashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
+        $studentStyles = file_get_contents(resource_path('css/student.css'));
+        $teacherStyles = file_get_contents(resource_path('css/teacher.css'));
 
         $this->assertIsString($studentDashboard);
         $this->assertIsString($teacherDashboard);
+        $this->assertIsString($studentStyles);
+        $this->assertIsString($teacherStyles);
 
-        $this->assertStringContainsString('role-dashboard role-dashboard--student', $studentDashboard);
-        $this->assertStringContainsString('data-role="student"', $studentDashboard);
-        $this->assertStringContainsString('role-dashboard role-dashboard--teacher', $teacherDashboard);
-        $this->assertStringContainsString('data-role="teacher"', $teacherDashboard);
+        $this->assertStringContainsString('id="dashboard"', $studentDashboard);
+        $this->assertStringContainsString('#dashboard .hero', $studentStyles);
+        $this->assertStringContainsString('id="teacher-dashboard"', $teacherDashboard);
+        $this->assertStringContainsString('#teacher-dashboard', $teacherStyles);
         $this->assertStringNotContainsString('style="margin-top:18px"', $studentDashboard);
     }
 }
