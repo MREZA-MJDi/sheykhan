@@ -11,7 +11,7 @@
     $pending = collect($assignments ?? [])->filter(fn ($item) => empty($item->submitted_at));
     $courseProgress = (int) ($overallProgress ?? 0);
 @endphp
-<section class="page" id="dashboard">
+<section class="page role-dashboard role-dashboard--student" data-role="student" id="dashboard">
     <div class="hero">
         <div class="av" aria-hidden="true">
             @if($studentAvatarUrl ?? null)
@@ -128,7 +128,7 @@
                     <p>پیوستگی مطالعه: {{ \App\Support\PersianUi::digits($studyStreak) }} روز</p>
                 </div>
             </div>
-            <div class="chead" style="margin-top:18px"><h2>دوره‌های من</h2><a class="pill" href="{{ route('student.courses.index') }}">مشاهده همه</a></div>
+            <div class="chead student-dashboard-subsection-head"><h2>دوره‌های من</h2><a class="pill" href="{{ route('student.courses.index') }}">مشاهده همه</a></div>
             @forelse(collect($courses)->take(3) as $course)
                 <div class="trk">
                     <div class="th"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg></div>
@@ -166,7 +166,7 @@
                 <div class="empty">نتیجهٔ تصحیح‌شده‌ای برای نمایش وجود ندارد.</div>
             @endforelse
 
-            <div class="chead" style="margin-top:18px">
+            <div class="chead student-dashboard-subsection-head">
                 <h2>منابع آموزشی</h2>
                 <a class="pill" href="{{ route('student.resources.index') }}">همه</a>
             </div>
