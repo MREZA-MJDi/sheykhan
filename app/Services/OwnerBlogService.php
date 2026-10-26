@@ -12,8 +12,10 @@ final class OwnerBlogService
 {
     public function index(User $owner): array
     {
-        $posts = BlogPost::query()
-            ->where('author_id', $owner->id)
+        $this->authorizePublicBlogManagement($owner);
+        $baseQuery = BlogPost::query();
+
+        $posts = (clone $baseQuery)
             ->with('category:id,name')
             ->latest('updated_at')
             ->paginate(20)
@@ -24,26 +26,42 @@ final class OwnerBlogService
             'categories' => BlogCategory::query()->orderBy('name')->get(['id','name']),
             'stats' => [
                 'total' => $posts->total(),
-                'published' => BlogPost::query()->where('author_id',$owner->id)->where('status','published')->count(),
-                'drafts' => BlogPost::query()->where('author_id',$owner->id)->where('status','draft')->count(),
+                'published' => (clone $baseQuery)->where('status', 'published')->count(),
+                'drafts' => (clone $baseQuery)->where('status', 'draft')->count(),
             ],
         ];
     }
 
-    public function formData(): array
+    public function formData(User $owner): array
     {
+        $this->authorizePublicBlogManagement($owner);
+
         return ['categories' => BlogCategory::query()->orderBy('name')->get(['id','name'])];
     }
 
     public function owned(User $owner, BlogPost $post): BlogPost
     {
-        abort_unless((int) $post->author_id === (int) $owner->id, 404);
+        $this->authorizePublicBlogManagement($owner);
 
         return $post;
     }
 
+    private function isDedicatedSeoSpecialist(User $user): bool
+    {
+        return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
+    }
+
+    private function authorizePublicBlogManagement(User $user): void
+    {
+        abort_unless(
+            $this->isDedicatedSeoSpecialist($user) && $user->hasPermission('seo.manage'),
+            403
+        );
+    }
+
     public function create(User $owner, array $data): BlogPost
     {
+        $this->authorizePublicBlogManagement($owner);
         $cover = $data['cover_image'] ?? null;
         unset($data['cover_image']);
 

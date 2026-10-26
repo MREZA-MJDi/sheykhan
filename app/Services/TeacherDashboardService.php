@@ -38,7 +38,14 @@ final class TeacherDashboardService
 
         $studentCount = $classroomIds
             ? DB::table('classroom_student as memberships')
+                ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
                 ->join('users', 'users.id', '=', 'memberships.student_id')
+                ->join('course_enrollments as enrollments', function ($join): void {
+                    $join->on('enrollments.student_id', '=', 'memberships.student_id')
+                        ->on('enrollments.classroom_id', '=', 'classrooms.id')
+                        ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                        ->where('enrollments.status', '=', 'active');
+                })
                 ->whereIn('memberships.classroom_id', $classroomIds)
                 ->where('memberships.status', 'active')
                 ->where('users.status', 'active')
@@ -47,8 +54,10 @@ final class TeacherDashboardService
                 ->count('memberships.student_id')
             : 0;
 
+        $classroomRosterPreviews = $this->classroomRosterPreviews($classrooms);
+
         if ($courseIds->isEmpty()) {
-            return $this->emptyState($teacher, $classrooms, $studentCount);
+            return $this->emptyState($teacher, $classrooms, $studentCount, $classroomRosterPreviews);
         }
 
         $weekStart = now()->startOfWeek(Carbon::SATURDAY);
@@ -188,6 +197,19 @@ final class TeacherDashboardService
             });
 
 
+        $avatarUsers = User::query()
+            ->whereIn('id', $topStudents->pluck('id')->all())
+            ->with(['studentProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'student-avatar')
+                ->orderByPivot('sort_order')])
+            ->get(['id'])
+            ->keyBy('id');
+
+        $topStudents->each(function ($row) use ($avatarUsers): void {
+            $avatar = $avatarUsers->get((int) $row->id)?->studentProfile?->media?->first();
+            $row->avatar_url = $avatar && $avatar->visibility === 'public' ? $avatar->url() : null;
+        });
+
         return [
             'teacher' => $teacher,
             'dashboardDate' => PersianUi::date(now()),
@@ -206,6 +228,7 @@ final class TeacherDashboardService
             'activities' => $activities,
             'courseProgress' => $courseProgress,
             'topStudents' => $topStudents,
+            'classroomRosterPreviews' => $classroomRosterPreviews,
         ];
     }
 
@@ -430,7 +453,53 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         return $scheduled->concat($live)->sortBy('time')->values();
     }
 
-    private function emptyState(User $teacher, $classrooms, int $studentCount): array
+
+    /**
+     * Show a small, accurate roster preview for the teacher's real assigned classes.
+     * Only active classroom membership + active enrollment rows are eligible.
+     * Student profile photos are loaded in a bounded eager-load query, never as demo URLs.
+     */
+    private function classroomRosterPreviews($classrooms)
+    {
+        return $classrooms->take(4)->map(function ($classroom): array {
+            $roster = $classroom->students()
+                ->wherePivot('status', 'active')
+                ->where('users.status', 'active')
+                ->whereNull('users.deleted_at')
+                ->whereHas('enrollments', fn ($query) => $query
+                    ->where('course_id', $classroom->course_id)
+                    ->where('classroom_id', $classroom->id)
+                    ->where('status', 'active'));
+
+            $total = (clone $roster)->count();
+            $students = $roster
+                ->with(['studentProfile.media' => fn ($query) => $query
+                    ->wherePivot('collection', 'student-avatar')
+                    ->orderByPivot('sort_order')])
+                ->orderBy('users.name')
+                ->limit(4)
+                ->get(['users.id', 'users.name']);
+
+            $students->each(function (User $student): void {
+                $avatar = $student->studentProfile?->media?->first();
+                $student->setAttribute(
+                    'avatar_url',
+                    $avatar && $avatar->visibility === 'public' ? $avatar->url() : null,
+                );
+            });
+
+            return [
+                'classroom_id' => (int) $classroom->id,
+                'title' => (string) $classroom->title,
+                'course_title' => (string) ($classroom->course?->title ?? 'بدون دوره'),
+                'student_count' => $total,
+                'students' => $students,
+                'url' => route('teacher.classrooms.index'),
+            ];
+        })->values();
+    }
+
+    private function emptyState(User $teacher, $classrooms, int $studentCount, $classroomRosterPreviews = null): array
     {
         return [
             'teacher' => $teacher,
@@ -453,6 +522,7 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
             'activities' => collect(),
             'courseProgress' => collect(),
             'topStudents' => collect(),
+            'classroomRosterPreviews' => $classroomRosterPreviews ?? $this->classroomRosterPreviews($classrooms),
         ];
     }
 

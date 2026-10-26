@@ -4,7 +4,7 @@
     $academyScopedPermissions = [
         'academy.view', 'classrooms.view', 'attendance.view', 'courses.view',
         'live_classes.view', 'parents.view', 'exams.view', 'teacher_payments.view',
-        'content.manage', 'products.view', 'orders.view',
+        'resources.view', 'products.view', 'orders.view',
     ];
     $canUseAcademyScope = ! $seoOnly && collect($academyScopedPermissions)
         ->contains(fn (string $permission) => $user->hasPermission($permission));
@@ -12,6 +12,9 @@
         ? $user->ownedAcademies()->where('status', 'active')->orderBy('name')->get()
         : collect();
     $firstAcademy = $academies->first();
+    $websiteAcademies = $seoOnly
+        ? \App\Models\Academy::query()->where('status', 'active')->orderBy('name')->get(['id', 'name', 'slug'])
+        : collect();
 
     $ownerPanelHomeUrl = route('home');
     if ($seoOnly) {
@@ -36,7 +39,7 @@
         $ownerPanelHomeUrl = route('owner.exams.index', $firstAcademy);
     } elseif ($user->hasPermission('teacher_payments.view') && $firstAcademy) {
         $ownerPanelHomeUrl = route('owner.teacher-payments.index', $firstAcademy);
-    } elseif ($user->hasPermission('content.manage') && $firstAcademy) {
+    } elseif ($user->hasPermission('resources.view') && $firstAcademy) {
         $ownerPanelHomeUrl = route('owner.resources.index', $firstAcademy);
     } elseif ($user->hasPermission('products.view') && $firstAcademy) {
         $ownerPanelHomeUrl = route('owner.products.index', $firstAcademy);
@@ -86,6 +89,29 @@
                class="role-nav-link {{ request()->routeIs('owner.seo.keywords.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>کلمات کلیدی و رتبه</span>
             </a>
+            <div class="role-sidebar-label mt-6">کنترل سایت عمومی</div>
+            <a href="{{ route('owner.website.index') }}"
+               class="role-nav-link {{ request()->routeIs('owner.website.index', 'owner.website.hero.*', 'owner.academy.banners.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>مرکز سایت و بنرها</span>
+            </a>
+            <a href="{{ route('owner.website.hero.edit') }}"
+               class="role-nav-link {{ request()->routeIs('owner.website.hero.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>مدیریت Hero صفحه اصلی</span>
+            </a>
+            <a href="{{ route('owner.content.index') }}"
+               class="role-nav-link {{ request()->routeIs('owner.content.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>محتوای عمومی صفحات</span>
+            </a>
+            <a href="{{ route('owner.blog.index') }}"
+               class="role-nav-link {{ request()->routeIs('owner.blog.*') ? 'is-active' : '' }}">
+                <span class="role-nav-icon"></span><span>بلاگ و مقالات</span>
+            </a>
+            @foreach($websiteAcademies as $websiteAcademy)
+                <a href="{{ route('owner.showcase.index', $websiteAcademy) }}"
+                   class="role-nav-link {{ request()->routeIs('owner.showcase.*') && (int) $routeAcademyId === (int) $websiteAcademy->id ? 'is-active' : '' }}">
+                    <span class="role-nav-icon"></span><span>افتخارآفرینان و رضایتمندی · {{ $websiteAcademy->name }}</span>
+                </a>
+            @endforeach
         @endif
 
         @if(! $seoOnly && $user->hasPermission('reports.view'))
@@ -160,15 +186,14 @@
                     @if($user->hasPermission('teacher_payments.view'))
                         <a href="{{ route('owner.teacher-payments.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.teacher-payments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>حقوق مدرس‌ها</span></a>
                     @endif
-                    @if($user->hasPermission('content.manage'))
-                        <a href="{{ route('owner.resources.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.resources.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ویدئو و منابع آموزشی</span></a>
-                        <a href="{{ route('owner.showcase.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.showcase.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>افتخارآفرینان و رضایتمندی</span></a>
+                    @if($user->hasPermission('resources.view'))
+                        <a href="{{ route('owner.resources.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.resources.*') && (int) $routeAcademyId === (int) $academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>ویدئو و منابع آموزشی</span></a>
                     @endif
                     @if($user->hasPermission('products.view'))
-                        <a href="{{ route('owner.products.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.products.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>محصولات و منابع فروش</span></a>
+                        <a href="{{ route('owner.products.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.products.*') && (int) $routeAcademyId === (int) $academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>محصولات و منابع فروش</span></a>
                     @endif
                     @if($user->hasPermission('orders.view'))
-                        <a href="{{ route('owner.orders.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.orders.*') ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>سفارش‌ها و رسیدها</span></a>
+                        <a href="{{ route('owner.orders.index', $academy) }}" class="role-nav-link {{ request()->routeIs('owner.orders.*') && (int) $routeAcademyId === (int) $academy->id ? 'is-active' : '' }}"><span class="role-nav-icon"></span><span>سفارش‌ها و رسیدها</span></a>
                     @endif
                 </div>
             </div>
@@ -184,42 +209,6 @@
                class="role-nav-link {{ request()->routeIs('owner.courses.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>دوره‌ها</span>
             </a>
-        @endif
-
-        @if($user->hasPermission('content.manage') || $user->hasPermission('blog.manage') || ($user->hasPermission('academy.view') && Route::has('owner.website.index')))
-            <div class="role-sidebar-label mt-6">سایت و محتوا</div>
-
-            @if($user->hasPermission('academy.view') && Route::has('owner.website.index'))
-                <a href="{{ route('owner.website.index') }}"
-                   class="role-nav-link {{ request()->routeIs('owner.website.*') ? 'is-active' : '' }}">
-                    <span class="role-nav-icon"></span><span>مرکز سایت</span>
-                </a>
-            @endif
-
-            @if($user->hasPermission('content.manage'))
-                <a href="{{ route('owner.content.index') }}"
-                   class="role-nav-link {{ request()->routeIs('owner.content.*') ? 'is-active' : '' }}">
-                    <span class="role-nav-icon"></span><span>محتوای آموزشگاه</span>
-                </a>
-            @endif
-
-            @if($user->hasPermission('blog.manage'))
-                <a href="{{ route('owner.blog.index') }}"
-                   class="role-nav-link {{ request()->routeIs('owner.blog.*') ? 'is-active' : '' }}">
-                    <span class="role-nav-icon"></span><span>مقالات</span>
-                </a>
-            @endif
-
-
-            @if($user->hasPermission('academy.view'))
-                @if($academies->count() === 1)
-                    @php($singleAcademy = $academies->first())
-                    <a href="{{ route('owner.academy.banners.edit', $singleAcademy) }}"
-                       class="role-nav-link {{ request()->routeIs('owner.academy.banners.*') ? 'is-active' : '' }}">
-                        <span class="role-nav-icon"></span><span>بنرهای سایت</span>
-                    </a>
-                @endif
-            @endif
         @endif
 
         @if($user->hasPermission('legal.manage') && Route::has('owner.legal-documents.index'))

@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends('layouts.seo-specialist')
 
 @section('title', 'مرکز سایت | شیخان')
 @section('header-title', 'مرکز سایت')
@@ -82,9 +82,11 @@
                 <a href="{{ route('owner.academy.banners.edit', $academy) }}" class="course-primary-btn">
                     مدیریت تصاویر و بنرها
                 </a>
-                <a href="{{ route('owner.academy.edit', $academy) }}" class="course-secondary-btn">
-                    اطلاعات آموزشگاه
-                </a>
+                @if(!auth()->user()?->hasRole('seo-specialist'))
+                    <a href="{{ route('owner.academy.edit', $academy) }}" class="course-secondary-btn">
+                        اطلاعات آموزشگاه
+                    </a>
+                @endif
             </div>
         </section>
     @empty

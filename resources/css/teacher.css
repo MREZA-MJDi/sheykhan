@@ -1082,91 +1082,6 @@ th{font-weight:600}td{padding:12px}
 }
 .teacher-shell .tb .ib:hover { background: #fff; color: #1f6b89; }
 
-/* Dashboard hero base rules retained after removing the old dashboard theme block. */
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
-    position: relative;
-    display: grid;
-    grid-template-columns: 104px minmax(0, 1fr);
-    align-items: center;
-    gap: 18px;
-    min-width: 0;
-    margin: 0;
-    padding: clamp(17px, 2vw, 27px);
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,.88);
-    border-radius: 20px;
-    background:
-        radial-gradient(circle at 83% 20%, rgba(255,255,255,.65), transparent 28%),
-        linear-gradient(125deg, #d7edf5 0%, #c4e0ef 46%, #e5e0fb 100%);
-    box-shadow: 8px 10px 22px rgba(52,76,102,.12), inset 1px 1px 3px rgba(255,255,255,.85);
-    color: #203d54;
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero::after {
-    position: absolute;
-    inset: auto 0 0;
-    height: 5px;
-    background: linear-gradient(90deg, #2c90a9, #618de0, #9380df);
-    content: "";
-    opacity: .8;
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar {
-    display: grid;
-    place-items: center;
-    width: 104px;
-    height: 104px;
-    overflow: hidden;
-    border: 4px solid rgba(255,255,255,.86);
-    border-radius: 50%;
-    background: linear-gradient(145deg, #3e96ae, #8376dc);
-    color: #fff;
-    box-shadow: 0 8px 22px rgba(47,98,132,.17);
-    font-size: 39px;
-    font-weight: 900;
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar span {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: 100%;
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-copy {
-    display: grid;
-    align-content: center;
-    justify-items: start;
-    min-width: 0;
-    gap: 4px;
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero .section-kicker {
-    color: #267b94;
-    font-size: 10px;
-    font-weight: 900;
-    line-height: 1.7;
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 {
-    margin: 2px 0 0;
-    color: #203d54;
-    font-size: clamp(22px, 2vw, 30px);
-    font-weight: 900;
-    line-height: 1.6;
-    overflow-wrap: anywhere;
-}
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p {
-    max-width: 65ch;
-    margin: 3px 0 0;
-    color: #607c91;
-    font-size: 12px;
-    line-height: 1.9;
-}
-:root[data-theme="dark"] .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
-    border-color: rgba(255,255,255,.1);
-    background: radial-gradient(circle at 83% 20%, rgba(109,139,182,.12), transparent 28%),
-                linear-gradient(125deg, #223750 0%, #25364e 52%, #353657 100%);
-    color: var(--tx);
-}
-:root[data-theme="dark"] .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 { color: var(--tx); }
-:root[data-theme="dark"] .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p { color: var(--mu); }
-:root[data-theme="dark"] .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero .section-kicker { color: #8fd1e2; }
-
 /* The complete teacher workspace shares the student portal's surfaces. */
 .teacher-shell .teacher-workspace-page,
 .teacher-shell .teacher-form-shell {
@@ -1801,15 +1716,16 @@ th{font-weight:600}td{padding:12px}
     .teacher-shell *::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; }
 }
 
-/* Teacher dashboard presentation layer.
- * Keep dashboard-specific changes isolated from teacher workspace pages.
+/* Teacher dashboard structure and data visuals.
+ * Palette and component appearance are defined once in the consolidated dashboard block below.
+ * Keep only unique grid, alert, activity and chart behavior here.
  */
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard {
     display: grid;
     align-content: start;
     gap: 15px;
     min-width: 0;
-    color: var(--tx);
+    color: var(--rds-ink, var(--tx));
 }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard > * {
@@ -1817,180 +1733,32 @@ th{font-weight:600}td{padding:12px}
     margin-block: 0;
 }
 
-/* Hero uses the existing role theme and stays compact. */
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
     align-items: center;
-    gap: 18px;
+    gap: 12px;
+    min-width: 0;
     margin: 0;
-    padding: clamp(18px, 2vw, 26px);
-    border-radius: 19px;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 {
-    font-size: clamp(22px, 2vw, 30px);
-    line-height: 1.6;
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p {
-    max-width: 65ch;
-    margin-block: 7px 0;
+    padding: 13px 16px;
+    border: 1px solid color-mix(in srgb, var(--rds-warning, var(--wr)) 30%, var(--rds-border, var(--bd)));
+    border-radius: 15px;
+    background: var(--rds-warning-bg, var(--sf));
+    color: var(--rds-warning, var(--wr));
     font-size: 12px;
     line-height: 1.9;
 }
 
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-meta {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    color: #4b7187;
-    font-size: 10px;
-    line-height: 1.8;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-meta > span {
-    width: 7px;
-    height: 7px;
-    flex: none;
-    border-radius: 50%;
-    background: #27a87c;
-    box-shadow: 0 0 0 4px rgba(39, 168, 124, .12);
-}
-
-:root[data-theme="dark"] .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-meta {
-    color: var(--mu);
-}
-
-/* The KPI band is for scanning, not a second navigation menu. */
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 11px;
-    margin: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi {
-    --kpi-accent: var(--c, var(--ac));
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 36px;
-    grid-template-areas:
-        "label icon"
-        "value icon"
-        "hint hint";
-    align-content: space-between;
-    align-items: start;
-    gap: 6px 12px;
-    min-width: 0;
-    min-height: 124px;
-    padding: 15px 16px 13px;
-    border: 1px solid color-mix(in srgb, var(--kpi-accent) 24%, var(--bd));
-    border-radius: 16px;
-    background: color-mix(in srgb, var(--kpi-accent) 7%, var(--sf));
-    box-shadow: var(--sh);
-    color: var(--tx);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.vi {
-    --kpi-accent: var(--vi);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.ok {
-    --kpi-accent: var(--ok);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.wr {
-    --kpi-accent: var(--wr);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.sk {
-    --kpi-accent: var(--sk);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi.er {
-    --kpi-accent: var(--er);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 .k6-label {
-    grid-area: label;
-    min-width: 0;
-    padding-inline-end: 0;
-    color: var(--mu);
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.7;
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > i {
-    grid-area: icon;
-    position: static;
-    display: grid;
-    width: 36px;
-    height: 36px;
-    place-items: center;
-    border: 1px solid color-mix(in srgb, var(--kpi-accent) 25%, transparent);
-    border-radius: 11px;
-    background: color-mix(in srgb, var(--kpi-accent) 14%, var(--sf));
-    color: var(--kpi-accent);
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > i .i {
-    width: 19px;
-    height: 19px;
-    color: currentColor;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > b {
-    grid-area: value;
-    min-width: 0;
-    color: var(--tx);
-    font-size: clamp(23px, 2vw, 31px);
-    font-weight: 900;
-    line-height: 1.25;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > small {
-    grid-area: hint;
-    min-width: 0;
-    color: var(--mu);
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 1.7;
-    overflow-wrap: anywhere;
-}
-
-/* Attention banner and dashboard cards follow one visual rhythm. */
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al {
-    grid-template-columns: 34px minmax(0, 1fr) auto;
-    gap: 12px;
-    margin: 0;
-    padding: 13px 16px;
-    border-radius: 15px;
-    border: 1px solid color-mix(in srgb, var(--wr) 30%, var(--bd));
-    background: color-mix(in srgb, var(--wr) 7%, var(--sf));
-}
-
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al.clear {
-    border-color: color-mix(in srgb, var(--ok) 28%, var(--bd));
-    background: color-mix(in srgb, var(--ok) 6%, var(--sf));
+    border-color: color-mix(in srgb, var(--rds-success, var(--ok)) 28%, var(--rds-border, var(--bd)));
+    background: var(--rds-success-bg, var(--sf));
+    color: var(--rds-success, var(--ok));
 }
 
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy strong {
-    font-size: 12px;
-    font-weight: 850;
-    line-height: 1.8;
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy small {
-    color: var(--mu);
-    font-size: 10px;
-    line-height: 1.8;
-    overflow-wrap: anywhere;
-}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy { min-width: 0; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy :is(strong, small) { display: block; color: inherit; line-height: 1.85; overflow-wrap: anywhere; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy strong { font-size: 12px; font-weight: 850; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al .al-copy small { margin-top: 2px; color: var(--rds-muted, var(--mu)); font-size: 10px; }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al > a {
     display: inline-flex;
@@ -1998,10 +1766,10 @@ th{font-weight:600}td{padding:12px}
     justify-content: center;
     min-height: 34px;
     padding: 0 11px;
-    border: 1px solid color-mix(in srgb, var(--ac) 25%, var(--bd));
+    border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
     border-radius: 10px;
-    background: var(--sf);
-    color: var(--ac);
+    background: var(--rds-surface, var(--sf));
+    color: inherit;
     font-size: 10px;
     font-weight: 850;
     white-space: normal;
@@ -2028,10 +1796,11 @@ th{font-weight:600}td{padding:12px}
     min-width: 0;
     margin: 0;
     padding: clamp(15px, 1.5vw, 21px);
-    border: 1px solid var(--bd);
-    border-radius: 16px;
-    background: var(--sf);
-    box-shadow: var(--sh);
+    border: 1px solid var(--rds-border, var(--bd));
+    border-radius: var(--rds-radius-card, 17px);
+    background: var(--rds-surface, var(--sf));
+    box-shadow: var(--rds-shadow-card, var(--sh));
+    color: var(--rds-ink, var(--tx));
 }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd > h3 {
@@ -2040,127 +1809,41 @@ th{font-weight:600}td{padding:12px}
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 9px;
-    margin-bottom: 12px;
+    margin: 0 0 12px;
     padding-bottom: 11px;
-    border-bottom: 1px solid var(--bd);
-    color: var(--tx);
+    border-bottom: 1px solid var(--rds-border, var(--bd));
+    color: var(--rds-ink, var(--tx));
     font-size: 13px;
     font-weight: 850;
     line-height: 1.75;
 }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .cd > h3 a {
-    color: var(--ac);
+    color: var(--rds-primary, var(--ac));
     font-size: 10px;
     font-weight: 800;
     white-space: normal;
 }
 
-/* Student and course summaries are cards, not repeated links to generic indexes. */
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .sv {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    align-content: start;
     gap: 8px;
     min-width: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .sv > article.teacher-student-row {
-    display: grid;
-    grid-template-columns: 36px minmax(0, 1fr);
-    grid-template-areas: "avatar name" "avatar progress";
-    align-items: center;
-    gap: 2px 10px;
-    min-width: 0;
-    padding: 11px;
-    border: 1px solid var(--bd);
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--ac) 3%, var(--sf));
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 {
-    grid-area: avatar;
-    grid-row: 1 / span 2;
-    width: 36px;
-    height: 36px;
-    box-shadow: none;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row b {
-    min-width: 0;
-    color: var(--tx);
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.7;
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row small {
-    color: var(--mu);
-    font-size: 10px;
-    line-height: 1.6;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    min-width: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs > article.teacher-course-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
-    min-height: 150px;
-    padding: 14px;
-    border: 1px solid var(--bd);
-    border-radius: 13px;
-    background: color-mix(in srgb, var(--c, var(--ac)) 8%, var(--sf));
-    color: var(--tx);
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.ok { --c: var(--ok); }
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.sk { --c: var(--sk); }
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.vi { --c: var(--vi); }
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.wr { --c: var(--wr); }
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card > b {
-    color: var(--tx);
-    font-size: 12px;
-    font-weight: 850;
-    line-height: 1.8;
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card > small {
-    color: var(--mu);
-    font-size: 10px;
-    line-height: 1.7;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .tg {
-    align-self: flex-start;
-    padding: 2px 9px;
-    border: 1px solid color-mix(in srgb, var(--c) 25%, var(--bd));
-    border-radius: 99px;
-    background: color-mix(in srgb, var(--c) 10%, var(--sf));
-    color: var(--c);
-    font-size: 9px;
-    font-weight: 850;
 }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .pb {
     width: 100%;
-    margin-top: auto;
     height: 7px;
-    background: var(--s2);
+    margin-top: auto;
+    overflow: hidden;
+    background: var(--rds-border, var(--bd));
 }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .pb i {
-    background: var(--c, var(--ac));
-    opacity: .9;
+    background: var(--c, var(--rds-accent, var(--ac)));
+    opacity: .95;
 }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl {
@@ -2168,28 +1851,12 @@ th{font-weight:600}td{padding:12px}
     gap: 10px;
     min-width: 0;
     padding: 11px 0;
-    border-color: var(--bd);
+    border-color: var(--rds-border, var(--bd));
 }
 
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy {
-    flex: 1;
-    min-width: 0;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy b {
-    color: var(--tx);
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.8;
-    overflow-wrap: anywhere;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy small {
-    color: var(--mu);
-    font-size: 10px;
-    line-height: 1.8;
-    overflow-wrap: anywhere;
-}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy { flex: 1; min-width: 0; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy b { color: var(--rds-ink, var(--tx)); font-size: 11px; font-weight: 800; line-height: 1.8; overflow-wrap: anywhere; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .tl-copy small { color: var(--rds-muted, var(--mu)); font-size: 10px; line-height: 1.8; overflow-wrap: anywhere; }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars {
     align-items: stretch;
@@ -2199,123 +1866,31 @@ th{font-weight:600}td{padding:12px}
     padding-top: 4px;
 }
 
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars > div {
-    min-width: 0;
-    color: var(--mu);
-    font-size: 9px;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars i {
-    width: min(100%, 38px);
-    min-height: 0;
-    border-radius: 7px 7px 3px 3px;
-}
-
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars small {
-    max-width: 100%;
-    font-size: 9px;
-    overflow-wrap: anywhere;
-}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars > div { min-width: 0; color: var(--rds-muted, var(--mu)); font-size: 9px; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars i { width: min(100%, 38px); min-height: 0; border-radius: 7px 7px 3px 3px; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .bars small { max-width: 100%; color: var(--rds-muted, var(--mu)); font-size: 9px; overflow-wrap: anywhere; }
 
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .muted-note,
 .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dashboard-search-empty {
     margin-top: 10px;
     padding: 11px 12px;
-    border: 1px dashed var(--bd);
+    border: 1px dashed var(--rds-border, var(--bd));
     border-radius: 10px;
-    background: var(--s2);
-    color: var(--mu);
+    background: var(--rds-surface-soft, var(--s2));
+    color: var(--rds-muted, var(--mu));
     font-size: 10px;
     line-height: 1.85;
 }
 
-.teacher-shell:has(#teacher-dashboard) #teacher-dashboard :is(a, button, input):focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--ac) 72%, white);
-    outline-offset: 3px;
-}
-
-/* Explicit breakpoints avoid compressed labels inside a narrow dashboard shell. */
-@media (max-width: 1180px) {
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > .col {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > aside.col {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+@media (max-width: 1200px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 760px) {
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > .col,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > aside.col {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al {
-        grid-template-columns: 28px minmax(0, 1fr);
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al > a {
-        grid-column: 2;
-        justify-self: start;
-    }
-}
-
-@media (max-width: 420px) {
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
-        padding: 15px;
-        border-radius: 15px;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar {
-        width: 64px;
-        height: 64px;
-        font-size: 26px;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
-        gap: 8px;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi {
-        min-height: 116px;
-        gap: 6px 8px;
-        padding: 12px;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > b {
-        font-size: 22px;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > article.teacher-kpi > i {
-        width: 30px;
-        height: 30px;
-    }
-
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *::before,
-    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard *::after {
-        animation: none !important;
-        transition: none !important;
-    }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh > aside.col { grid-template-columns: minmax(0, 1fr); }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al { grid-template-columns: 28px minmax(0, 1fr); }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .al > a { grid-column: 2; justify-self: start; }
 }
 
 
@@ -2512,3 +2087,538 @@ th{font-weight:600}td{padding:12px}
 }
 
 
+
+
+/* Teacher dashboard presentation — the same visual language as Student, with teacher-specific content. */
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    min-width: 0;
+    margin: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi {
+    --kpi-accent: var(--rds-card-accent, var(--rds-accent));
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px;
+    grid-template-areas: "label icon" "value icon" "hint hint" "action action";
+    align-content: start;
+    gap: 6px 12px;
+    min-width: 0;
+    min-height: 144px;
+    padding: 17px;
+    overflow: hidden;
+    border: 1px solid var(--rds-border, var(--bd));
+    border-radius: var(--rds-radius-card, 17px);
+    border-inline-start-width: 1px;
+    background: var(--rds-surface, var(--sf));
+    box-shadow: var(--rds-shadow-card, var(--sh));
+    color: var(--rds-ink, var(--tx));
+    text-decoration: none;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--kpi-accent);
+    content: "";
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi.ok { --kpi-accent: #169b76; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi.sk { --kpi-accent: #5684d9; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi.wr { --kpi-accent: #d99a3f; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi.vi { --kpi-accent: #8170dc; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi.er { --kpi-accent: #c85a6c; }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--kpi-accent) 42%, var(--rds-border, var(--bd)));
+    box-shadow: var(--rds-shadow-hover, var(--sh));
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 .k6-label {
+    grid-area: label;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 42px;
+    margin: 0;
+    padding: 0;
+    color: var(--rds-muted, var(--mu));
+    font-size: 11.5px;
+    font-weight: 800;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi > i {
+    grid-area: icon;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    margin: 0;
+    border: 1px solid color-mix(in srgb, var(--kpi-accent) 22%, transparent);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--kpi-accent) 11%, var(--rds-surface, var(--sf)));
+    color: var(--kpi-accent);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi > i .i {
+    width: 21px;
+    height: 21px;
+    color: currentColor;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi > b {
+    grid-area: value;
+    min-width: 0;
+    color: var(--rds-ink, var(--tx));
+    font-size: clamp(23px, 2vw, 29px);
+    font-weight: 900;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi > small {
+    grid-area: hint;
+    min-width: 0;
+    color: var(--rds-muted, var(--mu));
+    font-size: 10.5px;
+    font-weight: 550;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-kpi-action {
+    grid-area: action;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 2px;
+    padding-top: 7px;
+    border-top: 1px solid var(--rds-border, var(--bd));
+    color: var(--rds-primary, var(--ac));
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: clamp(20px, 2.5vw, 28px);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 8% 5%, rgba(90,211,213,.2), transparent 14rem),
+        radial-gradient(circle at 96% 110%, rgba(159,144,255,.2), transparent 16rem),
+        linear-gradient(118deg, #214976 0%, #285d8e 56%, #176d78 100%);
+    box-shadow: 0 14px 34px rgba(25,65,103,.18);
+    color: #fff;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero::before {
+    position: absolute;
+    z-index: -1;
+    inset-inline-end: -70px;
+    top: -145px;
+    width: 270px;
+    height: 270px;
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 50%;
+    background: rgba(255,255,255,.035);
+    content: "";
+    pointer-events: none;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar {
+    display: grid;
+    place-items: center;
+    width: 84px;
+    height: 84px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 22px;
+    background: rgba(255,255,255,.14);
+    box-shadow: 0 8px 22px rgba(7,26,48,.16);
+    color: #fff;
+    font-size: 29px;
+    font-weight: 900;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar [data-avatar-fallback] {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar [data-avatar-fallback][hidden] { display: none !important; }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-copy {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    color: #fff;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero .section-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: #bce5eb;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.8;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 {
+    margin: 0 0 5px;
+    color: #fff;
+    font-size: clamp(21px, 2.1vw, 28px);
+    font-weight: 850;
+    line-height: 1.65;
+    letter-spacing: -.02em;
+    overflow-wrap: anywhere;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p {
+    max-width: 65ch;
+    margin: 0 0 16px;
+    color: rgba(247,251,255,.83);
+    font-size: 13px;
+    line-height: 1.95;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    max-width: 100%;
+    padding: 9px 16px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: var(--rds-radius-sm, 12px);
+    background: #fff;
+    box-shadow: 0 5px 14px rgba(8,30,52,.13);
+    color: #214d7c;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.65;
+    text-align: center;
+    text-decoration: none;
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(8,30,52,.2);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions .teacher-dashboard-secondary-action {
+    border-color: rgba(255,255,255,.44);
+    background: rgba(255,255,255,.1);
+    box-shadow: none;
+    color: #fff;
+    backdrop-filter: blur(8px);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-meta { display: none; }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+    gap: 12px;
+    min-width: 0;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card {
+    display: grid;
+    gap: 13px;
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid var(--rds-border, var(--bd));
+    border-radius: var(--rds-radius-card, 17px);
+    background: var(--rds-surface, var(--sf));
+    color: var(--rds-ink, var(--tx));
+    text-decoration: none;
+    box-shadow: var(--rds-shadow-card, var(--sh));
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--rds-accent) 35%, var(--rds-border));
+    box-shadow: var(--rds-shadow-hover, var(--sh));
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-card-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-card-icon {
+    display: grid; place-items: center; flex: none; width: 38px; height: 38px;
+    border-radius: 12px; background: color-mix(in srgb, var(--rds-accent) 12%, var(--rds-surface)); color: var(--rds-accent);
+}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-class-copy { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-class-copy strong { color: var(--rds-ink); font-size: 12px; font-weight: 850; line-height: 1.8; overflow-wrap: anywhere; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-class-copy small { color: var(--rds-muted); font-size: 10px; overflow-wrap: anywhere; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-count {
+    flex: none; padding: 4px 9px; border-radius: 999px;
+    background: var(--rds-surface-soft); color: var(--rds-primary); font-size: 10px; font-weight: 900;
+}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-students { display: grid; grid-template-columns: repeat(auto-fit,minmax(66px,1fr)); gap: 8px; align-items: start; min-width: 0; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-student { display: grid; justify-items: center; align-content: start; gap: 5px; min-width: 0; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-avatar {
+    display: grid; place-items: center; width: 44px; height: 44px; overflow: hidden;
+    border: 2px solid var(--rds-surface); border-radius: 50%;
+    background: linear-gradient(135deg,#0e7490,#2563eb); color: #fff; font-size: 16px; font-weight: 900;
+    box-shadow: 0 2px 7px rgba(15,23,42,.15);
+}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-student-name { max-width: 100%; color: var(--rds-ink); font-size: 10px; font-weight: 800; text-align: center; line-height: 1.7; overflow-wrap: anywhere; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-more { display: grid; place-items: center; align-self: center; width: 38px; height: 38px; border-radius: 50%; background: var(--rds-surface-soft); color: var(--rds-primary); font-size: 11px; font-weight: 900; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-roster-empty { padding: 11px; border: 1px dashed var(--rds-border); border-radius: 10px; color: var(--rds-muted); font-size: 11px; }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row,
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card,
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-action-row { text-decoration: none; }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    grid-template-areas: "avatar name" "avatar progress";
+    align-items: center;
+    gap: 2px 10px;
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid var(--rds-border);
+    border-radius: 12px;
+    background: var(--rds-surface-soft);
+    color: var(--rds-ink);
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 {
+    grid-area: avatar;
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    overflow: hidden;
+    border: 2px solid var(--rds-surface);
+    border-radius: 50%;
+}
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row .av2 img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row b { min-width: 0; color: var(--rds-ink); font-size: 11px; font-weight: 800; line-height: 1.7; overflow-wrap: anywhere; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row small { color: var(--rds-muted); font-size: 10px; line-height: 1.6; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row:hover { border-color: color-mix(in srgb, var(--rds-accent) 35%, var(--rds-border)); background: var(--rds-surface); }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .crs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; min-width: 0; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    min-height: 140px;
+    padding: 14px;
+    border: 1px solid var(--rds-border);
+    border-radius: 13px;
+    background: var(--rds-surface-soft);
+    color: var(--rds-ink);
+    overflow-wrap: anywhere;
+    box-shadow: none;
+    text-decoration: none;
+}
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.ok { --c: #169b76; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.sk { --c: #5684d9; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.vi { --c: #8170dc; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card.wr { --c: #d99a3f; }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card .tg { background: color-mix(in srgb, var(--c, var(--rds-accent)) 12%, var(--rds-surface)); border-color: var(--rds-border); color: var(--rds-ink); }
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card > small { color: var(--rds-muted); opacity: 1; font-size: 10.5px; line-height: 1.75; }
+
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card:focus-visible,
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-student-row:focus-visible,
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-course-card:focus-visible,
+.teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-action-row:focus-visible {
+    outline: 3px solid var(--rds-accent);
+    outline-offset: 3px;
+}
+
+@media (max-width: 1200px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .dh { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 1100px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 760px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero {
+        grid-template-columns: 62px minmax(0,1fr); gap: 12px; padding: 18px; border-radius: 18px;
+    }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar { width: 62px; height: 62px; border-radius: 17px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero h1 { font-size: 20px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero p { margin-bottom: 12px; font-size: 12px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 { gap: 10px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi { min-height: 132px; padding: 14px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-grid { grid-template-columns: minmax(0,1fr); }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card { padding: 12px; }
+}
+@media (max-width: 520px) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero { grid-template-columns: minmax(0,1fr); align-items: start; padding: 17px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-avatar { width: 56px; height: 56px; border-radius: 15px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi { min-height: 120px; padding: 12px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi > b { font-size: 23px; }
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-dashboard-hero-actions { align-items: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .k6 > a.teacher-kpi,
+    .teacher-shell:has(#teacher-dashboard) #teacher-dashboard .teacher-classroom-roster-card {
+        transition: none !important;
+    }
+}
+
+/* Final compact layout scale for the teacher workspace. */
+.teacher-shell .role-main {
+    width:min(100%, 1600px);
+    max-width:1600px;
+    min-width:0;
+    margin-inline:auto;
+    padding:clamp(14px,1.8vw,28px);
+    padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));
+}
+.teacher-shell .teacher-dashboard-page,
+.teacher-shell .teacher-workspace-page,
+.teacher-shell .teacher-live-form,
+.teacher-shell .teacher-live-classes-page {
+    display:grid;
+    gap:clamp(12px,1.25vw,18px);
+    width:100%;
+    max-width:1480px;
+    min-width:0;
+    margin-inline:auto;
+}
+.teacher-shell :is(.teacher-workspace-head,.teacher-live-form-head,.teacher-form-head) {
+    gap:12px;
+    margin-bottom:0;
+}
+.teacher-shell :is(.teacher-workspace-title,.teacher-live-form-head h1,.teacher-form-head h1) {
+    font-size:clamp(20px,2.15vw,30px);
+    line-height:1.55;
+}
+.teacher-shell :is(.teacher-workspace-description,.teacher-workspace-head-copy p,.teacher-live-form-head p,.teacher-form-head p) {
+    max-width:70ch;
+    margin-block:4px 0;
+    font-size:11px;
+    line-height:1.8;
+}
+.teacher-shell .teacher-workspace-grid {
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));
+    align-items:start;
+    gap:clamp(10px,1.15vw,16px);
+}
+.teacher-shell .teacher-workspace-card,
+.teacher-shell .teacher-live-form-section,
+.teacher-shell .teacher-form-section,
+.teacher-shell .teacher-form-side {
+    min-width:0;
+    padding:clamp(13px,1.3vw,20px);
+    border-radius:16px;
+}
+.teacher-shell .teacher-workspace-card-head { gap:10px; margin-bottom:10px; }
+.teacher-shell .teacher-workspace-card-head h2,
+.teacher-shell .teacher-workspace-card-head h3 { font-size:14px;line-height:1.65; }
+.teacher-shell .teacher-workspace-card-head p { margin-top:3px;font-size:10px;line-height:1.7; }
+.teacher-shell .teacher-workspace-form-grid {
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
+    align-items:start;
+    gap:12px;
+}
+.teacher-shell .teacher-live-form-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+}
+.teacher-shell .teacher-live-form-section-wide { grid-column:1/-1; }
+.teacher-shell .teacher-live-form-section-head { gap:9px;margin-bottom:12px; }
+.teacher-shell .teacher-live-form-section-head h2 { font-size:13px;line-height:1.65; }
+.teacher-shell .teacher-live-form-section-head p { font-size:10px;line-height:1.7;margin-top:2px; }
+.teacher-shell .role-main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:46px;
+    padding:10px 12px;
+    border-radius:11px;
+    font-size:13px;
+    line-height:1.55;
+}
+.teacher-shell .role-main textarea { min-height:104px;resize:vertical; }
+.teacher-shell .role-main :is(button,a.teacher-workspace-btn,a.teacher-live-form-actions a) {
+    touch-action:manipulation;
+}
+.teacher-shell .teacher-workspace-btn,
+.teacher-shell .teacher-live-form-actions :is(a,button) {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:44px;
+    padding:10px 16px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:900;
+}
+.teacher-shell .teacher-workspace-item {
+    min-width:0;
+    gap:12px;
+    padding:12px;
+    border-radius:13px;
+}
+.teacher-shell .teacher-workspace-item-meta { gap:6px; flex-wrap:wrap; }
+.teacher-shell .teacher-workspace-item-actions { gap:8px; }
+.teacher-shell #teacher-dashboard :is(.cd,.teacher-progress-panel,.teacher-activity-panel) { min-width:0; }
+@media(max-width:900px) {
+    .teacher-shell .role-main { padding:14px;padding-bottom:calc(104px + env(safe-area-inset-bottom,0px)); }
+    .teacher-shell .teacher-live-form-grid { grid-template-columns:minmax(0,1fr); }
+    .teacher-shell .teacher-live-form-section-wide { grid-column:auto; }
+}
+@media(max-width:600px) {
+    .teacher-shell .role-main { padding:12px;padding-bottom:calc(108px + env(safe-area-inset-bottom,0px)); }
+    .teacher-shell .teacher-workspace-grid { grid-template-columns:minmax(0,1fr); }
+    .teacher-shell .teacher-workspace-card,
+    .teacher-shell .teacher-live-form-section,
+    .teacher-shell .teacher-form-section,
+    .teacher-shell .teacher-form-side { padding:12px;border-radius:14px; }
+    .teacher-shell .teacher-workspace-item { align-items:stretch;flex-direction:column; }
+    .teacher-shell .teacher-workspace-item-actions { width:100%;justify-content:space-between;flex-wrap:wrap; }
+    .teacher-shell .teacher-workspace-form-grid { grid-template-columns:minmax(0,1fr); }
+}
+@media(max-width:380px) {
+}

@@ -299,14 +299,48 @@ final class StudentDashboardService
                 ->whereIn('course_id', $courseIds)
                 ->where('status', '!=', 'cancelled')
                 ->whereBetween('scheduled_at', [now()->subDays(60), now()->addDays(60)])
-                ->where(function ($query) use ($student): void {
-                    $query->whereNull('classroom_id')
-                        ->orWhereExists(function ($membership) use ($student): void {
-                            $membership->selectRaw('1')
-                                ->from('classroom_student')
-                                ->whereColumn('classroom_student.classroom_id', 'live_classes.classroom_id')
-                                ->where('classroom_student.student_id', $student->id)
-                                ->where('classroom_student.status', 'active');
+                // Mirror the protected media/join cohort rule; a course enrollment on a
+                // different teacher's group must not expose this session in the dashboard.
+                ->whereExists(function ($eligible) use ($student): void {
+                    $eligible->selectRaw('1')
+                        ->from('classroom_student as recent_student_membership')
+                        ->join('classrooms as recent_classroom', 'recent_classroom.id', '=', 'recent_student_membership.classroom_id')
+                        ->join('classroom_teacher as recent_teacher_assignment', function ($join): void {
+                            $join->on('recent_teacher_assignment.classroom_id', '=', 'recent_classroom.id')
+                                ->on('recent_teacher_assignment.teacher_id', '=', 'live_classes.teacher_id');
+                        })
+                        ->join('course_enrollments as recent_enrollment', function ($join) use ($student): void {
+                            $join->on('recent_enrollment.classroom_id', '=', 'recent_classroom.id')
+                                ->on('recent_enrollment.course_id', '=', 'recent_classroom.course_id')
+                                ->where('recent_enrollment.student_id', '=', $student->id)
+                                ->where('recent_enrollment.status', '=', 'active');
+                        })
+                        ->join('courses as recent_course', 'recent_course.id', '=', 'recent_enrollment.course_id')
+                        ->whereColumn('recent_classroom.course_id', 'live_classes.course_id')
+                        ->where('recent_student_membership.student_id', $student->id)
+                        ->where('recent_student_membership.status', 'active')
+                        ->where('recent_classroom.status', 'active')
+                        ->where(function ($classroom): void {
+                            $classroom->whereNull('live_classes.classroom_id')
+                                ->orWhereColumn('live_classes.classroom_id', 'recent_classroom.id');
+                        })
+                        ->where(function ($entitlement): void {
+                            $entitlement->where('recent_course.access_type', 'free')
+                                ->orWhere(function ($paid): void {
+                                    $paid->where('recent_enrollment.payment_status', 'paid')
+                                        ->where('recent_enrollment.paid_amount', '>', 0)
+                                        ->where(function ($amount): void {
+                                            $amount->whereNull('recent_enrollment.price_amount')
+                                                ->orWhereColumn('recent_enrollment.paid_amount', '>=', 'recent_enrollment.price_amount');
+                                        })
+                                        ->whereExists(function ($transaction): void {
+                                            $transaction->selectRaw('1')
+                                                ->from('financial_transactions')
+                                                ->whereColumn('financial_transactions.enrollment_id', 'recent_enrollment.id')
+                                                ->where('financial_transactions.status', 'completed')
+                                                ->where('financial_transactions.amount', '>', 0);
+                                        });
+                                });
                         });
                 })
                 ->with(['course:id,title', 'classroom:id,title', 'recording:id,disk,path,visibility,status'])

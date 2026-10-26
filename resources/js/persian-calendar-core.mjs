@@ -15,9 +15,17 @@ export const latinDigits = (value) => String(value ?? '')
 export const persianDigits = (value) => String(value).replace(/[0-9]/g, (digit) => PERSIAN_DIGITS[Number(digit)]);
 export const pad = (value) => String(value).padStart(2, '0');
 const isoDate = (year, month, day) => [year, pad(month), pad(day)].join('-');
+const tehranDateFormatter = new Intl.DateTimeFormat('en-CA-u-nu-latn', {
+    timeZone: 'Asia/Tehran',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+});
 const todayIso = () => {
-    const now = new Date();
-    return isoDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    const parts = Object.fromEntries(
+        tehranDateFormatter.formatToParts(new Date()).map((part) => [part.type, part.value])
+    );
+    return isoDate(Number(parts.year), Number(parts.month), Number(parts.day));
 };
 
 export function gregorianToJalali(year, month, day) {

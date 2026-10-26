@@ -289,3 +289,181 @@ body.teacher-shell { padding: 0 !important; }
         transition-duration: .01ms !important;
     }
 }
+
+
+/* Weekly recurring schedule calendar — shared by owner/admin and teacher dashboards. */
+.weekly-calendar {
+    display:grid;gap:16px;min-width:0;padding:clamp(14px,2vw,24px);
+    border:1px solid #d9e6f4;border-radius:22px;
+    background:linear-gradient(135deg,#f9fcff 0%,#eef6ff 52%,#f4fff9 100%);
+    box-shadow:0 12px 34px rgba(29,71,120,.08);
+}
+.weekly-calendar-header {
+    display:flex;align-items:flex-start;justify-content:space-between;gap:16px;min-width:0;flex-wrap:wrap;
+}
+.weekly-calendar-title { display:grid;gap:5px;min-width:0; }
+.weekly-calendar-kicker { color:#1d67a5;font-size:10px;font-weight:900;letter-spacing:.02em; }
+.weekly-calendar-title h2 { margin:0;color:#15334f;font-size:clamp(17px,1.8vw,23px);font-weight:950;line-height:1.7; }
+.weekly-calendar-title p { max-width:72ch;margin:0;color:#526d83;font-size:11px;line-height:1.95; }
+.weekly-calendar-date-chip {
+    display:grid;gap:4px;flex:none;padding:11px 14px;border:1px solid #b7d8f5;border-radius:14px;
+    background:#fff;color:#164b78;min-width:155px;
+}
+.weekly-calendar-date-chip strong { font-size:13px;font-weight:950; }
+.weekly-calendar-date-chip span { font-size:10px;font-weight:800; }
+.weekly-calendar-date-chip small { color:#5b7d98;font-size:9px; }
+.weekly-calendar-legend { display:flex;flex-wrap:wrap;gap:8px;align-items:center; }
+.weekly-calendar-legend-item { display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #dbe5ef;border-radius:999px;background:#fff;color:#38536b;font-size:10px;font-weight:850; }
+.weekly-calendar-dot { width:9px;height:9px;border-radius:50%;background:#16865b;box-shadow:0 0 0 3px #d1fae5; }
+.weekly-calendar-dot.is-needs-link { background:#dc354b;box-shadow:0 0 0 3px #ffe0e5; }
+.weekly-calendar-grid { display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;min-width:0; }
+.weekly-calendar-day {
+    display:grid;align-content:start;gap:10px;min-width:0;min-height:206px;padding:10px;
+    border:1px solid #dce8f3;border-radius:16px;background:rgba(255,255,255,.86);
+    box-shadow:0 5px 15px rgba(22,55,92,.035);
+}
+.weekly-calendar-day.is-today { border:2px solid #3384d7;padding:9px;background:#edf7ff;box-shadow:0 8px 20px rgba(51,132,215,.12); }
+.weekly-calendar-day-head { display:flex;align-items:center;justify-content:space-between;gap:6px;padding-bottom:8px;border-bottom:1px solid #e5edf5; }
+.weekly-calendar-day-heading { display:flex;align-items:center;gap:6px;min-width:0; }
+.weekly-calendar-day-number { display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:9px;background:#e6eff8;color:#325b7c;font-size:10px;font-weight:950; }
+.weekly-calendar-day.is-today .weekly-calendar-day-number { background:#1769aa;color:#fff; }
+.weekly-calendar-day-head h3 { margin:0;min-width:0;color:#254760;font-size:11px;font-weight:950; }
+.weekly-calendar-count { flex:none;padding:4px 6px;border-radius:999px;background:#eaf0f7;color:#506981;font-size:9px;font-weight:900; }
+.weekly-calendar-day.is-today .weekly-calendar-count { background:#d7eaff;color:#155d9a; }
+.weekly-calendar-events { display:grid;gap:8px;min-width:0; }
+.weekly-calendar-event {
+    display:grid;gap:6px;min-width:0;padding:9px;border:1px solid #9fdfc0;border-inline-start:4px solid #16865b;
+    border-radius:12px;background:#eafbf2;color:#174c37;
+}
+.weekly-calendar-event.needs-link { border-color:#ffc0c8;border-inline-start-color:#d92d45;background:#fff0f2;color:#7d1e2c; }
+.weekly-calendar-event-time { display:flex;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;font-size:10px;font-weight:950;font-variant-numeric:tabular-nums; }
+.weekly-calendar-event-title { color:inherit;font-size:10px;font-weight:950;line-height:1.7;overflow-wrap:anywhere; }
+.weekly-calendar-event-course { color:inherit;opacity:.78;font-size:9px;line-height:1.65;overflow-wrap:anywhere; }
+.weekly-calendar-event-meta { display:flex;align-items:center;gap:5px;flex-wrap:wrap; }
+.weekly-calendar-event-provider { display:inline-flex;max-width:100%;padding:3px 6px;border:1px solid currentColor;border-radius:999px;font-size:8px;font-weight:900;overflow-wrap:anywhere; }
+.weekly-calendar-event-status { display:flex;align-items:center;gap:5px;font-size:9px;font-weight:950; }
+.weekly-calendar-event-status::before { content:"";width:6px;height:6px;flex:none;border-radius:50%;background:currentColor; }
+.weekly-calendar-event-link { display:inline-flex;justify-content:center;align-items:center;gap:5px;padding:6px 7px;border-radius:8px;background:#138356;color:#fff;text-decoration:none;font-size:9px;font-weight:900;overflow-wrap:anywhere; }
+.weekly-calendar-event.needs-link .weekly-calendar-event-link { background:#fff;color:#a52235;border:1px solid #ef9aa6; }
+.weekly-calendar-empty { display:grid;justify-items:center;align-content:center;gap:7px;min-height:105px;padding:10px;border:1px dashed #c8d6e4;border-radius:12px;color:#72899e;text-align:center;font-size:9px;line-height:1.8; }
+.weekly-calendar-empty svg { width:22px;height:22px;color:#8ca6bb; }
+.weekly-calendar-guide { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
+.weekly-calendar-guide-card { display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:12px;min-width:0;padding:13px;border:1px solid #dce8f3;border-radius:15px;background:rgba(255,255,255,.9); }
+.weekly-calendar-guide-art { display:grid;place-items:center;width:58px;height:58px;border-radius:15px;background:#deefff;color:#1769aa; }
+.weekly-calendar-guide-art svg { display:block;width:37px;height:37px; }
+.weekly-calendar-guide-card:nth-child(2) .weekly-calendar-guide-art { background:#d8fae8;color:#147b53; }
+.weekly-calendar-guide-copy { display:grid;gap:3px;min-width:0; }
+.weekly-calendar-guide-copy strong { color:#244761;font-size:11px;font-weight:950; }
+.weekly-calendar-guide-copy p { margin:0;color:#61798d;font-size:10px;line-height:1.9; }
+.weekly-calendar-guide-copy b { color:#165e9d; }
+:root[data-theme="dark"] .weekly-calendar { background:linear-gradient(135deg,#111f32,#14253c 55%,#102c26);border-color:#294a66; }
+:root[data-theme="dark"] .weekly-calendar-title h2 { color:#e3f2ff; }
+:root[data-theme="dark"] .weekly-calendar-title p { color:#a8bfd3; }
+:root[data-theme="dark"] .weekly-calendar-kicker { color:#86c6ff; }
+:root[data-theme="dark"] .weekly-calendar-date-chip,
+:root[data-theme="dark"] .weekly-calendar-legend-item,
+:root[data-theme="dark"] .weekly-calendar-day,
+:root[data-theme="dark"] .weekly-calendar-guide-card { background:#17283d;border-color:#2a4863;color:#d8ebfa; }
+:root[data-theme="dark"] .weekly-calendar-date-chip strong,
+:root[data-theme="dark"] .weekly-calendar-day-head h3,
+:root[data-theme="dark"] .weekly-calendar-guide-copy strong { color:#e0f1ff; }
+:root[data-theme="dark"] .weekly-calendar-date-chip small,
+:root[data-theme="dark"] .weekly-calendar-guide-copy p { color:#acc4d8; }
+:root[data-theme="dark"] .weekly-calendar-day.is-today { background:#193652;border-color:#50a9f2; }
+:root[data-theme="dark"] .weekly-calendar-event { background:#123d30;border-color:#236f51;color:#d7ffeb; }
+:root[data-theme="dark"] .weekly-calendar-event.needs-link { background:#451e2a;border-color:#a43b4f;color:#ffe5ea; }
+:root[data-theme="dark"] .weekly-calendar-empty { border-color:#3b536c;color:#9eb6ca; }
+@media(max-width:1400px) { .weekly-calendar-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media(max-width:900px) {
+    .weekly-calendar-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .weekly-calendar-day { min-height:170px; }
+}
+@media(max-width:600px) {
+    .weekly-calendar { padding:12px;border-radius:17px;gap:12px; }
+    .weekly-calendar-grid { grid-template-columns:minmax(0,1fr); }
+    .weekly-calendar-day { min-height:0;padding:11px; }
+    .weekly-calendar-events { grid-template-columns:minmax(0,1fr); }
+    .weekly-calendar-header { display:grid;grid-template-columns:minmax(0,1fr); }
+    .weekly-calendar-date-chip { width:100%;min-width:0;grid-template-columns:minmax(0,1fr) auto;align-items:center; }
+    .weekly-calendar-date-chip small { grid-column:1/-1; }
+    .weekly-calendar-guide { grid-template-columns:minmax(0,1fr); }
+    .weekly-calendar-guide-card { grid-template-columns:48px minmax(0,1fr);padding:10px; }
+    .weekly-calendar-guide-art { width:48px;height:48px;border-radius:12px; }
+}
+@media(prefers-reduced-motion:reduce) { .weekly-calendar * { transition:none !important; } }
+
+
+/* The parent bottom bar overlays content at phone widths; reserve enough scroll space
+   after the role-specific stylesheet so this rule cannot be reset by the shared frame. */
+@media (max-width: 700px) {
+    .parent-shell .role-main {
+        padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
+
+/* Legacy student/teacher .app shells: collapse the compact nav before it gets
+   squeezed into a narrow tablet column, and keep comfortable phone gutters. */
+@media (min-width: 761px) and (max-width: 900px) {
+    .student-shell .app,
+    .teacher-shell .app {
+        width: min(calc(100% - 20px), 900px);
+        max-width: 900px;
+        margin: 10px auto;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px;
+        padding: 12px;
+        border-radius: 22px;
+    }
+
+    .student-shell .app .side,
+    .teacher-shell .app .sb,
+    .student-shell .main,
+    .teacher-shell .mn {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 760px) {
+    body.student-shell,
+    body.teacher-shell {
+        padding: 8px !important;
+        overflow-x: clip;
+    }
+
+    .student-shell .app,
+    .teacher-shell .app {
+        width: 100%;
+        max-width: 100%;
+        min-height: calc(100dvh - 16px);
+        margin: 8px auto;
+        padding: 10px;
+        border-radius: 20px;
+    }
+
+    .student-shell .main,
+    .teacher-shell .mn {
+        min-width: 0;
+        padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
+@media (max-width: 380px) {
+    body.student-shell,
+    body.teacher-shell { padding: 6px !important; }
+
+    .student-shell .app,
+    .teacher-shell .app {
+        min-height: calc(100dvh - 12px);
+        margin: 6px auto;
+        padding: 8px;
+        border-radius: 16px;
+    }
+
+    .student-shell .main,
+    .teacher-shell .mn {
+        padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}

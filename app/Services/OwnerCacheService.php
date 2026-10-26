@@ -12,9 +12,11 @@ final class OwnerCacheService
     private const DASHBOARD_TTL = 30;
     private const REPORT_TTL = 60;
 
-    public function dashboardKey(User $owner): string
+    public function dashboardKey(User $owner, string $period = 'month'): string
     {
-        return 'owner:dashboard:' . $owner->id;
+        $base = 'owner:dashboard:' . $owner->id;
+
+        return $period === 'month' ? $base : $base . ':' . $period;
     }
 
     public function reportKey(User $owner): string
@@ -22,10 +24,10 @@ final class OwnerCacheService
         return 'owner:report:' . $owner->id;
     }
 
-    public function rememberDashboard(User $owner, Closure $resolver): array
+    public function rememberDashboard(User $owner, Closure $resolver, string $period = 'month'): array
     {
         return $this->rememberSafely(
-            $this->dashboardKey($owner),
+            $this->dashboardKey($owner, $period),
             self::DASHBOARD_TTL,
             $resolver,
         );
@@ -71,7 +73,14 @@ final class OwnerCacheService
 
     public function forget(User $owner): void
     {
-        foreach ([$this->dashboardKey($owner), $this->reportKey($owner)] as $key) {
+        $keys = [
+            $this->dashboardKey($owner, 'today'),
+            $this->dashboardKey($owner, 'week'),
+            $this->dashboardKey($owner, 'month'),
+            $this->reportKey($owner),
+        ];
+
+        foreach ($keys as $key) {
             try {
                 Cache::forget($key);
             } catch (Throwable) {

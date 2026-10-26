@@ -53,6 +53,7 @@ return [
         'mode' => env('SPOTPLAYER_MODE', 'test'),
         'max_active_devices' => (int) env('SPOTPLAYER_MAX_ACTIVE_DEVICES', 1),
         'web_app_devices' => (int) env('SPOTPLAYER_WEB_APP_DEVICES', 1),
+        'web_player_script' => env('SPOTPLAYER_WEB_PLAYER_SCRIPT', 'https://app.spotplayer.ir/assets/js/app-api.js?3c52cbebf58fefff5df91e509879fc66'),
     ],
 
 ];

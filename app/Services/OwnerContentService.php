@@ -15,6 +15,7 @@ final class OwnerContentService
 {
     public function index(User $owner): array
     {
+        $this->authorizePublicContentManagement($owner);
         $academies = $this->ownedAcademies($owner);
 
         $contents = AcademyContent::query()
@@ -35,6 +36,10 @@ final class OwnerContentService
 
     public function formData(User $owner, ?AcademyContent $content = null): array
     {
+        $this->authorizePublicContentManagement($owner);
+        if ($content !== null) {
+            $this->owned($owner, $content);
+        }
         $academies = $this->ownedAcademies($owner);
         $academyId = $content?->academy_id ?: $academies->first()?->id;
 
@@ -53,6 +58,7 @@ final class OwnerContentService
 
     public function create(User $owner, array $data): AcademyContent
     {
+        $this->authorizePublicContentManagement($owner);
         $cover = $data['cover_image'] ?? null;
         $videoFile = $data['video_file'] ?? null;
         unset($data['cover_image'], $data['video_file']);
@@ -128,6 +134,7 @@ final class OwnerContentService
 
     public function update(User $owner, AcademyContent $content, array $data): AcademyContent
     {
+        $this->authorizePublicContentManagement($owner);
         $cover = $data['cover_image'] ?? null;
         $videoFile = $data['video_file'] ?? null;
         unset($data['cover_image'], $data['video_file']);
@@ -244,18 +251,25 @@ final class OwnerContentService
 
     public function owned(User $owner, AcademyContent $content): AcademyContent
     {
-        abort_unless(
-            $owner->hasRole('academy-owner')
-                && $content->academy?->owner_id === $owner->id,
-            403
-        );
+        $this->authorizePublicContentManagement($owner);
+
+        // SEO manages public content across active academies, not just the
+        // specialist's own academy. Check the published domain record directly
+        // so an implicitly loaded/scoped relation cannot hide another active academy.
+        $activeAcademyExists = Academy::query()
+            ->withoutGlobalScopes()
+            ->whereKey((int) $content->academy_id)
+            ->where('status', 'active')
+            ->exists();
+
+        abort_unless($activeAcademyExists, 404);
 
         return $content;
     }
 
     private function ownedAcademies(User $owner)
     {
-        return $owner->ownedAcademies()
+        return Academy::query()
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
@@ -263,7 +277,9 @@ final class OwnerContentService
 
     private function ownedAcademy(User $owner, int $academyId): Academy
     {
-        $academy = $owner->ownedAcademies()
+        $this->authorizePublicContentManagement($owner);
+
+        $academy = Academy::query()
             ->where('status', 'active')
             ->whereKey($academyId)
             ->first();
@@ -275,6 +291,19 @@ final class OwnerContentService
         }
 
         return $academy;
+    }
+
+    private function authorizePublicContentManagement(User $user): void
+    {
+        abort_unless(
+            $this->isDedicatedSeoSpecialist($user) && $user->hasPermission('seo.manage'),
+            403
+        );
+    }
+
+    private function isDedicatedSeoSpecialist(User $user): bool
+    {
+        return $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     }
 
     private function uniqueSlug(Academy $academy, string $title, ?string $requested = null, ?int $ignoreId = null): string

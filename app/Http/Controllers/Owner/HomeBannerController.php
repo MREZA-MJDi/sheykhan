@@ -9,7 +9,6 @@ use App\Models\HomeBanner;
 use App\Models\Media;
 use App\Services\HomeBannerService;
 use App\Services\MediaService;
-use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,11 +16,8 @@ use Throwable;
 
 final class HomeBannerController extends Controller
 {
-    public function edit(
-        Academy $academy,
-        OwnerWorkspaceService $workspace
-    ) {
-        abort_unless($workspace->canManageAcademy(request()->user(), $academy), 403);
+    public function edit(Academy $academy) {
+        $this->authorizePublicSiteManagement(request()->user(), $academy);
 
         $academy->load([
             'media' => fn ($query) => $query
@@ -38,11 +34,10 @@ final class HomeBannerController extends Controller
     public function update(
         HomeBannerRequest $request,
         Academy $academy,
-        OwnerWorkspaceService $workspace,
         MediaService $mediaService,
         HomeBannerService $bannerService,
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $this->authorizePublicSiteManagement($request->user(), $academy);
 
         $payload = $request->validated()['banners'] ?? [];
         $attachedMediaIds = $academy->media()
@@ -139,5 +134,17 @@ final class HomeBannerController extends Controller
         $bannerService->forgetCache();
 
         return back()->with('success', 'بنرهای صفحه اصلی به‌روزرسانی شدند.');
+    }
+
+    private function authorizePublicSiteManagement($user, Academy $academy): void
+    {
+        abort_unless(
+            $user
+                && $user->hasRole('seo-specialist')
+                && ! $user->hasRole('academy-owner')
+                && $user->hasPermission('seo.manage')
+                && $academy->status === 'active',
+            403
+        );
     }
 }

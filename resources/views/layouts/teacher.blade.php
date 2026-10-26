@@ -5,18 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل مدرس | شیخان')</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        try {
-            var savedTeacherTheme = localStorage.getItem('sheykhan.panel.theme') || localStorage.getItem('theme') || localStorage.getItem('sheykhan.student.theme');
-            if (savedTeacherTheme === 'dark' || savedTeacherTheme === 'light') {
-                document.documentElement.dataset.theme = savedTeacherTheme;
-            }
-        } catch (_) {}
-    </script>
-    @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/css/panel-design-system.css', 'resources/js/app.js', 'resources/js/teacher.js'])
+    @include('layouts.partials.panel-theme-init')
+    @vite(['resources/css/app.css', 'resources/css/teacher.css', 'resources/css/panel-design-system.css', 'resources/css/role-dashboard-design-system.css', 'resources/js/app.js', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
 <body class="teacher-shell">

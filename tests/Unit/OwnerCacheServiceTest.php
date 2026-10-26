@@ -34,7 +34,7 @@ class OwnerCacheServiceTest extends TestCase
         $owner = new User();
         $owner->setAttribute('id', 123);
 
-        Cache::shouldReceive('forget')->twice()
+        Cache::shouldReceive('forget')->times(4)
             ->andThrow(new RuntimeException('cache backend unavailable'));
 
         app(OwnerCacheService::class)->forget($owner);

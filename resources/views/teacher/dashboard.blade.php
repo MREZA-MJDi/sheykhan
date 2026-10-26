@@ -5,9 +5,17 @@
 @section('content')
     @php
         $teacherUser = auth()->user();
-        // Keep direct Blade renders (e.g. feature tests) safe when the shared layout has not set the avatar URL.
-        $teacherPanelAvatarUrl = $teacherPanelAvatarUrl ?? null;
-        $teacherInitial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1);
+        // Section content is rendered independently of layout-local variables, so load the real profile photo here.
+        $teacherUser?->loadMissing([
+            'teacherProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'teacher-avatar')
+                ->orderByPivot('sort_order'),
+        ]);
+        $teacherAvatarMedia = $teacherUser?->teacherProfile?->media?->first();
+        $teacherPanelAvatarUrl = $teacherAvatarMedia?->visibility === 'public'
+            ? $teacherAvatarMedia->url()
+            : ($teacherAvatarMedia ? route('media.view', $teacherAvatarMedia) : null);
+        $teacherInitial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1) ?: 'م';
         $dashboardMetrics = $metrics ?? [];
         $pendingAssignmentReviews = max(0, (int) ($dashboardMetrics['pendingAssignmentReviews'] ?? 0));
         $pendingExamReviews = max(0, (int) ($dashboardMetrics['pendingExamReviews'] ?? 0));
@@ -71,12 +79,12 @@
 
         // KPIs are summaries; the canonical navigation lives in the shared sidebar.
         $kpis = [
-            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'کلاس‌های تحت مدیریت', 'tone' => 'vi', 'icon' => 'users', 'permission' => 'classrooms.view'],
-            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'دوره‌های دارای فعالیت', 'tone' => 'ok', 'icon' => 'book', 'permission' => 'courses.view'],
-            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده', 'tone' => 'wr', 'icon' => 'vid', 'permission' => 'live_classes.view'],
-            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'دانش‌آموزان کلاس‌های شما', 'tone' => 'sk', 'icon' => 'hs', 'permission' => 'students.view'],
-            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'ارسال‌شده و نیازمند بازخورد', 'tone' => 'er', 'icon' => 'file', 'permission' => 'assignments.view'],
-            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'پاسخ‌های نیازمند ارزیابی', 'tone' => 'vi', 'icon' => 'clip', 'permission' => 'exams.view'],
+            ['label' => 'کلاس‌های فعال', 'value' => \App\Support\PersianUi::digits($activeClasses), 'hint' => 'مشاهدهٔ کلاس‌ها و فهرست اعضا', 'tone' => 'sk', 'icon' => 'users', 'permission' => 'classrooms.view', 'url' => route('teacher.classrooms.index')],
+            ['label' => 'دوره‌های من', 'value' => \App\Support\PersianUi::digits($courseCards->count()), 'hint' => 'مشاهدهٔ محتوای دوره‌ها', 'tone' => 'ok', 'icon' => 'book', 'permission' => 'courses.view', 'url' => route('teacher.courses.index')],
+            ['label' => 'جلسات این هفته', 'value' => \App\Support\PersianUi::digits($weeklySessions), 'hint' => \App\Support\PersianUi::digits($completedSessionsCount) . ' جلسه برگزار شده · برنامه کامل', 'tone' => 'wr', 'icon' => 'vid', 'permission' => 'live_classes.view', 'url' => route('teacher.schedule.index')],
+            ['label' => 'دانش‌آموزان', 'value' => \App\Support\PersianUi::digits($studentCount), 'hint' => 'مشاهدهٔ دانش‌آموزان کلاس‌های شما', 'tone' => 'sk', 'icon' => 'hs', 'permission' => 'students.view', 'url' => route('teacher.students.index')],
+            ['label' => 'تکالیف منتظر تصحیح', 'value' => \App\Support\PersianUi::digits($pendingAssignmentReviews), 'hint' => 'رفتن به فهرست تکالیف و بازخورد', 'tone' => 'er', 'icon' => 'file', 'permission' => 'assignments.view', 'url' => route('teacher.assignments.index')],
+            ['label' => 'آزمون‌های منتظر بررسی', 'value' => \App\Support\PersianUi::digits($pendingExamReviews), 'hint' => 'رفتن به پاسخ‌های آزمون', 'tone' => 'vi', 'icon' => 'clip', 'permission' => 'exams.view', 'url' => route('teacher.exams.index')],
         ];
         $kpis = array_values(array_filter($kpis, fn ($item) => $teacherUser?->hasPermission($item['permission'])));
 
@@ -88,18 +96,23 @@
         <header class="ph teacher-dashboard-hero">
             <div class="teacher-dashboard-avatar" aria-hidden="true">
                     @if($teacherPanelAvatarUrl)
-                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="104" height="104" loading="eager" decoding="async">
+                        <img data-avatar-image src="{{ $teacherPanelAvatarUrl }}" alt="تصویر پروفایل {{ $teacherUser?->name }}" width="104" height="104" loading="eager" decoding="async">
+                        <span data-avatar-fallback hidden>{{ $teacherInitial }}</span>
                     @else
                         <span>{{ $teacherInitial }}</span>
                     @endif
                 </div>
             <div class="teacher-dashboard-hero-copy">
                 <span class="section-kicker">خلاصه وضعیت آموزشی · {{ $dashboardDateLabel }}</span>
-                <h1>سلام، {{ $teacherUser?->name }} <span aria-hidden="true">👋</span></h1>
-                <p>کلاس‌ها، ارزیابی‌ها و جلسه‌های پیش‌رو را از همین پنل پیگیری کن.</p>
-                <div class="teacher-dashboard-hero-meta">
-                    <span aria-hidden="true"></span>
-                    <small>شاخص‌ها از سوابق واقعی کلاس‌ها، ارزیابی‌ها و پیشرفت ثبت‌شده محاسبه می‌شوند.</small>
+                <h1>سلام استاد {{ $teacherUser?->name }} <span aria-hidden="true">👋</span></h1>
+                <p>نمای کلاس‌ها و کارهای نیازمند پیگیری.</p>
+                <div class="teacher-dashboard-hero-actions">
+                    @if($focusRoute)
+                        <a class="teacher-dashboard-primary-action" href="{{ $focusRoute }}">{{ $focusLabel }} <span aria-hidden="true">←</span></a>
+                    @endif
+                    @if($canViewLiveClasses)
+                        <a class="teacher-dashboard-secondary-action" href="{{ route('teacher.schedule.index') }}">برنامه هفتگی</a>
+                    @endif
                 </div>
             </div>
         </header>
@@ -110,12 +123,13 @@
 
             <section class="k6" aria-label="شاخص‌های آموزشی">
                 @forelse($kpis as $metric)
-                    <article class="teacher-kpi {{ $metric['tone'] }}" style="--c:var(--{{ $metric['tone'] }})" data-dashboard-searchable>
+                    <a class="teacher-kpi {{ $metric['tone'] }}" style="--c:var(--{{ $metric['tone'] }})" href="{{ $metric['url'] }}" aria-label="{{ $metric['label'] }}: {{ $metric['value'] }}. {{ $metric['hint'] }}" data-dashboard-searchable>
                         <span class="k6-label">{{ $metric['label'] }}</span>
                         <i aria-hidden="true"><svg class="i"><use href="#{{ $metric['icon'] }}"/></svg></i>
                         <b>{{ $metric['value'] }}</b>
                         <small>{{ $metric['hint'] }}</small>
-                    </article>
+                        <span class="teacher-kpi-action" aria-hidden="true">مشاهده جزئیات ←</span>
+                    </a>
                 @empty
                     <div class="cd empty-state">برای این حساب هنوز شاخصی با دسترسی مجاز وجود ندارد.</div>
                 @endforelse
@@ -152,17 +166,67 @@
 
             <div class="dh">
                 <div class="col">
+                    @if($canViewClassrooms)
+                        <section class="cd teacher-classroom-roster-section" aria-labelledby="teacher-classroom-roster-heading">
+                            <h3 id="teacher-classroom-roster-heading">کلاس‌های من و اعضای هر کلاس <a href="{{ route('teacher.classrooms.index') }}">مشاهده همه کلاس‌ها ←</a></h3>
+                            <div class="teacher-classroom-roster-grid">
+                                @forelse(($classroomRosterPreviews ?? collect()) as $classPreview)
+                                    <a class="teacher-classroom-roster-card" href="{{ $classPreview['url'] }}" aria-label="مشاهده کلاس {{ $classPreview['title'] }} و اعضای آن">
+                                        <span class="teacher-roster-card-head">
+                                            <span class="teacher-roster-card-icon"><svg class="i" aria-hidden="true"><use href="#users"/></svg></span>
+                                            <span class="teacher-roster-class-copy">
+                                                <strong>{{ $classPreview['title'] }}</strong>
+                                                <small>{{ $classPreview['course_title'] }}</small>
+                                            </span>
+                                            <b class="teacher-roster-count">{{ \App\Support\PersianUi::digits($classPreview['student_count']) }} نفر</b>
+                                        </span>
+                                        @if($classPreview['students']->isNotEmpty())
+                                            <span class="teacher-roster-students">
+                                                @foreach($classPreview['students'] as $classStudent)
+                                                    <span class="teacher-roster-student">
+                                                        <span class="teacher-roster-avatar">
+                                                            @if($classStudent->avatar_url)
+                                                                <img src="{{ $classStudent->avatar_url }}" alt="" width="42" height="42" loading="lazy" decoding="async">
+                                                            @else
+                                                                <span>{{ \Illuminate\Support\Str::substr(trim((string) $classStudent->name), 0, 1) }}</span>
+                                                            @endif
+                                                        </span>
+                                                        <span class="teacher-roster-student-name">{{ $classStudent->name }}</span>
+                                                    </span>
+                                                @endforeach
+                                                @if($classPreview['student_count'] > $classPreview['students']->count())
+                                                    <span class="teacher-roster-more">+{{ \App\Support\PersianUi::digits($classPreview['student_count'] - $classPreview['students']->count()) }}</span>
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span class="teacher-roster-empty">هنوز دانش‌آموز فعالی با ثبت‌نام معتبر در این کلاس نیست.</span>
+                                        @endif
+                                        <span class="teacher-roster-card-action">باز کردن فهرست کلاس ←</span>
+                                    </a>
+                                @empty
+                                    <div class="empty-state">هنوز کلاسی به حساب شما متصل نشده است.</div>
+                                @endforelse
+                            </div>
+                        </section>
+                    @endif
+
                     @if($canViewStudents)
                         <section class="cd" aria-labelledby="teacher-students-heading">
                             <h3 id="teacher-students-heading">دانش‌آموزان من <a href="{{ route('teacher.students.index') }}">مشاهده همه ←</a></h3>
                             @if($featuredStudents->isNotEmpty())
                                 <div class="sv">
                                     @foreach($featuredStudents as $student)
-                                        <article class="teacher-student-row" data-dashboard-searchable>
-                                            <span class="av2 {{ $studentTones[$loop->index % count($studentTones)] }}" style="background:color-mix(in srgb,var(--c) 78%,var(--sf))">{{ \Illuminate\Support\Str::substr(trim((string) ($student->name ?? 'د')), 0, 1) }}</span>
+                                        <a class="teacher-student-row" href="{{ route('teacher.students.index') }}" aria-label="مشاهده دانش‌آموزان، {{ $student->name }}" data-dashboard-searchable>
+                                            <span class="av2 {{ $studentTones[$loop->index % count($studentTones)] }}">
+                                                @if($student->avatar_url ?? false)
+                                                    <img src="{{ $student->avatar_url }}" alt="" width="36" height="36" loading="lazy" decoding="async">
+                                                @else
+                                                    {{ \Illuminate\Support\Str::substr(trim((string) ($student->name ?? 'د')), 0, 1) }}
+                                                @endif
+                                            </span>
                                             <b>{{ $student->name }}</b>
-                                            <small>{{ \App\Support\PersianUi::digits(max(0, min(100, (float) ($student->progress_average ?? 0)))) }}٪ پیشرفت</small>
-                                        </article>
+                                            <small>{{ \App\Support\PersianUi::digits(max(0, min(100, (float) ($student->progress_average ?? 0)))) }}٪ پیشرفت · مشاهده اعضا ←</small>
+                                        </a>
                                     @endforeach
                                 </div>
                             @else
@@ -177,13 +241,13 @@
                             <div class="crs">
                                 @forelse($courseCards->take(6) as $course)
                                     @php($courseValue = max(0, min(100, (float) ($course->progress_average ?? 0))))
-                                    <article class="teacher-course-card {{ $courseTones[$loop->index % count($courseTones)] }}" data-dashboard-searchable>
+                                    <a class="teacher-course-card {{ $courseTones[$loop->index % count($courseTones)] }}" href="{{ route('teacher.courses.progress', $course->course_id) }}" data-dashboard-searchable aria-label="مشاهده روند دوره {{ $course->title }}">
                                         <span class="tg">دوره</span>
                                         <b>{{ $course->title }}</b>
                                         <small>{{ \App\Support\PersianUi::digits($course->student_count ?? 0) }} دانش‌آموز</small>
                                         <div class="pb" role="progressbar" aria-label="میانگین پیشرفت {{ $course->title }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $courseValue }}"><i style="width:{{ $courseValue }}%"></i></div>
                                         <small>میانگین پیشرفت {{ \App\Support\PersianUi::digits($courseValue) }}٪</small>
-                                    </article>
+                                    </a>
                                 @empty
                                     <div class="empty-state">برای دوره‌های شما هنوز دادهٔ پیشرفتی ثبت نشده است.</div>
                                 @endforelse
@@ -196,21 +260,21 @@
                             <h3 id="teacher-reviews-heading">آخرین فعالیت‌ها <a href="{{ $canViewAssignments ? route('teacher.assignments.index') : route('teacher.exams.index') }}">مشاهده موارد ←</a></h3>
                             @if($canViewAssignments)
                                 @forelse($recentAssignments->take(6) as $activity)
-                                    <article class="tl" data-dashboard-searchable>
+                                    <a class="tl teacher-dashboard-action-row" href="{{ route('teacher.assignments.index') }}" data-dashboard-searchable>
                                         <span class="content-icon"><svg class="i" aria-hidden="true"><use href="#file"/></svg></span>
                                         <span class="tl-copy"><b>{{ $activity->title }}</b><small>{{ $activity->classroom?->title ?? 'دوره' }} · @if($activity->due_at)مهلت {{ \App\Support\PersianUi::date($activity->due_at) }}@else بدون موعد مشخص@endif</small></span>
                                         <span class="bg {{ (int) ($activity->pending_review_count ?? 0) > 0 ? 'wr' : 'ok' }}">{{ \App\Support\PersianUi::digits($activity->pending_review_count ?? 0) }} منتظر بررسی</span>
-                                    </article>
+                                    </a>
                                 @empty
                                     <div class="empty-state">هنوز تکلیفی برای نمایش ثبت نشده است.</div>
                                 @endforelse
                             @endif
                             @if($canViewExams && $pendingExamReviews > 0)
-                                <article class="tl" data-dashboard-searchable>
+                                <a class="tl teacher-dashboard-action-row" href="{{ route('teacher.exams.index') }}" data-dashboard-searchable>
                                     <span class="content-icon"><svg class="i" aria-hidden="true"><use href="#clip"/></svg></span>
                                     <span class="tl-copy"><b>پاسخ‌های آزمون در انتظار بررسی</b><small>فهرست آزمون‌ها و پاسخ‌های ارسال‌شده</small></span>
                                     <span class="bg wr">{{ \App\Support\PersianUi::digits($pendingExamReviews) }}</span>
-                                </article>
+                                </a>
                             @endif
                         </section>
                     @endif
@@ -244,13 +308,13 @@
                                 @if($session['can_join'])
                                     <a class="ls {{ $session['tone'] }}" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer" data-dashboard-searchable>
                                 @else
-                                    <div class="ls {{ $session['tone'] }}" data-dashboard-searchable>
+                                    <a class="ls {{ $session['tone'] }} teacher-dashboard-action-row" href="{{ route('teacher.schedule.index') }}" data-dashboard-searchable>
                                 @endif
                                     @if($session['can_join'])<span class="jn">ورود ↗</span>@endif
                                     <b>{{ $session['title'] ?? 'جلسه آموزشی' }}</b>
                                     <small>{{ $session['time'] ?? '—' }} · {{ $session['meta'] ?? '' }}</small>
                                     <small>{{ $session['status'] }}</small>
-                                @if($session['can_join'])</a>@else</div>@endif
+                                </a>
                             @empty
                                 <div class="empty-state">برای امروز جلسه‌ای در برنامه ثبت نشده است.</div>
                             @endforelse
@@ -262,18 +326,22 @@
                             <h3 id="teacher-upcoming-heading">کلاس‌های پیش‌رو <a href="{{ route('teacher.live-classes.index') }}">مشاهده همه ←</a></h3>
                             @forelse($upcomingList as $class)
                                 @php($classCanJoin = (bool) ($class->can_join ?? false) && filled($class->meeting_url ?? null))
-                                <div class="tl" data-dashboard-searchable>
+                                @if($classCanJoin)
+                                    <a class="tl teacher-dashboard-action-row" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer" data-dashboard-searchable>
+                                @else
+                                    <a class="tl teacher-dashboard-action-row" href="{{ route('teacher.live-classes.index') }}" data-dashboard-searchable>
+                                @endif
                                     <span class="content-icon"><svg class="i" aria-hidden="true"><use href="#vid"/></svg></span>
                                     <span class="tl-copy">
                                         <b>{{ $class->course?->title ?? 'کلاس آنلاین' }}</b>
                                         <small>{{ $class->classroom?->title ?? '' }} · {{ \App\Support\PersianUi::date($class->scheduled_at) }} {{ \App\Support\PersianUi::time($class->scheduled_at) }}</small>
                                     </span>
                                     @if($classCanJoin)
-                                        <a class="bg sk teacher-live-join" data-teacher-live-join href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer" aria-label="ورود به {{ $class->course?->title ?? 'کلاس آنلاین' }}">ورود ↗</a>
+                                        <span class="bg sk teacher-live-join">ورود ↗</span>
                                     @else
                                         <span class="bg {{ $class->status === 'live' ? 'wr' : 'mu' }}">{{ $class->status === 'live' ? 'در حال بررسی لینک' : 'زمان‌بندی‌شده' }}</span>
                                     @endif
-                                </div>
+                                </a>
                             @empty
                                 <div class="empty-state">کلاس آنلاینی برای روزهای آینده ثبت نشده است.</div>
                             @endforelse

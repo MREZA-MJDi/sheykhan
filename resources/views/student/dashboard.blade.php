@@ -16,9 +16,9 @@
         <div class="av" aria-hidden="true">
             @if($studentAvatarUrl ?? null)
                 <img data-avatar-image src="{{ $studentAvatarUrl }}" alt="تصویر پروفایل {{ $student->name }}" width="160" height="160" loading="eager" decoding="async" fetchpriority="high">
-                <svg data-avatar-fallback hidden viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
+                <span data-avatar-fallback class="student-dashboard-avatar-initial" hidden>{{ \Illuminate\Support\Str::substr(trim((string) ($student->name ?? 'د')), 0, 1) ?: 'د' }}</span>
             @else
-                <svg data-avatar-fallback viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
+                <span data-avatar-fallback class="student-dashboard-avatar-initial">{{ \Illuminate\Support\Str::substr(trim((string) ($student->name ?? 'د')), 0, 1) ?: 'د' }}</span>
             @endif
         </div>
         <div class="txt">
@@ -128,7 +128,7 @@
                     <p>پیوستگی مطالعه: {{ \App\Support\PersianUi::digits($studyStreak) }} روز</p>
                 </div>
             </div>
-            <div class="chead" style="margin-top:18px"><h2>دوره‌های من</h2><a class="pill" href="{{ route('student.courses.index') }}">مشاهده همه</a></div>
+            <div class="chead student-dashboard-subsection-head"><h2>دوره‌های من</h2><a class="pill" href="{{ route('student.courses.index') }}">مشاهده همه</a></div>
             @forelse(collect($courses)->take(3) as $course)
                 <div class="trk">
                     <div class="th"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg></div>
@@ -166,7 +166,7 @@
                 <div class="empty">نتیجهٔ تصحیح‌شده‌ای برای نمایش وجود ندارد.</div>
             @endforelse
 
-            <div class="chead" style="margin-top:18px">
+            <div class="chead student-dashboard-subsection-head">
                 <h2>منابع آموزشی</h2>
                 <a class="pill" href="{{ route('student.resources.index') }}">همه</a>
             </div>

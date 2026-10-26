@@ -9,7 +9,6 @@ use App\Models\HomeHeroSlide;
 use App\Models\Media;
 use App\Services\HomeHeroService;
 use App\Services\MediaService;
-use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -20,10 +19,8 @@ final class HomeHeroController extends Controller
 {
     private const MAX_SLIDES = 5;
 
-    public function edit(
-        OwnerWorkspaceService $workspace,
-    ): View {
-        $this->ensureOwnerHasWorkspace(request()->user(), $workspace);
+    public function edit(): View {
+        $this->ensureSeoSpecialist(request()->user());
 
         return view('owner.website.hero', [
             'slides' => HomeHeroSlide::query()
@@ -37,12 +34,11 @@ final class HomeHeroController extends Controller
 
     public function update(
         HomeHeroRequest $request,
-        OwnerWorkspaceService $workspace,
         MediaService $mediaService,
         HomeHeroService $heroService,
     ): RedirectResponse {
         $owner = $request->user();
-        $this->ensureOwnerHasWorkspace($owner, $workspace);
+        $this->ensureSeoSpecialist($owner);
 
         $data = $request->validated();
         $slot = (int) $data['slot'];
@@ -165,12 +161,15 @@ final class HomeHeroController extends Controller
                 : "تنظیمات اسلاید {$slot} ذخیره شد.");
     }
 
-    private function ensureOwnerHasWorkspace($owner, OwnerWorkspaceService $workspace): void
+    private function ensureSeoSpecialist($user): void
     {
-        // Sheykhan currently has one academy and no branch hierarchy. Any
-        // authenticated academy owner with an active owned academy can manage
-        // the shared public homepage Hero.
-        abort_unless($workspace->academies($owner)->isNotEmpty(), 403);
+        abort_unless(
+            $user
+                && $user->hasRole('seo-specialist')
+                && ! $user->hasRole('academy-owner')
+                && $user->hasPermission('seo.manage'),
+            403
+        );
     }
 
     private function deleteReplacedHeroMedia(array $mediaIds, MediaService $mediaService): void

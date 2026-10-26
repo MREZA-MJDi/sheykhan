@@ -49,10 +49,13 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('id="teacher-dashboard"', false)
             ->assertSee('class="ph teacher-dashboard-hero"', false)
             ->assertSee('class="teacher-dashboard-avatar"', false)
-            ->assertSee('class="teacher-kpi vi"', false)
-            ->assertDontSee('<a class="teacher-kpi', false)
-            ->assertDontSee('<a class="teacher-student-row', false)
-            ->assertDontSee('<a class="teacher-course-card', false)
+            ->assertSee('class="teacher-kpi sk"', false)
+            ->assertSee('سلام استاد سمیه احمدی', false)
+            ->assertSee('teacher-classroom-roster-card', false)
+            ->assertSee('مشاهده جزئیات', false)
+            ->assertSee('<a class="teacher-kpi', false)
+            ->assertSee('<a class="teacher-student-row', false)
+            ->assertSee('<a class="teacher-course-card', false)
             ->assertSee('id="teacher-progress"', false)
             ->assertSee('data-dashboard-chart', false)
             ->assertSee('data-chart-range="week"', false)
@@ -66,6 +69,148 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('data-dashboard-search-empty', false)
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
+    }
+
+
+    public function test_teacher_dashboard_roster_uses_real_student_profile_photos(): void
+    {
+        $this->seed();
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $classroom = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
+            ->firstOrFail();
+
+        $student = $classroom->students()
+            ->wherePivot('status', 'active')
+            ->where('users.status', 'active')
+            ->whereHas('enrollments', fn ($query) => $query
+                ->where('course_id', $classroom->course_id)
+                ->where('classroom_id', $classroom->id)
+                ->where('status', 'active'))
+            ->firstOrFail();
+
+        $profile = \App\Models\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+        $path = 'students/' . $student->id . '/avatar.webp';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'real-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
+            'uploaded_by' => $student->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'student-avatar.webp',
+            'file_name' => 'avatar.webp',
+            'mime_type' => 'image/webp',
+            'extension' => 'webp',
+            'size' => 19,
+            'checksum' => hash('sha256', 'real-avatar-fixture'),
+            'visibility' => 'public',
+            'collection' => 'student-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $profile->media()->attach($media->id, [
+            'collection' => 'student-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee(route('media.public', $media), false)
+            ->assertSee('teacher-roster-avatar', false)
+            ->assertSee($student->name, false);
+    }
+
+
+    public function test_teacher_dashboard_hero_uses_the_saved_teacher_avatar(): void
+    {
+        $this->seed();
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $profile = \App\Models\TeacherProfile::query()->firstOrCreate(
+            ['user_id' => $teacher->id],
+            ['is_verified' => true, 'is_public' => true],
+        );
+        $profile->forceFill(['is_public' => true])->save();
+
+        $path = 'teachers/' . $teacher->id . '/teacher-avatar.webp';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'teacher-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
+            'uploaded_by' => $teacher->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'teacher-avatar.webp',
+            'file_name' => 'teacher-avatar.webp',
+            'mime_type' => 'image/webp',
+            'extension' => 'webp',
+            'size' => 22,
+            'checksum' => hash('sha256', 'teacher-avatar-fixture'),
+            'visibility' => 'public',
+            'collection' => 'teacher-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $profile->media()->wherePivot('collection', 'teacher-avatar')->get()->each(
+            fn ($old) => $profile->media()->detach($old->id)
+        );
+        $profile->media()->attach($media->id, [
+            'collection' => 'teacher-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee('class="teacher-dashboard-avatar"', false)
+            ->assertSee('data-avatar-image', false)
+            ->assertSee(route('media.public', $media), false)
+            ->assertSee('تصویر پروفایل سمیه احمدی', false);
+    }
+
+    public function test_student_dashboard_hero_uses_saved_avatar_and_never_displays_the_demo_person_when_missing(): void
+    {
+        $this->seed();
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $profile = \App\Models\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+        $path = 'students/' . $student->id . '/student-avatar.webp';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'student-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
+            'uploaded_by' => $student->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'student-avatar.webp',
+            'file_name' => 'student-avatar.webp',
+            'mime_type' => 'image/webp',
+            'extension' => 'webp',
+            'size' => 22,
+            'checksum' => hash('sha256', 'student-avatar-fixture'),
+            'visibility' => 'public',
+            'collection' => 'student-avatar',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $profile->media()->wherePivot('collection', 'student-avatar')->get()->each(
+            fn ($old) => $profile->media()->detach($old->id)
+        );
+        $profile->media()->attach($media->id, [
+            'collection' => 'student-avatar',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('class="hero"', false)
+            ->assertSee(route('media.public', $media), false)
+            ->assertSee('تصویر پروفایل ' . $student->name, false)
+            ->assertSee('class="student-dashboard-avatar-initial"', false);
     }
 
     public function test_teacher_dashboard_hides_workflows_without_view_permissions(): void

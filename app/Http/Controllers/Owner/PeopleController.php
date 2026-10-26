@@ -8,12 +8,14 @@ use App\Http\Requests\Owner\EnrollStudentRequest;
 use App\Http\Requests\Owner\LegacyStudentOnboardingRequest;
 use App\Http\Requests\Owner\StoreTeacherRequest;
 use App\Http\Requests\Owner\StoreParentRequest;
+use App\Http\Requests\Owner\StoreStudentAccountRequest;
 use App\Http\Requests\Owner\UpdateTeacherVisibilityRequest;
 use App\Models\Academy;
 use App\Models\User;
 use App\Services\OwnerWorkspaceService;
 use App\Services\ParentOnboardingService;
 use App\Services\StudentOnboardingService;
+use App\Services\StudentAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -95,6 +97,26 @@ class PeopleController extends Controller
             'success',
             'دانش‌آموز قدیمی با موفقیت ثبت/به‌روزرسانی شد و به این آموزشگاه متصل شد.'
         );
+    }
+
+
+    public function storeStudentAccount(
+        StoreStudentAccountRequest $request,
+        Academy $academy,
+        StudentAccountService $students,
+        OwnerWorkspaceService $workspace,
+    ): RedirectResponse {
+        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+
+        $result = $students->create($request->user(), $academy, $request->validated());
+
+        return redirect()
+            ->to(route('owner.people.index', $academy) . '?tab=create-student')
+            ->with('success', 'حساب دانش‌آموز ساخته شد. نام کاربری و رمز اولیه را فقط همین یک‌بار تحویل بده.')
+            ->with('temporary_student_name', $result['student']->name)
+            ->with('temporary_student_email', $result['student']->email)
+            ->with('temporary_student_number', $result['student']->studentProfile?->student_number)
+            ->with('temporary_student_password', $result['temporary_password']);
     }
 
     public function storeTeacher(

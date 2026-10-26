@@ -18,9 +18,9 @@ class OwnerContentManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_owner_can_create_and_publish_owned_academy_content(): void
+    public function test_seo_specialist_can_create_and_publish_public_academy_content(): void
     {
-        [$owner, $academy] = $this->ownerWithAcademy('content.manage');
+        [$seo, $academy] = $this->seoSpecialistWithAcademy();
 
         $category = AcademyContentCategory::create([
             'academy_id' => $academy->id,
@@ -29,7 +29,7 @@ class OwnerContentManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($owner)->post(route('owner.content.store'), [
+        $response = $this->actingAs($seo)->post(route('owner.content.store'), [
             'academy_id' => $academy->id,
             'category_id' => $category->id,
             'type' => 'article',
@@ -53,11 +53,11 @@ class OwnerContentManagementTest extends TestCase
     }
 
 
-    public function test_owner_content_cover_is_stored_as_public_media(): void
+    public function test_seo_specialist_content_cover_is_stored_as_public_media(): void
     {
         Storage::fake('local');
 
-        [$owner, $academy] = $this->ownerWithAcademy('content.manage');
+        [$seo, $academy] = $this->seoSpecialistWithAcademy();
 
         $category = AcademyContentCategory::create([
             'academy_id' => $academy->id,
@@ -66,7 +66,7 @@ class OwnerContentManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->actingAs($owner)
+        $this->actingAs($seo)
             ->post(route('owner.content.store'), [
                 'academy_id' => $academy->id,
                 'category_id' => $category->id,
@@ -81,7 +81,7 @@ class OwnerContentManagementTest extends TestCase
         $content = AcademyContent::query()->where('academy_id', $academy->id)->firstOrFail();
 
         $this->assertDatabaseHas('media', [
-            'uploaded_by' => $owner->id,
+            'uploaded_by' => $seo->id,
             'visibility' => 'public',
             'collection' => 'cover',
             'status' => 'active',
@@ -95,10 +95,10 @@ class OwnerContentManagementTest extends TestCase
         ]);
     }
 
-    public function test_owner_cannot_edit_content_belonging_to_another_academy(): void
+    public function test_seo_specialist_can_edit_public_content_across_active_academies(): void
     {
-        [$ownerA, $academyA] = $this->ownerWithAcademy('content.manage');
-        [, $academyB] = $this->ownerWithAcademy();
+        [$seoA, $academyA] = $this->seoSpecialistWithAcademy();
+        [, $academyB] = $this->seoSpecialistWithAcademy();
 
         $category = AcademyContentCategory::create([
             'academy_id' => $academyB->id,
@@ -116,36 +116,81 @@ class OwnerContentManagementTest extends TestCase
             'status' => 'published',
         ]);
 
-        $this->actingAs($ownerA)
+        $this->actingAs($seoA)
             ->get(route('owner.content.edit', $content))
-            ->assertForbidden();
+            ->assertOk();
     }
 
-    private function ownerWithAcademy(?string $permission = null): array
+    public function test_academy_owner_cannot_create_public_content_even_with_legacy_permission(): void
     {
         $role = Role::firstOrCreate(
             ['slug' => 'academy-owner'],
             ['name' => 'مدیر آموزشگاه', 'description' => 'Owner test']
         );
+        $legacyPermission = Permission::firstOrCreate(
+            ['name' => 'content.manage'],
+            ['label' => 'مدیریت محتوا', 'group' => 'content']
+        );
+        $role->permissions()->syncWithoutDetaching([$legacyPermission->id]);
 
-        if ($permission) {
-            $perm = Permission::firstOrCreate(
-                ['name' => $permission],
-                ['label' => $permission, 'group' => 'owner']
-            );
-            $role->permissions()->attach($perm->id);
-        }
-
-        $owner = User::factory()->create();
+        $owner = User::factory()->create(['status' => 'active']);
         $owner->roles()->attach($role->id);
-
         $academy = Academy::create([
             'owner_id' => $owner->id,
+            'name' => 'آکادمی مالک',
+            'slug' => 'owner-' . Str::random(8),
+            'status' => 'active',
+        ]);
+        $category = AcademyContentCategory::create([
+            'academy_id' => $academy->id,
+            'title' => 'عمومی',
+            'slug' => 'public-' . Str::random(8),
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('owner.content.store'), [
+                'academy_id' => $academy->id,
+                'category_id' => $category->id,
+                'type' => 'article',
+                'title' => 'تلاش غیرمجاز',
+                'body' => 'متن',
+                'status' => 'draft',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('academy_contents', ['title' => 'تلاش غیرمجاز']);
+
+        try {
+            app(\App\Services\OwnerContentService::class)->index($owner);
+            $this->fail('Direct service access must not bypass the SEO-only role.');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+            $this->assertSame(403, $exception->getStatusCode());
+        }
+    }
+
+    private function seoSpecialistWithAcademy(): array
+    {
+        $role = Role::firstOrCreate(
+            ['slug' => 'seo-specialist'],
+            ['name' => 'متخصص SEO', 'description' => 'Public website content']
+        );
+        $permission = Permission::firstOrCreate(
+            ['name' => 'seo.manage'],
+            ['label' => 'مدیریت SEO', 'group' => 'seo']
+        );
+        $role->permissions()->syncWithoutDetaching([$permission->id]);
+
+        $seo = User::factory()->create(['status' => 'active']);
+        $seo->roles()->attach($role->id);
+
+        $academy = Academy::create([
+            'owner_id' => $seo->id,
             'name' => 'آکادمی تست',
             'slug' => 'academy-' . Str::random(7),
             'status' => 'active',
         ]);
 
-        return [$owner, $academy];
+        return [$seo, $academy];
     }
 }

@@ -1,447 +1,322 @@
 @extends('layouts.owner')
 
-@section('title', 'کارتابل ادمین / منشی | شیخان')
-@section('header-title', 'کارتابل ادمین / منشی')
-
+@section('title', 'داشبورد آکادمی شیخان')
+@section('header-title', 'داشبورد')
 @section('content')
-    @php
-        $executionLabels = [
-            'running' => 'در حال اجرا',
-            'scheduled' => 'برنامه‌ریزی‌شده',
-            'finished' => 'پایان‌یافته',
-            'active' => 'فعال',
-            'archived' => 'آرشیو',
-        ];
+@php
+    $ownerUser = auth()->user();
+    $period = in_array($period ?? 'month', ['today', 'week', 'month'], true) ? ($period ?? 'month') : 'month';
+    $periodCaption = $periodCaption ?? 'این ماه';
+    $routeAcademyParam = request()->route('academy');
+    $currentRouteAcademyId = $routeAcademyParam instanceof \App\Models\Academy
+        ? (int) $routeAcademyParam->getKey()
+        : (int) ($routeAcademyParam ?? 0);
+    $firstAcademy = $academies->first();
+    $hasAcademy = (bool) $firstAcademy;
+    $hasMultipleAcademies = $academies->count() > 1;
+    $canViewAcademy = (bool) $ownerUser?->hasPermission('academy.view');
+    $canViewPeople = $canViewAcademy && $hasAcademy;
+    $canViewClassrooms = (bool) $ownerUser?->hasPermission('classrooms.view') && $hasAcademy;
+    $canViewCourses = (bool) $ownerUser?->hasPermission('courses.view');
+    $canViewAttendance = (bool) $ownerUser?->hasPermission('attendance.view') && $hasAcademy;
+    $canViewFinance = (bool) $ownerUser?->hasPermission('finance.view');
+    $canViewReports = (bool) $ownerUser?->hasPermission('reports.view');
+    $canViewAssignments = (bool) $ownerUser?->hasPermission('courses.view') && $hasAcademy;
+    $canViewMeetings = (bool) $ownerUser?->hasPermission('live_classes.view') && $hasAcademy;
+    $canViewParents = (bool) $ownerUser?->hasPermission('parents.view') && $hasAcademy;
+    $canViewExams = (bool) $ownerUser?->hasPermission('exams.view') && $hasAcademy;
+    $canViewResources = (bool) $ownerUser?->hasPermission('resources.view') && $hasAcademy;
+    $canViewProducts = (bool) $ownerUser?->hasPermission('products.view') && $hasAcademy;
+    $canViewOrders = (bool) $ownerUser?->hasPermission('orders.view') && $hasAcademy;
+    $canViewTeacherPayments = (bool) $ownerUser?->hasPermission('teacher_payments.view') && $hasAcademy;
+    $canViewLegal = (bool) $ownerUser?->hasPermission('legal.manage');
+    $metrics = $metrics ?? [];
+    $capacity = $capacity ?? [];
+    $teacherReports = $teacherReports ?? collect();
+    $upcomingLiveClasses = $upcomingLiveClasses ?? collect();
+    $recentCourses = $recentCourses ?? collect();
+    $recentStudentLogins = $recentStudentLogins ?? collect();
 
-        $ownerUser = auth()->user();
-        $firstAcademy = $academies->first();
+    $students = max(0, (int) data_get($metrics, 'students', 0));
+    $teachers = max(0, (int) data_get($metrics, 'teachers', 0));
+    $classroomCount = max(0, (int) data_get($metrics, 'classrooms', 0));
+    $courseCount = max(0, (int) data_get($metrics, 'courses', 0));
+    $publishedCourseCount = max(0, (int) data_get($metrics, 'published', 0));
+    $liveNowCount = max(0, (int) data_get($metrics, 'liveNow', 0));
+    $pendingReviews = $canViewAssignments ? max(0, (int) data_get($metrics, 'pendingReviews', 0)) : 0;
+    $capacityAlerts = $canViewClassrooms ? max(0, (int) data_get($metrics, 'capacityAlerts', 0)) : 0;
+    $classroomsWithoutTeacher = $canViewClassrooms ? max(0, (int) data_get($metrics, 'classroomsWithoutTeacher', 0)) : 0;
+    $attentionCount = $pendingReviews + $capacityAlerts + $classroomsWithoutTeacher;
+    $attendanceRate = $canViewAttendance ? data_get($metrics, 'attendanceRate', data_get($metrics, 'todayAttendanceRate')) : null;
+    $sales = $canViewFinance ? (float) data_get($metrics, 'sales', 0) : 0;
+    $capacityTotal = max(0, (int) data_get($capacity, 'total', 0));
+    $capacityUsed = max(0, (int) data_get($capacity, 'used', 0));
+    $capacityRemaining = max(0, (int) data_get($capacity, 'remaining', 0));
+    $capacityRate = data_get($capacity, 'rate');
+    $capacityRate = $capacityRate === null ? null : min(100, max(0, (float) $capacityRate));
+    $publishedRate = $courseCount > 0 ? min(100, (int) round(($publishedCourseCount / $courseCount) * 100)) : null;
+    $nextLiveClass = $upcomingLiveClasses->first();
+    $nextLiveTarget = $nextLiveClass?->scheduled_at?->timestamp;
 
-        // Keep visible links and metrics in sync with the permission on their GET route.
-        $canViewAcademy = (bool) $ownerUser?->hasPermission('academy.view');
-        $canOpenPeople = $canViewAcademy && (bool) $firstAcademy;
-        $canViewClassrooms = (bool) $ownerUser?->hasPermission('classrooms.view') && (bool) $firstAcademy;
-        $canViewCourses = (bool) $ownerUser?->hasPermission('courses.view');
-        $canViewAttendance = (bool) $ownerUser?->hasPermission('attendance.view') && (bool) $firstAcademy;
-        $canViewFinance = (bool) $ownerUser?->hasPermission('finance.view');
-        $canViewReports = (bool) $ownerUser?->hasPermission('reports.view');
-        $canViewAssignments = $canViewCourses && (bool) $firstAcademy;
-        $canViewMeetings = (bool) $ownerUser?->hasPermission('live_classes.view') && (bool) $firstAcademy;
-        $hasMultipleAcademies = $academies->count() > 1;
-
-        // Suppress numbers for workflows the account cannot open.
-        $visiblePendingReviews = $canViewAssignments ? max(0, (int) ($metrics['pendingReviews'] ?? 0)) : 0;
-        $visibleCapacityAlerts = $canViewClassrooms ? max(0, (int) ($metrics['capacityAlerts'] ?? 0)) : 0;
-        $visibleClassroomsWithoutTeacher = $canViewClassrooms ? max(0, (int) ($metrics['classroomsWithoutTeacher'] ?? 0)) : 0;
-        $attentionCount = $visiblePendingReviews + $visibleCapacityAlerts + $visibleClassroomsWithoutTeacher;
-        $sales = $canViewFinance ? (float) ($metrics['sales'] ?? 0) : 0;
-        $attendanceRate = $canViewAttendance ? ($metrics['todayAttendanceRate'] ?? null) : null;
-
-        $focusRoute = null;
-        if (! $hasMultipleAcademies && $visibleClassroomsWithoutTeacher > 0 && $firstAcademy) {
-            $focusRoute = route('owner.classrooms.index', $firstAcademy);
-        } elseif (! $hasMultipleAcademies && $visibleCapacityAlerts > 0 && $firstAcademy) {
-            $focusRoute = route('owner.classrooms.index', $firstAcademy);
-        } elseif (! $hasMultipleAcademies && $visiblePendingReviews > 0 && $firstAcademy) {
-            $focusRoute = route('owner.assignments.index', $firstAcademy);
-        }
-    @endphp
-
-    <div class="owner-dashboard space-y-6 pb-8">
-
-        {{-- =========================================================
-            HERO
-        ========================================================== --}}
-        <section class="owner-hero relative overflow-hidden">
-            <div class="owner-hero-copy relative z-10">
-                <span class="owner-kicker">
-                    کارتابل ادمین / منشی
-                </span>
-
-                <h1 class="mt-3">
-                    @if($academies->count() > 1)
-                        وضعیت آموزشگاه‌ها را از یک صفحه مدیریت کن.
-                    @else
-                        {{ $firstAcademy?->name ?? 'آموزشگاه شما' }} را از یک صفحه مدیریت کن.
-                    @endif
-                </h1>
-
-                <p class="mt-4 max-w-2xl">
-                    تصویر واقعی عملیات آموزشی امروز را ببین؛
-                    از کلاس‌ها و مدرس‌ها تا دانش‌آموزان، حضور و غیاب، دوره‌ها و مواردی که نیاز به پیگیری دارند.
-                </p>
-
-                <div class="owner-hero-meta" aria-label="خلاصه کارتابل">
-                    <span class="owner-hero-meta-dot" aria-hidden="true"></span>
-                    <span>نمای کلی شاخص‌ها و عملیات آموزشگاه</span>
-                </div>
-            </div>
-
-            @if($canViewFinance)
-                <div class="owner-hero-art owner-hero-finance-link" role="group" aria-label="درآمد خالص ثبت‌شده">
-                    <div class="owner-orb one"></div>
-                    <div class="owner-orb two"></div>
-                    <div class="owner-hero-stat">
-                        <small>درآمد خالص ثبت‌شده</small>
-                        <strong>{{ \App\Support\PersianUi::number($sales) }}</strong>
-                        <span>تومان · از دفتر پرداخت‌های تکمیل‌شده</span>
-                    </div>
-                </div>
-            @endif
-        </section>
+@endphp
 
 
-        @if($canViewClassrooms || $canViewAssignments || $canViewReports)
-            <section class="owner-focus-card {{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}" aria-labelledby="owner-focus-title">
-                <div class="owner-focus-status" aria-hidden="true">
-                    <span class="{{ $attentionCount > 0 ? 'has-alert' : 'is-clear' }}"></span>
-                </div>
-                <div class="owner-focus-copy">
-                    <span class="owner-focus-kicker">صف امروز</span>
-                    <h2 id="owner-focus-title">
-                        @if($visibleClassroomsWithoutTeacher > 0)
-                            {{ \App\Support\PersianUi::digits($visibleClassroomsWithoutTeacher) }} کلاس بدون مدرس داری.
-                        @elseif($visibleCapacityAlerts > 0)
-                            {{ \App\Support\PersianUi::digits($visibleCapacityAlerts) }} کلاس نزدیک ظرفیت است.
-                        @elseif($visiblePendingReviews > 0)
-                            {{ \App\Support\PersianUi::digits($visiblePendingReviews) }} مورد هنوز نیازمند بررسی است.
-                        @else
-                            امروز موردی برای پیگیری در بخش‌های مجاز این حساب ثبت نشده است.
-                        @endif
-                    </h2>
-                    <p>شاخص‌های این بخش فقط از داده‌های واقعی و قابل‌دسترسی همین کارتابل می‌آیند.</p>
-                </div>
-                @if($focusRoute)
-                    <div class="owner-focus-actions"><a href="{{ $focusRoute }}">رفتن به بخش مربوط ←</a></div>
-                @endif
-            </section>
+        @if(session('success') || session('error') || $errors->any())
+            
         @endif
 
-        {{-- KPI band: information only; navigation stays in the shared sidebar. --}}
-        <section class="owner-stats" aria-label="شاخص‌های کارتابل">
-            @if($canViewClassrooms)
-                <article class="owner-stat-card tone-indigo" aria-label="کلاس‌های فعال">
-                    <span class="owner-stat-label">کلاس‌های فعال <i aria-hidden="true">↗</i></span>
-                    <strong>{{ \App\Support\PersianUi::digits($metrics['classrooms'] ?? 0) }}</strong>
-                    <small>{{ \App\Support\PersianUi::digits($metrics['liveNow'] ?? 0) }} کلاس آنلاین در حال اجرا</small>
-                </article>
-            @endif
-            @if($canOpenPeople)
-                <article class="owner-stat-card tone-cyan" aria-label="دانش‌آموزان فعال">
-                    <span class="owner-stat-label">دانش‌آموز فعال <i aria-hidden="true">↗</i></span>
-                    <strong>{{ \App\Support\PersianUi::digits($metrics['students'] ?? 0) }}</strong>
-                    <small>فهرست اعضای آموزشگاه</small>
-                </article>
-                <article class="owner-stat-card tone-violet" aria-label="مدرس‌های فعال">
-                    <span class="owner-stat-label">مدرس فعال <i aria-hidden="true">↗</i></span>
-                    <strong>{{ \App\Support\PersianUi::digits($metrics['teachers'] ?? 0) }}</strong>
-                    <small>مدرس‌های آموزشگاه</small>
-                </article>
-            @endif
-            @if($canViewCourses)
-                <article class="owner-stat-card tone-blue" aria-label="دوره‌های منتشرشده">
-                    <span class="owner-stat-label">دوره‌های منتشرشده <i aria-hidden="true">↗</i></span>
-                    <strong>{{ \App\Support\PersianUi::digits($metrics['published'] ?? 0) }}</strong>
-                    <small>از {{ \App\Support\PersianUi::digits($metrics['courses'] ?? 0) }} دوره ثبت‌شده</small>
-                </article>
-            @endif
-            @if($canViewAttendance)
-                <article class="owner-stat-card tone-emerald" aria-label="حضور امروز">
-                    <span class="owner-stat-label">حضور امروز <i aria-hidden="true">↗</i></span>
-                    <strong>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) . '٪' }}</strong>
-                    <small>{{ $attendanceRate === null ? 'رکورد حضور امروز ثبت نشده' : 'بر اساس رکوردهای امروز' }}</small>
-                </article>
-            @endif
-            @if($canViewClassrooms || $canViewAssignments || $canViewReports)
-                @if($focusRoute)
-                    <article class="owner-stat-card tone-amber" aria-label="موارد نیازمند توجه">
-                @else
-                    <article class="owner-stat-card tone-amber">
+        <section class="ph c12">
+            <div>
+                <span class="chip">کارتابل مدیر آموزشگاه</span>
+                <h1>{{ $firstAcademy?->name ?? 'آکادمی شیخان' }}</h1>
+                <p class="sub">نمای زنده و مبتنی بر دیتابیس از عملیات آموزشی و موارد نیازمند پیگیری.</p>
+            </div>
+            <div class="act">
+                @if($canViewPeople && $firstAcademy)
+                    <a class="go sm" href="{{ route('owner.people.index', $firstAcademy) }}"><svg class="ic"><use href="#i-users"/></svg> مدیریت اعضا</a>
                 @endif
-                    <span class="owner-stat-label">نیازمند توجه @if($focusRoute)<i aria-hidden="true">↗</i>@endif</span>
-                    <strong>{{ \App\Support\PersianUi::digits($attentionCount) }}</strong>
-                    <small>
-                        {{ \App\Support\PersianUi::digits($visiblePendingReviews) }} بررسی ·
-                        {{ \App\Support\PersianUi::digits($visibleCapacityAlerts) }} کلاس نزدیک ظرفیت ·
-                        {{ \App\Support\PersianUi::digits($visibleClassroomsWithoutTeacher) }} کلاس بدون مدرس
-                    </small>
-                @if($focusRoute)
-                    </article>
-                @else
-                    </article>
+                @if($canViewClassrooms && $firstAcademy)
+                    <a class="mb" href="{{ route('owner.classrooms.index', $firstAcademy) }}">مدیریت کلاس‌ها ←</a>
                 @endif
-            @endif
-            @if(!$canViewClassrooms && !$canOpenPeople && !$canViewCourses && !$canViewAttendance && !$canViewReports && !$canViewAssignments)
-                <div class="dashboard-panel owner-empty" role="status">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های آموزشگاه برای این حساب فعال نیست.</div>
-            @endif
+            </div>
         </section>
 
-        {{-- The dashboard stays analytical; classroom cards and filters live on the dedicated roster page. --}}
+        @if($canViewPeople)
+        <section class="card kpi c3" style="--c:#22d3ee" aria-label="دانش‌آموزان فعال">
+            <div class="kpi-head"><svg class="ic"><use href="#i-users"/></svg>دانش‌آموزان فعال</div>
+            <b>{{ \App\Support\PersianUi::digits($students) }}</b>
+            <div class="metric-caption">عضویت فعال و حساب فعال در آموزشگاه‌های شما</div>
+            @if($canViewPeople && $firstAcademy)<div class="metric-foot"><span>مشاهده اعضا</span><a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
+        </section>
+
+        <section class="card kpi c3" style="--c:#8b3dff" aria-label="مدرس‌های فعال">
+            <div class="kpi-head"><svg class="ic"><use href="#i-users"/></svg>مدرس‌های فعال</div>
+            <b>{{ \App\Support\PersianUi::digits($teachers) }}</b>
+            <div class="metric-caption">مدرس‌های فعال عضو آموزشگاه</div>
+            @if($canViewPeople && $firstAcademy)<div class="metric-foot"><span>مدیریت مدرس‌ها</span><a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
+        </section>
+        @endif
+
         @if($canViewClassrooms)
-            @php
-                $capacityTotal = max(0, (int) data_get($capacity ?? [], 'total', 0));
-                $capacityUsed = max(0, (int) data_get($capacity ?? [], 'used', 0));
-                $capacityRemaining = max(0, (int) data_get($capacity ?? [], 'remaining', 0));
-                $capacityRate = data_get($capacity ?? [], 'rate');
-                $configuredCapacityClasses = max(0, (int) data_get($capacity ?? [], 'configured_classrooms', 0));
-                $capacityAlertsForView = max(0, (int) data_get($metrics, 'capacityAlerts', 0));
-                $classesWithoutTeacherForView = max(0, (int) data_get($metrics, 'classroomsWithoutTeacher', 0));
-            @endphp
-            <section class="dashboard-panel owner-panel owner-classroom-overview" aria-labelledby="owner-classroom-title">
-                <div class="owner-panel-head">
+            <section class="card kpi c3" style="--c:#ff1f6b" aria-label="کلاس‌های فعال">
+                <div class="kpi-head"><svg class="ic"><use href="#i-calendar"/></svg>کلاس‌های فعال</div>
+                <b>{{ \App\Support\PersianUi::digits($classroomCount) }}</b>
+                <div class="metric-caption">{{ \App\Support\PersianUi::digits($liveNowCount) }} جلسه آنلاین همین حالا در حال اجرا</div>
+                @if($firstAcademy)<div class="metric-foot"><span>فهرست کلاس‌ها</span><a class="table-link" href="{{ route('owner.classrooms.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
+            </section>
+        @endif
+
+        @if($canViewCourses)
+            <section class="card kpi c3" style="--c:#2ee6a6" aria-label="دوره‌های منتشرشده">
+                <div class="kpi-head"><svg class="ic"><use href="#i-book"/></svg>دوره‌های منتشرشده</div>
+                <b>{{ \App\Support\PersianUi::digits($publishedCourseCount) }}</b>
+                <div class="metric-caption">از {{ \App\Support\PersianUi::digits($courseCount) }} دوره ثبت‌شده</div>
+                @if($publishedRate !== null)<div class="metric-foot"><span>سهم انتشار</span><strong>{{ \App\Support\PersianUi::digits($publishedRate) }}٪</strong></div>@endif
+                <div class="trk"><span class="fill" style="--c:#2ee6a6;width:{{ $publishedRate ?? 0 }}%"></span></div>
+                <div class="metric-foot"><span>مدیریت دوره‌ها</span><a class="table-link" href="{{ route('owner.courses.index') }}">جزئیات ←</a></div>
+            </section>
+        @endif
+
+        @if($canViewAttendance)
+            <section class="card kpi c3" style="--c:#22d3ee" aria-label="نرخ حضور {{ $periodCaption }}">
+                <div class="kpi-head"><svg class="ic"><use href="#i-checksq"/></svg>حضور {{ $periodCaption }}</div>
+                <b>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) }}{{ $attendanceRate === null ? '' : '٪' }}</b>
+                <div class="metric-caption">{{ $attendanceRate === null ? ('در ' . $periodCaption . ' رکورد حضور و غیاب ثبت نشده') : ('درصد حضور و تأخیر از کل رکوردهای معتبر ' . $periodCaption) }}</div>
+                @if($attendanceRate !== null)<div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ min(100,max(0,(float)$attendanceRate)) }}%"></span></div>@endif
+                @if($firstAcademy)<div class="metric-foot"><span>حضور و غیاب</span><a class="table-link" href="{{ route('owner.attendance.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
+            </section>
+        @endif
+
+        @if($canViewFinance)
+            <section class="card kpi c3" style="--c:#ff9a1f" aria-label="خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}">
+                <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}</div>
+                <b>{{ \App\Support\PersianUi::number($sales) }}</b>
+                <div class="metric-caption">پرداخت‌های ثبت‌شده منهای بازپرداخت‌های تکمیل‌شده</div>
+                <div class="metric-foot"><span>مبالغ بر حسب تومان؛ تراکنش‌های ریالی وارد این جمع نشده‌اند</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
+            </section>
+        @endif
+
+        @if($canViewAssignments || $canViewClassrooms)
+            <section class="card kpi c3" style="--c:#ff1f6b" aria-label="موارد نیازمند توجه">
+                <div class="kpi-head"><svg class="ic"><use href="#i-bell"/></svg>نیازمند پیگیری</div>
+                <b>{{ \App\Support\PersianUi::digits($attentionCount) }}</b>
+                <div class="metric-caption">جمع سه هشدار مستقل؛ هر مورد با کوئری مربوط خودش محاسبه شده است.</div>
+                <div class="metric-foot"><span>{{ \App\Support\PersianUi::digits($pendingReviews) }} بررسی معوق</span><span>{{ \App\Support\PersianUi::digits($capacityAlerts + $classroomsWithoutTeacher) }} هشدار کلاس</span></div>
+                @if($pendingReviews > 0 && $firstAcademy && $canViewAssignments)<a class="go sm" href="{{ route('owner.assignments.index', $firstAcademy) }}">بررسی تکالیف ←</a>
+                @elseif(($capacityAlerts + $classroomsWithoutTeacher)>0 && $firstAcademy && $canViewClassrooms)<a class="go sm" href="{{ route('owner.classrooms.index', $firstAcademy) }}">بررسی کلاس‌ها ←</a>
+                @else<span class="pl" style="--c:#2ee6a6">بدون مورد فوری</span>@endif
+            </section>
+        @endif
+
+        @if($canViewClassrooms)
+            <section class="card c6" style="--c:#22d3ee" aria-labelledby="capacity-title">
+                <div class="card-title">
+                    <div><h2 id="capacity-title"><span class="section-icon"><svg class="ic"><use href="#i-chart"/></svg></span>وضعیت واقعی ظرفیت کلاس‌ها</h2><p>تجمیع کلاس‌های فعال با ظرفیت تعریف‌شده و دانش‌آموزان فعال ثبت‌شده در هر کلاس.</p></div>
+                    @if($capacityRate !== null)<span class="pl" style="--c:#22d3ee">{{ \App\Support\PersianUi::digits($capacityRate) }}٪</span>@endif
+                </div>
+                <div class="metric-bars">
                     <div>
-                        <span class="owner-kicker">نگاه مدیریتی</span>
-                        <h2 id="owner-classroom-title">سلامت کلاس‌ها و ظرفیت</h2>
-                        <p>نمای کلی برای تصمیم‌گیری سریع؛ فهرست کامل، جست‌وجو و صفحه‌بندی در بخش کلاس‌ها قرار دارد.</p>
+                        <div class="bar-label"><span>ظرفیت استفاده‌شده</span><strong>{{ \App\Support\PersianUi::digits($capacityUsed) }} از {{ \App\Support\PersianUi::digits($capacityTotal) }}</strong></div>
+                        <div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ $capacityRate ?? 0 }}%"></span></div>
                     </div>
-                    @if($firstAcademy && !$hasMultipleAcademies)
-                        <a href="{{ route('owner.classrooms.index', $firstAcademy) }}" class="owner-link">مدیریت کلاس‌ها <span aria-hidden="true">←</span></a>
-                    @elseif($hasMultipleAcademies)
-                        <span class="owner-panel-hint">برای مدیریت هر آموزشگاه، از منوی کناری وارد همان آموزشگاه شو.</span>
+                    <div>
+                        <div class="bar-label"><span>ظرفیت خالی</span><strong>{{ \App\Support\PersianUi::digits($capacityRemaining) }}</strong></div>
+                        <div class="trk"><span class="fill" style="--c:#8b3dff;width:{{ $capacityTotal > 0 ? min(100,($capacityRemaining/$capacityTotal)*100) : 0 }}%"></span></div>
+                    </div>
+                </div>
+                <div class="mr"><small>{{ \App\Support\PersianUi::digits((int)data_get($capacity,'configured_classrooms',0)) }} کلاس دارای ظرفیت</small>@if($firstAcademy)<a class="table-link" href="{{ route('owner.classrooms.index', $firstAcademy) }}">مدیریت کلاس‌ها ←</a>@endif</div>
+                @if($capacityTotal === 0)<div class="card-empty">برای محاسبه نرخ ظرفیت، ظرفیت حداقل یک کلاس فعال باید در دیتابیس تعیین شده باشد.</div>@endif
+            </section>
+        @endif
+
+        @if($canViewCourses)
+            <section class="card c6" style="--c:#8b3dff" aria-labelledby="course-publish-title">
+                <div class="card-title">
+                    <div><h2 id="course-publish-title"><span class="section-icon"><svg class="ic"><use href="#i-book"/></svg></span>وضعیت انتشار دوره‌ها</h2><p>نسبت دوره‌های منتشرشده به کل دوره‌های ثبت‌شده در آموزشگاه‌های مجاز این حساب.</p></div>
+                    <a class="table-link" href="{{ route('owner.courses.index') }}">همه دوره‌ها ←</a>
+                </div>
+                <div class="dn">
+                    <svg viewBox="0 0 120 120" role="img" aria-label="سهم دوره‌های منتشرشده">
+                        <circle cx="60" cy="60" r="45" fill="none" stroke="#0a0e27" stroke-width="13"/>
+                        @if($publishedRate !== null)<circle cx="60" cy="60" r="45" fill="none" stroke="#8b3dff" stroke-width="13" stroke-linecap="round" stroke-dasharray="{{ 2 * pi() * 45 * $publishedRate / 100 }} {{ 2 * pi() * 45 * (1 - $publishedRate / 100) }}" transform="rotate(-90 60 60)"/>@endif
+                        <text x="60" y="57" text-anchor="middle" fill="#e8ecff" font-size="18" font-weight="800">{{ $publishedRate === null ? '—' : \App\Support\PersianUi::digits($publishedRate) . '٪' }}</text>
+                        <text x="60" y="75" text-anchor="middle" fill="#8d96c9" font-size="9">انتشار</text>
+                    </svg>
+                    <div class="gx">
+                        <b>{{ \App\Support\PersianUi::digits($publishedCourseCount) }} دوره منتشرشده</b>
+                        <small>از {{ \App\Support\PersianUi::digits($courseCount) }} رکورد دوره</small>
+                        <div class="bl">پیش‌نویس یا سایر وضعیت‌ها: {{ \App\Support\PersianUi::digits(max(0,$courseCount-$publishedCourseCount)) }}</div>
+                    </div>
+                </div>
+                @if($courseCount === 0)<div class="card-empty">هنوز دوره‌ای در دیتابیس ثبت نشده است.</div>@endif
+            </section>
+        @endif
+
+        @if($canViewPeople)
+            <section class="card c12" aria-labelledby="login-title" style="--c:#22d3ee">
+                <div class="card-title">
+                    <div><h2 id="login-title"><span class="section-icon"><svg class="ic"><use href="#i-users"/></svg></span>ورود اخیر دانش‌آموزان</h2><p>آخرین رویدادهای واقعی ورود برای اعضای فعال همین آکادمی‌ها؛ این فهرست از cache شاخص‌ها خوانده نمی‌شود.</p></div>
+                    @if($firstAcademy)<a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">مدیریت اعضا ←</a>@endif
+                </div>
+                @forelse($recentStudentLogins as $login)
+                    <a class="lr" href="{{ $firstAcademy ? route('owner.people.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#22d3ee">
+                        <i class="tile"><svg class="ic"><use href="#i-users"/></svg></i>
+                        <span class="gx"><b>{{ $login->subject?->name ?? 'حساب حذف‌شده' }}</b><small>{{ $login->subject?->email ?? 'بدون ایمیل' }}</small></span>
+                        <span class="row-value">{{ \App\Support\PersianUi::dateTime($login->created_at) }}</span>
+                        <svg class="ic"><use href="#i-arr"/></svg>
+                    </a>
+                @empty
+                    <div class="card-empty">در گزارش فعالیت‌ها، ورود ثبت‌شده‌ای برای دانش‌آموزان فعال این آموزشگاه‌ها یافت نشد.</div>
+                @endforelse
+            </section>
+        @endif
+
+        @if($canViewClassrooms)
+            <section class="card c12" aria-labelledby="attention-title" style="--c:#ff9a1f">
+                <div class="card-title">
+                    <div><h2 id="attention-title"><span class="section-icon"><svg class="ic"><use href="#i-bell"/></svg></span>هشدارهای قابل اقدام</h2><p>هر ردیف فقط وقتی نمایش داده می‌شود که شرط متناظر در دیتابیس برقرار باشد.</p></div>
+                </div>
+                <div class="mg">
+                    @if($classroomsWithoutTeacher > 0)
+                        <a class="mc" href="{{ $firstAcademy ? route('owner.classrooms.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#ff9a1f">
+                            <div class="th" style="background:linear-gradient(135deg,rgba(255,154,31,.35),rgba(255,31,107,.1));display:grid;place-items:center"><svg class="ic" style="width:30px;height:30px"><use href="#i-users"/></svg></div>
+                            <b>{{ \App\Support\PersianUi::digits($classroomsWithoutTeacher) }} کلاس بدون مدرس</b>
+                            <small>کلاس فعال بدون مدرس عضو و فعال در همان آکادمی.</small>
+                            <div class="mr"><span class="pl" style="--c:#ff9a1f">نیازمند پیگیری</span><span class="table-link">بازبینی ←</span></div>
+                        </a>
                     @endif
-                </div>
-
-                <div class="owner-classroom-summary-grid">
-                    <article class="owner-classroom-summary-card">
-                        <span>کلاس‌های فعال</span>
-                        <strong>{{ \App\Support\PersianUi::digits(max(0, (int) data_get($metrics, 'classrooms', 0))) }}</strong>
-                        <small>در آموزشگاه‌های فعال شما</small>
-                    </article>
-                    <article class="owner-classroom-summary-card">
-                        <span>ظرفیت تعریف‌شده</span>
-                        <strong>{{ $capacityTotal > 0 ? \App\Support\PersianUi::digits($capacityTotal) : '—' }}</strong>
-                        <small>{{ $configuredCapacityClasses > 0 ? \App\Support\PersianUi::digits($configuredCapacityClasses) . ' کلاس دارای ظرفیت' : 'هنوز ظرفیتی تعریف نشده' }}</small>
-                    </article>
-                    <article class="owner-classroom-summary-card">
-                        <span>دانش‌آموز ثبت‌شده در ظرفیت</span>
-                        <strong>{{ $capacityTotal > 0 ? \App\Support\PersianUi::digits($capacityUsed) : '—' }}</strong>
-                        <small>{{ $capacityTotal > 0 ? \App\Support\PersianUi::digits($capacityRemaining) . ' ظرفیت باقی‌مانده' : 'برای رسم نمودار ظرفیت تعیین کنید' }}</small>
-                    </article>
-                    <article class="owner-classroom-summary-card {{ $capacityAlertsForView > 0 || $classesWithoutTeacherForView > 0 ? 'needs-attention' : 'is-healthy' }}">
-                        <span>نیازمند پیگیری</span>
-                        <strong>{{ \App\Support\PersianUi::digits($capacityAlertsForView + $classesWithoutTeacherForView) }}</strong>
-                        <small>{{ \App\Support\PersianUi::digits($capacityAlertsForView) }} نزدیک ظرفیت · {{ \App\Support\PersianUi::digits($classesWithoutTeacherForView) }} بدون مدرس فعال</small>
-                    </article>
-                </div>
-
-                <div class="owner-capacity-summary">
-                    <div class="owner-capacity-summary-meta">
-                        <div>
-                            <strong>میزان استفاده از ظرفیت</strong>
-                            <p>فقط کلاس‌های فعال با ظرفیت تعریف‌شده محاسبه می‌شوند.</p>
-                        </div>
-                        <strong class="owner-capacity-summary-value">
-                            {{ $capacityRate === null ? '—' : \App\Support\PersianUi::digits($capacityRate) . '٪' }}
-                        </strong>
-                    </div>
-                    @if($capacityRate !== null)
-                        <div class="owner-capacity-summary-track" role="img" aria-label="استفاده از ظرفیت کل: {{ \App\Support\PersianUi::digits($capacityRate) }} درصد">
-                            <span style="width: {{ $capacityRate }}%"></span>
-                        </div>
-                    @else
-                        <p class="owner-capacity-summary-empty">برای نمایش نمودار، ظرفیت حداقل یک کلاس فعال را وارد کن.</p>
+                    @if($capacityAlerts > 0)
+                        <a class="mc" href="{{ $firstAcademy ? route('owner.classrooms.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#ff1f6b">
+                            <div class="th" style="background:linear-gradient(135deg,rgba(255,31,107,.3),rgba(139,61,255,.12));display:grid;place-items:center"><svg class="ic" style="width:30px;height:30px"><use href="#i-calendar"/></svg></div>
+                            <b>{{ \App\Support\PersianUi::digits($capacityAlerts) }} کلاس نزدیک ظرفیت</b>
+                            <small>کلاس فعال با ظرفیت مثبت که ۹۰٪ یا بیشتر پر شده است.</small>
+                            <div class="mr"><span class="pl" style="--c:#ff1f6b">ظرفیت بالا</span><span class="table-link">بازبینی ←</span></div>
+                        </a>
+                    @endif
+                    @if($pendingReviews > 0 && $canViewAssignments)
+                        <a class="mc" href="{{ $firstAcademy ? route('owner.assignments.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#22d3ee">
+                            <div class="th" style="background:linear-gradient(135deg,rgba(34,211,238,.28),rgba(139,61,255,.12));display:grid;place-items:center"><svg class="ic" style="width:30px;height:30px"><use href="#i-doc"/></svg></div>
+                            <b>{{ \App\Support\PersianUi::digits($pendingReviews) }} تکلیف بررسی‌نشده</b>
+                            <small>ارسال‌هایی که هنوز زمان تصحیح آن‌ها در دیتابیس ثبت نشده است.</small>
+                            <div class="mr"><span class="pl" style="--c:#22d3ee">در انتظار بررسی</span><span class="table-link">بازبینی ←</span></div>
+                        </a>
+                    @endif
+                    @if($classroomsWithoutTeacher === 0 && $capacityAlerts === 0 && $pendingReviews === 0)
+                        <div class="card-empty" style="grid-column:1/-1">در داده‌های قابل‌مشاهده‌ی این کارتابل، هشدار بازی وجود ندارد.</div>
                     @endif
                 </div>
             </section>
         @endif
 
-        @if($canViewReports || $canViewMeetings)
-        {{-- =========================================================
-            TEACHERS + UPCOMING LIVE CLASSES
-        ========================================================== --}}
-        <div class="owner-grid">
+        @if($canViewReports)
+            <section class="card c12" aria-labelledby="teacher-report-title" style="--c:#8b3dff">
+                <div class="card-title">
+                    <div><h2 id="teacher-report-title"><span class="section-icon"><svg class="ic"><use href="#i-chart"/></svg></span>عملکرد مدرس‌ها</h2><p>حداکثر ۸ مدرس بر اساس تعداد دانش‌آموزان فعال؛ میانگین پیشرفت و بررسی‌های معوق از محاسبات بک‌اند.</p></div>
+                    <a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>
+                </div>
+                <div class="tsc">
+                    <table>
+                        <thead><tr><th>مدرس</th><th>دوره</th><th>دانش‌آموز فعال</th><th>پیشرفت میانگین</th><th>بررسی معوق</th>@if($canViewFinance)<th>خالص تراکنش (تومان)</th>@endif</tr></thead>
+                        <tbody>
+                        @forelse($teacherReports as $teacher)
+                            <tr>
+                                <td><span class="nm"><i class="av2">{{ mb_substr((string)$teacher->name,0,1) }}</i><span>{{ $teacher->name }}</span></span></td>
+                                <td>{{ \App\Support\PersianUi::digits($teacher->course_count) }}</td>
+                                <td>{{ \App\Support\PersianUi::digits($teacher->student_count) }}</td>
+                                <td>
+                                    <span class="row-value">{{ \App\Support\PersianUi::digits(round((float)$teacher->progress_average,1)) }}٪</span>
+                                    <div class="trk"><span class="fill" style="--c:#8b3dff;width:{{ min(100,max(0,(float)$teacher->progress_average)) }}%"></span></div>
+                                </td>
+                                <td>{{ \App\Support\PersianUi::digits($teacher->pending_reviews) }}</td>
+                                @if($canViewFinance)<td>{{ \App\Support\PersianUi::number($teacher->sales) }}</td>@endif
+                            </tr>
+                        @empty
+                            <tr><td colspan="{{ $canViewFinance ? 6 : 5 }}"><div class="card-empty">هنوز داده‌ای برای گزارش مدرس‌ها موجود نیست.</div></td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        @endif
 
-@if($canViewReports)
-            {{-- Teachers --}}
-            <section class="dashboard-panel owner-panel">
-
-                <div class="owner-panel-head">
-                    <div>
-                        <h2>برآیند مدرس‌ها</h2>
-
-                        <p>
-                            دوره، دانش‌آموز، پیشرفت و کارهای معوق
-                        </p>
-                    </div>
-
-                    <a
-                        href="{{ route('owner.reports.index') }}"
-                        class="owner-link"
-                    >
-                        جزئیات ←
+        @if($canViewMeetings)
+            <section class="card c6" aria-labelledby="live-title" style="--c:#ff1f6b">
+                <div class="card-title">
+                    <div><h2 id="live-title"><span class="section-icon"><svg class="ic"><use href="#i-video"/></svg></span>کلاس‌های آنلاین آینده</h2><p>جلسه‌های زمان‌بندی‌شده در هفت روز آینده؛ مرتب‌شده بر اساس زمان شروع.</p></div>
+                    @if($firstAcademy)<a class="table-link" href="{{ route('owner.schedules.index', $firstAcademy) }}">برنامه کامل ←</a>@endif
+                </div>
+                @forelse($upcomingLiveClasses as $item)
+                    <a class="at" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : ($firstAcademy ? route('owner.schedules.index', $firstAcademy) : route('owner.dashboard')) }}" style="--c:{{ $loop->first ? '#ff1f6b' : '#8b3dff' }}">
+                        <span class="ct">{{ \App\Support\PersianUi::digits($loop->iteration) }}</span>
+                        <span class="gx"><b>{{ $item->title }}</b><small>{{ $item->course?->title ?? 'بدون دوره مرتبط' }} · {{ $item->teacher?->name ?? 'مدرس تعیین نشده' }}</small><small>{{ $item->classroom?->title ?? 'کلاس آنلاین' }}</small></span>
+                        <span class="row-value">{{ \App\Support\PersianUi::dateTime($item->scheduled_at) }}</span>
                     </a>
-                </div>
-
-                <div class="owner-teacher-list">
-
-                    @forelse($teacherReports as $teacher)
-                        <article class="owner-teacher-row">
-
-                            <div class="owner-avatar">
-                                {{ mb_substr($teacher->name, 0, 1) }}
-                            </div>
-
-                            <div class="min-w-0">
-                                <div class="owner-row-title">
-                                    {{ $teacher->name }}
-                                </div>
-
-                                <div class="owner-row-meta">
-                                    {{ \App\Support\PersianUi::digits($teacher->course_count) }} دوره
-                                    ·
-                                    {{ \App\Support\PersianUi::digits($teacher->student_count) }} دانش‌آموز
-                                    ·
-                                    {{ \App\Support\PersianUi::digits($teacher->pending_reviews) }} بررسی معوق
-                                </div>
-
-                                <div class="owner-progress">
-                                    <span
-                                        style="width: {{ min(100, max(0, (float) $teacher->progress_average)) }}%"
-                                    ></span>
-                                </div>
-                            </div>
-
-                            <div class="owner-teacher-metric">
-                                <strong>
-                                    {{ \App\Support\PersianUi::digits($teacher->progress_average) }}٪
-                                </strong>
-
-                                <small>
-                                    پیشرفت میانگین
-                                </small>
-                            </div>
-
-                        </article>
-                    @empty
-                        <div class="owner-empty">
-                            هنوز مدرس فعالی ثبت نشده است.
-                        </div>
-                    @endforelse
-
-                </div>
-            </section>
-
-
-@endif
-
-@if($canViewMeetings)
-            {{-- Upcoming live classes --}}
-            <section class="dashboard-panel owner-panel">
-
-                <div class="owner-panel-head">
-                    <div>
-                        <h2>جلسات آنلاین آینده</h2>
-
-                        <p>
-                            هفت روز آینده
-                        </p>
-                    </div>
-                </div>
-
-                <div class="owner-live-list">
-
-                    @forelse($upcomingLiveClasses as $item)
-                        <article class="owner-live-row">
-
-                            <div class="owner-pill shrink-0">
-                                {{ \App\Support\PersianUi::date(\Illuminate\Support\Carbon::parse($item->scheduled_at)) }}
-                                ·
-                                {{ \App\Support\PersianUi::time(\Illuminate\Support\Carbon::parse($item->scheduled_at)) }}
-                            </div>
-
-                            <div class="min-w-0">
-                                <div class="owner-row-title truncate">
-                                    {{ $item->title }}
-                                </div>
-
-                                <div class="owner-row-meta truncate">
-                                    {{ $item->course?->title }}
-                                    ·
-                                    {{ $item->teacher?->name }}
-                                </div>
-                            </div>
-
-                            <span class="owner-pill success shrink-0">
-                                {{ $item->classroom?->title ?? 'آنلاین' }}
-                            </span>
-
-                        </article>
-                    @empty
-                        <div class="owner-empty">
-                            جلسه آنلاینی در هفت روز آینده ثبت نشده است.
-                        </div>
-                    @endforelse
-
-                </div>
-            </section>
-@endif
-
-
-        </div>
-
-
-@endif
-@if($canViewCourses)
-        {{-- =========================================================
-            RECENT COURSES
-        ========================================================== --}}
-        <section class="dashboard-panel owner-panel">
-
-            <div class="owner-panel-head">
-                <div>
-                    <h2>آخرین دوره‌ها</h2>
-
-                    <p>
-                        انتشار و دانش‌آموز فعال
-                    </p>
-                </div>
-
-                <a
-                    href="{{ route('owner.courses.index') }}"
-                    class="owner-link"
-                >
-                    همه دوره‌ها ←
-                </a>
-            </div>
-
-            <div class="owner-course-list">
-
-                @forelse($recentCourses as $course)
-                    <article class="owner-course-row">
-
-                        <div class="min-w-0">
-                            <div class="owner-row-title truncate">
-                                {{ $course->title }}
-                            </div>
-
-                            <div class="owner-row-meta truncate">
-                                {{ $course->academy?->name ?? 'بدون آموزشگاه' }}
-                                ·
-                                {{ \App\Support\PersianUi::digits($course->active_students_count) }} دانش‌آموز
-                            </div>
-                        </div>
-
-                        <span class="owner-pill {{ $course->status === 'published' ? 'success' : '' }}">
-                            {{ $course->status === 'published' ? 'منتشرشده' : 'پیش‌نویس' }}
-                        </span>
-
-                        <a
-                            href="{{ route('owner.courses.show', $course) }}"
-                            class="owner-pill shrink-0"
-                        >
-                            بازبینی
-                        </a>
-
-                    </article>
                 @empty
-                    <div class="owner-empty">
-                        دوره‌ای هنوز ثبت نشده است.
-                    </div>
+                    <div class="card-empty">در هفت روز آینده جلسه آنلاین زمان‌بندی‌شده‌ای ثبت نشده است.</div>
                 @endforelse
+            </section>
+        @endif
 
-            </div>
-        </section>
-@endif
+        @if($canViewCourses)
+            <section class="card c6" aria-labelledby="recent-courses-title" style="--c:#22d3ee">
+                <div class="card-title">
+                    <div><h2 id="recent-courses-title"><span class="section-icon"><svg class="ic"><use href="#i-book"/></svg></span>آخرین دوره‌ها</h2><p>آخرین شش رکورد دوره از دیتابیس؛ برچسب وضعیت از خود رکورد خوانده می‌شود.</p></div>
+                    <a class="table-link" href="{{ route('owner.courses.index') }}">همه دوره‌ها ←</a>
+                </div>
+                @forelse($recentCourses as $course)
+                    <div class="at" style="--c:{{ $course->status === 'published' ? '#2ee6a6' : '#ff9a1f' }}">
+                        <span class="tile"><svg class="ic"><use href="#i-book"/></svg></span>
+                        <span class="gx"><b>{{ $course->title }}</b><small>{{ $course->academy?->name ?? 'بدون آموزشگاه' }} · {{ \App\Support\PersianUi::digits($course->active_students_count) }} دانش‌آموز فعال</small></span>
+                        <span class="pl" style="--c:{{ $course->status === 'published' ? '#2ee6a6' : '#ff9a1f' }}">{{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : $course->status) }}</span>
+                        <a class="table-link" href="{{ route('owner.courses.show', $course) }}">بازبینی</a>
+                    </div>
+                @empty
+                    <div class="card-empty">دوره‌ای در دیتابیس ثبت نشده است.</div>
+                @endforelse
+            </section>
+        @endif
 
-
-    </div>
-@endsection
+        @if(!$canViewPeople && !$canViewClassrooms && !$canViewCourses && !$canViewAttendance && !$canViewFinance && !$canViewReports && !$canViewMeetings)
+            <section class="card c12"><div class="card-empty">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های مجاز این کارتابل برای این حساب فعال نیست.</div></section>
+        @endif
+    @endsection

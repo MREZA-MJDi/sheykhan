@@ -5,15 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل دانش‌آموز') · شیخان</title>
-    <script>
-        try {
-            const savedStudentTheme = localStorage.getItem('sheykhan.panel.theme') || localStorage.getItem('sheykhan.student.theme') || localStorage.getItem('theme');
-            if (savedStudentTheme === 'dark' || savedStudentTheme === 'light') {
-                document.documentElement.dataset.theme = savedStudentTheme;
-            }
-        } catch (_) {}
-    </script>
-    @vite(['resources/css/app.css', 'resources/css/student.css', 'resources/css/panel-design-system.css', 'resources/js/app.js', 'resources/js/student.js'])
+    @include('layouts.partials.panel-theme-init')
+    @vite(['resources/css/app.css', 'resources/css/student.css', 'resources/css/panel-design-system.css', 'resources/css/role-dashboard-design-system.css', 'resources/js/app.js', 'resources/js/student.js'])
     @stack('head')
     @stack('styles')
 </head>

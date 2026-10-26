@@ -124,7 +124,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
 
         foreach ([
             'route(\'owner.resources.index\', $academy)',
-            'route(\'owner.showcase.index\', $academy)',
+            'route(\'owner.showcase.index\', $websiteAcademy)',
             'route(\'owner.products.index\', $academy)',
             'route(\'owner.orders.index\', $academy)',
             "route('owner.legal-documents.index')",
@@ -132,9 +132,13 @@ class RoleMobileNavigationRouteContractTest extends TestCase
             $this->assertStringContainsString($destination, $sidebar, 'Desktop owner sidebar missing ' . $destination);
         }
 
-        foreach (["content.manage", "products.view", "orders.view", "legal.manage"] as $permission) {
+        foreach (["resources.view", "products.view", "orders.view", "legal.manage"] as $permission) {
             $this->assertStringContainsString("hasPermission('" . $permission . "')", $sidebar);
         }
+
+        $this->assertStringContainsString('$seoOnly && $user->hasPermission(\'seo.manage\')', $sidebar);
+        $this->assertStringContainsString("route('owner.blog.index')", $sidebar);
+        $this->assertStringContainsString("route('owner.content.index')", $sidebar);
     }
 
     public function test_every_declared_mobile_navigation_item_points_to_a_registered_route(): void
@@ -163,6 +167,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
             'owner.orders.index',
             'owner.legal-documents.index',
             'owner.reports.index',
+            'parent.meetings.index',
         ] as $ownerRoute) {
             $this->assertContains($ownerRoute, $routes, 'The owner mobile navigation must expose ' . $ownerRoute);
         }

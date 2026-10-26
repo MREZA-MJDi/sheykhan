@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Course;
 use App\Models\SpotPlayerLicense;
 use App\Models\User;
+use App\Services\SpotPlayerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -54,8 +55,11 @@ final class SpotPlayerIntegrationTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.courses.show', $course))
             ->assertOk()
-            ->assertSee('abcdef123456licensekey')
-            ->assertSee('https://app.spotplayer.ir/', false);
+            ->assertSee('spotplayer-player-' . $course->id, false)
+            ->assertSee('spotplayer-cookie', false)
+            ->assertSee('app-api.js', false)
+            ->assertDontSee('value="abcdef123456licensekey"', false)
+            ->assertDontSee('fake-secret-key');
 
         $this->actingAs($student)
             ->post(route('student.courses.spotplayer-license', $course))
@@ -120,4 +124,104 @@ final class SpotPlayerIntegrationTest extends TestCase
 
         $this->assertDatabaseCount('spot_player_licenses', 0);
     }
+    public function test_spotplayer_requires_server_api_key_and_a_supported_mode(): void
+    {
+        config([
+            'services.spotplayer.api_key' => '',
+            'services.spotplayer.mode' => 'test',
+        ]);
+
+        $service = app(SpotPlayerService::class);
+        $this->assertFalse($service->isConfigured());
+
+        config([
+            'services.spotplayer.api_key' => 'server-only-key',
+            'services.spotplayer.mode' => 'staging',
+        ]);
+        $this->assertFalse($service->isConfigured());
+
+        config(['services.spotplayer.mode' => 'production']);
+        $this->assertTrue($service->isConfigured());
+    }
+
+    public function test_missing_spotplayer_course_mapping_fails_closed_without_an_api_call(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course->update(['spotplayer_course_id' => null]);
+
+        config([
+            'services.spotplayer.api_key' => 'fake-secret-key',
+            'services.spotplayer.mode' => 'test',
+        ]);
+        Http::fake();
+
+        $this->actingAs($student)
+            ->from(route('student.courses.show', $course))
+            ->post(route('student.courses.spotplayer-license', $course))
+            ->assertRedirect(route('student.courses.show', $course))
+            ->assertSessionHasErrors('spotplayer');
+
+        $this->assertDatabaseCount('spot_player_licenses', 0);
+        Http::assertNothingSent();
+    }
+
+    public function test_provider_http_failure_does_not_persist_a_license(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course->update(['spotplayer_course_id' => 'spot-course-123']);
+
+        config([
+            'services.spotplayer.api_key' => 'fake-secret-key',
+            'services.spotplayer.mode' => 'test',
+        ]);
+        Http::fake([
+            'https://panel.spotplayer.ir/*' => Http::response(['error' => 'provider unavailable'], 503),
+        ]);
+
+        $this->actingAs($student)
+            ->from(route('student.courses.show', $course))
+            ->post(route('student.courses.spotplayer-license', $course))
+            ->assertRedirect(route('student.courses.show', $course))
+            ->assertSessionHasErrors('spotplayer');
+
+        $this->assertDatabaseCount('spot_player_licenses', 0);
+        Http::assertSentCount(1);
+    }
+
+    public function test_unsafe_license_download_host_is_rejected_without_storing_the_license(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course->update(['spotplayer_course_id' => 'spot-course-123']);
+
+        config([
+            'services.spotplayer.api_key' => 'fake-secret-key',
+            'services.spotplayer.mode' => 'test',
+        ]);
+        Http::fake([
+            'https://panel.spotplayer.ir/*' => Http::response([
+                '_id' => 'spot-license-' . $student->id,
+                'key' => 'abcdef123456licensekey',
+                'url' => 'https://attacker.example/license',
+            ], 200),
+        ]);
+
+        $this->actingAs($student)
+            ->from(route('student.courses.show', $course))
+            ->post(route('student.courses.spotplayer-license', $course))
+            ->assertRedirect(route('student.courses.show', $course))
+            ->assertSessionHasErrors('spotplayer');
+
+        $this->assertDatabaseCount('spot_player_licenses', 0);
+        Http::assertSentCount(1);
+    }
+
 }

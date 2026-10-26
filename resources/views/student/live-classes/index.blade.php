@@ -18,7 +18,17 @@
                 @if($class->can_join)
                     <a class="btn s" href="{{ route('student.live-classes.join', $class->id) }}">ورود به کلاس</a>
                 @else
-                    <span class="tag {{ $class->status === 'completed' ? 'ok' : 'w' }}">{{ $class->status === 'completed' ? 'برگزارشده' : ($class->status === 'cancelled' ? 'لغوشده' : 'در انتظار') }}</span>
+                    @php
+                        $sessionStatusLabel = match ($class->status) {
+                            'scheduled' => 'در انتظار',
+                            'live' => 'در حال برگزاری',
+                            'completed' => 'برگزارشده',
+                            'published' => 'ضبط منتشرشده',
+                            default => 'غیرقابل ورود',
+                        };
+                        $sessionStatusClass = in_array($class->status, ['completed', 'published'], true) ? 'ok' : 'w';
+                    @endphp
+                    <span class="tag {{ $sessionStatusClass }}">{{ $sessionStatusLabel }}</span>
                 @endif
             </div>
         @empty
@@ -35,7 +45,7 @@
                 <div>
                     <b>{{ $schedule->classroom?->title ?? 'کلاس هفتگی' }}</b>
                     <span>{{ $schedule->classroom?->course?->title }}</span>
-                    <span>{{ \App\Support\PersianUi::digits($schedule->start_time) }} – {{ \App\Support\PersianUi::digits($schedule->end_time) }} · روز هفته {{ \App\Support\PersianUi::digits($schedule->weekday) }}</span>
+                    <span>{{ \App\Support\PersianUi::digits($schedule->start_time) }} – {{ \App\Support\PersianUi::digits($schedule->end_time) }} · روز هفته {{ ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'][(int) $schedule->weekday] ?? 'نامشخص' }}</span>
                 </div>
                 @if($schedule->can_join)
                     <a class="btn s" href="{{ route('student.schedule.join', $schedule->id) }}">ورود به کلاس</a>

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\Course;
+use App\Models\FinancialTransaction;
 use App\Models\Permission;
 use App\Models\ParentMessage;
 use App\Models\Role;
@@ -13,6 +14,7 @@ use App\Services\OwnerDashboardService;
 use App\Services\OwnerClassroomService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -116,6 +118,65 @@ class OwnerDashboardBackendContractTest extends TestCase
     }
 
 
+    public function test_owner_dashboard_nets_current_period_toman_transactions_without_mixing_rials(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('id')->firstOrFail();
+        $academyIds = $owner->ownedAcademies()->where('status', 'active')->pluck('academies.id');
+        $periodStart = now()->copy()->startOfMonth();
+        $periodEnd = now();
+
+        $basePayments = (float) DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
+            ->where('type', 'enrollment_payment')
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [
+                $periodStart->toDateTimeString(),
+                $periodEnd->toDateTimeString(),
+            ])
+            ->sum('amount');
+        $baseRefunds = (float) DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
+            ->where('type', 'refund')
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [
+                $periodStart->toDateTimeString(),
+                $periodEnd->toDateTimeString(),
+            ])
+            ->sum('amount');
+
+        foreach ([
+            ['type' => 'enrollment_payment', 'amount' => 1250000, 'currency' => 'IRT', 'reference' => 'dash-pay-' . Str::random(8), 'occurred_at' => now()],
+            ['type' => 'refund', 'amount' => 250000, 'currency' => 'IRT', 'reference' => 'dash-refund-' . Str::random(8), 'occurred_at' => now()],
+            ['type' => 'enrollment_payment', 'amount' => 9900000, 'currency' => 'IRR', 'reference' => 'dash-rial-' . Str::random(8), 'occurred_at' => now()],
+            ['type' => 'enrollment_payment', 'amount' => 10000000, 'currency' => 'IRT', 'reference' => 'dash-old-' . Str::random(8), 'occurred_at' => now()->subMonths(2)],
+        ] as $transaction) {
+            FinancialTransaction::query()->create([
+                'academy_id' => $academy->id,
+                'user_id' => $owner->id,
+                'type' => $transaction['type'],
+                'status' => 'completed',
+                'amount' => $transaction['amount'],
+                'currency' => $transaction['currency'],
+                'reference' => $transaction['reference'],
+                'occurred_at' => $transaction['occurred_at'],
+            ]);
+        }
+
+        $dashboard = app(OwnerDashboardService::class)->build($owner, 'month');
+
+        $this->assertSame(
+            ($basePayments - $baseRefunds) + 1000000.0,
+            (float) $dashboard['metrics']['sales'],
+            'The dashboard should total current-month IRT/toman payments minus refunds, excluding rial-denominated and out-of-period transactions.'
+        );
+    }
+
     public function test_owner_dashboard_uses_one_sidebar_navigation_and_permission_scoped_kpis(): void
     {
         $this->seed();
@@ -128,7 +189,7 @@ class OwnerDashboardBackendContractTest extends TestCase
             Permission::query()->whereIn('name', [
                 'dashboard.view', 'academy.view', 'classrooms.view', 'courses.view', 'attendance.view',
                 'finance.view', 'reports.view', 'assignments.view', 'live_classes.view',
-                'parents.view', 'content.manage', 'blog.manage', 'products.view', 'orders.view',
+                'parents.view', 'resources.view', 'resources.manage', 'products.view', 'orders.view',
                 'legal.manage', 'exams.view', 'teacher_payments.view',
             ])->pluck('id')
         );
@@ -143,24 +204,23 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.courses.index') . '"', false)
             ->assertSee('href="' . route('owner.attendance.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.resources.index', $academy) . '"', false)
-            ->assertSee('href="' . route('owner.showcase.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.products.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.orders.index', $academy) . '"', false)
             ->assertSee('href="' . route('owner.legal-documents.index') . '"', false)
             ->assertSee('href="' . route('owner.reports.index') . '"', false)
             ->assertSee('href="' . route('owner.finance.index') . '"', false)
-            ->assertSee('href="' . route('owner.website.index') . '"', false)
-            ->assertSee('href="' . route('owner.content.index') . '"', false)
-            ->assertSee('href="' . route('owner.blog.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.website.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.content.index') . '"', false)
+            ->assertDontSee('href="' . route('owner.blog.index') . '"', false)
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false)
             ->assertSee('aria-label="کلاس‌های فعال"', false)
-            ->assertSee('class="owner-stat-card tone-indigo"', false)
-            ->assertSee('owner-classroom-overview', false)
-            ->assertSee('owner-classroom-summary-grid', false)
+            ->assertSee('class="card kpi c3" style="--c:#ff1f6b"', false)
+            ->assertSee('id="capacity-title"', false)
+            ->assertSee('id="course-publish-title"', false)
             ->assertDontSee('owner-classroom-item', false)
             ->assertDontSee('owner-quick-actions', false)
             ->assertDontSee('owner-footer-actions', false)
-            ->assertDontSee('<a class="owner-stat-card', false);
+            ->assertDontSee('<a class="card kpi', false);
     }
 
 
@@ -183,9 +243,9 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('id="owner-academies"', false)
             ->assertDontSee('href="#owner-academies"', false)
             ->assertDontSee('<a class="owner-stat-card', false)
-            ->assertSee('class="owner-stat-card tone-indigo"', false)
-            ->assertSee('برای مدیریت هر آموزشگاه، از منوی کناری وارد همان آموزشگاه شو.')
-            ->assertSee('owner-classroom-overview', false);
+            ->assertSee('class="card kpi c3" style="--c:#ff1f6b"', false)
+            ->assertSee('آموزشگاه دوم')
+            ->assertSee('id="capacity-title"', false);
     }
 
     public function test_owner_dashboard_hides_ungranted_kpis_and_shortcuts(): void
@@ -201,6 +261,7 @@ class OwnerDashboardBackendContractTest extends TestCase
                 ->whereIn('name', ['dashboard.view', 'classrooms.view'])
                 ->pluck('id')
         );
+        $owner->roles()->sync([$ownerRole->id]);
         $owner->unsetRelation('roles');
         Cache::flush();
 
@@ -208,15 +269,16 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->get(route('owner.dashboard'))
             ->assertOk()
             ->assertSee('کلاس‌های فعال')
-            ->assertSee('owner-classroom-overview', false)
+            ->assertSee('id="capacity-title"', false)
             ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
-            ->assertDontSee('ثبت‌نام و مدیریت اعضا')
+            ->assertDontSee('aria-label="دانش‌آموزان فعال"', false)
+            ->assertDontSee('مدرس‌های فعال')
             ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.edit', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.banners.edit', $academy) . '"', false)
             ->assertDontSee('دوره‌های منتشرشده')
             ->assertDontSee('حضور امروز')
-            ->assertDontSee('درآمد خالص ثبت‌شده')
+            ->assertDontSee('خالص تراکنش‌های تکمیل‌شده')
             ->assertDontSee('گزارش‌های آموزشی')
             ->assertDontSee('href="' . route('owner.finance.index') . '"', false)
             ->assertDontSee('href="' . route('owner.website.index') . '"', false)

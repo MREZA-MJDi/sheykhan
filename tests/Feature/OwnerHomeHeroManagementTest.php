@@ -28,13 +28,13 @@ class OwnerHomeHeroManagementTest extends TestCase
         config(['filesystems.default' => 'local']);
     }
 
-    public function test_owner_can_manage_multiple_independent_hero_slides_and_public_home_uses_them(): void
+    public function test_seo_specialist_can_manage_multiple_independent_hero_slides_and_public_home_uses_them(): void
     {
         Storage::fake('local');
         Cache::flush();
-        [$owner] = $this->workspace();
+        [$owner, $academy, $seo] = $this->workspace();
 
-        $this->actingAs($owner)
+        $this->actingAs($seo)
             ->get(route('owner.website.hero.edit'))
             ->assertOk()
             ->assertViewIs('owner.website.hero')
@@ -42,7 +42,7 @@ class OwnerHomeHeroManagementTest extends TestCase
             ->assertSee('name="slot" value="1"', false)
             ->assertSee('name="slot" value="5"', false);
 
-        $this->actingAs($owner)
+        $this->actingAs($seo)
             ->patch(route('owner.website.hero.update'), [
                 'slot' => 1,
                 'image' => UploadedFile::fake()->image('desktop-hero.jpg', 1920, 1080),
@@ -59,7 +59,7 @@ class OwnerHomeHeroManagementTest extends TestCase
             ])
             ->assertRedirect(route('owner.website.hero.edit'));
 
-        $this->actingAs($owner)
+        $this->actingAs($seo)
             ->patch(route('owner.website.hero.update'), [
                 'slot' => 2,
                 'image' => UploadedFile::fake()->image('second-hero.jpg', 1600, 900),
@@ -103,9 +103,9 @@ class OwnerHomeHeroManagementTest extends TestCase
     public function test_replacing_or_removing_a_slide_cleans_up_only_unused_hero_uploads(): void
     {
         Storage::fake('local');
-        [$owner] = $this->workspace();
+        [$owner, $academy, $seo] = $this->workspace();
 
-        $this->actingAs($owner)->patch(route('owner.website.hero.update'), [
+        $this->actingAs($seo)->patch(route('owner.website.hero.update'), [
             'slot' => 1,
             'image' => UploadedFile::fake()->image('first-hero.jpg', 1600, 900),
             'mobile_image' => UploadedFile::fake()->image('first-mobile.jpg', 800, 1000),
@@ -120,7 +120,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         $oldDesktopPath = $oldSlide->media->path;
         $oldMobilePath = $oldSlide->mobileMedia->path;
 
-        $this->actingAs($owner)->patch(route('owner.website.hero.update'), [
+        $this->actingAs($seo)->patch(route('owner.website.hero.update'), [
             'slot' => 1,
             'image' => UploadedFile::fake()->image('replacement.jpg', 1600, 900),
             'remove_mobile_image' => true,
@@ -140,7 +140,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         $this->assertDatabaseMissing('media', ['path' => $oldMobilePath]);
 
         $replacementPath = $slide->media->path;
-        $this->actingAs($owner)->patch(route('owner.website.hero.update'), [
+        $this->actingAs($seo)->patch(route('owner.website.hero.update'), [
             'slot' => 1,
             'remove_slide' => true,
         ])->assertRedirect();
@@ -219,20 +219,30 @@ class OwnerHomeHeroManagementTest extends TestCase
         $this->assertStringContainsString(route('media.public', $bannerMedia), $bannerMarkup);
     }
 
-    public function test_non_owner_cannot_manage_public_home_hero(): void
+    public function test_only_seo_specialists_can_manage_public_home_hero(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
             ->get(route('owner.website.hero.edit'))
             ->assertForbidden();
-    }
 
-    public function test_academy_owner_can_manage_hero_without_a_slug_or_branch_assumption(): void
-    {
-        [$owner] = $this->workspace('sheykhan-main');
+        [$owner] = $this->workspace();
 
         $this->actingAs($owner)
+            ->get(route('owner.website.hero.edit'))
+            ->assertForbidden();
+
+        $this->actingAs($owner)
+            ->patch(route('owner.website.hero.update'), ['slot' => 1])
+            ->assertForbidden();
+    }
+
+    public function test_seo_specialist_can_manage_hero_without_a_slug_or_branch_assumption(): void
+    {
+        [$owner, $academy, $seo] = $this->workspace('sheykhan-main');
+
+        $this->actingAs($seo)
             ->get(route('owner.website.hero.edit'))
             ->assertOk();
     }
@@ -268,6 +278,22 @@ class OwnerHomeHeroManagementTest extends TestCase
             'status' => 'active',
         ]);
 
-        return [$owner, $academy];
+        $seoRole = Role::firstOrCreate(
+            ['slug' => 'seo-specialist'],
+            ['name' => 'متخصص SEO', 'description' => 'Public website management']
+        );
+        $seoPermissions = collect(['dashboard.view', 'seo.manage'])->map(fn ($name) => Permission::firstOrCreate(
+            ['name' => $name],
+            ['label' => $name, 'group' => 'seo']
+        ));
+        $seoRole->permissions()->sync($seoPermissions->pluck('id'));
+
+        $seo = User::factory()->create([
+            'email' => 'seo-' . Str::random(8) . '@test.local',
+            'status' => 'active',
+        ]);
+        $seo->roles()->attach($seoRole->id);
+
+        return [$owner, $academy, $seo];
     }
 }

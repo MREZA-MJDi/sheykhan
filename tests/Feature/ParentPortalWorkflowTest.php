@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Academy;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
+use App\Models\AcademyMeeting;
 use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Course;
@@ -521,6 +522,57 @@ class ParentPortalWorkflowTest extends TestCase
                 'جلسهٔ دوره با پرداخت ناقص',
             ], true)
         ));
+    }
+
+    public function test_parent_can_only_see_planned_meetings_for_their_linked_child(): void
+    {
+        $workspace = $this->workspace();
+        $parent = $workspace['parent'];
+        $student = $workspace['student'];
+        $academy = $workspace['academy'];
+        $course = $workspace['course'];
+        $classroom = $workspace['classroom'];
+        $teacher = $workspace['teacher'];
+        $otherParent = User::factory()->create(['status' => 'active']);
+
+        AcademyMeeting::query()->create([
+            'academy_id' => $academy->id,
+            'classroom_id' => $classroom->id,
+            'course_id' => $course->id,
+            'student_id' => $student->id,
+            'parent_id' => $parent->id,
+            'created_by' => $teacher->id,
+            'title' => 'جلسه پیگیری پیشرفت فرزند',
+            'message' => 'زمان جلسه تأیید شده است.',
+            'scheduled_at' => now()->addDays(2),
+            'scheduled_end_at' => now()->addDays(2)->addMinutes(30),
+            'status' => 'scheduled',
+        ]);
+
+        AcademyMeeting::query()->create([
+            'academy_id' => $academy->id,
+            'classroom_id' => $classroom->id,
+            'course_id' => $course->id,
+            'student_id' => $student->id,
+            'parent_id' => $otherParent->id,
+            'created_by' => $teacher->id,
+            'title' => 'جلسه خصوصی والد دیگر',
+            'message' => 'این رکورد نباید برای والد جاری نمایش داده شود.',
+            'scheduled_at' => now()->addDays(3),
+            'scheduled_end_at' => now()->addDays(3)->addMinutes(30),
+            'status' => 'scheduled',
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('parent.meetings.index'))
+            ->assertOk()
+            ->assertSee('جلسه پیگیری پیشرفت فرزند')
+            ->assertSee('زمان تأیید و نهایی شده')
+            ->assertDontSee('جلسه خصوصی والد دیگر');
+
+        $this->actingAs($workspace['unlinkedStudent'])
+            ->get(route('parent.meetings.index'))
+            ->assertForbidden();
     }
 
     private function workspace(): array

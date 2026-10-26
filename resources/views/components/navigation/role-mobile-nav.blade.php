@@ -56,14 +56,10 @@
             ['route' => 'owner.exams.index', 'label' => 'آزمون‌ها و نتایج', 'permission' => 'exams.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.recordings.index', 'label' => 'آرشیو ضبط کلاس‌ها', 'permission' => 'live_classes.view', 'icon' => '◉', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.teacher-payments.index', 'label' => 'حقوق مدرس‌ها', 'permission' => 'teacher_payments.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.resources.index', 'label' => 'ویدئو و منابع آموزشی', 'permission' => 'content.manage', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.showcase.index', 'label' => 'افتخارآفرینان و رضایتمندی', 'permission' => 'content.manage', 'icon' => '◎', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.resources.index', 'label' => 'ویدئو و منابع آموزشی', 'permission' => 'resources.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.products.index', 'label' => 'محصولات و منابع فروش', 'permission' => 'products.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.orders.index', 'label' => 'سفارش‌ها و رسیدها', 'permission' => 'orders.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣', 'primary' => false],
-            ['route' => 'owner.website.index', 'label' => 'مرکز سایت', 'permission' => 'academy.view', 'icon' => '⌂', 'primary' => false],
-            ['route' => 'owner.content.index', 'label' => 'محتوای آموزشگاه', 'permission' => 'content.manage', 'icon' => '▤', 'primary' => false],
-            ['route' => 'owner.blog.index', 'label' => 'مقالات', 'permission' => 'blog.manage', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.academy.banners.edit', 'label' => 'بنرهای سایت', 'permission' => 'academy.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.finance.index', 'label' => 'مالی و پرداخت‌ها', 'permission' => 'finance.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.legal-documents.index', 'label' => 'اسناد حقوقی و کپی‌رایت', 'permission' => 'legal.manage', 'icon' => '▤', 'primary' => false],
@@ -77,6 +73,7 @@
             ['route' => 'parent.messages.index', 'label' => 'پیام‌ها', 'permission' => 'dashboard.view', 'icon' => '✉', 'primary' => true],
             ['route' => 'parent.resources.index', 'label' => 'جزوه‌ها و منابع', 'permission' => 'dashboard.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'parent.counseling.index', 'label' => 'درخواست مشاوره', 'permission' => 'dashboard.view', 'icon' => '◷', 'primary' => false],
+            ['route' => 'parent.meetings.index', 'label' => 'جلسات برنامه‌ریزی‌شده', 'permission' => 'dashboard.view', 'icon' => '◷', 'primary' => false],
             ['route' => 'library.index', 'label' => 'کتابخانه و خریدها', 'icon' => '▣', 'primary' => false],
             ['route' => 'store.index', 'label' => 'کتاب‌ها و محصولات', 'icon' => '▣', 'primary' => false],
             ['route' => 'courses.index', 'label' => 'کشف دوره‌ها', 'icon' => '▣', 'primary' => false],
@@ -88,13 +85,27 @@
         $items = [
             ['route' => 'owner.seo.index', 'label' => 'ممیزی SEO صفحات', 'permission' => 'seo.manage', 'icon' => '⌕', 'primary' => true],
             ['route' => 'owner.seo.keywords.index', 'label' => 'کلمات کلیدی و رتبه', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => true],
-
+            ['route' => 'owner.website.index', 'label' => 'مرکز سایت و بنرها', 'permission' => 'seo.manage', 'icon' => '⌂', 'primary' => true],
+            ['route' => 'owner.website.hero.edit', 'label' => 'مدیریت Hero', 'permission' => 'seo.manage', 'icon' => '▧', 'primary' => false],
+            ['route' => 'owner.content.index', 'label' => 'محتوای عمومی صفحات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
+            ['route' => 'owner.blog.index', 'label' => 'بلاگ و مقالات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
+            ['route' => 'owner.showcase.index', 'label' => 'افتخارآفرینان و رضایتمندی', 'permission' => 'seo.manage', 'icon' => '◎', 'primary' => false, 'requiresAcademy' => true],
         ];
     }
 
-    $academy = $role === 'owner' && ! $seoOnly
-        ? $user?->ownedAcademies()->where('status', 'active')->orderBy('name')->first()
-        : null;
+    $ownedAcademies = $role === 'owner'
+        ? ($seoOnly
+            ? \App\Models\Academy::query()->where('status', 'active')->orderBy('name')->get()
+            : ($user?->ownedAcademies()->where('status', 'active')->orderBy('name')->get() ?? collect()))
+        : collect();
+
+    // Keep scoped mobile links in the academy the owner is currently viewing.
+    // A fallback to the first active academy is only used on unscoped pages.
+    $routeAcademy = request()->route('academy');
+    $routeAcademyId = $routeAcademy instanceof \App\Models\Academy
+        ? (int) $routeAcademy->getKey()
+        : (is_numeric($routeAcademy) ? (int) $routeAcademy : null);
+    $academy = $ownedAcademies->firstWhere('id', $routeAcademyId) ?? $ownedAcademies->first();
 
     $academyRoutes = [
         'owner.people.index', 'owner.classrooms.index', 'owner.attendance.index',
@@ -180,6 +191,7 @@
                             );
                     @endphp
                     <a href="{{ $item['url'] ?? route($item['route'], $item['urlArgs'] ?? []) }}" class="{{ $active ? 'is-active' : '' }}">
+                        @if($active) aria-current="page" @endif
                         <x-navigation.mobile-nav-icon :icon="$item['icon']" />
                         <span>{{ $item['label'] }}</span>
                         @if($active)<span class="role-mobile-more-current">فعلی</span>@endif

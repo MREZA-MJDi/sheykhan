@@ -8,7 +8,12 @@ class HomeHeroRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasPermission('academy.manage') ?? false;
+        $user = $this->user();
+
+        return $user !== null
+            && $user->hasRole('seo-specialist')
+            && ! $user->hasRole('academy-owner')
+            && $user->hasPermission('seo.manage');
     }
 
     public function rules(): array

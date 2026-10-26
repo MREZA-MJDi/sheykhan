@@ -8,7 +8,7 @@
         <div class="teacher-workspace-head-copy">
             <span class="teacher-workspace-kicker">برنامه‌ریزی</span>
             <h1 class="teacher-workspace-title">برنامه هفتگی</h1>
-            <p class="teacher-workspace-description">زمان‌های ثابت هر کلاس را ثبت کن؛ همین برنامه در داشبورد استاد و مسیرهای آموزشی دانش‌آموز قابل استفاده است.</p>
+            <p class="teacher-workspace-description">روز و ساعت تکرارشونده را ثبت کن؛ تقویم رنگی پایین تغییرات را نشان می‌دهد. ساعت‌ها به وقت تهران هستند.</p>
         </div>
         <a href="{{ route('teacher.classrooms.index') }}" class="teacher-workspace-btn secondary">کلاس‌ها</a>
     </header>
@@ -19,6 +19,8 @@
     @if($errors->any())
         <div class="teacher-workspace-alert error">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>
     @endif
+
+    <x-education.weekly-schedule-calendar :classrooms="$classrooms" />
 
     <section class="teacher-workspace-card">
         <div class="teacher-workspace-card-head">
@@ -43,8 +45,8 @@
                     @endforeach
                 </select>
             </label>
-            <label class="teacher-workspace-field"><span>شروع</span><input type="time" name="start_time" value="{{ old('start_time') }}" required></label>
-            <label class="teacher-workspace-field"><span>پایان</span><input type="time" name="end_time" value="{{ old('end_time') }}" required></label>
+            <label class="teacher-workspace-field"><span>شروع · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="start_time" value="{{ old('start_time') }}" required></label>
+            <label class="teacher-workspace-field"><span>پایان · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="end_time" value="{{ old('end_time') }}" required></label>
             <label class="teacher-workspace-field"><span>اتاق / عنوان جلسه <small>اختیاری</small></span><input name="room" value="{{ old('room') }}" placeholder="مثلاً کلاس ۳"></label>
             <label class="teacher-workspace-field">
                 <span>سرویس جلسه</span>

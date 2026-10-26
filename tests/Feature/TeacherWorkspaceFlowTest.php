@@ -51,6 +51,38 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertOk();
     }
 
+    public function test_teacher_class_code_is_generated_when_not_supplied(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.classrooms.create'))
+            ->assertOk()
+            ->assertSee('کد داخلی کلاس · خودکار')
+            ->assertSee('readonly', false);
+
+        $this->actingAs($teacher)
+            ->post(route('teacher.classrooms.store'), [
+                'course_id' => $course->id,
+                'title' => 'کلاس مدرس با کد خودکار',
+                'capacity' => 18,
+            ])
+            ->assertRedirect(route('teacher.classrooms.index'))
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+
+        $classroom = Classroom::query()->where('title', 'کلاس مدرس با کد خودکار')->firstOrFail();
+
+        $this->assertMatchesRegularExpression('/^SHK-[A-Z0-9]{8}$/', $classroom->code);
+        $this->assertDatabaseHas('classroom_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher->id,
+        ]);
+    }
+
     public function test_teacher_routes_show_only_assigned_courses_even_when_account_also_has_owner_role(): void
     {
         $this->seed();

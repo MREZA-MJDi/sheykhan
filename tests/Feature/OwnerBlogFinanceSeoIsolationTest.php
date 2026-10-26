@@ -73,14 +73,22 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             route('owner.content.index'),
             route('owner.content.create'),
             route('owner.content.edit', $item),
+            route('owner.website.index'),
         ] as $url) {
-            $this->actingAs($owner)->get($url)->assertOk();
+            $this->actingAs($owner)->get($url)->assertForbidden();
         }
 
         $this->actingAs($owner)->get(route('owner.dashboard'))
             ->assertOk()
             ->assertDontSee('SEO و دیده‌شدن')
             ->assertDontSee(route('owner.seo.index'), false);
+
+        try {
+            app(\App\Services\OwnerBlogService::class)->index($owner);
+            $this->fail('Direct blog service access must not bypass the SEO-only role.');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+            $this->assertSame(403, $exception->getStatusCode());
+        }
 
         foreach ([
             route('owner.seo.index'),
@@ -93,6 +101,18 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         }
 
         $seoSpecialist = $this->seoSpecialist();
+
+        foreach ([
+            route('owner.blog.index'),
+            route('owner.blog.create'),
+            route('owner.blog.edit', $post),
+            route('owner.content.index'),
+            route('owner.content.create'),
+            route('owner.content.edit', $item),
+            route('owner.website.index'),
+        ] as $url) {
+            $this->actingAs($seoSpecialist)->get($url)->assertOk();
+        }
         $this->actingAs($seoSpecialist)
             ->get(route('owner.seo.index'))
             ->assertOk()
@@ -118,7 +138,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         ]);
     }
 
-        public function test_owner_can_manage_own_blog_post_but_cannot_manage_seo_metadata(): void
+        public function test_public_blog_is_managed_globally_by_seo_specialist_not_academy_owner(): void
     {
         [$ownerA] = $this->ownerWithPermissions(['blog.manage', 'seo.manage']);
         [$ownerB] = $this->ownerWithPermissions(['blog.manage']);
@@ -139,8 +159,12 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $this->actingAs($ownerA)->get(route('owner.blog.edit', $ownPost))->assertOk();
-        $this->actingAs($ownerA)->get(route('owner.blog.edit', $otherPost))->assertNotFound();
+        $this->actingAs($ownerA)->get(route('owner.blog.edit', $ownPost))->assertForbidden();
+        $this->actingAs($ownerA)->get(route('owner.blog.edit', $otherPost))->assertForbidden();
+
+        $seo = $this->seoSpecialist();
+        $this->actingAs($seo)->get(route('owner.blog.edit', $ownPost))->assertOk();
+        $this->actingAs($seo)->get(route('owner.blog.edit', $otherPost))->assertOk();
 
         $this->actingAs($ownerA)
             ->patch(route('owner.seo.update', ['blog', $ownPost->id]), [
