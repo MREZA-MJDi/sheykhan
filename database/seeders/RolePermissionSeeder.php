@@ -119,7 +119,7 @@ class RolePermissionSeeder extends Seeder
                 'achievements.view','achievements.manage',
                 'testimonials.view','testimonials.manage',
                 'legal.manage',
-                'blog.view','blog.manage',
+                'blog.view',
                 'content.manage',
                 'teacher_payments.view','teacher_payments.manage',
                 'audit.view',
