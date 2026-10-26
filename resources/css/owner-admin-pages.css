@@ -1,12 +1,12 @@
 /* Independent owner/admin page skin — intentionally isolated from the legacy admin CSS stack. */
-.owner-admin-v2{--oa-bg:#0f1330;--oa-surface:#171d45;--oa-surface-2:#111737;--oa-input:#0a0e27;--oa-border:#2b3270;--oa-text:#e8ecff;--oa-muted:#aab3d7;--oa-accent:#22d3ee;background:linear-gradient(135deg,#1ce6ff,#2563eb 60%,#4338ca) fixed!important;color:var(--oa-text)!important;color-scheme:dark;font-family:Vazirmatn,Tahoma,sans-serif}
+.owner-admin-v2{--oa-bg:#0f1330;--oa-surface:#171d45;--oa-surface-2:#111737;--oa-input:#0a0e27;--oa-border:#2b3270;--oa-text:#e8ecff;--oa-muted:#aab3d7;--oa-accent:#22d3ee;background:#090d20!important;color:var(--oa-text)!important;color-scheme:dark;font-family:Vazirmatn,Tahoma,sans-serif}
 .owner-admin-v2 .brand-mark{display:flex;align-items:center;gap:10px;min-width:0}.owner-admin-v2 .brand-mark .brand{padding:9px 12px}.owner-admin-v2 .top-page-title{max-width:180px;color:var(--oa-muted);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .owner-admin-v2 .main-content{grid-column:2;min-width:0;min-height:50vh;align-content:start;color:var(--oa-text)}.owner-admin-v2 .main-content h1,.owner-admin-v2 .main-content h2,.owner-admin-v2 .main-content h3,.owner-admin-v2 .main-content h4{color:var(--oa-text);letter-spacing:0}.owner-admin-v2 .main-content p,.owner-admin-v2 .main-content label,.owner-admin-v2 .main-content small{color:var(--oa-muted)}
 .owner-admin-v2 .main-content a:not(.go):not(.mb):not(.tab):not(.ni):not(.fd):not(.owner-primary-btn){color:#83e7ff}
-.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-form-shell,.owner-form-head,.owner-form-card,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.rounded-3xl,.rounded-2xl,.rounded-xl){border:1px solid var(--oa-border);border-radius:18px;background:linear-gradient(145deg,var(--oa-surface),var(--oa-surface-2));color:var(--oa-text);box-shadow:6px 6px 16px rgba(4,7,24,.45),-2px -2px 10px rgba(60,70,160,.13)}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-form-shell,.owner-form-card,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card){border:1px solid rgba(119,136,190,.18);border-radius:16px;background:var(--oa-surface);color:var(--oa-text);box-shadow:none}
 .owner-admin-v2 .main-content :is(.owner-stat-card,.owner-panel,.dashboard-panel,.owner-form-shell,.owner-form-card,.owner-people-tab-panel){padding:clamp(14px,1.6vw,22px)}.owner-admin-v2 .main-content .owner-stat-card{display:flex;flex-direction:column;gap:5px;min-width:0}.owner-admin-v2 .main-content .owner-stat-card>span{color:var(--oa-muted);font-size:12px;font-weight:600}.owner-admin-v2 .main-content .owner-stat-card>strong{color:var(--oa-text);font-size:clamp(21px,2.2vw,30px);font-weight:800;line-height:1.5;overflow-wrap:anywhere}.owner-admin-v2 .main-content .owner-stat-card>small{color:var(--oa-muted);font-size:11px}
 .owner-admin-v2 .main-content :is(.owner-panel-head,.owner-form-head,.owner-student-create-head,.owner-student-form-footer,.owner-classroom-filter-actions){display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.owner-admin-v2 .main-content :is(.owner-panel-head h2,.owner-panel-head h3,.owner-form-head h1,.owner-form-head h2){margin:0;color:var(--oa-text);font-size:clamp(18px,1.8vw,24px);font-weight:800}.owner-admin-v2 .main-content :is(.owner-panel-head p,.owner-form-head p){margin:.3rem 0 0;color:var(--oa-muted);font-size:12px;line-height:1.9}
-.owner-admin-v2 .main-content :is(.bg-white,.bg-slate-50,.bg-gray-50,.bg-slate-100,.bg-gray-100,.bg-indigo-50,.bg-blue-50){background-color:var(--oa-surface-2)!important}.owner-admin-v2 .main-content :is(.text-slate-900,.text-slate-800,.text-slate-700,.text-gray-900,.text-gray-800,.text-gray-700,.text-indigo-900){color:var(--oa-text)!important}.owner-admin-v2 .main-content :is(.text-slate-600,.text-slate-500,.text-slate-400,.text-gray-600,.text-gray-500,.text-gray-400){color:var(--oa-muted)!important}.owner-admin-v2 .main-content :is(.border-slate-100,.border-slate-200,.border-slate-300,.border-gray-100,.border-gray-200,.border-gray-300){border-color:var(--oa-border)!important}
+.owner-admin-v2 .main-content :is(.bg-white,.bg-slate-50,.bg-gray-50,.bg-slate-100,.bg-gray-100,.bg-indigo-50,.bg-blue-50){background-color:transparent}.owner-admin-v2 .main-content :is(.text-slate-900,.text-slate-800,.text-slate-700,.text-gray-900,.text-gray-800,.text-gray-700,.text-indigo-900){color:var(--oa-text)!important}.owner-admin-v2 .main-content :is(.text-slate-600,.text-slate-500,.text-slate-400,.text-gray-600,.text-gray-500,.text-gray-400){color:var(--oa-muted)!important}.owner-admin-v2 .main-content :is(.border-slate-100,.border-slate-200,.border-slate-300,.border-gray-100,.border-gray-200,.border-gray-300){border-color:var(--oa-border)!important}
 .owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){width:100%;min-width:0;min-height:42px;padding:10px 12px;border:1px solid var(--oa-border);border-radius:11px;background:var(--oa-input);color:var(--oa-text);font:inherit;font-size:13px;box-shadow:inset 2px 2px 5px rgba(0,0,0,.12)}.owner-admin-v2 .main-content textarea{min-height:100px;resize:vertical}.owner-admin-v2 .main-content input::placeholder,.owner-admin-v2 .main-content textarea::placeholder{color:#7783b2}.owner-admin-v2 .main-content input:focus,.owner-admin-v2 .main-content select:focus,.owner-admin-v2 .main-content textarea:focus{outline:2px solid color-mix(in srgb,var(--oa-accent) 55%,transparent);outline-offset:2px;border-color:var(--oa-accent)}
 .owner-admin-v2 .main-content :is(button[type=submit],.owner-primary-btn,.owner-workspace-btn,.owner-action-btn,.owner-btn,.course-action-btn,button[type=button].primary){min-height:40px;border:1px solid var(--oa-border);border-radius:11px;padding:9px 14px;background:linear-gradient(135deg,#1c7d9b,#2563eb);color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:transform .18s ease,filter .18s ease}.owner-admin-v2 .main-content :is(button[type=submit],.owner-primary-btn,.owner-action-btn,.owner-btn):hover{filter:brightness(1.1);transform:translateY(-1px)}.owner-admin-v2 .main-content :is(button[disabled],button[aria-disabled=true]){opacity:.55;cursor:not-allowed;transform:none}
 .owner-admin-v2 .main-content :is(.danger,.text-rose-700,.text-red-700){color:#ff8ea8!important}.owner-admin-v2 .main-content :is(.success,.text-emerald-700,.text-green-700){color:#73edbb!important}
@@ -21,3 +21,79 @@
 @media(max-width:980px){.owner-admin-v2 .main-content{grid-column:1/-1}.owner-admin-v2 .top{flex-wrap:wrap}.owner-admin-v2 .top .tabs{order:5;flex-basis:100%;max-width:100%}}
 @media(max-width:700px){.owner-admin-v2 .app{padding:12px;gap:14px;border-radius:18px}.owner-admin-v2 .side{display:none;position:fixed;z-index:150;top:10px;bottom:10px;inset-inline-start:10px;width:min(86vw,300px);max-height:calc(100dvh - 20px);overflow-y:auto;box-shadow:0 28px 90px rgba(0,0,0,.6)}.owner-admin-v2 .side.open{display:block}.owner-admin-v2 .brand-mark .brand{display:none}.owner-admin-v2 .top-page-title{display:none}.owner-admin-v2 .srch span,.owner-admin-v2 .srch kbd{display:none}.owner-admin-v2 .srch{padding:10px}.owner-admin-v2 .main-content{padding-bottom:16px}.owner-admin-v2 .main-content :is(.owner-student-create-form,.owner-content-form,.owner-blog-form,.owner-classroom-form,.owner-product-form,.owner-resource-form,.owner-exam-form){grid-template-columns:minmax(0,1fr)}.owner-admin-v2 .main-content :is(.owner-student-notes-field,.owner-student-form-footer,.owner-form-full,.col-span-full){grid-column:auto}.owner-admin-v2 .main-content table{min-width:680px}.owner-admin-v2 .main-content :is(.owner-form-head,.owner-panel-head){align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.owner-admin-v2 *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+/* Flatten legacy utility wrappers: rounded utilities are not cards by themselves. */
+.owner-admin-v2 .main-content :is(div,section,article,header,footer,aside,ul,li):is(.rounded-3xl,.rounded-2xl,.rounded-xl):not([class*="owner-"]):not([class*="course-"]):not(.dashboard-panel):not(.panel-card):not([role="status"]):not([role="alert"]){
+    border-color:transparent!important;
+    background:transparent!important;
+    box-shadow:none!important;
+}
+.owner-admin-v2 .main-content :is(div,section,article,header,footer,aside,ul,li):is(.bg-white,.bg-slate-50,.bg-gray-50,.bg-slate-100,.bg-gray-100,.bg-indigo-50,.bg-blue-50):not([class*="owner-"]):not([class*="course-"]):not(.dashboard-panel):not(.panel-card):not([role="status"]):not([role="alert"]){
+    background:transparent!important;
+    box-shadow:none!important;
+}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-form-shell,.owner-form-card,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card){
+    background:var(--oa-surface);
+    border-color:rgba(119,136,190,.18);
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content :is(.owner-panel-head,.owner-form-head,.owner-student-create-head){
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content .owner-stat-card{
+    border:1px solid rgba(119,136,190,.15);
+    border-radius:14px;
+    background:rgba(23,29,69,.62);
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters){
+    border-color:rgba(119,136,190,.14);
+    border-radius:12px;
+    background:rgba(10,14,39,.46);
+}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar,.owner-people-tabs nav){
+    border:0;
+    border-bottom:1px solid rgba(119,136,190,.2);
+    border-radius:0;
+    background:transparent;
+    padding:0 0 8px;
+}
+.owner-admin-v2 .main-content :is(.owner-people-tab-panel){
+    border-color:rgba(119,136,190,.16);
+    background:var(--oa-surface);
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content :is(.owner-people-tab-panel[hidden],[data-owner-tab-panel][hidden]){
+    display:none!important;
+}
+.owner-admin-v2 .app{
+    background:#0d122b;
+    border:1px solid rgba(119,136,190,.16);
+    box-shadow:0 22px 54px rgba(0,0,0,.24);
+}
+.owner-admin-v2 .side.card{
+    border:1px solid rgba(119,136,190,.14);
+    background:#111735;
+    box-shadow:none;
+}
+.owner-admin-v2 .main-content :is(.space-y-6,.space-y-5,.space-y-4){
+    min-width:0;
+}
+.owner-admin-v2 .main-content :is(h1,h2,h3){
+    line-height:1.45;
+}
+.owner-admin-v2 .main-content h1{
+    font-size:clamp(1.25rem,1.7vw,1.65rem);
+}
+.owner-admin-v2 .main-content :is(button,a).focus-visible{
+    outline-offset:3px;
+}
+@media(max-width:700px){
+    .owner-admin-v2 .main-content :is(.owner-stat-card,.owner-panel,.dashboard-panel,.owner-form-shell,.owner-form-card,.owner-people-tab-panel){padding:14px}
+    .owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters){align-items:stretch}
+}
