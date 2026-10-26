@@ -37,6 +37,9 @@ final class OwnerContentService
     public function formData(User $owner, ?AcademyContent $content = null): array
     {
         $this->authorizePublicContentManagement($owner);
+        if ($content !== null) {
+            $this->owned($owner, $content);
+        }
         $academies = $this->ownedAcademies($owner);
         $academyId = $content?->academy_id ?: $academies->first()?->id;
 
