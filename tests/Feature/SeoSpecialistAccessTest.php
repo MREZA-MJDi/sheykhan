@@ -76,7 +76,8 @@ class SeoSpecialistAccessTest extends TestCase
 
         $this->actingAs($specialist)
             ->get(route('owner.website.index'))
-            ->assertForbidden();
+            ->assertOk()
+            ->assertSee('ظاهر و محتوای قابل‌دیدن آموزشگاه را از یکجا مدیریت کن.');
     }
 
     public function test_audit_flags_duplicate_public_page_titles(): void
