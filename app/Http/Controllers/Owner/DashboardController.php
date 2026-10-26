@@ -20,11 +20,20 @@ class DashboardController extends Controller
         OwnerCacheService $cache,
     ): View {
         $owner = request()->user();
+        $period = (string) request()->query('period', 'month');
+        $period = in_array($period, ['today', 'week', 'month'], true) ? $period : 'month';
 
         $data = $cache->rememberDashboard(
             $owner,
-            fn () => $dashboard->build($owner)
+            fn () => $dashboard->build($owner, $period),
+            $period,
         );
+        $data['period'] = $period;
+        $data['periodCaption'] = match ($period) {
+            'today' => 'امروز',
+            'week' => 'این هفته',
+            default => 'این ماه',
+        };
 
         $data['academies'] = $workspace->academies($owner);
 
