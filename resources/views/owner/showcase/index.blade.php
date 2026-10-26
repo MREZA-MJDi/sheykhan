@@ -9,7 +9,7 @@
             <h1>افتخارآفرینان و تجربه خانواده‌ها</h1>
             <p>برای انتشار هر نام یا فایل رسانه‌ای، سابقه رضایت باید ثبت شود. موارد پیش‌نویس از صفحه عمومی مخفی می‌مانند.</p>
         </div>
-        <a href="{{ route('owner.dashboard') }}">داشبورد</a>
+        <a href="{{ route('owner.seo.index') }}">مرکز SEO</a>
     </header>
 
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
