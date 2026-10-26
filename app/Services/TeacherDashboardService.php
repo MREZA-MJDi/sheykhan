@@ -38,7 +38,14 @@ final class TeacherDashboardService
 
         $studentCount = $classroomIds
             ? DB::table('classroom_student as memberships')
+                ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
                 ->join('users', 'users.id', '=', 'memberships.student_id')
+                ->join('course_enrollments as enrollments', function ($join): void {
+                    $join->on('enrollments.student_id', '=', 'memberships.student_id')
+                        ->on('enrollments.classroom_id', '=', 'classrooms.id')
+                        ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                        ->where('enrollments.status', '=', 'active');
+                })
                 ->whereIn('memberships.classroom_id', $classroomIds)
                 ->where('memberships.status', 'active')
                 ->where('users.status', 'active')

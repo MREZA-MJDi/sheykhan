@@ -94,7 +94,17 @@ final class TeacherWorkspaceService
             ->with('course:id,title')
             ->withCount([
                 'students as active_students_count' => fn ($query) => $query
-                    ->where('classroom_student.status', 'active'),
+                    ->where('classroom_student.status', 'active')
+                    ->where('users.status', 'active')
+                    ->whereNull('users.deleted_at')
+                    ->whereExists(function ($enrollment): void {
+                        $enrollment->selectRaw('1')
+                            ->from('course_enrollments')
+                            ->whereColumn('course_enrollments.classroom_id', 'classroom_student.classroom_id')
+                            ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                            ->whereColumn('course_enrollments.student_id', 'users.id')
+                            ->where('course_enrollments.status', 'active');
+                    }),
                 'schedules',
             ])
             ->orderBy('title')
@@ -115,7 +125,15 @@ final class TeacherWorkspaceService
                 'students as active_students_count' => fn ($query) => $query
                     ->where('classroom_student.status', 'active')
                     ->where('users.status', 'active')
-                    ->whereNull('users.deleted_at'),
+                    ->whereNull('users.deleted_at')
+                    ->whereExists(function ($enrollment): void {
+                        $enrollment->selectRaw('1')
+                            ->from('course_enrollments')
+                            ->whereColumn('course_enrollments.classroom_id', 'classroom_student.classroom_id')
+                            ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                            ->whereColumn('course_enrollments.student_id', 'users.id')
+                            ->where('course_enrollments.status', 'active');
+                    }),
                 'schedules',
             ])
             ->when($search !== '', function ($query) use ($search): void {
@@ -153,6 +171,15 @@ final class TeacherWorkspaceService
                 'students' => fn ($query) => $query
                     ->select('users.id', 'users.name')
                     ->wherePivot('status', 'active')
+                    ->where('users.status', 'active')
+                    ->whereNull('users.deleted_at')
+                    ->whereExists(function ($enrollment) use ($classroomId): void {
+                        $enrollment->selectRaw('1')
+                            ->from('course_enrollments')
+                            ->where('course_enrollments.classroom_id', $classroomId)
+                            ->whereColumn('course_enrollments.student_id', 'users.id')
+                            ->where('course_enrollments.status', 'active');
+                    })
                     ->orderBy('users.name'),
             ])
             ->firstOrFail();
@@ -172,9 +199,19 @@ final class TeacherWorkspaceService
         $courseIds = DB::table('classrooms')->whereIn('id', $classroomIds)->distinct()->pluck('course_id');
 
         return User::query()
+            ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
-                ->where('classroom_student.status', 'active'))
+                ->where('classroom_student.status', 'active')
+                ->whereExists(function ($enrollment): void {
+                    $enrollment->selectRaw('1')
+                        ->from('course_enrollments')
+                        ->whereColumn('course_enrollments.classroom_id', 'classrooms.id')
+                        ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                        ->whereColumn('course_enrollments.student_id', 'users.id')
+                        ->where('course_enrollments.status', 'active');
+                }))
             ->with('studentProfile')
             ->withCount([
                 'lessonProgress as progress_items_count' => fn ($query) => $query
@@ -227,9 +264,19 @@ final class TeacherWorkspaceService
         $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
 
         return User::query()
+            ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->whereHas('classroomsAsStudent', fn ($query) => $query
                 ->whereIn('classrooms.id', $classroomIds)
-                ->where('classroom_student.status', 'active'))
+                ->where('classroom_student.status', 'active')
+                ->whereExists(function ($enrollment): void {
+                    $enrollment->selectRaw('1')
+                        ->from('course_enrollments')
+                        ->whereColumn('course_enrollments.classroom_id', 'classrooms.id')
+                        ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                        ->whereColumn('course_enrollments.student_id', 'users.id')
+                        ->where('course_enrollments.status', 'active');
+                }))
             ->with([
                 'studentProfile',
                 'studentProfile.media' => fn ($query) => $query
