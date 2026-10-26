@@ -4,6 +4,12 @@
 @section('content')
 @php
     $ownerUser = auth()->user();
+    $period = in_array($period ?? 'month', ['today', 'week', 'month'], true) ? ($period ?? 'month') : 'month';
+    $periodCaption = $periodCaption ?? 'این ماه';
+    $routeAcademyParam = request()->route('academy');
+    $currentRouteAcademyId = $routeAcademyParam instanceof \\App\\Models\\Academy
+        ? (int) $routeAcademyParam->getKey()
+        : (int) ($routeAcademyParam ?? 0);
     $firstAcademy = $academies->first();
     $hasAcademy = (bool) $firstAcademy;
     $hasMultipleAcademies = $academies->count() > 1;
@@ -40,7 +46,7 @@
     $capacityAlerts = $canViewClassrooms ? max(0, (int) data_get($metrics, 'capacityAlerts', 0)) : 0;
     $classroomsWithoutTeacher = $canViewClassrooms ? max(0, (int) data_get($metrics, 'classroomsWithoutTeacher', 0)) : 0;
     $attentionCount = $pendingReviews + $capacityAlerts + $classroomsWithoutTeacher;
-    $attendanceRate = $canViewAttendance ? data_get($metrics, 'todayAttendanceRate') : null;
+    $attendanceRate = $canViewAttendance ? data_get($metrics, 'attendanceRate', data_get($metrics, 'todayAttendanceRate')) : null;
     $sales = $canViewFinance ? (float) data_get($metrics, 'sales', 0) : 0;
     $capacityTotal = max(0, (int) data_get($capacity, 'total', 0));
     $capacityUsed = max(0, (int) data_get($capacity, 'used', 0));
@@ -90,20 +96,12 @@
         <div class="lg" aria-hidden="true">ش</div>
         <div class="brand">آکادمی شیخان</div>
 
-        <nav class="tabs" id="tabs" aria-label="دسترسی‌های سریع">
-            <a class="tab on" href="{{ route('owner.dashboard') }}" aria-current="page">نمای کلی</a>
-            @if($canViewClassrooms && $firstAcademy)
-                <a class="tab" href="{{ route('owner.classrooms.index', $firstAcademy) }}">کلاس‌ها</a>
-            @endif
-            @if($canViewCourses)
-                <a class="tab" href="{{ route('owner.courses.index') }}">دوره‌ها</a>
-            @endif
-            @if($canViewReports)
-                <a class="tab" href="{{ route('owner.reports.index') }}">گزارش‌ها</a>
-            @endif
-            @if($canViewFinance)
-                <a class="tab" href="{{ route('owner.finance.index') }}">مالی</a>
-            @endif
+        <nav class="tabs" id="tabs" aria-label="بازه زمانی گزارش‌ها">
+            @foreach(['today' => 'امروز', 'week' => 'این هفته', 'month' => 'این ماه'] as $periodKey => $periodLabel)
+                <a class="tab {{ $period === $periodKey ? 'on' : '' }}"
+                   href="{{ route('owner.dashboard', ['period' => $periodKey]) }}"
+                   @if($period === $periodKey) aria-current="page" @endif>{{ $periodLabel }}</a>
+            @endforeach
         </nav>
 
         <button class="srch" id="srch" type="button" aria-label="جستجوی صفحه‌ها">
@@ -152,44 +150,44 @@
                     </button>
                     <div class="nav-group-items">
                         @if($ownerUser?->hasPermission('academy.view'))
-                            <a class="ni" href="{{ route('owner.people.index', $academy) }}" @if(request()->routeIs('owner.people.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="اعضا و ثبت‌نام"><svg class="ic"><use href="#i-users"/></svg><span>اعضا و ثبت‌نام</span></a>
+                            <a class="ni" href="{{ route('owner.people.index', $academy) }}" @if(request()->routeIs('owner.people.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="اعضا و ثبت‌نام"><svg class="ic"><use href="#i-users"/></svg><span>اعضا و ثبت‌نام</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('classrooms.view'))
-                            <a class="ni" href="{{ route('owner.classrooms.index', $academy) }}" @if(request()->routeIs('owner.classrooms.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="کلاس‌ها"><svg class="ic"><use href="#i-calendar"/></svg><span>کلاس‌ها</span>@if($classroomsWithoutTeacher > 0)<i class="bd" style="--c:#ff9a1f">{{ \App\Support\PersianUi::digits($classroomsWithoutTeacher) }}</i>@endif</a>
+                            <a class="ni" href="{{ route('owner.classrooms.index', $academy) }}" @if(request()->routeIs('owner.classrooms.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="کلاس‌ها"><svg class="ic"><use href="#i-calendar"/></svg><span>کلاس‌ها</span>@if($classroomsWithoutTeacher > 0)<i class="bd" style="--c:#ff9a1f">{{ \App\Support\PersianUi::digits($classroomsWithoutTeacher) }}</i>@endif</a>
                         @endif
                         @if($ownerUser?->hasPermission('attendance.view'))
-                            <a class="ni" href="{{ route('owner.attendance.index', $academy) }}" @if(request()->routeIs('owner.attendance.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="حضور و غیاب"><svg class="ic"><use href="#i-checksq"/></svg><span>حضور و غیاب</span></a>
+                            <a class="ni" href="{{ route('owner.attendance.index', $academy) }}" @if(request()->routeIs('owner.attendance.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="حضور و غیاب"><svg class="ic"><use href="#i-checksq"/></svg><span>حضور و غیاب</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('courses.view'))
-                            <a class="ni" href="{{ route('owner.assignments.index', $academy) }}" @if(request()->routeIs('owner.assignments.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="تکالیف و تصحیح"><svg class="ic"><use href="#i-doc"/></svg><span>تکالیف و تصحیح</span>@if($pendingReviews > 0)<i class="bd" style="--c:#ff1f6b">{{ \App\Support\PersianUi::digits($pendingReviews) }}</i>@endif</a>
+                            <a class="ni" href="{{ route('owner.assignments.index', $academy) }}" @if(request()->routeIs('owner.assignments.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="تکالیف و تصحیح"><svg class="ic"><use href="#i-doc"/></svg><span>تکالیف و تصحیح</span>@if($pendingReviews > 0)<i class="bd" style="--c:#ff1f6b">{{ \App\Support\PersianUi::digits($pendingReviews) }}</i>@endif</a>
                         @endif
                         @if($ownerUser?->hasPermission('exams.view'))
-                            <a class="ni" href="{{ route('owner.exams.index', $academy) }}" @if(request()->routeIs('owner.exams.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="آزمون‌ها"><svg class="ic"><use href="#i-book"/></svg><span>آزمون‌ها</span></a>
+                            <a class="ni" href="{{ route('owner.exams.index', $academy) }}" @if(request()->routeIs('owner.exams.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="آزمون‌ها"><svg class="ic"><use href="#i-book"/></svg><span>آزمون‌ها</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('live_classes.view'))
-                            <a class="ni" href="{{ route('owner.schedules.index', $academy) }}" @if(request()->routeIs('owner.schedules.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="برنامه کلاس آنلاین"><svg class="ic"><use href="#i-video"/></svg><span>برنامه کلاس آنلاین</span></a>
-                            <a class="ni" href="{{ route('owner.meetings.index', $academy) }}" @if(request()->routeIs('owner.meetings.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="جلسات"><svg class="ic"><use href="#i-calendar"/></svg><span>جلسات</span></a>
-                            <a class="ni" href="{{ route('owner.recordings.index', $academy) }}" @if(request()->routeIs('owner.recordings.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="آرشیو ضبط"><svg class="ic"><use href="#i-video"/></svg><span>آرشیو ضبط</span></a>
+                            <a class="ni" href="{{ route('owner.schedules.index', $academy) }}" @if(request()->routeIs('owner.schedules.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="برنامه کلاس آنلاین"><svg class="ic"><use href="#i-video"/></svg><span>برنامه کلاس آنلاین</span></a>
+                            <a class="ni" href="{{ route('owner.meetings.index', $academy) }}" @if(request()->routeIs('owner.meetings.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="جلسات"><svg class="ic"><use href="#i-calendar"/></svg><span>جلسات</span></a>
+                            <a class="ni" href="{{ route('owner.recordings.index', $academy) }}" @if(request()->routeIs('owner.recordings.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="آرشیو ضبط"><svg class="ic"><use href="#i-video"/></svg><span>آرشیو ضبط</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('parents.view'))
-                            <a class="ni" href="{{ route('owner.messages.index', $academy) }}" @if(request()->routeIs('owner.messages.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="پیام‌های اولیا"><svg class="ic"><use href="#i-chat"/></svg><span>پیام‌های اولیا</span></a>
-                            <a class="ni" href="{{ route('owner.communications.index', $academy) }}" @if(request()->routeIs('owner.communications.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="اطلاعیه‌ها"><svg class="ic"><use href="#i-mega"/></svg><span>اطلاعیه‌ها</span></a>
-                            <a class="ni" href="{{ route('owner.counseling.index', $academy) }}" @if(request()->routeIs('owner.counseling.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="جلسات مشاوره"><svg class="ic"><use href="#i-chat"/></svg><span>جلسات مشاوره</span></a>
+                            <a class="ni" href="{{ route('owner.messages.index', $academy) }}" @if(request()->routeIs('owner.messages.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="پیام‌های اولیا"><svg class="ic"><use href="#i-chat"/></svg><span>پیام‌های اولیا</span></a>
+                            <a class="ni" href="{{ route('owner.communications.index', $academy) }}" @if(request()->routeIs('owner.communications.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="اطلاعیه‌ها"><svg class="ic"><use href="#i-mega"/></svg><span>اطلاعیه‌ها</span></a>
+                            <a class="ni" href="{{ route('owner.counseling.index', $academy) }}" @if(request()->routeIs('owner.counseling.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="جلسات مشاوره"><svg class="ic"><use href="#i-chat"/></svg><span>جلسات مشاوره</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('content.manage'))
-                            <a class="ni" href="{{ route('owner.resources.index', $academy) }}" @if(request()->routeIs('owner.resources.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="منابع آموزشی"><svg class="ic"><use href="#i-book"/></svg><span>منابع آموزشی</span></a>
+                            <a class="ni" href="{{ route('owner.resources.index', $academy) }}" @if(request()->routeIs('owner.resources.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="منابع آموزشی"><svg class="ic"><use href="#i-book"/></svg><span>منابع آموزشی</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('products.view'))
-                            <a class="ni" href="{{ route('owner.products.index', $academy) }}" @if(request()->routeIs('owner.products.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="محصولات"><svg class="ic"><use href="#i-tag"/></svg><span>محصولات</span></a>
+                            <a class="ni" href="{{ route('owner.products.index', $academy) }}" @if(request()->routeIs('owner.products.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="محصولات"><svg class="ic"><use href="#i-tag"/></svg><span>محصولات</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('orders.view'))
-                            <a class="ni" href="{{ route('owner.orders.index', $academy) }}" @if(request()->routeIs('owner.orders.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="سفارش‌ها"><svg class="ic"><use href="#i-receipt"/></svg><span>سفارش‌ها</span></a>
+                            <a class="ni" href="{{ route('owner.orders.index', $academy) }}" @if(request()->routeIs('owner.orders.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="سفارش‌ها"><svg class="ic"><use href="#i-receipt"/></svg><span>سفارش‌ها</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('teacher_payments.view'))
-                            <a class="ni" href="{{ route('owner.teacher-payments.index', $academy) }}" @if(request()->routeIs('owner.teacher-payments.*') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="حقوق مدرس‌ها"><svg class="ic"><use href="#i-wallet"/></svg><span>حقوق مدرس‌ها</span></a>
+                            <a class="ni" href="{{ route('owner.teacher-payments.index', $academy) }}" @if(request()->routeIs('owner.teacher-payments.*') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="حقوق مدرس‌ها"><svg class="ic"><use href="#i-wallet"/></svg><span>حقوق مدرس‌ها</span></a>
                         @endif
                         @if($ownerUser?->hasPermission('academy.view'))
-                            <a class="ni" href="{{ route('owner.academy.edit', $academy) }}" @if(request()->routeIs('owner.academy.edit') && (int) request()->route('academy')?->id === (int) $academy->id) aria-current="page" @endif data-nav-label="تنظیمات آموزشگاه"><svg class="ic"><use href="#i-cog"/></svg><span>تنظیمات آموزشگاه</span></a>
+                            <a class="ni" href="{{ route('owner.academy.edit', $academy) }}" @if(request()->routeIs('owner.academy.edit') && $currentRouteAcademyId === (int) $academy->id) aria-current="page" @endif data-nav-label="تنظیمات آموزشگاه"><svg class="ic"><use href="#i-cog"/></svg><span>تنظیمات آموزشگاه</span></a>
                         @endif
                     </div>
                 </div>
@@ -315,18 +313,18 @@
         @endif
 
         @if($canViewAttendance)
-            <section class="card kpi c3" style="--c:#22d3ee" aria-label="نرخ حضور امروز">
-                <div class="kpi-head"><svg class="ic"><use href="#i-checksq"/></svg>حضور امروز</div>
+            <section class="card kpi c3" style="--c:#22d3ee" aria-label="نرخ حضور {{ $periodCaption }}">
+                <div class="kpi-head"><svg class="ic"><use href="#i-checksq"/></svg>حضور {{ $periodCaption }}</div>
                 <b>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) }}{{ $attendanceRate === null ? '' : '٪' }}</b>
-                <div class="metric-caption">{{ $attendanceRate === null ? 'امروز رکورد حضور و غیاب ثبت نشده' : 'درصد حضور و تأخیر از کل رکوردهای معتبر امروز' }}</div>
+                <div class="metric-caption">{{ $attendanceRate === null ? 'در {{ $periodCaption }} رکورد حضور و غیاب ثبت نشده' : 'درصد حضور و تأخیر از کل رکوردهای معتبر {{ $periodCaption }}' }}</div>
                 @if($attendanceRate !== null)<div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ min(100,max(0,(float)$attendanceRate)) }}%"></span></div>@endif
                 @if($firstAcademy)<div class="metric-foot"><span>حضور و غیاب</span><a class="table-link" href="{{ route('owner.attendance.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
             </section>
         @endif
 
         @if($canViewFinance)
-            <section class="card kpi c3" style="--c:#ff9a1f" aria-label="خالص تراکنش‌های ثبت‌شده">
-                <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده</div>
+            <section class="card kpi c3" style="--c:#ff9a1f" aria-label="خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}">
+                <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}</div>
                 <b>{{ \App\Support\PersianUi::number($sales) }}</b>
                 <div class="metric-caption">پرداخت‌های ثبت‌شده منهای بازپرداخت‌های تکمیل‌شده</div>
                 <div class="metric-foot"><span>مبالغ به تومان؛ فقط تراکنش‌های ثبت‌شده با ارز IRT</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
