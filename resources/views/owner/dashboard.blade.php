@@ -257,6 +257,7 @@
             </div>
         </section>
 
+        @if($canViewPeople)
         <section class="card kpi c3" style="--c:#22d3ee" aria-label="دانش‌آموزان فعال">
             <div class="kpi-head"><svg class="ic"><use href="#i-users"/></svg>دانش‌آموزان فعال</div>
             <b>{{ \\App\\Support\\PersianUi::digits($students) }}</b>
@@ -270,6 +271,7 @@
             <div class="metric-caption">مدرس‌های فعال عضو آموزشگاه</div>
             @if($canViewPeople && $firstAcademy)<div class="metric-foot"><span>مدیریت مدرس‌ها</span><a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
         </section>
+        @endif
 
         @if($canViewClassrooms)
             <section class="card kpi c3" style="--c:#ff1f6b" aria-label="کلاس‌های فعال">
@@ -306,7 +308,7 @@
                 <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده</div>
                 <b>{{ \\App\\Support\\PersianUi::number($sales) }}</b>
                 <div class="metric-caption">پرداخت‌های ثبت‌شده منهای بازپرداخت‌های تکمیل‌شده</div>
-                <div class="metric-foot"><span>واحد پول دیتابیس: IRR</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
+                <div class="metric-foot"><span>مبالغ با ارز پایه IRR جمع زده شده‌اند</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
             </section>
         @endif
 

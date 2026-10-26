@@ -65,15 +65,17 @@ final class OwnerDashboardService
 
         $classroomCount = (clone $classroomBase)->count();
 
-        $revenue = (float)DB::table('financial_transactions')
+        $revenue = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
+            ->where('currency', 'IRR')
             ->where('type', 'enrollment_payment')
             ->sum('amount');
 
-        $refunds = (float)DB::table('financial_transactions')
+        $refunds = (float) DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
+            ->where('currency', 'IRR')
             ->where('type', 'refund')
             ->sum('amount');
 
@@ -154,7 +156,7 @@ final class OwnerDashboardService
             ->with([
                 'course:id,title',
                 'teacher:id,name',
-                'classroom:id,title',
+                'classroom:id,title,academy_id',
             ])
             ->orderBy('scheduled_at')
             ->limit(8)
