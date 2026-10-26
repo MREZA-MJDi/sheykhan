@@ -292,6 +292,104 @@ class OwnerPeopleLifecycleTest extends TestCase
         ]);
     }
 
+    public function test_people_directory_api_searches_and_uses_cursor_pagination_without_cross_academy_rows(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+        $teacherRole = Role::query()->where('slug', 'teacher')->firstOrFail();
+
+        for ($i = 1; $i <= 26; $i++) {
+            $teacher = User::factory()->create([
+                'name' => sprintf('Directory Teacher %02d', $i),
+                'email' => sprintf('directory-teacher-%02d-%s@test.local', $i, Str::lower(Str::random(6))),
+                'status' => 'active',
+            ]);
+            $teacher->roles()->attach($teacherRole->id);
+            $academy->users()->attach($teacher->id, [
+                'role' => 'teacher',
+                'status' => 'active',
+                'joined_at' => now()->subMinutes($i),
+            ]);
+        }
+
+        $foreignOwner = User::factory()->create([
+            'email' => 'directory-foreign-owner-' . Str::lower(Str::random(6)) . '@test.local',
+        ]);
+        $foreignAcademy = Academy::create([
+            'owner_id' => $foreignOwner->id,
+            'name' => 'آکادمی خارج از محدوده',
+            'slug' => 'directory-foreign-' . Str::lower(Str::random(6)),
+            'status' => 'active',
+        ]);
+        $foreignTeacher = User::factory()->create([
+            'name' => 'Directory Teacher Foreign',
+            'email' => 'directory-foreign-teacher-' . Str::lower(Str::random(6)) . '@test.local',
+            'status' => 'active',
+        ]);
+        $foreignTeacher->roles()->attach($teacherRole->id);
+        $foreignAcademy->users()->attach($foreignTeacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $directoryUrl = route('owner.people.data', [
+            'academy' => $academy,
+            'role' => 'active-teachers',
+        ]);
+
+        $firstPage = $this->actingAs($owner)
+            ->getJson($directoryUrl . '?' . http_build_query([
+                'q' => 'Directory Teacher',
+                'per_page' => 25,
+                'sort' => 'name',
+                'direction' => 'asc',
+            ]))
+            ->assertOk()
+            ->assertJsonPath('directory.role', 'active-teachers')
+            ->assertJsonPath('directory.pagination_mode', 'cursor')
+            ->assertJsonPath('meta.per_page', 25)
+            ->assertJsonCount(25, 'data')
+            ->assertJsonMissing(['name' => 'Directory Teacher Foreign']);
+
+        $nextCursor = $firstPage->json('meta.next_cursor');
+        $this->assertIsString($nextCursor);
+        $this->assertNotSame('', $nextCursor);
+
+        $secondPage = $this->actingAs($owner)
+            ->getJson($directoryUrl . '?' . http_build_query([
+                'q' => 'Directory Teacher',
+                'per_page' => 25,
+                'sort' => 'name',
+                'direction' => 'asc',
+                'cursor' => $nextCursor,
+            ]))
+            ->assertOk()
+            ->assertJsonPath('directory.pagination_mode', 'cursor')
+            ->assertJsonCount(1, 'data');
+
+        $this->assertStringContainsString('Directory Teacher', $secondPage->json('data.0.name'));
+        $this->assertSame('active', $secondPage->json('data.0.membership.status'));
+
+        $this->actingAs($owner)
+            ->getJson($directoryUrl . '?' . http_build_query([
+                'q' => 'Directory Teacher 03',
+                'sort' => 'email',
+                'per_page' => 7,
+            ]))
+            ->assertOk()
+            ->assertJsonPath('directory.pagination_mode', 'page')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 7)
+            ->assertJsonCount(1, 'data');
+
+        $this->actingAs($owner)
+            ->getJson(route('owner.people.data', [
+                'academy' => $foreignAcademy,
+                'role' => 'students',
+            ]))
+            ->assertForbidden();
+    }
+
     public function test_active_member_rosters_exclude_inactive_user_accounts(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
