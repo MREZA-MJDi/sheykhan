@@ -173,11 +173,10 @@ final class TeacherWorkspaceService
                     ->wherePivot('status', 'active')
                     ->where('users.status', 'active')
                     ->whereNull('users.deleted_at')
-                    ->whereExists(function ($enrollment): void {
+                    ->whereExists(function ($enrollment) use ($classroomId): void {
                         $enrollment->selectRaw('1')
                             ->from('course_enrollments')
-                            ->whereColumn('course_enrollments.classroom_id', 'classroom_student.classroom_id')
-                            ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                            ->where('course_enrollments.classroom_id', $classroomId)
                             ->whereColumn('course_enrollments.student_id', 'users.id')
                             ->where('course_enrollments.status', 'active');
                     })
