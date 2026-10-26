@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class StudentTeacherDashboardDesignSystemTest extends TestCase
 {
-    public function test_student_and_teacher_layouts_share_theme_bootstrap_and_dashboard_styles(): void
+    public function test_student_and_teacher_layouts_use_their_consolidated_role_bundles(): void
     {
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
@@ -18,44 +18,44 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertIsString($themePartial);
         $this->assertIsString($viteConfig);
 
-        foreach ([$studentLayout, $teacherLayout] as $layout) {
-            $this->assertStringContainsString("@include('layouts.partials.panel-theme-init')", $layout);
-            $this->assertStringContainsString('resources/css/role-dashboard-design-system.css', $layout);
-        }
+        $this->assertStringContainsString("@include('layouts.partials.panel-theme-init')", $studentLayout);
+        $this->assertStringContainsString("@include('layouts.partials.panel-theme-init')", $teacherLayout);
+        $this->assertStringContainsString('resources/css/student.css', $studentLayout);
+        $this->assertStringContainsString('resources/css/teacher.css', $teacherLayout);
+        $this->assertStringNotContainsString('role-dashboard-design-system.css', $studentLayout);
+        $this->assertStringNotContainsString('role-dashboard-design-system.css', $teacherLayout);
+        $this->assertStringContainsString("'resources/css/student.css'", $viteConfig);
+        $this->assertStringContainsString("'resources/css/teacher.css'", $viteConfig);
+        $this->assertStringNotContainsString('role-dashboard-design-system.css', $viteConfig);
 
         $this->assertStringContainsString("localStorage.getItem('sheykhan.panel.theme')", $themePartial);
         $this->assertStringContainsString("localStorage.getItem('sheykhan.student.theme')", $themePartial);
         $this->assertStringContainsString("localStorage.getItem('theme')", $themePartial);
-        $this->assertStringContainsString("'resources/css/role-dashboard-design-system.css'", $viteConfig);
 
-        // app.css already serves the bundled local Vazirmatn font for both roles.
+        // Local fonts are bundled into the role stylesheets; layouts do not request Google Fonts.
         $this->assertStringNotContainsString('fonts.googleapis.com', $teacherLayout);
     }
 
-    public function test_shared_dashboard_system_exposes_tokens_and_only_shared_interactions(): void
+    public function test_role_specific_bundles_include_their_design_tokens_and_accessible_focus_states(): void
     {
-        $styles = file_get_contents(resource_path('css/role-dashboard-design-system.css'));
         $studentStyles = file_get_contents(resource_path('css/student.css'));
         $teacherStyles = file_get_contents(resource_path('css/teacher.css'));
 
-        $this->assertIsString($styles);
         $this->assertIsString($studentStyles);
         $this->assertIsString($teacherStyles);
 
-        $this->assertStringContainsString('--rds-primary:', $styles);
-        $this->assertStringContainsString('--bg1: var(--rds-canvas)', $styles);
-        $this->assertStringContainsString('--bg: var(--rds-canvas)', $styles);
-        $this->assertStringContainsString('focus-visible', $styles);
-        $this->assertStringContainsString('var(--rds-surface', $studentStyles);
-        $this->assertStringContainsString('var(--rds-surface', $teacherStyles);
+        foreach ([$studentStyles, $teacherStyles] as $styles) {
+            $this->assertStringContainsString('--rds-primary:', $styles);
+            $this->assertStringContainsString('--rds-surface', $styles);
+            $this->assertStringContainsString('focus-visible', $styles);
+            $this->assertStringNotContainsString('role-dashboard-design-system.css', $styles);
+        }
 
-        // This file is only a token/interaction layer. Role-specific layouts stay in their own stylesheets.
-        $this->assertStringNotContainsString('#dashboard', $styles);
-        $this->assertStringNotContainsString('#teacher-dashboard', $styles);
-        $this->assertStringNotContainsString('.owner-shell', $styles);
-        $this->assertStringNotContainsString('.admin-shell', $styles);
+        $this->assertStringContainsString('#dashboard', $studentStyles);
+        $this->assertStringContainsString('#teacher-dashboard', $teacherStyles);
+        $this->assertStringNotContainsString('.owner-shell', $studentStyles);
+        $this->assertStringNotContainsString('.owner-shell', $teacherStyles);
     }
-
 
     public function test_avatar_fallback_behavior_is_shared_and_scoped_to_student_and_teacher(): void
     {
