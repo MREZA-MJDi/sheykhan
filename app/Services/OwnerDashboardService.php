@@ -103,18 +103,26 @@ final class OwnerDashboardService
             ->whereNull('submissions.graded_at')
             ->count();
 
-        $attendanceToday = DB::table('attendances')
+        $attendanceBase = DB::table('attendances')
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
             ->whereIn('classrooms.academy_id', $academyIds)
-            ->where('classrooms.status', 'active')
-            ->whereBetween('attendances.attendance_date', [
-                $periodStart->toDateString(),
-                $now->toDateString(),
-            ])
-            ->selectRaw(
-                'SUM(CASE WHEN attendances.status IN (\'present\', \'late\', \'absent\') THEN 1 ELSE 0 END) AS total,
-                 SUM(CASE WHEN attendances.status IN (\'present\', \'late\') THEN 1 ELSE 0 END) AS attended'
-            )
+            ->where('classrooms.status', 'active');
+
+        $attendanceTotals = "SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS total,
+             SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS attended";
+
+        // The KPI labelled "today" must only use today's records; keep a separate
+        // range aggregate for the period selector. whereDate also works if a driver
+        // stores attendance_date as a datetime rather than a pure DATE column.
+        $attendanceToday = (clone $attendanceBase)
+            ->whereDate('attendances.attendance_date', '=', $now->toDateString())
+            ->selectRaw($attendanceTotals)
+            ->first();
+
+        $attendanceForPeriod = (clone $attendanceBase)
+            ->whereDate('attendances.attendance_date', '>=', $periodStart->toDateString())
+            ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
+            ->selectRaw($attendanceTotals)
             ->first();
 
         // Keep the dashboard analytical: fetch whole-academy aggregates instead
