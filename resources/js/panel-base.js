@@ -14,6 +14,27 @@ function bootAlpine() {
     window[ALPINE_BOOT_FLAG] = true;
 }
 
+function bootRoleAvatarFallback() {
+    // This shared recovery behavior belongs only to Student and Teacher panels.
+    if (!document.body.matches('.student-shell, .teacher-shell')) return;
+
+    document.querySelectorAll('img[data-avatar-image]').forEach((image) => {
+        if (image.dataset.roleAvatarFallbackBound === 'true') return;
+
+        const fallback = image.parentElement?.querySelector('[data-avatar-fallback]');
+        if (!fallback) return;
+
+        image.dataset.roleAvatarFallbackBound = 'true';
+        const showFallback = () => {
+            image.hidden = true;
+            fallback.hidden = false;
+        };
+
+        image.addEventListener('error', showFallback, { once: true });
+        if (image.complete && image.naturalWidth === 0) showFallback();
+    });
+}
+
 function bootProfileAvatarFallback() {
     document.querySelectorAll('img[data-profile-avatar]').forEach((image) => {
         if (image.dataset.avatarFallbackBound === 'true') return;
@@ -38,6 +59,7 @@ function bootProfileAvatarFallback() {
 }
 
 export function bootPanel() {
+    bootRoleAvatarFallback();
     bootProfileAvatarFallback();
     bootAlpine();
 
