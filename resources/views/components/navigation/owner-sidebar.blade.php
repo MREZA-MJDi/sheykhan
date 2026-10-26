@@ -13,7 +13,7 @@
         : collect();
     $firstAcademy = $academies->first();
     $websiteAcademies = $seoOnly
-        ? \\App\\Models\\Academy::query()->where('status', 'active')->orderBy('name')->get(['id', 'name', 'slug'])
+        ? \App\Models\Academy::query()->where('status', 'active')->orderBy('name')->get(['id', 'name', 'slug'])
         : collect();
 
     $ownerPanelHomeUrl = route('home');
