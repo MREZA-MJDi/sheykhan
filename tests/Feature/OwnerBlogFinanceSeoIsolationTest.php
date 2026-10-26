@@ -86,7 +86,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         try {
             app(\App\Services\OwnerBlogService::class)->index($owner);
             $this->fail('Direct blog service access must not bypass the SEO-only role.');
-        } catch (\\Symfony\\Component\\HttpKernel\\Exception\\HttpException $exception) {
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
             $this->assertSame(403, $exception->getStatusCode());
         }
 
