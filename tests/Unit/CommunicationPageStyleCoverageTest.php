@@ -14,18 +14,22 @@ class CommunicationPageStyleCoverageTest extends TestCase
         return (string) file_get_contents($path);
     }
 
-    public function test_every_role_bundle_imports_the_shared_communication_stylesheet(): void
+    public function test_communication_styles_live_in_the_consolidated_role_bundles(): void
     {
         foreach ([
             'resources/css/teacher.css',
             'resources/css/parent.css',
-            'resources/css/admin.css',
+            'resources/css/owner-dashboard-v2.css',
         ] as $stylesheet) {
-            $this->assertStringContainsString("@import './communication-pages.css';", $this->source($stylesheet), $stylesheet);
+            $source = $this->source($stylesheet);
+            $this->assertStringContainsString('communication-page__hero', $source, $stylesheet);
+            $this->assertStringContainsString('communication-page__message', $source, $stylesheet);
+            $this->assertStringContainsString('communication-page__empty', $source, $stylesheet);
+            $this->assertStringNotContainsString("@import './communication-pages.css';", $source, $stylesheet);
         }
     }
 
-    public function test_all_message_screens_have_explicit_shared_style_hooks(): void
+    public function test_all_message_screens_have_explicit_style_hooks(): void
     {
         foreach ([
             'resources/views/teacher/student-messages/index.blade.php',
@@ -44,9 +48,13 @@ class CommunicationPageStyleCoverageTest extends TestCase
         $this->assertStringContainsString('communication-page__response', $inbox);
     }
 
-    public function test_shared_sheet_defines_the_core_message_and_form_styles(): void
+    public function test_consolidated_bundles_cover_message_and_form_states(): void
     {
-        $source = $this->source('resources/css/communication-pages.css');
+        $source = implode("\n", [
+            $this->source('resources/css/teacher.css'),
+            $this->source('resources/css/parent.css'),
+            $this->source('resources/css/owner-dashboard-v2.css'),
+        ]);
 
         foreach ([
             '.communication-page__hero',
@@ -56,9 +64,10 @@ class CommunicationPageStyleCoverageTest extends TestCase
             '.communication-page__response',
             '.communication-page__form--two-column',
             '.communication-page__empty',
-            '@media (max-width: 760px)',
         ] as $selector) {
             $this->assertStringContainsString($selector, $source, $selector);
         }
+
+        $this->assertMatchesRegularExpression('/@media\s*\(max-width:\s*760px\)/', $source);
     }
 }
