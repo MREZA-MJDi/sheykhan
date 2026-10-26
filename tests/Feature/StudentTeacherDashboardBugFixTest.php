@@ -71,6 +71,6 @@ class StudentTeacherDashboardBugFixTest extends TestCase
         $this->assertIsString($source);
         $this->assertStringContainsString("'completed' => ['پایان‌یافته','muted']", $source);
         $this->assertStringContainsString("'published' => ['ضبط منتشرشده','success']", $source);
-        $this->assertStringNotContainsString("default => [$liveClass->status,'muted']", $source);
+        $this->assertStringNotContainsString('default => [$liveClass->status,\'muted\']', $source);
     }
 }
