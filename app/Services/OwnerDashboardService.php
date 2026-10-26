@@ -222,10 +222,22 @@ final class OwnerDashboardService
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
             })
-            ->leftJoin('financial_transactions as transactions', function ($join): void {
+            ->leftJoin('financial_transactions as transactions', function ($join) use ($periodStart, $now): void {
                 $join->on('transactions.enrollment_id', '=', 'enrollments.id')
                     ->where('transactions.status', '=', 'completed')
-                    ->whereIn('transactions.currency', ['IRT', 'TOMAN', 'TOMANS']);
+                    ->whereIn('transactions.currency', ['IRT', 'TOMAN', 'TOMANS'])
+                    ->where(function ($periodQuery) use ($periodStart, $now): void {
+                        $periodQuery->whereBetween('transactions.occurred_at', [
+                            $periodStart->toDateTimeString(),
+                            $now->toDateTimeString(),
+                        ])->orWhere(function ($fallbackQuery) use ($periodStart, $now): void {
+                            $fallbackQuery->whereNull('transactions.occurred_at')
+                                ->whereBetween('transactions.created_at', [
+                                    $periodStart->toDateTimeString(),
+                                    $now->toDateTimeString(),
+                                ]);
+                        });
+                    });
             })
             ->whereIn('courses.academy_id', $academyIds)
             ->where('users.status', 'active')
