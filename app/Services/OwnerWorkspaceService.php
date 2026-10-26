@@ -10,6 +10,7 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -56,32 +57,13 @@ final class OwnerWorkspaceService
             ->orderBy('users.id')
             ->paginate(25, ['*'], 'archived_teachers_page');
 
-        // These are supporting modules. A stale production schema must not
-        // take the entire people workspace offline while the roster tables work.
-        $academicGradesAvailable = Schema::hasTable('academic_grades')
-            && Schema::hasColumn('academic_grades', 'title')
-            && Schema::hasColumn('academic_grades', 'sort_order')
-            && Schema::hasColumn('academic_grades', 'is_active');
-
-        $studentOnboardingColumns = [
-            'academy_id',
-            'admin_id',
-            'student_id',
-            'entered_name',
-            'requested_grade_id',
-            'status',
-            'activated_at',
-        ];
-
-        $studentOnboardingAvailable = Schema::hasTable('student_onboardings');
-        if ($studentOnboardingAvailable) {
-            foreach ($studentOnboardingColumns as $column) {
-                if (! Schema::hasColumn('student_onboardings', $column)) {
-                    $studentOnboardingAvailable = false;
-                    break;
-                }
-            }
-        }
+        // These are supporting modules. Keep the compatibility fallback, but do
+        // not ask information_schema about every optional column on every request.
+        // Production deployments should clear the application cache after migrations;
+        // the short TTL also bounds stale capability data if deployment tooling misses it.
+        $schemaCapabilities = $this->schemaCapabilities();
+        $academicGradesAvailable = $schemaCapabilities['academic_grades'];
+        $studentOnboardingAvailable = $schemaCapabilities['student_onboardings'];
 
         // Onboarding history eagerly loads requestedGrade. If a deployment has
         // the onboarding table but has not applied the academic-grade migration,
@@ -127,6 +109,54 @@ final class OwnerWorkspaceService
             'studentOnboardingHistoryAvailable' => $studentOnboardingHistoryAvailable,
             'onboardings' => $onboardings,
         ];
+    }
+
+    /**
+     * @return array{academic_grades: bool, student_onboardings: bool}
+     */
+    private function schemaCapabilities(): array
+    {
+        $detect = static function (): array {
+            $academicGradesAvailable = Schema::hasTable('academic_grades')
+                && Schema::hasColumn('academic_grades', 'title')
+                && Schema::hasColumn('academic_grades', 'sort_order')
+                && Schema::hasColumn('academic_grades', 'is_active');
+
+            $studentOnboardingColumns = [
+                'academy_id',
+                'admin_id',
+                'student_id',
+                'entered_name',
+                'requested_grade_id',
+                'status',
+                'activated_at',
+            ];
+
+            $studentOnboardingAvailable = Schema::hasTable('student_onboardings');
+            if ($studentOnboardingAvailable) {
+                foreach ($studentOnboardingColumns as $column) {
+                    if (! Schema::hasColumn('student_onboardings', $column)) {
+                        $studentOnboardingAvailable = false;
+                        break;
+                    }
+                }
+            }
+
+            return [
+                'academic_grades' => $academicGradesAvailable,
+                'student_onboardings' => $studentOnboardingAvailable,
+            ];
+        };
+
+        if (! app()->environment('production')) {
+            return $detect();
+        }
+
+        return Cache::remember(
+            'owner-workspace:schema-capabilities:v1',
+            now()->addMinutes(5),
+            $detect,
+        );
     }
 
     public function courseTeacherOptions(User $owner, Academy $academy): array
