@@ -41,6 +41,9 @@
                     <div class="min-w-0">
                         <p class="text-xs font-bold text-[var(--panel-primary)]">سؤال {{ \App\Support\PersianUi::digits($loop->iteration) }} · {{ ['text' => 'تشریحی', 'single' => 'تک‌گزینه‌ای', 'multiple' => 'چندپاسخی', 'checkbox' => 'چندپاسخی'][$question->type] ?? $question->type }}</p>
                         <h3 class="mt-1 whitespace-pre-line break-words text-sm font-bold leading-7">{{ $question->question }}</h3>
+                        @foreach($question->media->where('pivot.collection', 'exam-question-prompt') as $promptAttachment)
+                            <p class="mt-2 text-xs"><a class="underline" href="{{ route('media.view', $promptAttachment) }}">فایل صورت سؤال: {{ $promptAttachment->original_name }}</a></p>
+                        @endforeach
                     </div>
                     <span class="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold">{{ \App\Support\PersianUi::digits($question->score) }} امتیاز</span>
                 </article>
@@ -51,7 +54,7 @@
     </section>
 
     <section class="dashboard-panel overflow-hidden">
-        <div class="border-b border-slate-100 p-5"><h2 class="font-black">نتایج و تلاش‌های دانش‌آموزان</h2><p class="mt-1 text-sm text-slate-500">نمره‌ی خالی به معنی نمره‌ی صفر نیست؛ ممکن است تلاش هنوز تصحیح نشده باشد.</p></div>
+        <div class="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="font-black">نتایج و تلاش‌های دانش‌آموزان</h2><p class="mt-1 text-sm text-slate-500">نمره‌ی خالی به معنی نمره‌ی صفر نیست؛ ممکن است تلاش هنوز تصحیح نشده باشد.</p></div><div class="flex flex-wrap gap-2"><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('owner.exams.attempts.export', ['academy' => $academy, 'exam' => $exam->id, 'format' => 'csv']) }}">خروجی CSV</a><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('owner.exams.attempts.export', ['academy' => $academy, 'exam' => $exam->id, 'format' => 'word']) }}">خروجی Word</a></div></div>
         <div class="overflow-x-auto">
             <table class="w-full min-w-[700px] text-right">
                 <thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">دانش‌آموز</th><th class="px-4 py-3">شماره تلاش</th><th class="px-4 py-3">شروع</th><th class="px-4 py-3">ارسال</th><th class="px-4 py-3">نمره</th><th class="px-4 py-3">وضعیت</th><th class="px-4 py-3">تصحیح دستی</th></tr></thead>
@@ -68,6 +71,11 @@
                     <label class="grid gap-1">
                         <span class="font-bold leading-6">{{ $answer->question?->question ?? 'سؤال حذف‌شده' }}</span>
                         <span class="text-slate-500">پاسخ: {{ is_array($answer->answer) ? implode('، ', $answer->answer) : ($answer->answer ?: 'بدون پاسخ') }}</span>
+                        @if($answer->media->isNotEmpty())
+                            <span class="text-slate-500">فایل‌های پیوست:
+                                @foreach($answer->media as $answerFile)<a class="underline" href="{{ route('media.view', $answerFile) }}">{{ $answerFile->original_name }}</a>@if(!$loop->last)، @endif @endforeach
+                            </span>
+                        @endif
                         <span class="text-slate-500">حداکثر {{ \App\Support\PersianUi::digits($answer->question?->score ?? 0) }} امتیاز</span>
                         <input type="number" name="scores[{{ $answer->id }}]" min="0" max="{{ $answer->question?->score ?? 0 }}" step="0.01" value="{{ old('scores.'.$answer->id, $answer->score) }}" required class="min-h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm">
                     </label>

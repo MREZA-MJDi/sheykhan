@@ -17,6 +17,7 @@
     <form method="POST"
           action="{{ $exam->exists ? route('teacher.exams.update', $exam) : route('teacher.exams.store') }}"
           class="teacher-exam-builder-form"
+          enctype="multipart/form-data"
           data-exam-builder
           data-initial-questions="{{ json_encode(old('questions', $initialQuestions ?? []), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
         @csrf
@@ -169,6 +170,7 @@
 
         <template data-exam-question-template>
             <article class="teacher-exam-question-editor" data-exam-question>
+                <input type="hidden" data-name="id" value="">
                 <header class="teacher-exam-question-editor-head">
                     <div class="teacher-exam-question-editor-heading">
                         <span class="teacher-exam-question-number" data-question-number>سؤال ۱</span>
@@ -182,6 +184,12 @@
                     <span>متن سؤال</span>
                     <textarea data-name="question" rows="3" required maxlength="5000" placeholder="صورت سؤال را روشن و دقیق بنویس..."></textarea>
                     <small class="teacher-exam-field-help">صورت سؤال را کامل و مستقل بنویس. کلید پاسخ و پاسخ مرجع را در فیلدهای جداگانه قرار بده.</small>
+                </label>
+                <div class="teacher-exam-current-attachment" data-current-attachment hidden></div>
+                <label class="teacher-form-field teacher-exam-question-attachment">
+                    <span>پیوست صورت سؤال <small>اختیاری · حداکثر ۲۰ مگابایت</small></span>
+                    <input type="file" data-name="attachment" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.doc,.docx,.zip">
+                    <small class="teacher-exam-field-help">فایل فقط برای کاربران مجاز این آزمون قابل مشاهده است. انتخاب فایل جدید، پیوست قبلی همین سؤال را جایگزین می‌کند.</small>
                 </label>
 
                 <div class="teacher-exam-question-config">

@@ -11,6 +11,7 @@ use App\Models\ExamAttempt;
 use App\Services\TeacherAssessmentService;
 use App\Models\User;
 use App\Services\ExamQuestionWriter;
+use App\Services\MediaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,7 +59,7 @@ final class ExamController extends Controller
         ]);
     }
 
-    public function store(StoreExamRequest $request, Academy $academy, ExamQuestionWriter $questionWriter): RedirectResponse
+    public function store(StoreExamRequest $request, Academy $academy, ExamQuestionWriter $questionWriter, MediaService $media): RedirectResponse
     {
         $this->authorizeAcademy($request, $academy, 'exams.manage');
         $course = $academy->courses()->whereKey((int) $request->validated('course_id'))->firstOrFail();
@@ -68,9 +69,9 @@ final class ExamController extends Controller
         $payload = $request->safe()->except(['course_id', 'questions']);
         $payload['classroom_id'] = $classroomId ?: null;
         $payload['teacher_id'] = $teacher->id;
-        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
+        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter, $media): Exam {
             $exam = $course->exams()->create($payload);
-            $questionWriter->storeQuestions($exam, $request->validated('questions', []));
+            $questionWriter->storeQuestions($exam, $request->validated('questions', []), $media);
             return $exam;
         });
         return redirect()->route('owner.exams.show', [$academy, $exam->id])->with('success', 'آزمون و سؤال‌های آن با موفقیت ثبت شدند.');
@@ -81,19 +82,24 @@ final class ExamController extends Controller
         $this->authorizeAcademy($request, $academy, 'exams.manage');
         $record = $this->ownedExam($academy, $exam);
         abort_if($record->attempts()->exists(), 409, 'پس از اولین تلاش دانش‌آموز، ویرایش سؤال‌ها برای حفظ تاریخچه قفل می‌شود.');
-        $record->load(['course', 'classroom', 'questions']);
+        $record->load(['course', 'classroom', 'questions.media']);
         $initialQuestions = $record->questions->map(function ($question): array {
             $correctAnswer = $question->correct_answer;
             if (in_array($question->type, ['multiple', 'checkbox'], true)) {
                 $decoded = json_decode((string) $correctAnswer, true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) $correctAnswer = $decoded;
             }
+            $promptAttachment = $question->media->firstWhere('pivot.collection', 'exam-question-prompt');
             return [
+                'id' => $question->id,
+                'attachment_name' => $promptAttachment?->original_name,
+                'attachment_url' => $promptAttachment ? route('media.view', $promptAttachment) : null,
                 'type' => $question->type,
                 'question' => $question->question,
                 'options' => $question->options ?? [],
                 'correct_answer' => $correctAnswer,
                 'score' => $question->score,
+                'expected_answer' => $question->expected_answer,
             ];
         })->values()->all();
         return view('owner.exams.form', [
@@ -105,7 +111,7 @@ final class ExamController extends Controller
         ]);
     }
 
-    public function update(StoreExamRequest $request, Academy $academy, int $exam, ExamQuestionWriter $questionWriter): RedirectResponse
+    public function update(StoreExamRequest $request, Academy $academy, int $exam, ExamQuestionWriter $questionWriter, MediaService $media): RedirectResponse
     {
         $this->authorizeAcademy($request, $academy, 'exams.manage');
         $record = $this->ownedExam($academy, $exam);
@@ -120,13 +126,9 @@ final class ExamController extends Controller
         $payload['course_id'] = $course->id;
         $payload['classroom_id'] = $classroomId ?: null;
         $payload['teacher_id'] = $teacher->id;
-        DB::transaction(function () use ($record, $payload, $request, $questionWriter): void {
+        DB::transaction(function () use ($record, $payload, $request, $questionWriter, $media): void {
             $record->fill($payload)->save();
-            foreach ($record->questions()->get() as $question) {
-                $question->media()->detach();
-                $question->delete();
-            }
-            $questionWriter->storeQuestions($record, $request->validated('questions', []));
+            $questionWriter->storeQuestions($record, $request->validated('questions', []), $media);
         });
         return redirect()->route('owner.exams.show', [$academy, $record->id])->with('success', 'مشخصات و سؤال‌های آزمون به‌روزرسانی شدند.');
     }
@@ -135,9 +137,9 @@ final class ExamController extends Controller
     {
         $this->authorizeAcademy(request(), $academy, 'exams.view');
         $record = $this->ownedExam($academy, $exam);
-        $record->load(['course:id,academy_id,title', 'classroom:id,title', 'teacher:id,name', 'questions:id,exam_id,type,question,score,sort_order']);
+        $record->load(['course:id,academy_id,title', 'classroom:id,title', 'teacher:id,name', 'questions:id,exam_id,type,question,score,sort_order', 'questions.media']);
         $record->loadCount('attempts');
-        $attempts = $record->attempts()->with(['student:id,name', 'answers.question'])->orderByDesc('submitted_at')->orderByDesc('id')->paginate(25)->withQueryString();
+        $attempts = $record->attempts()->with(['student:id,name', 'answers.question', 'answers.media'])->orderByDesc('submitted_at')->orderByDesc('id')->paginate(25)->withQueryString();
         $summary = [
             'submitted' => $record->attempts()->whereNotNull('submitted_at')->count(),
             'graded' => $record->attempts()->whereNotNull('score')->count(),

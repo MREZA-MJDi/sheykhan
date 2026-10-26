@@ -16,7 +16,7 @@
     $remaining = $deadline ? max(0, $deadline->timestamp - now()->timestamp) : null;
     $savedAnswers = $attempt->answers->keyBy('question_id');
 @endphp
-<form class="page" id="exam-form" method="POST" action="{{ route('student.exam-attempts.submit', $attempt->id) }}">
+<form class="page" id="exam-form" method="POST" enctype="multipart/form-data" action="{{ route('student.exam-attempts.submit', $attempt->id) }}">
     @csrf
     <div class="card">
         <div class="chead">
@@ -48,6 +48,9 @@
                 <span class="tag">{{ \App\Support\PersianUi::number($question->score, 1) }} نمره</span>
             </div>
             <p style="font-size:14px;line-height:2;margin-bottom:14px">{{ $question->question }}</p>
+            @foreach($question->media->where('pivot.collection', 'exam-question-prompt') as $promptAttachment)
+                <p class="note">فایل صورت سؤال: <a href="{{ route('media.view', $promptAttachment) }}" class="underline">{{ $promptAttachment->original_name }}</a></p>
+            @endforeach
 
             @if($question->type === 'text')
                 <label for="answer-{{ $question->id }}" style="display:block;font-size:12px;margin-bottom:8px">پاسخ تشریحی</label>
@@ -84,6 +87,14 @@
                     </label>
                 @endforeach
             @endif
+            <label for="answer-file-{{ $question->id }}" style="display:block;font-size:12px;margin:12px 0 6px">پیوست پاسخ (اختیاری · حداکثر ۲۰ مگابایت)</label>
+            <input class="fld" id="answer-file-{{ $question->id }}" type="file" name="answer_attachments[{{ $question->id }}]" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.doc,.docx,.zip">
+            @if($saved?->media?->isNotEmpty())
+                <p class="note">فایل ثبت‌شده:
+                    @foreach($saved->media as $answerFile)<a href="{{ route('media.view', $answerFile) }}" class="underline">{{ $answerFile->original_name }}</a>@endforeach
+                </p>
+            @endif
+            <p class="note">فایل پاسخ برای مدرس قابل مشاهده است؛ پاسخ دارای پیوست در صف بررسی مدرس قرار می‌گیرد.</p>
         </div>
     @empty
         <div class="card"><div class="empty">سؤال قابل پاسخی برای این آزمون وجود ندارد.</div></div>

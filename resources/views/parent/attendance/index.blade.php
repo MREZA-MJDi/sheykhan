@@ -9,6 +9,7 @@
         <p class="parent-kicker" style="color:var(--panel-primary)">پیگیری آموزشی</p>
         <h1 class="mt-1 text-2xl font-black">سوابق حضور و غیاب فرزندان</h1>
         <p class="mt-2 text-sm leading-7 text-slate-500">فقط سابقهٔ دانش‌آموزانی نمایش داده می‌شود که به حساب والد متصل هستند. تاریخ‌ها به تقویم شمسی نمایش داده می‌شوند.</p>
+        <div class="mt-4 flex flex-wrap gap-2"><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('parent.attendance.export', ['format' => 'csv']) }}">خروجی Excel / CSV</a><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('parent.attendance.export', ['format' => 'word']) }}">گزارش Word</a></div>
     </header>
     <section class="parent-panel dashboard-panel overflow-hidden">
         <div class="overflow-x-auto">

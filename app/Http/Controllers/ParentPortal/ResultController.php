@@ -5,11 +5,44 @@ namespace App\Http\Controllers\ParentPortal;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\PanelExportService;
 use Illuminate\View\View;
 
 final class ResultController extends Controller
 {
     public function index(Request $request): View
+    {
+        $results = $this->buildResultsQuery($request)->paginate(20)->withQueryString();
+
+        return view('parent.results.index', compact('results'));
+    }
+
+    public function export(Request $request, PanelExportService $exports)
+    {
+        $filters = $request->validate(['format' => ['nullable', 'in:csv,word']]);
+        $rows = $this->buildResultsQuery($request)->get()->map(fn ($row): array => [
+            $row->student_name,
+            $row->title,
+            $row->result_type === 'exam' ? 'آزمون' : 'تکلیف',
+            $row->occurred_at,
+            $row->status_label,
+            $row->score,
+            $row->feedback,
+            $row->due_at,
+            $row->submitted_at,
+        ]);
+
+        return $exports->download(
+            $filters['format'] ?? 'csv',
+            'parent-learning-results',
+            'خلاصه نتایج آموزشی فرزندان',
+            ['دانش‌آموز', 'عنوان', 'نوع', 'تاریخ ثبت', 'وضعیت', 'نمره', 'بازخورد مدرس', 'مهلت تکلیف', 'زمان ارسال'],
+            $rows,
+            ['والد' => $request->user()->name, 'تعداد نتایج قابل مشاهده' => $rows->count()],
+        );
+    }
+
+    private function buildResultsQuery(Request $request)
     {
         $parentId = (int) $request->user()->id;
 
@@ -171,13 +204,10 @@ final class ResultController extends Controller
                 ELSE 'ارسال‌شده'
             END as status_label");
 
-        $results = DB::query()
+        return DB::query()
             ->fromSub($assignmentResults->unionAll($examResults), 'child_results')
             ->orderByDesc('occurred_at')
-            ->orderByDesc('result_id')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view('parent.results.index', compact('results'));
+            ->orderByDesc('result_id');
     }
+}
 }

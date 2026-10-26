@@ -9,7 +9,7 @@
 @endphp
 <section class="page" id="attendance">
     <div class="card">
-        <div class="chead"><h2>سوابق حضور و غیاب</h2><span class="pill">{{ \App\Support\PersianUi::digits($attendance->total()) }} رکورد</span></div>
+        <div class="chead"><h2>سوابق حضور و غیاب</h2><div class="flex flex-wrap items-center gap-2"><span class="pill">{{ \App\Support\PersianUi::digits($attendance->total()) }} رکورد</span><a class="pill" href="{{ route('student.attendance.export', ['format' => 'csv']) }}">خروجی Excel / CSV</a><a class="pill" href="{{ route('student.attendance.export', ['format' => 'word']) }}">گزارش Word</a></div></div>
         <div class="tw">
             <table class="tbl">
                 <thead><tr><th>تاریخ</th><th>کلاس</th><th>وضعیت</th><th>مدت حضور</th><th>توضیح</th></tr></thead>

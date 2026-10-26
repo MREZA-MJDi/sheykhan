@@ -3,14 +3,6 @@
 @section('title', $exam->exists ? 'ویرایش آزمون | شیخان' : 'ساخت آزمون | شیخان')
 @section('header-title', $exam->exists ? 'ویرایش آزمون' : 'ساخت آزمون')
 
-@push('styles')
-    @vite(['resources/css/teacher-workspace.css'])
-@endpush
-
-@push('scripts')
-    @vite(['resources/js/exam-builder.js'])
-@endpush
-
 @section('content')
 <div class="teacher-form-shell">
     <header class="teacher-form-head">
@@ -30,11 +22,11 @@
         </section>
     @else
         @if($exam->exists)
-            <form method="POST" action="{{ route('owner.exams.update', [$academy, $exam->id]) }}" class="grid gap-4" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+            <form method="POST" action="{{ route('owner.exams.update', [$academy, $exam->id]) }}" class="grid gap-4" enctype="multipart/form-data" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
                 @csrf
                 @method('PATCH')
         @else
-            <form method="POST" action="{{ route('owner.exams.store', $academy) }}" class="grid gap-4" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+            <form method="POST" action="{{ route('owner.exams.store', $academy) }}" class="grid gap-4" enctype="multipart/form-data" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
                 @csrf
         @endif
             <section class="teacher-form-section">
@@ -98,9 +90,12 @@
                 <div class="mt-5 grid gap-4" data-exam-questions></div>
                 <template data-exam-question-template>
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4" data-exam-question>
+                        <input type="hidden" data-name="id" value="">
                         <div class="mb-4 flex items-center justify-between"><strong class="text-xs">سؤال جدید</strong><button type="button" data-exam-remove-question class="text-xs font-bold text-rose-600">حذف سؤال</button></div>
                         <div class="grid gap-4 md:grid-cols-2">
                             <label class="teacher-form-field md:col-span-2"><span>متن سؤال</span><textarea data-name="question" rows="3" required maxlength="5000" placeholder="متن سؤال را وارد کنید..."></textarea><small class="owner-field-help">سؤال را کامل و بدون وابستگی به توضیح خارج از آزمون بنویس.</small></label>
+                            <div class="teacher-form-field md:col-span-2" data-current-attachment hidden></div>
+                            <label class="teacher-form-field md:col-span-2"><span>پیوست صورت سؤال (اختیاری، حداکثر ۲۰ مگابایت)</span><input type="file" data-name="attachment" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.doc,.docx,.zip"><small class="owner-field-help">فایل به‌صورت خصوصی ذخیره می‌شود و فقط کاربران مجاز به این آزمون می‌توانند آن را باز کنند. انتخاب فایل جدید، پیوست قبلی همین سؤال را جایگزین می‌کند.</small></label>
                             <label class="teacher-form-field"><span>نوع سؤال</span><select data-name="type"><option value="text">تشریحی</option><option value="single">تک‌گزینه‌ای</option><option value="multiple">چندپاسخی</option></select></label>
                             <label class="teacher-form-field"><span>نمره</span><input data-name="score" type="number" value="1" min="0" step="0.25"><small class="owner-field-help">سهم این سؤال از نمرهٔ نهایی است؛ گام اعشار ۰٫۲۵ است.</small></label>
                             <label class="teacher-form-field md:col-span-2" data-question-options><span>گزینه‌ها <small class="text-slate-400">هر گزینه در یک خط</small></span><textarea data-name="options_text" rows="4" placeholder="گزینه اول&#10;گزینه دوم&#10;گزینه سوم"></textarea></label>

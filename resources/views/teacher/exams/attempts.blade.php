@@ -24,6 +24,7 @@
                     <span>تلاش</span>
                 </div>
             </div>
+            <div class="mt-4 flex flex-wrap gap-2"><a class="teacher-workspace-btn secondary" href="{{ route('teacher.exams.paper.export', ['exam' => $exam, 'format' => 'word']) }}">دانلود برگه آزمون Word</a><a class="teacher-workspace-btn secondary" href="{{ route('teacher.exams.attempts.export', ['exam' => $exam, 'format' => 'csv']) }}">خروجی نتایج Excel / CSV</a><a class="teacher-workspace-btn secondary" href="{{ route('teacher.exams.attempts.export', ['exam' => $exam, 'format' => 'word']) }}">گزارش نتایج Word</a></div>
         </section>
 
         <div class="teacher-exam-attempt-list">

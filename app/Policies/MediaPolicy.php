@@ -9,7 +9,9 @@ use App\Models\AssignmentSubmission;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Exam;
+use App\Models\ExamAnswer;
 use App\Models\ExamAttempt;
+use App\Models\Question;
 use App\Models\Lesson;
 use App\Models\LiveClass;
 use App\Models\LearningResource;
@@ -44,6 +46,40 @@ class MediaPolicy
         // route, which checks LearningResource.downloadable and the free-course
         // entitlement. This generic route must never bypass that switch.
         if ($user->hasRole('student') && $protectedLearningMedia) {
+            // Students may download their own submitted answer files, but this
+            // exception must never make teacher handouts or course materials downloadable.
+            foreach ($media->attachments()->with('mediable')->get() as $attachment) {
+                $model = $attachment->mediable;
+
+                if ($model instanceof AssignmentSubmission) {
+                    $model->loadMissing('assignment');
+                    if (
+                        (int) $model->student_id === (int) $user->id
+                        && $model->assignment
+                        && app(StudentAccessService::class)->assignment($user, $model->assignment)
+                    ) {
+                        return true;
+                    }
+                }
+
+                if ($model instanceof ExamAnswer) {
+                    $model->loadMissing('attempt.exam');
+                    $attempt = $model->attempt;
+                    $exam = $attempt?->exam;
+                    if (
+                        $attempt
+                        && $exam
+                        && (int) $attempt->student_id === (int) $user->id
+                        && (
+                            app(StudentAccessService::class)->canViewExamResult($user, $exam)
+                            || app(StudentAccessService::class)->exam($user, $exam)
+                        )
+                    ) {
+                        return true;
+                    }
+                }
+            }
+
             return false;
         }
 
@@ -90,6 +126,8 @@ class MediaPolicy
                 || $model instanceof Classroom
                 || $model instanceof Assignment
                 || $model instanceof AssignmentSubmission
+                || $model instanceof Question
+                || $model instanceof ExamAnswer
                 || $model instanceof Exam
                 || $model instanceof LiveClass
             ) {
@@ -285,6 +323,95 @@ class MediaPolicy
                 if ($model->course && (
                     $this->academyOwner($user, $model->course->academy)
                     || $this->courseAccess($user, $model->course)
+                )) {
+                    return true;
+                }
+            }
+
+            if ($model instanceof Question) {
+                $model->loadMissing(['exam.course.academy', 'exam.classroom']);
+                $exam = $model->exam;
+                if (! $exam) {
+                    continue;
+                }
+
+                if ($user->hasRole('student')) {
+                    if (app(StudentAccessService::class)->exam($user, $exam)) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageExam($user, $exam)) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildExam = $user->children()->get()->contains(
+                        fn (User $child): bool => app(StudentAccessService::class)->exam($child, $exam)
+                    );
+                    if ($canAccessChildExam) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($exam->course && (
+                    $this->academyOwner($user, $exam->course->academy)
+                    || $this->courseAccess($user, $exam->course)
+                )) {
+                    return true;
+                }
+            }
+
+            if ($model instanceof ExamAnswer) {
+                $model->loadMissing(['attempt.exam.course.academy', 'attempt.exam.classroom']);
+                $attempt = $model->attempt;
+                $exam = $attempt?->exam;
+                if (! $attempt || ! $exam) {
+                    continue;
+                }
+
+                if ($user->hasRole('student')) {
+                    if (
+                        (int) $attempt->student_id === (int) $user->id
+                        && (
+                            app(StudentAccessService::class)->canViewExamResult($user, $exam)
+                            || app(StudentAccessService::class)->exam($user, $exam)
+                        )
+                    ) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageExam($user, $exam)) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildAnswer = $user->children()->get()->contains(
+                        fn (User $child): bool => (int) $attempt->student_id === (int) $child->id
+                            && (
+                                app(StudentAccessService::class)->canViewExamResult($child, $exam)
+                                || app(StudentAccessService::class)->exam($child, $exam)
+                            )
+                    );
+                    if ($canAccessChildAnswer) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($exam->course && (
+                    $this->academyOwner($user, $exam->course->academy)
+                    || $this->courseAccess($user, $exam->course)
                 )) {
                     return true;
                 }

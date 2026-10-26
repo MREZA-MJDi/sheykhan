@@ -18,7 +18,7 @@
     </div>
 
     <div class="card">
-        <div class="chead"><h2>کارنامه</h2><span class="pill">{{ \App\Support\PersianUi::digits($results->total()) }} نتیجه</span></div>
+        <div class="chead"><h2>کارنامه</h2><div class="flex flex-wrap items-center gap-2"><span class="pill">{{ \App\Support\PersianUi::digits($results->total()) }} نتیجه</span><a class="pill" href="{{ route('student.results.export', ['format' => 'csv']) }}">خروجی Excel / CSV</a><a class="pill" href="{{ route('student.results.export', ['format' => 'word']) }}">گزارش Word</a></div></div>
         <div class="tw">
             <table class="tbl">
                 <thead><tr><th>عنوان</th><th>نوع</th><th>تاریخ ثبت</th><th>وضعیت</th><th>نمره</th><th></th></tr></thead>

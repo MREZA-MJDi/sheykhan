@@ -10,7 +10,7 @@
             <h1 class="teacher-workspace-title">{{ $assignment->title }}</h1>
             <p class="teacher-workspace-description">{{ $assignment->classroom?->title ?? 'همه دانش‌آموزان دوره' }} · نمره کل {{ App\Support\PersianUi::digits($assignment->max_score ?? 0) }}</p>
         </div>
-        <a href="{{ route('teacher.assignments.index') }}" class="teacher-workspace-btn secondary">بازگشت به تکالیف</a>
+        <div class="flex flex-wrap gap-2"><a href="{{ route('teacher.assignments.submissions.export', ['assignment' => $assignment, 'format' => 'csv']) }}" class="teacher-workspace-btn secondary">خروجی Excel / CSV</a><a href="{{ route('teacher.assignments.submissions.export', ['assignment' => $assignment, 'format' => 'word']) }}" class="teacher-workspace-btn secondary">گزارش Word</a><a href="{{ route('teacher.assignments.index') }}" class="teacher-workspace-btn secondary">بازگشت به تکالیف</a></div>
     </header>
 
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif

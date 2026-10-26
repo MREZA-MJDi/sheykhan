@@ -4,7 +4,7 @@
 @section('content')
 @php($activePeopleTab = request('tab') === 'create-student' ? 'create-student' : 'management')
 <div class="space-y-6 panel-page-enter owner-people-workspace">
-<div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اختصاص مسئول کلاس و ثبت‌نام امن.</p></div>
+<div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها، والدین، اختصاص مسئول کلاس و ثبت‌نام امن.</p></div><div class="flex flex-wrap gap-2"><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('owner.people.export', ['academy' => $academy, 'format' => 'csv']) }}">خروجی Excel / CSV</a><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('owner.people.export', ['academy' => $academy, 'format' => 'word']) }}">گزارش Word</a></div></div>
 
 @if(empty($academicGradesAvailable) || empty($studentOnboardingAvailable) || empty($studentOnboardingHistoryAvailable))
 <section class="owner-schema-warning" role="status" aria-live="polite">

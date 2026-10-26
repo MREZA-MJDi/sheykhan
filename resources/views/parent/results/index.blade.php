@@ -9,6 +9,7 @@
         <p class="parent-kicker" style="color:var(--panel-primary)">نتیجه و بازخورد</p>
         <h1 class="mt-1 text-2xl font-black">نتیجهٔ تکالیف و آزمون‌ها</h1>
         <p class="mt-2 text-sm leading-7 text-slate-500">وضعیت تکالیف، مهلت ارسال، ارسال‌های در انتظار تصحیح، نمره و بازخورد را فقط برای فرزندان متصل و دوره‌های دارای دسترسی معتبر ببین.</p>
+        <div class="mt-4 flex flex-wrap gap-2"><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('parent.results.export', ['format' => 'csv']) }}">خروجی Excel / CSV</a><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('parent.results.export', ['format' => 'word']) }}">گزارش Word</a></div>
     </header>
     <section class="space-y-3">
         @forelse($results as $result)

@@ -6,7 +6,7 @@
 @section('content')
 <section class="page">
     <div class="card">
-        <div class="chead"><h2>{{ $exam->title }}</h2><a class="pill" href="{{ route('student.exams.index') }}">بازگشت به آزمون‌ها</a></div>
+        <div class="chead"><h2>{{ $exam->title }}</h2><div class="flex flex-wrap items-center gap-2"><a class="pill" href="{{ route('student.exams.result.export', ['exam' => $exam, 'format' => 'word']) }}">کارنامه Word</a><a class="pill" href="{{ route('student.exams.result.export', ['exam' => $exam, 'format' => 'csv']) }}">خروجی Excel / CSV</a><a class="pill" href="{{ route('student.exams.index') }}">بازگشت به آزمون‌ها</a></div></div>
         <div class="sum">
             <span class="tag">{{ $exam->course?->title ?? 'دوره' }}</span>
             <span class="tag">{{ \App\Support\PersianUi::digits($attempts->count()) }} تلاش ثبت‌شده</span>

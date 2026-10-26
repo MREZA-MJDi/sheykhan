@@ -6,7 +6,7 @@
 @section('content')
 <section class="page" id="assignments">
     <div class="card">
-        <div class="chead"><h2>تکالیف دوره‌های من</h2><span class="pill">{{ \App\Support\PersianUi::digits($assignments->total()) }} تکلیف</span></div>
+        <div class="chead"><h2>تکالیف دوره‌های من</h2><div class="flex flex-wrap items-center gap-2"><span class="pill">{{ \App\Support\PersianUi::digits($assignments->total()) }} تکلیف</span><a class="pill" href="{{ route('student.assignments.export', ['format' => 'csv']) }}">خروجی Excel / CSV</a><a class="pill" href="{{ route('student.assignments.export', ['format' => 'word']) }}">گزارش Word</a></div></div>
         <div class="tw">
             <table class="tbl">
                 <thead><tr><th>تکلیف</th><th>دوره / کلاس</th><th>مهلت</th><th>وضعیت</th><th></th></tr></thead>

@@ -16,7 +16,7 @@
             <h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1>
             <p class="mt-2 text-sm leading-7 text-slate-500">فهرست صفحه‌بندی‌شدهٔ رکوردهای حضور و غیاب همین آموزشگاه؛ با جست‌وجوی دانش‌آموز، کلاس، تاریخ و وضعیت.</p>
         </div>
-        <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a>
+        <div class="flex flex-wrap items-center gap-2"><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('owner.attendance.export', array_merge(['academy' => $academy], request()->only(['q','classroom_id','attendance_date','status']), ['format' => 'csv'])) }}">خروجی Excel / CSV</a><a class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold" href="{{ route('owner.attendance.export', array_merge(['academy' => $academy], request()->only(['q','classroom_id','attendance_date','status']), ['format' => 'word'])) }}">گزارش Word</a><a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a></div>
     </header>
 
     <section class="grid gap-3 grid-cols-2 xl:grid-cols-5">

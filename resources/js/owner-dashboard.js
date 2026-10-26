@@ -448,6 +448,29 @@ const initializeExamBuilder = () => {
         const options = readQuestionOptions(item);
         const questionPrompt = item.querySelector('[data-name="question"]');
         const referenceAnswer = item.querySelector('[data-name="expected_answer"]');
+        const questionIdInput = item.querySelector('[data-name="id"]');
+        if (questionIdInput) {
+            questionIdInput.value = initial.id !== undefined && initial.id !== null ? String(initial.id) : '';
+        }
+
+        const currentAttachment = item.querySelector('[data-current-attachment]');
+        if (currentAttachment) {
+            currentAttachment.replaceChildren();
+            const attachmentName = typeof initial.attachment_name === 'string' ? initial.attachment_name : '';
+            const attachmentUrl = typeof initial.attachment_url === 'string' ? initial.attachment_url : '';
+            if (attachmentName && attachmentUrl) {
+                const label = document.createElement('span');
+                label.textContent = 'پیوست فعلی: ';
+                const link = document.createElement('a');
+                link.href = attachmentUrl;
+                link.textContent = attachmentName;
+                link.className = 'font-bold underline';
+                currentAttachment.append(label, link);
+                currentAttachment.hidden = false;
+            } else {
+                currentAttachment.hidden = true;
+            }
+        }
         const status = examBuilder.querySelector('[name="status"]')?.value || 'draft';
         const hasDraftContent = Boolean(
             questionPrompt?.value.trim()

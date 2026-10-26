@@ -25,6 +25,8 @@ class StoreExamRequest extends FormRequest
             'attempts_allowed' => ['sometimes', 'integer', 'min:1', 'max:255'],
             'status' => ['sometimes', Rule::in(['draft', 'published', 'closed'])],
             'questions' => ['nullable', 'array', 'max:100'],
+            'questions.*.id' => ['nullable', 'integer', 'exists:questions,id'],
+            'questions.*.attachment' => ['nullable', 'file', 'max:20480', 'mimetypes:application/pdf,text/plain,image/jpeg,image/png,image/webp,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip'],
             'questions.*.type' => ['required_with:questions', Rule::in(['text', 'single', 'multiple', 'checkbox'])],
             'questions.*.question' => ['required_with:questions', 'string', 'max:5000'],
             'questions.*.options' => ['nullable', 'array', 'max:30'],
@@ -139,6 +141,9 @@ class StoreExamRequest extends FormRequest
             'ends_at.after_or_equal' => 'زمان پایان آزمون باید بعد از زمان شروع باشد.',
             'attempts_allowed.min' => 'تعداد دفعات مجاز باید حداقل ۱ باشد.',
             'questions.*.question.required_with' => 'متن همه سؤال‌ها را وارد کن.',
+            'questions.*.attachment.file' => 'پیوست صورت سؤال باید یک فایل معتبر باشد.',
+            'questions.*.attachment.max' => 'حجم پیوست هر سؤال حداکثر ۲۰ مگابایت است.',
+            'questions.*.attachment.mimetypes' => 'برای پیوست سؤال، PDF، متن، تصویر، Word یا ZIP انتخاب کن.',
         ];
     }
 }

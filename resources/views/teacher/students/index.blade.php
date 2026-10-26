@@ -16,7 +16,7 @@
             <h1 class="teacher-workspace-title">دانش‌آموزان من</h1>
             <p class="teacher-workspace-description">پیشرفت و فعالیت دانش‌آموزان کلاس‌های خودت را ببین؛ نتایج در صفحه‌های سبک و قابل جست‌وجو بارگذاری می‌شوند.</p>
         </div>
-        <span class="teacher-workspace-chip">نمایش ۲۰ نفر در هر صفحه</span>
+        <div class="flex flex-wrap items-center gap-2"><a class="teacher-workspace-btn secondary" href="{{ route('teacher.students.export', array_merge(request()->only(['q','sort','direction']), ['format' => 'csv'])) }}">خروجی Excel / CSV</a><a class="teacher-workspace-btn secondary" href="{{ route('teacher.students.export', array_merge(request()->only(['q','sort','direction']), ['format' => 'word'])) }}">گزارش Word</a><span class="teacher-workspace-chip">نمایش ۲۰ نفر در هر صفحه</span></div>
     </header>
 
     <section class="teacher-workspace-stats" aria-label="خلاصه فهرست دانش‌آموزان">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Exam;
 use App\Services\ExamQuestionWriter;
+use App\Services\MediaService;
 use App\Services\TeacherAccessService;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +36,8 @@ class ExamController extends Controller
     public function store(
         StoreExamRequest $request,
         TeacherWorkspaceService $workspace,
-        ExamQuestionWriter $questionWriter
+        ExamQuestionWriter $questionWriter,
+        MediaService $media
     ): RedirectResponse {
         $courseId = (int) $request->validated('course_id');
         $course = $workspace->courseOwnedBy($request->user(), $courseId);
@@ -48,9 +50,9 @@ class ExamController extends Controller
         $payload = $request->safe()->except(['course_id', 'questions']);
         $payload['teacher_id'] = $request->user()->id;
 
-        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
+        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter, $media): Exam {
             $exam = $course->exams()->create($payload);
-            $questionWriter->storeQuestions($exam, $request->validated('questions', []));
+            $questionWriter->storeQuestions($exam, $request->validated('questions', []), $media);
             return $exam;
         });
 
@@ -70,7 +72,7 @@ class ExamController extends Controller
                 ->with('warning', 'این آزمون قبلاً شروع شده است؛ برای حفظ صحت پاسخ‌ها و نمره‌ها، متن و کلید آن قفل شده است.');
         }
 
-        $exam->load('questions');
+        $exam->load(['questions.media']);
         $initialQuestions = $exam->questions
             ->sortBy('sort_order')
             ->map(function ($question): array {
@@ -82,7 +84,12 @@ class ExamController extends Controller
                     }
                 }
 
+                $promptAttachment = $question->media->firstWhere('pivot.collection', 'exam-question-prompt');
+
                 return [
+                    'id' => $question->id,
+                    'attachment_name' => $promptAttachment?->original_name,
+                    'attachment_url' => $promptAttachment ? route('media.view', $promptAttachment) : null,
                     // The legacy database default represents a single-answer
                     // choice question; map it into the current four-choice editor.
                     'type' => $question->type === 'multiple_choice' ? 'single' : $question->type,
@@ -109,7 +116,8 @@ class ExamController extends Controller
         Exam $exam,
         TeacherWorkspaceService $workspace,
         TeacherAccessService $access,
-        ExamQuestionWriter $questionWriter
+        ExamQuestionWriter $questionWriter,
+        MediaService $media
     ): RedirectResponse {
         abort_unless($access->canManageExam($request->user(), $exam), 403);
 
@@ -125,7 +133,7 @@ class ExamController extends Controller
         $payload['course_id'] = $course->id;
         $payload['teacher_id'] = $request->user()->id;
 
-        DB::transaction(function () use ($exam, $payload, $request, $questionWriter, $access): void {
+        DB::transaction(function () use ($exam, $payload, $request, $questionWriter, $access, $media): void {
             $lockedExam = Exam::query()
                 ->whereKey($exam->id)
                 ->lockForUpdate()
@@ -140,8 +148,7 @@ class ExamController extends Controller
             }
 
             $lockedExam->update($payload);
-            $lockedExam->questions()->delete();
-            $questionWriter->storeQuestions($lockedExam->refresh(), $request->validated('questions', []));
+            $questionWriter->storeQuestions($lockedExam->refresh(), $request->validated('questions', []), $media);
         });
 
         return redirect()->route('teacher.exams.index')
@@ -155,7 +162,7 @@ class ExamController extends Controller
         $exam->load('questions');
 
         $attempts = $exam->attempts()
-            ->with(['student:id,name', 'answers.question', 'exam.questions'])
+            ->with(['student:id,name', 'answers.question', 'answers.media', 'exam.questions.media'])
             ->latest('submitted_at')
             ->paginate(15)
             ->withQueryString();

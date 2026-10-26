@@ -3,7 +3,7 @@
 @section('header-title','حضور و غیاب')
 @section('content')
 <div class="teacher-form-shell">
-    <div class="teacher-form-head"><div><span class="text-xs font-black text-[var(--panel-primary)]">{{ $classroom->course?->title }}</span><h1>{{ $classroom->title }}</h1><p>وضعیت حضور هر دانش‌آموز را برای یک تاریخ مشخص ثبت کن. تغییرات قبلی همان روز به‌روزرسانی می‌شوند.</p></div><a href="{{ route('teacher.classrooms.index') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کلاس‌ها ←</a></div>
+    <div class="teacher-form-head"><div><span class="text-xs font-black text-[var(--panel-primary)]">{{ $classroom->course?->title }}</span><h1>{{ $classroom->title }}</h1><p>وضعیت حضور هر دانش‌آموز را برای یک تاریخ مشخص ثبت کن. تغییرات قبلی همان روز به‌روزرسانی می‌شوند.</p></div><div class="flex flex-wrap items-center gap-2"><a class="teacher-workspace-btn secondary" href="{{ route('teacher.classrooms.attendance.export', ['classroom' => $classroom, 'attendance_date' => old('attendance_date', $attendanceDate), 'format' => 'csv']) }}">خروجی Excel / CSV</a><a class="teacher-workspace-btn secondary" href="{{ route('teacher.classrooms.attendance.export', ['classroom' => $classroom, 'attendance_date' => old('attendance_date', $attendanceDate), 'format' => 'word']) }}">برگه Word</a><a href="{{ route('teacher.classrooms.index') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کلاس‌ها ←</a></div></div>
     <form method="POST" action="{{ route('teacher.classrooms.attendance.store',$classroom) }}" class="grid gap-4">
         @csrf
         <section class="teacher-form-section">
