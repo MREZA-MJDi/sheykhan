@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Achievement;
 use App\Models\Academy;
 use App\Models\Testimonial;
+use App\Models\User;
 use App\Services\MediaService;
-use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -19,9 +19,9 @@ use Throwable;
 
 final class ShowcaseController extends Controller
 {
-    public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): View
+    public function index(Academy $academy, Request $request): View
     {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
+        $this->authorizePublicContentManagement($request->user(), $academy);
 
         return view('owner.showcase.index', [
             'academy' => $academy,
@@ -44,10 +44,9 @@ final class ShowcaseController extends Controller
     public function storeAchievement(
         Request $request,
         Academy $academy,
-        OwnerWorkspaceService $workspace,
         MediaService $media
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
+        $this->authorizePublicContentManagement($request->user(), $academy);
 
         $data = $request->validate([
             'display_name' => ['required', 'string', 'max:160'],
@@ -116,10 +115,9 @@ final class ShowcaseController extends Controller
     public function storeTestimonial(
         Request $request,
         Academy $academy,
-        OwnerWorkspaceService $workspace,
         MediaService $media
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
+        $this->authorizePublicContentManagement($request->user(), $academy);
 
         $data = $request->validate([
             'display_name' => ['required', 'string', 'max:160'],
@@ -206,9 +204,8 @@ final class ShowcaseController extends Controller
         Academy $academy,
         Achievement $achievement,
         Request $request,
-        OwnerWorkspaceService $workspace
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
+        $this->authorizePublicContentManagement($request->user(), $academy);
         abort_unless((int) $achievement->academy_id === (int) $academy->id, 404);
 
         $achievement->update(['status' => 'draft', 'published_at' => null, 'is_featured' => false]);
@@ -225,9 +222,8 @@ final class ShowcaseController extends Controller
         Academy $academy,
         Testimonial $testimonial,
         Request $request,
-        OwnerWorkspaceService $workspace
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
+        $this->authorizePublicContentManagement($request->user(), $academy);
         abort_unless((int) $testimonial->academy_id === (int) $academy->id, 404);
 
         DB::transaction(function () use ($testimonial): void {
@@ -240,6 +236,18 @@ final class ShowcaseController extends Controller
         $this->clearPublicCache();
 
         return back()->with('success', 'تجربه از نمایش عمومی خارج شد.');
+    }
+
+    private function authorizePublicContentManagement(?User $user, Academy $academy): void
+    {
+        abort_unless(
+            $user
+                && $user->hasRole('seo-specialist')
+                && ! $user->hasRole('academy-owner')
+                && $user->hasPermission('seo.manage')
+                && $academy->status === 'active',
+            404
+        );
     }
 
     private function clearPublicCache(): void
