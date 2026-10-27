@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'کارتابل مدیر آموزشگاه | شیخان')</title>
-    @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
     @if(request()->routeIs('owner.dashboard'))
-        @vite('resources/css/admin-dashboard.css')
+        @vite(['resources/css/admin-dashboard.css', 'resources/js/admin-dashboard.js'])
+    @else
+        @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
     @endif
     @stack('styles')
 </head>
