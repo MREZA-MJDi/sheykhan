@@ -293,7 +293,14 @@
                 <span><i style="--legend:#ff1f6b"></i>ثبت‌نام دانش‌آموزان</span>
                 <span><i style="--legend:#22d3ee"></i>نرخ حضور</span>
             </div>
-            <svg class="ln owner-line-chart" viewBox="0 0 520 150" role="img" aria-label="نمودار روند هفتگی ثبت‌نام و نرخ حضور">
+            <svg class="ln owner-line-chart"
+                 id="owner-weekly-trend-chart"
+                 data-owner-range-chart
+                 data-range-values='@json($weeklyAttendance)'
+                 data-range-labels='@json($weeklyLabels)'
+                 viewBox="0 0 520 150"
+                 role="img"
+                 aria-label="نمودار روند هفتگی ثبت‌نام و نرخ حضور؛ دستگیره‌ها را برای انتخاب بازهٔ حضور جابه‌جا کنید">
                 <g class="owner-chart-grid">
                     @for($grid = 0; $grid < 6; $grid++)
                         <line x1="0" y1="{{ 8 + ($grid * 26) }}" x2="520" y2="{{ 8 + ($grid * 26) }}"/>
@@ -308,12 +315,21 @@
                 @foreach($weeklyAttendanceSegments as $points)
                     <polyline class="owner-line-attendance" points="{{ $points }}"/>
                 @endforeach
+                <g class="owner-range-handle" data-range-handle="start" tabindex="0" role="slider" aria-label="ابتدای بازه" aria-valuemin="0" aria-valuemax="12" aria-valuenow="2">
+                    <line x1="86.7" y1="8" x2="86.7" y2="138"/>
+                    <circle cx="86.7" cy="73" r="6"/>
+                </g>
+                <g class="owner-range-handle" data-range-handle="end" tabindex="0" role="slider" aria-label="انتهای بازه" aria-valuemin="0" aria-valuemax="12" aria-valuenow="10">
+                    <line x1="433.3" y1="8" x2="433.3" y2="138"/>
+                    <circle cx="433.3" cy="73" r="6"/>
+                </g>
             </svg>
             <div class="owner-chart-labels">
                 @foreach([0, 3, 6, 9, 12] as $labelIndex)
                     <span>{{ $weeklyLabels[$labelIndex] ?? '' }}</span>
                 @endforeach
             </div>
+            <p class="owner-range-summary" id="owner-trend-range-summary" aria-live="polite">دستگیره‌های نمودار را برای محاسبهٔ میانگین حضور یک بازه جابه‌جا کنید.</p>
             @if(array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) <= 0.0 && !count(array_filter(is_array($weeklyAttendance) ? $weeklyAttendance : [], 'is_numeric')))
                 <div class="card-empty">در این بازه هنوز رکورد کافی برای رسم روند ثبت‌نام یا حضور وجود ندارد.</div>
             @endif
