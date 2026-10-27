@@ -4,7 +4,7 @@
 @section('header-title', 'حقوق مدرس‌ها')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 panel-page-enter owner-workspace-page owner-teacher-payments-page">
     <header><p class="text-xs font-black text-[var(--panel-primary)]">امور مالی مدرس‌ها</p><h1 class="mt-1 text-2xl font-black">ثبت و پیگیری پرداخت مدرس‌ها</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">این نسخه دفتر ثبت پرداخت است: ادمین/منشی مبلغ توافق‌شده را ثبت و وضعیت پرداخت را به‌روز می‌کند. سامانه فعلاً حقوق را خودکار از تعداد جلسه یا درصد فروش محاسبه نمی‌کند.</p></header>
     <section class="grid gap-3 sm:grid-cols-2">
         <article class="owner-stat-card"><span>پرداخت ثبت‌شده</span><strong>{{ \App\Support\PersianUi::number($summary['paid']) }}</strong><small>تومان</small></article>
