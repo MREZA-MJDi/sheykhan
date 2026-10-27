@@ -172,6 +172,21 @@ final class OwnerDashboardService
             })
             ->count();
 
+        $todayLiveClasses = LiveClass::query()
+            ->whereIn('status', ['scheduled', 'live'])
+            ->whereDate('scheduled_at', $now->toDateString())
+            ->whereHas('classroom', fn ($query) => $query
+                ->whereIn('academy_id', $academyIds)
+                ->where('status', 'active'))
+            ->with([
+                'course:id,title',
+                'teacher:id,name',
+                'classroom:id,title,academy_id',
+            ])
+            ->orderBy('scheduled_at')
+            ->limit(12)
+            ->get();
+
         $upcomingLiveClasses = LiveClass::query()
             ->whereIn('status', ['scheduled', 'live'])
             ->whereBetween('scheduled_at', [$now, $now->copy()->addDays(7)])
@@ -333,6 +348,7 @@ final class OwnerDashboardService
                 'configured_classrooms' => (int) ($capacitySummary->configured_capacity_classrooms ?? 0),
             ],
             'upcomingLiveClasses' => $upcomingLiveClasses,
+            'todayLiveClasses' => $todayLiveClasses,
             'recentCourses' => Course::query()
                 ->whereIn('academy_id', $academyIds)
                 ->with('academy:id,name')
@@ -348,19 +364,27 @@ final class OwnerDashboardService
     }
 
     /**
-     * Build real, compact seven-day series for the KPI sparklines.
+     * Build database-backed trend series for compact KPI sparklines and dashboard charts.
      *
-     * A missing attendance day remains null instead of pretending that its
-     * attendance rate was zero. Event-count and revenue series use zero for
-     * days with no matching events.
+     * Event counts use zero for days with no matching events. Attendance keeps
+     * nulls where there are no valid records so a chart never invents a 0% rate.
      */
     private function dashboardTrends($academyIds, Carbon $now): array
     {
-        $start = $now->copy()->subDays(6)->startOfDay();
-        $from = $start->toDateTimeString();
+        $today = $now->copy()->startOfDay();
+        $chartStart = $today->copy()->startOfWeek(Carbon::SATURDAY)->subWeeks(12);
+        $from = $chartStart->toDateTimeString();
         $to = $now->toDateTimeString();
-        $dates = collect(range(0, 6))
-            ->map(fn (int $offset) => $start->copy()->addDays($offset)->toDateString());
+        $salesStart = $now->copy()->startOfMonth()->subMonthsNoOverflow(3)->startOfDay();
+        $salesFrom = $salesStart->toDateTimeString();
+
+        $dailyDates = collect();
+        for ($day = $chartStart->copy(); $day->lte($today); $day->addDay()) {
+            $dailyDates->push($day->toDateString());
+        }
+
+        $sparkDates = collect(range(0, 6))
+            ->map(fn (int $offset) => $today->copy()->subDays(6 - $offset)->toDateString());
 
         $studentsByDay = DB::table('academy_user as membership')
             ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
@@ -378,7 +402,7 @@ final class OwnerDashboardService
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
             ->whereIn('classrooms.academy_id', $academyIds)
             ->where('classrooms.status', 'active')
-            ->whereDate('attendances.attendance_date', '>=', $start->toDateString())
+            ->whereDate('attendances.attendance_date', '>=', $chartStart->toDateString())
             ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
             ->groupByRaw('DATE(attendances.attendance_date)')
             ->selectRaw(
@@ -389,12 +413,14 @@ final class OwnerDashboardService
             ->get()
             ->keyBy('day');
 
+        // Extend revenue to four Jalali/Gregorian calendar months for the cylinder chart.
+        // A single grouped-by-day query is reused to derive both weekly and monthly totals.
         $salesByDay = DB::table('financial_transactions')
             ->whereIn('academy_id', $academyIds)
             ->where('status', 'completed')
             ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
             ->whereIn('type', ['enrollment_payment', 'refund'])
-            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$from, $to])
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$salesFrom, $to])
             ->groupByRaw('DATE(COALESCE(occurred_at, created_at))')
             ->selectRaw(
                 "DATE(COALESCE(occurred_at, created_at)) as day,
@@ -413,9 +439,78 @@ final class OwnerDashboardService
             ->selectRaw('DATE(submissions.submitted_at) as day, COUNT(*) as value')
             ->pluck('value', 'day');
 
+        $weekly = collect(range(0, 12))->map(function (int $offset) use (
+            $chartStart,
+            $today,
+            $dailyDates,
+            $studentsByDay,
+            $attendanceByDay,
+            $salesByDay,
+            $pendingByDay
+        ): array {
+            $weekStart = $chartStart->copy()->addWeeks($offset)->startOfDay();
+            $weekEnd = $weekStart->copy()->addDays(6);
+            if ($weekEnd->gt($today)) {
+                $weekEnd = $today->copy();
+            }
+
+            $days = $dailyDates->filter(
+                fn (string $date): bool => $date >= $weekStart->toDateString() && $date <= $weekEnd->toDateString()
+            );
+
+            $newStudents = 0;
+            $sales = 0.0;
+            $pending = 0;
+            $attendanceTotal = 0;
+            $attendanceCounted = 0;
+
+            foreach ($days as $date) {
+                $newStudents += max(0, (int) ($studentsByDay[$date] ?? 0));
+                $sales += (float) ($salesByDay[$date] ?? 0);
+                $pending += max(0, (int) ($pendingByDay[$date] ?? 0));
+
+                $attendance = $attendanceByDay->get($date);
+                if ($attendance && (int) $attendance->total > 0) {
+                    $attendanceTotal += (int) $attendance->total;
+                    $attendanceCounted += (int) $attendance->attended;
+                }
+            }
+
+            return [
+                'label' => \\App\\Support\\PersianUi::date($weekStart),
+                'students' => $newStudents,
+                'attendance' => $attendanceTotal > 0
+                    ? round(($attendanceCounted / $attendanceTotal) * 100, 1)
+                    : null,
+                'sales' => $sales,
+                'pendingReviews' => $pending,
+            ];
+        })->values();
+
+        $monthStarts = collect(range(0, 3))
+            ->map(fn (int $offset) => $now->copy()->startOfMonth()->subMonthsNoOverflow(3 - $offset));
+
+        $monthlySales = $monthStarts->map(function (Carbon $monthStart) use ($salesByDay): array {
+            $monthKey = $monthStart->format('Y-m');
+            $sales = 0.0;
+
+            foreach ($salesByDay as $date => $amount) {
+                if (str_starts_with((string) $date, $monthKey)) {
+                    $sales += (float) $amount;
+                }
+            }
+
+            $jalali = \\App\\Support\\PersianUi::calendar($monthStart);
+
+            return [
+                'label' => $jalali['month_name'],
+                'sales' => $sales,
+            ];
+        })->values();
+
         return [
-            'students' => $dates->map(fn (string $date) => max(0, (int) ($studentsByDay[$date] ?? 0)))->all(),
-            'attendance' => $dates->map(function (string $date) use ($attendanceByDay): ?float {
+            'students' => $sparkDates->map(fn (string $date) => max(0, (int) ($studentsByDay[$date] ?? 0)))->all(),
+            'attendance' => $sparkDates->map(function (string $date) use ($attendanceByDay): ?float {
                 $row = $attendanceByDay->get($date);
                 if (! $row || (int) $row->total < 1) {
                     return null;
@@ -423,8 +518,19 @@ final class OwnerDashboardService
 
                 return round(((int) $row->attended / (int) $row->total) * 100, 1);
             })->all(),
-            'sales' => $dates->map(fn (string $date) => (float) ($salesByDay[$date] ?? 0))->all(),
-            'pendingReviews' => $dates->map(fn (string $date) => max(0, (int) ($pendingByDay[$date] ?? 0)))->all(),
+            'sales' => $sparkDates->map(fn (string $date) => (float) ($salesByDay[$date] ?? 0))->all(),
+            'pendingReviews' => $sparkDates->map(fn (string $date) => max(0, (int) ($pendingByDay[$date] ?? 0)))->all(),
+            'weekly' => [
+                'labels' => $weekly->pluck('label')->all(),
+                'students' => $weekly->pluck('students')->all(),
+                'attendance' => $weekly->pluck('attendance')->all(),
+                'sales' => $weekly->pluck('sales')->all(),
+                'pendingReviews' => $weekly->pluck('pendingReviews')->all(),
+            ],
+            'monthlySales' => [
+                'labels' => $monthlySales->pluck('label')->all(),
+                'values' => $monthlySales->pluck('sales')->all(),
+            ],
         ];
     }
 
@@ -482,9 +588,21 @@ final class OwnerDashboardService
                 'attendance' => array_fill(0, 7, null),
                 'sales' => array_fill(0, 7, 0),
                 'pendingReviews' => array_fill(0, 7, 0),
+                'weekly' => [
+                    'labels' => array_fill(0, 13, ''),
+                    'students' => array_fill(0, 13, 0),
+                    'attendance' => array_fill(0, 13, null),
+                    'sales' => array_fill(0, 13, 0),
+                    'pendingReviews' => array_fill(0, 13, 0),
+                ],
+                'monthlySales' => [
+                    'labels' => array_fill(0, 4, ''),
+                    'values' => array_fill(0, 4, 0),
+                ],
             ],
             'capacity' => ['total' => 0, 'used' => 0, 'remaining' => 0, 'rate' => null, 'configured_classrooms' => 0],
             'upcomingLiveClasses' => collect(),
+            'todayLiveClasses' => collect(),
             'recentCourses' => collect(),
         ];
     }
