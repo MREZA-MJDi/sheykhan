@@ -345,7 +345,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $studentJs = file_get_contents(resource_path('js/student.js'));
-        $calendarModule = file_get_contents(resource_path('js/persian-calendar.js'));
+        $calendarModule = file_get_contents(resource_path('js/persian-calendar-core.mjs'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
         $dashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
@@ -390,7 +390,8 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString("import './persian-calendar.js';", $studentJs);
         $this->assertStringContainsString('bootRoleMobileNavigation', $teacherJs);
         $this->assertStringContainsString('bootRoleMobileNavigation', $studentJs);
-        $this->assertStringContainsString('Validate Esfand 30', $calendarModule);
+        $this->assertStringContainsString('export const jalaliDaysInMonth', $calendarModule);
+        $this->assertStringContainsString('export const gregorianToJalali', $calendarModule);
 
         $this->assertStringContainsString('data-dashboard-search-empty', $dashboard);
         $this->assertStringContainsString('id="teacher-progress"', $dashboard);
@@ -445,11 +446,12 @@ class StudentTeacherDashboardContractTest extends TestCase
 
     public function test_teacher_jalali_calendar_has_esfand_leap_year_detection(): void
     {
-        $teacherJs = file_get_contents(resource_path('js/teacher.js'));
+        $calendarCore = file_get_contents(resource_path('js/persian-calendar-core.mjs'));
 
-        $this->assertIsString($teacherJs);
-        $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $teacherJs);
-        $this->assertStringContainsString('Validate Esfand 30', $teacherJs);
+        $this->assertIsString($calendarCore);
+        $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $calendarCore);
+        $this->assertStringContainsString('export const jalaliDaysInMonth', $calendarCore);
+        $this->assertStringContainsString('export const jalaliToGregorian', $calendarCore);
     }
 
     public function test_teacher_lists_are_paginated_contracts(): void
