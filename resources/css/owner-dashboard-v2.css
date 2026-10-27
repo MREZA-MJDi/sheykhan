@@ -1227,3 +1227,55 @@ body.owner-admin-v2 {
     }
 }
 
+/* Dark-surface adapter for all existing owner Blade views.
+   Keep semantic statuses colored, but never leave legacy light-theme text on dark surfaces. */
+.owner-admin-v2 .main-content :is(.text-slate-900,.text-slate-800,.text-slate-700,.text-gray-900,.text-gray-800,.text-gray-700,.text-zinc-900,.text-neutral-900) {
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content :is(.text-slate-600,.text-slate-500,.text-slate-400,.text-gray-600,.text-gray-500,.text-gray-400,.text-zinc-600,.text-zinc-500,.text-neutral-600,.text-neutral-500) {
+    color: var(--mu) !important;
+}
+.owner-admin-v2 .main-content :is(.text-emerald-950,.text-emerald-900,.text-emerald-800,.text-emerald-700,.text-emerald-600) {
+    color: #7cf0c2 !important;
+}
+.owner-admin-v2 .main-content :is(.text-rose-950,.text-rose-900,.text-rose-800,.text-rose-700,.text-rose-600,.text-red-900,.text-red-800,.text-red-700,.text-red-600) {
+    color: #ffa1b9 !important;
+}
+.owner-admin-v2 .main-content :is(.text-amber-950,.text-amber-900,.text-amber-800,.text-amber-700,.text-amber-600,.text-orange-900,.text-orange-800,.text-orange-700) {
+    color: #ffc47b !important;
+}
+.owner-admin-v2 .main-content :is(.text-sky-900,.text-sky-800,.text-blue-900,.text-blue-800,.text-indigo-900,.text-indigo-800) {
+    color: #99d5ff !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-emerald-50"],[class~="bg-emerald-50/50"],[class~="bg-emerald-100"]) {
+    background-color: rgba(46,230,166,.09) !important;
+    color: #7cf0c2 !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-rose-50"],[class~="bg-rose-100"],[class~="bg-red-50"],[class~="bg-red-100"]) {
+    background-color: rgba(255,31,107,.09) !important;
+    color: #ffa1b9 !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-amber-50"],[class~="bg-amber-100"],[class~="bg-orange-50"],[class~="bg-yellow-50"]) {
+    background-color: rgba(255,154,31,.1) !important;
+    color: #ffc47b !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-blue-50"],[class~="bg-sky-50"],[class~="bg-indigo-50"]) {
+    background-color: rgba(47,176,255,.1) !important;
+    color: #99d5ff !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-emerald-100"],[class~="border-emerald-200"]) {
+    border-color: rgba(46,230,166,.25) !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-rose-100"],[class~="border-rose-200"],[class~="border-red-100"],[class~="border-red-200"]) {
+    border-color: rgba(255,31,107,.25) !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-amber-100"],[class~="border-amber-200"]) {
+    border-color: rgba(255,154,31,.27) !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-blue-100"],[class~="border-blue-200"],[class~="border-sky-100"]) {
+    border-color: rgba(47,176,255,.25) !important;
+}
+.owner-admin-v2 .main-content :is(.bg-white,.bg-slate-50,.bg-slate-100) :is(h1,h2,h3,h4,strong,b,label,th,td) {
+    color: var(--tx) !important;
+}
+
