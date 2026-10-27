@@ -30,6 +30,22 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
         $this->assertStringContainsString('@media (max-width: 380px)', $css);
     }
+    public function test_owner_workspaces_share_readable_sections_and_the_online_calendar_is_responsive(): void
+    {
+        $css = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
+
+        $this->assertIsString($css);
+        $this->assertStringContainsString('.main-content .panel-page-enter {', $css);
+        $this->assertStringContainsString('.main-content .panel-page-enter .owner-stat-card {', $css);
+        $this->assertStringContainsString('.main-content .panel-page-enter label {', $css);
+        $this->assertStringContainsString('.main-content .owner-online-links-page .weekly-calendar-grid {', $css);
+        $this->assertStringContainsString('.main-content .owner-online-links-page .weekly-calendar-event-link {', $css);
+        $this->assertStringContainsString('.main-content .owner-online-links-page .owner-schedule-form {', $css);
+        $this->assertStringContainsString('@media (max-width: 1250px)', $css);
+        $this->assertStringContainsString('@media (max-width: 900px)', $css);
+        $this->assertStringContainsString('@media (max-width: 600px)', $css);
+    }
+
     public function test_parent_mobile_navigation_does_not_cover_the_last_content_row(): void
     {
         $css = file_get_contents(resource_path('css/panel-design-system.css'));
