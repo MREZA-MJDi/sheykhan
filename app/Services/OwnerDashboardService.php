@@ -375,7 +375,21 @@ final class OwnerDashboardService
         $chartStart = $today->copy()->startOfWeek(Carbon::SATURDAY)->subWeeks(12);
         $from = $chartStart->toDateTimeString();
         $to = $now->toDateTimeString();
-        $salesStart = $now->copy()->startOfMonth()->subMonthsNoOverflow(3)->startOfDay();
+
+        $currentJalali = \App\Support\PersianUi::calendar($now);
+        $monthStarts = collect(range(0, 3))->map(function (int $offset) use ($currentJalali): Carbon {
+            $absoluteMonth = ((int) $currentJalali['year'] * 12)
+                + ((int) $currentJalali['month'] - 1)
+                - (3 - $offset);
+            $jalaliYear = intdiv($absoluteMonth, 12);
+            $jalaliMonth = ($absoluteMonth % 12) + 1;
+            $gregorianDate = \App\Support\PersianUi::normalizeDate(
+                sprintf('%04d-%02d-01', $jalaliYear, $jalaliMonth)
+            );
+
+            return Carbon::parse((string) $gregorianDate)->startOfDay();
+        });
+        $salesStart = $monthStarts->first()->copy();
         $salesFrom = $salesStart->toDateTimeString();
 
         $dailyDates = collect();
@@ -487,15 +501,15 @@ final class OwnerDashboardService
             ];
         })->values();
 
-        $monthStarts = collect(range(0, 3))
-            ->map(fn (int $offset) => $now->copy()->startOfMonth()->subMonthsNoOverflow(3 - $offset));
-
-        $monthlySales = $monthStarts->map(function (Carbon $monthStart) use ($salesByDay): array {
-            $monthKey = $monthStart->format('Y-m');
+        $monthlySales = $monthStarts->map(function (Carbon $monthStart, int $index) use ($salesByDay, $monthStarts, $now): array {
+            $nextMonthStart = $monthStarts->get($index + 1)
+                ?? $now->copy()->addDay()->startOfDay();
+            $monthFrom = $monthStart->toDateString();
+            $monthUntil = $nextMonthStart->toDateString();
             $sales = 0.0;
 
             foreach ($salesByDay as $date => $amount) {
-                if (str_starts_with((string) $date, $monthKey)) {
+                if ((string) $date >= $monthFrom && (string) $date < $monthUntil) {
                     $sales += (float) $amount;
                 }
             }
