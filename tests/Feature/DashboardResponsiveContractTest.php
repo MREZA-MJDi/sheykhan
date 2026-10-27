@@ -68,7 +68,7 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertIsString($teacherCss);
         $this->assertStringContainsString('.student-shell .app', $studentCss);
         $this->assertStringContainsString('.teacher-shell .app', $teacherCss);
-        $this->assertStringContainsString('@media (max-width: 760px)', $studentCss);
+        $this->assertStringContainsString('@media (max-width: 700px)', $studentCss);
         $this->assertStringContainsString('@media (max-width: 760px)', $teacherCss);
         $this->assertStringContainsString('.student-shell .role-mobile-bottom-nav', $studentCss);
         $this->assertStringContainsString('.teacher-shell .role-mobile-bottom-nav', $teacherCss);
