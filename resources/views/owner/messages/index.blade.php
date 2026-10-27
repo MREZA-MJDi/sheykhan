@@ -4,7 +4,7 @@
 @section('header-title', 'پیام‌های اولیا')
 
 @section('content')
-<div class="communication-page space-y-6">
+<div class="communication-page space-y-6 panel-page-enter owner-workspace-page">
     <header class="communication-page__hero flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div><p class="text-xs font-black text-[var(--panel-primary)]">پیگیری ارتباط خانواده</p><h1 class="mt-1 text-2xl font-black">پیام‌ها، انتقادها و پیشنهادها</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">هر پیام متعلق به همین آموزشگاه است. پاسخ‌ها در پنل والد دیده می‌شوند و وضعیت برای پیگیری شفاف می‌ماند.</p></div>
         <a href="{{ route('owner.dashboard') }}" class="communication-page__button communication-page__button--secondary inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">بازگشت به داشبورد</a>
