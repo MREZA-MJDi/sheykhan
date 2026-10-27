@@ -47,6 +47,17 @@ class OwnerDashboardBackendContractTest extends TestCase
         ]);
 
         $dashboard = app(OwnerDashboardService::class)->build($owner);
+
+        $this->assertCount(7, $dashboard['trends']['students']);
+        $this->assertCount(7, $dashboard['trends']['attendance']);
+        $this->assertCount(7, $dashboard['trends']['sales']);
+        $this->assertCount(7, $dashboard['trends']['pendingReviews']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['labels']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['students']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['attendance']);
+        $this->assertCount(4, $dashboard['trends']['monthlySales']['labels']);
+        $this->assertCount(4, $dashboard['trends']['monthlySales']['values']);
+
         $ownedAcademyIds = $owner->ownedAcademies()
             ->where('status', 'active')
             ->pluck('academies.id');
@@ -218,6 +229,9 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('<a class="card kpi c3 kpi-link" href="' . route('owner.finance.index') . '"', false)
             ->assertSee('aria-label="مشاهده موارد نیازمند پیگیری؛', false)
             ->assertSee('class="sp"', false)
+            ->assertSee('class="ln owner-line-chart"', false)
+            ->assertSee('id="weekly-trend-title"', false)
+            ->assertSee('id="monthly-sales-title"', false)
             ->assertSee('id="capacity-title"', false)
             ->assertSee('id="course-publish-title"', false)
             ->assertDontSee('owner-classroom-item', false)
