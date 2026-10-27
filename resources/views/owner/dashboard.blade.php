@@ -83,18 +83,16 @@
     $salesSparkline = $sparklinePoints(data_get($trends, 'sales', []));
     $attentionSparkline = $sparklinePoints(data_get($trends, 'pendingReviews', []));
 
-    $attentionRoute = $pendingReviews > 0 && $canViewAssignments
-        ? route('owner.assignments.index', $firstAcademy)
-        : ($canViewClassrooms
-            ? route('owner.classrooms.index', $firstAcademy)
-            : route('owner.assignments.index', $firstAcademy));
+    $attentionRoute = $firstAcademy
+        ? ($pendingReviews > 0 && $canViewAssignments
+            ? route('owner.assignments.index', $firstAcademy)
+            : ($canViewClassrooms
+                ? route('owner.classrooms.index', $firstAcademy)
+                : route('owner.assignments.index', $firstAcademy)))
+        : route('owner.dashboard');
 
 @endphp
 
-
-        @if(session('success') || session('error') || $errors->any())
-            
-        @endif
 
         <section class="ph c12">
             <div>
