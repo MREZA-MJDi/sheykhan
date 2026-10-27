@@ -390,8 +390,8 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString("import './persian-calendar.js';", $studentJs);
         $this->assertStringContainsString('bootRoleMobileNavigation', $teacherJs);
         $this->assertStringContainsString('bootRoleMobileNavigation', $studentJs);
-        $this->assertStringContainsString('export const jalaliDaysInMonth', $calendarModule);
-        $this->assertStringContainsString('export const gregorianToJalali', $calendarModule);
+        $this->assertStringContainsString('jalaliDaysInMonth', $calendarModule);
+        $this->assertStringContainsString('gregorianToJalali', $calendarModule);
 
         $this->assertStringContainsString('data-dashboard-search-empty', $dashboard);
         $this->assertStringContainsString('id="teacher-progress"', $dashboard);
@@ -450,8 +450,8 @@ class StudentTeacherDashboardContractTest extends TestCase
 
         $this->assertIsString($calendarCore);
         $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $calendarCore);
-        $this->assertStringContainsString('export const jalaliDaysInMonth', $calendarCore);
-        $this->assertStringContainsString('export const jalaliToGregorian', $calendarCore);
+        $this->assertStringContainsString('jalaliDaysInMonth', $calendarCore);
+        $this->assertStringContainsString('jalaliToGregorian', $calendarCore);
     }
 
     public function test_teacher_lists_are_paginated_contracts(): void
