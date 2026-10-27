@@ -4,7 +4,7 @@
 @section('header-title', 'جلسات مشاوره')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 panel-page-enter owner-workspace-page owner-counseling-page">
     <header><p class="text-xs font-black text-[var(--panel-primary)]">پشتیبانی خانواده</p><h1 class="mt-1 text-2xl font-black">درخواست‌های جلسه مشاوره</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">زمان پیشنهادی والد، زمان نهایی جلسه و توضیح پاسخ را ثبت کنید. تغییر وضعیت فقط روی درخواست همین آموزشگاه اعمال می‌شود.</p></header>
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article class="owner-stat-card"><span>در انتظار بررسی</span><strong>{{ \App\Support\PersianUi::digits($stats['requested']) }}</strong><small>درخواست</small></article>
