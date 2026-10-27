@@ -14,7 +14,7 @@
     ];
 @endphp
 
-<div class="space-y-6">
+<div class="space-y-6 panel-page-enter owner-workspace-page owner-communications-workspace">
     <header class="dashboard-panel overflow-hidden p-5 sm:p-7">
         <span class="inline-flex rounded-full border border-[var(--panel-primary)]/20 bg-[var(--panel-primary-soft)] px-3 py-1.5 text-xs font-black text-[var(--panel-primary)]">مرکز ارتباطات</span>
         <h1 class="mt-3 text-2xl font-black leading-relaxed text-[var(--panel-text)]">{{ $pageTitle }}</h1>
