@@ -58,6 +58,12 @@
     $nextLiveClass = $upcomingLiveClasses->first();
     $nextLiveTarget = $nextLiveClass?->scheduled_at?->timestamp;
     $trends = $trends ?? [];
+    $todayLiveClasses = $todayLiveClasses ?? collect();
+    $weeklyLabels = data_get($trends, 'weekly.labels', []);
+    $weeklyStudents = data_get($trends, 'weekly.students', []);
+    $weeklyAttendance = data_get($trends, 'weekly.attendance', []);
+    $monthlySalesLabels = data_get($trends, 'monthlySales.labels', []);
+    $monthlySalesValues = data_get($trends, 'monthlySales.values', []);
 
     $sparklinePoints = static function ($values): string {
         $values = collect($values ?? [])->filter(fn ($value) => is_numeric($value))->values();
@@ -77,6 +83,56 @@
             return $x . ',' . $y;
         })->implode(' ');
     };
+
+    $chartSegments = static function ($values, int $width = 520, int $height = 130): array {
+        $values = array_values(is_array($values) ? $values : []);
+        $numeric = array_values(array_filter($values, static fn ($value) => is_numeric($value)));
+        if (count($values) < 2 || count($numeric) < 2) {
+            return [];
+        }
+
+        $minimum = (float) min($numeric);
+        $maximum = (float) max($numeric);
+        $spread = $maximum - $minimum;
+        $lastIndex = max(1, count($values) - 1);
+        $segments = [];
+        $segment = [];
+
+        foreach ($values as $index => $value) {
+            if (!is_numeric($value)) {
+                if (count($segment) > 1) {
+                    $segments[] = implode(' ', $segment);
+                }
+                $segment = [];
+                continue;
+            }
+
+            $x = number_format(($index / $lastIndex) * $width, 1, '.', '');
+            $normalized = $spread > 0 ? (((float) $value - $minimum) / $spread) : 0.5;
+            $y = number_format($height - 12 - ($normalized * ($height - 24)), 1, '.', '');
+            $segment[] = $x . ',' . $y;
+        }
+
+        if (count($segment) > 1) {
+            $segments[] = implode(' ', $segment);
+        }
+
+        return $segments;
+    };
+
+    $weeklyStudentSegments = $chartSegments($weeklyStudents);
+    $weeklyAttendanceSegments = $chartSegments($weeklyAttendance);
+    $monthlySalesMaximum = max(1, ...array_map(static fn ($value) => abs((float) $value), is_array($monthlySalesValues) ? $monthlySalesValues : []));
+    $monthlySalesBars = collect($monthlySalesValues)->map(function ($value, $index) use ($monthlySalesLabels, $monthlySalesMaximum): array {
+        $value = (float) $value;
+
+        return [
+            'label' => $monthlySalesLabels[$index] ?? '',
+            'value' => $value,
+            'height' => max(8, (int) round(abs($value) / $monthlySalesMaximum * 138)),
+            'color' => $value < 0 ? '#ff1f6b' : '#22d3ee',
+        ];
+    })->all();
 
     $studentSparkline = $sparklinePoints(data_get($trends, 'students', []));
     $attendanceSparkline = $sparklinePoints(data_get($trends, 'attendance', []));
@@ -163,8 +219,108 @@
             </a>
         @endif
 
+        @if($canViewMeetings)
+            <section class="card c8" aria-labelledby="today-schedule-title" style="--c:#22d3ee">
+                <div class="card-title">
+                    <div>
+                        <h2 id="today-schedule-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span>برنامه امروز</h2>
+                        <p>جلسه‌های زمان‌بندی‌شده امروز از داده‌های واقعی کلاس‌ها.</p>
+                    </div>
+                    @if($firstAcademy)<a class="table-link" href="{{ route('owner.schedules.index', $firstAcademy) }}">برنامه کامل ←</a>@endif
+                </div>
+                @forelse($todayLiveClasses as $item)
+                    <a class="tl {{ $item->status === 'live' ? 'live' : '' }}" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : route('owner.dashboard') }}" style="--c:{{ $item->status === 'live' ? '#ff1f6b' : '#22d3ee' }}">
+                        <b>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</b>
+                        <span class="gx"><b>{{ $item->title }}</b><small>{{ $item->course?->title ?? 'بدون دوره مرتبط' }} · {{ $item->teacher?->name ?? 'مدرس تعیین نشده' }}</small></span>
+                        @if($item->status === 'live')
+                            <span class="pl" style="--c:#ff1f6b">در حال اجرا</span>
+                        @else
+                            <span class="pl" style="--c:#22d3ee">زمان‌بندی‌شده</span>
+                        @endif
+                    </a>
+                @empty
+                    <div class="card-empty">برای امروز جلسه آنلاین زمان‌بندی‌شده‌ای ثبت نشده است.</div>
+                @endforelse
+            </section>
+        @endif
+
+        @if($canViewClassrooms || ($canViewAssignments && $canViewAssignments))
+            <section class="card {{ $canViewMeetings ? 'c4' : 'c12' }}" aria-labelledby="attention-title" style="--c:#ff9a1f">
+                <div class="card-title">
+                    <div>
+                        <h2 id="attention-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span>نیازمند توجه</h2>
+                        <p>فقط هشدارهایی که بر اساس دیتابیس نیاز به اقدام دارند.</p>
+                    </div>
+                </div>
+                <div class="owner-attention-list">
+                    @if($classroomsWithoutTeacher > 0 && $firstAcademy && $canViewClassrooms)
+                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#ff9a1f">
+                            <span class="ct">{{ \App\Support\PersianUi::digits($classroomsWithoutTeacher) }}</span>
+                            <span class="gx"><b>کلاس بدون مدرس</b><small>کلاس فعال بدون مدرس فعال</small></span>
+                            <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
+                        </a>
+                    @endif
+                    @if($capacityAlerts > 0 && $firstAcademy && $canViewClassrooms)
+                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#ff1f6b">
+                            <span class="ct">{{ \App\Support\PersianUi::digits($capacityAlerts) }}</span>
+                            <span class="gx"><b>کلاس نزدیک ظرفیت</b><small>کلاس‌هایی با ظرفیت ۹۰٪ یا بیشتر</small></span>
+                            <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
+                        </a>
+                    @endif
+                    @if($pendingReviews > 0 && $firstAcademy && $canViewAssignments)
+                        <a class="at" href="{{ route('owner.assignments.index', $firstAcademy) }}" style="--c:#22d3ee">
+                            <span class="ct">{{ \App\Support\PersianUi::digits($pendingReviews) }}</span>
+                            <span class="gx"><b>تکلیف بررسی‌نشده</b><small>پاسخ‌های ثبت‌شده و تصحیح‌نشده</small></span>
+                            <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
+                        </a>
+                    @endif
+                    @if($attentionCount === 0)
+                        <div class="card-empty">در حال حاضر مورد فوری ثبت نشده است.</div>
+                    @endif
+                </div>
+            </section>
+        @endif
+
+        <section class="card c8 owner-trend-card" aria-labelledby="weekly-trend-title" style="--c:#ff1f6b">
+            <div class="card-title">
+                <div>
+                    <h2 id="weekly-trend-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>روند ۱۳ هفته اخیر</h2>
+                    <p>روند ثبت‌نام فعال و نرخ حضور از رکوردهای ذخیره‌شده؛ سری‌ها برای مقایسهٔ جهت روند، جداگانه مقیاس شده‌اند.</p>
+                </div>
+                @if($canViewReports)<a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>@endif
+            </div>
+            <div class="owner-chart-legend" aria-label="راهنمای نمودار">
+                <span><i style="--legend:#ff1f6b"></i>ثبت‌نام دانش‌آموزان</span>
+                <span><i style="--legend:#22d3ee"></i>نرخ حضور</span>
+            </div>
+            <svg class="ln owner-line-chart" viewBox="0 0 520 150" role="img" aria-label="نمودار روند هفتگی ثبت‌نام و نرخ حضور">
+                <g class="owner-chart-grid">
+                    @for($grid = 0; $grid < 6; $grid++)
+                        <line x1="0" y1="{{ 8 + ($grid * 26) }}" x2="520" y2="{{ 8 + ($grid * 26) }}"/>
+                    @endfor
+                    @for($grid = 0; $grid < 13; $grid++)
+                        <line x1="{{ $grid * (520 / 12) }}" y1="8" x2="{{ $grid * (520 / 12) }}" y2="138"/>
+                    @endfor
+                </g>
+                @foreach($weeklyStudentSegments as $points)
+                    <polyline class="owner-line-students" points="{{ $points }}"/>
+                @endforeach
+                @foreach($weeklyAttendanceSegments as $points)
+                    <polyline class="owner-line-attendance" points="{{ $points }}"/>
+                @endforeach
+            </svg>
+            <div class="owner-chart-labels">
+                @foreach([0, 3, 6, 9, 12] as $labelIndex)
+                    <span>{{ $weeklyLabels[$labelIndex] ?? '' }}</span>
+                @endforeach
+            </div>
+            @if(array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) === 0.0 && !count(array_filter(is_array($weeklyAttendance) ? $weeklyAttendance : [], 'is_numeric')))
+                <div class="card-empty">در این بازه هنوز رکورد کافی برای رسم روند ثبت‌نام یا حضور وجود ندارد.</div>
+            @endif
+        </section>
+
         @if($canViewClassrooms)
-            <section class="card c6" style="--c:#22d3ee" aria-labelledby="capacity-title">
+            <section class="card c4" style="--c:#22d3ee" aria-labelledby="capacity-title">
                 <div class="card-title">
                     <div><h2 id="capacity-title"><span class="section-icon"><svg class="ic"><use href="#i-chart"/></svg></span>وضعیت واقعی ظرفیت کلاس‌ها</h2><p>تجمیع کلاس‌های فعال با ظرفیت تعریف‌شده و دانش‌آموزان فعال ثبت‌شده در هر کلاس.</p></div>
                     @if($capacityRate !== null)<span class="pl" style="--c:#22d3ee">{{ \App\Support\PersianUi::digits($capacityRate) }}٪</span>@endif
@@ -185,7 +341,7 @@
         @endif
 
         @if($canViewCourses)
-            <section class="card c6" style="--c:#8b3dff" aria-labelledby="course-publish-title">
+            <section class="card c4" style="--c:#8b3dff" aria-labelledby="course-publish-title">
                 <div class="card-title">
                     <div><h2 id="course-publish-title"><span class="section-icon"><svg class="ic"><use href="#i-book"/></svg></span>وضعیت انتشار دوره‌ها</h2><p>نسبت دوره‌های منتشرشده به کل دوره‌های ثبت‌شده در آموزشگاه‌های مجاز این حساب.</p></div>
                     <a class="table-link" href="{{ route('owner.courses.index') }}">همه دوره‌ها ←</a>
@@ -207,8 +363,32 @@
             </section>
         @endif
 
+        @if($canViewFinance)
+            <section class="card c4 owner-monthly-sales" aria-labelledby="monthly-sales-title" style="--c:#22d3ee">
+                <div class="card-title">
+                    <div>
+                        <h2 id="monthly-sales-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg></span>خالص فروش چهار ماه</h2>
+                        <p>پرداخت‌های تکمیل‌شده منهای بازپرداخت؛ واحد تومان.</p>
+                    </div>
+                    <a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات مالی ←</a>
+                </div>
+                <div class="cys" role="img" aria-label="مقایسه خالص تراکنش‌های چهار ماه اخیر">
+                    @foreach($monthlySalesBars as $bar)
+                        <div class="cyc">
+                            <b>{{ \App\Support\PersianUi::number($bar['value']) }}</b>
+                            <div class="cy" style="--h:{{ $bar['height'] }}px;--c:{{ $bar['color'] }}"></div>
+                            <small>{{ $bar['label'] }}</small>
+                        </div>
+                    @endforeach
+                </div>
+                @if(!count(array_filter($monthlySalesValues, 'is_numeric')))
+                    <div class="card-empty">در بازهٔ انتخابی تراکنش تکمیل‌شده‌ای ثبت نشده است.</div>
+                @endif
+            </section>
+        @endif
+
         @if($canViewPeople)
-            <section class="card c12" aria-labelledby="login-title" style="--c:#22d3ee">
+            <section class="card c4" aria-labelledby="login-title" style="--c:#22d3ee">
                 <div class="card-title">
                     <div><h2 id="login-title"><span class="section-icon"><svg class="ic"><use href="#i-users"/></svg></span>ورود اخیر دانش‌آموزان</h2><p>آخرین رویدادهای واقعی ورود برای اعضای فعال همین آکادمی‌ها؛ این فهرست از cache شاخص‌ها خوانده نمی‌شود.</p></div>
                     @if($firstAcademy)<a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">مدیریت اعضا ←</a>@endif
@@ -223,43 +403,6 @@
                 @empty
                     <div class="card-empty">در گزارش فعالیت‌ها، ورود ثبت‌شده‌ای برای دانش‌آموزان فعال این آموزشگاه‌ها یافت نشد.</div>
                 @endforelse
-            </section>
-        @endif
-
-        @if($canViewClassrooms)
-            <section class="card c12" aria-labelledby="attention-title" style="--c:#ff9a1f">
-                <div class="card-title">
-                    <div><h2 id="attention-title"><span class="section-icon"><svg class="ic"><use href="#i-bell"/></svg></span>هشدارهای قابل اقدام</h2><p>هر ردیف فقط وقتی نمایش داده می‌شود که شرط متناظر در دیتابیس برقرار باشد.</p></div>
-                </div>
-                <div class="mg">
-                    @if($classroomsWithoutTeacher > 0)
-                        <a class="mc" href="{{ $firstAcademy ? route('owner.classrooms.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#ff9a1f">
-                            <div class="th" style="background:linear-gradient(135deg,rgba(255,154,31,.35),rgba(255,31,107,.1));display:grid;place-items:center"><svg class="ic" style="width:30px;height:30px"><use href="#i-users"/></svg></div>
-                            <b>{{ \App\Support\PersianUi::digits($classroomsWithoutTeacher) }} کلاس بدون مدرس</b>
-                            <small>کلاس فعال بدون مدرس عضو و فعال در همان آکادمی.</small>
-                            <div class="mr"><span class="pl" style="--c:#ff9a1f">نیازمند پیگیری</span><span class="table-link">بازبینی ←</span></div>
-                        </a>
-                    @endif
-                    @if($capacityAlerts > 0)
-                        <a class="mc" href="{{ $firstAcademy ? route('owner.classrooms.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#ff1f6b">
-                            <div class="th" style="background:linear-gradient(135deg,rgba(255,31,107,.3),rgba(139,61,255,.12));display:grid;place-items:center"><svg class="ic" style="width:30px;height:30px"><use href="#i-calendar"/></svg></div>
-                            <b>{{ \App\Support\PersianUi::digits($capacityAlerts) }} کلاس نزدیک ظرفیت</b>
-                            <small>کلاس فعال با ظرفیت مثبت که ۹۰٪ یا بیشتر پر شده است.</small>
-                            <div class="mr"><span class="pl" style="--c:#ff1f6b">ظرفیت بالا</span><span class="table-link">بازبینی ←</span></div>
-                        </a>
-                    @endif
-                    @if($pendingReviews > 0 && $canViewAssignments)
-                        <a class="mc" href="{{ $firstAcademy ? route('owner.assignments.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#22d3ee">
-                            <div class="th" style="background:linear-gradient(135deg,rgba(34,211,238,.28),rgba(139,61,255,.12));display:grid;place-items:center"><svg class="ic" style="width:30px;height:30px"><use href="#i-doc"/></svg></div>
-                            <b>{{ \App\Support\PersianUi::digits($pendingReviews) }} تکلیف بررسی‌نشده</b>
-                            <small>ارسال‌هایی که هنوز زمان تصحیح آن‌ها در دیتابیس ثبت نشده است.</small>
-                            <div class="mr"><span class="pl" style="--c:#22d3ee">در انتظار بررسی</span><span class="table-link">بازبینی ←</span></div>
-                        </a>
-                    @endif
-                    @if($classroomsWithoutTeacher === 0 && $capacityAlerts === 0 && $pendingReviews === 0)
-                        <div class="card-empty" style="grid-column:1/-1">در داده‌های قابل‌مشاهده‌ی این کارتابل، هشدار بازی وجود ندارد.</div>
-                    @endif
-                </div>
             </section>
         @endif
 
