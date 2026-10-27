@@ -244,7 +244,7 @@
             </section>
         @endif
 
-        @if($canViewClassrooms || ($canViewAssignments && $canViewAssignments))
+        @if($canViewClassrooms || $canViewAssignments)
             <section class="card {{ $canViewMeetings ? 'c4' : 'c12' }}" aria-labelledby="attention-title" style="--c:#ff9a1f">
                 <div class="card-title">
                     <div>
@@ -314,7 +314,7 @@
                     <span>{{ $weeklyLabels[$labelIndex] ?? '' }}</span>
                 @endforeach
             </div>
-            @if(array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) === 0.0 && !count(array_filter(is_array($weeklyAttendance) ? $weeklyAttendance : [], 'is_numeric')))
+            @if(array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) <= 0.0 && !count(array_filter(is_array($weeklyAttendance) ? $weeklyAttendance : [], 'is_numeric')))
                 <div class="card-empty">در این بازه هنوز رکورد کافی برای رسم روند ثبت‌نام یا حضور وجود ندارد.</div>
             @endif
         </section>
