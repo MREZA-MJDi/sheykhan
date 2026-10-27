@@ -16,13 +16,16 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertIsString($layout);
         $this->assertIsString($view);
 
-        $this->assertStringContainsString('.owner-dashboard-page .admin-dashboard {', $css);
-        $this->assertStringContainsString('.ad-dashboard__span-quarter { grid-column: span 3; }', $css);
+        $this->assertStringContainsString('.owner-dashboard-page .admin-dashboard{', $css);
+        $this->assertStringContainsString('.owner-dashboard-page .admin-dashboard .c3{grid-column:span 3}', $css);
         $this->assertStringContainsString('@media (max-width: 600px)', $css);
         $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
         $this->assertStringContainsString("request()->routeIs('owner.dashboard')", $layout);
-        $this->assertStringContainsString("@vite('resources/css/admin-dashboard.css')", $layout);
+        $this->assertStringContainsString("@vite(['resources/css/admin-dashboard.css', 'resources/js/admin-dashboard.js'])", $layout);
+        $this->assertStringContainsString("@vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])", $layout);
         $this->assertStringContainsString('class="admin-dashboard" data-admin-dashboard', $view);
+        $this->assertStringContainsString('class="ph c12"', $view);
+        $this->assertStringNotContainsString('ad-dashboard__', $view);
     }
 
     public function test_student_mobile_navigation_has_safe_gutters_and_content_padding_above_fixed_bar(): void
