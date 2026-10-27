@@ -38,14 +38,17 @@ class OwnerZipDesignCoverageTest extends TestCase
         ];
 
         $layout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
+        $seoLayout = file_get_contents(resource_path('views/layouts/seo-specialist.blade.php'));
         $css = file_get_contents(resource_path('css/owner-panel.css'));
         $vite = file_get_contents(base_path('vite.config.js'));
 
         $this->assertCount(26, $views);
         $this->assertIsString($layout);
+        $this->assertIsString($seoLayout);
         $this->assertIsString($css);
         $this->assertIsString($vite);
         $this->assertStringContainsString("@vite(['resources/css/owner-panel.css'", $layout);
+        $this->assertStringContainsString("@vite(['resources/css/owner-panel.css'", $seoLayout);
         $this->assertStringContainsString('body.owner-shell .app{', $css);
         $this->assertStringContainsString('body.owner-shell .main-content .owner-stat-card', $css);
         $this->assertStringContainsString(':is(.dashboard-panel,.owner-panel', $css);
@@ -59,7 +62,8 @@ class OwnerZipDesignCoverageTest extends TestCase
 
             $source = file_get_contents($path);
             $this->assertIsString($source);
-            $this->assertStringContainsString("@extends('layouts.owner')", $source, 'ZIP section does not use the shared shell: ' . $view);
+            $usesOwnerShell = str_contains($source, "@extends('layouts.owner')") || str_contains($source, "@extends('layouts.seo-specialist')");
+            $this->assertTrue($usesOwnerShell, 'ZIP section does not use a shared owner/SEO shell: ' . $view);
         }
     }
 }
