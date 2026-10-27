@@ -6,9 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'کارتابل مدیر آموزشگاه | شیخان')</title>
     @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
+    @if(request()->routeIs('owner.dashboard'))
+        @vite('resources/css/admin-dashboard.css')
+    @endif
     @stack('styles')
 </head>
-<body class="owner-shell owner-admin-v2">
+<body class="owner-shell owner-admin-v2 {{ request()->routeIs('owner.dashboard') ? 'owner-dashboard-page' : '' }}">
 @php
     $ownerUser = auth()->user();
     $isSeoOnlyUser = $ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUser->hasRole('academy-owner');
