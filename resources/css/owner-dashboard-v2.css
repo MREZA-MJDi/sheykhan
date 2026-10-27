@@ -2245,3 +2245,166 @@ body.owner-admin-v2 {
     }
 }
 
+/* Owner communication workspaces: use the same dark surface system as every other owner section. */
+.owner-admin-v2 .main-content .communication-page {
+    display: grid;
+    gap: 18px;
+    width: 100%;
+    max-width: 1500px;
+    min-width: 0;
+    margin-inline: auto;
+    color: var(--tx);
+}
+.owner-admin-v2 .main-content :is(.communication-page__hero,.communication-page__card,.communication-page__message,.communication-page__empty,.communication-page__response) {
+    min-width: 0;
+    padding: clamp(15px, 1.8vw, 24px);
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 17px;
+    background: linear-gradient(145deg, rgba(26,32,80,.94), rgba(14,18,48,.97));
+    color: var(--tx);
+    box-shadow: 0 10px 25px rgba(3,6,24,.13);
+}
+.owner-admin-v2 .main-content .communication-page__hero {
+    border-color: rgba(34,211,238,.24);
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(34,211,238,.1), transparent 43%),
+        linear-gradient(145deg, rgba(26,32,80,.96), rgba(14,18,48,.98));
+}
+.owner-admin-v2 .main-content .communication-page__hero h1 {
+    margin: 6px 0 0;
+    color: var(--tx) !important;
+    font-size: clamp(21px, 2.1vw, 28px);
+    font-weight: 800;
+    line-height: 1.7;
+}
+.owner-admin-v2 .main-content .communication-page__hero p,
+.owner-admin-v2 .main-content .communication-page__message-meta,
+.owner-admin-v2 .main-content .communication-page__response-meta,
+.owner-admin-v2 .main-content .communication-page__help {
+    color: var(--mu) !important;
+    font-size: 11px;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content .communication-page__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .communication-page__stat {
+    display: grid;
+    align-content: start;
+    gap: 5px;
+    min-width: 0;
+    min-height: 108px;
+    padding: 15px;
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 14px;
+    background: rgba(23,29,69,.76);
+}
+.owner-admin-v2 .main-content .communication-page__stat span {
+    color: var(--mu) !important;
+    font-size: 10px;
+    font-weight: 700;
+}
+.owner-admin-v2 .main-content .communication-page__stat strong {
+    color: var(--tx) !important;
+    font-size: clamp(21px, 2vw, 28px);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.owner-admin-v2 .main-content .communication-page__message {
+    display: grid;
+    gap: 12px;
+}
+.owner-admin-v2 .main-content .communication-page__message h2,
+.owner-admin-v2 .main-content .communication-page__message h3,
+.owner-admin-v2 .main-content .communication-page__card h2 {
+    margin: 0;
+    color: var(--tx) !important;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .communication-page__body {
+    min-width: 0;
+    padding: 13px 15px;
+    border: 1px solid rgba(119,136,190,.16);
+    border-radius: 12px;
+    background: rgba(9,14,39,.58);
+    color: var(--tx) !important;
+    font-size: 12px;
+    line-height: 2;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .communication-page__response {
+    background: rgba(34,211,238,.055);
+    border-color: rgba(34,211,238,.18);
+}
+.owner-admin-v2 .main-content .communication-page__form {
+    display: grid;
+    gap: 13px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .communication-page__form--two-column,
+.owner-admin-v2 .main-content .communication-page__form--filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 13px;
+}
+.owner-admin-v2 .main-content .communication-page__form--filters {
+    grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, .8fr)) auto;
+    align-items: end;
+}
+.owner-admin-v2 .main-content .communication-page__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    gap: 8px;
+    padding: 9px 16px;
+    border: 1px solid rgba(34,211,238,.26);
+    border-radius: 11px;
+    background: linear-gradient(135deg, #22d3ee, #3478ff);
+    color: #05162b !important;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+}
+.owner-admin-v2 .main-content .communication-page__button.is-secondary {
+    border-color: var(--ln);
+    background: rgba(9,14,39,.6);
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content .communication-page__empty {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+    color: var(--mu) !important;
+}
+.owner-admin-v2 .main-content .communication-page :is([role=alert],[role=status]) {
+    border-radius: 13px;
+    line-height: 1.95;
+}
+@media (max-width: 760px) {
+    .owner-admin-v2 .main-content .communication-page {
+        gap: 14px;
+    }
+    .owner-admin-v2 .main-content :is(.communication-page__hero,.communication-page__card,.communication-page__message,.communication-page__empty,.communication-page__response) {
+        padding: 14px;
+        border-radius: 15px;
+    }
+    .owner-admin-v2 .main-content .communication-page__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .owner-admin-v2 .main-content .communication-page__form--two-column,
+    .owner-admin-v2 .main-content .communication-page__form--filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .owner-admin-v2 .main-content .communication-page__button {
+        width: 100%;
+    }
+}
+
