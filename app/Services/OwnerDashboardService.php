@@ -434,21 +434,7 @@ final class OwnerDashboardService
         $from = $chartStart->toDateTimeString();
         $to = $now->toDateTimeString();
 
-        $currentJalali = \App\Support\PersianUi::calendar($now);
-        $monthStarts = collect(range(0, 3))->map(function (int $offset) use ($currentJalali): Carbon {
-            $absoluteMonth = ((int) $currentJalali['year'] * 12)
-                + ((int) $currentJalali['month'] - 1)
-                - (3 - $offset);
-            $jalaliYear = intdiv($absoluteMonth, 12);
-            $jalaliMonth = ($absoluteMonth % 12) + 1;
-            $gregorianDate = \App\Support\PersianUi::normalizeDate(
-                sprintf('%04d-%02d-01', $jalaliYear, $jalaliMonth)
-            );
 
-            return Carbon::parse((string) $gregorianDate)->startOfDay();
-        });
-        $salesStart = $monthStarts->first()->copy();
-        $salesFrom = $salesStart->toDateTimeString();
 
         $dailyDates = collect();
         for ($day = $chartStart->copy(); $day->lte($today); $day->addDay()) {
@@ -492,7 +478,7 @@ final class OwnerDashboardService
             ->where('status', 'completed')
             ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
             ->whereIn('type', ['enrollment_payment', 'refund'])
-            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$salesFrom, $to])
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$from, $to])
             ->groupByRaw('DATE(COALESCE(occurred_at, created_at))')
             ->selectRaw(
                 "DATE(COALESCE(occurred_at, created_at)) as day,
@@ -559,27 +545,6 @@ final class OwnerDashboardService
             ];
         })->values();
 
-        $monthlySales = $monthStarts->map(function (Carbon $monthStart, int $index) use ($salesByDay, $monthStarts, $now): array {
-            $nextMonthStart = $monthStarts->get($index + 1)
-                ?? $now->copy()->addDay()->startOfDay();
-            $monthFrom = $monthStart->toDateString();
-            $monthUntil = $nextMonthStart->toDateString();
-            $sales = 0.0;
-
-            foreach ($salesByDay as $date => $amount) {
-                if ((string) $date >= $monthFrom && (string) $date < $monthUntil) {
-                    $sales += (float) $amount;
-                }
-            }
-
-            $jalali = \App\Support\PersianUi::calendar($monthStart);
-
-            return [
-                'label' => $jalali['month_name'],
-                'sales' => $sales,
-            ];
-        })->values();
-
         return [
             'students' => $sparkDates->map(fn (string $date) => max(0, (int) ($studentsByDay[$date] ?? 0)))->all(),
             'attendance' => $sparkDates->map(function (string $date) use ($attendanceByDay): ?float {
@@ -598,10 +563,6 @@ final class OwnerDashboardService
                 'attendance' => $weekly->pluck('attendance')->all(),
                 'sales' => $weekly->pluck('sales')->all(),
                 'pendingReviews' => $weekly->pluck('pendingReviews')->all(),
-            ],
-            'monthlySales' => [
-                'labels' => $monthlySales->pluck('label')->all(),
-                'values' => $monthlySales->pluck('sales')->all(),
             ],
         ];
     }
@@ -668,10 +629,6 @@ final class OwnerDashboardService
                     'attendance' => array_fill(0, 13, null),
                     'sales' => array_fill(0, 13, 0),
                     'pendingReviews' => array_fill(0, 13, 0),
-                ],
-                'monthlySales' => [
-                    'labels' => array_fill(0, 4, ''),
-                    'values' => array_fill(0, 4, 0),
                 ],
             ],
             'capacity' => ['total' => 0, 'used' => 0, 'remaining' => 0, 'rate' => null, 'configured_classrooms' => 0],
