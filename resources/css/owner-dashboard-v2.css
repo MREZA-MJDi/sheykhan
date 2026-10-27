@@ -745,3 +745,134 @@ dialog::backdrop{background:rgba(5,7,25,.7);backdrop-filter:blur(4px)}
  .owner-admin-v2 .main-content .banner-submitbar .course-primary-btn{width:100%}
  .owner-admin-v2 .main-content .website-banner-mini{grid-template-columns:100px minmax(0,1fr)}
 }
+
+/* =========================================================
+   dashboard.zip visual contract
+   Keep production Blade data/actions, but use the supplied
+   reference shell, grid, responsive behavior, and whole-card links.
+========================================================= */
+body.owner-admin-v2 {
+    background: linear-gradient(135deg, #1ce6ff, #2563eb 60%, #4338ca) fixed !important;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 18px calc(18px + env(safe-area-inset-bottom, 0px));
+}
+.owner-admin-v2 .app {
+    width: 100%;
+    max-width: 1360px;
+    min-height: calc(100vh - 36px);
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+    border: 0;
+    border-radius: 28px;
+    background: var(--bg);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .4);
+}
+.owner-admin-v2 .top { grid-column: 1 / -1; min-width: 0; }
+.owner-admin-v2 .side.card {
+    width: auto;
+    border: 1px solid var(--ln);
+    background: linear-gradient(145deg, var(--c1), var(--c2));
+    box-shadow: 6px 6px 16px var(--sh), -3px -3px 10px rgba(60, 70, 160, .18);
+}
+.owner-admin-v2 .main-content {
+    grid-column: 2;
+    grid-row: auto;
+    min-width: 0;
+}
+.owner-admin-v2 .kpi-link {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--tx) !important;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.owner-admin-v2 .kpi-link > * { pointer-events: none; }
+.owner-admin-v2 .kpi-link:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--c) 55%, var(--ln));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 25%, transparent), 0 12px 28px rgba(0, 0, 0, .22);
+}
+.owner-admin-v2 .kpi-link:focus-visible {
+    outline: 3px solid var(--c, var(--acc));
+    outline-offset: 3px;
+}
+.owner-admin-v2 .kpi-link .table-link { color: var(--c); }
+.owner-admin-v2 .kpi-link .sp { margin-top: auto; }
+
+@media (max-width: 1200px) {
+    .owner-admin-v2 .srch span,
+    .owner-admin-v2 .srch kbd { display: none; }
+}
+@media (max-width: 960px) {
+    body.owner-admin-v2 {
+        padding: 0;
+    }
+    .owner-admin-v2 .app {
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 14px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .owner-admin-v2 .top { flex-wrap: wrap; }
+    .owner-admin-v2 .burger { display: grid; }
+    .owner-admin-v2 .side {
+        display: none;
+        position: static;
+        top: auto;
+        bottom: auto;
+        inset-inline-start: auto;
+        grid-row: 2;
+        width: auto;
+        max-height: none;
+        overflow: visible;
+        box-shadow: none;
+    }
+    .owner-admin-v2 .side.open { display: block; }
+    .owner-admin-v2 .main-content { grid-column: 1 / -1; grid-row: 3; }
+    .owner-admin-v2 .c4,
+    .owner-admin-v2 .c5,
+    .owner-admin-v2 .c6,
+    .owner-admin-v2 .c7,
+    .owner-admin-v2 .c8 { grid-column: span 12; }
+    .owner-admin-v2 .cal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .owner-admin-v2 .tabs { order: 5; flex-basis: 100%; max-width: 100%; }
+}
+@media (max-width: 520px) {
+    body.owner-admin-v2 {
+        padding: 10px;
+    }
+    .owner-admin-v2 .app {
+        width: 100%;
+        min-height: 100vh;
+        padding: 12px;
+        gap: 14px;
+        border-radius: 20px;
+        box-shadow: none;
+    }
+    .owner-admin-v2 .main-content { gap: 14px; }
+    .owner-admin-v2 .c3 { grid-column: span 12; }
+    .owner-admin-v2 .kpi b { font-size: 26px; }
+    .owner-admin-v2 .tabs { order: 5; flex-basis: 100%; gap: 6px; }
+    .owner-admin-v2 .tab { padding: 8px 12px; }
+    .owner-admin-v2 .cal { grid-template-columns: minmax(0, 1fr); }
+    .owner-admin-v2 .go { width: 100%; justify-content: center; }
+    .owner-admin-v2 .ph .go { flex: 1; }
+    .owner-admin-v2 .top { gap: 8px; }
+    .owner-admin-v2 .brand-mark .brand { display: none; }
+    .owner-admin-v2 .srch { padding: 8px; }
+    .owner-admin-v2 .side { padding: 10px; }
+    .owner-admin-v2 .card { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-admin-v2 .kpi-link { transition: none; }
+}
+
