@@ -54,7 +54,7 @@ class DashboardResponsiveContractTest extends TestCase
 
         $this->assertIsString($css);
         $this->assertStringContainsString('.parent-shell', $css);
-        $this->assertStringContainsString('.role-mobile-bottom-nav', $css);
+        $this->assertStringContainsString('.parent-shell .role-main', $css);
         $this->assertStringContainsString('@media (max-width: 760px)', $css);
         $this->assertStringContainsString('.communication-page__form--two-column', $css);
     }
