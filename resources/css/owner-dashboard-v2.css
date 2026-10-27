@@ -1126,3 +1126,34 @@ body.owner-admin-v2 {
     .owner-admin-v2 .owner-monthly-sales .cy { width: 25px; }
 }
 
+.owner-admin-v2 .owner-range-handle {
+    cursor: ew-resize;
+    touch-action: none;
+    outline: none;
+}
+.owner-admin-v2 .owner-range-handle line {
+    stroke: rgba(232, 236, 255, .68);
+    stroke-width: 1.6;
+    stroke-dasharray: 4 4;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+}
+.owner-admin-v2 .owner-range-handle circle {
+    fill: #22d3ee;
+    stroke: var(--bg);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 6px #22d3ee);
+    vector-effect: non-scaling-stroke;
+}
+.owner-admin-v2 .owner-range-handle:focus-visible circle {
+    stroke: #fff;
+    stroke-width: 3.5;
+}
+.owner-admin-v2 .owner-range-summary {
+    margin: 12px 0 0;
+    color: var(--mu);
+    font-size: 11px;
+    line-height: 1.9;
+    font-variant-numeric: tabular-nums;
+}
+
