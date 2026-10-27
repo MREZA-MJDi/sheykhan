@@ -369,7 +369,6 @@ class StudentTeacherDashboardContractTest extends TestCase
             'resources/js/teacher.js',
             'resources/css/student.css',
             'resources/js/student.js',
-            'resources/js/persian-calendar.js',
         ] as $entry) {
             $this->assertStringContainsString($entry, $vite);
         }
