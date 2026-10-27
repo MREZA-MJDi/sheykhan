@@ -564,3 +564,9 @@
         scroll-behavior: auto !important;
     }
 }
+
+
+/* Keep dashboard action contrast clear against the shared owner-shell link rule. */
+.owner-admin-v2 .main-content a.ad-dashboard__button:not(.go):not(.mb):not(.tab):not(.ni):not(.fd):not(.owner-primary-btn) {
+    color: #fff;
+}
