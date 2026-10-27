@@ -57,6 +57,8 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->assertCount(13, $dashboard['trends']['weekly']['attendance']);
         $this->assertCount(4, $dashboard['trends']['monthlySales']['labels']);
         $this->assertCount(4, $dashboard['trends']['monthlySales']['values']);
+        $this->assertInstanceOf(\\Illuminate\\Support\\Collection::class, $dashboard['subjectAverages']);
+        $this->assertInstanceOf(\\Illuminate\\Support\\Collection::class, $dashboard['pendingApprovalItems']);
 
         $ownedAcademyIds = $owner->ownedAcademies()
             ->where('status', 'active')
@@ -231,7 +233,11 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('class="sp"', false)
             ->assertSee('class="ln owner-line-chart"', false)
             ->assertSee('id="weekly-trend-title"', false)
-            ->assertSee('id="monthly-sales-title"', false)
+            ->assertSee('id="subject-averages-title"', false)
+            ->assertSee('id="quick-approval-title"', false)
+            ->assertSee('id="login-title"', false)
+            ->assertSee('id="student-growth-title"', false)
+            ->assertSee('id="shortcut-title"', false)
             ->assertSee('id="capacity-title"', false)
             ->assertSee('id="course-publish-title"', false)
             ->assertDontSee('owner-classroom-item', false)
