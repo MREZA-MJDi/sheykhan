@@ -8,8 +8,7 @@
 
 @theme { --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif; }
 
-/* Sheykhan academy dashboard — visual shell adapted from the supplied dashboard.zip.
-   Loaded only on owner.dashboard; other Owner/SEO pages keep their own assets. */
+/* Shared ZIP-style shell and reusable components for all 26 owner sections and the SEO workspace. */
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');font-style:normal;font-weight:700;font-display:swap}
