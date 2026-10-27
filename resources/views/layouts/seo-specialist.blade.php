@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'کارتابل مدیر آموزشگاه | شیخان')</title>
-    @vite(['resources/css/seo-dashboard.css', 'resources/js/seo-dashboard.js'])
+    @vite(['resources/css/owner-panel.css', 'resources/js/seo-dashboard.js'])
     @stack('styles')
 </head>
-<body class="owner-shell owner-admin-v2">
+<body class="owner-shell">
 @php
     $ownerUser = auth()->user();
     $isSeoOnlyUser = $ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUser->hasRole('academy-owner');
