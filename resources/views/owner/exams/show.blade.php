@@ -4,7 +4,7 @@
 @section('header-title', 'جزئیات آزمون')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 panel-page-enter owner-workspace-page owner-exam-details-page">
     <header class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
             <a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-bold text-[var(--panel-primary)]">← بازگشت به آزمون‌ها</a>
