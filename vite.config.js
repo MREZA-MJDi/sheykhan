@@ -21,6 +21,7 @@ export default defineConfig({
                 'resources/css/owner-dashboard-v2.css',
                 'resources/css/admin-dashboard.css',
                 'resources/js/owner-dashboard.js',
+                'resources/js/admin-dashboard.js',
                 'resources/css/seo-dashboard.css',
                 'resources/js/seo-dashboard.js',
             ],
