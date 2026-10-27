@@ -8,8 +8,8 @@
     $weekdays = [0 => 'یکشنبه', 1 => 'دوشنبه', 2 => 'سه‌شنبه', 3 => 'چهارشنبه', 4 => 'پنجشنبه', 5 => 'جمعه', 6 => 'شنبه'];
 @endphp
 
-<div class="space-y-6 panel-page-enter">
-    <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+<div class="space-y-6 panel-page-enter owner-workspace-page owner-online-links-page">
+    <header class="owner-page-intro flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
             <h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1>
@@ -18,16 +18,19 @@
         <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a>
     </header>
 
-    <section class="rounded-2xl border border-sky-100 bg-sky-50 p-4 text-xs leading-7 text-sky-900">
+    <section class="owner-info-banner rounded-2xl border border-sky-100 bg-sky-50 p-4 text-xs leading-7 text-sky-900" aria-label="راهنمای لینک جلسه">
         لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet و Zoom باید لینک دعوت واقعی را از همان سرویس وارد کنی؛ شیخان لینک ساختگی تولید نمی‌کند.
     </section>
 
-    <x-education.weekly-schedule-calendar :classrooms="$classrooms" />
+    <section class="owner-calendar-section" aria-label="تقویم هفتگی کلاس‌ها">
+        <div class="owner-section-heading"><div><h2>برنامه هفتگی</h2><p>روز و ساعت برگزاری کلاس‌ها را بررسی کن؛ برای جلسه‌های تاریخ‌دار از صفحهٔ کلاس‌های آنلاین مدرس استفاده می‌شود.</p></div></div>
+        <x-education.weekly-schedule-calendar :classrooms="$classrooms" />
+    </section>
 
-    <section class="grid gap-4">
+    <section class="grid gap-4 owner-schedule-list" aria-label="کلاس‌ها و لینک‌های ورود">
         @forelse($classrooms as $classroom)
-            <article class="dashboard-panel overflow-hidden p-5 sm:p-6">
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <article class="dashboard-panel owner-session-card overflow-hidden p-5 sm:p-6">
+                <div class="owner-session-heading flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <h2 class="text-base font-black">{{ $classroom->title }}</h2>
                         <p class="mt-1 text-xs text-slate-500">{{ $classroom->course?->title ?? 'دوره نامشخص' }} · {{ \App\Support\PersianUi::digits($classroom->schedules->count()) }} بازه هفتگی</p>
@@ -35,9 +38,9 @@
                     <span class="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">{{ $classroom->code }}</span>
                 </div>
 
-                <div class="mt-4 grid gap-3">
+                <div class="owner-session-slots mt-4 grid gap-3">
                     @forelse($classroom->schedules as $schedule)
-                        <div class="flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="owner-session-slot flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div class="min-w-0">
                                 <strong class="block text-sm font-black">{{ $weekdays[$schedule->weekday] ?? 'روز نامشخص' }} · {{ \App\Support\PersianUi::digits(\Illuminate\Support\Carbon::parse($schedule->start_time)->format('H:i')) }} تا {{ \App\Support\PersianUi::digits(\Illuminate\Support\Carbon::parse($schedule->end_time)->format('H:i')) }}</strong>
                                 <p class="mt-1 text-xs text-slate-500">{{ $schedule->room ?: 'بدون اتاق' }} · {{ $schedule->provider ?: 'سرویس ثبت‌نشده' }}</p>
@@ -53,14 +56,14 @@
                             @endif
                         </div>
                     @empty
-                        <div class="rounded-xl border border-dashed border-slate-200 p-4 text-xs text-slate-500">برای این کلاس هنوز زمان و لینک هفتگی تعریف نشده است.</div>
+                        <div class="owner-empty-state rounded-xl border border-dashed border-slate-200 p-4 text-xs text-slate-500">برای این کلاس هنوز زمان و لینک هفتگی تعریف نشده است. از فرم پایین کارت، روز، ساعت و سرویس جلسه را ثبت کن.</div>
                     @endforelse
                 </div>
 
                 @if(auth()->user()->hasPermission('live_classes.manage'))
-                <div class="mt-5 border-t border-slate-100 pt-5">
-                    <h3 class="text-sm font-black">افزودن زمان / لینک</h3>
-                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-meeting-provider-form>
+                <div class="owner-schedule-editor mt-5 border-t border-slate-100 pt-5">
+                    <div class="owner-section-heading"><div><h3>افزودن زمان / لینک</h3><p>برای هر روز و بازهٔ زمانی یک ورودی جدا بساز. سرویس و لینک باید متعلق به همان جلسه باشند.</p></div></div>
+                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="owner-schedule-form mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-meeting-provider-form>
                         @csrf
                         <label class="grid gap-1">
                             <span class="text-xs font-bold">روز هفته</span>
@@ -90,7 +93,7 @@
                             <x-owner.field-error field="meeting_url"/>
                         </label>
                         <div class="flex items-end sm:col-span-2 xl:col-span-4">
-                            <button type="submit" class="w-full rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white sm:w-auto">ذخیره زمان و لینک</button>
+                            <button type="submit" class="owner-primary-action w-full rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white sm:w-auto">ذخیره زمان و لینک</button>
                         </div>
                         @if($errors->any())
                             <div class="rounded-xl bg-rose-50 p-3 text-xs leading-7 text-rose-700 sm:col-span-2 xl:col-span-4" role="alert">
