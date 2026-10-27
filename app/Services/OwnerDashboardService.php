@@ -149,6 +149,8 @@ final class OwnerDashboardService
             ->select([
                 'submissions.id',
                 'submissions.submitted_at',
+                'assignments.id as assignment_id',
+                'courses.academy_id',
                 'assignments.title as assignment_title',
                 'courses.title as course_title',
                 'students.name as student_name',
