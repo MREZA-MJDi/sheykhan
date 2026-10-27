@@ -33,6 +33,8 @@
     $metrics = $metrics ?? [];
     $capacity = $capacity ?? [];
     $teacherReports = $teacherReports ?? collect();
+    $subjectAverages = $subjectAverages ?? collect();
+    $pendingApprovalItems = $pendingApprovalItems ?? collect();
     $upcomingLiveClasses = $upcomingLiveClasses ?? collect();
     $recentCourses = $recentCourses ?? collect();
     $recentStudentLogins = $recentStudentLogins ?? collect();
@@ -284,14 +286,13 @@
         <section class="card c8 owner-trend-card" aria-labelledby="weekly-trend-title" style="--c:#ff1f6b">
             <div class="card-title">
                 <div>
-                    <h2 id="weekly-trend-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>روند ۱۳ هفته اخیر</h2>
-                    <p>روند ثبت‌نام فعال و نرخ حضور از رکوردهای ذخیره‌شده؛ سری‌ها برای مقایسهٔ جهت روند، جداگانه مقیاس شده‌اند.</p>
+                    <h2 id="weekly-trend-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>حضور هفتگی؛ بازه را با دستگیره‌ها انتخاب کن</h2>
+                    <p>نرخ حضور هفتگی از رکوردهای معتبر حضور و غیاب؛ هفته‌های بدون داده خالی می‌مانند.</p>
                 </div>
                 @if($canViewReports)<a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>@endif
             </div>
             <div class="owner-chart-legend" aria-label="راهنمای نمودار">
-                <span><i style="--legend:#ff1f6b"></i>ثبت‌نام دانش‌آموزان</span>
-                <span><i style="--legend:#22d3ee"></i>نرخ حضور</span>
+                <span><i style="--legend:#22d3ee"></i>میانگین نرخ حضور</span>
             </div>
             <svg class="ln owner-line-chart"
                  id="owner-weekly-trend-chart"
@@ -300,7 +301,7 @@
                  data-range-labels='@json($weeklyLabels)'
                  viewBox="0 0 520 150"
                  role="img"
-                 aria-label="نمودار روند هفتگی ثبت‌نام و نرخ حضور؛ دستگیره‌ها را برای انتخاب بازهٔ حضور جابه‌جا کنید">
+                 aria-label="نمودار نرخ حضور هفتگی؛ دستگیره‌ها را برای انتخاب بازه جابه‌جا کنید">
                 <g class="owner-chart-grid">
                     @for($grid = 0; $grid < 6; $grid++)
                         <line x1="0" y1="{{ 8 + ($grid * 26) }}" x2="520" y2="{{ 8 + ($grid * 26) }}"/>
@@ -309,9 +310,6 @@
                         <line x1="{{ $grid * (520 / 12) }}" y1="8" x2="{{ $grid * (520 / 12) }}" y2="138"/>
                     @endfor
                 </g>
-                @foreach($weeklyStudentSegments as $points)
-                    <polyline class="owner-line-students" points="{{ $points }}"/>
-                @endforeach
                 @foreach($weeklyAttendanceSegments as $points)
                     <polyline class="owner-line-attendance" points="{{ $points }}"/>
                 @endforeach
@@ -329,98 +327,184 @@
                     <span>{{ $weeklyLabels[$labelIndex] ?? '' }}</span>
                 @endforeach
             </div>
-            <p class="owner-range-summary" id="owner-trend-range-summary" aria-live="polite">دستگیره‌های نمودار را برای محاسبهٔ میانگین حضور یک بازه جابه‌جا کنید.</p>
+            <p class="owner-range-summary" id="owner-trend-range-summary" aria-live="polite">دستگیره‌های نمودار را برای محاسبهٔ میانگین حضور یک بازه جابه‌جا کن.</p>
             @if(array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) <= 0.0 && !count(array_filter(is_array($weeklyAttendance) ? $weeklyAttendance : [], 'is_numeric')))
                 <div class="card-empty">در این بازه هنوز رکورد کافی برای رسم روند ثبت‌نام یا حضور وجود ندارد.</div>
             @endif
         </section>
 
-        @if($canViewClassrooms)
-            <section class="card c4" style="--c:#22d3ee" aria-labelledby="capacity-title">
-                <div class="card-title">
-                    <div><h2 id="capacity-title"><span class="section-icon"><svg class="ic"><use href="#i-chart"/></svg></span>وضعیت واقعی ظرفیت کلاس‌ها</h2><p>تجمیع کلاس‌های فعال با ظرفیت تعریف‌شده و دانش‌آموزان فعال ثبت‌شده در هر کلاس.</p></div>
-                    @if($capacityRate !== null)<span class="pl" style="--c:#22d3ee">{{ \App\Support\PersianUi::digits($capacityRate) }}٪</span>@endif
-                </div>
-                <div class="metric-bars">
-                    <div>
-                        <div class="bar-label"><span>ظرفیت استفاده‌شده</span><strong>{{ \App\Support\PersianUi::digits($capacityUsed) }} از {{ \App\Support\PersianUi::digits($capacityTotal) }}</strong></div>
-                        <div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ $capacityRate ?? 0 }}%"></span></div>
-                    </div>
-                    <div>
-                        <div class="bar-label"><span>ظرفیت خالی</span><strong>{{ \App\Support\PersianUi::digits($capacityRemaining) }}</strong></div>
-                        <div class="trk"><span class="fill" style="--c:#8b3dff;width:{{ $capacityTotal > 0 ? min(100,($capacityRemaining/$capacityTotal)*100) : 0 }}%"></span></div>
-                    </div>
-                </div>
-                <div class="mr"><small>{{ \App\Support\PersianUi::digits((int)data_get($capacity,'configured_classrooms',0)) }} کلاس دارای ظرفیت</small>@if($firstAcademy)<a class="table-link" href="{{ route('owner.classrooms.index', $firstAcademy) }}">مدیریت کلاس‌ها ←</a>@endif</div>
-                @if($capacityTotal === 0)<div class="card-empty">برای محاسبه نرخ ظرفیت، ظرفیت حداقل یک کلاس فعال باید در دیتابیس تعیین شده باشد.</div>@endif
-            </section>
-        @endif
-
-        @if($canViewCourses)
+        @if($canViewCourses || $canViewClassrooms || $canViewAttendance)
             <section class="card c4" style="--c:#8b3dff" aria-labelledby="course-publish-title">
                 <div class="card-title">
-                    <div><h2 id="course-publish-title"><span class="section-icon"><svg class="ic"><use href="#i-book"/></svg></span>وضعیت انتشار دوره‌ها</h2><p>نسبت دوره‌های منتشرشده به کل دوره‌های ثبت‌شده در آموزشگاه‌های مجاز این حساب.</p></div>
-                    <a class="table-link" href="{{ route('owner.courses.index') }}">همه دوره‌ها ←</a>
-                </div>
-                <div class="dn">
-                    <svg viewBox="0 0 120 120" role="img" aria-label="سهم دوره‌های منتشرشده">
-                        <circle cx="60" cy="60" r="45" fill="none" stroke="#0a0e27" stroke-width="13"/>
-                        @if($publishedRate !== null)<circle cx="60" cy="60" r="45" fill="none" stroke="#8b3dff" stroke-width="13" stroke-linecap="round" stroke-dasharray="{{ 2 * pi() * 45 * $publishedRate / 100 }} {{ 2 * pi() * 45 * (1 - $publishedRate / 100) }}" transform="rotate(-90 60 60)"/>@endif
-                        <text x="60" y="57" text-anchor="middle" fill="#e8ecff" font-size="18" font-weight="800">{{ $publishedRate === null ? '—' : \App\Support\PersianUi::digits($publishedRate) . '٪' }}</text>
-                        <text x="60" y="75" text-anchor="middle" fill="#8d96c9" font-size="9">انتشار</text>
-                    </svg>
-                    <div class="gx">
-                        <b>{{ \App\Support\PersianUi::digits($publishedCourseCount) }} دوره منتشرشده</b>
-                        <small>از {{ \App\Support\PersianUi::digits($courseCount) }} رکورد دوره</small>
-                        <div class="bl">پیش‌نویس یا سایر وضعیت‌ها: {{ \App\Support\PersianUi::digits(max(0,$courseCount-$publishedCourseCount)) }}</div>
+                    <div>
+                        <h2 id="course-publish-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>وضعیت کلی آموزشگاه</h2>
+                        <p>شاخص‌های واقعی انتشار دوره، ظرفیت و حضور.</p>
                     </div>
                 </div>
-                @if($courseCount === 0)<div class="card-empty">هنوز دوره‌ای در دیتابیس ثبت نشده است.</div>@endif
+                @if($canViewCourses)
+                    <div class="dn">
+                        <svg viewBox="0 0 120 120" role="img" aria-label="سهم دوره‌های منتشرشده">
+                            <circle cx="60" cy="60" r="45" fill="none" stroke="#0a0e27" stroke-width="13"/>
+                            @if($publishedRate !== null)
+                                <circle cx="60" cy="60" r="45" fill="none" stroke="#8b3dff" stroke-width="13" stroke-linecap="round" stroke-dasharray="{{ 2 * pi() * 45 * $publishedRate / 100 }} {{ 2 * pi() * 45 * (1 - $publishedRate / 100) }}" transform="rotate(-90 60 60)"/>
+                            @endif
+                            <text x="60" y="57" text-anchor="middle" fill="#e8ecff" font-size="18" font-weight="800">{{ $publishedRate === null ? '—' : \App\Support\PersianUi::digits($publishedRate) . '٪' }}</text>
+                            <text x="60" y="75" text-anchor="middle" fill="#8d96c9" font-size="9">انتشار</text>
+                        </svg>
+                        <div class="gx">
+                            <b>{{ \App\Support\PersianUi::digits($publishedCourseCount) }} دوره منتشرشده</b>
+                            <small>از {{ \App\Support\PersianUi::digits($courseCount) }} دوره</small>
+                            <div class="bl">منتشرنشده: {{ \App\Support\PersianUi::digits(max(0, $courseCount - $publishedCourseCount)) }}</div>
+                        </div>
+                    </div>
+                @endif
+                @if($canViewClassrooms)
+                    <div class="metric-bars">
+                        <div>
+                            <div class="bar-label"><span id="capacity-title">ظرفیت پرشدهٔ کلاس‌ها</span><strong>{{ $capacityRate === null ? '—' : \App\Support\PersianUi::digits($capacityRate) . '٪' }}</strong></div>
+                            <div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ $capacityRate ?? 0 }}%"></span></div>
+                        </div>
+                    </div>
+                @endif
+                @if($canViewAttendance)
+                    <div class="metric-bars">
+                        <div>
+                            <div class="bar-label"><span>نرخ حضور در بازه انتخابی</span><strong>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) . '٪' }}</strong></div>
+                            <div class="trk"><span class="fill" style="--c:#2ee6a6;width:{{ $attendanceRate === null ? 0 : min(100, max(0, (float) $attendanceRate)) }}%"></span></div>
+                        </div>
+                    </div>
+                @endif
+                @if($canViewClassrooms && $capacityTotal === 0)
+                    <div class="card-empty">برای محاسبه ظرفیت، ابتدا ظرفیت یک کلاس فعال را در سامانه ثبت کن.</div>
+                @endif
+                @if($canViewCourses && $courseCount === 0)
+                    <div class="card-empty">هنوز دوره‌ای در دیتابیس ثبت نشده است.</div>
+                @endif
+                <div class="metric-foot">
+                    @if($firstAcademy && $canViewClassrooms)<a class="table-link" href="{{ route('owner.classrooms.index', $firstAcademy) }}">کلاس‌ها ←</a>@endif
+                    @if($canViewCourses)<a class="table-link" href="{{ route('owner.courses.index') }}">دوره‌ها ←</a>@endif
+                </div>
             </section>
         @endif
 
-        @if($canViewFinance)
-            <section class="card c4 owner-monthly-sales" aria-labelledby="monthly-sales-title" style="--c:#22d3ee">
+        @if($canViewExams)
+            <section class="card c4 owner-subject-averages" aria-labelledby="subject-averages-title" style="--c:#8b3dff">
                 <div class="card-title">
                     <div>
-                        <h2 id="monthly-sales-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg></span>خالص فروش چهار ماه</h2>
-                        <p>پرداخت‌های تکمیل‌شده منهای بازپرداخت؛ واحد تومان.</p>
+                        <h2 id="subject-averages-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span>میانگین نمرهٔ دوره‌ها</h2>
+                        <p>میانگین آخرین تلاش‌های نمره‌دار در دوره‌های دارای داده.</p>
                     </div>
-                    <a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات مالی ←</a>
+                    <a class="table-link" href="{{ route('owner.exams.index', $firstAcademy) }}">آزمون‌ها ←</a>
                 </div>
-                <div class="cys" role="img" aria-label="مقایسه خالص تراکنش‌های چهار ماه اخیر">
-                    @foreach($monthlySalesBars as $bar)
-                        <div class="cyc">
-                            <b>{{ \App\Support\PersianUi::number($bar['value']) }}</b>
-                            <div class="cy" style="--h:{{ $bar['height'] }}px;--c:{{ $bar['color'] }}"></div>
-                            <small>{{ $bar['label'] }}</small>
-                        </div>
-                    @endforeach
-                </div>
-                @if(!count(array_filter($monthlySalesValues, 'is_numeric')))
-                    <div class="card-empty">در بازهٔ انتخابی تراکنش تکمیل‌شده‌ای ثبت نشده است.</div>
+                @php
+                    $subjectMax = max(1, (float) ($subjectAverages->max('average') ?? 1));
+                @endphp
+                @if($subjectAverages->isNotEmpty())
+                    <div class="cys" role="img" aria-label="مقایسه میانگین نمره دوره‌ها">
+                        @foreach($subjectAverages as $subject)
+                            <div class="cyc">
+                                <b>{{ \App\Support\PersianUi::number($subject['average']) }}</b>
+                                <div class="cy" style="--h:{{ max(8, (int) round(abs((float) $subject['average']) / $subjectMax * 138)) }}px;--c:{{ $loop->even ? '#22d3ee' : '#8b3dff' }}"></div>
+                                <small>{{ \Illuminate\Support\Str::limit($subject['title'], 18) }}</small>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="card-empty">هنوز برای دوره‌های این آموزشگاه نمرهٔ معتبر ثبت نشده است.</div>
                 @endif
+            </section>
+        @endif
+
+        @if($canViewAssignments)
+            <section class="card c4 owner-quick-approvals" aria-labelledby="quick-approval-title" style="--c:#ff9a1f">
+                <div class="card-title">
+                    <div>
+                        <h2 id="quick-approval-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span>تأیید سریع</h2>
+                        <p>{{ \App\Support\PersianUi::digits($pendingReviews) }} پاسخ نیازمند بررسی مدرس.</p>
+                    </div>
+                    <a class="table-link" href="{{ route('owner.assignments.index', $firstAcademy) }}">همه تکالیف ←</a>
+                </div>
+                @forelse($pendingApprovalItems as $item)
+                    <a class="ckr" href="{{ route('owner.assignments.index', $firstAcademy) }}" style="--c:#ff9a1f">
+                        <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg></i>
+                        <span class="gx">
+                            <b>{{ $item->student_name }}</b>
+                            <small>{{ $item->course_title }} · {{ $item->assignment_title }}</small>
+                        </span>
+                        <small>{{ \App\Support\PersianUi::dateTime(\Illuminate\Support\Carbon::parse($item->submitted_at)) }}</small>
+                    </a>
+                @empty
+                    <div class="card-empty">پاسخ بررسی‌نشده‌ای برای نمایش وجود ندارد.</div>
+                @endforelse
             </section>
         @endif
 
         @if($canViewPeople)
             <section class="card c4" aria-labelledby="login-title" style="--c:#22d3ee">
                 <div class="card-title">
-                    <div><h2 id="login-title"><span class="section-icon"><svg class="ic"><use href="#i-users"/></svg></span>ورود اخیر دانش‌آموزان</h2><p>آخرین رویدادهای واقعی ورود برای اعضای فعال همین آکادمی‌ها؛ این فهرست از cache شاخص‌ها خوانده نمی‌شود.</p></div>
-                    @if($firstAcademy)<a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">مدیریت اعضا ←</a>@endif
+                    <div>
+                        <h2 id="login-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>آخرین رویدادها</h2>
+                        <p>ورودهای اخیر دانش‌آموزان فعال در آموزشگاه‌های شما.</p>
+                    </div>
+                    @if($firstAcademy)<a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">اعضا ←</a>@endif
                 </div>
                 @forelse($recentStudentLogins as $login)
                     <a class="lr" href="{{ $firstAcademy ? route('owner.people.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#22d3ee">
-                        <i class="tile"><svg class="ic"><use href="#i-users"/></svg></i>
+                        <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></i>
                         <span class="gx"><b>{{ $login->subject?->name ?? 'حساب حذف‌شده' }}</b><small>{{ $login->subject?->email ?? 'بدون ایمیل' }}</small></span>
                         <span class="row-value">{{ \App\Support\PersianUi::dateTime($login->created_at) }}</span>
-                        <svg class="ic"><use href="#i-arr"/></svg>
+                        <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
                     </a>
                 @empty
-                    <div class="card-empty">در گزارش فعالیت‌ها، ورود ثبت‌شده‌ای برای دانش‌آموزان فعال این آموزشگاه‌ها یافت نشد.</div>
+                    <div class="card-empty">رویداد ورود دانش‌آموزان در این بازه ثبت نشده است.</div>
                 @endforelse
             </section>
         @endif
+
+        @if($canViewPeople)
+            <section class="card c8 owner-growth-card" aria-labelledby="student-growth-title" style="--c:#ff1f6b">
+                <div class="card-title">
+                    <div>
+                        <h2 id="student-growth-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>رشد ثبت‌نام دانش‌آموزان در ۱۳ هفته</h2>
+                        <p>تعداد عضویت‌های فعال ایجادشده در هر هفته؛ فقط رکوردهای واقعی دیتابیس.</p>
+                    </div>
+                    @if($canViewReports)<a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>@endif
+                </div>
+                <svg class="ln owner-line-chart owner-growth-chart" viewBox="0 0 520 150" role="img" aria-label="روند هفتگی ثبت‌نام دانش‌آموزان">
+                    <g class="owner-chart-grid">
+                        @for($grid = 0; $grid < 6; $grid++)
+                            <line x1="0" y1="{{ 8 + ($grid * 26) }}" x2="520" y2="{{ 8 + ($grid * 26) }}"/>
+                        @endfor
+                    </g>
+                    @foreach($weeklyStudentSegments as $points)
+                        <polyline class="owner-line-students" points="{{ $points }}"/>
+                    @endforeach
+                </svg>
+                <div class="owner-chart-labels">
+                    @foreach([0, 3, 6, 9, 12] as $labelIndex)
+                        <span>{{ $weeklyLabels[$labelIndex] ?? '' }}</span>
+                    @endforeach
+                </div>
+                @if(array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) <= 0.0)
+                    <div class="card-empty">در ۱۳ هفته اخیر ثبت‌نام جدیدی ثبت نشده است.</div>
+                @endif
+            </section>
+        @endif
+
+        <section class="card c4 owner-dashboard-shortcuts" aria-labelledby="shortcut-title" style="--c:#22d3ee">
+            <div class="card-title">
+                <div><h2 id="shortcut-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>میان‌بر</h2><p>دسترسی مستقیم به کارهای روزمره.</p></div>
+            </div>
+            <div class="act owner-shortcuts">
+                @if($canViewAttendance && $firstAcademy)<a class="go sm" href="{{ route('owner.attendance.index', $firstAcademy) }}">ثبت حضور</a>@endif
+                @if($canViewClassrooms && $firstAcademy)<a class="go sm" href="{{ route('owner.classrooms.index', $firstAcademy) }}">کلاس‌ها</a>@endif
+                @if($canViewPeople && $firstAcademy)<a class="go sm" href="{{ route('owner.people.index', $firstAcademy) }}">مدیریت اعضا</a>@endif
+                @if($canViewCourses)<a class="go sm" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
+                @if($canViewAssignments && $firstAcademy)<a class="go sm" href="{{ route('owner.assignments.index', $firstAcademy) }}">تکالیف</a>@endif
+                @if($canViewReports)<a class="go sm" href="{{ route('owner.reports.index') }}">گزارش‌ها</a>@endif
+            </div>
+            <small>برای پیدا کردن سایر صفحه‌ها از جستجوی منوی بالای صفحه استفاده کن.</small>
+        </section>
 
         @if($canViewReports)
             <section class="card c12" aria-labelledby="teacher-report-title" style="--c:#8b3dff">
