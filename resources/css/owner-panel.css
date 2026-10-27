@@ -16,7 +16,7 @@
 
 body.owner-shell{
   --acc:#22d3ee;--tx:#e8ecff;--mu:#8d96c9;--bg:#0f1330;--c1:#1a2050;--c2:#0e1230;
-  --in:#0a0e27;--ln:#2b3270;--sh:#070a20;--pk:#ff1f6b;--ok:#2ee6a6;--r:20px;
+  --in:#0a0e27;--ln:#2b3270;--sh:#070a20;--pk:#ff1f6b;--ok:#2ee6a6;--r:20px;--panel-primary:#22d3ee;--panel-primary-hover:#0891b2;--panel-accent:#8b3dff;
   box-sizing:border-box;color-scheme:dark;color:var(--tx);font-family:Vazirmatn,Tahoma,sans-serif;
   line-height:1.7;min-height:100vh;margin:0;
   background:linear-gradient(135deg,#1ce6ff,#2563eb 60%,#4338ca) fixed;
