@@ -6,13 +6,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'کارتابل مدیر آموزشگاه | شیخان')</title>
     @if(request()->routeIs('owner.dashboard'))
-        @vite(['resources/css/admin-dashboard.css', 'resources/js/admin-dashboard.js'])
+        @vite(['resources/css/owner-panel.css', 'resources/css/admin-dashboard.css', 'resources/js/owner-dashboard.js'])
     @else
-        @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
+        @vite(['resources/css/owner-panel.css', 'resources/js/owner-dashboard.js'])
     @endif
     @stack('styles')
 </head>
-<body class="owner-shell owner-admin-v2 {{ request()->routeIs('owner.dashboard') ? 'owner-dashboard-page' : '' }}">
+<body class="owner-shell {{ request()->routeIs('owner.dashboard') ? 'owner-dashboard-page' : '' }}">
 @php
     $ownerUser = auth()->user();
     $isSeoOnlyUser = $ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUser->hasRole('academy-owner');
