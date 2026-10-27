@@ -35,6 +35,8 @@
 .owner-dashboard-page .srch{display:flex;align-items:center;gap:8px;background:var(--c1);color:var(--mu);border:1px solid var(--ln);border-radius:12px;padding:9px 14px;cursor:pointer;white-space:nowrap;margin-inline-start:auto;font-size:12px}
 .owner-dashboard-page .srch:hover{border-color:var(--acc);color:var(--tx)}
 .owner-dashboard-page kbd{font:inherit;font-size:11px;background:var(--in);border-radius:6px;padding:1px 8px}
+.owner-dashboard-page input,.owner-dashboard-page textarea,.owner-dashboard-page select{width:100%;min-width:0;background:var(--in);border:1.5px solid var(--ln);border-radius:12px;color:var(--tx);font-size:14px;padding:11px 14px;box-shadow:inset 2px 2px 6px #04061a}
+.owner-dashboard-page input:focus,.owner-dashboard-page textarea:focus,.owner-dashboard-page select:focus{border-color:var(--acc);outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 30%,transparent)}
 .owner-dashboard-page .nt{position:relative;flex-shrink:0}
 .owner-dashboard-page .bell{position:relative;background:var(--c1);border:0;color:var(--tx);width:42px;height:42px;border-radius:12px;cursor:pointer;display:grid;place-items:center}
 .owner-dashboard-page .bell b{position:absolute;top:-5px;inset-inline-start:-5px;background:var(--pk);border-radius:50%;min-width:18px;height:18px;padding:0 4px;font-size:11px;display:grid;place-items:center;box-shadow:0 0 10px var(--pk)}
