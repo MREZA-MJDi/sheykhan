@@ -21,8 +21,9 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('@media(max-width:520px)', $css);
         $this->assertStringContainsString('@media(prefers-reduced-motion:reduce)', $css);
         $this->assertStringContainsString("request()->routeIs('owner.dashboard')", $layout);
-        $this->assertStringContainsString("@vite(['resources/css/admin-dashboard.css', 'resources/js/admin-dashboard.js'])", $layout);
-        $this->assertStringContainsString("@vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])", $layout);
+        $this->assertStringContainsString("@vite(['resources/css/owner-panel.css', 'resources/css/admin-dashboard.css', 'resources/js/owner-dashboard.js'])", $layout);
+        $this->assertStringContainsString("@vite(['resources/css/owner-panel.css', 'resources/js/owner-dashboard.js'])", $layout);
+        $this->assertStringNotContainsString('owner-dashboard-v2.css', $layout);
         $this->assertStringContainsString('class="admin-dashboard" data-admin-dashboard', $view);
         $this->assertStringContainsString('class="ph c12"', $view);
         $this->assertStringNotContainsString('ad-dashboard__', $view);
