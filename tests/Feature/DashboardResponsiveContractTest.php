@@ -18,8 +18,8 @@ class DashboardResponsiveContractTest extends TestCase
 
         $this->assertStringContainsString('.owner-dashboard-page .admin-dashboard{', $css);
         $this->assertStringContainsString('.owner-dashboard-page .admin-dashboard .c3{grid-column:span 3}', $css);
-        $this->assertStringContainsString('@media (max-width: 600px)', $css);
-        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
+        $this->assertStringContainsString('@media(max-width:520px)', $css);
+        $this->assertStringContainsString('@media(prefers-reduced-motion:reduce)', $css);
         $this->assertStringContainsString("request()->routeIs('owner.dashboard')", $layout);
         $this->assertStringContainsString("@vite(['resources/css/admin-dashboard.css', 'resources/js/admin-dashboard.js'])", $layout);
         $this->assertStringContainsString("@vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])", $layout);
