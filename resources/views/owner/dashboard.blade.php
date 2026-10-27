@@ -64,8 +64,6 @@
     $weeklyLabels = data_get($trends, 'weekly.labels', []);
     $weeklyStudents = data_get($trends, 'weekly.students', []);
     $weeklyAttendance = data_get($trends, 'weekly.attendance', []);
-    $monthlySalesLabels = data_get($trends, 'monthlySales.labels', []);
-    $monthlySalesValues = data_get($trends, 'monthlySales.values', []);
 
     $sparklinePoints = static function ($values): string {
         $values = collect($values ?? [])->filter(fn ($value) => is_numeric($value))->values();
@@ -124,18 +122,6 @@
 
     $weeklyStudentSegments = $chartSegments($weeklyStudents);
     $weeklyAttendanceSegments = $chartSegments($weeklyAttendance);
-    $monthlySalesMaximum = max(1, ...array_map(static fn ($value) => abs((float) $value), is_array($monthlySalesValues) ? $monthlySalesValues : []));
-    $monthlySalesBars = collect($monthlySalesValues)->map(function ($value, $index) use ($monthlySalesLabels, $monthlySalesMaximum): array {
-        $value = (float) $value;
-
-        return [
-            'label' => $monthlySalesLabels[$index] ?? '',
-            'value' => $value,
-            'height' => max(8, (int) round(abs($value) / $monthlySalesMaximum * 138)),
-            'color' => $value < 0 ? '#ff1f6b' : '#22d3ee',
-        ];
-    })->all();
-
     $studentSparkline = $sparklinePoints(data_get($trends, 'students', []));
     $attendanceSparkline = $sparklinePoints(data_get($trends, 'attendance', []));
     $salesSparkline = $sparklinePoints(data_get($trends, 'sales', []));
