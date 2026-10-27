@@ -183,7 +183,7 @@ import Alpine from 'alpinejs';
         requestAnimationFrame(() => dashboard.classList.add('in'));
     }
 
-    $$('.fill').forEach((bar) => {
+    $('.fill, .ad-dashboard__fill').forEach((bar) => {
         const target = bar.style.width;
         bar.style.width = '0';
         requestAnimationFrame(() => { bar.style.width = target; });
