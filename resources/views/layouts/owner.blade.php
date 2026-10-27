@@ -12,7 +12,7 @@
     @endif
     @stack('styles')
 </head>
-<body class="owner-shell {{ request()->routeIs('owner.dashboard') ? 'owner-dashboard-page' : '' }}">
+<body class="owner-shell owner-admin-v2 {{ request()->routeIs('owner.dashboard') ? 'owner-dashboard-page' : '' }}">
 @php
     $ownerUser = auth()->user();
     $isSeoOnlyUser = $ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUser->hasRole('academy-owner');
