@@ -1157,3 +1157,73 @@ body.owner-admin-v2 {
     font-variant-numeric: tabular-nums;
 }
 
+/* Dashboard ZIP: subject cylinders, approval queue, events and shortcut row. */
+.owner-admin-v2 .owner-subject-averages .cys {
+    min-width: 0;
+    gap: 8px;
+}
+.owner-admin-v2 .owner-subject-averages .cyc {
+    min-width: 0;
+    flex: 1 1 0;
+    gap: 12px;
+}
+.owner-admin-v2 .owner-subject-averages .cy {
+    width: min(36px, 100%);
+}
+.owner-admin-v2 .owner-subject-averages .cyc b {
+    color: var(--tx);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.owner-admin-v2 .owner-subject-averages .cyc small {
+    max-width: 100%;
+    color: var(--mu);
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .owner-quick-approvals .ckr {
+    align-items: flex-start;
+    min-width: 0;
+    margin-bottom: 8px;
+    text-decoration: none;
+}
+.owner-admin-v2 .owner-quick-approvals .ckr:last-child {
+    margin-bottom: 0;
+}
+.owner-admin-v2 .owner-quick-approvals .ckr .gx {
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .owner-dashboard-shortcuts .owner-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.owner-admin-v2 .owner-dashboard-shortcuts .owner-shortcuts .go {
+    min-width: 0;
+    width: 100%;
+    justify-content: center;
+    padding-inline: 8px;
+    text-align: center;
+    white-space: normal;
+}
+.owner-admin-v2 .owner-growth-card .owner-growth-chart {
+    margin-top: 6px;
+}
+.owner-admin-v2 .owner-growth-card .owner-chart-labels {
+    margin-bottom: 4px;
+}
+.owner-admin-v2 .owner-dashboard-shortcuts > small {
+    margin-top: 6px;
+    line-height: 1.9;
+}
+@media (max-width: 520px) {
+    .owner-admin-v2 .owner-subject-averages .cyc small {
+        font-size: 9px;
+    }
+    .owner-admin-v2 .owner-dashboard-shortcuts .owner-shortcuts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
