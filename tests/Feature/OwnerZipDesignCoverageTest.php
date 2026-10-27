@@ -48,7 +48,7 @@ class OwnerZipDesignCoverageTest extends TestCase
         $this->assertStringContainsString("@vite(['resources/css/owner-panel.css'", $layout);
         $this->assertStringContainsString('body.owner-shell .app{', $css);
         $this->assertStringContainsString('body.owner-shell .main-content .owner-stat-card', $css);
-        $this->assertStringContainsString('body.owner-shell .main-content .dashboard-panel', $css);
+        $this->assertStringContainsString(':is(.dashboard-panel,.owner-panel', $css);
         $this->assertStringContainsString('resources/css/owner-panel.css', $vite);
         $this->assertStringNotContainsString('owner-dashboard-v2.css', $layout . $vite);
         $this->assertStringNotContainsString('seo-dashboard.css', $layout . $vite);
