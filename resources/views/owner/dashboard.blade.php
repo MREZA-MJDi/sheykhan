@@ -425,7 +425,7 @@
                     <a class="table-link" href="{{ route('owner.assignments.index', $firstAcademy) }}">همه تکالیف ←</a>
                 </div>
                 @forelse($pendingApprovalItems as $item)
-                    <a class="ckr" href="{{ route('owner.assignments.index', $firstAcademy) }}" style="--c:#ff9a1f">
+                    <a class="ckr" href="{{ route('owner.assignments.show', [$item->academy_id, $item->assignment_id]) }}" style="--c:#ff9a1f">
                         <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg></i>
                         <span class="gx">
                             <b>{{ $item->student_name }}</b>
