@@ -86,7 +86,7 @@
         })->implode(' ');
     };
 
-    $chartSegments = static function ($values, int $width = 520, int $height = 130): array {
+    $chartSegments = static function ($values, int $width = 520, int $height = 150): array {
         $values = array_values(is_array($values) ? $values : []);
         $numeric = array_values(array_filter($values, static fn ($value) => is_numeric($value)));
         if (count($values) < 2 || count($numeric) < 2) {
