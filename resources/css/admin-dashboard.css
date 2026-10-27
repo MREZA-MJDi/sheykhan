@@ -1,0 +1,566 @@
+/* Admin dashboard content only.
+ * Loaded only for owner.dashboard. It deliberately avoids global selectors and
+ * never styles other owner pages or other role dashboards.
+ */
+.owner-dashboard-page .admin-dashboard {
+    --ad-card: #121a38;
+    --ad-card-soft: #0d1430;
+    --ad-border: rgba(119, 136, 190, .2);
+    --ad-text: #e8ecff;
+    --ad-muted: #aab3d7;
+    --ad-cyan: #22d3ee;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-content: start;
+    align-items: stretch;
+    gap: clamp(12px, 1.25vw, 18px);
+    width: 100%;
+    min-width: 0;
+    color: var(--ad-text);
+    font-family: Vazirmatn, Tahoma, sans-serif;
+}
+.owner-dashboard-page .admin-dashboard,
+.owner-dashboard-page .admin-dashboard * {
+    box-sizing: border-box;
+    min-width: 0;
+}
+.owner-dashboard-page .admin-dashboard :is(h1, h2, h3, p) {
+    margin-block-start: 0;
+    color: var(--ad-text);
+    letter-spacing: 0;
+}
+.owner-dashboard-page .admin-dashboard p {
+    line-height: 1.9;
+}
+.owner-dashboard-page .admin-dashboard small {
+    color: var(--ad-muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+.owner-dashboard-page .admin-dashboard .ic {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__span-full { grid-column: 1 / -1; }
+.owner-dashboard-page .admin-dashboard .ad-dashboard__span-half { grid-column: span 6; }
+.owner-dashboard-page .admin-dashboard .ad-dashboard__span-quarter { grid-column: span 3; }
+
+.owner-dashboard-page .admin-dashboard .ad-dashboard__hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 4px 2px 18px;
+    border: 0;
+    border-bottom: 1px solid var(--ad-border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__hero > div:first-child {
+    flex: 1 1 380px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 8px;
+    padding: 4px 10px;
+    border: 1px solid rgba(34, 211, 238, .24);
+    border-radius: 999px;
+    background: rgba(34, 211, 238, .08);
+    color: #7cecff;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.7;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__hero h1 {
+    margin: 0;
+    font-size: clamp(21px, 2.3vw, 30px);
+    font-weight: 800;
+    line-height: 1.55;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__intro {
+    margin: 5px 0 0;
+    color: var(--ad-muted);
+    font-size: 12px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__actions {
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__button {
+    display: inline-flex;
+    min-height: 39px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid rgba(34, 211, 238, .3);
+    border-radius: 10px;
+    background: linear-gradient(135deg, #176b83, #2451b5);
+    color: #fff;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .18s ease, border-color .18s ease, filter .18s ease;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+    color: #fff;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__button--small {
+    min-height: 32px;
+    padding: 5px 11px;
+    font-size: 10px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__button--secondary {
+    border-color: var(--ad-border);
+    background: #141c3c;
+    color: var(--ad-text);
+    box-shadow: none;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__button--secondary:hover {
+    border-color: var(--ad-cyan);
+    color: #fff;
+}
+.owner-dashboard-page .admin-dashboard :is(.ad-dashboard__button, .ad-dashboard__link):focus-visible {
+    outline: 2px solid #9af2ff;
+    outline-offset: 3px;
+}
+
+.owner-dashboard-page .admin-dashboard .ad-dashboard__panel {
+    position: relative;
+    min-width: 0;
+    padding: clamp(14px, 1.35vw, 19px);
+    overflow: hidden;
+    border: 1px solid var(--ad-border);
+    border-radius: 17px;
+    background: linear-gradient(145deg, rgba(23, 31, 69, .96), rgba(13, 19, 45, .98));
+    color: var(--ad-text);
+    box-shadow: 0 9px 26px rgba(0, 0, 0, .12);
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__panel > * {
+    max-width: 100%;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-card {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 145px;
+    padding: clamp(14px, 1.35vw, 19px);
+    isolation: isolate;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-card::after {
+    position: absolute;
+    z-index: -1;
+    inset-inline-start: -33px;
+    inset-block-end: -38px;
+    width: 116px;
+    height: 116px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--c, #22d3ee) 12%, transparent);
+    content: "";
+    pointer-events: none;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--ad-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-label .ic {
+    color: var(--c, var(--ad-cyan));
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-card > b {
+    display: block;
+    margin-top: 2px;
+    color: var(--ad-text);
+    font-size: clamp(24px, 2.4vw, 32px);
+    font-weight: 800;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__caption {
+    margin-top: auto;
+    color: var(--ad-muted);
+    font-size: 10px;
+    line-height: 1.8;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    margin-top: 7px;
+    color: var(--ad-muted);
+    font-size: 10px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-foot strong {
+    color: var(--c, var(--ad-cyan));
+    font-weight: 800;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__track {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(119, 136, 190, .11);
+    border-radius: 999px;
+    background: #090f25;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--c, #22d3ee) 55%, #17213d), var(--c, #22d3ee));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--c, #22d3ee) 22%, transparent);
+    transition: width .75s cubic-bezier(.2, .8, .2, 1);
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-card .ad-dashboard__track {
+    margin-top: 3px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__section-head > div:first-child {
+    min-width: 0;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__section-head h2 {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__section-head p {
+    margin: 4px 0 0;
+    color: var(--ad-muted);
+    font-size: 10px;
+    line-height: 1.85;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__section-icon {
+    display: inline-grid;
+    width: 29px;
+    height: 29px;
+    flex: 0 0 29px;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--c, #22d3ee) 20%, transparent);
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--c, #22d3ee) 9%, transparent);
+    color: var(--c, var(--ad-cyan));
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__section-icon .ic {
+    width: 16px;
+    height: 16px;
+    flex-basis: 16px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    color: #83e7ff;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__link:hover {
+    color: #c7f7ff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-bars {
+    display: grid;
+    gap: 18px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__metric-bars > div {
+    min-width: 0;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__bar-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: var(--ad-muted);
+    font-size: 10px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__bar-label strong {
+    color: var(--ad-text);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__donut-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__donut-row > svg {
+    width: 105px;
+    height: 105px;
+    flex: 0 0 105px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__grow {
+    flex: 1 1 120px;
+    min-width: 0;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__grow b {
+    display: block;
+    color: var(--ad-text);
+    font-size: 12px;
+    font-weight: 800;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__muted-note {
+    margin-top: 8px;
+    color: var(--ad-muted);
+    font-size: 10px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__empty {
+    grid-column: 1 / -1;
+    padding: 19px 12px;
+    border: 1px dashed rgba(119, 136, 190, .32);
+    border-radius: 12px;
+    background: rgba(9, 15, 37, .42);
+    color: var(--ad-muted);
+    font-size: 11px;
+    line-height: 1.9;
+    text-align: center;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 0 0 9px;
+    padding: 11px;
+    border: 1px solid rgba(119, 136, 190, .12);
+    border-radius: 12px;
+    background: rgba(8, 14, 34, .58);
+    color: var(--ad-text);
+    text-decoration: none;
+    transition: border-color .18s ease, background-color .18s ease;
+}
+.owner-dashboard-page .admin-dashboard a.ad-dashboard__row:hover {
+    border-color: color-mix(in srgb, var(--c, #22d3ee) 35%, transparent);
+    background: rgba(20, 32, 68, .7);
+    color: #fff;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__tile {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    place-items: center;
+    border: 1px solid rgba(119, 136, 190, .14);
+    border-radius: 10px;
+    background: #101a39;
+    color: var(--c, var(--ad-cyan));
+    font-style: normal;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__row-value {
+    flex: 0 0 auto;
+    color: #dce5ff;
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__alert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+    gap: 12px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__alert-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 11px;
+    border: 1px solid rgba(119, 136, 190, .14);
+    border-radius: 13px;
+    background: rgba(8, 14, 34, .62);
+    color: var(--ad-text);
+    text-decoration: none;
+    transition: transform .18s ease, border-color .18s ease;
+}
+.owner-dashboard-page .admin-dashboard a.ad-dashboard__alert-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--c, #22d3ee) 40%, transparent);
+    color: #fff;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__alert-icon {
+    display: grid;
+    width: 100%;
+    min-height: 67px;
+    margin-bottom: 11px;
+    place-items: center;
+    border-radius: 9px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__alert-card > b {
+    color: var(--ad-text);
+    font-size: 11px;
+    line-height: 1.8;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__alert-card > small {
+    margin-top: 4px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 3px 9px;
+    border: 1px solid color-mix(in srgb, var(--c, #22d3ee) 36%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--c, #22d3ee) 8%, transparent);
+    color: var(--c, var(--ad-cyan));
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.7;
+    white-space: normal;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__table-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #35416f transparent;
+}
+.owner-dashboard-page .admin-dashboard table {
+    width: 100%;
+    min-width: 580px;
+    border-collapse: collapse;
+    color: var(--ad-text);
+    font-size: 11px;
+}
+.owner-dashboard-page .admin-dashboard thead th {
+    padding: 0 9px 10px;
+    border: 0;
+    color: var(--ad-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+}
+.owner-dashboard-page .admin-dashboard tbody td {
+    padding: 10px 9px;
+    border-top: 1px solid rgba(119, 136, 190, .15);
+    color: var(--ad-text);
+    font-size: 11px;
+    vertical-align: middle;
+}
+.owner-dashboard-page .admin-dashboard tbody tr:hover td {
+    background: rgba(34, 211, 238, .035);
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__avatar {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border: 1px solid rgba(139, 61, 255, .3);
+    border-radius: 50%;
+    background: linear-gradient(135deg, #452b83, #176c87);
+    color: #fff;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 800;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__count {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--c, #22d3ee);
+    color: #071326;
+    font-size: 12px;
+    font-weight: 800;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__track + .ad-dashboard__empty {
+    margin-top: 12px;
+}
+.owner-dashboard-page .admin-dashboard .ad-dashboard__panel :is(.ad-dashboard__row:last-child, .ad-dashboard__pill) {
+    max-width: 100%;
+}
+@media (max-width: 1240px) {
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__span-quarter { grid-column: span 6; }
+}
+@media (max-width: 980px) {
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__span-half { grid-column: 1 / -1; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__hero {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__actions {
+        width: 100%;
+    }
+}
+@media (max-width: 600px) {
+    .owner-dashboard-page .admin-dashboard { gap: 12px; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__span-quarter,
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__span-half { grid-column: 1 / -1; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__panel { padding: 13px; border-radius: 14px; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__metric-card { min-height: 122px; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__metric-card > b { font-size: 26px; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__section-head { flex-direction: column; align-items: stretch; gap: 8px; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__section-head > .ad-dashboard__link { align-self: flex-start; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__button { width: 100%; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__row { align-items: flex-start; flex-wrap: wrap; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__row-value { margin-inline-start: auto; white-space: normal; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__meta-row { align-items: flex-start; }
+    .owner-dashboard-page .admin-dashboard .ad-dashboard__donut-row > svg { width: 88px; height: 88px; flex-basis: 88px; }
+    .owner-dashboard-page .admin-dashboard table { min-width: 540px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-dashboard-page .admin-dashboard *,
+    .owner-dashboard-page .admin-dashboard *::before,
+    .owner-dashboard-page .admin-dashboard *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
