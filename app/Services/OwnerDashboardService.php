@@ -47,6 +47,44 @@ final class OwnerDashboardService
             ->published()
             ->count();
 
+        // Real scored courses only; the cylinder chart must not invent subject grades.
+        $scoreCourseCandidates = $owner->hasPermission('exams.view')
+            ? Course::query()
+                ->whereIn('academy_id', $academyIds)
+                ->whereExists(function ($query): void {
+                    $query->selectRaw('1')
+                        ->from('exams as scored_exams')
+                        ->join('exam_attempts as scored_attempts', 'scored_attempts.exam_id', '=', 'scored_exams.id')
+                        ->whereColumn('scored_exams.course_id', 'courses.id')
+                        ->whereNotNull('scored_attempts.submitted_at')
+                        ->whereNotNull('scored_attempts.score');
+                })
+                ->orderByDesc('updated_at')
+                ->limit(24)
+                ->get(['id', 'title'])
+            : collect();
+
+        $courseExamAverages = $scoreCourseCandidates->isEmpty()
+            ? collect()
+            : $this->analytics->courseExamAverages($scoreCourseCandidates->pluck('id')->all());
+
+        $subjectAverages = $scoreCourseCandidates
+            ->map(function (Course $course) use ($courseExamAverages): ?array {
+                if (! $courseExamAverages->has($course->id)) {
+                    return null;
+                }
+
+                return [
+                    'id' => (int) $course->id,
+                    'title' => (string) $course->title,
+                    'average' => (float) $courseExamAverages[$course->id],
+                ];
+            })
+            ->filter()
+            ->sortByDesc('average')
+            ->take(4)
+            ->values();
+
         $teacherCount = DB::table('academy_user as membership')
             ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
             ->whereIn('membership.academy_id', $academyIds)
@@ -95,13 +133,29 @@ final class OwnerDashboardService
             ])
             ->sum('amount');
 
-        $pendingReviews = DB::table('assignment_submissions as submissions')
+        $pendingReviewsQuery = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->join('courses', 'courses.id', '=', 'assignments.course_id')
             ->whereIn('courses.academy_id', $academyIds)
             ->whereNotNull('submissions.submitted_at')
-            ->whereNull('submissions.graded_at')
-            ->count();
+            ->whereNull('submissions.graded_at');
+
+        $pendingReviews = (clone $pendingReviewsQuery)->count();
+
+        $pendingApprovalItems = (clone $pendingReviewsQuery)
+            ->join('users as students', 'students.id', '=', 'submissions.student_id')
+            ->where('students.status', 'active')
+            ->whereNull('students.deleted_at')
+            ->select([
+                'submissions.id',
+                'submissions.submitted_at',
+                'assignments.title as assignment_title',
+                'courses.title as course_title',
+                'students.name as student_name',
+            ])
+            ->orderBy('submissions.submitted_at')
+            ->limit(4)
+            ->get();
 
         $attendanceBase = DB::table('attendances')
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
@@ -339,6 +393,8 @@ final class OwnerDashboardService
                 'classroomsWithoutTeacher' => $classroomsWithoutTeacher,
             ],
             'teacherReports' => $teacherReports,
+            'subjectAverages' => $subjectAverages,
+            'pendingApprovalItems' => $pendingApprovalItems,
             'trends' => $trends,
             'capacity' => [
                 'total' => $capacityTotal,
@@ -597,6 +653,8 @@ final class OwnerDashboardService
                 'classroomsWithoutTeacher' => 0,
             ],
             'teacherReports' => collect(),
+            'subjectAverages' => collect(),
+            'pendingApprovalItems' => collect(),
             'trends' => [
                 'students' => array_fill(0, 7, 0),
                 'attendance' => array_fill(0, 7, null),
