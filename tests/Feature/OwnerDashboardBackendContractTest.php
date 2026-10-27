@@ -55,8 +55,8 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->assertCount(13, $dashboard['trends']['weekly']['labels']);
         $this->assertCount(13, $dashboard['trends']['weekly']['students']);
         $this->assertCount(13, $dashboard['trends']['weekly']['attendance']);
-        $this->assertCount(4, $dashboard['trends']['monthlySales']['labels']);
-        $this->assertCount(4, $dashboard['trends']['monthlySales']['values']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['sales']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['pendingReviews']);
         $this->assertInstanceOf(\Illuminate\Support\Collection::class, $dashboard['subjectAverages']);
         $this->assertInstanceOf(\Illuminate\Support\Collection::class, $dashboard['pendingApprovalItems']);
 
