@@ -1,4 +1,4 @@
-/* Academy-owner panel: one standalone CSS entry for dashboard, admin sections and owner-side SEO pages. */
+/* Shared styles for non-dashboard academy-owner pages. The dashboard route uses admin-dashboard.css. */
 
 @import 'tailwindcss' source(none);
 @import './persian-calendar.css';
