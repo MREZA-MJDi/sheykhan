@@ -47,6 +47,44 @@ final class OwnerDashboardService
             ->published()
             ->count();
 
+        // Real scored courses only; the cylinder chart must not invent subject grades.
+        $scoreCourseCandidates = $owner->hasPermission('exams.view')
+            ? Course::query()
+                ->whereIn('academy_id', $academyIds)
+                ->whereExists(function ($query): void {
+                    $query->selectRaw('1')
+                        ->from('exams as scored_exams')
+                        ->join('exam_attempts as scored_attempts', 'scored_attempts.exam_id', '=', 'scored_exams.id')
+                        ->whereColumn('scored_exams.course_id', 'courses.id')
+                        ->whereNotNull('scored_attempts.submitted_at')
+                        ->whereNotNull('scored_attempts.score');
+                })
+                ->orderByDesc('updated_at')
+                ->limit(24)
+                ->get(['id', 'title'])
+            : collect();
+
+        $courseExamAverages = $scoreCourseCandidates->isEmpty()
+            ? collect()
+            : $this->analytics->courseExamAverages($scoreCourseCandidates->pluck('id')->all());
+
+        $subjectAverages = $scoreCourseCandidates
+            ->map(function (Course $course) use ($courseExamAverages): ?array {
+                if (! $courseExamAverages->has($course->id)) {
+                    return null;
+                }
+
+                return [
+                    'id' => (int) $course->id,
+                    'title' => (string) $course->title,
+                    'average' => (float) $courseExamAverages[$course->id],
+                ];
+            })
+            ->filter()
+            ->sortByDesc('average')
+            ->take(4)
+            ->values();
+
         $teacherCount = DB::table('academy_user as membership')
             ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
             ->whereIn('membership.academy_id', $academyIds)
@@ -95,13 +133,31 @@ final class OwnerDashboardService
             ])
             ->sum('amount');
 
-        $pendingReviews = DB::table('assignment_submissions as submissions')
+        $pendingReviewsQuery = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->join('courses', 'courses.id', '=', 'assignments.course_id')
             ->whereIn('courses.academy_id', $academyIds)
             ->whereNotNull('submissions.submitted_at')
-            ->whereNull('submissions.graded_at')
-            ->count();
+            ->whereNull('submissions.graded_at');
+
+        $pendingReviews = (clone $pendingReviewsQuery)->count();
+
+        $pendingApprovalItems = (clone $pendingReviewsQuery)
+            ->join('users as students', 'students.id', '=', 'submissions.student_id')
+            ->where('students.status', 'active')
+            ->whereNull('students.deleted_at')
+            ->select([
+                'submissions.id',
+                'submissions.submitted_at',
+                'assignments.id as assignment_id',
+                'courses.academy_id',
+                'assignments.title as assignment_title',
+                'courses.title as course_title',
+                'students.name as student_name',
+            ])
+            ->orderBy('submissions.submitted_at')
+            ->limit(4)
+            ->get();
 
         $attendanceBase = DB::table('attendances')
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
@@ -171,6 +227,21 @@ final class OwnerDashboardService
                 return $start->lte($now) && $end->gte($now);
             })
             ->count();
+
+        $todayLiveClasses = LiveClass::query()
+            ->whereIn('status', ['scheduled', 'live'])
+            ->whereDate('scheduled_at', $now->toDateString())
+            ->whereHas('classroom', fn ($query) => $query
+                ->whereIn('academy_id', $academyIds)
+                ->where('status', 'active'))
+            ->with([
+                'course:id,title',
+                'teacher:id,name',
+                'classroom:id,title,academy_id',
+            ])
+            ->orderBy('scheduled_at')
+            ->limit(12)
+            ->get();
 
         $upcomingLiveClasses = LiveClass::query()
             ->whereIn('status', ['scheduled', 'live'])
@@ -298,6 +369,10 @@ final class OwnerDashboardService
             return $report;
         });
 
+        // Actual seven-day sparkline data for the dashboard prototype's KPI cards.
+        // All series are bounded to the selected academies and current moment.
+        $trends = $this->dashboardTrends($academyIds, $now);
+
         return [
             'owner' => $owner,
             'academies' => $academies,
@@ -320,6 +395,9 @@ final class OwnerDashboardService
                 'classroomsWithoutTeacher' => $classroomsWithoutTeacher,
             ],
             'teacherReports' => $teacherReports,
+            'subjectAverages' => $subjectAverages,
+            'pendingApprovalItems' => $pendingApprovalItems,
+            'trends' => $trends,
             'capacity' => [
                 'total' => $capacityTotal,
                 'used' => $capacityUsed,
@@ -328,6 +406,7 @@ final class OwnerDashboardService
                 'configured_classrooms' => (int) ($capacitySummary->configured_capacity_classrooms ?? 0),
             ],
             'upcomingLiveClasses' => $upcomingLiveClasses,
+            'todayLiveClasses' => $todayLiveClasses,
             'recentCourses' => Course::query()
                 ->whereIn('academy_id', $academyIds)
                 ->with('academy:id,name')
@@ -339,6 +418,152 @@ final class OwnerDashboardService
                 ->latest()
                 ->limit(6)
                 ->get(),
+        ];
+    }
+
+    /**
+     * Build database-backed trend series for compact KPI sparklines and dashboard charts.
+     *
+     * Event counts use zero for days with no matching events. Attendance keeps
+     * nulls where there are no valid records so a chart never invents a 0% rate.
+     */
+    private function dashboardTrends($academyIds, Carbon $now): array
+    {
+        $today = $now->copy()->startOfDay();
+        $chartStart = $today->copy()->startOfWeek(Carbon::SATURDAY)->subWeeks(12);
+        $from = $chartStart->toDateTimeString();
+        $to = $now->toDateTimeString();
+
+
+
+        $dailyDates = collect();
+        for ($day = $chartStart->copy(); $day->lte($today); $day->addDay()) {
+            $dailyDates->push($day->toDateString());
+        }
+
+        $sparkDates = collect(range(0, 6))
+            ->map(fn (int $offset) => $today->copy()->subDays(6 - $offset)->toDateString());
+
+        $studentsByDay = DB::table('academy_user as membership')
+            ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
+            ->whereIn('membership.academy_id', $academyIds)
+            ->where('membership.role', 'student')
+            ->where('membership.status', 'active')
+            ->where('accounts.status', 'active')
+            ->whereNull('accounts.deleted_at')
+            ->whereRaw('COALESCE(membership.joined_at, membership.created_at) BETWEEN ? AND ?', [$from, $to])
+            ->groupByRaw('DATE(COALESCE(membership.joined_at, membership.created_at))')
+            ->selectRaw('DATE(COALESCE(membership.joined_at, membership.created_at)) as day, COUNT(DISTINCT membership.user_id) as value')
+            ->pluck('value', 'day');
+
+        $attendanceByDay = DB::table('attendances')
+            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->where('classrooms.status', 'active')
+            ->whereDate('attendances.attendance_date', '>=', $chartStart->toDateString())
+            ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
+            ->groupByRaw('DATE(attendances.attendance_date)')
+            ->selectRaw(
+                "DATE(attendances.attendance_date) as day,
+                SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) as total,
+                SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) as attended"
+            )
+            ->get()
+            ->keyBy('day');
+
+        // Extend revenue to four Jalali/Gregorian calendar months for the cylinder chart.
+        // A single grouped-by-day query is reused to derive both weekly and monthly totals.
+        $salesByDay = DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
+            ->whereIn('type', ['enrollment_payment', 'refund'])
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$from, $to])
+            ->groupByRaw('DATE(COALESCE(occurred_at, created_at))')
+            ->selectRaw(
+                "DATE(COALESCE(occurred_at, created_at)) as day,
+                SUM(CASE WHEN type = 'enrollment_payment' THEN amount WHEN type = 'refund' THEN -amount ELSE 0 END) as value"
+            )
+            ->pluck('value', 'day');
+
+        $pendingByDay = DB::table('assignment_submissions as submissions')
+            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->join('courses', 'courses.id', '=', 'assignments.course_id')
+            ->whereIn('courses.academy_id', $academyIds)
+            ->whereNotNull('submissions.submitted_at')
+            ->whereNull('submissions.graded_at')
+            ->whereBetween('submissions.submitted_at', [$from, $to])
+            ->groupByRaw('DATE(submissions.submitted_at)')
+            ->selectRaw('DATE(submissions.submitted_at) as day, COUNT(*) as value')
+            ->pluck('value', 'day');
+
+        $weekly = collect(range(0, 12))->map(function (int $offset) use (
+            $chartStart,
+            $today,
+            $dailyDates,
+            $studentsByDay,
+            $attendanceByDay,
+            $salesByDay,
+            $pendingByDay
+        ): array {
+            $weekStart = $chartStart->copy()->addWeeks($offset)->startOfDay();
+            $weekEnd = $weekStart->copy()->addDays(6);
+            if ($weekEnd->gt($today)) {
+                $weekEnd = $today->copy();
+            }
+
+            $days = $dailyDates->filter(
+                fn (string $date): bool => $date >= $weekStart->toDateString() && $date <= $weekEnd->toDateString()
+            );
+
+            $newStudents = 0;
+            $sales = 0.0;
+            $pending = 0;
+            $attendanceTotal = 0;
+            $attendanceCounted = 0;
+
+            foreach ($days as $date) {
+                $newStudents += max(0, (int) ($studentsByDay[$date] ?? 0));
+                $sales += (float) ($salesByDay[$date] ?? 0);
+                $pending += max(0, (int) ($pendingByDay[$date] ?? 0));
+
+                $attendance = $attendanceByDay->get($date);
+                if ($attendance && (int) $attendance->total > 0) {
+                    $attendanceTotal += (int) $attendance->total;
+                    $attendanceCounted += (int) $attendance->attended;
+                }
+            }
+
+            return [
+                'label' => \App\Support\PersianUi::date($weekStart),
+                'students' => $newStudents,
+                'attendance' => $attendanceTotal > 0
+                    ? round(($attendanceCounted / $attendanceTotal) * 100, 1)
+                    : null,
+                'sales' => $sales,
+                'pendingReviews' => $pending,
+            ];
+        })->values();
+
+        return [
+            'students' => $sparkDates->map(fn (string $date) => max(0, (int) ($studentsByDay[$date] ?? 0)))->all(),
+            'attendance' => $sparkDates->map(function (string $date) use ($attendanceByDay): ?float {
+                $row = $attendanceByDay->get($date);
+                if (! $row || (int) $row->total < 1) {
+                    return null;
+                }
+
+                return round(((int) $row->attended / (int) $row->total) * 100, 1);
+            })->all(),
+            'sales' => $sparkDates->map(fn (string $date) => (float) ($salesByDay[$date] ?? 0))->all(),
+            'pendingReviews' => $sparkDates->map(fn (string $date) => max(0, (int) ($pendingByDay[$date] ?? 0)))->all(),
+            'weekly' => [
+                'labels' => $weekly->pluck('label')->all(),
+                'students' => $weekly->pluck('students')->all(),
+                'attendance' => $weekly->pluck('attendance')->all(),
+                'sales' => $weekly->pluck('sales')->all(),
+                'pendingReviews' => $weekly->pluck('pendingReviews')->all(),
+            ],
         ];
     }
 
@@ -391,8 +616,24 @@ final class OwnerDashboardService
                 'classroomsWithoutTeacher' => 0,
             ],
             'teacherReports' => collect(),
+            'subjectAverages' => collect(),
+            'pendingApprovalItems' => collect(),
+            'trends' => [
+                'students' => array_fill(0, 7, 0),
+                'attendance' => array_fill(0, 7, null),
+                'sales' => array_fill(0, 7, 0),
+                'pendingReviews' => array_fill(0, 7, 0),
+                'weekly' => [
+                    'labels' => array_fill(0, 13, ''),
+                    'students' => array_fill(0, 13, 0),
+                    'attendance' => array_fill(0, 13, null),
+                    'sales' => array_fill(0, 13, 0),
+                    'pendingReviews' => array_fill(0, 13, 0),
+                ],
+            ],
             'capacity' => ['total' => 0, 'used' => 0, 'remaining' => 0, 'rate' => null, 'configured_classrooms' => 0],
             'upcomingLiveClasses' => collect(),
+            'todayLiveClasses' => collect(),
             'recentCourses' => collect(),
         ];
     }

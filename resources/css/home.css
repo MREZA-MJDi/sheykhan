@@ -1,5 +1,5 @@
 @import 'tailwindcss' source(none);
-@import './components.css';
+/* Removed stale components.css import: the file no longer exists; component and public styles are imported below. */
 /* Consolidated from home-meraki-hero.css. */
 /* Meraki-inspired full-bleed home hero. No extra CDN or JavaScript dependency. */
 .sheykhan-home-hero {

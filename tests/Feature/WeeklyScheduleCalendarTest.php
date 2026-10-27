@@ -59,11 +59,20 @@ class WeeklyScheduleCalendarTest extends TestCase
         $this->actingAs($owner)
             ->get(route('owner.schedules.index', $academy))
             ->assertOk()
+            ->assertSee('owner-online-links-page', false)
+            ->assertSee('owner-page-intro', false)
+            ->assertSee('owner-info-banner', false)
+            ->assertSee('owner-calendar-section', false)
+            ->assertSee('owner-schedule-list', false)
+            ->assertSee('owner-schedule-form', false)
             ->assertSee('data-weekly-calendar', false)
             ->assertSee('برنامهٔ کلاس‌ها در یک نگاه', false)
+            ->assertSee('برنامه هفتگی', false)
+            ->assertSee('لینک Jitsi', false)
             ->assertSee('ساعت تهران (Asia/Tehran)', false)
             ->assertSee('Google Meet', false)
             ->assertSee('Zoom', false)
+            ->assertSee('ذخیره زمان و لینک', false)
             ->assertSee('۲. سرویس و لینک ورود را وصل کن', false);
     }
 

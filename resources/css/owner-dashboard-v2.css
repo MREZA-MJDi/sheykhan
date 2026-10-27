@@ -251,15 +251,8 @@ dialog::backdrop{background:rgba(5,7,25,.7);backdrop-filter:blur(4px)}
 
 
 /* Flatten legacy utility wrappers: rounded utilities are not cards by themselves. */
-.owner-admin-v2 .main-content :is(div,section,article,header,footer,aside,ul,li):is(.rounded-3xl,.rounded-2xl,.rounded-xl):not(.dashboard-panel):not(.panel-card):not(.owner-stat-card):not(.owner-panel):not(.owner-form-shell):not(.owner-form-card):not(.owner-people-tab-panel):not(.owner-classroom-card):not(.owner-classroom-summary):not(.owner-product-card):not(.owner-resource-card):not(.owner-student-credentials):not(.owner-schema-warning):not(.owner-form-notice):not(.owner-student-form-footer):not(.owner-student-create-errors):not(.owner-classroom-filters):not(.owner-people-filter):not(.owner-resource-filters):not(.owner-product-filters):not(.owner-student-credential-grid):not(.course-page):not(.course-stat):not(.course-status-guide):not([role="status"]):not([role="alert"]){
-    border-color:transparent!important;
-    background:transparent!important;
-    box-shadow:none!important;
-}
-.owner-admin-v2 .main-content :is(div,section,article,header,footer,aside,ul,li):is(.bg-white,.bg-slate-50,.bg-gray-50,.bg-slate-100,.bg-gray-100,.bg-indigo-50,.bg-blue-50):not(.dashboard-panel):not(.panel-card):not(.owner-stat-card):not(.owner-panel):not(.owner-form-shell):not(.owner-form-card):not(.owner-people-tab-panel):not(.owner-classroom-card):not(.owner-classroom-summary):not(.owner-product-card):not(.owner-resource-card):not(.owner-student-credentials):not(.owner-schema-warning):not(.owner-form-notice):not(.owner-student-form-footer):not(.owner-student-create-errors):not(.owner-classroom-filters):not(.owner-people-filter):not(.owner-resource-filters):not(.owner-product-filters):not(.owner-student-credential-grid):not(.course-page):not(.course-stat):not(.course-status-guide):not([role="status"]):not([role="alert"]){
-    background:transparent!important;
-    box-shadow:none!important;
-}
+
+
 .owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-form-shell,.owner-form-card,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card){
     background:var(--oa-surface);
     border-color:rgba(119,136,190,.18);
@@ -745,3 +738,1673 @@ dialog::backdrop{background:rgba(5,7,25,.7);backdrop-filter:blur(4px)}
  .owner-admin-v2 .main-content .banner-submitbar .course-primary-btn{width:100%}
  .owner-admin-v2 .main-content .website-banner-mini{grid-template-columns:100px minmax(0,1fr)}
 }
+
+/* =========================================================
+   dashboard.zip visual contract
+   Keep production Blade data/actions, but use the supplied
+   reference shell, grid, responsive behavior, and whole-card links.
+========================================================= */
+body.owner-admin-v2 {
+    background: linear-gradient(135deg, #1ce6ff, #2563eb 60%, #4338ca) fixed !important;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 18px calc(18px + env(safe-area-inset-bottom, 0px));
+}
+.owner-admin-v2 .app {
+    width: 100%;
+    max-width: 1360px;
+    min-height: calc(100vh - 36px);
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+    border: 0;
+    border-radius: 28px;
+    background: var(--bg);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .4);
+}
+.owner-admin-v2 .top { grid-column: 1 / -1; min-width: 0; }
+.owner-admin-v2 .side.card {
+    width: auto;
+    border: 1px solid var(--ln);
+    background: linear-gradient(145deg, var(--c1), var(--c2));
+    box-shadow: 6px 6px 16px var(--sh), -3px -3px 10px rgba(60, 70, 160, .18);
+}
+.owner-admin-v2 .main-content {
+    grid-column: 2;
+    grid-row: auto;
+    min-width: 0;
+}
+.owner-admin-v2 .kpi-link {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--tx) !important;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.owner-admin-v2 .kpi-link > * { pointer-events: none; }
+.owner-admin-v2 .kpi-link:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--c) 55%, var(--ln));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 25%, transparent), 0 12px 28px rgba(0, 0, 0, .22);
+}
+.owner-admin-v2 .kpi-link:focus-visible {
+    outline: 3px solid var(--c, var(--acc));
+    outline-offset: 3px;
+}
+.owner-admin-v2 .kpi-link .table-link { color: var(--c); }
+.owner-admin-v2 .kpi-link .sp { margin-top: auto; }
+
+@media (max-width: 1200px) {
+    .owner-admin-v2 .srch span,
+    .owner-admin-v2 .srch kbd { display: none; }
+}
+@media (max-width: 960px) {
+    body.owner-admin-v2 {
+        padding: 0;
+    }
+    .owner-admin-v2 .app {
+        width: 100%;
+        max-width: none;
+        min-height: 100vh;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 14px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .owner-admin-v2 .top { flex-wrap: wrap; }
+    .owner-admin-v2 .burger { display: grid; }
+    .owner-admin-v2 .side {
+        display: none;
+        position: static;
+        top: auto;
+        bottom: auto;
+        inset-inline-start: auto;
+        grid-row: 2;
+        width: auto;
+        max-height: none;
+        overflow: visible;
+        box-shadow: none;
+    }
+    .owner-admin-v2 .side.open { display: block; }
+    .owner-admin-v2 .main-content { grid-column: 1 / -1; grid-row: 3; }
+    .owner-admin-v2 .c4,
+    .owner-admin-v2 .c5,
+    .owner-admin-v2 .c6,
+    .owner-admin-v2 .c7,
+    .owner-admin-v2 .c8 { grid-column: span 12; }
+    .owner-admin-v2 .cal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .owner-admin-v2 .tabs { order: 5; flex-basis: 100%; max-width: 100%; }
+}
+@media (max-width: 520px) {
+    body.owner-admin-v2 {
+        padding: 10px;
+    }
+    .owner-admin-v2 .app {
+        width: 100%;
+        min-height: 100vh;
+        padding: 12px;
+        gap: 14px;
+        border-radius: 20px;
+        box-shadow: none;
+    }
+    .owner-admin-v2 .main-content { gap: 14px; }
+    .owner-admin-v2 .c3 { grid-column: span 12; }
+    .owner-admin-v2 .kpi b { font-size: 26px; }
+    .owner-admin-v2 .tabs { order: 5; flex-basis: 100%; gap: 6px; }
+    .owner-admin-v2 .tab { padding: 8px 12px; }
+    .owner-admin-v2 .cal { grid-template-columns: minmax(0, 1fr); }
+    .owner-admin-v2 .go { width: 100%; justify-content: center; }
+    .owner-admin-v2 .ph .go { flex: 1; }
+    .owner-admin-v2 .top { gap: 8px; }
+    .owner-admin-v2 .brand-mark .brand { display: none; }
+    .owner-admin-v2 .srch { padding: 8px; }
+    .owner-admin-v2 .side { padding: 10px; }
+    .owner-admin-v2 .card { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-admin-v2 .kpi-link { transition: none; }
+}
+
+/* Unified component treatment for the ZIP reference across owner workspaces. */
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.course-stat,.course-status-guide,.owner-form-card,.owner-form-section,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.owner-student-credentials,.owner-schema-warning,.owner-form-notice,.owner-student-form-footer,.owner-student-create-errors) {
+    min-width: 0;
+    border: 1px solid var(--ln) !important;
+    border-radius: var(--r);
+    background: linear-gradient(145deg, var(--c1), var(--c2)) !important;
+    color: var(--tx) !important;
+    box-shadow: 6px 6px 16px var(--sh), -3px -3px 10px rgba(60, 70, 160, .18);
+}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.course-stat,.course-status-guide,.owner-form-card,.owner-form-section,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card) {
+    padding: 18px;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat) {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 5px;
+    min-height: 142px;
+    overflow: hidden;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat)::after {
+    content: "";
+    position: absolute;
+    width: 95px;
+    height: 95px;
+    left: -30px;
+    bottom: -42px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--acc) 12%, transparent);
+    pointer-events: none;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat) > * {
+    position: relative;
+    z-index: 1;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card > span,.course-stat > span,.course-stat small) {
+    color: var(--mu) !important;
+    font-size: 12px;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card > strong,.course-stat > strong) {
+    color: var(--tx) !important;
+    font-size: clamp(22px, 2.3vw, 30px);
+    font-weight: 800;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+}
+.owner-admin-v2 .main-content :is(.owner-form-section,.owner-form-card) { padding: 18px; }
+.owner-admin-v2 .main-content :is(.owner-form-grid,.owner-form-two,.owner-student-create-form,.owner-content-form,.owner-blog-form,.owner-classroom-form,.owner-product-form,.owner-resource-form,.owner-exam-form) {
+    min-width: 0;
+}
+.owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters) {
+    border: 1px solid var(--ln) !important;
+    border-radius: 14px;
+    background: var(--c2) !important;
+    color: var(--tx) !important;
+    box-shadow: inset 2px 2px 6px #04061a;
+}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar,.owner-people-tabs nav) {
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid var(--ln);
+    border-radius: 14px;
+    background: var(--c2);
+}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar button,[data-owner-tab-button]) {
+    border-radius: 10px;
+    background: transparent;
+    color: var(--mu);
+}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar button.is-active,[data-owner-tab-button][aria-selected=true]) {
+    background: var(--acc);
+    color: #04202a;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--acc) 25%, transparent);
+}
+.owner-admin-v2 .main-content :is([role="status"],[role="alert"]) {
+    border-color: var(--ln) !important;
+    border-radius: 14px;
+    background: linear-gradient(145deg, var(--c1), var(--c2)) !important;
+    color: var(--tx) !important;
+    box-shadow: 6px 6px 16px var(--sh), -3px -3px 10px rgba(60, 70, 160, .14);
+}
+.owner-admin-v2 .main-content [role="status"] :is(p,span,strong,small,code),
+.owner-admin-v2 .main-content [role="alert"] :is(p,span,strong,small,code) {
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-white"],[class~="bg-slate-50"],[class~="bg-gray-50"],[class~="bg-slate-100"],[class~="bg-gray-100"],[class~="bg-indigo-50"],[class~="bg-blue-50"],[class~="bg-sky-50"],[class~="bg-amber-50"],[class~="bg-emerald-50"],[class~="bg-rose-50"],[class~="bg-white/80"],[class~="bg-white/90"]) {
+    background-color: var(--c2) !important;
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-white"],[class~="border-slate-100"],[class~="border-slate-200"],[class~="border-slate-300"],[class~="border-gray-100"],[class~="border-gray-200"],[class~="border-gray-300"],[class~="border-sky-100"],[class~="border-amber-200"],[class~="border-emerald-200"],[class~="border-rose-200"]) {
+    border-color: var(--ln) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-people-tab-panel,.owner-form-section,.owner-classroom-card,.owner-product-card,.owner-resource-card) :is(h2,h3,h4) {
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content .owner-stat-link {
+    display: flex;
+    flex-direction: column;
+    color: var(--tx) !important;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.owner-admin-v2 .main-content .owner-stat-link > * { pointer-events: none; }
+.owner-admin-v2 .main-content .owner-stat-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--acc) !important;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc) 24%, transparent), 0 12px 28px rgba(0,0,0,.22);
+}
+.owner-admin-v2 .main-content .owner-stat-link:focus-visible {
+    outline: 3px solid var(--acc);
+    outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-admin-v2 .main-content .owner-stat-link { transition: none; }
+}
+
+/* Dashboard ZIP chart language: line grid, real trend series and cylinder comparison. */
+.owner-admin-v2 .owner-chart-legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin: 4px 0 10px;
+    color: var(--mu);
+    font-size: 11px;
+}
+.owner-admin-v2 .owner-chart-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.owner-admin-v2 .owner-chart-legend i {
+    display: inline-block;
+    width: 18px;
+    height: 3px;
+    border-radius: 20px;
+    background: var(--legend);
+    box-shadow: 0 0 9px color-mix(in srgb, var(--legend) 55%, transparent);
+}
+.owner-admin-v2 .owner-line-chart {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+.owner-admin-v2 .owner-chart-grid line {
+    stroke: #2b3270;
+    stroke-width: .8;
+    vector-effect: non-scaling-stroke;
+}
+.owner-admin-v2 .owner-line-chart polyline {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+.owner-admin-v2 .owner-line-students {
+    stroke: #ff1f6b;
+    filter: drop-shadow(0 0 5px rgba(255,31,107,.48));
+}
+.owner-admin-v2 .owner-line-attendance {
+    stroke: #22d3ee;
+    filter: drop-shadow(0 0 5px rgba(34,211,238,.45));
+}
+.owner-admin-v2 .owner-chart-labels {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    margin-top: 8px;
+    color: var(--mu);
+    font-size: 10px;
+    direction: ltr;
+}
+.owner-admin-v2 .owner-chart-labels span {
+    min-width: 0;
+    text-align: center;
+    direction: rtl;
+    white-space: nowrap;
+}
+.owner-admin-v2 .owner-monthly-sales .cys {
+    display: flex;
+    min-width: 0;
+    height: 220px;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: 8px;
+    overflow: hidden;
+    padding: 12px 0 0;
+}
+.owner-admin-v2 .owner-monthly-sales .cyc {
+    display: flex;
+    min-width: 0;
+    max-width: 25%;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.owner-admin-v2 .owner-monthly-sales .cyc b {
+    max-width: 100%;
+    color: var(--tx);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .owner-monthly-sales .cy {
+    width: min(38px, 100%);
+    min-height: 8px;
+    flex: 0 0 auto;
+    border-radius: 9px 9px 4px 4px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--c) 65%, #000), var(--c) 48%, color-mix(in srgb, var(--c) 55%, #000));
+    box-shadow: 0 0 16px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.owner-admin-v2 .owner-monthly-sales .cy::before {
+    top: -5px;
+    height: 10px;
+    background: color-mix(in srgb, var(--c) 75%, #fff);
+}
+.owner-admin-v2 .owner-monthly-sales .cyc small {
+    color: var(--mu);
+    font-size: 10px;
+    text-align: center;
+}
+.owner-admin-v2 .owner-attention-list .at {
+    margin-bottom: 8px;
+    text-decoration: none;
+}
+.owner-admin-v2 .owner-attention-list .at:last-child { margin-bottom: 0; }
+.owner-admin-v2 .owner-attention-list .at .ct {
+    display: grid;
+    min-width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--c) 16%, var(--c2));
+    color: var(--c);
+    font-size: 12px;
+    font-weight: 900;
+}
+.owner-admin-v2 .owner-attention-list .at .ic { color: var(--mu); }
+.owner-admin-v2 .owner-attention-list .at:focus-visible {
+    outline: 2px solid var(--c);
+    outline-offset: 2px;
+}
+@media (max-width: 520px) {
+    .owner-admin-v2 .owner-chart-labels span { font-size: 9px; }
+    .owner-admin-v2 .owner-monthly-sales .cys { height: 190px; gap: 5px; }
+    .owner-admin-v2 .owner-monthly-sales .cyc b { font-size: 9px; }
+    .owner-admin-v2 .owner-monthly-sales .cy { width: 25px; }
+}
+
+.owner-admin-v2 .owner-range-handle {
+    cursor: ew-resize;
+    touch-action: none;
+    outline: none;
+}
+.owner-admin-v2 .owner-range-handle line {
+    stroke: rgba(232, 236, 255, .68);
+    stroke-width: 1.6;
+    stroke-dasharray: 4 4;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+}
+.owner-admin-v2 .owner-range-handle circle {
+    fill: #22d3ee;
+    stroke: var(--bg);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 6px #22d3ee);
+    vector-effect: non-scaling-stroke;
+}
+.owner-admin-v2 .owner-range-handle:focus-visible circle {
+    stroke: #fff;
+    stroke-width: 3.5;
+}
+.owner-admin-v2 .owner-range-summary {
+    margin: 12px 0 0;
+    color: var(--mu);
+    font-size: 11px;
+    line-height: 1.9;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Dashboard ZIP: subject cylinders, approval queue, events and shortcut row. */
+.owner-admin-v2 .owner-subject-averages .cys {
+    min-width: 0;
+    gap: 8px;
+}
+.owner-admin-v2 .owner-subject-averages .cyc {
+    min-width: 0;
+    flex: 1 1 0;
+    gap: 12px;
+}
+.owner-admin-v2 .owner-subject-averages .cy {
+    width: min(36px, 100%);
+}
+.owner-admin-v2 .owner-subject-averages .cyc b {
+    color: var(--tx);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+.owner-admin-v2 .owner-subject-averages .cyc small {
+    max-width: 100%;
+    color: var(--mu);
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .owner-quick-approvals .ckr {
+    align-items: flex-start;
+    min-width: 0;
+    margin-bottom: 8px;
+    text-decoration: none;
+}
+.owner-admin-v2 .owner-quick-approvals .ckr:last-child {
+    margin-bottom: 0;
+}
+.owner-admin-v2 .owner-quick-approvals .ckr .gx {
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .owner-dashboard-shortcuts .owner-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.owner-admin-v2 .owner-dashboard-shortcuts .owner-shortcuts .go {
+    min-width: 0;
+    width: 100%;
+    justify-content: center;
+    padding-inline: 8px;
+    text-align: center;
+    white-space: normal;
+}
+.owner-admin-v2 .owner-growth-card .owner-growth-chart {
+    margin-top: 6px;
+}
+.owner-admin-v2 .owner-growth-card .owner-chart-labels {
+    margin-bottom: 4px;
+}
+.owner-admin-v2 .owner-dashboard-shortcuts > small {
+    margin-top: 6px;
+    line-height: 1.9;
+}
+@media (max-width: 520px) {
+    .owner-admin-v2 .owner-subject-averages .cyc small {
+        font-size: 9px;
+    }
+    .owner-admin-v2 .owner-dashboard-shortcuts .owner-shortcuts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Dark-surface adapter for all existing owner Blade views.
+   Keep semantic statuses colored, but never leave legacy light-theme text on dark surfaces. */
+.owner-admin-v2 .main-content :is(.text-slate-900,.text-slate-800,.text-slate-700,.text-gray-900,.text-gray-800,.text-gray-700,.text-zinc-900,.text-neutral-900) {
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content :is(.text-slate-600,.text-slate-500,.text-slate-400,.text-gray-600,.text-gray-500,.text-gray-400,.text-zinc-600,.text-zinc-500,.text-neutral-600,.text-neutral-500) {
+    color: var(--mu) !important;
+}
+.owner-admin-v2 .main-content :is(.text-emerald-950,.text-emerald-900,.text-emerald-800,.text-emerald-700,.text-emerald-600) {
+    color: #7cf0c2 !important;
+}
+.owner-admin-v2 .main-content :is(.text-rose-950,.text-rose-900,.text-rose-800,.text-rose-700,.text-rose-600,.text-red-900,.text-red-800,.text-red-700,.text-red-600) {
+    color: #ffa1b9 !important;
+}
+.owner-admin-v2 .main-content :is(.text-amber-950,.text-amber-900,.text-amber-800,.text-amber-700,.text-amber-600,.text-orange-900,.text-orange-800,.text-orange-700) {
+    color: #ffc47b !important;
+}
+.owner-admin-v2 .main-content :is(.text-sky-900,.text-sky-800,.text-blue-900,.text-blue-800,.text-indigo-900,.text-indigo-800) {
+    color: #99d5ff !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-emerald-50"],[class~="bg-emerald-50/50"],[class~="bg-emerald-100"]) {
+    background-color: rgba(46,230,166,.09) !important;
+    color: #7cf0c2 !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-rose-50"],[class~="bg-rose-100"],[class~="bg-red-50"],[class~="bg-red-100"]) {
+    background-color: rgba(255,31,107,.09) !important;
+    color: #ffa1b9 !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-amber-50"],[class~="bg-amber-100"],[class~="bg-orange-50"],[class~="bg-yellow-50"]) {
+    background-color: rgba(255,154,31,.1) !important;
+    color: #ffc47b !important;
+}
+.owner-admin-v2 .main-content :is([class~="bg-blue-50"],[class~="bg-sky-50"],[class~="bg-indigo-50"]) {
+    background-color: rgba(47,176,255,.1) !important;
+    color: #99d5ff !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-emerald-100"],[class~="border-emerald-200"]) {
+    border-color: rgba(46,230,166,.25) !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-rose-100"],[class~="border-rose-200"],[class~="border-red-100"],[class~="border-red-200"]) {
+    border-color: rgba(255,31,107,.25) !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-amber-100"],[class~="border-amber-200"]) {
+    border-color: rgba(255,154,31,.27) !important;
+}
+.owner-admin-v2 .main-content :is([class~="border-blue-100"],[class~="border-blue-200"],[class~="border-sky-100"]) {
+    border-color: rgba(47,176,255,.25) !important;
+}
+.owner-admin-v2 .main-content :is(.bg-white,.bg-slate-50,.bg-slate-100) :is(h1,h2,h3,h4,strong,b,label,th,td) {
+    color: var(--tx) !important;
+}
+
+/* =========================================================
+   Shared owner-workspace polish
+   All owner routes use the same intro hierarchy, section rhythm,
+   form controls, table surfaces and empty states.
+========================================================= */
+.owner-admin-v2 .main-content .panel-page-enter {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 20px;
+    width: 100%;
+    max-width: 1500px;
+    min-width: 0;
+    margin-inline: auto;
+}
+.owner-admin-v2 .main-content .panel-page-enter > * + * {
+    margin-block-start: 0 !important;
+}
+.owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro, header:first-child),
+.owner-admin-v2 .main-content .panel-page-enter > div:first-child:not(.grid):not(.dashboard-panel):not(.owner-people-tabs):not(.owner-form-shell):not(.owner-calendar-section) {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+    min-width: 0;
+    padding: clamp(18px, 2.2vw, 28px);
+    overflow: hidden;
+    border: 1px solid rgba(119, 136, 190, .22);
+    border-radius: 20px;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(34,211,238,.12), transparent 48%),
+        linear-gradient(145deg, rgba(26,32,80,.96), rgba(14,18,48,.98));
+    box-shadow: 0 14px 30px rgba(3,6,24,.16);
+}
+.owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro, header:first-child)::before,
+.owner-admin-v2 .main-content .panel-page-enter > div:first-child:not(.grid):not(.dashboard-panel):not(.owner-people-tabs):not(.owner-form-shell):not(.owner-calendar-section)::before {
+    content: "";
+    position: absolute;
+    inset-block: 18px;
+    inset-inline-start: 0;
+    width: 3px;
+    border-radius: 0 8px 8px 0;
+    background: linear-gradient(180deg, #22d3ee, #8b3dff);
+    box-shadow: 0 0 16px rgba(34,211,238,.3);
+}
+.owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro, header:first-child) > *,
+.owner-admin-v2 .main-content .panel-page-enter > div:first-child:not(.grid):not(.dashboard-panel):not(.owner-people-tabs):not(.owner-form-shell):not(.owner-calendar-section) > * {
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+}
+.owner-admin-v2 .main-content .panel-page-enter h1 {
+    color: var(--tx) !important;
+    font-size: clamp(21px, 2.15vw, 29px);
+    font-weight: 800;
+    line-height: 1.65;
+    letter-spacing: -.015em;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .panel-page-enter h2 {
+    margin: 0;
+    color: var(--tx) !important;
+    font-size: clamp(14px, 1.25vw, 17px);
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .panel-page-enter h3 {
+    color: var(--tx) !important;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(p, li) {
+    line-height: 1.95;
+}
+.owner-admin-v2 .main-content .panel-page-enter > :is(header, div):first-child p,
+.owner-admin-v2 .main-content .panel-page-enter > .owner-page-intro p {
+    max-width: 850px;
+    margin-block: 6px 0;
+    color: var(--mu) !important;
+    font-size: 12px;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content .panel-page-enter > :is(header, div):first-child > div > :is(p, span):first-child,
+.owner-admin-v2 .main-content .panel-page-enter > .owner-page-intro .text-xs.font-black {
+    color: var(--acc) !important;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+.owner-admin-v2 .main-content .panel-page-enter > section.dashboard-panel,
+.owner-admin-v2 .main-content .panel-page-enter > section.owner-calendar-section,
+.owner-admin-v2 .main-content .panel-page-enter > section.owner-schedule-list,
+.owner-admin-v2 .main-content .panel-page-enter > section.owner-info-banner {
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .panel-page-enter > section.dashboard-panel {
+    padding: clamp(16px, 1.8vw, 24px);
+    border: 1px solid rgba(119,136,190,.18);
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(26,32,80,.92), rgba(14,18,48,.96));
+    box-shadow: 0 12px 28px rgba(3,6,24,.12);
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.owner-panel-head,.card-title,.owner-section-heading) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    min-width: 0;
+    margin: 0 0 15px;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.owner-panel-head,.card-title,.owner-section-heading) > div {
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.owner-panel-head, .card-title, .owner-section-heading) :is(p, small) {
+    display: block;
+    max-width: 780px;
+    margin: 4px 0 0;
+    color: var(--mu) !important;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.9;
+}
+.owner-admin-v2 .main-content .panel-page-enter .owner-section-heading {
+    align-items: center;
+    padding-bottom: 13px;
+    border-bottom: 1px solid rgba(119,136,190,.18);
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.grid.gap-3, .grid.gap-4) > article.rounded-2xl,
+.owner-admin-v2 .main-content .panel-page-enter :is(article.rounded-2xl, div.rounded-2xl).border {
+    min-width: 0;
+    border-color: rgba(119,136,190,.2) !important;
+    border-radius: 15px;
+    background: linear-gradient(145deg, rgba(26,32,80,.74), rgba(14,18,48,.82)) !important;
+    color: var(--tx) !important;
+    box-shadow: 0 7px 18px rgba(2,5,23,.12);
+}
+.owner-admin-v2 .main-content .panel-page-enter .owner-stat-card {
+    position: relative;
+    min-height: 122px;
+    padding: 16px 18px;
+    overflow: hidden;
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(34,211,238,.1), transparent 46%),
+        linear-gradient(145deg, rgba(26,32,80,.94), rgba(14,18,48,.96));
+    box-shadow: 0 8px 22px rgba(3,6,24,.13);
+}
+.owner-admin-v2 .main-content .panel-page-enter .owner-stat-card::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: -18px;
+    inset-block-end: -28px;
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    background: rgba(34,211,238,.06);
+    pointer-events: none;
+}
+.owner-admin-v2 .main-content .panel-page-enter .owner-stat-card > span {
+    color: var(--mu) !important;
+    font-size: 11px;
+    font-weight: 700;
+}
+.owner-admin-v2 .main-content .panel-page-enter .owner-stat-card > strong {
+    color: var(--tx) !important;
+    font-size: clamp(22px, 2vw, 29px);
+    font-weight: 800;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+}
+.owner-admin-v2 .main-content .panel-page-enter .owner-stat-card > small {
+    color: var(--mu) !important;
+    font-size: 10px;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .panel-page-enter label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+    color: var(--mu);
+    font-size: 11px;
+    font-weight: 700;
+}
+.owner-admin-v2 .main-content .panel-page-enter label > span {
+    color: var(--tx);
+    line-height: 1.7;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]), select, textarea) {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid rgba(119,136,190,.3);
+    border-radius: 11px;
+    background: #090e27;
+    color: var(--tx);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.6;
+    box-shadow: inset 0 1px 3px rgba(2,5,23,.3);
+}
+.owner-admin-v2 .main-content .panel-page-enter textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(input, select, textarea):focus {
+    outline: 2px solid rgba(34,211,238,.6);
+    outline-offset: 2px;
+    border-color: #22d3ee;
+}
+.owner-admin-v2 .main-content .panel-page-enter input[type=checkbox],
+.owner-admin-v2 .main-content .panel-page-enter input[type=radio] {
+    width: 17px;
+    min-width: 17px;
+    min-height: 17px;
+    height: 17px;
+    padding: 0;
+    accent-color: var(--acc);
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(button[type=submit], .owner-primary-btn, .owner-workspace-btn, a.rounded-xl.bg-slate-900) {
+    min-height: 40px;
+    border-radius: 11px;
+    font-weight: 800;
+    line-height: 1.7;
+    transition: filter .16s ease, transform .16s ease, border-color .16s ease;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(button[type=submit], .owner-primary-btn, a.rounded-xl.bg-slate-900):hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+.owner-admin-v2 .main-content .panel-page-enter button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+}
+.owner-admin-v2 .main-content .panel-page-enter details {
+    border-color: rgba(119,136,190,.23) !important;
+    border-radius: 13px !important;
+    background: rgba(9,14,39,.78) !important;
+}
+.owner-admin-v2 .main-content .panel-page-enter summary {
+    padding: 3px 0;
+    color: var(--acc);
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .panel-page-enter table {
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 600px;
+    overflow: hidden;
+    border: 1px solid rgba(119,136,190,.16);
+    border-radius: 13px;
+    background: rgba(9,14,39,.42);
+}
+.owner-admin-v2 .main-content .panel-page-enter thead {
+    background: rgba(34,211,238,.065) !important;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(th, td) {
+    padding: 12px 14px;
+    border-color: rgba(119,136,190,.16) !important;
+    color: var(--tx);
+    font-size: 11px;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .panel-page-enter th {
+    color: var(--mu) !important;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.owner-admin-v2 .main-content .panel-page-enter tbody tr:hover {
+    background: rgba(34,211,238,.035);
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.owner-empty-state, .card-empty, .border-dashed) {
+    border-color: rgba(119,136,190,.28) !important;
+    border-radius: 14px;
+    background: rgba(9,14,39,.36) !important;
+    color: var(--mu) !important;
+}
+.owner-admin-v2 .main-content .panel-page-enter .owner-info-banner {
+    padding: 14px 17px;
+    border-color: rgba(34,211,238,.25) !important;
+    border-inline-start: 3px solid #22d3ee;
+    border-radius: 14px;
+    background: rgba(34,211,238,.07) !important;
+    color: var(--tx) !important;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.alert, [role=alert], [role=status]) {
+    border-radius: 12px;
+    line-height: 1.9;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.text-slate-900, .text-slate-800, .text-slate-700, .text-gray-900) {
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content .panel-page-enter :is(.text-xs, .text-\[10px\]) {
+    line-height: 1.85;
+}
+
+/* Online class links: an explicit hierarchy for weekly schedule, link states and editing. */
+.owner-admin-v2 .main-content .owner-online-links-page {
+    gap: 22px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-calendar-section {
+    display: grid;
+    gap: 13px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar {
+    display: grid;
+    gap: 17px;
+    min-width: 0;
+    padding: clamp(14px, 1.8vw, 24px);
+    border: 1px solid rgba(119,136,190,.22);
+    border-radius: 20px;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(139,61,255,.09), transparent 36%),
+        linear-gradient(145deg, rgba(26,32,80,.92), rgba(14,18,48,.96));
+    box-shadow: 0 14px 30px rgba(3,6,24,.16);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(119,136,190,.18);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-title {
+    min-width: 0;
+    flex: 1 1 400px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-kicker {
+    display: block;
+    margin-bottom: 6px;
+    color: #22d3ee;
+    font-size: 10px;
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-title h2 {
+    margin: 0;
+    color: var(--tx);
+    font-size: clamp(17px, 1.7vw, 21px);
+    font-weight: 800;
+    line-height: 1.7;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-title p {
+    max-width: 780px;
+    margin: 7px 0 0;
+    color: var(--mu);
+    font-size: 11px;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-date-chip {
+    display: grid;
+    gap: 3px;
+    min-width: 190px;
+    padding: 12px 14px;
+    border: 1px solid rgba(34,211,238,.22);
+    border-radius: 14px;
+    background: rgba(34,211,238,.06);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-date-chip strong {
+    color: var(--tx);
+    font-size: 16px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-date-chip span {
+    color: #22d3ee;
+    font-size: 10px;
+    font-weight: 700;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-date-chip small {
+    color: var(--mu);
+    font-size: 10px;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px 16px;
+    color: var(--mu);
+    font-size: 10px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2ee6a6;
+    box-shadow: 0 0 9px rgba(46,230,166,.35);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-dot.is-needs-link {
+    background: #ff5879;
+    box-shadow: 0 0 9px rgba(255,88,121,.35);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 205px;
+    padding: 10px;
+    border: 1px solid rgba(119,136,190,.19);
+    border-radius: 13px;
+    background: rgba(9,14,39,.52);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day.is-today {
+    border-color: rgba(34,211,238,.65);
+    background: linear-gradient(160deg, rgba(34,211,238,.09), rgba(9,14,39,.7));
+    box-shadow: inset 0 0 0 1px rgba(34,211,238,.08), 0 0 18px rgba(34,211,238,.06);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(119,136,190,.16);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day-heading {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day-number {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    border-radius: 7px;
+    background: rgba(139,61,255,.15);
+    color: #cbb5ff;
+    font-size: 10px;
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day h3 {
+    min-width: 0;
+    margin: 0;
+    color: var(--tx);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-count {
+    color: var(--mu);
+    font-size: 9px;
+    white-space: nowrap;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-events {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding-top: 9px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid rgba(46,230,166,.22);
+    border-radius: 11px;
+    background: rgba(46,230,166,.055);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event.needs-link {
+    border-color: rgba(255,88,121,.25);
+    background: rgba(255,88,121,.055);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-time {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 3px 5px;
+    color: #8af0ca;
+    font-size: 9px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event.needs-link .weekly-calendar-event-time {
+    color: #ffa0b6;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-title {
+    color: var(--tx);
+    font-size: 10px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-course {
+    color: var(--mu);
+    font-size: 9px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-meta {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-provider {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 2px 6px;
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 6px;
+    background: rgba(9,14,39,.5);
+    color: var(--mu);
+    font-size: 9px;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-status {
+    color: #8af0ca;
+    font-size: 9px;
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event.needs-link .weekly-calendar-event-status {
+    color: #ffa0b6;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 32px;
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid rgba(46,230,166,.3);
+    border-radius: 8px;
+    background: rgba(46,230,166,.11);
+    color: #9af3d2 !important;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-link:hover {
+    background: rgba(46,230,166,.18);
+    border-color: #2ee6a6;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-empty {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 7px;
+    min-height: 90px;
+    padding: 10px 4px;
+    color: #747ea9;
+    font-size: 9px;
+    line-height: 1.8;
+    text-align: center;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-empty svg {
+    width: 22px;
+    height: 22px;
+    color: #626c99;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid rgba(119,136,190,.18);
+    border-radius: 13px;
+    background: rgba(9,14,39,.35);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide-art {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 11px;
+    background: rgba(139,61,255,.12);
+    color: #cbb5ff;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide-art svg {
+    display: block;
+    width: 25px;
+    height: 25px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide-copy {
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide-copy strong {
+    color: var(--tx);
+    font-size: 11px;
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide-copy p {
+    margin: 5px 0 0;
+    color: var(--mu);
+    font-size: 10px;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-card {
+    border-color: rgba(119,136,190,.22);
+    border-radius: 18px;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(34,211,238,.05), transparent 45%),
+        linear-gradient(145deg, rgba(26,32,80,.9), rgba(14,18,48,.96));
+    box-shadow: 0 10px 25px rgba(3,6,24,.14);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-heading {
+    padding-bottom: 13px;
+    border-bottom: 1px solid rgba(119,136,190,.18);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-heading h2 {
+    color: var(--tx);
+    font-size: 15px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-heading p {
+    color: var(--mu);
+    font-size: 11px;
+    line-height: 1.9;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-slots {
+    display: grid;
+    gap: 9px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    border: 1px solid rgba(119,136,190,.18) !important;
+    border-radius: 13px;
+    background: rgba(9,14,39,.48) !important;
+    box-shadow: none;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot strong {
+    color: var(--tx);
+    line-height: 1.9;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot p {
+    color: var(--mu);
+    font-size: 10px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot a[href] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    max-width: 100%;
+    padding: 7px 12px;
+    border: 1px solid rgba(34,211,238,.28);
+    border-radius: 9px;
+    background: rgba(34,211,238,.09);
+    color: #86efff !important;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot form button {
+    border-color: rgba(255,88,121,.26) !important;
+    background: rgba(255,88,121,.08) !important;
+    color: #ffa0b6 !important;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-editor {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-color: rgba(119,136,190,.22) !important;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form {
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid rgba(119,136,190,.16);
+    border-radius: 15px;
+    background: rgba(9,14,39,.38);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form label {
+    gap: 7px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form label > span {
+    font-size: 11px;
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form label small {
+    display: inline;
+    color: var(--mu) !important;
+    font-size: 9px;
+    font-weight: 400;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form :is(input, select) {
+    min-height: 46px;
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-primary-action {
+    min-height: 44px;
+    padding-inline: 18px;
+    border-color: transparent;
+    background: linear-gradient(135deg, #22d3ee, #3478ff) !important;
+    color: #05162b !important;
+    box-shadow: 0 8px 20px rgba(34,211,238,.12);
+}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-calendar-section .owner-section-heading {
+    margin: 0;
+}
+@media (max-width: 1250px) {
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+@media (max-width: 900px) {
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day {
+        min-height: 160px;
+    }
+}
+@media (max-width: 600px) {
+    .owner-admin-v2 .main-content .panel-page-enter {
+        gap: 14px;
+    }
+    .owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro, header:first-child),
+    .owner-admin-v2 .main-content .panel-page-enter > div:first-child:not(.grid):not(.dashboard-panel):not(.owner-people-tabs):not(.owner-form-shell):not(.owner-calendar-section) {
+        padding: 16px;
+        border-radius: 15px;
+    }
+    .owner-admin-v2 .main-content .panel-page-enter > section.dashboard-panel {
+        padding: 14px;
+        border-radius: 15px;
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar {
+        padding: 12px;
+        border-radius: 15px;
+        gap: 13px;
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day {
+        min-height: 0;
+        padding: 12px;
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-day-head {
+        padding-bottom: 8px;
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-events {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-guide {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot a[href],
+    .owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot form,
+    .owner-admin-v2 .main-content .owner-online-links-page .owner-session-slot form button {
+        width: 100%;
+        justify-content: center;
+    }
+    .owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form {
+        padding: 11px;
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .owner-admin-v2 .main-content .panel-page-enter table {
+        min-width: 620px;
+    }
+}
+
+/* Extend the shared controls to owner forms that use a dedicated shell instead of panel-page-enter. */
+.owner-admin-v2 .main-content label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+    color: var(--mu);
+    font-size: 11px;
+    font-weight: 700;
+}
+.owner-admin-v2 .main-content label > span {
+    color: var(--tx);
+    line-height: 1.75;
+}
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]), select, textarea) {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid rgba(119,136,190,.3);
+    border-radius: 11px;
+    background: #090e27;
+    color: var(--tx);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.65;
+    box-shadow: inset 0 1px 3px rgba(2,5,23,.3);
+}
+.owner-admin-v2 .main-content textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+.owner-admin-v2 .main-content :is(input, select, textarea):focus {
+    outline: 2px solid rgba(34,211,238,.6);
+    outline-offset: 2px;
+    border-color: #22d3ee;
+}
+.owner-admin-v2 .main-content input[type=checkbox],
+.owner-admin-v2 .main-content input[type=radio] {
+    width: 17px;
+    min-width: 17px;
+    min-height: 17px;
+    height: 17px;
+    padding: 0;
+    accent-color: var(--acc);
+}
+.owner-admin-v2 .main-content :is(.owner-form-shell, .teacher-form-shell) {
+    display: grid;
+    gap: 20px;
+    width: 100%;
+    max-width: 1500px;
+    min-width: 0;
+    margin-inline: auto;
+}
+.owner-admin-v2 .main-content .owner-academy-form-page {
+    width: 100%;
+    max-width: 900px;
+    min-width: 0;
+    margin-inline: auto;
+}
+.owner-admin-v2 .main-content .owner-academy-form-page > .dashboard-panel {
+    padding: clamp(18px, 2vw, 28px);
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(26,32,80,.96), rgba(14,18,48,.98));
+    box-shadow: 0 12px 28px rgba(3,6,24,.14);
+}
+.owner-admin-v2 .main-content .owner-academy-form-page h1 {
+    font-size: clamp(21px, 2vw, 27px);
+    line-height: 1.7;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+    padding: 22px;
+    border: 1px solid rgba(119,136,190,.22);
+    border-radius: 18px;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(34,211,238,.11), transparent 46%),
+        linear-gradient(145deg, rgba(26,32,80,.96), rgba(14,18,48,.98));
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-head h1 {
+    color: var(--tx) !important;
+    font-size: clamp(21px, 2.1vw, 28px);
+    font-weight: 800;
+    line-height: 1.7;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-head p {
+    max-width: 780px;
+    color: var(--mu) !important;
+    font-size: 11px;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+    padding: clamp(16px, 1.8vw, 24px);
+    border: 1px solid rgba(119,136,190,.2) !important;
+    border-radius: 17px;
+    background: linear-gradient(145deg, rgba(26,32,80,.9), rgba(14,18,48,.96)) !important;
+    color: var(--tx) !important;
+    box-shadow: 0 10px 26px rgba(3,6,24,.13);
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section h2 {
+    margin: 0;
+    padding-bottom: 11px;
+    border-bottom: 1px solid rgba(119,136,190,.18);
+    color: var(--tx) !important;
+    font-size: 14px;
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section p,
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section small {
+    color: var(--mu) !important;
+    font-size: 10px;
+    line-height: 1.95;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section .teacher-form-field {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    margin: 0;
+    color: var(--mu);
+    font-size: 11px;
+    font-weight: 700;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section :is(input,select,textarea) {
+    min-height: 44px;
+    border-color: rgba(119,136,190,.3);
+    border-radius: 10px;
+    background: #090e27;
+    color: var(--tx);
+    font: inherit;
+    font-size: 12px;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section :is(.question-card,.exam-question-card,[data-question-card]) {
+    min-width: 0;
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 13px;
+    background: rgba(9,14,39,.5);
+    padding: 14px;
+}
+.owner-admin-v2 .main-content .owner-exam-builder-page button[type=submit] {
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #22d3ee, #3478ff);
+    color: #05162b;
+    font-size: 12px;
+    font-weight: 800;
+}
+@media (max-width: 600px) {
+    .owner-admin-v2 .main-content :is(.owner-form-shell, .teacher-form-shell) {
+        gap: 14px;
+    }
+    .owner-admin-v2 .main-content .owner-academy-form-page > .dashboard-panel {
+        padding: 14px;
+        border-radius: 15px;
+    }
+    .owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-head,
+    .owner-admin-v2 .main-content .owner-exam-builder-page .teacher-form-section {
+        padding: 14px;
+        border-radius: 15px;
+    }
+}
+
+/* Owner communication workspaces: use the same dark surface system as every other owner section. */
+.owner-admin-v2 .main-content .communication-page {
+    display: grid;
+    gap: 18px;
+    width: 100%;
+    max-width: 1500px;
+    min-width: 0;
+    margin-inline: auto;
+    color: var(--tx);
+}
+.owner-admin-v2 .main-content :is(.communication-page__hero,.communication-page__card,.communication-page__message,.communication-page__empty,.communication-page__response) {
+    min-width: 0;
+    padding: clamp(15px, 1.8vw, 24px);
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 17px;
+    background: linear-gradient(145deg, rgba(26,32,80,.94), rgba(14,18,48,.97));
+    color: var(--tx);
+    box-shadow: 0 10px 25px rgba(3,6,24,.13);
+}
+.owner-admin-v2 .main-content .communication-page__hero {
+    border-color: rgba(34,211,238,.24);
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(34,211,238,.1), transparent 43%),
+        linear-gradient(145deg, rgba(26,32,80,.96), rgba(14,18,48,.98));
+}
+.owner-admin-v2 .main-content .communication-page__hero h1 {
+    margin: 6px 0 0;
+    color: var(--tx) !important;
+    font-size: clamp(21px, 2.1vw, 28px);
+    font-weight: 800;
+    line-height: 1.7;
+}
+.owner-admin-v2 .main-content .communication-page__hero p,
+.owner-admin-v2 .main-content .communication-page__message-meta,
+.owner-admin-v2 .main-content .communication-page__response-meta,
+.owner-admin-v2 .main-content .communication-page__help {
+    color: var(--mu) !important;
+    font-size: 11px;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content .communication-page__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .communication-page__stat {
+    display: grid;
+    align-content: start;
+    gap: 5px;
+    min-width: 0;
+    min-height: 108px;
+    padding: 15px;
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 14px;
+    background: rgba(23,29,69,.76);
+}
+.owner-admin-v2 .main-content .communication-page__stat span {
+    color: var(--mu) !important;
+    font-size: 10px;
+    font-weight: 700;
+}
+.owner-admin-v2 .main-content .communication-page__stat strong {
+    color: var(--tx) !important;
+    font-size: clamp(21px, 2vw, 28px);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.owner-admin-v2 .main-content .communication-page__message {
+    display: grid;
+    gap: 12px;
+}
+.owner-admin-v2 .main-content .communication-page__message h2,
+.owner-admin-v2 .main-content .communication-page__message h3,
+.owner-admin-v2 .main-content .communication-page__card h2 {
+    margin: 0;
+    color: var(--tx) !important;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content .communication-page__body {
+    min-width: 0;
+    padding: 13px 15px;
+    border: 1px solid rgba(119,136,190,.16);
+    border-radius: 12px;
+    background: rgba(9,14,39,.58);
+    color: var(--tx) !important;
+    font-size: 12px;
+    line-height: 2;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content .communication-page__response {
+    background: rgba(34,211,238,.055);
+    border-color: rgba(34,211,238,.18);
+}
+.owner-admin-v2 .main-content .communication-page__form {
+    display: grid;
+    gap: 13px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .communication-page__form--two-column,
+.owner-admin-v2 .main-content .communication-page__form--filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 13px;
+}
+.owner-admin-v2 .main-content .communication-page__form--filters {
+    grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, .8fr)) auto;
+    align-items: end;
+}
+.owner-admin-v2 .main-content .communication-page__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    gap: 8px;
+    padding: 9px 16px;
+    border: 1px solid rgba(34,211,238,.26);
+    border-radius: 11px;
+    background: linear-gradient(135deg, #22d3ee, #3478ff);
+    color: #05162b !important;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+}
+.owner-admin-v2 .main-content .communication-page__button.is-secondary {
+    border-color: var(--ln);
+    background: rgba(9,14,39,.6);
+    color: var(--tx) !important;
+}
+.owner-admin-v2 .main-content .communication-page__empty {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    text-align: center;
+    color: var(--mu) !important;
+}
+.owner-admin-v2 .main-content .communication-page :is([role=alert],[role=status]) {
+    border-radius: 13px;
+    line-height: 1.95;
+}
+@media (max-width: 760px) {
+    .owner-admin-v2 .main-content .communication-page {
+        gap: 14px;
+    }
+    .owner-admin-v2 .main-content :is(.communication-page__hero,.communication-page__card,.communication-page__message,.communication-page__empty,.communication-page__response) {
+        padding: 14px;
+        border-radius: 15px;
+    }
+    .owner-admin-v2 .main-content .communication-page__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .owner-admin-v2 .main-content .communication-page__form--two-column,
+    .owner-admin-v2 .main-content .communication-page__form--filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .owner-admin-v2 .main-content .communication-page__button {
+        width: 100%;
+    }
+}
+

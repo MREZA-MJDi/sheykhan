@@ -104,7 +104,7 @@ class OwnerStudentAccountTest extends TestCase
         $this->actingAs($owner)
             ->get(route('owner.dashboard'))
             ->assertOk()
-            ->assertSee('ورود اخیر دانش‌آموزان', false)
+            ->assertSee('آخرین رویدادها', false)
             ->assertSee('آوا تستی', false);
     }
 

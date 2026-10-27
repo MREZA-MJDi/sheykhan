@@ -14,14 +14,20 @@ class CommunicationPageStyleCoverageTest extends TestCase
         return (string) file_get_contents($path);
     }
 
-    public function test_every_role_bundle_imports_the_shared_communication_stylesheet(): void
+    public function test_each_role_stylesheet_defines_communication_workspace_hooks(): void
     {
-        foreach ([
+        $styleSheets = [
             'resources/css/teacher.css',
             'resources/css/parent.css',
-            'resources/css/admin.css',
-        ] as $stylesheet) {
-            $this->assertStringContainsString("@import './communication-pages.css';", $this->source($stylesheet), $stylesheet);
+            'resources/css/owner-dashboard-v2.css',
+        ];
+
+        foreach ($styleSheets as $styleSheet) {
+            $source = $this->source($styleSheet);
+            $this->assertStringContainsString('.communication-page__hero', $source, $styleSheet);
+            $this->assertStringContainsString('.communication-page__message', $source, $styleSheet);
+            $this->assertStringContainsString('.communication-page__empty', $source, $styleSheet);
+            $this->assertStringContainsString('.communication-page__form--two-column', $source, $styleSheet);
         }
     }
 
@@ -44,21 +50,18 @@ class CommunicationPageStyleCoverageTest extends TestCase
         $this->assertStringContainsString('communication-page__response', $inbox);
     }
 
-    public function test_shared_sheet_defines_the_core_message_and_form_styles(): void
+    public function test_message_styles_cover_forms_empty_states_and_mobile_layouts(): void
     {
-        $source = $this->source('resources/css/communication-pages.css');
-
         foreach ([
-            '.communication-page__hero',
-            '.communication-page__stats',
-            '.communication-page__message',
-            '.communication-page__body',
-            '.communication-page__response',
-            '.communication-page__form--two-column',
-            '.communication-page__empty',
-            '@media (max-width: 760px)',
-        ] as $selector) {
-            $this->assertStringContainsString($selector, $source, $selector);
+            'resources/css/teacher.css',
+            'resources/css/parent.css',
+            'resources/css/owner-dashboard-v2.css',
+        ] as $styleSheet) {
+            $source = $this->source($styleSheet);
+            $this->assertStringContainsString('.communication-page__hero', $source, $styleSheet);
+            $this->assertStringContainsString('.communication-page__response', $source, $styleSheet);
+            $this->assertStringContainsString('@media', $source, $styleSheet);
+            $this->assertStringContainsString('focus-visible', $source, $styleSheet);
         }
     }
 }

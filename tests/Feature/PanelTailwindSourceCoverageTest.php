@@ -6,18 +6,19 @@ use Tests\TestCase;
 
 class PanelTailwindSourceCoverageTest extends TestCase
 {
-    public function test_student_views_are_scanned_by_the_shared_tailwind_entrypoint(): void
+    public function test_student_views_are_scanned_by_the_student_tailwind_entrypoint(): void
     {
-        $css = file_get_contents(resource_path('css/app.css'));
+        $css = file_get_contents(resource_path('css/student.css'));
         $layout = file_get_contents(resource_path('views/layouts/student.blade.php'));
 
         $this->assertIsString($css);
         $this->assertIsString($layout);
         $this->assertStringContainsString("@import 'tailwindcss' source(none);", $css);
-        $this->assertStringContainsString("@source '../../resources/views';", $css);
+        $this->assertStringContainsString("@source '../../resources/views/student';", $css);
+        $this->assertStringContainsString("@source '../../resources/views/layouts/student.blade.php';", $css);
         $this->assertStringContainsString("@source '../../resources/views/components';", $css);
-        $this->assertStringContainsString('resources/css/app.css', $layout);
         $this->assertStringContainsString('resources/css/student.css', $layout);
+        $this->assertStringContainsString('resources/js/student.js', $layout);
     }
 
     public function test_parent_styles_scan_parent_views_layout_and_shared_components(): void
@@ -41,17 +42,17 @@ class PanelTailwindSourceCoverageTest extends TestCase
 
     public function test_role_dashboards_have_distinct_accents_and_semantic_answer_states(): void
     {
-        $admin = file_get_contents(resource_path('css/admin.css'));
+        $owner = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
         $teacher = file_get_contents(resource_path('css/teacher.css'));
         $student = file_get_contents(resource_path('css/student.css'));
         $parent = file_get_contents(resource_path('css/parent.css'));
         $teacherAttempts = file_get_contents(resource_path('views/teacher/exams/attempts.blade.php'));
 
-        foreach ([$admin, $teacher, $student, $parent, $teacherAttempts] as $source) {
+        foreach ([$owner, $teacher, $student, $parent, $teacherAttempts] as $source) {
             $this->assertIsString($source);
         }
 
-        $this->assertStringContainsString('.owner-shell{', $admin);
+        $this->assertStringContainsString('.owner-admin-v2', $owner);
         $this->assertStringContainsString('.teacher-shell{', $teacher);
         $this->assertStringContainsString('#dashboard.page', $student);
         $this->assertStringContainsString('.parent-shell', $parent);
