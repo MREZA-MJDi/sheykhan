@@ -3,6 +3,7 @@
  * never styles other owner pages or other role dashboards.
  */
 .owner-dashboard-page .admin-dashboard {
+    grid-column: 1 / -1;
     --ad-card: #121a38;
     --ad-card-soft: #0d1430;
     --ad-border: rgba(119, 136, 190, .2);
