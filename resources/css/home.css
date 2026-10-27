@@ -1,5 +1,4 @@
 @import 'tailwindcss' source(none);
-@import './components.css';
 /* Consolidated from home-meraki-hero.css. */
 /* Meraki-inspired full-bleed home hero. No extra CDN or JavaScript dependency. */
 .sheykhan-home-hero {
