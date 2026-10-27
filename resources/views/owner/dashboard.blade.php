@@ -57,6 +57,37 @@
     $publishedRate = $courseCount > 0 ? min(100, (int) round(($publishedCourseCount / $courseCount) * 100)) : null;
     $nextLiveClass = $upcomingLiveClasses->first();
     $nextLiveTarget = $nextLiveClass?->scheduled_at?->timestamp;
+    $trends = $trends ?? [];
+
+    $sparklinePoints = static function ($values): string {
+        $values = collect($values ?? [])->filter(fn ($value) => is_numeric($value))->values();
+        if ($values->count() < 2) {
+            return '';
+        }
+
+        $minimum = (float) $values->min();
+        $maximum = (float) $values->max();
+        $spread = $maximum - $minimum;
+        $lastIndex = max(1, $values->count() - 1);
+
+        return $values->map(function ($value, $index) use ($minimum, $spread, $lastIndex): string {
+            $x = number_format(($index / $lastIndex) * 160, 1, '.', '');
+            $y = number_format($spread > 0 ? 28 - (((float) $value - $minimum) / $spread * 22) : 17, 1, '.', '');
+
+            return $x . ',' . $y;
+        })->implode(' ');
+    };
+
+    $studentSparkline = $sparklinePoints(data_get($trends, 'students', []));
+    $attendanceSparkline = $sparklinePoints(data_get($trends, 'attendance', []));
+    $salesSparkline = $sparklinePoints(data_get($trends, 'sales', []));
+    $attentionSparkline = $sparklinePoints(data_get($trends, 'pendingReviews', []));
+
+    $attentionRoute = $pendingReviews > 0 && $canViewAssignments
+        ? route('owner.assignments.index', $firstAcademy)
+        : ($canViewClassrooms
+            ? route('owner.classrooms.index', $firstAcademy)
+            : route('owner.assignments.index', $firstAcademy));
 
 @endphp
 
@@ -81,71 +112,57 @@
             </div>
         </section>
 
+        {{-- KPI band: one whole card is one destination, as in dashboard.zip. --}}
         @if($canViewPeople)
-        <section class="card kpi c3" style="--c:#22d3ee" aria-label="دانش‌آموزان فعال">
-            <div class="kpi-head"><svg class="ic"><use href="#i-users"/></svg>دانش‌آموزان فعال</div>
-            <b>{{ \App\Support\PersianUi::digits($students) }}</b>
-            <div class="metric-caption">عضویت فعال و حساب فعال در آموزشگاه‌های شما</div>
-            @if($canViewPeople && $firstAcademy)<div class="metric-foot"><span>مشاهده اعضا</span><a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
-        </section>
-
-        <section class="card kpi c3" style="--c:#8b3dff" aria-label="مدرس‌های فعال">
-            <div class="kpi-head"><svg class="ic"><use href="#i-users"/></svg>مدرس‌های فعال</div>
-            <b>{{ \App\Support\PersianUi::digits($teachers) }}</b>
-            <div class="metric-caption">مدرس‌های فعال عضو آموزشگاه</div>
-            @if($canViewPeople && $firstAcademy)<div class="metric-foot"><span>مدیریت مدرس‌ها</span><a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
-        </section>
+            <a class="card kpi c3 kpi-link" href="{{ route('owner.people.index', $firstAcademy) }}" style="--c:#22d3ee" aria-label="مشاهده اعضا؛ {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز فعال">
+                <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>دانش‌آموزان فعال</div>
+                <b>{{ \App\Support\PersianUi::digits($students) }} <small>نفر</small></b>
+                <div class="dl">عضویت‌های جدید در ۷ روز اخیر</div>
+                @if($studentSparkline !== '')
+                    <svg class="sp" viewBox="0 0 160 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="{{ $studentSparkline }}"/></svg>
+                @endif
+                <div class="metric-caption">حساب‌های فعال در آموزشگاه‌های شما</div>
+                <div class="metric-foot"><span>مدیریت اعضا</span><span class="table-link" aria-hidden="true">مشاهده ←</span></div>
+            </a>
         @endif
 
-        @if($canViewClassrooms)
-            <section class="card kpi c3" style="--c:#ff1f6b" aria-label="کلاس‌های فعال">
-                <div class="kpi-head"><svg class="ic"><use href="#i-calendar"/></svg>کلاس‌های فعال</div>
-                <b>{{ \App\Support\PersianUi::digits($classroomCount) }}</b>
-                <div class="metric-caption">{{ \App\Support\PersianUi::digits($liveNowCount) }} جلسه آنلاین همین حالا در حال اجرا</div>
-                @if($firstAcademy)<div class="metric-foot"><span>فهرست کلاس‌ها</span><a class="table-link" href="{{ route('owner.classrooms.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
-            </section>
-        @endif
-
-        @if($canViewCourses)
-            <section class="card kpi c3" style="--c:#2ee6a6" aria-label="دوره‌های منتشرشده">
-                <div class="kpi-head"><svg class="ic"><use href="#i-book"/></svg>دوره‌های منتشرشده</div>
-                <b>{{ \App\Support\PersianUi::digits($publishedCourseCount) }}</b>
-                <div class="metric-caption">از {{ \App\Support\PersianUi::digits($courseCount) }} دوره ثبت‌شده</div>
-                @if($publishedRate !== null)<div class="metric-foot"><span>سهم انتشار</span><strong>{{ \App\Support\PersianUi::digits($publishedRate) }}٪</strong></div>@endif
-                <div class="trk"><span class="fill" style="--c:#2ee6a6;width:{{ $publishedRate ?? 0 }}%"></span></div>
-                <div class="metric-foot"><span>مدیریت دوره‌ها</span><a class="table-link" href="{{ route('owner.courses.index') }}">جزئیات ←</a></div>
-            </section>
-        @endif
-
-        @if($canViewAttendance)
-            <section class="card kpi c3" style="--c:#22d3ee" aria-label="نرخ حضور {{ $periodCaption }}">
-                <div class="kpi-head"><svg class="ic"><use href="#i-checksq"/></svg>حضور {{ $periodCaption }}</div>
+        @if($canViewAttendance && $firstAcademy)
+            <a class="card kpi c3 kpi-link" href="{{ route('owner.attendance.index', $firstAcademy) }}" style="--c:#2ee6a6" aria-label="مشاهده حضور و غیاب؛ نرخ حضور {{ $periodCaption }}">
+                <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-checksq"/></svg>حضور {{ $periodCaption }}</div>
                 <b>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) }}{{ $attendanceRate === null ? '' : '٪' }}</b>
-                <div class="metric-caption">{{ $attendanceRate === null ? ('در ' . $periodCaption . ' رکورد حضور و غیاب ثبت نشده') : ('درصد حضور و تأخیر از کل رکوردهای معتبر ' . $periodCaption) }}</div>
-                @if($attendanceRate !== null)<div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ min(100,max(0,(float)$attendanceRate)) }}%"></span></div>@endif
-                @if($firstAcademy)<div class="metric-foot"><span>حضور و غیاب</span><a class="table-link" href="{{ route('owner.attendance.index', $firstAcademy) }}">جزئیات ←</a></div>@endif
-            </section>
+                <div class="dl">نرخ حضور روزانه در ۷ روز اخیر</div>
+                @if($attendanceSparkline !== '')
+                    <svg class="sp" viewBox="0 0 160 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="{{ $attendanceSparkline }}"/></svg>
+                @endif
+                <div class="metric-caption">{{ $attendanceRate === null ? ('در ' . $periodCaption . ' رکورد حضور و غیاب ثبت نشده') : ('حضور و تأخیر از رکوردهای معتبر ' . $periodCaption) }}</div>
+                <div class="metric-foot"><span>حضور و غیاب</span><span class="table-link" aria-hidden="true">مشاهده ←</span></div>
+            </a>
         @endif
 
         @if($canViewFinance)
-            <section class="card kpi c3" style="--c:#ff9a1f" aria-label="خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}">
-                <div class="kpi-head"><svg class="ic"><use href="#i-wallet"/></svg>خالص تراکنش‌های تکمیل‌شده در {{ $periodCaption }}</div>
-                <b>{{ \App\Support\PersianUi::number($sales) }}</b>
-                <div class="metric-caption">پرداخت‌های ثبت‌شده منهای بازپرداخت‌های تکمیل‌شده</div>
-                <div class="metric-foot"><span>مبالغ بر حسب تومان؛ تراکنش‌های ریالی وارد این جمع نشده‌اند</span><a class="table-link" href="{{ route('owner.finance.index') }}">جزئیات ←</a></div>
-            </section>
+            <a class="card kpi c3 kpi-link" href="{{ route('owner.finance.index') }}" style="--c:#ff9a1f" aria-label="مشاهده مالی؛ خالص تراکنش‌های تکمیل‌شده {{ $periodCaption }}">
+                <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg>خالص تراکنش‌ها · {{ $periodCaption }}</div>
+                <b>{{ \App\Support\PersianUi::number($sales) }} <small>تومان</small></b>
+                <div class="dl">خالص روزانه در ۷ روز اخیر</div>
+                @if($salesSparkline !== '')
+                    <svg class="sp" viewBox="0 0 160 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="{{ $salesSparkline }}"/></svg>
+                @endif
+                <div class="metric-caption">پرداخت‌های تکمیل‌شده منهای بازپرداخت‌ها</div>
+                <div class="metric-foot"><span>مبالغ بر حسب تومان</span><span class="table-link" aria-hidden="true">مشاهده ←</span></div>
+            </a>
         @endif
 
         @if($canViewAssignments || $canViewClassrooms)
-            <section class="card kpi c3" style="--c:#ff1f6b" aria-label="موارد نیازمند توجه">
-                <div class="kpi-head"><svg class="ic"><use href="#i-bell"/></svg>نیازمند پیگیری</div>
-                <b>{{ \App\Support\PersianUi::digits($attentionCount) }}</b>
-                <div class="metric-caption">جمع سه هشدار مستقل؛ هر مورد با کوئری مربوط خودش محاسبه شده است.</div>
-                <div class="metric-foot"><span>{{ \App\Support\PersianUi::digits($pendingReviews) }} بررسی معوق</span><span>{{ \App\Support\PersianUi::digits($capacityAlerts + $classroomsWithoutTeacher) }} هشدار کلاس</span></div>
-                @if($pendingReviews > 0 && $firstAcademy && $canViewAssignments)<a class="go sm" href="{{ route('owner.assignments.index', $firstAcademy) }}">بررسی تکالیف ←</a>
-                @elseif(($capacityAlerts + $classroomsWithoutTeacher)>0 && $firstAcademy && $canViewClassrooms)<a class="go sm" href="{{ route('owner.classrooms.index', $firstAcademy) }}">بررسی کلاس‌ها ←</a>
-                @else<span class="pl" style="--c:#2ee6a6">بدون مورد فوری</span>@endif
-            </section>
+            <a class="card kpi c3 kpi-link" href="{{ $attentionRoute }}" style="--c:#ff1f6b" aria-label="مشاهده موارد نیازمند پیگیری؛ {{ \App\Support\PersianUi::digits($attentionCount) }} مورد">
+                <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>نیازمند پیگیری</div>
+                <b>{{ \App\Support\PersianUi::digits($attentionCount) }} <small>مورد</small></b>
+                <div class="dl">ارسال‌های بررسی‌نشده در ۷ روز اخیر</div>
+                @if($attentionSparkline !== '')
+                    <svg class="sp" viewBox="0 0 160 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="{{ $attentionSparkline }}"/></svg>
+                @endif
+                <div class="metric-caption">تکالیف معوق و هشدارهای کلاس؛ فقط موارد واقعی دیتابیس</div>
+                <div class="metric-foot"><span>{{ \App\Support\PersianUi::digits($pendingReviews) }} بررسی معوق · {{ \App\Support\PersianUi::digits($capacityAlerts + $classroomsWithoutTeacher) }} هشدار کلاس</span><span class="table-link" aria-hidden="true">بررسی ←</span></div>
+            </a>
         @endif
 
         @if($canViewClassrooms)
