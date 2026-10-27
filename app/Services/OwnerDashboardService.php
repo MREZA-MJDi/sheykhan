@@ -477,7 +477,7 @@ final class OwnerDashboardService
             }
 
             return [
-                'label' => \\App\\Support\\PersianUi::date($weekStart),
+                'label' => \App\Support\PersianUi::date($weekStart),
                 'students' => $newStudents,
                 'attendance' => $attendanceTotal > 0
                     ? round(($attendanceCounted / $attendanceTotal) * 100, 1)
@@ -500,7 +500,7 @@ final class OwnerDashboardService
                 }
             }
 
-            $jalali = \\App\\Support\\PersianUi::calendar($monthStart);
+            $jalali = \App\Support\PersianUi::calendar($monthStart);
 
             return [
                 'label' => $jalali['month_name'],
