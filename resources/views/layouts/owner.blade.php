@@ -54,6 +54,14 @@
                 ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'پیام‌های اولیا', 'icon' => 'chat', 'scope' => 'academy'],
                 ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها', 'icon' => 'mega', 'scope' => 'academy'],
                 ['route' => 'owner.counseling.index', 'permission' => 'parents.view', 'label' => 'مشاوره', 'icon' => 'heart', 'scope' => 'academy'],
+                ['route' => 'owner.assignments.index', 'permission' => 'courses.view', 'label' => 'تکالیف و تصحیح', 'icon' => 'doc', 'scope' => 'academy'],
+                ['route' => 'owner.schedules.index', 'permission' => 'live_classes.view', 'label' => 'لینک کلاس آنلاین', 'icon' => 'link', 'scope' => 'academy'],
+                ['route' => 'owner.exams.index', 'permission' => 'exams.view', 'label' => 'آزمون‌ها و نتایج', 'icon' => 'book', 'scope' => 'academy'],
+                ['route' => 'owner.recordings.index', 'permission' => 'live_classes.view', 'label' => 'آرشیو ضبط کلاس‌ها', 'icon' => 'video', 'scope' => 'academy'],
+                ['route' => 'owner.teacher-payments.index', 'permission' => 'teacher_payments.view', 'label' => 'حقوق مدرس‌ها', 'icon' => 'wallet', 'scope' => 'academy'],
+                ['route' => 'owner.resources.index', 'permission' => 'resources.view', 'label' => 'ویدئو و منابع آموزشی', 'icon' => 'book', 'scope' => 'academy'],
+                ['route' => 'owner.products.index', 'permission' => 'products.view', 'label' => 'محصولات و منابع فروش', 'icon' => 'tag', 'scope' => 'academy'],
+                ['route' => 'owner.orders.index', 'permission' => 'orders.view', 'label' => 'سفارش‌ها و رسیدها', 'icon' => 'receipt', 'scope' => 'academy'],
             ],
         ],
         [
@@ -62,11 +70,6 @@
             'color' => '#8b3dff',
             'links' => [
                 ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'دوره‌ها', 'icon' => 'book', 'scope' => 'global'],
-                ['route' => 'owner.assignments.index', 'permission' => 'courses.view', 'label' => 'تکالیف و تصحیح', 'icon' => 'doc', 'scope' => 'academy'],
-                ['route' => 'owner.exams.index', 'permission' => 'exams.view', 'label' => 'آزمون‌ها و نتایج', 'icon' => 'book', 'scope' => 'academy'],
-                ['route' => 'owner.schedules.index', 'permission' => 'live_classes.view', 'label' => 'لینک کلاس آنلاین', 'icon' => 'link', 'scope' => 'academy'],
-                ['route' => 'owner.recordings.index', 'permission' => 'live_classes.view', 'label' => 'آرشیو ضبط کلاس‌ها', 'icon' => 'video', 'scope' => 'academy'],
-                ['route' => 'owner.resources.index', 'permission' => 'resources.view', 'label' => 'ویدئو و منابع آموزشی', 'icon' => 'book', 'scope' => 'academy'],
             ],
         ],
         [
@@ -89,9 +92,6 @@
             'color' => '#2ee6a6',
             'links' => [
                 ['route' => 'owner.finance.index', 'permission' => 'finance.view', 'label' => 'مالی و پرداخت‌ها', 'icon' => 'wallet', 'scope' => 'global'],
-                ['route' => 'owner.teacher-payments.index', 'permission' => 'teacher_payments.view', 'label' => 'حقوق مدرس‌ها', 'icon' => 'wallet', 'scope' => 'academy'],
-                ['route' => 'owner.products.index', 'permission' => 'products.view', 'label' => 'محصولات و منابع فروش', 'icon' => 'tag', 'scope' => 'academy'],
-                ['route' => 'owner.orders.index', 'permission' => 'orders.view', 'label' => 'سفارش‌ها و رسیدها', 'icon' => 'receipt', 'scope' => 'academy'],
             ],
         ],
         [
