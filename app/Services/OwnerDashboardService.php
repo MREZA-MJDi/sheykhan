@@ -298,6 +298,10 @@ final class OwnerDashboardService
             return $report;
         });
 
+        // Actual seven-day sparkline data for the dashboard prototype's KPI cards.
+        // All series are bounded to the selected academies and current moment.
+        $trends = $this->dashboardTrends($academyIds, $now);
+
         return [
             'owner' => $owner,
             'academies' => $academies,
@@ -320,6 +324,7 @@ final class OwnerDashboardService
                 'classroomsWithoutTeacher' => $classroomsWithoutTeacher,
             ],
             'teacherReports' => $teacherReports,
+            'trends' => $trends,
             'capacity' => [
                 'total' => $capacityTotal,
                 'used' => $capacityUsed,
@@ -339,6 +344,87 @@ final class OwnerDashboardService
                 ->latest()
                 ->limit(6)
                 ->get(),
+        ];
+    }
+
+    /**
+     * Build real, compact seven-day series for the KPI sparklines.
+     *
+     * A missing attendance day remains null instead of pretending that its
+     * attendance rate was zero. Event-count and revenue series use zero for
+     * days with no matching events.
+     */
+    private function dashboardTrends($academyIds, Carbon $now): array
+    {
+        $start = $now->copy()->subDays(6)->startOfDay();
+        $from = $start->toDateTimeString();
+        $to = $now->toDateTimeString();
+        $dates = collect(range(0, 6))
+            ->map(fn (int $offset) => $start->copy()->addDays($offset)->toDateString());
+
+        $studentsByDay = DB::table('academy_user as membership')
+            ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
+            ->whereIn('membership.academy_id', $academyIds)
+            ->where('membership.role', 'student')
+            ->where('membership.status', 'active')
+            ->where('accounts.status', 'active')
+            ->whereNull('accounts.deleted_at')
+            ->whereRaw('COALESCE(membership.joined_at, membership.created_at) BETWEEN ? AND ?', [$from, $to])
+            ->groupByRaw('DATE(COALESCE(membership.joined_at, membership.created_at))')
+            ->selectRaw('DATE(COALESCE(membership.joined_at, membership.created_at)) as day, COUNT(DISTINCT membership.user_id) as value')
+            ->pluck('value', 'day');
+
+        $attendanceByDay = DB::table('attendances')
+            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->where('classrooms.status', 'active')
+            ->whereDate('attendances.attendance_date', '>=', $start->toDateString())
+            ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
+            ->groupByRaw('DATE(attendances.attendance_date)')
+            ->selectRaw(
+                "DATE(attendances.attendance_date) as day,
+                SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) as total,
+                SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) as attended"
+            )
+            ->get()
+            ->keyBy('day');
+
+        $salesByDay = DB::table('financial_transactions')
+            ->whereIn('academy_id', $academyIds)
+            ->where('status', 'completed')
+            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
+            ->whereIn('type', ['enrollment_payment', 'refund'])
+            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$from, $to])
+            ->groupByRaw('DATE(COALESCE(occurred_at, created_at))')
+            ->selectRaw(
+                "DATE(COALESCE(occurred_at, created_at)) as day,
+                SUM(CASE WHEN type = 'enrollment_payment' THEN amount WHEN type = 'refund' THEN -amount ELSE 0 END) as value"
+            )
+            ->pluck('value', 'day');
+
+        $pendingByDay = DB::table('assignment_submissions as submissions')
+            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->join('courses', 'courses.id', '=', 'assignments.course_id')
+            ->whereIn('courses.academy_id', $academyIds)
+            ->whereNotNull('submissions.submitted_at')
+            ->whereNull('submissions.graded_at')
+            ->whereBetween('submissions.submitted_at', [$from, $to])
+            ->groupByRaw('DATE(submissions.submitted_at)')
+            ->selectRaw('DATE(submissions.submitted_at) as day, COUNT(*) as value')
+            ->pluck('value', 'day');
+
+        return [
+            'students' => $dates->map(fn (string $date) => max(0, (int) ($studentsByDay[$date] ?? 0)))->all(),
+            'attendance' => $dates->map(function (string $date) use ($attendanceByDay): ?float {
+                $row = $attendanceByDay->get($date);
+                if (! $row || (int) $row->total < 1) {
+                    return null;
+                }
+
+                return round(((int) $row->attended / (int) $row->total) * 100, 1);
+            })->all(),
+            'sales' => $dates->map(fn (string $date) => (float) ($salesByDay[$date] ?? 0))->all(),
+            'pendingReviews' => $dates->map(fn (string $date) => max(0, (int) ($pendingByDay[$date] ?? 0)))->all(),
         ];
     }
 
@@ -391,6 +477,12 @@ final class OwnerDashboardService
                 'classroomsWithoutTeacher' => 0,
             ],
             'teacherReports' => collect(),
+            'trends' => [
+                'students' => array_fill(0, 7, 0),
+                'attendance' => array_fill(0, 7, null),
+                'sales' => array_fill(0, 7, 0),
+                'pendingReviews' => array_fill(0, 7, 0),
+            ],
             'capacity' => ['total' => 0, 'used' => 0, 'remaining' => 0, 'rate' => null, 'configured_classrooms' => 0],
             'upcomingLiveClasses' => collect(),
             'recentCourses' => collect(),
