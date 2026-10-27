@@ -987,3 +987,142 @@ body.owner-admin-v2 {
     .owner-admin-v2 .main-content .owner-stat-link { transition: none; }
 }
 
+/* Dashboard ZIP chart language: line grid, real trend series and cylinder comparison. */
+.owner-admin-v2 .owner-chart-legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin: 4px 0 10px;
+    color: var(--mu);
+    font-size: 11px;
+}
+.owner-admin-v2 .owner-chart-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.owner-admin-v2 .owner-chart-legend i {
+    display: inline-block;
+    width: 18px;
+    height: 3px;
+    border-radius: 20px;
+    background: var(--legend);
+    box-shadow: 0 0 9px color-mix(in srgb, var(--legend) 55%, transparent);
+}
+.owner-admin-v2 .owner-line-chart {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+.owner-admin-v2 .owner-chart-grid line {
+    stroke: #2b3270;
+    stroke-width: .8;
+    vector-effect: non-scaling-stroke;
+}
+.owner-admin-v2 .owner-line-chart polyline {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+.owner-admin-v2 .owner-line-students {
+    stroke: #ff1f6b;
+    filter: drop-shadow(0 0 5px rgba(255,31,107,.48));
+}
+.owner-admin-v2 .owner-line-attendance {
+    stroke: #22d3ee;
+    filter: drop-shadow(0 0 5px rgba(34,211,238,.45));
+}
+.owner-admin-v2 .owner-chart-labels {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    margin-top: 8px;
+    color: var(--mu);
+    font-size: 10px;
+    direction: ltr;
+}
+.owner-admin-v2 .owner-chart-labels span {
+    min-width: 0;
+    text-align: center;
+    direction: rtl;
+    white-space: nowrap;
+}
+.owner-admin-v2 .owner-monthly-sales .cys {
+    display: flex;
+    min-width: 0;
+    height: 220px;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: 8px;
+    overflow: hidden;
+    padding: 12px 0 0;
+}
+.owner-admin-v2 .owner-monthly-sales .cyc {
+    display: flex;
+    min-width: 0;
+    max-width: 25%;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.owner-admin-v2 .owner-monthly-sales .cyc b {
+    max-width: 100%;
+    color: var(--tx);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .owner-monthly-sales .cy {
+    width: min(38px, 100%);
+    min-height: 8px;
+    flex: 0 0 auto;
+    border-radius: 9px 9px 4px 4px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--c) 65%, #000), var(--c) 48%, color-mix(in srgb, var(--c) 55%, #000));
+    box-shadow: 0 0 16px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.owner-admin-v2 .owner-monthly-sales .cy::before {
+    top: -5px;
+    height: 10px;
+    background: color-mix(in srgb, var(--c) 75%, #fff);
+}
+.owner-admin-v2 .owner-monthly-sales .cyc small {
+    color: var(--mu);
+    font-size: 10px;
+    text-align: center;
+}
+.owner-admin-v2 .owner-attention-list .at {
+    margin-bottom: 8px;
+    text-decoration: none;
+}
+.owner-admin-v2 .owner-attention-list .at:last-child { margin-bottom: 0; }
+.owner-admin-v2 .owner-attention-list .at .ct {
+    display: grid;
+    min-width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--c) 16%, var(--c2));
+    color: var(--c);
+    font-size: 12px;
+    font-weight: 900;
+}
+.owner-admin-v2 .owner-attention-list .at .ic { color: var(--mu); }
+.owner-admin-v2 .owner-attention-list .at:focus-visible {
+    outline: 2px solid var(--c);
+    outline-offset: 2px;
+}
+@media (max-width: 520px) {
+    .owner-admin-v2 .owner-chart-labels span { font-size: 9px; }
+    .owner-admin-v2 .owner-monthly-sales .cys { height: 190px; gap: 5px; }
+    .owner-admin-v2 .owner-monthly-sales .cyc b { font-size: 9px; }
+    .owner-admin-v2 .owner-monthly-sales .cy { width: 25px; }
+}
+
