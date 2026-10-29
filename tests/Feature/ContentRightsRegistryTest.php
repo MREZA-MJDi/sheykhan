@@ -57,6 +57,32 @@ final class ContentRightsRegistryTest extends TestCase
             ->assertStatus(409);
     }
 
+    public function test_draft_cannot_be_activated_without_a_reference_or_evidence(): void
+    {
+        [$owner] = $this->ownerWithLegalPermission();
+        $media = $this->createMedia($owner);
+
+        $this->actingAs($owner)
+            ->post(route('owner.content-rights.store'), [
+                'media_id' => $media->id,
+                'title' => 'پرونده بدون مدرک',
+                'rights_holder' => 'صاحب اثر',
+                'source_type' => 'licensed',
+                'license_name' => 'مجوز',
+                'permitted_uses' => ['streaming'],
+            ])
+            ->assertRedirect(route('owner.content-rights.index'));
+
+        $right = ContentRight::query()->where('title', 'پرونده بدون مدرک')->firstOrFail();
+
+        $this->actingAs($owner)
+            ->from(route('owner.content-rights.index'))
+            ->patch(route('owner.content-rights.activate', $right))
+            ->assertSessionHasErrors('evidence');
+
+        $this->assertDatabaseHas('content_rights', ['id' => $right->id, 'status' => 'draft']);
+    }
+
     public function test_user_without_legal_permission_cannot_view_or_create_content_rights(): void
     {
         $role = Role::create([

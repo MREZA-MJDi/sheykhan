@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Throwable;
 
@@ -134,8 +135,17 @@ final class ContentRightController extends Controller
         DB::transaction(function () use ($contentRight): void {
             $right = ContentRight::query()->whereKey($contentRight->id)->lockForUpdate()->firstOrFail();
             abort_unless($right->status === 'draft', 409, 'فقط پیش‌نویس قابل فعال‌سازی است.');
-            abort_if($right->valid_from?->isFuture(), 422, 'تاریخ شروع مجوز هنوز نرسیده است.');
-            abort_if($right->valid_until?->isPast(), 422, 'اعتبار این مجوز منقضی شده است.');
+            if (blank($right->evidence_path) && blank($right->license_reference) && blank($right->source_url)) {
+                throw ValidationException::withMessages([
+                    'evidence' => 'برای فعال‌سازی، مدرک پشتیبان یا شماره قرارداد یا نشانی منبع را ثبت کنید.',
+                ]);
+            }
+            if ($right->valid_from?->isFuture()) {
+                throw ValidationException::withMessages(['valid_from' => 'تاریخ شروع مجوز هنوز نرسیده است.']);
+            }
+            if ($right->valid_until?->isPast()) {
+                throw ValidationException::withMessages(['valid_until' => 'اعتبار این مجوز منقضی شده است.']);
+            }
 
             Media::query()
                 ->whereKey($right->media_id)
@@ -160,9 +170,11 @@ final class ContentRightController extends Controller
     public function revoke(Request $request, ContentRight $contentRight): RedirectResponse
     {
         $this->authorizeManage($request);
-        abort_unless($contentRight->status === 'active', 409, 'فقط مجوز فعال قابل لغو است.');
-
-        $contentRight->forceFill(['status' => 'revoked'])->save();
+        DB::transaction(function () use ($contentRight): void {
+            $right = ContentRight::query()->whereKey($contentRight->id)->lockForUpdate()->firstOrFail();
+            abort_unless($right->status === 'active', 409, 'فقط مجوز فعال قابل لغو است.');
+            $right->forceFill(['status' => 'revoked'])->save();
+        });
 
         return redirect()
             ->route('owner.content-rights.index')
@@ -212,10 +224,13 @@ final class ContentRightController extends Controller
 
     private function viewData(Request $request, ?ContentRight $editingRight = null): array
     {
-        $search = mb_substr(trim($request->query('q', '')), 0, 100);
-        $mediaSearch = mb_substr(trim($request->query('media_q', '')), 0, 100);
-        $status = in_array($request->query('status', 'all'), ['all', 'draft', 'active', 'revoked', 'superseded'], true)
-            ? $request->query('status', 'all')
+        $rawSearch = $request->query('q', '');
+        $rawMediaSearch = $request->query('media_q', '');
+        $rawStatus = $request->query('status', 'all');
+        $search = is_string($rawSearch) ? mb_substr(trim($rawSearch), 0, 100) : '';
+        $mediaSearch = is_string($rawMediaSearch) ? mb_substr(trim($rawMediaSearch), 0, 100) : '';
+        $status = is_string($rawStatus) && in_array($rawStatus, ['all', 'draft', 'active', 'revoked', 'superseded'], true)
+            ? $rawStatus
             : 'all';
 
         $rightsQuery = ContentRight::query()
