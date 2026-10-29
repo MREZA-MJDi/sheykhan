@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Media;
+use App\Models\ProductFile;
 use App\Services\MediaService;
 use App\Services\SpotPlayerMediaDeliveryService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -15,6 +16,10 @@ class MediaController extends Controller
     public function servePublic(Media $media, \App\Policies\MediaPolicy $policy): Response
     {
         abort_unless($media->status === 'active' && $media->visibility === 'public', 404);
+
+        // Paid product sources must never escape through a static/public media
+        // URL, even if legacy data accidentally marked their media row as public.
+        abort_if(ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists(), 404);
 
         // Visibility mistakes must not turn a lesson, assessment, recording or
         // course handout into an unauthenticated public download.

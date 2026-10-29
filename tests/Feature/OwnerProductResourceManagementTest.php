@@ -94,6 +94,56 @@ class OwnerProductResourceManagementTest extends TestCase
         $this->actingAs($owner)->get(route('owner.resources.edit', [$academy, $resource]))->assertNotFound();
     }
 
+    public function test_non_preview_paid_product_source_cannot_be_served_from_public_media_url(): void
+    {
+        Storage::fake('local');
+        [$owner, $academy, $category] = $this->workspace();
+
+        $product = Product::query()->create([
+            'academy_id' => $academy->id,
+            'category_id' => $category->id,
+            'created_by' => $owner->id,
+            'title' => 'منبع خریداری‌شده',
+            'slug' => 'paid-source-' . Str::lower(Str::random(8)),
+            'product_type' => 'booklet',
+            'delivery_type' => 'download',
+            'price' => 100000,
+            'currency' => 'IRR',
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+        ]);
+
+        $path = 'legacy-public/paid-source.pdf';
+        Storage::disk('local')->put($path, '%PDF-1.4 protected test content');
+
+        $media = Media::query()->create([
+            'uploaded_by' => $owner->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'paid-source.pdf',
+            'file_name' => 'paid-source.pdf',
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+            'size' => Storage::disk('local')->size($path),
+            'checksum' => hash('sha256', Storage::disk('local')->get($path)),
+            'visibility' => 'public',
+            'collection' => 'paid-product',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+
+        ProductFile::query()->create([
+            'product_id' => $product->id,
+            'media_id' => $media->id,
+            'version' => 1,
+            'is_primary' => true,
+            'is_preview' => false,
+            'requires_watermark' => true,
+        ]);
+
+        $this->get(route('media.public', $media))->assertNotFound();
+    }
+
     public function test_owner_can_update_private_resource_and_archive_then_restore_it(): void
     {
         Storage::fake('local');
