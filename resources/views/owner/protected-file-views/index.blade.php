@@ -47,7 +47,7 @@
                     @forelse($views as $event)
                         <tr class="align-top">
                             <td class="whitespace-nowrap p-3 text-xs text-slate-600">{{ \App\Support\PersianUi::date($event->viewed_at) }}<span class="mt-1 block" dir="ltr">{{ $event->viewed_at?->format('H:i:s') }}</span></td>
-                            <td class="p-3"><strong>{{ $event->user?->name ?: 'حساب حذف‌شده' }}</strong><span class="mt-1 block text-xs text-slate-500">USER-{{ $event->user_id }}</span><span class="mt-1 block text-xs font-bold text-indigo-700" dir="ltr">VIEW-{{ $event->id }}</span><span class="mt-1 block text-xs font-bold text-indigo-700" dir="ltr">VIEW-{{ $event->id }}</span><span class="mt-1 block text-xs text-slate-500">{{ $event->user?->email }}</span></td>
+                            <td class="p-3"><strong>{{ $event->user?->name ?: 'حساب حذف‌شده' }}</strong><span class="mt-1 block text-xs text-slate-500">USER-{{ $event->user_id }}</span><span class="mt-1 block text-xs font-bold text-indigo-700" dir="ltr">VIEW-{{ $event->id }}</span><span class="mt-1 block text-xs text-slate-500">{{ $event->user?->email }}</span></td>
                             <td class="max-w-xs p-3"><strong>{{ $event->productFile?->product?->title ?: 'محصول' }}</strong><span class="mt-1 block break-words text-xs text-slate-500">{{ $event->productFile?->media?->original_name }}</span></td>
                             <td class="p-3 text-xs" dir="ltr">{{ $event->order?->order_number }}</td>
                             <td class="p-3 text-xs">{{ $event->event_type === 'page' ? 'مشاهده صفحه' : 'بازکردن فایل' }}<span class="mt-1 block">{{ $event->page_number ? 'صفحه ' . \App\Support\PersianUi::digits($event->page_number) : '—' }}</span></td>
@@ -83,7 +83,7 @@
                     @forelse($learningViews as $event)
                         <tr class="align-top">
                             <td class="whitespace-nowrap p-3 text-xs text-slate-600">{{ \App\Support\PersianUi::date($event->viewed_at) }}<span class="mt-1 block" dir="ltr">{{ $event->viewed_at?->format('H:i:s') }}</span></td>
-                            <td class="p-3"><strong>{{ $event->user?->name ?: 'حساب حذف‌شده' }}</strong><span class="mt-1 block text-xs text-slate-500">USER-{{ $event->user_id }}</span><span class="mt-1 block text-xs text-slate-500">{{ $event->user?->email }}</span></td>
+                            <td class="p-3"><strong>{{ $event->user?->name ?: 'حساب حذف‌شده' }}</strong><span class="mt-1 block text-xs text-slate-500">USER-{{ $event->user_id }}</span><span class="mt-1 block text-xs font-bold text-indigo-700" dir="ltr">VIEW-{{ $event->id }}</span><span class="mt-1 block text-xs text-slate-500">{{ $event->user?->email }}</span></td>
                             <td class="max-w-xs break-words p-3 text-xs">{{ $event->media?->original_name ?: 'فایل آموزشی' }}</td>
                             <td class="p-3 text-xs">{{ $event->learning_resource_id ?: '—' }}</td>
                             <td class="p-3 text-xs">{{ $event->child_id ?: '—' }}</td>
