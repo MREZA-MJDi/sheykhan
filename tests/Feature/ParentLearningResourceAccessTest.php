@@ -7,6 +7,7 @@ use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\LearningResource;
 use App\Models\Media;
+use App\Models\MediaAttachment;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -244,7 +245,10 @@ class ParentLearningResourceAccessTest extends TestCase
             'metadata' => [],
             'status' => 'active',
         ]);
-        $classroom->media()->attach($media->id, [
+        MediaAttachment::query()->create([
+            'media_id' => $media->id,
+            'mediable_type' => Classroom::class,
+            'mediable_id' => $classroom->id,
             'collection' => 'classroom-assets',
             'sort_order' => 1,
             'is_featured' => false,

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Academy;
 use App\Models\Classroom;
 use App\Models\Media;
+use App\Models\MediaAttachment;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Course;
@@ -62,7 +63,10 @@ class TeacherAccessIsolationTest extends TestCase
         $classroom->teachers()->attach($teacher->id);
 
         $classMedia = $this->privateMedia($teacher, 'old-classroom-handout.pdf');
-        $classroom->media()->attach($classMedia->id, [
+        MediaAttachment::query()->create([
+            'media_id' => $classMedia->id,
+            'mediable_type' => Classroom::class,
+            'mediable_id' => $classroom->id,
             'collection' => 'classroom-assets',
             'sort_order' => 1,
             'is_featured' => false,
