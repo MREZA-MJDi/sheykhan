@@ -18,13 +18,31 @@ final class ParentLearningResourceService
      */
     public function children(User $parent): Collection
     {
+        if (
+            ! $parent->hasRole('parent')
+            || $parent->status !== 'active'
+            || $parent->trashed()
+        ) {
+            return collect();
+        }
+
         return $parent->children()
             ->where('users.status', 'active')
             ->whereHas('roles', fn (Builder $roles) => $roles->where('roles.slug', 'student'))
-            ->whereHas('academies', fn (Builder $academies) => $academies
-                ->where('academies.status', 'active')
-                ->where('academy_user.role', 'student')
-                ->where('academy_user.status', 'active'))
+            ->whereHas('academies', function (Builder $academies) use ($parent): void {
+                $academies
+                    ->where('academies.status', 'active')
+                    ->where('academy_user.role', 'student')
+                    ->where('academy_user.status', 'active')
+                    ->whereExists(function ($membership) use ($parent): void {
+                        $membership->selectRaw('1')
+                            ->from('academy_user as parent_membership')
+                            ->whereColumn('parent_membership.academy_id', 'academies.id')
+                            ->where('parent_membership.user_id', $parent->id)
+                            ->where('parent_membership.role', 'parent')
+                            ->where('parent_membership.status', 'active');
+                    });
+            })
             ->with(['academies' => fn ($academies) => $academies
                 ->where('academies.status', 'active')
                 ->wherePivot('role', 'student')

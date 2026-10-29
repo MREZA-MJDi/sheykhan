@@ -53,6 +53,12 @@ class ParentLearningResourceAccessTest extends TestCase
             ]);
         }
 
+        $academy->users()->attach($parent->id, [
+            'role' => 'parent',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
         $parent->children()->attach($child->id, ['relation' => 'والد']);
         $parent->children()->attach($otherLinkedChild->id, ['relation' => 'والد']);
 
@@ -193,6 +199,11 @@ class ParentLearningResourceAccessTest extends TestCase
         ]);
         $academy->users()->attach($child->id, [
             'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $academy->users()->attach($parent->id, [
+            'role' => 'parent',
             'status' => 'active',
             'joined_at' => now(),
         ]);

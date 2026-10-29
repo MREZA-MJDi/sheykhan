@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\LearningResource;
+use App\Models\Lesson;
 use App\Models\MediaAttachment;
 use App\Models\Media;
 use App\Models\User;
@@ -290,6 +291,33 @@ class StudentLearningResourceAccessTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_student_cannot_open_a_draft_lesson_attachment_through_generic_media_route(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $section = $course->sections()->firstOrFail();
+
+        $lesson = Lesson::query()->create([
+            'course_section_id' => $section->id,
+            'title' => 'درس پیش‌نویس با پیوست خصوصی',
+            'slug' => 'draft-lesson-' . str()->random(8),
+            'type' => 'document',
+            'status' => 'draft',
+        ]);
+
+        $media = $this->makeMedia('draft-lesson.pdf', 'application/pdf');
+        $lesson->media()->attach($media->id, [
+            'collection' => 'lesson-assets',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $this->assertFalse(Gate::forUser($student)->allows('view', $media));
+        $this->actingAs($student)->get(route('media.view', $media))->assertForbidden();
+    }
+
     public function test_active_non_student_academy_membership_does_not_unlock_unscoped_resource(): void
     {
         $this->seed();
@@ -321,6 +349,37 @@ class StudentLearningResourceAccessTest extends TestCase
 
         $service = app(StudentLearningResourceService::class);
 
+        $this->assertFalse($service->canAccess($student, $resource));
+        $this->assertFalse($service->query($student)->whereKey($resource->id)->exists());
+    }
+
+    public function test_resource_from_inactive_academy_is_not_listed_or_accessible(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $ownerId = User::query()->where('email', 'owner@sheykhan.test')->value('id');
+
+        \App\Models\Academy::query()->whereKey($course->academy_id)->update(['status' => 'inactive']);
+
+        $media = $this->makeMedia('inactive-academy.pdf', 'application/pdf');
+        $resource = LearningResource::query()->create([
+            'academy_id' => $course->academy_id,
+            'course_id' => null,
+            'classroom_id' => null,
+            'lesson_id' => null,
+            'media_id' => $media->id,
+            'uploaded_by' => $ownerId,
+            'title' => 'منبع آموزشگاه غیرفعال',
+            'resource_type' => 'document',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => false,
+            'status' => 'active',
+        ]);
+
+        $service = app(StudentLearningResourceService::class);
         $this->assertFalse($service->canAccess($student, $resource));
         $this->assertFalse($service->query($student)->whereKey($resource->id)->exists());
     }

@@ -180,8 +180,41 @@ class MediaPolicy
 
             if ($model instanceof Lesson) {
                 $model->loadMissing('section.course');
+                $course = $model->section?->course;
 
-                if ($model->section?->course && $this->courseAccess($user, $model->section->course)) {
+                if (! $course) {
+                    continue;
+                }
+
+                if ($user->hasRole('student')) {
+                    if (app(StudentAccessService::class)->lesson($user, $model)) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    $canAccessChildLesson = $this->courseAccess($user, $course)
+                        && $user->children()
+                            ->where('users.status', 'active')
+                            ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
+                            ->get()
+                            ->contains(fn (User $child): bool => app(StudentAccessService::class)->lesson($child, $model));
+
+                    if ($canAccessChildLesson) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canTeachCourse($user, $course)) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                if ($this->academyOwner($user, $course->academy) || $this->courseAccess($user, $course)) {
                     return true;
                 }
             }
@@ -212,9 +245,13 @@ class MediaPolicy
                 }
 
                 if ($user->hasRole('parent')) {
-                    $canAccessChildWork = $user->children()->get()->contains(
-                        fn (User $child): bool => app(StudentAccessService::class)->assignment($child, $model)
-                    );
+                    $canAccessChildWork = $model->course
+                        && $this->courseAccess($user, $model->course)
+                        && $user->children()
+                            ->where('users.status', 'active')
+                            ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
+                            ->get()
+                            ->contains(fn (User $child): bool => app(StudentAccessService::class)->assignment($child, $model));
 
                     if ($canAccessChildWork) {
                         return true;
@@ -259,10 +296,14 @@ class MediaPolicy
                 }
 
                 if ($user->hasRole('parent')) {
-                    $canAccessChildWork = $user->children()->get()->contains(
-                        fn (User $child): bool => (int) $model->student_id === (int) $child->id
-                            && app(StudentAccessService::class)->assignment($child, $assignment)
-                    );
+                    $canAccessChildWork = $assignment->course
+                        && $this->courseAccess($user, $assignment->course)
+                        && $user->children()
+                            ->where('users.status', 'active')
+                            ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
+                            ->get()
+                            ->contains(fn (User $child): bool => (int) $model->student_id === (int) $child->id
+                                && app(StudentAccessService::class)->assignment($child, $assignment));
 
                     if ($canAccessChildWork) {
                         return true;
@@ -304,9 +345,13 @@ class MediaPolicy
                 }
 
                 if ($user->hasRole('parent')) {
-                    $canAccessChildWork = $user->children()->get()->contains(
-                        fn (User $child): bool => app(StudentAccessService::class)->exam($child, $model)
-                    );
+                    $canAccessChildWork = $model->course
+                        && $this->courseAccess($user, $model->course)
+                        && $user->children()
+                            ->where('users.status', 'active')
+                            ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
+                            ->get()
+                            ->contains(fn (User $child): bool => app(StudentAccessService::class)->exam($child, $model));
 
                     if ($canAccessChildWork) {
                         return true;
@@ -435,10 +480,13 @@ class MediaPolicy
         }
 
         if ($user->hasRole('parent')) {
-            return $user->children()
-                ->where('users.status', 'active')
-                ->get()
-                ->contains(fn (User $child): bool => app(StudentAccessService::class)->liveClass($child, $liveClass));
+            return $liveClass->course
+                && $this->courseAccess($user, $liveClass->course)
+                && $user->children()
+                    ->where('users.status', 'active')
+                    ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
+                    ->get()
+                    ->contains(fn (User $child): bool => app(StudentAccessService::class)->liveClass($child, $liveClass));
         }
 
         if ($liveClass->classroom) {
@@ -481,10 +529,15 @@ class MediaPolicy
             return false;
         }
 
-        // Parents inherit classroom access only through an active child with
-        // valid course entitlement and an active membership in this exact class.
+        // Parent access requires membership in this academy and active child access
+        // to this specific cohort.
+        if (! $this->courseAccess($user, $classroom->course)) {
+            return false;
+        }
+
         return $user->children()
             ->where('users.status', 'active')
+            ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
             ->get()
             ->contains(function (User $child) use ($classroom): bool {
                 return app(StudentAccessService::class)->course($child, $classroom->course)
