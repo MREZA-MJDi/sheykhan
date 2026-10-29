@@ -73,7 +73,6 @@ class StudentAssignmentFileUploadTest extends TestCase
 
         $this->actingAs($teacher)
             ->get(route('media.view', $attachment))
-            ->assertOk()
-            ->assertHeader('Content-Type', 'application/pdf');
+            ->assertRedirect(route('protected-learning-media.view', $attachment));
     }
 }
