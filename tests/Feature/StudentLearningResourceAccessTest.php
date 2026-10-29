@@ -65,11 +65,27 @@ class StudentLearningResourceAccessTest extends TestCase
             $service->query($studentOutsideClass)->whereKey($resource->id)->exists()
         );
 
+        $this->actingAs($studentOutsideClass)
+            ->get(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+            ]))
+            ->assertNotFound();
+
+        $this->actingAs($studentOutsideClass)
+            ->get(route('protected-learning-media.pages', [
+                'media' => $media->id,
+                'page' => 1,
+                'resource' => $resource->id,
+            ]))
+            ->assertNotFound();
+
         $this->actingAs($studentInClass)
             ->get(route('student.resources.view', $resource))
-            ->assertOk()
-            ->assertStreamed()
-            ->assertStreamedContent('student-resource-fixture');
+            ->assertRedirect(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+            ]));
 
         $this->actingAs($studentInClass)
             ->get(route('student.resources.download', $resource))
@@ -121,9 +137,7 @@ class StudentLearningResourceAccessTest extends TestCase
 
         $this->actingAs($student)
             ->get(route('media.view', $media))
-            ->assertOk()
-            ->assertStreamed()
-            ->assertStreamedContent('student-resource-fixture');
+            ->assertRedirect(route('protected-learning-media.view', $media));
 
         $this->actingAs($student)
             ->get(route('media.download', $media))

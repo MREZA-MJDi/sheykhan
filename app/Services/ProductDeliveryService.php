@@ -22,6 +22,248 @@ final class ProductDeliveryService
     private const MAX_SOURCE_BYTES = 80_000_000;
     private const MAX_RENDERED_PAGES = 250;
 
+    public function viewLearningMedia(
+        User $user,
+        Media $media,
+        Request $request,
+        ?\App\Models\LearningResource $resource = null,
+        ?int $childId = null,
+        ?string $backUrl = null,
+    ): Response {
+        $this->recordLearningMediaView($user, $media, $resource?->id, $childId, null, 'open', $request);
+
+        try {
+            $render = $this->prepareLearningMediaPages($user, $media);
+        } catch (Throwable $exception) {
+            report($exception);
+            abort(503, 'نمایشگر امن نتوانست فایل آموزشی را آماده کند؛ فایل اصلی برای جلوگیری از دانلود ارائه نشد.');
+        }
+
+        $referenceCode = 'MEDIA-' . $media->id;
+
+        $pageUrls = collect(range(1, $render['page_count']))->map(
+            fn (int $page): string => route('protected-learning-media.pages', array_filter([
+                'media' => $media->id,
+                'page' => $page,
+                'resource' => $resource?->id,
+                'child' => $childId,
+            ], fn ($value): bool => $value !== null))
+        );
+
+        return response()->view('commerce.protected-files.viewer', [
+            'order' => null,
+            'file' => null,
+            'media' => $media,
+            'product' => null,
+            'pageCount' => $render['page_count'],
+            'pageUrls' => $pageUrls,
+            'textContent' => null,
+            'user' => $user,
+            'referenceCode' => $referenceCode,
+            'backUrl' => $backUrl ?: ($user->hasRole('parent')
+                ? route('parent.resources.index', $childId ? ['child' => $childId] : [])
+                : route('student.resources.index')),
+        ])->header('Cache-Control', 'no-store, private')
+          ->header('Pragma', 'no-cache')
+          ->header('Referrer-Policy', 'no-referrer')
+          ->header('X-Content-Type-Options', 'nosniff');
+    }
+
+    public function viewLearningMediaPage(
+        User $user,
+        Media $media,
+        int $page,
+        Request $request,
+        ?\App\Models\LearningResource $resource = null,
+        ?int $childId = null,
+    ): Response {
+        try {
+            $render = $this->prepareLearningMediaPages($user, $media);
+        } catch (Throwable $exception) {
+            report($exception);
+            abort(503, 'صفحهٔ فایل محافظت‌شده آماده نشد؛ فایل اصلی ارائه نمی‌شود.');
+        }
+
+        abort_unless($page >= 1 && $page <= $render['page_count'], 404);
+
+        $relativePath = $render['directory'] . '/page-' . str_pad((string) $page, 4, '0', STR_PAD_LEFT) . '.png';
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($relativePath), 404);
+
+        $this->recordLearningMediaView($user, $media, $resource?->id, $childId, $page, 'page', $request);
+
+        return $disk->response($relativePath, null, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'no-store, private, max-age=0',
+            'Pragma' => 'no-cache',
+            'Referrer-Policy' => 'no-referrer',
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Security-Policy' => "default-src 'none'; sandbox",
+        ]);
+    }
+
+    private function prepareLearningMediaPages(User $user, Media $media): array
+    {
+        abort_unless($media->status === 'active' && filled($media->path), 404);
+        abort_if((int) $media->size > self::MAX_SOURCE_BYTES, 413, 'حجم فایل برای نمایش امن بیش از حد مجاز است.');
+
+        $diskConfig = (array) config('filesystems.disks.' . $media->disk, []);
+        abort_if(
+            $media->disk === 'public' || ($diskConfig['visibility'] ?? null) === 'public',
+            409,
+            'فایل منبع روی فضای عمومی قرار دارد. مدیر باید آن را به فضای خصوصی منتقل کند؛ برای جلوگیری از افشای فایل، نمایش فعلاً فعال نشد.'
+        );
+
+        $mime = strtolower((string) $media->mime_type);
+        $extension = strtolower(trim((string) ($media->extension ?: pathinfo((string) $media->original_name, PATHINFO_EXTENSION))));
+        $isImage = str_starts_with($mime, 'image/');
+        $isText = $this->isText($mime, $extension);
+
+        abort_if($isText && (int) $media->size > 2_000_000, 413, 'این فایل متنی برای نمایش امن بیش از حد بزرگ است.');
+        abort_if(str_starts_with($mime, 'video/'), 409, 'ویدئوی آموزشی باید از SpotPlayer پخش شود؛ فایل خام ارائه نمی‌شود.');
+        abort_unless(
+            $this->isPdf($mime, $extension) || $this->isOfficeDocument($extension) || $isImage || $isText,
+            415,
+            'این نوع فایل هنوز نمایشگر امن ندارد؛ فایل اصلی برای جلوگیری از دانلود مستقیم تحویل داده نمی‌شود.'
+        );
+
+        $sourceDisk = Storage::disk($media->disk);
+        abort_unless($sourceDisk->exists($media->path), 404);
+
+        $tempDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'sheykhan-learning-view-' . bin2hex(random_bytes(8));
+        if (! mkdir($tempDirectory, 0700, true) && ! is_dir($tempDirectory)) {
+            throw new RuntimeException('Unable to allocate a temporary viewer directory.');
+        }
+
+        $watermark = 'SHEIKHAN | USER ' . $user->id . ' | MEDIA ' . $media->id;
+        $local = Storage::disk('local');
+        $relativeDirectory = '';
+
+        try {
+            $safeExtension = preg_match('/^[a-z0-9]{1,8}$/', $extension) ? $extension : 'bin';
+            $sourcePath = $tempDirectory . DIRECTORY_SEPARATOR . 'source.' . $safeExtension;
+            $input = $sourceDisk->readStream($media->path);
+            $output = fopen($sourcePath, 'wb');
+            if (! is_resource($input) || ! is_resource($output)) {
+                if (is_resource($input)) fclose($input);
+                if (is_resource($output)) fclose($output);
+                throw new RuntimeException('Unable to read protected learning source.');
+            }
+
+            try {
+                stream_copy_to_stream($input, $output);
+            } finally {
+                fclose($input);
+                fclose($output);
+            }
+
+            $checksum = hash_file('sha256', $sourcePath);
+            if (! is_string($checksum) || $checksum === '') {
+                throw new RuntimeException('Unable to checksum protected learning source.');
+            }
+
+            $relativeDirectory = 'protected/learning/' . $media->id . '/' . $user->id . '/' . $checksum;
+            $existingPages = $this->pageFiles($relativeDirectory);
+            if ($existingPages !== []) {
+                return ['directory' => $relativeDirectory, 'page_count' => count($existingPages)];
+            }
+
+            $local->deleteDirectory($relativeDirectory);
+            $local->makeDirectory($relativeDirectory);
+
+            if ($isImage) {
+                $this->renderProtectedImage($sourcePath, $tempDirectory . DIRECTORY_SEPARATOR . 'page-0001.png', $watermark);
+                $this->storePrivateFile($tempDirectory . DIRECTORY_SEPARATOR . 'page-0001.png', $relativeDirectory . '/page-0001.png');
+            } else {
+                if ($this->isOfficeDocument($extension)) {
+                    $pdfSource = $this->convertOfficeToPdf($sourcePath, $tempDirectory);
+                } elseif ($isText) {
+                    $pdfSource = $this->convertTextToPdf($sourcePath, $tempDirectory);
+                } else {
+                    $signature = file_get_contents($sourcePath, false, null, 0, 5);
+                    if ($signature !== '%PDF-') {
+                        throw new RuntimeException('Source bytes do not have a valid PDF signature.');
+                    }
+                    $pdfSource = $sourcePath;
+                }
+
+                $watermarkedPdf = $tempDirectory . DIRECTORY_SEPARATOR . 'watermarked-learning.pdf';
+                $this->renderWatermark($pdfSource, $watermarkedPdf, $watermark);
+                $pageOutput = $tempDirectory . DIRECTORY_SEPARATOR . 'learning-rendered';
+                if (! mkdir($pageOutput, 0700, true) && ! is_dir($pageOutput)) {
+                    throw new RuntimeException('Unable to allocate learning page output directory.');
+                }
+
+                $binary = trim((string) config('services.pdf_viewer.binary', config('services.pdf_watermark.binary', 'gs')));
+                if ($binary === '') {
+                    throw new RuntimeException('PDF rendering binary is not configured.');
+                }
+
+                $process = new Process([
+                    $binary,
+                    '-q',
+                    '-dSAFER',
+                    '-dBATCH',
+                    '-dNOPAUSE',
+                    '-sDEVICE=png16m',
+                    '-r110',
+                    '-dTextAlphaBits=4',
+                    '-dGraphicsAlphaBits=4',
+                    '-dFirstPage=1',
+                    '-dLastPage=' . (self::MAX_RENDERED_PAGES + 1),
+                    '-sOutputFile=' . $pageOutput . DIRECTORY_SEPARATOR . 'page-%04d.png',
+                    $watermarkedPdf,
+                ]);
+                $process->setTimeout(180);
+                $process->mustRun();
+
+                $generated = glob($pageOutput . DIRECTORY_SEPARATOR . 'page-*.png') ?: [];
+                sort($generated, SORT_STRING);
+                if ($generated === [] || count($generated) > self::MAX_RENDERED_PAGES) {
+                    throw new RuntimeException('Protected learning document is empty or exceeds the secure viewer page limit.');
+                }
+
+                foreach ($generated as $generatedPage) {
+                    $this->storePrivateFile($generatedPage, $relativeDirectory . '/' . basename($generatedPage));
+                }
+            }
+
+            $pageFiles = $this->pageFiles($relativeDirectory);
+            if ($pageFiles === []) {
+                throw new RuntimeException('No secure learning pages were generated.');
+            }
+
+            return ['directory' => $relativeDirectory, 'page_count' => count($pageFiles)];
+        } catch (Throwable $exception) {
+            $local->deleteDirectory($relativeDirectory);
+            throw $exception;
+        } finally {
+            $this->removeDirectory($tempDirectory);
+        }
+    }
+
+    private function recordLearningMediaView(
+        User $user,
+        Media $media,
+        ?int $resourceId,
+        ?int $childId,
+        ?int $pageNumber,
+        string $eventType,
+        Request $request,
+    ): void {
+        \App\Models\ProtectedLearningMediaView::query()->create([
+            'user_id' => $user->id,
+            'media_id' => $media->id,
+            'learning_resource_id' => $resourceId,
+            'child_id' => $childId,
+            'page_number' => $pageNumber,
+            'event_type' => $eventType,
+            'ip_address' => $request->ip(),
+            'user_agent' => mb_substr((string) $request->userAgent(), 0, 1000),
+            'viewed_at' => now(),
+        ]);
+    }
+
     /**
      * Backwards-compatible URL: a legacy "download" link no longer returns
      * source bytes or a generated PDF. It leads to the authenticated viewer.
@@ -56,7 +298,10 @@ final class ProductDeliveryService
                 return response()->view('commerce.protected-files.viewer', [
                     'order' => $order,
                     'file' => $file,
+                    'media' => $media,
                     'product' => $file->product,
+                    'referenceCode' => 'ORDER-' . $order->order_number,
+                    'backUrl' => route('orders.show', $order),
                     'pageCount' => $render['page_count'],
                     'pageUrls' => collect(range(1, $render['page_count']))
                         ->map(fn (int $page): string => route('orders.files.pages', [
@@ -84,7 +329,10 @@ final class ProductDeliveryService
                 return response()->view('commerce.protected-files.viewer', [
                     'order' => $order,
                     'file' => $file,
+                    'media' => $media,
                     'product' => $file->product,
+                    'referenceCode' => 'ORDER-' . $order->order_number,
+                    'backUrl' => route('orders.show', $order),
                     'pageCount' => $render['page_count'],
                     'pageUrls' => collect(range(1, $render['page_count']))
                         ->map(fn (int $page): string => route('orders.files.pages', [

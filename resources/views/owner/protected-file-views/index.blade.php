@@ -62,6 +62,41 @@
         </div>
 
         @if($views->hasPages())<div>{{ $views->links() }}</div>@endif
+
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="text-lg font-black">مشاهدهٔ منابع آموزشی در پنل دانش‌آموز/والد</h2>
+                <p class="mt-1 text-sm leading-6 text-slate-500">هر بازشدن فایل و درخواست صفحه با شناسهٔ حساب، شناسهٔ منبع، فرزند انتخاب‌شده، IP و مرورگر ثبت می‌شود.</p>
+            </div>
+            <span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700">{{ \App\Support\PersianUi::digits($learningViews->total()) }} رویداد آموزشی</span>
+        </div>
+
+        <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200">
+            <table class="min-w-[900px] w-full border-collapse text-sm">
+                <thead class="bg-slate-50 text-right text-xs text-slate-600">
+                    <tr>
+                        <th class="p-3">زمان</th><th class="p-3">کاربر / شناسه</th><th class="p-3">نام فایل</th>
+                        <th class="p-3">شناسهٔ منبع</th><th class="p-3">فرزند</th><th class="p-3">رویداد / صفحه</th><th class="p-3">IP</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($learningViews as $event)
+                        <tr class="align-top">
+                            <td class="whitespace-nowrap p-3 text-xs text-slate-600">{{ \App\Support\PersianUi::date($event->viewed_at) }}<span class="mt-1 block" dir="ltr">{{ $event->viewed_at?->format('H:i:s') }}</span></td>
+                            <td class="p-3"><strong>{{ $event->user?->name ?: 'حساب حذف‌شده' }}</strong><span class="mt-1 block text-xs text-slate-500">USER-{{ $event->user_id }}</span><span class="mt-1 block text-xs text-slate-500">{{ $event->user?->email }}</span></td>
+                            <td class="max-w-xs break-words p-3 text-xs">{{ $event->media?->original_name ?: 'فایل آموزشی' }}</td>
+                            <td class="p-3 text-xs">{{ $event->learning_resource_id ?: '—' }}</td>
+                            <td class="p-3 text-xs">{{ $event->child_id ?: '—' }}</td>
+                            <td class="p-3 text-xs">{{ $event->event_type === 'page' ? 'مشاهده صفحه' : 'بازکردن فایل' }}<span class="mt-1 block">{{ $event->page_number ? 'صفحه ' . \App\Support\PersianUi::digits($event->page_number) : '—' }}</span></td>
+                            <td class="p-3 text-xs" dir="ltr">{{ $event->ip_address ?: '—' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="7" class="p-10 text-center text-sm text-slate-500">هنوز رویدادی برای منابع آموزشی ثبت نشده است.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($learningViews->hasPages())<div class="mt-4">{{ $learningViews->links() }}</div>@endif
     </section>
 </div>
 @endsection

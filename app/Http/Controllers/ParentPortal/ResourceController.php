@@ -4,7 +4,6 @@ namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
 use App\Models\LearningResource;
-use App\Services\MediaService;
 use App\Services\SpotPlayerMediaDeliveryService;
 use App\Services\ParentLearningResourceService;
 use App\Services\StudentLearningResourceService;
@@ -46,7 +45,6 @@ final class ResourceController extends Controller
         Request $request,
         LearningResource $resource,
         ParentLearningResourceService $parentResources,
-        MediaService $media,
         SpotPlayerMediaDeliveryService $spotPlayerDelivery,
     ) {
         $data = $request->validate([
@@ -67,6 +65,10 @@ final class ResourceController extends Controller
             'برای جلوگیری از ارائهٔ فایل خام ویدئو، پخش باید از پلیر محافظت‌شده و لایسنس اختصاصی دانش‌آموز انجام شود.'
         );
 
-        return $media->inline($resource->media);
+        return redirect()->route('protected-learning-media.view', [
+            'media' => $resource->media_id,
+            'resource' => $resource->id,
+            'child' => (int) $data['child'],
+        ]);
     }
 }

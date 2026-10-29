@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\ProtectedFileView;
+use App\Models\ProtectedLearningMediaView;
+use App\Models\LearningResource;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -45,6 +47,34 @@ final class ProtectedFileViewController extends Controller
 
         $views = $query->paginate(30)->withQueryString();
 
-        return view('owner.protected-file-views.index', compact('academy', 'views', 'search'));
+        $learningQuery = ProtectedLearningMediaView::query()
+            ->whereIn('learning_resource_id', LearningResource::query()
+                ->where('academy_id', $academy->id)
+                ->select('id'))
+            ->with(['user:id,name,email', 'media:id,original_name'])
+            ->when(isset($data['event']), fn ($builder) => $builder->where('event_type', $data['event']))
+            ->when($search !== '', function ($builder) use ($search, $academy): void {
+                $builder->where(function ($filter) use ($search, $academy): void {
+                    $filter
+                        ->whereHas('user', fn ($user) => $user->where('name', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%'))
+                        ->orWhereHas('media', fn ($media) => $media->where('original_name', 'like', '%' . $search . '%'));
+
+                    if (ctype_digit($search)) {
+                        $filter->orWhere('learning_resource_id', (int) $search)
+                            ->orWhere('child_id', (int) $search);
+                    }
+
+                    $filter->orWhereIn('learning_resource_id', LearningResource::query()
+                        ->where('academy_id', $academy->id)
+                        ->where('title', 'like', '%' . $search . '%')
+                        ->select('id'));
+                });
+            })
+            ->orderByDesc('viewed_at')
+            ->orderByDesc('id');
+
+        $learningViews = $learningQuery->paginate(30, ['*'], 'learning_page')->withQueryString();
+
+        return view('owner.protected-file-views.index', compact('academy', 'views', 'learningViews', 'search'));
     }
 }

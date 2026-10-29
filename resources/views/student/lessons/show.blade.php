@@ -38,7 +38,7 @@
                             @endif
                         </div>
                     @else
-                        <a class="btn s" href="{{ route('media.view', $media->id) }}">مشاهده فایل</a>
+                        <a class="btn s" href="{{ route('media.view', $media->id) }}">مشاهده امن فایل</a>
                     @endif
                 </div>
             @endforeach

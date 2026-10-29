@@ -100,6 +100,14 @@ Route::middleware(['auth','active'])->group(function () {
         ->middleware('permission:media.download')
         ->name('media.download');
 
+    Route::get('/protected-learning-media/{media}/view', [\App\Http\Controllers\ProtectedLearningMediaController::class, 'view'])
+        ->middleware('throttle:60,1')
+        ->name('protected-learning-media.view');
+    Route::get('/protected-learning-media/{media}/pages/{page}', [\App\Http\Controllers\ProtectedLearningMediaController::class, 'page'])
+        ->whereNumber('page')
+        ->middleware('throttle:180,1')
+        ->name('protected-learning-media.pages');
+
         Route::get('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'show'])->name('checkout.course.show');
     Route::post('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.course.store');
     Route::get('/library', [\App\Http\Controllers\Commerce\LibraryController::class, 'index'])->name('library.index');

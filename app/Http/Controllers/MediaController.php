@@ -82,6 +82,16 @@ class MediaController extends Controller
             abort(403, 'دسترسی این فایل برای حساب شما فعال نیست.');
         }
 
+        if (
+            (auth()->user()->hasRole('student') || auth()->user()->hasRole('parent'))
+            && $policy->requiresProtectedDelivery($media)
+            && ! \App\Models\ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists()
+        ) {
+            return redirect()->route('protected-learning-media.view', $media)
+                ->header('Cache-Control', 'no-store, private')
+                ->header('Referrer-Policy', 'no-referrer');
+        }
+
         return $mediaService->inline($media);
     }
 

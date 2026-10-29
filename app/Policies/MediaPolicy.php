@@ -58,7 +58,7 @@ class MediaPolicy
         // Students download course materials only through the explicit resource
         // route, which checks LearningResource.downloadable and the free-course
         // entitlement. This generic route must never bypass that switch.
-        if ($user->hasRole('student') && $protectedLearningMedia) {
+        if (($user->hasRole('student') || $user->hasRole('parent')) && $protectedLearningMedia) {
             return false;
         }
 

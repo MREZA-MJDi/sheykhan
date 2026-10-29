@@ -121,13 +121,32 @@ class ParentLearningResourceAccessTest extends TestCase
 
         $this->actingAs($parent)
             ->get(route('parent.resources.view', ['resource' => $resource->id, 'child' => $child->id]))
-            ->assertOk()
-            ->assertStreamed()
-            ->assertStreamedContent('parent-resource-fixture');
+            ->assertRedirect(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+                'child' => $child->id,
+            ]));
 
         // A child linked to the same parent but not enrolled in this course
         // must not inherit the selected sibling's resource access.
         $otherLinkedChild->enrollments()->delete();
+
+        $this->actingAs($parent)
+            ->get(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+                'child' => $otherLinkedChild->id,
+            ]))
+            ->assertNotFound();
+
+        $this->actingAs($parent)
+            ->get(route('protected-learning-media.pages', [
+                'media' => $media->id,
+                'page' => 1,
+                'resource' => $resource->id,
+                'child' => $otherLinkedChild->id,
+            ]))
+            ->assertNotFound();
 
         $this->actingAs($parent)
             ->get(route('parent.resources.view', ['resource' => $resource->id, 'child' => $otherLinkedChild->id]))

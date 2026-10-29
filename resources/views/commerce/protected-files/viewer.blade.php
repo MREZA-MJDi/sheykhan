@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', ($file->product?->title ?: 'فایل آموزشی') . ' | نمایشگر امن شیخان')
+@section('title', (($product?->title ?: 'فایل آموزشی')) . ' | نمایشگر امن شیخان')
 @section('description', 'نمایش امن فایل خریداری‌شده در فضای شیخان.')
 @section('content')
 <section class="mx-auto w-full max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
@@ -8,14 +8,14 @@
         <header class="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div class="min-w-0">
                 <p class="text-xs font-black tracking-wide text-indigo-700">SHEIKHAN · SECURE VIEWER</p>
-                <h1 class="mt-2 break-words text-xl font-black text-slate-900 sm:text-2xl">{{ $file->product?->title ?: 'فایل خریداری‌شده' }}</h1>
-                <p class="mt-2 break-words text-sm leading-6 text-slate-600">{{ $file->media?->original_name ?: 'محتوای محافظت‌شده' }}</p>
+                <h1 class="mt-2 break-words text-xl font-black text-slate-900 sm:text-2xl">{{ $product?->title ?: 'فایل آموزشی محافظت‌شده' }}</h1>
+                <p class="mt-2 break-words text-sm leading-6 text-slate-600">{{ $file?->media?->original_name ?: ($media?->original_name ?: 'محتوای محافظت‌شده') }}</p>
             </div>
-            <a href="{{ route('orders.show', $order) }}" class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 hover:bg-slate-100">بازگشت به سفارش</a>
+            <a href="{{ $backUrl }}" class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 hover:bg-slate-100">بازگشت به سفارش</a>
         </header>
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 text-xs leading-6 text-slate-600 sm:px-6">
-            <span>شناسهٔ ردیابی: <strong dir="ltr" class="font-black text-slate-900">USER-{{ $user->id }} · ORDER-{{ $order->order_number }}</strong></span>
+            <span>شناسهٔ ردیابی: <strong dir="ltr" class="font-black text-slate-900">USER-{{ $user->id }} · {{ $referenceCode }}</strong></span>
             @if($pageCount > 0)
                 <span>{{ \App\Support\PersianUi::digits($pageCount) }} صفحه · نمایش امن، بدون لینک دانلود</span>
             @else
@@ -25,12 +25,12 @@
 
         <div class="secure-viewer relative isolate space-y-5 bg-slate-100 p-3 sm:p-6" data-secure-viewer>
             <div class="secure-viewer__watermark" aria-hidden="true">
-                <span>شیخان · USER-{{ $user->id }} · ORDER-{{ $order->order_number }}</span>
-                <span>شیخان · USER-{{ $user->id }} · ORDER-{{ $order->order_number }}</span>
-                <span>شیخان · USER-{{ $user->id }} · ORDER-{{ $order->order_number }}</span>
-                <span>شیخان · USER-{{ $user->id }} · ORDER-{{ $order->order_number }}</span>
-                <span>شیخان · USER-{{ $user->id }} · ORDER-{{ $order->order_number }}</span>
-                <span>شیخان · USER-{{ $user->id }} · ORDER-{{ $order->order_number }}</span>
+                <span>شیخان · USER-{{ $user->id }} · {{ $referenceCode }}</span>
+                <span>شیخان · USER-{{ $user->id }} · {{ $referenceCode }}</span>
+                <span>شیخان · USER-{{ $user->id }} · {{ $referenceCode }}</span>
+                <span>شیخان · USER-{{ $user->id }} · {{ $referenceCode }}</span>
+                <span>شیخان · USER-{{ $user->id }} · {{ $referenceCode }}</span>
+                <span>شیخان · USER-{{ $user->id }} · {{ $referenceCode }}</span>
             </div>
 
             @if($textContent !== null)
@@ -58,7 +58,7 @@
         </div>
 
         <footer class="border-t border-slate-200 bg-white p-4 text-xs leading-7 text-slate-600 sm:p-6">
-            هر صفحه با شناسهٔ حساب و شمارهٔ سفارش واترمارک شده و بازشدن فایل/صفحات در لاگ امنیتی ثبت می‌شود. برای محافظت از حقوق محتوا، فایل اصلی و PDF قابل دانلود به مرورگر تحویل داده نمی‌شود.
+            هر صفحه با شناسهٔ حساب و مرجع یکتای محتوا/سفارش واترمارک شده و بازشدن فایل و صفحات در لاگ امنیتی ثبت می‌شود. برای محافظت از حقوق محتوا، فایل اصلی و PDF قابل دانلود به مرورگر تحویل داده نمی‌شود.
             <span class="mt-1 block">واترمارک امکان ردیابی نسخهٔ منتشرشده را فراهم می‌کند؛ هیچ مرورگر عمومی نمی‌تواند اسکرین‌شات، عکس‌گرفتن با دستگاه دیگر یا دورزدن ابزارهای توسعه را به‌طور مطلق ناممکن کند.</span>
         </footer>
     </div>

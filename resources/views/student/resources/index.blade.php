@@ -27,7 +27,7 @@
                             <p class="text-xs leading-6 text-amber-800" role="status">اتصال SpotPlayer این ویدئو در انتظار تنظیم مدیر آموزشگاه است؛ فایل خام برای دانلود یا پخش مستقیم ارائه نمی‌شود.</p>
                         @endif
                     @else
-                        <a class="btn s" href="{{ route('student.resources.view', $resource->id) }}">مشاهده منبع</a>
+                        <a class="btn s" href="{{ route('student.resources.view', $resource->id) }}">مشاهده امن منبع</a>
                     @endif
                 </article>
             @empty

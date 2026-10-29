@@ -21,7 +21,6 @@ class ResourceController extends Controller
     public function view(
         LearningResource $resource,
         StudentLearningResourceService $resources,
-        MediaService $media,
         SpotPlayerMediaDeliveryService $spotPlayerDelivery,
     ) {
         abort_unless($resources->canAccess(request()->user(), $resource), 404);
@@ -39,7 +38,10 @@ class ResourceController extends Controller
             abort(409, 'برای حفظ حقوق محتوای آموزشی، فایل ویدئویی خام ارائه نمی‌شود. مدیر آموزشگاه باید دوره را به شناسهٔ رسمی SpotPlayer متصل کند.');
         }
 
-        return $media->inline($resource->media);
+        return redirect()->route('protected-learning-media.view', [
+            'media' => $resource->media_id,
+            'resource' => $resource->id,
+        ]);
     }
 
     public function download(
