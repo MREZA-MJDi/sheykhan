@@ -357,6 +357,8 @@ final class SpotPlayerService
 
                 $license = SpotPlayerLicense::query()->create([
                     'course_id' => $course->id,
+                    'provider_course_id' => $externalCourseId,
+                    'provider_mode' => $mode,
                     'student_id' => $student->id,
                     'external_license_id' => mb_substr((string) $body['_id'], 0, 120),
                     'license_key' => (string) $body['key'],
