@@ -12,6 +12,7 @@ final class StudentLearningResourceService
     public function query(User $student): Builder
     {
         $academyIds = $student->academies()
+            ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->pluck('academies.id');
 
@@ -157,6 +158,10 @@ final class StudentLearningResourceService
 
     private function academyMember(User $student, int $academyId): bool
     {
-        return $student->academies()->whereKey($academyId)->wherePivot('status', 'active')->exists();
+        return $student->academies()
+            ->whereKey($academyId)
+            ->wherePivot('role', 'student')
+            ->wherePivot('status', 'active')
+            ->exists();
     }
 }

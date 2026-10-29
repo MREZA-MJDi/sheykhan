@@ -111,6 +111,7 @@ class MediaPolicy
                 || $model instanceof Assignment
                 || $model instanceof AssignmentSubmission
                 || $model instanceof Exam
+                || $model instanceof ExamAttempt
                 || $model instanceof LiveClass
             ) {
                 return true;
@@ -323,10 +324,58 @@ class MediaPolicy
             }
 
             if ($model instanceof ExamAttempt) {
-                if (
-                    $model->student_id === $user->id
-                    || $this->isParentOf($user, $model->student_id)
-                ) {
+                $model->loadMissing('exam.course.academy', 'exam.classroom');
+                $exam = $model->exam;
+
+                if (! $exam || ! $exam->course) {
+                    continue;
+                }
+
+                if ($user->hasRole('student')) {
+                    if ((int) $model->student_id === (int) $user->id) {
+                        $canViewAttempt = $model->submitted_at
+                            ? app(StudentAccessService::class)->canViewExamResult($user, $exam)
+                            : app(StudentAccessService::class)->exam($user, $exam);
+
+                        if ($canViewAttempt) {
+                            return true;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('parent')) {
+                    if (! $model->submitted_at) {
+                        continue;
+                    }
+
+                    $child = $user->children()
+                        ->whereKey($model->student_id)
+                        ->where('users.status', 'active')
+                        ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
+                        ->first();
+
+                    if (
+                        $child
+                        && app(CourseAccessService::class)->canAccess($user, $exam->course)
+                        && app(StudentAccessService::class)->canViewExamResult($child, $exam)
+                    ) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($user->hasRole('teacher')) {
+                    if (app(TeacherAccessService::class)->canManageExam($user, $exam)) {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if ($this->academyOwner($user, $exam->course->academy)) {
                     return true;
                 }
             }

@@ -3,11 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\LearningResource;
+use App\Models\MediaAttachment;
 use App\Models\Media;
 use App\Models\User;
 use App\Services\StudentLearningResourceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -284,6 +288,87 @@ class StudentLearningResourceAccessTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.resources.index'))
             ->assertForbidden();
+    }
+
+    public function test_active_non_student_academy_membership_does_not_unlock_unscoped_resource(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $ownerId = User::query()->where('email', 'owner@sheykhan.test')->value('id');
+
+        DB::table('academy_user')
+            ->where('academy_id', $course->academy_id)
+            ->where('user_id', $student->id)
+            ->update(['role' => 'parent', 'status' => 'active']);
+
+        $media = $this->makeMedia('academy-wide.pdf', 'application/pdf');
+        $resource = LearningResource::query()->create([
+            'academy_id' => $course->academy_id,
+            'course_id' => null,
+            'classroom_id' => null,
+            'lesson_id' => null,
+            'media_id' => $media->id,
+            'uploaded_by' => $ownerId,
+            'title' => 'منبع عمومی آموزشگاه',
+            'resource_type' => 'document',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => false,
+            'status' => 'active',
+        ]);
+
+        $service = app(StudentLearningResourceService::class);
+
+        $this->assertFalse($service->canAccess($student, $resource));
+        $this->assertFalse($service->query($student)->whereKey($resource->id)->exists());
+    }
+
+    public function test_parent_cannot_view_an_unsubmitted_exam_attempt_attachment(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $parent = User::query()->where('email', 'parent.armin@sheykhan.test')->firstOrFail();
+        $teacherId = User::query()->where('email', 'teacher.math@sheykhan.test')->value('id');
+
+        $parent->children()->syncWithoutDetaching([
+            $student->id => ['relation' => 'والد'],
+        ]);
+
+        $exam = Exam::query()->create([
+            'course_id' => $course->id,
+            'teacher_id' => $teacherId,
+            'title' => 'آزمون پیوست خصوصی',
+            'duration_minutes' => 30,
+            'attempts_allowed' => 1,
+            'status' => 'published',
+        ]);
+
+        $attempt = ExamAttempt::query()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'attempt_number' => 1,
+            'started_at' => now()->subMinutes(2),
+            'submitted_at' => null,
+            'status' => 'in_progress',
+        ]);
+
+        $media = $this->makeMedia('attempt-private.pdf', 'application/pdf');
+        MediaAttachment::query()->create([
+            'media_id' => $media->id,
+            'mediable_type' => ExamAttempt::class,
+            'mediable_id' => $attempt->id,
+            'collection' => 'exam-attempt',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $this->assertTrue($parent->children()->whereKey($student->id)->exists());
+        $this->assertFalse(Gate::forUser($parent)->allows('view', $media));
+        $this->assertFalse(Gate::forUser($parent)->allows('download', $media));
     }
 
     private function makeMedia(string $fileName, string $mimeType): Media
