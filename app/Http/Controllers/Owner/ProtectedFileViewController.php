@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\ProtectedFileView;
 use App\Models\ProtectedLearningMediaView;
+use App\Models\SpotPlayerPlaybackView;
+use App\Models\Course;
 use App\Models\LearningResource;
 use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\Request;
@@ -73,6 +75,26 @@ final class ProtectedFileViewController extends Controller
 
         $learningViews = $learningQuery->paginate(30, ['*'], 'learning_page')->withQueryString();
 
-        return view('owner.protected-file-views.index', compact('academy', 'views', 'learningViews', 'search'));
+        $spotplayerViews = SpotPlayerPlaybackView::query()
+            ->whereIn('course_id', Course::query()->where('academy_id', $academy->id)->select('id'))
+            ->with(['user:id,name,email', 'course:id,title,academy_id'])
+            ->when($search !== '', function ($builder) use ($search): void {
+                $builder->where(function ($filter) use ($search): void {
+                    $filter
+                        ->whereHas('user', fn ($user) => $user->where('name', 'like', '%' . $search . '%')->orWhere('email', 'like', '%' . $search . '%'))
+                        ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'));
+                    if (ctype_digit($search)) {
+                        $filter->orWhere('id', (int) $search)
+                            ->orWhere('user_id', (int) $search)
+                            ->orWhere('course_id', (int) $search);
+                    }
+                });
+            })
+            ->orderByDesc('viewed_at')
+            ->orderByDesc('id')
+            ->paginate(30, ['*'], 'spotplayer_page')
+            ->withQueryString();
+
+        return view('owner.protected-file-views.index', compact('academy', 'views', 'learningViews', 'spotplayerViews', 'search'));
     }
 }

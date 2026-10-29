@@ -97,6 +97,40 @@
             </table>
         </div>
         @if($learningViews->hasPages())<div class="mt-4">{{ $learningViews->links() }}</div>@endif
+
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="text-lg font-black">گزارش بازشدن پلیر SpotPlayer</h2>
+                <p class="mt-1 text-sm leading-6 text-slate-500">هر نوبت آماده‌سازی پلیر با شناسهٔ VIEW یکتا، حساب دانش‌آموز، دوره، IP و مرورگر ثبت می‌شود. این رویداد بازشدن پلیر را ثبت می‌کند، نه مدت تماشای واقعی ویدئو.</p>
+            </div>
+            <span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700">{{ \App\Support\PersianUi::digits($spotplayerViews->total()) }} رویداد پلیر</span>
+        </div>
+
+        <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200">
+            <table class="min-w-[900px] w-full border-collapse text-sm">
+                <thead class="bg-slate-50 text-right text-xs text-slate-600">
+                    <tr>
+                        <th class="p-3">زمان</th><th class="p-3">حساب / شناسه</th><th class="p-3">دوره</th>
+                        <th class="p-3">شناسهٔ مشاهده</th><th class="p-3">IP</th><th class="p-3">مرورگر</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($spotplayerViews as $event)
+                        <tr class="align-top">
+                            <td class="whitespace-nowrap p-3 text-xs text-slate-600">{{ \App\Support\PersianUi::date($event->viewed_at) }}<span class="mt-1 block" dir="ltr">{{ $event->viewed_at?->format('H:i:s') }}</span></td>
+                            <td class="p-3"><strong>{{ $event->user?->name ?: 'حساب حذف‌شده' }}</strong><span class="mt-1 block text-xs text-slate-500">USER-{{ $event->user_id }}</span></td>
+                            <td class="p-3">{{ $event->course?->title ?: 'دورهٔ حذف‌شده' }}<span class="mt-1 block text-xs text-slate-500">COURSE-{{ $event->course_id }}</span></td>
+                            <td class="p-3 text-xs font-black text-indigo-700" dir="ltr">VIEW-{{ $event->id }}</td>
+                            <td class="p-3 text-xs" dir="ltr">{{ $event->ip_address ?: '—' }}</td>
+                            <td class="max-w-xs break-words p-3 text-xs leading-6 text-slate-600">{{ \Illuminate\Support\Str::limit((string) $event->user_agent, 150) }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="p-10 text-center text-sm text-slate-500">هنوز رویداد بازشدن پلیر SpotPlayer برای این آموزشگاه ثبت نشده است.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($spotplayerViews->hasPages())<div class="mt-4">{{ $spotplayerViews->links() }}</div>@endif
     </section>
 </div>
 @endsection

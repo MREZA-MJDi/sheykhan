@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Course;
 use App\Models\SpotPlayerLicense;
 use App\Models\SpotPlayerLicenseIssuance;
+use App\Models\SpotPlayerPlaybackView;
 use App\Models\User;
 use App\Services\SpotPlayerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -147,6 +148,58 @@ final class SpotPlayerIntegrationTest extends TestCase
 
         // An unclear success response must not result in a duplicate provider call.
         Http::assertSentCount(1);
+    }
+
+    public function test_each_spotplayer_player_open_is_logged_with_a_trace_reference(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $course->update(['spotplayer_course_id' => 'spot-course-123']);
+
+        config([
+            'services.spotplayer.api_key' => 'fake-secret-key',
+            'services.spotplayer.mode' => 'test',
+        ]);
+
+        Http::fake([
+            'https://panel.spotplayer.ir/*' => Http::response([
+                '_id' => 'spot-license-' . $student->id,
+                'key' => 'abcdef123456licensekey',
+                'url' => 'https://dl.spotplayer.ir/licenses/spot-license-file',
+            ], 200),
+        ]);
+
+        $this->actingAs($student)
+            ->post(route('student.courses.spotplayer-license', $course))
+            ->assertRedirect(route('student.courses.show', $course));
+
+        $license = SpotPlayerLicense::query()
+            ->where('student_id', $student->id)
+            ->where('course_id', $course->id)
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        $response = $this->actingAs($student)
+            ->postJson(route('student.courses.spotplayer-view', $course));
+
+        $response->assertCreated()
+            ->assertJsonPath('reference', 'VIEW-' . $response->json('view_id'))
+            ->assertJsonMissingPath('license_key')
+            ->assertJsonMissingPath('api_key');
+
+        $this->assertDatabaseHas('spot_player_playback_views', [
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'spot_player_license_id' => $license->id,
+            'event_type' => 'player_open',
+        ]);
+
+        $this->assertSame(1, SpotPlayerPlaybackView::query()
+            ->where('user_id', $student->id)
+            ->where('course_id', $course->id)
+            ->count());
     }
 
     public function test_spotplayer_requires_server_api_key_and_a_supported_mode(): void
