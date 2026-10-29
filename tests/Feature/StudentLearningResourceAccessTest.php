@@ -135,6 +135,15 @@ class StudentLearningResourceAccessTest extends TestCase
         $this->assertFalse(Gate::forUser($otherStudent)->allows('view', $media));
         $this->assertFalse(Gate::forUser($otherStudent)->allows('download', $media));
 
+        // Staff may inspect protected learning media through the secure viewer,
+        // but no role may use the generic media endpoint to download the source.
+        $owner = User::where('email', 'owner@sheykhan.test')->firstOrFail();
+        $this->assertFalse(Gate::forUser($owner)->allows('download', $media));
+
+        $this->actingAs($owner)
+            ->get(route('media.download', $media))
+            ->assertForbidden();
+
         $this->actingAs($student)
             ->get(route('media.view', $media))
             ->assertRedirect(route('protected-learning-media.view', $media));
