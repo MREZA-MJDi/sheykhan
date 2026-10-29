@@ -28,7 +28,18 @@
                 <div class="trk">
                     <div class="th"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg></div>
                     <div><b>{{ $media->original_name }}</b><span>{{ strtoupper($media->extension ?? '') }} · {{ \App\Support\PersianUi::number(((int) $media->size) / 1024) }} کیلوبایت</span></div>
-                    <a class="btn s" href="{{ route('media.view', $media->id) }}">مشاهده فایل</a>
+                    @if(str_starts_with(strtolower((string) $media->mime_type), 'video/'))
+                        <div class="flex flex-col gap-2">
+                            <span class="rounded-lg bg-indigo-50 px-3 py-2 text-xs font-bold leading-6 text-indigo-900">ویدئوی آموزشی از فایل خام ارائه نمی‌شود تا دسترسی محافظت‌شده حفظ شود.</span>
+                            @if(filled($course->spotplayer_course_id))
+                                <a class="btn s" href="{{ route('student.courses.show', $course->id) }}#spotplayer-access">پخش امن ویدئو در صفحه دوره</a>
+                            @else
+                                <span class="text-xs leading-6 text-amber-800">اتصال SpotPlayer این دوره هنوز تنظیم نشده است. مدیر آموزشگاه باید شناسهٔ رسمی دوره را ثبت کند.</span>
+                            @endif
+                        </div>
+                    @else
+                        <a class="btn s" href="{{ route('media.view', $media->id) }}">مشاهده فایل</a>
+                    @endif
                 </div>
             @endforeach
         @endif

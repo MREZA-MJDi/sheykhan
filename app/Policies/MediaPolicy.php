@@ -23,6 +23,10 @@ class MediaPolicy
 {
     public function view(User $user, Media $media): bool
     {
+        if ($this->mustUseSpotPlayer($user, $media)) {
+            return false;
+        }
+
         // "public" is not an override for course/lesson/assessment permissions.
         // An accidentally public PDF must still stay behind its learning access rule.
         if ($this->requiresProtectedDelivery($media)) {
@@ -38,6 +42,10 @@ class MediaPolicy
 
     public function download(User $user, Media $media): bool
     {
+        if ($this->mustUseSpotPlayer($user, $media)) {
+            return false;
+        }
+
         $protectedLearningMedia = $this->requiresProtectedDelivery($media);
 
         // Students download course materials only through the explicit resource
@@ -102,6 +110,12 @@ class MediaPolicy
         }
 
         return false;
+    }
+
+    private function mustUseSpotPlayer(User $user, Media $media): bool
+    {
+        return ($user->hasRole('student') || $user->hasRole('parent'))
+            && app(\App\Services\SpotPlayerMediaDeliveryService::class)->requiresProtectedPlayer($media);
     }
 
     private function canAccessProtectedMedia(User $user, Media $media): bool

@@ -23,9 +23,11 @@ final class StudentLearningResourceService
 
         return LearningResource::query()
             ->with([
-                'course:id,academy_id,title,status,published_at,access_type',
+                'course:id,academy_id,title,slug,spotplayer_course_id,status,published_at,access_type',
                 'classroom:id,academy_id,title,course_id,status',
+                'classroom.course:id,academy_id,title,slug,spotplayer_course_id,status,published_at,access_type',
                 'lesson:id,title,course_section_id',
+                'lesson.section.course:id,academy_id,title,slug,spotplayer_course_id,status,published_at,access_type',
                 'academy:id,name',
                 'media:id,disk,path,original_name,mime_type,size,status',
             ])

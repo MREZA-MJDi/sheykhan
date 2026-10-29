@@ -138,6 +138,53 @@ class StudentLearningResourceAccessTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_course_videos_are_opened_through_spotplayer_not_as_raw_media(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update(['spotplayer_course_id' => 'spot-course-123']);
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
+        $media = $this->makeMedia('lesson-video.mp4', 'video/mp4');
+
+        $lesson->media()->attach($media->id, [
+            'collection' => 'lesson-assets',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $resource = LearningResource::create([
+            'academy_id' => $course->academy_id,
+            'course_id' => $course->id,
+            'classroom_id' => null,
+            'lesson_id' => $lesson->id,
+            'media_id' => $media->id,
+            'uploaded_by' => User::where('email', 'owner@sheykhan.test')->value('id'),
+            'title' => 'ویدئوی محافظت‌شده',
+            'resource_type' => 'video',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => false,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('media.view', $media))
+            ->assertForbidden();
+
+        $this->actingAs($student)
+            ->get(route('student.lessons.show', $lesson))
+            ->assertOk()
+            ->assertSee('پخش امن ویدئو')
+            ->assertDontSee(route('media.view', $media));
+
+        $this->actingAs($student)
+            ->get(route('student.resources.view', $resource))
+            ->assertRedirect(route('student.courses.show', $course) . '#spotplayer-access');
+    }
+
     public function test_student_resource_download_is_forbidden_even_when_marked_view_only(): void
     {
         $this->seed();
