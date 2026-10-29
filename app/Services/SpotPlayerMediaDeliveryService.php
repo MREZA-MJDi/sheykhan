@@ -49,7 +49,9 @@ final class SpotPlayerMediaDeliveryService
 
     public function courseForResource(LearningResource $resource): ?Course
     {
-        $resource->loadMissing([
+        // The access service may have loaded these relationships with a narrower
+        // select list. Reload them so the external provider mapping is available.
+        $resource->load([
             'course:id,academy_id,title,slug,spotplayer_course_id',
             'classroom.course:id,academy_id,title,slug,spotplayer_course_id',
             'lesson.section.course:id,academy_id,title,slug,spotplayer_course_id',
@@ -59,4 +61,61 @@ final class SpotPlayerMediaDeliveryService
             ?? $resource->classroom?->course
             ?? $resource->lesson?->section?->course;
     }
+
+    public function courseForMedia(Media $media): ?Course
+    {
+        $courses = collect();
+
+        $resources = LearningResource::query()
+            ->where('media_id', $media->id)
+            ->with([
+                'course:id,academy_id,title,slug,spotplayer_course_id',
+                'classroom.course:id,academy_id,title,slug,spotplayer_course_id',
+                'lesson.section.course:id,academy_id,title,slug,spotplayer_course_id',
+            ])
+            ->orderByDesc('id')
+            ->get();
+
+        foreach ($resources as $resource) {
+            $course = $this->courseForResource($resource);
+            if ($course) {
+                $courses->push($course);
+            }
+        }
+
+        $recordings = LiveClass::query()
+            ->where('recording_media_id', $media->id)
+            ->with('course:id,academy_id,title,slug,spotplayer_course_id')
+            ->orderByDesc('id')
+            ->get();
+
+        foreach ($recordings as $recording) {
+            if ($recording->course) {
+                $courses->push($recording->course);
+            }
+        }
+
+        foreach ($media->attachments()->with('mediable')->get() as $attachment) {
+            $model = $attachment->mediable;
+            $course = match (true) {
+                $model instanceof Course => $model->fresh(['academy:id']) ?? $model,
+                $model instanceof Lesson => $model->load('section.course:id,academy_id,title,slug,spotplayer_course_id')->section?->course,
+                $model instanceof Classroom => $model->load('course:id,academy_id,title,slug,spotplayer_course_id')->course,
+                $model instanceof LiveClass => $model->load('course:id,academy_id,title,slug,spotplayer_course_id')->course,
+                default => null,
+            };
+
+            if ($course) {
+                $courses->push($course);
+            }
+        }
+
+        $courses = $courses->filter()->unique('id')->values();
+
+        // Prefer an explicitly configured external course, but never fabricate
+        // a mapping from Sheykhan's internal numeric course ID.
+        return $courses->first(fn (Course $course): bool => filled($course->spotplayer_course_id))
+            ?? $courses->first();
+    }
+
 }

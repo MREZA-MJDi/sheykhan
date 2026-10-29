@@ -112,6 +112,12 @@ class MediaPolicy
         return false;
     }
 
+    public function canViewThroughSpotPlayer(User $user, Media $media): bool
+    {
+        return $this->mustUseSpotPlayer($user, $media)
+            && $this->canAccessProtectedMedia($user, $media);
+    }
+
     private function mustUseSpotPlayer(User $user, Media $media): bool
     {
         return ($user->hasRole('student') || $user->hasRole('parent'))

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Media;
 use App\Services\MediaService;
+use App\Services\SpotPlayerMediaDeliveryService;
+use App\Services\StudentAccessService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
@@ -37,10 +39,46 @@ class MediaController extends Controller
         ]);
     }
 
-    public function view(Media $media, MediaService $mediaService): Response
-    {
+    public function view(
+        Media $media,
+        MediaService $mediaService,
+        SpotPlayerMediaDeliveryService $spotPlayerDelivery,
+        \App\Policies\MediaPolicy $policy,
+    ): Response {
         abort_unless($media->status === 'active', 404);
 
+        $user = auth()->user();
+
+        if ($spotPlayerDelivery->requiresProtectedPlayer($media)) {
+            if ($user?->hasRole('student')) {
+                abort_unless(
+                    $policy->canViewThroughSpotPlayer($user, $media),
+                    403,
+                    'دسترسی این فایل برای حساب شما فعال نیست.'
+                );
+
+                $course = $spotPlayerDelivery->courseForMedia($media);
+                abort_unless($course, 409, 'این ویدئو هنوز به یک دورهٔ شیخان متصل نشده است.');
+
+                if (blank($course->spotplayer_course_id)) {
+                    abort(409, 'برای پخش این ویدئو، مدیر باید شناسهٔ واقعی دوره در پنل SpotPlayer را ثبت کند.');
+                }
+
+                abort_unless(app(StudentAccessService::class)->course($user, $course), 404);
+
+                return redirect()->to(route('student.courses.show', $course) . '#spotplayer-access');
+            }
+
+            if ($user?->hasRole('parent')) {
+                abort_unless(
+                    $policy->canViewThroughSpotPlayer($user, $media),
+                    403,
+                    'دسترسی این فایل برای حساب شما فعال نیست.'
+                );
+
+                abort(403, 'برای حفظ دسترسی اختصاصی فرزند، ویدئوی محافظت‌شده باید از حساب دانش‌آموز پخش شود.');
+            }
+        }
         try {
             Gate::forUser(auth()->user())->authorize('view', $media);
         } catch (AuthorizationException) {
