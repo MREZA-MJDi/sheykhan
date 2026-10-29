@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Media;
 use App\Services\MediaService;
 use App\Services\SpotPlayerMediaDeliveryService;
-use App\Services\StudentAccessService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
@@ -64,9 +63,7 @@ class MediaController extends Controller
                     abort(409, 'برای پخش این ویدئو، مدیر باید شناسهٔ واقعی دوره در پنل SpotPlayer را ثبت کند.');
                 }
 
-                abort_unless(app(StudentAccessService::class)->course($user, $course), 404);
-
-                return redirect()->to(route('student.courses.show', $course) . '#spotplayer-access');
+                    return redirect()->to(route('student.courses.show', $course) . '#spotplayer-access');
             }
 
             if ($user?->hasRole('parent')) {

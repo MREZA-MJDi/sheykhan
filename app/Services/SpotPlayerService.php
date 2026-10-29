@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\SpotPlayerLicense;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -14,8 +16,44 @@ final class SpotPlayerService
 {
     public function isConfigured(): bool
     {
-        return filled(config('services.spotplayer.api_key'))
-            && in_array(config('services.spotplayer.mode'), ['test', 'production'], true);
+        return filled($this->apiKey())
+            && in_array($this->mode(), ['test', 'production'], true);
+    }
+
+    public function mode(): string
+    {
+        $environmentMode = env('SPOTPLAYER_MODE');
+
+        if (is_string($environmentMode) && $environmentMode !== '') {
+            return $environmentMode;
+        }
+
+        $storedMode = Setting::query()->where('key', 'spotplayer_mode')->value('value');
+
+        return filled($storedMode)
+            ? (string) $storedMode
+            : (string) config('services.spotplayer.mode', 'test');
+    }
+
+    private function apiKey(): string
+    {
+        $environmentKey = (string) config('services.spotplayer.api_key');
+        if (filled($environmentKey)) {
+            return $environmentKey;
+        }
+
+        $encryptedKey = Setting::query()->where('key', 'spotplayer_api_key_encrypted')->value('value');
+        if (! filled($encryptedKey)) {
+            return '';
+        }
+
+        try {
+            return Crypt::decryptString((string) $encryptedKey);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return '';
+        }
     }
 
     public function licenseForStudent(User $student, Course $course): SpotPlayerLicense
@@ -48,7 +86,7 @@ final class SpotPlayerService
                 return $existing;
             }
 
-            $apiKey = (string) config('services.spotplayer.api_key');
+            $apiKey = $this->apiKey();
             $maxDevices = max(1, min(99, (int) config('services.spotplayer.max_active_devices', 1)));
             $webDevices = max(0, min($maxDevices, (int) config('services.spotplayer.web_app_devices', 1)));
             $watermarkTexts = [
@@ -56,7 +94,7 @@ final class SpotPlayerService
                 ['text' => 'Sheykhan ID ' . $student->id],
             ];
             $requestBody = [
-                'test' => config('services.spotplayer.mode') === 'test',
+                'test' => $this->mode() === 'test',
                 'name' => mb_substr(trim($student->name), 0, 120),
                 'course' => [$externalCourseId],
                 'watermark' => ['texts' => $watermarkTexts],

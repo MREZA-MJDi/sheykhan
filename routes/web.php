@@ -108,10 +108,14 @@ Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutC
     Route::post('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
     Route::get('/orders/{order}', [\App\Http\Controllers\Commerce\OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/payment-proof', [\App\Http\Controllers\Commerce\OrderController::class, 'uploadProof'])->middleware('throttle:5,1')->name('orders.proof.store');
+    Route::get('/orders/{order}/files/{file}/view', [\App\Http\Controllers\Commerce\OrderController::class, 'viewFile'])->middleware('throttle:60,1')->name('orders.files.view');
+    Route::get('/orders/{order}/files/{file}/pages/{page}', [\App\Http\Controllers\Commerce\OrderController::class, 'viewFilePage'])->whereNumber('page')->middleware('throttle:180,1')->name('orders.files.pages');
     Route::get('/orders/{order}/files/{file}/download', [\App\Http\Controllers\Commerce\OrderController::class, 'download'])->middleware('throttle:20,1')->name('orders.files.download');
 });
 
 Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
+    Route::get('/spotplayer', [\App\Http\Controllers\Owner\SpotPlayerSettingsController::class, 'edit'])->middleware('permission:courses.manage')->name('spotplayer.edit');
+    Route::put('/spotplayer', [\App\Http\Controllers\Owner\SpotPlayerSettingsController::class, 'update'])->middleware(['permission:courses.manage','throttle:10,1'])->name('spotplayer.update');
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');

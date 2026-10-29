@@ -122,12 +122,35 @@ final class OrderController extends Controller
             ->with('success', 'رسید در فضای خصوصی ذخیره شد. سفارش تا بررسی واقعی تراکنش توسط تیم شیخان در انتظار تأیید می‌ماند.');
     }
 
+    public function viewFile(
+        Request $request,
+        Order $order,
+        \App\Models\ProductFile $file,
+        ProductDeliveryService $delivery
+    ): Response {
+        $this->assertBuyer($request, $order);
+
+        return $delivery->view($request->user(), $order, $file, $request);
+    }
+
+    public function viewFilePage(
+        Request $request,
+        Order $order,
+        \App\Models\ProductFile $file,
+        int $page,
+        ProductDeliveryService $delivery
+    ): Response {
+        $this->assertBuyer($request, $order);
+
+        return $delivery->page($request->user(), $order, $file, $page, $request);
+    }
+
     public function download(
         Request $request,
         Order $order,
         \App\Models\ProductFile $file,
         ProductDeliveryService $delivery
-    ) {
+    ): Response {
         $this->assertBuyer($request, $order);
 
         return $delivery->download($request->user(), $order, $file, $request);

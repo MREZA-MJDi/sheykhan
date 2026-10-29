@@ -172,7 +172,7 @@ class StudentLearningResourceAccessTest extends TestCase
 
         $this->actingAs($student)
             ->get(route('media.view', $media))
-            ->assertForbidden();
+            ->assertRedirect(route('student.courses.show', $course) . '#spotplayer-access');
 
         $this->actingAs($student)
             ->get(route('student.lessons.show', $lesson))

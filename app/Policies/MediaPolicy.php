@@ -14,6 +14,7 @@ use App\Models\Lesson;
 use App\Models\LiveClass;
 use App\Models\LearningResource;
 use App\Models\Media;
+use App\Models\ProductFile;
 use App\Models\User;
 use App\Services\CourseAccessService;
 use App\Services\StudentAccessService;
@@ -83,6 +84,13 @@ class MediaPolicy
      */
     public function requiresProtectedDelivery(Media $media): bool
     {
+        // A purchased product source is never a public file. Even if a product
+        // manager accidentally marks the underlying media public, non-preview
+        // files are delivered through the authenticated, watermarked viewer.
+        if (ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists()) {
+            return true;
+        }
+
         if (
             LearningResource::query()->where('media_id', $media->id)->exists()
             || LiveClass::query()->where('recording_media_id', $media->id)->exists()
