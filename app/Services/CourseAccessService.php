@@ -115,13 +115,17 @@ final class CourseAccessService
 
     private function isAssignedTeacher(User $user, Course $course): bool
     {
-        return $course->teachers()->whereKey($user->id)->exists();
+        // Assignment alone is not an entitlement: an archived teacher must lose
+        // access to course pages and attachments even when course_teacher is stale.
+        return $user->hasRole('teacher')
+            && app(TeacherAccessService::class)->canTeachCourse($user, $course);
     }
 
     private function academyMember(User $user, int $academyId): bool
     {
         return $user->academies()
             ->whereKey($academyId)
+            ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->exists();
     }

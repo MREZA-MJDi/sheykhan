@@ -403,12 +403,12 @@ class MediaPolicy
     {
         $classroom->loadMissing(['academy', 'course']);
 
-        if ($user->hasRole('student')) {
-            if (!$classroom->course) {
-                return false;
-            }
+        if (! $classroom->course || $classroom->status !== 'active') {
+            return false;
+        }
 
-            return $this->courseAccess($user, $classroom->course)
+        if ($user->hasRole('student')) {
+            return app(StudentAccessService::class)->course($user, $classroom->course)
                 && $user->classroomsAsStudent()
                     ->whereKey($classroom->id)
                     ->wherePivot('status', 'active')
@@ -419,27 +419,31 @@ class MediaPolicy
             return true;
         }
 
-        if ($user->classroomsAsTeacher()->whereKey($classroom->id)->exists()) {
-            return true;
-        }
-
+        // Do not trust a stale classroom_teacher pivot after academy membership
+        // was archived. TeacherAccessService checks both cohort and membership.
         if (
-            $user->classroomsAsStudent()
-                ->whereKey($classroom->id)
-                ->wherePivot('status', 'active')
-                ->exists()
+            $user->hasRole('teacher')
+            && app(TeacherAccessService::class)->canManageClassroom($user, $classroom)
         ) {
             return true;
         }
 
+        if (! $user->hasRole('parent')) {
+            return false;
+        }
+
+        // Parents inherit classroom access only through an active child with
+        // valid course entitlement and an active membership in this exact class.
         return $user->children()
-            ->with('classroomsAsStudent')
+            ->where('users.status', 'active')
             ->get()
-            ->contains(
-                fn (User $child) => $child->classroomsAsStudent->contains(
-                    fn (Classroom $childClassroom) => $childClassroom->id === $classroom->id
-                )
-            );
+            ->contains(function (User $child) use ($classroom): bool {
+                return app(StudentAccessService::class)->course($child, $classroom->course)
+                    && $child->classroomsAsStudent()
+                        ->whereKey($classroom->id)
+                        ->wherePivot('status', 'active')
+                        ->exists();
+            });
     }
 
     private function courseAccess(User $user, Course $course): bool
