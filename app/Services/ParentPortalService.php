@@ -17,18 +17,35 @@ final class ParentPortalService
      */
     public function contactableChildren(User $parent): Collection
     {
+        if (! $parent->hasRole('parent') || $parent->status !== 'active' || $parent->trashed()) {
+            return collect();
+        }
+
+        $activeParentAcademyIds = fn () => DB::table('academy_user as parent_membership')
+            ->join('academies', 'academies.id', '=', 'parent_membership.academy_id')
+            ->where('parent_membership.user_id', $parent->id)
+            ->where('parent_membership.role', 'parent')
+            ->where('parent_membership.status', 'active')
+            ->where('academies.status', 'active')
+            ->select('parent_membership.academy_id');
+
         return $parent->children()
             ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->whereHas('roles', fn (Builder $roles) => $roles->where('roles.slug', 'student'))
+            ->whereHas('academies', fn ($academies) => $academies
+                ->whereIn('academies.id', $activeParentAcademyIds())
+                ->where('academies.status', 'active')
+                ->wherePivot('role', 'student')
+                ->wherePivot('status', 'active'))
             ->with(['academies' => fn ($academies) => $academies
+                ->whereIn('academies.id', $activeParentAcademyIds())
                 ->where('academies.status', 'active')
                 ->wherePivot('role', 'student')
                 ->wherePivot('status', 'active')
                 ->orderBy('academies.name')])
             ->orderBy('users.name')
-            ->get()
-            ->filter(fn (User $child) => $child->academies->isNotEmpty())
-            ->values();
+            ->get();
     }
 
     /**
