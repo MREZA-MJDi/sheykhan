@@ -24,7 +24,7 @@ final class SpotPlayerSettingsController extends Controller
             'mode' => $spotPlayer->mode(),
             'environmentKeyConfigured' => filled(config('services.spotplayer.api_key')),
             'storedKeyConfigured' => Setting::query()->where('key', 'spotplayer_api_key_encrypted')->exists(),
-            'environmentModeOverride' => is_string(env('SPOTPLAYER_MODE')) && env('SPOTPLAYER_MODE') !== '',
+            'environmentModeOverride' => filled(config('services.spotplayer.mode')),
             'maxActiveDevices' => max(1, min(99, (int) config('services.spotplayer.max_active_devices', 1))),
             'webAppDevices' => max(0, min(99, (int) config('services.spotplayer.web_app_devices', 1))),
         ]);

@@ -40,12 +40,16 @@ final class ProductDeliveryService
 
         $mime = strtolower(trim((string) $media->mime_type));
         $extension = strtolower(trim((string) ($media->extension ?: pathinfo((string) $media->original_name, PATHINFO_EXTENSION))));
+        $isText = $this->isText($mime, $extension);
 
         if (str_starts_with($mime, 'video/')) {
             abort(409, 'ویدئوی خریداری‌شده فقط زمانی قابل پخش است که به دورهٔ واقعی SpotPlayer متصل شده باشد. برای جلوگیری از تحویل فایل خام، دانلود مستقیم غیرفعال است؛ مدیر باید نگاشت مجاز SpotPlayer را تنظیم کند.');
         }
 
-        if ($this->isPdf($mime, $extension) || $this->isOfficeDocument($extension)) {
+        if ($this->isPdf($mime, $extension) || $this->isOfficeDocument($extension) || $isText) {
+            if ($isText) {
+                abort_if((int) $media->size > 2_000_000, 413, 'این فایل متنی برای نمایش امن بیش از حد بزرگ است.');
+            }
             try {
                 $render = $this->prepareProtectedPages($user, $order, $file, $entitlement, $media, $request);
 
@@ -101,25 +105,6 @@ final class ProductDeliveryService
             }
         }
 
-        if (in_array($extension, ['txt', 'csv', 'md'], true) || in_array($mime, ['text/plain', 'text/csv', 'text/markdown'], true)) {
-            abort_if((int) $media->size > 2_000_000, 413, 'این فایل متنی برای نمایش مستقیم بیش از حد بزرگ است.');
-            $disk = Storage::disk($media->disk);
-            abort_unless($disk->exists($media->path), 404);
-            $content = $disk->get($media->path);
-
-            return response()->view('commerce.protected-files.viewer', [
-                'order' => $order,
-                'file' => $file,
-                'product' => $file->product,
-                'pageCount' => 0,
-                'pageUrls' => collect(),
-                'textContent' => $content,
-                'user' => $user,
-            ])->header('Cache-Control', 'no-store, private')
-              ->header('Pragma', 'no-cache')
-              ->header('Referrer-Policy', 'no-referrer')
-              ->header('X-Content-Type-Options', 'nosniff');
-        }
 
         abort(415, 'این نوع فایل هنوز نمایشگر محافظت‌شده ندارد. برای جلوگیری از دانلود و کپی مستقیم، فایل تا آماده‌شدن نمایشگر سازگار قفل می‌ماند.');
     }
@@ -217,11 +202,15 @@ final class ProductDeliveryService
         abort_unless($sourceDisk->exists($media->path), 404);
 
         $extension = strtolower(trim((string) ($media->extension ?: pathinfo((string) $media->original_name, PATHINFO_EXTENSION))));
-        $isImage = str_starts_with(strtolower((string) $media->mime_type), 'image/');
+        $mime = strtolower((string) $media->mime_type);
+        $isImage = str_starts_with($mime, 'image/');
+        $isText = $this->isText($mime, $extension);
+        abort_if($isText && (int) $media->size > 2_000_000, 413, 'این فایل متنی برای نمایش امن بیش از حد بزرگ است.');
         abort_unless(
-            $this->isPdf(strtolower((string) $media->mime_type), $extension)
+            $this->isPdf($mime, $extension)
                 || $this->isOfficeDocument($extension)
-                || $isImage,
+                || $isImage
+                || $isText,
             415,
             'این فایل در نمایشگر محافظت‌شده پشتیبانی نمی‌شود.'
         );
@@ -297,6 +286,8 @@ final class ProductDeliveryService
 
                 if ($this->isOfficeDocument($extension)) {
                     $pdfSource = $this->convertOfficeToPdf($sourcePath, $tempDirectory);
+                } elseif ($isText) {
+                    $pdfSource = $this->convertTextToPdf($sourcePath, $tempDirectory);
                 } else {
                     $signature = file_get_contents($pdfSource, false, null, 0, 5);
                     if ($signature !== '%PDF-') {
@@ -326,7 +317,7 @@ final class ProductDeliveryService
                     '-dTextAlphaBits=4',
                     '-dGraphicsAlphaBits=4',
                     '-dFirstPage=1',
-                    '-dLastPage=' . self::MAX_RENDERED_PAGES,
+                    '-dLastPage=' . (self::MAX_RENDERED_PAGES + 1),
                     '-sOutputFile=' . $pageOutput . DIRECTORY_SEPARATOR . 'page-%04d.png',
                     $watermarkedPdf,
                 ]);
@@ -338,6 +329,10 @@ final class ProductDeliveryService
 
                 if ($generated === []) {
                     throw new RuntimeException('No page images were generated from the protected PDF.');
+                }
+
+                if (count($generated) > self::MAX_RENDERED_PAGES) {
+                    throw new RuntimeException('This document exceeds the secure viewer page limit.');
                 }
 
                 foreach ($generated as $generatedPage) {
@@ -545,6 +540,34 @@ final class ProductDeliveryService
             'viewed_at' => now(),
         ]);
 
+    }
+
+
+    private function convertTextToPdf(string $sourcePath, string $tempDirectory): string
+    {
+        $text = file_get_contents($sourcePath);
+        if (! is_string($text)) {
+            throw new RuntimeException('Unable to read text document for secure rendering.');
+        }
+
+        $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $htmlPath = $tempDirectory . DIRECTORY_SEPARATOR . 'text-source.html';
+        $html = '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><style>' .
+            '@page{size:A4;margin:14mm;}body{font-family:sans-serif;direction:rtl;unicode-bidi:plaintext;color:#111;}' .
+            'h1{font-size:13pt;margin:0 0 16px}pre{font-family:sans-serif;font-size:10pt;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;direction:rtl;unicode-bidi:plaintext;}' .
+            '</style></head><body><h1>محتوای متنی محافظت‌شدهٔ شیخان</h1><pre>' . $escaped . '</pre></body></html>';
+
+        if (file_put_contents($htmlPath, $html, LOCK_EX) === false) {
+            throw new RuntimeException('Unable to prepare text document for secure rendering.');
+        }
+
+        return $this->convertOfficeToPdf($htmlPath, $tempDirectory);
+    }
+
+    private function isText(string $mime, string $extension): bool
+    {
+        return in_array($extension, ['txt', 'csv', 'md'], true)
+            || in_array($mime, ['text/plain', 'text/csv', 'text/markdown'], true);
     }
 
     private function isPdf(string $mime, string $extension): bool

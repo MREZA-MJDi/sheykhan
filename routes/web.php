@@ -119,6 +119,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
+    Route::get('/academy/{academy}/protected-file-views', [\App\Http\Controllers\Owner\ProtectedFileViewController::class, 'index'])->middleware('permission:orders.view')->name('protected-file-views.index');
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->middleware('permission:academy.view')->name('people.index');
     Route::get('/academy/{academy}/people/student-options', [OwnerPeopleController::class, 'studentOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.student-options');
     Route::get('/academy/{academy}/attendance', [OwnerAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');

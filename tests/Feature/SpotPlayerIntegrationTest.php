@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Course;
 use App\Models\SpotPlayerLicense;
+use App\Models\SpotPlayerLicenseIssuance;
 use App\Models\User;
 use App\Services\SpotPlayerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -50,6 +51,15 @@ final class SpotPlayerIntegrationTest extends TestCase
 
         $this->assertSame('abcdef123456licensekey', $license->license_key);
         $this->assertSame('active', $license->status);
+        $this->assertSame('spot-course-123', $license->provider_course_id);
+        $this->assertSame('test', $license->provider_mode);
+        $this->assertDatabaseHas('spot_player_license_issuances', [
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+            'status' => 'active',
+            'provider_course_id' => 'spot-course-123',
+            'provider_mode' => 'test',
+        ]);
         $this->assertNotSame('abcdef123456licensekey', $license->getRawOriginal('license_key'));
 
         $this->actingAs($student)
@@ -123,7 +133,22 @@ final class SpotPlayerIntegrationTest extends TestCase
             ->assertSessionHasErrors('spotplayer');
 
         $this->assertDatabaseCount('spot_player_licenses', 0);
+        $this->assertDatabaseHas('spot_player_license_issuances', [
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+            'status' => 'review_required',
+        ]);
+
+        $this->actingAs($student)
+            ->from(route('student.courses.show', $course))
+            ->post(route('student.courses.spotplayer-license', $course))
+            ->assertRedirect(route('student.courses.show', $course))
+            ->assertSessionHasErrors('spotplayer');
+
+        // An unclear success response must not result in a duplicate provider call.
+        Http::assertSentCount(1);
     }
+
     public function test_spotplayer_requires_server_api_key_and_a_supported_mode(): void
     {
         config([
@@ -191,6 +216,18 @@ final class SpotPlayerIntegrationTest extends TestCase
             ->assertSessionHasErrors('spotplayer');
 
         $this->assertDatabaseCount('spot_player_licenses', 0);
+        $this->assertDatabaseHas('spot_player_license_issuances', [
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+            'status' => 'review_required',
+        ]);
+
+        $this->actingAs($student)
+            ->from(route('student.courses.show', $course))
+            ->post(route('student.courses.spotplayer-license', $course))
+            ->assertRedirect(route('student.courses.show', $course))
+            ->assertSessionHasErrors('spotplayer');
+
         Http::assertSentCount(1);
     }
 

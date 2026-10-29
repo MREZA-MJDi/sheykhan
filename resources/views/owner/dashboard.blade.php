@@ -487,6 +487,7 @@
                 @if($canViewPeople && $firstAcademy)<a class="go sm" href="{{ route('owner.people.index', $firstAcademy) }}">مدیریت اعضا</a>@endif
                 @if($canViewCourses)<a class="go sm" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
                 @if($ownerUser?->hasPermission('courses.manage'))<a class="go sm" href="{{ route('owner.spotplayer.edit') }}">اتصال SpotPlayer</a>@endif
+                @if($canViewOrders && $firstAcademy)<a class="go sm" href="{{ route('owner.protected-file-views.index', $firstAcademy) }}">گزارش مشاهده فایل‌ها</a>@endif
                 @if($canViewAssignments && $firstAcademy)<a class="go sm" href="{{ route('owner.assignments.index', $firstAcademy) }}">تکالیف</a>@endif
                 @if($canViewReports)<a class="go sm" href="{{ route('owner.reports.index') }}">گزارش‌ها</a>@endif
             </div>
