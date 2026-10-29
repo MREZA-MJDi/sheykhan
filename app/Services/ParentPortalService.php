@@ -36,8 +36,8 @@ final class ParentPortalService
             ->whereHas('academies', fn ($academies) => $academies
                 ->whereIn('academies.id', $activeParentAcademyIds())
                 ->where('academies.status', 'active')
-                ->wherePivot('role', 'student')
-                ->wherePivot('status', 'active'))
+                ->where('academy_user.role', 'student')
+                ->where('academy_user.status', 'active'))
             ->with(['academies' => fn ($academies) => $academies
                 ->whereIn('academies.id', $activeParentAcademyIds())
                 ->where('academies.status', 'active')
