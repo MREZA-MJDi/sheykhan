@@ -195,6 +195,13 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/legal-documents', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'index'])->middleware('permission:legal.manage')->name('legal-documents.index');
     Route::post('/legal-documents', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'store'])->middleware(['permission:legal.manage','throttle:10,1'])->name('legal-documents.store');
     Route::patch('/legal-documents/{document}/deactivate', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'deactivate'])->middleware('permission:legal.manage')->name('legal-documents.deactivate');
+    Route::get('/content-rights', [\App\Http\Controllers\Owner\ContentRightController::class, 'index'])->middleware('permission:legal.manage')->name('content-rights.index');
+    Route::post('/content-rights', [\App\Http\Controllers\Owner\ContentRightController::class, 'store'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.store');
+    Route::get('/content-rights/{contentRight}/edit', [\App\Http\Controllers\Owner\ContentRightController::class, 'edit'])->middleware('permission:legal.manage')->name('content-rights.edit');
+    Route::patch('/content-rights/{contentRight}', [\App\Http\Controllers\Owner\ContentRightController::class, 'update'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.update');
+    Route::patch('/content-rights/{contentRight}/activate', [\App\Http\Controllers\Owner\ContentRightController::class, 'activate'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.activate');
+    Route::patch('/content-rights/{contentRight}/revoke', [\App\Http\Controllers\Owner\ContentRightController::class, 'revoke'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.revoke');
+    Route::get('/content-rights/{contentRight}/evidence', [\App\Http\Controllers\Owner\ContentRightController::class, 'evidence'])->middleware('permission:legal.manage')->name('content-rights.evidence');
 
     Route::get('/finance', [\App\Http\Controllers\Owner\FinanceController::class, 'index'])->middleware('permission:finance.view')->name('finance.index');
 });

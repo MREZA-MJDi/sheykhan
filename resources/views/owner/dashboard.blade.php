@@ -560,7 +560,20 @@
             </section>
         @endif
 
-        @if(!$canViewPeople && !$canViewClassrooms && !$canViewCourses && !$canViewAttendance && !$canViewFinance && !$canViewReports && !$canViewMeetings)
+                @if($canViewLegal)
+            <section class="card c6 owner-content-rights-card" aria-labelledby="content-rights-title" style="--c:#9aa3d8">
+                <div class="card-title">
+                    <div>
+                        <h2 id="content-rights-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg></span>حقوق نشر و مجوز محتوا</h2>
+                        <p>پرونده مالکیت و مجوز استفاده برای هر ویدئو، ضبط کلاس، جزوه و کتاب را با مدرک و تاریخ اعتبار ثبت و پیگیری کنید.</p>
+                    </div>
+                    <a class="table-link" href="{{ route('owner.content-rights.index') }}">مدیریت مجوزها ←</a>
+                </div>
+                <p class="text-sm leading-7">مجوزها ابتدا به‌صورت پیش‌نویس ثبت می‌شوند؛ پس از بررسی مدرک می‌توانید آن‌ها را فعال یا لغو کنید. تاریخچه نسخه‌های قبلی حفظ می‌شود.</p>
+            </section>
+        @endif
+
+@if(!$canViewPeople && !$canViewClassrooms && !$canViewCourses && !$canViewAttendance && !$canViewFinance && !$canViewReports && !$canViewMeetings && !$canViewLegal)
             <section class="card c12"><div class="card-empty">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های مجاز این کارتابل برای این حساب فعال نیست.</div></section>
         @endif
     @endsection

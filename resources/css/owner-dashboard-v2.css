@@ -2408,3 +2408,43 @@ body.owner-admin-v2 {
     }
 }
 
+
+
+/* Content-rights registry controls: standalone styles inside the owner workspace. */
+.owner-shell .owner-secondary-btn,
+.owner-shell .owner-danger-btn {
+    display: inline-flex;
+    min-height: 2.65rem;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .65rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: .8rem;
+    background: #fff;
+    color: #26334a;
+    font-size: .875rem;
+    font-weight: 750;
+    line-height: 1.5;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color .18s ease, background-color .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.owner-shell .owner-secondary-btn:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+}
+.owner-shell .owner-danger-btn {
+    border-color: #fecaca;
+    color: #b91c1c;
+    background: #fff;
+}
+.owner-shell .owner-danger-btn:hover {
+    border-color: #fca5a5;
+    background: #fff1f2;
+}
+.owner-shell .owner-secondary-btn:focus-visible,
+.owner-shell .owner-danger-btn:focus-visible {
+    outline: 3px solid rgba(34, 211, 238, .6);
+    outline-offset: 2px;
+}
