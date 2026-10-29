@@ -43,6 +43,12 @@ class MediaPolicy
 
     public function download(User $user, Media $media): bool
     {
+        // Purchased non-preview product sources must be delivered only through
+        // the order-scoped viewer, even when the current account uploaded them.
+        if (ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists()) {
+            return false;
+        }
+
         if ($this->mustUseSpotPlayer($user, $media)) {
             return false;
         }
