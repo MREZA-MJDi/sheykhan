@@ -92,6 +92,16 @@ class StudentLearningResourceAccessTest extends TestCase
                 'resource' => $resource->id,
             ]));
 
+        // Legacy media links for LearningResource files must use the exact same
+        // entitlement check and then redirect into the protected viewer.
+        $this->actingAs($studentInClass)
+            ->get(route('media.view', $media))
+            ->assertRedirect(route('protected-learning-media.view', $media));
+
+        $this->actingAs($studentOutsideClass)
+            ->get(route('media.view', $media))
+            ->assertForbidden();
+
         $this->actingAs($studentInClass)
             ->get(route('student.resources.download', $resource))
             ->assertForbidden()

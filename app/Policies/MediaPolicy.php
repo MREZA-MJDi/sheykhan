@@ -139,6 +139,10 @@ class MediaPolicy
 
     private function canAccessProtectedMedia(User $user, Media $media): bool
     {
+        if ($this->canAccessLearningResourceMedia($user, $media)) {
+            return true;
+        }
+
         if (Achievement::query()
             ->where('media_id', $media->id)
             ->where('student_id', $user->id)
@@ -440,6 +444,119 @@ class MediaPolicy
                 }
 
                 continue;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * LearningResource stores its media_id directly rather than through the
+     * polymorphic media_attachments table. Keep generic legacy media links
+     * aligned with the exact same student/parent/teacher/owner entitlement rules.
+     */
+    private function canAccessLearningResourceMedia(User $user, Media $media): bool
+    {
+        $resources = LearningResource::query()
+            ->where('media_id', $media->id)
+            ->whereIn('status', ['active', 'published'])
+            ->with([
+                'academy:id,owner_id,status',
+                'course:id,academy_id,status,published_at',
+                'classroom:id,academy_id,course_id,status',
+                'classroom.course:id,academy_id,status,published_at',
+                'lesson.section.course:id,academy_id,status,published_at',
+            ])
+            ->orderBy('id')
+            ->get();
+
+        if ($resources->isEmpty()) {
+            return false;
+        }
+
+        $parentChildren = $user->hasRole('parent')
+            ? app(\App\Services\ParentLearningResourceService::class)->children($user)
+            : collect();
+
+        foreach ($resources as $resource) {
+            $academy = $resource->academy;
+
+            if (! $academy || $academy->status !== 'active') {
+                continue;
+            }
+
+            $course = $resource->course
+                ?? $resource->classroom?->course
+                ?? $resource->lesson?->section?->course;
+
+            if (
+                ($resource->course && (int) $resource->course->academy_id !== (int) $resource->academy_id)
+                || ($resource->classroom && (int) $resource->classroom->academy_id !== (int) $resource->academy_id)
+                || ($resource->lesson?->section?->course
+                    && (int) $resource->lesson->section->course->academy_id !== (int) $resource->academy_id)
+                || ($resource->course && $resource->classroom?->course_id
+                    && (int) $resource->classroom->course_id !== (int) $resource->course->id)
+                || ($resource->course && $resource->lesson?->section?->course
+                    && (int) $resource->course->id !== (int) $resource->lesson->section->course->id)
+            ) {
+                continue;
+            }
+
+            if ($user->hasRole('student')) {
+                if (app(\App\Services\StudentLearningResourceService::class)->canAccess($user, $resource)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if ($user->hasRole('parent')) {
+                $parentResources = app(\App\Services\ParentLearningResourceService::class);
+
+                if ($parentChildren->contains(
+                    fn (User $child): bool => $parentResources->canAccess($user, (int) $child->id, $resource)
+                )) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if ($this->academyOwner($user, $academy)) {
+                return true;
+            }
+
+            if (! $user->hasRole('teacher')) {
+                continue;
+            }
+
+            $teacherAccess = app(TeacherAccessService::class);
+
+            if ($resource->classroom) {
+                if ($teacherAccess->canManageClassroom($user, $resource->classroom)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if ($course && $teacherAccess->canTeachCourse($user, $course)) {
+                return true;
+            }
+
+            // Academy-wide resources have no course/class/lesson scope. A teacher
+            // may open those only with an active teacher membership in that academy.
+            if (! $resource->course_id && ! $resource->classroom_id && ! $resource->lesson_id) {
+                $isActiveTeacherMember = $user->academies()
+                    ->whereKey($academy->id)
+                    ->where('academies.status', 'active')
+                    ->wherePivot('role', 'teacher')
+                    ->wherePivot('status', 'active')
+                    ->exists();
+
+                if ($isActiveTeacherMember) {
+                    return true;
+                }
             }
         }
 
