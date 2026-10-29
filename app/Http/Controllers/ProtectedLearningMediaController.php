@@ -79,7 +79,7 @@ final class ProtectedLearningMediaController extends Controller
     ): array {
         $user = $request->user();
         abort_unless($media->status === 'active', 404);
-        abort_unless($user && ($user->hasRole('student') || $user->hasRole('parent')), 404);
+        abort_unless($user, 404);
 
         $data = $request->validate([
             'resource' => ['nullable', 'integer', 'min:1'],
@@ -96,9 +96,13 @@ final class ProtectedLearningMediaController extends Controller
             if ($user->hasRole('student')) {
                 abort_unless($studentResources->canAccess($user, $resource), 404);
                 $childId = null;
-            } else {
+            } elseif ($user->hasRole('parent')) {
                 abort_unless($childId, 404);
                 abort_unless($parentResources->canAccess($user, $childId, $resource), 404);
+            } else {
+                Gate::forUser($user)->authorize('view', $media);
+                $resource = null;
+                $childId = null;
             }
         } elseif ($user->hasRole('student')) {
             $resource = LearningResource::query()
@@ -112,7 +116,7 @@ final class ProtectedLearningMediaController extends Controller
             } else {
                 Gate::forUser($user)->authorize('view', $media);
             }
-        } else {
+        } elseif ($user->hasRole('parent')) {
             $resources = LearningResource::query()
                 ->where('media_id', $media->id)
                 ->orderBy('id')
@@ -143,11 +147,13 @@ final class ProtectedLearningMediaController extends Controller
             } else {
                 Gate::forUser($user)->authorize('view', $media);
             }
+        } else {
+            Gate::forUser($user)->authorize('view', $media);
         }
 
         $backUrl = $user->hasRole('parent')
             ? route('parent.resources.index', $childId ? ['child' => $childId] : [])
-            : route('student.resources.index');
+            : ($user->hasRole('student') ? route('student.resources.index') : route('dashboard'));
 
         if ($resource) {
             return [$resource, $childId, $backUrl];

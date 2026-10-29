@@ -82,9 +82,12 @@ class MediaController extends Controller
             abort(403, 'دسترسی این فایل برای حساب شما فعال نیست.');
         }
 
+        if ($spotPlayerDelivery->requiresProtectedPlayer($media)) {
+            abort(409, 'این فایل ویدئویی باید از پلیر رسمی SpotPlayer پخش شود؛ فایل خام برای هیچ نقش کاربری ارائه نمی‌شود.');
+        }
+
         if (
-            (auth()->user()->hasRole('student') || auth()->user()->hasRole('parent'))
-            && $policy->requiresProtectedDelivery($media)
+            $policy->requiresProtectedDelivery($media)
             && ! \App\Models\ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists()
         ) {
             return redirect()->route('protected-learning-media.view', $media)

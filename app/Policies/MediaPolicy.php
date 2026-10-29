@@ -24,6 +24,12 @@ class MediaPolicy
 {
     public function view(User $user, Media $media): bool
     {
+        // Non-preview purchased source files are accessible only through the
+        // order-scoped protected viewer; generic media routes never reveal originals.
+        if (ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists()) {
+            return false;
+        }
+
         if ($this->mustUseSpotPlayer($user, $media)) {
             return false;
         }
@@ -53,18 +59,10 @@ class MediaPolicy
             return false;
         }
 
-        $protectedLearningMedia = $this->requiresProtectedDelivery($media);
-
-        // Students download course materials only through the explicit resource
-        // route, which checks LearningResource.downloadable and the free-course
-        // entitlement. This generic route must never bypass that switch.
-        if (($user->hasRole('student') || $user->hasRole('parent')) && $protectedLearningMedia) {
+        // Protected educational materials are view-only for every role. Authorized
+        // staff use the same logged, watermarked viewer, never a raw file URL.
+        if ($this->requiresProtectedDelivery($media)) {
             return false;
-        }
-
-        if ($protectedLearningMedia) {
-            return $this->canAccessProtectedMedia($user, $media)
-                || $media->uploaded_by === $user->id;
         }
 
         if ($media->visibility === 'public') {

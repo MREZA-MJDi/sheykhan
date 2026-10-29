@@ -30,7 +30,7 @@ final class ProductDeliveryService
         ?int $childId = null,
         ?string $backUrl = null,
     ): Response {
-        $this->recordLearningMediaView($user, $media, $resource?->id, $childId, null, 'open', $request);
+        $openEvent = $this->recordLearningMediaView($user, $media, $resource?->id, $childId, null, 'open', $request);
 
         try {
             $render = $this->prepareLearningMediaPages($user, $media);
@@ -39,7 +39,7 @@ final class ProductDeliveryService
             abort(503, 'نمایشگر امن نتوانست فایل آموزشی را آماده کند؛ فایل اصلی برای جلوگیری از دانلود ارائه نشد.');
         }
 
-        $referenceCode = 'MEDIA-' . $media->id;
+        $referenceCode = 'VIEW-' . $openEvent->id . ' · MEDIA-' . $media->id;
 
         $pageUrls = collect(range(1, $render['page_count']))->map(
             fn (int $page): string => route('protected-learning-media.pages', array_filter([
@@ -47,6 +47,7 @@ final class ProductDeliveryService
                 'page' => $page,
                 'resource' => $resource?->id,
                 'child' => $childId,
+                'view_event_id' => $openEvent->id,
             ], fn ($value): bool => $value !== null))
         );
 
@@ -77,6 +78,23 @@ final class ProductDeliveryService
         ?\App\Models\LearningResource $resource = null,
         ?int $childId = null,
     ): Response {
+        $rawViewEventId = $request->query('view_event_id');
+        if ($rawViewEventId !== null) {
+            $viewEventId = filter_var($rawViewEventId, FILTER_VALIDATE_INT);
+            abort_unless($viewEventId !== false && $viewEventId > 0, 404);
+            abort_unless(
+                \App\Models\ProtectedLearningMediaView::query()
+                    ->whereKey($viewEventId)
+                    ->where('user_id', $user->id)
+                    ->where('media_id', $media->id)
+                    ->where('event_type', 'open')
+                    ->when($resource, fn ($query) => $query->where('learning_resource_id', $resource->id))
+                    ->when($childId, fn ($query) => $query->where('child_id', $childId))
+                    ->exists(),
+                404
+            );
+        }
+
         try {
             $render = $this->prepareLearningMediaPages($user, $media);
         } catch (Throwable $exception) {
@@ -250,8 +268,8 @@ final class ProductDeliveryService
         ?int $pageNumber,
         string $eventType,
         Request $request,
-    ): void {
-        \App\Models\ProtectedLearningMediaView::query()->create([
+    ): \App\Models\ProtectedLearningMediaView {
+        return \App\Models\ProtectedLearningMediaView::query()->create([
             'user_id' => $user->id,
             'media_id' => $media->id,
             'learning_resource_id' => $resourceId,
@@ -278,7 +296,7 @@ final class ProductDeliveryService
     public function view(User $user, Order $order, ProductFile $file, Request $request): Response
     {
         [$entitlement, $media] = $this->authorizePurchasedFile($user, $order, $file);
-        $this->recordView($user, $order, $file, $entitlement, null, 'open', $request);
+        $openEvent = $this->recordView($user, $order, $file, $entitlement, null, 'open', $request);
 
         $mime = strtolower(trim((string) $media->mime_type));
         $extension = strtolower(trim((string) ($media->extension ?: pathinfo((string) $media->original_name, PATHINFO_EXTENSION))));
@@ -300,7 +318,7 @@ final class ProductDeliveryService
                     'file' => $file,
                     'media' => $media,
                     'product' => $file->product,
-                    'referenceCode' => 'ORDER-' . $order->order_number,
+                    'referenceCode' => 'VIEW-' . $openEvent->id . ' · ORDER-' . $order->order_number,
                     'backUrl' => route('orders.show', $order),
                     'pageCount' => $render['page_count'],
                     'pageUrls' => collect(range(1, $render['page_count']))
@@ -308,6 +326,7 @@ final class ProductDeliveryService
                             'order' => $order,
                             'file' => $file,
                             'page' => $page,
+                            'view_event_id' => $openEvent->id,
                         ])),
                     'textContent' => null,
                     'user' => $user,
@@ -331,7 +350,7 @@ final class ProductDeliveryService
                     'file' => $file,
                     'media' => $media,
                     'product' => $file->product,
-                    'referenceCode' => 'ORDER-' . $order->order_number,
+                    'referenceCode' => 'VIEW-' . $openEvent->id . ' · ORDER-' . $order->order_number,
                     'backUrl' => route('orders.show', $order),
                     'pageCount' => $render['page_count'],
                     'pageUrls' => collect(range(1, $render['page_count']))
@@ -339,6 +358,7 @@ final class ProductDeliveryService
                             'order' => $order,
                             'file' => $file,
                             'page' => $page,
+                            'view_event_id' => $openEvent->id,
                         ])),
                     'textContent' => null,
                     'user' => $user,
@@ -365,6 +385,22 @@ final class ProductDeliveryService
         Request $request
     ): Response {
         [$entitlement, $media] = $this->authorizePurchasedFile($user, $order, $file);
+        $rawViewEventId = $request->query('view_event_id');
+        if ($rawViewEventId !== null) {
+            $viewEventId = filter_var($rawViewEventId, FILTER_VALIDATE_INT);
+            abort_unless($viewEventId !== false && $viewEventId > 0, 404);
+            abort_unless(
+                ProtectedFileView::query()
+                    ->whereKey($viewEventId)
+                    ->where('user_id', $user->id)
+                    ->where('order_id', $order->id)
+                    ->where('product_file_id', $file->id)
+                    ->where('entitlement_id', $entitlement->id)
+                    ->where('event_type', 'open')
+                    ->exists(),
+                404
+            );
+        }
         $render = $this->prepareProtectedPages($user, $order, $file, $entitlement, $media, $request);
 
         abort_unless($page >= 1 && $page <= $render['page_count'], 404);
@@ -775,8 +811,8 @@ final class ProductDeliveryService
         ?int $pageNumber,
         string $eventType,
         Request $request,
-    ): void {
-        ProtectedFileView::query()->create([
+    ): ProtectedFileView {
+        return ProtectedFileView::query()->create([
             'user_id' => $user->id,
             'order_id' => $order->id,
             'product_file_id' => $file->id,
@@ -787,7 +823,6 @@ final class ProductDeliveryService
             'user_agent' => mb_substr((string) $request->userAgent(), 0, 1000),
             'viewed_at' => now(),
         ]);
-
     }
 
 
