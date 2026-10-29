@@ -10,6 +10,7 @@ final class ProtectedLearningMediaView extends Model
     protected $fillable = [
         'user_id',
         'media_id',
+        'academy_id',
         'learning_resource_id',
         'child_id',
         'page_number',
@@ -22,6 +23,7 @@ final class ProtectedLearningMediaView extends Model
     protected function casts(): array
     {
         return [
+            'academy_id' => 'integer',
             'learning_resource_id' => 'integer',
             'child_id' => 'integer',
             'page_number' => 'integer',

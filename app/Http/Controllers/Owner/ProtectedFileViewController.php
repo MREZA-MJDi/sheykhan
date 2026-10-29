@@ -48,9 +48,7 @@ final class ProtectedFileViewController extends Controller
         $views = $query->paginate(30)->withQueryString();
 
         $learningQuery = ProtectedLearningMediaView::query()
-            ->whereIn('learning_resource_id', LearningResource::query()
-                ->where('academy_id', $academy->id)
-                ->select('id'))
+            ->where('academy_id', $academy->id)
             ->with(['user:id,name,email', 'media:id,original_name'])
             ->when(isset($data['event']), fn ($builder) => $builder->where('event_type', $data['event']))
             ->when($search !== '', function ($builder) use ($search, $academy): void {

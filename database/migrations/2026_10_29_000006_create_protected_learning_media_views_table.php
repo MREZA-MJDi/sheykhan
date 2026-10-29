@@ -12,6 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('media_id')->constrained('media')->cascadeOnDelete();
+            // Keep every protected-media event scoped to the academy, even when the
+            // media is attached directly to a lesson, exam, assignment or recording.
+            $table->unsignedBigInteger('academy_id')->nullable()->index();
             // Context IDs allow the admin/owner audit to scope records by academy.
             $table->unsignedBigInteger('learning_resource_id')->nullable()->index();
             $table->unsignedBigInteger('child_id')->nullable()->index();

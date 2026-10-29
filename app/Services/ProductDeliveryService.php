@@ -272,6 +272,7 @@ final class ProductDeliveryService
         return \App\Models\ProtectedLearningMediaView::query()->create([
             'user_id' => $user->id,
             'media_id' => $media->id,
+            'academy_id' => $this->resolveLearningMediaAcademyId($media, $resourceId),
             'learning_resource_id' => $resourceId,
             'child_id' => $childId,
             'page_number' => $pageNumber,
@@ -280,6 +281,91 @@ final class ProductDeliveryService
             'user_agent' => mb_substr((string) $request->userAgent(), 0, 1000),
             'viewed_at' => now(),
         ]);
+    }
+
+    private function resolveLearningMediaAcademyId(Media $media, ?int $resourceId): ?int
+    {
+        if ($resourceId) {
+            $academyId = \App\Models\LearningResource::query()->whereKey($resourceId)->value('academy_id');
+
+            if ($academyId) {
+                return (int) $academyId;
+            }
+        }
+
+        $academyId = \App\Models\LearningResource::query()
+            ->where('media_id', $media->id)
+            ->orderBy('id')
+            ->value('academy_id');
+
+        if ($academyId) {
+            return (int) $academyId;
+        }
+
+        $recording = \App\Models\LiveClass::query()
+            ->where('recording_media_id', $media->id)
+            ->with('course:id,academy_id')
+            ->first();
+
+        if ($recording?->course?->academy_id) {
+            return (int) $recording->course->academy_id;
+        }
+
+        foreach ($media->attachments()->with('mediable')->get() as $attachment) {
+            $model = $attachment->mediable;
+
+            if ($model instanceof \App\Models\Course) {
+                return (int) $model->academy_id;
+            }
+
+            if ($model instanceof \App\Models\Lesson) {
+                $model->loadMissing('section.course');
+                if ($model->section?->course?->academy_id) {
+                    return (int) $model->section->course->academy_id;
+                }
+            }
+
+            if ($model instanceof \App\Models\Classroom) {
+                return (int) $model->academy_id;
+            }
+
+            if ($model instanceof \App\Models\Assignment) {
+                $model->loadMissing('course');
+                if ($model->course?->academy_id) {
+                    return (int) $model->course->academy_id;
+                }
+            }
+
+            if ($model instanceof \App\Models\AssignmentSubmission) {
+                $model->loadMissing('assignment.course');
+                if ($model->assignment?->course?->academy_id) {
+                    return (int) $model->assignment->course->academy_id;
+                }
+            }
+
+            if ($model instanceof \App\Models\Exam) {
+                $model->loadMissing('course');
+                if ($model->course?->academy_id) {
+                    return (int) $model->course->academy_id;
+                }
+            }
+
+            if ($model instanceof \App\Models\ExamAttempt) {
+                $model->loadMissing('exam.course');
+                if ($model->exam?->course?->academy_id) {
+                    return (int) $model->exam->course->academy_id;
+                }
+            }
+
+            if ($model instanceof \App\Models\LiveClass) {
+                $model->loadMissing('course');
+                if ($model->course?->academy_id) {
+                    return (int) $model->course->academy_id;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
