@@ -23,7 +23,7 @@ class HomeHeroRequest extends FormRequest
             'title' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:700'],
             'cta_label' => ['nullable', 'string', 'max:80'],
-            'cta_url' => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\/\/|\/|#)/i'],
+            'cta_url' => ['nullable', 'string', 'max:2048', 'regex:/^(https?:\/\/|\/(?!\/)|#)/i'],
             'is_active' => ['nullable', 'boolean'],
             'image' => [
                 'nullable',
