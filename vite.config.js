@@ -11,7 +11,6 @@ export default defineConfig({
                 'resources/css/home.css',
                 'resources/js/home.js',
                 'resources/css/public-experience.css',
-                'resources/css/shaka-player.css',
                 'resources/css/student.css',
                 'resources/js/student.js',
                 'resources/css/teacher.css',
