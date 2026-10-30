@@ -17,6 +17,8 @@
     <form method="POST"
           action="{{ $exam->exists ? route('teacher.exams.update', $exam) : route('teacher.exams.store') }}"
           class="teacher-exam-builder-form"
+          enctype="multipart/form-data"
+          data-upload-progress
           data-exam-builder
           data-initial-questions="{{ json_encode(old('questions', $initialQuestions ?? []), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
         @csrf
@@ -94,6 +96,23 @@
                     <small class="teacher-exam-field-help">این متن پیش از شروع و بالای برگهٔ پاسخ دانش‌آموز نمایش داده می‌شود؛ مثلاً منابع مجاز، نحوهٔ پاسخ یا نکتهٔ مهم آزمون.</small>
                 </label>
             </div>
+            <label class="teacher-form-field mt-5">
+                <span>فایل راهنما یا منبع آزمون <small>اختیاری · PDF، Word، PowerPoint، تصویر یا ZIP تا ۵۰ مگابایت</small></span>
+                <input type="file" name="handout" accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,.zip">
+                <small class="teacher-exam-field-help">فایل به‌صورت خصوصی به برگه آزمون پیوست می‌شود و فقط افراد مجاز همان دوره به آن دسترسی دارند.</small>
+                @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+                @if($examHandouts->isNotEmpty())
+                    <span class="teacher-exam-file-list">
+                        @foreach($examHandouts as $handout)
+                            <a class="teacher-exam-file-link" href="{{ route('media.view', $handout) }}" target="_blank" rel="noopener noreferrer">
+                                <strong>{{ $handout->original_name }}</strong>
+                                <small>{{ App\Support\PersianUi::number((int) ceil(((int) $handout->size) / 1024)) }} کیلوبایت · فایل فعلی</small>
+                            </a>
+                        @endforeach
+                    </span>
+                @endif
+            </label>
+            <x-ui.upload-progress label="پیشرفت بارگذاری فایل آزمون" />
         </section>
 
         <section class="teacher-exam-editor-section" aria-labelledby="exam-paper-editor-title">

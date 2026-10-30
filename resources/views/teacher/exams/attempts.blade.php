@@ -26,6 +26,18 @@
             </div>
         </section>
 
+        @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+        @if($examHandouts->isNotEmpty())
+            <section class="teacher-exam-file-list" aria-label="فایل‌های راهنمای آزمون">
+                <strong class="teacher-workspace-card-title">فایل‌های پیوست برگه آزمون</strong>
+                @foreach($examHandouts as $handout)
+                    <a class="teacher-exam-file-link" href="{{ route('media.view', $handout) }}" target="_blank" rel="noopener noreferrer">
+                        <strong>{{ $handout->original_name }}</strong><small>{{ App\Support\PersianUi::number((int) ceil(((int) $handout->size) / 1024)) }} کیلوبایت</small>
+                    </a>
+                @endforeach
+            </section>
+        @endif
+
         <div class="teacher-exam-attempt-list">
             @forelse($attempts as $attempt)
                 @php
@@ -65,6 +77,17 @@
                         </div>
                     </header>
 
+                    @php($answerFiles = $attempt->media->where('pivot.collection', 'exam-answer'))
+                    @if($answerFiles->isNotEmpty())
+                        <section class="teacher-exam-file-list" aria-label="فایل‌های پاسخ دانش‌آموز">
+                            <strong class="teacher-workspace-card-title">فایل‌های پیوست پاسخ دانش‌آموز</strong>
+                            @foreach($answerFiles as $answerFile)
+                                <a class="teacher-exam-file-link" href="{{ route('media.view', $answerFile) }}" target="_blank" rel="noopener noreferrer">
+                                    <strong>{{ $answerFile->original_name }}</strong><small>{{ App\Support\PersianUi::number((int) ceil(((int) $answerFile->size) / 1024)) }} کیلوبایت</small>
+                                </a>
+                            @endforeach
+                        </section>
+                    @endif
                     <div class="teacher-exam-answer-paper">
                         @forelse($attempt->exam->questions as $question)
                             @php

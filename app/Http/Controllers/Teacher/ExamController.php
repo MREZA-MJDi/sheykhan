@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\Exam\StoreExamRequest;
 use App\Models\Exam;
 use App\Services\ExamQuestionWriter;
+use App\Services\MediaService;
 use App\Services\TeacherAccessService;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 class ExamController extends Controller
 {
@@ -35,7 +37,8 @@ class ExamController extends Controller
     public function store(
         StoreExamRequest $request,
         TeacherWorkspaceService $workspace,
-        ExamQuestionWriter $questionWriter
+        ExamQuestionWriter $questionWriter,
+        MediaService $media
     ): RedirectResponse {
         $courseId = (int) $request->validated('course_id');
         $course = $workspace->courseOwnedBy($request->user(), $courseId);
@@ -45,14 +48,33 @@ class ExamController extends Controller
             $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, $courseId);
         }
 
-        $payload = $request->safe()->except(['course_id', 'questions']);
+        $payload = $request->safe()->except(['course_id', 'questions', 'handout']);
         $payload['teacher_id'] = $request->user()->id;
+        $uploaded = [];
 
-        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
-            $exam = $course->exams()->create($payload);
-            $questionWriter->storeQuestions($exam, $request->validated('questions', []));
-            return $exam;
-        });
+        try {
+            $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter, $media, &$uploaded): Exam {
+                $exam = $course->exams()->create($payload);
+                $questionWriter->storeQuestions($exam, $request->validated('questions', []));
+
+                if ($request->hasFile('handout')) {
+                    $uploaded[] = $media->upload($request->file('handout'), $exam, [
+                        'disk' => 'local',
+                        'directory' => 'exams/' . $exam->id,
+                        'collection' => 'exam-handout',
+                        'visibility' => 'private',
+                    ]);
+                }
+
+                return $exam;
+            }, 3);
+        } catch (Throwable $exception) {
+            foreach ($uploaded as $file) {
+                $media->delete($file);
+            }
+
+            throw $exception;
+        }
 
         return redirect()->route('teacher.exams.index')
             ->with('success', 'آزمون با موفقیت ساخته شد.');
@@ -70,7 +92,7 @@ class ExamController extends Controller
                 ->with('warning', 'این آزمون قبلاً شروع شده است؛ برای حفظ صحت پاسخ‌ها و نمره‌ها، متن و کلید آن قفل شده است.');
         }
 
-        $exam->load('questions');
+        $exam->load(['questions', 'media']);
         $initialQuestions = $exam->questions
             ->sortBy('sort_order')
             ->map(function ($question): array {
@@ -109,7 +131,8 @@ class ExamController extends Controller
         Exam $exam,
         TeacherWorkspaceService $workspace,
         TeacherAccessService $access,
-        ExamQuestionWriter $questionWriter
+        ExamQuestionWriter $questionWriter,
+        MediaService $media
     ): RedirectResponse {
         abort_unless($access->canManageExam($request->user(), $exam), 403);
 
@@ -121,28 +144,63 @@ class ExamController extends Controller
             $workspace->classroomOwnedByCourse($request->user(), (int) $classroomId, $courseId);
         }
 
-        $payload = $request->safe()->except(['course_id', 'questions']);
+        $payload = $request->safe()->except(['course_id', 'questions', 'handout']);
         $payload['course_id'] = $course->id;
         $payload['teacher_id'] = $request->user()->id;
+        $oldHandouts = $exam->media()->wherePivot('collection', 'exam-handout')->get();
+        $uploaded = [];
 
-        DB::transaction(function () use ($exam, $payload, $request, $questionWriter, $access): void {
-            $lockedExam = Exam::query()
-                ->whereKey($exam->id)
-                ->lockForUpdate()
-                ->firstOrFail();
+        try {
+            DB::transaction(function () use ($exam, $payload, $request, $questionWriter, $access, $media, $oldHandouts, &$uploaded): void {
+                $lockedExam = Exam::query()
+                    ->whereKey($exam->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-            abort_unless($access->canManageExam($request->user(), $lockedExam), 403);
+                abort_unless($access->canManageExam($request->user(), $lockedExam), 403);
 
-            if ($lockedExam->attempts()->exists()) {
-                throw ValidationException::withMessages([
-                    'exam' => 'یک دانش‌آموز این آزمون را شروع کرده است؛ برای حفظ پاسخ‌ها و نمره‌ها، دیگر نمی‌توان برگه را تغییر داد.',
-                ]);
+                if ($lockedExam->attempts()->exists()) {
+                    throw ValidationException::withMessages([
+                        'exam' => 'یک دانش‌آموز این آزمون را شروع کرده است؛ برای حفظ پاسخ‌ها و نمره‌ها، دیگر نمی‌توان برگه را تغییر داد.',
+                    ]);
+                }
+
+                $lockedExam->update($payload);
+                $lockedExam->questions()->delete();
+                $questionWriter->storeQuestions($lockedExam->refresh(), $request->validated('questions', []));
+
+                if ($request->hasFile('handout')) {
+                    $uploaded[] = $media->upload($request->file('handout'), $lockedExam, [
+                        'disk' => 'local',
+                        'directory' => 'exams/' . $lockedExam->id,
+                        'collection' => 'exam-handout',
+                        'visibility' => 'private',
+                    ]);
+
+                    foreach ($oldHandouts as $oldHandout) {
+                        $media->detach($oldHandout, $lockedExam);
+                    }
+                }
+            }, 3);
+        } catch (Throwable $exception) {
+            foreach ($uploaded as $file) {
+                try {
+                    $media->delete($file);
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
             }
 
-            $lockedExam->update($payload);
-            $lockedExam->questions()->delete();
-            $questionWriter->storeQuestions($lockedExam->refresh(), $request->validated('questions', []));
-        });
+            throw $exception;
+        }
+
+        if ($uploaded !== []) {
+            foreach ($oldHandouts as $oldHandout) {
+                if ($oldHandout->attachments()->doesntExist()) {
+                    $media->delete($oldHandout);
+                }
+            }
+        }
 
         return redirect()->route('teacher.exams.index')
             ->with('success', 'ویرایش برگهٔ آزمون با موفقیت ذخیره شد.');
@@ -152,10 +210,10 @@ class ExamController extends Controller
     {
         abort_unless($access->canManageExam(request()->user(), $exam), 403);
 
-        $exam->load('questions');
+        $exam->load(['questions', 'media']);
 
         $attempts = $exam->attempts()
-            ->with(['student:id,name', 'answers.question', 'exam.questions'])
+            ->with(['student:id,name', 'answers.question', 'exam.questions', 'media:id,original_name,mime_type,extension,size,status'])
             ->latest('submitted_at')
             ->paginate(15)
             ->withQueryString();

@@ -16,7 +16,7 @@
     $remaining = $deadline ? max(0, $deadline->timestamp - now()->timestamp) : null;
     $savedAnswers = $attempt->answers->keyBy('question_id');
 @endphp
-<form class="page" id="exam-form" method="POST" action="{{ route('student.exam-attempts.submit', $attempt->id) }}">
+<form class="page" id="exam-form" method="POST" action="{{ route('student.exam-attempts.submit', $attempt->id) }}" enctype="multipart/form-data" data-upload-progress>
     @csrf
     <div class="card">
         <div class="chead">
@@ -89,6 +89,14 @@
         <div class="card"><div class="empty">سؤال قابل پاسخی برای این آزمون وجود ندارد.</div></div>
     @endforelse
 
+    <div class="card exam-answer-upload">
+        <div class="chead"><h2>فایل پاسخ آزمون</h2><span class="tag">اختیاری</span></div>
+        <p class="note">می‌توانی پاسخ دست‌نویس، محاسبات یا فایل تکمیلی را هم ارسال کنی. حداکثر ۳ فایل، هرکدام تا ۱۰ مگابایت.</p>
+        <label for="exam-answer-files" class="exam-answer-upload-label">انتخاب فایل پاسخ</label>
+        <input class="fld" id="exam-answer-files" type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" aria-describedby="exam-answer-files-help">
+        <small id="exam-answer-files-help" class="exam-answer-upload-help">فایل‌ها خصوصی ذخیره می‌شوند و فقط شما و مدرس مجاز آزمون به آن‌ها دسترسی دارید.</small>
+        <x-ui.upload-progress label="پیشرفت ارسال فایل پاسخ آزمون" />
+    </div>
     <div class="card">
         <div class="frm">
             <span>قبل از ارسال، پاسخ‌هایت را یک‌بار مرور کن.</span>

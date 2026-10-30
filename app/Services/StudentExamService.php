@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 use Illuminate\Validation\ValidationException;
 
 final class StudentExamService
@@ -77,6 +78,7 @@ final class StudentExamService
             'course:id,academy_id,title,slug',
             'classroom:id,academy_id,title,code,course_id',
             'questions:id,exam_id,type,question,options,score,sort_order',
+            'media:id,original_name,mime_type,extension,size,status',
             'attempts' => fn ($query) => $query->where('student_id', $student->id)->latest('attempt_number'),
         ]);
     }
@@ -142,101 +144,124 @@ final class StudentExamService
         });
     }
 
-    public function submit(User $student, ExamAttempt $attempt, array $answers): ExamAttempt
-    {
-        $result = DB::transaction(function () use ($student, $attempt, $answers): array {
-            $attempt = ExamAttempt::query()
-                ->with(['exam.questions'])
-                ->lockForUpdate()
-                ->findOrFail($attempt->id);
+    public function submit(
+        User $student,
+        ExamAttempt $attempt,
+        array $answers,
+        array $files = [],
+        ?MediaService $media = null,
+    ): ExamAttempt {
+        $media ??= app(MediaService::class);
+        $uploaded = [];
 
-            abort_unless($attempt->student_id === $student->id, 404);
-            abort_unless($attempt->status === 'in_progress', 422);
+        try {
+            $result = DB::transaction(function () use ($student, $attempt, $answers, $files, $media, &$uploaded): array {
+                $attempt = ExamAttempt::query()
+                    ->with(['exam.questions'])
+                    ->lockForUpdate()
+                    ->findOrFail($attempt->id);
 
-            $exam = $attempt->exam;
-            $studentCanAccessExam = app(StudentAccessService::class)->exam($student, $exam);
-            $timedOut = $this->hasTimedOut($attempt, $exam);
-            $examIsOpen = $this->isOpen($exam);
-            $withinTimeoutGrace = $timedOut && $this->withinTimeoutSubmissionGrace($attempt, $exam);
+                abort_unless($attempt->student_id === $student->id, 404);
+                abort_unless($attempt->status === 'in_progress', 422);
 
-            // If the timer submits the current sheet just as the server deadline
-            // crosses, preserve that final snapshot during a short grace period.
-            // The server remains authoritative; submissions later than this
-            // bounded window or after access is revoked are still rejected.
-            if (
-                !$studentCanAccessExam
-                || $exam->status !== 'published'
-                || ($timedOut && !$withinTimeoutGrace)
-                || (!$examIsOpen && !$withinTimeoutGrace)
-            ) {
-                $attempt->status = 'submitted';
+                $exam = $attempt->exam;
+                $studentCanAccessExam = app(StudentAccessService::class)->exam($student, $exam);
+                $timedOut = $this->hasTimedOut($attempt, $exam);
+                $examIsOpen = $this->isOpen($exam);
+                $withinTimeoutGrace = $timedOut && $this->withinTimeoutSubmissionGrace($attempt, $exam);
+
+                // Preserve the bounded server-side grace period for a timer-triggered submit.
+                if (
+                    !$studentCanAccessExam
+                    || $exam->status !== 'published'
+                    || ($timedOut && !$withinTimeoutGrace)
+                    || (!$examIsOpen && !$withinTimeoutGrace)
+                ) {
+                    $attempt->status = 'submitted';
+                    $attempt->submitted_at = now();
+                    $attempt->save();
+
+                    $message = !$studentCanAccessExam
+                        ? ($exam->status !== 'published'
+                            ? 'این آزمون توسط مدرس بسته شده است. پاسخ‌ها ثبت نشدند.'
+                            : 'دسترسی شما به این آزمون دیگر فعال نیست. پاسخ‌ها ثبت نشدند.')
+                        : ($timedOut
+                            ? 'زمان آزمون شما به پایان رسیده است و مهلت کوتاه تحویل هم سپری شده؛ پاسخ‌ها ثبت نشدند.'
+                            : 'این آزمون در حال حاضر باز نیست؛ پاسخ‌ها ثبت نشدند.');
+
+                    return ['failure' => $message, 'attempt' => $attempt];
+                }
+
+                $questionById = $exam->questions->keyBy('id');
+                $totalScore = 0.0;
+                $hasManualQuestions = false;
+
+                foreach ($answers as $questionId => $answer) {
+                    $question = $questionById->get((int) $questionId);
+                    if (!$question) {
+                        continue;
+                    }
+
+                    [$isCorrect, $earned] = $this->gradeQuestion($question, $answer);
+                    $hasManualQuestions = $hasManualQuestions || $question->type === 'text';
+
+                    $attempt->answers()->updateOrCreate(
+                        ['question_id' => $question->id],
+                        [
+                            'answer' => $this->serializeAnswer($answer),
+                            'is_correct' => $isCorrect,
+                            'score' => $earned,
+                        ],
+                    );
+
+                    if ($earned !== null) {
+                        $totalScore += $earned;
+                    }
+                }
+
+                foreach ($exam->questions as $question) {
+                    if (!$attempt->answers()->where('question_id', $question->id)->exists()) {
+                        $attempt->answers()->create([
+                            'question_id' => $question->id,
+                            'answer' => null,
+                            'is_correct' => false,
+                            'score' => 0,
+                        ]);
+                    }
+
+                    $hasManualQuestions = $hasManualQuestions || $question->type === 'text';
+                }
+
+                $attempt->score = $hasManualQuestions ? null : round($totalScore, 2);
+                $attempt->status = $hasManualQuestions ? 'pending_review' : 'graded';
                 $attempt->submitted_at = now();
                 $attempt->save();
 
-                // Commit the final state before surfacing a validation error.
-                // Throwing inside the transaction would roll this state change back.
-                $message = !$studentCanAccessExam
-                    ? ($exam->status !== 'published'
-                        ? 'این آزمون توسط مدرس بسته شده است. پاسخ‌ها ثبت نشدند.'
-                        : 'دسترسی شما به این آزمون دیگر فعال نیست. پاسخ‌ها ثبت نشدند.')
-                    : ($timedOut
-                        ? 'زمان آزمون شما به پایان رسیده است و مهلت کوتاه تحویل هم سپری شده؛ پاسخ‌ها ثبت نشدند.'
-                        : 'این آزمون در حال حاضر باز نیست؛ پاسخ‌ها ثبت نشدند.');
-
-                return ['failure' => $message, 'attempt' => $attempt];
-            }
-
-            $questionById = $exam->questions->keyBy('id');
-            $totalScore = 0.0;
-            $hasManualQuestions = false;
-
-            foreach ($answers as $questionId => $answer) {
-                $question = $questionById->get((int) $questionId);
-
-                if (!$question) {
-                    continue;
-                }
-
-                [$isCorrect, $earned] = $this->gradeQuestion($question, $answer);
-                $hasManualQuestions = $hasManualQuestions || $question->type === 'text';
-
-                $attempt->answers()->updateOrCreate(
-                    ['question_id' => $question->id],
-                    [
-                        'answer' => $this->serializeAnswer($answer),
-                        'is_correct' => $isCorrect,
-                        'score' => $earned,
-                    ],
-                );
-
-                if ($earned !== null) {
-                    $totalScore += $earned;
-                }
-            }
-
-            foreach ($exam->questions as $question) {
-                if (!$attempt->answers()->where('question_id', $question->id)->exists()) {
-                    $attempt->answers()->create([
-                        'question_id' => $question->id,
-                        'answer' => null,
-                        'is_correct' => false,
-                        'score' => 0,
+                foreach ($files as $file) {
+                    $uploaded[] = $media->upload($file, $attempt, [
+                        'disk' => 'local',
+                        'directory' => 'student/exam-attempts/' . $attempt->id,
+                        'collection' => 'exam-answer',
+                        'visibility' => 'private',
                     ]);
                 }
 
-                $hasManualQuestions = $hasManualQuestions || $question->type === 'text';
+                return [
+                    'failure' => null,
+                    'attempt' => $attempt->load(['exam.questions', 'answers', 'media']),
+                ];
+            }, 3);
+        } catch (Throwable $exception) {
+            foreach ($uploaded as $file) {
+                try {
+                    $media->delete($file);
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
             }
 
-            $attempt->score = $hasManualQuestions ? null : round($totalScore, 2);
-            $attempt->status = $hasManualQuestions ? 'pending_review' : 'graded';
-            $attempt->submitted_at = now();
-            $attempt->save();
-
-            return [
-                'failure' => null,
-                'attempt' => $attempt->load(['exam.questions', 'answers']),
-            ];
-        });
+            throw $exception;
+        }
 
         if ($result['failure'] !== null) {
             throw ValidationException::withMessages([

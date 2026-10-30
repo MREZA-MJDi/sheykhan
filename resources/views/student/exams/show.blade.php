@@ -18,6 +18,18 @@
             <span class="tag">{{ \App\Support\PersianUi::digits($exam->attempts_allowed) }} بار مجاز</span>
         </div>
         <p class="note">{{ $exam->description ?: 'برای این آزمون توضیح اضافه‌ای ثبت نشده است.' }}</p>
+        @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+        @if($examHandouts->isNotEmpty())
+            <div class="exam-handout-list">
+                <strong>فایل‌های راهنمای آزمون</strong>
+                @foreach($examHandouts as $handout)
+                    <a href="{{ route('media.view', $handout) }}" target="_blank" rel="noopener noreferrer">
+                        <span>{{ strtoupper($handout->extension ?: 'FILE') }}</span>
+                        <span><b>{{ $handout->original_name }}</b><small>{{ App\Support\PersianUi::number((int) ceil(((int) $handout->size) / 1024)) }} کیلوبایت</small></span>
+                    </a>
+                @endforeach
+            </div>
+        @endif
         <div class="frm">
             <span>شروع: {{ $exam->starts_at ? \App\Support\PersianUi::dateTime($exam->starts_at) : 'بدون زمان شروع مشخص' }}</span>
             <span>پایان: {{ $exam->ends_at ? \App\Support\PersianUi::dateTime($exam->ends_at) : 'بدون زمان پایان مشخص' }}</span>
