@@ -56,12 +56,18 @@
                                     <p class="mt-1 text-xs text-slate-500">انتشار: {{ \App\Support\PersianUi::date($resource->release_at) }}</p>
                                 @endif
                             </div>
-                            <a
-                                class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-[var(--panel-primary)] px-4 text-sm font-black text-[var(--panel-primary)] transition hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
-                                href="{{ route('parent.resources.view', ['resource' => $resource, 'child' => $selectedChild->id]) }}"
-                                target="_blank"
-                                rel="noopener"
-                            >مشاهدهٔ امن فایل</a>
+                            @if(str_starts_with(strtolower((string) $resource->media?->mime_type), 'video/'))
+                                <span class="inline-flex min-h-11 shrink-0 items-center rounded-xl bg-indigo-50 px-4 text-sm font-bold leading-6 text-indigo-900">
+                                    ویدئوی محافظت‌شده؛ پخش از حساب دانش‌آموز
+                                </span>
+                            @else
+                                <a
+                                    class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-[var(--panel-primary)] px-4 text-sm font-black text-[var(--panel-primary)] transition hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
+                                    href="{{ route('parent.resources.view', ['resource' => $resource, 'child' => $selectedChild->id]) }}"
+                                    target="_blank"
+                                    rel="noopener"
+                                >مشاهدهٔ امن فایل</a>
+                            @endif
                         </article>
                     @empty
                         <div class="rounded-2xl border border-dashed border-slate-300 p-8 text-center">

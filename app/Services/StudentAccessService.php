@@ -15,7 +15,7 @@ final class StudentAccessService
 {
     public function enrolledCourseIds(User $student): Collection
     {
-        if (!$student->hasRole('student')) {
+        if (! $this->isActiveStudent($student)) {
             return collect();
         }
 
@@ -44,7 +44,7 @@ final class StudentAccessService
 
     public function course(User $student, Course $course): bool
     {
-        if (!$student->hasRole('student') || !$course->isPublished()) {
+        if (! $this->isActiveStudent($student) || ! $course->isPublished()) {
             return false;
         }
 
@@ -67,7 +67,7 @@ final class StudentAccessService
 
     public function lesson(User $student, Lesson $lesson): bool
     {
-        if (!$student->hasRole('student')) {
+        if (! $this->isActiveStudent($student)) {
             return false;
         }
 
@@ -96,7 +96,7 @@ final class StudentAccessService
 
     public function assignment(User $student, Assignment $assignment): bool
     {
-        if (!$student->hasRole('student')) {
+        if (! $this->isActiveStudent($student)) {
             return false;
         }
 
@@ -116,7 +116,7 @@ final class StudentAccessService
 
     public function exam(User $student, Exam $exam): bool
     {
-        if (!$student->hasRole('student')) {
+        if (! $this->isActiveStudent($student)) {
             return false;
         }
 
@@ -140,7 +140,7 @@ final class StudentAccessService
      */
     public function canViewExamResult(User $student, Exam $exam): bool
     {
-        if (! $student->hasRole('student')) {
+        if (! $this->isActiveStudent($student)) {
             return false;
         }
 
@@ -167,7 +167,7 @@ final class StudentAccessService
 
     public function liveClass(User $student, LiveClass $liveClass): bool
     {
-        if (!$student->hasRole('student')) {
+        if (! $this->isActiveStudent($student)) {
             return false;
         }
 
@@ -235,7 +235,7 @@ final class StudentAccessService
      */
     public function canJoinClassSchedule(User $student, ClassSchedule $schedule): bool
     {
-        if (! $student->hasRole('student')) {
+        if (! $this->isActiveStudent($student)) {
             return false;
         }
 
@@ -292,7 +292,7 @@ final class StudentAccessService
 
     public function attendanceBelongsToStudent(User $student, int $classroomId): bool
     {
-        return $student->hasRole('student')
+        return $this->isActiveStudent($student)
             && $student->classroomsAsStudent()
                 ->whereKey($classroomId)
                 ->wherePivot('status', 'active')
@@ -355,10 +355,18 @@ final class StudentAccessService
         return $query->exists();
     }
 
+    private function isActiveStudent(User $student): bool
+    {
+        return $student->status === 'active'
+            && ! $student->trashed()
+            && $student->hasRole('student');
+    }
+
     private function academyMember(User $student, int $academyId): bool
     {
         return $student->academies()
             ->whereKey($academyId)
+            ->where('academies.status', 'active')
             ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->exists();

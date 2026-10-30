@@ -16,7 +16,7 @@ class LessonController extends Controller
         abort_unless($access->lesson(request()->user(), $lesson), 404);
 
         $lesson->loadMissing([
-            'section.course:id,academy_id,title,slug',
+            'section.course:id,academy_id,title,slug,spotplayer_course_id',
             'media' => fn ($query) => $query
                 ->where('status', 'active')
                 ->orderBy('media_attachments.sort_order'),

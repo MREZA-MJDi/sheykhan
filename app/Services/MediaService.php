@@ -9,6 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use LogicException;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -29,9 +30,14 @@ class MediaService
         $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: '');
         $fileName = (string) Str::uuid() . ($extension ? '.' . $extension : '');
         $path = null;
+        $media = null;
 
         try {
             $path = $file->storeAs($directory, $fileName, $disk);
+
+            if (! is_string($path) || $path === '') {
+                throw new RuntimeException('The uploaded file could not be stored.');
+            }
 
             $media = Media::create([
                 'uploaded_by' => $uploadedBy,
@@ -61,8 +67,22 @@ class MediaService
 
             return $media;
         } catch (Throwable $exception) {
-            if ($path) {
-                Storage::disk($disk)->delete($path);
+            // A failure after Media::create (such as a broken morph attachment)
+            // must not leave a row pointing to a file that cleanup removed.
+            if ($media instanceof Media && $media->exists) {
+                try {
+                    $media->delete();
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
+            if (is_string($path) && $path !== '') {
+                try {
+                    Storage::disk($disk)->delete($path);
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
             }
 
             throw $exception;

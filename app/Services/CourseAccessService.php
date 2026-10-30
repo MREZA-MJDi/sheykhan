@@ -19,16 +19,14 @@ final class CourseAccessService
             return false;
         }
 
-        if ($user->hasRole('student') && ! $this->academyMember($user, $course->academy_id)) {
-            return false;
-        }
-
         if ($user->hasRole('student')) {
-            return $this->studentCanAccess($user, $course);
+            return $this->academyMember($user, $course->academy_id, 'student')
+                && $this->studentCanAccess($user, $course);
         }
 
         if ($user->hasRole('parent')) {
-            return $this->parentCanAccess($user, $course);
+            return $this->academyMember($user, $course->academy_id, 'parent')
+                && $this->parentCanAccess($user, $course);
         }
 
         return false;
@@ -96,6 +94,7 @@ final class CourseAccessService
     private function eligibleEnrolledChild(User $parent, Course $course)
     {
         return $parent->children()
+            ->where('users.status', 'active')
             ->whereHas('roles', fn ($roles) => $roles->where('slug', 'student'))
             ->whereHas('academies', fn ($academies) => $academies
                 ->where('academies.id', $course->academy_id)
@@ -115,13 +114,18 @@ final class CourseAccessService
 
     private function isAssignedTeacher(User $user, Course $course): bool
     {
-        return $course->teachers()->whereKey($user->id)->exists();
+        // Assignment alone is not an entitlement: an archived teacher must lose
+        // access to course pages and attachments even when course_teacher is stale.
+        return $user->hasRole('teacher')
+            && app(TeacherAccessService::class)->canTeachCourse($user, $course);
     }
 
-    private function academyMember(User $user, int $academyId): bool
+    private function academyMember(User $user, int $academyId, string $role): bool
     {
         return $user->academies()
             ->whereKey($academyId)
+            ->where('academies.status', 'active')
+            ->wherePivot('role', $role)
             ->wherePivot('status', 'active')
             ->exists();
     }

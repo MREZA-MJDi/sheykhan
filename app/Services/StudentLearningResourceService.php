@@ -12,6 +12,8 @@ final class StudentLearningResourceService
     public function query(User $student): Builder
     {
         $academyIds = $student->academies()
+            ->where('academies.status', 'active')
+            ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->pluck('academies.id');
 
@@ -23,9 +25,11 @@ final class StudentLearningResourceService
 
         return LearningResource::query()
             ->with([
-                'course:id,academy_id,title,status,published_at,access_type',
+                'course:id,academy_id,title,slug,spotplayer_course_id,status,published_at,access_type',
                 'classroom:id,academy_id,title,course_id,status',
+                'classroom.course:id,academy_id,title,slug,spotplayer_course_id,status,published_at,access_type',
                 'lesson:id,title,course_section_id',
+                'lesson.section.course:id,academy_id,title,slug,spotplayer_course_id,status,published_at,access_type',
                 'academy:id,name',
                 'media:id,disk,path,original_name,mime_type,size,status',
             ])
@@ -155,6 +159,11 @@ final class StudentLearningResourceService
 
     private function academyMember(User $student, int $academyId): bool
     {
-        return $student->academies()->whereKey($academyId)->wherePivot('status', 'active')->exists();
+        return $student->academies()
+            ->whereKey($academyId)
+            ->where('academies.status', 'active')
+            ->wherePivot('role', 'student')
+            ->wherePivot('status', 'active')
+            ->exists();
     }
 }

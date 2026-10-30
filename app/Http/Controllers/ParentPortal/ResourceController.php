@@ -4,7 +4,7 @@ namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
 use App\Models\LearningResource;
-use App\Services\MediaService;
+use App\Services\SpotPlayerMediaDeliveryService;
 use App\Services\ParentLearningResourceService;
 use App\Services\StudentLearningResourceService;
 use Illuminate\Http\Request;
@@ -45,7 +45,7 @@ final class ResourceController extends Controller
         Request $request,
         LearningResource $resource,
         ParentLearningResourceService $parentResources,
-        MediaService $media,
+        SpotPlayerMediaDeliveryService $spotPlayerDelivery,
     ) {
         $data = $request->validate([
             'child' => ['required', 'integer', 'min:1'],
@@ -59,6 +59,16 @@ final class ResourceController extends Controller
         $resource->loadMissing('media:id,disk,path,original_name,mime_type,size,status');
         abort_unless($resource->media && $resource->media->status === 'active', 404);
 
-        return $media->inline($resource->media);
+        abort_if(
+            $spotPlayerDelivery->requiresProtectedPlayer($resource->media),
+            403,
+            'برای جلوگیری از ارائهٔ فایل خام ویدئو، پخش باید از پلیر محافظت‌شده و لایسنس اختصاصی دانش‌آموز انجام شود.'
+        );
+
+        return redirect()->route('protected-learning-media.view', [
+            'media' => $resource->media_id,
+            'resource' => $resource->id,
+            'child' => (int) $data['child'],
+        ]);
     }
 }

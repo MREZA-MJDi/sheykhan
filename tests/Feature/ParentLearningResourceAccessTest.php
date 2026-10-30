@@ -3,14 +3,17 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\LearningResource;
 use App\Models\Media;
+use App\Models\MediaAttachment;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -29,7 +32,7 @@ class ParentLearningResourceAccessTest extends TestCase
         $unlinkedChild = User::factory()->create(['status' => 'active']);
 
         $owner->roles()->attach($this->role('academy-owner', ['dashboard.view'])->id);
-        $parent->roles()->attach($this->role('parent', ['dashboard.view'])->id);
+        $parent->roles()->attach($this->role('parent', ['dashboard.view', 'media.view'])->id);
         $studentRole = $this->role('student', ['dashboard.view', 'resources.view']);
         foreach ([$child, $otherLinkedChild, $unlinkedChild] as $student) {
             $student->roles()->attach($studentRole->id);
@@ -49,6 +52,12 @@ class ParentLearningResourceAccessTest extends TestCase
                 'joined_at' => now(),
             ]);
         }
+
+        $academy->users()->attach($parent->id, [
+            'role' => 'parent',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
 
         $parent->children()->attach($child->id, ['relation' => 'والد']);
         $parent->children()->attach($otherLinkedChild->id, ['relation' => 'والد']);
@@ -121,13 +130,32 @@ class ParentLearningResourceAccessTest extends TestCase
 
         $this->actingAs($parent)
             ->get(route('parent.resources.view', ['resource' => $resource->id, 'child' => $child->id]))
-            ->assertOk()
-            ->assertStreamed()
-            ->assertStreamedContent('parent-resource-fixture');
+            ->assertRedirect(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+                'child' => $child->id,
+            ]));
 
         // A child linked to the same parent but not enrolled in this course
         // must not inherit the selected sibling's resource access.
         $otherLinkedChild->enrollments()->delete();
+
+        $this->actingAs($parent)
+            ->get(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+                'child' => $otherLinkedChild->id,
+            ]))
+            ->assertNotFound();
+
+        $this->actingAs($parent)
+            ->get(route('protected-learning-media.pages', [
+                'media' => $media->id,
+                'page' => 1,
+                'resource' => $resource->id,
+                'child' => $otherLinkedChild->id,
+            ]))
+            ->assertNotFound();
 
         $this->actingAs($parent)
             ->get(route('parent.resources.view', ['resource' => $resource->id, 'child' => $otherLinkedChild->id]))
@@ -149,6 +177,99 @@ class ParentLearningResourceAccessTest extends TestCase
         $this->actingAs($parent)
             ->get(route('parent.resources.view', ['resource' => $resource->id, 'child' => $unlinkedChild->id]))
             ->assertNotFound();
+    }
+
+    public function test_parent_loses_classroom_file_access_when_child_class_membership_is_inactive(): void
+    {
+        Storage::fake('local');
+
+        $owner = User::factory()->create(['status' => 'active']);
+        $parent = User::factory()->create(['status' => 'active']);
+        $child = User::factory()->create(['status' => 'active']);
+
+        $owner->roles()->attach($this->role('academy-owner', ['dashboard.view'])->id);
+        $parent->roles()->attach($this->role('parent', ['dashboard.view', 'media.view'])->id);
+        $child->roles()->attach($this->role('student', ['dashboard.view'])->id);
+
+        $academy = Academy::query()->create([
+            'owner_id' => $owner->id,
+            'name' => 'آموزشگاه آزمون عضویت کلاس',
+            'slug' => 'parent-class-' . Str::lower(Str::random(8)),
+            'status' => 'active',
+        ]);
+        $academy->users()->attach($child->id, [
+            'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $academy->users()->attach($parent->id, [
+            'role' => 'parent',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $parent->children()->attach($child->id, ['relation' => 'والد']);
+
+        $course = Course::query()->create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره کلاس والد',
+            'slug' => 'parent-class-course-' . Str::lower(Str::random(8)),
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'published_at' => now()->subDay(),
+        ]);
+        $child->enrollments()->create([
+            'course_id' => $course->id,
+            'status' => 'active',
+            'paid_amount' => 0,
+            'started_at' => now()->subDay(),
+        ]);
+
+        $classroom = Classroom::query()->create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس غیرفعال دانش‌آموز',
+            'code' => 'PARENT-' . Str::upper(Str::random(8)),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $classroom->students()->attach($child->id, [
+            'status' => 'inactive',
+            'enrolled_at' => now()->subDay(),
+        ]);
+
+        $path = 'parent-class/' . Str::uuid() . '.pdf';
+        Storage::disk('local')->put($path, 'protected');
+        $media = Media::query()->create([
+            'uploaded_by' => $owner->id,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'classroom-private.pdf',
+            'file_name' => basename($path),
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+            'size' => Storage::disk('local')->size($path),
+            'checksum' => hash('sha256', Storage::disk('local')->get($path)),
+            'visibility' => 'private',
+            'collection' => 'classroom-assets',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        MediaAttachment::query()->create([
+            'media_id' => $media->id,
+            'mediable_type' => Classroom::class,
+            'mediable_id' => $classroom->id,
+            'collection' => 'classroom-assets',
+            'sort_order' => 1,
+            'is_featured' => false,
+        ]);
+
+        $this->assertFalse(Gate::forUser($parent)->allows('view', $media));
+
+        $this->actingAs($parent)
+            ->get(route('media.view', $media))
+            ->assertForbidden();
     }
 
     private function role(string $slug, array $permissionNames): Role

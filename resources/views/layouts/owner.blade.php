@@ -62,6 +62,7 @@
                 ['route' => 'owner.resources.index', 'permission' => 'resources.view', 'label' => 'ویدئو و منابع آموزشی', 'icon' => 'book', 'scope' => 'academy'],
                 ['route' => 'owner.products.index', 'permission' => 'products.view', 'label' => 'محصولات و منابع فروش', 'icon' => 'tag', 'scope' => 'academy'],
                 ['route' => 'owner.orders.index', 'permission' => 'orders.view', 'label' => 'سفارش‌ها و رسیدها', 'icon' => 'receipt', 'scope' => 'academy'],
+                ['route' => 'owner.protected-file-views.index', 'permission' => 'orders.view', 'label' => 'گزارش مشاهده فایل‌ها', 'icon' => 'receipt', 'scope' => 'academy'],
             ],
         ],
         [
@@ -84,6 +85,7 @@
             'color' => '#9aa3d8',
             'links' => [
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی و کپی‌رایت', 'icon' => 'scale', 'scope' => 'global'],
+                ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
             ],
         ],
         [
@@ -100,6 +102,7 @@
             'color' => '#9aa3d8',
             'links' => [
                 ['route' => 'owner.academy.edit', 'permission' => 'academy.view', 'label' => 'تنظیمات آموزشگاه', 'icon' => 'cog', 'scope' => 'academy'],
+                ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'اتصال SpotPlayer', 'icon' => 'video', 'scope' => 'global'],
             ],
         ],
     ];

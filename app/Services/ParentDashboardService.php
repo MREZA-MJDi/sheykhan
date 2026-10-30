@@ -10,13 +10,32 @@ final class ParentDashboardService
 {
     public function build(User $parent): array
     {
+        $parentAcademyIds = fn () => DB::table('academy_user as parent_scope')
+            ->join('academies as parent_scoped_academies', 'parent_scoped_academies.id', '=', 'parent_scope.academy_id')
+            ->where('parent_scope.user_id', $parent->id)
+            ->where('parent_scope.role', 'parent')
+            ->where('parent_scope.status', 'active')
+            ->where('parent_scoped_academies.status', 'active')
+            ->select('parent_scope.academy_id');
+
         $children = $parent->children()
             ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
             ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
-            ->whereHas('academies', fn ($academies) => $academies
-                ->where('academies.status', 'active')
-                ->where('academy_user.role', 'student')
-                ->where('academy_user.status', 'active'))
+            ->whereHas('academies', function ($academies) use ($parent): void {
+                $academies
+                    ->where('academies.status', 'active')
+                    ->where('academy_user.role', 'student')
+                    ->where('academy_user.status', 'active')
+                    ->whereExists(function ($membership) use ($parent): void {
+                        $membership->selectRaw('1')
+                            ->from('academy_user as parent_membership')
+                            ->whereColumn('parent_membership.academy_id', 'academies.id')
+                            ->where('parent_membership.user_id', $parent->id)
+                            ->where('parent_membership.role', 'parent')
+                            ->where('parent_membership.status', 'active');
+                    });
+            })
             ->with('studentProfile')
             ->orderBy('users.name')
             ->get();
@@ -50,6 +69,7 @@ final class ParentDashboardService
                     ->on('lesson_progress.user_id', '=', 'enrollments.student_id');
             })
             ->whereIn('enrollments.student_id', $childIds)
+            ->whereIn('courses.academy_id', $parentAcademyIds())
             ->where('enrollments.status', 'active')
             ->where('courses.status', 'published')
             ->whereNotNull('courses.published_at')
@@ -118,6 +138,7 @@ final class ParentDashboardService
                     ->on('lesson_progress.user_id', '=', 'enrollments.student_id');
             })
             ->whereIn('enrollments.student_id', $childIds)
+            ->whereIn('courses.academy_id', $parentAcademyIds())
             ->where('enrollments.status', 'active')
             ->where('courses.status', 'published')
             ->whereNotNull('courses.published_at')
@@ -181,9 +202,24 @@ final class ParentDashboardService
         $pendingAssignments = DB::table('users as students')
             ->whereIn('students.id', $childIds)
             ->select('students.id')
-            ->selectSub(function ($query): void {
+            ->selectSub(function ($query) use ($parent): void {
                 $query->from('assignments')
                     ->where('assignments.status', 'published')
+                    ->whereExists(function ($parentScope) use ($parent): void {
+                        $parentScope->selectRaw('1')
+                            ->from('courses as parent_scope_courses')
+                            ->join('academy_user as parent_scope_memberships', function ($join) use ($parent): void {
+                                $join->on('parent_scope_memberships.academy_id', '=', 'parent_scope_courses.academy_id')
+                                    ->where('parent_scope_memberships.user_id', '=', $parent->id)
+                                    ->where('parent_scope_memberships.role', '=', 'parent')
+                                    ->where('parent_scope_memberships.status', '=', 'active');
+                            })
+                            ->join('academies as parent_scope_academies', function ($join): void {
+                                $join->on('parent_scope_academies.id', '=', 'parent_scope_courses.academy_id')
+                                    ->where('parent_scope_academies.status', '=', 'active');
+                            })
+                            ->whereColumn('parent_scope_courses.id', 'assignments.course_id');
+                    })
                     ->whereExists(function ($enrollments): void {
                         $enrollments->selectRaw('1')
                             ->from('course_enrollments')
@@ -265,12 +301,24 @@ final class ParentDashboardService
             ->pluck('pending_count', 'students.id');
 
         $attendanceStats = DB::table('attendances')
-            ->whereIn('student_id', $childIds)
-            ->groupBy('student_id')
-            ->select('student_id')
+            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->join('academies', 'academies.id', '=', 'classrooms.academy_id')
+            ->whereIn('attendances.student_id', $childIds)
+            ->whereIn('classrooms.academy_id', $parentAcademyIds())
+            ->where('classrooms.status', 'active')
+            ->where('academies.status', 'active')
+            ->whereExists(function ($membership): void {
+                $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                    ->whereColumn('enrolled_student_membership.academy_id', 'classrooms.academy_id')
+                    ->whereColumn('enrolled_student_membership.user_id', 'attendances.student_id')
+                    ->where('enrolled_student_membership.role', 'student')
+                    ->where('enrolled_student_membership.status', 'active');
+            })
+            ->groupBy('attendances.student_id')
+            ->select('attendances.student_id')
             ->selectRaw('COUNT(*) as attendance_total')
-            ->selectRaw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as attendance_present")
-            ->selectRaw("SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END) as attendance_absent")
+            ->selectRaw("SUM(CASE WHEN attendances.status = 'present' THEN 1 ELSE 0 END) as attendance_present")
+            ->selectRaw("SUM(CASE WHEN attendances.status = 'absent' THEN 1 ELSE 0 END) as attendance_absent")
             ->get()
             ->keyBy('student_id');
 
@@ -282,6 +330,7 @@ final class ParentDashboardService
             })
             ->join('users as students', 'students.id', '=', 'enrollments.student_id')
             ->whereIn('students.id', $childIds)
+            ->whereIn('courses.academy_id', $parentAcademyIds())
             ->where('courses.status', 'published')
             ->whereNotNull('courses.published_at')
             ->where('courses.published_at', '<=', now())
@@ -350,8 +399,19 @@ final class ParentDashboardService
         $recentAttendance = DB::table('attendances')
             ->join('users as students', 'students.id', '=', 'attendances.student_id')
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->join('academies', 'academies.id', '=', 'classrooms.academy_id')
             ->leftJoin('courses', 'courses.id', '=', 'classrooms.course_id')
             ->whereIn('attendances.student_id', $childIds)
+            ->whereIn('classrooms.academy_id', $parentAcademyIds())
+            ->where('classrooms.status', 'active')
+            ->where('academies.status', 'active')
+            ->whereExists(function ($membership): void {
+                $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
+                    ->whereColumn('enrolled_student_membership.academy_id', 'classrooms.academy_id')
+                    ->whereColumn('enrolled_student_membership.user_id', 'attendances.student_id')
+                    ->where('enrolled_student_membership.role', 'student')
+                    ->where('enrolled_student_membership.status', 'active');
+            })
             ->orderByDesc('attendances.attendance_date')
             ->orderByDesc('attendances.id')
             ->limit(8)
@@ -388,6 +448,7 @@ final class ParentDashboardService
 
         $upcomingLiveClasses = DB::table('live_classes')
             ->join('courses', 'courses.id', '=', 'live_classes.course_id')
+            ->whereIn('courses.academy_id', $parentAcademyIds())
             ->whereBetween('live_classes.scheduled_at', [now(), now()->addDays(7)])
             ->where('live_classes.status', 'scheduled')
             ->where('courses.status', 'published')
@@ -508,6 +569,12 @@ final class ParentDashboardService
             ->join('courses', 'courses.id', '=', 'academy_meetings.course_id')
             ->where('academy_meetings.parent_id', $parent->id)
             ->whereIn('academy_meetings.student_id', $childIds)
+            ->whereIn('academy_meetings.academy_id', $parentAcademyIds())
+            ->whereExists(function ($activeAcademy): void {
+                $activeAcademy->selectRaw('1')->from('academies')
+                    ->whereColumn('academies.id', 'academy_meetings.academy_id')
+                    ->where('academies.status', 'active');
+            })
             ->where('academy_meetings.status', 'scheduled')
             ->whereBetween('academy_meetings.scheduled_at', [now(), now()->addDays(30)])
             ->orderBy('academy_meetings.scheduled_at')
@@ -531,8 +598,12 @@ final class ParentDashboardService
 
         $assignmentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->join('courses', 'courses.id', '=', 'assignments.course_id')
+            ->join('academies', 'academies.id', '=', 'courses.academy_id')
             ->join('users as students', 'students.id', '=', 'submissions.student_id')
             ->whereIn('submissions.student_id', $childIds)
+            ->whereIn('courses.academy_id', $parentAcademyIds())
+            ->where('academies.status', 'active')
             ->whereNotNull('submissions.graded_at')
             ->where('assignments.status', 'published')
             ->orderByDesc('submissions.graded_at')
@@ -550,8 +621,12 @@ final class ParentDashboardService
 
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
+            ->join('courses', 'courses.id', '=', 'exams.course_id')
+            ->join('academies', 'academies.id', '=', 'courses.academy_id')
             ->join('users as students', 'students.id', '=', 'attempts.student_id')
             ->whereIn('attempts.student_id', $childIds)
+            ->whereIn('courses.academy_id', $parentAcademyIds())
+            ->where('academies.status', 'active')
             ->whereNotNull('attempts.submitted_at')
             ->where('exams.status', 'published')
             ->whereExists(function ($enrollments): void {
