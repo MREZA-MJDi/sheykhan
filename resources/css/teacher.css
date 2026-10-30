@@ -3464,3 +3464,20 @@ th{font-weight:600}td{padding:12px}
 @media(max-width:380px){.teacher-exam-summary-chip{min-height:32px;padding:5px 8px}.teacher-exam-review-actions :is(a,button){width:100%}.teacher-exam-sheet-facts{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.teacher-exam-page-head *,.teacher-exam-review *{transition:none!important;animation:none!important}}
 @media print{body.teacher-shell{background:#fff!important}.teacher-shell .app>.sb,.teacher-shell .role-mobile-bottom-nav,.teacher-exam-page-head,.teacher-exam-settings-section,.teacher-exam-editor-toolbar,.teacher-exam-final-actions,.teacher-exam-question-editor-head,.teacher-exam-question-editor-foot{display:none!important}.teacher-exam-paper-viewport{padding:0;overflow:visible;border:0;background:#fff}.teacher-exam-paper-sheet{width:100%;min-height:0;padding:0;border:0;box-shadow:none}.teacher-exam-paper-sheet,.teacher-exam-paper-sheet *{color:#111!important}}
+
+
+/* Final uncovered Teacher page selectors from the view-to-stylesheet audit. */
+.teacher-dashboard-primary-action{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:9px 15px;border:1px solid var(--ac);border-radius:11px;background:var(--ac);color:var(--on);font-size:12px;font-weight:900;text-decoration:none}
+.teacher-dashboard-primary-action:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.teacher-classroom-roster-section{display:grid;gap:14px;min-width:0;overflow:hidden}
+.teacher-classroom-roster-section>h3{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.teacher-classroom-roster-section>h3>a{font-size:10px;font-weight:800;color:var(--ac);text-decoration:none}
+.teacher-roster-card-action{display:flex;justify-content:flex-end;gap:6px;padding-top:9px;border-top:1px solid var(--bd);color:var(--ac);font-size:10px;font-weight:900}
+.teacher-live-join{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:4px 9px;border-radius:8px;font-size:10px;font-weight:900;white-space:nowrap}
+.teacher-exam-score-field{min-width:0}
+.teacher-live-description textarea{min-height:100px;resize:vertical}
+@media(max-width:700px){
+ .teacher-classroom-roster-section>h3{align-items:flex-start}
+ .teacher-live-join{font-size:9px;padding-inline:7px}
+ .teacher-dashboard-primary-action{width:100%}
+}
