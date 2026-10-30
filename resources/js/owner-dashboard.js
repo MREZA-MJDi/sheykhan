@@ -7,8 +7,6 @@ export { closePanelMenu };
 bootPanelRuntime();
 
 /* Academy-owner single JS entry: owner interactions, exam editor, calendar and Persian input helpers. */
-import './persian-calendar.js';
-import './persian-money.js';
 /* Accessible interactions for the server-rendered owner dashboard. No demo records. */
 (() => {
     'use strict';
