@@ -109,40 +109,7 @@
 @endphp
 <div class="app">
     @include('owner.partials.dashboard-icons')
-    <header class="top">
-        <button class="burger" id="burger" type="button" aria-label="باز و بسته کردن منوی اصلی" aria-expanded="false" aria-controls="side"><svg class="ic"><use href="#i-menu"/></svg></button>
-        <a class="brand-mark" href="{{ route($ownerHomeRoute) }}" aria-label="ورود به مرکز مدیریت شیخان"><span class="lg" aria-hidden="true">ش</span><span class="brand">آکادمی شیخان</span></a>
-        <span class="top-page-title">{{ $pageHeading }}</span>
-        <nav class="tabs" aria-label="دسترسی سریع">
-            @if(request()->routeIs('owner.dashboard'))
-                @foreach(['today'=>'امروز','week'=>'این هفته','month'=>'این ماه'] as $periodKey=>$periodLabel)
-                    <a class="tab {{ $period === $periodKey ? 'on' : '' }}" href="{{ route('owner.dashboard',['period'=>$periodKey]) }}" @if($period === $periodKey) aria-current="page" @endif>{{ $periodLabel }}</a>
-                @endforeach
-            @elseif($canManagePublicSite)
-                <a class="tab {{ request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update') ? 'on' : '' }}" href="{{ route('owner.seo.index') }}">ممیزی SEO</a>
-                <a class="tab {{ request()->routeIs('owner.seo.keywords.*') ? 'on' : '' }}" href="{{ route('owner.seo.keywords.index') }}">کلمات کلیدی</a>
-                <a class="tab {{ request()->routeIs('owner.website.*') ? 'on' : '' }}" href="{{ route('owner.website.index') }}">مرکز سایت</a>
-            @else
-                <a class="tab" href="{{ route('owner.dashboard') }}">نمای کلی</a>
-                @if($ownerUser?->hasPermission('courses.view'))<a class="tab" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
-                @if($ownerUser?->hasPermission('reports.view'))<a class="tab" href="{{ route('owner.reports.index') }}">گزارش‌ها</a>@endif
-                @if($ownerUser?->hasPermission('finance.view'))<a class="tab" href="{{ route('owner.finance.index') }}">مالی</a>@endif
-            @endif
-        </nav>
-        <button class="srch" id="srch" type="button" aria-label="جستجوی صفحه‌ها"><svg class="ic"><use href="#i-search"/></svg><span>جستجوی صفحه</span><kbd>Ctrl K</kbd></button>
-        <div class="nt">
-            <button class="bell" id="bell" type="button" aria-label="اعلان‌ها" aria-expanded="false" aria-controls="pop"><svg class="ic"><use href="#i-bell"/></svg><b id="nb">{{ $notifications->count() ? \App\Support\PersianUi::digits($notifications->count()) : '' }}</b></button>
-            <div class="pop" id="pop" hidden>
-                <div class="card-title"><div><h2>موارد نیازمند پیگیری</h2><p>بر اساس داده‌های واقعی سامانه</p></div></div>
-                @forelse($notifications as $notification)
-                    <a class="fd" href="{{ $notification['url'] }}" style="--c:{{ $notification['color'] ?? '#22d3ee' }}"><i aria-hidden="true"></i><span class="gx"><b>{{ $notification['title'] }}</b><small>{{ $notification['detail'] }}</small></span><svg class="ic"><use href="#i-arr"/></svg></a>
-                @empty
-                    <div class="em">اعلان فوری تازه‌ای برای نمایش ثبت نشده است.</div>
-                @endforelse
-            </div>
-        </div>
-        <div class="av" title="{{ $ownerUser?->name }}" aria-label="حساب {{ $ownerUser?->name }}">{{ $ownerInitial }}</div>
-    </header>
+    @include('owner.partials.admin-topbar')
     <aside class="side card" id="side" aria-label="منوی مدیریت">
         <nav id="nv" aria-label="منوی اصلی">
             @foreach($ownerNavGroups as $navGroup)
@@ -224,18 +191,8 @@
         @endif
         <div class="side-foot"><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
     </aside>
-    <main class="main main-content" id="main" tabindex="-1">
-        @if(session('success') || session('error') || $errors->any())
-            <section class="owner-dashboard-feedback c12" aria-live="polite">
-                @if(session('success'))<div class="alert is-success" role="status">{{ session('success') }}</div>@endif
-                @if(session('error'))<div class="alert is-error" role="alert">{{ session('error') }}</div>@endif
-                @if($errors->any())<div class="alert is-error" role="alert"><strong>اطلاعات فرم نیاز به اصلاح دارد.</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
-            </section>
-        @endif
-        @yield('content')
-    </main>
-    <dialog id="pal" class="command-palette" aria-label="جستجوی صفحه‌ها"><form method="dialog" class="command-palette-head"><svg class="ic"><use href="#i-search"/></svg><input id="pq" type="search" placeholder="نام صفحه را بنویس…" autocomplete="off" aria-label="جستجوی صفحه"><button type="submit" aria-label="بستن جستجو">×</button></form><ul id="pl" aria-label="نتایج جستجو"></ul><p class="command-palette-hint">با کلیدهای جهت‌دار جابه‌جا شو و برای رفتن به صفحه Enter را بزن.</p></dialog>
-    <div id="toast" role="status" aria-live="polite"></div>
+    @include('owner.partials.admin-main')
+    @include('owner.partials.admin-command-palette')
 </div>
 @stack('scripts')
 </body>
