@@ -117,6 +117,23 @@ class RoleMobileNavigationRouteContractTest extends TestCase
         );
     }
 
+    public function test_mobile_more_menu_sets_current_page_on_the_link_element(): void
+    {
+        $source = file_get_contents(resource_path('views/components/navigation/role-mobile-nav.blade.php'));
+
+        $this->assertIsString($source);
+        $this->assertMatchesRegularExpression(
+            '/<a\\b[^>]*@if\\(\$active\\)\\s+aria-current="page"\\s+@endif[^>]*>/',
+            $source,
+            'The active-page state must be an attribute on the mobile menu link.',
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/<a\\b[^>]*>\\s*@if\\(\$active\\)\\s+aria-current="page"/',
+            $source,
+            'The active-page attribute must not be rendered as visible link text.',
+        );
+    }
+
     public function test_owner_desktop_sidebar_exposes_scoped_content_commerce_and_legal_routes(): void
     {
         $sidebar = file_get_contents(resource_path('views/components/navigation/owner-sidebar.blade.php'));
