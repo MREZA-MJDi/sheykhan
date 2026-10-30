@@ -147,7 +147,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
         $this->assertStringContainsString("'route' => 'owner.assignments.index', 'permission' => 'assignments.view'", $ownerLayout);
         $this->assertStringContainsString("hasPermission('assignments.view')", $ownerSidebar);
         $this->assertStringContainsString("hasPermission('assignments.view')", $ownerDashboard);
-        $this->assertStringNotContainsString("hasPermission('courses.view') && $hasAcademy", $ownerDashboard);
+        $this->assertStringNotContainsString('hasPermission(\'courses.view\') && $hasAcademy', $ownerDashboard);
     }
 
     public function test_owner_desktop_sidebar_exposes_scoped_content_commerce_and_legal_routes(): void
