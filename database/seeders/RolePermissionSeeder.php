@@ -107,7 +107,7 @@ class RolePermissionSeeder extends Seeder
                 'teachers.view','teachers.manage',
                 'parents.view','parents.manage','parent_messages.view',
                 'assignments.view','assignments.manage',
-                'exams.view,'exams.manage',
+                'exams.view','exams.manage',
                 'attendance.view','attendance.manage',
                 'live_classes.view','live_classes.manage',
                 'reports.view',
