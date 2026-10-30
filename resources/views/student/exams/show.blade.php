@@ -18,7 +18,11 @@
             <span class="tag">{{ \App\Support\PersianUi::digits($exam->attempts_allowed) }} بار مجاز</span>
         </div>
         <p class="note">{{ $exam->description ?: 'برای این آزمون توضیح اضافه‌ای ثبت نشده است.' }}</p>
-        @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+        @php
+            $examHandouts = $exam->media->filter(function ($file) {
+                return $file->pivot->collection === 'exam-handout';
+            });
+        @endphp
         @if($examHandouts->isNotEmpty())
             <div class="exam-handout-list">
                 <strong>فایل‌های راهنمای آزمون</strong>

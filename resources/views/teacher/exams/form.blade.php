@@ -100,7 +100,11 @@
                 <span>فایل راهنما یا منبع آزمون <small>اختیاری · PDF، Word، PowerPoint، تصویر یا ZIP تا ۵۰ مگابایت</small></span>
                 <input type="file" name="handout" accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,.zip">
                 <small class="teacher-exam-field-help">فایل به‌صورت خصوصی به برگه آزمون پیوست می‌شود و فقط افراد مجاز همان دوره به آن دسترسی دارند.</small>
-                @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+                @php
+                    $examHandouts = $exam->media->filter(function ($file) {
+                        return $file->pivot->collection === 'exam-handout';
+                    });
+                @endphp
                 @if($examHandouts->isNotEmpty())
                     <span class="teacher-exam-file-list">
                         @foreach($examHandouts as $handout)
