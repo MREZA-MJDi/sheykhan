@@ -97,6 +97,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString('#teacher-dashboard', $teacherStyles);
         $this->assertStringNotContainsString('style="margin-top:18px"', $studentDashboard);
     }
+
     public function test_role_entries_use_one_shared_panel_runtime_and_player_module(): void
     {
         $entries = [
@@ -117,6 +118,13 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString('bootOwnerPeopleTabs();', $runtime);
         $this->assertStringContainsString('bootRoleMobileNavigation();', $runtime);
         $this->assertStringContainsString('export async function bootShakaPlayers()', $player);
+        $this->assertStringContainsString("import 'shaka-player/dist/controls.css';", $player);
+
+        foreach (['parent.css', 'student.css', 'teacher.css'] as $styleSheet) {
+            $styles = file_get_contents(resource_path('css/' . $styleSheet));
+            $this->assertIsString($styles);
+            $this->assertStringNotContainsString("shaka-player/dist/controls.css", $styles, $styleSheet);
+        }
 
         foreach ($entries as $entry) {
             $source = file_get_contents(resource_path(str_replace('resources/', '', $entry)));
