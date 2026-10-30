@@ -7,8 +7,6 @@ export { closePanelMenu };
 bootPanelRuntime();
 
 /* SEO-specialist single JS entry: SEO interactions, calendar and Persian input helpers. */
-import './persian-calendar.js';
-import './persian-money.js';
 /* Accessible interactions for the server-rendered owner dashboard. No demo records. */
 (() => {
     'use strict';
