@@ -145,7 +145,12 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString("import './owner-admin-common.js';", $ownerScript);
         $this->assertStringContainsString("import './owner-admin-common.js';", $seoScript);
         $this->assertStringContainsString('data-media-uploader', $sharedScript);
-        $this->assertStringContainsString('const initializeExamBuilder', $sharedScript);
+        $this->assertStringContainsString("import './assessment-builder.js';", $sharedScript);
+        $this->assertStringContainsString('const initializeExamBuilder', file_get_contents(resource_path('js/assessment-builder.js')));
+        $teacherScript = file_get_contents(resource_path('js/teacher.js'));
+        $this->assertIsString($teacherScript);
+        $this->assertStringContainsString("import './assessment-builder.js';", $teacherScript);
+        $this->assertStringNotContainsString('const initializeExamBuilder', $teacherScript);
         $this->assertStringContainsString("@import './owner-admin-shared.css';", $ownerCss);
         $this->assertStringContainsString("@import './owner-admin-shared.css';", $seoCss);
 
