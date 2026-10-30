@@ -21,7 +21,7 @@
     $canViewAttendance = (bool) $ownerUser?->hasPermission('attendance.view') && $hasAcademy;
     $canViewFinance = (bool) $ownerUser?->hasPermission('finance.view');
     $canViewReports = (bool) $ownerUser?->hasPermission('reports.view');
-    $canViewAssignments = (bool) $ownerUser?->hasPermission('courses.view') && $hasAcademy;
+    $canViewAssignments = (bool) $ownerUser?->hasPermission('assignments.view') && $hasAcademy;
     $canViewMeetings = (bool) $ownerUser?->hasPermission('live_classes.view') && $hasAcademy;
     $canViewParents = (bool) $ownerUser?->hasPermission('parents.view') && $hasAcademy;
     $canViewExams = (bool) $ownerUser?->hasPermission('exams.view') && $hasAcademy;
