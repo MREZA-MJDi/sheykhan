@@ -4,6 +4,9 @@ export { closePanelMenu };
 
 const bootOwnerPeopleTabs = () => {
     document.querySelectorAll('[data-owner-people-tabs]').forEach((root) => {
+        if (root.dataset.ownerPeopleTabsBound === 'true') return;
+        root.dataset.ownerPeopleTabsBound = 'true';
+
         const buttons = Array.from(root.querySelectorAll('[data-owner-tab-button]'));
         const panels = Array.from(root.querySelectorAll('[data-owner-tab-panel]'));
         if (!buttons.length || !panels.length) return;
@@ -118,8 +121,10 @@ const bootShakaPlayerComponents = () => {
 };
 
 let runtimeBooted = false;
+let runtimeScheduled = false;
 
 function initializePanelRuntime() {
+    runtimeScheduled = false;
     if (runtimeBooted) return;
     runtimeBooted = true;
 
@@ -130,9 +135,10 @@ function initializePanelRuntime() {
 }
 
 export function bootPanelRuntime() {
-    if (runtimeBooted) return;
+    if (runtimeBooted || runtimeScheduled) return;
 
     if (document.readyState === 'loading') {
+        runtimeScheduled = true;
         document.addEventListener('DOMContentLoaded', initializePanelRuntime, { once: true });
         return;
     }
