@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use Illuminate\\Support\\Facades\\Blade;
-use Tests\\TestCase;
+use Illuminate\Support\Facades\Blade;
+use Tests\TestCase;
 
 class UiComponentAccessibilityTest extends TestCase
 {
