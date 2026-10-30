@@ -51,7 +51,7 @@
     @endif
 
     @if($canSubmit)
-        <form class="card" method="POST" action="{{ route('student.assignments.submit', $assignment->id) }}" enctype="multipart/form-data">
+        <form class="card" method="POST" action="{{ route('student.assignments.submit', $assignment->id) }}" enctype="multipart/form-data" data-upload-progress>
             @csrf
             <div class="chead"><h2>{{ $submission ? 'ارسال نسخهٔ اصلاح‌شده' : 'ارسال پاسخ تکلیف' }}</h2><span class="tag w">تا پایان مهلت</span></div>
             <label for="assignment-content" style="display:block;font-size:12px;margin-bottom:8px">توضیح یا پاسخ متنی</label>
@@ -65,6 +65,7 @@
                 <input class="fld" id="assignment-files" data-assignment-file-upload type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" aria-describedby="assignment-files-help assignment-files-selection">
                 <p class="assignment-upload-help" id="assignment-files-help">حداکثر ۳ فایل، هرکدام تا ۱۰ مگابایت. فایل‌های پاسخ به‌صورت خصوصی ذخیره می‌شوند و فقط افراد مجاز به تکلیف دسترسی دارند.</p>
                 <p class="assignment-upload-selection" id="assignment-files-selection" data-assignment-files-selection aria-live="polite">هنوز فایلی انتخاب نشده است.</p>
+                <x-ui.upload-progress label="پیشرفت ارسال پاسخ تکلیف" />
             </div>
             <div class="frm"><button class="btn s" type="submit">ثبت پاسخ</button><span>پس از تصحیح مدرس، ارسال مجدد بسته می‌شود.</span></div>
         </form>

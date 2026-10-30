@@ -17,7 +17,7 @@
 
 <span
     {{ $attributes->class([
-        'inline-flex min-h-6 items-center justify-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold leading-none',
+        'panel-badge inline-flex min-h-6 items-center justify-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold leading-none',
         $variantClass,
     ]) }}
 >

@@ -1,4 +1,5 @@
 import { bootPanel, closePanelMenu } from './panel-base.js';
+import { bootFileUploadProgress } from './upload-progress.js';
 
 export { closePanelMenu };
 
@@ -105,21 +106,6 @@ const bootRoleMobileNavigation = () => {
     });
 };
 
-const bootShakaPlayerComponents = () => {
-    if (!document.querySelector('[data-shaka-player-root]')) return;
-
-    import('./shaka-player.js')
-        .then(({ bootShakaPlayers }) => bootShakaPlayers())
-        .catch((error) => {
-            console.error('[Sheykhan Shaka] Failed to load player module', error);
-            document.querySelectorAll('[data-shaka-status]').forEach((status) => {
-                status.textContent = 'پلیر بارگذاری نشد. منابع فرانت‌اند را بررسی و صفحه را دوباره بارگذاری کنید.';
-                status.dataset.tone = 'error';
-                status.hidden = false;
-            });
-        });
-};
-
 let runtimeBooted = false;
 let runtimeScheduled = false;
 
@@ -131,7 +117,7 @@ function initializePanelRuntime() {
     bootPanel();
     bootOwnerPeopleTabs();
     bootRoleMobileNavigation();
-    bootShakaPlayerComponents();
+    bootFileUploadProgress();
 }
 
 export function bootPanelRuntime() {

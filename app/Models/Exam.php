@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Models\Concerns\HasMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -8,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exam extends Model
 {
-    use HasFactory;
+    use HasFactory, HasMedia;
     protected $fillable=['course_id','classroom_id','teacher_id','title','description','duration_minutes','starts_at','ends_at','attempts_allowed','status'];
     protected $casts=['starts_at'=>'datetime','ends_at'=>'datetime'];
     public function course(): BelongsTo { return $this->belongsTo(Course::class); }

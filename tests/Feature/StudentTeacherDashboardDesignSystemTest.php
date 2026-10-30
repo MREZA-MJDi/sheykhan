@@ -98,7 +98,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringNotContainsString('style="margin-top:18px"', $studentDashboard);
     }
 
-    public function test_role_entries_use_one_shared_panel_runtime_and_player_module(): void
+    public function test_role_entries_use_one_shared_panel_runtime_and_spotplayer_as_video_provider(): void
     {
         $entries = [
             'resources/js/app.js',
@@ -109,31 +109,28 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
             'resources/js/seo-dashboard.js',
         ];
         $runtime = file_get_contents(resource_path('js/panel-runtime.js'));
-        $player = file_get_contents(resource_path('js/shaka-player.js'));
+        $playerView = file_get_contents(resource_path('views/student/courses/show.blade.php'));
+        $package = json_decode(file_get_contents(base_path('package.json')), true);
 
-        $this->assertIsString($runtime);
-        $this->assertIsString($player);
-        $this->assertStringContainsString("import { bootPanel, closePanelMenu } from './panel-base.js';", $runtime);
-        $this->assertStringContainsString("import('./shaka-player.js')", $runtime);
-        $this->assertStringContainsString('bootOwnerPeopleTabs();', $runtime);
-        $this->assertStringContainsString('bootRoleMobileNavigation();', $runtime);
-        $this->assertStringContainsString('export async function bootShakaPlayers()', $player);
-        $this->assertStringContainsString("import 'shaka-player/dist/controls.css';", $player);
-
-        foreach (['parent.css', 'student.css', 'teacher.css'] as $styleSheet) {
-            $styles = file_get_contents(resource_path('css/' . $styleSheet));
-            $this->assertIsString($styles);
-            $this->assertStringNotContainsString("shaka-player/dist/controls.css", $styles, $styleSheet);
+        foreach ([$runtime, $playerView] as $source) {
+            $this->assertIsString($source);
         }
+        $this->assertIsArray($package);
+        $this->assertStringContainsString("import { bootPanel, closePanelMenu } from './panel-base.js';", $runtime);
+        $this->assertStringContainsString("import { bootFileUploadProgress } from './upload-progress.js';", $runtime);
+        $this->assertStringContainsString('bootRoleMobileNavigation();', $runtime);
+        $this->assertStringContainsString('bootFileUploadProgress();', $runtime);
+        $this->assertArrayNotHasKey('shaka-player', $package['dependencies'] ?? []);
+        $this->assertStringContainsString("config('services.spotplayer.web_player_script')", $playerView);
+        $this->assertStringContainsString('new window.SpotPlayer(', $playerView);
 
         foreach ($entries as $entry) {
             $source = file_get_contents(resource_path(str_replace('resources/', '', $entry)));
             $this->assertIsString($source);
             $this->assertStringContainsString("from './panel-runtime.js'", $source, $entry);
-            $this->assertStringNotContainsString('const initializedPlayers = new WeakMap()', $source, $entry);
-            $this->assertStringNotContainsString('new shaka.Player()', $source, $entry);
         }
     }
+
 
     public function test_owner_and_seo_share_common_interactions_styles_and_layout_partials(): void
     {

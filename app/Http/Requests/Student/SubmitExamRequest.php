@@ -16,6 +16,8 @@ class SubmitExamRequest extends FormRequest
         return [
             'answers' => ['sometimes', 'array', 'max:100'],
             'answers.*' => ['nullable'],
+            'attachments' => ['sometimes', 'array', 'max:3'],
+            'attachments.*' => ['file', 'max:10240', 'mimes:pdf,txt,jpg,jpeg,png,webp,zip,doc,docx,odt'],
         ];
     }
 }

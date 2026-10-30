@@ -8,6 +8,7 @@ use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Services\StudentAccessService;
 use App\Services\StudentExamService;
+use App\Services\MediaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -65,6 +66,7 @@ class ExamController extends Controller
                 ->select('id','exam_id','type','question','options','score','sort_order')
                 ->orderBy('sort_order'),
             'answers:id,exam_attempt_id,question_id,answer',
+            'media:id,original_name,mime_type,extension,size,status',
         ]);
 
         return view('student.exams.attempt', [
@@ -75,12 +77,15 @@ class ExamController extends Controller
     public function submit(
         SubmitExamRequest $request,
         ExamAttempt $attempt,
-        StudentExamService $exams
+        StudentExamService $exams,
+        MediaService $media
     ): RedirectResponse {
         $exams->submit(
             $request->user(),
             $attempt,
             $request->validated('answers', []),
+            $request->file('attachments', []),
+            $media,
         );
 
         return redirect()->route('student.exams.index')
