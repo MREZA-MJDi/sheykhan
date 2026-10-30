@@ -261,6 +261,3 @@ document.addEventListener('change', (event) => {
         .map((file) => `${file.name} · ${sizeLabel(file.size)}`)
         .join('، ');
 });
-
-
-/* Student-local Shaka player implementation. */

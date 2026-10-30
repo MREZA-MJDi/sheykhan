@@ -862,164 +862,49 @@
     }
 }
 
-
-/* Panel-local Shaka player presentation. */
-.shaka-player-card {
-    --shaka-font-family: "Vazirmatn", Tahoma, sans-serif;
-    --shaka-font-size: 13px;
-    --shaka-font-color: #f8fafc;
-    --shaka-bg: rgba(15, 23, 42, .88);
-    --shaka-bg-hover: rgba(30, 41, 59, .96);
-    --shaka-thumb-color: #818cf8;
-    --shaka-track-color: rgba(255, 255, 255, .32);
-    display: grid;
-    gap: 12px;
-    min-width: 0;
-    overflow: hidden;
-    padding: 16px;
-    border: 1px solid #dbe3ef;
-    border-radius: 20px;
-    background: #fff;
-    color: #17243b;
-    box-shadow: 0 12px 32px rgba(25, 43, 72, .08);
-    font-family: "Vazirmatn", Tahoma, sans-serif;
+/* Parent workspace shell and responsive navigation. */
+.parent-shell{min-height:100dvh;margin:0;overflow-x:clip;background:#f3f6fa;color:#17243b;font-family:'Vazirmatn',Tahoma,sans-serif}
+.parent-shell .role-layout{display:grid;grid-template-columns:minmax(228px,260px) minmax(0,1fr);align-items:start;gap:20px;width:min(100%,1680px);min-height:100dvh;margin-inline:auto;padding:clamp(14px,2vw,26px)}
+.parent-shell .parent-sidebar{position:sticky;inset-block-start:18px;display:flex;flex-direction:column;gap:16px;min-width:0;height:calc(100dvh - 36px);padding:18px 14px;overflow:hidden;border:1px solid #e3eaf1;border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 12px 34px rgba(26,45,67,.07)}
+.parent-shell .role-sidebar-brand{padding:4px 6px 14px;border-bottom:1px solid #edf1f5}
+.parent-shell .role-brand{display:flex;align-items:center;gap:11px;color:#17243b;text-decoration:none}
+.parent-shell .role-brand>span:last-child{display:grid;gap:1px}
+.parent-shell .role-brand strong{font-size:15px;font-weight:950}
+.parent-shell .role-brand small{color:#718096;font-size:10px}
+.parent-shell .role-brand-mark{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#20b482,#16865f);color:#fff;font-size:18px;font-weight:950}
+.parent-shell .role-sidebar-nav{display:grid;align-content:start;gap:5px;min-height:0;padding:2px 1px;overflow:auto;scrollbar-width:thin}
+.parent-shell .role-sidebar-label{margin:12px 9px 4px;color:#96a2b1;font-size:10px;font-weight:900}
+.parent-shell .role-nav-link{display:flex;align-items:center;gap:10px;min-width:0;min-height:42px;padding:9px 11px;border:1px solid transparent;border-radius:12px;color:#546479;font-size:11px;font-weight:750;text-decoration:none;transition:background-color .16s ease,color .16s ease,border-color .16s ease}
+.parent-shell .role-nav-link:hover{border-color:#e7f2ed;background:#f5faf7;color:#13835d}
+.parent-shell .role-nav-link.is-active{border-color:#d7f0e5;background:#eaf8f1;color:#137e5a;font-weight:900}
+.parent-shell .role-nav-icon{display:grid;place-items:center;flex:0 0 26px;width:26px;height:26px;border-radius:8px;background:#f0f4f7}
+.parent-shell .role-nav-link.is-active .role-nav-icon{background:#d8f2e6}
+.parent-shell .role-sidebar-footer{display:grid;gap:6px;margin-top:auto;padding-top:12px;border-top:1px solid #edf1f5}
+.parent-shell .role-footer-link{display:flex;align-items:center;justify-content:center;width:100%;min-height:39px;padding:8px 10px;border:1px solid #e5ebf1;border-radius:10px;background:#fff;color:#617084;font:inherit;font-size:11px;font-weight:800;text-decoration:none;cursor:pointer}
+.parent-shell .role-logout{color:#b33c50}
+.parent-shell .role-content{display:flex;flex-direction:column;gap:18px;min-width:0}
+.parent-shell .role-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0;padding:15px 18px;border:1px solid #e3eaf1;border-radius:18px;background:rgba(255,255,255,.94);box-shadow:0 7px 24px rgba(26,45,67,.045)}
+.parent-shell .role-topbar-leading,.parent-shell .role-topbar-actions{display:flex;align-items:center;gap:12px;min-width:0}
+.parent-shell .role-topbar-eyebrow{color:#8996a7;font-size:9px;font-weight:800}
+.parent-shell .role-topbar h1{margin:2px 0 0;color:#17243b;font-size:clamp(16px,1.7vw,21px);font-weight:950;line-height:1.5}
+.parent-shell .role-topbar-site{color:#5c6d80;font-size:11px;font-weight:800;text-decoration:none}
+.parent-shell .role-user-chip{display:flex;align-items:center;gap:9px;min-width:0;padding:4px 9px 4px 4px;border:1px solid #e9eef3;border-radius:999px;color:#24354b;text-decoration:none}
+.parent-shell .role-user-avatar{display:block;flex:0 0 36px;width:36px;height:36px;overflow:hidden;border-radius:50%;background:#eaf8f1}
+.parent-shell .role-user-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+.parent-shell .role-user-copy{display:grid;gap:1px;min-width:0}
+.parent-shell .role-user-copy strong{max-width:150px;overflow:hidden;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.parent-shell .role-user-copy small{color:#7b8797;font-size:9px}
+.parent-shell .role-logout-btn{min-height:36px;padding:7px 13px;border:1px solid #f1d7dc;border-radius:10px;background:#fff6f7;color:#ad3044;font:inherit;font-size:10px;font-weight:900;cursor:pointer}
+.parent-shell .role-main{width:100%;min-width:0;padding:0}
+.parent-shell .role-mobile-bottom-nav{display:none}
+@media(max-width:1020px){
+ .parent-shell .role-layout{grid-template-columns:minmax(0,1fr);gap:12px;padding:12px}
+ .parent-shell .parent-sidebar{display:none}.parent-shell .role-content{gap:12px}
+ .parent-shell .role-mobile-bottom-nav{position:fixed;inset-inline:10px;inset-block-end:calc(9px + env(safe-area-inset-bottom,0px));z-index:1200;display:grid;grid-template-columns:repeat(var(--role-mobile-nav-items,5),minmax(0,1fr));gap:4px;width:auto;max-width:650px;margin-inline:auto;padding:6px;border:1px solid rgba(220,229,238,.9);border-radius:17px;background:rgba(255,255,255,.92);box-shadow:0 14px 38px rgba(22,42,62,.18);backdrop-filter:blur(18px)}
+ .parent-shell .role-mobile-bottom-nav :is(a,button){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:49px;padding:4px 2px;border:0;border-radius:11px;background:transparent;color:#66768a;font:inherit;font-size:clamp(8px,2vw,10px);font-weight:800;line-height:1.4;text-align:center;text-decoration:none}
+ .parent-shell .role-mobile-bottom-nav .is-active{background:#e8f7ef;color:#13835d}
+ .parent-shell .role-mobile-bottom-icon{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:#f0f5f2}
+ .parent-shell .role-main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 }
-
-.shaka-player-card__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    min-width: 0;
-}
-
-.shaka-player-card__title {
-    margin: 0;
-    color: #17243b;
-    font-size: 15px;
-    font-weight: 850;
-    line-height: 1.8;
-}
-
-.shaka-player-card__label {
-    flex: none;
-    padding: 5px 9px;
-    border: 1px solid #dfe4ff;
-    border-radius: 999px;
-    background: #f0f1ff;
-    color: #454fc2;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.shaka-player-card__stage {
-    position: relative;
-    width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    aspect-ratio: 16 / 9;
-    border-radius: 14px;
-    background: #050914;
-    isolation: isolate;
-}
-
-.shaka-player-card__stage video {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background: #050914;
-}
-
-.shaka-player-card .shaka-controls-container,
-.shaka-player-card .shaka-bottom-controls,
-.shaka-player-card .shaka-seek-bar-container {
-    direction: ltr;
-}
-
-.shaka-player-card .shaka-overflow-menu,
-.shaka-player-card .shaka-settings-menu,
-.shaka-player-card .shaka-chapter-panel {
-    direction: rtl;
-    text-align: right;
-    font-family: "Vazirmatn", Tahoma, sans-serif;
-}
-
-.shaka-player-card .shaka-overflow-menu button,
-.shaka-player-card .shaka-settings-menu button {
-    font-family: "Vazirmatn", Tahoma, sans-serif;
-}
-
-.shaka-player-card__watermark {
-    position: absolute;
-    z-index: 2;
-    inset: 12px auto auto 12px;
-    max-width: calc(100% - 24px);
-    padding: 5px 8px;
-    overflow-wrap: anywhere;
-    border: 1px solid rgba(255, 255, 255, .24);
-    border-radius: 7px;
-    background: rgba(0, 0, 0, .38);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 750;
-    line-height: 1.6;
-    pointer-events: none;
-    user-select: none;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
-}
-
-.shaka-player-card__status {
-    margin: 0;
-    padding: 10px 12px;
-    border: 1px solid #dce6f2;
-    border-radius: 10px;
-    background: #f7faff;
-    color: #50627a;
-    font-size: 12px;
-    line-height: 1.9;
-}
-
-.shaka-player-card__status[data-tone="error"] {
-    border-color: #f3c7ce;
-    background: #fff3f4;
-    color: #9f2538;
-}
-
-.shaka-player-card__status[hidden] {
-    display: none;
-}
-
-@media (max-width: 640px) {
-    .shaka-player-card {
-        gap: 10px;
-        padding: 10px;
-        border-radius: 15px;
-    }
-
-    .shaka-player-card__title {
-        font-size: 13px;
-    }
-
-    .shaka-player-card__label {
-        font-size: 9px;
-    }
-
-    .shaka-player-card__stage {
-        border-radius: 10px;
-    }
-
-    .shaka-player-card__watermark {
-        inset: 8px auto auto 8px;
-        font-size: 9px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .shaka-player-card *,
-    .shaka-player-card *::before,
-    .shaka-player-card *::after {
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
-    }
-}
+@media(max-width:640px){.parent-shell .role-layout{padding:8px}.parent-shell .role-topbar{align-items:flex-start;padding:12px;border-radius:14px}.parent-shell .role-topbar-site,.parent-shell .role-user-copy,.parent-shell .role-logout-btn{display:none}.parent-shell .role-main{padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))}.parent-shell .role-mobile-bottom-nav{inset-inline:6px;padding:5px}.parent-shell .role-mobile-bottom-nav :is(a,button){min-height:46px;font-size:8px}}
+@media(prefers-reduced-motion:reduce){.parent-shell .role-nav-link{transition:none}}
