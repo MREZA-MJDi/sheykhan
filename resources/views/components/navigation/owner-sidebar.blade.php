@@ -2,7 +2,7 @@
     $user = auth()->user();
     $seoOnly = $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     $academyScopedPermissions = [
-        'academy.view', 'classrooms.view', 'attendance.view', 'courses.view',
+        'academy.view', 'classrooms.view', 'attendance.view', 'assignments.view', 'courses.view',
         'live_classes.view', 'parents.view', 'exams.view', 'teacher_payments.view',
         'resources.view', 'products.view', 'orders.view',
     ];
