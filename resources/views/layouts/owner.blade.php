@@ -54,7 +54,7 @@
                 ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'پیام‌های اولیا', 'icon' => 'chat', 'scope' => 'academy'],
                 ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها', 'icon' => 'mega', 'scope' => 'academy'],
                 ['route' => 'owner.counseling.index', 'permission' => 'parents.view', 'label' => 'مشاوره', 'icon' => 'heart', 'scope' => 'academy'],
-                ['route' => 'owner.assignments.index', 'permission' => 'courses.view', 'label' => 'تکالیف و تصحیح', 'icon' => 'doc', 'scope' => 'academy'],
+                ['route' => 'owner.assignments.index', 'permission' => 'assignments.view', 'label' => 'تکالیف و تصحیح', 'icon' => 'doc', 'scope' => 'academy'],
                 ['route' => 'owner.schedules.index', 'permission' => 'live_classes.view', 'label' => 'لینک کلاس آنلاین', 'icon' => 'link', 'scope' => 'academy'],
                 ['route' => 'owner.exams.index', 'permission' => 'exams.view', 'label' => 'آزمون‌ها و نتایج', 'icon' => 'book', 'scope' => 'academy'],
                 ['route' => 'owner.recordings.index', 'permission' => 'live_classes.view', 'label' => 'آرشیو ضبط کلاس‌ها', 'icon' => 'video', 'scope' => 'academy'],

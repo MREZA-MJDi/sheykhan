@@ -11,7 +11,7 @@ final class StoreOwnerAssignmentRequest extends FormRequest
     public function authorize(): bool
     {
         return ($this->user()?->hasRole('academy-owner') ?? false)
-            && ($this->user()?->hasPermission('courses.manage') ?? false);
+            && ($this->user()?->hasPermission('assignments.manage') ?? false);
     }
 
     public function rules(): array

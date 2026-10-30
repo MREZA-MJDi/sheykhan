@@ -2,7 +2,7 @@
     $user = auth()->user();
     $seoOnly = $user->hasRole('seo-specialist') && ! $user->hasRole('academy-owner');
     $academyScopedPermissions = [
-        'academy.view', 'classrooms.view', 'attendance.view', 'courses.view',
+        'academy.view', 'classrooms.view', 'attendance.view', 'assignments.view', 'courses.view',
         'live_classes.view', 'parents.view', 'exams.view', 'teacher_payments.view',
         'resources.view', 'products.view', 'orders.view',
     ];
@@ -152,7 +152,7 @@
                         </a>
                     @endif
 
-                    @if($user->hasPermission('courses.view'))
+                    @if($user->hasPermission('assignments.view'))
                         <a href="{{ route('owner.assignments.index', $academy) }}"
                            class="role-nav-link {{ request()->routeIs('owner.assignments.*') && (int)$routeAcademyId === (int)$academy->id ? 'is-active' : '' }}">
                             <span class="role-nav-icon"></span><span>تکالیف و تصحیح</span>

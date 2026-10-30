@@ -204,7 +204,7 @@ class OwnerSecretaryTeachingToolsTest extends TestCase
         ]);
 
         $permissionIds = [];
-        foreach (['courses.manage', 'courses.view', 'live_classes.view', 'live_classes.manage', 'media.view'] as $name) {
+        foreach (['courses.manage', 'courses.view', 'assignments.manage', 'assignments.view', 'live_classes.view', 'live_classes.manage', 'media.view'] as $name) {
             $permission = Permission::query()->firstOrCreate(
                 ['name' => $name],
                 ['label' => $name, 'group' => explode('.', $name)[0]],

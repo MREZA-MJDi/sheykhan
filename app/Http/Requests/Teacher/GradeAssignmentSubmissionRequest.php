@@ -21,7 +21,7 @@ class GradeAssignmentSubmissionRequest extends FormRequest
         $assignment->loadMissing('course.academy');
 
         if ($user->hasRole('academy-owner')) {
-            return $user->hasPermission('courses.manage')
+            return $user->hasPermission('assignments.manage')
                 && (int) $assignment->course?->academy?->owner_id === (int) $user->id;
         }
 

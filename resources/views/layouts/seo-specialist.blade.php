@@ -34,7 +34,7 @@
         ['owner.people.index','academy.view','اعضا و ثبت‌نام','users'],
         ['owner.classrooms.index','classrooms.view','کلاس‌ها','calendar'],
         ['owner.attendance.index','attendance.view','حضور و غیاب','checksq'],
-        ['owner.assignments.index','courses.view','تکالیف و تصحیح','doc'],
+        ['owner.assignments.index','assignments.view','تکالیف و تصحیح','doc'],
         ['owner.exams.index','exams.view','آزمون‌ها','book'],
         ['owner.schedules.index','live_classes.view','برنامه کلاس','video'],
         ['owner.meetings.index','live_classes.view','جلسات','calendar'],
