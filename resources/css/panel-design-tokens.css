@@ -1,0 +1,55 @@
+/* Neutral visual contract shared by role panels. Brand colors remain role-owned. */
+:root {
+    --panel-font-family: 'Vazirmatn', Tahoma, sans-serif;
+    --panel-font-size-meta: 0.75rem;
+    --panel-font-size-body: 0.875rem;
+    --panel-font-size-heading: clamp(1.125rem, 1.6vw, 1.5rem);
+    --panel-control-height: 44px;
+    --panel-control-radius: 12px;
+    --panel-card-radius: 16px;
+    --panel-section-gap: 18px;
+    --panel-inline-gap: 12px;
+    --panel-focus-width: 2px;
+    --panel-focus-offset: 2px;
+    --panel-motion-fast: 160ms;
+    --panel-motion-normal: 220ms;
+    --panel-focus-color: var(--acc, var(--teal, var(--panel-primary, #5667e8)));
+}
+
+.panel-control {
+    min-height: var(--panel-control-height, 44px);
+    border-radius: var(--panel-control-radius, 12px);
+    font-family: var(--panel-font-family, Vazirmatn, Tahoma, sans-serif);
+    transition-duration: var(--panel-motion-fast, 160ms);
+}
+
+.panel-control:focus-visible {
+    outline: var(--panel-focus-width, 2px) solid var(--panel-focus-color, #5667e8);
+    outline-offset: var(--panel-focus-offset, 2px);
+}
+
+.panel-action {
+    font-family: var(--panel-font-family, Vazirmatn, Tahoma, sans-serif);
+    transition-duration: var(--panel-motion-normal, 220ms);
+}
+
+.panel-action:focus-visible {
+    outline-offset: var(--panel-focus-offset, 2px);
+}
+
+.panel-surface {
+    border-radius: var(--panel-card-radius, 16px);
+}
+
+.panel-badge {
+    min-height: 24px;
+    border-radius: 999px;
+    font-size: var(--panel-font-size-meta, 0.75rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .panel-control,
+    .panel-action {
+        transition-duration: 0ms;
+    }
+}

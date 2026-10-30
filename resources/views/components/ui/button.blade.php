@@ -9,7 +9,7 @@
 ])
 
 @php
-    $base = 'group relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap font-bold transition duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-primary-100)]';
+    $base = 'panel-action group relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap font-bold transition duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-primary-100)]';
 
     $variants = [
         'primary' => 'bg-[var(--color-primary-600)] text-white shadow-[0_10px_24px_rgba(83,98,223,.18)] hover:-translate-y-0.5 hover:bg-[var(--color-primary-700)] hover:shadow-[0_14px_30px_rgba(83,98,223,.22)] active:translate-y-0',

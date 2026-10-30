@@ -27,7 +27,7 @@
         id="{{ $inputId }}"
         type="{{ $type }}"
         {{ $attributes->except(['id', 'aria-describedby', 'aria-invalid'])->class([
-            'ui-control px-4 text-sm outline-none placeholder:text-[var(--color-text-subtle)]',
+            'ui-control panel-control px-4 text-sm outline-none placeholder:text-[var(--color-text-subtle)]',
             'border-[var(--color-danger-400)] focus:border-[var(--color-danger-400)]' => $error,
         ]) }}
         @if($describedBy !== '') aria-describedby="{{ $describedBy }}" @endif
