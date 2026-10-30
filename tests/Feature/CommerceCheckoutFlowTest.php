@@ -153,6 +153,11 @@ class CommerceCheckoutFlowTest extends TestCase
             'requires_watermark' => true,
         ]);
 
+        // Regression: a non-preview purchased source must stay private even if visibility is misconfigured.
+        $media->forceFill(['visibility' => 'public'])->save();
+        $this->get(route('media.public', $media))->assertNotFound();
+        $this->assertFalse(app(\App\Policies\MediaPolicy::class)->download($buyer, $media));
+
         $order->payments()->create([
             'gateway' => 'manual_transfer',
             'amount' => 250000,

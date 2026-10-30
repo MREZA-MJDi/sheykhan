@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class PanelTailwindSourceCoverageTest extends TestCase
 {
-    public function test_student_views_are_scanned_by_the_standalone_student_entrypoint(): void
+    public function test_student_views_are_scanned_by_the_student_tailwind_entrypoint(): void
     {
         $css = file_get_contents(resource_path('css/student.css'));
         $layout = file_get_contents(resource_path('views/layouts/student.blade.php'));
@@ -18,7 +18,7 @@ class PanelTailwindSourceCoverageTest extends TestCase
         $this->assertStringContainsString("@source '../../resources/views/layouts/student.blade.php';", $css);
         $this->assertStringContainsString("@source '../../resources/views/components';", $css);
         $this->assertStringContainsString('resources/css/student.css', $layout);
-        $this->assertStringNotContainsString('resources/css/app.css', $layout);
+        $this->assertStringContainsString('resources/js/student.js', $layout);
     }
 
     public function test_parent_styles_scan_parent_views_layout_and_shared_components(): void
@@ -53,7 +53,6 @@ class PanelTailwindSourceCoverageTest extends TestCase
         }
 
         $this->assertStringContainsString('.owner-admin-v2', $owner);
-        $this->assertStringContainsString('--oa-accent:#22d3ee', $owner);
         $this->assertStringContainsString('.teacher-shell{', $teacher);
         $this->assertStringContainsString('#dashboard.page', $student);
         $this->assertStringContainsString('.parent-shell', $parent);

@@ -88,7 +88,7 @@
                                 @elseif($item->product && $order->status === 'paid')
                                     <div class="mt-4 flex flex-wrap gap-2">
                                         @forelse($item->product->files->where('is_preview', false) as $downloadFile)
-                                            <a href="{{ route('orders.files.download', [$order, $downloadFile]) }}" class="order-primary-action inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--color-primary-600)] px-4 text-xs font-black text-white">دریافت نسخهٔ محافظت‌شده <span class="ms-2" aria-hidden="true">↓</span></a>
+                                            <a href="{{ route('orders.files.view', [$order, $downloadFile]) }}" class="order-primary-action inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--color-primary-600)] px-4 text-xs font-black text-white">مشاهدهٔ امن فایل <span class="ms-2" aria-hidden="true">↗</span></a>
                                         @empty
                                             <p class="text-xs leading-6 text-amber-800">هنوز فایل قابل تحویل برای این محصول ثبت نشده است. پشتیبان را مطلع کن.</p>
                                         @endforelse

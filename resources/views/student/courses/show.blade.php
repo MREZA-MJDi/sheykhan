@@ -22,9 +22,30 @@
             <div class="chead"><h2>ویدئوهای محافظت‌شدهٔ دوره</h2><span class="pill">SpotPlayer DRM</span></div>
             <p>پخش ویدئو داخل همین صفحه و پس از تأیید دسترسی آموزشی انجام می‌شود. واترمارک اختصاصی و محدودیت دستگاه طبق تنظیمات لایسنس اعمال می‌شود.</p>
             @if($spotplayerLicense)
-                <div id="spotplayer-player-{{ $course->id }}" class="mt-4 w-full min-h-[360px]" role="region" aria-label="پخش امن ویدئوهای دوره"></div>
+                <div id="spotplayer-stage-{{ $course->id }}" class="spotplayer-stage mt-4 w-full" role="region" aria-label="پخش امن ویدئوهای دوره">
+                    <div id="spotplayer-player-{{ $course->id }}" class="relative z-0 w-full min-h-[360px]"></div>
+                    <div class="spotplayer-view-watermark" aria-hidden="true">
+                        @for($mark = 0; $mark < 8; $mark++)
+                            <span>شیخان · USER-{{ auth()->id() }} · <b data-spotplayer-view-reference>ثبت شناسهٔ مشاهده...</b></span>
+                        @endfor
+                    </div>
+                </div>
                 <p id="spotplayer-player-status-{{ $course->id }}" class="mt-3 text-sm leading-6 text-slate-500" role="status" aria-live="polite">در حال آماده‌سازی پلیر امن...</p>
                 <noscript><p class="mt-3 text-sm text-rose-600">برای پخش امن ویدئو باید JavaScript مرورگر فعال باشد.</p></noscript>
+                @push('styles')
+                    <style>
+                        .spotplayer-stage { position:relative; isolation:isolate; min-height:360px; overflow:hidden; }
+                        .spotplayer-view-watermark {
+                            position:absolute; inset:0; z-index:20; pointer-events:none; overflow:hidden;
+                            display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:minmax(70px,1fr);
+                            align-items:center; justify-items:center; opacity:.18; user-select:none;
+                        }
+                        .spotplayer-view-watermark span {
+                            color:#4338ca; font-size:clamp(9px,1.25vw,14px); font-weight:900;
+                            white-space:nowrap; transform:rotate(-24deg); text-shadow:0 1px 1px rgba(255,255,255,.85);
+                        }
+                    </style>
+                @endpush
                 @push('scripts')
                     <script src="{{ config('services.spotplayer.web_player_script') }}" defer></script>
                     <script>
@@ -39,6 +60,34 @@
                                 }
 
                                 try {
+                                    const csrfToken = @json(csrf_token());
+                                    const traceResponse = await fetch(
+                                        @json(route('student.courses.spotplayer-view', $course)),
+                                        {
+                                            method: 'POST',
+                                            credentials: 'same-origin',
+                                            headers: {
+                                                'Accept': 'application/json',
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': csrfToken
+                                            },
+                                            body: JSON.stringify({})
+                                        }
+                                    );
+
+                                    if (!traceResponse.ok) {
+                                        throw new Error('The protected playback view could not be logged.');
+                                    }
+
+                                    const traceData = await traceResponse.json();
+                                    if (!traceData.reference) {
+                                        throw new Error('The protected playback reference is missing.');
+                                    }
+
+                                    document.querySelectorAll('#spotplayer-stage-{{ $course->id }} [data-spotplayer-view-reference]').forEach(function (element) {
+                                        element.textContent = traceData.reference;
+                                    });
+
                                     const player = new window.SpotPlayer(
                                         playerElement,
                                         @json(route('student.courses.spotplayer-cookie', $course)),

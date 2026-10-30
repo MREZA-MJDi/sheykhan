@@ -200,6 +200,107 @@ class ParentPortalWorkflowTest extends TestCase
             ->assertDontSee($otherStudent->name);
     }
 
+    public function test_parent_attendance_and_dashboard_are_scoped_to_parent_academies_for_the_same_child(): void
+    {
+        $workspace = $this->workspace();
+        $parent = $workspace['parent'];
+        $student = $workspace['student'];
+        $owner = $workspace['owner'];
+        $teacher = $workspace['teacher'];
+        $firstClassroom = $workspace['classroom'];
+
+        Attendance::query()->create([
+            'classroom_id' => $firstClassroom->id,
+            'student_id' => $student->id,
+            'marked_by' => $teacher->id,
+            'attendance_date' => today()->toDateString(),
+            'status' => 'present',
+            'note' => 'حضور آموزشگاه مجاز',
+        ]);
+
+        $otherAcademy = Academy::query()->create([
+            'owner_id' => $owner->id,
+            'name' => 'آموزشگاه خارج از محدوده والد',
+            'slug' => 'other-academy-' . Str::lower(Str::random(8)),
+            'status' => 'active',
+        ]);
+        $otherAcademy->users()->attach($student->id, [
+            'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $otherCourse = Course::query()->create([
+            'academy_id' => $otherAcademy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره آموزشگاه دوم',
+            'slug' => 'other-course-' . Str::lower(Str::random(8)),
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'published_at' => now()->subDay(),
+        ]);
+        $otherClassroom = Classroom::query()->create([
+            'academy_id' => $otherAcademy->id,
+            'course_id' => $otherCourse->id,
+            'title' => 'کلاس محرمانه آموزشگاه دوم',
+            'code' => 'OTHER-' . Str::upper(Str::random(8)),
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $otherClassroom->students()->attach($student->id, [
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
+        $student->enrollments()->create([
+            'course_id' => $otherCourse->id,
+            'classroom_id' => $otherClassroom->id,
+            'status' => 'active',
+            'payment_status' => 'unpaid',
+            'paid_amount' => 0,
+            'started_at' => now()->subDay(),
+        ]);
+        Attendance::query()->create([
+            'classroom_id' => $otherClassroom->id,
+            'student_id' => $student->id,
+            'marked_by' => $teacher->id,
+            'attendance_date' => today()->subDay()->toDateString(),
+            'status' => 'absent',
+            'note' => 'این رکورد نباید به والد نشان داده شود',
+        ]);
+        Assignment::query()->create([
+            'course_id' => $otherCourse->id,
+            'classroom_id' => $otherClassroom->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'تکلیف محرمانه آموزشگاه دوم',
+            'instructions' => 'این تکلیف خارج از محدودهٔ والد است.',
+            'due_at' => now()->addDays(2),
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('parent.attendance.index'))
+            ->assertOk()
+            ->assertSee('حضور آموزشگاه مجاز')
+            ->assertDontSee('کلاس محرمانه آموزشگاه دوم')
+            ->assertDontSee('این رکورد نباید به والد نشان داده شود');
+
+        $dashboard = app(ParentDashboardService::class)->build($parent);
+        $child = $dashboard['children']->firstWhere('id', $student->id);
+
+        $this->assertNotNull($child);
+        $this->assertSame(1, $child->dashboard_courses);
+        $this->assertSame(1, $child->dashboard_attendance_total);
+        $this->assertSame(0, $child->dashboard_pending);
+        $this->assertFalse($dashboard['pendingAssignmentItems']->contains(
+            fn ($item) => $item->title === 'تکلیف محرمانه آموزشگاه دوم'
+        ));
+        $this->assertFalse($dashboard['recentAttendance']->contains(
+            fn ($row) => $row->classroom_title === 'کلاس محرمانه آموزشگاه دوم'
+        ));
+    }
+
     public function test_teacher_proposes_counseling_time_owner_confirms_it_and_parent_sees_final_status(): void
     {
         $workspace = $this->workspace();

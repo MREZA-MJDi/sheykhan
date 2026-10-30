@@ -47,6 +47,19 @@ class OwnerDashboardBackendContractTest extends TestCase
         ]);
 
         $dashboard = app(OwnerDashboardService::class)->build($owner);
+
+        $this->assertCount(7, $dashboard['trends']['students']);
+        $this->assertCount(7, $dashboard['trends']['attendance']);
+        $this->assertCount(7, $dashboard['trends']['sales']);
+        $this->assertCount(7, $dashboard['trends']['pendingReviews']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['labels']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['students']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['attendance']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['sales']);
+        $this->assertCount(13, $dashboard['trends']['weekly']['pendingReviews']);
+        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $dashboard['subjectAverages']);
+        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $dashboard['pendingApprovalItems']);
+
         $ownedAcademyIds = $owner->ownedAcademies()
             ->where('status', 'active')
             ->pluck('academies.id');
@@ -213,18 +226,28 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('href="' . route('owner.content.index') . '"', false)
             ->assertDontSee('href="' . route('owner.blog.index') . '"', false)
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false)
-            ->assertSee('aria-label="کلاس‌های فعال"', false)
-            ->assertSee('class="card kpi c3" style="--c:#ff1f6b"', false)
+            ->assertSee('<a class="card kpi c3 kpi-link" href="' . route('owner.people.index', $academy) . '"', false)
+            ->assertSee('<a class="card kpi c3 kpi-link" href="' . route('owner.attendance.index', $academy) . '"', false)
+            ->assertSee('<a class="card kpi c3 kpi-link" href="' . route('owner.finance.index') . '"', false)
+            ->assertSee('aria-label="مشاهده موارد نیازمند پیگیری؛', false)
+            ->assertSee('class="sp"', false)
+            ->assertSee('class="ln owner-line-chart"', false)
+            ->assertSee('id="weekly-trend-title"', false)
+            ->assertSee('id="subject-averages-title"', false)
+            ->assertSee('id="quick-approval-title"', false)
+            ->assertSee('id="login-title"', false)
+            ->assertSee('id="student-growth-title"', false)
+            ->assertSee('id="shortcut-title"', false)
             ->assertSee('id="capacity-title"', false)
             ->assertSee('id="course-publish-title"', false)
             ->assertDontSee('owner-classroom-item', false)
             ->assertDontSee('owner-quick-actions', false)
             ->assertDontSee('owner-footer-actions', false)
-            ->assertDontSee('<a class="card kpi', false);
+            ->assertDontSee('class="card kpi c3" style="--c:#ff1f6b"', false);
     }
 
 
-    public function test_multi_academy_dashboard_keeps_kpis_non_navigational_and_scoped_routes_in_sidebar(): void
+    public function test_multi_academy_dashboard_uses_whole_card_links_while_scoping_detail_destinations(): void
     {
         $this->seed();
         Cache::flush();
@@ -242,8 +265,8 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertOk()
             ->assertDontSee('id="owner-academies"', false)
             ->assertDontSee('href="#owner-academies"', false)
-            ->assertDontSee('<a class="owner-stat-card', false)
-            ->assertSee('class="card kpi c3" style="--c:#ff1f6b"', false)
+            ->assertSee('<a class="card kpi c3 kpi-link" href="', false)
+            ->assertSee('href="' . route('owner.people.index', $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail()) . '"', false)
             ->assertSee('آموزشگاه دوم')
             ->assertSee('id="capacity-title"', false);
     }
@@ -268,10 +291,10 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->actingAs($owner)
             ->get(route('owner.dashboard'))
             ->assertOk()
-            ->assertSee('کلاس‌های فعال')
+            ->assertSee('aria-label="مشاهده موارد نیازمند پیگیری؛', false)
             ->assertSee('id="capacity-title"', false)
             ->assertSee('href="' . route('owner.classrooms.index', $academy) . '"', false)
-            ->assertDontSee('aria-label="دانش‌آموزان فعال"', false)
+            ->assertDontSee('aria-label="مشاهده اعضا؛', false)
             ->assertDontSee('مدرس‌های فعال')
             ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.edit', $academy) . '"', false)

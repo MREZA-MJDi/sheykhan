@@ -101,6 +101,14 @@ Route::middleware(['auth','active'])->group(function () {
         ->middleware('permission:media.download')
         ->name('media.download');
 
+    Route::get('/protected-learning-media/{media}/view', [\App\Http\Controllers\ProtectedLearningMediaController::class, 'view'])
+        ->middleware('throttle:60,1')
+        ->name('protected-learning-media.view');
+    Route::get('/protected-learning-media/{media}/pages/{page}', [\App\Http\Controllers\ProtectedLearningMediaController::class, 'page'])
+        ->whereNumber('page')
+        ->middleware('throttle:180,1')
+        ->name('protected-learning-media.pages');
+
         Route::get('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'show'])->name('checkout.course.show');
     Route::post('/checkout/course/{course}', [\App\Http\Controllers\Commerce\CourseCheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.course.store');
     Route::get('/library', [\App\Http\Controllers\Commerce\LibraryController::class, 'index'])->name('library.index');
@@ -109,13 +117,18 @@ Route::get('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutC
     Route::post('/checkout/{product:slug}', [\App\Http\Controllers\Commerce\CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
     Route::get('/orders/{order}', [\App\Http\Controllers\Commerce\OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/payment-proof', [\App\Http\Controllers\Commerce\OrderController::class, 'uploadProof'])->middleware('throttle:5,1')->name('orders.proof.store');
+    Route::get('/orders/{order}/files/{file}/view', [\App\Http\Controllers\Commerce\OrderController::class, 'viewFile'])->middleware('throttle:60,1')->name('orders.files.view');
+    Route::get('/orders/{order}/files/{file}/pages/{page}', [\App\Http\Controllers\Commerce\OrderController::class, 'viewFilePage'])->whereNumber('page')->middleware('throttle:180,1')->name('orders.files.pages');
     Route::get('/orders/{order}/files/{file}/download', [\App\Http\Controllers\Commerce\OrderController::class, 'download'])->middleware('throttle:20,1')->name('orders.files.download');
 });
 
 Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'])->prefix('owner')->name('owner.')->scopeBindings()->group(function () {
+    Route::get('/spotplayer', [\App\Http\Controllers\Owner\SpotPlayerSettingsController::class, 'edit'])->middleware('permission:courses.manage')->name('spotplayer.edit');
+    Route::put('/spotplayer', [\App\Http\Controllers\Owner\SpotPlayerSettingsController::class, 'update'])->middleware(['permission:courses.manage','throttle:10,1'])->name('spotplayer.update');
     Route::get('/dashboard', OwnerDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/academy/{academy}/edit', [OwnerAcademyController::class, 'edit'])->middleware('permission:academy.view')->name('academy.edit');
     Route::patch('/academy/{academy}', [OwnerAcademyController::class, 'update'])->middleware('permission:academy.manage')->name('academy.update');
+    Route::get('/academy/{academy}/protected-file-views', [\App\Http\Controllers\Owner\ProtectedFileViewController::class, 'index'])->middleware('permission:orders.view')->name('protected-file-views.index');
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->middleware('permission:academy.view')->name('people.index');
     Route::get('/academy/{academy}/people/student-options', [OwnerPeopleController::class, 'studentOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.student-options');
     Route::get('/academy/{academy}/people/data/{role}', OwnerPeopleDirectoryController::class)
@@ -130,11 +143,11 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/schedules', [OwnerScheduleController::class, 'index'])->middleware('permission:live_classes.view')->name('schedules.index');
     Route::post('/academy/{academy}/classrooms/{classroom}/schedules', [OwnerScheduleController::class, 'store'])->middleware(['permission:live_classes.manage','throttle:20,1'])->name('schedules.store');
     Route::delete('/academy/{academy}/classrooms/{classroom}/schedules/{schedule}', [OwnerScheduleController::class, 'destroy'])->middleware('permission:live_classes.manage')->name('schedules.destroy');
-    Route::get('/academy/{academy}/assignments/create', [OwnerAssignmentController::class, 'create'])->middleware('permission:courses.manage')->name('assignments.create');
-    Route::post('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'store'])->middleware(['permission:courses.manage','throttle:20,1'])->name('assignments.store');
-    Route::get('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'index'])->middleware('permission:courses.view')->name('assignments.index');
-    Route::get('/academy/{academy}/assignments/{assignment}', [OwnerAssignmentController::class, 'show'])->middleware('permission:courses.view')->name('assignments.show');
-    Route::patch('/academy/{academy}/assignments/{assignment}/submissions/{submission}', [OwnerAssignmentController::class, 'grade'])->middleware('permission:courses.manage')->name('assignments.grade');
+    Route::get('/academy/{academy}/assignments/create', [OwnerAssignmentController::class, 'create'])->middleware('permission:assignments.manage')->name('assignments.create');
+    Route::post('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'store'])->middleware(['permission:assignments.manage','throttle:20,1'])->name('assignments.store');
+    Route::get('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'index'])->middleware('permission:assignments.view')->name('assignments.index');
+    Route::get('/academy/{academy}/assignments/{assignment}', [OwnerAssignmentController::class, 'show'])->middleware('permission:assignments.view')->name('assignments.show');
+    Route::patch('/academy/{academy}/assignments/{assignment}/submissions/{submission}', [OwnerAssignmentController::class, 'grade'])->middleware('permission:assignments.manage')->name('assignments.grade');
     Route::get('/academy/{academy}/classrooms', [OwnerClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
     Route::get('/academy/{academy}/classrooms/create', [OwnerClassroomController::class, 'create'])->middleware('permission:classrooms.manage')->name('classrooms.create');
     Route::post('/academy/{academy}/classrooms', [OwnerClassroomController::class, 'store'])->middleware('permission:classrooms.manage')->name('classrooms.store');
@@ -200,6 +213,13 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/legal-documents', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'index'])->middleware('permission:legal.manage')->name('legal-documents.index');
     Route::post('/legal-documents', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'store'])->middleware(['permission:legal.manage','throttle:10,1'])->name('legal-documents.store');
     Route::patch('/legal-documents/{document}/deactivate', [\App\Http\Controllers\Owner\LegalDocumentController::class, 'deactivate'])->middleware('permission:legal.manage')->name('legal-documents.deactivate');
+    Route::get('/content-rights', [\App\Http\Controllers\Owner\ContentRightController::class, 'index'])->middleware('permission:legal.manage')->name('content-rights.index');
+    Route::post('/content-rights', [\App\Http\Controllers\Owner\ContentRightController::class, 'store'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.store');
+    Route::get('/content-rights/{contentRight}/edit', [\App\Http\Controllers\Owner\ContentRightController::class, 'edit'])->middleware('permission:legal.manage')->name('content-rights.edit');
+    Route::patch('/content-rights/{contentRight}', [\App\Http\Controllers\Owner\ContentRightController::class, 'update'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.update');
+    Route::patch('/content-rights/{contentRight}/activate', [\App\Http\Controllers\Owner\ContentRightController::class, 'activate'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.activate');
+    Route::patch('/content-rights/{contentRight}/revoke', [\App\Http\Controllers\Owner\ContentRightController::class, 'revoke'])->middleware(['permission:legal.manage','throttle:10,1'])->name('content-rights.revoke');
+    Route::get('/content-rights/{contentRight}/evidence', [\App\Http\Controllers\Owner\ContentRightController::class, 'evidence'])->middleware('permission:legal.manage')->name('content-rights.evidence');
 
     Route::get('/finance', [\App\Http\Controllers\Owner\FinanceController::class, 'index'])->middleware('permission:finance.view')->name('finance.index');
 });
@@ -277,6 +297,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
     Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->middleware('permission:courses.view')->name('courses.show');
     Route::post('/courses/{course}/spotplayer-license', [\App\Http\Controllers\Student\SpotPlayerLicenseController::class, 'store'])->middleware(['permission:courses.view','throttle:5,1'])->name('courses.spotplayer-license');
     Route::get('/courses/{course}/spotplayer-cookie', \App\Http\Controllers\Student\SpotPlayerWebCookieController::class)->middleware(['permission:courses.view','throttle:60,1'])->name('courses.spotplayer-cookie');
+    Route::post('/courses/{course}/spotplayer-view', [\App\Http\Controllers\Student\SpotPlayerPlaybackViewController::class, 'store'])->middleware(['permission:courses.view','throttle:30,1'])->name('courses.spotplayer-view');
     Route::get('/lessons/{lesson}', [StudentLessonController::class, 'show'])->middleware('permission:lessons.view')->name('lessons.show');
     Route::patch('/lessons/{lesson}/progress', [StudentLessonProgressController::class, 'update'])->middleware(['permission:lessons.progress','throttle:30,1'])->name('lessons.progress.update');
 

@@ -4,7 +4,7 @@
 @section('header-title', 'آرشیو ضبط کلاس‌ها')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 panel-page-enter owner-workspace-page owner-recordings-page">
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div><p class="text-xs font-black text-[var(--panel-primary)]">مدیریت محتوای ضبط‌شده</p><h1 class="mt-1 text-2xl font-black">تقویم و انتشار ضبط کلاس‌ها</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">جلسه‌های دوره‌های همین آموزشگاه را ببین، ضبط را مستقیماً بارگذاری کن و سپس زمان انتشار آن را برای دانش‌آموزان مجاز تعیین کن. فایل‌ها تا زمان انتشار در فضای خصوصی می‌مانند.</p></div>
         <a href="{{ route('owner.dashboard') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">بازگشت به داشبورد</a>

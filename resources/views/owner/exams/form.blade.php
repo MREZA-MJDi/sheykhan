@@ -12,7 +12,7 @@
 @endpush
 
 @section('content')
-<div class="teacher-form-shell">
+<div class="teacher-form-shell owner-form-shell owner-workspace-page owner-exam-builder-page">
     <header class="teacher-form-head">
         <div>
             <span class="text-xs font-black text-[var(--panel-primary)]">ارزیابی آموزشی · کارتابل ادمین / منشی</span>

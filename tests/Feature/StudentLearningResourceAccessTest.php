@@ -3,11 +3,16 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\LearningResource;
+use App\Models\Lesson;
+use App\Models\MediaAttachment;
 use App\Models\Media;
 use App\Models\User;
 use App\Services\StudentLearningResourceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -65,11 +70,37 @@ class StudentLearningResourceAccessTest extends TestCase
             $service->query($studentOutsideClass)->whereKey($resource->id)->exists()
         );
 
+        $this->actingAs($studentOutsideClass)
+            ->get(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+            ]))
+            ->assertNotFound();
+
+        $this->actingAs($studentOutsideClass)
+            ->get(route('protected-learning-media.pages', [
+                'media' => $media->id,
+                'page' => 1,
+                'resource' => $resource->id,
+            ]))
+            ->assertNotFound();
+
         $this->actingAs($studentInClass)
             ->get(route('student.resources.view', $resource))
-            ->assertOk()
-            ->assertStreamed()
-            ->assertStreamedContent('student-resource-fixture');
+            ->assertRedirect(route('protected-learning-media.view', [
+                'media' => $media->id,
+                'resource' => $resource->id,
+            ]));
+
+        // Legacy media links for LearningResource files must use the exact same
+        // entitlement check and then redirect into the protected viewer.
+        $this->actingAs($studentInClass)
+            ->get(route('media.view', $media))
+            ->assertRedirect(route('protected-learning-media.view', $media));
+
+        $this->actingAs($studentOutsideClass)
+            ->get(route('media.view', $media))
+            ->assertForbidden();
 
         $this->actingAs($studentInClass)
             ->get(route('student.resources.download', $resource))
@@ -119,23 +150,77 @@ class StudentLearningResourceAccessTest extends TestCase
         $this->assertFalse(Gate::forUser($otherStudent)->allows('view', $media));
         $this->assertFalse(Gate::forUser($otherStudent)->allows('download', $media));
 
+        // Staff may inspect protected learning media through the secure viewer,
+        // but no role may use the generic media endpoint to download the source.
+        $owner = User::where('email', 'owner@sheykhan.test')->firstOrFail();
+        $this->assertFalse(Gate::forUser($owner)->allows('download', $media));
+
+        $this->actingAs($owner)
+            ->get(route('media.download', $media))
+            ->assertForbidden();
+
         $this->actingAs($student)
             ->get(route('media.view', $media))
+            ->assertRedirect(route('protected-learning-media.view', $media));
+
+        $this->actingAs($student)
+            ->get(route('media.download', $media))
+            ->assertForbidden();
+
+        $this->actingAs($otherStudent)
+            ->get(route('media.view', $media))
+            ->assertForbidden();
+
+        $this->actingAs($otherStudent)
+            ->get(route('media.download', $media))
+            ->assertForbidden();
+    }
+
+    public function test_course_videos_are_opened_through_spotplayer_not_as_raw_media(): void
+    {
+        $this->seed();
+
+        $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update(['spotplayer_course_id' => 'spot-course-123']);
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $lesson = $course->sections()->firstOrFail()->lessons()->firstOrFail();
+        $media = $this->makeMedia('lesson-video.mp4', 'video/mp4');
+
+        $lesson->media()->attach($media->id, [
+            'collection' => 'lesson-assets',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $resource = LearningResource::create([
+            'academy_id' => $course->academy_id,
+            'course_id' => $course->id,
+            'classroom_id' => null,
+            'lesson_id' => $lesson->id,
+            'media_id' => $media->id,
+            'uploaded_by' => User::where('email', 'owner@sheykhan.test')->value('id'),
+            'title' => 'ویدئوی محافظت‌شده',
+            'resource_type' => 'video',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => false,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($student)
+            ->get(route('media.view', $media))
+            ->assertRedirect(route('student.courses.show', $course) . '#spotplayer-access');
+
+        $this->actingAs($student)
+            ->get(route('student.lessons.show', $lesson))
             ->assertOk()
-            ->assertStreamed()
-            ->assertStreamedContent('student-resource-fixture');
+            ->assertSee('پخش امن ویدئو')
+            ->assertDontSee(route('media.view', $media));
 
         $this->actingAs($student)
-            ->get(route('media.download', $media))
-            ->assertForbidden();
-
-        $this->actingAs($otherStudent)
-            ->get(route('media.view', $media))
-            ->assertForbidden();
-
-        $this->actingAs($otherStudent)
-            ->get(route('media.download', $media))
-            ->assertForbidden();
+            ->get(route('student.resources.view', $resource))
+            ->assertRedirect(route('student.courses.show', $course) . '#spotplayer-access');
     }
 
     public function test_student_resource_download_is_forbidden_even_when_marked_view_only(): void
@@ -214,6 +299,145 @@ class StudentLearningResourceAccessTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.resources.index'))
             ->assertForbidden();
+    }
+
+    public function test_student_cannot_open_a_draft_lesson_attachment_through_generic_media_route(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $section = $course->sections()->firstOrFail();
+
+        $lesson = Lesson::query()->create([
+            'course_section_id' => $section->id,
+            'title' => 'درس پیش‌نویس با پیوست خصوصی',
+            'slug' => 'draft-lesson-' . str()->random(8),
+            'type' => 'document',
+            'status' => 'draft',
+        ]);
+
+        $media = $this->makeMedia('draft-lesson.pdf', 'application/pdf');
+        $lesson->media()->attach($media->id, [
+            'collection' => 'lesson-assets',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $this->assertFalse(Gate::forUser($student)->allows('view', $media));
+        $this->actingAs($student)->get(route('media.view', $media))->assertForbidden();
+    }
+
+    public function test_active_non_student_academy_membership_does_not_unlock_unscoped_resource(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $ownerId = User::query()->where('email', 'owner@sheykhan.test')->value('id');
+
+        DB::table('academy_user')
+            ->where('academy_id', $course->academy_id)
+            ->where('user_id', $student->id)
+            ->update(['role' => 'parent', 'status' => 'active']);
+
+        $media = $this->makeMedia('academy-wide.pdf', 'application/pdf');
+        $resource = LearningResource::query()->create([
+            'academy_id' => $course->academy_id,
+            'course_id' => null,
+            'classroom_id' => null,
+            'lesson_id' => null,
+            'media_id' => $media->id,
+            'uploaded_by' => $ownerId,
+            'title' => 'منبع عمومی آموزشگاه',
+            'resource_type' => 'document',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => false,
+            'status' => 'active',
+        ]);
+
+        $service = app(StudentLearningResourceService::class);
+
+        $this->assertFalse($service->canAccess($student, $resource));
+        $this->assertFalse($service->query($student)->whereKey($resource->id)->exists());
+    }
+
+    public function test_resource_from_inactive_academy_is_not_listed_or_accessible(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $ownerId = User::query()->where('email', 'owner@sheykhan.test')->value('id');
+
+        \App\Models\Academy::query()->whereKey($course->academy_id)->update(['status' => 'inactive']);
+
+        $media = $this->makeMedia('inactive-academy.pdf', 'application/pdf');
+        $resource = LearningResource::query()->create([
+            'academy_id' => $course->academy_id,
+            'course_id' => null,
+            'classroom_id' => null,
+            'lesson_id' => null,
+            'media_id' => $media->id,
+            'uploaded_by' => $ownerId,
+            'title' => 'منبع آموزشگاه غیرفعال',
+            'resource_type' => 'document',
+            'visibility' => 'enrolled_students',
+            'release_at' => now()->subMinute(),
+            'downloadable' => false,
+            'status' => 'active',
+        ]);
+
+        $service = app(StudentLearningResourceService::class);
+        $this->assertFalse($service->canAccess($student, $resource));
+        $this->assertFalse($service->query($student)->whereKey($resource->id)->exists());
+    }
+
+    public function test_parent_cannot_view_an_unsubmitted_exam_attempt_attachment(): void
+    {
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $parent = User::query()->where('email', 'parent.armin@sheykhan.test')->firstOrFail();
+        $teacherId = User::query()->where('email', 'teacher.math@sheykhan.test')->value('id');
+
+        $parent->children()->syncWithoutDetaching([
+            $student->id => ['relation' => 'والد'],
+        ]);
+
+        $exam = Exam::query()->create([
+            'course_id' => $course->id,
+            'teacher_id' => $teacherId,
+            'title' => 'آزمون پیوست خصوصی',
+            'duration_minutes' => 30,
+            'attempts_allowed' => 1,
+            'status' => 'published',
+        ]);
+
+        $attempt = ExamAttempt::query()->create([
+            'exam_id' => $exam->id,
+            'student_id' => $student->id,
+            'attempt_number' => 1,
+            'started_at' => now()->subMinutes(2),
+            'submitted_at' => null,
+            'status' => 'in_progress',
+        ]);
+
+        $media = $this->makeMedia('attempt-private.pdf', 'application/pdf');
+        MediaAttachment::query()->create([
+            'media_id' => $media->id,
+            'mediable_type' => ExamAttempt::class,
+            'mediable_id' => $attempt->id,
+            'collection' => 'exam-attempt',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $this->assertTrue($parent->children()->whereKey($student->id)->exists());
+        $this->assertFalse(Gate::forUser($parent)->allows('view', $media));
+        $this->assertFalse(Gate::forUser($parent)->allows('download', $media));
     }
 
     private function makeMedia(string $fileName, string $mimeType): Media

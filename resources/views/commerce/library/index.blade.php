@@ -133,7 +133,7 @@
                                     <div class="public-library-downloads">
                                         @forelse($entitlement->product?->files ?? [] as $downloadFile)
                                             @if($order && $downloadFile->media?->status === 'active' && $downloadFile->media?->visibility === 'private')
-                                                <a href="{{ route('orders.files.download', [$order, $downloadFile]) }}">دریافت نسخه محافظت‌شده <span aria-hidden="true">↓</span></a>
+                                                <a href="{{ route('orders.files.view', [$order, $downloadFile]) }}">مشاهده امن فایل <span aria-hidden="true">↓</span></a>
                                             @endif
                                         @empty
                                             <span>فایل فعالی برای دریافت ثبت نشده است.</span>

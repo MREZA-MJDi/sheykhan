@@ -9,6 +9,8 @@ final class SpotPlayerLicense extends Model
 {
     protected $fillable = [
         'course_id',
+        'provider_course_id',
+        'provider_mode',
         'student_id',
         'external_license_id',
         'license_key',

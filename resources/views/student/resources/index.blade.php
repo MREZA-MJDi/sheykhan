@@ -16,7 +16,19 @@
                     @if($resource->description)<p>{{ $resource->description }}</p>@endif
                     <p>{{ strtoupper($resource->media?->extension ?? $resource->resource_type ?? 'FILE') }} @if($resource->media) · {{ \App\Support\PersianUi::number(((int) $resource->media->size) / 1024) }} کیلوبایت @endif</p>
                     @if($resource->release_at)<p>انتشار: {{ \App\Support\PersianUi::date($resource->release_at) }}</p>@endif
-                    <a class="btn s" href="{{ route('student.resources.view', $resource->id) }}">مشاهده منبع</a>
+                    @php
+                        $resourceCourse = $resource->course ?? $resource->classroom?->course ?? $resource->lesson?->section?->course;
+                        $isProtectedVideo = str_starts_with(strtolower((string) $resource->media?->mime_type), 'video/');
+                    @endphp
+                    @if($isProtectedVideo)
+                        @if($resourceCourse && filled($resourceCourse->spotplayer_course_id))
+                            <a class="btn s" href="{{ route('student.courses.show', $resourceCourse->id) }}#spotplayer-access">پخش امن ویدئو</a>
+                        @else
+                            <p class="text-xs leading-6 text-amber-800" role="status">اتصال SpotPlayer این ویدئو در انتظار تنظیم مدیر آموزشگاه است؛ فایل خام برای دانلود یا پخش مستقیم ارائه نمی‌شود.</p>
+                        @endif
+                    @else
+                        <a class="btn s" href="{{ route('student.resources.view', $resource->id) }}">مشاهده امن منبع</a>
+                    @endif
                 </article>
             @empty
                 <div class="empty" style="grid-column:1/-1">هنوز منبع منتشرشده‌ای برای دوره‌ها و کلاس‌های تو در دسترس نیست.</div>

@@ -4,7 +4,7 @@
 @section('header-title', 'مدیریت آزمون‌ها')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 panel-page-enter owner-workspace-page owner-exams-page">
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div><p class="text-xs font-black text-[var(--panel-primary)]">ارزیابی آموزشی</p><h1 class="mt-1 text-2xl font-black">آزمون‌ها و نتایج</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">آزمون‌های مربوط به همین آموزشگاه، وضعیت انتشار و تعداد تلاش‌های دانش‌آموزان را بررسی کنید. برای جزئیات و نمره‌ها، آزمون را باز کنید.</p></div>
         <div class="flex flex-wrap gap-2">

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Media;
+use App\Models\ProductFile;
 use App\Services\MediaService;
+use App\Services\SpotPlayerMediaDeliveryService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +16,10 @@ class MediaController extends Controller
     public function servePublic(Media $media, \App\Policies\MediaPolicy $policy): Response
     {
         abort_unless($media->status === 'active' && $media->visibility === 'public', 404);
+
+        // Paid product sources must never escape through a static/public media
+        // URL, even if legacy data accidentally marked their media row as public.
+        abort_if(ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists(), 404);
 
         // Visibility mistakes must not turn a lesson, assessment, recording or
         // course handout into an unauthenticated public download.
@@ -37,14 +43,61 @@ class MediaController extends Controller
         ]);
     }
 
-    public function view(Media $media, MediaService $mediaService): Response
-    {
+    public function view(
+        Media $media,
+        MediaService $mediaService,
+        SpotPlayerMediaDeliveryService $spotPlayerDelivery,
+        \App\Policies\MediaPolicy $policy,
+    ): Response {
         abort_unless($media->status === 'active', 404);
 
+        $user = auth()->user();
+
+        if ($spotPlayerDelivery->requiresProtectedPlayer($media)) {
+            if ($user?->hasRole('student')) {
+                abort_unless(
+                    $policy->canViewThroughSpotPlayer($user, $media),
+                    403,
+                    'دسترسی این فایل برای حساب شما فعال نیست.'
+                );
+
+                $course = $spotPlayerDelivery->courseForMedia($media);
+                abort_unless($course, 409, 'این ویدئو هنوز به یک دورهٔ شیخان متصل نشده است.');
+
+                if (blank($course->spotplayer_course_id)) {
+                    abort(409, 'برای پخش این ویدئو، مدیر باید شناسهٔ واقعی دوره در پنل SpotPlayer را ثبت کند.');
+                }
+
+                    return redirect()->to(route('student.courses.show', $course) . '#spotplayer-access');
+            }
+
+            if ($user?->hasRole('parent')) {
+                abort_unless(
+                    $policy->canViewThroughSpotPlayer($user, $media),
+                    403,
+                    'دسترسی این فایل برای حساب شما فعال نیست.'
+                );
+
+                abort(403, 'برای حفظ دسترسی اختصاصی فرزند، ویدئوی محافظت‌شده باید از حساب دانش‌آموز پخش شود.');
+            }
+        }
         try {
             Gate::forUser(auth()->user())->authorize('view', $media);
         } catch (AuthorizationException) {
             abort(403, 'دسترسی این فایل برای حساب شما فعال نیست.');
+        }
+
+        if ($spotPlayerDelivery->requiresProtectedPlayer($media)) {
+            abort(409, 'این فایل ویدئویی باید از پلیر رسمی SpotPlayer پخش شود؛ فایل خام برای هیچ نقش کاربری ارائه نمی‌شود.');
+        }
+
+        if (
+            $policy->requiresProtectedDelivery($media)
+            && ! \App\Models\ProductFile::query()->where('media_id', $media->id)->where('is_preview', false)->exists()
+        ) {
+            return redirect()->route('protected-learning-media.view', $media)
+                ->header('Cache-Control', 'no-store, private')
+                ->header('Referrer-Policy', 'no-referrer');
         }
 
         return $mediaService->inline($media);

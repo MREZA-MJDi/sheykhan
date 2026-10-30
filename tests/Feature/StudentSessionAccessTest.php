@@ -96,6 +96,7 @@ class StudentSessionAccessTest extends TestCase
         $this->seed();
 
         $course = Course::where('slug', 'math-foundation-7')->firstOrFail();
+        $course->update(['spotplayer_course_id' => 'spot-course-test-01']);
         $classroom = $course->classrooms()->firstOrFail();
 
         $inside = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
@@ -118,7 +119,7 @@ class StudentSessionAccessTest extends TestCase
 
         $this->actingAs($inside)
             ->get(route('media.view', $released->recording))
-            ->assertOk();
+            ->assertRedirect(route('student.courses.show', $course) . '#spotplayer-access');
 
         $this->actingAs($inside)
             ->get(route('media.download', $released->recording))
