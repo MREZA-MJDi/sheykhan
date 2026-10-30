@@ -10,6 +10,7 @@ use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -238,6 +239,183 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertJsonMissingPath('data.9.email');
     }
 
+    public function test_assigning_an_existing_course_teacher_does_not_demote_the_primary_teacher(): void
+    {
+        [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
+
+        $this->actingAs($owner)
+            ->post(route('owner.people.assign-teacher', $academy), [
+                'teacher_id' => $teacher->id,
+                'course_id' => $course->id,
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('course_teacher', [
+            'course_id' => $course->id,
+            'teacher_id' => $teacher->id,
+            'is_primary' => true,
+        ]);
+    }
+
+    public function test_owner_created_teacher_password_is_hashed_and_requires_change_on_first_login(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+        $email = 'new-teacher-' . Str::lower(Str::random(8)) . '@test.local';
+        $plainPassword = 'T!acher-password-2026';
+
+        $this->actingAs($owner)
+            ->post(route('owner.people.store-teacher', $academy), [
+                'name' => 'مدرس تازه',
+                'email' => $email,
+                'password' => $plainPassword,
+                'password_confirmation' => $plainPassword,
+                'specialization' => 'ریاضی',
+                'experience_years' => 4,
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success')
+            ->assertSessionHasNoErrors();
+
+        $teacher = User::query()->where('email', $email)->firstOrFail();
+
+        $this->assertTrue(Hash::check($plainPassword, $teacher->password));
+        $this->assertNotSame($plainPassword, $teacher->password);
+        $this->assertTrue($teacher->must_change_password);
+        $this->assertTrue($teacher->hasRole('teacher'));
+
+        $this->assertDatabaseHas('academy_user', [
+            'academy_id' => $academy->id,
+            'user_id' => $teacher->id,
+            'role' => 'teacher',
+            'status' => 'active',
+        ]);
+    }
+
+    public function test_people_directory_api_searches_and_uses_cursor_pagination_without_cross_academy_rows(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+        $teacherRole = Role::query()->where('slug', 'teacher')->firstOrFail();
+
+        for ($i = 1; $i <= 26; $i++) {
+            $teacher = User::factory()->create([
+                'name' => sprintf('Directory Teacher %02d', $i),
+                'email' => sprintf('directory-teacher-%02d-%s@test.local', $i, Str::lower(Str::random(6))),
+                'status' => 'active',
+            ]);
+            $teacher->roles()->attach($teacherRole->id);
+            $academy->users()->attach($teacher->id, [
+                'role' => 'teacher',
+                'status' => 'active',
+                'joined_at' => now()->subMinutes($i),
+            ]);
+        }
+
+        $foreignOwner = User::factory()->create([
+            'email' => 'directory-foreign-owner-' . Str::lower(Str::random(6)) . '@test.local',
+        ]);
+        $foreignAcademy = Academy::create([
+            'owner_id' => $foreignOwner->id,
+            'name' => 'آکادمی خارج از محدوده',
+            'slug' => 'directory-foreign-' . Str::lower(Str::random(6)),
+            'status' => 'active',
+        ]);
+        $foreignTeacher = User::factory()->create([
+            'name' => 'Directory Teacher Foreign',
+            'email' => 'directory-foreign-teacher-' . Str::lower(Str::random(6)) . '@test.local',
+            'status' => 'active',
+        ]);
+        $foreignTeacher->roles()->attach($teacherRole->id);
+        $foreignAcademy->users()->attach($foreignTeacher->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $directoryUrl = route('owner.people.data', [
+            'academy' => $academy,
+            'role' => 'active-teachers',
+        ]);
+
+        $firstPage = $this->actingAs($owner)
+            ->getJson($directoryUrl . '?' . http_build_query([
+                'q' => 'Directory Teacher',
+                'per_page' => 25,
+                'sort' => 'name',
+                'direction' => 'asc',
+            ]))
+            ->assertOk()
+            ->assertJsonPath('directory.role', 'active-teachers')
+            ->assertJsonPath('directory.pagination_mode', 'cursor')
+            ->assertJsonPath('meta.per_page', 25)
+            ->assertJsonCount(25, 'data')
+            ->assertJsonMissing(['name' => 'Directory Teacher Foreign']);
+
+        $nextCursor = $firstPage->json('meta.next_cursor');
+        $this->assertIsString($nextCursor);
+        $this->assertNotSame('', $nextCursor);
+
+        $secondPage = $this->actingAs($owner)
+            ->getJson($directoryUrl . '?' . http_build_query([
+                'q' => 'Directory Teacher',
+                'per_page' => 25,
+                'sort' => 'name',
+                'direction' => 'asc',
+                'cursor' => $nextCursor,
+            ]))
+            ->assertOk()
+            ->assertJsonPath('directory.pagination_mode', 'cursor')
+            ->assertJsonCount(1, 'data');
+
+        $this->assertStringContainsString('Directory Teacher', $secondPage->json('data.0.name'));
+        $this->assertSame('active', $secondPage->json('data.0.membership.status'));
+
+        $this->actingAs($owner)
+            ->getJson($directoryUrl . '?' . http_build_query([
+                'q' => 'Directory Teacher 03',
+                'sort' => 'email',
+                'per_page' => 7,
+            ]))
+            ->assertOk()
+            ->assertJsonPath('directory.pagination_mode', 'page')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 7)
+            ->assertJsonCount(1, 'data');
+
+        $this->actingAs($owner)
+            ->getJson(route('owner.people.data', [
+                'academy' => $foreignAcademy,
+                'role' => 'students',
+            ]))
+            ->assertForbidden();
+    }
+
+    public function test_active_member_rosters_exclude_inactive_user_accounts(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+        $studentRole = Role::create([
+            'name' => 'دانش‌آموز',
+            'slug' => 'student',
+            'description' => 'Student',
+        ]);
+        $inactiveStudent = User::factory()->create([
+            'name' => 'دانش‌آموز حساب غیرفعال',
+            'email' => 'inactive-student-' . Str::random(8) . '@test.local',
+            'status' => 'inactive',
+        ]);
+        $inactiveStudent->roles()->attach($studentRole->id);
+        $academy->users()->attach($inactiveStudent->id, [
+            'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertDontSee('دانش‌آموز حساب غیرفعال');
+    }
+
     public function test_owner_can_assign_a_single_teacher_to_a_class_from_the_people_page(): void
     {
         [$owner, $academy, $teacher, $course] = $this->makeWorkspace(true);
@@ -265,6 +443,7 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->assertDatabaseHas('course_teacher', [
             'course_id' => $course->id,
             'teacher_id' => $teacher->id,
+            'is_primary' => true,
         ]);
         $this->assertSame(1, $classroom->teachers()->count());
     }

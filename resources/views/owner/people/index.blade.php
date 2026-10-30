@@ -286,13 +286,28 @@
     <span class="text-[10px] text-slate-400">افراد فعال آموزشگاه</span>
 </div>
 <div class="grid gap-4 xl:grid-cols-3">
-@foreach([['مدرس‌ها',$teachers],['دانش‌آموزان',$students],['والدین',$parents]] as [$title,$items])
-<section class="dashboard-panel p-5">
+@foreach([['مدرس‌ها',$teachers,'active-teachers'],['دانش‌آموزان',$students,'students'],['والدین',$parents,'parents']] as [$title,$items,$directoryRole])
+<section class="dashboard-panel p-5" data-owner-people-directory data-directory-role="{{ $directoryRole }}" data-directory-url="{{ route('owner.people.data', ['academy' => $academy, 'role' => $directoryRole]) }}">
     <div class="flex items-center justify-between gap-3">
         <h2 class="font-black">{{ $title }}</h2>
-        <span class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $items->total() }}</span>
+        <span data-directory-count class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $items->total() }}</span>
     </div>
-    <div class="mt-4 grid gap-2">
+    <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_auto]" data-directory-controls>
+        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جست‌وجو
+            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام یا ایمیل…" aria-label="جست‌وجو در {{ $title }}" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
+        </label>
+        <label class="grid gap-1 text-[10px] font-bold text-slate-500">مرتب‌سازی
+            <select data-directory-sort class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
+                <option value="name">نام</option><option value="email">ایمیل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
+            </select>
+        </label>
+        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جهت
+            <select data-directory-direction class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs"><option value="asc">صعودی</option><option value="desc">نزولی</option></select>
+        </label>
+        <button type="button" data-directory-reset class="self-end rounded-lg border border-slate-200 bg-white px-3 py-2 text-[10px] font-bold">پاک‌کردن</button>
+    </div>
+    <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">نمایش داده‌های همین آموزشگاه؛ برای جست‌وجو عبارت را وارد کن.</p>
+    <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($items as $person)
             <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                 <div class="min-w-0">
@@ -313,8 +328,9 @@
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">عضوی نیست.</div>
         @endforelse
     </div>
+    <button type="button" data-directory-more hidden class="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold">نمایش نتایج بعدی</button>
     @if($items->hasPages())
-        <div class="mt-4 border-t border-slate-100 pt-3 text-xs">
+        <div data-directory-server-pagination class="mt-4 border-t border-slate-100 pt-3 text-xs">
             {{ $items->withQueryString()->links() }}
         </div>
     @endif
@@ -322,15 +338,30 @@
 @endforeach
 </div>
 
-<section class="dashboard-panel p-5">
+<section class="dashboard-panel p-5" data-owner-people-directory data-directory-role="archived-teachers" data-directory-url="{{ route('owner.people.data', ['academy' => $academy, 'role' => 'archived-teachers']) }}">
     <div class="flex items-center justify-between gap-3">
         <div>
             <h2 class="font-black">مدرس‌های آرشیوشده</h2>
             <p class="mt-1 text-xs text-slate-500">سابقه مدرس حفظ شده و با «آرشیوشده» از اعضای فعال جدا شده است.</p>
         </div>
-        <span class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $archivedTeachers->total() }}</span>
+        <span data-directory-count class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $archivedTeachers->total() }}</span>
     </div>
-    <div class="mt-4 grid gap-2">
+    <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_auto]" data-directory-controls>
+        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جست‌وجو
+            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام یا ایمیل…" aria-label="جست‌وجو در مدرس‌های آرشیوشده" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
+        </label>
+        <label class="grid gap-1 text-[10px] font-bold text-slate-500">مرتب‌سازی
+            <select data-directory-sort class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
+                <option value="name">نام</option><option value="email">ایمیل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
+            </select>
+        </label>
+        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جهت
+            <select data-directory-direction class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs"><option value="asc">صعودی</option><option value="desc">نزولی</option></select>
+        </label>
+        <button type="button" data-directory-reset class="self-end rounded-lg border border-slate-200 bg-white px-3 py-2 text-[10px] font-bold">پاک‌کردن</button>
+    </div>
+    <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">برای پیدا کردن مدرس آرشیوشده جست‌وجو کن.</p>
+    <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($archivedTeachers as $teacher)
             <div class="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -347,12 +378,17 @@
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">مدرس آرشیوشده‌ای وجود ندارد.</div>
         @endforelse
     </div>
+    <button type="button" data-directory-more hidden class="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold">نمایش نتایج بعدی</button>
     @if($archivedTeachers->hasPages())
-        <div class="mt-4 border-t border-slate-100 pt-3 text-xs">{{ $archivedTeachers->withQueryString()->links() }}</div>
+        <div data-directory-server-pagination class="mt-4 border-t border-slate-100 pt-3 text-xs">{{ $archivedTeachers->withQueryString()->links() }}</div>
     @endif
 </section>
 
     </div>
 </div>
 </div>
+@push('scripts')
+    @vite(['resources/js/owner-people-directory.js'])
+@endpush
+
 @endsection

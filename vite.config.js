@@ -20,6 +20,7 @@ export default defineConfig({
                 'resources/js/parent.js',
                 'resources/css/owner-dashboard-v2.css',
                 'resources/js/owner-dashboard.js',
+                'resources/js/owner-people-directory.js',
                 'resources/css/seo-dashboard.css',
                 'resources/js/seo-dashboard.js',
             ],
