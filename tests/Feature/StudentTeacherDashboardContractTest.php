@@ -346,6 +346,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $studentJs = file_get_contents(resource_path('js/student.js'));
         $calendarModule = file_get_contents(resource_path('js/persian-calendar-core.mjs'));
+        $panelRuntime = file_get_contents(resource_path('js/panel-runtime.js'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
         $dashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
@@ -354,7 +355,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $vite = file_get_contents(base_path('vite.config.js'));
 
         foreach ([
-            $teacherCss, $teacherJs, $studentCss, $studentJs, $calendarModule,
+            $teacherCss, $teacherJs, $studentCss, $studentJs, $calendarModule, $panelRuntime,
             $teacherLayout, $studentLayout, $dashboard, $teacherProfileView,
             $mobileNavigation, $vite,
         ] as $source) {
@@ -387,8 +388,9 @@ class StudentTeacherDashboardContractTest extends TestCase
 
         $this->assertStringContainsString("import './persian-calendar.js';", $teacherJs);
         $this->assertStringContainsString("import './persian-calendar.js';", $studentJs);
-        $this->assertStringContainsString('bootRoleMobileNavigation', $teacherJs);
-        $this->assertStringContainsString('bootRoleMobileNavigation', $studentJs);
+        $this->assertStringContainsString("from './panel-runtime.js'", $teacherJs);
+        $this->assertStringContainsString("from './panel-runtime.js'", $studentJs);
+        $this->assertStringContainsString('bootRoleMobileNavigation', $panelRuntime);
         $this->assertStringContainsString('jalaliDaysInMonth', $calendarModule);
         $this->assertStringContainsString('gregorianToJalali', $calendarModule);
 

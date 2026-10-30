@@ -97,4 +97,76 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString('#teacher-dashboard', $teacherStyles);
         $this->assertStringNotContainsString('style="margin-top:18px"', $studentDashboard);
     }
+
+    public function test_role_entries_use_one_shared_panel_runtime_and_player_module(): void
+    {
+        $entries = [
+            'resources/js/app.js',
+            'resources/js/parent.js',
+            'resources/js/student.js',
+            'resources/js/teacher.js',
+            'resources/js/owner-dashboard.js',
+            'resources/js/seo-dashboard.js',
+        ];
+        $runtime = file_get_contents(resource_path('js/panel-runtime.js'));
+        $player = file_get_contents(resource_path('js/shaka-player.js'));
+
+        $this->assertIsString($runtime);
+        $this->assertIsString($player);
+        $this->assertStringContainsString("import { bootPanel, closePanelMenu } from './panel-base.js';", $runtime);
+        $this->assertStringContainsString("import('./shaka-player.js')", $runtime);
+        $this->assertStringContainsString('bootOwnerPeopleTabs();', $runtime);
+        $this->assertStringContainsString('bootRoleMobileNavigation();', $runtime);
+        $this->assertStringContainsString('export async function bootShakaPlayers()', $player);
+        $this->assertStringContainsString("import 'shaka-player/dist/controls.css';", $player);
+
+        foreach (['parent.css', 'student.css', 'teacher.css'] as $styleSheet) {
+            $styles = file_get_contents(resource_path('css/' . $styleSheet));
+            $this->assertIsString($styles);
+            $this->assertStringNotContainsString("shaka-player/dist/controls.css", $styles, $styleSheet);
+        }
+
+        foreach ($entries as $entry) {
+            $source = file_get_contents(resource_path(str_replace('resources/', '', $entry)));
+            $this->assertIsString($source);
+            $this->assertStringContainsString("from './panel-runtime.js'", $source, $entry);
+            $this->assertStringNotContainsString('const initializedPlayers = new WeakMap()', $source, $entry);
+            $this->assertStringNotContainsString('new shaka.Player()', $source, $entry);
+        }
+    }
+
+    public function test_owner_and_seo_share_common_interactions_styles_and_layout_partials(): void
+    {
+        $ownerScript = file_get_contents(resource_path('js/owner-dashboard.js'));
+        $seoScript = file_get_contents(resource_path('js/seo-dashboard.js'));
+        $sharedScript = file_get_contents(resource_path('js/owner-admin-common.js'));
+        $ownerCss = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
+        $seoCss = file_get_contents(resource_path('css/seo-dashboard.css'));
+        $sharedCss = file_get_contents(resource_path('css/owner-admin-shared.css'));
+        $ownerLayout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
+        $seoLayout = file_get_contents(resource_path('views/layouts/seo-specialist.blade.php'));
+
+        foreach ([$ownerScript, $seoScript, $sharedScript, $ownerCss, $seoCss, $sharedCss, $ownerLayout, $seoLayout] as $source) {
+            $this->assertIsString($source);
+        }
+
+        $this->assertStringContainsString("import './owner-admin-common.js';", $ownerScript);
+        $this->assertStringContainsString("import './owner-admin-common.js';", $seoScript);
+        $this->assertStringContainsString('data-media-uploader', $sharedScript);
+        $this->assertStringContainsString("import './assessment-builder.js';", $sharedScript);
+        $this->assertStringContainsString('const initializeExamBuilder', file_get_contents(resource_path('js/assessment-builder.js')));
+        $teacherScript = file_get_contents(resource_path('js/teacher.js'));
+        $this->assertIsString($teacherScript);
+        $this->assertStringContainsString("import './assessment-builder.js';", $teacherScript);
+        $this->assertStringNotContainsString('const initializeExamBuilder', $teacherScript);
+        $this->assertStringContainsString("@import './owner-admin-shared.css';", $ownerCss);
+        $this->assertStringContainsString("@import './owner-admin-shared.css';", $seoCss);
+
+        foreach ([$ownerLayout, $seoLayout] as $layout) {
+            $this->assertStringContainsString("@include('owner.partials.admin-topbar')", $layout);
+            $this->assertStringContainsString("@include('owner.partials.admin-main')", $layout);
+            $this->assertStringContainsString("@include('owner.partials.admin-command-palette')", $layout);
+        }
+    }
+
 }
