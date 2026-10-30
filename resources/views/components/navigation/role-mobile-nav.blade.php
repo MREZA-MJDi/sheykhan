@@ -48,7 +48,7 @@
             ['route' => 'owner.classrooms.index', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'icon' => '▦', 'primary' => true, 'requiresAcademy' => true],
             ['route' => 'owner.messages.index', 'label' => 'پیام‌ها', 'permission' => 'parents.view', 'icon' => '✉', 'primary' => true, 'requiresAcademy' => true],
             ['route' => 'owner.attendance.index', 'label' => 'حضور و غیاب', 'permission' => 'attendance.view', 'icon' => '✓', 'primary' => false, 'requiresAcademy' => true],
-            ['route' => 'owner.assignments.index', 'label' => 'تکالیف و تصحیح', 'permission' => 'courses.view', 'icon' => '✓', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'owner.assignments.index', 'label' => 'تکالیف و تصحیح', 'permission' => 'assignments.view', 'icon' => '✓', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.schedules.index', 'label' => 'لینک کلاس آنلاین', 'permission' => 'live_classes.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.meetings.index', 'label' => 'هماهنگی جلسات', 'permission' => 'live_classes.view', 'icon' => '◷', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.communications.index', 'label' => 'ارسال اطلاعیه و پیام', 'permission' => 'parents.view', 'icon' => '✉', 'primary' => false, 'requiresAcademy' => true],
@@ -190,8 +190,7 @@
                                 && request()->routeIs(str_replace('.index', '.*', $item['route']))
                             );
                     @endphp
-                    <a href="{{ $item['url'] ?? route($item['route'], $item['urlArgs'] ?? []) }}" class="{{ $active ? 'is-active' : '' }}">
-                        @if($active) aria-current="page" @endif
+                    <a href="{{ $item['url'] ?? route($item['route'], $item['urlArgs'] ?? []) }}" class="{{ $active ? 'is-active' : '' }}" @if($active) aria-current="page" @endif>
                         <x-navigation.mobile-nav-icon :icon="$item['icon']" />
                         <span>{{ $item['label'] }}</span>
                         @if($active)<span class="role-mobile-more-current">فعلی</span>@endif
