@@ -98,7 +98,9 @@
             </div>
             <label class="teacher-form-field mt-5">
                 <span>فایل راهنما یا منبع آزمون <small>اختیاری · PDF، Word، PowerPoint، تصویر یا ZIP تا ۵۰ مگابایت</small></span>
-                <input type="file" name="handout" accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,.zip">
+                <input type="file" name="handout" accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,.zip" data-teacher-preview="#exam-handout-preview" aria-describedby="exam-handout-help">
+                <small id="exam-handout-help" class="teacher-exam-field-help">برای PDF و تصویر، پیش‌نمایش سریع فایل نمایش داده می‌شود؛ فایل Word، PowerPoint و ZIP به‌صورت پیوست خصوصی ذخیره می‌شود.</small>
+                <div id="exam-handout-preview" class="teacher-file-preview" aria-live="polite"></div>
                 <small class="teacher-exam-field-help">فایل به‌صورت خصوصی به برگه آزمون پیوست می‌شود و فقط افراد مجاز همان دوره به آن دسترسی دارند.</small>
                 @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
                 @if($examHandouts->isNotEmpty())

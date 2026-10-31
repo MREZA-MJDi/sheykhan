@@ -632,7 +632,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const side=document.getElementById('side'), overlay=document.getElementById('teacher-overlay');
-  const toggleMenu=(open)=>{side?.classList.toggle('open',!!open);overlay?.classList.toggle('open',!!open);overlay?.setAttribute('aria-hidden',String(!open));};
+  const menuTrigger=document.querySelector('[data-teacher-menu-open]');
+  const toggleMenu=(open)=>{side?.classList.toggle('open',!!open);overlay?.classList.toggle('open',!!open);overlay?.setAttribute('aria-hidden',String(!open));document.body.classList.toggle('teacher-menu-open',!!open);if(open)side?.querySelector('a.nv,button.nv')?.focus();else menuTrigger?.focus();};
   document.querySelectorAll('[data-teacher-menu-open]').forEach(x=>x.addEventListener('click',()=>toggleMenu(true)));
   document.querySelectorAll('[data-teacher-menu-close]').forEach(x=>x.addEventListener('click',()=>toggleMenu(false)));
   overlay?.addEventListener('click',()=>toggleMenu(false));

@@ -46,11 +46,11 @@
     $pageTitle = trim($__env->yieldContent('page_title')) ?: match (true) {
       request()->routeIs('teacher.dashboard') => 'داشبورد مدرس',
       request()->routeIs('teacher.schedule.*') => 'برنامه هفتگی',
+      request()->routeIs('teacher.classrooms.attendance.*') || request()->routeIs('teacher.attendance.*') => 'حضور و غیاب',
       request()->routeIs('teacher.classrooms.*') => 'کلاس‌ها',
       request()->routeIs('teacher.courses.*') => 'دوره‌ها',
       request()->routeIs('teacher.assignments.*') => 'تکالیف',
       request()->routeIs('teacher.exams.*') || request()->routeIs('teacher.exam-attempts.*') => 'آزمون‌ها',
-      request()->routeIs('teacher.attendance.*') || request()->routeIs('teacher.classrooms.attendance.*') => 'حضور و غیاب',
       request()->routeIs('teacher.students.*') => 'دانش‌آموزان',
       request()->routeIs('teacher.messages.*') || request()->routeIs('teacher.direct-messages.*') || request()->routeIs('teacher.student-messages.*') => 'پیام‌ها',
       request()->routeIs('teacher.profile.*') => 'تنظیمات پروفایل',
@@ -65,10 +65,17 @@
 <div class="shell">
   <aside class="side" id="side" aria-label="منوی پنل مدرس">
     <a class="logo" href="{{ route('teacher.dashboard') }}"><i>◆</i><span>آکادمی شیخان</span></a>
-    <a class="teacher-profile-mini" href="{{ route('teacher.profile.edit') }}">
-      <span class="av">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</span>
-      <span style="min-width:0"><b>{{ $teacherUser?->name }}</b><small>پنل مدرس</small></span>
-    </a>
+    @if($teacherUser?->hasPermission('profile.view'))
+      <a class="teacher-profile-mini" href="{{ route('teacher.profile.edit') }}">
+        <span class="av">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</span>
+        <span style="min-width:0"><b>{{ $teacherUser?->name }}</b><small>پنل مدرس</small></span>
+      </a>
+    @else
+      <div class="teacher-profile-mini">
+        <span class="av">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</span>
+        <span style="min-width:0"><b>{{ $teacherUser?->name }}</b><small>پنل مدرس</small></span>
+      </div>
+    @endif
     @foreach($navGroups as $group)
       @php($visibleItems = array_values(array_filter($group['items'], fn ($item) => collect($item['permissions'] ?? [$item['permission']])->every(fn (string $permission) => $teacherUser?->hasPermission($permission)))) )
       @if(count($visibleItems))
@@ -96,7 +103,11 @@
         <input class="in" id="gs" type="search" data-teacher-search placeholder="جست‌وجو در این صفحه…" aria-label="جست‌وجو در صفحه">
       </form>
       <button class="ib" id="th" type="button" data-teacher-theme aria-label="تغییر تم" aria-pressed="false" title="تغییر تم">◐</button>
-      <a class="av" href="{{ route('teacher.profile.edit') }}" aria-label="پروفایل مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</a>
+      @if($teacherUser?->hasPermission('profile.view'))
+        <a class="av" href="{{ route('teacher.profile.edit') }}" aria-label="پروفایل مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</a>
+      @else
+        <span class="av" aria-label="حساب مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</span>
+      @endif
     </header>
     <p class="dashboard-search-empty" data-dashboard-search-empty role="status" aria-live="polite" hidden>موردی با این عبارت پیدا نشد. عبارت دیگری را امتحان کن.</p>
     @if(session('success'))<div class="alert success" role="status">{{ session('success') }}</div>@endif

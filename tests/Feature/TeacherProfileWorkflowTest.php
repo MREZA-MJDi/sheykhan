@@ -106,4 +106,39 @@ class TeacherProfileWorkflowTest extends TestCase
         $this->get(route('teachers.show', $teacher))
             ->assertNotFound();
     }
+
+    public function test_teacher_notification_preferences_are_persisted_per_profile(): void
+    {
+        $this->seed();
+
+        $teacher = User::where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->patch(route('teacher.profile.update'), [
+                'name' => $teacher->name,
+                'email' => $teacher->email,
+                'is_public' => 1,
+                'notification_preferences' => [
+                    'parent_messages' => 0,
+                    'class_reminders' => 1,
+                    'assignment_submissions' => 1,
+                ],
+            ])
+            ->assertRedirect(route('teacher.profile.edit'));
+
+        $profile = TeacherProfile::query()->where('user_id', $teacher->id)->firstOrFail();
+
+        $this->assertSame([
+            'parent_messages' => false,
+            'class_reminders' => true,
+            'assignment_submissions' => true,
+        ], $profile->notification_preferences);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.profile.edit'))
+            ->assertOk()
+            ->assertSee('اعلان‌های مدرس')
+            ->assertSee('name="notification_preferences[parent_messages]"', false);
+    }
+
 }

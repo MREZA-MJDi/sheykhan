@@ -21,6 +21,8 @@
     ['icon'=>'✉','label'=>'پیام‌ها','hint'=>'پیگیری گفتگوها','route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage','tone'=>'#14b8c4'],
     ['icon'=>'◷','label'=>'برنامه هفتگی','hint'=>'زمان‌بندی جلسات','route'=>'teacher.schedule.index','permission'=>'live_classes.view','tone'=>'#4a5fe0'],
     ['icon'=>'♥','label'=>'دانش‌آموزان','hint'=>'فهرست و وضعیت یادگیری','route'=>'teacher.students.index','permission'=>'students.view','tone'=>'#f0566b'],
+    ['icon'=>'▣','label'=>'مدیریت دوره‌ها','hint'=>'محتوا، قیمت و SpotPlayer','route'=>'teacher.courses.index','permission'=>'courses.view','tone'=>'#6366f1'],
+    ['icon'=>'＋','label'=>'کلاس آنلاین جدید','hint'=>'زمان‌بندی جلسه آموزشی','route'=>'teacher.live-classes.create','permission'=>'live_classes.manage','tone'=>'#0ea5a4'],
   ];
   $quick = array_values(array_filter($quick,fn($item)=>$user?->hasPermission($item['permission'])));
   $kpis = [
