@@ -8,17 +8,7 @@
         @csrf
         <section class="teacher-form-section">
             <h2>تاریخ حضور و غیاب</h2>
-            <div class="mt-5 max-w-md"><div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="1">
-    <label>
-        <span>تاریخ</span>
-        <div class="teacher-jalali-field-grid is-date-only">
-            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="تاریخ شمسی">
-        </div>
-        <input type="hidden" name="attendance_date" data-jalali-target value="{{ old('attendance_date',$attendanceDate) }}">
-        <em>تاریخ به شمسی نمایش داده می‌شود و به شکل استاندارد در سیستم ذخیره می‌شود.</em>
-        @error('attendance_date')<small class="teacher-field-error">{{ $message }}</small>@enderror
-    </label>
-</div></div>
+            <div class="mt-5 max-w-md"><label class="teacher-form-field"><span>تاریخ</span><input type="date" name="attendance_date" value="{{ old('attendance_date', $attendanceDate) }}" required data-tp-today>@error('attendance_date')<small class="teacher-field-error">{{ $message }}</small>@enderror</label></div>
         </section>
         <section class="teacher-form-section">
             <div class="flex items-center justify-between gap-3"><div><h2>وضعیت دانش‌آموزان</h2><p>فقط دانش‌آموزان فعال این کلاس در این فهرست قرار می‌گیرند.</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-[9px] font-black">{{ \App\Support\PersianUi::digits($classroom->students->count()) }} نفر</span></div>

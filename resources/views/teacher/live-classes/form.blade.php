@@ -49,29 +49,7 @@
                 <span>۲</span>
                 <div><h2>جلسه چه زمانی برگزار می‌شود؟</h2><p>تاریخ را شمسی انتخاب کن؛ ساعت به وقت محلی سامانه ثبت می‌شود.</p></div>
             </div>
-            <div class="teacher-live-date-row">
-                <label>
-                    <span>تاریخ برگزاری</span>
-                    <button type="button" class="teacher-jalali-trigger" data-jalali-trigger>
-                        <b data-jalali-label>انتخاب تاریخ</b><i>▾</i>
-                    </button>
-                    <input type="hidden" name="scheduled_date_jalali" data-jalali-date value="{{ old('scheduled_date_jalali') }}">
-                </label>
-                <label>
-                    <span>ساعت شروع</span>
-                    <input type="time" name="scheduled_time" data-scheduled-time value="{{ old('scheduled_time') }}" required>
-                </label>
-            </div>
-            <input type="hidden" name="scheduled_at" data-scheduled-at value="{{ old('scheduled_at') }}">
-            <div class="teacher-jalali-picker" data-jalali-picker hidden>
-                <div class="teacher-jalali-picker-head">
-                    <button type="button" data-jalali-prev aria-label="ماه قبل">‹</button>
-                    <strong data-jalali-month-label></strong>
-                    <button type="button" data-jalali-next aria-label="ماه بعد">›</button>
-                </div>
-                <div class="teacher-jalali-week"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span></div>
-                <div class="teacher-jalali-days" data-jalali-days></div>
-            </div>
+            <label class="teacher-form-field"><span>زمان برگزاری</span><input type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}" required><small>زمان به وقت محلی سامانه ثبت می‌شود.</small></label>
         </section>
 
         <section class="teacher-live-form-section">

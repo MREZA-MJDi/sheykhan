@@ -24,7 +24,7 @@ class ProfileController extends Controller
 
         $profile = $teacher->teacherProfile ?? new TeacherProfile();
 
-        return view('teacher.settings', [
+        return view('teacher.profile.edit', [
             'teacher' => $teacher,
             'profile' => $profile,
             'avatar' => $profile->media->firstWhere('pivot.collection', 'teacher-avatar'),
@@ -84,6 +84,16 @@ class ProfileController extends Controller
                 if ($oldAvatar && $oldAvatar->id !== $newAvatar->id) {
                     $mediaService->detach($oldAvatar, $profile);
                     if ($oldAvatar->attachments()->doesntExist()) $mediaService->delete($oldAvatar);
+                }
+            }
+
+            if (! $request->hasFile('avatar') && $request->boolean('remove_avatar')) {
+                $avatarToRemove = $profile->media()->wherePivot('collection', 'teacher-avatar')->first();
+                if ($avatarToRemove) {
+                    $mediaService->detach($avatarToRemove, $profile);
+                    if ($avatarToRemove->attachments()->doesntExist()) {
+                        $mediaService->delete($avatarToRemove);
+                    }
                 }
             }
 
