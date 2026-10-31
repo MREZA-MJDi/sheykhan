@@ -6,7 +6,7 @@
 @section('content')
 <div class="page-head">
   <p class="muted small">کتاب، جزوه و منابع آموزشی منتشرشده در فروشگاه شیخان</p>
-  <x-tag tone="b">{{ AppSupportPersianUi::digits($products->total()) }} محصول</x-tag>
+  <x-tag tone="b">{{ \App\Support\PersianUi::digits($products->total()) }} محصول</x-tag>
 </div>
 
 @if(count($categories))
@@ -37,7 +37,7 @@
       </a>
       <p>{{ $product->category?->name ?? 'منبع آموزشی' }}</p>
       @if($product->description)<p>{{ IlluminateSupportStr::limit(strip_tags((string) $product->description), 100) }}</p>@endif
-      <b>{{ AppSupportPersianUi::moneyInCurrency($price, $product->currency) }}</b>
+      <b>{{ \App\Support\PersianUi::moneyInCurrency($price, $product->currency) }}</b>
       <a class="btn s" href="{{ route('store.product.show', $product) }}">مشاهده محصول</a>
     </article>
   @empty

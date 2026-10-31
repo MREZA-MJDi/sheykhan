@@ -23,7 +23,7 @@
     <h2 style="font-size:22px">{{ $product->title }}</h2>
     @if($product->subtitle)<p class="muted">{{ $product->subtitle }}</p>@endif
     <x-tag tone="b">{{ match($product->product_type) {'digital' => 'محصول دیجیتال','book' => 'کتاب','exam' => 'آزمون','file' => 'فایل آموزشی',default => 'منبع آموزشی'} }}</x-tag>
-    <b style="font-size:26px">{{ AppSupportPersianUi::moneyInCurrency($product->sale_price ?? $product->price, $product->currency) }}</b>
+    <b style="font-size:26px">{{ \App\Support\PersianUi::moneyInCurrency($product->sale_price ?? $product->price, $product->currency) }}</b>
     <a class="btn" href="{{ route('checkout.show', $product) }}">خرید و دریافت امن</a>
     @if($product->description)<p style="white-space:pre-line;line-height:2">{{ $product->description }}</p>@endif
   </section>
