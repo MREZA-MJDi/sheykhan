@@ -922,3 +922,10 @@
 .ui-flash-warning{border-color:#fde68a;background:#fffbeb}.ui-flash-warning .ui-flash-icon{background:#fef3c7;color:#a16207}
 .ui-flash-info{border-color:#bfdbfe;background:#eff6ff}.ui-flash-info .ui-flash-icon{background:#dbeafe;color:#1d4ed8}
 @media(max-width:640px){.ui-flash{align-items:flex-start;padding:12px}.ui-flash-copy span{font-size:11px}.ui-flash-close{font-size:20px}}
+
+
+/* Parent dashboard owns its empty-state visual treatment. */
+.parent-empty-state{display:grid;justify-items:center;gap:8px;padding:28px 20px;border:1px dashed #cfe1d8;border-radius:18px;background:linear-gradient(145deg,#f8fcfa,#f1f8f4);color:#24374a;text-align:center}
+.parent-empty-state__icon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#e2f4eb;color:#16845f;font-size:22px;font-weight:900}
+.parent-empty-state h3{margin:0;font-size:14px;font-weight:900}
+.parent-empty-state p{max-width:520px;margin:0;color:#718092;font-size:11px;line-height:2}
