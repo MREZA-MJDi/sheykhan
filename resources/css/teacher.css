@@ -1121,5 +1121,4 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 
 
 .teacher-shell .teacher-course-card{min-width:0;background:var(--sf)!important;border:1px solid var(--ln)!important;border-radius:19px!important;box-shadow:0 5px 18px rgba(35,42,77,.06)!important}
-.teacher-shell .teacher-upload-progress{display:grid;gap:8px;padding:13px;border:1px solid var(--ln);border-radius:14px;background:var(--bg2)}
 .teacher-shell .teacher-upload-progress[hidden]{display:none!important}

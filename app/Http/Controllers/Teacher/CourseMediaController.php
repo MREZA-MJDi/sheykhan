@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Teacher\CourseMediaRequest;
 use App\Models\Course;
 use App\Models\Media;
-use App\Services\CourseManagementService;
+use App\Services\TeacherAccessService;
 use App\Services\MediaService;
 use Illuminate\Http\RedirectResponse;
 
@@ -15,10 +15,10 @@ class CourseMediaController extends Controller
     public function store(
         CourseMediaRequest $request,
         Course $course,
-        CourseManagementService $courses,
+        TeacherAccessService $access,
         MediaService $media,
     ): RedirectResponse {
-        abort_unless($courses->teacherCanManage($request->user(), $course), 403);
+        abort_unless($access->canTeachCourse($request->user(), $course), 403);
 
         $media->upload(
             $request->file('media'),
@@ -37,10 +37,10 @@ class CourseMediaController extends Controller
     public function destroy(
         Course $course,
         Media $media,
-        CourseManagementService $courses,
+        TeacherAccessService $access,
         MediaService $mediaService,
     ): RedirectResponse {
-        abort_unless($courses->teacherCanManage(request()->user(), $course), 403);
+        abort_unless($access->canTeachCourse(request()->user(), $course), 403);
 
         $attached = $media->attachments()
             ->where('mediable_type', Course::class)

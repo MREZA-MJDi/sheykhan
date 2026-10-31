@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Teacher;
 
 use App\Models\Course;
-use App\Services\CourseManagementService;
+use App\Services\TeacherAccessService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CourseMediaRequest extends FormRequest
@@ -11,10 +11,12 @@ class CourseMediaRequest extends FormRequest
     public function authorize(): bool
     {
         $course = $this->route('course');
+        $user = $this->user();
 
         return $course instanceof Course
-            && ($this->user()?->hasPermission('media.upload') ?? false)
-            && app(CourseManagementService::class)->teacherCanManage($this->user(), $course);
+            && $user !== null
+            && $user->hasPermission('media.upload')
+            && app(TeacherAccessService::class)->canTeachCourse($user, $course);
     }
 
     public function rules(): array
