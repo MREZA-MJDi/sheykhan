@@ -42,14 +42,35 @@
                 @if($teachers->count())
                     <div class="teacher-directory-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                         @foreach($teachers as $teacher)
-                            <x-education.teacher-card
-                                :name="trim((string) $teacher->name) ?: 'مدرس شیخان'"
-                                :role="$teacher->teacherProfile?->specialization ?: 'مدرس'"
-                                :avatar="$teacher->teacherProfile?->media?->first()?->url()"
-                                :bio="$teacher->teacherProfile?->bio"
-                                :courses="$teacher->courses_count ?? 0"
-                                 :href="route('teachers.show', $teacher)"
-                            />
+                            @php
+                                $teacherDisplayName = trim((string) $teacher->name) ?: 'مدرس شیخان';
+                                $teacherAvatar = $teacher->teacherProfile?->media?->first()?->url();
+                                $teacherRole = $teacher->teacherProfile?->specialization ?: 'مدرس';
+                            @endphp
+                            <article class="public-teacher-card teacher-card group h-full min-w-0">
+                                <a href="{{ route('teachers.show', $teacher) }}" class="teacher-card__media" aria-label="مشاهده پروفایل {{ $teacherDisplayName }}">
+                                    @if($teacherAvatar)
+                                        <img src="{{ $teacherAvatar }}" alt="تصویر {{ $teacherDisplayName }}" class="teacher-card__photo" loading="lazy" decoding="async">
+                                    @else
+                                        <span class="teacher-card__fallback" aria-hidden="true">{{ mb_substr($teacherDisplayName,0,1) }}</span>
+                                    @endif
+                                    <span class="teacher-card__media-overlay" aria-hidden="true"></span>
+                                    <span class="teacher-card__media-action">پروفایل مدرس <span aria-hidden="true">↗</span></span>
+                                </a>
+                                <div class="teacher-card__body">
+                                    <div class="teacher-card__identity">
+                                        <h3 class="teacher-card__name"><a href="{{ route('teachers.show', $teacher) }}">{{ $teacherDisplayName }}</a></h3>
+                                        <p class="teacher-card__role">{{ $teacherRole }}</p>
+                                    </div>
+                                    @if(filled($teacher->teacherProfile?->bio))
+                                        <p class="teacher-card__bio">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $teacher->teacherProfile->bio)),155) }}</p>
+                                    @endif
+                                    <div class="teacher-card__footer">
+                                        <span class="teacher-card__course-count"><span aria-hidden="true">▤</span>{{ \App\Support\PersianUi::digits((int) ($teacher->courses_count ?? 0)) }} دوره آموزشی</span>
+                                        <a href="{{ route('teachers.show', $teacher) }}" class="teacher-card__action">دیدن پروفایل <span aria-hidden="true">←</span></a>
+                                    </div>
+                                </div>
+                            </article>
                         @endforeach
                     </div>
                 @else
