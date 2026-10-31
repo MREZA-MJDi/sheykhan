@@ -9,7 +9,7 @@ import {
     jalaliFromIso,
     jalaliToGregorian,
     parseJalali,
-} from '../../resources/js/persian-calendar-core.mjs';
+} from '../../resources/js/shared/persian-calendar-core.mjs';
 
 test('known Gregorian dates convert to the expected Jalali date', () => {
     assert.deepEqual(gregorianToJalali(2026, 3, 21), { year: 1405, month: 1, day: 1 });
@@ -65,7 +65,7 @@ test('ISO input without a valid Gregorian date is not silently normalized', () =
 
 
 test('calendar renderer uses a defined current-month helper', () => {
-    const source = readFileSync(new URL('../../resources/js/persian-calendar.js', import.meta.url), 'utf8');
+    const source = readFileSync(new URL('../../resources/js/shared/persian-calendar.js', import.meta.url), 'utf8');
 
     assert.match(source, /const today = currentJalaliMonth\(\);/);
     assert.doesNotMatch(source, /\btodayIso\(\)/);
