@@ -336,7 +336,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $studentJs = file_get_contents(resource_path('js/student.js'));
-        $calendarModule = file_get_contents(resource_path('js/persian-calendar-core.mjs'));
+        $calendarModule = file_get_contents(resource_path('js/shared/persian-calendar-core.mjs'));
         $panelRuntime = file_get_contents(resource_path('js/panel-runtime.js'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
@@ -438,7 +438,7 @@ class StudentTeacherDashboardContractTest extends TestCase
 
     public function test_teacher_jalali_calendar_has_esfand_leap_year_detection(): void
     {
-        $calendarCore = file_get_contents(resource_path('js/persian-calendar-core.mjs'));
+        $calendarCore = file_get_contents(resource_path('js/shared/persian-calendar-core.mjs'));
 
         $this->assertIsString($calendarCore);
         $this->assertStringContainsString("new Intl.DateTimeFormat('en-u-ca-persian-nu-latn'", $calendarCore);
