@@ -10,14 +10,15 @@ import './teacher/course-media-uploader.js';
 bootAlpine();
 bootSharedBehaviors();
 document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
-// ZIP utility: Jalali/Gregorian date conversion.
-function fa(n){return String(n).replace(/\d/g,function(d){return"۰۱۲۳۴۵۶۷۸۹"[d]})}
-function pad(n){return(n<10?"0":"")+n}
-function g2j(gy,gm,gd){var gm2=[0,31,59,90,120,151,181,212,243,273,304,334],jy;if(gy>1600){jy=979;gy-=1600}else{jy=0;gy-=621}var g2=gm>2?gy+1:gy,days=365*gy+Math.floor((g2+3)/4)-Math.floor((g2+99)/100)+Math.floor((g2+399)/400)-80+gd+gm2[gm-1];jy+=33*Math.floor(days/12053);days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365}var jm=days<186?1+Math.floor(days/31):7+Math.floor((days-186)/30),jd=1+(days<186?days%31:(days-186)%30);return[jy,jm,jd]}
-function j2g(jy,jm,jd){var gy;if(jy>979){gy=1600;jy-=979}else gy=621;var days=365*jy+Math.floor(jy/33)*8+Math.floor((jy%33+3)/4)+78+jd+(jm<7?(jm-1)*31:(jm-7)*30+186);gy+=400*Math.floor(days/146097);days%=146097;if(days>36524){days--;gy+=100*Math.floor(days/36524);days%=36524;if(days>=365)days++}gy+=4*Math.floor(days/1461);days%=1461;if(days>365){gy+=Math.floor((days-1)/365);days=(days-1)%365}var gd=days+1,sa=[0,31,(gy%4==0&&gy%100!=0)||gy%400==0?29:28,31,30,31,30,31,31,30,31,30,31],gm;for(gm=0;gm<13;gm++){if(gd<=sa[gm])break;gd-=sa[gm]}return[gy,gm,gd]}
-const MN=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-function mlen(y,m){if(m<7)return 31;if(m<12)return 30;var g=j2g(y,12,30),r=g2j(g[0],g[1],g[2]);return r[1]==12&&r[2]==30?30:29}
+import {
+    MONTH_NAMES,
+    pad,
+    persianDigits,
+    jalaliToGregorian,
+    jalaliDaysInMonth,
+} from './shared/persian-calendar-core.mjs';
 
+const fa = persianDigits;
 document.addEventListener('DOMContentLoaded', () => {
     const root = document.documentElement;
     const themeButton = document.getElementById('th');
@@ -300,118 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
         syncMeetingProvider();
     });
 
-    const teacherJalaliFields = document.querySelectorAll('[data-teacher-jalali]');
-
-    const teacherNormalizeDigits = (value) => String(value ?? '')
-        .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-        .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-
-    const teacherGregorianToJalali = (value) => {
-        if (!value) return '';
-        const date = new Date(String(value).replace(' ', 'T'));
-        if (Number.isNaN(date.getTime())) return '';
-
-        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        }).format(date);
-    };
-
-    const teacherJalaliToGregorian = (value) => {
-        const normalized = teacherNormalizeDigits(value).replace(/-/g, '/').trim();
-        const match = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-        if (!match) return null;
-
-        const jy = Number(match[1]);
-        const jm = Number(match[2]);
-        const jd = Number(match[3]);
-        const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-            timeZone: 'UTC',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        });
-
-        const start = new Date(Date.UTC(jy + 620, 0, 1, 12));
-        for (let offset = 0; offset <= 800; offset++) {
-            const candidate = new Date(start.getTime() + offset * 86400000);
-            const parts = Object.fromEntries(
-                formatter.formatToParts(candidate).map((item) => [item.type, item.value])
-            );
-
-            if (Number(teacherNormalizeDigits(parts.year)) === jy
-                && Number(teacherNormalizeDigits(parts.month)) === jm
-                && Number(teacherNormalizeDigits(parts.day)) === jd) {
-                return [
-                    candidate.getUTCFullYear(),
-                    String(candidate.getUTCMonth() + 1).padStart(2, '0'),
-                    String(candidate.getUTCDate()).padStart(2, '0'),
-                ];
-            }
-        }
-
-        return null;
-    };
-
-    teacherJalaliFields.forEach((field) => {
-        const visibleDate = field.querySelector('[data-jalali-visible-date]');
-        const visibleTime = field.querySelector('[data-jalali-visible-time]');
-        const target = field.querySelector('[data-jalali-target]');
-        const dateOnly = field.dataset.jalaliDateOnly === '1';
-
-        if (!visibleDate || !target) return;
-
-        const hydrate = () => {
-            const raw = target.value;
-            if (!raw) return;
-
-            const match = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
-            if (!match) return;
-
-            const jalali = teacherGregorianToJalali(
-                match[4] ? `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}` : `${match[1]}-${match[2]}-${match[3]}T12:00`
-            );
-
-            if (jalali) visibleDate.value = jalali;
-            if (visibleTime && match[4]) visibleTime.value = `${match[4]}:${match[5]}`;
-        };
-
-        const sync = () => {
-            const gregorian = teacherJalaliToGregorian(visibleDate.value);
-            if (!gregorian) {
-                target.value = '';
-                return false;
-            }
-
-            if (dateOnly) {
-                target.value = gregorian.join('-');
-                return true;
-            }
-
-            if (!visibleTime?.value) {
-                target.value = '';
-                return false;
-            }
-
-            target.value = `${gregorian.join('-')}T${visibleTime.value}`;
-            return true;
-        };
-
-        hydrate();
-        visibleDate.addEventListener('change', sync);
-        visibleDate.addEventListener('blur', sync);
-        visibleTime?.addEventListener('change', sync);
-
-        field.closest('form')?.addEventListener('submit', (event) => {
-            if (!sync()) {
-                event.preventDefault();
-                visibleDate.focus();
-            }
-        });
-    });
-
     const liveForm = document.querySelector('[data-live-class-form]');
 
     if (liveForm) {
@@ -422,67 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const hiddenDate = liveForm.querySelector('[data-jalali-date]');
         const hiddenScheduledAt = liveForm.querySelector('[data-scheduled-at]');
         const timeInput = liveForm.querySelector('[data-scheduled-time]');
-        const monthNames = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-        const digits = (value) => String(value).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
-        const pad = (value) => String(value).padStart(2, '0');
-        const isLeapGregorian = (year) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-
-        const jalaliToGregorian = (jy, jm, jd) => {
-            let y = jy + 1595;
-            let daysValue = -355668 + (365 * y) + Math.floor(y / 33) * 8 + Math.floor(((y % 33) + 3) / 4) + jd;
-            daysValue += jm < 7 ? (jm - 1) * 31 : ((jm - 7) * 30) + 186;
-
-            let gy = 400 * Math.floor(daysValue / 146097);
-            daysValue %= 146097;
-
-            if (daysValue > 36524) {
-                gy += 100 * Math.floor(--daysValue / 36524);
-                daysValue %= 36524;
-                if (daysValue >= 365) daysValue++;
-            }
-
-            gy += 4 * Math.floor(daysValue / 1461);
-            daysValue %= 1461;
-
-            if (daysValue > 365) {
-                gy += Math.floor((daysValue - 1) / 365);
-                daysValue = (daysValue - 1) % 365;
-            }
-
-            let gd = daysValue + 1;
-            const monthDays = [31, isLeapGregorian(gy) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            let gm = 1;
-
-            while (gm <= 12 && gd > monthDays[gm - 1]) {
-                gd -= monthDays[gm - 1];
-                gm++;
-            }
-
-            return [gy, gm, gd];
-        };
-
-        const jalaliMonthDays = (year, month) => {
-            if (month <= 6) return 31;
-            if (month <= 11) return 30;
-
-            // Validate Esfand 30 with the browser's Persian calendar implementation.
-            const [gy, gm, gd] = jalaliToGregorian(year, 12, 30);
-            const candidate = new Date(Date.UTC(gy, gm - 1, gd, 12));
-            const parts = Object.fromEntries(
-                new Intl.DateTimeFormat('en-u-ca-persian-nu-latn', {
-                    timeZone: 'UTC',
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                }).formatToParts(candidate).map((part) => [part.type, part.value])
-            );
-
-            return Number(parts.year) === year
-                && Number(parts.month) === 12
-                && Number(parts.day) === 30
-                ? 30
-                : 29;
-        };
+        const monthNames = MONTH_NAMES;
+        const digits = persianDigits;
+        const jalaliMonthDays = jalaliDaysInMonth;
 
         let viewYear = Number(liveForm.dataset.jalaliYear);
         let viewMonth = Number(liveForm.dataset.jalaliMonth);
