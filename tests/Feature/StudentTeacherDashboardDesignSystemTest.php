@@ -53,7 +53,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $script = file_get_contents(resource_path('js/teacher.js'));
         $this->assertIsString($script);
         foreach ([
-            "import { bootAlpine } from './panel-base.js';",
+            "import { bootAlpineRuntime as bootAlpine } from './shared/alpine-runtime.js';",
             "import { bootSharedBehaviors } from './shared/behavior-runtime.js';",
             "import './teacher/assessment-builder.js';",
             "import './shared/persian-calendar.js';",
