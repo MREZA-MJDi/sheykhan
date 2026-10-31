@@ -1,7 +1,6 @@
 @import 'tailwindcss' source(none);
 @source '../../resources/views/teacher';
 @source '../../resources/views/layouts/teacher.blade.php';
-@source '../../resources/views/components/teacher';
 @theme { --font-sans: 'Vazirmatn', Tahoma, sans-serif; }
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
