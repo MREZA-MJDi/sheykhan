@@ -56,7 +56,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         foreach ([
             "import { bootAlpine } from './panel-base.js';",
             "import { bootSharedBehaviors } from './shared/behavior-runtime.js';",
-            "import './shared/assessment-builder.js';",
+            "import './teacher/assessment-builder.js';",
             "import './shared/persian-calendar.js';",
             "import './shared/persian-money.js';",
             "import { bootFileUploadProgress } from './shared/upload-progress.js';",
@@ -88,9 +88,11 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
 
         $calendar = file_get_contents(resource_path('js/shared/persian-calendar.js'));
         $money = file_get_contents(resource_path('js/shared/persian-money.js'));
-        $assessment = file_get_contents(resource_path('js/shared/assessment-builder.js'));
         $upload = file_get_contents(resource_path('js/shared/upload-progress.js'));
-        foreach ([$calendar,$money,$assessment,$upload] as $source) $this->assertIsString($source);
+        $teacherBuilder = file_get_contents(resource_path('js/teacher/assessment-builder.js'));
+        $ownerBuilder = file_get_contents(resource_path('js/owner/exam-builder.js'));
+        foreach ([$calendar,$money,$upload,$teacherBuilder,$ownerBuilder] as $source) $this->assertIsString($source);
+        $this->assertFileDoesNotExist(resource_path('js/shared/assessment-builder.js'));
     }
 
     public function test_shared_behavior_runtime_is_theme_neutral_and_used_by_every_panel_entry(): void
