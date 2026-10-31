@@ -24,6 +24,7 @@ class StudentPortalUiContractTest extends TestCase
             'student.exams.index',
             'student.resources.index',
             'student.results.index',
+            'student.growth',
             'student.attendance.index',
             'student.achievements.index',
             'student.notes.index',

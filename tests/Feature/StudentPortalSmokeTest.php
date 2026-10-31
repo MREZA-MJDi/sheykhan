@@ -36,6 +36,7 @@ class StudentPortalSmokeTest extends TestCase
             ['student.live-classes.index', []],
             ['student.attendance.index', []],
             ['student.results.index', []],
+            ['student.growth', []],
             ['student.achievements.index', []],
             ['student.notes.index', []],
             ['student.profile.edit', []],

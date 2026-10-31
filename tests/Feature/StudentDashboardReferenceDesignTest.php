@@ -37,7 +37,7 @@ class StudentDashboardReferenceDesignTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.courses.index'))
             ->assertOk()
-            ->assertSee('دوره‌های در دسترس')
+            ->assertSee('دوره‌های من')
             ->assertSee('student-shell', false)
             ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('student-shell-dashboard', false);

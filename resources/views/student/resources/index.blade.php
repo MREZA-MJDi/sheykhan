@@ -21,7 +21,7 @@
       <h3>{{ $resource->title }}</h3>
       <p>{{ $resourceCourse?->title ?? $resource->academy?->name ?? 'منبع آموزشی' }}</p>
       @if($resource->description)<p>{{ $resource->description }}</p>@endif
-      <p>{{ strtoupper($resource->media?->extension ?? $resource->resource_type ?? 'FILE') }} @if($resource->media) · {{ \App\Support\PersianUi::number(((int) $resource->media->size) / 1024) }} کیلوبایت @endif</p>
+      <p>{{ strtoupper(pathinfo((string) $resource->media?->original_name, PATHINFO_EXTENSION) ?: ($resource->resource_type ?: 'FILE')) }} @if($resource->media) · {{ \App\Support\PersianUi::number(((int) $resource->media->size) / 1024) }} کیلوبایت @endif</p>
       @if($resource->release_at)<p>انتشار: {{ \App\Support\PersianUi::date($resource->release_at) }}</p>@endif
       @if($isProtectedVideo)
         @if($resourceCourse && filled($resourceCourse->spotplayer_course_id))
