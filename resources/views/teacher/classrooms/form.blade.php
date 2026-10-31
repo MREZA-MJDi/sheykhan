@@ -21,8 +21,30 @@
         <section class="teacher-form-section md:col-span-2">
             <h2>بازه برگزاری</h2><p>اگر کلاس بازه زمانی مشخصی ندارد، این دو فیلد را خالی بگذار.</p>
             <div class="mt-5 grid gap-4 md:grid-cols-2">
-                <x-teacher.jalali-datetime name="starts_at" :value="old('starts_at')" label="شروع کلاس" />
-                <x-teacher.jalali-datetime name="ends_at" :value="old('ends_at')" label="پایان کلاس" />
+                <div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="0">
+    <label>
+        <span>شروع کلاس</span>
+        <div class="teacher-jalali-field-grid ">
+            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="شروع کلاس شمسی">
+            <input type="time" data-jalali-visible-time aria-label="ساعت شروع کلاس">
+
+        </div>
+        <input type="hidden" name="starts_at" data-jalali-target value="{{ old('starts_at') }}">
+        @error('starts_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
+    </label>
+</div>
+                <div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="0">
+    <label>
+        <span>پایان کلاس</span>
+        <div class="teacher-jalali-field-grid ">
+            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="پایان کلاس شمسی">
+            <input type="time" data-jalali-visible-time aria-label="ساعت پایان کلاس">
+
+        </div>
+        <input type="hidden" name="ends_at" data-jalali-target value="{{ old('ends_at') }}">
+        @error('ends_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
+    </label>
+</div>
                 <label class="teacher-form-field md:col-span-2"><span>توضیحات <small class="text-slate-400">اختیاری</small></span><textarea name="description" rows="5" placeholder="مثلاً این کلاس مخصوص حل تمرین و رفع اشکال است.">{{ old('description',$classroom->description) }}</textarea></label>
             </div>
         </section>
