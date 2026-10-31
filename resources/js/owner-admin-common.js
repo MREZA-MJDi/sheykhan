@@ -1,5 +1,6 @@
 /* Shared Owner/SEO upload previews and safe form-submission feedback. */
 import './assessment-builder.js';
+import { guardFormOnce } from './shared/behavior-runtime.js';
 /* New owner admin page behavior. Server routes and form submissions stay authoritative. */
 (() => {
   'use strict';
@@ -23,21 +24,7 @@ import './assessment-builder.js';
     });
   });
   document.querySelectorAll('form[method="POST"],form[method="post"]').forEach((form) => {
-    if (form.action.includes('/logout') || form.dataset.ownerSubmitGuard === 'bound') return;
-    form.dataset.ownerSubmitGuard='bound';
-    form.addEventListener('submit',(event)=>{
-      if(form.dataset.uploading==='true'||form.dataset.submitted==='true'){event.preventDefault();return;}
-      if(!form.checkValidity()) return;
-      form.dataset.submitted='true';
-      const button=form.querySelector('button[type="submit"],input[type="submit"]');
-      if(!button) return;
-      button.setAttribute('aria-busy','true'); button.dataset.ownerOriginalText=button.tagName==='INPUT'?button.value:button.textContent;
-      if(button.tagName==='INPUT') button.value='در حال ذخیره…'; else button.textContent='در حال ذخیره…';
-    });
-    window.addEventListener('pageshow',()=>{
-      form.dataset.submitted='false';
-      const button=form.querySelector('button[aria-busy="true"],input[aria-busy="true"]'); if(!button) return;
-      button.removeAttribute('aria-busy'); if(button.tagName==='INPUT') button.value=button.dataset.ownerOriginalText||'ذخیره'; else button.textContent=button.dataset.ownerOriginalText||'ذخیره';
-    });
+    if (form.action.includes('/logout')) return;
+    guardFormOnce(form, { pendingText: 'در حال ذخیره…' });
   });
 })();
