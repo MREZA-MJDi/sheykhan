@@ -536,10 +536,11 @@
                                 </div>
                             </details>
                         @empty
-                            <x-ui.empty-state
-                                title="سرفصلی ثبت نشده"
-                                description="محتوای این دوره هنوز توسط مدرس تکمیل نشده است."
-                            />
+                            <div class="public-empty-state" role="status">
+        <span class="public-empty-state__icon" aria-hidden="true">⌕</span>
+        <h3>سرفصلی ثبت نشده</h3>
+        <p>محتوای این دوره هنوز توسط مدرس تکمیل نشده است.</p>
+    </div>
                         @endforelse
                     </div>
                 </section>
