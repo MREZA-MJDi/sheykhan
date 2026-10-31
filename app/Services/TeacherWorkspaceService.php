@@ -414,18 +414,22 @@ final class TeacherWorkspaceService
     ): ClassSchedule {
         $this->classroomOwnedBy($teacher, $classroom->id);
 
-        $overlaps = $classroom->schedules()
+        // One teacher cannot host two recurring sessions at the same time,
+        // even when they belong to different classrooms.
+        $overlaps = ClassSchedule::query()
             ->where('weekday', $data['weekday'])
             ->where(function ($query) use ($data): void {
                 $query
                     ->where('start_time', '<', $data['end_time'])
                     ->where('end_time', '>', $data['start_time']);
             })
+            ->whereHas('classroom.teachers', fn ($teachers) => $teachers->whereKey($teacher->id))
+            ->whereHas('classroom.academy', fn ($academy) => $this->activeTeacherAcademy($academy, $teacher->id))
             ->exists();
 
         if ($overlaps) {
             throw \Illuminate\Validation\ValidationException::withMessages([
-                'start_time' => 'این بازه زمانی با یکی از زمان‌های ثبت‌شده کلاس هم‌پوشانی دارد.',
+                'start_time' => 'این بازه با برنامه هفتگی یکی از کلاس‌های شما هم‌پوشانی دارد؛ زمان دیگری انتخاب کنید.',
             ]);
         }
 

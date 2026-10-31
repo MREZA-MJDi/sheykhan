@@ -66,7 +66,9 @@
   @endforelse
 </div>
 
+@if($user?->hasPermission('classrooms.view') || $user?->hasPermission('live_classes.view'))
 <div class="g g3">
+  @if($user?->hasPermission('classrooms.view'))
   <section class="c" style="--ca:#4a5fe0">
     <h3>کلاس‌های من <a href="{{ route('teacher.classrooms.index') }}">مشاهده همه ←</a></h3>
     @forelse($classPreviews as $class)
@@ -78,6 +80,8 @@
       <div class="emp"><i>▤</i><b>هنوز کلاسی ثبت نشده است</b><small>کلاس‌های متصل به حساب شما پس از تخصیص در این قسمت نمایش داده می‌شوند.</small></div>
     @endforelse
   </section>
+  @endif
+  @if($user?->hasPermission('live_classes.view'))
   <section class="c" style="--ca:#22b573">
     <h3>برنامه امروز <a href="{{ route('teacher.schedule.index') }}">برنامه کامل ←</a></h3>
     @forelse($today as $session)
@@ -88,9 +92,13 @@
       <div class="emp"><i>◷</i><b>جلسه‌ای برای امروز ثبت نشده است</b><small>برنامه جلسات واقعی شما در این بخش قرار می‌گیرد.</small></div>
     @endforelse
   </section>
+  @endif
 </div>
+@endif
 
+@if($user?->hasPermission('assignments.view') || $user?->hasPermission('live_classes.view'))
 <div class="g g3">
+  @if($user?->hasPermission('assignments.view'))
   <section class="c" style="--ca:#ff9f43">
     <h3>آخرین تکالیف و فعالیت‌ها <a href="{{ route('teacher.assignments.index') }}">مدیریت تکالیف ←</a></h3>
     @forelse($recent->take(6) as $activity)
@@ -99,6 +107,8 @@
       <div class="emp"><i>✎</i><b>فعالیتی برای نمایش نیست</b><small>تکالیف ثبت‌شده شما بعد از ایجاد در این بخش دیده می‌شوند.</small></div>
     @endforelse
   </section>
+  @endif
+  @if($user?->hasPermission('live_classes.view'))
   <section class="c" style="--ca:#8b5cf6">
     <h3>کلاس‌های پیش‌رو <a href="{{ route('teacher.live-classes.index') }}">همه ←</a></h3>
     @forelse($upcoming as $class)
@@ -109,7 +119,9 @@
       <div class="emp"><i>◷</i><b>کلاس پیش‌رویی ثبت نشده است</b><small>جلسات آینده پس از زمان‌بندی نمایش داده می‌شوند.</small></div>
     @endforelse
   </section>
+  @endif
 </div>
+@endif
 
 @if($user?->hasPermission('reports.view'))
 <section class="c" data-dashboard-chart data-chart='@json(["week"=>$weekChart,"month"=>$monthChart])' style="--ca:#14b8c4" id="teacher-progress">

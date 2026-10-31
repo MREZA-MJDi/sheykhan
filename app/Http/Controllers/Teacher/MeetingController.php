@@ -16,8 +16,18 @@ final class MeetingController extends Controller
     {
         $teacher = $request->user();
 
+        $activeTeacherMembership = fn ($academy) => $academy
+            ->where('academies.status', 'active')
+            ->whereHas('users', fn ($memberships) => $memberships
+                ->whereKey($teacher->id)
+                ->wherePivot('role', 'teacher')
+                ->wherePivot('status', 'active'));
+
         $meetings = AcademyMeeting::query()
-            ->whereHas('classroom.teachers', fn ($teachers) => $teachers->whereKey($teacher->id))
+            ->whereHas('classroom', fn ($classroom) => $classroom
+                ->where('classrooms.status', 'active')
+                ->whereHas('teachers', fn ($teachers) => $teachers->whereKey($teacher->id))
+                ->whereHas('academy', $activeTeacherMembership))
             ->with(['academy:id,name', 'classroom:id,title', 'course:id,title', 'student:id,name', 'guardian:id,name'])
             ->orderByRaw("CASE WHEN status = 'scheduled' THEN 0 ELSE 1 END")
             ->orderBy('scheduled_at')
@@ -29,6 +39,12 @@ final class MeetingController extends Controller
             ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'classrooms.id')
             ->join('courses', 'courses.id', '=', 'classrooms.course_id')
             ->join('users as students', 'students.id', '=', 'student_membership.student_id')
+            ->join('course_enrollments as active_enrollment', function ($join): void {
+                $join->on('active_enrollment.student_id', '=', 'students.id')
+                    ->on('active_enrollment.classroom_id', '=', 'classrooms.id')
+                    ->on('active_enrollment.course_id', '=', 'classrooms.course_id')
+                    ->where('active_enrollment.status', '=', 'active');
+            })
             ->join('academy_user as teacher_membership', function ($join): void {
                 $join->on('teacher_membership.user_id', '=', 'teaching_assignment.teacher_id')
                     ->on('teacher_membership.academy_id', '=', 'classrooms.academy_id')
@@ -138,9 +154,14 @@ final class MeetingController extends Controller
         $teacher = $request->user();
         $record = AcademyMeeting::query()
             ->whereKey($meeting)
-            ->where(function ($query) use ($teacher): void {
-                $query->whereHas('classroom.teachers', fn ($teachers) => $teachers->whereKey($teacher->id))
-                    ->orWhereHas('course.teachers', fn ($teachers) => $teachers->whereKey($teacher->id));
+            ->where(function ($query) use ($teacher, $activeTeacherMembership): void {
+                $query->whereHas('classroom', fn ($classroom) => $classroom
+                    ->where('classrooms.status', 'active')
+                    ->whereHas('teachers', fn ($teachers) => $teachers->whereKey($teacher->id))
+                    ->whereHas('academy', $activeTeacherMembership))
+                    ->orWhereHas('course', fn ($course) => $course
+                        ->whereHas('teachers', fn ($teachers) => $teachers->whereKey($teacher->id))
+                        ->whereHas('academy', $activeTeacherMembership));
             })
             ->firstOrFail();
 

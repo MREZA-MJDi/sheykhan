@@ -8,7 +8,7 @@
     @vite(['resources/css/teacher.css', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
-<body class="teacher-panel">
+<body class="teacher-panel teacher-shell">
 @php
     $teacherUser = auth()->user();
     $teacherUser?->loadMissing(['teacherProfile.media' => fn ($query) => $query->wherePivot('collection', 'teacher-avatar')->orderByPivot('sort_order')]);
@@ -97,7 +97,7 @@
   <main class="main workspace-content">
     <header class="top">
       <button class="burger" type="button" data-teacher-menu-open aria-label="بازکردن منو">☰</button>
-      <div><h1>@yield('page_title', $pageTitle)</h1><small>@yield('page_subtitle', 'مدیریت کلاس‌ها، آموزش و ارتباط با دانش‌آموزان')</small></div>
+      <div><h1>@yield('page_title', $__env->yieldContent('header-title', $pageTitle))</h1><small>@yield('page_subtitle', 'مدیریت کلاس‌ها، آموزش و ارتباط با دانش‌آموزان')</small></div>
       <span class="sp"></span>
       <form class="teacher-top-search" role="search" onsubmit="return false" style="max-width:250px;width:100%">
         <input class="in" id="gs" type="search" data-teacher-search placeholder="جست‌وجو در این صفحه…" aria-label="جست‌وجو در صفحه">

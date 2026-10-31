@@ -7,6 +7,7 @@ use App\Http\Requests\Teacher\Assignment\StoreAssignmentRequest;
 use App\Models\Assignment;
 use App\Services\MediaService;
 use App\Services\TeacherWorkspaceService;
+use App\Services\TeacherAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -74,9 +75,9 @@ class AssignmentController extends Controller
 
     public function submissions(
         Assignment $assignment,
-        TeacherWorkspaceService $workspace
+        TeacherAccessService $access
     ): View {
-        abort_unless($assignment->teacher_id === request()->user()->id, 403);
+        abort_unless($access->canManageAssignment(request()->user(), $assignment), 404);
 
         return view('teacher.assignments.submissions', [
             'assignment' => $assignment->load('classroom:id,title'),
