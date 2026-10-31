@@ -406,7 +406,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('bootRoleMobileNavigation', $panelRuntime);
         $this->assertStringContainsString('jalaliDaysInMonth', $calendarCore);
         $this->assertStringContainsString('gregorianToJalali', $calendarCore);
-        $this->assertStringContainsString('initializePersianCalendars', $calendarRuntime);
+        $this->assertStringContainsString('initPersianCalendars', $calendarRuntime);
         $this->assertStringContainsString('Intl.NumberFormat', $moneyRuntime);
         $this->assertStringContainsString('data-upload-progress-ui', $uploadRuntime);
 
