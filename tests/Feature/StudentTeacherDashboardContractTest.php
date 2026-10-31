@@ -394,7 +394,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('.tabbar{display:none}', $studentCss);
 
         foreach ([
-            "import './shared/alpine-runtime.js';",
+            "import { bootAlpineRuntime as bootAlpine } from './shared/alpine-runtime.js';",
             "import './shared/persian-calendar.js';",
             "import './shared/persian-money.js';",
             "import './teacher/assessment-builder.js';",
