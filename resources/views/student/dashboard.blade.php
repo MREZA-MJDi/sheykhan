@@ -8,7 +8,9 @@
     $hour = now()->hour;
     $greeting = $hour < 11 ? 'صبح بخیر' : ($hour < 17 ? 'روز بخیر' : 'عصر بخیر');
     $classes = collect($upcomingLiveClasses ?? []);
-    $pending = collect($assignments ?? [])->filter(fn ($item) => empty($item->submitted_at));
+    $pending = collect($assignments ?? [])->filter(function ($item) {
+        return empty($item->submitted_at);
+    });
     $courseProgress = (int) ($overallProgress ?? 0);
 @endphp
 <section class="page" id="dashboard">
