@@ -16,17 +16,14 @@
             @php($parentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل والد')))
             <x-navigation.panel-topbar role="parent" :title="$parentHeaderTitle" />
             <main class="role-main">
-                @php
-    $alerts = [
-        'success' => ['title' => 'انجام شد', 'icon' => '✓'],
-        'error' => ['title' => 'نیاز به توجه', 'icon' => '!'],
-        'warning' => ['title' => 'توجه', 'icon' => '⚠'],
-        'info' => ['title' => 'اطلاع', 'icon' => 'i'],
-    ];
-@endphp
-@if(session()->hasAny(array_keys($alerts)) || $errors->any())
+                @if(session()->hasAny(['success', 'error', 'warning', 'info']) || $errors->any())
     <div class="ui-flash-stack" data-ui-flash-stack>
-        @foreach($alerts as $type => $meta)
+        @foreach([
+            'success' => ['title' => 'انجام شد', 'icon' => '✓'],
+            'error' => ['title' => 'نیاز به توجه', 'icon' => '!'],
+            'warning' => ['title' => 'توجه', 'icon' => '⚠'],
+            'info' => ['title' => 'اطلاع', 'icon' => 'i'],
+        ] as $type => $meta)
             @if(session($type))
                 <div data-ui-dismissible class="ui-flash ui-flash-{{ $type }}" role="{{ $type === 'error' ? 'alert' : 'status' }}" aria-live="{{ $type === 'error' ? 'assertive' : 'polite' }}">
                     <span class="ui-flash-icon" aria-hidden="true">{{ $meta['icon'] }}</span>
