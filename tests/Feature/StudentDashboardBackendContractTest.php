@@ -30,7 +30,21 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertArrayHasKey('resources', $payload);
         $this->assertArrayHasKey('recentResults', $payload);
         $this->assertArrayHasKey('pendingAssignments', $payload);
+        $this->assertArrayHasKey('dueTomorrowCount', $payload);
         $this->assertArrayHasKey('upcomingLiveClassCount', $payload);
+        $this->assertArrayHasKey('todayClasses', $payload);
+        $this->assertArrayHasKey('todayLiveClassCount', $payload);
+        $this->assertArrayHasKey('deadlines', $payload);
+        $this->assertArrayHasKey('upcomingExamCount', $payload);
+        $this->assertArrayHasKey('nextExamDate', $payload);
+        $this->assertArrayHasKey('announcements', $payload);
+        $growth = app(StudentDashboardService::class)->growth($student);
+        $this->assertArrayHasKey('growth', $growth);
+        $this->assertArrayHasKey('components', $growth['growth']);
+        $this->assertArrayHasKey('history', $growth);
+        $this->assertLessThanOrEqual(4, $payload['todayClasses']->count());
+        $this->assertLessThanOrEqual(4, $payload['deadlines']->count());
+        $this->assertLessThanOrEqual(3, $payload['announcements']->count());
         $this->assertGreaterThanOrEqual($payload['upcomingLiveClasses']->count(), $payload['upcomingLiveClassCount']);
         $this->assertArrayHasKey('nextLesson', $payload);
         $this->assertArrayHasKey('nextLiveClass', $payload);
@@ -106,8 +120,8 @@ class StudentDashboardBackendContractTest extends TestCase
             ->assertOk()
             ->getContent();
 
-        // Sidebar, account shortcut, welcome hero and account modal use the same persisted photo.
-        $this->assertSame(4, substr_count($html, e($avatarUrl)));
+        // Sidebar and account shortcut use the persisted photo; the hero keeps the reference illustration.
+        $this->assertSame(2, substr_count($html, e($avatarUrl)));
         $this->assertStringContainsString('data-avatar-fallback', $html);
     }
 

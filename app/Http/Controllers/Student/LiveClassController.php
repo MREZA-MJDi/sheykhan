@@ -182,6 +182,45 @@ class LiveClassController extends Controller
         ]);
     }
 
+    public function recording(
+        LiveClass $liveClass,
+        StudentAccessService $access,
+        \App\Services\SpotPlayerMediaDeliveryService $spotPlayerDelivery,
+    ): View|RedirectResponse {
+        $student = request()->user();
+
+        abort_unless($access->liveClass($student, $liveClass), 404);
+        abort_unless($liveClass->isRecordingAvailable(), 404);
+
+        $liveClass->loadMissing([
+            'course:id,title',
+            'teacher:id,name',
+            'recording:id,original_name,mime_type,status,visibility',
+        ]);
+
+        abort_unless(
+            $liveClass->recording
+                && $liveClass->recording->status === 'active'
+                && $liveClass->recording->visibility === 'private',
+            404,
+        );
+
+        abort_unless($spotPlayerDelivery->requiresProtectedPlayer($liveClass->recording), 404);
+
+        $course = $spotPlayerDelivery->courseForMedia($liveClass->recording);
+
+        if ($course && filled($course->spotplayer_course_id)) {
+            return redirect()
+                ->to(route('student.courses.show', $course) . '#spotplayer-access')
+                ->with('success', 'ضبط کلاس از پلیر محافظت‌شدهٔ دوره باز می‌شود؛ فایل ویدئویی خام ارائه نمی‌شود.');
+        }
+
+        return view('student.live-classes.recording', [
+            'liveClass' => $liveClass,
+            'spotPlayerCourse' => $course,
+        ]);
+    }
+
     public function join(LiveClass $liveClass, StudentAccessService $access): RedirectResponse
     {
         abort_unless($access->canJoinLiveClass(request()->user(), $liveClass), 404);

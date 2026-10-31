@@ -143,7 +143,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         foreach ([$studentScript,$studentStyles,$studentLayout] as $source) $this->assertIsString($source);
         $this->assertStringContainsString("from './panel-runtime.js'", $studentScript);
         $this->assertStringContainsString('.student-shell', $studentStyles);
-        $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
+        $this->assertStringContainsString("@include('student.partials.tabbar')", $studentLayout);
     }
 
     public function test_role_entries_that_are_not_teacher_continue_using_the_shared_runtime(): void

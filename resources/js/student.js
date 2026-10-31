@@ -164,71 +164,39 @@ bootPanelRuntime();
             });
         });
 
-        const profileModal = document.getElementById('student-profile-modal');
-        const profileOpeners = document.querySelectorAll('[data-student-profile-open]');
-        const profileCloseControls = profileModal?.querySelectorAll('[data-student-profile-close]') || [];
-        const themeControls = profileModal?.querySelectorAll('[data-student-theme-toggle]') || [];
-        let returnFocusTo = null;
-
-        const setStudentTheme = (value) => {
-            const theme = value === 'dark' ? 'dark' : 'light';
-            document.documentElement.dataset.theme = theme;
-            try { localStorage.setItem('sheykhan.panel.theme', theme); localStorage.setItem('sheykhan.student.theme', theme); } catch (_) {}
-            themeControls.forEach((button) => button.setAttribute('aria-pressed', String(theme === 'dark')));
-            const state = profileModal?.querySelector('[data-student-theme-state]');
-            const label = profileModal?.querySelector('[data-student-theme-label]');
-            if (state) state.textContent = theme === 'dark' ? 'تیره' : 'روشن';
-            if (label) label.textContent = theme === 'dark' ? 'تم تیره فعال است؛ برای تغییر بزن' : 'تم روشن فعال است؛ برای تغییر بزن';
-        };
-
-        setStudentTheme(document.documentElement.dataset.theme || 'light');
-        themeControls.forEach((button) => {
-            button.addEventListener('click', () => {
-                setStudentTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
-            });
+        document.querySelectorAll('textarea[data-autosize]').forEach((textarea) => {
+            const resize = () => {
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+            };
+            textarea.addEventListener('input', resize);
+            resize();
         });
 
-        const closeProfileModal = () => {
-            if (!profileModal || profileModal.hidden) return;
-            profileModal.hidden = true;
-            document.body.classList.remove('student-profile-modal-open');
-            returnFocusTo?.focus({ preventScroll: true });
-        };
-
-        profileOpeners.forEach((button) => {
-            button.addEventListener('click', () => {
-                if (!profileModal) return;
-                returnFocusTo = button;
-                profileModal.hidden = false;
-                document.body.classList.add('student-profile-modal-open');
-                profileModal.querySelector('.student-profile-dialog')?.focus({ preventScroll: true });
-            });
-        });
-        profileCloseControls.forEach((button) => button.addEventListener('click', closeProfileModal));
-        profileModal?.addEventListener('click', (event) => {
-            if (event.target === profileModal) closeProfileModal();
-        });
-        document.addEventListener('keydown', (event) => {
-            if (!profileModal || profileModal.hidden) return;
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                closeProfileModal();
+        document.querySelectorAll('[data-class-countdown]').forEach((timer) => {
+            const target = Date.parse(timer.dataset.classCountdown || '');
+            if (!Number.isFinite(target)) {
+                timer.textContent = 'زمان نامشخص';
                 return;
             }
-            if (event.key !== 'Tab') return;
-            const focusable = Array.from(profileModal.querySelectorAll('a[href],button:not([disabled]):not(.student-profile-backdrop),input:not([disabled]),[tabindex="0"]'))
-                .filter((element) => element.getClientRects().length > 0);
-            if (!focusable.length) return;
-            const first = focusable[0];
-            const last = focusable[focusable.length - 1];
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && document.activeElement === last) {
-                event.preventDefault();
-                first.focus();
-            }
+            const update = () => {
+                const remaining = target - Date.now();
+                if (remaining <= 0) { timer.textContent = 'شروع شده'; return; }
+                const totalMinutes = Math.ceil(remaining / 60000);
+                const days = Math.floor(totalMinutes / 1440);
+                const hours = Math.floor((totalMinutes % 1440) / 60);
+                const minutes = totalMinutes % 60;
+                const digits = (value) => Number(value).toLocaleString('fa-IR');
+                let label;
+                if (days) label = digits(days) + ' روز و ' + digits(hours) + ' ساعت';
+                else if (hours) label = digits(hours) + ' ساعت و ' + digits(minutes) + ' دقیقه';
+                else label = digits(minutes) + ' دقیقه';
+                timer.textContent = 'شروع تا ' + label;
+            };
+            update();
+            window.setInterval(update, 30000);
         });
+
     });
 })();
 
@@ -261,3 +229,80 @@ document.addEventListener('change', (event) => {
         .map((file) => `${file.name} · ${sizeLabel(file.size)}`)
         .join('، ');
 });
+
+
+/* Reference-design uploader: client feedback only; Laravel still validates and authorizes uploads. */
+(() => {
+    'use strict';
+    const formatFa = (value) => Number(value).toLocaleString('fa-IR');
+
+    document.querySelectorAll('[data-uploader]').forEach((box) => {
+        const input = box.querySelector('input[type="file"]');
+        const list = box.querySelector('[data-file-list]');
+        const error = box.querySelector('[data-file-error]');
+        const drop = box.querySelector('.drop');
+        if (!input || !list || !error || !drop) return;
+
+        const maxCount = Math.max(1, Number.parseInt(box.dataset.max || '3', 10) || 3);
+        const maxBytes = Math.max(1, Number.parseInt(box.dataset.maxMb || '10', 10) || 10) * 1024 * 1024;
+        let selected = [];
+
+        const sync = () => {
+            const transfer = new DataTransfer();
+            selected.forEach((file) => transfer.items.add(file));
+            input.files = transfer.files;
+            list.replaceChildren();
+
+            selected.forEach((file, index) => {
+                const item = document.createElement('li');
+                const remove = document.createElement('button');
+                item.className = 'tag g';
+                item.append(file.name + ' · ' + formatFa(Math.ceil(file.size / 1024)) + ' کیلوبایت ');
+                remove.type = 'button';
+                remove.textContent = '×';
+                remove.setAttribute('aria-label', 'حذف ' + file.name);
+                remove.addEventListener('click', () => {
+                    selected.splice(index, 1);
+                    error.textContent = '';
+                    sync();
+                });
+                item.append(remove);
+                list.append(item);
+            });
+        };
+
+        const addFiles = (files) => {
+            error.textContent = '';
+            Array.from(files || []).forEach((file) => {
+                if (file.size > maxBytes) {
+                    error.textContent = '«' + file.name + '» از ' + formatFa(maxBytes / 1048576) + ' مگابایت بزرگ‌تر است.';
+                    return;
+                }
+                if (selected.length >= maxCount) {
+                    error.textContent = 'حداکثر ' + formatFa(maxCount) + ' فایل می‌توانی اضافه کنی.';
+                    return;
+                }
+                const duplicate = selected.some((current) =>
+                    current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
+                );
+                if (!duplicate) selected.push(file);
+            });
+            sync();
+        };
+
+        input.addEventListener('change', () => addFiles(input.files));
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            drop.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                drop.classList.add('hv');
+            });
+        });
+        ['dragleave', 'drop'].forEach((eventName) => {
+            drop.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                drop.classList.remove('hv');
+            });
+        });
+        drop.addEventListener('drop', (event) => addFiles(event.dataTransfer ? event.dataTransfer.files : []));
+    });
+})();

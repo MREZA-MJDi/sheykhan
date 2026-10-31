@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AcademyMessage;
 use App\Models\Achievement;
 use App\Models\LiveClass;
 use App\Models\User;
@@ -119,6 +120,7 @@ final class StudentDashboardService
                     $join->on('submissions.assignment_id', '=', 'assignments.id')
                         ->where('submissions.student_id', '=', $student->id);
                 })
+                ->join('courses as assignment_courses', 'assignment_courses.id', '=', 'assignments.course_id')
                 ->whereIn('assignments.course_id', $courseIds)
                 ->where('assignments.status', 'published')
                 ->where(function ($query) use ($student): void {
@@ -145,15 +147,25 @@ final class StudentDashboardService
                 ->count('assignments.id')
             : 0;
 
+        $tomorrowStart = now()->copy()->addDay()->startOfDay();
+        $tomorrowEnd = now()->copy()->addDay()->endOfDay();
+        $dueTomorrowCount = $assignmentQuery
+            ? (clone $assignmentQuery)
+                ->whereNull('submissions.id')
+                ->whereBetween('assignments.due_at', [$tomorrowStart, $tomorrowEnd])
+                ->count('assignments.id')
+            : 0;
         $assignmentItems = $assignmentQuery
             ? (clone $assignmentQuery)
                 ->orderByRaw('CASE WHEN submissions.id IS NULL THEN 0 ELSE 1 END')
+                ->orderByRaw('CASE WHEN assignments.due_at IS NULL THEN 1 ELSE 0 END')
                 ->orderBy('assignments.due_at')
                 ->limit(6)
                 ->get([
                     'assignments.id',
                     'assignments.title',
                     'assignments.due_at',
+                    'assignment_courses.title as course_title',
                     'submissions.submitted_at',
                     'submissions.score',
                     'submissions.graded_at',
@@ -174,6 +186,12 @@ final class StudentDashboardService
                     return $assignment;
                 })
             : collect();
+
+        // Reuse the bounded, cohort-scoped assignment preview for the dashboard deadline cards.
+        $deadlines = $assignmentItems
+            ->filter(fn ($assignment) => $assignment->submitted_at === null && $assignment->due_at !== null)
+            ->take(4)
+            ->values();
 
         $upcomingLiveQuery = $courseIds->isEmpty()
             ? null
@@ -269,6 +287,51 @@ final class StudentDashboardService
                 })
             : collect();
 
+        // The same secured session query supplies the today's-class preview and its exact count.
+        $todayStart = now()->copy()->startOfDay();
+        $todayEnd = now()->copy()->endOfDay();
+        $todayLiveClassQuery = $upcomingLiveQuery
+            ? (clone $upcomingLiveQuery)->where(function ($today) use ($todayStart, $todayEnd): void {
+                $today->whereBetween('live_classes.scheduled_at', [$todayStart, $todayEnd])
+                    ->orWhere(function ($activeLive): void {
+                        $activeLive->where('live_classes.status', 'live')
+                            ->where('live_classes.scheduled_end_at', '>=', now());
+                    });
+            })
+            : null;
+
+        $todayLiveClassCount = $todayLiveClassQuery
+            ? (clone $todayLiveClassQuery)->count('live_classes.id')
+            : 0;
+
+        $todayClasses = $todayLiveClassQuery
+            ? (clone $todayLiveClassQuery)
+                ->leftJoin('users as class_teachers', 'class_teachers.id', '=', 'live_classes.teacher_id')
+                ->orderByRaw("CASE WHEN live_classes.status = 'live' THEN 0 ELSE 1 END")
+                ->orderBy('live_classes.scheduled_at')
+                ->limit(4)
+                ->get([
+                    'live_classes.id',
+                    'live_classes.title',
+                    'live_classes.course_id',
+                    'live_classes.classroom_id',
+                    'live_classes.teacher_id',
+                    'live_classes.scheduled_at',
+                    'live_classes.scheduled_end_at',
+                    'live_classes.duration_minutes',
+                    'live_classes.provider',
+                    'live_classes.meeting_url',
+                    'live_classes.status',
+                    'courses.title as course_title',
+                    'class_teachers.name as teacher_name',
+                ])
+                ->map(function ($class) use ($access): object {
+                    $liveClass = (new LiveClass())->newFromBuilder((array) $class);
+                    $class->scheduled_at = $liveClass->scheduled_at;
+                    $class->can_join = $access->isLiveClassJoinWindowOpen($liveClass);
+                    return $class;
+                })
+            : collect();
 
         $upcomingMeetings = DB::table('academy_meetings')
             ->join('courses', 'courses.id', '=', 'academy_meetings.course_id')
@@ -292,6 +355,23 @@ final class StudentDashboardService
                     : Carbon::parse($item->scheduled_at);
                 return $item;
             });
+
+        // Aggregate the count and nearest start time in one secure, cohort-aware exam query.
+        $upcomingExamStats = app(StudentExamService::class)->query($student, $courseIds)
+            ->whereNotNull('exams.starts_at')
+            ->where('exams.starts_at', '>=', now())
+            ->where(function ($window): void {
+                $window->whereNull('exams.ends_at')->orWhere('exams.ends_at', '>=', now());
+            })
+            ->reorder()
+            ->selectRaw('COUNT(exams.id) as total, MIN(exams.starts_at) as next_starts_at')
+            ->setEagerLoads([])
+            ->first();
+
+        $upcomingExamCount = (int) ($upcomingExamStats?->total ?? 0);
+        $nextExamDate = $upcomingExamStats?->next_starts_at
+            ? Carbon::parse($upcomingExamStats->next_starts_at)
+            : null;
 
         $sessions = $courseIds->isEmpty()
             ? collect()
@@ -367,7 +447,7 @@ final class StudentDashboardService
                         'status' => $session->status,
                         'lamp' => $recordingReady ? 'روشن' : 'خاموش',
                         'available' => $recordingReady,
-                        'href' => $recordingReady ? route('media.view', $session->recording) : null,
+                        'href' => $recordingReady ? route('student.live-classes.recording', $session->id) : null,
                     ];
                 });
 
@@ -442,27 +522,60 @@ final class StudentDashboardService
             ->limit(4)
             ->get();
 
-        $achievements = Achievement::query()
-            ->where('student_id', $student->id)
-            ->where('status', 'published')
-            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
-            ->latest('published_at')
-            ->latest('id')
-            ->limit(3)
-            ->get([
-                'id',
-                'title',
-                'display_name',
-                'achievement_type',
-                'school_name',
-                'published_at',
-            ]);
+        $achievements = config('student.features.achievements', true)
+            ? Achievement::query()
+                ->where('student_id', $student->id)
+                ->where('status', 'published')
+                ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
+                ->latest('published_at')
+                ->latest('id')
+                ->limit(3)
+                ->get([
+                    'id',
+                    'title',
+                    'display_name',
+                    'achievement_type',
+                    'school_name',
+                    'published_at',
+                ])
+            : collect();
 
-        $achievementCount = Achievement::query()
-            ->where('student_id', $student->id)
-            ->where('status', 'published')
-            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
-            ->count();
+        $achievementCount = config('student.features.achievements', true)
+            ? Achievement::query()
+                ->where('student_id', $student->id)
+                ->where('status', 'published')
+                ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
+                ->count()
+            : 0;
+
+        // Optional sections disabled by the supplied student-dashboard configuration
+        // do not run their corresponding queries.
+        $announcements = collect();
+
+        if (config('student.features.messages', false)) {
+            $studentAcademyIds = $student->academies()
+                ->where('academies.status', 'active')
+                ->wherePivot('role', 'student')
+                ->wherePivot('status', 'active')
+                ->pluck('academies.id');
+
+            $announcements = $studentAcademyIds->isEmpty()
+                ? collect()
+                : AcademyMessage::query()
+                    ->whereIn('academy_id', $studentAcademyIds)
+                    ->where('audience', 'student')
+                    ->where('recipient_id', $student->id)
+                    ->where('student_id', $student->id)
+                    ->whereNotNull('published_at')
+                    ->where('published_at', '<=', now())
+                    ->latest('published_at')
+                    ->limit(3)
+                    ->get(['id', 'subject', 'body', 'category', 'published_at'])
+                    ->map(function (AcademyMessage $message): AcademyMessage {
+                        $message->excerpt = mb_substr(trim(strip_tags($message->body)), 0, 140);
+                        return $message;
+                    });
+        }
 
         $overallProgress = (float) ($progress->isEmpty() ? 0 : $progress->avg());
 
@@ -478,8 +591,15 @@ final class StudentDashboardService
             'overallProgress' => round($overallProgress),
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
+            'dueTomorrowCount' => $dueTomorrowCount,
             'upcomingLiveClasses' => $upcomingLive,
             'upcomingLiveClassCount' => $upcomingLiveClassCount,
+            'todayClasses' => $todayClasses,
+            'todayLiveClassCount' => $todayLiveClassCount,
+            'deadlines' => $deadlines,
+            'upcomingExamCount' => $upcomingExamCount,
+            'nextExamDate' => $nextExamDate,
+            'announcements' => $announcements,
             'upcomingMeetings' => $upcomingMeetings,
             'assignments' => $assignmentItems,
             'recentResults' => $recentResults,
@@ -505,6 +625,57 @@ final class StudentDashboardService
      *
      * @param \Illuminate\Database\Query\Builder $query
      */
+    /**
+     * Focused growth payload for the dedicated growth page.
+     * Only components backed by reliable current metrics are populated.
+     * Historical deltas and subject-level grading remain null/empty until
+     * the application stores the required snapshots and grading aggregates.
+     */
+    public function growth(User $student): array
+    {
+        $courseIds = app(StudentAccessService::class)->enrolledCourseIds($student);
+        $progressByCourse = $this->progressByCourse((int) $student->id, $courseIds);
+        $attendance = app(AttendanceMetricsService::class)->forStudent($student);
+
+        $progressScore = $progressByCourse->isNotEmpty()
+            ? round((float) $progressByCourse->avg(), 1)
+            : null;
+
+        $components = [
+            'exams' => null,
+            'homework' => null,
+            'progress' => $progressScore,
+            'attendance' => isset($attendance['attendance_percent'])
+                ? (float) $attendance['attendance_percent']
+                : null,
+        ];
+
+        $weights = ['exams' => 40, 'homework' => 25, 'progress' => 20, 'attendance' => 15];
+        $availableWeight = 0;
+        $weightedScore = 0.0;
+
+        foreach ($components as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            $weight = $weights[$key];
+            $availableWeight += $weight;
+            $weightedScore += max(0, min(100, $value)) * $weight;
+        }
+
+        return [
+            'growth' => [
+                'score' => $availableWeight > 0 ? round($weightedScore / $availableWeight) : null,
+                'growth' => null,
+                'components' => $components,
+                'focus_subject' => null,
+                'subjects' => [],
+            ],
+            'history' => [],
+        ];
+    }
+
     private function scopeToStudentTeacherCohort(
         \Illuminate\Database\Query\Builder $query,
         User $student,

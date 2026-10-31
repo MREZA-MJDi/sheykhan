@@ -11,10 +11,14 @@ class StoreController extends Controller
 {
     public function index(Request $request, ProductCatalogService $catalog): View
     {
-        return view('pages.store.index', [
+        $viewData = [
             'products' => $catalog->paginate($request->string('category')->toString() ?: null),
             'categories' => $catalog->categories(),
             'activeCategory' => $request->string('category')->toString(),
-        ]);
+        ];
+
+        return $request->user()?->hasRole('student')
+            ? view('student.shop.index', $viewData)
+            : view('pages.store.index', $viewData);
     }
 }

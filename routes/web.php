@@ -313,11 +313,13 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
     Route::get('/exams/{exam}/result', [StudentExamController::class, 'result'])->middleware('permission:exams.view')->name('exams.result');
 
     Route::get('/live-classes', [StudentLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
+    Route::get('/live-classes/{liveClass}/recording', [StudentLiveClassController::class, 'recording'])->middleware('permission:live_classes.view')->name('live-classes.recording');
     Route::get('/live-classes/{liveClass}/join', [StudentLiveClassController::class, 'join'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('live-classes.join');
     Route::get('/weekly-schedule/{schedule}/join', [StudentLiveClassController::class, 'joinSchedule'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('schedule.join');
 
     Route::get('/attendance', [StudentAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
     Route::get('/results', [StudentResultController::class, 'index'])->middleware('permission:results.view')->name('results.index');
+    Route::get('/growth', [StudentResultController::class, 'growth'])->middleware('permission:results.view')->name('growth');
     Route::get('/achievements', [StudentAchievementController::class, 'index'])->middleware('permission:achievements.view')->name('achievements.index');
 
     Route::get('/notes', [StudentNoteController::class, 'index'])->middleware('permission:notes.view')->name('notes.index');

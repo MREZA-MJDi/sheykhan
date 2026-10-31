@@ -40,7 +40,7 @@ class StudentSessionAccessTest extends TestCase
 
         $this->assertTrue($byId[$released->id]['available']);
         $this->assertSame('روشن', $byId[$released->id]['lamp']);
-        $this->assertSame(route('media.view', $released->recording), $byId[$released->id]['href']);
+        $this->assertSame(route('student.live-classes.recording', $released->id), $byId[$released->id]['href']);
     }
 
     public function test_student_sees_weekly_classroom_schedule_separately_and_can_join_only_in_the_join_window(): void

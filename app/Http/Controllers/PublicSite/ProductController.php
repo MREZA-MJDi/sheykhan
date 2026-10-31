@@ -4,11 +4,12 @@ namespace App\Http\Controllers\PublicSite;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class ProductController extends Controller
 {
-    public function show(Product $product): View
+    public function show(Product $product, Request $request): View
     {
         $product = Product::query()
             ->whereKey($product->getKey())
@@ -26,9 +27,13 @@ final class ProductController extends Controller
             ])
             ->firstOrFail();
 
-        return view('pages.store.show', [
+        $viewData = [
             'product' => $product,
             'seoMeta' => $product->seoMeta,
-        ]);
+        ];
+
+        return $request->user()?->hasRole('student')
+            ? view('student.shop.show', $viewData)
+            : view('pages.store.show', $viewData);
     }
 }

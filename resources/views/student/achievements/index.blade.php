@@ -17,8 +17,8 @@
                     @if($achievement->published_at)
                         <p>{{ \App\Support\PersianUi::date($achievement->published_at) }}</p>
                     @endif
-                    @if($achievement->media?->url())
-                        <a class="btn s" href="{{ $achievement->media->url() }}" target="_blank" rel="noopener">مشاهده گواهی</a>
+                    @if($achievement->media)
+                        <a class="btn s" href="{{ route('media.view', $achievement->media) }}" target="_blank" rel="noopener">مشاهده گواهی</a>
                     @endif
                 </article>
             @empty

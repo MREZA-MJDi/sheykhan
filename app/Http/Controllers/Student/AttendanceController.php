@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Services\StudentAccessService;
+use App\Services\AttendanceMetricsService;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
-    public function index(StudentAccessService $access): View
+    public function index(AttendanceMetricsService $metrics): View
     {
         $student = request()->user();
         $classroomIds = $student->classroomsAsStudent()
@@ -23,6 +23,9 @@ class AttendanceController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('student.attendance.index', ['attendance' => $attendance]);
+        return view('student.attendance.index', [
+            'attendance' => $attendance,
+            'metrics' => $metrics->forStudent($student),
+        ]);
     }
 }
