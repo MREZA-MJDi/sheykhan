@@ -22,17 +22,17 @@
         </section>
     @else
         @if($exam->exists)
-            <form method="POST" action="{{ route('owner.exams.update', [$academy, $exam->id]) }}" class="grid gap-4" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+            <form method="POST" action="{{ route('owner.exams.update', [$academy, $exam->id]) }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
                 @csrf
                 @method('PATCH')
         @else
             <form method="POST" action="{{ route('owner.exams.store', $academy) }}" class="grid gap-4" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
                 @csrf
         @endif
-            <section class="teacher-form-section">
+            <section class="owner-exam-section">
                 <h2>مشخصات و محدوده آزمون</h2>
                 <p>دوره و کلاس به‌صورت سمت سرور بررسی می‌شوند؛ شناسه‌ی متعلق به آموزشگاه دیگر پذیرفته نمی‌شود.</p>
-                <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <div class="owner-exam-grid">
                     <label class="owner-exam-field">
                         <span>دوره</span>
                         <select name="course_id" data-course-select required>
@@ -42,10 +42,10 @@
                                 <option value="{{ $course->id }}" @selected((string) old('course_id', $exam->course_id) === (string) $course->id)>{{ $course->title }}@if($primaryTeacher) — مدرس: {{ $primaryTeacher->name }}@endif</option>
                             @endforeach
                         </select>
-                        <small class="owner-field-help">آزمون به این دوره تعلق می‌گیرد؛ دوره‌های خارج از آموزشگاه در فهرست پذیرفته نمی‌شوند.</small>
+                        <small class="owner-exam-help">آزمون به این دوره تعلق می‌گیرد؛ دوره‌های خارج از آموزشگاه در فهرست پذیرفته نمی‌شوند.</small>
                         @error('course_id')<small class="text-rose-600">{{ $message }}</small>@enderror
                     </label>
-                    <label class="teacher-form-field">
+                    <label class="owner-exam-field">
                         <span>کلاس / گروه <small class="text-slate-400">اختیاری</small></span>
                         <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
                             <option value="">همه دانش‌آموزان دوره</option>
@@ -53,19 +53,19 @@
                                 <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected((string) old('classroom_id', $exam->classroom_id) === (string) $classroom->id)>{{ $classroom->title }} — {{ $classroom->course?->title }}</option>
                             @endforeach
                         </select>
-                        <small class="owner-field-help">با انتخاب کلاس، آزمون به همان گروه محدود می‌شود؛ خالی گذاشتن آن دامنهٔ دوره را نگه می‌دارد.</small>
+                        <small class="owner-exam-help">با انتخاب کلاس، آزمون به همان گروه محدود می‌شود؛ خالی گذاشتن آن دامنهٔ دوره را نگه می‌دارد.</small>
                         @error('classroom_id')<small class="text-rose-600">{{ $message }}</small>@enderror
                     </label>
-                    <label class="teacher-form-field md:col-span-2">
+                    <label class="owner-exam-field md:col-span-2">
                         <span>عنوان آزمون</span>
                         <input name="title" data-exam-title value="{{ old('title', $exam->title) }}" maxlength="255" required placeholder="مثلاً آزمون فصل اول علوم">
                         @error('title')<small class="text-rose-600">{{ $message }}</small>@enderror
                     </label>
-                    <label class="teacher-form-field"><span>مدت آزمون (دقیقه)</span><input type="number" name="duration_minutes" data-exam-duration value="{{ old('duration_minutes', $exam->duration_minutes ?? 60) }}" min="0" max="1440"><small class="owner-field-help">مدت را به دقیقه وارد کن؛ صفر یعنی محدودیت زمانی تعریف نشده است.</small></label>
-                    <label class="teacher-form-field"><span>دفعات مجاز</span><input type="number" name="attempts_allowed" value="{{ old('attempts_allowed', $exam->attempts_allowed ?? 1) }}" min="1" max="255" required><small class="owner-field-help">تعداد تلاش مجاز هر دانش‌آموز را تعیین می‌کند؛ حداقل یک بار لازم است.</small></label>
-                    <label class="teacher-form-field"><span>شروع آزمون (اختیاری)</span><input type="datetime-local" name="starts_at" value="{{ old('starts_at', $exam->starts_at?->format('Y-m-d\TH:i')) }}"><small class="owner-field-help">قبل از این زمان، آزمون برای شروع در دسترس نخواهد بود.</small></label>
-                    <label class="teacher-form-field"><span>پایان آزمون (اختیاری)</span><input type="datetime-local" name="ends_at" value="{{ old('ends_at', $exam->ends_at?->format('Y-m-d\TH:i')) }}">@error('ends_at')<small class="text-rose-600">{{ $message }}</small>@enderror<small class="owner-field-help">در صورت تعیین پایان، باید بعد از زمان شروع باشد.</small></label>
-                    <label class="teacher-form-field">
+                    <label class="owner-exam-field"><span>مدت آزمون (دقیقه)</span><input type="number" name="duration_minutes" data-exam-duration value="{{ old('duration_minutes', $exam->duration_minutes ?? 60) }}" min="0" max="1440"><small class="owner-exam-help">مدت را به دقیقه وارد کن؛ صفر یعنی محدودیت زمانی تعریف نشده است.</small></label>
+                    <label class="owner-exam-field"><span>دفعات مجاز</span><input type="number" name="attempts_allowed" value="{{ old('attempts_allowed', $exam->attempts_allowed ?? 1) }}" min="1" max="255" required><small class="owner-exam-help">تعداد تلاش مجاز هر دانش‌آموز را تعیین می‌کند؛ حداقل یک بار لازم است.</small></label>
+                    <label class="owner-exam-field"><span>شروع آزمون (اختیاری)</span><input type="datetime-local" name="starts_at" value="{{ old('starts_at', $exam->starts_at?->format('Y-m-d\TH:i')) }}"><small class="owner-exam-help">قبل از این زمان، آزمون برای شروع در دسترس نخواهد بود.</small></label>
+                    <label class="owner-exam-field"><span>پایان آزمون (اختیاری)</span><input type="datetime-local" name="ends_at" value="{{ old('ends_at', $exam->ends_at?->format('Y-m-d\TH:i')) }}">@error('ends_at')<small class="text-rose-600">{{ $message }}</small>@enderror<small class="owner-exam-help">در صورت تعیین پایان، باید بعد از زمان شروع باشد.</small></label>
+                    <label class="owner-exam-field">
                         <span>وضعیت انتشار</span>
                         <select name="status">
                             <option value="draft" @selected(old('status', $exam->status ?? 'draft') === 'draft')>پیش‌نویس</option>
@@ -74,11 +74,11 @@
                         </select>
                         <small class="text-slate-500">برای انتشار، حداقل یک سؤال معتبر لازم است.</small>
                     </label>
-                    <label class="teacher-form-field md:col-span-2"><span>توضیحات و راهنمای دانش‌آموز (اختیاری)</span><textarea name="description" data-exam-description rows="4" placeholder="زمان‌بندی، منابع مجاز یا توضیح موردنیاز را بنویسید.">{{ old('description', $exam->description) }}</textarea><small class="owner-field-help">دستورهای لازم پیش از شروع، منابع مجاز و قواعد آزمون را برای دانش‌آموز بنویس.</small></label>
+                    <label class="owner-exam-field md:col-span-2"><span>توضیحات و راهنمای دانش‌آموز (اختیاری)</span><textarea name="description" data-exam-description rows="4" placeholder="زمان‌بندی، منابع مجاز یا توضیح موردنیاز را بنویسید.">{{ old('description', $exam->description) }}</textarea><small class="owner-exam-help">دستورهای لازم پیش از شروع، منابع مجاز و قواعد آزمون را برای دانش‌آموز بنویس.</small></label>
                 </div>
             </section>
 
-            <section class="teacher-form-section">
+            <section class="owner-exam-section">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <h2>سؤال‌های آزمون</h2>
