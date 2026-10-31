@@ -22,6 +22,7 @@
             </div>
         </section>
         <div id="assignment-handout-preview" class="teacher-file-preview md:col-span-2" aria-live="polite"></div>
+        <x-teacher.upload-progress label="پیشرفت بارگذاری فایل تکلیف" />
         @if($errors->any())<div class="md:col-span-2 rounded-2xl bg-rose-50 px-4 py-3 text-xs leading-7 text-rose-700">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
         <div class="teacher-form-actions md:col-span-2"><a href="{{ route('teacher.assignments.index') }}">انصراف</a><button type="submit">ساخت تکلیف</button></div>
     </form>

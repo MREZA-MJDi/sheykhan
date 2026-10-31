@@ -112,7 +112,7 @@
                     </span>
                 @endif
             </label>
-            <x-ui.upload-progress label="پیشرفت بارگذاری فایل آزمون" />
+            <x-teacher.upload-progress label="پیشرفت بارگذاری فایل آزمون" />
         </section>
 
         <section class="teacher-exam-editor-section" aria-labelledby="exam-paper-editor-title">

@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <x-education.course-management-form
+        <x-teacher.course-management-form
             :course="$course"
             :academies="$academies"
             :action="$course->exists ? route('teacher.courses.update', $course) : route('teacher.courses.store')"
