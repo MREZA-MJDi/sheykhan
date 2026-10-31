@@ -1,8 +1,8 @@
 /* SEO-specialist panel: independent CSS entry; no owner/admin design-system stylesheet is imported. */
 
 @import 'tailwindcss' source(none);
-@import './persian-calendar.css';
-@import './panel-design-tokens.css';
+@import './panels/seo/calendar.css';
+@import './panels/seo/components.css';
 @source '../../resources/views/owner';
 @source '../../resources/views/seo';
 @source '../../resources/views/components';
