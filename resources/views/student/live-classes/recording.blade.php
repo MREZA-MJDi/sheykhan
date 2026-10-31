@@ -22,15 +22,19 @@
 
 <section class="card sec">
   <div class="player">
-    <iframe
-      src="{{ route('media.view', $liveClass->recording) }}"
-      title="پخش امن ضبط {{ $liveClass->title }}"
-      loading="lazy"
-      referrerpolicy="no-referrer"
-      allow="fullscreen"
-      allowfullscreen></iframe>
+    <div style="text-align:center;padding:24px">
+      <svg class="i" style="width:52px;height:52px;margin:0 auto 12px"><use href="#i-play"/></svg>
+      <h2>پخش محافظت‌شده</h2>
+      <p class="small" style="margin-top:8px">این ضبط فقط از طریق SpotPlayer و با مجوز دوره پخش می‌شود؛ ارائهٔ فایل خام مجاز نیست.</p>
+    </div>
   </div>
-  <p class="muted small">این ضبط فقط پس از بررسی دسترسی کلاس و از viewer امن داخل سایت نمایش داده می‌شود.</p>
+  @if ($spotPlayerCourse)
+    <div class="alert a">شناسهٔ این دوره در SpotPlayer هنوز تنظیم نشده است. برای فعال‌سازی پخش، با آموزشگاه تماس بگیر.</div>
+    <a class="btn" href="{{ route('student.courses.show', $spotPlayerCourse->id) }}">رفتن به صفحهٔ دوره</a>
+  @else
+    <div class="alert a">ضبط پیدا شد، اما به دورهٔ قابل‌پخش در SpotPlayer متصل نیست. برای بررسی این مورد با آموزشگاه تماس بگیر.</div>
+    <a class="btn ghost" href="{{ route('student.courses.index') }}">مشاهدهٔ دوره‌های من</a>
+  @endif
 </section>
 
 @if($liveClass->description)

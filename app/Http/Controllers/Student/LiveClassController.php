@@ -182,8 +182,11 @@ class LiveClassController extends Controller
         ]);
     }
 
-    public function recording(LiveClass $liveClass, StudentAccessService $access): View
-    {
+    public function recording(
+        LiveClass $liveClass,
+        StudentAccessService $access,
+        \App\Services\SpotPlayerMediaDeliveryService $spotPlayerDelivery,
+    ): View|RedirectResponse {
         $student = request()->user();
 
         abort_unless($access->liveClass($student, $liveClass), 404);
@@ -202,8 +205,19 @@ class LiveClassController extends Controller
             404,
         );
 
+        abort_unless($spotPlayerDelivery->requiresProtectedPlayer($liveClass->recording), 404);
+
+        $course = $spotPlayerDelivery->courseForMedia($liveClass->recording);
+
+        if ($course && filled($course->spotplayer_course_id)) {
+            return redirect()
+                ->to(route('student.courses.show', $course) . '#spotplayer-access')
+                ->with('success', 'ضبط کلاس از پلیر محافظت‌شدهٔ دوره باز می‌شود؛ فایل ویدئویی خام ارائه نمی‌شود.');
+        }
+
         return view('student.live-classes.recording', [
             'liveClass' => $liveClass,
+            'spotPlayerCourse' => $course,
         ]);
     }
 
