@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="page-head">
-  <p class="muted small">منابع منتشرشده برای دوره‌ها، کلاس‌ها و درس‌های مجاز تو</p>
+  <p class="muted small">منابع منتشرشده برای تو</p>
   <x-tag tone="b">{{ \App\Support\PersianUi::digits($resources->total()) }} منبع</x-tag>
 </div>
 <div class="g3">

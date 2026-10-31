@@ -10,6 +10,18 @@
         'weekly' => 'برنامهٔ هفتگی',
         'recordings' => 'ضبط‌های منتشرشده',
     ];
+    $statusLabels = [
+        'scheduled' => 'در انتظار',
+        'live' => 'در حال برگزاری',
+        'completed' => 'برگزارشده',
+        'published' => 'ضبط منتشرشده',
+    ];
+    $statusTones = [
+        'scheduled' => 'b',
+        'live' => 'a',
+        'completed' => 'g',
+        'published' => 'g',
+    ];
 @endphp
 
 <div class="page-head">
@@ -27,13 +39,8 @@
   <div class="chead"><h2>جلسه‌های تاریخ‌دار</h2><span class="pill">{{ \App\Support\PersianUi::digits($classes->total()) }} جلسه</span></div>
   @forelse($classes as $class)
     @php
-      [$statusLabel, $statusTone] = match ($class->status) {
-        'scheduled' => ['در انتظار', 'b'],
-        'live' => ['در حال برگزاری', 'a'],
-        'completed' => ['برگزارشده', 'g'],
-        'published' => ['ضبط منتشرشده', 'g'],
-        default => ['غیرقابل ورود', 'r'],
-      };
+      $statusLabel = $statusLabels[$class->status] ?? 'غیرقابل ورود';
+      $statusTone = $statusTones[$class->status] ?? 'r';
     @endphp
     <div class="trk">
       <div class="th {{ $class->status === 'live' ? 'mint' : 'blue' }}"><svg class="i"><use href="#i-video"/></svg></div>

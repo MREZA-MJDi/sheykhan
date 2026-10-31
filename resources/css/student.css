@@ -1,4 +1,6 @@
 @import 'tailwindcss' source(none);
+@import './panels/student/calendar.css';
+@import './panels/student/components.css';
 
 @source '../../resources/views/student';
 @source '../../resources/views/layouts/student.blade.php';
@@ -34,7 +36,9 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{font-family:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;color:var(--text);background:linear-gradient(160deg,var(--bg1),var(--bg2));background-color:var(--bg2);min-height:100vh;padding:24px}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.student-shell{color:var(--text)}
 .app{max-width:1040px;margin:auto;display:grid;grid-template-columns:230px 1fr;gap:22px;padding:18px;border-radius:34px;background:var(--panel);border:1px solid var(--panel-b);box-shadow:var(--sh)}
+.student-shell .app{max-width:1280px;width:100%}
 /* sidebar */
 .side{background:linear-gradient(180deg,var(--side),var(--side2));border-radius:30px;padding:22px 16px;color:#e8f1f8;display:flex;flex-direction:column;gap:6px;box-shadow:var(--sh)}
 .me{text-align:center;margin-bottom:12px}
