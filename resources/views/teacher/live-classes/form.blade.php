@@ -3,10 +3,7 @@
 @section('header-title','ایجاد جلسه آنلاین')
 @section('content')
 @php($calendar = App\Support\PersianUi::calendar(now()))
-<div class="teacher-live-form" data-live-class-form data-meeting-provider-form
-     data-jalali-year="{{ $calendar['year'] }}"
-     data-jalali-month="{{ $calendar['month'] }}"
-     data-jalali-day="{{ $calendar['day'] }}">
+<div class="teacher-live-form" data-meeting-provider-form>
     <div class="teacher-live-form-head">
         <div>
             <span>برنامه‌ریزی کلاس</span>

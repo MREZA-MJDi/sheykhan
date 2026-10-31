@@ -36,7 +36,7 @@ class AttendanceController extends Controller
             ->keyBy('student_id');
         $scheduledMinutes = $workspace->scheduledMinutesForDate($classroom, $attendanceDate);
 
-        return view('teacher.attendance.form', compact(
+        return view('teacher.attendance-form', compact(
             'classroom',
             'attendanceDate',
             'existingAttendance',
