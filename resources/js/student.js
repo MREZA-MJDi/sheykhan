@@ -207,8 +207,7 @@ document.addEventListener('change', (event) => {
 });
 
 
-/* ZIP reference interaction: safe multi-file selection with count/size feedback.
-   The backend still validates every upload and stores student submissions privately. */
+/* Reference-design uploader: client feedback only; Laravel still validates and authorizes uploads. */
 (() => {
     'use strict';
     const formatFa = (value) => Number(value).toLocaleString('fa-IR');
@@ -234,10 +233,10 @@ document.addEventListener('change', (event) => {
                 const item = document.createElement('li');
                 const remove = document.createElement('button');
                 item.className = 'tag g';
-                item.append(\`\${file.name} · \${formatFa(Math.ceil(file.size / 1024))} کیلوبایت \`);
+                item.append(file.name + ' · ' + formatFa(Math.ceil(file.size / 1024)) + ' کیلوبایت ');
                 remove.type = 'button';
                 remove.textContent = '×';
-                remove.setAttribute('aria-label', \`حذف \${file.name}\`);
+                remove.setAttribute('aria-label', 'حذف ' + file.name);
                 remove.addEventListener('click', () => {
                     selected.splice(index, 1);
                     error.textContent = '';
@@ -252,11 +251,11 @@ document.addEventListener('change', (event) => {
             error.textContent = '';
             Array.from(files || []).forEach((file) => {
                 if (file.size > maxBytes) {
-                    error.textContent = \`«\${file.name}» از \${formatFa(maxBytes / 1048576)} مگابایت بزرگ‌تر است.\`;
+                    error.textContent = '«' + file.name + '» از ' + formatFa(maxBytes / 1048576) + ' مگابایت بزرگ‌تر است.';
                     return;
                 }
                 if (selected.length >= maxCount) {
-                    error.textContent = \`حداکثر \${formatFa(maxCount)} فایل می‌توانی اضافه کنی.\`;
+                    error.textContent = 'حداکثر ' + formatFa(maxCount) + ' فایل می‌توانی اضافه کنی.';
                     return;
                 }
                 const duplicate = selected.some((current) =>
@@ -280,6 +279,6 @@ document.addEventListener('change', (event) => {
                 drop.classList.remove('hv');
             });
         });
-        drop.addEventListener('drop', (event) => addFiles(event.dataTransfer?.files));
+        drop.addEventListener('drop', (event) => addFiles(event.dataTransfer ? event.dataTransfer.files : []));
     });
 })();
