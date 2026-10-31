@@ -71,7 +71,8 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString("from '../persian-money.js'", file_get_contents(resource_path('js/teacher/persian-money.js')));
         $this->assertStringContainsString("from '../upload-progress.js'", file_get_contents(resource_path('js/teacher/upload-progress.js')));
         $this->assertStringContainsString("import '../assessment-builder.js';", file_get_contents(resource_path('js/teacher/assessment-builder.js')));
-        $this->assertStringNotContainsString("import './assessment-builder.js'", $script);
+        $this->assertStringNotContainsString("import './teacher/assessment-builder.js'", $script);
+        $this->assertStringContainsString("import './assessment-builder.js'", $script);
     }
 
     public function test_teacher_dashboard_and_mobile_navigation_are_teacher_owned(): void
