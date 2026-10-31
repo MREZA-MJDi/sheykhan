@@ -34,7 +34,7 @@
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]"
                            placeholder="مثلاً کلاس وب مقدماتی">
                     <small class="owner-field-help">نامی انتخاب کن که پایه، سطح یا گروه را برای تیم آموزش سریع مشخص کند.</small>
-                    <x-owner.field-error field="title"/>
+                    @error('title')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
@@ -43,7 +43,7 @@
                            class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-black tracking-wider text-slate-700 outline-none"
                            aria-describedby="owner-classroom-code-help">
                     <small id="owner-classroom-code-help" class="owner-field-help">کد را سامانه تولید می‌کند؛ نیازی به ساخت یا حفظ‌کردن کد دستی نیست.</small>
-                    <x-owner.field-error field="code"/>
+                    @error('code')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1 md:col-span-2">
@@ -60,7 +60,7 @@
                         @endforeach
                     </select>
                     <small class="owner-field-help">دوره، محتوای آموزشی کلاس را مشخص می‌کند؛ فقط مدرس‌های اختصاص‌یافته به همین دوره قابل انتخاب‌اند.</small>
-                    <x-owner.field-error field="course_id"/>
+                    @error('course_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <div class="md:col-span-2">
@@ -85,7 +85,7 @@
                             </label>
                         @endforeach
                     </div>
-                    <x-owner.field-error field="teacher_ids"/>
+                    @error('teacher_ids')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </div>
 
                 <label class="grid gap-1">
@@ -99,7 +99,7 @@
                         @endforeach
                     </select>
                     <small class="owner-field-help">این مقدار اختیاری است و برای دسته‌بندی آموزشی و گزارش‌ها به کار می‌رود.</small>
-                    <x-owner.field-error field="grade_id"/>
+                    @error('grade_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
@@ -113,7 +113,7 @@
                         @endforeach
                     </select>
                     <small class="owner-field-help">سال تحصیلی را برای مرتب‌سازی و گزارش‌گیری انتخاب کن؛ در صورت نیاز خالی بگذار.</small>
-                    <x-owner.field-error field="academic_year_id"/>
+                    @error('academic_year_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
@@ -123,7 +123,7 @@
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm"
                            placeholder="مثلاً 20">
                     <small class="owner-field-help">بیشترین تعداد عضو فعال است؛ ظرفیت را کمتر از تعداد ثبت‌نام‌های فعلی قرار نده.</small>
-                    <x-owner.field-error field="capacity"/>
+                    @error('capacity')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
@@ -133,7 +133,7 @@
                         <option value="archived" @selected(old('status', $classroom->status ?? 'active') === 'archived')>آرشیو</option>
                     </select>
                     <small class="owner-field-help">با آرشیو کردن، کلاس از عملیات جاری خارج می‌شود؛ سوابق آن حفظ می‌شوند.</small>
-                    <x-owner.field-error field="status"/>
+                    @error('status')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
@@ -142,7 +142,7 @@
                            value="{{ old('starts_at', $classroom->starts_at?->format('Y-m-d\\TH:i')) }}"
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <small class="owner-field-help">زمان شروع اختیاری است و برای نمایش برنامهٔ کلاس به کار می‌رود.</small>
-                    <x-owner.field-error field="starts_at"/>
+                    @error('starts_at')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
@@ -151,7 +151,7 @@
                            value="{{ old('ends_at', $classroom->ends_at?->format('Y-m-d\\TH:i')) }}"
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <small class="owner-field-help">اگر پایان را وارد می‌کنی، باید بعد از زمان شروع باشد.</small>
-                    <x-owner.field-error field="ends_at"/>
+                    @error('ends_at')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1 md:col-span-2">
@@ -159,7 +159,7 @@
                     <textarea name="description" rows="5"
                               class="rounded-xl border border-slate-200 px-3 py-3 text-sm">{{ old('description', $classroom->description) }}</textarea>
                     <small class="owner-field-help">توضیح اجرایی کلاس را بنویس و اطلاعات محرمانهٔ دانش‌آموزان را در این بخش قرار نده.</small>
-                    <x-owner.field-error field="description"/>
+                    @error('description')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
             </div>
         </section>
