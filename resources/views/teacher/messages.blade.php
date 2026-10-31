@@ -19,7 +19,7 @@
                 @if ($message->response)
                     <div class="tp-flash tp-flash--success" style="margin-top:12px"><strong>پاسخ ثبت‌شده@if($message->responder) · {{ $message->responder->name }}@endif</strong><p style="margin-top:5px;white-space:pre-line">{{ $message->response }}</p></div>
                 @endif
-                @if ($message->status !== 'closed')
+                @if ($message->status !== 'closed' && $tpUser->hasPermission('parent_messages.manage'))
                     <form method="POST" action="{{ route('teacher.messages.reply', $message) }}" class="tp-stack-form" style="margin-top:14px">
                         @csrf @method('PATCH')
                         <label class="tp-field">پاسخ برای والد<textarea name="response" rows="3" maxlength="5000" required placeholder="پاسخ روشن و محترمانه بنویس…">{{ old('response') }}</textarea></label>

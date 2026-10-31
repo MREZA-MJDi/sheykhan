@@ -34,7 +34,7 @@
         </x-teacher.card>
     </div>
     <x-teacher.card title="کارهای نیازمند پیگیری">
-        <div class="tp-schedule-item"><span class="tp-ico">✎</span><div class="tp-schedule-copy"><strong>پاسخ‌های تکالیف</strong><small>تحویل‌های ثبت‌شده‌ای که هنوز نمره ندارند.</small></div><b>{{ \App\Support\PersianUi::digits($metrics['pendingAssignmentReviews'] ?? 0) }}</b><a class="tp-link" href="{{ route('teacher.assignments.index') }}">مدیریت</a></div>
-        <div class="tp-schedule-item"><span class="tp-ico">✓</span><div class="tp-schedule-copy"><strong>پاسخ‌های آزمون</strong><small>تلاش‌های ارسال‌شده که نیازمند بررسی دستی یا نهایی هستند.</small></div><b>{{ \App\Support\PersianUi::digits($metrics['pendingExamReviews'] ?? 0) }}</b><a class="tp-link" href="{{ route('teacher.exams.index') }}">مدیریت</a></div>
+        <div class="tp-schedule-item"><span class="tp-ico">✎</span><div class="tp-schedule-copy"><strong>پاسخ‌های تکالیف</strong><small>تحویل‌های ثبت‌شده‌ای که هنوز نمره ندارند.</small></div><b>{{ \App\Support\PersianUi::digits($metrics['pendingAssignmentReviews'] ?? 0) }}</b>@if($tpUser->hasPermission('assignments.view'))<a class="tp-link" href="{{ route('teacher.assignments.index') }}">مدیریت</a>@endif</div>
+        <div class="tp-schedule-item"><span class="tp-ico">✓</span><div class="tp-schedule-copy"><strong>پاسخ‌های آزمون</strong><small>تلاش‌های ارسال‌شده که نیازمند بررسی دستی یا نهایی هستند.</small></div><b>{{ \App\Support\PersianUi::digits($metrics['pendingExamReviews'] ?? 0) }}</b>@if($tpUser->hasPermission('exams.view'))<a class="tp-link" href="{{ route('teacher.exams.index') }}">مدیریت</a>@endif</div>
     </x-teacher.card>
 @endsection

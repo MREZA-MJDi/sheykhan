@@ -39,7 +39,7 @@
     </div>
 
     <div class="tp-grid tp-grid--main tp-grid--start">
-        <x-teacher.card title="برنامه امروز" :href="route('teacher.schedule.index')" link-text="برنامه هفتگی">
+        <x-teacher.card title="برنامه امروز" :href="$tpUser->hasPermission('live_classes.view') ? route('teacher.schedule.index') : null" link-text="برنامه هفتگی">
             @forelse ($todaySessions as $session)
                 <div class="tp-schedule-item">
                     <span class="tp-schedule-time">{{ $session['time'] }}</span>
@@ -53,7 +53,7 @@
             @endforelse
         </x-teacher.card>
 
-        <x-teacher.card title="کلاس‌های پیش‌رو" :href="route('teacher.live-classes.index')" link-text="جلسات آنلاین">
+        <x-teacher.card title="کلاس‌های پیش‌رو" :href="$tpUser->hasPermission('live_classes.view') ? route('teacher.live-classes.index') : null" link-text="جلسات آنلاین">
             @forelse ($upcomingClasses as $item)
                 <div class="tp-schedule-item">
                     <span class="tp-schedule-time">{{ \App\Support\PersianUi::time($item->scheduled_at) }}</span>
@@ -68,20 +68,20 @@
     </div>
 
     <div class="tp-grid tp-grid--main tp-grid--start">
-        <x-teacher.card title="تکالیف و تحویل‌ها" :href="route('teacher.assignments.index')" link-text="همه تکالیف">
+        <x-teacher.card title="تکالیف و تحویل‌ها" :href="$tpUser->hasPermission('assignments.view') ? route('teacher.assignments.index') : null" link-text="همه تکالیف">
             @forelse ($activities as $assignment)
                 <div class="tp-schedule-item">
                     <span class="tp-ico">✎</span>
                     <div class="tp-schedule-copy"><strong>{{ $assignment->title }}</strong><small>{{ $assignment->course?->title }} · {{ $assignment->due_at ? \App\Support\PersianUi::date($assignment->due_at) : 'بدون موعد' }}</small></div>
                     <span class="tp-status-inline {{ $assignment->pending_review_count ? 'warn' : 'ok' }}">{{ \App\Support\PersianUi::digits($assignment->pending_review_count) }} منتظر</span>
-                    <a class="tp-link" href="{{ route('teacher.assignments.submissions', $assignment) }}">بررسی</a>
+                    @if($tpUser->hasPermission('assignments.view'))<a class="tp-link" href="{{ route('teacher.assignments.submissions', $assignment) }}">بررسی</a>@endif
                 </div>
             @empty
                 <div class="tp-empty"><strong>تکلیفی برای نمایش وجود ندارد.</strong></div>
             @endforelse
         </x-teacher.card>
 
-        <x-teacher.card title="پیشرفت دوره‌ها" :href="route('teacher.courses.index')" link-text="دوره‌ها">
+        <x-teacher.card title="پیشرفت دوره‌ها" :href="$tpUser->hasPermission('courses.view') ? route('teacher.courses.index') : null" link-text="دوره‌ها">
             @forelse ($courseProgress as $course)
                 <div class="tp-progress-row"><strong>{{ $course->title }}</strong><x-teacher.progress :value="$course->progress_average" /><b>{{ \App\Support\PersianUi::digits($course->progress_average) }}٪</b></div>
             @empty
@@ -106,7 +106,7 @@
             @endif
         </x-teacher.card>
 
-        <x-teacher.card title="دانش‌آموزان با پیشرفت بالاتر" :href="route('teacher.students.index')" link-text="فهرست دانش‌آموزان">
+        <x-teacher.card title="دانش‌آموزان با پیشرفت بالاتر" :href="$tpUser->hasPermission('students.view') ? route('teacher.students.index') : null" link-text="فهرست دانش‌آموزان">
             @forelse ($topStudents as $student)
                 <div class="tp-schedule-item">
                     <x-teacher.avatar :name="$student->name" :photo="$student->avatar_url" />
@@ -119,7 +119,7 @@
         </x-teacher.card>
     </div>
 
-    <x-teacher.card title="پیش‌نمایش کلاس‌ها" :href="route('teacher.classrooms.index')" link-text="مدیریت کلاس‌ها">
+    <x-teacher.card title="پیش‌نمایش کلاس‌ها" :href="$tpUser->hasPermission('classrooms.view') ? route('teacher.classrooms.index') : null" link-text="مدیریت کلاس‌ها">
         <div class="tp-grid tp-grid--cards">
             @forelse ($classroomRosterPreviews as $classroom)
                 <article class="tp-class-card"><div class="tp-class-card__cover"></div><strong>{{ $classroom['title'] }}</strong><small class="tp-muted">{{ $classroom['course_title'] }}</small>

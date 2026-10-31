@@ -17,7 +17,7 @@
                                 <span class="tp-schedule-time">{{ $dayNames[$schedule->weekday] ?? '—' }}</span>
                                 <div class="tp-schedule-copy"><strong>{{ substr((string) $schedule->start_time, 0, 5) }} تا {{ substr((string) $schedule->end_time, 0, 5) }}</strong><small>{{ $schedule->room ?: 'بدون محل مشخص' }} · {{ $schedule->provider }}</small></div>
                                 @if ($schedule->meeting_url && app(\App\Services\MeetingLinkService::class)->urlMatchesProvider((string) $schedule->provider, (string) $schedule->meeting_url))<a class="tp-link" href="{{ $schedule->meeting_url }}" target="_blank" rel="noopener noreferrer">لینک جلسه</a>@endif
-                                <form method="POST" action="{{ route('teacher.schedule.destroy', $schedule) }}" onsubmit="return confirm('این زمان هفتگی حذف شود؟')">@csrf @method('DELETE')<button class="tp-btn tp-btn--light tp-btn--sm" type="submit">حذف</button></form>
+                                @if($tpUser->hasPermission('live_classes.manage'))<form method="POST" action="{{ route('teacher.schedule.destroy', $schedule) }}" onsubmit="return confirm('این زمان هفتگی حذف شود؟')">@csrf @method('DELETE')<button class="tp-btn tp-btn--light tp-btn--sm" type="submit">حذف</button></form>@endif
                             </div>
                         @endforeach
                     </section>
@@ -26,7 +26,7 @@
             @if (!$hasSchedule)<div class="tp-empty"><strong>برنامه هفتگی ثبت نشده است.</strong><span>از فرم کنار صفحه برای افزودن زمان کلاس استفاده کن.</span></div>@endif
         </x-teacher.card>
 
-        <x-teacher.card title="افزودن زمان هفتگی">
+        @if($tpUser->hasPermission('live_classes.manage'))<x-teacher.card title="افزودن زمان هفتگی">
             @if ($classrooms->isEmpty())
                 <div class="tp-empty"><strong>ابتدا یک کلاس فعال ایجاد یا به خودت تخصیص بده.</strong><a class="tp-link" href="{{ route('teacher.classrooms.create') }}">ایجاد کلاس</a></div>
             @else
@@ -44,6 +44,6 @@
                     <x-teacher.button type="submit">ثبت برنامه</x-teacher.button>
                 </form>
             @endif
-        </x-teacher.card>
+        </x-teacher.card>@endif
     </div>
 @endsection

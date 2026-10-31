@@ -16,7 +16,7 @@
                     <div><b>{{ \App\Support\PersianUi::digits($classroom->schedules_count ?? 0) }}</b><span>زمان هفتگی</span></div>
                 </div>
                 <div class="tp-actions">
-                    <a class="tp-btn tp-btn--sm" href="{{ route('teacher.classrooms.attendance.edit', $classroom) }}">حضور و غیاب</a>
+                    @if($tpUser->hasPermission('attendance.view'))<a class="tp-btn tp-btn--sm" href="{{ route('teacher.classrooms.attendance.edit', $classroom) }}">حضور و غیاب</a>@endif
                     <a class="tp-btn tp-btn--light tp-btn--sm" href="{{ route('teacher.attendance.index') }}">سوابق حضور</a>
                 </div>
             </x-teacher.card>

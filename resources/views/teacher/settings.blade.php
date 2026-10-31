@@ -45,7 +45,7 @@
                 <x-teacher.field label="تحصیلات"><input name="education" value="{{ old('education', $profile->education) }}" maxlength="1000"></x-teacher.field>
                 <x-teacher.field label="معرفی کوتاه"><textarea name="bio" rows="5" maxlength="4000">{{ old('bio', $profile->bio) }}</textarea></x-teacher.field>
             </div>
-            <div class="tp-form-actions"><button class="tp-btn" type="submit">ذخیره تغییرات</button></div>
+            <div class="tp-form-actions">@if($tpUser->hasPermission('profile.manage'))<button class="tp-btn" type="submit">ذخیره تغییرات</button>@endif</div>
         </x-teacher.card>
     </form>
 @endsection
