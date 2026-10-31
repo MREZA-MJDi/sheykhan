@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const maxBytes = Number(input.dataset.maxSizeMb || (kind === 'avatar' ? 3 : 5)) * 1024 * 1024;
                 const looksLikeImage = file.type.startsWith('image/')
-                    || /\\.(jpe?g|png|webp|avif)$/i.test(file.name);
+                    || /\.(jpe?g|png|webp|avif)$/i.test(file.name);
 
                 if (!looksLikeImage || file.size > maxBytes) {
                     input.value = '';

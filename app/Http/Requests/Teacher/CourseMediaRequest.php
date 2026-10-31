@@ -1,10 +1,10 @@
 <?php
 
-namespace App\\Http\\Requests\\Teacher;
+namespace App\Http\Requests\Teacher;
 
-use App\\Models\\Course;
-use App\\Services\\CourseManagementService;
-use Illuminate\\Foundation\\Http\\FormRequest;
+use App\Models\Course;
+use App\Services\CourseManagementService;
+use Illuminate\Foundation\Http\FormRequest;
 
 class CourseMediaRequest extends FormRequest
 {

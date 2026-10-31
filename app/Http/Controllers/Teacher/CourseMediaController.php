@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Owner\Course\CourseMediaRequest;
+use App\Http\Requests\Teacher\CourseMediaRequest;
 use App\Models\Course;
 use App\Models\Media;
 use App\Services\CourseManagementService;
