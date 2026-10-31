@@ -36,19 +36,24 @@ class UiComponentAccessibilityTest extends TestCase
         $this->assertStringContainsString('id="' . $inputId . '-error"', $html);
     }
 
-    public function test_flash_component_has_shared_dismiss_behavior_but_role_owned_presentation(): void
+    public function test_public_and_parent_layouts_own_their_flash_markup_but_share_dismiss_behavior(): void
     {
-        $view = file_get_contents(resource_path('views/components/ui/flash-messages.blade.php'));
+        $publicLayout = file_get_contents(resource_path('views/layouts/app.blade.php'));
+        $parentLayout = file_get_contents(resource_path('views/layouts/parent.blade.php'));
         $publicStyles = file_get_contents(resource_path('css/app.css'));
         $parentStyles = file_get_contents(resource_path('css/parent.css'));
-        foreach ([$view,$publicStyles,$parentStyles] as $source) $this->assertIsString($source);
+        $behavior = file_get_contents(resource_path('js/shared/behavior-runtime.js'));
+        foreach ([$publicLayout,$parentLayout,$publicStyles,$parentStyles,$behavior] as $source) $this->assertIsString($source);
 
-        $this->assertStringContainsString('data-ui-dismissible', $view);
-        $this->assertStringContainsString('data-ui-dismiss', $view);
-        $this->assertStringNotContainsString('<style', $view);
-        $this->assertStringNotContainsString('<script', $view);
+        foreach ([$publicLayout,$parentLayout] as $layout) {
+            $this->assertStringContainsString('data-ui-dismissible', $layout);
+            $this->assertStringContainsString('data-ui-dismiss', $layout);
+            $this->assertStringNotContainsString('<x-ui.flash-messages', $layout);
+        }
+        $this->assertStringContainsString('bootDismissBehavior', $behavior);
         $this->assertStringContainsString('.ui-flash-stack', $publicStyles);
         $this->assertStringContainsString('.ui-flash-stack', $parentStyles);
+        $this->assertFileDoesNotExist(resource_path('views/components/ui/flash-messages.blade.php'));
     }
 
 }
