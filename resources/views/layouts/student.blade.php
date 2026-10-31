@@ -14,9 +14,10 @@
 @php
     $studentShellUser = auth()->user();
     $studentShellUser?->loadMissing([
-        'studentProfile.media' => fn ($query) => $query
-            ->wherePivot('collection', 'student-avatar')
-            ->orderByPivot('sort_order'),
+        'studentProfile.media' => function ($query) {
+            $query->wherePivot('collection', 'student-avatar')
+                ->orderByPivot('sort_order');
+        },
     ]);
     $studentShellAvatar = $studentShellUser?->studentProfile?->media?->first();
     $studentShellAvatarUrl = $studentShellAvatar?->visibility === 'public'
