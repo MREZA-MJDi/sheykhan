@@ -1,18 +1,4 @@
-import Alpine from 'alpinejs';
-
-const ALPINE_BOOT_FLAG = '__sheykhanAlpineBooted';
-
-export function bootAlpine() {
-    if (window[ALPINE_BOOT_FLAG]) return;
-
-    const alpine = window.Alpine || Alpine;
-    window.Alpine = alpine;
-
-    if (!alpine || typeof alpine.start !== 'function') return;
-
-    alpine.start();
-    window[ALPINE_BOOT_FLAG] = true;
-}
+import { bootAlpineRuntime as bootAlpine } from './shared/alpine-runtime.js';
 
 function bootRoleAvatarFallback() {
     // This shared recovery behavior belongs only to Student and Teacher panels.
