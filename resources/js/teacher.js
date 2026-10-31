@@ -1,11 +1,10 @@
 /* Teacher-only runtime. Role UI and behavior are isolated. */
-import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-Alpine.start();
-import './teacher/persian-calendar.js';
-import './teacher/persian-money.js';
-import './teacher/assessment-builder.js';
-import { bootFileUploadProgress } from './teacher/upload-progress.js';
+import { bootAlpineRuntime } from './shared/alpine-runtime.js';
+import './persian-calendar.js';
+import './persian-money.js';
+import './assessment-builder.js';
+import { bootFileUploadProgress } from './upload-progress.js';
+bootAlpineRuntime();
 import './teacher/course-media-uploader.js';
 document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
 // ZIP utility: Jalali/Gregorian date conversion.
