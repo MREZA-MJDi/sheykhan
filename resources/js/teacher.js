@@ -4,8 +4,8 @@ import './persian-calendar.js';
 import './persian-money.js';
 import './assessment-builder.js';
 import { bootFileUploadProgress } from './upload-progress.js';
-bootAlpineRuntime();
 import './teacher/course-media-uploader.js';
+bootAlpineRuntime();
 document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
 // ZIP utility: Jalali/Gregorian date conversion.
 function fa(n){return String(n).replace(/\d/g,function(d){return"۰۱۲۳۴۵۶۷۸۹"[d]})}
