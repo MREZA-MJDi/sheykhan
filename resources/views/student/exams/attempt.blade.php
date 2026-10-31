@@ -22,7 +22,7 @@
         <div class="chead">
             <h2>{{ $exam->title }}</h2>
             @if($remaining !== null)
-                <span class="tag w">زمان باقی‌مانده: <b data-countdown="{{ $remaining }}">{{ \App\Support\PersianUi::digits(sprintf('%02d:%02d', intdiv($remaining, 60), $remaining % 60)) }}</b></span>
+                <span class="tag a">زمان باقی‌مانده: <b data-countdown="{{ $remaining }}">{{ \App\Support\PersianUi::digits(sprintf('%02d:%02d', intdiv($remaining, 60), $remaining % 60)) }}</b></span>
             @else
                 <span class="tag">بدون شمارش معکوس</span>
             @endif
@@ -64,7 +64,7 @@
                             : (string) $optionKey;
                         $isChecked = in_array($optionValue, $submittedValues, true);
                     @endphp
-                    <label>
+                    <label class="opt">
                         <input type="checkbox"
                                name="answers[{{ $question->id }}][]"
                                value="{{ $optionValue }}" @checked($isChecked)>
@@ -78,7 +78,7 @@
                             ? (string) (is_array($optionLabel) ? ($optionLabel['value'] ?? $optionLabel['id'] ?? $optionLabel['text'] ?? $optionLabel['label'] ?? $optionKey) : $optionLabel)
                             : (string) $optionKey;
                     @endphp
-                    <label>
+                    <label class="opt">
                         <input type="radio" name="answers[{{ $question->id }}]" value="{{ $optionValue }}" @checked((string) old('answers.'.$question->id, $savedValue) === $optionValue)>
                         <span>{{ is_array($optionLabel) ? ($optionLabel['text'] ?? $optionLabel['label'] ?? json_encode($optionLabel, JSON_UNESCAPED_UNICODE)) : $optionLabel }}</span>
                     </label>

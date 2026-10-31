@@ -8,7 +8,7 @@
     $latestAttempt = $exam->attempts->first();
     $open = $exam->status === 'published' && (!$exam->starts_at || $exam->starts_at->lte(now())) && (!$exam->ends_at || $exam->ends_at->gte(now()));
 @endphp
-<section class="page">
+<section class="page sec">
     <div class="card">
         <div class="chead"><h2>{{ $exam->title }}</h2><a class="pill" href="{{ route('student.exams.index') }}">بازگشت به آزمون‌ها</a></div>
         <div class="sum">
@@ -24,7 +24,7 @@
     });
 @endphp
         @if($examHandouts->isNotEmpty())
-            <div class="exam-handout-list">
+            <div class="exam-handout-list card">
                 <strong>فایل‌های راهنمای آزمون</strong>
                 @foreach($examHandouts as $handout)
                     <a href="{{ route('media.view', $handout) }}" target="_blank" rel="noopener noreferrer">
@@ -42,7 +42,7 @@
 
     @if($latestAttempt)
         <div class="card">
-            <div class="chead"><h2>آخرین تلاش تو</h2><span class="tag {{ $latestAttempt->status === 'graded' ? 'ok' : 'd' }}">
+            <div class="chead"><h2>آخرین تلاش تو</h2><span class="tag {{ $latestAttempt->status === 'graded' ? 'g' : 'd' }}">
                 {{ match($latestAttempt->status) { 'in_progress' => 'در حال پاسخ‌گویی', 'graded' => 'تصحیح‌شده', 'needs_review' => 'نمرهٔ موقت', 'pending_review' => 'در صف تصحیح', 'submitted' => 'ارسال‌شده', default => $latestAttempt->status } }}
             </span></div>
             @if($latestAttempt->score !== null)<p class="note">نمره: {{ \App\Support\PersianUi::number($latestAttempt->score, 1) }}</p>@endif
