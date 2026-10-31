@@ -1,4 +1,4 @@
-/* Owner-owned assessment builder. Presentation stays in owner form markup and CSS. */
+/* Owner-owned assessment builder. UI presentation remains in the owner Blade form and stylesheet. */
 const initializeExamBuilder = () => {
     document.querySelectorAll('[data-course-classroom-select]').forEach((classroomSelect) => {
         const courseSelect = document.querySelector(classroomSelect.dataset.courseSelect);
