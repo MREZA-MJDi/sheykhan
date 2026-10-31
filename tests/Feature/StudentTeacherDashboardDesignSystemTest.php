@@ -180,9 +180,10 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         foreach ([$ownerScript,$seoScript,$sharedScript,$ownerCss,$seoCss,$ownerLayout,$seoLayout] as $source) $this->assertIsString($source);
         $this->assertStringContainsString("import './owner-admin-common.js';", $ownerScript);
         $this->assertStringContainsString("import './owner-admin-common.js';", $seoScript);
-        $this->assertStringContainsString('data-media-uploader', $sharedScript);
+        $this->assertStringContainsString("import './shared/file-preview.js';", $sharedScript);
         $this->assertStringNotContainsString('assessment-builder', $sharedScript);
         $this->assertStringContainsString("import './owner/exam-builder.js';", $ownerScript);
+        $this->assertStringContainsString("import './owner/people-tabs.js';", $ownerScript);
         $this->assertStringContainsString("import './owner-admin-shared.css';", $ownerCss);
         $this->assertStringContainsString("import './owner-admin-shared.css';", $seoCss);
         foreach ([$ownerLayout,$seoLayout] as $layout) {
