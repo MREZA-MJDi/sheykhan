@@ -26,12 +26,6 @@
         </div>
     @endif
 
-    <x-education.course-management-form
-        :course="$course"
-        :academies="$academies"
-        :action="$course->exists ? route('owner.courses.update',$course) : route('owner.courses.store')"
-        :method="$course->exists ? 'PATCH' : 'POST'"
-        route-prefix="owner.courses"
-    />
+    @include('owner.courses.partials.management-form', ['course' => $course, 'academies' => $academies, 'action' => $course->exists ? route('owner.courses.update', $course) : route('owner.courses.store'), 'method' => $course->exists ? 'PATCH' : 'POST', 'routePrefix' => 'owner.courses'])
 </div>
 @endsection
