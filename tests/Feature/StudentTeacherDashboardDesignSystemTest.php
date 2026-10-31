@@ -67,7 +67,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         }
         $this->assertStringNotContainsString("from './panel-runtime.js'", $script);
         $this->assertStringNotContainsString("Alpine.start();", $script);
-        $this->assertStringNotContainsString("from './teacher/assessment-builder.js'", $script);
+        $this->assertStringContainsString("import './teacher/assessment-builder.js';", $script);
         $this->assertStringNotContainsString("from './teacher/persian-calendar.js'", $script);
         $this->assertStringNotContainsString("from './teacher/persian-money.js'", $script);
         $this->assertStringNotContainsString("from './teacher/upload-progress.js'", $script);
@@ -122,8 +122,8 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         foreach ([$dashboard,$layout,$css] as $source) $this->assertIsString($source);
 
         $this->assertStringContainsString('id="teacher-dashboard"', $dashboard);
-        $this->assertStringContainsString('<x-teacher.stat-card', $dashboard);
-        $this->assertStringContainsString('<x-teacher.quick-action', $dashboard);
+        $this->assertStringContainsString('class="teacher-stat-card"', $dashboard);
+        $this->assertStringContainsString('class="teacher-quick-action"', $dashboard);
         $this->assertStringContainsString('teacher-stat-card', $css);
         $this->assertStringContainsString('teacher-quick-action', $css);
         $this->assertStringContainsString('data-teacher-menu-open', $layout);
@@ -181,7 +181,8 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString("import './owner-admin-common.js';", $ownerScript);
         $this->assertStringContainsString("import './owner-admin-common.js';", $seoScript);
         $this->assertStringContainsString('data-media-uploader', $sharedScript);
-        $this->assertStringContainsString("import './shared/assessment-builder.js';", $sharedScript);
+        $this->assertStringNotContainsString('assessment-builder', $sharedScript);
+        $this->assertStringContainsString("import './owner/exam-builder.js';", $ownerScript);
         $this->assertStringContainsString("import './owner-admin-shared.css';", $ownerCss);
         $this->assertStringContainsString("import './owner-admin-shared.css';", $seoCss);
         foreach ([$ownerLayout,$seoLayout] as $layout) {
