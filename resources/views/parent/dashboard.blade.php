@@ -61,10 +61,11 @@
         </p>
 
         @if($children->isEmpty())
-            <x-ui.empty-state
-                title="هنوز فرزندی به حساب والد متصل نشده است"
-                description="پس از اتصال حساب دانش‌آموز، وضعیت دوره‌ها، پیشرفت و جلسات در این داشبورد نمایش داده می‌شود."
-            />
+            <div class="parent-empty-state" role="status">
+        <span class="parent-empty-state__icon" aria-hidden="true">⌕</span>
+        <h3>هنوز فرزندی به حساب والد متصل نشده است</h3>
+        <p>پس از اتصال حساب دانش‌آموز، وضعیت دوره‌ها، پیشرفت و جلسات در این داشبورد نمایش داده می‌شود.</p>
+    </div>
         @else
             <section aria-labelledby="parent-children-title">
                 <div class="mb-4">
