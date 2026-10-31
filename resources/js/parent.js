@@ -1,6 +1,6 @@
 /* Parent panel entry. Shared shell behavior lives in panel-runtime.js. */
-import './persian-calendar.js';
-import './persian-money.js';
+import './shared/persian-calendar.js';
+import './shared/persian-money.js';
 import { bootPanelRuntime, closePanelMenu } from './panel-runtime.js';
 export { closePanelMenu };
 
