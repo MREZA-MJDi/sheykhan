@@ -173,8 +173,8 @@ bootPanelRuntime();
             resize();
         });
 
-        document.querySelectorAll('[data-countdown]').forEach((timer) => {
-            const target = Date.parse(timer.dataset.countdown || '');
+        document.querySelectorAll('[data-class-countdown]').forEach((timer) => {
+            const target = Date.parse(timer.dataset.classCountdown || '');
             if (!Number.isFinite(target)) {
                 timer.textContent = 'زمان نامشخص';
                 return;

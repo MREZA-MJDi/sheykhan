@@ -30,6 +30,7 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertArrayHasKey('resources', $payload);
         $this->assertArrayHasKey('recentResults', $payload);
         $this->assertArrayHasKey('pendingAssignments', $payload);
+        $this->assertArrayHasKey('dueTomorrowCount', $payload);
         $this->assertArrayHasKey('upcomingLiveClassCount', $payload);
         $this->assertArrayHasKey('todayClasses', $payload);
         $this->assertArrayHasKey('todayLiveClassCount', $payload);
@@ -119,8 +120,8 @@ class StudentDashboardBackendContractTest extends TestCase
             ->assertOk()
             ->getContent();
 
-        // Sidebar, account shortcut and welcome hero use the same persisted photo.
-        $this->assertSame(3, substr_count($html, e($avatarUrl)));
+        // Sidebar and account shortcut use the persisted photo; the hero keeps the reference illustration.
+        $this->assertSame(2, substr_count($html, e($avatarUrl)));
         $this->assertStringContainsString('data-avatar-fallback', $html);
     }
 

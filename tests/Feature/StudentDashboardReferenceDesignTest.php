@@ -19,7 +19,7 @@ class StudentDashboardReferenceDesignTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('خانه یادگیری من')
+            ->assertSee('مرکز یادگیری')
             ->assertSee('رشد این ماه')
             ->assertSee('تکالیف باز')
             ->assertDontSee('پیام به مدرس‌ها')
