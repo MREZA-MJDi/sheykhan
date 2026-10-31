@@ -62,7 +62,6 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .jalali-calendar-day.is-today{border-color:var(--pri);font-weight:900}.jalali-calendar-day.is-selected{background:var(--pri);color:#fff;font-weight:900}.jalali-calendar-day:disabled{color:var(--mu);background:var(--bg);cursor:not-allowed;text-decoration:line-through}
 
 
-:root{--panel-primary:var(--pri);--panel-primary-soft:var(--pl);--panel-control-height:44px;--panel-control-radius:12px;--color-primary-600:var(--pri);--color-brand-600:var(--pri);--color-text:var(--tx);--color-text-secondary:var(--mu);--color-border:var(--ln)}
 .teacher-workspace-page,.communication-page{display:grid;gap:16px;min-width:0}
 .teacher-workspace-head,.teacher-form-head,.teacher-exam-page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .teacher-workspace-head-copy{min-width:0;flex:1}.teacher-workspace-kicker,.teacher-form-kicker{display:block;color:var(--pri);font-size:11px;font-weight:800}
@@ -118,7 +117,7 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 
 
 /* Teacher-owned course workspace and media uploader. */
-.course-form-shell{display:grid;gap:16px}.course-form-shell .panel-card{background:var(--sf)!important;border:1px solid var(--ln)!important;border-radius:19px!important;padding:18px!important;box-shadow:0 5px 18px #4a5fe010!important}
+.course-form-shell{display:grid;gap:16px}.course-form-shell .teacher-course-card{background:var(--sf)!important;border:1px solid var(--ln)!important;border-radius:19px!important;padding:18px!important;box-shadow:0 5px 18px #4a5fe010!important}
 .course-section-heading{display:flex;align-items:center;gap:12px;margin-bottom:15px}.course-section-heading.compact{margin-bottom:8px}
 .course-step{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:12px;background:var(--pl);color:var(--pri);font-weight:900}
 .course-section-heading>div:last-child>span{display:block;color:var(--pri);font-size:11px;font-weight:800}.course-section-heading h2{font-size:16px;font-weight:800;color:var(--tx);margin:2px 0}.course-section-heading p{font-size:12px;color:var(--mu);margin:3px 0}
@@ -173,13 +172,13 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .weekly-calendar-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}.weekly-calendar-guide-card{display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:12px;background:var(--pl)}
 .weekly-calendar-guide-art{display:grid;place-items:center;width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:var(--sf);color:var(--pri)}.weekly-calendar-guide-copy{font-size:10px;color:var(--mu);line-height:1.8}.weekly-calendar-guide-copy strong{display:block;color:var(--tx)}
 /* Teacher-only upload progress UI. */
-.teacher-panel .panel-upload-progress{display:grid;gap:8px;padding:13px;border:1px solid var(--ln);border-radius:14px;background:var(--pl)}.teacher-panel .panel-upload-progress[hidden]{display:none!important}
-.teacher-panel .panel-upload-progress__files{display:grid;gap:7px}.teacher-panel .panel-upload-progress__file{display:flex;align-items:center;gap:9px;padding:8px;border:1px solid var(--ln);border-radius:10px;background:var(--sf)}
-.teacher-panel .panel-upload-progress__file-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--pl);color:var(--pri)}
-.teacher-panel .panel-upload-progress__file-copy{display:grid;min-width:0}.teacher-panel .panel-upload-progress__file-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
-.teacher-panel .panel-upload-progress__file-copy small,.teacher-panel .panel-upload-progress__summary{color:var(--mu);font-size:10px}
-.teacher-panel .panel-upload-progress__bar-track{height:8px;border-radius:9px;background:var(--ln);overflow:hidden}.teacher-panel .panel-upload-progress__bar{display:block;width:0;height:100%;background:var(--pri);transition:width .15s}
-.teacher-panel .panel-upload-progress__status-row{display:flex;justify-content:space-between;gap:10px;margin-top:5px;color:var(--mu);font-size:11px}.teacher-panel .panel-upload-progress__error{margin:0;color:var(--rd);font-size:11px}
+.teacher-shell .teacher-upload-progress{display:grid;gap:8px;padding:13px;border:1px solid var(--ln);border-radius:14px;background:var(--pl)}.teacher-shell .teacher-upload-progress[hidden]{display:none!important}
+.teacher-shell .teacher-upload-progress__files{display:grid;gap:7px}.teacher-shell .teacher-upload-progress__file{display:flex;align-items:center;gap:9px;padding:8px;border:1px solid var(--ln);border-radius:10px;background:var(--sf)}
+.teacher-shell .teacher-upload-progress__file-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--pl);color:var(--pri)}
+.teacher-shell .teacher-upload-progress__file-copy{display:grid;min-width:0}.teacher-shell .teacher-upload-progress__file-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.teacher-shell .teacher-upload-progress__file-copy small,.teacher-shell .teacher-upload-progress__summary{color:var(--mu);font-size:10px}
+.teacher-shell .teacher-upload-progress__bar-track{height:8px;border-radius:9px;background:var(--ln);overflow:hidden}.teacher-shell .teacher-upload-progress__bar{display:block;width:0;height:100%;background:var(--pri);transition:width .15s}
+.teacher-shell .teacher-upload-progress__status-row{display:flex;justify-content:space-between;gap:10px;margin-top:5px;color:var(--mu);font-size:11px}.teacher-shell .teacher-upload-progress__error{margin:0;color:var(--rd);font-size:11px}
 @media(max-width:1100px){.weekly-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:760px){.weekly-calendar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.weekly-calendar-guide{grid-template-columns:1fr 1fr}.course-media-head{grid-template-columns:1fr}.course-submitbar{grid-template-columns:1fr}.course-media-row{align-items:flex-start}}
 @media(max-width:420px){.weekly-calendar{padding:12px}.weekly-calendar-grid{gap:6px}.weekly-calendar-day{padding:7px}.weekly-calendar-guide{grid-template-columns:1fr}}
@@ -193,15 +192,6 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 @media(max-width:860px){.bt{min-height:60px}.top{position:sticky;top:0;z-index:25;background:color-mix(in srgb,var(--sf) 92%,transparent);backdrop-filter:blur(12px);padding:5px 0}.teacher-top-search{display:none!important}}
 
 
-/* Semantic compatibility tokens are teacher-owned; they do not import other panel themes. */
-:root{
- --panel-primary:var(--pri);--panel-primary-soft:var(--pl);--panel-border:var(--ln);
- --panel-surface:var(--sf);--panel-bg:var(--bg);--panel-text:var(--tx);
- --panel-text-secondary:var(--tx);--panel-muted:var(--mu);--panel-accent:var(--pu);
- --color-primary-600:var(--pri);--color-brand-600:var(--pri);--color-text:var(--tx);
- --color-text-secondary:var(--mu);--color-border:var(--ln);--color-success-50:#e3f8ee;
- --color-success-100:#b8ebd2;--color-success-700:#118a55;--color-danger-600:var(--rd);
-}
 .teacher-exam-answer-value.is-correct{border-color:#22b573;background:#e3f8ee;color:#118a55}
 .teacher-exam-answer-value.is-wrong{border-color:#f0566b;background:#fde6ea;color:#b4233b}
 .teacher-exam-answer-value{border:1px solid var(--ln);border-radius:10px;padding:10px 12px}
@@ -322,10 +312,10 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 }
 
 .communication-page__hero {
-    border-color: color-mix(in srgb, var(--panel-primary, #2563eb) 16%, #e4eaf1);
+    border-color: color-mix(in srgb, var(--pri) 16%, #e4eaf1);
     background: linear-gradient(
         125deg,
-        color-mix(in srgb, var(--panel-primary, #2563eb) 7%, #fff),
+        color-mix(in srgb, var(--pri) 7%, #fff),
         #fff 68%
     );
 }
@@ -348,7 +338,7 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 }
 
 .communication-page__hero > :first-child:not(h1, h2, p) {
-    color: var(--panel-primary, #2563eb);
+    color: var(--pri);
     font-size: .78rem;
     font-weight: 900;
 }
@@ -513,9 +503,9 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 }
 
 .communication-page :is(input:not([type="hidden"]), select, textarea):focus {
-    border-color: var(--panel-primary, #2563eb);
+    border-color: var(--pri);
     background: #fff;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--panel-primary, #2563eb) 14%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pri) 14%, transparent);
 }
 
 .communication-page :is(input, select, textarea)::placeholder {
@@ -531,9 +521,9 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
     min-height: 43px;
     max-width: 100%;
     padding: .65rem 1.1rem;
-    border: 1px solid var(--panel-primary, #2563eb);
+    border: 1px solid var(--pri);
     border-radius: 12px;
-    background: var(--panel-primary, #2563eb);
+    background: var(--pri);
     color: #fff;
     font: inherit;
     font-size: .85rem;
@@ -547,7 +537,7 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 
 .communication-page__button:hover {
     filter: brightness(.96);
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--panel-primary, #2563eb) 18%, transparent);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--pri) 18%, transparent);
 }
 
 .communication-page__button:active {
@@ -598,7 +588,7 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 
 .communication-page a:focus-visible,
 .communication-page button:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--panel-primary, #2563eb) 38%, transparent);
+    outline: 3px solid color-mix(in srgb, var(--pri) 38%, transparent);
     outline-offset: 3px;
 }
 
@@ -1119,10 +1109,16 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 
 
 
-/* Course editor details that were previously relying on owner-only/global styling. */
+/* Teacher course editor; all states resolve to teacher-owned theme tokens. */
 .teacher-shell .course-money-input{display:flex;align-items:center;gap:10px;min-width:0;padding:5px 9px;border:1px solid var(--ln);border-radius:12px;background:var(--bg2)}
 .teacher-shell .course-money-input .course-money-field{flex:1 1 auto;width:100%;min-width:0;border:0!important;background:transparent!important;box-shadow:none!important;text-align:left;font-variant-numeric:tabular-nums}
 .teacher-shell .course-money-input .course-money-field:focus{outline:0;box-shadow:none!important}
 .teacher-shell .course-money-input>span{flex:0 0 auto;padding-inline:8px;color:var(--mu);font-size:11px;font-weight:800;white-space:nowrap}
 .teacher-shell .course-cover-scope-note{border-color:color-mix(in srgb,var(--or) 28%,var(--ln));background:color-mix(in srgb,var(--or) 8%,var(--bg2));color:var(--mu)}
 
+
+
+
+.teacher-shell .teacher-course-card{min-width:0;background:var(--sf)!important;border:1px solid var(--ln)!important;border-radius:19px!important;box-shadow:0 5px 18px rgba(35,42,77,.06)!important}
+.teacher-shell .teacher-upload-progress{display:grid;gap:8px;padding:13px;border:1px solid var(--ln);border-radius:14px;background:var(--bg2)}
+.teacher-shell .teacher-upload-progress[hidden]{display:none!important}

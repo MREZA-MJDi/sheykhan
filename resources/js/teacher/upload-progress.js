@@ -14,9 +14,9 @@ const render = form => {
     panel.hidden=false; let total=0;
     files.forEach(file=>{
         total+=file.size;
-        const row=document.createElement('div');row.className='panel-upload-progress__file';
-        const icon=document.createElement('span');icon.className='panel-upload-progress__file-icon';icon.setAttribute('aria-hidden','true');icon.textContent=file.type.startsWith('image/')?'▧':'▤';
-        const copy=document.createElement('span');copy.className='panel-upload-progress__file-copy';
+        const row=document.createElement('div');row.className='teacher-upload-progress__file';
+        const icon=document.createElement('span');icon.className='teacher-upload-progress__file-icon';icon.setAttribute('aria-hidden','true');icon.textContent=file.type.startsWith('image/')?'▧':'▤';
+        const copy=document.createElement('span');copy.className='teacher-upload-progress__file-copy';
         const name=document.createElement('strong');name.textContent=file.name;
         const size=document.createElement('small');size.textContent=sizeLabel(file.size);
         copy.append(name,size);row.append(icon,copy);list?.append(row);

@@ -1,4 +1,4 @@
-@props(['course','academies','action','method'=>'POST','routePrefix'=>'owner.courses'])
+@props(['course','academies','action','method'=>'POST','routePrefix'=>'teacher.courses'])
 
 @php
     $isEdit = $course->exists;
@@ -147,7 +147,7 @@
         @if($method !== 'POST') @method($method) @endif
 
         <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-            <section class="panel-card p-5 sm:p-7">
+            <section class="teacher-course-card p-5 sm:p-7">
                 <div class="course-section-heading">
                     <div class="course-step">۱</div>
                     <div>
@@ -231,7 +231,7 @@
             </section>
 
             <aside class="space-y-5">
-                <section class="panel-card p-5">
+                <section class="teacher-course-card p-5">
                     <div class="course-section-heading compact">
                         <div class="course-step">۲</div>
                         <div><span>دسترسی</span><h2>رایگان یا پولی؟</h2></div>
@@ -272,7 +272,7 @@
                     </div>
                 </section>
 
-                <section class="panel-card p-5">
+                <section class="teacher-course-card p-5">
                     <div class="course-section-heading compact">
                         <div class="course-step">۳</div>
                         <div><span>انتشار</span><h2>چه زمانی دیده شود؟</h2></div>
@@ -323,7 +323,7 @@
     </form>
 
     @if($isEdit)
-        <section class="panel-card p-5 sm:p-7" data-media-uploader>
+        <section class="teacher-course-card p-5 sm:p-7" data-media-uploader>
             <div class="course-media-head">
                 <div>
                     <div class="course-section-heading compact">
@@ -361,7 +361,7 @@
                         </div>
                         <div class="min-w-0">
                             <strong data-preview-name class="block truncate text-xs font-black"></strong>
-                            <span data-preview-size class="mt-1 block text-[9px] text-[var(--color-text-muted)]"></span>
+                            <span data-preview-size class="mt-1 block text-[9px] text-[var(--mu)]"></span>
                         </div>
                     </div>
 
@@ -383,7 +383,7 @@
                     <div class="course-media-row">
                         <div class="min-w-0">
                             <div class="truncate text-sm font-bold">{{ $media->original_name }}</div>
-                            <div class="mt-1 text-xs text-[var(--color-text-muted)]">
+                            <div class="mt-1 text-xs text-[var(--mu)]">
                                 {{ $media->mime_type ?: 'فایل' }}
                                 <span class="mx-1">·</span>
                                 {{ number_format($media->size/1024/1024,2) }} MB
@@ -403,7 +403,7 @@
                 @empty
                     <div class="course-empty-state">
                         <div class="text-sm font-black">هنوز فایلی اضافه نشده</div>
-                        <p class="mt-1 text-xs leading-6 text-[var(--color-text-muted)]">یک فایل آموزشی انتخاب کن و با «آپلود فایل» اضافه‌اش کن.</p>
+                        <p class="mt-1 text-xs leading-6 text-[var(--mu)]">یک فایل آموزشی انتخاب کن و با «آپلود فایل» اضافه‌اش کن.</p>
                     </div>
                 @endforelse
             </div>
