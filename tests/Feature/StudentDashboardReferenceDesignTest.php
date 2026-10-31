@@ -20,7 +20,7 @@ class StudentDashboardReferenceDesignTest extends TestCase
             ->get(route('student.dashboard'))
             ->assertOk()
             ->assertSee('خانه یادگیری من')
-            ->assertSee('دوره‌های فعال')
+            ->assertSee('پیشرفت دوره‌ها')
             ->assertSee('تکالیف ارسال‌نشده')
             ->assertDontSee('پیام به مدرس‌ها')
             ->assertDontSee('دستاوردها')

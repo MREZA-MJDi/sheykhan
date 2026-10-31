@@ -41,6 +41,8 @@ class StudentPortalSmokeTest extends TestCase
             ['student.notes.index', []],
             ['student.profile.edit', []],
             ['student.resources.index', []],
+            ['library.index', []],
+            ['store.index', []],
         ];
 
         foreach ($routes as [$routeName, $parameters]) {
@@ -53,7 +55,7 @@ class StudentPortalSmokeTest extends TestCase
             ->get(route('student.dashboard'))
             ->assertOk()
             ->assertSee('خانه یادگیری من')
-            ->assertSee('دوره‌های فعال')
+            ->assertSee('پیشرفت دوره‌ها')
             ->assertSee('student-shell', false)
             ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('sdr-hero', false);
