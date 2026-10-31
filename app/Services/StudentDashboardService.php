@@ -514,51 +514,60 @@ final class StudentDashboardService
             ->limit(4)
             ->get();
 
-        $achievements = Achievement::query()
-            ->where('student_id', $student->id)
-            ->where('status', 'published')
-            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
-            ->latest('published_at')
-            ->latest('id')
-            ->limit(3)
-            ->get([
-                'id',
-                'title',
-                'display_name',
-                'achievement_type',
-                'school_name',
-                'published_at',
-            ]);
-
-        $achievementCount = Achievement::query()
-            ->where('student_id', $student->id)
-            ->where('status', 'published')
-            ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
-            ->count();
-
-        // Reuse the same recipient/academy constraints as the student message centre.
-        $studentAcademyIds = $student->academies()
-            ->where('academies.status', 'active')
-            ->wherePivot('role', 'student')
-            ->wherePivot('status', 'active')
-            ->pluck('academies.id');
-
-        $announcements = $studentAcademyIds->isEmpty()
-            ? collect()
-            : AcademyMessage::query()
-                ->whereIn('academy_id', $studentAcademyIds)
-                ->where('audience', 'student')
-                ->where('recipient_id', $student->id)
+        $achievements = config('student.features.achievements', true)
+            ? Achievement::query()
                 ->where('student_id', $student->id)
-                ->whereNotNull('published_at')
-                ->where('published_at', '<=', now())
+                ->where('status', 'published')
+                ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
                 ->latest('published_at')
+                ->latest('id')
                 ->limit(3)
-                ->get(['id', 'subject', 'body', 'category', 'published_at'])
-                ->map(function (AcademyMessage $message): AcademyMessage {
-                    $message->excerpt = mb_substr(trim(strip_tags($message->body)), 0, 140);
-                    return $message;
-                });
+                ->get([
+                    'id',
+                    'title',
+                    'display_name',
+                    'achievement_type',
+                    'school_name',
+                    'published_at',
+                ])
+            : collect();
+
+        $achievementCount = config('student.features.achievements', true)
+            ? Achievement::query()
+                ->where('student_id', $student->id)
+                ->where('status', 'published')
+                ->where(fn ($query) => $query->whereNull('published_at')->orWhere('published_at', '<=', now()))
+                ->count()
+            : 0;
+
+        // Optional sections disabled by the supplied student-dashboard configuration
+        // do not run their corresponding queries.
+        $announcements = collect();
+
+        if (config('student.features.messages', false)) {
+            $studentAcademyIds = $student->academies()
+                ->where('academies.status', 'active')
+                ->wherePivot('role', 'student')
+                ->wherePivot('status', 'active')
+                ->pluck('academies.id');
+
+            $announcements = $studentAcademyIds->isEmpty()
+                ? collect()
+                : AcademyMessage::query()
+                    ->whereIn('academy_id', $studentAcademyIds)
+                    ->where('audience', 'student')
+                    ->where('recipient_id', $student->id)
+                    ->where('student_id', $student->id)
+                    ->whereNotNull('published_at')
+                    ->where('published_at', '<=', now())
+                    ->latest('published_at')
+                    ->limit(3)
+                    ->get(['id', 'subject', 'body', 'category', 'published_at'])
+                    ->map(function (AcademyMessage $message): AcademyMessage {
+                        $message->excerpt = mb_substr(trim(strip_tags($message->body)), 0, 140);
+                        return $message;
+                    });
+        }
 
         $overallProgress = (float) ($progress->isEmpty() ? 0 : $progress->avg());
 

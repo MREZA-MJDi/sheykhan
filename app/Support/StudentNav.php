@@ -12,7 +12,10 @@ final class StudentNav
      */
     public static function items(): Collection
     {
-        $items = collect(config('student_nav', []))->values();
+        $features = (array) config('student.features', []);
+        $items = collect(config('student_nav', []))
+            ->filter(fn (array $item): bool => isset($item['group']) || ($features[$item['key']] ?? true))
+            ->values();
 
         return $items->filter(function (array $item, int $index) use ($items): bool {
             if (! isset($item['group'])) {
