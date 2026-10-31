@@ -1,4 +1,4 @@
-@php($tabItems = \\App\\Support\\StudentNav::items()->filter(fn ($item) => isset($item['key'])))
+@php($tabItems = \App\Support\StudentNav::items()->filter(fn ($item) => isset($item['key'])))
 <nav class="tabbar" aria-label="منوی موبایل">
   @foreach ($tabItems->where('tab', true) as $item)
     <a href="{{ route($item['route']) }}"

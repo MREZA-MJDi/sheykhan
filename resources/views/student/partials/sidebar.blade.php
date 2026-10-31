@@ -1,4 +1,4 @@
-@php($navItems = \\App\\Support\\StudentNav::items())
+@php($navItems = \App\Support\StudentNav::items())
 <aside class="side">
   <div class="me">
     <div class="av">

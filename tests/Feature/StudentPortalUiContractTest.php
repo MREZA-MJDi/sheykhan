@@ -34,8 +34,9 @@ class StudentPortalUiContractTest extends TestCase
                 ->assertOk()
                 ->assertSee('student-shell', false)
                 ->assertSee('class="app"', false)
-                ->assertSee('role-mobile-bottom-nav', false)
-                ->assertSee('student-profile-modal', false);
+                ->assertSee('<nav class="tabbar"', false)
+                ->assertDontSee('role-mobile-bottom-nav', false)
+                ->assertDontSee('student-profile-modal', false);
         }
     }
 
