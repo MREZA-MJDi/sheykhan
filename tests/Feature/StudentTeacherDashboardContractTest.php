@@ -216,23 +216,32 @@ class StudentTeacherDashboardContractTest extends TestCase
                 ->pluck('id')
         );
 
-        $this->actingAs($teacher)
+        $response = $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
-            ->assertOk()
-            ->assertSee('title="داشبورد"', false)
-            ->assertSee('title="پروفایل من"', false)
-            ->assertDontSee('title="دوره‌های من"', false)
-            ->assertDontSee('title="کلاس‌های من"', false)
-            ->assertDontSee('title="برنامه هفتگی"', false)
-            ->assertDontSee('title="کلاس‌های آنلاین"', false)
-            ->assertDontSee('title="تکالیف"', false)
-            ->assertDontSee('title="آزمون‌ها"', false)
-            ->assertDontSee('title="حضور و غیاب"', false)
-            ->assertDontSee('title="دانش‌آموزان"', false)
-            ->assertDontSee('title="گزارش عملکرد"', false)
-            ->assertDontSee('title="حقوق و پرداخت‌ها"', false)
-            ->assertDontSee('id="tdb-progress"', false)
-            ->assertDontSee('class="tdb-shortcuts"', false);
+            ->assertOk();
+
+        $response->assertSee('href="' . route('teacher.dashboard') . '"', false)
+            ->assertSee('href="' . route('teacher.profile.edit') . '"', false);
+
+        foreach ([
+            'teacher.courses.index',
+            'teacher.classrooms.index',
+            'teacher.schedule.index',
+            'teacher.live-classes.index',
+            'teacher.assignments.index',
+            'teacher.exams.index',
+            'teacher.attendance.index',
+            'teacher.students.index',
+            'teacher.messages.index',
+            'teacher.payments.index',
+        ] as $route) {
+            $response->assertDontSee('href="' . route($route) . '"', false, $route);
+        }
+
+        $response->assertDontSee('id="teacher-progress"', false)
+            ->assertDontSee('data-dashboard-chart', false)
+            ->assertDontSee('teacher-stat-card', false)
+            ->assertDontSee('teacher-quick-action', false);
     }
 
     public function test_teacher_dashboard_excludes_inactive_accounts_from_roster_and_course_counts(): void
@@ -330,13 +339,16 @@ class StudentTeacherDashboardContractTest extends TestCase
         ));
     }
 
-    public function test_teacher_and_student_portals_use_role_specific_assets_and_shared_mobile_navigation(): void
+    public function test_teacher_and_student_portals_use_role_owned_presentation_and_shared_behavior_modules(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $studentJs = file_get_contents(resource_path('js/student.js'));
-        $calendarModule = file_get_contents(resource_path('js/shared/persian-calendar-core.mjs'));
+        $calendarCore = file_get_contents(resource_path('js/shared/persian-calendar-core.mjs'));
+        $calendarRuntime = file_get_contents(resource_path('js/shared/persian-calendar.js'));
+        $moneyRuntime = file_get_contents(resource_path('js/shared/persian-money.js'));
+        $uploadRuntime = file_get_contents(resource_path('js/shared/upload-progress.js'));
         $panelRuntime = file_get_contents(resource_path('js/panel-runtime.js'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
@@ -346,14 +358,14 @@ class StudentTeacherDashboardContractTest extends TestCase
         $vite = file_get_contents(base_path('vite.config.js'));
 
         foreach ([
-            $teacherCss, $teacherJs, $studentCss, $studentJs, $calendarModule, $panelRuntime,
+            $teacherCss, $teacherJs, $studentCss, $studentJs, $calendarCore,
+            $calendarRuntime, $moneyRuntime, $uploadRuntime, $panelRuntime,
             $teacherLayout, $studentLayout, $dashboard, $teacherProfileView,
             $mobileNavigation, $vite,
         ] as $source) {
             $this->assertIsString($source);
         }
 
-        // The current architecture uses one CSS/JS entry pair for each role.
         $this->assertStringContainsString("@vite(['resources/css/teacher.css', 'resources/js/teacher.js'])", $teacherLayout);
         $this->assertStringContainsString("@vite(['resources/css/student.css', 'resources/js/student.js'])", $studentLayout);
         foreach ([
@@ -364,39 +376,57 @@ class StudentTeacherDashboardContractTest extends TestCase
         ] as $entry) {
             $this->assertStringContainsString($entry, $vite);
         }
-        $this->assertStringContainsString("@source '../../resources/views/teacher';", $teacherCss);
-        $this->assertStringContainsString("@source '../../resources/views/student';", $studentCss);
-        $this->assertStringContainsString("@source '../../resources/views/components';", $teacherCss);
-        $this->assertStringContainsString("@source '../../resources/views/components';", $studentCss);
 
-        $this->assertStringContainsString('.teacher-kpi', $teacherCss);
+        $this->assertStringContainsString("@source '../../resources/views/teacher';", $teacherCss);
+        $this->assertStringContainsString("@source '../../resources/views/layouts/teacher.blade.php';", $teacherCss);
+        $this->assertStringNotContainsString("@source '../../resources/views/components/teacher';", $teacherCss);
+        $this->assertStringNotContainsString("@source '../../resources/views/components';", $teacherCss);
+        $this->assertStringContainsString("@source '../../resources/views/student';", $studentCss);
+        $this->assertStringContainsString('.teacher-stat-card', $teacherCss);
         $this->assertStringContainsString('.teacher-workspace-page', $teacherCss);
         $this->assertStringContainsString('.teacher-profile-avatar', $teacherCss);
+        $this->assertStringContainsString('.teacher-dashboard-avatar', $teacherCss);
+        $this->assertStringContainsString('.teacher-roster-avatar', $teacherCss);
         $this->assertStringContainsString('prefers-reduced-motion', $teacherCss);
-        $this->assertStringContainsString('@media (max-width: 760px)', $teacherCss);
+        $this->assertStringContainsString('@media(max-width:860px)', $teacherCss);
         $this->assertStringContainsString('.student-shell .role-mobile-bottom-nav', $studentCss);
-        $this->assertStringContainsString('@media (max-width: 380px)', $studentCss);
 
-        $this->assertStringContainsString("import './persian-calendar.js';", $teacherJs);
-        $this->assertStringContainsString("import './persian-calendar.js';", $studentJs);
-        $this->assertStringContainsString("from './panel-runtime.js'", $teacherJs);
+        foreach ([
+            "import './shared/alpine-runtime.js';",
+            "import './shared/persian-calendar.js';",
+            "import './shared/persian-money.js';",
+            "import './teacher/assessment-builder.js';",
+            "import { bootFileUploadProgress } from './shared/upload-progress.js';",
+        ] as $expected) {
+            $this->assertStringContainsString($expected, $teacherJs);
+        }
+        $this->assertStringNotContainsString("from './panel-runtime.js'", $teacherJs);
+        $this->assertStringContainsString("import './shared/persian-calendar.js';", $studentJs);
         $this->assertStringContainsString("from './panel-runtime.js'", $studentJs);
         $this->assertStringContainsString('bootRoleMobileNavigation', $panelRuntime);
-        $this->assertStringContainsString('jalaliDaysInMonth', $calendarModule);
-        $this->assertStringContainsString('gregorianToJalali', $calendarModule);
+        $this->assertStringContainsString('jalaliDaysInMonth', $calendarCore);
+        $this->assertStringContainsString('gregorianToJalali', $calendarCore);
+        $this->assertStringContainsString('initializePersianCalendars', $calendarRuntime);
+        $this->assertStringContainsString('Intl.NumberFormat', $moneyRuntime);
+        $this->assertStringContainsString('data-upload-progress-ui', $uploadRuntime);
 
         $this->assertStringContainsString('data-dashboard-search-empty', $dashboard);
         $this->assertStringContainsString('id="teacher-progress"', $dashboard);
         $this->assertStringContainsString('data-dashboard-chart', $dashboard);
+        $this->assertStringContainsString('class="teacher-dashboard-avatar"', $dashboard);
+        $this->assertStringContainsString('data-avatar-image', $dashboard);
+        $this->assertStringContainsString('class="teacher-roster-avatar"', $dashboard);
         $this->assertStringContainsString('data-teacher-preview-container="avatar"', $teacherProfileView);
         $this->assertStringContainsString('data-teacher-preview-input="avatar"', $teacherProfileView);
         $this->assertStringContainsString('data-teacher-preview-input="cover"', $teacherProfileView);
         $this->assertStringContainsString('data-max-size-mb="3"', $teacherProfileView);
         $this->assertStringContainsString('data-max-size-mb="5"', $teacherProfileView);
 
-        $this->assertStringContainsString('<x-navigation.role-mobile-nav role="teacher" />', $teacherLayout);
+        $this->assertStringContainsString('<nav class="bt"', $teacherLayout);
+        $this->assertStringContainsString('data-teacher-menu-open', $teacherLayout);
+        $this->assertStringContainsString('data-teacher-menu-close', $teacherLayout);
         $this->assertStringContainsString('teacherProfile.media', $teacherLayout);
-        $this->assertStringContainsString('$teacherPanelAvatarUrl', $teacherLayout);
+        $this->assertStringContainsString('$avatarUrl', $dashboard);
         $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
         $this->assertStringContainsString('id="student-profile-modal"', $studentLayout);
         $this->assertStringContainsString('data-student-profile-open', $studentLayout);
