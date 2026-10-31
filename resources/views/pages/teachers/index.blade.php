@@ -53,10 +53,11 @@
                         @endforeach
                     </div>
                 @else
-                    <x-ui.empty-state
-                        title="هنوز مدرس قابل نمایشی وجود ندارد"
-                        description="به‌محض ثبت و تایید مدرس، اطلاعات او در این بخش نمایش داده می‌شود."
-                    />
+                    <div class="public-empty-state" role="status">
+        <span class="public-empty-state__icon" aria-hidden="true">⌕</span>
+        <h3>هنوز مدرس قابل نمایشی وجود ندارد</h3>
+        <p>به‌محض ثبت و تایید مدرس، اطلاعات او در این بخش نمایش داده می‌شود.</p>
+    </div>
                 @endif
 
                 @if($teachers->hasPages())
