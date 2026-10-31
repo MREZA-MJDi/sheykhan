@@ -6,7 +6,9 @@
 @section('content')
 @php
     $allLessons = $lessons;
-    $completed = $allLessons->filter(fn ($lesson) => (float) ($lesson->student_progress ?? 0) >= 100)->count();
+    $completed = $allLessons->filter(function ($lesson) {
+        return (float) ($lesson->student_progress ?? 0) >= 100;
+    })->count();
 @endphp
 <section class="page">
     <div class="hero">
@@ -126,7 +128,9 @@
         @forelse($course->sections as $section)
             <div class="chead"><h2>{{ $section->title }}</h2><span class="tag">{{ \App\Support\PersianUi::digits($section->lessons->count()) }} درس</span></div>
             @forelse($section->lessons as $lesson)
-                @php $progress = max(0, min(100, (float) ($lesson->student_progress ?? 0))); @endphp
+                @php
+                    $progress = max(0, min(100, (float) ($lesson->student_progress ?? 0)));
+                @endphp
                 <div class="trk">
                     <div class="th"><svg class="i" aria-hidden="true"><use href="#i-book"/></svg></div>
                     <div>
