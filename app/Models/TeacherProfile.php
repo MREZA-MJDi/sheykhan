@@ -12,10 +12,18 @@ class TeacherProfile extends Model
     use HasFactory, HasMedia;
 
     protected $fillable = [
-        'user_id','bio','specialization','education','experience_years','is_verified','is_public'
+        'user_id', 'bio', 'specialization', 'education', 'experience_years',
+        'is_verified', 'is_public', 'notification_preferences',
     ];
 
-    protected $casts = ['is_verified' => 'boolean', 'is_public' => 'boolean'];
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'is_public' => 'boolean',
+        'notification_preferences' => 'array',
+    ];
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

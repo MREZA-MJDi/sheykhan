@@ -1,12 +1,13 @@
-/* Teacher panel entry. Shared shell behavior lives in panel-runtime.js. */
-import './persian-calendar.js';
-import './persian-money.js';
-import './assessment-builder.js';
-import { bootPanelRuntime, closePanelMenu } from './panel-runtime.js';
-export { closePanelMenu };
-
-bootPanelRuntime();
-
+/* Teacher-only runtime. Role UI and behavior are isolated. */
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();
+import './teacher/persian-calendar.js';
+import './teacher/persian-money.js';
+import './teacher/assessment-builder.js';
+import { bootFileUploadProgress } from './teacher/upload-progress.js';
+import './teacher/course-media-uploader.js';
+document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
 // ZIP utility: Jalali/Gregorian date conversion.
 function fa(n){return String(n).replace(/\d/g,function(d){return"۰۱۲۳۴۵۶۷۸۹"[d]})}
 function pad(n){return(n<10?"0":"")+n}
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyTheme = (value) => {
         const theme = value === 'dark' ? 'dark' : 'light';
         root.dataset.theme = theme;
-        try { localStorage.setItem('sheykhan.panel.theme', theme); localStorage.setItem('theme', theme); } catch (_) {}
+        try { localStorage.setItem('sheykhan.teacher.theme', theme);  } catch (_) {}
         if (themeButton) {
             themeButton.setAttribute('aria-pressed', String(theme === 'dark'));
             themeButton.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let savedTheme = root.dataset.theme === 'dark' ? 'dark' : 'light';
     try {
-        const stored = localStorage.getItem('sheykhan.panel.theme') || localStorage.getItem('theme') || localStorage.getItem('sheykhan.student.theme');
+        const stored = localStorage.getItem('sheykhan.teacher.theme');
         if (stored === 'dark' || stored === 'light') savedTheme = stored;
     } catch (_) {}
     applyTheme(savedTheme);
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const collectTargets = () => {
             const candidates = Array.from(main.querySelectorAll(
-                '[data-dashboard-searchable], .teacher-workspace-item, .teacher-workspace-card, tbody tr, .tl, .ls'
+                '[data-dashboard-searchable], .teacher-workspace-item, .teacher-workspace-card, tbody tr, .tl, .ls, .row, .teacher-stat-card, .teacher-quick-action, .weekly-calendar-event, .teacher-exam-attempt-card, .teacher-student-row, .teacher-course-card'
             ));
             return candidates.filter((element) => !candidates.some((parent) =>
                 parent !== element && parent.contains(element)
@@ -627,4 +628,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const side=document.getElementById('side'), overlay=document.getElementById('teacher-overlay');
+  const menuTrigger=document.querySelector('[data-teacher-menu-open]');
+  const toggleMenu=(open)=>{side?.classList.toggle('open',!!open);overlay?.classList.toggle('open',!!open);overlay?.setAttribute('aria-hidden',String(!open));document.body.classList.toggle('teacher-menu-open',!!open);if(open)side?.querySelector('a.nv,button.nv')?.focus();else menuTrigger?.focus();};
+  document.querySelectorAll('[data-teacher-menu-open]').forEach(x=>x.addEventListener('click',()=>toggleMenu(true)));
+  document.querySelectorAll('[data-teacher-menu-close]').forEach(x=>x.addEventListener('click',()=>toggleMenu(false)));
+  overlay?.addEventListener('click',()=>toggleMenu(false));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false);});
+  document.querySelectorAll('[data-teacher-preview]').forEach(input=>input.addEventListener('change',()=>{
+    const target=document.querySelector(input.dataset.teacherPreview); if(!target)return; target.replaceChildren();
+    [...(input.files||[])].forEach(file=>{
+      const chip=document.createElement('span');chip.className='chip';
+      chip.textContent=file.name+' · '+String(Math.max(1,Math.ceil(file.size/1024))).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d])+' KB';
+      if(file.type==='application/pdf'||file.type.startsWith('image/')){
+        const a=document.createElement('a'),url=URL.createObjectURL(file);a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='پیش‌نمایش';
+        a.addEventListener('click',()=>setTimeout(()=>URL.revokeObjectURL(url),60000),{once:true});chip.append(' · ',a);
+      }
+      target.appendChild(chip);
+    });
+  }));
 });

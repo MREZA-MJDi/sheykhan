@@ -30,47 +30,38 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertDontSee('sdr-hero', false);
     }
 
-    public function test_teacher_dashboard_exposes_backend_driven_teaching_workflow_without_financial_kpi(): void
+    public function test_teacher_dashboard_exposes_the_new_teacher_design_with_real_backend_data(): void
     {
         $this->seed();
-
         $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
 
         $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
             ->assertOk()
-            ->assertSee('کلاس‌های فعال')
-            ->assertSee('دانش‌آموزان')
-            ->assertSee('جلسات این هفته')
-            ->assertSee('تکالیف منتظر تصحیح')
-            ->assertSee('آزمون‌های منتظر بررسی')
-            ->assertSee('روند پیشرفت ثبت‌شده')
-            ->assertSee('class="app"', false)
+            ->assertSee('کلاس فعال')
+            ->assertSee('دانش‌آموز')
+            ->assertSee('جلسه این هفته')
+            ->assertSee('تکلیف منتظر نمره')
+            ->assertSee('آزمون منتظر بررسی')
+            ->assertSee('گزارش عملکرد')
             ->assertSee('id="teacher-dashboard"', false)
-            ->assertSee('class="ph teacher-dashboard-hero"', false)
-            ->assertSee('class="teacher-dashboard-avatar"', false)
-            ->assertSee('class="teacher-kpi sk"', false)
-            ->assertSee('سلام استاد سمیه احمدی', false)
-            ->assertSee('teacher-classroom-roster-card', false)
-            ->assertSee('مشاهده جزئیات', false)
-            ->assertSee('<a class="teacher-kpi', false)
-            ->assertSee('<a class="teacher-student-row', false)
-            ->assertSee('<a class="teacher-course-card', false)
+            ->assertSee('class="hero2"', false)
+            ->assertSee('teacher-stat-card', false)
+            ->assertSee('teacher-quick-action', false)
+            ->assertSee('خوش آمدید', false)
             ->assertSee('id="teacher-progress"', false)
             ->assertSee('data-dashboard-chart', false)
             ->assertSee('data-chart-range="week"', false)
             ->assertSee('id="gs"', false)
-            ->assertSee('role-mobile-bottom-nav', false)
-            ->assertSee('data-role-more-open', false)
-            ->assertSee('آخرین فعالیت‌ها')
+            ->assertSee('<aside class="side"', false)
+            ->assertSee('<nav class="bt"', false)
+            ->assertSee('data-teacher-menu-open', false)
             ->assertSee('href="' . route('teacher.classrooms.index') . '"', false)
             ->assertSee('href="' . route('teacher.courses.index') . '"', false)
             ->assertSee('href="' . route('teacher.schedule.index') . '"', false)
-            ->assertSee('data-dashboard-search-empty', false)
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
     }
-
 
     public function test_teacher_dashboard_roster_uses_real_student_profile_photos(): void
     {

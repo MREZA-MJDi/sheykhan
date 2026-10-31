@@ -20,7 +20,7 @@ class StoreAssignmentRequest extends FormRequest
             'classroom_id' => ['nullable', 'integer', 'exists:classrooms,id'],
             'title' => ['required', 'string', 'max:255'],
             'instructions' => ['nullable', 'string', 'max:30000'],
-            'handout' => ['nullable', 'file', 'mimes:pdf,txt', 'max:51200'],
+            'handout' => ['nullable', 'file', 'mimes:pdf,txt,doc,docx,ppt,pptx,jpg,jpeg,png,webp', 'max:20480'],
             'due_at' => ['nullable', 'date', 'after_or_equal:now'],
             'max_score' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'status' => ['sometimes', Rule::in(['draft', 'published', 'closed'])],
@@ -31,7 +31,7 @@ class StoreAssignmentRequest extends FormRequest
     {
         $validator->after(function (Validator $validator): void {
             if (blank($this->input('instructions')) && ! $this->hasFile('handout')) {
-                $validator->errors()->add('instructions', 'دستورالعمل متنی یا فایل PDF/TXT تکلیف را اضافه کنید.');
+                $validator->errors()->add('instructions', 'دستورالعمل متنی یا فایل PDF، Word، PowerPoint یا تصویر تکلیف را اضافه کنید.');
             }
         });
     }
@@ -44,8 +44,8 @@ class StoreAssignmentRequest extends FormRequest
             'classroom_id.exists' => 'کلاس انتخاب‌شده معتبر نیست.',
             'title.required' => 'عنوان تکلیف الزامی است.',
             'instructions.max' => 'دستورالعمل نمی‌تواند بیشتر از ۳۰٬۰۰۰ نویسه باشد.',
-            'handout.mimes' => 'فایل راهنما باید PDF یا TXT باشد.',
-            'handout.max' => 'حجم فایل راهنما حداکثر ۵۰ مگابایت است.',
+            'handout.mimes' => 'فرمت فایل باید PDF، TXT، Word، PowerPoint یا تصویر باشد.',
+            'handout.max' => 'حجم فایل راهنما حداکثر ۲۰ مگابایت است.',
             'due_at.date' => 'مهلت تحویل معتبر نیست.',
             'due_at.after_or_equal' => 'مهلت تحویل نمی‌تواند در گذشته باشد.',
             'max_score.min' => 'نمره کل نمی‌تواند منفی باشد.',

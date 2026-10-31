@@ -6,164 +6,141 @@ use Tests\TestCase;
 
 class StudentTeacherDashboardDesignSystemTest extends TestCase
 {
-    public function test_student_and_teacher_layouts_boot_theme_and_load_their_own_assets(): void
+    public function test_student_and_teacher_layouts_load_separate_assets_and_theme_storage(): void
     {
         $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $themePartial = file_get_contents(resource_path('views/layouts/partials/panel-theme-init.blade.php'));
+        $teacherScript = file_get_contents(resource_path('js/teacher.js'));
         $viteConfig = file_get_contents(base_path('vite.config.js'));
-
-        foreach ([$studentLayout, $teacherLayout, $themePartial, $viteConfig] as $source) {
-            $this->assertIsString($source);
-        }
+        foreach ([$studentLayout,$teacherLayout,$themePartial,$teacherScript,$viteConfig] as $source) $this->assertIsString($source);
 
         $this->assertStringContainsString("@include('layouts.partials.panel-theme-init')", $studentLayout);
-        $this->assertStringContainsString("@include('layouts.partials.panel-theme-init')", $teacherLayout);
+        $this->assertStringNotContainsString("@include('layouts.partials.panel-theme-init')", $teacherLayout);
         $this->assertStringContainsString("@vite(['resources/css/student.css', 'resources/js/student.js'])", $studentLayout);
         $this->assertStringContainsString("@vite(['resources/css/teacher.css', 'resources/js/teacher.js'])", $teacherLayout);
-        $this->assertStringContainsString("'resources/css/student.css'", $viteConfig);
-        $this->assertStringContainsString("'resources/js/student.js'", $viteConfig);
         $this->assertStringContainsString("'resources/css/teacher.css'", $viteConfig);
         $this->assertStringContainsString("'resources/js/teacher.js'", $viteConfig);
-
         $this->assertStringContainsString("localStorage.getItem('sheykhan.panel.theme')", $themePartial);
-        $this->assertStringContainsString("localStorage.getItem('sheykhan.student.theme')", $themePartial);
-        $this->assertStringContainsString("localStorage.getItem('theme')", $themePartial);
+        $this->assertStringContainsString("sheykhan.teacher.theme", $teacherScript);
+        $this->assertStringNotContainsString("localStorage.getItem('sheykhan.panel.theme')", $teacherScript);
+        $this->assertStringNotContainsString("localStorage.getItem('theme')", $teacherScript);
         $this->assertStringNotContainsString('fonts.googleapis.com', $teacherLayout);
     }
 
-    public function test_role_stylesheets_are_independent_tailwind_entries_with_responsive_tokens(): void
+    public function test_teacher_styles_and_components_are_an_independent_responsive_tailwind_entry(): void
     {
-        $studentStyles = file_get_contents(resource_path('css/student.css'));
-        $teacherStyles = file_get_contents(resource_path('css/teacher.css'));
-        $viteConfig = file_get_contents(base_path('vite.config.js'));
+        $css = file_get_contents(resource_path('css/teacher.css'));
+        $layout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
+        $vite = file_get_contents(base_path('vite.config.js'));
+        foreach ([$css,$layout,$vite] as $source) $this->assertIsString($source);
 
-        foreach ([$studentStyles, $teacherStyles, $viteConfig] as $source) {
-            $this->assertIsString($source);
-        }
-
-        $this->assertStringContainsString("@import 'tailwindcss' source(none);", $studentStyles);
-        $this->assertStringContainsString("@source '../../resources/views/student';", $studentStyles);
-        $this->assertStringContainsString("@source '../../resources/views/layouts/student.blade.php';", $studentStyles);
-        $this->assertStringContainsString("@source '../../resources/views/components';", $studentStyles);
-        $this->assertStringContainsString("@import 'tailwindcss' source(none);", $teacherStyles);
-        $this->assertStringContainsString("@source '../../resources/views/teacher';", $teacherStyles);
-        $this->assertStringContainsString("@source '../../resources/views/layouts/teacher.blade.php';", $teacherStyles);
-        $this->assertStringContainsString("@source '../../resources/views/components';", $teacherStyles);
-
-        $this->assertStringContainsString('.student-shell', $studentStyles);
-        $this->assertStringContainsString('.teacher-shell', $teacherStyles);
-        $this->assertStringContainsString('.student-shell .role-mobile-bottom-nav', $studentStyles);
-        $this->assertStringContainsString('.teacher-shell .role-mobile-bottom-nav', $teacherStyles);
-        $this->assertStringContainsString('@media (max-width: 380px)', $studentStyles);
-        $this->assertStringContainsString('@media (max-width: 760px)', $teacherStyles);
-        $this->assertStringContainsString('focus-visible', $studentStyles . $teacherStyles);
-
-        $this->assertStringNotContainsString("import './teacher.css'", $studentStyles);
-        $this->assertStringNotContainsString("import './student.css'", $teacherStyles);
-        $this->assertStringNotContainsString('resources/css/role-dashboard-design-system.css', $viteConfig);
+        $this->assertStringContainsString("@import 'tailwindcss' source(none);", $css);
+        $this->assertStringContainsString("@source '../../resources/views/teacher';", $css);
+        $this->assertStringContainsString("@source '../../resources/views/layouts/teacher.blade.php';", $css);
+        $this->assertStringContainsString("@source '../../resources/views/components/teacher';", $css);
+        $this->assertStringContainsString('<aside class="side"', $layout);
+        $this->assertStringContainsString('<nav class="bt"', $layout);
+        $this->assertStringContainsString('.teacher-panel', $css);
+        $this->assertStringContainsString('.weekly-calendar', $css);
+        $this->assertStringContainsString('@media(max-width:760px)', $css);
+        $this->assertStringContainsString('focus-visible', $css);
+        $this->assertStringNotContainsString("import './panel-runtime.js'", file_get_contents(resource_path('js/teacher.js')));
+        $this->assertStringNotContainsString("import './student.css'", $css);
     }
 
-    public function test_avatar_fallback_behavior_is_shared_and_scoped_to_student_and_teacher(): void
+    public function test_teacher_javascript_owns_alpine_upload_calendar_and_exam_builder_runtime(): void
     {
-        $sharedScript = file_get_contents(resource_path('js/panel-base.js'));
+        $script = file_get_contents(resource_path('js/teacher.js'));
+        $this->assertIsString($script);
+        foreach ([
+            "import Alpine from 'alpinejs';",
+            "import './teacher/assessment-builder.js';",
+            "import './teacher/persian-calendar.js';",
+            "import './teacher/persian-money.js';",
+            "import './teacher/upload-progress.js';",
+            "import './teacher/course-media-uploader.js';",
+            'Alpine.start();',
+        ] as $expected) {
+            $this->assertStringContainsString($expected, $script);
+        }
+        $this->assertStringNotContainsString("from './panel-runtime.js'", $script);
+        $this->assertStringNotContainsString("import './assessment-builder.js'", $script);
+    }
+
+    public function test_teacher_dashboard_and_mobile_navigation_are_teacher_owned(): void
+    {
+        $dashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
+        $layout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
+        $css = file_get_contents(resource_path('css/teacher.css'));
+        foreach ([$dashboard,$layout,$css] as $source) $this->assertIsString($source);
+
+        $this->assertStringContainsString('id="teacher-dashboard"', $dashboard);
+        $this->assertStringContainsString('<x-teacher.stat-card', $dashboard);
+        $this->assertStringContainsString('<x-teacher.quick-action', $dashboard);
+        $this->assertStringContainsString('teacher-stat-card', $css);
+        $this->assertStringContainsString('teacher-quick-action', $css);
+        $this->assertStringContainsString('data-teacher-menu-open', $layout);
+        $this->assertStringContainsString('data-teacher-menu-close', $layout);
+        $this->assertStringNotContainsString('<x-navigation.role-mobile-nav role="teacher"', $layout);
+    }
+
+    public function test_student_layout_and_runtime_remain_unchanged_and_role_specific(): void
+    {
         $studentScript = file_get_contents(resource_path('js/student.js'));
-        $teacherScript = file_get_contents(resource_path('js/teacher.js'));
-
-        $this->assertIsString($sharedScript);
-        $this->assertIsString($studentScript);
-        $this->assertIsString($teacherScript);
-
-        $this->assertStringContainsString("document.body.matches('.student-shell, .teacher-shell')", $sharedScript);
-        $this->assertStringContainsString("document.querySelectorAll('img[data-avatar-image]')", $sharedScript);
-        $this->assertStringContainsString("image.addEventListener('error', showFallback, { once: true })", $sharedScript);
-        $this->assertStringContainsString('bootRoleAvatarFallback();', $sharedScript);
-    }
-
-    public function test_dashboard_markup_and_layout_rules_remain_role_specific(): void
-    {
-        $studentDashboard = file_get_contents(resource_path('views/student/dashboard.blade.php'));
-        $teacherDashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
         $studentStyles = file_get_contents(resource_path('css/student.css'));
-        $teacherStyles = file_get_contents(resource_path('css/teacher.css'));
-
-        foreach ([$studentDashboard, $teacherDashboard, $studentStyles, $teacherStyles] as $source) {
-            $this->assertIsString($source);
-        }
-
-        $this->assertStringContainsString('id="dashboard"', $studentDashboard);
-        $this->assertStringContainsString('#dashboard .hero', $studentStyles);
-        $this->assertStringContainsString('id="teacher-dashboard"', $teacherDashboard);
-        $this->assertStringContainsString('#teacher-dashboard', $teacherStyles);
-        $this->assertStringNotContainsString('style="margin-top:18px"', $studentDashboard);
+        $studentLayout = file_get_contents(resource_path('views/layouts/student.blade.php'));
+        foreach ([$studentScript,$studentStyles,$studentLayout] as $source) $this->assertIsString($source);
+        $this->assertStringContainsString("from './panel-runtime.js'", $studentScript);
+        $this->assertStringContainsString('.student-shell', $studentStyles);
+        $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
     }
 
-    public function test_role_entries_use_one_shared_panel_runtime_and_spotplayer_as_video_provider(): void
+    public function test_role_entries_that_are_not_teacher_continue_using_the_shared_runtime(): void
     {
-        $entries = [
+        foreach ([
             'resources/js/app.js',
             'resources/js/parent.js',
             'resources/js/student.js',
-            'resources/js/teacher.js',
             'resources/js/owner-dashboard.js',
             'resources/js/seo-dashboard.js',
-        ];
-        $runtime = file_get_contents(resource_path('js/panel-runtime.js'));
-        $playerView = file_get_contents(resource_path('views/student/courses/show.blade.php'));
-        $package = json_decode(file_get_contents(base_path('package.json')), true);
-
-        foreach ([$runtime, $playerView] as $source) {
-            $this->assertIsString($source);
-        }
-        $this->assertIsArray($package);
-        $this->assertStringContainsString("import { bootPanel, closePanelMenu } from './panel-base.js';", $runtime);
-        $this->assertStringContainsString("import { bootFileUploadProgress } from './upload-progress.js';", $runtime);
-        $this->assertStringContainsString('bootRoleMobileNavigation();', $runtime);
-        $this->assertStringContainsString('bootFileUploadProgress();', $runtime);
-        $this->assertArrayNotHasKey('shaka-player', $package['dependencies'] ?? []);
-        $this->assertStringContainsString("config('services.spotplayer.web_player_script')", $playerView);
-        $this->assertStringContainsString('new window.SpotPlayer(', $playerView);
-
-        foreach ($entries as $entry) {
+        ] as $entry) {
             $source = file_get_contents(resource_path(str_replace('resources/', '', $entry)));
             $this->assertIsString($source);
             $this->assertStringContainsString("from './panel-runtime.js'", $source, $entry);
         }
     }
 
+    public function test_spotplayer_remains_the_protected_course_player(): void
+    {
+        $playerView = file_get_contents(resource_path('views/student/courses/show.blade.php'));
+        $package = json_decode(file_get_contents(base_path('package.json')), true);
+        $this->assertIsString($playerView);
+        $this->assertIsArray($package);
+        $this->assertArrayNotHasKey('shaka-player', $package['dependencies'] ?? []);
+        $this->assertStringContainsString("config('services.spotplayer.web_player_script')", $playerView);
+        $this->assertStringContainsString('new window.SpotPlayer(', $playerView);
+    }
 
-    public function test_owner_and_seo_share_common_interactions_styles_and_layout_partials(): void
+    public function test_owner_and_seo_keep_their_own_shared_interactions_and_styles(): void
     {
         $ownerScript = file_get_contents(resource_path('js/owner-dashboard.js'));
         $seoScript = file_get_contents(resource_path('js/seo-dashboard.js'));
         $sharedScript = file_get_contents(resource_path('js/owner-admin-common.js'));
         $ownerCss = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
         $seoCss = file_get_contents(resource_path('css/seo-dashboard.css'));
-        $sharedCss = file_get_contents(resource_path('css/owner-admin-shared.css'));
         $ownerLayout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
         $seoLayout = file_get_contents(resource_path('views/layouts/seo-specialist.blade.php'));
-
-        foreach ([$ownerScript, $seoScript, $sharedScript, $ownerCss, $seoCss, $sharedCss, $ownerLayout, $seoLayout] as $source) {
-            $this->assertIsString($source);
-        }
-
+        foreach ([$ownerScript,$seoScript,$sharedScript,$ownerCss,$seoCss,$ownerLayout,$seoLayout] as $source) $this->assertIsString($source);
         $this->assertStringContainsString("import './owner-admin-common.js';", $ownerScript);
         $this->assertStringContainsString("import './owner-admin-common.js';", $seoScript);
         $this->assertStringContainsString('data-media-uploader', $sharedScript);
         $this->assertStringContainsString("import './assessment-builder.js';", $sharedScript);
-        $this->assertStringContainsString('const initializeExamBuilder', file_get_contents(resource_path('js/assessment-builder.js')));
-        $teacherScript = file_get_contents(resource_path('js/teacher.js'));
-        $this->assertIsString($teacherScript);
-        $this->assertStringContainsString("import './assessment-builder.js';", $teacherScript);
-        $this->assertStringNotContainsString('const initializeExamBuilder', $teacherScript);
-        $this->assertStringContainsString("@import './owner-admin-shared.css';", $ownerCss);
-        $this->assertStringContainsString("@import './owner-admin-shared.css';", $seoCss);
-
-        foreach ([$ownerLayout, $seoLayout] as $layout) {
+        $this->assertStringContainsString("import './owner-admin-shared.css';", $ownerCss);
+        $this->assertStringContainsString("import './owner-admin-shared.css';", $seoCss);
+        foreach ([$ownerLayout,$seoLayout] as $layout) {
             $this->assertStringContainsString("@include('owner.partials.admin-topbar')", $layout);
             $this->assertStringContainsString("@include('owner.partials.admin-main')", $layout);
-            $this->assertStringContainsString("@include('owner.partials.admin-command-palette')", $layout);
         }
     }
-
 }

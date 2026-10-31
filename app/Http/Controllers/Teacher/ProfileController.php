@@ -32,28 +32,33 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(
-        UpdateProfileRequest $request,
-        MediaService $mediaService,
-    ): RedirectResponse {
+    public function update(UpdateProfileRequest $request, MediaService $mediaService): RedirectResponse
+    {
         $teacher = $request->user();
         $data = $request->validated();
 
         DB::transaction(function () use ($request, $teacher, $data, $mediaService): void {
             $teacherUpdates = ['name' => $data['name']];
-
             if (array_key_exists('email', $data)) {
                 $teacherUpdates['email'] = $data['email'];
             }
-
             $teacher->update($teacherUpdates);
 
             $profile = TeacherProfile::query()->firstOrCreate(
                 ['user_id' => $teacher->id],
                 ['is_verified' => false, 'is_public' => true],
             );
-
             $isPublic = $request->boolean('is_public');
+            $preferences = $profile->notification_preferences ?? [
+                'parent_messages' => true,
+                'class_reminders' => true,
+                'assignment_submissions' => false,
+            ];
+            if (array_key_exists('notification_preferences', $data)) {
+                foreach (['parent_messages', 'class_reminders', 'assignment_submissions'] as $key) {
+                    $preferences[$key] = (bool) ($data['notification_preferences'][$key] ?? false);
+                }
+            }
 
             $profile->update([
                 'bio' => $data['bio'] ?? null,
@@ -63,75 +68,46 @@ class ProfileController extends Controller
                     ? $data['experience_years']
                     : ($profile->experience_years ?? 0),
                 'is_public' => $isPublic,
+                'notification_preferences' => $preferences,
             ]);
 
             if ($request->hasFile('avatar')) {
-                $oldAvatar = $profile->media()
-                    ->wherePivot('collection', 'teacher-avatar')
-                    ->orderByPivot('sort_order')
-                    ->first();
-
-                $newAvatar = $mediaService->upload(
-                    $request->file('avatar'),
-                    $profile,
-                    [
-                        'disk' => 'local',
-                        'directory' => 'teachers/' . $teacher->id,
-                        'collection' => 'teacher-avatar',
-                        'visibility' => $isPublic ? 'public' : 'private',
-                        'sort_order' => 0,
-                        'is_featured' => true,
-                    ],
-                );
-
+                $oldAvatar = $profile->media()->wherePivot('collection', 'teacher-avatar')->orderByPivot('sort_order')->first();
+                $newAvatar = $mediaService->upload($request->file('avatar'), $profile, [
+                    'disk' => 'local',
+                    'directory' => 'teachers/' . $teacher->id,
+                    'collection' => 'teacher-avatar',
+                    'visibility' => $isPublic ? 'public' : 'private',
+                    'sort_order' => 0,
+                    'is_featured' => true,
+                ]);
                 if ($oldAvatar && $oldAvatar->id !== $newAvatar->id) {
                     $mediaService->detach($oldAvatar, $profile);
-
-                    if ($oldAvatar->attachments()->doesntExist()) {
-                        $mediaService->delete($oldAvatar);
-                    }
+                    if ($oldAvatar->attachments()->doesntExist()) $mediaService->delete($oldAvatar);
                 }
             }
 
             if ($request->hasFile('cover')) {
-                $oldCover = $profile->media()
-                    ->wherePivot('collection', 'teacher-cover')
-                    ->orderByPivot('sort_order')
-                    ->first();
-
-                $newCover = $mediaService->upload(
-                    $request->file('cover'),
-                    $profile,
-                    [
-                        'disk' => 'local',
-                        'directory' => 'teachers/' . $teacher->id,
-                        'collection' => 'teacher-cover',
-                        'visibility' => $isPublic ? 'public' : 'private',
-                        'sort_order' => 0,
-                        'is_featured' => false,
-                    ],
-                );
-
+                $oldCover = $profile->media()->wherePivot('collection', 'teacher-cover')->orderByPivot('sort_order')->first();
+                $newCover = $mediaService->upload($request->file('cover'), $profile, [
+                    'disk' => 'local',
+                    'directory' => 'teachers/' . $teacher->id,
+                    'collection' => 'teacher-cover',
+                    'visibility' => $isPublic ? 'public' : 'private',
+                    'sort_order' => 0,
+                    'is_featured' => false,
+                ]);
                 if ($oldCover && $oldCover->id !== $newCover->id) {
                     $mediaService->detach($oldCover, $profile);
-
-                    if ($oldCover->attachments()->doesntExist()) {
-                        $mediaService->delete($oldCover);
-                    }
+                    if ($oldCover->attachments()->doesntExist()) $mediaService->delete($oldCover);
                 }
             }
 
             if (! $request->hasFile('cover') && $request->boolean('remove_cover')) {
-                $coverToRemove = $profile->media()
-                    ->wherePivot('collection', 'teacher-cover')
-                    ->first();
-
+                $coverToRemove = $profile->media()->wherePivot('collection', 'teacher-cover')->first();
                 if ($coverToRemove) {
                     $mediaService->detach($coverToRemove, $profile);
-
-                    if ($coverToRemove->attachments()->doesntExist()) {
-                        $mediaService->delete($coverToRemove);
-                    }
+                    if ($coverToRemove->attachments()->doesntExist()) $mediaService->delete($coverToRemove);
                 }
             }
 
@@ -143,7 +119,6 @@ class ProfileController extends Controller
                 ]));
         });
 
-        return redirect()->route('teacher.profile.edit')
-            ->with('success', 'پروفایل استاد با موفقیت به‌روزرسانی شد.');
+        return redirect()->route('teacher.profile.edit')->with('success', 'پروفایل استاد با موفقیت به‌روزرسانی شد.');
     }
 }

@@ -4,5 +4,5 @@
 @section('header-title', $pageTitle)
 
 @section('content')
-    @include('components.communication.academy-messages-workspace')
+    @include('teacher.partials.academy-messages-workspace')
 @endsection
