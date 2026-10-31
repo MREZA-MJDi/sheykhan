@@ -105,14 +105,30 @@
                                     $price = (float) ($product->sale_price ?? $product->price);
                                 @endphp
 
-                                <x-education.product-card
-                                    :title="$product->title"
-                                    :price="\App\Support\PersianUi::moneyInCurrency($price, $product->currency)"
-                                    :category="$product->category?->name"
-                                    :image="$media?->url()"
-                                    :description="$product->description ?? null"
-                                    :href="route('store.product.show', $product)"
-                                />
+                                <article class="public-store-product-card edu-card group flex h-full min-w-0 flex-col">
+                                    <a href="{{ route('store.product.show', $product) }}" aria-label="مشاهده {{ $product->title }}" class="block">
+                                        <div class="relative aspect-[4/3] overflow-hidden bg-[var(--color-slate-100)]">
+                                            @if($media?->url())
+                                                <img src="{{ $media->url() }}" alt="{{ $product->title }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.045]" loading="lazy" decoding="async">
+                                            @else
+                                                <div class="flex h-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(104,121,245,.18),transparent_42%),var(--color-slate-100)] text-[var(--color-primary-600)]"><span class="text-4xl font-black">ش</span></div>
+                                            @endif
+                                            @if($product->category?->name)
+                                                <span class="absolute right-3 top-3 rounded-full border border-white/30 bg-black/55 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur">{{ $product->category->name }}</span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                    <div class="flex flex-1 flex-col p-5">
+                                        <h3 class="line-clamp-2 min-h-[3.5rem] text-base font-black leading-7 text-[var(--color-text)]"><a href="{{ route('store.product.show', $product) }}" class="transition-colors hover:text-[var(--color-primary-600)]">{{ $product->title }}</a></h3>
+                                        @if($product->description)
+                                            <p class="mt-2 line-clamp-2 text-sm leading-7 text-[var(--color-text-secondary)]">{{ $product->description }}</p>
+                                        @endif
+                                        <div class="mt-auto flex items-end justify-between gap-4 border-t border-[var(--color-border)] pt-5 mt-5">
+                                            <div><span class="block text-[11px] font-semibold text-[var(--color-text-muted)]">قیمت</span><strong class="mt-1 block text-base font-black text-[var(--color-primary-600)]">{{ \App\Support\PersianUi::moneyInCurrency($price, $product->currency) }}</strong></div>
+                                            <span class="grid h-10 w-10 place-items-center rounded-xl bg-[var(--color-primary-50)] text-[var(--color-primary-600)]" aria-hidden="true">←</span>
+                                        </div>
+                                    </div>
+                                </article>
                             @endforeach
                         </div>
                     @else
