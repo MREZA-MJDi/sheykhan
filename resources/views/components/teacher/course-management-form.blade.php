@@ -66,126 +66,58 @@
             }
         },
         formatJalaliDate(value) {
-            if (!value) return '';
-            const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
-            if (!match) return '';
-
-            const date = new Date(Date.UTC(
-                Number(match[1]),
-                Number(match[2]) - 1,
-                Number(match[3]),
-                12
-            ));
-
-            const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', {
-                timeZone: 'UTC',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-
-            const parts = Object.fromEntries(formatter.formatToParts(date).map((item) => [item.type, item.value]));
-            return `${parts.year}/${parts.month}/${parts.day}`;
-        },
-        jalaliPartsForGregorian(gregorianDate) {
-            const match = String(gregorianDate || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-            if (!match) return null;
-
-            const date = new Date(Date.UTC(
-                Number(match[1]),
-                Number(match[2]) - 1,
-                Number(match[3]),
-                12
-            ));
-
-            const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', {
-                timeZone: 'UTC',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-
-            const parts = Object.fromEntries(formatter.formatToParts(date).map((item) => [item.type, item.value]));
-            return parts;
+            return window.SheykhanTeacherCalendar?.formatJalali(value) || '';
         },
         hydratePublishedAt(value) {
             if (!value) return;
 
-            const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+            const match = String(value).match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/);
             if (!match) return;
 
-            const parts = this.jalaliPartsForGregorian(match[0]);
-            if (!parts) return;
-
-            this.publishedDate = `${parts.year}/${parts.month}/${parts.day}`;
-            this.publishedTime = `${match[4]}:${match[5]}`;
+            this.publishedDate = this.formatJalaliDate(match[1]);
+            this.publishedTime = match[2];
         },
         jalaliToGregorian() {
+            const calendar = window.SheykhanTeacherCalendar;
             const normalized = this.normalizeDigits(this.publishedDate).replace(/-/g, '/').trim();
-            const match = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+            const parsedDate = calendar?.parseJalali(normalized);
             const time = this.normalizeDigits(this.publishedTime).match(/^(\d{1,2}):(\d{2})$/);
 
-            if (!match || !time) {
-                this.dateError = 'تاریخ و ساعت انتشار را کامل وارد کن؛ مثلاً ۱۴۰۵/۰۷/۰۲ و ۱۸:۳۰.';
+            if (!parsedDate || !time) {
+                this.dateError = 'تاریخ و ساعت انتشار را کامل و معتبر وارد کن؛ مثلاً ۱۴۰۵/۰۷/۰۲ و ۱۸:۳۰.';
                 return false;
             }
 
-            const jy = Number(match[1]);
-            const jm = Number(match[2]);
-            const jd = Number(match[3]);
             const hour = Number(time[1]);
             const minute = Number(time[2]);
-
-            if (jm < 1 || jm > 12 || jd < 1 || jd > 31 || hour > 23 || minute > 59) {
-                this.dateError = 'تاریخ یا ساعت واردشده معتبر نیست.';
+            if (hour > 23 || minute > 59) {
+                this.dateError = 'ساعت واردشده معتبر نیست.';
                 return false;
             }
 
-            const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn', {
-                timeZone: 'UTC',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-
-            const start = new Date(Date.UTC(jy + 620, 0, 1, 12));
-            for (let offset = 0; offset <= 800; offset++) {
-                const candidate = new Date(start.getTime() + offset * 86400000);
-                const parts = Object.fromEntries(formatter.formatToParts(candidate).map((item) => [item.type, item.value]));
-                if (
-                    Number(parts.year) === jy &&
-                    Number(parts.month) === jm &&
-                    Number(parts.day) === jd
-                ) {
-                    const year = candidate.getUTCFullYear();
-                    const month = String(candidate.getUTCMonth() + 1).padStart(2, '0');
-                    const day = String(candidate.getUTCDate()).padStart(2, '0');
-                    const h = String(hour).padStart(2, '0');
-                    const m = String(minute).padStart(2, '0');
-
-                    if (this.$refs.publishedAt) {
-                        this.$refs.publishedAt.value = `${year}-${month}-${day} ${h}:${m}:00`;
-                    }
-                    this.dateError = '';
-                    return true;
-                }
+            const h = String(hour).padStart(2, '0');
+            const m = String(minute).padStart(2, '0');
+            if (this.$refs.publishedAt) {
+                this.$refs.publishedAt.value = `${parsedDate.iso} ${h}:${m}:00`;
             }
-
-            this.dateError = 'این تاریخ جلالی پیدا نشد. تاریخ را بررسی کن.';
-            return false;
+            this.dateError = '';
+            return true;
         },
         setNow() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const parts = this.jalaliPartsForGregorian(`${year}-${month}-${day}`);
+            const calendar = window.SheykhanTeacherCalendar;
+            const current = calendar?.currentJalaliMonth();
+            if (!current) return;
 
-            if (parts) {
-                this.publishedDate = `${parts.year}/${parts.month}/${parts.day}`;
-                this.publishedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                this.jalaliToGregorian();
-            }
+            const timeParts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Tehran',
+                hour: '2-digit',
+                minute: '2-digit',
+                hourCycle: 'h23',
+            }).formatToParts(new Date()).map((part) => [part.type, part.value]));
+
+            this.publishedDate = calendar.formatJalali(current);
+            this.publishedTime = `${timeParts.hour}:${timeParts.minute}`;
+            this.jalaliToGregorian();
         },
         syncPublishedAt() {
             if (this.status !== 'published') {

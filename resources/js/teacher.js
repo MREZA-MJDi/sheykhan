@@ -1,13 +1,34 @@
 /* Teacher-only runtime. Role UI and behavior are isolated. */
 import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-Alpine.start();
 import './teacher/persian-calendar.js';
 import './teacher/persian-money.js';
 import './teacher/assessment-builder.js';
-import { MONTH_NAMES, formatJalali, jalaliDaysInMonth, jalaliToGregorian, latinDigits, pad as padDate, persianDigits } from './teacher/persian-calendar-core.mjs';
+import {
+    MONTH_NAMES,
+    currentJalaliMonth,
+    formatJalali,
+    jalaliDaysInMonth,
+    jalaliFromIso,
+    jalaliToGregorian,
+    latinDigits,
+    pad as padDate,
+    parseJalali,
+    persianDigits,
+} from './teacher/persian-calendar-core.mjs';
 import { bootFileUploadProgress } from './teacher/upload-progress.js';
 import './teacher/course-media-uploader.js';
+
+window.SheykhanTeacherCalendar = Object.freeze({
+    currentJalaliMonth,
+    formatJalali,
+    jalaliFromIso,
+    jalaliToGregorian,
+    parseJalali,
+    persianDigits,
+    latinDigits,
+});
+window.Alpine = Alpine;
+Alpine.start();
 document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
 // Persian date and digit helpers come from the shared teacher calendar core.
 function fa(value){return persianDigits(value)}

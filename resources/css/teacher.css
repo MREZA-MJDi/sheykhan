@@ -1116,3 +1116,13 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .teacher-shell .teacher-cover-preview{min-width:0;overflow:hidden}
 @media(max-width:860px){.teacher-shell .sr{display:none}.teacher-shell .tb{justify-content:flex-end}.teacher-shell .tb .sp{margin-inline-start:auto}}
 @media(max-width:640px){.teacher-shell .teacher-profile-editor-hero,.teacher-shell .teacher-cover-editor{grid-template-columns:1fr}.teacher-shell .teacher-cover-preview{min-height:150px}.teacher-shell .teacher-profile-form-grid{grid-template-columns:1fr}.teacher-shell .teacher-profile-form-grid .full{grid-column:auto}}
+
+
+
+/* Course editor details that were previously relying on owner-only/global styling. */
+.teacher-shell .course-money-input{display:flex;align-items:center;gap:10px;min-width:0;padding:5px 9px;border:1px solid var(--ln);border-radius:12px;background:var(--bg2)}
+.teacher-shell .course-money-input .course-money-field{flex:1 1 auto;width:100%;min-width:0;border:0!important;background:transparent!important;box-shadow:none!important;text-align:left;font-variant-numeric:tabular-nums}
+.teacher-shell .course-money-input .course-money-field:focus{outline:0;box-shadow:none!important}
+.teacher-shell .course-money-input>span{flex:0 0 auto;padding-inline:8px;color:var(--mu);font-size:11px;font-weight:800;white-space:nowrap}
+.teacher-shell .course-cover-scope-note{border-color:color-mix(in srgb,var(--or) 28%,var(--ln));background:color-mix(in srgb,var(--or) 8%,var(--bg2));color:var(--mu)}
+
