@@ -5,8 +5,9 @@ Alpine.start();
 import './teacher/persian-calendar.js';
 import './teacher/persian-money.js';
 import './teacher/assessment-builder.js';
-import './teacher/upload-progress.js';
+import { bootFileUploadProgress } from './teacher/upload-progress.js';
 import './teacher/course-media-uploader.js';
+document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
 // ZIP utility: Jalali/Gregorian date conversion.
 function fa(n){return String(n).replace(/\d/g,function(d){return"۰۱۲۳۴۵۶۷۸۹"[d]})}
 function pad(n){return(n<10?"0":"")+n}
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const collectTargets = () => {
             const candidates = Array.from(main.querySelectorAll(
-                '[data-dashboard-searchable], .teacher-workspace-item, .teacher-workspace-card, tbody tr, .tl, .ls'
+                '[data-dashboard-searchable], .teacher-workspace-item, .teacher-workspace-card, tbody tr, .tl, .ls, .row, .teacher-stat-card, .teacher-quick-action, .weekly-calendar-event, .teacher-exam-attempt-card, .teacher-student-row, .teacher-course-card'
             ));
             return candidates.filter((element) => !candidates.some((parent) =>
                 parent !== element && parent.contains(element)

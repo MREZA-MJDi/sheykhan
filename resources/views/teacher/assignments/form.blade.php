@@ -14,7 +14,8 @@
         </section>
         <section class="teacher-form-section md:col-span-2"><h2>جزئیات تکلیف</h2><p>عنوان و دستورالعمل را طوری بنویس که دانش‌آموز دقیقاً بداند چه کاری باید انجام دهد.</p>
             <div class="mt-5 grid gap-4 md:grid-cols-3">
-                <label class="teacher-form-field md:col-span-3"><span>عنوان</span><input name="title" value="{{ old('title') }}" placeholder="مثلاً حل تمرین فصل سوم" required></label>
+                <label class="teacher-form-field md:col-span-3"><span>عنوان</span><input name="title" value="{{ old('title') }}" placeholder="مثلاً حل تمرین فصل سوم" required>@error('title')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
+                <label class="teacher-form-field md:col-span-3"><span>دستورالعمل و توضیحات تکلیف</span><textarea name="instructions" rows="4" maxlength="30000" placeholder="شرح تمرین، مراحل انجام، فایل‌هایی که باید تحویل شوند و معیار ارزیابی را بنویس...">{{ old('instructions') }}</textarea><small>این متن کنار تکلیف برای دانش‌آموز نمایش داده می‌شود. در صورت بارگذاری فایل راهنما، می‌توانی متن را کوتاه‌تر بنویسی.</small>@error('instructions')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
                 <x-teacher.jalali-datetime name="due_at" :value="old('due_at')" label="مهلت تحویل" />
                 <label class="teacher-form-field"><span>نمره کل</span><input type="number" step="0.01" min="0" name="max_score" value="{{ old('max_score',$assignment->max_score) }}" placeholder="۲۰" inputmode="decimal"></label>
                 <label class="teacher-form-field"><span>وضعیت</span><select name="status"><option value="draft" @selected(old('status',$assignment->status)==='draft')>پیش‌نویس</option><option value="published" @selected(old('status',$assignment->status)==='published')>منتشرشده</option><option value="closed" @selected(old('status',$assignment->status)==='closed')>بسته</option></select></label>

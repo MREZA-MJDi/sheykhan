@@ -98,6 +98,7 @@
       <button class="ib" id="th" type="button" data-teacher-theme aria-label="تغییر تم" aria-pressed="false" title="تغییر تم">◐</button>
       <a class="av" href="{{ route('teacher.profile.edit') }}" aria-label="پروفایل مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</a>
     </header>
+    <p class="dashboard-search-empty" data-dashboard-search-empty role="status" aria-live="polite" hidden>موردی با این عبارت پیدا نشد. عبارت دیگری را امتحان کن.</p>
     @if(session('success'))<div class="alert success" role="status">{{ session('success') }}</div>@endif
     @if(session('warning'))<div class="alert warning" role="status">{{ session('warning') }}</div>@endif
     @if($errors->any())

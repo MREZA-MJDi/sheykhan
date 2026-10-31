@@ -205,3 +205,5 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .teacher-exam-answer-value.is-correct{border-color:#22b573;background:#e3f8ee;color:#118a55}
 .teacher-exam-answer-value.is-wrong{border-color:#f0566b;background:#fde6ea;color:#b4233b}
 .teacher-exam-answer-value{border:1px solid var(--ln);border-radius:10px;padding:10px 12px}
+
+.dashboard-search-empty{padding:12px 15px;margin:0 0 14px;border:1px dashed var(--ln);border-radius:13px;background:var(--pl);color:var(--mu);font-size:12px;text-align:center}
