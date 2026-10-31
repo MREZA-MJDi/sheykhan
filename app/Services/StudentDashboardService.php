@@ -349,7 +349,7 @@ final class StudentDashboardService
             });
 
         // Aggregate the count and nearest start time in one secure, cohort-aware exam query.
-        $upcomingExamStats = app(StudentExamService::class)->query($student)
+        $upcomingExamStats = app(StudentExamService::class)->query($student, $courseIds)
             ->whereNotNull('exams.starts_at')
             ->where('exams.starts_at', '>=', now())
             ->where(function ($window): void {

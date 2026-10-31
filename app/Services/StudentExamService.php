@@ -7,15 +7,16 @@ use App\Models\ExamAttempt;
 use App\Models\Question;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 use Illuminate\Validation\ValidationException;
 
 final class StudentExamService
 {
-    public function query(User $student): Builder
+    public function query(User $student, ?Collection $courseIds = null): Builder
     {
-        $courseIds = app(StudentAccessService::class)->enrolledCourseIds($student);
+        $courseIds ??= app(StudentAccessService::class)->enrolledCourseIds($student);
 
         return Exam::query()
             ->whereIn('course_id', $courseIds)
