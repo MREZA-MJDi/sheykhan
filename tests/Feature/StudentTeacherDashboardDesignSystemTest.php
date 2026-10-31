@@ -54,18 +54,63 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $script = file_get_contents(resource_path('js/teacher.js'));
         $this->assertIsString($script);
         foreach ([
-            "import Alpine from 'alpinejs';",
-            "import './teacher/assessment-builder.js';",
-            "import './teacher/persian-calendar.js';",
-            "import './teacher/persian-money.js';",
-            "import './teacher/upload-progress.js';",
+            "import { bootAlpine } from './panel-base.js';",
+            "import { bootSharedBehaviors } from './shared/behavior-runtime.js';",
+            "import './assessment-builder.js';",
+            "import './persian-calendar.js';",
+            "import './persian-money.js';",
+            "import { bootFileUploadProgress } from './upload-progress.js';",
             "import './teacher/course-media-uploader.js';",
-            'Alpine.start();',
+            'bootAlpine();',
+            'bootSharedBehaviors();',
         ] as $expected) {
             $this->assertStringContainsString($expected, $script);
         }
         $this->assertStringNotContainsString("from './panel-runtime.js'", $script);
-        $this->assertStringNotContainsString("import './assessment-builder.js'", $script);
+        $this->assertStringNotContainsString("Alpine.start();", $script);
+        $this->assertStringNotContainsString("from './teacher/assessment-builder.js'", $script);
+        $this->assertStringNotContainsString("from './teacher/persian-calendar.js'", $script);
+        $this->assertStringNotContainsString("from './teacher/persian-money.js'", $script);
+        $this->assertStringNotContainsString("from './teacher/upload-progress.js'", $script);
+    }
+
+    public function test_teacher_reuses_canonical_shared_modules_instead_of_identical_private_copies(): void
+    {
+        foreach ([
+            'js/teacher/assessment-builder.js',
+            'js/teacher/persian-calendar-core.mjs',
+            'js/teacher/persian-calendar.js',
+            'js/teacher/persian-money.js',
+            'js/teacher/upload-progress.js',
+        ] as $duplicate) {
+            $this->assertFileDoesNotExist(resource_path($duplicate));
+        }
+
+        $calendar = file_get_contents(resource_path('js/persian-calendar.js'));
+        $money = file_get_contents(resource_path('js/persian-money.js'));
+        $assessment = file_get_contents(resource_path('js/assessment-builder.js'));
+        $upload = file_get_contents(resource_path('js/upload-progress.js'));
+        foreach ([$calendar,$money,$assessment,$upload] as $source) $this->assertIsString($source);
+    }
+
+    public function test_shared_behavior_runtime_is_theme_neutral_and_used_by_every_panel_entry(): void
+    {
+        $behavior = file_get_contents(resource_path('js/shared/behavior-runtime.js'));
+        $panelRuntime = file_get_contents(resource_path('js/panel-runtime.js'));
+        $teacher = file_get_contents(resource_path('js/teacher.js'));
+        $ownerCommon = file_get_contents(resource_path('js/owner-admin-common.js'));
+        foreach ([$behavior,$panelRuntime,$teacher,$ownerCommon] as $source) $this->assertIsString($source);
+
+        $this->assertStringContainsString('export function initializeTabs', $behavior);
+        $this->assertStringContainsString('export function guardFormOnce', $behavior);
+        $this->assertStringContainsString('bootConfirmationBehavior', $behavior);
+        $this->assertStringContainsString('bootDismissBehavior', $behavior);
+        $this->assertStringNotContainsString('.css', $behavior);
+        $this->assertStringNotContainsString('resources/css/', $behavior);
+        $this->assertStringContainsString('bootSharedBehaviors();', $panelRuntime);
+        $this->assertStringContainsString('bootSharedBehaviors();', $teacher);
+        $this->assertStringContainsString('initializeTabs(root', $panelRuntime);
+        $this->assertStringContainsString('guardFormOnce(form', $ownerCommon);
     }
 
     public function test_teacher_dashboard_and_mobile_navigation_are_teacher_owned(): void
