@@ -1,4 +1,7 @@
 /* Teacher-only runtime. Role UI and behavior are isolated. */
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();
 import './teacher/persian-calendar.js';
 import './teacher/persian-money.js';
 import './teacher/assessment-builder.js';
