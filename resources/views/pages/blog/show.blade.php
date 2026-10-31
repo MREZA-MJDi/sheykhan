@@ -29,8 +29,8 @@
     @endphp
 
     <section class="public-blog-post-page">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
 
                 {{-- Breadcrumb --}}
                 <nav
@@ -259,16 +259,22 @@
                     </div>
                 </article>
 
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
-    <x-branding.public-next-step
-        eyebrow="از ایده تا اجرا"
-        title="یادگیری را با تمرین ادامه بده"
-        description="نکته‌های این مطلب را با یک دوره‌ی آموزشی و منابع مناسب به برنامه‌ی مطالعه‌ات تبدیل کن."
-        :primary-href="route('courses.index')"
-        primary-label="انتخاب دوره"
-        :secondary-href="route('store.index')"
-        secondary-label="منابع آموزشی"
-    />
+    <section class="public-next-step public-next-step--blog-show" aria-label="قدم بعدی">
+    <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div class="public-next-step__card">
+            <div class="public-next-step__copy">
+                <span>قدم بعدی</span>
+                <h2>مسیر یادگیریت را ادامه بده</h2>
+                <p>از دوره‌ها و مدرس‌ها دیدن کن و با توجه به نیازت، قدم بعدی را انتخاب کن.</p>
+            </div>
+            <div class="public-next-step__actions">
+                <a class="public-next-step__button public-next-step__button--primary" href="/courses">مشاهده دوره‌ها <span aria-hidden="true">←</span></a>
+                <a class="public-next-step__button public-next-step__button--secondary" href="/teachers">آشنایی با مدرس‌ها <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
