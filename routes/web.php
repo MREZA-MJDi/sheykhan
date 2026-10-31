@@ -319,6 +319,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
 
     Route::get('/attendance', [StudentAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
     Route::get('/results', [StudentResultController::class, 'index'])->middleware('permission:results.view')->name('results.index');
+    Route::get('/growth', [StudentResultController::class, 'growth'])->middleware('permission:results.view')->name('growth');
     Route::get('/achievements', [StudentAchievementController::class, 'index'])->middleware('permission:achievements.view')->name('achievements.index');
 
     Route::get('/notes', [StudentNoteController::class, 'index'])->middleware('permission:notes.view')->name('notes.index');

@@ -607,6 +607,57 @@ final class StudentDashboardService
      *
      * @param \Illuminate\Database\Query\Builder $query
      */
+    /**
+     * Focused growth payload for the dedicated growth page.
+     * Only components backed by reliable current metrics are populated.
+     * Historical deltas and subject-level grading remain null/empty until
+     * the application stores the required snapshots and grading aggregates.
+     */
+    public function growth(User $student): array
+    {
+        $courseIds = app(StudentAccessService::class)->enrolledCourseIds($student);
+        $progressByCourse = $this->progressByCourse((int) $student->id, $courseIds);
+        $attendance = app(AttendanceMetricsService::class)->forStudent($student);
+
+        $progressScore = $progressByCourse->isNotEmpty()
+            ? round((float) $progressByCourse->avg(), 1)
+            : null;
+
+        $components = [
+            'exams' => null,
+            'homework' => null,
+            'progress' => $progressScore,
+            'attendance' => isset($attendance['attendance_percent'])
+                ? (float) $attendance['attendance_percent']
+                : null,
+        ];
+
+        $weights = ['exams' => 40, 'homework' => 25, 'progress' => 20, 'attendance' => 15];
+        $availableWeight = 0;
+        $weightedScore = 0.0;
+
+        foreach ($components as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            $weight = $weights[$key];
+            $availableWeight += $weight;
+            $weightedScore += max(0, min(100, $value)) * $weight;
+        }
+
+        return [
+            'growth' => [
+                'score' => $availableWeight > 0 ? round($weightedScore / $availableWeight) : null,
+                'growth' => null,
+                'components' => $components,
+                'focus_subject' => null,
+                'subjects' => [],
+            ],
+            'history' => [],
+        ];
+    }
+
     private function scopeToStudentTeacherCohort(
         \Illuminate\Database\Query\Builder $query,
         User $student,

@@ -37,6 +37,10 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertArrayHasKey('upcomingExamCount', $payload);
         $this->assertArrayHasKey('nextExamDate', $payload);
         $this->assertArrayHasKey('announcements', $payload);
+        $growth = app(StudentDashboardService::class)->growth($student);
+        $this->assertArrayHasKey('growth', $growth);
+        $this->assertArrayHasKey('components', $growth['growth']);
+        $this->assertArrayHasKey('history', $growth);
         $this->assertLessThanOrEqual(4, $payload['todayClasses']->count());
         $this->assertLessThanOrEqual(4, $payload['deadlines']->count());
         $this->assertLessThanOrEqual(3, $payload['announcements']->count());
