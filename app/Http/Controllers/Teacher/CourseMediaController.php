@@ -18,7 +18,7 @@ class CourseMediaController extends Controller
         CourseManagementService $courses,
         MediaService $media,
     ): RedirectResponse {
-        abort_unless($courses->canManage($request->user(), $course), 403);
+        abort_unless($courses->teacherCanManage($request->user(), $course), 403);
 
         $media->upload(
             $request->file('media'),
@@ -40,7 +40,7 @@ class CourseMediaController extends Controller
         CourseManagementService $courses,
         MediaService $mediaService,
     ): RedirectResponse {
-        abort_unless($courses->canManage(request()->user(), $course), 403);
+        abort_unless($courses->teacherCanManage(request()->user(), $course), 403);
 
         $attached = $media->attachments()
             ->where('mediable_type', Course::class)

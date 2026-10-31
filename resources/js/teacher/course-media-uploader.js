@@ -6,6 +6,7 @@ document.querySelectorAll('[data-media-uploader]').forEach((wrapper)=>{
  const form=wrapper.querySelector('form[data-upload-form]');if(!form||form.dataset.teacherUploaderBound==='1')return;form.dataset.teacherUploaderBound='1';
  const input=form.querySelector('input[type=file]'),preview=wrapper.querySelector('[data-upload-preview]'),image=wrapper.querySelector('[data-preview-image]'),video=wrapper.querySelector('[data-preview-video]'),generic=wrapper.querySelector('[data-preview-generic]'),name=wrapper.querySelector('[data-preview-name]'),sizeLabel=wrapper.querySelector('[data-preview-size]'),progress=wrapper.querySelector('.course-upload-progress'),bar=wrapper.querySelector('[data-upload-progress-bar]'),percent=wrapper.querySelector('[data-upload-percent]'),message=wrapper.querySelector('[data-upload-message]'),submit=form.querySelector('[type=submit]');
  let objectUrl=null;
+ window.addEventListener('pagehide',()=>{if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}},{once:true});
  const showError=(text)=>{if(message){message.textContent=text;message.classList.add('is-error');}};
  input?.addEventListener('change',()=>{
    const file=input.files?.[0];if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}
@@ -18,7 +19,7 @@ document.querySelectorAll('[data-media-uploader]').forEach((wrapper)=>{
    if(video){video.pause?.();video.hidden=true;video.removeAttribute('src');}
    if(generic)generic.hidden=true;
    if(file.type.startsWith('image/')&&image){objectUrl=URL.createObjectURL(file);image.src=objectUrl;image.hidden=false;image.onload=()=>{if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}};}
-   else if(file.type.startsWith('video/')&&video&&file.size<=100*1024*1024){objectUrl=URL.createObjectURL(file);video.src=objectUrl;video.hidden=false;video.preload='metadata';video.onloadedmetadata=()=>{if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}};}
+   else if(file.type.startsWith('video/')&&video&&file.size<=100*1024*1024){objectUrl=URL.createObjectURL(file);video.src=objectUrl;video.hidden=false;video.preload='metadata';}
    else if(generic)generic.hidden=false;
  });
  form.addEventListener('submit',(event)=>{

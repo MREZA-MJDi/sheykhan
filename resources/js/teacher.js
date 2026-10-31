@@ -5,16 +5,12 @@ Alpine.start();
 import './teacher/persian-calendar.js';
 import './teacher/persian-money.js';
 import './teacher/assessment-builder.js';
+import { MONTH_NAMES, formatJalali, jalaliDaysInMonth, jalaliToGregorian, latinDigits, pad as padDate, persianDigits } from './teacher/persian-calendar-core.mjs';
 import { bootFileUploadProgress } from './teacher/upload-progress.js';
 import './teacher/course-media-uploader.js';
 document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
-// ZIP utility: Jalali/Gregorian date conversion.
-function fa(n){return String(n).replace(/\d/g,function(d){return"۰۱۲۳۴۵۶۷۸۹"[d]})}
-function pad(n){return(n<10?"0":"")+n}
-function g2j(gy,gm,gd){var gm2=[0,31,59,90,120,151,181,212,243,273,304,334],jy;if(gy>1600){jy=979;gy-=1600}else{jy=0;gy-=621}var g2=gm>2?gy+1:gy,days=365*gy+Math.floor((g2+3)/4)-Math.floor((g2+99)/100)+Math.floor((g2+399)/400)-80+gd+gm2[gm-1];jy+=33*Math.floor(days/12053);days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365}var jm=days<186?1+Math.floor(days/31):7+Math.floor((days-186)/30),jd=1+(days<186?days%31:(days-186)%30);return[jy,jm,jd]}
-function j2g(jy,jm,jd){var gy;if(jy>979){gy=1600;jy-=979}else gy=621;var days=365*jy+Math.floor(jy/33)*8+Math.floor((jy%33+3)/4)+78+jd+(jm<7?(jm-1)*31:(jm-7)*30+186);gy+=400*Math.floor(days/146097);days%=146097;if(days>36524){days--;gy+=100*Math.floor(days/36524);days%=36524;if(days>=365)days++}gy+=4*Math.floor(days/1461);days%=1461;if(days>365){gy+=Math.floor((days-1)/365);days=(days-1)%365}var gd=days+1,sa=[0,31,(gy%4==0&&gy%100!=0)||gy%400==0?29:28,31,30,31,30,31,31,30,31,30,31],gm;for(gm=0;gm<13;gm++){if(gd<=sa[gm])break;gd-=sa[gm]}return[gy,gm,gd]}
-const MN=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-function mlen(y,m){if(m<7)return 31;if(m<12)return 30;var g=j2g(y,12,30),r=g2j(g[0],g[1],g[2]);return r[1]==12&&r[2]==30?30:29}
+// Persian date and digit helpers come from the shared teacher calendar core.
+function fa(value){return persianDigits(value)}
 
 document.addEventListener('DOMContentLoaded', () => {
     const root = document.documentElement;
@@ -129,8 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const raw = element.getAttribute('data-jalali-date');
         const match = raw && raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (!match) return;
-        const converted = g2j(Number(match[1]), Number(match[2]), Number(match[3]));
-        element.textContent = fa(converted[0]) + ' ' + MN[converted[1] - 1] + ' ' + fa(converted[2]);
+        element.textContent = formatJalali(raw);
     });
 
     document.addEventListener('click', (event) => {
@@ -146,56 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const form = event.target;
         if (!(form instanceof HTMLFormElement) || form.dataset.confirmSubmit !== 'true') return;
         if (!window.confirm(form.dataset.confirm || 'از انجام این عملیات مطمئن هستید؟')) event.preventDefault();
-    });
-
-    document.querySelectorAll('[data-teacher-preview-input]').forEach((input) => {
-        input.addEventListener('change', () => {
-            const kind = input.dataset.teacherPreviewInput;
-            const file = input.files?.[0];
-            const preview = document.querySelector('[data-teacher-preview-container="' + kind + '"]');
-            const feedback = document.querySelector('[data-teacher-preview-feedback="' + kind + '"]');
-            if (!file || !preview) return;
-
-            const maxSizeMb = Number(input.dataset.maxSizeMb || 0);
-            if (!file.type.startsWith('image/')) {
-                if (feedback) feedback.textContent = 'لطفاً یک فایل تصویری معتبر انتخاب کنید.';
-                input.value = '';
-                return;
-            }
-            if (maxSizeMb > 0 && file.size > maxSizeMb * 1024 * 1024) {
-                if (feedback) feedback.textContent = 'حجم فایل نباید بیشتر از ' + fa(maxSizeMb) + ' مگابایت باشد.';
-                input.value = '';
-                return;
-            }
-
-            const url = URL.createObjectURL(file);
-            const image = document.createElement('img');
-            image.src = url;
-            image.alt = kind === 'avatar' ? 'پیش‌نمایش آواتار انتخاب‌شده' : 'پیش‌نمایش کاور انتخاب‌شده';
-            image.dataset.teacherPreviewImage = kind;
-            image.decoding = 'async';
-            image.onload = () => URL.revokeObjectURL(url);
-            image.onerror = () => {
-                URL.revokeObjectURL(url);
-                image.remove();
-                if (feedback) feedback.textContent = 'نمایش این تصویر ممکن نشد؛ فایل دیگری انتخاب کنید.';
-            };
-
-            if (kind === 'cover') {
-                preview.classList.remove('no-cover');
-                preview.classList.add('has-cover');
-                preview.querySelectorAll('img').forEach((existing) => existing.remove());
-                const label = preview.querySelector('.teacher-cover-preview-label');
-                if (label) preview.insertBefore(image, label);
-                else preview.prepend(image);
-            } else {
-                preview.replaceChildren(image);
-            }
-
-            if (feedback) {
-                feedback.textContent = file.name + ' · ' + fa(Math.ceil(file.size / 1024)) + ' کیلوبایت · پیش‌نمایش آماده است.';
-            }
-        });
     });
 
     document.addEventListener('click', (event) => {
@@ -244,7 +189,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     image.alt = kind === 'avatar' ? 'پیش‌نمایش آواتار مدرس' : '';
                     preview.replaceChildren(image);
                 }
-                image.src = previewUrl;
+                const currentPreviewUrl = previewUrl;
+                image.onload = () => {
+                    if (previewUrl !== currentPreviewUrl) return;
+                    if (feedback) feedback.textContent = `پیش‌نمایش «${file.name}» آماده است؛ برای ثبت نهایی، ذخیره پروفایل را بزن.`;
+                };
+                image.onerror = () => {
+                    if (previewUrl === currentPreviewUrl) {
+                        URL.revokeObjectURL(currentPreviewUrl);
+                        previewUrl = null;
+                    }
+                    if (feedback) feedback.textContent = 'نمایش تصویر ممکن نشد؛ فایل دیگری انتخاب کنید.';
+                };
+                image.src = currentPreviewUrl;
 
                 if (kind === 'cover') {
                     preview.classList.remove('no-cover');
@@ -258,9 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     label.textContent = 'پیش‌نمایش کاور';
                 }
 
-                if (feedback) {
-                    feedback.textContent = `پیش‌نمایش «${file.name}» آماده است؛ برای ثبت نهایی، ذخیره پروفایل را بزن.`;
-                }
             });
 
             window.addEventListener('pagehide', () => {
@@ -485,76 +439,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const hiddenDate = liveForm.querySelector('[data-jalali-date]');
         const hiddenScheduledAt = liveForm.querySelector('[data-scheduled-at]');
         const timeInput = liveForm.querySelector('[data-scheduled-time]');
-        const monthNames = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
-        const digits = (value) => String(value).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
-        const pad = (value) => String(value).padStart(2, '0');
-        const isLeapGregorian = (year) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-
-        const jalaliToGregorian = (jy, jm, jd) => {
-            let y = jy + 1595;
-            let daysValue = -355668 + (365 * y) + Math.floor(y / 33) * 8 + Math.floor(((y % 33) + 3) / 4) + jd;
-            daysValue += jm < 7 ? (jm - 1) * 31 : ((jm - 7) * 30) + 186;
-
-            let gy = 400 * Math.floor(daysValue / 146097);
-            daysValue %= 146097;
-
-            if (daysValue > 36524) {
-                gy += 100 * Math.floor(--daysValue / 36524);
-                daysValue %= 36524;
-                if (daysValue >= 365) daysValue++;
-            }
-
-            gy += 4 * Math.floor(daysValue / 1461);
-            daysValue %= 1461;
-
-            if (daysValue > 365) {
-                gy += Math.floor((daysValue - 1) / 365);
-                daysValue = (daysValue - 1) % 365;
-            }
-
-            let gd = daysValue + 1;
-            const monthDays = [31, isLeapGregorian(gy) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            let gm = 1;
-
-            while (gm <= 12 && gd > monthDays[gm - 1]) {
-                gd -= monthDays[gm - 1];
-                gm++;
-            }
-
-            return [gy, gm, gd];
-        };
-
-        const jalaliMonthDays = (year, month) => {
-            if (month <= 6) return 31;
-            if (month <= 11) return 30;
-
-            // Validate Esfand 30 with the browser's Persian calendar implementation.
-            const [gy, gm, gd] = jalaliToGregorian(year, 12, 30);
-            const candidate = new Date(Date.UTC(gy, gm - 1, gd, 12));
-            const parts = Object.fromEntries(
-                new Intl.DateTimeFormat('en-u-ca-persian-nu-latn', {
-                    timeZone: 'UTC',
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                }).formatToParts(candidate).map((part) => [part.type, part.value])
-            );
-
-            return Number(parts.year) === year
-                && Number(parts.month) === 12
-                && Number(parts.day) === 30
-                ? 30
-                : 29;
-        };
+        const monthNames = MONTH_NAMES;
+        const digits = persianDigits;
+        const pad = padDate;
 
         let viewYear = Number(liveForm.dataset.jalaliYear);
         let viewMonth = Number(liveForm.dataset.jalaliMonth);
-        let selected = hiddenDate.value || '';
+        let selected = latinDigits(hiddenDate.value || '');
 
         const syncScheduledAt = () => {
             if (!hiddenDate || !timeInput || !hiddenScheduledAt || !hiddenDate.value || !timeInput.value) return;
             const [jy, jm, jd] = hiddenDate.value.split('/').map(Number);
-            const [gy, gm, gd] = jalaliToGregorian(jy, jm, jd);
+            const gregorian = jalaliToGregorian(jy, jm, jd);
+            if (!gregorian) {
+                hiddenScheduledAt.value = '';
+                return;
+            }
+            const [gy, gm, gd] = gregorian;
             hiddenScheduledAt.value = `${gy}-${pad(gm)}-${pad(gd)}T${timeInput.value}`;
         };
 
@@ -564,14 +465,16 @@ document.addEventListener('DOMContentLoaded', () => {
             monthLabel.textContent = `${monthNames[viewMonth - 1]} ${digits(viewYear)}`;
             days.innerHTML = '';
 
-            const [firstGy, firstGm, firstGd] = jalaliToGregorian(viewYear, viewMonth, 1);
-            const firstWeekday = (new Date(firstGy, firstGm - 1, firstGd).getDay() + 1) % 7;
+            const firstDate = jalaliToGregorian(viewYear, viewMonth, 1);
+            if (!firstDate) return;
+            const [firstGy, firstGm, firstGd] = firstDate;
+            const firstWeekday = (new Date(Date.UTC(firstGy, firstGm - 1, firstGd, 12)).getUTCDay() + 1) % 7;
 
             for (let i = 0; i < firstWeekday; i++) {
                 days.appendChild(document.createElement('i'));
             }
 
-            for (let day = 1; day <= jalaliMonthDays(viewYear, viewMonth); day++) {
+            for (let day = 1; day <= jalaliDaysInMonth(viewYear, viewMonth); day++) {
                 const button = document.createElement('button');
                 const value = `${viewYear}/${pad(viewMonth)}/${pad(day)}`;
                 button.type = 'button';

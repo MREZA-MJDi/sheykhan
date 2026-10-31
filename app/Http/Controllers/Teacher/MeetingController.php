@@ -36,6 +36,10 @@ final class MeetingController extends Controller
 
         $targets = DB::table('classroom_student as student_membership')
             ->join('classrooms', 'classrooms.id', '=', 'student_membership.classroom_id')
+            ->join('academies as active_academy', function ($join): void {
+                $join->on('active_academy.id', '=', 'classrooms.academy_id')
+                    ->where('active_academy.status', '=', 'active');
+            })
             ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'classrooms.id')
             ->join('courses', 'courses.id', '=', 'classrooms.course_id')
             ->join('users as students', 'students.id', '=', 'student_membership.student_id')
@@ -70,6 +74,27 @@ final class MeetingController extends Controller
             ->where('student_membership.status', 'active')
             ->where('students.status', 'active')
             ->whereNull('students.deleted_at')
+            ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
+            ->where(function ($entitlement): void {
+                $entitlement->where('courses.access_type', 'free')
+                    ->orWhere(function ($paid): void {
+                        $paid->where('active_enrollment.payment_status', 'paid')
+                            ->where('active_enrollment.paid_amount', '>', 0)
+                            ->where(function ($amount): void {
+                                $amount->whereNull('active_enrollment.price_amount')
+                                    ->orWhereColumn('active_enrollment.paid_amount', '>=', 'active_enrollment.price_amount');
+                            })
+                            ->whereExists(function ($transaction): void {
+                                $transaction->selectRaw('1')
+                                    ->from('financial_transactions')
+                                    ->whereColumn('financial_transactions.enrollment_id', 'active_enrollment.id')
+                                    ->where('financial_transactions.status', 'completed')
+                                    ->where('financial_transactions.amount', '>', 0);
+                            });
+                    });
+            })
             ->where('parents.status', 'active')
             ->whereNull('parents.deleted_at')
             ->orderBy('classrooms.title')->orderBy('students.name')->orderBy('parents.name')
@@ -116,6 +141,37 @@ final class MeetingController extends Controller
             ->where('users.status', 'active')
             ->firstOrFail();
 
+        $hasEligibleEnrollment = DB::table('course_enrollments as enrollment')
+            ->join('courses', 'courses.id', '=', 'enrollment.course_id')
+            ->where('enrollment.student_id', $student->id)
+            ->where('enrollment.course_id', $classroom->course_id)
+            ->where('enrollment.classroom_id', $classroom->id)
+            ->where('enrollment.status', 'active')
+            ->where('courses.status', 'published')
+            ->whereNotNull('courses.published_at')
+            ->where('courses.published_at', '<=', now())
+            ->where(function ($entitlement): void {
+                $entitlement->where('courses.access_type', 'free')
+                    ->orWhere(function ($paid): void {
+                        $paid->where('enrollment.payment_status', 'paid')
+                            ->where('enrollment.paid_amount', '>', 0)
+                            ->where(function ($amount): void {
+                                $amount->whereNull('enrollment.price_amount')
+                                    ->orWhereColumn('enrollment.paid_amount', '>=', 'enrollment.price_amount');
+                            })
+                            ->whereExists(function ($transaction): void {
+                                $transaction->selectRaw('1')
+                                    ->from('financial_transactions')
+                                    ->whereColumn('financial_transactions.enrollment_id', 'enrollment.id')
+                                    ->where('financial_transactions.status', 'completed')
+                                    ->where('financial_transactions.amount', '>', 0);
+                            });
+                    });
+            })
+            ->exists();
+
+        abort_unless($hasEligibleEnrollment, 404, 'ثبت‌نام فعال و مجاز دانش‌آموز در این دوره پیدا نشد.');
+
         abort_unless($student->academies()->whereKey($classroom->academy_id)
             ->wherePivot('role', 'student')->wherePivot('status', 'active')->exists(), 404);
 
@@ -152,6 +208,13 @@ final class MeetingController extends Controller
         ]);
 
         $teacher = $request->user();
+        $activeTeacherMembership = fn ($academy) => $academy
+            ->where('academies.status', 'active')
+            ->whereHas('users', fn ($memberships) => $memberships
+                ->whereKey($teacher->id)
+                ->wherePivot('role', 'teacher')
+                ->wherePivot('status', 'active'));
+
         $record = AcademyMeeting::query()
             ->whereKey($meeting)
             ->where(function ($query) use ($teacher, $activeTeacherMembership): void {
