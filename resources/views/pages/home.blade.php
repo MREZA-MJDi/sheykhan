@@ -330,7 +330,7 @@
     </section>
 
 
-    @include('components.branding.home-learning-workflow')
+    @include('pages.home.partials.learning-workflow')
 
     {{-- Teachers: an empty directory still offers a clear next step. --}}
     <section id="teachers-section" class="home-section">
