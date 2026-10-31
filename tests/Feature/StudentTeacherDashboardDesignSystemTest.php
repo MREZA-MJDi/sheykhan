@@ -56,10 +56,10 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         foreach ([
             "import { bootAlpine } from './panel-base.js';",
             "import { bootSharedBehaviors } from './shared/behavior-runtime.js';",
-            "import './assessment-builder.js';",
-            "import './persian-calendar.js';",
-            "import './persian-money.js';",
-            "import { bootFileUploadProgress } from './upload-progress.js';",
+            "import './shared/assessment-builder.js';",
+            "import './shared/persian-calendar.js';",
+            "import './shared/persian-money.js';",
+            "import { bootFileUploadProgress } from './shared/upload-progress.js';",
             "import './teacher/course-media-uploader.js';",
             'bootAlpine();',
             'bootSharedBehaviors();',
@@ -77,19 +77,19 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
     public function test_teacher_reuses_canonical_shared_modules_instead_of_identical_private_copies(): void
     {
         foreach ([
-            'js/teacher/assessment-builder.js',
-            'js/teacher/persian-calendar-core.mjs',
-            'js/teacher/persian-calendar.js',
-            'js/teacher/persian-money.js',
-            'js/teacher/upload-progress.js',
+            'js/shared/assessment-builder.js',
+            'js/shared/persian-calendar-core.mjs',
+            'js/shared/persian-calendar.js',
+            'js/shared/persian-money.js',
+            'js/shared/upload-progress.js',
         ] as $duplicate) {
             $this->assertFileDoesNotExist(resource_path($duplicate));
         }
 
-        $calendar = file_get_contents(resource_path('js/persian-calendar.js'));
-        $money = file_get_contents(resource_path('js/persian-money.js'));
-        $assessment = file_get_contents(resource_path('js/assessment-builder.js'));
-        $upload = file_get_contents(resource_path('js/upload-progress.js'));
+        $calendar = file_get_contents(resource_path('js/shared/persian-calendar.js'));
+        $money = file_get_contents(resource_path('js/shared/persian-money.js'));
+        $assessment = file_get_contents(resource_path('js/shared/assessment-builder.js'));
+        $upload = file_get_contents(resource_path('js/shared/upload-progress.js'));
         foreach ([$calendar,$money,$assessment,$upload] as $source) $this->assertIsString($source);
     }
 
@@ -180,7 +180,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString("import './owner-admin-common.js';", $ownerScript);
         $this->assertStringContainsString("import './owner-admin-common.js';", $seoScript);
         $this->assertStringContainsString('data-media-uploader', $sharedScript);
-        $this->assertStringContainsString("import './assessment-builder.js';", $sharedScript);
+        $this->assertStringContainsString("import './shared/assessment-builder.js';", $sharedScript);
         $this->assertStringContainsString("import './owner-admin-shared.css';", $ownerCss);
         $this->assertStringContainsString("import './owner-admin-shared.css';", $seoCss);
         foreach ([$ownerLayout,$seoLayout] as $layout) {
