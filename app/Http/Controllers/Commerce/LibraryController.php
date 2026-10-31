@@ -95,13 +95,15 @@ final class LibraryController extends Controller
                 ->get();
         }
 
-        return view('commerce.library.index', [
+        $viewData = [
             'products' => $products,
             'pendingOrders' => $pendingOrders,
             'myCourses' => $myCourses,
             'childCourses' => $childCourses,
             'isParent' => $user->hasRole('parent'),
             'isStudent' => $user->hasRole('student'),
-        ]);
+        ];
+
+        return view($user->hasRole('student') ? 'student.library.index' : 'commerce.library.index', $viewData);
     }
 }
