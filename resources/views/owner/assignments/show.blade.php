@@ -68,8 +68,8 @@
 
                         <form method="POST" action="{{ route('owner.assignments.grade', [$academy, $assignment, $submission]) }}" class="grid w-full gap-3 xl:max-w-sm" @if($submission->graded_at) data-confirm="نمره این پاسخ بازنویسی شود؟" @endif>
                             @csrf @method('PATCH')
-                            <label class="grid gap-1"><span class="text-xs font-bold">نمره</span><input type="number" name="score" min="0" max="{{ $assignment->max_score ?? 999999 }}" step="0.01" value="{{ old('score', $submission->score) }}" required class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm"><x-owner.field-error field="score"/></label>
-                            <label class="grid gap-1"><span class="text-xs font-bold">بازخورد</span><textarea name="feedback" rows="4" maxlength="5000" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{{ old('feedback', $submission->feedback) }}</textarea><x-owner.field-error field="feedback"/></label>
+                            <label class="grid gap-1"><span class="text-xs font-bold">نمره</span><input type="number" name="score" min="0" max="{{ $assignment->max_score ?? 999999 }}" step="0.01" value="{{ old('score', $submission->score) }}" required class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">@error('score')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+                            <label class="grid gap-1"><span class="text-xs font-bold">بازخورد</span><textarea name="feedback" rows="4" maxlength="5000" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{{ old('feedback', $submission->feedback) }}</textarea>@error('feedback')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
                             <button type="submit" class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">{{ $submission->graded_at ? 'به‌روزرسانی تصحیح' : 'ثبت نمره و بازخورد' }}</button>
                         </form>
                     </div>
