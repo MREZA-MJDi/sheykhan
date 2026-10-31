@@ -11,13 +11,13 @@
 
 @if($pendingOrders->isNotEmpty())
 <section class="card">
-  <div class="chead"><h2>سفارش‌های در انتظار تأیید</h2><x-tag tone="a">{{ AppSupportPersianUi::digits($pendingOrders->count()) }} سفارش</x-tag></div>
+  <div class="chead"><h2>سفارش‌های در انتظار تأیید</h2><x-tag tone="a">{{ \App\Support\PersianUi::digits($pendingOrders->count()) }} سفارش</x-tag></div>
   @foreach($pendingOrders as $order)
     @php($pendingItem = $order->items->first())
     @php($pendingTitle = $pendingItem?->product_title_snapshot ?: ($pendingItem?->course?->title ?: ($pendingItem?->product?->title ?: 'محتوای سفارش')))
     <a class="trk" href="{{ route('orders.show', $order) }}">
       <div class="th amber"><svg class="i"><use href="#i-clock"/></svg></div>
-      <div><b>{{ $pendingTitle }}</b><span>سفارش {{ $order->order_number }} · {{ AppSupportPersianUi::money($order->total) }}</span></div>
+      <div><b>{{ $pendingTitle }}</b><span>سفارش {{ $order->order_number }} · {{ \App\Support\PersianUi::money($order->total) }}</span></div>
       <x-tag tone="a">پیگیری پرداخت</x-tag>
     </a>
   @endforeach
@@ -25,7 +25,7 @@
 @endif
 
 <section class="card">
-  <div class="chead"><h2>دوره‌های من</h2><x-tag tone="b">{{ AppSupportPersianUi::digits($myCourses->count()) }} دوره</x-tag></div>
+  <div class="chead"><h2>دوره‌های من</h2><x-tag tone="b">{{ \App\Support\PersianUi::digits($myCourses->count()) }} دوره</x-tag></div>
   <div class="g3">
     @forelse($myCourses as $enrollment)
       <article class="card cc">
@@ -41,7 +41,7 @@
 </section>
 
 <section class="card">
-  <div class="chead"><h2>منابع و فایل‌های خریداری‌شده</h2><x-tag tone="b">{{ AppSupportPersianUi::digits($products->count()) }} منبع</x-tag></div>
+  <div class="chead"><h2>منابع و فایل‌های خریداری‌شده</h2><x-tag tone="b">{{ \App\Support\PersianUi::digits($products->count()) }} منبع</x-tag></div>
   <div class="g3">
     @forelse($products as $entitlement)
       @php($order = $entitlement->orderItem?->order)
