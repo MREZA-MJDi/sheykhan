@@ -339,7 +339,7 @@ function enhanceExistingJalaliField(dateInput) {
     const grid = dateInput.parentElement;
     if (!grid) return;
 
-    const field = dateInput.closest('[data-teacher-jalali]');
+    const field = dateInput.closest('[data-jalali-field]');
     const target = field?.querySelector('[data-jalali-target]');
     const timeInput = field?.querySelector('[data-jalali-visible-time]');
     const dateOnly = field?.dataset.jalaliDateOnly === '1';
