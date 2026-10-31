@@ -122,7 +122,11 @@
                 <small id="exam-handout-help" class="teacher-exam-field-help">برای PDF و تصویر، پیش‌نمایش سریع فایل نمایش داده می‌شود؛ فایل Word، PowerPoint و ZIP به‌صورت پیوست خصوصی ذخیره می‌شود.</small>
                 <div id="exam-handout-preview" class="teacher-file-preview" aria-live="polite"></div>
                 <small class="teacher-exam-field-help">فایل به‌صورت خصوصی به برگه آزمون پیوست می‌شود و فقط افراد مجاز همان دوره به آن دسترسی دارند.</small>
-                @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+                @php
+    $examHandouts = $exam->media->filter(function ($file) {
+        return $file->pivot->collection === 'exam-handout';
+    });
+@endphp
                 @if($examHandouts->isNotEmpty())
                     <span class="teacher-exam-file-list">
                         @foreach($examHandouts as $handout)
