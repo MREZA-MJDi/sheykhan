@@ -23,6 +23,9 @@ class AttendanceController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('student.attendance.index', [\n            'attendance' => $attendance,\n            'metrics' => $metrics->forStudent($student),\n        ]);
+        return view('student.attendance.index', [
+            'attendance' => $attendance,
+            'metrics' => $metrics->forStudent($student),
+        ]);
     }
 }
