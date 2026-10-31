@@ -2,7 +2,7 @@ import Alpine from 'alpinejs';
 
 const ALPINE_BOOT_FLAG = '__sheykhanAlpineBooted';
 
-function bootAlpine() {
+export function bootAlpine() {
     if (window[ALPINE_BOOT_FLAG]) return;
 
     const alpine = window.Alpine || Alpine;
