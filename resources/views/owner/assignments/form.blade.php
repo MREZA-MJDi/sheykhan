@@ -37,42 +37,42 @@
                         @endforeach
                     </select>
                     <small class="owner-field-help">تکلیف فقط برای اعضای همین کلاس نمایش داده می‌شود؛ کلاس انتخابی را با دوره و مدرس آن تطبیق بده.</small>
-                    <x-owner.field-error field="classroom_id"/>
+                    @error('classroom_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">عنوان تکلیف</span>
                     <input name="title" value="{{ old('title') }}" required maxlength="255" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="مثلاً حل تمرین فصل سوم">
                     <small class="owner-field-help">عنوان کوتاه و قابل تشخیص انتخاب کن تا دانش‌آموز تکلیف را در فهرست سریع پیدا کند.</small>
-                    <x-owner.field-error field="title"/>
+                    @error('title')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">دستورالعمل <span class="font-normal text-slate-400">(اگر فایل PDF نمی‌فرستی، این بخش را پر کن)</span></span>
                     <textarea name="instructions" rows="7" maxlength="30000" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="شرح تمرین، منابع لازم، فرمت تحویل و نکات مهم...">{{ old('instructions') }}</textarea>
                     <small class="owner-field-help">انتظارات، قالب پاسخ و معیار ارزیابی را بنویس. اگر راهنما را در فایل می‌فرستی، این بخش می‌تواند خلاصه باشد.</small>
-                    <x-owner.field-error field="instructions"/>
+                    @error('instructions')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
                     <span class="text-xs font-bold">پیوست راهنما <span class="font-normal text-slate-400">(اختیاری · PDF یا TXT تا ۵۰ مگابایت)</span></span>
                     <input type="file" name="handout" accept=".pdf,.txt,application/pdf,text/plain" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <small class="owner-field-help">فقط PDF یا TXT پذیرفته می‌شود؛ حجم فایل حداکثر ۵۰ مگابایت است.</small>
-                    <x-owner.field-error field="handout"/>
+                    @error('handout')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
                     <span class="text-xs font-bold">مهلت تحویل <span class="font-normal text-slate-400">(اختیاری)</span></span>
                     <input type="datetime-local" name="due_at" value="{{ old('due_at') }}" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <small class="owner-field-help">اگر مهلت مشخص نکنی، تکلیف بدون موعد تحویل ثبت می‌شود.</small>
-                    <x-owner.field-error field="due_at"/>
+                    @error('due_at')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
                     <span class="text-xs font-bold">نمره کل</span>
                     <input type="number" name="max_score" min="0" max="999999.99" step="0.01" value="{{ old('max_score', $assignment->max_score) }}" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <small class="owner-field-help">نمرهٔ کل از صفر تا ۹۹۹٬۹۹۹٫۹۹ است؛ اعشار تا دو رقم پذیرفته می‌شود.</small>
-                    <x-owner.field-error field="max_score"/>
+                    @error('max_score')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 <label class="grid gap-1">
@@ -83,7 +83,7 @@
                         <option value="closed" @selected(old('status', $assignment->status) === 'closed')>بسته</option>
                     </select>
                     <small class="owner-field-help">پیش‌نویس برای آماده‌سازی است؛ منتشرشده در دسترس دانش‌آموز قرار می‌گیرد و بسته از ارسال جدید جلوگیری می‌کند.</small>
-                    <x-owner.field-error field="status"/>
+                    @error('status')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
                 @if($errors->any())
