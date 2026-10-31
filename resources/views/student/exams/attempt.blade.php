@@ -95,7 +95,15 @@
         <label for="exam-answer-files" class="exam-answer-upload-label">انتخاب فایل پاسخ</label>
         <input class="fld" id="exam-answer-files" type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" aria-describedby="exam-answer-files-help">
         <small id="exam-answer-files-help" class="exam-answer-upload-help">فایل‌ها خصوصی ذخیره می‌شوند و فقط شما و مدرس مجاز آزمون به آن‌ها دسترسی دارید.</small>
-        <x-ui.upload-progress label="پیشرفت ارسال فایل پاسخ آزمون" />
+        <section class="student-upload-progress" data-upload-progress-ui hidden aria-label="پیشرفت ارسال فایل پاسخ آزمون">
+    <div class="student-upload-files" data-upload-file-list role="list"></div>
+    <div class="student-upload-summary" data-upload-summary></div>
+    <div class="student-upload-status" data-upload-progress-status hidden>
+        <div class="student-upload-bar-track" role="progressbar" aria-label="پیشرفت ارسال فایل" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-upload-progress-track><span class="student-upload-bar" data-upload-progress-bar></span></div>
+        <div class="student-upload-status-row"><strong data-upload-progress-percent>۰٪</strong><span data-upload-progress-message role="status" aria-live="polite">در انتظار ارسال</span></div>
+    </div>
+    <p class="student-upload-error" data-upload-progress-error role="alert" hidden></p>
+</section>
     </div>
     <div class="card">
         <div class="frm">
