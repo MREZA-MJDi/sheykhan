@@ -24,7 +24,7 @@
 
     <section class="owner-calendar-section" aria-label="تقویم هفتگی کلاس‌ها">
         <div class="owner-section-heading"><div><h2>برنامه هفتگی</h2><p>روز و ساعت برگزاری کلاس‌ها را بررسی کن؛ برای جلسه‌های تاریخ‌دار از صفحهٔ کلاس‌های آنلاین مدرس استفاده می‌شود.</p></div></div>
-        <x-education.weekly-schedule-calendar :classrooms="$classrooms" />
+        @include('owner.schedules.partials.weekly-calendar', ['classrooms' => $classrooms])
     </section>
 
     <section class="grid gap-4 owner-schedule-list" aria-label="کلاس‌ها و لینک‌های ورود">
