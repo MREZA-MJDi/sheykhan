@@ -26,7 +26,7 @@
                 @csrf
                 @method('PATCH')
         @else
-            <form method="POST" action="{{ route('owner.exams.store', $academy) }}" class="grid gap-4" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+            <form method="POST" action="{{ route('owner.exams.store', $academy) }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
                 @csrf
         @endif
             <section class="owner-exam-section">
