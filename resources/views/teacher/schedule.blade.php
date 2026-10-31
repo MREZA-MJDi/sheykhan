@@ -30,7 +30,7 @@
             @if ($classrooms->isEmpty())
                 <div class="tp-empty"><strong>ابتدا یک کلاس فعال ایجاد یا به خودت تخصیص بده.</strong><a class="tp-link" href="{{ route('teacher.classrooms.create') }}">ایجاد کلاس</a></div>
             @else
-                <form method="POST" action="{{ route('teacher.schedule.store') }}" class="tp-stack-form">
+                <form method="POST" action="{{ route('teacher.schedule.store') }}" class="tp-stack-form" data-meeting-provider-form>
                     @csrf
                     <x-teacher.field label="کلاس"><select name="classroom_id" required>@foreach ($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }} · {{ $classroom->course?->title }}</option>@endforeach</select></x-teacher.field>
                     <x-teacher.field label="روز هفته"><select name="weekday" required>@foreach ($dayNames as $value => $label)<option value="{{ $value }}" @selected((string) old('weekday') === (string) $value)>{{ $label }}</option>@endforeach</select></x-teacher.field>
@@ -39,8 +39,8 @@
                         <x-teacher.field label="پایان"><input type="time" name="end_time" value="{{ old('end_time') }}" required></x-teacher.field>
                     </div>
                     <x-teacher.field label="محل / اتاق (اختیاری)"><input name="room" maxlength="255" value="{{ old('room') }}"></x-teacher.field>
-                    <x-teacher.field label="سرویس جلسه"><select name="provider" required><option value="Jitsi" @selected(old('provider', 'Jitsi') === 'Jitsi')>Jitsi شیخان</option><option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option><option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option><option value="سایر" @selected(old('provider') === 'سایر')>سایر</option></select></x-teacher.field>
-                    <x-teacher.field label="لینک جلسه (برای سرویس خارجی الزامی)"><input type="url" name="meeting_url" value="{{ old('meeting_url') }}" dir="ltr" placeholder="https://"></x-teacher.field>
+                    <x-teacher.field label="سرویس جلسه"><select name="provider" data-meeting-provider required><option value="Jitsi" @selected(old('provider', 'Jitsi') === 'Jitsi')>Jitsi شیخان</option><option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option><option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option><option value="سایر" @selected(old('provider') === 'سایر')>سایر</option></select></x-teacher.field>
+                    <x-teacher.field label="لینک جلسه (برای سرویس خارجی الزامی)"><input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url') }}" dir="ltr" placeholder="https://"><small data-meeting-provider-help class="tp-muted" role="status" aria-live="polite">برای Jitsi لینک خودکار ساخته می‌شود؛ سرویس‌های دیگر نیازمند لینک واقعی هستند.</small></x-teacher.field>
                     <x-teacher.button type="submit">ثبت برنامه</x-teacher.button>
                 </form>
             @endif
