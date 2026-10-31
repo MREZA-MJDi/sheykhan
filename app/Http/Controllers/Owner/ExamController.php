@@ -93,6 +93,7 @@ final class ExamController extends Controller
                 'question' => $question->question,
                 'options' => $question->options ?? [],
                 'correct_answer' => $correctAnswer,
+                'expected_answer' => $question->expected_answer,
                 'score' => $question->score,
             ];
         })->values()->all();
