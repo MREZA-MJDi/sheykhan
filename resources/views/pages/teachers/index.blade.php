@@ -5,8 +5,8 @@
 
 @section('content')
     <section class="public-teachers-page">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <header class="public-page-intro mb-10 sm:mb-12">
                     <div class="max-w-3xl">
                         <span class="ui-eyebrow mb-4">مدرس‌های شیخان</span>
@@ -62,19 +62,25 @@
 
                 @if($teachers->hasPages())
                     <div class="mt-10 border-t border-[var(--color-border)] pt-8 sm:mt-12">
-                        <x-navigation.pagination :paginator="$teachers" />
+                        {{ $teachers->links() }}
                     </div>
                 @endif
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
-    <x-branding.public-next-step
-        eyebrow="انتخاب مسیر آموزشی"
-        title="مدرس را با دوره‌ی مناسب همراه کن"
-        description="بعد از آشنایی با تخصص مدرس‌ها، دوره‌های منتشرشده را ببین و مسیر مناسب خودت را پیدا کن."
-        :primary-href="route('courses.index')"
-        primary-label="دیدن دوره‌ها"
-        :secondary-href="route('register')"
-        secondary-label="شروع یادگیری"
-    />
+    <section class="public-next-step public-next-step--teachers-index" aria-label="قدم بعدی">
+    <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div class="public-next-step__card">
+            <div class="public-next-step__copy">
+                <span>قدم بعدی</span>
+                <h2>مسیر یادگیریت را ادامه بده</h2>
+                <p>از دوره‌ها و مدرس‌ها دیدن کن و با توجه به نیازت، قدم بعدی را انتخاب کن.</p>
+            </div>
+            <div class="public-next-step__actions">
+                <a class="public-next-step__button public-next-step__button--primary" href="/courses">مشاهده دوره‌ها <span aria-hidden="true">←</span></a>
+                <a class="public-next-step__button public-next-step__button--secondary" href="/teachers">آشنایی با مدرس‌ها <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
