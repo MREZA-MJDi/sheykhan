@@ -5,10 +5,10 @@
 
 @section('content')
     @php
-        $fa = fn ($value) => strtr((string) $value, [
+        $fa = function ($value) { return strtr((string) $value, [
             '0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴',
             '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
-        ]);
+        ]); };
     @endphp
 {{-- Full-bleed hero uses the independent HomeHeroSlide source. --}}
     @include('components.branding.home-meraki-hero')
@@ -443,12 +443,16 @@
             'question-designer' => 'اگر من طراح سوال بودم',
         ];
         $publicAcademyPaths = collect($academyPathTitles)
-            ->map(fn ($title, $slug) => [
-                'slug' => $slug,
-                'title' => $title,
-                'items' => $academyContentGroups[$slug] ?? [],
-            ])
-            ->filter(fn ($path) => count($path['items']) > 0)
+            ->map(function ($title, $slug) use ($academyContentGroups) {
+                return [
+                    'slug' => $slug,
+                    'title' => $title,
+                    'items' => $academyContentGroups[$slug] ?? [],
+                ];
+            })
+            ->filter(function ($path) {
+                return count($path['items']) > 0;
+            })
             ->values();
     @endphp
     @if($publicAcademyPaths->isNotEmpty())
