@@ -19,18 +19,19 @@ class ExamController extends Controller
 {
     public function index(TeacherWorkspaceService $workspace): View
     {
-        return view('teacher.exams.index', [
+        return view('teacher.exams', [
             'exams' => $workspace->exams(request()->user()),
         ]);
     }
 
     public function create(TeacherWorkspaceService $workspace): View
     {
-        return view('teacher.exams.form', [
+        return view('teacher.exams', [
             'courses' => $workspace->courses(request()->user()),
             'classrooms' => $workspace->classrooms(request()->user()),
             'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
             'initialQuestions' => [],
+            'builderMode' => true,
         ]);
     }
 
@@ -123,6 +124,7 @@ class ExamController extends Controller
             'classrooms' => $workspace->classrooms(request()->user()),
             'exam' => $exam,
             'initialQuestions' => $initialQuestions,
+            'builderMode' => true,
         ]);
     }
 
