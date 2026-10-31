@@ -16,7 +16,9 @@
     @elseif($field === 'city' || $field === 'province')<small class="owner-field-help">برای اطلاعات تماس، فهرست‌کردن و شناسایی موقعیت آموزشگاه استفاده می‌شود.</small>
     @elseif($field === 'website')<small class="owner-field-help">نشانی کامل سایت را با https:// وارد کن.</small>
     @endif
-    <x-owner.field-error :field="$field"/>
+    @error($field)
+        <p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>
+    @enderror
 </label>
 @endforeach
 <label class="grid gap-1 sm:col-span-2"><span class="text-xs font-bold">آدرس</span><input name="address" value="{{ old('address',$academy->address) }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">آدرس قابل‌استفاده برای معرفی و تماس؛ اطلاعات غیرضروری یا خصوصی را وارد نکن.</small>@error('address')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
