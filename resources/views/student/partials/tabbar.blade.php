@@ -5,7 +5,7 @@
        @class(['on' => request()->routeIs(...(array) $item['active'])])
        @if (request()->routeIs(...(array) $item['active'])) aria-current="page" @endif>
       <svg class="i"><use href="#{{ $item['icon'] }}"/></svg>
-      {{ \Illuminate\Support\Str::before($item['label'], ' ') }}
+      {{ explode(' ', $item['label'], 2)[0] }}
     </a>
   @endforeach
   <details class="more">
