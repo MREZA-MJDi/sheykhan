@@ -1,14 +1,14 @@
 @php
     $teacherMessageStatuses = ['sent' => 'در انتظار پاسخ', 'responded' => 'پاسخ داده شد'];
 @endphp
-<section class="communication-page__card mt-6 space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7" aria-labelledby="teacher-direct-inbox-title">
+<section class="communication-page__card parent-panel dashboard-panel mt-6 space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7" aria-labelledby="teacher-direct-inbox-title">
     <div>
         <span class="text-xs font-black text-[var(--panel-primary)]">ارتباط آموزشی</span>
         <h2 id="teacher-direct-inbox-title" class="mt-1 text-lg font-black text-slate-900">{{ $recipientType === 'student' ? 'پیام‌های دریافتی از مدرس' : 'پیام مستقیم مدرس‌ها' }}</h2>
         <p class="mt-1 text-sm leading-7 text-slate-500">{{ $recipientType === 'student' ? 'پیام‌های مدرس و پاسخ‌هایی که برای او فرستاده‌ای در همین کارتابل باقی می‌مانند.' : 'پیام‌های مستقیمی که مدرس برایت فرستاده و پاسخ‌هایی که ثبت کرده‌ای در همین کارتابل می‌مانند.' }}</p>
     </div>
     @forelse($messages as $message)
-        <article class="communication-page__message rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+        <article class="communication-page__message parent-panel dashboard-panel rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <div class="flex flex-wrap items-start justify-between gap-2">
                 <div class="min-w-0">
                     <h3 class="font-black">{{ $message->subject }}</h3>
@@ -31,7 +31,7 @@
             @endif
         </article>
     @empty
-        <div class="communication-page__empty rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">پیام مستقیمی از طرف مدرس برای نمایش وجود ندارد.</div>
+        <div class="communication-page__empty parent-panel dashboard-panel rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">پیام مستقیمی از طرف مدرس برای نمایش وجود ندارد.</div>
     @endforelse
     @if($messages->hasPages())<div>{{ $messages->links() }}</div>@endif
 </section>
