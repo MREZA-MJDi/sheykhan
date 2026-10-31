@@ -27,7 +27,7 @@
                 <div data-ui-dismissible class="ui-flash ui-flash-{{ $type }}" role="{{ $type === 'error' ? 'alert' : 'status' }}" aria-live="{{ $type === 'error' ? 'assertive' : 'polite' }}">
                     <span class="ui-flash-icon" aria-hidden="true">{{ $meta['icon'] }}</span>
                     <div class="ui-flash-copy"><strong>{{ $meta['title'] }}</strong><span>{{ session($type) }}</span></div>
-                    <button type="button" class="ui-flash-close" data-ui-dismiss aria-label="بستن پیام">×</button>
+                    <button type="button" class="ui-flash-close" data-ui-dismiss data-ui-flash-close aria-label="بستن پیام">×</button>
                 </div>
             @endif
         @endforeach
@@ -35,7 +35,7 @@
             <div data-ui-dismissible class="ui-flash ui-flash-error" role="alert" aria-live="assertive">
                 <span class="ui-flash-icon" aria-hidden="true">!</span>
                 <div class="ui-flash-copy"><strong>اطلاعات بررسی نشد</strong><span>{{ $errors->first() }}</span></div>
-                <button type="button" class="ui-flash-close" data-ui-dismiss aria-label="بستن پیام">×</button>
+                <button type="button" class="ui-flash-close" data-ui-dismiss data-ui-flash-close aria-label="بستن پیام">×</button>
             </div>
         @endif
     </div>
