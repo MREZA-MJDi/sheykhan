@@ -54,17 +54,23 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $script = file_get_contents(resource_path('js/teacher.js'));
         $this->assertIsString($script);
         foreach ([
-            "import Alpine from 'alpinejs';",
-            "import './teacher/assessment-builder.js';",
-            "import './teacher/persian-calendar.js';",
-            "import './teacher/persian-money.js';",
-            "import './teacher/upload-progress.js';",
+            "import { bootAlpineRuntime } from './shared/alpine-runtime.js';",
+            "import './assessment-builder.js';",
+            "import './persian-calendar.js';",
+            "import './persian-money.js';",
+            "import { bootFileUploadProgress } from './upload-progress.js';",
             "import './teacher/course-media-uploader.js';",
-            'Alpine.start();',
+            'bootAlpineRuntime();',
         ] as $expected) {
             $this->assertStringContainsString($expected, $script);
         }
         $this->assertStringNotContainsString("from './panel-runtime.js'", $script);
+        $this->assertStringContainsString("from './shared/alpine-runtime.js'", file_get_contents(resource_path('js/panel-base.js')));
+        $this->assertStringContainsString("from '../persian-calendar.js'", file_get_contents(resource_path('js/teacher/persian-calendar.js')));
+        $this->assertStringContainsString("from '../persian-calendar-core.mjs'", file_get_contents(resource_path('js/teacher/persian-calendar-core.mjs')));
+        $this->assertStringContainsString("from '../persian-money.js'", file_get_contents(resource_path('js/teacher/persian-money.js')));
+        $this->assertStringContainsString("from '../upload-progress.js'", file_get_contents(resource_path('js/teacher/upload-progress.js')));
+        $this->assertStringContainsString("import '../assessment-builder.js';", file_get_contents(resource_path('js/teacher/assessment-builder.js')));
         $this->assertStringNotContainsString("import './assessment-builder.js'", $script);
     }
 
