@@ -1,4 +1,4 @@
-/* Owner-owned exam editor behavior. */
+/* Owner-owned assessment builder. Presentation stays in owner form markup and CSS. */
 const initializeExamBuilder = () => {
     document.querySelectorAll('[data-course-classroom-select]').forEach((classroomSelect) => {
         const courseSelect = document.querySelector(classroomSelect.dataset.courseSelect);
@@ -85,13 +85,13 @@ const initializeExamBuilder = () => {
 
         if (!options.length) {
             const empty = document.createElement('p');
-            empty.dataset.examAnswerEmpty = 'true';
+            empty.className = 'owner-exam-answer-key-empty';
             empty.textContent = 'ابتدا چهار گزینه را کامل کن تا کلید پاسخ ساخته شود.';
             choices.appendChild(empty);
         } else {
             options.forEach((option, optionIndex) => {
                 const row = document.createElement('label');
-                row.dataset.examCorrectChoice = 'true';
+                row.className = 'owner-exam-correct-choice';
 
                 const input = document.createElement('input');
                 input.type = multi ? 'checkbox' : 'radio';
@@ -105,15 +105,15 @@ const initializeExamBuilder = () => {
                 if (!multi) input.required = Boolean(requireCorrectAnswer);
 
                 const marker = document.createElement('span');
-                marker.dataset.examChoiceMarker = 'true';
+                marker.className = 'owner-exam-correct-choice-marker';
                 marker.textContent = ['الف', 'ب', 'ج', 'د'][optionIndex] || toFaDigits(optionIndex + 1);
 
                 const copy = document.createElement('span');
-                copy.dataset.examChoiceCopy = 'true';
+                copy.className = 'owner-exam-correct-choice-copy';
                 copy.textContent = option;
 
                 const check = document.createElement('span');
-                check.dataset.examChoiceCheck = 'true';
+                check.className = 'owner-exam-correct-choice-check';
                 check.setAttribute('aria-hidden', 'true');
                 check.textContent = '✓';
 
