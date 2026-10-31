@@ -1,18 +1,4 @@
-import Alpine from 'alpinejs';
-
-const ALPINE_BOOT_FLAG = '__sheykhanAlpineBooted';
-
-function bootAlpine() {
-    if (window[ALPINE_BOOT_FLAG]) return;
-
-    const alpine = window.Alpine || Alpine;
-    window.Alpine = alpine;
-
-    if (!alpine || typeof alpine.start !== 'function') return;
-
-    alpine.start();
-    window[ALPINE_BOOT_FLAG] = true;
-}
+import { bootAlpineRuntime } from './shared/alpine-runtime.js';
 
 function bootRoleAvatarFallback() {
     // This shared recovery behavior belongs only to Student and Teacher panels.
@@ -61,7 +47,7 @@ function bootProfileAvatarFallback() {
 export function bootPanel() {
     bootRoleAvatarFallback();
     bootProfileAvatarFallback();
-    bootAlpine();
+    bootAlpineRuntime();
 
     const openButton = document.querySelector('[data-role-menu-open]');
     const sidebar = document.querySelector('.role-sidebar');
