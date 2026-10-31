@@ -1,10 +1,10 @@
 /* Teacher-only runtime. Role UI and behavior are isolated. */
 import { bootAlpine } from './panel-base.js';
 import { bootSharedBehaviors } from './shared/behavior-runtime.js';
-import './persian-calendar.js';
-import './persian-money.js';
-import './assessment-builder.js';
-import { bootFileUploadProgress } from './upload-progress.js';
+import './shared/persian-calendar.js';
+import './shared/persian-money.js';
+import './shared/assessment-builder.js';
+import { bootFileUploadProgress } from './shared/upload-progress.js';
 import './teacher/course-media-uploader.js';
 
 bootAlpine();
