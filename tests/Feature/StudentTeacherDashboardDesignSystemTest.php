@@ -188,8 +188,9 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringNotContainsString('assessment-builder', $sharedScript);
         $this->assertStringContainsString("import './owner/exam-builder.js';", $ownerScript);
         $this->assertStringContainsString("import './owner/people-tabs.js';", $ownerScript);
-        $this->assertStringContainsString("import './owner-admin-shared.css';", $ownerCss);
-        $this->assertStringContainsString("import './owner-admin-shared.css';", $seoCss);
+        $this->assertStringContainsString("import './panels/owner/admin.css';", $ownerCss);
+        $this->assertStringContainsString("import './panels/seo/admin.css';", $seoCss);
+        $this->assertFileDoesNotExist(resource_path('css/owner-admin-shared.css'));
         foreach ([$ownerLayout,$seoLayout] as $layout) {
             $this->assertStringContainsString("@include('owner.partials.admin-topbar')", $layout);
             $this->assertStringContainsString("@include('owner.partials.admin-main')", $layout);
