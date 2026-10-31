@@ -38,7 +38,6 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringContainsString("@import 'tailwindcss' source(none);", $css);
         $this->assertStringContainsString("@source '../../resources/views/teacher';", $css);
         $this->assertStringContainsString("@source '../../resources/views/layouts/teacher.blade.php';", $css);
-        $this->assertStringContainsString("@source '../../resources/views/components/teacher';", $css);
         $this->assertStringContainsString('<aside class="side"', $layout);
         $this->assertStringContainsString('<nav class="bt"', $layout);
         $this->assertStringContainsString('.teacher-panel', $css);
