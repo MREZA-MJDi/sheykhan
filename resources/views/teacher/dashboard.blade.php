@@ -43,7 +43,15 @@
 <section class="hero2">
   <div class="cov"></div>
   <div class="hp2">
-    <div class="pa">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="تصویر {{ $user?->name }}">@else{{ \Illuminate\Support\Str::substr(trim((string)($user?->name ?? 'م')),0,1) }}@endif</div>
+    <div class="pa">
+      <div class="teacher-dashboard-avatar">
+        @if($avatarUrl)
+          <img data-avatar-image src="{{ $avatarUrl }}" alt="تصویر پروفایل {{ $user?->name }}" width="92" height="92" decoding="async">
+        @else
+          <span class="teacher-dashboard-avatar-initial" aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string)($user?->name ?? 'م')),0,1) }}</span>
+        @endif
+      </div>
+    </div>
     <div style="min-width:0;flex:1"><b style="font-size:19px">{{ $user?->name }}</b><small style="display:block;color:var(--mu)">مدرس · {{ \App\Support\PersianUi::digits($classes) }} کلاس · {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز</small></div>
     @if($user?->hasPermission('profile.view'))<a class="btn l" href="{{ route('teacher.profile.edit') }}">ویرایش پروفایل</a>@endif
   </div>
@@ -78,6 +86,19 @@
       <a class="row" href="{{ $class['url'] ?? route('teacher.classrooms.index') }}">
         <span class="ic">▤</span><span class="t"><b>{{ $class['title'] }}</b><small>{{ $class['course_title'] ?? 'دوره آموزشی' }}</small></span>
         <span class="pill">{{ \App\Support\PersianUi::digits($class['student_count'] ?? 0) }} نفر</span>
+        @if(!empty($class['students']) && count($class['students']))
+          <span class="teacher-roster-preview" aria-label="نمونه دانش‌آموزان کلاس">
+            @foreach($class['students'] as $rosterStudent)
+              <span class="teacher-roster-avatar" title="{{ $rosterStudent->name }}">
+                @if($rosterStudent->avatar_url)
+                  <img src="{{ $rosterStudent->avatar_url }}" alt="تصویر {{ $rosterStudent->name }}" loading="lazy" decoding="async">
+                @else
+                  <span aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string) $rosterStudent->name), 0, 1) }}</span>
+                @endif
+              </span>
+            @endforeach
+          </span>
+        @endif
       </a>
     @empty
       <div class="emp"><i>▤</i><b>هنوز کلاسی ثبت نشده است</b><small>کلاس‌های متصل به حساب شما پس از تخصیص در این قسمت نمایش داده می‌شوند.</small></div>
