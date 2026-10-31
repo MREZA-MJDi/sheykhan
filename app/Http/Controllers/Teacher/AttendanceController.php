@@ -15,7 +15,7 @@ class AttendanceController extends Controller
 {
     public function index(TeacherWorkspaceService $workspace): View
     {
-        return view('teacher.attendance.index', [
+        return view('teacher.attendance', [
             'classrooms' => $workspace->classroomsPaginated(request()->user()),
         ]);
     }

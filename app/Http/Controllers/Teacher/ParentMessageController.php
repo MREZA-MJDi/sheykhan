@@ -29,7 +29,7 @@ final class ParentMessageController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('teacher.messages.index', compact('messages'));
+        return view('teacher.messages', compact('messages'));
     }
 
     public function reply(Request $request, ParentMessage $message): RedirectResponse

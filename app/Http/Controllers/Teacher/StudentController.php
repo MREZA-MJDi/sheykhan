@@ -34,7 +34,7 @@ final class StudentController extends Controller
         /** @var User $teacher */
         $teacher = $request->user();
 
-        return view('teacher.students.index', [
+        return view('teacher.students', [
             'students' => $workspace->studentsPaginated(
                 $teacher,
                 self::PAGE_SIZE,

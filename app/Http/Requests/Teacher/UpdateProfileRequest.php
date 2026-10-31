@@ -29,6 +29,7 @@ class UpdateProfileRequest extends FormRequest
             'notification_preferences.assignment_submissions' => ['sometimes', 'boolean'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:3072'],
             'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:5120'],
+            'remove_avatar' => ['nullable', 'boolean'],
             'remove_cover' => ['nullable', 'boolean'],
         ];
     }
