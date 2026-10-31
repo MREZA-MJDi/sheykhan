@@ -1,6 +1,6 @@
 @extends('layouts.student')
 @section('title', 'خانه یادگیری')
-@section('heading', 'خانه یادگیری من')
+@section('heading', 'مرکز یادگیری')
 
 @section('content')
 @php
@@ -35,11 +35,7 @@
 @endphp
 
 <section class="hero">
-  @if ($studentAvatarUrl)
-    <img class="av" src="{{ $studentAvatarUrl }}" alt="تصویر پروفایل {{ $student->name }}" width="210" height="200" loading="eager" decoding="async" style="object-fit:cover">
-  @else
-    <svg class="av" viewBox="0 0 120 120" role="img" aria-label="تصویر دانش‌آموز"><use href="#avatar"/></svg>
-  @endif
+  <svg class="av" viewBox="0 0 120 120" role="img" aria-label="تصویر دانش‌آموز"><use href="#avatar"/></svg>
   <div class="txt">
     <h2>سلام، {{ $student->name }}!</h2>
     <p>{{ $nextAction->text }}</p>
@@ -65,9 +61,9 @@
 
 <div class="stats">
   <x-stat color="blue" icon="i-video" label="کلاس‌های امروز" :value="\App\Support\PersianUi::digits($todayLiveClassCount)" hint="جلسه‌های برنامه‌ریزی‌شده و در حال برگزاری" :href="route('student.live-classes.index')" />
-  <x-stat color="red" icon="i-task" label="تکالیف ارسال‌نشده" :value="\App\Support\PersianUi::digits($pendingAssignments)" hint="{{ \App\Support\PersianUi::digits($deadlines->count()) }} مهلت نزدیک در فهرست" :href="route('student.assignments.index')" />
-  <x-stat color="amber" icon="i-exam" label="آزمون‌های پیش‌رو" :value="\App\Support\PersianUi::digits($upcomingExamCount)" hint="{{ $nextExamDate ? 'نزدیک‌ترین آزمون: '.\App\Support\PersianUi::date($nextExamDate) : 'هنوز آزمون زمان‌دار اعلام نشده' }}" :href="route('student.exams.index')" />
-  <x-stat color="mint" icon="i-rocket" label="پیشرفت دوره‌ها" :value="\App\Support\PersianUi::digits($overallProgress).'٪'" hint="میانگین پیشرفت دوره‌های فعال" :href="route('student.results.index')" />
+  <x-stat color="red" icon="i-task" label="تکالیف باز" :value="\App\Support\PersianUi::digits($pendingAssignments)" hint="{{ \App\Support\PersianUi::digits($deadlines->count()) }} مهلت نزدیک در فهرست" :href="route('student.assignments.index')" />
+  <x-stat color="amber" icon="i-exam" label="آزمون پیش‌رو" :value="\App\Support\PersianUi::digits($upcomingExamCount)" hint="{{ $nextExamDate ? 'نزدیک‌ترین آزمون: '.\App\Support\PersianUi::date($nextExamDate) : 'هنوز آزمون زمان‌دار اعلام نشده' }}" :href="route('student.exams.index')" />
+  <x-stat color="mint" icon="i-rocket" label="رشد این ماه" :value="'—'" hint="امتیاز یادگیری در صفحه رشد تحصیلی" :href="route('student.growth')" />
 </div>
 
 <div class="row">
@@ -85,7 +81,7 @@
         @elseif ($class->status === 'live')
           <x-tag tone="a">در حال برگزاری</x-tag>
         @else
-          <x-tag tone="b">برنامه‌ریزی‌شده</x-tag>
+          <span class="tag b" data-countdown="{{ $class->scheduled_at?->toIso8601String() }}"></span>
         @endif
       </div>
     @empty
@@ -94,7 +90,7 @@
   </section>
 
   <section class="card">
-    <div class="chead"><h2>مهلت تکالیف</h2><a class="pill" href="{{ route('student.assignments.index') }}">همه تکالیف</a></div>
+    <div class="chead"><h2>مهلت‌های نزدیک</h2><a class="pill" href="{{ route('student.assignments.index') }}">همه تکالیف</a></div>
     @forelse ($deadlines as $assignment)
       <a class="trk" href="{{ route('student.assignments.show', $assignment->id) }}">
         <div class="th amber"><svg class="i" aria-hidden="true"><use href="#i-task"/></svg></div>
@@ -112,7 +108,7 @@
 
 @if ($sessions->contains(fn ($session) => ($session['available'] ?? false) === true))
 <section class="card">
-  <div class="chead"><h2>ضبط جلسه‌های اخیر</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه ضبط‌ها</a></div>
+  <div class="chead"><h2>فیلم جلسه‌های اخیر</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه ضبط‌ها</a></div>
   <div class="g3">
     @foreach ($sessions->where('available', true)->take(3) as $recording)
       <a class="card cc" href="{{ $recording['href'] }}">

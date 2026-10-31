@@ -173,6 +173,30 @@ bootPanelRuntime();
             resize();
         });
 
+        document.querySelectorAll('[data-countdown]').forEach((timer) => {
+            const target = Date.parse(timer.dataset.countdown || '');
+            if (!Number.isFinite(target)) {
+                timer.textContent = 'زمان نامشخص';
+                return;
+            }
+            const update = () => {
+                const remaining = target - Date.now();
+                if (remaining <= 0) { timer.textContent = 'شروع شده'; return; }
+                const totalMinutes = Math.ceil(remaining / 60000);
+                const days = Math.floor(totalMinutes / 1440);
+                const hours = Math.floor((totalMinutes % 1440) / 60);
+                const minutes = totalMinutes % 60;
+                const digits = (value) => Number(value).toLocaleString('fa-IR');
+                let label;
+                if (days) label = digits(days) + ' روز و ' + digits(hours) + ' ساعت';
+                else if (hours) label = digits(hours) + ' ساعت و ' + digits(minutes) + ' دقیقه';
+                else label = digits(minutes) + ' دقیقه';
+                timer.textContent = 'شروع تا ' + label;
+            };
+            update();
+            window.setInterval(update, 30000);
+        });
+
     });
 })();
 

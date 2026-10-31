@@ -147,6 +147,14 @@ final class StudentDashboardService
                 ->count('assignments.id')
             : 0;
 
+        $tomorrowStart = now()->copy()->addDay()->startOfDay();
+        $tomorrowEnd = now()->copy()->addDay()->endOfDay();
+        $dueTomorrowCount = $assignmentQuery
+            ? (clone $assignmentQuery)
+                ->whereNull('submissions.id')
+                ->whereBetween('assignments.due_at', [$tomorrowStart, $tomorrowEnd])
+                ->count('assignments.id')
+            : 0;
         $assignmentItems = $assignmentQuery
             ? (clone $assignmentQuery)
                 ->orderByRaw('CASE WHEN submissions.id IS NULL THEN 0 ELSE 1 END')
@@ -583,6 +591,7 @@ final class StudentDashboardService
             'overallProgress' => round($overallProgress),
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
+            'dueTomorrowCount' => $dueTomorrowCount,
             'upcomingLiveClasses' => $upcomingLive,
             'upcomingLiveClassCount' => $upcomingLiveClassCount,
             'todayClasses' => $todayClasses,

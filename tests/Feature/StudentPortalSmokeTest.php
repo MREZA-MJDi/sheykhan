@@ -55,7 +55,7 @@ class StudentPortalSmokeTest extends TestCase
             ->get(route('student.dashboard'))
             ->assertOk()
             ->assertSee('خانه یادگیری من')
-            ->assertSee('پیشرفت دوره‌ها')
+            ->assertSee('رشد این ماه')
             ->assertSee('student-shell', false)
             ->assertDontSee('رابط کاربری جدید بخش دانش‌آموز در حال آماده‌سازی است.')
             ->assertDontSee('sdr-hero', false);
