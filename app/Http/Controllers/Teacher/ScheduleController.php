@@ -13,7 +13,7 @@ class ScheduleController extends Controller
 {
     public function index(TeacherWorkspaceService $workspace): View
     {
-        return view('teacher.schedule.index', [
+        return view('teacher.schedule', [
             'classrooms' => $workspace->classroomsForSchedule(request()->user()),
         ]);
     }

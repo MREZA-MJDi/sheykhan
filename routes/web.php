@@ -226,6 +226,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
 
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', TeacherDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/report', [TeacherDashboard::class, 'report'])->middleware('permission:dashboard.view')->name('report');
     Route::get('/profile', [TeacherProfileController::class, 'edit'])->middleware('permission:profile.view')->name('profile.edit');
     Route::patch('/profile', [TeacherProfileController::class, 'update'])->middleware(['permission:profile.manage','throttle:10,1'])->name('profile.update');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');

@@ -16,7 +16,7 @@ class AssignmentController extends Controller
 {
     public function index(TeacherWorkspaceService $workspace): View
     {
-        return view('teacher.assignments.index', [
+        return view('teacher.assignments', [
             'assignments' => $workspace->assignments(request()->user()),
         ]);
     }

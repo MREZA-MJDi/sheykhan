@@ -12,4 +12,9 @@ class DashboardController extends Controller
     {
         return view('teacher.dashboard', $dashboard->build(request()->user()));
     }
+
+    public function report(TeacherDashboardService $dashboard): View
+    {
+        return view('teacher.report', $dashboard->build(request()->user()));
+    }
 }
