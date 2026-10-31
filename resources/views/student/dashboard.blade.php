@@ -36,13 +36,9 @@
 
 <section class="hero">
   @if ($studentAvatarUrl)
-    <img class="av" src="{{ $studentAvatarUrl }}" alt="تصویر پروفایل {{ $student->name }}" width="210" height="200" loading="eager" decoding="async">
-  @else
-    @if ($studentAvatarUrl)
-    <img class="av" src="{{ $studentAvatarUrl }}" alt="تصویر پروفایل {{ $student->name }}" width="210" height="200" loading="eager" decoding="async">
+    <img class="av" src="{{ $studentAvatarUrl }}" alt="تصویر پروفایل {{ $student->name }}" width="210" height="200" loading="eager" decoding="async" style="object-fit:cover">
   @else
     <svg class="av" viewBox="0 0 120 120" role="img" aria-label="تصویر دانش‌آموز"><use href="#avatar"/></svg>
-  @endif
   @endif
   <div class="txt">
     <h2>سلام، {{ $student->name }}!</h2>
