@@ -16,7 +16,18 @@
             <div class="mt-5 grid gap-4 md:grid-cols-3">
                 <label class="teacher-form-field md:col-span-3"><span>عنوان</span><input name="title" value="{{ old('title') }}" placeholder="مثلاً حل تمرین فصل سوم" required>@error('title')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
                 <label class="teacher-form-field md:col-span-3"><span>دستورالعمل و توضیحات تکلیف</span><textarea name="instructions" rows="4" maxlength="30000" placeholder="شرح تمرین، مراحل انجام، فایل‌هایی که باید تحویل شوند و معیار ارزیابی را بنویس...">{{ old('instructions') }}</textarea><small>این متن کنار تکلیف برای دانش‌آموز نمایش داده می‌شود. در صورت بارگذاری فایل راهنما، می‌توانی متن را کوتاه‌تر بنویسی.</small>@error('instructions')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
-                <x-teacher.jalali-datetime name="due_at" :value="old('due_at')" label="مهلت تحویل" />
+                <div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="0">
+    <label>
+        <span>مهلت تحویل</span>
+        <div class="teacher-jalali-field-grid ">
+            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="مهلت تحویل شمسی">
+            <input type="time" data-jalali-visible-time aria-label="ساعت مهلت تحویل">
+
+        </div>
+        <input type="hidden" name="due_at" data-jalali-target value="{{ old('due_at') }}">
+        @error('due_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
+    </label>
+</div>
                 <label class="teacher-form-field"><span>نمره کل</span><input type="number" step="0.01" min="0" name="max_score" value="{{ old('max_score',$assignment->max_score) }}" placeholder="۲۰" inputmode="decimal"></label>
                 <label class="teacher-form-field"><span>وضعیت</span><select name="status"><option value="draft" @selected(old('status',$assignment->status)==='draft')>پیش‌نویس</option><option value="published" @selected(old('status',$assignment->status)==='published')>منتشرشده</option><option value="closed" @selected(old('status',$assignment->status)==='closed')>بسته</option></select></label>
                 <label class="teacher-form-field md:col-span-3"><span>فایل طرح سؤال یا جزوهٔ تکلیف <small class="text-slate-400">اختیاری · PDF، Word، PowerPoint یا تصویر تا ۲۰ مگابایت</small></span><input type="file" name="handout" accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,application/pdf,text/plain,image/*" data-teacher-preview="#assignment-handout-preview" aria-describedby="assignment-handout-help"><small id="assignment-handout-help" class="teacher-exam-field-help">پیش‌نمایش فایل قبل از ارسال نمایش داده می‌شود. فایل در فضای خصوصی ذخیره می‌شود و فقط دانش‌آموزان مجاز همان دوره آن را می‌بینند.</small></label>
