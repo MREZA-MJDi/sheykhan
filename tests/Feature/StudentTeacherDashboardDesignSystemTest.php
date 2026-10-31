@@ -76,11 +76,15 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
     public function test_teacher_reuses_canonical_shared_modules_instead_of_identical_private_copies(): void
     {
         foreach ([
+            'js/assessment-builder.js',
+            'js/persian-calendar-core.mjs',
+            'js/persian-calendar.js',
+            'js/persian-money.js',
+            'js/upload-progress.js',
+            'js/teacher/persian-calendar-core.mjs',
+            'js/teacher/persian-money.js',
+            'js/teacher/upload-progress.js',
             'js/shared/assessment-builder.js',
-            'js/shared/persian-calendar-core.mjs',
-            'js/shared/persian-calendar.js',
-            'js/shared/persian-money.js',
-            'js/shared/upload-progress.js',
         ] as $duplicate) {
             $this->assertFileDoesNotExist(resource_path($duplicate));
         }
