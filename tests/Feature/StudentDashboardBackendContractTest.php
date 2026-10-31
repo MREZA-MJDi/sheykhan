@@ -31,6 +31,15 @@ class StudentDashboardBackendContractTest extends TestCase
         $this->assertArrayHasKey('recentResults', $payload);
         $this->assertArrayHasKey('pendingAssignments', $payload);
         $this->assertArrayHasKey('upcomingLiveClassCount', $payload);
+        $this->assertArrayHasKey('todayClasses', $payload);
+        $this->assertArrayHasKey('todayLiveClassCount', $payload);
+        $this->assertArrayHasKey('deadlines', $payload);
+        $this->assertArrayHasKey('upcomingExamCount', $payload);
+        $this->assertArrayHasKey('nextExamDate', $payload);
+        $this->assertArrayHasKey('announcements', $payload);
+        $this->assertLessThanOrEqual(4, $payload['todayClasses']->count());
+        $this->assertLessThanOrEqual(4, $payload['deadlines']->count());
+        $this->assertLessThanOrEqual(3, $payload['announcements']->count());
         $this->assertGreaterThanOrEqual($payload['upcomingLiveClasses']->count(), $payload['upcomingLiveClassCount']);
         $this->assertArrayHasKey('nextLesson', $payload);
         $this->assertArrayHasKey('nextLiveClass', $payload);

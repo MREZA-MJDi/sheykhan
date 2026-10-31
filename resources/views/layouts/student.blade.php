@@ -7,16 +7,6 @@
     <title>@yield('title', 'پنل دانش‌آموز') · شیخان</title>
     @include('layouts.partials.panel-theme-init')
     @vite(['resources/css/student.css', 'resources/js/student.js'])
-    <style>
-      :root {
-        --bg1:#b4c4d2; --bg2:#8ea4b8;
-        --side:#2c4764; --side2:#223a54;
-        --teal:#3f8e9c; --teal-d:#2f7483;
-      }
-      .hero { background:linear-gradient(135deg,#4a6580,#374f69); }
-      .hero:after { background:linear-gradient(180deg,#5d7791,#3d566f); }
-      .ib.pr img { display:block; }
-    </style>
     @stack('head')
     @stack('styles')
 </head>
@@ -75,9 +65,6 @@
       });
       if (empty) empty.hidden = visible > 0;
     });
-  });
-  document.querySelectorAll('[data-open-dialog]').forEach((button) => {
-    button.addEventListener('click', () => document.getElementById(button.dataset.openDialog)?.showModal());
   });
 })();
 </script>

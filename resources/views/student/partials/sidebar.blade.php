@@ -3,7 +3,7 @@
   <div class="me">
     <div class="av">
       @if (!empty($studentShellAvatarUrl))
-        <img src="{{ $studentShellAvatarUrl }}" alt="تصویر پروفایل {{ $studentShellUser->name }}" width="104" height="104" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover">
+        <img data-avatar-image src="{{ $studentShellAvatarUrl }}" alt="تصویر پروفایل {{ $studentShellUser->name }}" width="104" height="104" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover">
         <svg data-avatar-fallback hidden viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>
       @else
         <svg data-avatar-fallback viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true"><use href="#avatar"/></svg>

@@ -5,7 +5,6 @@
 @section('content')
 @php
     $firstLiveClass = $todayClasses->first() ?? $nextLiveClass;
-    $firstDeadline = $deadlines->first();
     $firstPendingAssignment = $assignments->first(fn ($item) => $item->submitted_at === null);
 
     if (!empty($nextLesson)) {

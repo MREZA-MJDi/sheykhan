@@ -3,13 +3,6 @@
 @section('heading', 'تکالیف')
 
 @section('content')
-@php
-  $assignmentRows = collect($assignments->items());
-  $openCount = $assignmentRows->filter(function ($assignment) {
-      $submission = $assignment->submissions->sortByDesc('created_at')->first();
-      return !$submission && (!$assignment->due_at || $assignment->due_at->isFuture());
-  })->count();
-@endphp
 <div class="page-head">
   <div><p class="muted small">تکالیف مربوط به دوره‌ها و کلاس‌های فعال تو</p></div>
   <x-tag tone="b">{{ \App\Support\PersianUi::digits($assignments->total()) }} تکلیف</x-tag>

@@ -10,7 +10,7 @@
   </a>
   <a class="ib pr" href="{{ route('student.profile.edit') }}" aria-label="حساب کاربری">
     @if (!empty($studentShellAvatarUrl))
-      <img src="{{ $studentShellAvatarUrl }}" alt="" width="46" height="46" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+      <img data-avatar-image src="{{ $studentShellAvatarUrl }}" alt="" width="46" height="46" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
       <svg data-avatar-fallback hidden class="i" aria-hidden="true"><use href="#i-user"/></svg>
     @else
       <svg data-avatar-fallback class="i" aria-hidden="true"><use href="#i-user"/></svg>
