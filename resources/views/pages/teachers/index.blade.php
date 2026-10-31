@@ -5,8 +5,8 @@
 
 @section('content')
     <section class="public-teachers-page">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <header class="public-page-intro mb-10 sm:mb-12">
                     <div class="max-w-3xl">
                         <span class="ui-eyebrow mb-4">مدرس‌های شیخان</span>
@@ -42,38 +42,66 @@
                 @if($teachers->count())
                     <div class="teacher-directory-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                         @foreach($teachers as $teacher)
-                            <x-education.teacher-card
-                                :name="trim((string) $teacher->name) ?: 'مدرس شیخان'"
-                                :role="$teacher->teacherProfile?->specialization ?: 'مدرس'"
-                                :avatar="$teacher->teacherProfile?->media?->first()?->url()"
-                                :bio="$teacher->teacherProfile?->bio"
-                                :courses="$teacher->courses_count ?? 0"
-                                 :href="route('teachers.show', $teacher)"
-                            />
+                            @php
+                                $teacherDisplayName = trim((string) $teacher->name) ?: 'مدرس شیخان';
+                                $teacherAvatar = $teacher->teacherProfile?->media?->first()?->url();
+                                $teacherRole = $teacher->teacherProfile?->specialization ?: 'مدرس';
+                            @endphp
+                            <article class="public-teacher-card teacher-card group h-full min-w-0">
+                                <a href="{{ route('teachers.show', $teacher) }}" class="teacher-card__media" aria-label="مشاهده پروفایل {{ $teacherDisplayName }}">
+                                    @if($teacherAvatar)
+                                        <img src="{{ $teacherAvatar }}" alt="تصویر {{ $teacherDisplayName }}" class="teacher-card__photo" loading="lazy" decoding="async">
+                                    @else
+                                        <span class="teacher-card__fallback" aria-hidden="true">{{ mb_substr($teacherDisplayName,0,1) }}</span>
+                                    @endif
+                                    <span class="teacher-card__media-overlay" aria-hidden="true"></span>
+                                    <span class="teacher-card__media-action">پروفایل مدرس <span aria-hidden="true">↗</span></span>
+                                </a>
+                                <div class="teacher-card__body">
+                                    <div class="teacher-card__identity">
+                                        <h3 class="teacher-card__name"><a href="{{ route('teachers.show', $teacher) }}">{{ $teacherDisplayName }}</a></h3>
+                                        <p class="teacher-card__role">{{ $teacherRole }}</p>
+                                    </div>
+                                    @if(filled($teacher->teacherProfile?->bio))
+                                        <p class="teacher-card__bio">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $teacher->teacherProfile->bio)),155) }}</p>
+                                    @endif
+                                    <div class="teacher-card__footer">
+                                        <span class="teacher-card__course-count"><span aria-hidden="true">▤</span>{{ \App\Support\PersianUi::digits((int) ($teacher->courses_count ?? 0)) }} دوره آموزشی</span>
+                                        <a href="{{ route('teachers.show', $teacher) }}" class="teacher-card__action">دیدن پروفایل <span aria-hidden="true">←</span></a>
+                                    </div>
+                                </div>
+                            </article>
                         @endforeach
                     </div>
                 @else
-                    <x-ui.empty-state
-                        title="هنوز مدرس قابل نمایشی وجود ندارد"
-                        description="به‌محض ثبت و تایید مدرس، اطلاعات او در این بخش نمایش داده می‌شود."
-                    />
+                    <div class="public-empty-state" role="status">
+        <span class="public-empty-state__icon" aria-hidden="true">⌕</span>
+        <h3>هنوز مدرس قابل نمایشی وجود ندارد</h3>
+        <p>به‌محض ثبت و تایید مدرس، اطلاعات او در این بخش نمایش داده می‌شود.</p>
+    </div>
                 @endif
 
                 @if($teachers->hasPages())
                     <div class="mt-10 border-t border-[var(--color-border)] pt-8 sm:mt-12">
-                        <x-navigation.pagination :paginator="$teachers" />
+                        {{ $teachers->links() }}
                     </div>
                 @endif
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
-    <x-branding.public-next-step
-        eyebrow="انتخاب مسیر آموزشی"
-        title="مدرس را با دوره‌ی مناسب همراه کن"
-        description="بعد از آشنایی با تخصص مدرس‌ها، دوره‌های منتشرشده را ببین و مسیر مناسب خودت را پیدا کن."
-        :primary-href="route('courses.index')"
-        primary-label="دیدن دوره‌ها"
-        :secondary-href="route('register')"
-        secondary-label="شروع یادگیری"
-    />
+    <section class="public-next-step public-next-step--teachers-index" aria-label="قدم بعدی">
+    <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div class="public-next-step__card">
+            <div class="public-next-step__copy">
+                <span>قدم بعدی</span>
+                <h2>مسیر یادگیریت را ادامه بده</h2>
+                <p>از دوره‌ها و مدرس‌ها دیدن کن و با توجه به نیازت، قدم بعدی را انتخاب کن.</p>
+            </div>
+            <div class="public-next-step__actions">
+                <a class="public-next-step__button public-next-step__button--primary" href="/courses">مشاهده دوره‌ها <span aria-hidden="true">←</span></a>
+                <a class="public-next-step__button public-next-step__button--secondary" href="/teachers">آشنایی با مدرس‌ها <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

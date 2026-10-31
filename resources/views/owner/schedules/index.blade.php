@@ -24,7 +24,7 @@
 
     <section class="owner-calendar-section" aria-label="تقویم هفتگی کلاس‌ها">
         <div class="owner-section-heading"><div><h2>برنامه هفتگی</h2><p>روز و ساعت برگزاری کلاس‌ها را بررسی کن؛ برای جلسه‌های تاریخ‌دار از صفحهٔ کلاس‌های آنلاین مدرس استفاده می‌شود.</p></div></div>
-        <x-education.weekly-schedule-calendar :classrooms="$classrooms" />
+        @include('owner.schedules.partials.weekly-calendar', ['classrooms' => $classrooms])
     </section>
 
     <section class="grid gap-4 owner-schedule-list" aria-label="کلاس‌ها و لینک‌های ورود">
@@ -72,11 +72,11 @@
                                     <option value="{{ $value }}" @selected((string)old('weekday', '6') === (string)$value)>{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <x-owner.field-error field="weekday"/>
+                            @error('weekday')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                         </label>
-                        <label class="grid gap-1"><span class="text-xs font-bold">شروع · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="start_time" value="{{ old('start_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="start_time"/></label>
-                        <label class="grid gap-1"><span class="text-xs font-bold">پایان · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="end_time" value="{{ old('end_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm"><x-owner.field-error field="end_time"/></label>
-                        <label class="grid gap-1"><span class="text-xs font-bold">اتاق / عنوان <small class="font-normal text-slate-400">اختیاری</small></span><input name="room" value="{{ old('room') }}" maxlength="255" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="مثلاً کلاس ۳"><x-owner.field-error field="room"/></label>
+                        <label class="grid gap-1"><span class="text-xs font-bold">شروع · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="start_time" value="{{ old('start_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('start_time')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+                        <label class="grid gap-1"><span class="text-xs font-bold">پایان · ساعت ایران</span><input lang="fa-IR" dir="ltr" type="time" name="end_time" value="{{ old('end_time') }}" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('end_time')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+                        <label class="grid gap-1"><span class="text-xs font-bold">اتاق / عنوان <small class="font-normal text-slate-400">اختیاری</small></span><input name="room" value="{{ old('room') }}" maxlength="255" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="مثلاً کلاس ۳">@error('room')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
                         <label class="grid gap-1">
                             <span class="text-xs font-bold">سرویس</span>
                             <select name="provider" data-meeting-provider required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
@@ -85,12 +85,12 @@
                                 <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
                                 <option value="سایر" @selected(old('provider') === 'سایر')>سایر سرویس‌ها</option>
                             </select>
-                            <x-owner.field-error field="provider"/>
+                            @error('provider')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                         </label>
                         <label class="grid gap-1 sm:col-span-2 xl:col-span-3">
                             <span class="text-xs font-bold">لینک ورود <small class="font-normal text-slate-400">(برای Jitsi اختیاری، برای سرویس‌های دیگر الزامی)</small></span>
                             <input type="url" name="meeting_url" value="{{ old('meeting_url') }}" maxlength="2000" autocomplete="url" dir="ltr" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="https://...">
-                            <x-owner.field-error field="meeting_url"/>
+                            @error('meeting_url')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                         </label>
                         <div class="flex items-end sm:col-span-2 xl:col-span-4">
                             <button type="submit" class="owner-primary-action w-full rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white sm:w-auto">ذخیره زمان و لینک</button>

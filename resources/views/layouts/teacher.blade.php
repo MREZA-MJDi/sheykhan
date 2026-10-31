@@ -11,7 +11,12 @@
 <body class="teacher-panel">
 @php
     $teacherUser = auth()->user();
-    $teacherUser?->loadMissing(['teacherProfile.media' => fn ($query) => $query->wherePivot('collection', 'teacher-avatar')->orderByPivot('sort_order')]);
+    $teacherUser?->loadMissing([
+        'teacherProfile.media' => function ($query) {
+            $query->wherePivot('collection', 'teacher-avatar')
+                ->orderByPivot('sort_order');
+        },
+    ]);
     $avatarMedia = $teacherUser?->teacherProfile?->media?->first();
     $avatarUrl = $avatarMedia?->visibility === 'public' ? $avatarMedia->url() : ($avatarMedia ? route('media.view', $avatarMedia) : null);
     $initial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1) ?: 'م';
@@ -77,11 +82,23 @@
       </div>
     @endif
     @foreach($navGroups as $group)
-      @php($visibleItems = array_values(array_filter($group['items'], fn ($item) => collect($item['permissions'] ?? [$item['permission']])->every(fn (string $permission) => $teacherUser?->hasPermission($permission)))) )
+      @php
+          $visibleItems = array_values(array_filter($group['items'], function ($item) use ($teacherUser) {
+              $permissions = collect($item['permissions'] ?? [$item['permission']]);
+              return $permissions->every(function (string $permission) use ($teacherUser) {
+                  return $teacherUser?->hasPermission($permission);
+              });
+          }));
+      @endphp
       @if(count($visibleItems))
         <div class="side-group-label">{{ $group['label'] }}</div>
         @foreach($visibleItems as $item)
-          @php($active = request()->routeIs($item['route'].(in_array($item['route'], ['teacher.dashboard'] , true) ? '' : '.*')) && !isset($item['anchor']))
+          @php
+              $activeRoutePattern = $item['route'] === 'teacher.dashboard'
+                  ? $item['route']
+                  : $item['route'] . '.*';
+              $active = request()->routeIs($activeRoutePattern) && !isset($item['anchor']);
+          @endphp
           <a class="nv {{ $active ? 'on' : '' }}" href="{{ route($item['route']) }}{{ $item['anchor'] ?? '' }}" @if($active) aria-current="page" @endif>
             <i aria-hidden="true">{{ $item['icon'] }}</i><span>{{ $item['label'] }}</span>
           </a>

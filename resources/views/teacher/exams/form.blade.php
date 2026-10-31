@@ -76,8 +76,28 @@
                     <small class="teacher-exam-field-help">حداکثر تعداد دفعاتی که هر دانش‌آموز می‌تواند برگه را شروع و تحویل کند؛ حداقل یک بار.</small>
                 </label>
 
-                <x-teacher.jalali-datetime name="starts_at" :value="old('starts_at', $exam->starts_at?->toDateTimeString())" label="شروع آزمون" />
-                <x-teacher.jalali-datetime name="ends_at" :value="old('ends_at', $exam->ends_at?->toDateTimeString())" label="پایان آزمون" />
+                <div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="0">
+    <label>
+        <span>شروع آزمون</span>
+        <div class="teacher-jalali-field-grid">
+            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="شروع آزمون شمسی">
+            <input type="time" data-jalali-visible-time aria-label="ساعت شروع آزمون">
+        </div>
+        <input type="hidden" name="starts_at" data-jalali-target value="{{ old('starts_at', $exam->starts_at?->toDateTimeString()) }}">
+        @error('starts_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
+    </label>
+</div>
+                <div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="0">
+    <label>
+        <span>پایان آزمون</span>
+        <div class="teacher-jalali-field-grid">
+            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="پایان آزمون شمسی">
+            <input type="time" data-jalali-visible-time aria-label="ساعت پایان آزمون">
+        </div>
+        <input type="hidden" name="ends_at" data-jalali-target value="{{ old('ends_at', $exam->ends_at?->toDateTimeString()) }}">
+        @error('ends_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
+    </label>
+</div>
                 <p class="teacher-exam-date-help md:col-span-2">تاریخ‌ها اختیاری‌اند. قبل از زمان شروع، آزمون باز نمی‌شود؛ بعد از زمان پایان هم سرور ارسال پاسخ را نمی‌پذیرد.</p>
 
                 <label class="teacher-form-field">
@@ -102,7 +122,11 @@
                 <small id="exam-handout-help" class="teacher-exam-field-help">برای PDF و تصویر، پیش‌نمایش سریع فایل نمایش داده می‌شود؛ فایل Word، PowerPoint و ZIP به‌صورت پیوست خصوصی ذخیره می‌شود.</small>
                 <div id="exam-handout-preview" class="teacher-file-preview" aria-live="polite"></div>
                 <small class="teacher-exam-field-help">فایل به‌صورت خصوصی به برگه آزمون پیوست می‌شود و فقط افراد مجاز همان دوره به آن دسترسی دارند.</small>
-                @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+                @php
+    $examHandouts = $exam->media->filter(function ($file) {
+        return $file->pivot->collection === 'exam-handout';
+    });
+@endphp
                 @if($examHandouts->isNotEmpty())
                     <span class="teacher-exam-file-list">
                         @foreach($examHandouts as $handout)
@@ -114,7 +138,15 @@
                     </span>
                 @endif
             </label>
-            <x-teacher.upload-progress label="پیشرفت بارگذاری فایل آزمون" />
+            <section class="teacher-upload-progress" data-upload-progress-ui hidden aria-label="پیشرفت بارگذاری فایل آزمون">
+    <div class="teacher-upload-files" data-upload-file-list role="list"></div>
+    <div class="teacher-upload-summary" data-upload-summary></div>
+    <div class="teacher-upload-status" data-upload-progress-status hidden>
+        <div class="teacher-upload-bar-track" role="progressbar" aria-label="پیشرفت ارسال فایل" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-upload-progress-track><span class="teacher-upload-bar" data-upload-progress-bar></span></div>
+        <div class="teacher-upload-status-row"><strong data-upload-progress-percent>۰٪</strong><span data-upload-progress-message role="status" aria-live="polite">در انتظار ارسال</span></div>
+    </div>
+    <p class="teacher-upload-error" data-upload-progress-error role="alert" hidden></p>
+</section>
         </section>
 
         <section class="teacher-exam-editor-section" aria-labelledby="exam-paper-editor-title">

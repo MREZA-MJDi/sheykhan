@@ -77,9 +77,12 @@
                             @endforeach
                         </div>
                     @else
-                        <x-ui.empty-state title="هنوز دوره‌ی پولی فعالی برای فرزندان ثبت نشده" description="اگر سفارشی در انتظار بررسی است، وضعیت آن را از صفحه سفارش دنبال کن. پس از تأیید پرداخت، دوره در این فهرست دیده می‌شود.">
+                        <div class="public-library-empty-state" role="status">
+                            <span class="public-library-empty-state__icon" aria-hidden="true">◌</span>
+                            <h3>هنوز دوره‌ی پولی فعالی برای فرزندان ثبت نشده</h3>
+                            <p>اگر سفارشی در انتظار بررسی است، وضعیت آن را از صفحه سفارش دنبال کن. پس از تأیید پرداخت، دوره در این فهرست دیده می‌شود.</p>
                             <a href="{{ route('courses.index') }}" class="public-library-inline-link">دیدن دوره‌ها <span aria-hidden="true">←</span></a>
-                        </x-ui.empty-state>
+                        </div>
                     @endif
                 </section>
             @elseif($isStudent)
@@ -105,9 +108,12 @@
                             @endforeach
                         </div>
                     @else
-                        <x-ui.empty-state title="هنوز دوره‌ای در کتابخانه‌ی تو نیست" description="با ثبت‌نام در یک دوره رایگان یا تأیید خرید یک دوره پولی، مسیر یادگیری اینجا نمایش داده می‌شود.">
+                        <div class="public-library-empty-state" role="status">
+                            <span class="public-library-empty-state__icon" aria-hidden="true">⌕</span>
+                            <h3>هنوز دوره‌ای در کتابخانه‌ی تو نیست</h3>
+                            <p>با ثبت‌نام در یک دوره رایگان یا تأیید خرید یک دوره پولی، مسیر یادگیری اینجا نمایش داده می‌شود.</p>
                             <a href="{{ route('courses.index') }}" class="public-library-inline-link">پیدا کردن دوره مناسب <span aria-hidden="true">←</span></a>
-                        </x-ui.empty-state>
+                        </div>
                     @endif
                 </section>
             @endif
@@ -144,9 +150,12 @@
                         @endforeach
                     </div>
                 @else
-                    <x-ui.empty-state title="هنوز منبع دانلودی خریداری‌شده‌ای نیست" description="پس از تأیید پرداخت یک محصول دیجیتال، نسخه‌ی امن آن از همین صفحه قابل دریافت است.">
+                    <div class="public-library-empty-state" role="status">
+                        <span class="public-library-empty-state__icon" aria-hidden="true">↓</span>
+                        <h3>هنوز منبع دانلودی خریداری‌شده‌ای نیست</h3>
+                        <p>پس از تأیید پرداخت یک محصول دیجیتال، نسخه‌ی امن آن از همین صفحه قابل دریافت است.</p>
                         <a href="{{ route('store.index') }}" class="public-library-inline-link">رفتن به فروشگاه <span aria-hidden="true">←</span></a>
-                    </x-ui.empty-state>
+                    </div>
                 @endif
             </section>
         </x-layout.container>

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { formatMoneyInput, normalizeMoneyInput } from '../../resources/js/persian-money.js';
+import { formatMoneyInput, normalizeMoneyInput } from '../../resources/js/shared/persian-money.js';
 
 test('normalizes Persian and Arabic digits with localized separators', () => {
     assert.equal(normalizeMoneyInput('۱٬۲۳۴٬۵۶۷'), '1234567');

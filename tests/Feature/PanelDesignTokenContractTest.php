@@ -6,45 +6,50 @@ use Tests\TestCase;
 
 class PanelDesignTokenContractTest extends TestCase
 {
-    public function test_student_parent_owner_and_seo_keep_the_neutral_token_contract(): void
+    public function test_each_role_owns_its_calendar_and_presentation_styles(): void
     {
-        foreach (['parent.css', 'student.css', 'owner-dashboard-v2.css', 'seo-dashboard.css'] as $stylesheet) {
-            $source = file_get_contents(resource_path('css/' . $stylesheet));
-            $this->assertIsString($source);
-            $this->assertStringContainsString("@import './panel-design-tokens.css';", $source, $stylesheet);
-            $this->assertStringContainsString("@import 'tailwindcss' source(none);", $source);
-        }
+        $entries = [
+            'parent' => 'parent.css',
+            'student' => 'student.css',
+            'owner' => 'owner-dashboard-v2.css',
+            'seo' => 'seo-dashboard.css',
+        ];
 
-        $tokens = file_get_contents(resource_path('css/panel-design-tokens.css'));
-        $this->assertIsString($tokens);
-        foreach (['--panel-font-family','--panel-font-size-meta','--panel-font-size-body','--panel-font-size-heading','--panel-control-height','--panel-control-radius','--panel-card-radius','--panel-section-gap','--panel-focus-color','--panel-motion-fast','--panel-motion-normal'] as $token) {
-            $this->assertStringContainsString($token, $tokens);
+        foreach ($entries as $role => $entry) {
+            $source = file_get_contents(resource_path('css/' . $entry));
+            $calendar = file_get_contents(resource_path('css/panels/' . $role . '/calendar.css'));
+            $components = file_get_contents(resource_path('css/panels/' . $role . '/components.css'));
+
+            foreach ([$source, $calendar, $components] as $css) {
+                $this->assertIsString($css);
+            }
+
+            $this->assertStringContainsString("@import './panels/{$role}/calendar.css';", $source, $role);
+            $this->assertStringContainsString("@import './panels/{$role}/components.css';", $source, $role);
+            $this->assertStringContainsString('.jalali-calendar-popup', $calendar, $role);
+            $this->assertStringContainsString('--panel-control-height', $components, $role);
+            $this->assertStringNotContainsString("@import './panel-design-tokens.css';", $source, $role);
+            $this->assertStringNotContainsString("@import './persian-calendar.css';", $source, $role);
         }
-        $this->assertStringNotContainsString('body {', $tokens);
-        $this->assertStringNotContainsString('body{', $tokens);
-        $this->assertStringNotContainsString('.role-sidebar', $tokens);
-        $this->assertStringNotContainsString('background:', $tokens);
     }
 
-    public function test_shared_ui_components_remain_role_neutral(): void
+    public function test_public_site_owns_a_separate_calendar_stylesheet(): void
     {
-        $input = file_get_contents(resource_path('views/components/ui/input.blade.php'));
-        $button = file_get_contents(resource_path('views/components/ui/button.blade.php'));
-        $card = file_get_contents(resource_path('views/components/ui/card.blade.php'));
-        $badge = file_get_contents(resource_path('views/components/ui/badge.blade.php'));
-        foreach ([$input,$button,$card,$badge] as $source) $this->assertIsString($source);
-        $this->assertStringContainsString('ui-control panel-control', $input);
-        $this->assertStringContainsString('panel-action', $button);
-        $this->assertStringContainsString('panel-surface', $card);
-        $this->assertStringContainsString('panel-badge', $badge);
+        $source = file_get_contents(resource_path('css/app.css'));
+        $calendar = file_get_contents(resource_path('css/public/calendar.css'));
+
+        $this->assertIsString($source);
+        $this->assertIsString($calendar);
+        $this->assertStringContainsString("@import './public/calendar.css';", $source);
+        $this->assertStringContainsString('.jalali-calendar-popup', $calendar);
     }
 
-    public function test_teacher_brand_is_fully_owned_by_teacher_stylesheet(): void
+    public function test_teacher_brand_and_calendar_presentation_are_teacher_owned(): void
     {
         $teacher = file_get_contents(resource_path('css/teacher.css'));
         $this->assertIsString($teacher);
-        $this->assertStringContainsString("--bg:#e6e9f7", $teacher);
-        $this->assertStringContainsString("--pri:#4a5fe0", $teacher);
+        $this->assertStringContainsString('--bg:#e6e9f7', $teacher);
+        $this->assertStringContainsString('--pri:#4a5fe0', $teacher);
         $this->assertStringContainsString('.teacher-panel', $teacher);
         $this->assertStringContainsString('.weekly-calendar', $teacher);
         $this->assertStringContainsString('.teacher-stat-card', $teacher);
@@ -53,16 +58,18 @@ class PanelDesignTokenContractTest extends TestCase
         $this->assertStringNotContainsString('resources/css/owner-dashboard-v2.css', $teacher);
     }
 
-    public function test_other_role_brands_remain_owned_by_their_independent_stylesheets(): void
+    public function test_calendar_and_money_runtime_are_behavior_only_and_canonical(): void
     {
-        $parent = file_get_contents(resource_path('css/parent.css'));
-        $student = file_get_contents(resource_path('css/student.css'));
-        $owner = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
-        $seo = file_get_contents(resource_path('css/seo-dashboard.css'));
-        foreach ([$parent,$student,$owner,$seo] as $source) $this->assertIsString($source);
-        $this->assertStringContainsString('--panel-primary:', $parent);
-        $this->assertStringContainsString('--panel-primary:', $student);
-        $this->assertStringContainsString('--acc:#22d3ee', $owner);
-        $this->assertStringContainsString('--acc:#22d3ee', $seo);
+        $calendar = file_get_contents(resource_path('js/shared/persian-calendar.js'));
+        $calendarCore = file_get_contents(resource_path('js/shared/persian-calendar-core.mjs'));
+        $money = file_get_contents(resource_path('js/shared/persian-money.js'));
+        foreach ([$calendar, $calendarCore, $money] as $source) {
+            $this->assertIsString($source);
+        }
+
+        $this->assertStringNotContainsString('resources/css/', $calendar);
+        $this->assertStringNotContainsString('resources/css/', $money);
+        $this->assertFileDoesNotExist(resource_path('css/panel-design-tokens.css'));
+        $this->assertFileDoesNotExist(resource_path('css/persian-calendar.css'));
     }
 }

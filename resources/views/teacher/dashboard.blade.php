@@ -43,7 +43,15 @@
 <section class="hero2">
   <div class="cov"></div>
   <div class="hp2">
-    <div class="pa">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="تصویر {{ $user?->name }}">@else{{ \Illuminate\Support\Str::substr(trim((string)($user?->name ?? 'م')),0,1) }}@endif</div>
+    <div class="pa">
+      <div class="teacher-dashboard-avatar">
+        @if($avatarUrl)
+          <img data-avatar-image src="{{ $avatarUrl }}" alt="تصویر پروفایل {{ $user?->name }}" width="92" height="92" decoding="async">
+        @else
+          <span class="teacher-dashboard-avatar-initial" aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string)($user?->name ?? 'م')),0,1) }}</span>
+        @endif
+      </div>
+    </div>
     <div style="min-width:0;flex:1"><b style="font-size:19px">{{ $user?->name }}</b><small style="display:block;color:var(--mu)">مدرس · {{ \App\Support\PersianUi::digits($classes) }} کلاس · {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز</small></div>
     @if($user?->hasPermission('profile.view'))<a class="btn l" href="{{ route('teacher.profile.edit') }}">ویرایش پروفایل</a>@endif
   </div>
@@ -51,7 +59,10 @@
 
 <div class="st3" aria-label="شاخص‌های آموزشی">
   @forelse($kpis as $item)
-    <x-teacher.stat-card :href="$item['url']" :label="$item['label']" :value="\App\Support\PersianUi::digits($item['value'])" :hint="$item['hint']" :icon="$item['icon']" :tone="$item['tone']" />
+    <a class="teacher-stat-card" href="{{ $item['url'] }}" style="--k:{{ $item['tone'] }}" aria-label="{{ $item['label'] }}: {{ \App\Support\PersianUi::digits($item['value']) }}. {{ $item['hint'] }}">
+      <span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span>
+      <span><b>{{ \App\Support\PersianUi::digits($item['value']) }}</b><span>{{ $item['label'] }}</span><small>{{ $item['hint'] }} ←</small></span>
+    </a>
   @empty
     <div class="c">برای این حساب شاخص قابل‌نمایشی وجود ندارد.</div>
   @endforelse
@@ -60,7 +71,9 @@
 <div class="sh"><b>اقدام سریع</b><small>میانبرهای دسترسی به کارهای روزانه</small></div>
 <div class="ql">
   @forelse($quick as $item)
-    <x-teacher.quick-action :href="route($item['route'])" :label="$item['label']" :hint="$item['hint']" :icon="$item['icon']" :tone="$item['tone']" />
+    <a class="teacher-quick-action" href="{{ route($item['route']) }}" style="--k:{{ $item['tone'] }}">
+      <span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span><b>{{ $item['label'] }}</b><small>{{ $item['hint'] }}</small>
+    </a>
   @empty
     <div class="c">هیچ میانبر فعالی برای سطح دسترسی این حساب تعریف نشده است.</div>
   @endforelse
@@ -73,6 +86,19 @@
       <a class="row" href="{{ $class['url'] ?? route('teacher.classrooms.index') }}">
         <span class="ic">▤</span><span class="t"><b>{{ $class['title'] }}</b><small>{{ $class['course_title'] ?? 'دوره آموزشی' }}</small></span>
         <span class="pill">{{ \App\Support\PersianUi::digits($class['student_count'] ?? 0) }} نفر</span>
+        @if(!empty($class['students']) && count($class['students']))
+          <span class="teacher-roster-preview" aria-label="نمونه دانش‌آموزان کلاس">
+            @foreach($class['students'] as $rosterStudent)
+              <span class="teacher-roster-avatar" title="{{ $rosterStudent->name }}">
+                @if($rosterStudent->avatar_url)
+                  <img src="{{ $rosterStudent->avatar_url }}" alt="تصویر {{ $rosterStudent->name }}" loading="lazy" decoding="async">
+                @else
+                  <span aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string) $rosterStudent->name), 0, 1) }}</span>
+                @endif
+              </span>
+            @endforeach
+          </span>
+        @endif
       </a>
     @empty
       <div class="emp"><i>▤</i><b>هنوز کلاسی ثبت نشده است</b><small>کلاس‌های متصل به حساب شما پس از تخصیص در این قسمت نمایش داده می‌شوند.</small></div>
@@ -82,7 +108,7 @@
     <h3>برنامه امروز <a href="{{ route('teacher.schedule.index') }}">برنامه کامل ←</a></h3>
     @forelse($today as $session)
       <div class="row"><span class="pill">{{ $session['time'] ?? '—' }}</span><span class="t"><b>{{ $session['title'] ?? 'جلسه آموزشی' }}</b><small>{{ $session['meta'] ?? '' }}</small></span>
-        @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))<a class="btn s" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer">ورود</a>@endif
+        @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))<a class="btn s teacher-live-join" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer">ورود</a>@endif
       </div>
     @empty
       <div class="emp"><i>◷</i><b>جلسه‌ای برای امروز ثبت نشده است</b><small>برنامه جلسات واقعی شما در این بخش قرار می‌گیرد.</small></div>
@@ -103,7 +129,7 @@
     <h3>کلاس‌های پیش‌رو <a href="{{ route('teacher.live-classes.index') }}">همه ←</a></h3>
     @forelse($upcoming as $class)
       <div class="row"><span class="ic">◷</span><span class="t"><b>{{ $class->course?->title ?? 'کلاس آنلاین' }}</b><small>{{ $class->classroom?->title ?? '' }} · {{ \App\Support\PersianUi::date($class->scheduled_at) }} {{ \App\Support\PersianUi::time($class->scheduled_at) }}</small></span>
-        @if(($class->can_join ?? false) && filled($class->meeting_url))<a class="btn s" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer">ورود ↗</a>@else<span class="pill">{{ $class->status }}</span>@endif
+        @if(($class->can_join ?? false) && filled($class->meeting_url))<a class="btn s teacher-live-join" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer">ورود ↗</a>@else<span class="pill">{{ $class->status }}</span>@endif
       </div>
     @empty
       <div class="emp"><i>◷</i><b>کلاس پیش‌رویی ثبت نشده است</b><small>جلسات آینده پس از زمان‌بندی نمایش داده می‌شوند.</small></div>

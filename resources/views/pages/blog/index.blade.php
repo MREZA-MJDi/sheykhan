@@ -5,8 +5,8 @@
 
 @section('content')
     <section class="public-blog-page">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
 
                 {{-- Header --}}
                 <header class="public-page-intro public-page-intro--editorial mb-10 sm:mb-12">
@@ -211,20 +211,26 @@
                 {{-- Pagination --}}
                 @if($posts->hasPages())
                     <div class="mt-10 border-t border-[var(--color-border)] pt-8 sm:mt-12">
-                        <x-navigation.pagination :paginator="$posts" />
+                        {{ $posts->links() }}
                     </div>
                 @endif
 
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
-    <x-branding.public-next-step
-        eyebrow="از مطالعه تا تمرین"
-        title="یادگرفته‌ها را وارد عمل کن"
-        description="مطالعه را با یک مسیر آموزشی، تمرین هدفمند و پیگیری نتیجه کامل کن."
-        :primary-href="route('courses.index')"
-        primary-label="انتخاب دوره"
-        :secondary-href="route('store.index')"
-        secondary-label="منابع آموزشی"
-    />
+    <section class="public-next-step public-next-step--blog-index" aria-label="قدم بعدی">
+    <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div class="public-next-step__card">
+            <div class="public-next-step__copy">
+                <span>قدم بعدی</span>
+                <h2>مسیر یادگیریت را ادامه بده</h2>
+                <p>از دوره‌ها و مدرس‌ها دیدن کن و با توجه به نیازت، قدم بعدی را انتخاب کن.</p>
+            </div>
+            <div class="public-next-step__actions">
+                <a class="public-next-step__button public-next-step__button--primary" href="/courses">مشاهده دوره‌ها <span aria-hidden="true">←</span></a>
+                <a class="public-next-step__button public-next-step__button--secondary" href="/teachers">آشنایی با مدرس‌ها <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

@@ -5,8 +5,8 @@
 
 @section('content')
     <section class="public-courses-page">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
 
                 {{-- Header --}}
                 <header class="public-page-intro public-page-intro--courses mb-10 sm:mb-12">
@@ -138,29 +138,58 @@
                     @if($courses->count())
                         <div class="public-course-grid grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                             @foreach($courses as $course)
-                                <x-education.course-card class="public-catalog-course-card"
-                                    :title="$course->title"
-                                    :description="$course->short_description ?: $course->description"
-                                    :category="$course->academy?->name"
-                                    :teacher="$course->teachers->first()?->name"
-                                    :lessons="\App\Support\PersianUi::digits($course->lessons_count ?? 0)"
-                                    :duration="$course->duration_minutes > 0
-                                        ? (
-                                            intdiv((int) $course->duration_minutes, 60) > 0 && ((int) $course->duration_minutes % 60) > 0
-                                                ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت و ' . \App\Support\PersianUi::digits((int) $course->duration_minutes % 60) . ' دقیقه'
-                                                : (intdiv((int) $course->duration_minutes, 60) > 0
-                                                    ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت'
-                                                    : \App\Support\PersianUi::digits((int) $course->duration_minutes) . ' دقیقه')
-                                        )
-                                        : 'مدت زمان متغیر'"
-                                    :price="$course->price > 0
-                                        ? \App\Support\PersianUi::money($course->price)
-                                        : 'رایگان'"
-                                    :level="$course->level"
-                                    :grades="$course->grades->pluck('title')->all()"
-                                    :image="$course->media->first()?->url()"
-                                    :href="route('courses.show', $course)"
-                                />
+                                @php
+                                    $courseImage = $course->media->first()?->url();
+                                    $courseTeacher = $course->teachers->first()?->name;
+                                    $courseDuration = $course->duration_minutes > 0
+                                        ? (intdiv((int) $course->duration_minutes, 60) > 0 && ((int) $course->duration_minutes % 60) > 0
+                                            ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت و ' . \App\Support\PersianUi::digits((int) $course->duration_minutes % 60) . ' دقیقه'
+                                            : (intdiv((int) $course->duration_minutes, 60) > 0
+                                                ? \App\Support\PersianUi::digits(intdiv((int) $course->duration_minutes, 60)) . ' ساعت'
+                                                : \App\Support\PersianUi::digits((int) $course->duration_minutes) . ' دقیقه'))
+                                        : 'مدت زمان متغیر';
+                                    $coursePrice = $course->price > 0 ? \App\Support\PersianUi::money($course->price) : 'رایگان';
+                                    $courseHref = route('courses.show', $course);
+                                    $courseGrades = $course->grades->pluck('title')->all();
+                                @endphp
+                                <article class="public-course-card public-catalog-course-card group flex h-full min-w-0 flex-col">
+                                    <a href="{{ $courseHref }}" class="block" aria-label="مشاهده دوره {{ $course->title }}">
+                                        <div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
+                                            @if($courseImage)
+                                                <img src="{{ $courseImage }}" alt="{{ $course->title }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.045]" loading="lazy" decoding="async">
+                                                <span class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent"></span>
+                                            @else
+                                                <div class="flex h-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(104,121,245,.20),transparent_38%),linear-gradient(135deg,#eef2ff,#f7fbff)] text-[var(--color-primary-600)]"><span class="text-4xl font-black">ش</span></div>
+                                            @endif
+                                            <span class="absolute right-4 top-4 rounded-full border border-white/35 bg-black/50 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur">{{ $course->academy?->name }}</span>
+                                        </div>
+                                    </a>
+                                    <div class="flex flex-1 flex-col p-5 sm:p-6">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div class="flex min-w-0 flex-wrap gap-1.5">
+                                                @foreach(array_slice(array_filter($courseGrades),0,3) as $grade)
+                                                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">{{ $grade }}</span>
+                                                @endforeach
+                                                @if(empty($courseGrades) && $course->level)
+                                                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">سطح {{ $course->level }}</span>
+                                                @endif
+                                            </div>
+                                            <span class="shrink-0 text-sm font-black text-[var(--color-primary-600)]">{{ $coursePrice }}</span>
+                                        </div>
+                                        <h3 class="mt-4 text-xl font-black leading-snug text-[var(--color-text)]"><a href="{{ $courseHref }}" class="transition-colors hover:text-[var(--color-primary-600)]">{{ $course->title }}</a></h3>
+                                        @if($course->short_description ?: $course->description)
+                                            <p class="mt-2 line-clamp-2 text-sm leading-7 text-[var(--color-text-secondary)]">{{ $course->short_description ?: $course->description }}</p>
+                                        @endif
+                                        @if($courseTeacher)
+                                            <div class="mt-4 flex items-center gap-2 text-xs font-semibold text-[var(--color-text-muted)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]" aria-hidden="true">مد</span><span class="truncate">{{ $courseTeacher }}</span></div>
+                                        @endif
+                                        <div class="mt-auto flex flex-wrap items-center gap-3 border-t border-[var(--color-border)] pt-4 mt-5 text-xs font-semibold text-[var(--color-text-muted)]">
+                                            <span>◫ {{ \App\Support\PersianUi::digits($course->lessons_count ?? 0) }} درس</span>
+                                            <span>◷ {{ $courseDuration }}</span>
+                                            <a href="{{ $courseHref }}" class="ms-auto font-black text-[var(--color-primary-600)]">مشاهده دوره ←</a>
+                                        </div>
+                                    </div>
+                                </article>
                             @endforeach
                         </div>
                     @else
@@ -206,20 +235,26 @@
                 {{-- Pagination --}}
                 @if($courses->hasPages())
                     <div class="mt-10 border-t border-[var(--color-border)] pt-8 sm:mt-12">
-                        <x-navigation.pagination :paginator="$courses" />
+                        {{ $courses->links() }}
                     </div>
                 @endif
 
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
-    <x-branding.public-next-step
-        eyebrow="بعد از انتخاب دوره"
-        title="با شناخت مسیر، آگاهانه شروع کن"
-        description="جزئیات دوره‌ها را بررسی کن، مدرس را بشناس و برای ادامه‌ی یادگیری وارد کارتابل خودت شو."
-        :primary-href="route('teachers.index')"
-        primary-label="شناخت مدرس‌ها"
-        :secondary-href="route('login')"
-        secondary-label="ورود به کارتابل"
-    />
+    <section class="public-next-step public-next-step--courses-index" aria-label="قدم بعدی">
+    <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div class="public-next-step__card">
+            <div class="public-next-step__copy">
+                <span>قدم بعدی</span>
+                <h2>مسیر یادگیریت را ادامه بده</h2>
+                <p>از دوره‌ها و مدرس‌ها دیدن کن و با توجه به نیازت، قدم بعدی را انتخاب کن.</p>
+            </div>
+            <div class="public-next-step__actions">
+                <a class="public-next-step__button public-next-step__button--primary" href="/courses">مشاهده دوره‌ها <span aria-hidden="true">←</span></a>
+                <a class="public-next-step__button public-next-step__button--secondary" href="/teachers">آشنایی با مدرس‌ها <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

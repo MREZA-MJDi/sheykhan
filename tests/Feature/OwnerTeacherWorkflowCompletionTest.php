@@ -26,6 +26,44 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_owner_exam_edit_form_uses_owner_owned_ui_and_preserves_essay_reference_answers(): void
+    {
+        $workspace = $this->workspace();
+        $exam = Exam::query()->create([
+            'course_id' => $workspace['course']->id,
+            'classroom_id' => $workspace['classroom']->id,
+            'teacher_id' => $workspace['teacher']->id,
+            'title' => 'آزمون پاسخ مرجع مدیر',
+            'description' => 'شرح آزمون برای فرم مستقل مدیر',
+            'duration_minutes' => 40,
+            'attempts_allowed' => 2,
+            'status' => 'draft',
+        ]);
+
+        Question::query()->create([
+            'exam_id' => $exam->id,
+            'type' => 'text',
+            'question' => 'راه‌حل خود را توضیح بده.',
+            'correct_answer' => null,
+            'expected_answer' => 'پاسخ مرجع ذخیره‌شده برای تصحیح مدرس',
+            'score' => 3,
+            'sort_order' => 0,
+        ]);
+
+        $this->actingAs($workspace['owner'])
+            ->get(route('owner.exams.edit', [$workspace['academy'], $exam->id]))
+            ->assertOk()
+            ->assertSee('owner-exam-page', false)
+            ->assertSee('owner-exam-section', false)
+            ->assertSee('owner-exam-question', false)
+            ->assertSee('owner-exam-correct-choice', false)
+            ->assertSee('data-exam-builder', false)
+            ->assertSee('data-name="expected_answer"', false)
+            ->assertSee('پاسخ مرجع ذخیره‌شده برای تصحیح مدرس')
+            ->assertDontSee('teacher-form-', false)
+            ->assertDontSee('teacher-exam-', false);
+    }
+
     public function test_owner_can_upload_a_private_recording_then_publish_it_for_eligible_students(): void
     {
         Storage::fake('local');

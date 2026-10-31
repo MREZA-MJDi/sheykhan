@@ -26,7 +26,11 @@
             </div>
         </section>
 
-        @php($examHandouts = $exam->media->filter(fn ($file) => $file->pivot->collection === 'exam-handout'))
+        @php
+    $examHandouts = $exam->media->filter(function ($file) {
+        return $file->pivot->collection === 'exam-handout';
+    });
+@endphp
         @if($examHandouts->isNotEmpty())
             <section class="teacher-exam-file-list" aria-label="فایل‌های راهنمای آزمون">
                 <strong class="teacher-workspace-card-title">فایل‌های پیوست برگه آزمون</strong>
@@ -77,7 +81,11 @@
                         </div>
                     </header>
 
-                    @php($answerFiles = $attempt->media->where('pivot.collection', 'exam-answer'))
+                    @php
+                        $answerFiles = $attempt->media->filter(function ($file) {
+                            return $file->pivot->collection === 'exam-answer';
+                        });
+                    @endphp
                     @if($answerFiles->isNotEmpty())
                         <section class="teacher-exam-file-list" aria-label="فایل‌های پاسخ دانش‌آموز">
                             <strong class="teacher-workspace-card-title">فایل‌های پیوست پاسخ دانش‌آموز</strong>

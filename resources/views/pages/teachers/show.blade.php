@@ -26,8 +26,8 @@
         {{-- Decorative background --}}
         <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_75%_20%,rgba(37,99,235,.10),transparent_32%),radial-gradient(circle_at_20%_10%,rgba(14,165,233,.08),transparent_28%)]"></div>
 
-        <x-layout.section spacing="lg">
-            <x-layout.container size="2xl">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
 
                 {{-- Breadcrumb --}}
                 <nav
@@ -308,16 +308,22 @@
                     </div>
                 </div>
 
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
-    <x-branding.public-next-step
-        eyebrow="قدم بعدی"
-        title="این تخصص را به یک مسیر آموزشی وصل کن"
-        description="دوره‌های منتشرشده را بررسی کن و ببین کدام مسیر با نیاز آموزشی تو هماهنگ‌تر است."
-        :primary-href="route('courses.index')"
-        primary-label="مشاهده دوره‌ها"
-        :secondary-href="route('register')"
-        secondary-label="شروع یادگیری"
-    />
+    <section class="public-next-step public-next-step--teachers-show" aria-label="قدم بعدی">
+    <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div class="public-next-step__card">
+            <div class="public-next-step__copy">
+                <span>قدم بعدی</span>
+                <h2>این تخصص را به یک مسیر آموزشی وصل کن</h2>
+                <p>دوره‌های منتشرشده را بررسی کن و ببین کدام مسیر با نیاز آموزشی تو هماهنگ‌تر است.</p>
+            </div>
+            <div class="public-next-step__actions">
+                <a class="public-next-step__button public-next-step__button--primary" href="{{ route('courses.index') }}">مشاهده دوره‌ها <span aria-hidden="true">←</span></a>
+                <a class="public-next-step__button public-next-step__button--secondary" href="{{ route('register') }}">شروع یادگیری <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

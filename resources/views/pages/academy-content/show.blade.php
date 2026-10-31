@@ -7,8 +7,8 @@
 @php($cover = $content->media->firstWhere('pivot.collection', 'cover')?->url())
 @php($video = $content->media->first(fn($media) => $media->pivot?->collection === 'video' && $media->collection === 'video' && $media->visibility === 'public' && $media->status === 'active'))
 <article class="public-academy-content-page">
-    <x-layout.section spacing="lg">
-        <x-layout.container size="wide">
+    <section class="relative py-16 sm:py-20 lg:py-28">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <nav aria-label="مسیر صفحه" class="flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-muted)]">
                 <a href="{{ route('home') }}" class="hover:text-[var(--color-primary-600)]">خانه</a>
                 <span>/</span>
@@ -61,7 +61,7 @@
                     @endif
                 </div>
             </div>
-        </x-layout.container>
-    </x-layout.section>
+        </div>
+    </section>
 </article>
 @endsection

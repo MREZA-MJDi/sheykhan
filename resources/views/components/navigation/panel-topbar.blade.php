@@ -9,9 +9,10 @@
 
     if ($role === 'teacher' && $topbarUser) {
         $topbarUser->loadMissing([
-            'teacherProfile.media' => fn ($query) => $query
-                ->wherePivot('collection', 'teacher-avatar')
-                ->orderByPivot('sort_order'),
+            'teacherProfile.media' => function ($query) {
+                $query->wherePivot('collection', 'teacher-avatar')
+                    ->orderByPivot('sort_order');
+            },
         ]);
 
         $avatarMedia = $topbarUser->teacherProfile?->media?->first();
@@ -20,9 +21,10 @@
             : ($avatarMedia ? route('media.view', $avatarMedia) : null);
     } elseif ($role === 'student' && $topbarUser) {
         $topbarUser->loadMissing([
-            'studentProfile.media' => fn ($query) => $query
-                ->wherePivot('collection', 'student-avatar')
-                ->orderByPivot('sort_order'),
+            'studentProfile.media' => function ($query) {
+                $query->wherePivot('collection', 'student-avatar')
+                    ->orderByPivot('sort_order');
+            },
         ]);
 
         $avatarMedia = $topbarUser->studentProfile?->media?->first();

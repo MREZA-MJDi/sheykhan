@@ -5,18 +5,18 @@
 
 @section('content')
     @php
-        $fa = fn ($value) => strtr((string) $value, [
+        $fa = function ($value) { return strtr((string) $value, [
             '0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴',
             '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
-        ]);
+        ]); };
     @endphp
 {{-- Full-bleed hero uses the independent HomeHeroSlide source. --}}
-    @include('components.branding.home-meraki-hero')
+    @include('pages.home.partials.hero')
 
 
     {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
     <section id="academy-story" class="home-section home-academy-story" aria-labelledby="home-academy-story-title">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-academy-story__grid">
                 <div class="home-academy-story__copy">
                     <span class="home-academy-story__eyebrow"><i aria-hidden="true"></i> آکادمی شیخان · یادگیری با معنا</span>
@@ -100,13 +100,13 @@
                     </div>
                 </div>
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
     {{-- Academy banners remain a separate content section below the Hero. --}}
     @if($homeBanners->isNotEmpty())
         <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
-            <x-layout.container size="wide">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="home-heading home-banner-heading">
                     <div>
                         <span>ویژه شیخان</span>
@@ -144,13 +144,13 @@
                         </article>
                     @endforeach
                 </div>
-            </x-layout.container>
+            </div>
         </section>
     @endif
 
     {{-- Primary destinations: clear visual navigation after the academy introduction. --}}
     <section class="home-paths" aria-labelledby="home-paths-title">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-paths__intro">
                 <div>
                     <span>راه‌های کشف شیخان</span>
@@ -172,12 +172,12 @@
                     <span class="home-path-card__index">۰۴</span><b>فروشگاه آموزشی</b><span>منابع و محصولاتی که در دسترس قرار گرفته‌اند.</span><i aria-hidden="true">←</i>
                 </a>
             </nav>
-        </x-layout.container>
+        </div>
     </section>
 
     {{-- Courses: keep the discovery section visible even before the first course is published. --}}
     <section id="featured-courses" class="home-section home-soft">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>دوره‌های منتخب</span>
@@ -189,19 +189,50 @@
 
             <div class="home-course-grid">
                 @forelse($courseCards as $course)
-                    <x-education.course-card
-                        :title="$course['title']"
-                        :description="$course['description']"
-                        :category="$course['category']"
-                        :teacher="$course['teacher']"
-                        :lessons="$course['lessons']"
-                        :duration="$course['duration']"
-                        :price="$course['price']"
-                        :level="$course['level']"
-                        :grades="$course['grades'] ?? []"
-                        :image="$course['image']"
-                        :href="$course['href']"
-                    />
+                    <article class="home-course-card edu-card group flex h-full min-w-0 flex-col">
+    <a href="{{ $course['href'] }}" class="block" aria-label="مشاهده دوره {{ $course['title'] }}">
+        <div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
+            @if($course['image'])
+                <img src="{{ $course['image'] }}" alt="{{ $course['title'] }}" class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.045]" loading="lazy" decoding="async">
+                <span class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent"></span>
+            @else
+                <div class="flex h-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(104,121,245,.20),transparent_38%),linear-gradient(135deg,#eef2ff,#f7fbff)] text-[var(--color-primary-600)]">
+                    <svg class="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="m4 15 4-4 3 3 3-4 6 6"/></svg>
+                </div>
+            @endif
+            <div class="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
+                @if($course['category'])<span class="home-card-badge"><span class="home-badge-dot"></span>{{ $course['category'] }}</span>@endif
+                @if($course['price'] === 'رایگان')<span class="home-card-badge is-free">پیش‌نمایش رایگان</span>@endif
+            </div>
+        </div>
+    </a>
+    <div class="flex flex-1 flex-col p-5 sm:p-6">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex min-w-0 flex-wrap gap-1.5">
+                @foreach(array_slice(array_filter($course['grades'] ?? []), 0, 3) as $grade)
+                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">{{ $grade }}</span>
+                @endforeach
+                @if(empty($course['grades']) && $course['level'])
+                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">سطح {{ $course['level'] }}</span>
+                @endif
+            </div>
+            @if($course['price'] !== null)<span class="ms-auto shrink-0 text-sm font-black text-[var(--color-primary-600)]">{{ $course['price'] }}</span>@endif
+        </div>
+        <h3 class="mt-4 text-xl font-black leading-snug text-[var(--color-text)]"><a href="{{ $course['href'] }}" class="transition-colors hover:text-[var(--color-primary-600)]">{{ $course['title'] }}</a></h3>
+        @if($course['description'])<p class="mt-2 line-clamp-2 text-sm leading-7 text-[var(--color-text-secondary)]">{{ $course['description'] }}</p>@endif
+        @if($course['teacher'])
+            <div class="mt-4 flex min-w-0 items-center gap-2 text-xs font-semibold text-[var(--color-text-muted)]">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]" aria-hidden="true">مد</span>
+                <span class="truncate">{{ $course['teacher'] }}</span>
+            </div>
+        @endif
+        <div class="mt-auto pt-5"><div class="flex flex-wrap items-center gap-3 border-t border-[var(--color-border)] pt-4 text-xs font-semibold text-[var(--color-text-muted)]">
+            @if($course['lessons'])<span class="home-meta-signal"><i aria-hidden="true">◫</i>{{ $course['lessons'] }} درس</span>@endif
+            @if($course['duration'])<span class="home-meta-signal"><i aria-hidden="true">◷</i>{{ $course['duration'] }}</span>@endif
+            <a href="{{ $course['href'] }}" class="ms-auto font-black text-[var(--color-primary-600)]">مشاهده دوره ←</a>
+        </div></div>
+    </div>
+</article>
                 @empty
                     <div class="home-empty-state">
                         <strong>هنوز دوره‌ای منتشر نشده است.</strong>
@@ -209,14 +240,14 @@
                     </div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
     {{-- Keep the journal discovery area visible when no post has been published yet. --}}
     {{-- Latest articles --}}
     <section id="academy-journal" class="home-section home-blog">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>مجله شیخان</span>
@@ -271,13 +302,13 @@
                     </div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
     {{-- Why Sheykhan --}}
     <section id="learning-experience" class="home-section home-dark">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-why">
                 <div class="home-why-copy">
                     <span>چرا شیخان؟</span>
@@ -326,15 +357,15 @@
                     </article>
                 </div>
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
-    @include('components.branding.home-learning-workflow')
+    @include('pages.home.partials.learning-workflow')
 
     {{-- Teachers: an empty directory still offers a clear next step. --}}
     <section id="teachers-section" class="home-section">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>اساتید</span>
@@ -346,25 +377,36 @@
 
             <div class="home-teacher-grid">
                 @forelse($teacherCards as $teacher)
-                    <x-education.teacher-card
-                        :name="$teacher['name']"
-                        :role="$teacher['role']"
-                        :avatar="$teacher['avatar']"
-                        :bio="$teacher['bio']"
-                        :courses="$teacher['courses']"
-                        :href="$teacher['href']"
-                    />
+                    <article class="home-teacher-card teacher-card edu-card group h-full min-w-0">
+    <a href="{{ $teacher['href'] }}" class="teacher-card__media" aria-label="مشاهده پروفایل {{ $teacher['name'] }}">
+        @if($teacher['avatar'])<img src="{{ $teacher['avatar'] }}" alt="تصویر {{ $teacher['name'] }}" class="teacher-card__photo" loading="lazy" decoding="async">
+        @else<span class="teacher-card__fallback" aria-hidden="true">{{ mb_substr(trim((string) $teacher['name']),0,1) }}</span>@endif
+        <span class="teacher-card__media-overlay" aria-hidden="true"></span>
+        <span class="teacher-card__media-action">پروفایل مدرس <span aria-hidden="true">↗</span></span>
+    </a>
+    <div class="teacher-card__body">
+        <div class="teacher-card__identity">
+            <h3 class="teacher-card__name"><a href="{{ $teacher['href'] }}">{{ $teacher['name'] }}</a></h3>
+            @if(filled($teacher['role']))<p class="teacher-card__role">{{ $teacher['role'] }}</p>@endif
+        </div>
+        @if(filled($teacher['bio']))<p class="teacher-card__bio">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $teacher['bio'])),155) }}</p>@endif
+        <div class="teacher-card__footer">
+            <span class="teacher-card__course-count"><span aria-hidden="true">▤</span>{{ \App\Support\PersianUi::digits((int) ($teacher['courses'] ?? 0)) }} دوره آموزشی</span>
+            <a href="{{ $teacher['href'] }}" class="teacher-card__action">دیدن پروفایل <span aria-hidden="true">←</span></a>
+        </div>
+    </div>
+</article>
                 @empty
                     <div class="home-empty-state"><strong>هنوز مدرس عمومی ثبت نشده است.</strong></div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
     {{-- Live classes --}}
     <section id="upcoming-classes" class="home-section home-soft">
-            <x-layout.container size="wide">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="home-heading">
                     <div>
                         <span>کلاس‌های پیش‌رو</span>
@@ -373,25 +415,31 @@
                 </div>
                 <div class="home-live-grid">
                     @forelse($liveClassCards as $class)
-                        <x-education.live-class-card
-                            :title="$class['title']"
-                            :course="$class['course']"
-                            :teacher="$class['teacher']"
-                            :date="$class['date']"
-                            :time="$class['time']"
-                            :status="$class['status']"
-                            :href="$class['href']"
-                        />
+                        @php
+                            $liveStatusClass = match($class['status']) {
+                                'در حال برگزاری' => 'is-live',
+                                'به‌زودی', 'برنامه‌ریزی‌شده' => 'is-upcoming',
+                                default => 'is-neutral',
+                            };
+                        @endphp
+                        <article class="home-live-card">
+                            <div class="home-live-card__top"><span class="home-live-card__mark" aria-hidden="true">◷</span><span class="home-live-status {{ $liveStatusClass }}">{{ $class['status'] }}</span></div>
+                            @if($class['course'])<span class="home-live-card__course">{{ $class['course'] }}</span>@endif
+                            <h3><a href="{{ $class['href'] }}">{{ $class['title'] }}</a></h3>
+                            <div class="home-live-card__details"><div><span>تاریخ</span><strong>{{ $class['date'] ?: '—' }}</strong></div><div><span>ساعت</span><strong>{{ $class['time'] ?: '—' }}</strong></div></div>
+                            @if($class['teacher'])<p class="home-live-card__teacher">مدرس: {{ $class['teacher'] }}</p>@endif
+                            <a class="home-live-card__action" href="{{ $class['href'] }}">مشاهده کلاس <span aria-hidden="true">←</span></a>
+                        </article>
                     @empty
                         <div class="home-empty-state"><strong>در حال حاضر کلاس آینده‌ای برای نمایش منتشر نشده است.</strong><span>برنامه کلاس‌ها پس از ثبت و انتشار توسط آموزشگاه در این بخش قرار می‌گیرد.</span><a href="{{ route('courses.index') }}">مشاهده دوره‌ها ←</a></div>
                     @endforelse
                 </div>
-            </x-layout.container>
+            </div>
         </section>
 
     {{-- Educational store --}}
     <section id="educational-store" class="home-section">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>فروشگاه آموزشی</span>
@@ -430,7 +478,7 @@
                     @endforeach
                 </div>
             @endif
-        </x-layout.container>
+        </div>
     </section>
 
     {{-- Academy editorial content: show only content paths that have public material. --}}
@@ -443,17 +491,21 @@
             'question-designer' => 'اگر من طراح سوال بودم',
         ];
         $publicAcademyPaths = collect($academyPathTitles)
-            ->map(fn ($title, $slug) => [
-                'slug' => $slug,
-                'title' => $title,
-                'items' => $academyContentGroups[$slug] ?? [],
-            ])
-            ->filter(fn ($path) => count($path['items']) > 0)
+            ->map(function ($title, $slug) use ($academyContentGroups) {
+                return [
+                    'slug' => $slug,
+                    'title' => $title,
+                    'items' => $academyContentGroups[$slug] ?? [],
+                ];
+            })
+            ->filter(function ($path) {
+                return count($path['items']) > 0;
+            })
             ->values();
     @endphp
     @if($publicAcademyPaths->isNotEmpty())
         <section id="academy-content" class="home-section home-soft">
-            <x-layout.container size="wide">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="home-heading">
                     <div>
                         <span>آکادمی شیخان</span>
@@ -486,14 +538,14 @@
                         </article>
                     @endforeach
                 </div>
-            </x-layout.container>
+            </div>
         </section>
     @endif
 
     {{-- Achievers --}}
     @if(count($achievementCards))
     <section id="academy-achievements" class="home-section home-trust">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>افتخارآفرینان شیخان</span>
@@ -521,14 +573,14 @@
                     <div class="home-empty-state"><strong>افتخارآفرینان هنوز ثبت نشده‌اند.</strong></div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
     @endif
 
     {{-- Testimonials --}}
     @if(count($testimonialCards))
     <section id="family-stories" class="home-section home-dark">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading home-heading-dark">
                 <div>
                     <span>تجربه خانواده‌ها</span>
@@ -563,13 +615,13 @@
                     <div class="home-empty-state"><strong>تجربه‌های ثبت‌شده هنوز آماده انتشار نیستند.</strong></div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
     @endif
 
     {{-- CTA --}}
     <section id="start-learning" class="home-section home-start-learning">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-cta">
                 <div>
                     <span>قدم بعدی</span>
@@ -577,10 +629,10 @@
                     <p>دوره‌ها را ببین و اولین قدم را ساده بردار.</p>
                 </div>
                 <div class="home-actions">
-                    <x-ui.button href="{{ route('courses.index') }}" variant="secondary" size="lg">مشاهده دوره‌ها</x-ui.button>
-                    <x-ui.button href="{{ route('teachers.index') }}" variant="ghost" size="lg" class="bg-white/10 text-white hover:bg-white/15 hover:text-white">اساتید</x-ui.button>
+                    <a href="{{ route('courses.index') }}" class="home-final-action home-final-action--primary">مشاهده دوره‌ها</a>
+                    <a href="{{ route('teachers.index') }}" class="home-final-action home-final-action--secondary">اساتید</a>
                 </div>
             </div>
-        </x-layout.container>
+        </div>
     </section>
 @endsection

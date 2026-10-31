@@ -37,19 +37,26 @@ class PanelTailwindSourceCoverageTest extends TestCase
         $this->assertIsString($layout);
         $this->assertStringContainsString("@source '../../resources/views/teacher';", $css);
         $this->assertStringContainsString("@source '../../resources/views/layouts/teacher.blade.php';", $css);
-        $this->assertStringContainsString("@source '../../resources/views/components/teacher';", $css);
+        $this->assertStringNotContainsString("@source '../../resources/views/components/teacher';", $css);
         $this->assertStringNotContainsString("@source '../../resources/views/components';", $css);
-        $this->assertStringContainsString('<x-teacher.course-management-form', file_get_contents(resource_path('views/teacher/courses/form.blade.php')));
-        $this->assertStringContainsString('<x-teacher.weekly-schedule-calendar', file_get_contents(resource_path('views/teacher/schedule/index.blade.php')));
+        $this->assertStringContainsString("@include('teacher.courses.partials.management-form'", file_get_contents(resource_path('views/teacher/courses/form.blade.php')));
+        $this->assertStringContainsString("@include('teacher.schedule.partials.weekly-calendar'", file_get_contents(resource_path('views/teacher/schedule/index.blade.php')));
+        $this->assertFileExists(resource_path('views/teacher/courses/partials/management-form.blade.php'));
+        $this->assertFileExists(resource_path('views/teacher/schedule/partials/weekly-calendar.blade.php'));
+        $this->assertStringContainsString('data-jalali-field', file_get_contents(resource_path('views/teacher/exams/form.blade.php')));
+        $this->assertStringContainsString('data-upload-progress-ui', file_get_contents(resource_path('views/teacher/exams/form.blade.php')));
         $this->assertStringContainsString('teacher.partials.academy-messages-workspace', file_get_contents(resource_path('views/teacher/communications/index.blade.php')));
     }
 
-    public function test_shared_teacher_inbox_remains_neutral_for_other_consumers(): void
+    public function test_parent_messages_use_a_parent_owned_inbox_partial(): void
     {
-        $view = file_get_contents(resource_path('views/components/communication/teacher-direct-messages-inbox.blade.php'));
+        $view = file_get_contents(resource_path('views/parent/messages/partials/direct-message-inbox.blade.php'));
+        $page = file_get_contents(resource_path('views/parent/messages/index.blade.php'));
         $this->assertIsString($view);
-        $this->assertStringContainsString('rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7', $view);
-        $this->assertStringNotContainsString('parent-panel', $view);
+        $this->assertIsString($page);
+        $this->assertStringContainsString('parent.messages.partials.direct-message-inbox', $page);
+        $this->assertStringContainsString('parent-panel', $view);
+        $this->assertFileDoesNotExist(resource_path('views/components/communication/teacher-direct-messages-inbox.blade.php'));
     }
 
     public function test_teacher_uses_its_own_design_for_exams_and_weekly_schedule(): void

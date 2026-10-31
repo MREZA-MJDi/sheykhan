@@ -1,5 +1,4 @@
-/* Shared assessment editor for teacher, academy owner and SEO workspaces. */
-// Shared exam builder for teacher and academy owner screens.
+/* Teacher-owned exam editor behavior. */
 const initializeExamBuilder = () => {
     document.querySelectorAll('[data-course-classroom-select]').forEach((classroomSelect) => {
         const courseSelect = document.querySelector(classroomSelect.dataset.courseSelect);
@@ -73,7 +72,7 @@ const initializeExamBuilder = () => {
         const help = item.querySelector('[data-correct-answer-help]');
         if (!wrapper || !choices) return;
 
-        wrapper.classList.toggle('hidden', type === 'text');
+        wrapper.hidden = type === 'text';
         choices.replaceChildren();
         if (type === 'text') return;
 
@@ -86,13 +85,13 @@ const initializeExamBuilder = () => {
 
         if (!options.length) {
             const empty = document.createElement('p');
-            empty.className = 'teacher-exam-answer-key-empty';
+            empty.dataset.examAnswerEmpty = 'true';
             empty.textContent = 'ابتدا چهار گزینه را کامل کن تا کلید پاسخ ساخته شود.';
             choices.appendChild(empty);
         } else {
             options.forEach((option, optionIndex) => {
                 const row = document.createElement('label');
-                row.className = 'teacher-exam-correct-choice';
+                row.dataset.examCorrectChoice = 'true';
 
                 const input = document.createElement('input');
                 input.type = multi ? 'checkbox' : 'radio';
@@ -106,15 +105,15 @@ const initializeExamBuilder = () => {
                 if (!multi) input.required = Boolean(requireCorrectAnswer);
 
                 const marker = document.createElement('span');
-                marker.className = 'teacher-exam-correct-choice-marker';
+                marker.dataset.examChoiceMarker = 'true';
                 marker.textContent = ['الف', 'ب', 'ج', 'د'][optionIndex] || toFaDigits(optionIndex + 1);
 
                 const copy = document.createElement('span');
-                copy.className = 'teacher-exam-correct-choice-copy';
+                copy.dataset.examChoiceCopy = 'true';
                 copy.textContent = option;
 
                 const check = document.createElement('span');
-                check.className = 'teacher-exam-correct-choice-check';
+                check.dataset.examChoiceCheck = 'true';
                 check.setAttribute('aria-hidden', 'true');
                 check.textContent = '✓';
 
@@ -221,13 +220,13 @@ const initializeExamBuilder = () => {
         );
         const isEmptyDraftRow = status === 'draft' && !hasDraftContent;
         const answerSpace = item.querySelector('[data-answer-space-preview]');
-        if (answerSpace) answerSpace.classList.toggle('hidden', type !== 'text');
+        if (answerSpace) answerSpace.hidden = type !== 'text';
         const previousSelection = [...item.querySelectorAll('[data-correct-answer-choice]:checked')]
             .map((input) => input.value);
 
         if (questionPrompt) questionPrompt.required = !isEmptyDraftRow;
-        if (optionsWrapper) optionsWrapper.classList.toggle('hidden', type === 'text');
-        if (referenceWrapper) referenceWrapper.classList.toggle('hidden', type !== 'text');
+        if (optionsWrapper) optionsWrapper.hidden = type === 'text';
+        if (referenceWrapper) referenceWrapper.hidden = type !== 'text';
 
         // An incomplete draft can be saved and resumed later. Publishing turns
         // on the stricter browser checks that mirror server-side validation.

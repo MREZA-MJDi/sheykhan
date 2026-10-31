@@ -65,7 +65,15 @@
                 <input class="fld" id="assignment-files" data-assignment-file-upload type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" aria-describedby="assignment-files-help assignment-files-selection">
                 <p class="assignment-upload-help" id="assignment-files-help">حداکثر ۳ فایل، هرکدام تا ۱۰ مگابایت. فایل‌های پاسخ به‌صورت خصوصی ذخیره می‌شوند و فقط افراد مجاز به تکلیف دسترسی دارند.</p>
                 <p class="assignment-upload-selection" id="assignment-files-selection" data-assignment-files-selection aria-live="polite">هنوز فایلی انتخاب نشده است.</p>
-                <x-ui.upload-progress label="پیشرفت ارسال پاسخ تکلیف" />
+                <section class="student-upload-progress" data-upload-progress-ui hidden aria-label="پیشرفت ارسال پاسخ تکلیف">
+    <div class="student-upload-files" data-upload-file-list role="list"></div>
+    <div class="student-upload-summary" data-upload-summary></div>
+    <div class="student-upload-status" data-upload-progress-status hidden>
+        <div class="student-upload-bar-track" role="progressbar" aria-label="پیشرفت ارسال فایل" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-upload-progress-track><span class="student-upload-bar" data-upload-progress-bar></span></div>
+        <div class="student-upload-status-row"><strong data-upload-progress-percent>۰٪</strong><span data-upload-progress-message role="status" aria-live="polite">در انتظار ارسال</span></div>
+    </div>
+    <p class="student-upload-error" data-upload-progress-error role="alert" hidden></p>
+</section>
             </div>
             <div class="frm"><button class="btn s" type="submit">ثبت پاسخ</button><span>پس از تصحیح مدرس، ارسال مجدد بسته می‌شود.</span></div>
         </form>

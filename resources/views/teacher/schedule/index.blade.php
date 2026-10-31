@@ -20,7 +20,7 @@
         <div class="teacher-workspace-alert error">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>
     @endif
 
-    <x-teacher.weekly-schedule-calendar :classrooms="$classrooms" />
+    @include('teacher.schedule.partials.weekly-calendar', ['classrooms' => $classrooms])
 
     <section class="teacher-workspace-card">
         <div class="teacher-workspace-card-head">

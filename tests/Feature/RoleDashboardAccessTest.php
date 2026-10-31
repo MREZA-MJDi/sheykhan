@@ -31,6 +31,10 @@ class RoleDashboardAccessTest extends TestCase
                     ->assertSee('id="burger"', false)
                     ->assertSee('id="side"', false)
                     ->assertSee('id="main"', false);
+            } elseif ($route === 'teacher.dashboard') {
+                $response->assertSee('<nav class="bt"', false)
+                    ->assertSee('data-teacher-menu-open', false)
+                    ->assertSee('data-teacher-menu-close', false);
             } else {
                 $response->assertSee('role-mobile-bottom-nav', false)
                     ->assertSee('data-role-more-open', false);
