@@ -182,6 +182,31 @@ class LiveClassController extends Controller
         ]);
     }
 
+    public function recording(LiveClass $liveClass, StudentAccessService $access): View
+    {
+        $student = request()->user();
+
+        abort_unless($access->liveClass($student, $liveClass), 404);
+        abort_unless($liveClass->isRecordingAvailable(), 404);
+
+        $liveClass->loadMissing([
+            'course:id,title',
+            'teacher:id,name',
+            'recording:id,original_name,mime_type,status,visibility',
+        ]);
+
+        abort_unless(
+            $liveClass->recording
+                && $liveClass->recording->status === 'active'
+                && $liveClass->recording->visibility === 'private',
+            404,
+        );
+
+        return view('student.live-classes.recording', [
+            'liveClass' => $liveClass,
+        ]);
+    }
+
     public function join(LiveClass $liveClass, StudentAccessService $access): RedirectResponse
     {
         abort_unless($access->canJoinLiveClass(request()->user(), $liveClass), 404);

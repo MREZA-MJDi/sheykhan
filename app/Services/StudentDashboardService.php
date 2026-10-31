@@ -439,7 +439,7 @@ final class StudentDashboardService
                         'status' => $session->status,
                         'lamp' => $recordingReady ? 'روشن' : 'خاموش',
                         'available' => $recordingReady,
-                        'href' => $recordingReady ? route('media.view', $session->recording) : null,
+                        'href' => $recordingReady ? route('student.live-classes.recording', $session->id) : null,
                     ];
                 });
 

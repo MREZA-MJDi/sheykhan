@@ -69,7 +69,7 @@
                     <span>{{ $recording->recording?->original_name ?? 'ضبط کلاس' }}</span>
                 </div>
                 @if($recording->recording)
-                    <a class="btn s" href="{{ route('media.view', $recording->recording->id) }}">تماشای ضبط</a>
+                    <a class="btn s" href="{{ route('student.live-classes.recording', $recording->id) }}">تماشای ضبط</a>
                 @endif
             </div>
         @empty

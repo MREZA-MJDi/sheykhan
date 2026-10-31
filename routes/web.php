@@ -313,6 +313,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
     Route::get('/exams/{exam}/result', [StudentExamController::class, 'result'])->middleware('permission:exams.view')->name('exams.result');
 
     Route::get('/live-classes', [StudentLiveClassController::class, 'index'])->middleware('permission:live_classes.view')->name('live-classes.index');
+    Route::get('/live-classes/{liveClass}/recording', [StudentLiveClassController::class, 'recording'])->middleware('permission:live_classes.view')->name('live-classes.recording');
     Route::get('/live-classes/{liveClass}/join', [StudentLiveClassController::class, 'join'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('live-classes.join');
     Route::get('/weekly-schedule/{schedule}/join', [StudentLiveClassController::class, 'joinSchedule'])->middleware(['permission:live_classes.view','throttle:20,1'])->name('schedule.join');
 
