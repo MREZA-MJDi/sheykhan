@@ -11,7 +11,7 @@
         ]); };
     @endphp
 {{-- Full-bleed hero uses the independent HomeHeroSlide source. --}}
-    @include('components.branding.home-meraki-hero')
+    @include('pages.home.partials.hero')
 
 
     {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
