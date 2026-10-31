@@ -35,4 +35,20 @@ class UiComponentAccessibilityTest extends TestCase
         $this->assertStringContainsString('aria-describedby="' . $inputId . '-error"', $html);
         $this->assertStringContainsString('id="' . $inputId . '-error"', $html);
     }
+
+    public function test_flash_component_has_shared_dismiss_behavior_but_role_owned_presentation(): void
+    {
+        $view = file_get_contents(resource_path('views/components/ui/flash-messages.blade.php'));
+        $publicStyles = file_get_contents(resource_path('css/app.css'));
+        $parentStyles = file_get_contents(resource_path('css/parent.css'));
+        foreach ([$view,$publicStyles,$parentStyles] as $source) $this->assertIsString($source);
+
+        $this->assertStringContainsString('data-ui-dismissible', $view);
+        $this->assertStringContainsString('data-ui-dismiss', $view);
+        $this->assertStringNotContainsString('<style', $view);
+        $this->assertStringNotContainsString('<script', $view);
+        $this->assertStringContainsString('.ui-flash-stack', $publicStyles);
+        $this->assertStringContainsString('.ui-flash-stack', $parentStyles);
+    }
+
 }
