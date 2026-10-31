@@ -16,7 +16,7 @@
 
     {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
     <section id="academy-story" class="home-section home-academy-story" aria-labelledby="home-academy-story-title">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-academy-story__grid">
                 <div class="home-academy-story__copy">
                     <span class="home-academy-story__eyebrow"><i aria-hidden="true"></i> آکادمی شیخان · یادگیری با معنا</span>
@@ -100,13 +100,13 @@
                     </div>
                 </div>
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
     {{-- Academy banners remain a separate content section below the Hero. --}}
     @if($homeBanners->isNotEmpty())
         <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
-            <x-layout.container size="wide">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="home-heading home-banner-heading">
                     <div>
                         <span>ویژه شیخان</span>
@@ -144,13 +144,13 @@
                         </article>
                     @endforeach
                 </div>
-            </x-layout.container>
+            </div>
         </section>
     @endif
 
     {{-- Primary destinations: clear visual navigation after the academy introduction. --}}
     <section class="home-paths" aria-labelledby="home-paths-title">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-paths__intro">
                 <div>
                     <span>راه‌های کشف شیخان</span>
@@ -172,12 +172,12 @@
                     <span class="home-path-card__index">۰۴</span><b>فروشگاه آموزشی</b><span>منابع و محصولاتی که در دسترس قرار گرفته‌اند.</span><i aria-hidden="true">←</i>
                 </a>
             </nav>
-        </x-layout.container>
+        </div>
     </section>
 
     {{-- Courses: keep the discovery section visible even before the first course is published. --}}
     <section id="featured-courses" class="home-section home-soft">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>دوره‌های منتخب</span>
@@ -209,14 +209,14 @@
                     </div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
     {{-- Keep the journal discovery area visible when no post has been published yet. --}}
     {{-- Latest articles --}}
     <section id="academy-journal" class="home-section home-blog">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>مجله شیخان</span>
@@ -271,13 +271,13 @@
                     </div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
     {{-- Why Sheykhan --}}
     <section id="learning-experience" class="home-section home-dark">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-why">
                 <div class="home-why-copy">
                     <span>چرا شیخان؟</span>
@@ -326,7 +326,7 @@
                     </article>
                 </div>
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
@@ -334,7 +334,7 @@
 
     {{-- Teachers: an empty directory still offers a clear next step. --}}
     <section id="teachers-section" class="home-section">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>اساتید</span>
@@ -358,13 +358,13 @@
                     <div class="home-empty-state"><strong>هنوز مدرس عمومی ثبت نشده است.</strong></div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
 
 
     {{-- Live classes --}}
     <section id="upcoming-classes" class="home-section home-soft">
-            <x-layout.container size="wide">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="home-heading">
                     <div>
                         <span>کلاس‌های پیش‌رو</span>
@@ -386,12 +386,12 @@
                         <div class="home-empty-state"><strong>در حال حاضر کلاس آینده‌ای برای نمایش منتشر نشده است.</strong><span>برنامه کلاس‌ها پس از ثبت و انتشار توسط آموزشگاه در این بخش قرار می‌گیرد.</span><a href="{{ route('courses.index') }}">مشاهده دوره‌ها ←</a></div>
                     @endforelse
                 </div>
-            </x-layout.container>
+            </div>
         </section>
 
     {{-- Educational store --}}
     <section id="educational-store" class="home-section">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>فروشگاه آموزشی</span>
@@ -430,7 +430,7 @@
                     @endforeach
                 </div>
             @endif
-        </x-layout.container>
+        </div>
     </section>
 
     {{-- Academy editorial content: show only content paths that have public material. --}}
@@ -457,7 +457,7 @@
     @endphp
     @if($publicAcademyPaths->isNotEmpty())
         <section id="academy-content" class="home-section home-soft">
-            <x-layout.container size="wide">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="home-heading">
                     <div>
                         <span>آکادمی شیخان</span>
@@ -490,14 +490,14 @@
                         </article>
                     @endforeach
                 </div>
-            </x-layout.container>
+            </div>
         </section>
     @endif
 
     {{-- Achievers --}}
     @if(count($achievementCards))
     <section id="academy-achievements" class="home-section home-trust">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
                 <div>
                     <span>افتخارآفرینان شیخان</span>
@@ -525,14 +525,14 @@
                     <div class="home-empty-state"><strong>افتخارآفرینان هنوز ثبت نشده‌اند.</strong></div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
     @endif
 
     {{-- Testimonials --}}
     @if(count($testimonialCards))
     <section id="family-stories" class="home-section home-dark">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading home-heading-dark">
                 <div>
                     <span>تجربه خانواده‌ها</span>
@@ -567,13 +567,13 @@
                     <div class="home-empty-state"><strong>تجربه‌های ثبت‌شده هنوز آماده انتشار نیستند.</strong></div>
                 @endforelse
             </div>
-        </x-layout.container>
+        </div>
     </section>
     @endif
 
     {{-- CTA --}}
     <section id="start-learning" class="home-section home-start-learning">
-        <x-layout.container size="wide">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-cta">
                 <div>
                     <span>قدم بعدی</span>
@@ -585,6 +585,6 @@
                     <x-ui.button href="{{ route('teachers.index') }}" variant="ghost" size="lg" class="bg-white/10 text-white hover:bg-white/15 hover:text-white">اساتید</x-ui.button>
                 </div>
             </div>
-        </x-layout.container>
+        </div>
     </section>
 @endsection
