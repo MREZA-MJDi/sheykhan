@@ -1,5 +1,5 @@
 /* Teacher-only runtime. Role UI and behavior are isolated. */
-import { bootAlpine } from './panel-base.js';
+import { bootAlpineRuntime as bootAlpine } from './shared/alpine-runtime.js';
 import { bootSharedBehaviors } from './shared/behavior-runtime.js';
 import './shared/persian-calendar.js';
 import './shared/persian-money.js';
