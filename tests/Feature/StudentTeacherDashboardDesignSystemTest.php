@@ -161,6 +161,32 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         }
     }
 
+    public function test_owner_exam_builder_is_fully_owner_owned_and_preserves_essay_reference_answers(): void
+    {
+        $ownerEntry = file_get_contents(resource_path('js/owner-dashboard.js'));
+        $ownerBuilder = file_get_contents(resource_path('js/owner/exam-builder.js'));
+        $ownerView = file_get_contents(resource_path('views/owner/exams/form.blade.php'));
+        $ownerController = file_get_contents(app_path('Http/Controllers/Owner/ExamController.php'));
+        $ownerStyles = file_get_contents(resource_path('css/panels/owner/admin.css'));
+        foreach ([$ownerEntry,$ownerBuilder,$ownerView,$ownerController,$ownerStyles] as $source) {
+            $this->assertIsString($source);
+        }
+
+        $this->assertStringContainsString("import './owner/exam-builder.js';", $ownerEntry);
+        $this->assertStringContainsString('owner-exam-correct-choice', $ownerBuilder);
+        $this->assertStringContainsString('owner-exam-answer-key-empty', $ownerBuilder);
+        $this->assertStringNotContainsString('teacher-exam-', $ownerBuilder);
+        $this->assertStringContainsString('class="owner-exam-page', $ownerView);
+        $this->assertStringContainsString('data-exam-builder', $ownerView);
+        $this->assertStringContainsString('data-name="expected_answer"', $ownerView);
+        $this->assertStringContainsString('expected_answer', $ownerController);
+        $this->assertStringContainsString('.owner-exam-question', $ownerStyles);
+        $this->assertStringContainsString('.owner-exam-correct-choice', $ownerStyles);
+        $this->assertStringNotContainsString('teacher-form-', $ownerView);
+        $this->assertFileDoesNotExist(resource_path('css/teacher-workspace.css'));
+        $this->assertFileDoesNotExist(resource_path('js/exam-builder.js'));
+    }
+
     public function test_spotplayer_remains_the_protected_course_player(): void
     {
         $playerView = file_get_contents(resource_path('views/student/courses/show.blade.php'));
