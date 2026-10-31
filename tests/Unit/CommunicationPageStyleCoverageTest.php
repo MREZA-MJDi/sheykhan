@@ -14,54 +14,41 @@ class CommunicationPageStyleCoverageTest extends TestCase
         return (string) file_get_contents($path);
     }
 
-    public function test_each_role_stylesheet_defines_communication_workspace_hooks(): void
+    public function test_teacher_communication_presentation_is_owned_by_teacher_stylesheet(): void
     {
-        $styleSheets = [
-            'resources/css/teacher.css',
-            'resources/css/parent.css',
-            'resources/css/owner-dashboard-v2.css',
-        ];
-
-        foreach ($styleSheets as $styleSheet) {
-            $source = $this->source($styleSheet);
-            $this->assertStringContainsString('.communication-page__hero', $source, $styleSheet);
-            $this->assertStringContainsString('.communication-page__message', $source, $styleSheet);
-            $this->assertStringContainsString('.communication-page__empty', $source, $styleSheet);
-            $this->assertStringContainsString('.communication-page__form--two-column', $source, $styleSheet);
-        }
+        $css = $this->source('resources/css/teacher.css');
+        $this->assertStringContainsString('.communication-page__form', $css);
+        $this->assertStringContainsString('.communication-page__response', $css);
+        $this->assertStringContainsString('.communication-page__button', $css);
+        $this->assertStringContainsString('@media(max-width:760px)', $css);
     }
 
-    public function test_all_message_screens_have_explicit_shared_style_hooks(): void
+    public function test_parent_communication_presentation_is_owned_by_parent_stylesheet_and_partial(): void
     {
-        foreach ([
-            'resources/views/teacher/student-messages/index.blade.php',
-            'resources/views/teacher/direct-messages/index.blade.php',
-            'resources/views/teacher/messages/index.blade.php',
-            'resources/views/parent/messages/index.blade.php',
-            'resources/views/owner/messages/index.blade.php',
-        ] as $view) {
-            $source = $this->source($view);
-            $this->assertStringContainsString('communication-page', $source, $view);
-            $this->assertStringContainsString('communication-page__hero', $source, $view);
-        }
+        $css = $this->source('resources/css/parent.css');
+        $page = $this->source('resources/views/parent/messages/index.blade.php');
+        $inbox = $this->source('resources/views/parent/messages/partials/direct-message-inbox.blade.php');
 
-        $inbox = $this->source('resources/views/components/communication/teacher-direct-messages-inbox.blade.php');
-        $this->assertStringContainsString('communication-page__message', $inbox);
+        $this->assertStringContainsString('.communication-page__hero', $css);
+        $this->assertStringContainsString('.communication-page__empty', $css);
+        $this->assertStringContainsString('.communication-page__form--two-column', $css);
+        $this->assertStringContainsString('parent.messages.partials.direct-message-inbox', $page);
+        $this->assertStringContainsString('parent-panel', $inbox);
         $this->assertStringContainsString('communication-page__response', $inbox);
+        $this->assertFileDoesNotExist(dirname(__DIR__, 2) . '/resources/views/components/communication/teacher-direct-messages-inbox.blade.php');
     }
 
-    public function test_message_styles_cover_forms_empty_states_and_mobile_layouts(): void
+    public function test_owner_communication_presentation_is_owned_by_owner_stylesheet_and_partial(): void
     {
-        foreach ([
-            'resources/css/teacher.css',
-            'resources/css/parent.css',
-            'resources/css/owner-dashboard-v2.css',
-        ] as $styleSheet) {
-            $source = $this->source($styleSheet);
-            $this->assertStringContainsString('.communication-page__hero', $source, $styleSheet);
-            $this->assertStringContainsString('.communication-page__response', $source, $styleSheet);
-            $this->assertStringContainsString('@media', $source, $styleSheet);
-            $this->assertStringContainsString('focus-visible', $source, $styleSheet);
-        }
+        $css = $this->source('resources/css/owner-dashboard-v2.css');
+        $page = $this->source('resources/views/owner/communications/index.blade.php');
+        $workspace = $this->source('resources/views/owner/communications/partials/messages-workspace.blade.php');
+
+        $this->assertStringContainsString('.owner-admin-v2 .main-content .communication-page__hero', $css);
+        $this->assertStringContainsString('.owner-admin-v2 .main-content .communication-page__empty', $css);
+        $this->assertStringContainsString('owner.communications.partials.messages-workspace', $page);
+        $this->assertStringContainsString('owner-communications-workspace', $workspace);
+        $this->assertStringContainsString('dashboard-panel', $workspace);
+        $this->assertFileDoesNotExist(dirname(__DIR__, 2) . '/resources/views/components/communication/academy-messages-workspace.blade.php');
     }
 }
