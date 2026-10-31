@@ -191,3 +191,17 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .bt>a.on,.bt>button.on{color:var(--pri);font-weight:800}
 .bt>a:focus-visible,.bt>button:focus-visible{outline:2px solid var(--pri);outline-offset:-2px;border-radius:9px}
 @media(max-width:860px){.bt{min-height:60px}.top{position:sticky;top:0;z-index:25;background:color-mix(in srgb,var(--sf) 92%,transparent);backdrop-filter:blur(12px);padding:5px 0}.teacher-top-search{display:none!important}}
+
+
+/* Semantic compatibility tokens are teacher-owned; they do not import other panel themes. */
+:root{
+ --panel-primary:var(--pri);--panel-primary-soft:var(--pl);--panel-border:var(--ln);
+ --panel-surface:var(--sf);--panel-bg:var(--bg);--panel-text:var(--tx);
+ --panel-text-secondary:var(--tx);--panel-muted:var(--mu);--panel-accent:var(--pu);
+ --color-primary-600:var(--pri);--color-brand-600:var(--pri);--color-text:var(--tx);
+ --color-text-secondary:var(--mu);--color-border:var(--ln);--color-success-50:#e3f8ee;
+ --color-success-100:#b8ebd2;--color-success-700:#118a55;--color-danger-600:var(--rd);
+}
+.teacher-exam-answer-value.is-correct{border-color:#22b573;background:#e3f8ee;color:#118a55}
+.teacher-exam-answer-value.is-wrong{border-color:#f0566b;background:#fde6ea;color:#b4233b}
+.teacher-exam-answer-value{border:1px solid var(--ln);border-radius:10px;padding:10px 12px}
