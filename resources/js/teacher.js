@@ -340,57 +340,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const teacherJalaliFields = document.querySelectorAll('[data-teacher-jalali]');
 
-    const teacherNormalizeDigits = (value) => String(value ?? '')
-        .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-        .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-
     const teacherGregorianToJalali = (value) => {
-        if (!value) return '';
-        const date = new Date(String(value).replace(' ', 'T'));
-        if (Number.isNaN(date.getTime())) return '';
-
-        return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        }).format(date);
+        const isoDate = String(value ?? '').replace(' ', 'T').slice(0, 10);
+        return formatJalali(isoDate);
     };
 
     const teacherJalaliToGregorian = (value) => {
-        const normalized = teacherNormalizeDigits(value).replace(/-/g, '/').trim();
-        const match = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-        if (!match) return null;
-
-        const jy = Number(match[1]);
-        const jm = Number(match[2]);
-        const jd = Number(match[3]);
-        const formatter = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-            timeZone: 'UTC',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        });
-
-        const start = new Date(Date.UTC(jy + 620, 0, 1, 12));
-        for (let offset = 0; offset <= 800; offset++) {
-            const candidate = new Date(start.getTime() + offset * 86400000);
-            const parts = Object.fromEntries(
-                formatter.formatToParts(candidate).map((item) => [item.type, item.value])
-            );
-
-            if (Number(teacherNormalizeDigits(parts.year)) === jy
-                && Number(teacherNormalizeDigits(parts.month)) === jm
-                && Number(teacherNormalizeDigits(parts.day)) === jd) {
-                return [
-                    candidate.getUTCFullYear(),
-                    String(candidate.getUTCMonth() + 1).padStart(2, '0'),
-                    String(candidate.getUTCDate()).padStart(2, '0'),
-                ];
-            }
-        }
-
-        return null;
+        const parsed = parseJalali(latinDigits(value));
+        return parsed ? parsed.iso.split('-') : null;
     };
 
     teacherJalaliFields.forEach((field) => {
