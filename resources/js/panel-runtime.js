@@ -1,48 +1,19 @@
 import { bootPanel, closePanelMenu } from './panel-base.js';
 import { bootFileUploadProgress } from './upload-progress.js';
+import { bootSharedBehaviors, initializeTabs } from './shared/behavior-runtime.js';
 
 export { closePanelMenu };
 
 const bootOwnerPeopleTabs = () => {
     document.querySelectorAll('[data-owner-people-tabs]').forEach((root) => {
-        if (root.dataset.ownerPeopleTabsBound === 'true') return;
-        root.dataset.ownerPeopleTabsBound = 'true';
-
-        const buttons = Array.from(root.querySelectorAll('[data-owner-tab-button]'));
-        const panels = Array.from(root.querySelectorAll('[data-owner-tab-panel]'));
-        if (!buttons.length || !panels.length) return;
-
-        const activate = (key, moveFocus = false) => {
-            buttons.forEach((button) => {
-                const active = button.dataset.ownerTabButton === key;
-                button.setAttribute('aria-selected', active ? 'true' : 'false');
-                button.tabIndex = active ? 0 : -1;
-                button.classList.toggle('is-active', active);
-            });
-            panels.forEach((panel) => {
-                const active = panel.dataset.ownerTabPanel === key;
-                panel.hidden = !active;
-                panel.classList.toggle('is-active', active);
-            });
-            if (moveFocus) buttons.find((button) => button.dataset.ownerTabButton === key)?.focus();
-        };
-
-        buttons.forEach((button, index) => {
-            button.addEventListener('click', () => activate(button.dataset.ownerTabButton));
-            button.addEventListener('keydown', (event) => {
-                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-                event.preventDefault();
-                const nextIndex = event.key === 'Home' ? 0
-                    : event.key === 'End' ? buttons.length - 1
-                    : (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
-                activate(buttons[nextIndex].dataset.ownerTabButton, true);
-            });
+        initializeTabs(root, {
+            triggerSelector: '[data-owner-tab-button]',
+            panelSelector: '[data-owner-tab-panel]',
+            triggerKey: (button) => button.dataset.ownerTabButton || '',
+            panelKey: (panel) => panel.dataset.ownerTabPanel || '',
+            initialKey: root.dataset.initialTab,
+            activeClass: 'is-active',
         });
-
-        const requested = root.dataset.initialTab;
-        activate(buttons.some((button) => button.dataset.ownerTabButton === requested)
-            ? requested
-            : buttons[0].dataset.ownerTabButton);
     });
 };
 
@@ -114,6 +85,7 @@ function initializePanelRuntime() {
     if (runtimeBooted) return;
     runtimeBooted = true;
 
+    bootSharedBehaviors();
     bootPanel();
     bootOwnerPeopleTabs();
     bootRoleMobileNavigation();
