@@ -7121,3 +7121,17 @@
 @media (min-width: 701px) {
   .role-mobile-bottom-nav { display: none !important; }
 }
+
+
+/* Public-site flash presentation. Keep this stylesheet independently editable. */
+.ui-flash-stack{display:grid;gap:10px;margin:0 0 20px}
+.ui-flash{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid;border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(15,23,42,.07)}
+.ui-flash-icon{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:10px;font-weight:900}
+.ui-flash-copy{min-width:0;display:grid;gap:3px;line-height:1.8}
+.ui-flash-copy strong{font-size:12px}.ui-flash-copy span{font-size:12px;color:#667085}
+.ui-flash-close{margin-inline-start:auto;border:0;background:transparent;color:#98a2b3;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}
+.ui-flash-success{border-color:#b7e4c7;background:#f4fff7}.ui-flash-success .ui-flash-icon{background:#dcfce7;color:#15803d}
+.ui-flash-error{border-color:#fecaca;background:#fff7f7}.ui-flash-error .ui-flash-icon{background:#fee2e2;color:#b91c1c}
+.ui-flash-warning{border-color:#fde68a;background:#fffbeb}.ui-flash-warning .ui-flash-icon{background:#fef3c7;color:#a16207}
+.ui-flash-info{border-color:#bfdbfe;background:#eff6ff}.ui-flash-info .ui-flash-icon{background:#dbeafe;color:#1d4ed8}
+@media(max-width:640px){.ui-flash{align-items:flex-start;padding:12px}.ui-flash-copy span{font-size:11px}.ui-flash-close{font-size:20px}}
