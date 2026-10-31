@@ -201,7 +201,8 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('class="hero"', false)
             ->assertSee(route('media.public', $media), false)
             ->assertSee('تصویر پروفایل ' . $student->name, false)
-            ->assertSee('class="student-dashboard-avatar-initial"', false);
+            ->assertSee('data-avatar-fallback', false)
+            ->assertSee('class="av"', false);
     }
 
     public function test_teacher_dashboard_hides_workflows_without_view_permissions(): void
@@ -389,7 +390,8 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('.teacher-roster-avatar', $teacherCss);
         $this->assertStringContainsString('prefers-reduced-motion', $teacherCss);
         $this->assertStringContainsString('@media(max-width:860px)', $teacherCss);
-        $this->assertStringContainsString('.student-shell .role-mobile-bottom-nav', $studentCss);
+        $this->assertStringContainsString('.student-shell .app', $studentCss);
+        $this->assertStringContainsString('.tabbar{display:none}', $studentCss);
 
         foreach ([
             "import './shared/alpine-runtime.js';",
@@ -427,11 +429,12 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('data-teacher-menu-close', $teacherLayout);
         $this->assertStringContainsString('teacherProfile.media', $teacherLayout);
         $this->assertStringContainsString('$avatarUrl', $dashboard);
-        $this->assertStringContainsString('<x-navigation.role-mobile-nav role="student" />', $studentLayout);
-        $this->assertStringContainsString('id="student-profile-modal"', $studentLayout);
-        $this->assertStringContainsString('data-student-profile-open', $studentLayout);
-        $this->assertStringContainsString('data-student-theme-toggle', $studentJs);
-        $this->assertStringContainsString('student-profile-modal', $studentCss);
+        $this->assertStringContainsString("@include('student.partials.tabbar')", $studentLayout);
+        $this->assertStringContainsString("@include('student.partials.sidebar')", $studentLayout);
+        $this->assertStringContainsString('data-filter', $studentLayout);
+        $this->assertStringContainsString('.tabbar', $studentCss);
+        $this->assertStringContainsString('.sheet', $studentCss);
+        $this->assertStringNotContainsString('student-profile-modal', $studentLayout);
         $this->assertStringContainsString('data-role-more-open', $mobileNavigation);
         $this->assertStringContainsString('data-role-more-panel', $mobileNavigation);
         $this->assertStringContainsString('Route::has($item[', $mobileNavigation);

@@ -24,12 +24,11 @@ class DashboardResponsiveContractTest extends TestCase
         $css = file_get_contents(resource_path('css/student.css'));
 
         $this->assertIsString($css);
-        $this->assertStringContainsString('.student-shell .role-mobile-bottom-nav', $css);
-        $this->assertStringContainsString('position: fixed !important;', $css);
-        $this->assertStringContainsString('left: max(8px, env(safe-area-inset-left, 0px)) !important;', $css);
-        $this->assertStringContainsString('bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;', $css);
-        $this->assertStringContainsString('padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;', $css);
-        $this->assertStringContainsString('@media (max-width: 380px)', $css);
+        $this->assertStringContainsString('.tabbar{display:none}', $css);
+        $this->assertStringContainsString('position:fixed', $css);
+        $this->assertStringContainsString('env(safe-area-inset-bottom', $css);
+        $this->assertStringContainsString('padding:0', $css);
+        $this->assertStringContainsString('@media (max-width:900px)', $css);
     }
 
     public function test_owner_workspaces_share_readable_sections_and_the_online_calendar_is_responsive(): void
@@ -68,12 +67,13 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertIsString($teacherCss);
         $this->assertStringContainsString('.student-shell .app', $studentCss);
         $this->assertStringContainsString('.shell{', $teacherCss);
-        $this->assertStringContainsString('@media (max-width: 700px)', $studentCss);
+        $this->assertStringContainsString('@media (max-width:900px)', $studentCss);
         $this->assertStringContainsString('@media(max-width:860px)', $teacherCss);
-        $this->assertStringContainsString('.student-shell .role-mobile-bottom-nav', $studentCss);
+        $this->assertStringContainsString('.tabbar{display:none}', $studentCss);
+        $this->assertStringContainsString('env(safe-area-inset-bottom', $studentCss);
         $this->assertStringContainsString('.bt{display:flex;position:fixed', $teacherCss);
         $this->assertStringContainsString('.burger{display:grid;place-items:center}', $teacherCss);
-        $this->assertStringContainsString('padding: 8px;', $studentCss);
+        $this->assertStringContainsString('padding:clamp(8px,2vw,24px)', $studentCss);
         $this->assertStringContainsString('.fab{bottom:84px;left:14px}', $teacherCss);
     }
 }
