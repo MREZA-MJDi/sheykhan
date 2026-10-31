@@ -13,7 +13,9 @@
         <x-navigation.parent-sidebar />
 
         <div class="role-content">
-            @php($parentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل والد')))
+            @php
+                $parentHeaderTitle = trim($__env->yieldContent('header-title', 'پنل والد'));
+            @endphp
             <x-navigation.panel-topbar role="parent" :title="$parentHeaderTitle" />
             <main class="role-main">
                 @if(session()->hasAny(['success', 'error', 'warning', 'info']) || $errors->any())
