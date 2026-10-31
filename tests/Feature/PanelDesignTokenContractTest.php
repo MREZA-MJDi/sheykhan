@@ -26,7 +26,7 @@ class PanelDesignTokenContractTest extends TestCase
         $this->assertStringNotContainsString('background:', $tokens);
     }
 
-    public function test_shared_ui_components_remain_role_neutral(): void
+    public function test_each_panel_owns_its_presentation_without_shared_component_contract(): void
     {
         $input = file_get_contents(resource_path('views/components/ui/input.blade.php'));
         $button = file_get_contents(resource_path('views/components/ui/button.blade.php'));
