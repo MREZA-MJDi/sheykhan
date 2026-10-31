@@ -1,5 +1,5 @@
 /* Shared Owner/SEO upload previews and safe form-submission feedback. */
-import './assessment-builder.js';
+import './shared/assessment-builder.js';
 import { guardFormOnce } from './shared/behavior-runtime.js';
 /* New owner admin page behavior. Server routes and form submissions stay authoritative. */
 (() => {
