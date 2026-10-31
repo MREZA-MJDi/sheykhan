@@ -1,152 +1,136 @@
 @extends('layouts.teacher')
-@section('title', 'داشبورد مدرس | شیخان')
-@section('page_title', 'خوش آمدید، ' . (auth()->user()->name ?? 'مدرس'))
-@section('page_subtitle', $dashboardDate ?? \App\Support\PersianUi::date(now()))
+@section('title', 'داشبورد مدرس')
+@section('heading', 'خوش آمدی، ' . ($teacher->name ?? 'مدرس'))
 @section('content')
-<div id="teacher-dashboard" class="teacher-dashboard-page">
-@php
-  $user = $teacher ?? auth()->user();
-  $metrics = $metrics ?? [];
-  $classes = max(0,(int)($metrics['activeClasses'] ?? 0));
-  $students = max(0,(int)($metrics['studentCount'] ?? 0));
-  $pendingAssignments = max(0,(int)($metrics['pendingAssignmentReviews'] ?? 0));
-  $pendingExams = max(0,(int)($metrics['pendingExamReviews'] ?? 0));
-  $weeklySessions = max(0,(int)($metrics['weeklySessions'] ?? 0));
-  $avatar = $user?->teacherProfile?->media?->firstWhere('pivot.collection','teacher-avatar');
-  $avatarUrl = $avatar?->visibility === 'public' ? $avatar->url() : ($avatar ? route('media.view',$avatar) : null);
-  $quick = [
-    ['icon'=>'✓','label'=>'ثبت حضور و غیاب','hint'=>'ثبت وضعیت کلاس‌ها','route'=>'teacher.attendance.index','permission'=>'attendance.view','tone'=>'#22b573'],
-    ['icon'=>'✎','label'=>'تکلیف جدید','hint'=>'ایجاد و انتشار تکلیف','route'=>'teacher.assignments.create','permission'=>'assignments.manage','tone'=>'#ff9f43'],
-    ['icon'=>'◈','label'=>'ساخت آزمون','hint'=>'طراحی برگه و کلید پاسخ','route'=>'teacher.exams.create','permission'=>'exams.manage','tone'=>'#8b5cf6'],
-    ['icon'=>'✉','label'=>'پیام‌ها','hint'=>'پیگیری گفتگوها','route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage','tone'=>'#14b8c4'],
-    ['icon'=>'◷','label'=>'برنامه هفتگی','hint'=>'زمان‌بندی جلسات','route'=>'teacher.schedule.index','permission'=>'live_classes.view','tone'=>'#4a5fe0'],
-    ['icon'=>'♥','label'=>'دانش‌آموزان','hint'=>'فهرست و وضعیت یادگیری','route'=>'teacher.students.index','permission'=>'students.view','tone'=>'#f0566b'],
-    ['icon'=>'▣','label'=>'مدیریت دوره‌ها','hint'=>'محتوا، قیمت و SpotPlayer','route'=>'teacher.courses.index','permission'=>'courses.view','tone'=>'#6366f1'],
-    ['icon'=>'＋','label'=>'کلاس آنلاین جدید','hint'=>'زمان‌بندی جلسه آموزشی','route'=>'teacher.live-classes.create','permission'=>'live_classes.manage','tone'=>'#0ea5a4'],
-  ];
-  $quick = array_values(array_filter($quick,fn($item)=>$user?->hasPermission($item['permission'])));
-  $kpis = [
-    ['icon'=>'▤','value'=>$classes,'label'=>'کلاس فعال','hint'=>'مشاهده کلاس‌ها','url'=>route('teacher.classrooms.index'),'permission'=>'classrooms.view','tone'=>'#4a5fe0'],
-    ['icon'=>'♥','value'=>$students,'label'=>'دانش‌آموز','hint'=>'مشاهده فهرست','url'=>route('teacher.students.index'),'permission'=>'students.view','tone'=>'#22b573'],
-    ['icon'=>'✎','value'=>$pendingAssignments,'label'=>'تکلیف منتظر نمره','hint'=>'بررسی تحویل‌ها','url'=>route('teacher.assignments.index'),'permission'=>'assignments.view','tone'=>'#ff9f43'],
-    ['icon'=>'✓','value'=>$pendingExams,'label'=>'آزمون منتظر بررسی','hint'=>'تصحیح پاسخ‌ها','url'=>route('teacher.exams.index'),'permission'=>'exams.view','tone'=>'#8b5cf6'],
-    ['icon'=>'◷','value'=>$weeklySessions,'label'=>'جلسه این هفته','hint'=>'نمایش برنامه','url'=>route('teacher.schedule.index'),'permission'=>'live_classes.view','tone'=>'#14b8c4'],
-  ];
-  $kpis = array_values(array_filter($kpis,fn($item)=>$user?->hasPermission($item['permission'])));
-  $classPreviews = collect($classroomRosterPreviews ?? []);
-  $recent = collect($activities ?? []);
-  $upcoming = collect($upcomingClasses ?? []);
-  $today = collect($todaySessions ?? []);
-  $weekChart = $chart['week'] ?? ['labels'=>[],'values'=>[]];
-  $monthChart = $chart['month'] ?? ['labels'=>[],'values'=>[]];
-@endphp
-<section class="hero2">
-  <div class="cov"></div>
-  <div class="hp2">
-    <div class="pa">
-      <div class="teacher-dashboard-avatar">
-        @if($avatarUrl)
-          <img data-avatar-image src="{{ $avatarUrl }}" alt="تصویر پروفایل {{ $user?->name }}" width="92" height="92" decoding="async">
-        @else
-          <span class="teacher-dashboard-avatar-initial" aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string)($user?->name ?? 'م')),0,1) }}</span>
-        @endif
-      </div>
+    @include('teacher.partials.hero')
+
+    <div class="tp-welcome">
+        <div><h2>نمای کلی فضای آموزشی تو</h2><p>اطلاعات زیر از کلاس‌ها، دوره‌ها، تکالیف و جلسات واقعی حسابت خوانده شده‌اند.</p></div>
+        <span class="tp-status-inline">{{ $dashboardDate ?? '' }}</span>
     </div>
-    <div style="min-width:0;flex:1"><b style="font-size:19px">{{ $user?->name }}</b><small style="display:block;color:var(--mu)">مدرس · {{ \App\Support\PersianUi::digits($classes) }} کلاس · {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز</small></div>
-    @if($user?->hasPermission('profile.view'))<a class="btn l" href="{{ route('teacher.profile.edit') }}">ویرایش پروفایل</a>@endif
-  </div>
-</section>
 
-<div class="st3" aria-label="شاخص‌های آموزشی">
-  @forelse($kpis as $item)
-    <a class="teacher-stat-card" href="{{ $item['url'] }}" style="--k:{{ $item['tone'] }}" aria-label="{{ $item['label'] }}: {{ \App\Support\PersianUi::digits($item['value']) }}. {{ $item['hint'] }}">
-      <span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span>
-      <span><b>{{ \App\Support\PersianUi::digits($item['value']) }}</b><span>{{ $item['label'] }}</span><small>{{ $item['hint'] }} ←</small></span>
-    </a>
-  @empty
-    <div class="c">برای این حساب شاخص قابل‌نمایشی وجود ندارد.</div>
-  @endforelse
-</div>
+    <div class="tp-metric-grid">
+        @foreach ([
+            ['کلاس فعال', $metrics['activeClasses'] ?? 0, '▤'],
+            ['دانش‌آموز فعال', $metrics['studentCount'] ?? 0, '♙'],
+            ['جلسه این هفته', $metrics['weeklySessions'] ?? 0, '◷'],
+            ['در انتظار بررسی', $metrics['pendingReviews'] ?? 0, '✓'],
+        ] as [$label, $value, $icon])
+            <article class="tp-metric"><span class="tp-ico">{{ $icon }}</span><div><b class="tp-number">{{ \App\Support\PersianUi::digits($value) }}</b><span>{{ $label }}</span></div></article>
+        @endforeach
+    </div>
 
-<div class="sh"><b>اقدام سریع</b><small>میانبرهای دسترسی به کارهای روزانه</small></div>
-<div class="ql">
-  @forelse($quick as $item)
-    <a class="teacher-quick-action" href="{{ route($item['route']) }}" style="--k:{{ $item['tone'] }}">
-      <span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span><b>{{ $item['label'] }}</b><small>{{ $item['hint'] }}</small>
-    </a>
-  @empty
-    <div class="c">هیچ میانبر فعالی برای سطح دسترسی این حساب تعریف نشده است.</div>
-  @endforelse
-</div>
+    @php
+        $tpQuick = [
+            ['✓', 'ثبت حضور', route('teacher.attendance.index'), '#22b573', 'attendance.view'],
+            ['✎', 'تکلیف جدید', route('teacher.assignments.create'), '#ff9f43', 'assignments.manage'],
+            ['◈', 'ساخت آزمون', route('teacher.exams.create'), '#8b5cf6', 'exams.manage'],
+            ['✦', 'پیام مستقیم', route('teacher.direct-messages.index'), '#14b8c4', 'parent_messages.manage'],
+            ['◉', 'برنامه هفتگی', route('teacher.schedule.index'), '#4a5fe0', 'live_classes.view'],
+            ['♙', 'دانش‌آموزان', route('teacher.students.index'), '#f0566b', 'students.view'],
+        ];
+        $tpQuick = array_values(array_filter($tpQuick, fn ($item) => $tpUser->hasPermission($item[4])));
+    @endphp
+    <x-teacher.section-head title="اقدام سریع" subtitle="میانبرهای متصل به قابلیت‌های فعال حساب تو" />
+    <div class="tp-quick">
+        @foreach ($tpQuick as [$icon, $label, $url, $color])
+            <a href="{{ $url }}" style="--k:{{ $color }}"><i>{{ $icon }}</i><b>{{ $label }}</b></a>
+        @endforeach
+    </div>
 
-<div class="g g3">
-  <section class="c" style="--ca:#4a5fe0">
-    <h3>کلاس‌های من <a href="{{ route('teacher.classrooms.index') }}">مشاهده همه ←</a></h3>
-    @forelse($classPreviews as $class)
-      <a class="row" href="{{ $class['url'] ?? route('teacher.classrooms.index') }}">
-        <span class="ic">▤</span><span class="t"><b>{{ $class['title'] }}</b><small>{{ $class['course_title'] ?? 'دوره آموزشی' }}</small></span>
-        <span class="pill">{{ \App\Support\PersianUi::digits($class['student_count'] ?? 0) }} نفر</span>
-        @if(!empty($class['students']) && count($class['students']))
-          <span class="teacher-roster-preview" aria-label="نمونه دانش‌آموزان کلاس">
-            @foreach($class['students'] as $rosterStudent)
-              <span class="teacher-roster-avatar" title="{{ $rosterStudent->name }}">
-                @if($rosterStudent->avatar_url)
-                  <img src="{{ $rosterStudent->avatar_url }}" alt="تصویر {{ $rosterStudent->name }}" loading="lazy" decoding="async">
-                @else
-                  <span aria-hidden="true">{{ \Illuminate\Support\Str::substr(trim((string) $rosterStudent->name), 0, 1) }}</span>
-                @endif
-              </span>
-            @endforeach
-          </span>
-        @endif
-      </a>
-    @empty
-      <div class="emp"><i>▤</i><b>هنوز کلاسی ثبت نشده است</b><small>کلاس‌های متصل به حساب شما پس از تخصیص در این قسمت نمایش داده می‌شوند.</small></div>
-    @endforelse
-  </section>
-  <section class="c" style="--ca:#22b573">
-    <h3>برنامه امروز <a href="{{ route('teacher.schedule.index') }}">برنامه کامل ←</a></h3>
-    @forelse($today as $session)
-      <div class="row"><span class="pill">{{ $session['time'] ?? '—' }}</span><span class="t"><b>{{ $session['title'] ?? 'جلسه آموزشی' }}</b><small>{{ $session['meta'] ?? '' }}</small></span>
-        @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))<a class="btn s teacher-live-join" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer">ورود</a>@endif
-      </div>
-    @empty
-      <div class="emp"><i>◷</i><b>جلسه‌ای برای امروز ثبت نشده است</b><small>برنامه جلسات واقعی شما در این بخش قرار می‌گیرد.</small></div>
-    @endforelse
-  </section>
-</div>
+    <div class="tp-grid tp-grid--main tp-grid--start">
+        <x-teacher.card title="برنامه امروز" :href="route('teacher.schedule.index')" link-text="برنامه هفتگی">
+            @forelse ($todaySessions as $session)
+                <div class="tp-schedule-item">
+                    <span class="tp-schedule-time">{{ $session['time'] }}</span>
+                    <div class="tp-schedule-copy"><strong>{{ $session['title'] }}</strong><small>{{ $session['meta'] }} · {{ $session['status'] }}</small></div>
+                    @if (!empty($session['can_join']) && !empty($session['meeting_url']))
+                        <a class="tp-btn tp-btn--sm" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer">ورود</a>
+                    @endif
+                </div>
+            @empty
+                <div class="tp-empty"><strong>برای امروز جلسه‌ای ثبت نشده است.</strong><span>برنامه کلاس‌ها در این قسمت نمایش داده می‌شود.</span></div>
+            @endforelse
+        </x-teacher.card>
 
-<div class="g g3">
-  <section class="c" style="--ca:#ff9f43">
-    <h3>آخرین تکالیف و فعالیت‌ها <a href="{{ route('teacher.assignments.index') }}">مدیریت تکالیف ←</a></h3>
-    @forelse($recent->take(6) as $activity)
-      <a class="row" href="{{ route('teacher.assignments.index') }}"><span class="ic">✎</span><span class="t"><b>{{ $activity->title }}</b><small>{{ $activity->classroom?->title ?? 'دوره' }} · {{ $activity->due_at ? \App\Support\PersianUi::date($activity->due_at) : 'بدون مهلت' }}</small></span><span class="pill {{ (int)($activity->pending_review_count ?? 0)>0?'or':'gr' }}">{{ \App\Support\PersianUi::digits($activity->pending_review_count ?? 0) }} در انتظار</span></a>
-    @empty
-      <div class="emp"><i>✎</i><b>فعالیتی برای نمایش نیست</b><small>تکالیف ثبت‌شده شما بعد از ایجاد در این بخش دیده می‌شوند.</small></div>
-    @endforelse
-  </section>
-  <section class="c" style="--ca:#8b5cf6">
-    <h3>کلاس‌های پیش‌رو <a href="{{ route('teacher.live-classes.index') }}">همه ←</a></h3>
-    @forelse($upcoming as $class)
-      <div class="row"><span class="ic">◷</span><span class="t"><b>{{ $class->course?->title ?? 'کلاس آنلاین' }}</b><small>{{ $class->classroom?->title ?? '' }} · {{ \App\Support\PersianUi::date($class->scheduled_at) }} {{ \App\Support\PersianUi::time($class->scheduled_at) }}</small></span>
-        @if(($class->can_join ?? false) && filled($class->meeting_url))<a class="btn s teacher-live-join" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer">ورود ↗</a>@else<span class="pill">{{ $class->status }}</span>@endif
-      </div>
-    @empty
-      <div class="emp"><i>◷</i><b>کلاس پیش‌رویی ثبت نشده است</b><small>جلسات آینده پس از زمان‌بندی نمایش داده می‌شوند.</small></div>
-    @endforelse
-  </section>
-</div>
+        <x-teacher.card title="کلاس‌های پیش‌رو" :href="route('teacher.live-classes.index')" link-text="جلسات آنلاین">
+            @forelse ($upcomingClasses as $item)
+                <div class="tp-schedule-item">
+                    <span class="tp-schedule-time">{{ \App\Support\PersianUi::time($item->scheduled_at) }}</span>
+                    <div class="tp-schedule-copy"><strong>{{ $item->title }}</strong><small>{{ $item->course?->title }} · {{ $item->classroom?->title ?? 'بدون کلاس مشخص' }}</small></div>
+                    @if ($item->status === 'live') <span class="tp-status-inline warn">زنده</span> @endif
+                    @if ($item->can_join && $item->meeting_url)<a class="tp-link" href="{{ $item->meeting_url }}" target="_blank" rel="noopener noreferrer">ورود</a>@endif
+                </div>
+            @empty
+                <div class="tp-empty"><strong>جلسه آنلاین آینده‌ای ثبت نشده است.</strong></div>
+            @endforelse
+        </x-teacher.card>
+    </div>
 
-@if($user?->hasPermission('reports.view'))
-<section class="c" data-dashboard-chart data-chart='@json(["week"=>$weekChart,"month"=>$monthChart])' style="--ca:#14b8c4" id="teacher-progress">
-  <h3>گزارش عملکرد <span class="tabs" style="margin:0"><button type="button" class="on" data-chart-range="week" aria-pressed="true">هفته</button><button type="button" data-chart-range="month" aria-pressed="false">ماه</button></span></h3>
-  <div class="bars" data-chart-bars aria-label="نمودار درصد پیشرفت">
-    @foreach(($weekChart['values'] ?? []) as $index=>$value)
-      <div><b>{{ \App\Support\PersianUi::digits(round(max(0,min(100,(float)$value)))) }}٪</b><i style="height:{{ max(0,min(100,(float)$value)) }}%"></i><small>{{ $weekChart['labels'][$index] ?? '' }}</small></div>
-    @endforeach
-  </div>
-  <p class="muted-note" data-chart-empty @if(collect($weekChart['values'] ?? [])->contains(fn($value)=>(float)$value>0)) hidden @endif>برای این بازه هنوز داده‌ای جهت رسم نمودار ثبت نشده است.</p>
-  <p class="muted-note">نمودار فقط از داده‌های واقعی پیشرفت ذخیره‌شده در سامانه ساخته می‌شود.</p>
-</section>
-@endif
+    <div class="tp-grid tp-grid--main tp-grid--start">
+        <x-teacher.card title="تکالیف و تحویل‌ها" :href="route('teacher.assignments.index')" link-text="همه تکالیف">
+            @forelse ($activities as $assignment)
+                <div class="tp-schedule-item">
+                    <span class="tp-ico">✎</span>
+                    <div class="tp-schedule-copy"><strong>{{ $assignment->title }}</strong><small>{{ $assignment->course?->title }} · {{ $assignment->due_at ? \App\Support\PersianUi::date($assignment->due_at) : 'بدون موعد' }}</small></div>
+                    <span class="tp-status-inline {{ $assignment->pending_review_count ? 'warn' : 'ok' }}">{{ \App\Support\PersianUi::digits($assignment->pending_review_count) }} منتظر</span>
+                    <a class="tp-link" href="{{ route('teacher.assignments.submissions', $assignment) }}">بررسی</a>
+                </div>
+            @empty
+                <div class="tp-empty"><strong>تکلیفی برای نمایش وجود ندارد.</strong></div>
+            @endforelse
+        </x-teacher.card>
+
+        <x-teacher.card title="پیشرفت دوره‌ها" :href="route('teacher.courses.index')" link-text="دوره‌ها">
+            @forelse ($courseProgress as $course)
+                <div class="tp-progress-row"><strong>{{ $course->title }}</strong><x-teacher.progress :value="$course->progress_average" /><b>{{ \App\Support\PersianUi::digits($course->progress_average) }}٪</b></div>
+            @empty
+                <div class="tp-empty"><strong>دوره فعالی در دسترس نیست.</strong><span>پس از تخصیص دوره به حساب مدرس، شاخص آن اینجا نمایش داده می‌شود.</span></div>
+            @endforelse
+        </x-teacher.card>
+    </div>
+
+    <div class="tp-grid tp-grid--main tp-grid--start">
+        <x-teacher.card title="روند مشاهده درس‌ها">
+            @php($week = $chart['week'] ?? ['labels' => [], 'values' => []])
+            @if (count($week['labels'] ?? []))
+                <div class="tp-chart">
+                    @foreach ($week['labels'] as $index => $label)
+                        @php($value = max(0, min(100, (float) ($week['values'][$index] ?? 0))))
+                        <div class="tp-chart-col"><b>{{ \App\Support\PersianUi::digits((int) round($value)) }}٪</b><i style="height:{{ max(3, $value) }}%"></i><span>{{ $label }}</span></div>
+                    @endforeach
+                </div>
+                <p class="tp-muted">میانگین درصد پیشرفت ثبت‌شده برای درس‌های منتشرشده در هفته جاری؛ نبود رکورد به معنی داده صفر است، نه حدس درباره زمان مطالعه.</p>
+            @else
+                <div class="tp-empty"><strong>هنوز داده‌ای برای نمودار این هفته ثبت نشده است.</strong></div>
+            @endif
+        </x-teacher.card>
+
+        <x-teacher.card title="دانش‌آموزان با پیشرفت بالاتر" :href="route('teacher.students.index')" link-text="فهرست دانش‌آموزان">
+            @forelse ($topStudents as $student)
+                <div class="tp-schedule-item">
+                    <x-teacher.avatar :name="$student->name" :photo="$student->avatar_url" />
+                    <div class="tp-schedule-copy"><strong>{{ $student->name }}</strong><small>میانگین پیشرفت درس‌ها</small></div>
+                    <b class="tp-number">{{ \App\Support\PersianUi::digits($student->progress_average) }}٪</b>
+                </div>
+            @empty
+                <div class="tp-empty"><strong>داده کافی برای رتبه‌بندی وجود ندارد.</strong></div>
+            @endforelse
+        </x-teacher.card>
+    </div>
+
+    <x-teacher.card title="پیش‌نمایش کلاس‌ها" :href="route('teacher.classrooms.index')" link-text="مدیریت کلاس‌ها">
+        <div class="tp-grid tp-grid--cards">
+            @forelse ($classroomRosterPreviews as $classroom)
+                <article class="tp-class-card"><div class="tp-class-card__cover"></div><strong>{{ $classroom['title'] }}</strong><small class="tp-muted">{{ $classroom['course_title'] }}</small>
+                    <div class="tp-roster-row" style="margin-top:10px">
+                        @foreach ($classroom['students'] as $student)<x-teacher.avatar :name="$student->name" :photo="$student->avatar_url" :size="32" />@endforeach
+                        <small class="tp-muted">{{ \App\Support\PersianUi::digits($classroom['student_count']) }} دانش‌آموز فعال</small>
+                    </div>
+                </article>
+            @empty
+                <div class="tp-empty"><strong>کلاس فعالی برای نمایش وجود ندارد.</strong></div>
+            @endforelse
+        </div>
+    </x-teacher.card>
 @endsection
