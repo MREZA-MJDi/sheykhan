@@ -115,3 +115,71 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .teacher-panel .text-rose-600{color:var(--rd)!important}.teacher-panel .bg-rose-50{background:#fde6ea!important}.teacher-panel .text-rose-700,.teacher-panel .text-rose-800{color:#b4233b!important}.teacher-panel .bg-emerald-50{background:#e3f8ee!important}.teacher-panel .text-emerald-700,.teacher-panel .text-emerald-800{color:#118a55!important}
 .teacher-panel .bg-amber-50{background:#fff1de!important}.teacher-panel .text-amber-800{color:#9a580a!important}.teacher-panel .bg-indigo-50{background:var(--pl)!important}.teacher-panel .text-indigo-700,.teacher-panel .text-indigo-800{color:var(--pri)!important}
 @media(max-width:760px){.teacher-profile-editor-hero,.teacher-cover-editor{grid-template-columns:1fr}.teacher-profile-form-grid,.teacher-live-form-grid{grid-template-columns:1fr}.teacher-profile-form-grid .full,.teacher-live-form-section-wide{grid-column:auto}.teacher-workspace-item{display:grid}.teacher-workspace-item-actions{justify-content:flex-start}.teacher-form-head,.teacher-workspace-head{align-items:flex-start}}
+
+
+/* Teacher-owned course workspace and media uploader. */
+.course-form-shell{display:grid;gap:16px}.course-form-shell .panel-card{background:var(--sf)!important;border:1px solid var(--ln)!important;border-radius:19px!important;padding:18px!important;box-shadow:0 5px 18px #4a5fe010!important}
+.course-section-heading{display:flex;align-items:center;gap:12px;margin-bottom:15px}.course-section-heading.compact{margin-bottom:8px}
+.course-step{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:12px;background:var(--pl);color:var(--pri);font-weight:900}
+.course-section-heading>div:last-child>span{display:block;color:var(--pri);font-size:11px;font-weight:800}.course-section-heading h2{font-size:16px;font-weight:800;color:var(--tx);margin:2px 0}.course-section-heading p{font-size:12px;color:var(--mu);margin:3px 0}
+.course-field{display:grid;gap:6px;min-width:0}.course-label{display:block;color:var(--tx);font-size:12px;font-weight:800}.course-label small{color:var(--mu);font-weight:500}
+.course-input{width:100%;min-width:0;min-height:44px;border:1.5px solid var(--ln);border-radius:12px;background:var(--sf);color:var(--tx);padding:10px 12px;font:inherit;font-size:13px;outline:none}
+.course-input:focus{border-color:var(--pri);box-shadow:0 0 0 3px #4a5fe026}.course-input::placeholder{color:var(--mu);opacity:.8}.course-input[readonly]{background:var(--pl);color:var(--mu)}
+.course-help{display:block;margin-top:5px;color:var(--mu);font-size:11px;line-height:1.8}.course-static-field{display:flex;align-items:center;min-height:44px;padding:9px 12px;border:1px solid var(--ln);border-radius:12px;background:var(--pl);color:var(--tx);font-size:13px}
+.course-choice{display:flex;align-items:flex-start;gap:10px;padding:13px;border:1.5px solid var(--ln);border-radius:14px;background:var(--sf);cursor:pointer}.course-choice:has(input:checked){border-color:var(--pri);background:var(--pl)}
+.course-choice-mark{width:18px;height:18px;flex:0 0 18px;border:1.5px solid var(--mu);border-radius:50%;margin-top:2px}.course-choice input:checked+.course-choice-mark{border:5px solid var(--pri)}
+.course-money-field{position:relative}.course-money-field .course-input{padding-left:58px}.course-money-field:after{content:"تومان";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:11px}
+.course-status-preview{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--pl);font-size:12px;color:var(--tx)}
+.course-status-preview-dot{width:9px;height:9px;border-radius:50%;background:var(--or)}.course-status-preview.status.published .course-status-preview-dot{background:var(--gr)}.course-status-preview.status.archived .course-status-preview-dot{background:var(--mu)}
+.course-date-now{padding:6px 10px;border-radius:9px;background:var(--pl);color:var(--pri);font-size:11px;font-weight:800}.course-inline-error{margin-top:5px;color:var(--rd);font-size:11px}
+.course-submitbar{display:grid;grid-template-columns:1fr 160px;gap:10px;padding:14px;border:1px solid var(--ln);border-radius:16px;background:var(--sf)}
+.course-primary-btn,.course-secondary-btn,.course-action-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 15px;border:0;border-radius:12px;text-align:center;font-size:12px;font-weight:800;cursor:pointer;text-decoration:none}
+.course-primary-btn,.course-action-btn.primary{background:linear-gradient(135deg,#6a7bf3,#4a5fe0);color:#fff;box-shadow:0 4px 12px #4a5fe033}
+.course-secondary-btn,.course-action-btn{background:var(--pl);color:var(--pri);border:1px solid var(--ln)}.course-action-btn.danger{background:#fde6ea;color:#b4233b;border-color:#f6c4ce}
+.course-media-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.85fr);gap:18px;align-items:start}
+.course-upload-specs{display:flex;gap:8px;flex-wrap:wrap}.course-upload-specs span{padding:5px 9px;border-radius:9px;background:var(--pl);color:var(--mu);font-size:10px}
+.course-upload-box{display:grid;gap:10px;padding:15px;border:1.5px dashed #b9c2f5;border-radius:16px;background:color-mix(in srgb,var(--pl) 52%,var(--sf))}
+.course-file-input{display:flex;align-items:center;justify-content:center;position:relative;min-height:44px;border-radius:11px;background:var(--pl);color:var(--pri);font-size:12px;font-weight:800;cursor:pointer}
+.course-file-input input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.course-upload-preview{display:grid;grid-template-columns:76px minmax(0,1fr);align-items:center;gap:12px;padding:10px;border:1px solid var(--ln);border-radius:12px;background:var(--sf)}
+.course-upload-preview-media{width:76px;height:60px;border-radius:9px;overflow:hidden;background:var(--pl);display:grid;place-items:center}
+.course-upload-preview-media img,.course-upload-preview-media video{width:100%;height:100%;object-fit:cover}.course-preview-generic{color:var(--pri);font-size:12px;font-weight:900}
+.course-upload-progress{display:grid;gap:7px}.course-upload-progress-head{display:flex;align-items:center;justify-content:space-between;color:var(--mu);font-size:11px}.course-progress-track{height:8px;border-radius:9px;overflow:hidden;background:var(--ln)}.course-progress-track span{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c8cf5,#4a5fe0);transition:width .15s}
+.course-upload-status{min-height:20px;color:var(--mu);font-size:11px}.course-upload-status.is-error{color:var(--rd)}
+.course-media-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px;border:1px solid var(--ln);border-radius:14px;background:var(--sf)}
+.course-empty-state{padding:25px 12px;border:1px dashed var(--ln);border-radius:14px;text-align:center;color:var(--mu);font-size:12px}.teacher-field-error{display:block;color:var(--rd)!important;font-size:11px;margin-top:4px}
+.teacher-stat-card{display:flex;align-items:center;gap:15px;text-align:right;padding:17px;border-radius:20px;background:color-mix(in srgb,var(--k) 9%,var(--sf));border:1.5px solid color-mix(in srgb,var(--k) 28%,transparent);box-shadow:0 6px 18px color-mix(in srgb,var(--k) 12%,transparent);min-width:0}
+.teacher-stat-card b{display:block;font-size:28px;line-height:1.2;color:var(--k)}.teacher-stat-card small{display:block;color:var(--mu);font-size:11px;margin-top:3px}
+.teacher-quick-action{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 12px 17px;border-radius:20px;background:var(--sf);border:1px solid var(--ln);border-bottom:4px solid var(--k);box-shadow:0 4px 14px #4a5fe00f;transition:transform .15s,box-shadow .15s;text-align:center}
+.teacher-quick-action:hover{transform:translateY(-3px);box-shadow:0 12px 26px color-mix(in srgb,var(--k) 22%,transparent)}.teacher-quick-action b{font-size:14px}.teacher-quick-action small{font-size:11px;color:var(--k);background:color-mix(in srgb,var(--k) 14%,var(--sf));padding:3px 12px;border-radius:12px}
+.teacher-section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.teacher-section-heading b{font-size:15px}.teacher-section-heading a{font-size:12px;color:var(--pri)}
+/* Weekly calendar. */
+.weekly-calendar{padding:18px;border:1px solid var(--ln);border-radius:20px;background:var(--sf);box-shadow:0 5px 18px #4a5fe00c}
+.weekly-calendar-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}.weekly-calendar-title{flex:1;min-width:240px}
+.weekly-calendar-kicker{display:block;color:var(--pri);font-size:11px;font-weight:900}.weekly-calendar-title h2{font-size:16px;color:var(--tx);margin:4px 0}.weekly-calendar-title p{color:var(--mu);font-size:12px;line-height:1.9;margin:0}
+.weekly-calendar-date-chip{display:grid;gap:2px;padding:11px 14px;border-radius:14px;background:var(--pl);color:var(--pri);min-width:145px}.weekly-calendar-date-chip strong{font-size:16px}.weekly-calendar-date-chip span{font-size:11px;font-weight:800}.weekly-calendar-date-chip small{font-size:10px;color:var(--mu)}
+.weekly-calendar-legend{display:flex;gap:12px;flex-wrap:wrap;margin:15px 0;color:var(--mu);font-size:11px}.weekly-calendar-legend-item{display:flex;align-items:center;gap:6px}
+.weekly-calendar-dot{width:9px;height:9px;border-radius:50%;background:var(--gr)}.weekly-calendar-dot.is-needs-link{background:var(--rd)}
+.weekly-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.weekly-calendar-day{min-width:0;padding:9px;border:1px solid var(--ln);border-radius:14px;background:color-mix(in srgb,var(--pl) 35%,var(--sf))}
+.weekly-calendar-day.is-today{border-color:var(--pri);box-shadow:inset 0 0 0 1px var(--pri)}.weekly-calendar-day-head{display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:9px}
+.weekly-calendar-day-heading{display:flex;align-items:center;gap:6px;min-width:0}.weekly-calendar-day-number{display:grid;place-items:center;width:22px;height:22px;border-radius:8px;background:var(--pl);color:var(--pri);font-size:10px;font-weight:900}
+.weekly-calendar-day-heading h3{font-size:11px;color:var(--tx);margin:0}.weekly-calendar-count{font-size:9px;color:var(--mu);white-space:nowrap}
+.weekly-calendar-events{display:grid;gap:7px}.weekly-calendar-event{padding:8px;border-radius:10px;border-right:3px solid var(--gr);background:var(--sf);box-shadow:0 2px 8px #232a4d0a;min-width:0}
+.weekly-calendar-event.needs-link{border-right-color:var(--rd)}.weekly-calendar-event-time{display:flex;gap:5px;flex-wrap:wrap;color:var(--pri);font-size:9px;font-weight:900}
+.weekly-calendar-event-title{display:block;margin-top:3px;color:var(--tx);font-size:10px;line-height:1.6;overflow-wrap:anywhere}.weekly-calendar-event-course{display:block;color:var(--mu);font-size:9px;overflow-wrap:anywhere}
+.weekly-calendar-event-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.weekly-calendar-event-provider,.weekly-calendar-event-status{font-size:9px;color:var(--mu)}
+.weekly-calendar-event-link{display:inline-flex;margin-top:5px;padding:4px 7px;border-radius:7px;background:var(--pl);color:var(--pri);font-size:9px;font-weight:800}
+.weekly-calendar-empty{padding:12px;text-align:center;border:1px dashed var(--ln);border-radius:10px;color:var(--mu);font-size:10px}
+.weekly-calendar-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}.weekly-calendar-guide-card{display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:12px;background:var(--pl)}
+.weekly-calendar-guide-art{display:grid;place-items:center;width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:var(--sf);color:var(--pri)}.weekly-calendar-guide-copy{font-size:10px;color:var(--mu);line-height:1.8}.weekly-calendar-guide-copy strong{display:block;color:var(--tx)}
+/* Teacher-only upload progress UI. */
+.teacher-panel .panel-upload-progress{display:grid;gap:8px;padding:13px;border:1px solid var(--ln);border-radius:14px;background:var(--pl)}.teacher-panel .panel-upload-progress[hidden]{display:none!important}
+.teacher-panel .panel-upload-progress__files{display:grid;gap:7px}.teacher-panel .panel-upload-progress__file{display:flex;align-items:center;gap:9px;padding:8px;border:1px solid var(--ln);border-radius:10px;background:var(--sf)}
+.teacher-panel .panel-upload-progress__file-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--pl);color:var(--pri)}
+.teacher-panel .panel-upload-progress__file-copy{display:grid;min-width:0}.teacher-panel .panel-upload-progress__file-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.teacher-panel .panel-upload-progress__file-copy small,.teacher-panel .panel-upload-progress__summary{color:var(--mu);font-size:10px}
+.teacher-panel .panel-upload-progress__bar-track{height:8px;border-radius:9px;background:var(--ln);overflow:hidden}.teacher-panel .panel-upload-progress__bar{display:block;width:0;height:100%;background:var(--pri);transition:width .15s}
+.teacher-panel .panel-upload-progress__status-row{display:flex;justify-content:space-between;gap:10px;margin-top:5px;color:var(--mu);font-size:11px}.teacher-panel .panel-upload-progress__error{margin:0;color:var(--rd);font-size:11px}
+@media(max-width:1100px){.weekly-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){.weekly-calendar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.weekly-calendar-guide{grid-template-columns:1fr 1fr}.course-media-head{grid-template-columns:1fr}.course-submitbar{grid-template-columns:1fr}.course-media-row{align-items:flex-start}}
+@media(max-width:420px){.weekly-calendar{padding:12px}.weekly-calendar-grid{gap:6px}.weekly-calendar-day{padding:7px}.weekly-calendar-guide{grid-template-columns:1fr}}

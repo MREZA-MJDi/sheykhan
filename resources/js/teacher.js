@@ -2,6 +2,8 @@
 import './teacher/persian-calendar.js';
 import './teacher/persian-money.js';
 import './teacher/assessment-builder.js';
+import './teacher/upload-progress.js';
+import './teacher/course-media-uploader.js';
 // ZIP utility: Jalali/Gregorian date conversion.
 function fa(n){return String(n).replace(/\d/g,function(d){return"۰۱۲۳۴۵۶۷۸۹"[d]})}
 function pad(n){return(n<10?"0":"")+n}

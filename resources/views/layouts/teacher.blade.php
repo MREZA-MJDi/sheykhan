@@ -68,7 +68,7 @@
       <span style="min-width:0"><b>{{ $teacherUser?->name }}</b><small>پنل مدرس</small></span>
     </a>
     @foreach($navGroups as $group)
-      @php($visibleItems = array_values(array_filter($group['items'], fn ($item) => collect($item['permissions'] ?? [$item['permission']])->every(fn (string $permission) => $teacherUser?->hasPermission($permission)))) )
+      @php($visibleItems = array_values(array_filter($group['items'], fn ($item) => collect($item['permissions'] ?? [$item['permission']])->contains(fn (string $permission) => $teacherUser?->hasPermission($permission)))) )
       @if(count($visibleItems))
         <div class="side-group-label">{{ $group['label'] }}</div>
         @foreach($visibleItems as $item)

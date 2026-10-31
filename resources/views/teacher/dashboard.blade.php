@@ -48,10 +48,7 @@
 
 <div class="st3" aria-label="شاخص‌های آموزشی">
   @forelse($kpis as $item)
-    <a href="{{ $item['url'] }}" style="--k:{{ $item['tone'] }}" aria-label="{{ $item['label'] }}: {{ $item['value'] }}">
-      <span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span>
-      <span><b>{{ \App\Support\PersianUi::digits($item['value']) }}</b>{{ $item['label'] }}<small>{{ $item['hint'] }} ←</small></span>
-    </a>
+    <x-teacher.stat-card :href="$item['url']" :label="$item['label']" :value="\App\Support\PersianUi::digits($item['value'])" :hint="$item['hint']" :icon="$item['icon']" :tone="$item['tone']" />
   @empty
     <div class="c">برای این حساب شاخص قابل‌نمایشی وجود ندارد.</div>
   @endforelse
@@ -60,7 +57,7 @@
 <div class="sh"><b>اقدام سریع</b><small>میانبرهای دسترسی به کارهای روزانه</small></div>
 <div class="ql">
   @forelse($quick as $item)
-    <a href="{{ route($item['route']) }}" style="--k:{{ $item['tone'] }}"><span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span><b>{{ $item['label'] }}</b><span class="mt">{{ $item['hint'] }}</span></a>
+    <x-teacher.quick-action :href="route($item['route'])" :label="$item['label']" :hint="$item['hint']" :icon="$item['icon']" :tone="$item['tone']" />
   @empty
     <div class="c">هیچ میانبر فعالی برای سطح دسترسی این حساب تعریف نشده است.</div>
   @endforelse
