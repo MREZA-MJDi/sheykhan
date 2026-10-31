@@ -8,9 +8,9 @@
         $heroMedia = $course->media->first();
         $teacher = $course->teachers->first();
 
-        $lessonCount = $course->sections->sum(
-            fn ($section) => $section->lessons->count()
-        );
+        $lessonCount = $course->sections->sum(function ($section) {
+            return $section->lessons->count();
+        });
 
         $sectionCount = $course->sections->count();
 
