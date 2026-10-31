@@ -3,14 +3,6 @@
 @section('title', $exam->exists ? 'ویرایش آزمون | شیخان' : 'ساخت آزمون | شیخان')
 @section('header-title', $exam->exists ? 'ویرایش آزمون' : 'ساخت آزمون')
 
-@push('styles')
-    @vite(['resources/css/teacher-workspace.css'])
-@endpush
-
-@push('scripts')
-    @vite(['resources/js/exam-builder.js'])
-@endpush
-
 @section('content')
 <div class="teacher-form-shell owner-form-shell owner-workspace-page owner-exam-builder-page">
     <header class="teacher-form-head">
