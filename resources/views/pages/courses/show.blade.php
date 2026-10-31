@@ -30,8 +30,8 @@
     @endphp
 
     <section class="public-course-page">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
 
                 {{-- Breadcrumb / Back --}}
                 <div class="flex items-center justify-between gap-4">
@@ -545,16 +545,22 @@
                     </div>
                 </section>
 
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
-    <x-branding.public-next-step
-        eyebrow="ادامه‌ی مسیر"
-        title="کلاس و مدرس را هم بشناس"
-        description="برای تصمیم بهتر، مسیر آموزشی را در کنار اطلاعات مدرس بررسی کن و پس از انتخاب، با حساب خود ادامه بده."
-        :primary-href="route('teachers.index')"
-        primary-label="آشنایی با مدرس‌ها"
-        :secondary-href="route('login')"
-        secondary-label="ورود به کارتابل"
-    />
+    <section class="public-next-step public-next-step--courses-show" aria-label="قدم بعدی">
+    <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+        <div class="public-next-step__card">
+            <div class="public-next-step__copy">
+                <span>قدم بعدی</span>
+                <h2>مسیر یادگیریت را ادامه بده</h2>
+                <p>از دوره‌ها و مدرس‌ها دیدن کن و با توجه به نیازت، قدم بعدی را انتخاب کن.</p>
+            </div>
+            <div class="public-next-step__actions">
+                <a class="public-next-step__button public-next-step__button--primary" href="/courses">مشاهده دوره‌ها <span aria-hidden="true">←</span></a>
+                <a class="public-next-step__button public-next-step__button--secondary" href="/teachers">آشنایی با مدرس‌ها <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
