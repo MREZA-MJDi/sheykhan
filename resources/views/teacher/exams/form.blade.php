@@ -76,8 +76,28 @@
                     <small class="teacher-exam-field-help">حداکثر تعداد دفعاتی که هر دانش‌آموز می‌تواند برگه را شروع و تحویل کند؛ حداقل یک بار.</small>
                 </label>
 
-                <x-teacher.jalali-datetime name="starts_at" :value="old('starts_at', $exam->starts_at?->toDateTimeString())" label="شروع آزمون" />
-                <x-teacher.jalali-datetime name="ends_at" :value="old('ends_at', $exam->ends_at?->toDateTimeString())" label="پایان آزمون" />
+                <div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="0">
+    <label>
+        <span>شروع آزمون</span>
+        <div class="teacher-jalali-field-grid">
+            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="شروع آزمون شمسی">
+            <input type="time" data-jalali-visible-time aria-label="ساعت شروع آزمون">
+        </div>
+        <input type="hidden" name="starts_at" data-jalali-target value="{{ old('starts_at', $exam->starts_at?->toDateTimeString()) }}">
+        @error('starts_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
+    </label>
+</div>
+                <div class="teacher-jalali-field" data-jalali-field data-jalali-date-only="0">
+    <label>
+        <span>پایان آزمون</span>
+        <div class="teacher-jalali-field-grid">
+            <input type="text" data-jalali-visible-date dir="ltr" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۷/۰۲" aria-label="پایان آزمون شمسی">
+            <input type="time" data-jalali-visible-time aria-label="ساعت پایان آزمون">
+        </div>
+        <input type="hidden" name="ends_at" data-jalali-target value="{{ old('ends_at', $exam->ends_at?->toDateTimeString()) }}">
+        @error('ends_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
+    </label>
+</div>
                 <p class="teacher-exam-date-help md:col-span-2">تاریخ‌ها اختیاری‌اند. قبل از زمان شروع، آزمون باز نمی‌شود؛ بعد از زمان پایان هم سرور ارسال پاسخ را نمی‌پذیرد.</p>
 
                 <label class="teacher-form-field">
