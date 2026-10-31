@@ -1,5 +1,5 @@
 import { bootPanel, closePanelMenu } from './panel-base.js';
-import { bootFileUploadProgress } from './upload-progress.js';
+import { bootFileUploadProgress } from './shared/upload-progress.js';
 import { bootSharedBehaviors, initializeTabs } from './shared/behavior-runtime.js';
 
 export { closePanelMenu };
