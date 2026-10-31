@@ -55,14 +55,7 @@
   <label for="assignment-content">متن پاسخ</label>
   <textarea class="fld" id="assignment-content" name="content" rows="7" maxlength="30000" data-autosize>{{ old('content', $submission?->content) }}</textarea>
   @error('content')<p class="field-err">{{ $message }}</p>@enderror
-  <div class="up" style="margin-top:14px">
-    <label class="drop" for="assignment-attachments">
-      <input id="assignment-attachments" type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt">
-      <svg class="i"><use href="#i-upload"/></svg>
-      <b>فایل‌های پاسخ را انتخاب کن</b>
-      <small>حداکثر ۳ فایل، هرکدام تا ۱۰ مگابایت</small>
-    </label>
-  </div>
+  <x-uploader name="attachments" :max="3" :max-mb="10" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" />
   @error('attachments')<p class="field-err">{{ $message }}</p>@enderror
   @error('attachments.*')<p class="field-err">{{ $message }}</p>@enderror
   <p class="small muted" style="margin-top:10px">فایل‌ها به‌صورت خصوصی ذخیره می‌شوند و فقط کاربران مجاز می‌توانند آن‌ها را ببینند.</p>

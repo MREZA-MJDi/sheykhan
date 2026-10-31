@@ -205,3 +205,81 @@ document.addEventListener('change', (event) => {
         .map((file) => `${file.name} · ${sizeLabel(file.size)}`)
         .join('، ');
 });
+
+
+/* ZIP reference interaction: safe multi-file selection with count/size feedback.
+   The backend still validates every upload and stores student submissions privately. */
+(() => {
+    'use strict';
+    const formatFa = (value) => Number(value).toLocaleString('fa-IR');
+
+    document.querySelectorAll('[data-uploader]').forEach((box) => {
+        const input = box.querySelector('input[type="file"]');
+        const list = box.querySelector('[data-file-list]');
+        const error = box.querySelector('[data-file-error]');
+        const drop = box.querySelector('.drop');
+        if (!input || !list || !error || !drop) return;
+
+        const maxCount = Math.max(1, Number.parseInt(box.dataset.max || '3', 10) || 3);
+        const maxBytes = Math.max(1, Number.parseInt(box.dataset.maxMb || '10', 10) || 10) * 1024 * 1024;
+        let selected = [];
+
+        const sync = () => {
+            const transfer = new DataTransfer();
+            selected.forEach((file) => transfer.items.add(file));
+            input.files = transfer.files;
+            list.replaceChildren();
+
+            selected.forEach((file, index) => {
+                const item = document.createElement('li');
+                const remove = document.createElement('button');
+                item.className = 'tag g';
+                item.append(\`\${file.name} · \${formatFa(Math.ceil(file.size / 1024))} کیلوبایت \`);
+                remove.type = 'button';
+                remove.textContent = '×';
+                remove.setAttribute('aria-label', \`حذف \${file.name}\`);
+                remove.addEventListener('click', () => {
+                    selected.splice(index, 1);
+                    error.textContent = '';
+                    sync();
+                });
+                item.append(remove);
+                list.append(item);
+            });
+        };
+
+        const addFiles = (files) => {
+            error.textContent = '';
+            Array.from(files || []).forEach((file) => {
+                if (file.size > maxBytes) {
+                    error.textContent = \`«\${file.name}» از \${formatFa(maxBytes / 1048576)} مگابایت بزرگ‌تر است.\`;
+                    return;
+                }
+                if (selected.length >= maxCount) {
+                    error.textContent = \`حداکثر \${formatFa(maxCount)} فایل می‌توانی اضافه کنی.\`;
+                    return;
+                }
+                const duplicate = selected.some((current) =>
+                    current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
+                );
+                if (!duplicate) selected.push(file);
+            });
+            sync();
+        };
+
+        input.addEventListener('change', () => addFiles(input.files));
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            drop.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                drop.classList.add('hv');
+            });
+        });
+        ['dragleave', 'drop'].forEach((eventName) => {
+            drop.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                drop.classList.remove('hv');
+            });
+        });
+        drop.addEventListener('drop', (event) => addFiles(event.dataTransfer?.files));
+    });
+})();
