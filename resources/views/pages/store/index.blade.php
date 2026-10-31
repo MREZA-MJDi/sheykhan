@@ -116,10 +116,11 @@
                             @endforeach
                         </div>
                     @else
-                        <x-ui.empty-state
-                            title="محصولی برای نمایش وجود ندارد"
-                            description="محصولات آموزشی پس از انتشار در این بخش نمایش داده خواهند شد."
-                        />
+                        <div class="public-empty-state" role="status">
+        <span class="public-empty-state__icon" aria-hidden="true">⌕</span>
+        <h3>محصولی برای نمایش وجود ندارد</h3>
+        <p>محصولات آموزشی پس از انتشار در این بخش نمایش داده خواهند شد.</p>
+    </div>
                     @endif
 
                     @if($products->hasPages())
