@@ -201,7 +201,7 @@
         @if($outgoingTeacherMessages->hasPages())<div>{{ $outgoingTeacherMessages->links() }}</div>@endif
     </section>
 
-    @include('components.communication.teacher-direct-messages-inbox', ['messages' => $teacherMessages, 'recipientType' => 'parent'])
+    @include('parent.messages.partials.direct-message-inbox', ['messages' => $teacherMessages, 'recipientType' => 'parent'])
 
 </div>
 @endsection
