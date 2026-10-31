@@ -5,117 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل مدرس | شیخان')</title>
-    @include('layouts.partials.panel-theme-init')
     @vite(['resources/css/teacher.css', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
-<body class="teacher-shell">
-    @php
-        $teacherPanelUser = auth()->user();
-        $teacherPanelUser?->loadMissing([
-            'teacherProfile.media' => fn ($query) => $query
-                ->wherePivot('collection', 'teacher-avatar')
-                ->orderByPivot('sort_order'),
-        ]);
-        $teacherPanelAvatar = $teacherPanelUser?->teacherProfile?->media?->first();
-        $teacherPanelAvatarUrl = $teacherPanelAvatar?->visibility === 'public'
-            ? $teacherPanelAvatar->url()
-            : ($teacherPanelAvatar ? route('media.view', $teacherPanelAvatar) : null);
-        $teacherNavGroups = [
-            ['label' => '', 'items' => [
-                ['label' => 'داشبورد', 'icon' => 'home', 'url' => route('teacher.dashboard'), 'active' => 'teacher.dashboard', 'permission' => 'dashboard.view'],
-                ['label' => 'دوره‌های من', 'icon' => 'book', 'url' => route('teacher.courses.index'), 'active' => 'teacher.courses.*', 'permission' => 'courses.view'],
-                ['label' => 'کلاس‌های من', 'icon' => 'users', 'url' => route('teacher.classrooms.index'), 'active' => 'teacher.classrooms.*', 'permission' => 'classrooms.view'],
-                ['label' => 'برنامه هفتگی', 'icon' => 'cal', 'url' => route('teacher.schedule.index'), 'active' => 'teacher.schedule.*', 'permission' => 'live_classes.view'],
-                ['label' => 'کلاس‌های آنلاین', 'icon' => 'vid', 'url' => route('teacher.live-classes.index'), 'active' => 'teacher.live-classes.*', 'permission' => 'live_classes.view'],
-            ]],
-            ['label' => 'ارزیابی', 'items' => [
-                ['label' => 'تکالیف', 'icon' => 'file', 'url' => route('teacher.assignments.index'), 'active' => 'teacher.assignments.*', 'permission' => 'assignments.view'],
-                ['label' => 'آزمون‌ها', 'icon' => 'clip', 'url' => route('teacher.exams.index'), 'active' => 'teacher.exams.*', 'permission' => 'exams.view'],
-                ['label' => 'حضور و غیاب', 'icon' => 'chk', 'url' => route('teacher.attendance.index'), 'active' => 'teacher.attendance.*', 'permission' => 'attendance.view'],
-            ]],
-            ['label' => 'پیگیری', 'items' => [
-                ['label' => 'پیام‌های اولیا', 'icon' => 'mail', 'url' => route('teacher.messages.index'), 'active' => 'teacher.messages.*', 'permission' => 'parent_messages.view'],
-                ['label' => 'پیام‌های دانش‌آموزان', 'icon' => 'mail', 'url' => route('teacher.student-messages.index'), 'active' => 'teacher.student-messages.*', 'permission' => 'student_messages.view'],
-                ['label' => 'پیام مستقیم', 'icon' => 'mail', 'url' => route('teacher.direct-messages.index'), 'active' => 'teacher.direct-messages.*', 'permission' => 'parent_messages.manage'],
-                ['label' => 'اطلاعیه‌های کلاس', 'icon' => 'bell', 'url' => route('teacher.communications.index'), 'active' => 'teacher.communications.*', 'permission' => 'parent_messages.manage'],
-                ['label' => 'جلسات با اولیا', 'icon' => 'hs', 'url' => route('teacher.meetings.index'), 'active' => 'teacher.meetings.*', 'permission' => 'live_classes.view'],
-                ['label' => 'درخواست‌های مشاوره', 'icon' => 'hs', 'url' => route('teacher.counseling-requests.index'), 'active' => 'teacher.counseling-requests.*', 'permission' => 'live_classes.view'],
-                ['label' => 'دانش‌آموزان', 'icon' => 'users', 'url' => route('teacher.students.index'), 'active' => 'teacher.students.*', 'permission' => 'students.view'],
-                ['label' => 'گزارش عملکرد', 'icon' => 'chart', 'url' => route('teacher.dashboard') . '#teacher-progress', 'active' => 'teacher.dashboard', 'permissions' => ['reports.view', 'dashboard.view']],
-            ]],
-            ['label' => 'حساب', 'items' => [
-                ['label' => 'حقوق و پرداخت‌ها', 'icon' => 'wal', 'url' => route('teacher.payments.index'), 'active' => 'teacher.payments.*', 'permission' => 'teacher_payments.view'],
-                ['label' => 'پروفایل من', 'icon' => 'usr', 'url' => route('teacher.profile.edit'), 'active' => 'teacher.profile.*', 'permission' => 'profile.view'],
-            ]],
-        ];
-        foreach ($teacherNavGroups as &$teacherNavGroup) {
-            $teacherNavGroup['items'] = array_values(array_filter(
-                $teacherNavGroup['items'],
-                fn ($item) => collect($item['permissions'] ?? [$item['permission']])
-                    ->every(fn (string $permission) => $teacherPanelUser?->hasPermission($permission))
-            ));
-        }
-        unset($teacherNavGroup);
-        $teacherNavGroups = array_values(array_filter($teacherNavGroups, fn ($group) => $group['items'] !== []));
-        $teacherPanelInitial = \Illuminate\Support\Str::substr(trim((string) ($teacherPanelUser?->name ?? 'م')), 0, 1) ?: 'م';
-    @endphp
-
-    @include('teacher.partials.icons')
-
-    <div class="app" id="teacher-panel-app">
-        <nav class="sb" id="nav" aria-label="منوی پنل مدرس">
-            <a class="lg" href="{{ route('teacher.dashboard') }}" title="داشبورد شیخان" aria-label="داشبورد شیخان">
-                <b>ش</b><span class="nav-label">شیخان</span>
-            </a>
-            @foreach($teacherNavGroups as $group)
-                @if(filled($group['label']))
-                    <div class="gl">{{ $group['label'] }}</div>
-                @endif
-                @foreach($group['items'] as $item)
-                    <a class="nv {{ request()->routeIs($item['active']) && $item['label'] !== 'گزارش عملکرد' ? 'on' : '' }}"
-                       href="{{ $item['url'] }}" title="{{ $item['label'] }}" aria-label="{{ $item['label'] }}"
-                       @if(request()->routeIs($item['active']) && $item['label'] !== 'گزارش عملکرد') aria-current="page" @endif>
-                        <svg class="i" aria-hidden="true"><use href="#{{ $item['icon'] }}"/></svg>
-                        <span class="nav-label">{{ $item['label'] }}</span>
-                    </a>
-                @endforeach
-            @endforeach
-            <div class="nav-footer">
-                <a class="nv" href="{{ route('home') }}" title="مشاهده سایت" aria-label="مشاهده سایت">
-                    <svg class="i" aria-hidden="true"><use href="#out"/></svg><span class="nav-label">مشاهده سایت</span>
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="nv" type="submit" title="خروج از حساب" aria-label="خروج از حساب">
-                        <svg class="i" aria-hidden="true"><use href="#out"/></svg><span class="nav-label">خروج</span>
-                    </button>
-                </form>
-            </div>
-            <div class="us" title="{{ $teacherPanelUser?->name }}">
-                <span class="av">
-                    @if($teacherPanelAvatarUrl)
-                        <img src="{{ $teacherPanelAvatarUrl }}" alt="" width="36" height="36" loading="eager" decoding="async">
-                    @else
-                        {{ $teacherPanelInitial }}
-                    @endif
-                </span>
-                <div><b>{{ $teacherPanelUser?->name }}</b><small>پنل مدرس</small></div>
-            </div>
-        </nav>
-
-        <div class="mn">
-            @include('teacher.partials.topbar')
-            <main class="workspace-content role-main">
-                <div class="flash-wrap"><x-ui.flash-messages /></div>
-                @yield('content')
-            </main>
-        </div>
+<body class="teacher-panel">
+@php
+    $teacherUser = auth()->user();
+    $teacherUser?->loadMissing(['teacherProfile.media' => fn ($query) => $query->wherePivot('collection', 'teacher-avatar')->orderByPivot('sort_order')]);
+    $avatarMedia = $teacherUser?->teacherProfile?->media?->first();
+    $avatarUrl = $avatarMedia?->visibility === 'public' ? $avatarMedia->url() : ($avatarMedia ? route('media.view', $avatarMedia) : null);
+    $initial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1) ?: 'م';
+    $navGroups = [
+      ['label'=>'اصلی','items'=>[
+        ['label'=>'داشبورد','icon'=>'⌂','route'=>'teacher.dashboard','permission'=>'dashboard.view'],
+        ['label'=>'برنامه هفتگی','icon'=>'◷','route'=>'teacher.schedule.index','permission'=>'live_classes.view'],
+        ['label'=>'کلاس‌ها','icon'=>'▤','route'=>'teacher.classrooms.index','permission'=>'classrooms.view'],
+        ['label'=>'دوره‌ها','icon'=>'▣','route'=>'teacher.courses.index','permission'=>'courses.view'],
+      ]],
+      ['label'=>'آموزش و ارزیابی','items'=>[
+        ['label'=>'تکالیف','icon'=>'✎','route'=>'teacher.assignments.index','permission'=>'assignments.view'],
+        ['label'=>'آزمون‌ها','icon'=>'✓','route'=>'teacher.exams.index','permission'=>'exams.view'],
+        ['label'=>'حضور و غیاب','icon'=>'☰','route'=>'teacher.attendance.index','permission'=>'attendance.view'],
+        ['label'=>'دانش‌آموزان','icon'=>'♥','route'=>'teacher.students.index','permission'=>'students.view'],
+      ]],
+      ['label'=>'ارتباط و پیگیری','items'=>[
+        ['label'=>'پیام‌های اولیا','icon'=>'✉','route'=>'teacher.messages.index','permission'=>'parent_messages.view'],
+        ['label'=>'پیام‌های دانش‌آموزان','icon'=>'✉','route'=>'teacher.student-messages.index','permission'=>'student_messages.view'],
+        ['label'=>'پیام مستقیم','icon'=>'✉','route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage'],
+        ['label'=>'اطلاعیه‌ها','icon'=>'⚑','route'=>'teacher.communications.index','permission'=>'parent_messages.manage'],
+        ['label'=>'جلسات اولیا','icon'=>'◉','route'=>'teacher.meetings.index','permission'=>'live_classes.view'],
+        ['label'=>'درخواست مشاوره','icon'=>'✦','route'=>'teacher.counseling-requests.index','permission'=>'live_classes.view'],
+        ['label'=>'کلاس آنلاین','icon'=>'▹','route'=>'teacher.live-classes.index','permission'=>'live_classes.view'],
+      ]],
+      ['label'=>'حساب','items'=>[
+        ['label'=>'گزارش عملکرد','icon'=>'≣','route'=>'teacher.dashboard','permission'=>'reports.view','anchor'=>'#teacher-progress'],
+        ['label'=>'پرداخت‌ها','icon'=>'＄','route'=>'teacher.payments.index','permission'=>'teacher_payments.view'],
+        ['label'=>'تنظیمات پروفایل','icon'=>'⚙','route'=>'teacher.profile.edit','permission'=>'profile.view'],
+      ]],
+    ];
+    $pageTitle = trim($__env->yieldContent('page_title')) ?: match (true) {
+      request()->routeIs('teacher.dashboard') => 'داشبورد مدرس',
+      request()->routeIs('teacher.schedule.*') => 'برنامه هفتگی',
+      request()->routeIs('teacher.classrooms.*') => 'کلاس‌ها',
+      request()->routeIs('teacher.courses.*') => 'دوره‌ها',
+      request()->routeIs('teacher.assignments.*') => 'تکالیف',
+      request()->routeIs('teacher.exams.*') || request()->routeIs('teacher.exam-attempts.*') => 'آزمون‌ها',
+      request()->routeIs('teacher.attendance.*') || request()->routeIs('teacher.classrooms.attendance.*') => 'حضور و غیاب',
+      request()->routeIs('teacher.students.*') => 'دانش‌آموزان',
+      request()->routeIs('teacher.messages.*') || request()->routeIs('teacher.direct-messages.*') || request()->routeIs('teacher.student-messages.*') => 'پیام‌ها',
+      request()->routeIs('teacher.profile.*') => 'تنظیمات پروفایل',
+      request()->routeIs('teacher.live-classes.*') => 'کلاس‌های آنلاین',
+      request()->routeIs('teacher.meetings.*') => 'جلسات اولیا',
+      request()->routeIs('teacher.payments.*') => 'پرداخت‌ها',
+      default => 'پنل مدرس'
+    };
+@endphp
+<div class="shell">
+  <aside class="side" id="side" aria-label="منوی پنل مدرس">
+    <a class="logo" href="{{ route('teacher.dashboard') }}"><i>◆</i><span>آکادمی شیخان</span></a>
+    <a class="teacher-profile-mini" href="{{ route('teacher.profile.edit') }}">
+      <span class="av">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</span>
+      <span style="min-width:0"><b>{{ $teacherUser?->name }}</b><small>پنل مدرس</small></span>
+    </a>
+    @foreach($navGroups as $group)
+      @php($visibleItems = array_values(array_filter($group['items'], fn ($item) => $teacherUser?->hasPermission($item['permission']))) )
+      @if(count($visibleItems))
+        <div class="side-group-label">{{ $group['label'] }}</div>
+        @foreach($visibleItems as $item)
+          @php($active = request()->routeIs($item['route'].(in_array($item['route'], ['teacher.dashboard'] , true) ? '' : '.*')) && !isset($item['anchor']))
+          <a class="nv {{ $active ? 'on' : '' }}" href="{{ route($item['route']) }}{{ $item['anchor'] ?? '' }}" @if($active) aria-current="page" @endif>
+            <i aria-hidden="true">{{ $item['icon'] }}</i><span>{{ $item['label'] }}</span>
+          </a>
+        @endforeach
+      @endif
+    @endforeach
+    <div class="side-footer">
+      <a class="nv" href="{{ route('home') }}"><i>↗</i><span>مشاهده سایت</span></a>
+      <form method="POST" action="{{ route('logout') }}">@csrf<button class="nv" type="submit"><i>⇥</i><span>خروج از حساب</span></button></form>
     </div>
-
-    <x-navigation.role-mobile-nav role="teacher" />
-
-    @include('teacher.partials.overlays')
-    @stack('scripts')
+  </aside>
+  <button class="ov" id="teacher-overlay" type="button" data-teacher-menu-close aria-label="بستن منو" aria-hidden="true"></button>
+  <main class="main">
+    <header class="top">
+      <button class="burger" type="button" data-teacher-menu-open aria-label="بازکردن منو">☰</button>
+      <div><h1>@yield('page_title', $pageTitle)</h1><small>@yield('page_subtitle', 'مدیریت کلاس‌ها، آموزش و ارتباط با دانش‌آموزان')</small></div>
+      <span class="sp"></span>
+      <form class="teacher-top-search" role="search" onsubmit="return false" style="max-width:250px;width:100%">
+        <input class="in" type="search" data-teacher-search placeholder="جست‌وجو در این صفحه…" aria-label="جست‌وجو در صفحه">
+      </form>
+      <button class="ib" type="button" data-teacher-theme aria-label="تغییر تم" aria-pressed="false" title="تغییر تم">◐</button>
+      <a class="av" href="{{ route('teacher.profile.edit') }}" aria-label="پروفایل مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</a>
+    </header>
+    @if(session('success'))<div class="alert success" role="status">{{ session('success') }}</div>@endif
+    @if(session('warning'))<div class="alert warning" role="status">{{ session('warning') }}</div>@endif
+    @if($errors->any())
+      <div class="validation-errors" role="alert"><strong>لطفاً موارد زیر را اصلاح کنید:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
+    @endif
+    @yield('content')
+  </main>
+</div>
+<nav class="bt" aria-label="میانبرهای پنل">
+  @foreach([
+    ['route'=>'teacher.dashboard','icon'=>'⌂','label'=>'خانه','permission'=>'dashboard.view'],
+    ['route'=>'teacher.assignments.index','icon'=>'✎','label'=>'تکالیف','permission'=>'assignments.view'],
+    ['route'=>'teacher.exams.index','icon'=>'✓','label'=>'آزمون','permission'=>'exams.view'],
+    ['route'=>'teacher.messages.index','icon'=>'✉','label'=>'پیام','permission'=>'parent_messages.view']
+  ] as $mobileItem)
+    @if($teacherUser?->hasPermission($mobileItem['permission']))
+      <a class="{{ request()->routeIs($mobileItem['route']) ? 'on' : '' }}" href="{{ route($mobileItem['route']) }}"><i>{{ $mobileItem['icon'] }}</i>{{ $mobileItem['label'] }}</a>
+    @endif
+  @endforeach
+  <button type="button" data-teacher-menu-open><i>☰</i>منو</button>
+</nav>
+@stack('scripts')
 </body>
 </html>

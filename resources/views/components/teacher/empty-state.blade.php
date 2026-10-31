@@ -1,0 +1,2 @@
+@props(['icon'=>'◌','title'=>'موردی برای نمایش وجود ندارد','description'=>''])
+<div class="emp" role="status"><i aria-hidden="true">{{ $icon }}</i><b>{{ $title }}</b>@if($description)<small>{{ $description }}</small>@endif</div>
