@@ -5,8 +5,8 @@
 
 @section('content')
     <section class="public-course-page">
-        <x-layout.section spacing="lg">
-            <x-layout.container size="wide">
+        <section class="relative py-16 sm:py-20 lg:py-28">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="mx-auto max-w-4xl">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="rounded-full bg-[var(--color-success-50)] px-3 py-1.5 text-xs font-black text-[var(--color-success-700)]">
@@ -91,7 +91,7 @@
                         @endauth
                     </div>
                 </div>
-            </x-layout.container>
-        </x-layout.section>
+            </div>
+        </section>
     </section>
 @endsection
