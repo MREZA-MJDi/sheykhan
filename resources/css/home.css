@@ -349,7 +349,7 @@
     .sheykhan-home-hero__media img { transform: none !important; will-change: auto; }
 }
 @import './public-experience.css';
-@import './persian-calendar.css';
+@import './public/calendar.css';
 
 @source '../../resources/views/pages';
 @source '../../resources/views/auth';
