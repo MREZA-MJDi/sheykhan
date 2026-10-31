@@ -109,6 +109,26 @@
                 <label class="teacher-workspace-field full"><span>معرفی کوتاه</span><textarea name="bio" rows="6" maxlength="4000" placeholder="تجربه، روش تدریس و زمینه تخصصی خودت را برای دانش‌آموز توضیح بده...">{{ old('bio',$profile->bio) }}</textarea></label>
             </div>
 
+            <section class="teacher-profile-notifications" aria-labelledby="teacher-notifications-title">
+                <div class="teacher-profile-section-heading">
+                    <span class="teacher-workspace-kicker">تنظیمات</span>
+                    <h2 id="teacher-notifications-title">اعلان‌های مدرس</h2>
+                    <p>این ترجیحات در حساب شما ذخیره می‌شوند.</p>
+                </div>
+                @php($notificationPreferences = old('notification_preferences', $profile->notification_preferences ?? ['parent_messages' => true, 'class_reminders' => true, 'assignment_submissions' => false]))
+                @foreach([
+                    'parent_messages' => ['پیام جدید اولیا','هنگام ثبت پیام جدید از طرف والدین'],
+                    'class_reminders' => ['یادآوری شروع کلاس','یادآوری رویدادهای برنامه‌ریزی‌شده کلاس'],
+                    'assignment_submissions' => ['تحویل جدید تکلیف','هنگام ثبت پاسخ تازه برای تکالیف شما'],
+                ] as $preferenceKey => $preference)
+                    <label class="teacher-notification-setting">
+                        <input type="hidden" name="notification_preferences[{{ $preferenceKey }}]" value="0">
+                        <span class="teacher-notification-copy"><b>{{ $preference[0] }}</b><small>{{ $preference[1] }}</small></span>
+                        <input type="checkbox" name="notification_preferences[{{ $preferenceKey }}]" value="1" @checked((bool)($notificationPreferences[$preferenceKey] ?? false))>
+                    </label>
+                @endforeach
+            </section>
+
             <div class="teacher-profile-visibility">
                 <div>
                     <strong>پروفایل عمومی</strong>

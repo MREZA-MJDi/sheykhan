@@ -112,7 +112,7 @@
 </div>
 
 @if($user?->hasPermission('reports.view'))
-<section class="c" data-chart data-chart='@json(["week"=>$weekChart,"month"=>$monthChart])' style="--ca:#14b8c4" id="teacher-progress">
+<section class="c" data-dashboard-chart data-chart='@json(["week"=>$weekChart,"month"=>$monthChart])' style="--ca:#14b8c4" id="teacher-progress">
   <h3>گزارش عملکرد <span class="tabs" style="margin:0"><button type="button" class="on" data-chart-range="week" aria-pressed="true">هفته</button><button type="button" data-chart-range="month" aria-pressed="false">ماه</button></span></h3>
   <div class="bars" data-chart-bars aria-label="نمودار درصد پیشرفت">
     @foreach(($weekChart['values'] ?? []) as $index=>$value)

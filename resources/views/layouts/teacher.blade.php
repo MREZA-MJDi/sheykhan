@@ -38,7 +38,7 @@
         ['label'=>'کلاس آنلاین','icon'=>'▹','route'=>'teacher.live-classes.index','permission'=>'live_classes.view'],
       ]],
       ['label'=>'حساب','items'=>[
-        ['label'=>'گزارش عملکرد','icon'=>'≣','route'=>'teacher.dashboard','permission'=>'reports.view','anchor'=>'#teacher-progress'],
+        ['label'=>'گزارش عملکرد','icon'=>'≣','route'=>'teacher.dashboard','permissions'=>['reports.view','dashboard.view'],'anchor'=>'#teacher-progress'],
         ['label'=>'پرداخت‌ها','icon'=>'＄','route'=>'teacher.payments.index','permission'=>'teacher_payments.view'],
         ['label'=>'تنظیمات پروفایل','icon'=>'⚙','route'=>'teacher.profile.edit','permission'=>'profile.view'],
       ]],
@@ -68,7 +68,7 @@
       <span style="min-width:0"><b>{{ $teacherUser?->name }}</b><small>پنل مدرس</small></span>
     </a>
     @foreach($navGroups as $group)
-      @php($visibleItems = array_values(array_filter($group['items'], fn ($item) => $teacherUser?->hasPermission($item['permission']))) )
+      @php($visibleItems = array_values(array_filter($group['items'], fn ($item) => collect($item['permissions'] ?? [$item['permission']])->every(fn (string $permission) => $teacherUser?->hasPermission($permission)))) )
       @if(count($visibleItems))
         <div class="side-group-label">{{ $group['label'] }}</div>
         @foreach($visibleItems as $item)
@@ -85,15 +85,15 @@
     </div>
   </aside>
   <button class="ov" id="teacher-overlay" type="button" data-teacher-menu-close aria-label="بستن منو" aria-hidden="true"></button>
-  <main class="main">
+  <main class="main workspace-content">
     <header class="top">
       <button class="burger" type="button" data-teacher-menu-open aria-label="بازکردن منو">☰</button>
       <div><h1>@yield('page_title', $pageTitle)</h1><small>@yield('page_subtitle', 'مدیریت کلاس‌ها، آموزش و ارتباط با دانش‌آموزان')</small></div>
       <span class="sp"></span>
       <form class="teacher-top-search" role="search" onsubmit="return false" style="max-width:250px;width:100%">
-        <input class="in" type="search" data-teacher-search placeholder="جست‌وجو در این صفحه…" aria-label="جست‌وجو در صفحه">
+        <input class="in" id="gs" type="search" data-teacher-search placeholder="جست‌وجو در این صفحه…" aria-label="جست‌وجو در صفحه">
       </form>
-      <button class="ib" type="button" data-teacher-theme aria-label="تغییر تم" aria-pressed="false" title="تغییر تم">◐</button>
+      <button class="ib" id="th" type="button" data-teacher-theme aria-label="تغییر تم" aria-pressed="false" title="تغییر تم">◐</button>
       <a class="av" href="{{ route('teacher.profile.edit') }}" aria-label="پروفایل مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</a>
     </header>
     @if(session('success'))<div class="alert success" role="status">{{ session('success') }}</div>@endif

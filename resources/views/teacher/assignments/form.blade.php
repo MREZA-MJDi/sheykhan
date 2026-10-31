@@ -18,10 +18,10 @@
                 <x-teacher.jalali-datetime name="due_at" :value="old('due_at')" label="مهلت تحویل" />
                 <label class="teacher-form-field"><span>نمره کل</span><input type="number" step="0.01" min="0" name="max_score" value="{{ old('max_score',$assignment->max_score) }}" placeholder="۲۰" inputmode="decimal"></label>
                 <label class="teacher-form-field"><span>وضعیت</span><select name="status"><option value="draft" @selected(old('status',$assignment->status)==='draft')>پیش‌نویس</option><option value="published" @selected(old('status',$assignment->status)==='published')>منتشرشده</option><option value="closed" @selected(old('status',$assignment->status)==='closed')>بسته</option></select></label>
-                <label class="teacher-form-field md:col-span-3"><span>فایل طرح سؤال یا جزوهٔ تکلیف <small class="text-slate-400">اختیاری · PDF یا TXT تا ۵۰ مگابایت</small></span><input type="file" name="handout" accept=".pdf,.txt,application/pdf,text/plain" aria-describedby="assignment-handout-help"><small id="assignment-handout-help" class="teacher-exam-field-help">فایل در فضای خصوصی ذخیره می‌شود و فقط دانش‌آموزان مجاز همان دوره آن را می‌بینند.</small></label>
+                <label class="teacher-form-field md:col-span-3"><span>فایل طرح سؤال یا جزوهٔ تکلیف <small class="text-slate-400">اختیاری · PDF، Word، PowerPoint یا تصویر تا ۲۰ مگابایت</small></span><input type="file" name="handout" accept=".pdf,.txt,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.webp,application/pdf,text/plain,image/*" data-teacher-preview="#assignment-handout-preview" aria-describedby="assignment-handout-help"><small id="assignment-handout-help" class="teacher-exam-field-help">پیش‌نمایش فایل قبل از ارسال نمایش داده می‌شود. فایل در فضای خصوصی ذخیره می‌شود و فقط دانش‌آموزان مجاز همان دوره آن را می‌بینند.</small></label>
             </div>
         </section>
-        <x-ui.upload-progress label="پیشرفت بارگذاری فایل تکلیف" />
+        <div id="assignment-handout-preview" class="teacher-file-preview md:col-span-2" aria-live="polite"></div>
         @if($errors->any())<div class="md:col-span-2 rounded-2xl bg-rose-50 px-4 py-3 text-xs leading-7 text-rose-700">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
         <div class="teacher-form-actions md:col-span-2"><a href="{{ route('teacher.assignments.index') }}">انصراف</a><button type="submit">ساخت تکلیف</button></div>
     </form>
