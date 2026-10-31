@@ -4,15 +4,9 @@
 
 @section('content')
 @php
-    $liveItems = collect($upcomingLiveClasses ?? []);
-    $assignmentItems = collect($assignments ?? []);
-    $pendingAssignmentItems = $assignmentItems->filter(fn ($item) => $item->submitted_at === null)->take(4);
-    $courseItems = collect($courses ?? [])->take(4);
-    $recordingItems = collect($sessions ?? [])->filter(fn ($item) => ($item['available'] ?? false) === true)->take(3);
-    $weekItems = collect($studyWeek ?? []);
-    $maxStudyMinutes = max(1, (int) $weekItems->max('minutes'));
-    $firstAssignment = $pendingAssignmentItems->first();
-    $firstLive = $liveItems->first();
+    $firstLiveClass = $todayClasses->first() ?? $nextLiveClass;
+    $firstDeadline = $deadlines->first();
+    $firstPendingAssignment = $assignments->first(fn ($item) => $item->submitted_at === null);
 
     if (!empty($nextLesson)) {
         $nextAction = (object) [
@@ -20,16 +14,16 @@
             'url' => route('student.lessons.show', $nextLesson->id),
             'label' => 'ادامه یادگیری',
         ];
-    } elseif ($firstLive) {
+    } elseif ($firstLiveClass) {
         $nextAction = (object) [
             'text' => 'برنامه کلاس‌های پیش‌رو را بررسی کن و برای جلسه بعدی آماده شو.',
             'url' => route('student.live-classes.index'),
             'label' => 'دیدن برنامه کلاس‌ها',
         ];
-    } elseif ($firstAssignment) {
+    } elseif ($firstPendingAssignment) {
         $nextAction = (object) [
             'text' => 'یک تکلیف در انتظار ارسال داری؛ قبل از پایان مهلت آن را بررسی کن.',
-            'url' => route('student.assignments.show', $firstAssignment->id),
+            'url' => route('student.assignments.show', $firstPendingAssignment->id),
             'label' => 'بررسی تکلیف',
         ];
     } else {
@@ -50,107 +44,76 @@
   </div>
 </section>
 
+@if ($announcements->isNotEmpty())
+<section class="card">
+  <div class="chead"><h2>اطلاعیه‌های آموزشگاه</h2><a class="pill" href="{{ route('student.messages.index') }}">همه پیام‌ها</a></div>
+  @foreach ($announcements as $announcement)
+    <a class="trk" href="{{ route('student.messages.index') }}">
+      <div class="th violet"><svg class="i" aria-hidden="true"><use href="#i-bell"/></svg></div>
+      <div>
+        <b>{{ $announcement->subject }}</b>
+        <span>{{ $announcement->excerpt }}</span>
+      </div>
+      <span class="pill">{{ \App\Support\PersianUi::date($announcement->published_at) }}</span>
+    </a>
+  @endforeach
+</section>
+@endif
+
 <div class="stats">
-  <x-stat color="blue" icon="i-video" label="کلاس‌های پیش‌رو" :value="\App\Support\PersianUi::digits($upcomingLiveClassCount)" hint="جلسه‌های قابل‌دسترسی تو" :href="route('student.live-classes.index')" />
-  <x-stat color="red" icon="i-task" label="تکالیف ارسال‌نشده" :value="\App\Support\PersianUi::digits($pendingAssignments)" hint="تعداد کل تکالیف باز" :href="route('student.assignments.index')" />
-  <x-stat color="amber" icon="i-book" label="دوره‌های فعال" :value="\App\Support\PersianUi::digits($activeCourseCount)" hint="دوره‌های در دسترس تو" :href="route('student.courses.index')" />
-  <x-stat color="mint" icon="i-rocket" label="پیشرفت یادگیری" :value="\App\Support\PersianUi::digits($overallProgress).'٪'" hint="میانگین پیشرفت دوره‌ها" :href="route('student.results.index')" />
+  <x-stat color="blue" icon="i-video" label="کلاس‌های امروز" :value="\App\Support\PersianUi::digits($todayLiveClassCount)" hint="جلسه‌های برنامه‌ریزی‌شده و در حال برگزاری" :href="route('student.live-classes.index')" />
+  <x-stat color="red" icon="i-task" label="تکالیف ارسال‌نشده" :value="\App\Support\PersianUi::digits($pendingAssignments)" hint="{{ \App\Support\PersianUi::digits($deadlines->count()) }} مهلت نزدیک در فهرست" :href="route('student.assignments.index')" />
+  <x-stat color="amber" icon="i-exam" label="آزمون‌های پیش‌رو" :value="\App\Support\PersianUi::digits($upcomingExamCount)" hint="{{ $nextExamDate ? 'نزدیک‌ترین آزمون: '.\App\Support\PersianUi::date($nextExamDate) : 'هنوز آزمون زمان‌دار اعلام نشده' }}" :href="route('student.exams.index')" />
+  <x-stat color="mint" icon="i-rocket" label="پیشرفت دوره‌ها" :value="\App\Support\PersianUi::digits($overallProgress).'٪'" hint="میانگین پیشرفت دوره‌های فعال" :href="route('student.results.index')" />
 </div>
 
 <div class="row">
   <section class="card">
-    <div class="chead"><h2>کلاس‌های پیش‌رو</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه کلاس‌ها</a></div>
-    @forelse ($liveItems as $class)
+    <div class="chead"><h2>کلاس‌های امروز</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه کلاس‌ها</a></div>
+    @forelse ($todayClasses as $class)
       <div class="trk">
-        <div class="th blue"></div>
+        <div class="th {{ $class->status === 'live' ? 'mint' : 'blue' }}"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
         <div>
           <b>{{ $class->title }}</b>
-          <span>{{ $class->course_title }} · {{ $class->scheduled_at?->format('Y/m/d H:i') }}</span>
+          <span>{{ $class->course_title }} · {{ $class->teacher_name ?: 'مدرس دوره' }} · {{ \App\Support\PersianUi::time($class->scheduled_at) }}</span>
         </div>
         @if ($class->can_join)
-          <a class="pl" href="{{ route('student.live-classes.join', $class->id) }}" aria-label="ورود به کلاس"><svg class="i"><use href="#i-play"/></svg></a>
+          <a class="pl" href="{{ route('student.live-classes.join', $class->id) }}" aria-label="ورود امن به کلاس"><svg class="i"><use href="#i-play"/></svg></a>
+        @elseif ($class->status === 'live')
+          <x-tag tone="a">در حال برگزاری</x-tag>
         @else
-          <span class="tag b">برنامه‌ریزی‌شده</span>
+          <x-tag tone="b">برنامه‌ریزی‌شده</x-tag>
         @endif
       </div>
     @empty
-      <x-empty icon="i-video" text="در حال حاضر جلسه‌ای برای نمایش وجود ندارد." />
+      <x-empty icon="i-video" text="برای امروز کلاسی برنامه‌ریزی نشده است." :href="route('student.live-classes.index')" action="دیدن برنامه هفتگی" />
     @endforelse
   </section>
 
   <section class="card">
     <div class="chead"><h2>مهلت تکالیف</h2><a class="pill" href="{{ route('student.assignments.index') }}">همه تکالیف</a></div>
-    @forelse ($pendingAssignmentItems as $assignment)
+    @forelse ($deadlines as $assignment)
       <a class="trk" href="{{ route('student.assignments.show', $assignment->id) }}">
-        <div class="th amber"></div>
-        <div><b>{{ $assignment->title }}</b><span>تکلیف دوره فعال</span></div>
+        <div class="th amber"><svg class="i" aria-hidden="true"><use href="#i-task"/></svg></div>
+        <div>
+          <b>{{ $assignment->title }}</b>
+          <span>{{ $assignment->course_title ?: 'دوره فعال' }}</span>
+        </div>
         <x-due :at="$assignment->due_at" />
       </a>
     @empty
-      <x-empty icon="i-task" text="تکلیف باز و ارسال‌نشده‌ای در فهرست فعلی نداری." />
+      <x-empty icon="i-task" text="تکلیف ارسال‌نشده‌ای با مهلت نزدیک نداری." :href="route('student.assignments.index')" action="مشاهده تکالیف" />
     @endforelse
   </section>
 </div>
 
+@if ($sessions->contains(fn ($session) => ($session['available'] ?? false) === true))
 <section class="card">
-  <div class="chead"><h2>پیشرفت درس‌ها</h2><a class="pill" href="{{ route('student.courses.index') }}">دوره‌های من</a></div>
-  @forelse ($courseItems as $course)
-    @php($progress = max(0, min(100, (float) ($course->learning_progress ?? 0))))
-    <div class="meter">
-      <div>
-        <div class="h"><span>{{ $course->title }}</span><span>{{ \App\Support\PersianUi::digits(round($progress)) }}٪</span></div>
-        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ round($progress) }}">
-          <i style="width:{{ $progress }}%;background:linear-gradient(90deg,#5bb8c4,#3d7bff)"></i>
-        </div>
-      </div>
-    </div>
-  @empty
-    <x-empty icon="i-book" text="هنوز دوره فعالی به حساب تو متصل نشده است." :href="route('student.courses.index')" action="مشاهده دوره‌ها" />
-  @endforelse
-</section>
-
-<div class="row">
-  <section class="card">
-    <div class="chead"><h2>زمان مطالعه در هفته گذشته</h2><span class="pill">{{ \App\Support\PersianUi::digits($studyMinutesLast7Days) }} دقیقه</span></div>
-    <div class="bars" role="img" aria-label="زمان مطالعه در هفت روز گذشته">
-      <div class="cols">
-        @foreach ($weekItems as $day)
-          @php($height = min(100, round(((int) $day['minutes'] / $maxStudyMinutes) * 100)))
-          <div class="col">
-            <b>{{ \App\Support\PersianUi::digits($day['minutes']) }}</b>
-            <div class="th blue" style="height:{{ max(4, $height) }}%"></div>
-            <span>{{ $day['weekday'] }}</span>
-          </div>
-        @endforeach
-      </div>
-    </div>
-    <p class="small muted">پیوستگی مطالعه: {{ \App\Support\PersianUi::digits($studyStreak) }} روز</p>
-  </section>
-
-  <section class="card">
-    <div class="chead"><h2>آخرین نتیجه‌ها</h2><a class="pill" href="{{ route('student.results.index') }}">کارنامه</a></div>
-    @forelse ($recentResults as $result)
-      <div class="trk">
-        <div class="th violet"><svg class="i"><use href="#{{ $result->type === 'exam' ? 'i-exam' : 'i-task' }}"/></svg></div>
-        <div>
-          <b>{{ $result->title }}</b>
-          <span>{{ $result->status_label }} @if($result->occurred_at) · {{ \App\Support\PersianUi::date($result->occurred_at) }} @endif</span>
-        </div>
-        @if ($result->score !== null)<x-tag tone="g">{{ \App\Support\PersianUi::number($result->score, 1) }}</x-tag>@endif
-      </div>
-    @empty
-      <x-empty icon="i-chart" text="هنوز نتیجه‌ای برای نمایش ثبت نشده است." />
-    @endforelse
-  </section>
-</div>
-
-@if ($recordingItems->isNotEmpty())
-<section class="card">
-  <div class="chead"><h2>فیلم جلسه‌های منتشرشده</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه ضبط‌ها</a></div>
+  <div class="chead"><h2>ضبط جلسه‌های اخیر</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه ضبط‌ها</a></div>
   <div class="g3">
-    @foreach ($recordingItems as $recording)
+    @foreach ($sessions->where('available', true)->take(3) as $recording)
       <a class="card cc" href="{{ $recording['href'] }}">
-        <div class="th blue"><svg class="i"><use href="#i-play"/></svg></div>
+        <div class="th blue"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg></div>
         <h3>{{ $recording['title'] }}</h3>
         <p>{{ $recording['course'] }} · {{ $recording['date'] }}</p>
       </a>
@@ -159,12 +122,25 @@
 </section>
 @endif
 
-@if ($achievements->isNotEmpty())
 <section class="card">
-  <div class="chead"><h2>دستاوردهای اخیر</h2><a class="pill" href="{{ route('student.achievements.index') }}">همه دستاوردها</a></div>
-  @foreach ($achievements as $achievement)
-    <div class="trk"><div class="pl"><svg class="i"><use href="#i-trophy"/></svg></div><div><b>{{ $achievement->display_name ?: $achievement->title }}</b><span>{{ $achievement->school_name ?: 'دستاورد ثبت‌شده' }}</span></div></div>
-  @endforeach
+  <div class="chead"><h2>پیشرفت درس‌ها</h2><a class="pill" href="{{ route('student.courses.index') }}">دوره‌های من</a></div>
+  <div class="meter">
+    @forelse ($courses as $course)
+      @php($progress = max(0, min(100, (float) ($course->learning_progress ?? 0))))
+      <div>
+        <div class="h">
+          <span>{{ $course->title }}</span>
+          <span>{{ \App\Support\PersianUi::digits(round($progress)) }}٪</span>
+        </div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ round($progress) }}">
+          <i style="width:{{ $progress }}%;background:linear-gradient(90deg,#5bb8c4,#3d7bff)"></i>
+        </div>
+        <small>{{ \App\Support\PersianUi::digits($course->completed_lessons ?? 0) }} از {{ \App\Support\PersianUi::digits($course->total_lessons ?? 0) }} درس تکمیل‌شده</small>
+        <a class="pill" href="{{ route('student.courses.show', $course->id) }}">ادامه دوره</a>
+      </div>
+    @empty
+      <x-empty icon="i-book" text="هنوز دوره فعالی به حساب تو متصل نشده است." :href="route('student.courses.index')" action="مشاهده دوره‌ها" />
+    @endforelse
+  </div>
 </section>
-@endif
 @endsection
