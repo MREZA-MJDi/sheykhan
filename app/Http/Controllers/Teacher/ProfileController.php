@@ -24,7 +24,7 @@ class ProfileController extends Controller
 
         $profile = $teacher->teacherProfile ?? new TeacherProfile();
 
-        return view('teacher.profile.edit', [
+        return view('teacher.settings', [
             'teacher' => $teacher,
             'profile' => $profile,
             'avatar' => $profile->media->firstWhere('pivot.collection', 'teacher-avatar'),

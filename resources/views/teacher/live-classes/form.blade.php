@@ -2,7 +2,6 @@
 @section('title','جلسه آنلاین جدید | شیخان')
 @section('header-title','ایجاد جلسه آنلاین')
 @section('content')
-@php($calendar = App\Support\PersianUi::calendar(now()))
 <div class="teacher-live-form" data-meeting-provider-form>
     <div class="teacher-live-form-head">
         <div>

@@ -119,7 +119,7 @@ class ExamController extends Controller
             ->values()
             ->all();
 
-        return view('teacher.exams.form', [
+        return view('teacher.exams', [
             'courses' => $workspace->courses(request()->user()),
             'classrooms' => $workspace->classrooms(request()->user()),
             'exam' => $exam,
