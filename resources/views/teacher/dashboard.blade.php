@@ -87,7 +87,7 @@
     <h3>برنامه امروز <a href="{{ route('teacher.schedule.index') }}">برنامه کامل ←</a></h3>
     @forelse($today as $session)
       <div class="row"><span class="pill">{{ $session['time'] ?? '—' }}</span><span class="t"><b>{{ $session['title'] ?? 'جلسه آموزشی' }}</b><small>{{ $session['meta'] ?? '' }}</small></span>
-        @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))<a class="btn s" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer">ورود</a>@endif
+        @if(!empty($session['can_join']) && filled($session['meeting_url'] ?? null))<a class="btn s teacher-live-join" href="{{ $session['meeting_url'] }}" target="_blank" rel="noopener noreferrer">ورود</a>@endif
       </div>
     @empty
       <div class="emp"><i>◷</i><b>جلسه‌ای برای امروز ثبت نشده است</b><small>برنامه جلسات واقعی شما در این بخش قرار می‌گیرد.</small></div>
@@ -108,7 +108,7 @@
     <h3>کلاس‌های پیش‌رو <a href="{{ route('teacher.live-classes.index') }}">همه ←</a></h3>
     @forelse($upcoming as $class)
       <div class="row"><span class="ic">◷</span><span class="t"><b>{{ $class->course?->title ?? 'کلاس آنلاین' }}</b><small>{{ $class->classroom?->title ?? '' }} · {{ \App\Support\PersianUi::date($class->scheduled_at) }} {{ \App\Support\PersianUi::time($class->scheduled_at) }}</small></span>
-        @if(($class->can_join ?? false) && filled($class->meeting_url))<a class="btn s" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer">ورود ↗</a>@else<span class="pill">{{ $class->status }}</span>@endif
+        @if(($class->can_join ?? false) && filled($class->meeting_url))<a class="btn s teacher-live-join" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer">ورود ↗</a>@else<span class="pill">{{ $class->status }}</span>@endif
       </div>
     @empty
       <div class="emp"><i>◷</i><b>کلاس پیش‌رویی ثبت نشده است</b><small>جلسات آینده پس از زمان‌بندی نمایش داده می‌شوند.</small></div>
