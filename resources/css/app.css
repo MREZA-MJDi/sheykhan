@@ -2,7 +2,7 @@
 
 @import 'tailwindcss' source(none);
 
-@import './persian-calendar.css';
+@import './public/calendar.css';
 
 :root {
     --panel-primary: #5667e8;
