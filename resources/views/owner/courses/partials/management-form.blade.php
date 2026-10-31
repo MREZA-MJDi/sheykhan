@@ -228,14 +228,14 @@
                         <span class="course-label">عنوان دوره <b>*</b></span>
                         <input name="title" x-model="title" @input="syncSlug()" value="{{ old('title',$course->title) }}" required maxlength="255" autocomplete="off" placeholder="مثلاً فیزیک دهم؛ از صفر تا تسلط" class="course-input">
                         <span class="course-help">عنوانی را بنویس که دانش‌آموز با دیدنش دقیقاً بداند این دوره درباره چیست.</span>
-                        <x-owner.field-error field="title"/>
+                        @error('title')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
 
                     <label class="course-field">
                         <span class="course-label">Slug <small>اختیاری</small></span>
                         <input name="slug" x-model="slug" @input="markSlugTouched()" value="{{ old('slug',$course->slug) }}" maxlength="120" dir="ltr" autocomplete="off" placeholder="physics-grade10" class="course-input text-left">
                         <span class="course-help">اگر خالی بگذاری، سیستم از عنوان دوره یک slug مناسب می‌سازد.</span>
-                        <x-owner.field-error field="slug"/>
+                        @error('slug')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
 
                     <div class="course-field">
@@ -253,31 +253,31 @@
                                 @endforeach
                             </select>
                         @endif
-                        <x-owner.field-error field="academy_id"/>
+                        @error('academy_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </div>
 
                     <label class="course-field">
                         <span class="course-label">سطح</span>
                         <input name="level" value="{{ old('level',$course->level) }}" maxlength="100" placeholder="مثلاً پایه دهم" class="course-input">
-                        <x-owner.field-error field="level"/>
+                        @error('level')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
 
                     <label class="course-field">
                         <span class="course-label">مدت دوره <small>دقیقه</small></span>
                         <input name="duration_minutes" type="number" min="0" max="100000" value="{{ old('duration_minutes',$course->duration_minutes ?? 0) }}" inputmode="numeric" placeholder="180" class="course-input">
-                        <x-owner.field-error field="duration_minutes"/>
+                        @error('duration_minutes')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
 
                     <label class="course-field sm:col-span-2">
                         <span class="course-label">خلاصه دوره</span>
                         <textarea name="short_description" rows="3" maxlength="500" placeholder="در دو یا سه جمله بگو این دوره چه چیزی به دانش‌آموز یاد می‌دهد." class="course-input min-h-28 py-3">{{ old('short_description',$course->short_description) }}</textarea>
-                        <x-owner.field-error field="short_description"/>
+                        @error('short_description')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
 
                     <label class="course-field sm:col-span-2">
                         <span class="course-label">توضیحات کامل</span>
                         <textarea name="description" rows="8" placeholder="سرفصل کلی، شیوه تدریس، پیش‌نیازها و هر توضیح مهم دیگر..." class="course-input min-h-48 py-3 leading-7">{{ old('description',$course->description) }}</textarea>
-                        <x-owner.field-error field="description"/>
+                        @error('description')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
 
                     <label class="course-field sm:col-span-2">
@@ -291,7 +291,7 @@
                             placeholder="شناسهٔ دوره در پنل SpotPlayer"
                             class="course-input">
                         <span class="course-help">شناسه را پس از ایجاد دوره و بارگذاری ویدئوها در پنل SpotPlayer وارد کن. هر دورهٔ شیخان باید به شناسهٔ دورهٔ متناظر در SpotPlayer وصل شود. اینجا شناسهٔ دوره را وارد کن، نه API key یا کلید لایسنس.</span>
-                        <x-owner.field-error field="spotplayer_course_id"/>
+                        @error('spotplayer_course_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
                 </div>
             </section>
@@ -334,7 +334,7 @@
                         </div>
                         <input x-ref="priceRaw" type="hidden" name="price" value="{{ $initialPrice }}">
                         <span class="course-help">اعداد هر سه رقم جدا می‌شوند تا مبلغ خواناتر باشد.</span>
-                        <x-owner.field-error field="price"/>
+                        @error('price')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </div>
                 </section>
 
@@ -361,7 +361,7 @@
                             <option value="published">منتشرشده</option>
                             <option value="archived">آرشیو</option>
                         </select>
-                        <x-owner.field-error field="status"/>
+                        @error('status')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
 
                     <div x-show="status === 'published'" x-cloak class="mt-5">
@@ -376,7 +376,7 @@
                         <input x-ref="publishedAt" type="hidden" name="published_at" value="{{ $initialPublishedAt }}">
                         <span class="course-help">تاریخ را شمسی وارد کن؛ سیستم مقدار استاندارد میلادی را برای ذخیره‌سازی تبدیل می‌کند. برای انتشار فوری، «همین الان» را بزن.</span>
                         <p x-show="dateError" x-text="dateError" class="course-inline-error"></p>
-                        <x-owner.field-error field="published_at"/>
+                        @error('published_at')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </div>
                 </section>
 
