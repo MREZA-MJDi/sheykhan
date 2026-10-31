@@ -1,0 +1,12 @@
+/* Teacher-only entrypoint. Never imported by Parent, Student, Owner or public pages. */
+@import 'tailwindcss' source(none);
+@source '../../views/teacher';
+@source '../../views/layouts/teacher.blade.php';
+@source '../../views/components/teacher';
+
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './components.css';
+@import './pages.css';
+@import './legacy-bridge.css';

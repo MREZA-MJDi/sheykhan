@@ -1,0 +1,48 @@
+/* Design tokens. Change colors and sizes here only. */
+.tp {
+  --tp-bg: #e6e9f7;
+  --tp-surface: #ffffff;
+  --tp-text: #232a4d;
+  --tp-muted: #868cab;
+  --tp-primary: #4a5fe0;
+  --tp-primary-soft: #eef1ff;
+  --tp-line: #e8ebf6;
+  --tp-green: #22b573;
+  --tp-orange: #ff9f43;
+  --tp-red: #f0566b;
+  --tp-purple: #8b5cf6;
+  --tp-teal: #14b8c4;
+
+  --tp-ok-bg: #e3f8ee;   --tp-ok-fg: #118a55;
+  --tp-warn-bg: #fff1de; --tp-warn-fg: #c2680a;
+  --tp-bad-bg: #fde6ea;  --tp-bad-fg: #c4283f;
+  --tp-info-bg: #efe9fe; --tp-info-fg: #6c3fd4;
+
+  --tp-dots: #d3d8ee;
+  --tp-drop-line: #b9c2f5;
+  --tp-shadow: 0 2px 14px #4a5fe00f;
+  --tp-shadow-hover: 0 8px 26px #4a5fe01c;
+  --tp-ring: 0 0 0 3px #4a5fe026;
+
+  /* The exam paper stays light in dark mode on purpose: it mimics printed paper. */
+  --tp-paper-bg: #fff; --tp-paper-text: #1b1f3b; --tp-paper-line: #e3e6f5;
+
+  --tp-radius-sm: 10px; --tp-radius: 12px; --tp-radius-lg: 20px; --tp-radius-xl: 30px;
+  --tp-font: 'TeacherPanelVazirmatn', Tahoma, sans-serif;
+  --tp-side-w: 215px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tp:not([data-theme="light"]) {
+    --tp-bg: #10142b; --tp-surface: #1a2040; --tp-text: #e8ebfa; --tp-muted: #9aa1c6;
+    --tp-primary-soft: #252d5c; --tp-line: #2a3263; --tp-dots: #1d2348;
+    --tp-ok-bg: #12382b; --tp-ok-fg: #6fe0aa; --tp-warn-bg: #3d2c12; --tp-warn-fg: #ffc27a;
+    --tp-bad-bg: #411c27; --tp-bad-fg: #ff9aaa; --tp-info-bg: #2f2658; --tp-info-fg: #c3adff;
+  }
+}
+.tp[data-theme="dark"] {
+  --tp-bg: #10142b; --tp-surface: #1a2040; --tp-text: #e8ebfa; --tp-muted: #9aa1c6;
+  --tp-primary-soft: #252d5c; --tp-line: #2a3263; --tp-dots: #1d2348;
+  --tp-ok-bg: #12382b; --tp-ok-fg: #6fe0aa; --tp-warn-bg: #3d2c12; --tp-warn-fg: #ffc27a;
+  --tp-bad-bg: #411c27; --tp-bad-fg: #ff9aaa; --tp-info-bg: #2f2658; --tp-info-fg: #c3adff;
+}
