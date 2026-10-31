@@ -3,7 +3,7 @@ import { bootAlpine } from './panel-base.js';
 import { bootSharedBehaviors } from './shared/behavior-runtime.js';
 import './shared/persian-calendar.js';
 import './shared/persian-money.js';
-import './shared/assessment-builder.js';
+import './teacher/assessment-builder.js';
 import { bootFileUploadProgress } from './shared/upload-progress.js';
 import './teacher/course-media-uploader.js';
 
