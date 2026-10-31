@@ -1,11 +1,13 @@
 /* Teacher-only runtime. Role UI and behavior are isolated. */
-import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-Alpine.start();
-import './teacher/persian-calendar.js';
-import './teacher/persian-money.js';
-import './teacher/assessment-builder.js';
-import { bootFileUploadProgress } from './teacher/upload-progress.js';
+import { bootAlpine } from './panel-base.js';
+import { bootSharedBehaviors } from './shared/behavior-runtime.js';
+import './persian-calendar.js';
+import './persian-money.js';
+import './assessment-builder.js';
+import { bootFileUploadProgress } from './upload-progress.js';
+
+bootAlpine();
+bootSharedBehaviors();
 import './teacher/course-media-uploader.js';
 document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
 // ZIP utility: Jalali/Gregorian date conversion.
@@ -131,71 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!match) return;
         const converted = g2j(Number(match[1]), Number(match[2]), Number(match[3]));
         element.textContent = fa(converted[0]) + ' ' + MN[converted[1] - 1] + ' ' + fa(converted[2]);
-    });
-
-    document.addEventListener('click', (event) => {
-        const target = event.target.closest('[data-confirm]');
-        if (!target) return;
-        if (!window.confirm(target.dataset.confirm || 'از انجام این عملیات مطمئن هستید؟')) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-    }, true);
-
-    document.addEventListener('submit', (event) => {
-        const form = event.target;
-        if (!(form instanceof HTMLFormElement) || form.dataset.confirmSubmit !== 'true') return;
-        if (!window.confirm(form.dataset.confirm || 'از انجام این عملیات مطمئن هستید؟')) event.preventDefault();
-    });
-
-    document.querySelectorAll('[data-teacher-preview-input]').forEach((input) => {
-        input.addEventListener('change', () => {
-            const kind = input.dataset.teacherPreviewInput;
-            const file = input.files?.[0];
-            const preview = document.querySelector('[data-teacher-preview-container="' + kind + '"]');
-            const feedback = document.querySelector('[data-teacher-preview-feedback="' + kind + '"]');
-            if (!file || !preview) return;
-
-            const maxSizeMb = Number(input.dataset.maxSizeMb || 0);
-            if (!file.type.startsWith('image/')) {
-                if (feedback) feedback.textContent = 'لطفاً یک فایل تصویری معتبر انتخاب کنید.';
-                input.value = '';
-                return;
-            }
-            if (maxSizeMb > 0 && file.size > maxSizeMb * 1024 * 1024) {
-                if (feedback) feedback.textContent = 'حجم فایل نباید بیشتر از ' + fa(maxSizeMb) + ' مگابایت باشد.';
-                input.value = '';
-                return;
-            }
-
-            const url = URL.createObjectURL(file);
-            const image = document.createElement('img');
-            image.src = url;
-            image.alt = kind === 'avatar' ? 'پیش‌نمایش آواتار انتخاب‌شده' : 'پیش‌نمایش کاور انتخاب‌شده';
-            image.dataset.teacherPreviewImage = kind;
-            image.decoding = 'async';
-            image.onload = () => URL.revokeObjectURL(url);
-            image.onerror = () => {
-                URL.revokeObjectURL(url);
-                image.remove();
-                if (feedback) feedback.textContent = 'نمایش این تصویر ممکن نشد؛ فایل دیگری انتخاب کنید.';
-            };
-
-            if (kind === 'cover') {
-                preview.classList.remove('no-cover');
-                preview.classList.add('has-cover');
-                preview.querySelectorAll('img').forEach((existing) => existing.remove());
-                const label = preview.querySelector('.teacher-cover-preview-label');
-                if (label) preview.insertBefore(image, label);
-                else preview.prepend(image);
-            } else {
-                preview.replaceChildren(image);
-            }
-
-            if (feedback) {
-                feedback.textContent = file.name + ' · ' + fa(Math.ceil(file.size / 1024)) + ' کیلوبایت · پیش‌نمایش آماده است.';
-            }
-        });
     });
 
     document.addEventListener('click', (event) => {
