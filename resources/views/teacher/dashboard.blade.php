@@ -3,6 +3,7 @@
 @section('page_title', 'خوش آمدید، ' . (auth()->user()->name ?? 'مدرس'))
 @section('page_subtitle', $dashboardDate ?? \App\Support\PersianUi::date(now()))
 @section('content')
+<div id="teacher-dashboard" class="teacher-dashboard-page">
 @php
   $user = $teacher ?? auth()->user();
   $metrics = $metrics ?? [];
