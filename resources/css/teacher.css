@@ -177,6 +177,7 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .teacher-shell .teacher-upload-progress__file-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--pl);color:var(--pri)}
 .teacher-shell .teacher-upload-progress__file-copy{display:grid;min-width:0}.teacher-shell .teacher-upload-progress__file-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
 .teacher-shell .teacher-upload-progress__file-copy small,.teacher-shell .teacher-upload-progress__summary{color:var(--mu);font-size:10px}
+.teacher-shell .teacher-upload-progress__status{display:grid;gap:8px;min-width:0}.teacher-shell .teacher-upload-progress__status[hidden]{display:none!important}
 .teacher-shell .teacher-upload-progress__bar-track{height:8px;border-radius:9px;background:var(--ln);overflow:hidden}.teacher-shell .teacher-upload-progress__bar{display:block;width:0;height:100%;background:var(--pri);transition:width .15s}
 .teacher-shell .teacher-upload-progress__status-row{display:flex;justify-content:space-between;gap:10px;margin-top:5px;color:var(--mu);font-size:11px}.teacher-shell .teacher-upload-progress__error{margin:0;color:var(--rd);font-size:11px}
 @media(max-width:1100px){.weekly-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
