@@ -676,6 +676,57 @@ class ParentPortalWorkflowTest extends TestCase
             ->assertForbidden();
     }
 
+
+    public function test_parent_dashboard_shows_only_published_achievements_for_linked_children_and_never_private_notes(): void
+    {
+        $workspace = $this->workspace();
+        $parent = $workspace['parent'];
+        $student = $workspace['student'];
+        $otherStudent = $workspace['unlinkedStudent'];
+        $academy = $workspace['academy'];
+
+        Achievement::query()->create([
+            'academy_id' => $academy->id,
+            'student_id' => $student->id,
+            'display_name' => 'آرمان',
+            'achievement_type' => 'gifted_school',
+            'school_name' => 'مدرسه نمونه',
+            'title' => 'قبولی در آزمون تیزهوشان',
+            'description' => 'یادداشت خصوصی دانش‌آموز که نباید در کارتابل والد نمایش داده شود.',
+            'status' => 'published',
+            'published_at' => now()->subHour(),
+        ]);
+
+        Achievement::query()->create([
+            'academy_id' => $academy->id,
+            'student_id' => $student->id,
+            'display_name' => 'آرمان',
+            'achievement_type' => 'sample_school',
+            'title' => 'دستاورد پیش‌نویس',
+            'status' => 'draft',
+            'published_at' => null,
+        ]);
+
+        Achievement::query()->create([
+            'academy_id' => $academy->id,
+            'student_id' => $otherStudent->id,
+            'display_name' => 'دانش‌آموز دیگر',
+            'achievement_type' => 'gifted_school',
+            'title' => 'افتخار دانش‌آموز دیگر',
+            'status' => 'published',
+            'published_at' => now()->subHour(),
+        ]);
+
+        $this->actingAs($parent)
+            ->get(route('parent.dashboard'))
+            ->assertOk()
+            ->assertSee('دستاوردهای تأیید و منتشرشده')
+            ->assertSee('قبولی در آزمون تیزهوشان')
+            ->assertDontSee('دستاورد پیش‌نویس')
+            ->assertDontSee('افتخار دانش‌آموز دیگر')
+            ->assertDontSee('یادداشت خصوصی دانش‌آموز');
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create(['status' => 'active']);
