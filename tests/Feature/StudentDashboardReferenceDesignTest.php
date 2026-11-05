@@ -22,7 +22,7 @@ class StudentDashboardReferenceDesignTest extends TestCase
             ->assertSee('مرکز یادگیری')
             ->assertSee('رشد این ماه')
             ->assertSee('تکالیف باز')
-            ->assertDontSee('پیام به مدرس‌ها')
+            ->assertSee('پیام به مدرس‌ها')
             ->assertDontSee('دستاوردها')
             ->assertDontSee('یادداشت‌ها')
             ->assertSee('student-shell', false)
