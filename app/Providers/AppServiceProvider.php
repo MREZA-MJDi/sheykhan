@@ -9,6 +9,9 @@ use App\Policies\MediaPolicy;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Collection;
@@ -28,6 +31,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('public-registration', function (Request $request): array {
+            $key = (string) $request->ip();
+
+            return [
+                Limit::perMinute(3)->by('public-registration-minute:' . $key),
+                Limit::perDay(10)->by('public-registration-day:' . $key),
+            ];
+        });
+
+        RateLimiter::for('student-messages', function (Request $request): array {
+            $key = (string) ($request->user()?->getAuthIdentifier() ?? $request->ip());
+
+            return [
+                Limit::perMinute(3)->by('student-message-minute:' . $key),
+                Limit::perDay(20)->by('student-message-day:' . $key),
+            ];
+        });
+
         Auth::provider('legacy-aware-eloquent', function ($app, array $config) {
             return new LegacyAwareUserProvider($app['hash'], $config['model']);
         });

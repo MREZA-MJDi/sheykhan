@@ -78,7 +78,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1')->name('login.store');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register.store');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:public-registration')->name('register.store');
 });
 
 Route::middleware(['auth', 'active'])->group(function () {
@@ -290,7 +290,7 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
     Route::get('/dashboard', StudentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
 
     Route::get('/messages', [StudentMessageController::class, 'index'])->middleware('permission:student_messages.view')->name('messages.index');
-    Route::post('/messages', [StudentMessageController::class, 'store'])->middleware(['permission:student_messages.manage','throttle:5,1'])->name('messages.store');
+    Route::post('/messages', [StudentMessageController::class, 'store'])->middleware(['permission:student_messages.manage','throttle:student-messages'])->name('messages.store');
     Route::patch('/messages/from-teacher/{message}/reply', [StudentMessageController::class, 'replyToTeacherMessage'])->middleware(['permission:student_messages.manage','throttle:10,1'])->name('teacher-messages.reply');
 
     Route::get('/courses', [StudentCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');

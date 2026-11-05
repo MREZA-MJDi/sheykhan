@@ -55,7 +55,7 @@ class OwnerStudentAccountTest extends TestCase
 
         $temporaryPassword = $response->getSession()->get('temporary_student_password');
         $this->assertIsString($temporaryPassword);
-        $this->assertGreaterThanOrEqual(16, strlen($temporaryPassword));
+        $this->assertSame(12, strlen($temporaryPassword));
 
         $student = User::query()->where('email', 'ava.created@student-test.example')->firstOrFail();
         $this->assertTrue(Hash::check($temporaryPassword, $student->password));

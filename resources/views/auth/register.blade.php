@@ -65,6 +65,15 @@
                    placeholder="رمز را دوباره وارد کن">
         </div>
 
+        @if(config('services.turnstile.enabled'))
+            <div class="space-y-2">
+                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-action="register" data-theme="light"></div>
+                @error('cf-turnstile-response')
+                    <p class="text-sm font-semibold text-[var(--color-danger-700)]" role="alert">{{ $message }}</p>
+                @enderror
+            </div>
+        @endif
+
         <button type="submit"
                 class="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[var(--color-primary-600)] px-5 text-sm font-black text-white shadow-[0_10px_24px_rgba(83,98,223,.18)] transition hover:-translate-y-0.5 hover:bg-[var(--color-primary-700)] hover:shadow-[0_14px_30px_rgba(83,98,223,.22)]">
             ساخت حساب <span class="ms-2" aria-hidden="true">←</span>
@@ -77,3 +86,9 @@
     </div>
 </div>
 @endsection
+
+@if(config('services.turnstile.enabled'))
+@push('scripts')
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+@endpush
+@endif
