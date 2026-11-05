@@ -31,6 +31,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('public-registration', function (Request $request): array {
+            $key = (string) $request->ip();
+
+            return [
+                Limit::perMinute(3)->by('public-registration-minute:' . $key),
+                Limit::perDay(10)->by('public-registration-day:' . $key),
+            ];
+        });
+
         RateLimiter::for('student-messages', function (Request $request): array {
             $key = (string) ($request->user()?->getAuthIdentifier() ?? $request->ip());
 
