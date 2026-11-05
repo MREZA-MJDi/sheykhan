@@ -22,6 +22,7 @@ class StudentPortalUiContractTest extends TestCase
             'student.live-classes.index',
             'student.assignments.index',
             'student.exams.index',
+            'student.messages.index',
             'student.resources.index',
             'student.results.index',
             'student.growth',
@@ -39,6 +40,25 @@ class StudentPortalUiContractTest extends TestCase
                 ->assertDontSee('role-mobile-bottom-nav', false)
                 ->assertDontSee('student-profile-modal', false);
         }
+    }
+
+    public function test_student_can_reach_teacher_messaging_from_the_portal_navigation_and_dashboard(): void
+    {
+        $this->seed();
+
+        $student = User::where('email', 'student.armin@sheykhan.test')->firstOrFail();
+
+        $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('ارتباط با مدرس')
+            ->assertSee('href="' . route('student.messages.index') . '"', false);
+
+        $this->get(route('student.messages.index'))
+            ->assertOk()
+            ->assertSee('پیام به مدرس‌ها')
+            ->assertSee('پیام جدید به مدرس')
+            ->assertSee('student.messages.store');
     }
 
     public function test_student_cannot_enter_teacher_profile_workspace(): void
