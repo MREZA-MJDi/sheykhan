@@ -185,7 +185,7 @@
         select?.addEventListener('change', () => {
           if (file?.files?.length) return;
           const option = select.selectedOptions?.[0];
-          chooseUrl(option?.dataset.mediaUrl || preview?.dataset.bannerInitialImage || '');
+          chooseUrl(option?.dataset.mediaUrl || '');
         });
 
         file?.addEventListener('change', () => {
