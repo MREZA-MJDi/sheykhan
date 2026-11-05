@@ -85,7 +85,7 @@ final class StudentAccountService
             $studentRole = Role::query()->where('slug', 'student')->first();
             if (! $studentRole) abort(500, 'نقش دانش‌آموز در سیستم تعریف نشده است.');
 
-            $temporaryPassword = Str::password(16, true, true, true, false);
+            $temporaryPassword = Str::password(12, true, true, true, false);
             $student = User::query()->create([
                 'name' => trim((string) $data['name']),
                 'email' => $email,
