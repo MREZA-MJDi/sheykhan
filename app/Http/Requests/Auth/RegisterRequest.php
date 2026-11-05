@@ -55,7 +55,13 @@ class RegisterRequest extends FormRequest
                         'remoteip' => $this->ip(),
                     ]);
 
-                if (! $response->successful() || $response->json('success') !== true) {
+                $expectedHostname = (string) $this->getHost();
+                $verified = $response->successful()
+                    && $response->json('success') === true
+                    && hash_equals($expectedHostname, (string) $response->json('hostname'))
+                    && $response->json('action') === 'register';
+
+                if (! $verified) {
                     $validator->errors()->add('cf-turnstile-response', 'تأیید ضدربات انجام نشد؛ دوباره تلاش کن.');
                 }
             } catch (\Throwable) {
