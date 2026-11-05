@@ -47,6 +47,7 @@ final class ParentDashboardService
                 'overallProgress' => 0,
                 'upcomingLiveClasses' => collect(),
                 'recentResults' => collect(),
+                'recentAchievements' => collect(),
             ];
         }
 
@@ -672,6 +673,34 @@ final class ParentDashboardService
         $recentResults = $assignmentResults->concat($examResults)
             ->sortByDesc('occurred_at')->take(8)->values();
 
+        // Parents may see only approved achievements belonging to their linked children.
+        // Private lesson notes, drafts and unpublished achievements are never included.
+        $recentAchievements = DB::table('achievements')
+            ->join('academies', 'academies.id', '=', 'achievements.academy_id')
+            ->join('users as students', 'students.id', '=', 'achievements.student_id')
+            ->whereIn('achievements.student_id', $childIds)
+            ->whereIn('achievements.academy_id', $parentAcademyIds())
+            ->where('academies.status', 'active')
+            ->where('achievements.status', 'published')
+            ->whereNotNull('achievements.published_at')
+            ->where('achievements.published_at', '<=', now())
+            ->orderByDesc('achievements.published_at')
+            ->limit(8)
+            ->get([
+                'achievements.id',
+                'achievements.student_id',
+                'students.name as student_name',
+                'achievements.display_name',
+                'achievements.achievement_type',
+                'achievements.school_name',
+                'achievements.title',
+                'achievements.published_at',
+            ])
+            ->map(function ($item): object {
+                $item->published_at = Carbon::parse($item->published_at);
+                return $item;
+            });
+
         $liveItems = $upcomingLiveClasses->map(function ($item): object {
             $item->scheduled_at = $item->scheduled_at instanceof \Carbon\CarbonInterface
                 ? $item->scheduled_at
@@ -693,6 +722,7 @@ final class ParentDashboardService
             'pendingAssignmentItems' => $pendingAssignmentItems,
             'recentAttendance' => $recentAttendance,
             'recentResults' => $recentResults,
+            'recentAchievements' => $recentAchievements,
         ];
     }
 }
