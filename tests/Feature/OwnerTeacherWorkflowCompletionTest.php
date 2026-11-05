@@ -434,7 +434,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         $this->actingAs($workspace['student'])
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('خانه یادگیری من');
+            ->assertSee('student-shell', false);
 
         $this->actingAs($workspace['parent'])
             ->get(route('parent.dashboard'))

@@ -36,7 +36,7 @@
         <h3>{{ $product->title }}</h3>
       </a>
       <p>{{ $product->category?->name ?? 'منبع آموزشی' }}</p>
-      @if($product->description)<p>{{ IlluminateSupportStr::limit(strip_tags((string) $product->description), 100) }}</p>@endif
+      @if($product->description)<p>{{ \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 100) }}</p>@endif
       <b>{{ \App\Support\PersianUi::moneyInCurrency($price, $product->currency) }}</b>
       <a class="btn s" href="{{ route('store.product.show', $product) }}">مشاهده محصول</a>
     </article>
