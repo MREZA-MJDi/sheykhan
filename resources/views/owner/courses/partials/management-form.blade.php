@@ -438,7 +438,6 @@
                 </div>
             </div>
         </section>
-    @if($isEdit)
         <section class="panel-card p-5 sm:p-7" data-media-uploader>
             <div class="course-media-head">
                 <div>
