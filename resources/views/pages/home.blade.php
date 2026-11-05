@@ -423,6 +423,9 @@
                             };
                         @endphp
                         <article class="home-live-card">
+                            @if(filled($class['image'] ?? null))
+                                <div class="home-live-card__media"><img src="{{ $class['image'] }}" alt="{{ $class['title'] }}" loading="lazy" decoding="async"></div>
+                            @endif
                             <div class="home-live-card__top"><span class="home-live-card__mark" aria-hidden="true">◷</span><span class="home-live-status {{ $liveStatusClass }}">{{ $class['status'] }}</span></div>
                             @if($class['course'])<span class="home-live-card__course">{{ $class['course'] }}</span>@endif
                             <h3><a href="{{ $class['href'] }}">{{ $class['title'] }}</a></h3>
