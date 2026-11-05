@@ -389,11 +389,61 @@
     </form>
 
     @if($isEdit)
+        @php
+            $publicCourseCover = $course->media->first(fn ($media) => $media->pivot?->collection === 'course-cover' && $media->visibility === 'public' && str_starts_with((string) $media->mime_type, 'image/'));
+        @endphp
+        <section class="panel-card space-y-4 p-5 sm:p-7">
+            <div class="course-section-heading compact">
+                <div class="course-step">۴</div>
+                <div>
+                    <span>تصویر عمومی</span>
+                    <h2>کاور کارت دوره</h2>
+                    <p>این تصویر به‌صورت عمومی و با همان قاب ۱۶:۹ در صفحه اصلی و فهرست دوره‌ها نمایش داده می‌شود؛ فایل‌های آموزشی خصوصی جدا می‌مانند.</p>
+                </div>
+            </div>
+
+            <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
+                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="space-y-3 rounded-2xl border border-slate-200 p-4" data-upload-form data-max-bytes="10485760">
+                    @csrf
+                    <input type="hidden" name="collection" value="course-cover">
+                    <label class="course-file-input">
+                        <span>انتخاب تصویر کاور</span>
+                        <input type="file" name="media" required accept="image/jpeg,image/png,image/webp">
+                    </label>
+                    <p class="text-xs leading-6 text-slate-500">JPG، PNG یا WebP · حداکثر ۱۰ مگابایت · پیشنهاد: ۱۶۰۰×۹۰۰ پیکسل</p>
+                    <div class="course-upload-preview" data-upload-preview hidden>
+                        <div class="course-upload-preview-media"><img data-preview-image alt="" hidden></div>
+                        <div class="min-w-0"><strong data-preview-name class="block truncate text-xs font-black"></strong><span data-preview-size class="mt-1 block text-[9px] text-slate-500"></span></div>
+                    </div>
+                    <p class="course-upload-status" data-upload-message aria-live="polite"></p>
+                    <button type="submit" class="course-action-btn primary">ذخیره تصویر عمومی</button>
+                </form>
+
+                <div class="space-y-2">
+                    <span class="text-xs font-black text-slate-700">پیش‌نمایش قاب واقعی سایت · ۱۶:۹</span>
+                    <div class="aspect-video overflow-hidden rounded-2xl bg-slate-100">
+                        @if($publicCourseCover)
+                            <img src="{{ $publicCourseCover->url() }}" alt="کاور فعلی {{ $course->title }}" class="h-full w-full object-cover" loading="lazy">
+                        @else
+                            <div class="flex h-full items-center justify-center text-sm text-slate-500">هنوز کاور عمومی انتخاب نشده است</div>
+                        @endif
+                    </div>
+                    @if($publicCourseCover)
+                        <form method="POST" action="{{ route($routePrefix.'.media.destroy',[$course,$publicCourseCover]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" data-confirm="تصویر عمومی دوره حذف شود؟" class="course-action-btn danger">حذف کاور عمومی</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @if($isEdit)
         <section class="panel-card p-5 sm:p-7" data-media-uploader>
             <div class="course-media-head">
                 <div>
                     <div class="course-section-heading compact">
-                        <div class="course-step">۴</div>
+                        <div class="course-step">۵</div>
                         <div>
                             <span>رسانه</span>
                             <h2>فایل‌های خصوصی دوره</h2>
@@ -404,7 +454,6 @@
                         <span><b>ویدیو:</b> حداکثر ۵۰۰ مگابایت</span>
                         <span><b>ZIP:</b> حداکثر ۲۰۰ مگابایت</span>
                         <span><b>PDF:</b> حداکثر ۵۰ مگابایت</span>
-                        <span><b>تصویر:</b> حداکثر ۱۰ مگابایت</span>
                     </div>
                 </div>
 
@@ -415,9 +464,6 @@
                         <span>انتخاب فایل</span>
                         <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.mov,.zip">
                     </label>
-                    <p class="course-cover-scope-note mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900" role="note">
-                        این بخش برای فایل‌های خصوصی دوره است؛ تصویر عمومی کارت دوره را تغییر نمی‌دهد. کارت‌های دوره در سایت با قاب ۱۶:۹ نمایش داده می‌شوند، اما فرم فعلی مسیر جداگانه‌ای برای آپلود تصویر کاور عمومی ندارد.
-                    </p>
 
                     <div class="course-upload-preview" data-upload-preview hidden>
                         <div class="course-upload-preview-media">
