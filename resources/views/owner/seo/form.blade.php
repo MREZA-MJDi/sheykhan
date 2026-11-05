@@ -10,6 +10,12 @@
     $initialOgDescription = old('og_description', $seoMeta?->og_description ?: old('description', $seoMeta?->description));
 @endphp
 <div class="owner-form-shell">
+    @if($errors->any())
+        <div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+            <strong>تنظیمات SEO ذخیره نشد؛ خطاهای زیر را بررسی کن:</strong>
+            <ul class="mt-2 list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+        </div>
+    @endif
     <div class="owner-form-head">
         <div>
             <span>کنترل دیده‌شدن</span>
