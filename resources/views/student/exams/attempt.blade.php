@@ -35,6 +35,11 @@
         </div>
     </div>
 
+    <div class="card exam-answer-guidance" role="note">
+        <div class="chead"><h2>می‌توانی پاسخ را به‌صورت فایل ارسال کنی</h2><span class="tag">PDF مجاز است</span></div>
+        <p class="note">اگر پاسخ تشریحی را روی کاغذ نوشته‌ای یا پاسخ‌هایت در یک PDF آماده است، لازم نیست کادر سؤال‌ها را پر کنی. فایل را در بخش «فایل پاسخ آزمون» انتخاب کن و آزمون را ثبت نهایی کن؛ پاسخ برای بررسی مدرس در صف تصحیح قرار می‌گیرد.</p>
+    </div>
+
     @forelse($exam->questions as $index => $question)
         @php
             $saved = $savedAnswers->get($question->id);
@@ -92,7 +97,7 @@
     <div class="card exam-answer-upload">
         <div class="chead"><h2>فایل پاسخ آزمون</h2><span class="tag">اختیاری</span></div>
         <p class="note">می‌توانی پاسخ دست‌نویس، محاسبات یا فایل تکمیلی را هم ارسال کنی. حداکثر ۳ فایل، هرکدام تا ۱۰ مگابایت.</p>
-        <label for="exam-answer-files" class="exam-answer-upload-label">انتخاب فایل پاسخ</label>
+        <label for="exam-answer-files" class="exam-answer-upload-label">انتخاب PDF یا فایل پاسخ</label>
         <input class="fld" id="exam-answer-files" type="file" name="attachments[]" multiple accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" aria-describedby="exam-answer-files-help">
         <small id="exam-answer-files-help" class="exam-answer-upload-help">فایل‌ها خصوصی ذخیره می‌شوند و فقط شما و مدرس مجاز آزمون به آن‌ها دسترسی دارید.</small>
         <section class="student-upload-progress" data-upload-progress-ui hidden aria-label="پیشرفت ارسال فایل پاسخ آزمون">
