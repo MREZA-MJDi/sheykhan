@@ -46,8 +46,10 @@ class CourseCatalogService
                     'teachers:id,name',
                     'grades:id,title',
                     'media' => fn ($query) => $query
+                        ->wherePivot('collection', 'course-cover')
                         ->where('visibility', 'public')
                         ->where('status', 'active')
+                        ->where('mime_type', 'like', 'image/%')
                         ->orderByPivot('sort_order'),
                 ])
                 ->withCount([
