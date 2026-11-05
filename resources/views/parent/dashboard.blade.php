@@ -241,6 +241,30 @@
 
             </div>
 
+            <section class="parent-panel dashboard-panel mt-5 p-5 sm:p-6" aria-labelledby="parent-achievements-title">
+                <div class="parent-panel-head">
+                    <div>
+                        <span class="parent-kicker" style="color:var(--panel-primary)">افتخارهای فرزندان</span>
+                        <h2 id="parent-achievements-title">دستاوردهای تأیید و منتشرشده</h2>
+                        <p>فقط افتخارات رسمی منتشرشده فرزندان متصل به حساب شما نمایش داده می‌شود.</p>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-2">
+                    @forelse($recentAchievements ?? collect() as $achievement)
+                        <article class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="min-w-0">
+                                <strong class="text-sm">{{ $achievement->title ?: $achievement->display_name }}</strong>
+                                <p class="mt-1 text-xs text-slate-500">{{ $achievement->student_name }} · {{ $achievement->school_name ?: 'دستاورد آموزشی' }}</p>
+                                <span class="mt-1 inline-block text-xs text-slate-500">{{ match($achievement->achievement_type) { 'gifted_school' => 'قبولی مدارس تیزهوشان', 'sample_school' => 'قبولی مدارس نمونه دولتی', default => 'دستاورد آموزشی' } }} · {{ \\App\\Support\\PersianUi::date($achievement->published_at) }}</span>
+                            </div>
+                            <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">منتشرشده</span>
+                        </article>
+                    @empty
+                        <div class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">هنوز دستاورد رسمی منتشرشده‌ای برای فرزندان شما ثبت نشده است.</div>
+                    @endforelse
+                </div>
+            </section>
+
             <section class="parent-panel dashboard-panel mt-5 p-5 sm:p-6" aria-labelledby="parent-tasks-title">
                 <div class="parent-panel-head">
                     <div>
