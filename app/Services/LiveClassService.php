@@ -19,6 +19,12 @@ class LiveClassService
                 ->whereHas('course', fn ($query) => $query->published())
                 ->with([
                     'course:id,title',
+                    'course.media' => fn ($media) => $media
+                        ->wherePivot('collection', 'course-cover')
+                        ->where('visibility', 'public')
+                        ->where('status', 'active')
+                        ->where('mime_type', 'like', 'image/%')
+                        ->orderByPivot('sort_order'),
                     'teacher:id,name',
                 ])
                 ->orderBy('scheduled_at')
@@ -27,6 +33,7 @@ class LiveClassService
                 ->map(fn (LiveClass $class) => [
                     'title' => $class->title,
                     'course' => $class->course?->title,
+                    'image' => $class->course?->media?->first()?->url(),
                     'teacher' => $class->teacher?->name,
                     'date' => $this->formatDate($class->scheduled_at),
                     'time' => PersianUi::time($class->scheduled_at),
