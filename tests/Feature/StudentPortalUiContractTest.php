@@ -58,7 +58,7 @@ class StudentPortalUiContractTest extends TestCase
             ->assertOk()
             ->assertSee('پیام به مدرس‌ها')
             ->assertSee('پیام جدید به مدرس')
-            ->assertSee('student.messages.store');
+            ->assertSee('action="' . route('student.messages.store') . '"', false);
     }
 
     public function test_student_cannot_enter_teacher_profile_workspace(): void
