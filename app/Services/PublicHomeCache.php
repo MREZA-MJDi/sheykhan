@@ -20,6 +20,8 @@ final class PublicHomeCache
             'public:home:data:v5',
             'public:home:courses:3',
             'public:home:courses:6',
+            'public:home:live-classes:3:v1',
+            'public:home:live-classes:6:v1',
             'public:home:teachers:4:v2',
             'public:home:teachers:6:v2',
             'public:home:blog:latest:3:v1',
