@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Course;
 use App\Models\FinancialTransaction;
 use App\Models\Permission;
@@ -311,6 +313,69 @@ class OwnerDashboardBackendContractTest extends TestCase
         $this->get(route('owner.people.index', $academy))->assertForbidden();
     }
 
+
+    public function test_owner_pending_assignment_notification_uses_assignments_view_permission(): void
+    {
+        $this->seed();
+        Cache::flush();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('name')->firstOrFail();
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+
+        $ownerRole->permissions()->sync(
+            Permission::query()
+                ->whereIn('name', ['dashboard.view', 'assignments.view'])
+                ->pluck('id')
+        );
+        $owner->unsetRelation('roles');
+
+        $academyIds = $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->pluck('academies.id');
+        $course = Course::query()->whereIn('academy_id', $academyIds)->firstOrFail();
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+
+        $assignment = Assignment::query()->create([
+            'course_id' => $course->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'تکلیف در انتظار بررسی',
+            'instructions' => 'ثبت پاسخ برای آزمون دسترسی داشبورد',
+            'due_at' => now()->addDay(),
+            'max_score' => 10,
+            'status' => 'published',
+        ]);
+
+        AssignmentSubmission::query()->create([
+            'assignment_id' => $assignment->id,
+            'student_id' => $student->id,
+            'content' => 'پاسخ ثبت‌شده برای بررسی',
+            'submitted_at' => now(),
+        ]);
+
+        Cache::flush();
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('تکالیف بررسی‌نشده')
+            ->assertSee(route('owner.assignments.index', $academy), false);
+
+        $ownerRole->permissions()->sync(
+            Permission::query()
+                ->whereIn('name', ['dashboard.view', 'courses.view'])
+                ->pluck('id')
+        );
+        $owner->unsetRelation('roles');
+        Cache::flush();
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertDontSee('تکالیف بررسی‌نشده')
+            ->assertDontSee(route('owner.assignments.index', $academy), false);
+    }
 
     public function test_owner_read_only_parent_message_permission_keeps_get_navigation_available(): void
     {
