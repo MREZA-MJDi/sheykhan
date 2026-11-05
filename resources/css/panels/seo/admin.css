@@ -485,3 +485,159 @@
  .owner-admin-v2 .main-content .website-banner-mini{grid-template-columns:100px minmax(0,1fr)}
 }
 
+
+
+/* Dedicated SEO specialist identity and editorial workspace polish. */
+.seo-specialist-shell{
+    --oa-accent:#63d6a6;
+    --oa-accent-soft:rgba(99,214,166,.12);
+    --oa-surface:#102521;
+    --oa-text:#edf8f2;
+    --oa-muted:#a0b8ad;
+    --oa-border:rgba(119,190,157,.2);
+    background:#071713;
+    color:var(--oa-text);
+}
+.seo-specialist-shell .app{background:radial-gradient(ellipse at 78% 0%,rgba(43,132,96,.13),transparent 34%),#071713}
+.seo-specialist-shell .side.card{background:linear-gradient(180deg,#102720,#0b1c18);border:1px solid var(--oa-border);box-shadow:0 18px 45px rgba(0,0,0,.22)}
+.seo-specialist-shell .lg{background:linear-gradient(145deg,#2d966d,#a2df79);color:#082218;box-shadow:0 0 22px rgba(99,214,166,.2)}
+.seo-specialist-shell .brand{background:rgba(99,214,166,.1);color:#e8fff3}
+.seo-specialist-shell .gh[aria-expanded=true]{color:#eafff2}
+.seo-specialist-shell .ni[aria-current=page]{background:rgba(99,214,166,.12);box-shadow:inset -3px 0 0 #63d6a6;color:#effff6}
+.seo-specialist-shell .ni[aria-current=page] .ic{stroke:#63d6a6}
+.seo-specialist-shell .top{align-items:center}
+.seo-specialist-shell .seo-specialist-identity{
+    display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;
+    padding:7px 12px;border:1px solid rgba(99,214,166,.24);border-radius:12px;
+    background:rgba(20,65,48,.46);color:#c9f7df;
+}
+.seo-specialist-shell .seo-specialist-identity>span:first-child{
+    display:grid;place-items:center;width:30px;height:30px;border-radius:9px;
+    background:#63d6a6;color:#082218;font-size:19px;font-weight:900;
+}
+.seo-specialist-shell .seo-specialist-identity strong,
+.seo-specialist-shell .seo-specialist-identity small{display:block}
+.seo-specialist-shell .seo-specialist-identity strong{font-size:11px;line-height:1.5}
+.seo-specialist-shell .seo-specialist-identity small{margin-top:1px;color:#9bc8b2;font-size:9px}
+.seo-specialist-shell .tab.on{background:#63d6a6;color:#082218;box-shadow:none}
+.seo-specialist-shell .main-content{gap:18px;align-content:start}
+.seo-specialist-shell .main-content :is(.owner-seo-page,.seo-keywords-page,.owner-form-shell,.website-center,.website-hero-editor,.banner-page){
+    width:100%;max-width:1440px;gap:20px;
+}
+.seo-specialist-shell .main-content :is(.owner-seo-hero,.seo-console-hero,.owner-form-head,.website-center-hero,.website-hero-editor-head){
+    align-items:center;padding:22px 24px;border:1px solid rgba(99,214,166,.2);border-radius:18px;
+    background:linear-gradient(112deg,rgba(21,67,49,.88),rgba(14,35,29,.94) 58%,rgba(18,44,37,.82));
+    box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.seo-specialist-shell .main-content :is(.owner-seo-kicker,.website-kicker,.owner-form-head>div>span){
+    display:inline-flex;align-items:center;gap:7px;margin-bottom:8px;padding:5px 9px;
+    border:1px solid rgba(99,214,166,.25);border-radius:999px;background:rgba(99,214,166,.09);
+    color:#8ce8b9;font-size:10px;letter-spacing:0;
+}
+.seo-specialist-shell .main-content :is(.owner-seo-hero h1,.seo-console-hero h1,.owner-form-head h1,.website-center-hero h1,.website-hero-editor-head h1){
+    font-size:clamp(22px,2.2vw,30px);line-height:1.65;letter-spacing:0;color:#f0fff6!important;
+}
+.seo-specialist-shell .main-content :is(.owner-seo-hero p,.seo-console-hero p,.owner-form-head p,.website-center-hero p,.website-hero-editor-head p){
+    max-width:68ch;margin-top:9px;color:#b4cfc1!important;font-size:12px;line-height:2.1;
+}
+.seo-specialist-shell .main-content :is(.seo-console-hero-actions,.seo-keyword-hero-actions,.website-hero-editor-actions){gap:9px}
+.seo-specialist-shell .main-content :is(.course-action-btn.primary,.course-primary-btn,.website-open-btn.primary){
+    background:#63d6a6;color:#082218!important;border-color:#63d6a6;
+}
+.seo-specialist-shell .main-content :is(.course-action-btn,.website-open-btn){
+    min-height:42px;border-radius:11px;padding:9px 14px;font-size:11px;
+}
+.seo-specialist-shell .main-content :is(.dashboard-panel,.owner-panel,.seo-keyword-tools,.seo-keyword-list-panel,.seo-keyword-history,.owner-form-section,.owner-seo-stat){
+    border-color:rgba(119,190,157,.17);background:#10231f;color:#edf8f2;
+}
+.seo-specialist-shell .main-content .owner-panel-head{
+    align-items:flex-start;padding-bottom:13px;border-bottom:1px solid rgba(119,190,157,.15);
+}
+.seo-specialist-shell .main-content .owner-panel-head h2{font-size:14px;line-height:1.8;color:#effff6!important}
+.seo-specialist-shell .main-content .owner-panel-head p{max-width:78ch;line-height:2;color:#a9c1b5!important}
+.seo-specialist-shell .main-content .owner-seo-stat{
+    display:grid;align-content:start;gap:5px;min-height:116px;padding:16px;
+    border-radius:14px;background:linear-gradient(145deg,#132e26,#10231f);
+}
+.seo-specialist-shell .main-content .owner-seo-stat span{font-size:11px;line-height:1.9;color:#b4cfc1!important}
+.seo-specialist-shell .main-content .owner-seo-stat strong{margin:2px 0;color:#f0fff6!important;font-size:28px;line-height:1.25;font-variant-numeric:tabular-nums}
+.seo-specialist-shell .main-content .owner-seo-stat small{font-size:10px;line-height:1.8;color:#91b1a1!important}
+.seo-specialist-shell .main-content .owner-seo-row{
+    grid-template-columns:minmax(220px,1.6fr) minmax(130px,.65fr) minmax(112px,.5fr) auto;
+    gap:18px;padding:17px 8px;border-bottom-color:rgba(119,190,157,.14);
+}
+.seo-specialist-shell .main-content .owner-seo-main{display:grid;justify-items:start;gap:4px}
+.seo-specialist-shell .main-content .owner-seo-main strong{font-size:13px;line-height:1.9;overflow-wrap:anywhere}
+.seo-specialist-shell .main-content .owner-seo-main a{max-width:100%;font-size:10px;line-height:1.8;overflow-wrap:anywhere}
+.seo-specialist-shell .main-content .owner-seo-main details{width:100%;max-width:620px;margin-top:7px!important;border-color:rgba(234,179,8,.22)!important;background:rgba(120,82,14,.12)!important}
+.seo-specialist-shell .main-content .owner-seo-score{min-width:0}
+.seo-specialist-shell .main-content .owner-seo-score-top{font-size:10px;line-height:1.8}
+.seo-specialist-shell .main-content .owner-seo-score-top strong{font-size:12px}
+.seo-specialist-shell .main-content .owner-seo-track{height:7px;background:#071a14}
+.seo-specialist-shell .main-content .owner-seo-track span{background:linear-gradient(90deg,#399b70,#8ce8b9)}
+.seo-specialist-shell .main-content .owner-seo-status{justify-self:start;min-height:30px;padding:5px 11px}
+.seo-specialist-shell .main-content .seo-console-switcher{padding:5px;border:1px solid rgba(119,190,157,.16);border-radius:13px;background:#0d201a}
+.seo-specialist-shell .main-content .seo-console-switcher a{padding:9px 14px;line-height:1.8}
+.seo-specialist-shell .main-content .seo-console-switcher a.is-active{background:#63d6a6;color:#082218!important}
+.seo-specialist-shell .main-content .seo-keyword-filters{grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;padding:14px;border:1px solid rgba(119,190,157,.14);border-radius:13px;background:#0c1e19}
+.seo-specialist-shell .main-content :is(.seo-keyword-filters,.seo-keyword-observation-form) label{line-height:1.8}
+.seo-specialist-shell .main-content :is(.seo-keyword-filters input,.seo-keyword-filters select,.owner-form-section input,.owner-form-section select,.owner-form-section textarea){
+    border-color:rgba(119,190,157,.25);background:#091a15;color:#effff6;
+}
+.seo-specialist-shell .main-content .seo-keyword-table-wrap{border:1px solid rgba(119,190,157,.16);border-radius:13px}
+.seo-specialist-shell .main-content table.seo-keyword-table{width:100%;min-width:850px;border-collapse:separate;border-spacing:0}
+.seo-specialist-shell .main-content .seo-keyword-table thead{background:#18362b}
+.seo-specialist-shell .main-content .seo-keyword-table th{
+    padding:13px 12px;color:#c6e8d5;text-align:right;white-space:nowrap;font-size:10px;line-height:1.8;
+}
+.seo-specialist-shell .main-content .seo-keyword-table td{
+    padding:13px 12px;border-top:1px solid rgba(119,190,157,.12);color:#dceee4;font-size:11px;line-height:1.9;vertical-align:middle;
+}
+.seo-specialist-shell .main-content .seo-keyword-table tbody tr:hover{background:rgba(99,214,166,.045)}
+.seo-specialist-shell .main-content .seo-keyword-primary{display:block;line-height:1.9;overflow-wrap:anywhere}
+.seo-specialist-shell .main-content .seo-keyword-table :is(small,.seo-keyword-cluster,.seo-keyword-source){display:block;margin-top:3px;color:#9fbdad;line-height:1.8}
+.seo-specialist-shell .main-content .seo-keyword-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.seo-specialist-shell .main-content .owner-form-grid{grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:18px}
+.seo-specialist-shell .main-content .owner-form-section{gap:16px;padding:20px;border-radius:16px}
+.seo-specialist-shell .main-content .owner-form-section label{gap:7px;font-size:11px;line-height:1.9}
+.seo-specialist-shell .main-content .owner-form-section label>span{font-size:11px;font-weight:800;color:#c2d9cc}
+.seo-specialist-shell .main-content .owner-form-section label small{font-size:10px;line-height:1.95;color:#9fbdad!important}
+.seo-specialist-shell .main-content .owner-form-section :is(input,select,textarea){line-height:1.9;text-align:start}
+.seo-specialist-shell .main-content .owner-form-section textarea{min-height:100px}
+.seo-specialist-shell .main-content .seo-og-preview-card{overflow:hidden;border:1px solid rgba(119,190,157,.18);border-radius:13px;background:#091a15}
+.seo-specialist-shell .main-content .seo-og-preview-image{display:grid;place-items:center;min-height:150px;background:#102820;color:#91b1a1}
+.seo-specialist-shell .main-content .seo-og-preview-image img{display:block;width:100%;max-height:190px;object-fit:cover}
+.seo-specialist-shell .main-content .seo-og-preview-copy{display:grid;gap:6px;padding:13px}
+.seo-specialist-shell .main-content .seo-og-preview-copy :is(small,strong,p){margin:0;line-height:1.9;overflow-wrap:anywhere}
+.seo-specialist-shell .main-content .seo-og-preview-copy strong{font-size:12px;color:#effff6}
+.seo-specialist-shell .main-content .seo-og-preview-copy p{font-size:10px;color:#a9c1b5}
+.seo-specialist-shell .main-content .seo-og-preview-status{font-size:10px;line-height:1.9;color:#a9c1b5}
+.seo-specialist-shell .main-content :is(.owner-empty,.seo-keyword-empty){padding:30px 18px;text-align:center;line-height:2;color:#a9c1b5}
+.seo-specialist-shell .main-content :is(.seo-keyword-disclaimer,.seo-keyword-csv-help){padding:14px;border:1px solid rgba(119,190,157,.16);border-radius:13px;background:#0d201a;color:#b9d5c6;line-height:2}
+.seo-specialist-shell .main-content :is(.seo-keyword-disclaimer p,.seo-keyword-csv-help p){line-height:2}
+.seo-specialist-shell .main-content :is(p,li,small,label,summary){overflow-wrap:anywhere}
+.seo-specialist-shell .main-content :is(h1,h2,h3){letter-spacing:0;line-height:1.75}
+.seo-specialist-shell .main-content :is(input,textarea,select,button,a){font-family:Vazirmatn,Tahoma,sans-serif}
+.seo-specialist-shell .main-content :is(button,a):focus-visible{outline-color:#8ce8b9}
+@media(max-width:1050px){
+    .seo-specialist-shell .main-content .owner-seo-row{grid-template-columns:minmax(0,1fr) minmax(130px,.6fr);gap:12px}
+    .seo-specialist-shell .main-content .owner-seo-row .owner-seo-score{grid-column:1/-1}
+    .seo-specialist-shell .main-content .owner-seo-row .owner-seo-status{justify-self:start}
+}
+@media(max-width:760px){
+    .seo-specialist-shell .app{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}
+    .seo-specialist-shell .top{gap:8px}
+    .seo-specialist-shell .seo-specialist-identity{order:4;flex:1 1 100%;width:100%}
+    .seo-specialist-shell .main-content :is(.owner-seo-hero,.seo-console-hero,.owner-form-head,.website-center-hero,.website-hero-editor-head){padding:17px;gap:12px}
+    .seo-specialist-shell .main-content .owner-seo-row{grid-template-columns:minmax(0,1fr);gap:10px;padding:15px 4px}
+    .seo-specialist-shell .main-content .owner-seo-row .owner-seo-score{grid-column:auto}
+    .seo-specialist-shell .main-content .owner-seo-row .course-action-btn{width:100%}
+    .seo-specialist-shell .main-content .seo-keyword-filters{grid-template-columns:minmax(0,1fr)}
+    .seo-specialist-shell .main-content .seo-keyword-actions{display:grid;grid-template-columns:minmax(0,1fr)}
+    .seo-specialist-shell .main-content .owner-form-grid{grid-template-columns:minmax(0,1fr)}
+    .seo-specialist-shell .main-content .owner-form-section{padding:14px}
+    .seo-specialist-shell .main-content .seo-keyword-table-wrap{margin-inline:-2px}
+}
+@media(prefers-reduced-motion:reduce){
+    .seo-specialist-shell *{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
