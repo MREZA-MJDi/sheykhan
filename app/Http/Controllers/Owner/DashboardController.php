@@ -40,7 +40,7 @@ class DashboardController extends Controller
         $firstAcademy = $data['academies']->first();
         $metrics = $data['metrics'] ?? [];
         $data['notifications'] = [];
-        $pendingReviews = $owner->hasPermission('courses.view') ? (int) data_get($metrics, 'pendingReviews', 0) : 0;
+        $pendingReviews = $owner->hasPermission('assignments.view') ? (int) data_get($metrics, 'pendingReviews', 0) : 0;
         $classroomsWithoutTeacher = $owner->hasPermission('classrooms.view') ? (int) data_get($metrics, 'classroomsWithoutTeacher', 0) : 0;
         $capacityAlerts = $owner->hasPermission('classrooms.view') ? (int) data_get($metrics, 'capacityAlerts', 0) : 0;
 
