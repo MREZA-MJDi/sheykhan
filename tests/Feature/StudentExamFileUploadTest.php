@@ -17,7 +17,7 @@ class StudentExamFileUploadTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_student_can_submit_a_private_file_with_exam_answers_and_teacher_can_review_it(): void
+    public function test_student_can_submit_a_pdf_only_exam_answer_and_teacher_can_review_it(): void
     {
         $this->seed();
         Storage::fake('local');
@@ -49,6 +49,14 @@ class StudentExamFileUploadTest extends TestCase
         ]);
 
         $attempt = app(StudentExamService::class)->start($student, $exam);
+
+        $this->actingAs($student)
+            ->get(route('student.exams.attempt', ['exam' => $exam->id, 'attempt' => $attempt->id]))
+            ->assertOk()
+            ->assertSee('می‌توانی پاسخ را به‌صورت فایل ارسال کنی')
+            ->assertSee('لازم نیست کادر سؤال‌ها را پر کنی')
+            ->assertSee('name="attachments[]"', false);
+
         $pdf = UploadedFile::fake()->create('exam-answer.pdf', 96, 'application/pdf');
 
         $this->actingAs($student)
