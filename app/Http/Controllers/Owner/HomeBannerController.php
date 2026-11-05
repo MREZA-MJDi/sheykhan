@@ -87,24 +87,29 @@ final class HomeBannerController extends Controller
                         ];
     
                         $banner->media_id = $newMedia->id;
-                    } elseif (!empty($data['media_id'])) {
-                        $mediaId = (int) $data['media_id'];
-    
-                        if (!in_array($mediaId, $attachedMediaIds, true)) {
-                            abort(422, 'بنر انتخاب‌شده متعلق به این آموزشگاه نیست.');
+                    } elseif (array_key_exists('media_id', $data)) {
+                        if (filled($data['media_id'])) {
+                            $mediaId = (int) $data['media_id'];
+
+                            if (!in_array($mediaId, $attachedMediaIds, true)) {
+                                abort(422, 'بنر انتخاب‌شده متعلق به این آموزشگاه نیست.');
+                            }
+
+                            $media = Media::query()
+                                ->whereKey($mediaId)
+                                ->where('visibility', 'public')
+                                ->where('status', 'active')
+                                ->where('mime_type', 'like', 'image/%')
+                                ->first();
+
+                            abort_unless($media, 422);
+                            $banner->media_id = $media->id;
+                        } else {
+                            // An explicitly submitted empty select means the editor cleared this slot.
+                            $banner->media_id = null;
                         }
-    
-                        $media = Media::query()
-                            ->whereKey($mediaId)
-                            ->where('visibility', 'public')
-                            ->where('status', 'active')
-                            ->where('mime_type', 'like', 'image/%')
-                            ->first();
-    
-                        abort_unless($media, 422);
-                        $banner->media_id = $media->id;
                     }
-    
+
                     if (!$banner->media_id) {
                         $banner->is_active = false;
                     } else {
