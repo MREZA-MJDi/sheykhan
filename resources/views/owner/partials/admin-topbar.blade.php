@@ -2,6 +2,7 @@
         <button class="burger" id="burger" type="button" aria-label="باز و بسته کردن منوی اصلی" aria-expanded="false" aria-controls="side"><svg class="ic"><use href="#i-menu"/></svg></button>
         <a class="brand-mark" href="{{ route($ownerHomeRoute) }}" aria-label="ورود به مرکز مدیریت شیخان"><span class="lg" aria-hidden="true">ش</span><span class="brand">آکادمی شیخان</span></a>
         <span class="top-page-title">{{ $pageHeading }}</span>
+        @if($isSeoOnlyUser)<span class="seo-specialist-identity"><span aria-hidden="true">↗</span><span><strong>متخصص SEO</strong><small>رشد ارگانیک شیخان</small></span></span>@endif
         <nav class="tabs" aria-label="دسترسی سریع">
             @if(request()->routeIs('owner.dashboard'))
                 @foreach(['today'=>'امروز','week'=>'این هفته','month'=>'این ماه'] as $periodKey=>$periodLabel)
