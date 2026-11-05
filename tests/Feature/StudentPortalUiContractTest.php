@@ -58,6 +58,8 @@ class StudentPortalUiContractTest extends TestCase
             ->assertOk()
             ->assertSee('پیام به مدرس‌ها')
             ->assertSee('پیام جدید به مدرس')
+            ->assertSee('href="#new-teacher-message"', false)
+            ->assertSee('id="new-teacher-message"', false)
             ->assertSee('action="' . route('student.messages.store') . '"', false);
     }
 
