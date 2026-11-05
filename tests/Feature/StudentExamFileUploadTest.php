@@ -53,7 +53,6 @@ class StudentExamFileUploadTest extends TestCase
 
         $this->actingAs($student)
             ->post(route('student.exam-attempts.submit', $attempt), [
-                'answers' => [$question->id => 'پاسخ تشریحی دانش‌آموز'],
                 'attachments' => [$pdf],
             ])
             ->assertRedirect(route('student.exams.index'))
@@ -63,6 +62,8 @@ class StudentExamFileUploadTest extends TestCase
         $answerFile = $attempt->media()->wherePivot('collection', 'exam-answer')->firstOrFail();
 
         $this->assertNotNull($attempt->submitted_at);
+        $this->assertSame('pending_review', $attempt->status, 'A PDF-only exam answer must be queued for teacher review.');
+        $this->assertDatabaseHas('exam_answers', ['exam_attempt_id' => $attempt->id, 'question_id' => $question->id, 'answer' => null]);
         $this->assertSame('private', $answerFile->visibility);
         $this->assertSame('exam-answer', $answerFile->pivot->collection);
         Storage::disk('local')->assertExists($answerFile->path);
