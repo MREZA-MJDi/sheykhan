@@ -5,6 +5,9 @@
 
 @section('content')
 <section class="page" id="messages">
+    <header class="card student-messages-intro">
+        <div class="chead"><div><h2>ارتباط مستقیم با مدرس</h2><p class="small muted">مدرس مرتبط با دوره یا کلاس را انتخاب کن؛ پاسخ‌ها و ادامه گفتگو در همین صفحه نمایش داده می‌شوند.</p></div><a class="btn s" href="#new-teacher-message">پیام جدید</a></div>
+    </header>
     <div class="card">
         <div class="chead"><h2>پیام از آموزشگاه</h2><span class="pill">{{ \App\Support\PersianUi::digits($academyMessages->total()) }} پیام</span></div>
         @forelse($academyMessages as $message)
@@ -83,9 +86,10 @@
     </div>
 
     @if(auth()->user()->hasPermission('student_messages.manage'))
-        <form class="card" method="POST" action="{{ route('student.messages.store') }}">
+        <form class="card student-message-compose" id="new-teacher-message" method="POST" action="{{ route('student.messages.store') }}">
             @csrf
-            <div class="chead"><h2>پیام جدید به مدرس</h2></div>
+            <div class="chead"><h2>پیام جدید به مدرس</h2><span class="tag">ارسال مستقیم</span></div>
+            @if($errors->any())<div class="alert a" role="alert">لطفاً خطاهای فرم را بررسی و دوباره ارسال کن.</div>@endif
             @if($contactableTargets->isEmpty())
                 <p class="empty">برای ارسال پیام باید در یک دوره یا کلاس فعال با مدرس مرتبط باشی.</p>
             @else

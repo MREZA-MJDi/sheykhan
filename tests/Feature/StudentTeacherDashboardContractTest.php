@@ -59,6 +59,8 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('href="' . route('teacher.classrooms.index') . '"', false)
             ->assertSee('href="' . route('teacher.courses.index') . '"', false)
             ->assertSee('href="' . route('teacher.schedule.index') . '"', false)
+            ->assertSee('پیام دانش‌آموزان')
+            ->assertSee('href="' . route('teacher.student-messages.index') . '"', false)
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
     }

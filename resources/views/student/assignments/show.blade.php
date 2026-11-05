@@ -49,13 +49,14 @@
 @endif
 
 @if ($canSubmit)
-<form class="card sec" method="POST" action="{{ route('student.assignments.submit', $assignment->id) }}" enctype="multipart/form-data">
+<form class="card sec student-assignment-submit" method="POST" action="{{ route('student.assignments.submit', $assignment->id) }}" enctype="multipart/form-data">
   @csrf
-  <div class="chead"><h2>{{ $submission ? 'ارسال مجدد پاسخ' : 'ارسال پاسخ' }}</h2></div>
+  <div class="chead"><h2>{{ $submission ? 'ارسال مجدد پاسخ' : 'ارسال پاسخ' }}</h2><span class="tag">متن یا فایل</span></div>
+  <div class="note" role="note">اگر پاسخ را روی برگه نوشته‌ای، لازم نیست متن پاسخ را اینجا وارد کنی؛ فایل PDF یا تصویر پاسخ را انتخاب کن و مستقیم ارسال کن.</div>
   <label for="assignment-content">متن پاسخ</label>
   <textarea class="fld" id="assignment-content" name="content" rows="7" maxlength="30000" data-autosize>{{ old('content', $submission?->content) }}</textarea>
   @error('content')<p class="field-err">{{ $message }}</p>@enderror
-  <x-uploader name="attachments" :max="3" :max-mb="10" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" />
+  <x-uploader name="attachments" :max="3" :max-mb="10" accept=".pdf,.txt,.jpg,.jpeg,.png,.webp,.zip,.doc,.docx,.odt" label="فایل پاسخ را انتخاب کن یا اینجا رها کن" />
   @error('attachments')<p class="field-err">{{ $message }}</p>@enderror
   @error('attachments.*')<p class="field-err">{{ $message }}</p>@enderror
   <p class="small muted" style="margin-top:10px">فایل‌ها به‌صورت خصوصی ذخیره می‌شوند و فقط کاربران مجاز می‌توانند آن‌ها را ببینند.</p>

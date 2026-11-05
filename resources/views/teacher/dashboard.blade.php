@@ -19,6 +19,7 @@
     ['icon'=>'✎','label'=>'تکلیف جدید','hint'=>'ایجاد و انتشار تکلیف','route'=>'teacher.assignments.create','permission'=>'assignments.manage','tone'=>'#ff9f43'],
     ['icon'=>'◈','label'=>'ساخت آزمون','hint'=>'طراحی برگه و کلید پاسخ','route'=>'teacher.exams.create','permission'=>'exams.manage','tone'=>'#8b5cf6'],
     ['icon'=>'✉','label'=>'پیام‌ها','hint'=>'پیگیری گفتگوها','route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage','tone'=>'#14b8c4'],
+    ['icon'=>'↗','label'=>'پیام دانش‌آموزان','hint'=>'پاسخ به پرسش‌های درسی دانش‌آموزان','route'=>'teacher.student-messages.index','permission'=>'student_messages.view','tone'=>'#0f9f86'],
     ['icon'=>'◷','label'=>'برنامه هفتگی','hint'=>'زمان‌بندی جلسات','route'=>'teacher.schedule.index','permission'=>'live_classes.view','tone'=>'#4a5fe0'],
     ['icon'=>'♥','label'=>'دانش‌آموزان','hint'=>'فهرست و وضعیت یادگیری','route'=>'teacher.students.index','permission'=>'students.view','tone'=>'#f0566b'],
     ['icon'=>'▣','label'=>'مدیریت دوره‌ها','hint'=>'محتوا، قیمت و SpotPlayer','route'=>'teacher.courses.index','permission'=>'courses.view','tone'=>'#6366f1'],

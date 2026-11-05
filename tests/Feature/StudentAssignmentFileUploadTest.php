@@ -37,7 +37,6 @@ class StudentAssignmentFileUploadTest extends TestCase
 
         $this->actingAs($student)
             ->post(route('student.assignments.submit', $assignment), [
-                'content' => 'پاسخ تکلیف در فایل PDF پیوست شده است.',
                 'attachments' => [$pdf],
             ])
             ->assertRedirect(route('student.assignments.show', $assignment))
@@ -50,6 +49,7 @@ class StudentAssignmentFileUploadTest extends TestCase
 
         $attachment = $submission->media()->firstOrFail();
 
+        $this->assertNull($submission->content, 'A PDF-only response must be accepted without a text answer.');
         $this->assertSame('homework-answer.pdf', $attachment->original_name);
         $this->assertSame('application/pdf', $attachment->mime_type);
         $this->assertSame('private', $attachment->visibility);

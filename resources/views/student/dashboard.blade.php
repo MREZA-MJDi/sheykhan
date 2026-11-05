@@ -66,6 +66,16 @@
   <x-stat color="mint" icon="i-rocket" label="رشد این ماه" :value="'—'" hint="امتیاز یادگیری در صفحه رشد تحصیلی" :href="route('student.growth')" />
 </div>
 
+<section class="card student-dashboard-contact">
+  <div class="chead">
+    <div>
+      <h2>ارتباط با مدرس</h2>
+      <p class="muted small">اگر درباره درس، تکلیف یا آزمون سؤالی داری، از همین‌جا برای مدرس مرتبط پیام بفرست و پاسخ را در کارتابلت دنبال کن.</p>
+    </div>
+    <a class="btn s" href="{{ route('student.messages.index') }}">پیام به مدرس‌ها</a>
+  </div>
+</section>
+
 <div class="row">
   <section class="card">
     <div class="chead"><h2>کلاس‌های امروز</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه کلاس‌ها</a></div>
