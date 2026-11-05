@@ -24,8 +24,8 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('خانه یادگیری من')
-            ->assertSee('دوره‌های فعال')
+            ->assertSee('مرکز یادگیری')
+            ->assertSee('پیشرفت درس‌ها')
             ->assertSee('student-shell', false)
             ->assertDontSee('sdr-hero', false);
     }
@@ -412,7 +412,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('Intl.NumberFormat', $moneyRuntime);
         $this->assertStringContainsString('data-upload-progress-ui', $uploadRuntime);
 
-        $this->assertStringContainsString('data-dashboard-search-empty', $dashboard);
+        $this->assertStringContainsString('data-dashboard-search-empty', $teacherLayout);
         $this->assertStringContainsString('id="teacher-progress"', $dashboard);
         $this->assertStringContainsString('data-dashboard-chart', $dashboard);
         $this->assertStringContainsString('class="teacher-dashboard-avatar"', $dashboard);
@@ -461,7 +461,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('خانه یادگیری من')
+            ->assertSee('مرکز یادگیری')
             ->assertSee('student-shell', false)
             ->assertDontSee('تقویم')
             ->assertDontSee(now()->format('F Y'));
