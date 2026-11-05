@@ -28,6 +28,16 @@
             </div>
         </section>
 
+        @if(session('success'))
+            <div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>
+        @endif
+        @if($errors->any())
+            <div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+                <strong>تغییرات بنر ذخیره نشد؛ خطاهای زیر را بررسی کن:</strong>
+                <ul class="mt-2 list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+            </div>
+        @endif
+
         <form
             method="POST"
             action="{{ route('owner.academy.banners.update', $academy) }}"
