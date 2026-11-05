@@ -11,7 +11,7 @@ return [
         'resources' => true,
         'library' => true,
         'shop' => true,
-        'messages' => false,
+        'messages' => true,
         'results' => true,
         'growth' => true,
         'attendance' => true,
