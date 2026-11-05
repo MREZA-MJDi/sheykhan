@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Course;
 use App\Models\FinancialTransaction;
 use App\Models\Permission;
@@ -328,12 +330,31 @@ class OwnerDashboardBackendContractTest extends TestCase
         );
         $owner->unsetRelation('roles');
 
-        $dashboardData = app(OwnerDashboardService::class)->build($owner);
-        $dashboardData['metrics']['pendingReviews'] = 2;
+        $academyIds = $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->pluck('academies.id');
+        $course = Course::query()->whereIn('academy_id', $academyIds)->firstOrFail();
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
 
-        $this->mock(OwnerDashboardService::class, function ($mock) use ($dashboardData): void {
-            $mock->shouldReceive('build')->twice()->andReturn($dashboardData);
-        });
+        $assignment = Assignment::query()->create([
+            'course_id' => $course->id,
+            'teacher_id' => $teacher->id,
+            'title' => 'تکلیف در انتظار بررسی',
+            'instructions' => 'ثبت پاسخ برای آزمون دسترسی داشبورد',
+            'due_at' => now()->addDay(),
+            'max_score' => 10,
+            'status' => 'published',
+        ]);
+
+        AssignmentSubmission::query()->create([
+            'assignment_id' => $assignment->id,
+            'student_id' => $student->id,
+            'content' => 'پاسخ ثبت‌شده برای بررسی',
+            'submitted_at' => now(),
+        ]);
+
+        Cache::flush();
 
         $this->actingAs($owner)
             ->get(route('owner.dashboard'))
