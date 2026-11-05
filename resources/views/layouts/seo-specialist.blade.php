@@ -8,7 +8,7 @@
     @vite(['resources/css/seo-dashboard.css', 'resources/js/seo-dashboard.js'])
     @stack('styles')
 </head>
-<body class="owner-shell owner-admin-v2">
+<body class="owner-shell owner-admin-v2 {{ $isSeoOnlyUser ? 'seo-specialist-shell' : '' }}">
 @php
     $ownerUser = auth()->user();
     $isSeoOnlyUser = $ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUser->hasRole('academy-owner');
