@@ -42,14 +42,8 @@ class BlogService
 
     public function clearPublicCache(): void
     {
-        foreach ([3, 6] as $limit) {
-            Cache::forget("public:home:blog:latest:{$limit}:v1");
-        }
-
-        Cache::forget('public:home:data:v3');
-        Cache::forget('public:seo:sitemap:v1');
+        PublicHomeCache::forget();
     }
-
     private function publishedQuery(): Builder
     {
         return BlogPost::query()
