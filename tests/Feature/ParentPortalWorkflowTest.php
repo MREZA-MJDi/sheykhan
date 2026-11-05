@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\Achievement;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\AcademyMeeting;
