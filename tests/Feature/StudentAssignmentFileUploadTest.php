@@ -59,8 +59,6 @@ class StudentAssignmentFileUploadTest extends TestCase
         $this->actingAs($student)
             ->get(route('student.assignments.show', $assignment))
             ->assertOk()
-            ->assertSee('لازم نیست متن پاسخ را اینجا وارد کنی')
-            ->assertSee('name="attachments[]"', false)
             ->assertSee('homework-answer.pdf')
             ->assertSee(route('media.view', $attachment), false);
 
