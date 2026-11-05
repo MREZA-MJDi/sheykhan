@@ -13,6 +13,10 @@ let runtimeScheduled = false;
 
 const asElement = (target) => target instanceof Element ? target : target?.parentElement;
 
+export function shouldConfirmOnClick(target) {
+    return Boolean(target?.dataset?.confirm && target.tagName !== 'FORM');
+}
+
 export function initializeTabs(root, options = {}) {
     if (!root || boundRoots.has(root)) return false;
 
@@ -139,7 +143,7 @@ export function guardFormOnce(form, options = {}) {
 function bootConfirmationBehavior() {
     document.addEventListener('click', (event) => {
         const target = asElement(event.target)?.closest('[data-confirm]');
-        if (!target) return;
+        if (!shouldConfirmOnClick(target)) return;
 
         const form = target instanceof HTMLButtonElement || target instanceof HTMLInputElement
             ? target.form
@@ -156,7 +160,8 @@ function bootConfirmationBehavior() {
 
     document.addEventListener('submit', (event) => {
         const form = event.target;
-        if (!(form instanceof HTMLFormElement) || form.dataset.confirmSubmit !== 'true') return;
+        if (!(form instanceof HTMLFormElement)
+            || (form.dataset.confirmSubmit !== 'true' && !form.hasAttribute('data-confirm'))) return;
         const message = form.dataset.confirm || 'از انجام این عملیات مطمئن هستید؟';
         if (!window.confirm(message)) event.preventDefault();
     }, true);
