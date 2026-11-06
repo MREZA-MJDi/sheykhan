@@ -37,7 +37,7 @@
         ['label'=>'دانش‌آموزان','icon'=>'♙','route'=>'teacher.students.index','permission'=>'students.view'],
       ]],
       ['label'=>'ارتباط و پیگیری','items'=>[
-        ['label'=>'پیام‌ها','icon'=>'✉','route'=>$teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : 'teacher.direct-messages.index','permissions_any'=>['parent_messages.view','parent_messages.manage']],
+        ['label'=>'پیام‌ها','icon'=>'✉','route'=>$teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : ($teacherUser?->hasPermission('parent_messages.manage') ? 'teacher.direct-messages.index' : 'teacher.student-messages.index'),'permissions_any'=>['parent_messages.view','parent_messages.manage','student_messages.view']],
         ['label'=>'گزارش عملکرد','icon'=>'▥','route'=>'teacher.reports.index','permission'=>'reports.view'],
         ['label'=>'جلسات اولیا','icon'=>'◉','route'=>'teacher.meetings.index','permission'=>'live_classes.view'],
         ['label'=>'درخواست مشاوره','icon'=>'✦','route'=>'teacher.counseling-requests.index','permission'=>'live_classes.view'],
@@ -177,7 +177,7 @@
     ['route'=>'teacher.dashboard','icon'=>'⌂','label'=>'خانه','permission'=>'dashboard.view'],
     ['route'=>'teacher.classrooms.index','icon'=>'▤','label'=>'کلاس‌ها','permission'=>'classrooms.view'],
     ['route'=>'teacher.live-classes.index','icon'=>'◉','label'=>'آنلاین','permission'=>'live_classes.view'],
-    ['route'=>$teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : 'teacher.direct-messages.index','icon'=>'✉','label'=>'پیام‌ها','permissions_any'=>['parent_messages.view','parent_messages.manage']]
+    ['route'=>$teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : ($teacherUser?->hasPermission('parent_messages.manage') ? 'teacher.direct-messages.index' : 'teacher.student-messages.index'),'icon'=>'✉','label'=>'پیام‌ها','permissions_any'=>['parent_messages.view','parent_messages.manage']]
   ] as $mobileItem)
     @php
       $mobileActive = $mobileItem['route'] === 'teacher.dashboard'
