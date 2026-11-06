@@ -37,7 +37,7 @@
         ['label'=>'دانش‌آموزان','icon'=>'♙','route'=>'teacher.students.index','permission'=>'students.view'],
       ]],
       ['label'=>'ارتباط و پیگیری','items'=>[
-        ['label'=>'پیام‌ها','icon'=>'✉','route'=>'teacher.direct-messages.index','permissions'=>['parent_messages.view','parent_messages.manage']],
+        ['label'=>'پیام‌ها','icon'=>'✉','route'=>'teacher.messages.index','permissions_any'=>['parent_messages.view','parent_messages.manage']],
         ['label'=>'گزارش عملکرد','icon'=>'▥','route'=>'teacher.reports.index','permission'=>'reports.view'],
         ['label'=>'جلسات اولیا','icon'=>'◉','route'=>'teacher.meetings.index','permission'=>'live_classes.view'],
         ['label'=>'درخواست مشاوره','icon'=>'✦','route'=>'teacher.counseling-requests.index','permission'=>'live_classes.view'],
@@ -84,6 +84,9 @@
     @foreach($navGroups as $group)
       @php
           $visibleItems = array_values(array_filter($group['items'], function ($item) use ($teacherUser) {
+              if (isset($item['permissions_any'])) {
+                  return collect($item['permissions_any'])->contains(fn (string $permission) => $teacherUser?->hasPermission($permission));
+              }
               $permissions = collect($item['permissions'] ?? [$item['permission']]);
               return $permissions->every(function (string $permission) use ($teacherUser) {
                   return $teacherUser?->hasPermission($permission);
@@ -146,8 +149,10 @@
     </header>
     @if(request()->routeIs('teacher.messages.*') || request()->routeIs('teacher.direct-messages.*') || request()->routeIs('teacher.student-messages.*') || request()->routeIs('teacher.communications.*'))
       <nav class="teacher-context-nav" aria-label="بخش‌های پیام‌رسانی">
-        @if($teacherUser?->hasPermission('parent_messages.view') || $teacherUser?->hasPermission('parent_messages.manage'))
-          <a href="{{ route('teacher.direct-messages.index') }}" class="{{ request()->routeIs('teacher.direct-messages.*') ? 'is-active' : '' }}">ارسال و دریافت</a>
+        @if($teacherUser?->hasPermission('parent_messages.manage'))
+          <a href="{{ route('teacher.direct-messages.index') }}" class="{{ request()->routeIs('teacher.direct-messages.*') ? 'is-active' : '' }}">ارسال پیام</a>
+        @endif
+        @if($teacherUser?->hasPermission('parent_messages.view'))
           <a href="{{ route('teacher.messages.index') }}" class="{{ request()->routeIs('teacher.messages.*') ? 'is-active' : '' }}">پیام خانواده‌ها</a>
         @endif
         @if($teacherUser?->hasPermission('student_messages.view'))
