@@ -147,17 +147,23 @@ final class TeacherReportService
             ? (int) round($courseProgressData->avg('progress_average'))
             : 0;
 
-        $courseReports = $courses->map(function ($course) use ($courseProgressData, $teacher) {
+        // Aggregate submissions once for every course instead of issuing one
+        // additional query per course (the previous implementation was N+1).
+        $submissionsByCourse = DB::table('assignment_submissions as submissions')
+            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+            ->where('assignments.teacher_id', $teacher->id)
+            ->whereIn('assignments.course_id', $courseIds)
+            ->whereNotNull('submissions.submitted_at')
+            ->groupBy('assignments.course_id')
+            ->select('assignments.course_id')
+            ->selectRaw('COUNT(*) as submissions_count')
+            ->pluck('submissions_count', 'course_id');
+
+        $courseReports = $courses->map(function ($course) use ($courseProgressData, $submissionsByCourse) {
             $progressRow = $courseProgressData->firstWhere('course_id', $course->id);
             $studentCount = $progressRow->student_count ?? 0;
             $progressAverage = $progressRow->progress_average ?? 0;
-
-            $submissionsCount = DB::table('assignment_submissions as submissions')
-                ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-                ->where('assignments.course_id', $course->id)
-                ->where('assignments.teacher_id', $teacher->id)
-                ->whereNotNull('submissions.submitted_at')
-                ->count();
+            $submissionsCount = (int) ($submissionsByCourse->get($course->id) ?? 0);
 
             return (object) [
                 'id' => $course->id,
