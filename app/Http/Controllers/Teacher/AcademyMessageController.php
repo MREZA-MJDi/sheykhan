@@ -24,7 +24,7 @@ final class AcademyMessageController extends Controller
 
         return view('teacher.communications.index', [
             'pageTitle' => 'ارسال پیام و اطلاعیه',
-            'pageDescription' => 'به خانواده‌های یک کلاس یا به یک ولی یا دانش‌آموز از کلاس‌های خودت پیام بده.',
+            'pageDescription' => 'به همه خانواده‌های کلاس‌های خودت، خانواده‌های یک کلاس یا یک دانش‌آموز و ولی مشخص پیام بده.',
             'targetOptions' => $this->targetOptions($teacher),
             'storeRoute' => route('teacher.communications.store'),
             'backRoute' => route('teacher.dashboard'),
@@ -49,6 +49,44 @@ final class AcademyMessageController extends Controller
         ]);
 
         $parts = explode(':', $data['target']);
+
+        if (count($parts) === 2 && $parts[0] === 'all-class-parents') {
+            $academyId = (int) $parts[1];
+            $hasActiveMembership = $teacher->academies()
+                ->whereKey($academyId)
+                ->where('academies.status', 'active')
+                ->wherePivot('role', 'teacher')
+                ->wherePivot('status', 'active')
+                ->exists();
+
+            $hasAssignedClassroom = DB::table('classroom_teacher as assignment')
+                ->join('classrooms', 'classrooms.id', '=', 'assignment.classroom_id')
+                ->where('assignment.teacher_id', $teacher->id)
+                ->where('classrooms.academy_id', $academyId)
+                ->where('classrooms.status', 'active')
+                ->exists();
+
+            abort_unless($hasActiveMembership && $hasAssignedClassroom, 404);
+
+            AcademyMessage::query()->create([
+                'academy_id' => $academyId,
+                'sender_id' => $teacher->id,
+                'sender_role' => 'teacher',
+                'audience' => 'teacher_class_parents',
+                'recipient_id' => null,
+                'student_id' => null,
+                'classroom_id' => null,
+                'course_id' => null,
+                'category' => $data['category'],
+                'subject' => trim($data['subject']),
+                'body' => trim($data['body']),
+                'published_at' => now(),
+            ]);
+
+            return redirect()->route('teacher.communications.index')
+                ->with('success', 'پیام برای خانواده‌های همه کلاس‌های فعال شما ارسال شد.');
+        }
+
         $classroom = null;
         $student = null;
         $recipient = null;
@@ -103,7 +141,7 @@ final class AcademyMessageController extends Controller
             })
             ->where('assignment.teacher_id', $teacher->id)->where('classrooms.status', 'active')->where('academies.status', 'active')
             ->orderBy('classrooms.title')->distinct()
-            ->get(['classrooms.id as classroom_id', 'classrooms.title as classroom_title', 'classrooms.academy_id', 'courses.title as course_title']);
+            ->get(['classrooms.id as classroom_id', 'classrooms.title as classroom_title', 'classrooms.academy_id', 'academies.name as academy_name', 'courses.title as course_title']);
 
         $roster = DB::table('classroom_student as roster')
             ->join('classrooms', 'classrooms.id', '=', 'roster.classroom_id')
@@ -149,6 +187,12 @@ final class AcademyMessageController extends Controller
 
         $roomsWithParents = $parents->pluck('classroom_id')->map(fn ($id) => (int) $id)->unique()->all();
         $targets = [];
+        foreach ($rooms->groupBy('academy_id') as $academyId => $academyRooms) {
+            $targets[] = [
+                'value' => 'all-class-parents:' . $academyId,
+                'label' => 'همه خانواده‌های کلاس‌های من · ' . $academyRooms->first()->academy_name,
+            ];
+        }
         foreach ($rooms as $room) {
             if (in_array((int) $room->classroom_id, $roomsWithParents, true)) {
                 $targets[] = ['value' => 'classroom:' . $room->classroom_id . ':parents', 'label' => 'همه خانواده‌های ' . $room->classroom_title . ' · ' . $room->course_title];
