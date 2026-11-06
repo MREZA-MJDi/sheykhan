@@ -176,6 +176,48 @@ class StudentTeacherMessagingTest extends TestCase
         ]);
     }
 
+    public function test_teacher_can_broadcast_to_families_in_their_own_active_classes(): void
+    {
+        $workspace = $this->workspace();
+        $parent = User::factory()->create(['status' => 'active']);
+        $parentRole = $this->role('parent', ['dashboard.view']);
+        $parent->roles()->attach($parentRole->id);
+        $workspace['academy']->users()->attach($parent->id, [
+            'role' => 'parent',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        DB::table('parent_student')->insert([
+            'parent_id' => $parent->id,
+            'student_id' => $workspace['student']->id,
+            'relation' => 'parent',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($workspace['teacher'])
+            ->post(route('teacher.communications.store'), [
+                'target' => 'all-class-parents:' . $workspace['academy']->id,
+                'category' => 'announcement',
+                'subject' => 'اطلاعیه ویژه خانواده‌های کلاس',
+                'body' => 'این پیام برای خانواده‌های کلاس‌هایی است که به این مدرس اختصاص داده شده‌اند.',
+            ])
+            ->assertRedirect(route('teacher.communications.index'))
+            ->assertSessionHasNoErrors();
+
+        $message = AcademyMessage::query()->sole();
+        $this->assertSame('teacher_class_parents', $message->audience);
+        $this->assertSame($workspace['academy']->id, $message->academy_id);
+        $this->assertSame($workspace['teacher']->id, $message->sender_id);
+        $this->assertNull($message->classroom_id);
+
+        $this->actingAs($parent)
+            ->get(route('parent.messages.index'))
+            ->assertOk()
+            ->assertSee('اطلاعیه ویژه خانواده‌های کلاس')
+            ->assertSee('این پیام برای خانواده‌های کلاس‌هایی است');
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create(['status' => 'active']);
