@@ -57,6 +57,35 @@
             </div>
 
             <section class="teacher-cover-editor" aria-labelledby="teacher-cover-title">
+                <div class="teacher-cover-editor-copy">
+                    <span class="teacher-workspace-kicker">تصویر عریض · اختیاری</span>
+                    <h2 id="teacher-cover-title">کاور صفحه معرفی</h2>
+                    <p>یک عکس عریض مرتبط با فضای تدریس یا تخصصت انتخاب کن. کاور در بالای صفحه عمومی معرفی شما نمایش داده می‌شود.</p>
+                    <div class="teacher-cover-controls">
+                        <label class="teacher-upload-btn">
+                            انتخاب کاور
+                            <input
+                                type="file"
+                                name="cover"
+                                accept="image/jpeg,image/png,image/webp,image/avif"
+                                data-teacher-preview-input="cover"
+                                data-max-size-mb="5"
+                                aria-describedby="teacher-cover-help teacher-cover-feedback"
+                            >
+                        </label>
+                        @if($cover)
+                            <label class="teacher-cover-remove">
+                                <input type="checkbox" name="remove_cover" value="1" @checked(old('remove_cover'))>
+                                <span>حذف کاور فعلی</span>
+                            </label>
+                        @endif
+                    </div>
+                    <small id="teacher-cover-help" style="display:block;margin-top:6px;color:var(--mu);font-size:11px">
+                        JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت · نسبت پیشنهادی ۱۶:۹ یا عریض.
+                    </small>
+                    <span id="teacher-cover-feedback" data-teacher-preview-feedback="cover" class="mt-2 block text-xs leading-6 text-[var(--color-primary-600)]" role="status" aria-live="polite"></span>
+                </div>
+
                 <div class="teacher-cover-preview {{ $cover ? 'has-cover' : 'no-cover' }}" data-teacher-preview-container="cover">
                     @if($cover)
                         <img
@@ -69,33 +98,9 @@
                         <div class="teacher-cover-placeholder">
                             <span>معرفی مدرس</span>
                             <strong>{{ $teacher->name }}</strong>
-                            <small>کاور اختیاری است؛ اگر انتخاب نکنی، صفحه بدون تصویر اجباری نمایش داده می‌شود.</small>
+                            <small>کاور اختیاری است؛ در صورت عدم انتخاب، صفحه بدون تصویر پس‌زمینه نمایش داده می‌شود.</small>
                             <i aria-hidden="true">ش</i>
                         </div>
-                    @endif
-                </div>
-                <div class="teacher-cover-editor-copy">
-                    <span class="teacher-workspace-kicker">اختیاری · تصویر عریض</span>
-                    <h2 id="teacher-cover-title">کاور صفحه معرفی</h2>
-                    <p>یک عکس عریض مرتبط با فضای تدریس یا تخصصت انتخاب کن. کاور فقط در صفحه عمومی مدرس نمایش داده می‌شود؛ آواتار همچنان جداست.</p>
-                    <label class="teacher-upload-btn">
-                        انتخاب کاور
-                        <input
-                            type="file"
-                            name="cover"
-                            accept="image/jpeg,image/png,image/webp,image/avif"
-                            data-teacher-preview-input="cover"
-                            data-max-size-mb="5"
-                            aria-describedby="teacher-cover-help teacher-cover-feedback"
-                        >
-                    </label>
-                    <small id="teacher-cover-help">JPG، PNG، WEBP یا AVIF · حداکثر ۵ مگابایت. انتخاب کاور اجباری نیست.</small>
-                    <span id="teacher-cover-feedback" data-teacher-preview-feedback="cover" class="mt-2 block text-xs leading-6 text-[var(--color-primary-600)]" role="status" aria-live="polite"></span>
-                    @if($cover)
-                        <label class="teacher-cover-remove">
-                            <input type="checkbox" name="remove_cover" value="1" @checked(old('remove_cover'))>
-                            <span>حذف کاور فعلی و نمایش پروفایل بدون کاور</span>
-                        </label>
                     @endif
                 </div>
             </section>

@@ -93,6 +93,49 @@ final class PersianUi
         }
     }
 
+    public static function normalizeDateTime(string|null $dateTime): ?string
+    {
+        if (!$dateTime) {
+            return null;
+        }
+
+        $normalized = strtr(trim($dateTime), [
+            '۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4',
+            '۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9',
+            '٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4',
+            '٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9',
+        ]);
+
+        $normalized = str_replace('T', ' ', $normalized);
+        $parts = preg_split('/\s+/', $normalized);
+        $datePart = $parts[0] ?? '';
+        $timePart = $parts[1] ?? '00:00:00';
+
+        $normalizedDate = self::normalizeDate($datePart);
+        if (!$normalizedDate) {
+            try {
+                return Carbon::parse($normalized)->format('Y-m-d H:i:s');
+            } catch (\Throwable) {
+                return null;
+            }
+        }
+
+        if (preg_match('/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/', $timePart, $timeMatch)) {
+            $hour = str_pad($timeMatch[1], 2, '0', STR_PAD_LEFT);
+            $minute = str_pad($timeMatch[2], 2, '0', STR_PAD_LEFT);
+            $second = isset($timeMatch[3]) ? str_pad($timeMatch[3], 2, '0', STR_PAD_LEFT) : '00';
+            $timePart = "$hour:$minute:$second";
+        } else {
+            $timePart = '00:00:00';
+        }
+
+        try {
+            return Carbon::createFromFormat('Y-m-d H:i:s', "$normalizedDate $timePart")->format('Y-m-d H:i:s');
+        } catch (\Throwable) {
+            return Carbon::parse("$normalizedDate $timePart")->format('Y-m-d H:i:s');
+        }
+    }
+
     public static function date(CarbonInterface|string|null $date): string
     {
         if (!$date) return '—';

@@ -1,12 +1,28 @@
 /* Student calendar presentation; editable without affecting other panels. */
-.jalali-calendar-control,
-.jalali-calendar-visible-control {
+.jalali-calendar-control {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 8px;
     width: 100%;
     min-width: 0;
+}
+
+.jalali-calendar-visible-control {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.jalali-calendar-visible-control > input,
+.jalali-calendar-visible-control > [data-jalali-visible-date] {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 100%;
 }
 
 .jalali-calendar-source {
@@ -79,8 +95,12 @@
     align-items: center;
     justify-content: center;
     flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
     min-width: 44px;
     min-height: 44px;
+    max-width: 44px;
+    max-height: 44px;
     padding: 0;
     border: 1px solid var(--panel-border, #d7deea);
     border-radius: 12px;
