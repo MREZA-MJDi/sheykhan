@@ -228,7 +228,7 @@ class StudentTeacherMessagingTest extends TestCase
         $student = User::factory()->create(['status' => 'active']);
 
         $ownerRole = $this->role('academy-owner', ['dashboard.view']);
-        $teacherRole = $this->role('teacher', ['dashboard.view', 'student_messages.view', 'student_messages.manage']);
+        $teacherRole = $this->role('teacher', ['dashboard.view', 'student_messages.view', 'student_messages.manage', 'parent_messages.manage']);
         $studentRole = $this->role('student', ['dashboard.view', 'student_messages.view', 'student_messages.manage']);
 
         $owner->roles()->attach($ownerRole->id);
