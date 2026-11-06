@@ -84,7 +84,7 @@ class ClassroomController extends Controller
                     || $lockedClassroom->attendance()->exists();
 
                 if ($hasStudents) {
-                    throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                    throw \Illuminate\Validation\ValidationException::withMessages([
                         'course_id' => 'دورهٔ کلاس دارای سابقهٔ ثبت‌نام یا حضور و غیاب است؛ برای حفظ سوابق، تغییر دوره مجاز نیست.',
                     ]);
                 }
@@ -96,7 +96,7 @@ class ClassroomController extends Controller
 
             $capacity = $request->validated('capacity');
             if ($capacity !== null && (int) $capacity < $activeStudents) {
-                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                throw \Illuminate\Validation\ValidationException::withMessages([
                     'capacity' => 'ظرفیت کلاس نمی‌تواند از تعداد دانش‌آموزان فعال کمتر باشد.',
                 ]);
             }
@@ -146,8 +146,8 @@ class ClassroomController extends Controller
 
         if ($schedules->isEmpty()) {
             $classroom->schedules()->create($attributes + [
-                'provider' => \\App\\Services\\MeetingLinkService::JITSI,
-                'meeting_url' => app(\\App\\Services\\MeetingLinkService::class)->generateJitsiUrl(),
+                'provider' => \App\Services\MeetingLinkService::JITSI,
+                'meeting_url' => app(\App\Services\MeetingLinkService::class)->generateJitsiUrl(),
             ]);
 
             return;
