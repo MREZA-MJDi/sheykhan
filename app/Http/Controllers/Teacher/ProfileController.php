@@ -119,6 +119,8 @@ class ProfileController extends Controller
                 ]));
         });
 
+        \App\Services\PublicHomeCache::forget();
+
         return redirect()->route('teacher.profile.edit')->with('success', 'پروفایل استاد با موفقیت به‌روزرسانی شد.');
     }
 }

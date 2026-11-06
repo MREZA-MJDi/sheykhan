@@ -20,7 +20,10 @@ class CourseCatalogService
                 'teachers:id,name',
                 'grades:id,title',
                 'media' => fn ($query) => $query
+                    ->wherePivot('collection', 'course-cover')
                     ->where('visibility', 'public')
+                    ->where('status', 'active')
+                    ->where('mime_type', 'like', 'image/%')
                     ->orderByPivot('sort_order'),
             ])
             ->withCount([
@@ -46,8 +49,10 @@ class CourseCatalogService
                     'teachers:id,name',
                     'grades:id,title',
                     'media' => fn ($query) => $query
+                        ->wherePivot('collection', 'course-cover')
                         ->where('visibility', 'public')
                         ->where('status', 'active')
+                        ->where('mime_type', 'like', 'image/%')
                         ->orderByPivot('sort_order'),
                 ])
                 ->withCount([
@@ -111,7 +116,10 @@ class CourseCatalogService
                     ->orderBy('sort_order'),
                 'grades:id,title',
                 'media' => fn ($query) => $query
+                    ->wherePivot('collection', 'course-cover')
                     ->where('visibility', 'public')
+                    ->where('status', 'active')
+                    ->where('mime_type', 'like', 'image/%')
                     ->orderByPivot('sort_order'),
                 'seoMeta',
             ])
@@ -124,12 +132,8 @@ class CourseCatalogService
 
     public function clearPublicCache(): void
     {
-        Cache::forget('public:home:data:v3');
-        Cache::forget('public:home:courses:3');
-        Cache::forget('public:home:courses:6');
-        Cache::forget('public:seo:sitemap:v1');
+        PublicHomeCache::forget();
     }
-
     private function formatDuration(int $minutes): string
     {
         if ($minutes <= 0) {

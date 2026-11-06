@@ -65,6 +65,10 @@ class MediaService
                 );
             }
 
+            if ($attachable) {
+                PublicHomeCache::forget();
+            }
+
             return $media;
         } catch (Throwable $exception) {
             // A failure after Media::create (such as a broken morph attachment)
@@ -102,6 +106,8 @@ class MediaService
                 'is_featured' => $isFeatured,
             ],
         ]);
+
+        PublicHomeCache::forget();
     }
 
     public function detach(Media $media, Model $attachable): void
@@ -111,6 +117,8 @@ class MediaService
         }
 
         $attachable->media()->detach($media->id);
+
+        PublicHomeCache::forget();
     }
 
     public function replace(Media $oldMedia, UploadedFile $newFile, ?Model $attachable = null, array $options = []): Media

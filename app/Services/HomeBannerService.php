@@ -49,12 +49,5 @@ final class HomeBannerService
 
     public function forgetCache(): void
     {
-        Cache::forget('public:home:data:v3');
-        Cache::forget('public:home:data:v4');
-        Cache::forget('public:home:data:v5');
-
-        foreach ([1, 2, 3] as $limit) {
-            Cache::forget("public:home:banners:v1:{$limit}");
-        }
-    }
-}
+        PublicHomeCache::forget();
+    }}

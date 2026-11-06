@@ -9,6 +9,9 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -140,6 +143,64 @@ class OwnerCourseAccessTest extends TestCase
             'duration_minutes' => 90,
             'spotplayer_course_id' => 'spot-course-updated-01',
         ]);
+    }
+
+
+    public function test_owner_can_upload_a_public_course_cover_and_it_is_used_on_public_cards(): void
+    {
+        Storage::fake('local');
+        Cache::flush();
+
+        $role = Role::create([
+            'name' => 'مدیر آموزشگاه',
+            'slug' => 'academy-owner',
+            'description' => 'Owner',
+        ]);
+        $permissions = collect(['courses.manage', 'media.upload'])->map(fn ($name) => Permission::create([
+            'name' => $name,
+            'label' => $name,
+            'group' => 'courses',
+        ]));
+        $role->permissions()->attach($permissions->pluck('id')->all());
+
+        $owner = User::factory()->create(['email' => 'course-cover-' . Str::random(6) . '@test.local']);
+        $owner->roles()->attach($role->id);
+        $academy = Academy::create([
+            'owner_id' => $owner->id,
+            'name' => 'آکادمی کاور',
+            'slug' => 'course-cover-academy-' . Str::random(6),
+            'status' => 'active',
+        ]);
+        $course = Course::create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره دارای کاور',
+            'slug' => 'course-with-cover-' . Str::random(6),
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'published_at' => now()->subMinute(),
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('owner.courses.media.store', $course), [
+                'collection' => 'course-cover',
+                'media' => UploadedFile::fake()->image('course-cover.webp', 1600, 900),
+            ])
+            ->assertSessionHas('success');
+
+        $cover = $course->fresh()->media()->wherePivot('collection', 'course-cover')->firstOrFail();
+        $this->assertSame('public', $cover->visibility);
+        $this->assertSame('image/webp', $cover->mime_type);
+        Storage::disk('local')->assertExists($cover->path);
+
+        Cache::flush();
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(route('media.public', $cover), false);
+        $this->get(route('courses.index'))
+            ->assertOk()
+            ->assertSee(route('media.public', $cover), false);
     }
 
     public function test_owner_cannot_open_a_course_from_another_owner(): void

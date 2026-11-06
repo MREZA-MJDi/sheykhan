@@ -19,17 +19,19 @@ class CourseMediaRequest extends FormRequest
 
     public function rules(): array
     {
+        $isCover = $this->input('collection') === 'course-cover';
+
         return [
             'media' => [
                 'required',
                 'file',
-                'max:' . $this->maxSizeKilobytes(),
-                'mimes:jpg,jpeg,png,webp,pdf,mp4,webm,mov,zip',
+                ...($isCover ? ['image'] : []),
+                'max:' . ($isCover ? 10240 : $this->maxSizeKilobytes()),
+                $isCover ? 'mimes:jpg,jpeg,png,webp' : 'mimes:jpg,jpeg,png,webp,pdf,mp4,webm,mov,zip',
             ],
-            'collection' => ['nullable', 'string', 'max:50'],
+            'collection' => ['nullable', 'string', 'in:course-assets,course-cover'],
         ];
     }
-
     public function messages(): array
     {
         return [

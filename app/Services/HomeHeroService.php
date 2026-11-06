@@ -76,9 +76,8 @@ final class HomeHeroService
 
     public function forgetCache(): void
     {
-        Cache::forget('public:home:data:v5');
+        PublicHomeCache::forget();
     }
-
     private function publicImage(?Media $media): ?string
     {
         if (

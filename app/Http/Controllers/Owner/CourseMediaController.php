@@ -30,7 +30,8 @@ class CourseMediaController extends Controller
                     'disk' => 'local',
                     'directory' => 'courses/' . $course->id,
                     'collection' => $request->string('collection')->toString() ?: 'course-assets',
-                    'visibility' => 'private',
+                    'visibility' => $request->string('collection')->toString() === 'course-cover' ? 'public' : 'private',
+                    'sort_order' => $request->string('collection')->toString() === 'course-cover' ? 0 : 10,
                 ],
             );
         } catch (Throwable $exception) {
