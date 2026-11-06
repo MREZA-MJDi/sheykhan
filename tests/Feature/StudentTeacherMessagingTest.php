@@ -198,6 +198,11 @@ class StudentTeacherMessagingTest extends TestCase
         ]);
 
         $this->actingAs($workspace['teacher'])
+            ->get(route('teacher.communications.index'))
+            ->assertOk()
+            ->assertSee('همه خانواده‌های کلاس‌های من');
+
+        $this->actingAs($workspace['teacher'])
             ->post(route('teacher.communications.store'), [
                 'target' => 'all-class-parents:' . $workspace['academy']->id,
                 'category' => 'announcement',
