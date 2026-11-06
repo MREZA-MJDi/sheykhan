@@ -1,6 +1,7 @@
 @php
     $audienceLabels = [
         'all_parents' => 'همه خانواده‌های آموزشگاه',
+        'teacher_class_parents' => 'همه خانواده‌های کلاس‌های من',
         'classroom_parents' => 'خانواده‌های یک کلاس',
         'parent' => 'ولی مشخص',
         'student' => 'دانش‌آموز مشخص',
