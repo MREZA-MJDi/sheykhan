@@ -175,24 +175,22 @@
 <nav class="bt" aria-label="میانبرهای پنل">
   @foreach([
     ['route'=>'teacher.dashboard','icon'=>'⌂','label'=>'خانه','permission'=>'dashboard.view'],
-    ['route'=>'teacher.assignments.index','icon'=>'✎','label'=>'تکالیف','permission'=>'assignments.view'],
-    ['route'=>'teacher.exams.index','icon'=>'✓','label'=>'آزمون','permission'=>'exams.view'],
-    ['route'=>'teacher.messages.index','icon'=>'✉','label'=>'پیام','permission'=>'parent_messages.view']
+    ['route'=>'teacher.classrooms.index','icon'=>'▤','label'=>'کلاس‌ها','permission'=>'classrooms.view'],
+    ['route'=>'teacher.live-classes.index','icon'=>'◉','label'=>'آنلاین','permission'=>'live_classes.view'],
+    ['route'=>$teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : 'teacher.direct-messages.index','icon'=>'✉','label'=>'پیام‌ها','permissions_any'=>['parent_messages.view','parent_messages.manage']]
   ] as $mobileItem)
     @php
-      $mobileActive = false;
-      if ($mobileItem['route'] === 'teacher.dashboard') {
-        $mobileActive = request()->routeIs('teacher.dashboard');
-      } else {
-        $mobilePrefix = str_replace('.index', '.*', $mobileItem['route']);
-        $mobileActive = request()->routeIs($mobilePrefix);
-        if ($mobileItem['route'] === 'teacher.exams.index' && request()->routeIs('teacher.exam-attempts.*')) {
-          $mobileActive = true;
-        }
-      }
+      $mobileActive = $mobileItem['route'] === 'teacher.dashboard'
+        ? request()->routeIs('teacher.dashboard')
+        : request()->routeIs(str_replace('.index', '.*', $mobileItem['route']));
     @endphp
-    @if($teacherUser?->hasPermission($mobileItem['permission']))
-      <a class="{{ $mobileActive ? 'on' : '' }}" href="{{ route($mobileItem['route']) }}"><i>{{ $mobileItem['icon'] }}</i>{{ $mobileItem['label'] }}</a>
+    @php
+      $mobileVisible = isset($mobileItem['permissions_any'])
+        ? collect($mobileItem['permissions_any'])->contains(fn ($permission) => $teacherUser?->hasPermission($permission))
+        : $teacherUser?->hasPermission($mobileItem['permission']);
+    @endphp
+    @if($mobileVisible)
+      <a class="{{ $mobileActive ? 'on' : '' }}" href="{{ route($mobileItem['route']) }}" @if($mobileActive) aria-current="page" @endif><i>{{ $mobileItem['icon'] }}</i>{{ $mobileItem['label'] }}</a>
     @endif
   @endforeach
   <button type="button" data-teacher-menu-open><i>☰</i>منو</button>
