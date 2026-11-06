@@ -29,7 +29,7 @@
             <input type="time" data-jalali-visible-time aria-label="ساعت شروع کلاس">
 
         </div>
-        <input type="hidden" name="starts_at" data-jalali-target value="{{ old('starts_at') }}">
+        <input type="hidden" name="starts_at" data-jalali-target value="{{ old('starts_at', $classroom->starts_at ? (is_string($classroom->starts_at) ? $classroom->starts_at : $classroom->starts_at->format('Y-m-d\TH:i')) : '') }}">
         @error('starts_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
     </label>
 </div>
@@ -41,7 +41,7 @@
             <input type="time" data-jalali-visible-time aria-label="ساعت پایان کلاس">
 
         </div>
-        <input type="hidden" name="ends_at" data-jalali-target value="{{ old('ends_at') }}">
+        <input type="hidden" name="ends_at" data-jalali-target value="{{ old('ends_at', $classroom->ends_at ? (is_string($classroom->ends_at) ? $classroom->ends_at : $classroom->ends_at->format('Y-m-d\TH:i')) : '') }}">
         @error('ends_at')<small class="teacher-field-error">{{ $message }}</small>@enderror
     </label>
 </div>

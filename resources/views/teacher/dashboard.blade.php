@@ -15,22 +15,22 @@
   $avatar = $user?->teacherProfile?->media?->firstWhere('pivot.collection','teacher-avatar');
   $avatarUrl = $avatar?->visibility === 'public' ? $avatar->url() : ($avatar ? route('media.view',$avatar) : null);
   $quick = [
-    ['icon'=>'✓','label'=>'ثبت حضور و غیاب','hint'=>'ثبت وضعیت کلاس‌ها','route'=>'teacher.attendance.index','permission'=>'attendance.view','tone'=>'#22b573'],
-    ['icon'=>'✎','label'=>'تکلیف جدید','hint'=>'ایجاد و انتشار تکلیف','route'=>'teacher.assignments.create','permission'=>'assignments.manage','tone'=>'#ff9f43'],
-    ['icon'=>'◈','label'=>'ساخت آزمون','hint'=>'طراحی برگه و کلید پاسخ','route'=>'teacher.exams.create','permission'=>'exams.manage','tone'=>'#8b5cf6'],
-    ['icon'=>'✉','label'=>'پیام‌ها','hint'=>'پیگیری گفتگوها','route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage','tone'=>'#14b8c4'],
-    ['icon'=>'◷','label'=>'برنامه هفتگی','hint'=>'زمان‌بندی جلسات','route'=>'teacher.schedule.index','permission'=>'live_classes.view','tone'=>'#4a5fe0'],
-    ['icon'=>'♥','label'=>'دانش‌آموزان','hint'=>'فهرست و وضعیت یادگیری','route'=>'teacher.students.index','permission'=>'students.view','tone'=>'#f0566b'],
-    ['icon'=>'▣','label'=>'مدیریت دوره‌ها','hint'=>'محتوا، قیمت و SpotPlayer','route'=>'teacher.courses.index','permission'=>'courses.view','tone'=>'#6366f1'],
-    ['icon'=>'＋','label'=>'کلاس آنلاین جدید','hint'=>'زمان‌بندی جلسه آموزشی','route'=>'teacher.live-classes.create','permission'=>'live_classes.manage','tone'=>'#0ea5a4'],
+    ['icon'=>'✓','label'=>'ثبت حضور و غیاب','hint'=>'ثبت وضعیت کلاس‌ها','route'=>'teacher.attendance.index','permission'=>'attendance.view'],
+    ['icon'=>'✎','label'=>'تکلیف جدید','hint'=>'ایجاد و انتشار تکلیف','route'=>'teacher.assignments.create','permission'=>'assignments.manage'],
+    ['icon'=>'◈','label'=>'ساخت آزمون','hint'=>'طراحی برگه و کلید پاسخ','route'=>'teacher.exams.create','permission'=>'exams.manage'],
+    ['icon'=>'✉','label'=>'پیام‌ها','hint'=>'پیگیری گفتگوها','route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage'],
+    ['icon'=>'◷','label'=>'برنامه هفتگی','hint'=>'زمان‌بندی جلسات','route'=>'teacher.schedule.index','permission'=>'live_classes.view'],
+    ['icon'=>'♥','label'=>'دانش‌آموزان','hint'=>'فهرست و وضعیت یادگیری','route'=>'teacher.students.index','permission'=>'students.view'],
+    ['icon'=>'▣','label'=>'مدیریت دوره‌ها','hint'=>'محتوا، قیمت و SpotPlayer','route'=>'teacher.courses.index','permission'=>'courses.view'],
+    ['icon'=>'＋','label'=>'کلاس آنلاین جدید','hint'=>'زمان‌بندی جلسه آموزشی','route'=>'teacher.live-classes.create','permission'=>'live_classes.manage'],
   ];
   $quick = array_values(array_filter($quick,fn($item)=>$user?->hasPermission($item['permission'])));
   $kpis = [
-    ['icon'=>'▤','value'=>$classes,'label'=>'کلاس فعال','hint'=>'مشاهده کلاس‌ها','url'=>route('teacher.classrooms.index'),'permission'=>'classrooms.view','tone'=>'#4a5fe0'],
-    ['icon'=>'♥','value'=>$students,'label'=>'دانش‌آموز','hint'=>'مشاهده فهرست','url'=>route('teacher.students.index'),'permission'=>'students.view','tone'=>'#22b573'],
-    ['icon'=>'✎','value'=>$pendingAssignments,'label'=>'تکلیف منتظر نمره','hint'=>'بررسی تحویل‌ها','url'=>route('teacher.assignments.index'),'permission'=>'assignments.view','tone'=>'#ff9f43'],
-    ['icon'=>'✓','value'=>$pendingExams,'label'=>'آزمون منتظر بررسی','hint'=>'تصحیح پاسخ‌ها','url'=>route('teacher.exams.index'),'permission'=>'exams.view','tone'=>'#8b5cf6'],
-    ['icon'=>'◷','value'=>$weeklySessions,'label'=>'جلسه این هفته','hint'=>'نمایش برنامه','url'=>route('teacher.schedule.index'),'permission'=>'live_classes.view','tone'=>'#14b8c4'],
+    ['icon'=>'▤','value'=>$classes,'label'=>'کلاس فعال','hint'=>'مشاهده کلاس‌ها','url'=>route('teacher.classrooms.index'),'permission'=>'classrooms.view'],
+    ['icon'=>'♥','value'=>$students,'label'=>'دانش‌آموز','hint'=>'مشاهده فهرست','url'=>route('teacher.students.index'),'permission'=>'students.view'],
+    ['icon'=>'✎','value'=>$pendingAssignments,'label'=>'تکلیف منتظر نمره','hint'=>'بررسی تحویل‌ها','url'=>route('teacher.assignments.index'),'permission'=>'assignments.view'],
+    ['icon'=>'✓','value'=>$pendingExams,'label'=>'آزمون منتظر بررسی','hint'=>'تصحیح پاسخ‌ها','url'=>route('teacher.exams.index'),'permission'=>'exams.view'],
+    ['icon'=>'◷','value'=>$weeklySessions,'label'=>'جلسه این هفته','hint'=>'نمایش برنامه','url'=>route('teacher.schedule.index'),'permission'=>'live_classes.view'],
   ];
   $kpis = array_values(array_filter($kpis,fn($item)=>$user?->hasPermission($item['permission'])));
   $classPreviews = collect($classroomRosterPreviews ?? []);
@@ -52,14 +52,26 @@
         @endif
       </div>
     </div>
-    <div style="min-width:0;flex:1"><b style="font-size:19px">{{ $user?->name }}</b><small style="display:block;color:var(--mu)">مدرس · {{ \App\Support\PersianUi::digits($classes) }} کلاس · {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز</small></div>
-    @if($user?->hasPermission('profile.view'))<a class="btn l" href="{{ route('teacher.profile.edit') }}">ویرایش پروفایل</a>@endif
+    <div class="teacher-hero-info">
+      <span class="teacher-hero-meta-kicker">مدرس آکادمی</span>
+      <h2 class="teacher-hero-name">{{ $user?->name }}</h2>
+      <p class="teacher-hero-stats">
+        <span>{{ \App\Support\PersianUi::digits($classes) }} کلاس فعال</span>
+        <span class="dot">·</span>
+        <span>{{ \App\Support\PersianUi::digits($students) }} دانش‌آموز</span>
+      </p>
+    </div>
+    @if($user?->hasPermission('profile.view'))
+      <div class="teacher-hero-action">
+        <a class="teacher-workspace-btn secondary" href="{{ route('teacher.profile.edit') }}">ویرایش پروفایل</a>
+      </div>
+    @endif
   </div>
 </section>
 
 <div class="st3" aria-label="شاخص‌های آموزشی">
   @forelse($kpis as $item)
-    <a class="teacher-stat-card" href="{{ $item['url'] }}" style="--k:{{ $item['tone'] }}" aria-label="{{ $item['label'] }}: {{ \App\Support\PersianUi::digits($item['value']) }}. {{ $item['hint'] }}">
+    <a class="teacher-stat-card" href="{{ $item['url'] }}" aria-label="{{ $item['label'] }}: {{ \App\Support\PersianUi::digits($item['value']) }}. {{ $item['hint'] }}">
       <span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span>
       <span><b>{{ \App\Support\PersianUi::digits($item['value']) }}</b><span>{{ $item['label'] }}</span><small>{{ $item['hint'] }} ←</small></span>
     </a>
@@ -71,7 +83,7 @@
 <div class="sh"><b>اقدام سریع</b><small>میانبرهای دسترسی به کارهای روزانه</small></div>
 <div class="ql">
   @forelse($quick as $item)
-    <a class="teacher-quick-action" href="{{ route($item['route']) }}" style="--k:{{ $item['tone'] }}">
+    <a class="teacher-quick-action" href="{{ route($item['route']) }}">
       <span class="ik xl" aria-hidden="true">{{ $item['icon'] }}</span><b>{{ $item['label'] }}</b><small>{{ $item['hint'] }}</small>
     </a>
   @empty
@@ -80,7 +92,7 @@
 </div>
 
 <div class="g g3">
-  <section class="c" style="--ca:#4a5fe0">
+  <section class="c">
     <h3>کلاس‌های من <a href="{{ route('teacher.classrooms.index') }}">مشاهده همه ←</a></h3>
     @forelse($classPreviews as $class)
       <a class="row" href="{{ $class['url'] ?? route('teacher.classrooms.index') }}">
@@ -104,7 +116,7 @@
       <div class="emp"><i>▤</i><b>هنوز کلاسی ثبت نشده است</b><small>کلاس‌های متصل به حساب شما پس از تخصیص در این قسمت نمایش داده می‌شوند.</small></div>
     @endforelse
   </section>
-  <section class="c" style="--ca:#22b573">
+  <section class="c">
     <h3>برنامه امروز <a href="{{ route('teacher.schedule.index') }}">برنامه کامل ←</a></h3>
     @forelse($today as $session)
       <div class="row"><span class="pill">{{ $session['time'] ?? '—' }}</span><span class="t"><b>{{ $session['title'] ?? 'جلسه آموزشی' }}</b><small>{{ $session['meta'] ?? '' }}</small></span>
@@ -117,7 +129,7 @@
 </div>
 
 <div class="g g3">
-  <section class="c" style="--ca:#ff9f43">
+  <section class="c">
     <h3>آخرین تکالیف و فعالیت‌ها <a href="{{ route('teacher.assignments.index') }}">مدیریت تکالیف ←</a></h3>
     @forelse($recent->take(6) as $activity)
       <a class="row" href="{{ route('teacher.assignments.index') }}"><span class="ic">✎</span><span class="t"><b>{{ $activity->title }}</b><small>{{ $activity->classroom?->title ?? 'دوره' }} · {{ $activity->due_at ? \App\Support\PersianUi::date($activity->due_at) : 'بدون مهلت' }}</small></span><span class="pill {{ (int)($activity->pending_review_count ?? 0)>0?'or':'gr' }}">{{ \App\Support\PersianUi::digits($activity->pending_review_count ?? 0) }} در انتظار</span></a>
@@ -125,7 +137,7 @@
       <div class="emp"><i>✎</i><b>فعالیتی برای نمایش نیست</b><small>تکالیف ثبت‌شده شما بعد از ایجاد در این بخش دیده می‌شوند.</small></div>
     @endforelse
   </section>
-  <section class="c" style="--ca:#8b5cf6">
+  <section class="c">
     <h3>کلاس‌های پیش‌رو <a href="{{ route('teacher.live-classes.index') }}">همه ←</a></h3>
     @forelse($upcoming as $class)
       <div class="row"><span class="ic">◷</span><span class="t"><b>{{ $class->course?->title ?? 'کلاس آنلاین' }}</b><small>{{ $class->classroom?->title ?? '' }} · {{ \App\Support\PersianUi::date($class->scheduled_at) }} {{ \App\Support\PersianUi::time($class->scheduled_at) }}</small></span>
@@ -138,7 +150,7 @@
 </div>
 
 @if($user?->hasPermission('reports.view'))
-<section class="c" data-dashboard-chart data-chart='@json(["week"=>$weekChart,"month"=>$monthChart])' style="--ca:#14b8c4" id="teacher-progress">
+<section class="c" data-dashboard-chart data-chart='@json(["week"=>$weekChart,"month"=>$monthChart])' id="teacher-progress">
   <h3>گزارش عملکرد <span class="tabs" style="margin:0"><button type="button" class="on" data-chart-range="week" aria-pressed="true">هفته</button><button type="button" data-chart-range="month" aria-pressed="false">ماه</button></span></h3>
   <div class="bars" data-chart-bars aria-label="نمودار درصد پیشرفت">
     @foreach(($weekChart['values'] ?? []) as $index=>$value)
@@ -149,4 +161,5 @@
   <p class="muted-note">نمودار فقط از داده‌های واقعی پیشرفت ذخیره‌شده در سامانه ساخته می‌شود.</p>
 </section>
 @endif
+</div>
 @endsection

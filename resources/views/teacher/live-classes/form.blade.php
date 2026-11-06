@@ -24,24 +24,26 @@
                 <span>۱</span>
                 <div><h2>این جلسه برای کدام دوره است؟</h2><p>دوره را انتخاب کن تا جلسه به مسیر آموزشی درست وصل شود.</p></div>
             </div>
-            <label>
-                <span>دوره</span>
-                <select name="course_id" data-course-select required>
-                    @foreach($courses as $course)
-                        <option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>
-                    @endforeach
-                </select>
-            </label>
-            <label>
-                <span>کلاس / گروه <small>اختیاری</small></span>
-                <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
-                    <option value="">برای همه دانش‌آموزان دوره</option>
-                    @foreach($classrooms as $classroom)
-                        <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>
-                    @endforeach
-                </select>
-                <em>اگر کلاس مشخصی انتخاب کنی، فقط اعضای همان کلاس جلسه را می‌بینند.</em>
-            </label>
+            <div class="teacher-live-fields-row">
+                <label>
+                    <span>دوره</span>
+                    <select name="course_id" data-course-select required>
+                        @foreach($courses as $course)
+                            <option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <label>
+                    <span>کلاس / گروه <small>اختیاری</small></span>
+                    <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
+                        <option value="">برای همه دانش‌آموزان دوره</option>
+                        @foreach($classrooms as $classroom)
+                            <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>
+                        @endforeach
+                    </select>
+                    <em>اگر کلاس مشخصی انتخاب کنی، فقط اعضای همان کلاس جلسه را می‌بینند.</em>
+                </label>
+            </div>
         </section>
 
         <section class="teacher-live-form-section">
@@ -97,19 +99,21 @@
             </label>
         </section>
 
-        <section class="teacher-live-form-section">
+        <section class="teacher-live-form-section teacher-live-form-section-wide">
             <div class="teacher-live-form-section-head">
                 <span>۴</span>
                 <div><h2>جلسه را برای دانش‌آموز قابل تشخیص کن</h2><p>عنوان و مدت کوتاه و واضح انتخاب کن.</p></div>
             </div>
-            <label>
-                <span>عنوان جلسه</span>
-                <input name="title" value="{{ old('title') }}" placeholder="مثلاً: حل تمرین فصل سوم" required>
-            </label>
-            <label>
-                <span>مدت جلسه</span>
-                <div class="teacher-duration-field"><input type="number" name="duration_minutes" value="{{ old('duration_minutes', $liveClass->duration_minutes) }}" min="1" max="1440" required><b>دقیقه</b></div>
-            </label>
+            <div class="teacher-live-title-row">
+                <label>
+                    <span>عنوان جلسه</span>
+                    <input name="title" value="{{ old('title') }}" placeholder="مثلاً: حل تمرین فصل سوم" required>
+                </label>
+                <label>
+                    <span>مدت جلسه</span>
+                    <div class="teacher-duration-field"><input type="number" name="duration_minutes" value="{{ old('duration_minutes', $liveClass->duration_minutes) }}" min="1" max="1440" required><b>دقیقه</b></div>
+                </label>
+            </div>
             <label class="teacher-live-description">
                 <span>توضیحات برای دانش‌آموز <small>اختیاری</small></span>
                 <textarea name="description" rows="4" placeholder="مثلاً: قبل از شروع، صفحات ۲۵ تا ۳۰ را مرور کنید.">{{ old('description') }}</textarea>

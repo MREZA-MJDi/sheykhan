@@ -226,6 +226,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
 
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', TeacherDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/reports', [\App\Http\Controllers\Teacher\ReportController::class, 'index'])->middleware('permission:reports.view')->name('reports.index');
     Route::get('/profile', [TeacherProfileController::class, 'edit'])->middleware('permission:profile.view')->name('profile.edit');
     Route::patch('/profile', [TeacherProfileController::class, 'update'])->middleware(['permission:profile.manage','throttle:10,1'])->name('profile.update');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
@@ -244,6 +245,9 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::get('/classrooms', [TeacherClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
     Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->middleware('permission:classrooms.manage')->name('classrooms.create');
     Route::post('/classrooms', [TeacherClassroomController::class, 'store'])->middleware('permission:classrooms.manage')->name('classrooms.store');
+    Route::get('/classrooms/{classroom}/edit', [TeacherClassroomController::class, 'edit'])->middleware('permission:classrooms.manage')->name('classrooms.edit');
+    Route::put('/classrooms/{classroom}', [TeacherClassroomController::class, 'update'])->middleware('permission:classrooms.manage')->name('classrooms.update');
+    Route::delete('/classrooms/{classroom}', [TeacherClassroomController::class, 'destroy'])->middleware('permission:classrooms.manage')->name('classrooms.destroy');
     Route::get('/attendance', [TeacherAttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('attendance.index');
     Route::get('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'edit'])->middleware('permission:attendance.view')->name('classrooms.attendance.edit');
     Route::post('/classrooms/{classroom}/attendance', [TeacherAttendanceController::class, 'store'])->middleware('permission:attendance.manage')->name('classrooms.attendance.store');
