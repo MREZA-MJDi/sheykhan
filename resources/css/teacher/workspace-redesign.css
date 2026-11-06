@@ -18,7 +18,7 @@
   padding: 0;
   letter-spacing: 0;
 }
-.teacher-panel[data-theme="dark"] {
+:root[data-theme="dark"] .teacher-panel {
   --tw-bg: #101a2b;
   --tw-surface: #17243a;
   --tw-ink: #e9f0fa;
@@ -208,6 +208,7 @@
   border-radius: 13px;
 }
 .teacher-panel .bt { display: none; }
+.teacher-panel .ov { display: none; }
 
 /* Shared page surfaces: keep page-specific business logic and forms intact. */
 .teacher-panel .teacher-dashboard-page,
@@ -278,8 +279,8 @@
 .teacher-panel :focus-visible {
   outline-color: var(--tw-primary);
 }
-.teacher-panel[data-theme="dark"] .teacher-dashboard-page .text-slate-500,
-.teacher-panel[data-theme="dark"] .communication-page .text-slate-500,
+:root[data-theme="dark"] .teacher-panel .teacher-dashboard-page .text-slate-500,
+:root[data-theme="dark"] .teacher-panel .communication-page .text-slate-500,
 .teacher-panel[data-theme="dark"] .communication-page .text-slate-600 {
   color: var(--tw-muted) !important;
 }
@@ -314,9 +315,10 @@
     box-shadow: -18px 0 40px rgba(16, 34, 58, .12);
   }
   .teacher-panel .shell.menu-open aside.side,
-  .teacher-panel aside.side.is-open { transform: translateX(0); }
+  .teacher-panel aside.side.open { transform: translateX(0); }
   .teacher-panel .burger { display: inline-grid; }
-  .teacher-panel .ov {
+  .teacher-panel .ov.open {
+    display: block;
     position: fixed;
     inset: 0;
     z-index: 45;
