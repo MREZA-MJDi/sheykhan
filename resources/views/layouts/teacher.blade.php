@@ -37,7 +37,7 @@
         ['label'=>'دانش‌آموزان','icon'=>'♙','route'=>'teacher.students.index','permission'=>'students.view'],
       ]],
       ['label'=>'ارتباط و پیگیری','items'=>[
-        ['label'=>'پیام‌ها','icon'=>'✉','route'=>'teacher.messages.index','permissions_any'=>['parent_messages.view','parent_messages.manage']],
+        ['label'=>'پیام‌ها','icon'=>'✉','route'=>$teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : 'teacher.direct-messages.index','permissions_any'=>['parent_messages.view','parent_messages.manage']],
         ['label'=>'گزارش عملکرد','icon'=>'▥','route'=>'teacher.reports.index','permission'=>'reports.view'],
         ['label'=>'جلسات اولیا','icon'=>'◉','route'=>'teacher.meetings.index','permission'=>'live_classes.view'],
         ['label'=>'درخواست مشاوره','icon'=>'✦','route'=>'teacher.counseling-requests.index','permission'=>'live_classes.view'],
