@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\AcademyMessage;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Permission;
@@ -11,6 +12,7 @@ use App\Models\StudentMessage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class StudentTeacherMessagingTest extends TestCase
