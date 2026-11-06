@@ -43,13 +43,14 @@
         ['label'=>'کلاس آنلاین','icon'=>'▹','route'=>'teacher.live-classes.index','permission'=>'live_classes.view'],
       ]],
       ['label'=>'حساب','items'=>[
-        ['label'=>'گزارش عملکرد','icon'=>'≣','route'=>'teacher.dashboard','permissions'=>['reports.view','dashboard.view'],'anchor'=>'#teacher-progress'],
+        ['label'=>'گزارش عملکرد','icon'=>'≣','route'=>'teacher.reports.index','permission'=>'reports.view'],
         ['label'=>'پرداخت‌ها','icon'=>'＄','route'=>'teacher.payments.index','permission'=>'teacher_payments.view'],
         ['label'=>'تنظیمات پروفایل','icon'=>'⚙','route'=>'teacher.profile.edit','permission'=>'profile.view'],
       ]],
     ];
     $pageTitle = trim($__env->yieldContent('page_title')) ?: match (true) {
       request()->routeIs('teacher.dashboard') => 'داشبورد مدرس',
+      request()->routeIs('teacher.reports.*') => 'گزارش عملکرد',
       request()->routeIs('teacher.schedule.*') => 'برنامه هفتگی',
       request()->routeIs('teacher.classrooms.attendance.*') || request()->routeIs('teacher.attendance.*') => 'حضور و غیاب',
       request()->routeIs('teacher.classrooms.*') => 'کلاس‌ها',
@@ -94,10 +95,28 @@
         <div class="side-group-label">{{ $group['label'] }}</div>
         @foreach($visibleItems as $item)
           @php
-              $activeRoutePattern = $item['route'] === 'teacher.dashboard'
-                  ? $item['route']
-                  : $item['route'] . '.*';
-              $active = request()->routeIs($activeRoutePattern) && !isset($item['anchor']);
+              $active = false;
+              if (!isset($item['anchor'])) {
+                  if ($item['route'] === 'teacher.dashboard') {
+                      $active = request()->routeIs('teacher.dashboard');
+                  } else {
+                      $prefix = str_contains($item['route'], '.index')
+                          ? str_replace('.index', '.*', $item['route'])
+                          : (str_contains($item['route'], '.edit')
+                              ? str_replace('.edit', '.*', $item['route'])
+                              : $item['route'] . '.*');
+
+                      $active = request()->routeIs($prefix);
+
+                      if ($item['route'] === 'teacher.attendance.index' && request()->routeIs('teacher.classrooms.attendance.*')) {
+                          $active = true;
+                      } elseif ($item['route'] === 'teacher.classrooms.index' && request()->routeIs('teacher.classrooms.attendance.*')) {
+                          $active = false;
+                      } elseif ($item['route'] === 'teacher.exams.index' && request()->routeIs('teacher.exam-attempts.*')) {
+                          $active = true;
+                      }
+                  }
+              }
           @endphp
           <a class="nv {{ $active ? 'on' : '' }}" href="{{ route($item['route']) }}{{ $item['anchor'] ?? '' }}" @if($active) aria-current="page" @endif>
             <i aria-hidden="true">{{ $item['icon'] }}</i><span>{{ $item['label'] }}</span>
@@ -142,8 +161,20 @@
     ['route'=>'teacher.exams.index','icon'=>'✓','label'=>'آزمون','permission'=>'exams.view'],
     ['route'=>'teacher.messages.index','icon'=>'✉','label'=>'پیام','permission'=>'parent_messages.view']
   ] as $mobileItem)
+    @php
+      $mobileActive = false;
+      if ($mobileItem['route'] === 'teacher.dashboard') {
+        $mobileActive = request()->routeIs('teacher.dashboard');
+      } else {
+        $mobilePrefix = str_replace('.index', '.*', $mobileItem['route']);
+        $mobileActive = request()->routeIs($mobilePrefix);
+        if ($mobileItem['route'] === 'teacher.exams.index' && request()->routeIs('teacher.exam-attempts.*')) {
+          $mobileActive = true;
+        }
+      }
+    @endphp
     @if($teacherUser?->hasPermission($mobileItem['permission']))
-      <a class="{{ request()->routeIs($mobileItem['route']) ? 'on' : '' }}" href="{{ route($mobileItem['route']) }}"><i>{{ $mobileItem['icon'] }}</i>{{ $mobileItem['label'] }}</a>
+      <a class="{{ $mobileActive ? 'on' : '' }}" href="{{ route($mobileItem['route']) }}"><i>{{ $mobileItem['icon'] }}</i>{{ $mobileItem['label'] }}</a>
     @endif
   @endforeach
   <button type="button" data-teacher-menu-open><i>☰</i>منو</button>

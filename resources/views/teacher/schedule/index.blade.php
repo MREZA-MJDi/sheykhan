@@ -69,11 +69,31 @@
         </form>
     </section>
 
-    <section class="teacher-workspace-grid">
+    <section class="teacher-schedule-classrooms">
         @forelse($classrooms as $classroom)
             <article class="teacher-workspace-card">
                 <div class="teacher-workspace-card-head">
-                    <div><h2>{{ $classroom->title }}</h2><p>{{ $classroom->course?->title }}</p></div>
+                    <div>
+                        <h2>{{ $classroom->title }}</h2>
+                        <p>{{ $classroom->course?->title }}</p>
+                        @if($classroom->starts_at || $classroom->ends_at)
+                            <div class="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <rect x="3.5" y="5.5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+                                    <path d="M7.5 3.5v4M16.5 3.5v4M4 9.5h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                </svg>
+                                <span>
+                                    @if($classroom->starts_at && $classroom->ends_at)
+                                        بازه کلاس: {{ App\Support\PersianUi::date($classroom->starts_at) }} تا {{ App\Support\PersianUi::date($classroom->ends_at) }}
+                                    @elseif($classroom->starts_at)
+                                        شروع کلاس: {{ App\Support\PersianUi::date($classroom->starts_at) }}
+                                    @else
+                                        پایان کلاس: {{ App\Support\PersianUi::date($classroom->ends_at) }}
+                                    @endif
+                                </span>
+                            </div>
+                        @endif
+                    </div>
                     <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($classroom->schedules->count()) }} زمان</span>
                 </div>
                 <div class="teacher-workspace-list">

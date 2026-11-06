@@ -267,7 +267,7 @@ function enhanceNativeDateInput(source) {
     calendarButton.dataset.jalaliCalendarOpen = 'true';
     calendarButton.disabled = disabled;
     calendarButton.setAttribute('aria-label', 'باز کردن تقویم شمسی برای ' + labelText);
-    calendarButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3.5v4M16.5 3.5v4M4 9.5h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8 13h2m4 0h2M8 16.5h2m4 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+    calendarButton.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3.5v4M16.5 3.5v4M4 9.5h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8 13h2m4 0h2M8 16.5h2m4 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
     row.append(calendarButton);
 
     let timeInput = null;
@@ -296,10 +296,9 @@ function enhanceNativeDateInput(source) {
         if (dateInput.value.trim()) dateInput.value = formatJalali(parsed);
         if (sourceType === 'date') {
             source.value = parsed.iso;
-        } else if (!timeInput?.value) {
-            source.value = '';
         } else {
-            source.value = parsed.iso + 'T' + timeInput.value;
+            const timeVal = timeInput?.value || '00:00';
+            source.value = parsed.iso + 'T' + timeVal;
         }
 
         const candidate = source.value;
@@ -307,7 +306,9 @@ function enhanceNativeDateInput(source) {
         const max = field.dataset.jalaliMax;
         let error = '';
 
-        if (candidate && min && candidate < min) {
+        if (timeInput?.required && !timeInput.value) {
+            error = 'ساعت را هم انتخاب کنید.';
+        } else if (candidate && min && candidate < min) {
             error = 'تاریخ و زمان باید مساوی یا بعد از حداقل تعیین‌شده باشد.';
         } else if (candidate && max && candidate > max) {
             error = 'تاریخ و زمان باید مساوی یا قبل از حداکثر تعیین‌شده باشد.';
@@ -323,6 +324,19 @@ function enhanceNativeDateInput(source) {
 
     makeCalendar(field, dateInput, sourceType, source);
     sync();
+
+    const form = source.closest('form');
+    if (form && !form.dataset.jalaliSubmitSynced) {
+        form.dataset.jalaliSubmitSynced = 'true';
+        form.addEventListener('submit', () => {
+            form.querySelectorAll('[data-jalali-visible-date]').forEach((input) => {
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            form.querySelectorAll('input[type="date"], input[type="datetime-local"]').forEach((input) => {
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+    }
 
     source.closest('form')?.addEventListener('reset', () => {
         window.setTimeout(() => {
@@ -345,11 +359,17 @@ function enhanceExistingJalaliField(dateInput) {
     const dateOnly = field?.dataset.jalaliDateOnly === '1';
     const originalValue = String(target?.value || '');
 
-    // Fill the visible Jalali date/time controls from the server's Gregorian value.
-    if (!dateInput.value.trim()) {
-        dateInput.value = formatJalali(originalValue);
+    // Fill the visible Jalali date/time controls from the server's value.
+    if (!dateInput.value.trim() && originalValue) {
+        const fromIso = jalaliFromIso(originalValue);
+        const fromJalali = parseJalali(originalValue);
+        if (fromIso) {
+            dateInput.value = formatJalali(fromIso);
+        } else if (fromJalali) {
+            dateInput.value = formatJalali(fromJalali);
+        }
     }
-    if (timeInput && !timeInput.value) {
+    if (timeInput && !timeInput.value && originalValue) {
         timeInput.value = originalValue.match(/T(\d{2}:\d{2})/)?.[1]
             || originalValue.match(/ (\d{2}:\d{2})/)?.[1]
             || '';
@@ -375,7 +395,7 @@ function enhanceExistingJalaliField(dateInput) {
     button.className = 'jalali-calendar-open';
     button.dataset.jalaliCalendarOpen = 'true';
     button.setAttribute('aria-label', 'باز کردن تقویم شمسی');
-    button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3.5v4M16.5 3.5v4M4 9.5h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8 13h2m4 0h2M8 16.5h2m4 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+    button.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M7.5 3.5v4M16.5 3.5v4M4 9.5h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8 13h2m4 0h2M8 16.5h2m4 0h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
     wrapper.append(button);
 
     dateInput.setAttribute('aria-haspopup', 'dialog');
@@ -393,14 +413,13 @@ function enhanceExistingJalaliField(dateInput) {
 
         dateInput.value = formatJalali(parsed);
         if (target) {
-            target.value = dateOnly
-                ? parsed.iso
-                : (timeInput?.value ? parsed.iso + 'T' + timeInput.value : '');
+            const timeVal = timeInput?.value || '00:00';
+            target.value = dateOnly ? parsed.iso : parsed.iso + 'T' + timeVal;
             target.dispatchEvent(new Event('input', { bubbles: true }));
             target.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
-        dateInput.setCustomValidity(!dateOnly && timeInput && !timeInput.value
+        dateInput.setCustomValidity(!dateOnly && timeInput?.required && !timeInput.value
             ? 'ساعت را هم انتخاب کن.'
             : '');
     };
@@ -412,6 +431,19 @@ function enhanceExistingJalaliField(dateInput) {
 
     makeCalendar(wrapper, dateInput, 'jalali-text');
     syncHiddenValue();
+
+    const existingForm = field?.closest('form');
+    if (existingForm && !existingForm.dataset.jalaliSubmitSynced) {
+        existingForm.dataset.jalaliSubmitSynced = 'true';
+        existingForm.addEventListener('submit', () => {
+            existingForm.querySelectorAll('[data-jalali-visible-date]').forEach((input) => {
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            existingForm.querySelectorAll('input[type="date"], input[type="datetime-local"]').forEach((input) => {
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+    }
 
     field?.closest('form')?.addEventListener('reset', () => {
         window.setTimeout(() => {

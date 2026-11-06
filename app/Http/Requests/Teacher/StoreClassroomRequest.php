@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Teacher;
 
+use App\Support\PersianUi;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClassroomRequest extends FormRequest
@@ -9,6 +10,17 @@ class StoreClassroomRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user()?->hasPermission('classrooms.manage') ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $startsAt = $this->input('starts_at');
+        $endsAt = $this->input('ends_at');
+
+        $this->merge([
+            'starts_at' => $startsAt ? PersianUi::normalizeDateTime($startsAt) : null,
+            'ends_at' => $endsAt ? PersianUi::normalizeDateTime($endsAt) : null,
+        ]);
     }
 
     public function rules(): array
