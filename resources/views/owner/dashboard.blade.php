@@ -430,7 +430,7 @@
                 <div class="card-title">
                     <div>
                         <h2 id="login-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>آخرین رویدادها</h2>
-                        <p>ورودهای اخیر دانش‌آموزان فعال در آموزشگاه‌های شما.</p>
+                        <p>سه ورود اخیر دانش‌آموزان فعال در آموزشگاه‌های شما.</p>
                     </div>
                     @if($firstAcademy)<a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">اعضا ←</a>@endif
                 </div>
