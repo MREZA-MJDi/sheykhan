@@ -16,6 +16,7 @@
 | استقرار Production | [راهنمای استقرار](production-deployment.md) |
 | ورود امن دانش‌آموزهای قدیمی WordPress | [راهنمای Import دانش‌آموزها](LEGACY_STUDENT_IMPORT_FA.md) |
 | اتصال و تست SpotPlayer، تفکیک API key/course ID/license key | [راهنمای عملی SpotPlayer](SPOTPLAYER_INTEGRATION_FA.md) |
+| جست‌وجوی صفحه‌بندی‌شده، ایندکس‌ها و نگهداری سوابق مشاهدهٔ فایل و ویدئو | [راهنمای مقیاس‌پذیری و نگهداری رویدادها](SCALE_AND_EVENT_RETENTION_FA.md) |
 | استقرار سرور sheykhan روی پورت 8082 | [راهنمای VPS](vps-sheykhan-8082.md) |
 | گردش کار Cowork/Claude | [راهنمای Cowork](claude-cowork-workflow.md) |
 | مدیریت SEO و فهرست کلمات کلیدی | [راهنمای پنل SEO و کلمات کلیدی](SEO_KEYWORD_WORKSPACE_FA.md) |
