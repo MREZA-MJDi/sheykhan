@@ -80,10 +80,11 @@ class TeacherWorkspaceRedesignTest extends TestCase
             ->get(route('teacher.dashboard'))
             ->assertOk()
             ->assertSee('نمای کلی')
-            ->assertSee('کلاس و آموزش')
-            ->assertSee('مدیریت یادگیری')
-            ->assertSee('ارتباط و پیگیری')
+            ->assertSee('تدریس و کلاس‌ها')
+            ->assertSee('ارزیابی و پیگیری')
+            ->assertSee('ارتباط و گزارش')
             ->assertSee('کلاس‌های من')
-            ->assertSee('کلاس آنلاین');
+            ->assertSee('کلاس آنلاین')
+            ->assertSee('دوره‌ها و درس‌ها');
     }
 }
