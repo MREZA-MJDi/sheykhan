@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\Setting;
+use App\Models\SpotPlayerLicense;
+use App\Models\SpotPlayerLicenseIssuance;
+use App\Services\CourseManagementService;
 use App\Services\SpotPlayerService;
 use App\Services\SpotPlayerDashboardService;
 use Illuminate\Http\RedirectResponse;
@@ -16,13 +20,28 @@ use Throwable;
 
 final class SpotPlayerSettingsController extends Controller
 {
-    public function edit(Request $request, SpotPlayerService $spotPlayer, SpotPlayerDashboardService $dashboard): View
-    {
+    public function edit(
+        Request $request,
+        SpotPlayerService $spotPlayer,
+        CourseManagementService $courseManagement
+    ): View {
         abort_unless($request->user()->hasPermission('courses.manage'), 403);
 
-        return view('spotplayer.index', [
-            ...$dashboard->forUser($request->user(), true),
-            'isOwner' => true,
+        $academyIds = $courseManagement->accessibleAcademies($request->user())->modelKeys();
+
+        $courseQuery = Course::query()->whereIn('academy_id', $academyIds);
+        $licenseQuery = SpotPlayerLicense::query()
+            ->whereHas('course', fn ($query) => $query->whereIn('academy_id', $academyIds));
+        $issuanceQuery = SpotPlayerLicenseIssuance::query()
+            ->whereHas('course', fn ($query) => $query->whereIn('academy_id', $academyIds));
+
+        $issuanceCounts = (clone $issuanceQuery)
+            ->select('status')
+            ->selectRaw('COUNT(*) AS aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        return view('owner.spotplayer.settings', [
             'isConfigured' => $spotPlayer->isConfigured(),
             'mode' => $spotPlayer->mode(),
             'environmentKeyConfigured' => filled(config('services.spotplayer.api_key')),
@@ -30,9 +49,40 @@ final class SpotPlayerSettingsController extends Controller
             'environmentModeOverride' => filled(config('services.spotplayer.mode')),
             'maxActiveDevices' => max(1, min(99, (int) config('services.spotplayer.max_active_devices', 1))),
             'webAppDevices' => max(0, min(99, (int) config('services.spotplayer.web_app_devices', 1))),
+            'courseStats' => [
+                'total' => (clone $courseQuery)->count(),
+                'mapped' => (clone $courseQuery)->whereNotNull('spotplayer_course_id')->where('spotplayer_course_id', '<>', '')->count(),
+                'unmapped' => (clone $courseQuery)->where(fn ($query) => $query->whereNull('spotplayer_course_id')->orWhere('spotplayer_course_id', ''))->count(),
+            ],
+            'licenseStats' => [
+                'total' => (clone $licenseQuery)->count(),
+                'active' => (clone $licenseQuery)->where('status', 'active')->count(),
+                'test' => (clone $licenseQuery)->where('provider_mode', 'test')->count(),
+                'production' => (clone $licenseQuery)->where('provider_mode', 'production')->count(),
+            ],
+            'issuanceCounts' => $issuanceCounts,
+            'spotPlayerCourses' => (clone $courseQuery)
+                ->with('academy:id,name')
+                ->withCount('spotplayerLicenses')
+                ->orderByDesc('updated_at')
+                ->orderByDesc('id')
+                ->paginate(8, ['id', 'academy_id', 'title', 'status', 'spotplayer_course_id', 'updated_at'])
+                ->withQueryString(),
+            'licenseRecords' => (clone $licenseQuery)
+                ->with(['student:id,name', 'course:id,title,academy_id'])
+                ->orderByDesc('issued_at')
+                ->orderByDesc('id')
+                ->limit(10)
+                ->get(),
+            'issuanceRecords' => (clone $issuanceQuery)
+                ->whereIn('status', ['issuing', 'failed', 'review_required'])
+                ->with(['student:id,name', 'course:id,title,academy_id'])
+                ->orderByDesc('updated_at')
+                ->orderByDesc('id')
+                ->limit(8)
+                ->get(),
         ]);
     }
-
     public function update(Request $request, SpotPlayerService $spotPlayer): RedirectResponse
     {
         abort_unless($request->user()->hasPermission('courses.manage'), 403);
