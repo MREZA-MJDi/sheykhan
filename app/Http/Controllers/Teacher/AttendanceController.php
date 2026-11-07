@@ -1,17 +1,17 @@
 <?php
 
-namespace App\\Http\\Controllers\\Teacher;
+namespace App\Http\Controllers\Teacher;
 
-use App\\Http\\Controllers\\Controller;
-use App\\Http\\Requests\\Teacher\\AttendanceRequest;
-use App\\Models\\Attendance;
-use App\\Models\\Classroom;
-use App\\Services\\TeacherWorkspaceService;
-use App\\Support\\PersianUi;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Carbon;
-use Illuminate\\View\\View;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Teacher\AttendanceRequest;
+use App\Models\Attendance;
+use App\Models\Classroom;
+use App\Services\TeacherWorkspaceService;
+use App\Support\PersianUi;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
