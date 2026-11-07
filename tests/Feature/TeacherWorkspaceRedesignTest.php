@@ -86,7 +86,13 @@ class TeacherWorkspaceRedesignTest extends TestCase
             ->assertSee('تاریخچه حضور و غیاب')
             ->assertSee('اعمال فیلتر')
             ->assertSee('حاضر')
-            ->assertSee('پاک‌کردن');
+            ->assertSee('پاک‌کردن')
+            ->assertSee('name="from"', false)
+            ->assertSee('name="to"', false)
+            ->assertSee('name="classroom_id"', false)
+            ->assertSee('name="status"', false)
+            ->assertSee('غایب')
+            ->assertSee('موجه');
     }
 
     public function test_teacher_sidebar_uses_clear_grouped_labels_instead_of_duplicate_message_links(): void
