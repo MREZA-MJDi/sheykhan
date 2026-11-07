@@ -63,10 +63,7 @@ final class LibraryController extends Controller
         );
         $myCourses = $emptyCoursesPaginator('courses_page');
         if ($user->hasRole('student')) {
-            $courseIds = $studentAccess->enrolledCourseIds($user);
-            $myCourses = CourseEnrollment::query()
-                ->where('student_id', $user->id)
-                ->whereIn('course_id', $courseIds)
+            $myCourses = $studentAccess->enrolledCoursesQuery($user)
                 ->with([
                     'course.academy:id,name',
                     'course.teachers:id,name',
