@@ -148,6 +148,39 @@
         </section>
     @endif
 
+    <section id="public-destinations" class="home-section home-paths" aria-labelledby="home-paths-title">
+        <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+            <div class="home-paths__intro">
+                <div>
+                    <h2 id="home-paths-title">دسترسی سریع به بخش‌های شیخان</h2>
+                    <p>برای پیدا کردن مسیر مناسب، از موضوعی شروع کن که همین حالا به آن نیاز داری.</p>
+                </div>
+            </div>
+            <div class="home-paths__grid">
+                <a href="{{ route('courses.index') }}" class="home-path-card">
+                    <strong>دوره‌های آموزشی</strong>
+                    <p>محتوای دوره، مدرس، سرفصل‌ها و شرایط ثبت‌نام را مقایسه کن.</p>
+                    <span>مشاهده دوره‌ها</span>
+                </a>
+                <a href="{{ route('teachers.index') }}" class="home-path-card">
+                    <strong>مدرس‌ها</strong>
+                    <p>با تخصص و سوابق آموزشی مدرس‌ها آشنا شو.</p>
+                    <span>آشنایی با مدرس‌ها</span>
+                </a>
+                <a href="{{ route('store.index') }}" class="home-path-card">
+                    <strong>فروشگاه آموزشی</strong>
+                    <p>جزوه‌ها، بسته‌ها و محصولات آموزشی را ببین.</p>
+                    <span>ورود به فروشگاه</span>
+                </a>
+                <a href="{{ route('blog.index') }}" class="home-path-card">
+                    <strong>مجلهٔ یادگیری</strong>
+                    <p>مقاله‌ها و راهنماهای آموزشی را دنبال کن.</p>
+                    <span>خواندن مقاله‌ها</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
     {{-- Courses: keep the discovery section visible even before the first course is published. --}}
     <section id="featured-courses" class="home-section home-soft">
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
