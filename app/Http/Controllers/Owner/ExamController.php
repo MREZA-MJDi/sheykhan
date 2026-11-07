@@ -8,6 +8,7 @@ use App\Models\Academy;
 use App\Models\Course;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use App\Services\MediaService;
 use App\Services\TeacherAssessmentService;
 use App\Models\User;
 use App\Services\ExamQuestionWriter;
@@ -189,6 +190,60 @@ final class ExamController extends Controller
         }
         $record->forceFill(['status' => $data['status']])->save();
         return redirect()->route('owner.exams.show', [$academy, $record->id])->with('success', 'وضعیت آزمون ذخیره شد.');
+    }
+
+    public function destroy(
+        Academy $academy,
+        int $exam,
+        Request $request,
+        MediaService $media
+    ): RedirectResponse {
+        $this->authorizeAcademy($request, $academy, 'exams.manage');
+        $record = $this->ownedExam($academy, $exam);
+        $files = collect();
+
+        DB::transaction(function () use ($academy, $record, $request, $media, &$files): void {
+            $this->authorizeAcademy($request, $academy, 'exams.manage');
+            $locked = Exam::query()->whereKey($record->id)->lockForUpdate()->firstOrFail();
+            abort_unless($locked->course()->where('academy_id', $academy->id)->exists(), 404);
+
+            if ($locked->attempts()->exists()) {
+                throw ValidationException::withMessages([
+                    'exam' => 'برای این آزمون تلاش دانش‌آموز ثبت شده است؛ حذف مجاز نیست. آزمون را ببند تا پاسخ‌ها و نمره‌ها حفظ شوند.',
+                ]);
+            }
+
+            if (! in_array($locked->status, ['draft', 'closed'], true)) {
+                throw ValidationException::withMessages([
+                    'exam' => 'ابتدا آزمون منتشرشده را ببند؛ سپس در صورت نداشتن تلاش می‌توانی آن را حذف کنی.',
+                ]);
+            }
+
+            $locked->load(['media', 'questions.media']);
+            foreach ($locked->questions as $question) {
+                foreach ($question->media as $file) {
+                    $media->detach($file, $question);
+                    $files->push($file);
+                }
+            }
+
+            foreach ($locked->media as $file) {
+                $media->detach($file, $locked);
+                $files->push($file);
+            }
+
+            $locked->questions()->delete();
+            $locked->delete();
+        }, 3);
+
+        foreach ($files->unique('id') as $file) {
+            if ($file->attachments()->doesntExist()) {
+                $media->delete($file);
+            }
+        }
+
+        return redirect()->route('owner.exams.index', $academy)
+            ->with('success', 'آزمون بدون تلاش ثبت‌شده و فایل‌های بدون استفاده حذف شد.');
     }
 
     private function ownedExam(Academy $academy, int $exam): Exam
