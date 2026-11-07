@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\SpotPlayerService;
+use App\Services\SpotPlayerDashboardService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -15,11 +16,13 @@ use Throwable;
 
 final class SpotPlayerSettingsController extends Controller
 {
-    public function edit(Request $request, SpotPlayerService $spotPlayer): View
+    public function edit(Request $request, SpotPlayerService $spotPlayer, SpotPlayerDashboardService $dashboard): View
     {
         abort_unless($request->user()->hasPermission('courses.manage'), 403);
 
-        return view('owner.spotplayer.settings', [
+        return view('spotplayer.index', [
+            ...$dashboard->forUser($request->user(), true),
+            'isOwner' => true,
             'isConfigured' => $spotPlayer->isConfigured(),
             'mode' => $spotPlayer->mode(),
             'environmentKeyConfigured' => filled(config('services.spotplayer.api_key')),
@@ -81,7 +84,7 @@ final class SpotPlayerSettingsController extends Controller
         ]);
 
         return redirect()
-            ->route('owner.spotplayer.edit')
+            ->route('owner.spotplayer.edit', ['tab' => 'settings'])
             ->with('success', $spotPlayer->isConfigured()
                 ? 'تنظیمات SpotPlayer ذخیره شد. قبل از Production، پخش واقعی یک دورهٔ آزمایشی را بررسی کن.'
                 : 'حالت اتصال ذخیره شد؛ برای فعال‌شدن صدور لایسنس، کلید API معتبر لازم است.');
