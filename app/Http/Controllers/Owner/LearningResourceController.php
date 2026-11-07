@@ -34,19 +34,8 @@ final class LearningResourceController extends Controller
                 ->orderBy('sort_order')
                 ->orderByDesc('created_at')
                 ->paginate(20),
-            'courses' => Course::query()
-                ->where('academy_id', $academy->id)
-                ->orderBy('title')
-                ->get(['id', 'title']),
-            'classrooms' => Classroom::query()
-                ->where('academy_id', $academy->id)
-                ->orderBy('title')
-                ->get(['id', 'title', 'course_id']),
-            'lessons' => Lesson::query()
-                ->whereHas('section.course', fn ($query) => $query->where('academy_id', $academy->id))
-                ->with('section.course:id,title')
-                ->orderBy('title')
-                ->get(['id', 'title', 'course_section_id']),
+            // Large course/class/lesson lists are fetched by the academy-scoped search endpoint.
+
         ]);
     }
 
@@ -166,13 +155,9 @@ final class LearningResourceController extends Controller
         return view('owner.resources.edit', [
             'academy' => $academy,
             'resource' => $resource->load(['media:id,original_name,mime_type,size', 'course:id,title', 'classroom:id,title', 'lesson:id,title']),
-            'courses' => Course::query()->where('academy_id', $academy->id)->orderBy('title')->get(['id', 'title']),
-            'classrooms' => Classroom::query()->where('academy_id', $academy->id)->orderBy('title')->get(['id', 'title', 'course_id']),
-            'lessons' => Lesson::query()
-                ->whereHas('section.course', fn ($query) => $query->where('academy_id', $academy->id))
-                ->with('section.course:id,title')
-                ->orderBy('title')
-                ->get(['id', 'title', 'course_section_id']),
+            // Selected relationships are already loaded on the resource; remaining
+            // options are searched server-side instead of being eagerly materialized.
+
         ]);
     }
 
