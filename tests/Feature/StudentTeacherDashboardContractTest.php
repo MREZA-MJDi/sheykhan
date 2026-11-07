@@ -38,20 +38,22 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
             ->assertOk()
-            ->assertSee('کلاس فعال')
-            ->assertSee('دانش‌آموز')
-            ->assertSee('جلسه این هفته')
-            ->assertSee('تکلیف منتظر نمره')
-            ->assertSee('آزمون منتظر بررسی')
+            ->assertSee('کلاس فعال من')
+            ->assertSee('دانش‌آموز تحت آموزش')
+            ->assertSee('جلسه در این هفته')
+            ->assertSee('تکلیف در انتظار بررسی')
+            ->assertSee('آزمون در انتظار بررسی')
             ->assertSee('گزارش عملکرد')
-            ->assertSee('id="teacher-dashboard"', false)
-            ->assertSee('class="hero2"', false)
-            ->assertSee('teacher-stat-card', false)
-            ->assertSee('teacher-quick-action', false)
-            ->assertSee('خوش آمدید', false)
-            ->assertSee('id="teacher-progress"', false)
-            ->assertSee('data-dashboard-chart', false)
-            ->assertSee('data-chart-range="week"', false)
+            ->assertSee('class="teacher-home"', false)
+            ->assertSee('teacher-home__welcome', false)
+            ->assertSee('teacher-home__metric', false)
+            ->assertSee('teacher-home__quick', false)
+            ->assertSee('خوش آمدی', false)
+            ->assertSee('teacher-home__metrics', false)
+            ->assertSee('برنامه امروز')
+            ->assertSee('کلاس‌های من')
+            ->assertSee('کلاس‌های آنلاین پیش‌رو')
+            ->assertSee('نیازمند پیگیری')
             ->assertSee('id="gs"', false)
             ->assertSee('<aside class="side"', false)
             ->assertSee('<nav class="bt"', false)
@@ -59,8 +61,7 @@ class StudentTeacherDashboardContractTest extends TestCase
             ->assertSee('href="' . route('teacher.classrooms.index') . '"', false)
             ->assertSee('href="' . route('teacher.courses.index') . '"', false)
             ->assertSee('href="' . route('teacher.schedule.index') . '"', false)
-            ->assertSee('پیام دانش‌آموزان')
-            ->assertSee('href="' . route('teacher.student-messages.index') . '"', false)
+            ->assertSee('پیام‌ها')
             ->assertDontSee('فروش دوره‌ها')
             ->assertDontSee('td-dashboard', false);
     }
@@ -68,7 +69,7 @@ class StudentTeacherDashboardContractTest extends TestCase
     public function test_teacher_dashboard_roster_uses_real_student_profile_photos(): void
     {
         $this->seed();
-        \Illuminate\Support\Facades\Storage::fake('local');
+        \\Illuminate\\Support\\Facades\\Storage::fake('local');
 
         $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $classroom = $teacher->classroomsAsTeacher()
@@ -84,10 +85,10 @@ class StudentTeacherDashboardContractTest extends TestCase
                 ->where('status', 'active'))
             ->firstOrFail();
 
-        $profile = \App\Models\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+        $profile = \\App\\Models\\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
         $path = 'students/' . $student->id . '/avatar.webp';
-        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'real-avatar-fixture');
-        $media = \App\Models\Media::query()->create([
+        \\Illuminate\\Support\\Facades\\Storage::disk('local')->put($path, 'real-avatar-fixture');
+        $media = \\App\\Models\\Media::query()->create([
             'uploaded_by' => $student->id,
             'disk' => 'local',
             'path' => $path,
@@ -108,30 +109,33 @@ class StudentTeacherDashboardContractTest extends TestCase
             'is_featured' => true,
         ]);
 
-        $this->actingAs($teacher)
+        $response = $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
-            ->assertOk()
-            ->assertSee(route('media.public', $media), false)
-            ->assertSee('teacher-roster-avatar', false)
-            ->assertSee($student->name, false);
-    }
+            ->assertOk();
 
+        $response->assertViewHas('classroomRosterPreviews', function ($previews) use ($classroom, $student, $media): bool {
+            $classPreview = $previews->firstWhere('classroom_id', $classroom->id);
+            $studentPreview = $classPreview['students']->firstWhere('id', $student->id) ?? null;
+
+            return $studentPreview !== null && $studentPreview->avatar_url === $media->url();
+        });
+    }
 
     public function test_teacher_dashboard_hero_uses_the_saved_teacher_avatar(): void
     {
         $this->seed();
-        \Illuminate\Support\Facades\Storage::fake('local');
+        \\Illuminate\\Support\\Facades\\Storage::fake('local');
 
         $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
-        $profile = \App\Models\TeacherProfile::query()->firstOrCreate(
+        $profile = \\App\\Models\\TeacherProfile::query()->firstOrCreate(
             ['user_id' => $teacher->id],
             ['is_verified' => true, 'is_public' => true],
         );
         $profile->forceFill(['is_public' => true])->save();
 
         $path = 'teachers/' . $teacher->id . '/teacher-avatar.webp';
-        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'teacher-avatar-fixture');
-        $media = \App\Models\Media::query()->create([
+        \\Illuminate\\Support\\Facades\\Storage::disk('local')->put($path, 'teacher-avatar-fixture');
+        $media = \\App\\Models\\Media::query()->create([
             'uploaded_by' => $teacher->id,
             'disk' => 'local',
             'path' => $path,
@@ -158,10 +162,9 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
             ->assertOk()
-            ->assertSee('class="teacher-dashboard-avatar"', false)
-            ->assertSee('data-avatar-image', false)
+            ->assertSee('teacher-profile-mini', false)
             ->assertSee(route('media.public', $media), false)
-            ->assertSee('تصویر پروفایل سمیه احمدی', false);
+            ->assertSee($teacher->name, false);
     }
 
     public function test_student_dashboard_hero_uses_saved_avatar_and_never_displays_the_demo_person_when_missing(): void
@@ -241,10 +244,9 @@ class StudentTeacherDashboardContractTest extends TestCase
             $response->assertDontSee('href="' . route($route) . '"', false, $route);
         }
 
-        $response->assertDontSee('id="teacher-progress"', false)
-            ->assertDontSee('data-dashboard-chart', false)
-            ->assertDontSee('teacher-stat-card', false)
-            ->assertDontSee('teacher-quick-action', false);
+        $response->assertDontSee('teacher-home__metric', false)
+            ->assertDontSee('teacher-home__quick', false)
+            ->assertDontSee('teacher-home__panel', false);
     }
 
     public function test_teacher_dashboard_excludes_inactive_accounts_from_roster_and_course_counts(): void
@@ -385,11 +387,9 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString("@source '../../resources/views/components/teacher';", $teacherCss);
         $this->assertStringNotContainsString("@source '../../resources/views/components';", $teacherCss);
         $this->assertStringContainsString("@source '../../resources/views/student';", $studentCss);
-        $this->assertStringContainsString('.teacher-stat-card', $teacherCss);
+        $this->assertStringContainsString("@import './teacher/workspace-redesign.css';", $teacherCss);
         $this->assertStringContainsString('.teacher-workspace-page', $teacherCss);
-        $this->assertStringContainsString('.teacher-profile-avatar', $teacherCss);
-        $this->assertStringContainsString('.teacher-dashboard-avatar', $teacherCss);
-        $this->assertStringContainsString('.teacher-roster-avatar', $teacherCss);
+        $this->assertStringContainsString('.teacher-profile-mini', $teacherCss);
         $this->assertStringContainsString('prefers-reduced-motion', $teacherCss);
         $this->assertStringContainsString('@media(max-width:860px)', $teacherCss);
         $this->assertStringContainsString('.student-shell .app', $studentCss);
@@ -415,11 +415,11 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('data-upload-progress-ui', $uploadRuntime);
 
         $this->assertStringContainsString('data-dashboard-search-empty', $teacherLayout);
-        $this->assertStringContainsString('id="teacher-progress"', $dashboard);
-        $this->assertStringContainsString('data-dashboard-chart', $dashboard);
-        $this->assertStringContainsString('class="teacher-dashboard-avatar"', $dashboard);
-        $this->assertStringContainsString('data-avatar-image', $dashboard);
-        $this->assertStringContainsString('class="teacher-roster-avatar"', $dashboard);
+        $this->assertStringContainsString('class="teacher-home"', $dashboard);
+        $this->assertStringContainsString('teacher-home__metrics', $dashboard);
+        $this->assertStringContainsString('teacher-home__metric', $dashboard);
+        $this->assertStringContainsString('teacher-home__quick', $dashboard);
+        $this->assertStringContainsString('teacher-home__panel', $dashboard);
         $this->assertStringContainsString('data-teacher-preview-container="avatar"', $teacherProfileView);
         $this->assertStringContainsString('data-teacher-preview-input="avatar"', $teacherProfileView);
         $this->assertStringContainsString('data-teacher-preview-input="cover"', $teacherProfileView);
@@ -430,7 +430,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringContainsString('data-teacher-menu-open', $teacherLayout);
         $this->assertStringContainsString('data-teacher-menu-close', $teacherLayout);
         $this->assertStringContainsString('teacherProfile.media', $teacherLayout);
-        $this->assertStringContainsString('$avatarUrl', $dashboard);
+        $this->assertStringContainsString('$avatarUrl', $teacherLayout);
         $this->assertStringContainsString("@include('student.partials.tabbar')", $studentLayout);
         $this->assertStringContainsString("@include('student.partials.sidebar')", $studentLayout);
         $this->assertStringContainsString('data-filter', $studentLayout);
