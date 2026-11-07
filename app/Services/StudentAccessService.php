@@ -13,13 +13,19 @@ use Illuminate\Support\Collection;
 
 final class StudentAccessService
 {
-    public function enrolledCourseIds(User $student): Collection
+    /**
+     * Query authorized course enrollments without materializing every course ID
+     * in PHP. Library pages use this directly before pagination.
+     */
+    public function enrolledCoursesQuery(User $student)
     {
+        $query = $student->enrollments();
+
         if (! $this->isActiveStudent($student)) {
-            return collect();
+            return $query->whereRaw('1 = 0');
         }
 
-        return $student->enrollments()
+        return $query
             ->active()
             ->whereHas('course', fn ($course) => $course
                 ->where('status', 'published')
@@ -38,8 +44,12 @@ final class StudentAccessService
                         ->where('academy_user.role', 'student')
                         ->where('academy_user.status', 'active');
                 });
-            })
-            ->pluck('course_id');
+            });
+    }
+
+    public function enrolledCourseIds(User $student): Collection
+    {
+        return $this->enrolledCoursesQuery($student)->pluck('course_id');
     }
 
     public function course(User $student, Course $course): bool
