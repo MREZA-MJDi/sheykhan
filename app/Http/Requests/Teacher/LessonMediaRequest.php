@@ -18,7 +18,7 @@ class LessonMediaRequest extends FormRequest
                 'required',
                 'file',
                 'max:512000',
-                'mimetypes:video/mp4,video/webm,video/quicktime,application/pdf,image/jpeg,image/png,image/webp,application/zip',
+                'mimetypes:application/pdf,image/jpeg,image/png,image/webp,application/zip',
             ],
             'collection' => ['nullable', 'string', 'max:50'],
             'downloadable' => ['nullable', 'boolean'],
@@ -31,7 +31,7 @@ class LessonMediaRequest extends FormRequest
             'media.required' => 'انتخاب فایل الزامی است.',
             'media.file' => 'فایل انتخاب‌شده معتبر نیست.',
             'media.max' => 'حجم فایل نمی‌تواند بیشتر از ۵۰۰ مگابایت باشد.',
-            'media.mimetypes' => 'نوع فایل انتخاب‌شده مجاز نیست.',
+            'media.mimetypes' => 'اینجا فقط PDF، تصویر و ZIP آپلود می‌شود؛ ویدئو را در دورهٔ متناظر SpotPlayer قرار بده.',
         ];
     }
 }
