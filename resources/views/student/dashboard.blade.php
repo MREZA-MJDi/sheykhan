@@ -40,6 +40,7 @@
     <h2>سلام، {{ $student->name }}!</h2>
     <p>{{ $nextAction->text }}</p>
     <a class="btn" href="{{ $nextAction->url }}">{{ $nextAction->label }}</a>
+    <a class="btn" href="{{ route('account.guide', ['role' => 'student']) }}" style="margin-inline-start:8px">راهنمای پنل و آموزش کار با آن</a>
   </div>
 </section>
 
