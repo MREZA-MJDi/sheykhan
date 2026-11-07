@@ -190,7 +190,6 @@ final class TeacherWorkspaceService
         $classroomIds = $teacher->classroomsAsTeacher()
             ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
-            ->when($classroomId !== null, fn ($query) => $query->whereKey($classroomId))
             ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
@@ -247,6 +246,7 @@ final class TeacherWorkspaceService
         $classroomIds = $teacher->classroomsAsTeacher()
             ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->when($classroomId !== null, fn ($query) => $query->whereKey($classroomId))
             ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
