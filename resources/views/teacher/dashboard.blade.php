@@ -30,6 +30,7 @@
             <span class="teacher-home__eyebrow">فضای کاری مدرس</span>
             <h2>سلام {{ $user?->name }}، خوش آمدی</h2>
             <p>کارهای مهم امروزت را یک‌جا ببین و بدون جابه‌جایی بین صفحه‌ها ادامه بده.</p>
+            <a href="{{ route('account.guide', ['role' => 'teacher']) }}" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:9px 14px;border:1px solid rgba(255,255,255,.28);border-radius:12px;color:inherit;font-weight:800;text-decoration:none">راهنمای کار با پنل و آموزش مرحله‌به‌مرحله ←</a>
         </div>
         <div class="teacher-home__welcome-mark" aria-hidden="true">✦</div>
     </section>
