@@ -259,7 +259,11 @@
                                 <span>هنوز ثبت نشده</span>
                             @endif
                         </div>
-                        <a class="sp-btn sp-btn-secondary sp-btn-wide" href="{{ route($isOwner ? 'owner.courses.edit' : 'teacher.courses.edit', $course) }}">ویرایش اتصال دوره</a>
+                        @if($isOwner || auth()->user()->hasPermission('courses.manage'))
+                            <a class="sp-btn sp-btn-secondary sp-btn-wide" href="{{ route($isOwner ? 'owner.courses.edit' : 'teacher.courses.edit', $course) }}">ویرایش اتصال دوره</a>
+                        @else
+                            <span class="sp-course-readonly">برای تغییر شناسه، دسترسی مدیریت دوره لازم است.</span>
+                        @endif
                     </article>
                 @empty
                     <div class="sp-empty">دوره‌ای در محدوده دسترسی شما وجود ندارد.</div>
