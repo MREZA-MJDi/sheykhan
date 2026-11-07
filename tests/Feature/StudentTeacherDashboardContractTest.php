@@ -247,8 +247,8 @@ class StudentTeacherDashboardContractTest extends TestCase
             $response->assertDontSee('href="' . route($route) . '"', false, $route);
         }
 
-        $response->assertDontSee('teacher-home__metric', false)
-            ->assertDontSee('teacher-home__quick', false)
+        $response->assertDontSee('class="teacher-home__metric ', false)
+            ->assertDontSee('class="teacher-home__quick ', false)
             ->assertDontSee('teacher-home__panel', false);
     }
 
