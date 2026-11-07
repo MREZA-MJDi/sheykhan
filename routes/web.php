@@ -154,6 +154,8 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/classrooms/{classroom}', [OwnerClassroomController::class, 'show'])->middleware('permission:classrooms.view')->name('classrooms.show');
     Route::get('/academy/{academy}/classrooms/{classroom}/edit', [OwnerClassroomController::class, 'edit'])->middleware('permission:classrooms.manage')->name('classrooms.edit');
     Route::patch('/academy/{academy}/classrooms/{classroom}', [OwnerClassroomController::class, 'update'])->middleware('permission:classrooms.manage')->name('classrooms.update');
+    Route::patch('/academy/{academy}/classrooms/{classroom}/archive', [OwnerClassroomController::class, 'archive'])->middleware('permission:classrooms.manage')->name('classrooms.archive');
+    Route::patch('/academy/{academy}/classrooms/{classroom}/restore', [OwnerClassroomController::class, 'restore'])->middleware('permission:classrooms.manage')->name('classrooms.restore');
     Route::post('/academy/{academy}/people/legacy-students', [OwnerPeopleController::class, 'onboardLegacyStudent'])->middleware('permission:onboarding.manage')->name('people.legacy-students.store');
     Route::post('/academy/{academy}/people/students', [OwnerPeopleController::class, 'storeStudentAccount'])->middleware(['permission:onboarding.manage','throttle:10,1'])->name('people.store-student');
     Route::post('/academy/{academy}/people/store-teacher', [OwnerPeopleController::class, 'storeTeacher'])->middleware('permission:teachers.manage')->name('people.store-teacher');
