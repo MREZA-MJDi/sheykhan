@@ -573,3 +573,35 @@
   .teacher-panel .teacher-workspace-card-head { align-items: flex-start; flex-direction: column; padding: 14px; }
   .teacher-panel .teacher-workspace-item { align-items: flex-start; flex-wrap: wrap; padding: 12px; }
 }
+
+/* Filters and secondary session controls stay visually consistent across teacher pages. */
+.teacher-panel .teacher-workspace-filters > label,
+.teacher-panel .teacher-student-class-filter { display: grid; gap: 6px; min-width: 150px; }
+.teacher-panel .teacher-workspace-filters > label > span,
+.teacher-panel .teacher-student-class-filter > span { color: var(--tw-muted); font-size: 10px; font-weight: 800; }
+.teacher-panel .teacher-workspace-filters > label input,
+.teacher-panel .teacher-workspace-filters > label select,
+.teacher-panel .teacher-student-class-filter select { width: 100%; min-width: 150px; }
+.teacher-panel .teacher-student-roster-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; padding: 15px; }
+.teacher-panel .teacher-student-search { display: flex; flex: 1 1 240px; flex-wrap: wrap; align-items: end; gap: 8px; }
+.teacher-panel .teacher-student-search > input[type=search] { flex: 1 1 220px; min-width: 0; }
+.teacher-panel .teacher-student-search .teacher-student-class-filter { flex: 1 1 190px; }
+.teacher-panel .teacher-live-recording {
+  margin-top: 12px; overflow: hidden; border: 1px solid var(--tw-line); border-radius: 13px; background: var(--tw-bg);
+}
+.teacher-panel .teacher-live-recording > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px;
+  color: var(--tw-primary); cursor: pointer; font-size: 11px; font-weight: 900; list-style: none;
+}
+.teacher-panel .teacher-live-recording > summary::-webkit-details-marker { display: none; }
+.teacher-panel .teacher-live-recording > summary::after { content: '＋'; color: var(--tw-muted); font-size: 16px; }
+.teacher-panel .teacher-live-recording[open] > summary::after { content: '−'; }
+.teacher-panel .teacher-live-recording > summary small { color: var(--tw-muted); font-size: 9px; font-weight: 700; }
+.teacher-panel .teacher-live-recording[open] > summary { border-bottom: 1px solid var(--tw-line); }
+.teacher-panel .teacher-live-recording > :not(summary) { margin-inline: 12px; }
+.teacher-panel .teacher-live-recording > form:last-child { margin-bottom: 12px; }
+@media (max-width: 760px) {
+  .teacher-panel .teacher-student-roster-tools { align-items: stretch; }
+  .teacher-panel .teacher-student-search { display: grid; grid-template-columns: 1fr; }
+  .teacher-panel .teacher-live-recording > summary { align-items: flex-start; flex-direction: column; }
+}
