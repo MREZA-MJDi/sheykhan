@@ -83,7 +83,7 @@
                 <h2>عملکرد دوره‌های آموزشی</h2>
                 <p>تعداد دانش‌آموزان، پیشرفت محتوا، تکالیف و جلسات آنلاین به تفکیک دوره</p>
             </div>
-            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($courseReports->count()) }} دوره</span>
+            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($metrics['courseCount']) }} دوره</span>
         </div>
         <div class="teacher-workspace-table-wrap">
             <table class="teacher-workspace-table">
@@ -162,7 +162,7 @@
                 <h2>کلاس‌ها و آمار حضور و غیاب</h2>
                 <p>شاخص حضور دانش‌آموزان بر اساس جلسات برگزارشده و دقایق واقعی حضور</p>
             </div>
-            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($classroomReports->count()) }} کلاس فعال</span>
+            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($metrics['classroomCount']) }} کلاس فعال</span>
         </div>
         <div class="teacher-workspace-grid">
             @forelse($classroomReports as $classroom)
