@@ -145,6 +145,7 @@
                 <p class="sub">نمای زنده و مبتنی بر دیتابیس از عملیات آموزشی و موارد نیازمند پیگیری.</p>
             </div>
             <div class="act">
+                <a class="mb" href="{{ route('account.guide', ['role' => 'owner']) }}">راهنمای استفاده از پنل ←</a>
                 @if($canViewPeople && $firstAcademy)
                     <a class="go sm" href="{{ route('owner.people.index', $firstAcademy) }}"><svg class="ic"><use href="#i-users"/></svg> مدیریت اعضا</a>
                 @endif
