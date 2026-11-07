@@ -410,6 +410,7 @@ final class TeacherWorkspaceService
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with(['course:id,title', 'classroom:id,title'])
             ->withCount([
+                'submissions as total_submissions_count',
                 'submissions as submitted_count' => fn ($query) => $query->whereNotNull('submitted_at'),
                 'submissions as pending_review_count' => fn ($query) => $query
                     ->whereNotNull('submitted_at')
