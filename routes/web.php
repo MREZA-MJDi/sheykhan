@@ -189,6 +189,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/exams', [\App\Http\Controllers\Owner\ExamController::class, 'index'])->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.index');
     Route::get('/academy/{academy}/exams/{exam}', [\App\Http\Controllers\Owner\ExamController::class, 'show'])->whereNumber('exam')->middleware('permission:exams.view')->withoutScopedBindings()->name('exams.show');
     Route::patch('/academy/{academy}/exams/{exam}/status', [\App\Http\Controllers\Owner\ExamController::class, 'updateStatus'])->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.status');
+    Route::delete('/academy/{academy}/exams/{exam}', [\App\Http\Controllers\Owner\ExamController::class, 'destroy'])->middleware('permission:exams.manage')->withoutScopedBindings()->name('exams.destroy');
     Route::patch('/academy/{academy}/exams/{exam}/attempts/{attempt}/grade', [\App\Http\Controllers\Owner\ExamController::class, 'gradeAttempt'])->middleware(['permission:exams.manage','throttle:20,1'])->withoutScopedBindings()->name('exams.attempts.grade');
     Route::get('/academy/{academy}/recordings', [\App\Http\Controllers\Owner\RecordingController::class, 'index'])->middleware('permission:live_classes.view')->withoutScopedBindings()->name('recordings.index');
     Route::post('/academy/{academy}/recordings/{liveClass}', [\App\Http\Controllers\Owner\RecordingController::class, 'upload'])->middleware(['permission:live_classes.manage','throttle:5,1'])->withoutScopedBindings()->name('recordings.upload');
@@ -268,12 +269,15 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->middleware('permission:assignments.manage')->name('assignments.store');
     Route::get('/assignments/{assignment}/submissions', [TeacherAssignmentController::class, 'submissions'])->middleware('permission:assignments.view')->name('assignments.submissions');
     Route::patch('/assignments/{assignment}/submissions/{submission}', [TeacherAssignmentSubmissionController::class, 'update'])->middleware('permission:assignments.manage')->name('assignments.submissions.update');
+    Route::patch('/assignments/{assignment}/status', [TeacherAssignmentController::class, 'updateStatus'])->middleware('permission:assignments.manage')->name('assignments.status');
+    Route::delete('/assignments/{assignment}', [TeacherAssignmentController::class, 'destroy'])->middleware('permission:assignments.manage')->name('assignments.destroy');
     Route::get('/exams', [TeacherExamController::class, 'index'])->middleware('permission:exams.view')->name('exams.index');
     Route::get('/exams/create', [TeacherExamController::class, 'create'])->middleware('permission:exams.manage')->name('exams.create');
     Route::post('/exams', [TeacherExamController::class, 'store'])->middleware('permission:exams.manage')->name('exams.store');
     Route::patch('/exams/{exam}/status', [TeacherExamController::class, 'updateStatus'])->middleware('permission:exams.manage')->name('exams.status');
     Route::get('/exams/{exam}/edit', [TeacherExamController::class, 'edit'])->middleware('permission:exams.manage')->name('exams.edit');
     Route::patch('/exams/{exam}', [TeacherExamController::class, 'update'])->middleware('permission:exams.manage')->name('exams.update');
+    Route::delete('/exams/{exam}', [TeacherExamController::class, 'destroy'])->middleware('permission:exams.manage')->name('exams.destroy');
     Route::get('/exams/{exam}/attempts', [TeacherExamController::class, 'attempts'])->middleware('permission:exams.view')->name('exams.attempts');
     Route::post('/exam-attempts/{attempt}/grade', [TeacherExamAttemptController::class, 'grade'])->middleware('permission:exams.manage')->name('exam-attempts.grade');
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
