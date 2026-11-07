@@ -19,8 +19,10 @@ class UpdateClassroomRequest extends FormRequest
         $endsAt = $this->input('ends_at');
 
         $this->merge([
-            'starts_at' => $startsAt ? PersianUi::normalizeDateTime($startsAt) : null,
-            'ends_at' => $endsAt ? PersianUi::normalizeDateTime($endsAt) : null,
+            // Preserve non-empty invalid input so the date rule rejects it instead
+            // of silently converting it to null and accepting the request.
+            'starts_at' => $startsAt ? (PersianUi::normalizeDateTime($startsAt) ?? $startsAt) : null,
+            'ends_at' => $endsAt ? (PersianUi::normalizeDateTime($endsAt) ?? $endsAt) : null,
         ]);
     }
 
