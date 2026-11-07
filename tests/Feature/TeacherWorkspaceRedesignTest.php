@@ -68,6 +68,27 @@ class TeacherWorkspaceRedesignTest extends TestCase
             ->assertSee('همه کلاس‌های من');
     }
 
+    public function test_teacher_can_filter_and_review_scoped_attendance_history(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.attendance.index', [
+                'from' => now()->subDays(30)->toDateString(),
+                'to' => now()->toDateString(),
+                'status' => 'present',
+            ]))
+            ->assertOk()
+            ->assertSee('تاریخچه حضور و غیاب')
+            ->assertSee('اعمال فیلتر')
+            ->assertSee('حاضر')
+            ->assertSee('پاک‌کردن');
+    }
+
     public function test_teacher_sidebar_uses_clear_grouped_labels_instead_of_duplicate_message_links(): void
     {
         $this->seed();
