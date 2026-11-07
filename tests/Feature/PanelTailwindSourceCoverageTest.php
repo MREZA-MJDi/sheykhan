@@ -75,7 +75,8 @@ class PanelTailwindSourceCoverageTest extends TestCase
     {
         $view = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $this->assertIsString($view);
-        $this->assertStringContainsString("'route'=>'teacher.messages.index','permission'=>'parent_messages.view'", $view);
+        $this->assertStringContainsString("'teacher.messages.index'", $view);
+        $this->assertStringContainsString("hasPermission('parent_messages.view')", $view);
         $this->assertStringContainsString("'route'=>'teacher.student-messages.index','permission'=>'student_messages.view'", $view);
         $this->assertStringContainsString("'route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage'", $view);
         $this->assertStringContainsString("'route'=>'teacher.communications.index','permission'=>'parent_messages.manage'", $view);
