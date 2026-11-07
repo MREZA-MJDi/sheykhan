@@ -26,6 +26,7 @@ final class OwnerAssignmentService
                 'teacher:id,name',
             ])
             ->withCount([
+                'submissions as total_submissions_count',
                 'submissions as submitted_count' => fn ($submissions) => $submissions->whereNotNull('submitted_at'),
                 'submissions as pending_review_count' => fn ($submissions) => $submissions
                     ->whereNotNull('submitted_at')
