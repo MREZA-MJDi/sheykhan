@@ -200,12 +200,25 @@
 
     queryInput.addEventListener('input', () => {
         window.clearTimeout(debounceTimer);
+        if (activeRequest) activeRequest.abort();
+        requestSequence++;
+        clearResults();
+        results.value = '';
+        moreButton.disabled = false;
+        status.textContent = queryInput.value.trim().length < 2
+            ? 'برای جست‌وجو حداقل دو حرف وارد کن.'
+            : 'در حال آماده‌سازی جست‌وجو...';
         debounceTimer = window.setTimeout(() => search(false), 300);
     });
 
     typeInput.addEventListener('change', () => {
+        window.clearTimeout(debounceTimer);
+        if (activeRequest) activeRequest.abort();
+        requestSequence++;
         queryInput.value = '';
         clearResults();
+        results.value = '';
+        moreButton.disabled = false;
         status.textContent = 'برای جست‌وجوی مخاطب‌های این گروه، حداقل دو حرف وارد کن.';
     });
 
