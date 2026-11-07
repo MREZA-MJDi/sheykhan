@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Academy;
 use App\Models\Course;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\SpotPlayerLicense;
 use App\Models\SpotPlayerLicenseIssuance;
 use App\Models\SpotPlayerPlaybackView;
@@ -15,6 +18,87 @@ use Tests\TestCase;
 final class SpotPlayerIntegrationTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_owner_spotplayer_workspace_shows_scoped_real_records_without_exposing_secrets(): void
+    {
+        $owner = User::factory()->create([
+            'email' => 'spot-owner-' . \\Illuminate\\Support\\Str::random(8) . '@test.local',
+        ]);
+        $role = Role::create([
+            'name' => 'مدیر آموزشگاه',
+            'slug' => 'academy-owner',
+            'description' => 'Owner',
+        ]);
+        $permission = Permission::create([
+            'name' => 'courses.manage',
+            'label' => 'مدیریت دوره‌ها',
+            'group' => 'owner',
+        ]);
+        $role->permissions()->attach($permission->id);
+        $owner->roles()->attach($role->id);
+
+        $academy = Academy::create([
+            'owner_id' => $owner->id,
+            'name' => 'آموزشگاه SpotPlayer',
+            'slug' => 'spot-academy-' . \\Illuminate\\Support\\Str::random(8),
+            'status' => 'active',
+        ]);
+        $course = Course::create([
+            'academy_id' => $academy->id,
+            'created_by' => $owner->id,
+            'title' => 'دوره آزمایشی SpotPlayer',
+            'slug' => 'spot-course-' . \\Illuminate\\Support\\Str::random(8),
+            'status' => 'published',
+            'access_type' => 'free',
+            'price' => 0,
+            'published_at' => now(),
+            'spotplayer_course_id' => 'publisher-course-123',
+        ]);
+        $student = User::factory()->create([
+            'name' => 'دانش‌آموز آزمایشی',
+            'email' => 'spot-student-' . \\Illuminate\\Support\\Str::random(8) . '@test.local',
+        ]);
+
+        config([
+            'services.spotplayer.api_key' => 'server-secret-must-not-render',
+            'services.spotplayer.mode' => 'test',
+        ]);
+
+        SpotPlayerLicense::query()->create([
+            'course_id' => $course->id,
+            'provider_course_id' => 'publisher-course-123',
+            'provider_mode' => 'test',
+            'student_id' => $student->id,
+            'external_license_id' => 'provider-license-123',
+            'license_key' => 'encrypted-license-secret-must-not-render',
+            'license_url' => 'https://dl.spotplayer.ir/licenses/provider-license-123',
+            'status' => 'active',
+            'issued_at' => now(),
+        ]);
+
+        SpotPlayerLicenseIssuance::query()->create([
+            'student_id' => $student->id,
+            'course_id' => $course->id,
+            'provider_course_id' => 'publisher-course-123',
+            'provider_mode' => 'test',
+            'status' => 'review_required',
+            'attempt_count' => 1,
+            'started_at' => now()->subMinutes(10),
+            'completed_at' => now(),
+            'last_error' => 'Provider status must be reconciled manually.',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.spotplayer.edit'))
+            ->assertOk()
+            ->assertSee('مرکز مدیریت SpotPlayer')
+            ->assertSee('دوره آزمایشی SpotPlayer')
+            ->assertSee('publisher-course-123')
+            ->assertSee('دانش‌آموز آزمایشی')
+            ->assertSee('نیازمند تطبیق دستی')
+            ->assertDontSee('server-secret-must-not-render')
+            ->assertDontSee('encrypted-license-secret-must-not-render');
+    }
 
     public function test_entitled_student_receives_one_encrypted_spotplayer_license_and_reuses_it(): void
     {
