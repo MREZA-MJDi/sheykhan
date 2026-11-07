@@ -70,10 +70,6 @@ final class TeacherReportService
                 ->count('memberships.student_id')
             : 0;
 
-        if ($courseCount === 0) {
-            return $this->emptyState($teacher, $classroomCount, $studentCount);
-        }
-
         $exclusiveCourseIds = $this->exclusiveCourseIdsForTeacher($teacher->id, $courseIds);
 
         $pendingAssignmentReviews = DB::table('assignment_submissions as submissions')
