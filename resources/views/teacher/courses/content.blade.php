@@ -20,6 +20,21 @@
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="teacher-workspace-alert error">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 
+    <section class="teacher-workspace-card" role="note">
+        <div class="teacher-workspace-card-head">
+            <div>
+                <h2>ویدئو و فایل آموزشی را از هم جدا کن</h2>
+                <p>ویدئوهای اصلی درس را در پنل ناشر SpotPlayer، داخل دورهٔ متناظر بارگذاری کن؛ سپس شناسهٔ همان دوره را در «تنظیمات دوره» وارد کن. دانش‌آموز با بازکردن دوره و زدن «فعال‌سازی پخش امن ویدئو» پخش‌کننده را می‌بیند.</p>
+            </div>
+            <a href="{{ route('teacher.courses.edit', $course) }}" class="teacher-workspace-btn primary">تنظیم اتصال SpotPlayer</a>
+        </div>
+        @if(filled($course->spotplayer_course_id))
+            <p class="teacher-workspace-alert success">شناسهٔ خارجی SpotPlayer برای این دوره ثبت شده است. برای اطمینان، با یک حساب دانش‌آموز آزمایشی پخش واقعی را بررسی کن.</p>
+        @else
+            <p class="teacher-workspace-alert error">این دوره هنوز به SpotPlayer وصل نشده است؛ تا ثبت شناسهٔ خارجی، دکمهٔ پخش امن برای دانش‌آموز فعال نمی‌شود.</p>
+        @endif
+    </section>
+
     <section class="teacher-workspace-card">
         <div class="teacher-workspace-card-head">
             <div><h2>ساختار دوره</h2><p>قبل از افزودن درس، سرفصل‌های دوره را به ترتیب آموزشی بساز.</p></div>
@@ -52,12 +67,12 @@
                         <div class="teacher-workspace-item-actions">
                             <form method="POST" action="{{ route('teacher.lessons.media.store',$lesson) }}" enctype="multipart/form-data" class="flex flex-wrap items-center gap-2">
                                 @csrf
-                                <input type="file" name="media" required class="max-w-[210px] rounded-lg border border-slate-200 bg-white px-2 py-2 text-[8px]">
+                                <input type="file" name="media" required accept=".pdf,.jpg,.jpeg,.png,.webp,.zip" class="max-w-[210px] rounded-lg border border-slate-200 bg-white px-2 py-2 text-[8px]">
                                 <input type="hidden" name="downloadable" value="0">
                                 <label class="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-2 text-[8px]">
                                     <input type="checkbox" name="downloadable" value="1" checked> قابل دانلود
                                 </label>
-                                <button type="submit" class="teacher-workspace-link primary">آپلود فایل</button>
+                                <button type="submit" class="teacher-workspace-link primary">آپلود جزوه / فایل</button>
                             </form>
                         </div>
                     </article>
