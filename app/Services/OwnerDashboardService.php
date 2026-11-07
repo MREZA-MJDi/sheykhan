@@ -172,25 +172,25 @@ final class OwnerDashboardService
             : collect();
 
         // One conditional attendance aggregate provides both period and today's KPIs.
-        $attendanceSummary = $canViewAttendance
-            ? DB::table('attendances')
-                ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
-                ->whereIn('classrooms.academy_id', $academyIds)
-                ->where('classrooms.status', 'active')
-                ->whereDate('attendances.attendance_date', '>=', $periodStart->toDateString())
-                ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
-                ->selectRaw(
-                    "SUM(CASE WHEN DATE(attendances.attendance_date) = ? AND attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS today_total",
-                    [$now->toDateString()]
-                )
-                ->selectRaw(
-                    "SUM(CASE WHEN DATE(attendances.attendance_date) = ? AND attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS today_attended",
-                    [$now->toDateString()]
-                )
-                ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS period_total")
-                ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS period_attended")
-                ->first()
-            : null;
+        // A small, aggregate attendance KPI belongs to the dashboard summary itself.
+        // Detailed attendance pages and actions remain permission-gated below.
+        $attendanceSummary = DB::table('attendances')
+            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+            ->whereIn('classrooms.academy_id', $academyIds)
+            ->where('classrooms.status', 'active')
+            ->whereDate('attendances.attendance_date', '>=', $periodStart->toDateString())
+            ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
+            ->selectRaw(
+                "SUM(CASE WHEN DATE(attendances.attendance_date) = ? AND attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS today_total",
+                [$now->toDateString()]
+            )
+            ->selectRaw(
+                "SUM(CASE WHEN DATE(attendances.attendance_date) = ? AND attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS today_attended",
+                [$now->toDateString()]
+            )
+            ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS period_total")
+            ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS period_attended")
+            ->first();
 
         $attendanceTodayTotal = (int) ($attendanceSummary->today_total ?? 0);
         $attendanceTodayAttended = (int) ($attendanceSummary->today_attended ?? 0);
@@ -236,16 +236,16 @@ final class OwnerDashboardService
             ? min(100, (int) round(($capacityUsed / $capacityTotal) * 100))
             : null;
 
-        $liveNowClasses = $canViewMeetings ? LiveClass::query()
+        // The live-now KPI is an aggregate dashboard signal. Limit the scan to
+        // the maximum valid session duration (24h); full session previews stay gated.
+        $liveNowClasses = LiveClass::query()
             ->whereIn('status', ['scheduled', 'live'])
-            ->where('scheduled_at', '<=', $now)
+            ->whereBetween('scheduled_at', [$now->copy()->subDay(), $now])
             ->whereHas('classroom', fn ($query) => $query
                 ->whereIn('academy_id', $academyIds)
                 ->where('status', 'active'))
             ->orderByDesc('scheduled_at')
-            ->limit(32)
-            ->get(['id', 'scheduled_at', 'scheduled_end_at', 'duration_minutes'])
-            : collect();
+            ->get(['id', 'scheduled_at', 'scheduled_end_at', 'duration_minutes']);
 
         $liveNowCount = $liveNowClasses
             ->filter(function (LiveClass $liveClass) use ($now): bool {
