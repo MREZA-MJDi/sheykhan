@@ -33,6 +33,13 @@ final class StudentController extends Controller
 
         /** @var User $teacher */
         $teacher = $request->user();
+        $requestedClassroomId = $request->query('classroom_id');
+        $classroomId = is_scalar($requestedClassroomId) && ctype_digit((string) $requestedClassroomId)
+            ? (int) $requestedClassroomId
+            : null;
+        $selectedClassroom = $classroomId
+            ? $workspace->classroomOwnedBy($teacher, $classroomId)
+            : null;
 
         return view('teacher.students.index', [
             'students' => $workspace->studentsPaginated(
@@ -41,7 +48,11 @@ final class StudentController extends Controller
                 $sort,
                 $direction,
                 $search,
+                $classroomId,
             ),
+            'classrooms' => $workspace->classrooms($teacher),
+            'selectedClassroom' => $selectedClassroom,
+            'selectedClassroomId' => $classroomId,
             'studentSearch' => $search,
             'studentSort' => $sort,
             'studentDirection' => $direction,
