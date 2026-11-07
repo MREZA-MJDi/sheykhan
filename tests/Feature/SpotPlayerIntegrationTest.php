@@ -22,7 +22,7 @@ final class SpotPlayerIntegrationTest extends TestCase
     public function test_owner_spotplayer_workspace_shows_scoped_real_records_without_exposing_secrets(): void
     {
         $owner = User::factory()->create([
-            'email' => 'spot-owner-' . \\Illuminate\\Support\\Str::random(8) . '@test.local',
+            'email' => 'spot-owner-' . \Illuminate\Support\Str::random(8) . '@test.local',
         ]);
         $role = Role::create([
             'name' => 'مدیر آموزشگاه',
@@ -40,14 +40,14 @@ final class SpotPlayerIntegrationTest extends TestCase
         $academy = Academy::create([
             'owner_id' => $owner->id,
             'name' => 'آموزشگاه SpotPlayer',
-            'slug' => 'spot-academy-' . \\Illuminate\\Support\\Str::random(8),
+            'slug' => 'spot-academy-' . \Illuminate\Support\Str::random(8),
             'status' => 'active',
         ]);
         $course = Course::create([
             'academy_id' => $academy->id,
             'created_by' => $owner->id,
             'title' => 'دوره آزمایشی SpotPlayer',
-            'slug' => 'spot-course-' . \\Illuminate\\Support\\Str::random(8),
+            'slug' => 'spot-course-' . \Illuminate\Support\Str::random(8),
             'status' => 'published',
             'access_type' => 'free',
             'price' => 0,
@@ -56,7 +56,7 @@ final class SpotPlayerIntegrationTest extends TestCase
         ]);
         $student = User::factory()->create([
             'name' => 'دانش‌آموز آزمایشی',
-            'email' => 'spot-student-' . \\Illuminate\\Support\\Str::random(8) . '@test.local',
+            'email' => 'spot-student-' . \Illuminate\Support\Str::random(8) . '@test.local',
         ]);
 
         config([
