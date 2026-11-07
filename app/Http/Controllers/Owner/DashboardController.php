@@ -9,14 +9,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Services\OwnerCacheService;
 use App\Services\OwnerDashboardService;
-use App\Services\OwnerWorkspaceService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     public function __invoke(
         OwnerDashboardService $dashboard,
-        OwnerWorkspaceService $workspace,
         OwnerCacheService $cache,
     ): View {
         $owner = request()->user();
@@ -35,7 +33,9 @@ class DashboardController extends Controller
             default => 'این ماه',
         };
 
-        $data['academies'] = $workspace->academies($owner);
+        // The dashboard service already returns the owner's active academies.
+        // Reuse the cached collection instead of issuing the same query twice.
+        $data['academies'] = collect($data['academies'] ?? []);
 
         $firstAcademy = $data['academies']->first();
         $metrics = $data['metrics'] ?? [];
