@@ -59,6 +59,7 @@
                     </select>
                     @error('target')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror
                 </label>
+                <button type="button" data-recipient-more hidden class="min-h-10 justify-self-start rounded-lg border border-[var(--panel-border)] px-4 text-xs font-bold">نمایش ۲۰ مخاطب بعدی</button>
             </div>
                 <label class="grid gap-2 text-sm font-bold">نوع
                     <select name="category" required class="min-h-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3">
@@ -127,15 +128,21 @@
     const queryInput = picker.querySelector('[data-recipient-query]');
     const results = picker.querySelector('[data-recipient-results]');
     const status = picker.querySelector('[data-recipient-status]');
+    const moreButton = picker.querySelector('[data-recipient-more]');
     let debounceTimer = null;
     let activeRequest = null;
     let requestSequence = 0;
+    let currentPage = 1;
+    let hasMore = false;
 
     const clearResults = () => {
         results.querySelectorAll('[data-dynamic-recipient]').forEach(option => option.remove());
+        currentPage = 1;
+        hasMore = false;
+        moreButton.hidden = true;
     };
 
-    const search = async () => {
+    const search = async (append = false) => {
         const term = queryInput.value.trim();
         if (term.length < 2) {
             clearResults();
@@ -143,14 +150,18 @@
             return;
         }
 
+        if (append && !hasMore) return;
         if (activeRequest) activeRequest.abort();
         activeRequest = new AbortController();
         const sequence = ++requestSequence;
-        status.textContent = 'در حال جست‌وجوی مخاطب‌ها...';
+        const requestedPage = append ? currentPage + 1 : 1;
+        status.textContent = append ? 'در حال دریافت ادامه فهرست...' : 'در حال جست‌وجوی مخاطب‌ها...';
+        moreButton.disabled = true;
 
         const url = new URL(endpoint, window.location.origin);
         url.searchParams.set('type', typeInput.value);
         url.searchParams.set('q', term);
+        url.searchParams.set('page', String(requestedPage));
 
         try {
             const response = await fetch(url, {
@@ -162,9 +173,7 @@
             const payload = await response.json();
             if (sequence !== requestSequence) return;
 
-            const selectedValue = results.value;
-            clearResults();
-
+            if (!append) clearResults();
             payload.data.forEach(recipient => {
                 const option = document.createElement('option');
                 option.value = recipient.value;
@@ -173,22 +182,25 @@
                 results.appendChild(option);
             });
 
-            if (selectedValue && [...results.options].some(option => option.value === selectedValue)) {
-                results.value = selectedValue;
-            }
+            currentPage = requestedPage;
+            hasMore = payload.has_more;
+            moreButton.hidden = !hasMore;
+            moreButton.disabled = false;
 
-            status.textContent = payload.data.length
-                ? payload.data.length + ' مخاطب پیدا شد.' + (payload.has_more ? ' برای محدودتر کردن نتایج، نام دقیق‌تری وارد کن.' : '')
+            const count = results.querySelectorAll('[data-dynamic-recipient]').length;
+            status.textContent = count
+                ? count + ' مخاطب نمایش داده شده است.' + (hasMore ? ' برای دیدن ادامه فهرست، دکمهٔ پایین را بزن.' : '')
                 : 'مخاطبی با این عبارت پیدا نشد.';
         } catch (error) {
             if (error.name === 'AbortError') return;
+            moreButton.disabled = false;
             status.textContent = 'جست‌وجوی مخاطب انجام نشد؛ دوباره تلاش کن.';
         }
     };
 
     queryInput.addEventListener('input', () => {
         window.clearTimeout(debounceTimer);
-        debounceTimer = window.setTimeout(search, 300);
+        debounceTimer = window.setTimeout(() => search(false), 300);
     });
 
     typeInput.addEventListener('change', () => {
@@ -196,6 +208,8 @@
         clearResults();
         status.textContent = 'برای جست‌وجوی مخاطب‌های این گروه، حداقل دو حرف وارد کن.';
     });
+
+    moreButton.addEventListener('click', () => search(true));
 })();
 </script>
 @endpush
