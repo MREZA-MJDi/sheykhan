@@ -75,7 +75,26 @@
                         @else
                             <span class="teacher-workspace-chip muted" title="برای حفظ اعتبار پاسخ‌ها و نمره‌ها، برگه پس از شروع اولین تلاش قفل می‌شود.">برگه قفل است</span>
                         @endif
-                        <a href="{{ route('teacher.exams.attempts',$exam) }}" class="teacher-workspace-link primary">مشاهده پاسخ‌ها</a>
+                        @if($exam->status === 'published')
+                            <form method="POST" action="{{ route('teacher.exams.status', $exam) }}">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="closed">
+                                <button type="submit" class="teacher-workspace-link danger" data-confirm="آزمون بسته شود؟ پاسخ‌های ثبت‌شده حفظ می‌شوند و شروع جدید متوقف می‌شود.">بستن آزمون</button>
+                            </form>
+                        @elseif($exam->status === 'closed')
+                            <form method="POST" action="{{ route('teacher.exams.status', $exam) }}">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="published">
+                                <button type="submit" class="teacher-workspace-link" data-confirm="آزمون دوباره منتشر شود؟">بازگشایی</button>
+                            </form>
+                        @elseif((int) $exam->questions_count > 0)
+                            <form method="POST" action="{{ route('teacher.exams.status', $exam) }}">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="published">
+                                <button type="submit" class="teacher-workspace-link">انتشار آزمون</button>
+                            </form>
+                        @endif
+                                                <a href="{{ route('teacher.exams.attempts',$exam) }}" class="teacher-workspace-link primary">مشاهده پاسخ‌ها</a>
                     </div>
                 </article>
             @empty
