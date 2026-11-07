@@ -53,7 +53,6 @@ class CourseMediaRequest extends FormRequest
             'jpg', 'jpeg', 'png', 'webp' => 10,
             'pdf' => 50,
             'zip' => 200,
-            'mp4', 'webm', 'mov' => 500,
             default => 10,
         };
     }
