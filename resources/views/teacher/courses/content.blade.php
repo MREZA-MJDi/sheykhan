@@ -11,6 +11,7 @@
             <p class="teacher-workspace-description">{{ App\Support\PersianUi::digits($course->sections->count()) }} سرفصل · درس‌ها و فایل‌های هر سرفصل از همین صفحه مدیریت می‌شوند.</p>
         </div>
         <div class="teacher-workspace-actions">
+            <a href="{{ route('teacher.courses.index') }}" class="teacher-workspace-btn secondary">بازگشت به دوره‌ها</a>
             <a href="{{ route('teacher.courses.progress',$course) }}" class="teacher-workspace-btn secondary">پیشرفت دانش‌آموزان</a>
             <a href="{{ route('teacher.courses.edit',$course) }}" class="teacher-workspace-btn primary">تنظیمات دوره</a>
         </div>
@@ -42,7 +43,7 @@
                         <div class="teacher-workspace-item-main">
                             <strong class="teacher-workspace-item-title">{{ $lesson->title }}</strong>
                             <div class="teacher-workspace-item-meta">
-                                <span>{{ $lesson->type }}</span>
+                                <span>{{ match($lesson->type) { 'video' => 'ویدیویی', 'text' => 'متنی', 'file' => 'فایلی', 'quiz' => 'کوئیز', 'live' => 'جلسه زنده', default => 'نوع نامشخص' } }}</span>
                                 <span>{{ $lesson->status === 'published' ? 'منتشرشده' : 'پیش‌نویس' }}</span>
                                 <span>{{ App\Support\PersianUi::digits((int)($lesson->duration_seconds ?? 0)) }} ثانیه</span>
                                 @if($lesson->media->isNotEmpty())<span>{{ App\Support\PersianUi::digits($lesson->media->count()) }} فایل</span>@endif

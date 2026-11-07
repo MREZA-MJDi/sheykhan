@@ -1,6 +1,7 @@
 @php
     $audienceLabels = [
         'all_parents' => 'همه خانواده‌های آموزشگاه',
+        'teacher_class_parents' => 'همه خانواده‌های کلاس‌های من',
         'classroom_parents' => 'خانواده‌های یک کلاس',
         'parent' => 'ولی مشخص',
         'student' => 'دانش‌آموز مشخص',
@@ -21,6 +22,31 @@
         <p class="mt-2 max-w-3xl text-sm leading-7 text-[var(--panel-muted)]">{{ $pageDescription }}</p>
         <a href="{{ $backRoute }}" class="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-4 text-sm font-bold">بازگشت</a>
     </header>
+
+    <nav class="teacher-communications-hub" aria-label="بخش‌های مرکز ارتباطات">
+        @if(auth()->user()?->hasPermission('parent_messages.view'))
+            <a href="{{ route('teacher.messages.index') }}">
+                <strong>صندوق خانواده‌ها</strong>
+                <span>مشاهده و پاسخ به پیام‌های والدین</span>
+            </a>
+        @endif
+        @if(auth()->user()?->hasPermission('student_messages.view'))
+            <a href="{{ route('teacher.student-messages.index') }}">
+                <strong>پیام‌های دانش‌آموزان</strong>
+                <span>گفت‌وگو و پیگیری پیام‌های دانش‌آموزی</span>
+            </a>
+        @endif
+        @if(auth()->user()?->hasPermission('parent_messages.manage'))
+            <a href="{{ route('teacher.direct-messages.index') }}">
+                <strong>ارسال پیام مستقیم</strong>
+                <span>ارسال به خانواده یا مخاطب مجاز</span>
+            </a>
+        @endif
+        <a href="{{ route('teacher.communications.index') }}" aria-current="page">
+            <strong>اطلاعیه‌ها و پیام گروهی</strong>
+            <span>ارسال و مشاهده سوابق اطلاع‌رسانی</span>
+        </a>
+    </nav>
 
     @if(session('success'))
         <div role="status" class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{{ session('success') }}</div>

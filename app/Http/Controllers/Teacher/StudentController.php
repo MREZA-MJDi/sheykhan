@@ -14,6 +14,14 @@ final class StudentController extends Controller
 
     private const SORT_OPTIONS = ['name', 'progress', 'assignments', 'exams'];
 
+    public function show(User $student, TeacherWorkspaceService $workspace): View
+    {
+        return view('teacher.students.show', $workspace->studentProfileForTeacher(
+            request()->user(),
+            (int) $student->id,
+        ));
+    }
+
     public function index(Request $request, TeacherWorkspaceService $workspace): View
     {
         $requestedSort = $request->query('sort', 'name');
@@ -33,6 +41,13 @@ final class StudentController extends Controller
 
         /** @var User $teacher */
         $teacher = $request->user();
+        $requestedClassroomId = $request->query('classroom_id');
+        $classroomId = is_scalar($requestedClassroomId) && ctype_digit((string) $requestedClassroomId)
+            ? (int) $requestedClassroomId
+            : null;
+        $selectedClassroom = $classroomId
+            ? $workspace->classroomOwnedBy($teacher, $classroomId)
+            : null;
 
         return view('teacher.students.index', [
             'students' => $workspace->studentsPaginated(
@@ -41,7 +56,11 @@ final class StudentController extends Controller
                 $sort,
                 $direction,
                 $search,
+                $classroomId,
             ),
+            'classrooms' => $workspace->classrooms($teacher),
+            'selectedClassroom' => $selectedClassroom,
+            'selectedClassroomId' => $classroomId,
             'studentSearch' => $search,
             'studentSort' => $sort,
             'studentDirection' => $direction,

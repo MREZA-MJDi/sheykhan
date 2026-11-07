@@ -21,31 +21,30 @@
     $avatarUrl = $avatarMedia?->visibility === 'public' ? $avatarMedia->url() : ($avatarMedia ? route('media.view', $avatarMedia) : null);
     $initial = \Illuminate\Support\Str::substr(trim((string) ($teacherUser?->name ?? 'م')), 0, 1) ?: 'م';
     $navGroups = [
-      ['label'=>'اصلی','items'=>[
-        ['label'=>'داشبورد','icon'=>'⌂','route'=>'teacher.dashboard','permission'=>'dashboard.view'],
+      ['label'=>'نمای کلی','items'=>[
+        ['label'=>'خانه','icon'=>'⌂','route'=>'teacher.dashboard','permission'=>'dashboard.view'],
         ['label'=>'برنامه هفتگی','icon'=>'◷','route'=>'teacher.schedule.index','permission'=>'live_classes.view'],
-        ['label'=>'کلاس‌ها','icon'=>'▤','route'=>'teacher.classrooms.index','permission'=>'classrooms.view'],
-        ['label'=>'دوره‌ها','icon'=>'▣','route'=>'teacher.courses.index','permission'=>'courses.view'],
       ]],
-      ['label'=>'آموزش و ارزیابی','items'=>[
+      ['label'=>'تدریس و کلاس‌ها','items'=>[
+        ['label'=>'کلاس‌های من','icon'=>'▤','route'=>'teacher.classrooms.index','permission'=>'classrooms.view'],
+        ['label'=>'کلاس آنلاین','icon'=>'▹','route'=>'teacher.live-classes.index','permission'=>'live_classes.view'],
+        ['label'=>'دوره‌ها و درس‌ها','icon'=>'▣','route'=>'teacher.courses.index','permission'=>'courses.view'],
+      ]],
+      ['label'=>'ارزیابی و پیگیری','items'=>[
         ['label'=>'تکالیف','icon'=>'✎','route'=>'teacher.assignments.index','permission'=>'assignments.view'],
         ['label'=>'آزمون‌ها','icon'=>'✓','route'=>'teacher.exams.index','permission'=>'exams.view'],
-        ['label'=>'حضور و غیاب','icon'=>'☰','route'=>'teacher.attendance.index','permission'=>'attendance.view'],
-        ['label'=>'دانش‌آموزان','icon'=>'♥','route'=>'teacher.students.index','permission'=>'students.view'],
+        ['label'=>'حضور و غیاب','icon'=>'☷','route'=>'teacher.attendance.index','permission'=>'attendance.view'],
+        ['label'=>'دانش‌آموزان','icon'=>'♙','route'=>'teacher.students.index','permission'=>'students.view'],
       ]],
-      ['label'=>'ارتباط و پیگیری','items'=>[
-        ['label'=>'پیام‌های اولیا','icon'=>'✉','route'=>'teacher.messages.index','permission'=>'parent_messages.view'],
-        ['label'=>'پیام‌های دانش‌آموزان','icon'=>'✉','route'=>'teacher.student-messages.index','permission'=>'student_messages.view'],
-        ['label'=>'پیام مستقیم','icon'=>'✉','route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage'],
-        ['label'=>'اطلاعیه‌ها','icon'=>'⚑','route'=>'teacher.communications.index','permission'=>'parent_messages.manage'],
+      ['label'=>'ارتباط و گزارش','items'=>[
+        ['label'=>'پیام‌ها','icon'=>'✉','route'=>$teacherUser?->hasPermission('parent_messages.manage') ? 'teacher.communications.index' : ($teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : 'teacher.student-messages.index'),'permissions_any'=>['parent_messages.view','parent_messages.manage','student_messages.view']],
+        ['label'=>'گزارش عملکرد','icon'=>'▥','route'=>'teacher.reports.index','permission'=>'reports.view'],
         ['label'=>'جلسات اولیا','icon'=>'◉','route'=>'teacher.meetings.index','permission'=>'live_classes.view'],
         ['label'=>'درخواست مشاوره','icon'=>'✦','route'=>'teacher.counseling-requests.index','permission'=>'live_classes.view'],
-        ['label'=>'کلاس آنلاین','icon'=>'▹','route'=>'teacher.live-classes.index','permission'=>'live_classes.view'],
       ]],
-      ['label'=>'حساب','items'=>[
-        ['label'=>'گزارش عملکرد','icon'=>'≣','route'=>'teacher.reports.index','permission'=>'reports.view'],
+      ['label'=>'حساب کاربری','items'=>[
         ['label'=>'پرداخت‌ها','icon'=>'＄','route'=>'teacher.payments.index','permission'=>'teacher_payments.view'],
-        ['label'=>'تنظیمات پروفایل','icon'=>'⚙','route'=>'teacher.profile.edit','permission'=>'profile.view'],
+        ['label'=>'پروفایل من','icon'=>'⚙','route'=>'teacher.profile.edit','permission'=>'profile.view'],
       ]],
     ];
     $pageTitle = trim($__env->yieldContent('page_title')) ?: match (true) {
@@ -85,6 +84,9 @@
     @foreach($navGroups as $group)
       @php
           $visibleItems = array_values(array_filter($group['items'], function ($item) use ($teacherUser) {
+              if (isset($item['permissions_any'])) {
+                  return collect($item['permissions_any'])->contains(fn (string $permission) => $teacherUser?->hasPermission($permission));
+              }
               $permissions = collect($item['permissions'] ?? [$item['permission']]);
               return $permissions->every(function (string $permission) use ($teacherUser) {
                   return $teacherUser?->hasPermission($permission);
@@ -145,6 +147,22 @@
         <span class="av" aria-label="حساب مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</span>
       @endif
     </header>
+    @if(request()->routeIs('teacher.messages.*') || request()->routeIs('teacher.direct-messages.*') || request()->routeIs('teacher.student-messages.*') || request()->routeIs('teacher.communications.*'))
+      <nav class="teacher-context-nav" aria-label="بخش‌های پیام‌رسانی">
+        @if($teacherUser?->hasPermission('parent_messages.manage'))
+          <a href="{{ route('teacher.direct-messages.index') }}" class="{{ request()->routeIs('teacher.direct-messages.*') ? 'is-active' : '' }}">ارسال پیام</a>
+        @endif
+        @if($teacherUser?->hasPermission('parent_messages.view'))
+          <a href="{{ route('teacher.messages.index') }}" class="{{ request()->routeIs('teacher.messages.*') ? 'is-active' : '' }}">پیام خانواده‌ها</a>
+        @endif
+        @if($teacherUser?->hasPermission('student_messages.view'))
+          <a href="{{ route('teacher.student-messages.index') }}" class="{{ request()->routeIs('teacher.student-messages.*') ? 'is-active' : '' }}">پیام دانش‌آموزان</a>
+        @endif
+        @if($teacherUser?->hasPermission('parent_messages.manage'))
+          <a href="{{ route('teacher.communications.index') }}" class="{{ request()->routeIs('teacher.communications.*') ? 'is-active' : '' }}">اطلاعیه‌های آموزشگاه</a>
+        @endif
+      </nav>
+    @endif
     <p class="dashboard-search-empty" data-dashboard-search-empty role="status" aria-live="polite" hidden>موردی با این عبارت پیدا نشد. عبارت دیگری را امتحان کن.</p>
     @if(session('success'))<div class="alert success" role="status">{{ session('success') }}</div>@endif
     @if(session('warning'))<div class="alert warning" role="status">{{ session('warning') }}</div>@endif
@@ -157,27 +175,25 @@
 <nav class="bt" aria-label="میانبرهای پنل">
   @foreach([
     ['route'=>'teacher.dashboard','icon'=>'⌂','label'=>'خانه','permission'=>'dashboard.view'],
-    ['route'=>'teacher.assignments.index','icon'=>'✎','label'=>'تکالیف','permission'=>'assignments.view'],
-    ['route'=>'teacher.exams.index','icon'=>'✓','label'=>'آزمون','permission'=>'exams.view'],
-    ['route'=>'teacher.messages.index','icon'=>'✉','label'=>'پیام','permission'=>'parent_messages.view']
+    ['route'=>'teacher.classrooms.index','icon'=>'▤','label'=>'کلاس‌ها','permission'=>'classrooms.view'],
+    ['route'=>'teacher.live-classes.index','icon'=>'◉','label'=>'آنلاین','permission'=>'live_classes.view'],
+    ['route'=>$teacherUser?->hasPermission('parent_messages.manage') ? 'teacher.communications.index' : ($teacherUser?->hasPermission('parent_messages.view') ? 'teacher.messages.index' : 'teacher.student-messages.index'),'icon'=>'✉','label'=>'پیام‌ها','permissions_any'=>['parent_messages.view','parent_messages.manage','student_messages.view']]
   ] as $mobileItem)
     @php
-      $mobileActive = false;
-      if ($mobileItem['route'] === 'teacher.dashboard') {
-        $mobileActive = request()->routeIs('teacher.dashboard');
-      } else {
-        $mobilePrefix = str_replace('.index', '.*', $mobileItem['route']);
-        $mobileActive = request()->routeIs($mobilePrefix);
-        if ($mobileItem['route'] === 'teacher.exams.index' && request()->routeIs('teacher.exam-attempts.*')) {
-          $mobileActive = true;
-        }
-      }
+      $mobileActive = match (true) {
+        $mobileItem['route'] === 'teacher.dashboard' => request()->routeIs('teacher.dashboard'),
+        $mobileItem['label'] === 'پیام‌ها' => request()->routeIs('teacher.messages.*', 'teacher.direct-messages.*', 'teacher.student-messages.*', 'teacher.communications.*'),
+        default => request()->routeIs(str_replace('.index', '.*', $mobileItem['route'])),
+      };
+      $mobileVisible = isset($mobileItem['permissions_any'])
+        ? collect($mobileItem['permissions_any'])->contains(fn ($permission) => $teacherUser?->hasPermission($permission))
+        : $teacherUser?->hasPermission($mobileItem['permission']);
     @endphp
-    @if($teacherUser?->hasPermission($mobileItem['permission']))
-      <a class="{{ $mobileActive ? 'on' : '' }}" href="{{ route($mobileItem['route']) }}"><i>{{ $mobileItem['icon'] }}</i>{{ $mobileItem['label'] }}</a>
+    @if($mobileVisible)
+      <a class="{{ $mobileActive ? 'on' : '' }}" href="{{ route($mobileItem['route']) }}" @if($mobileActive) aria-current="page" @endif><i aria-hidden="true">{{ $mobileItem['icon'] }}</i>{{ $mobileItem['label'] }}</a>
     @endif
   @endforeach
-  <button type="button" data-teacher-menu-open><i>☰</i>منو</button>
+  <button type="button" data-teacher-menu-open><i aria-hidden="true">☰</i>منو</button>
 </nav>
 @stack('scripts')
 </body>

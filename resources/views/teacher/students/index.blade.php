@@ -15,6 +15,9 @@
             <span class="teacher-workspace-kicker">مرکز مدیریت کلاس</span>
             <h1 class="teacher-workspace-title">دانش‌آموزان من</h1>
             <p class="teacher-workspace-description">پیشرفت و فعالیت دانش‌آموزان کلاس‌های خودت را ببین؛ نتایج در صفحه‌های سبک و قابل جست‌وجو بارگذاری می‌شوند.</p>
+            @if($selectedClassroom)
+                <span class="teacher-workspace-chip">فقط کلاس: {{ $selectedClassroom->title }}</span>
+            @endif
         </div>
         <span class="teacher-workspace-chip">نمایش ۲۰ نفر در هر صفحه</span>
     </header>
@@ -56,6 +59,19 @@
                 <input type="search" name="q" value="{{ $studentSearch }}" maxlength="100" placeholder="جست‌وجوی نام، ایمیل یا شماره دانش‌آموزی…" aria-label="جست‌وجوی دانش‌آموز">
                 <input type="hidden" name="sort" value="{{ $studentSort }}">
                 <input type="hidden" name="direction" value="{{ $studentDirection }}">
+                <label class="teacher-student-class-filter">
+                    <span>کلاس</span>
+                    <select name="classroom_id" onchange="this.form.submit()">
+                        <option value="">همه کلاس‌های من</option>
+                        @foreach($classrooms as $classroom)
+                            <option value="{{ $classroom->id }}" @selected($selectedClassroomId === $classroom->id)>{{ $classroom->title }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <button type="submit" class="teacher-workspace-btn primary">جست‌وجو</button>
+                @if($selectedClassroomId || $studentSearch !== '')
+                    <a href="{{ route('teacher.students.index') }}" class="teacher-workspace-btn secondary">پاک‌کردن فیلتر</a>
+                @endif
             </form>
 
             <nav class="teacher-student-sort" aria-label="مرتب‌سازی دانش‌آموزان">
@@ -96,7 +112,7 @@
                                     decoding="async"
                                 >
                                 <span>
-                                    <strong>{{ $student->name }}</strong>
+                                    <strong><a class="teacher-student-profile-link" href="{{ route('teacher.students.show', $student) }}">{{ $student->name }}</a></strong>
                                     @if($student->email)
                                         <small style="display:block;margin-top:3px;color:#8993aa;font-size:10px">{{ $student->email }}</small>
                                     @endif

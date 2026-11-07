@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Academy;
+use App\Models\AcademyMessage;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Permission;
@@ -11,11 +12,29 @@ use App\Models\StudentMessage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class StudentTeacherMessagingTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_teacher_can_open_a_learning_profile_only_for_a_student_in_their_assigned_class(): void
+    {
+        $workspace = $this->workspace();
+
+        $this->actingAs($workspace['teacher'])
+            ->get(route('teacher.students.show', $workspace['student']))
+            ->assertOk()
+            ->assertSee('پرونده آموزشی')
+            ->assertSee($workspace['student']->name)
+            ->assertSee($workspace['classroom']->title)
+            ->assertSee('آخرین حضور و غیاب');
+
+        $this->actingAs($workspace['otherTeacher'])
+            ->get(route('teacher.students.show', $workspace['student']))
+            ->assertNotFound();
+    }
 
     public function test_student_can_message_an_assigned_teacher_and_read_the_reply(): void
     {
@@ -176,6 +195,53 @@ class StudentTeacherMessagingTest extends TestCase
         ]);
     }
 
+    public function test_teacher_can_broadcast_to_families_in_their_own_active_classes(): void
+    {
+        $workspace = $this->workspace();
+        $parent = User::factory()->create(['status' => 'active']);
+        $parentRole = $this->role('parent', ['dashboard.view']);
+        $parent->roles()->attach($parentRole->id);
+        $workspace['academy']->users()->attach($parent->id, [
+            'role' => 'parent',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        DB::table('parent_student')->insert([
+            'parent_id' => $parent->id,
+            'student_id' => $workspace['student']->id,
+            'relation' => 'parent',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($workspace['teacher'])
+            ->get(route('teacher.communications.index'))
+            ->assertOk()
+            ->assertSee('همه خانواده‌های کلاس‌های من');
+
+        $this->actingAs($workspace['teacher'])
+            ->post(route('teacher.communications.store'), [
+                'target' => 'all-class-parents:' . $workspace['academy']->id,
+                'category' => 'announcement',
+                'subject' => 'اطلاعیه ویژه خانواده‌های کلاس',
+                'body' => 'این پیام برای خانواده‌های کلاس‌هایی است که به این مدرس اختصاص داده شده‌اند.',
+            ])
+            ->assertRedirect(route('teacher.communications.index'))
+            ->assertSessionHasNoErrors();
+
+        $message = AcademyMessage::query()->sole();
+        $this->assertSame('teacher_class_parents', $message->audience);
+        $this->assertSame($workspace['academy']->id, $message->academy_id);
+        $this->assertSame($workspace['teacher']->id, $message->sender_id);
+        $this->assertNull($message->classroom_id);
+
+        $this->actingAs($parent)
+            ->get(route('parent.messages.index'))
+            ->assertOk()
+            ->assertSee('اطلاعیه ویژه خانواده‌های کلاس')
+            ->assertSee('این پیام برای خانواده‌های کلاس‌هایی است');
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create(['status' => 'active']);
@@ -184,7 +250,7 @@ class StudentTeacherMessagingTest extends TestCase
         $student = User::factory()->create(['status' => 'active']);
 
         $ownerRole = $this->role('academy-owner', ['dashboard.view']);
-        $teacherRole = $this->role('teacher', ['dashboard.view', 'student_messages.view', 'student_messages.manage']);
+        $teacherRole = $this->role('teacher', ['dashboard.view', 'student_messages.view', 'student_messages.manage', 'parent_messages.manage', 'students.view', 'attendance.view', 'assignments.view', 'exams.view']);
         $studentRole = $this->role('student', ['dashboard.view', 'student_messages.view', 'student_messages.manage']);
 
         $owner->roles()->attach($ownerRole->id);

@@ -15,6 +15,35 @@
 
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
 
+    <form method="GET" action="{{ route('teacher.assignments.index') }}" class="teacher-workspace-filters" role="search" aria-label="جست‌وجو و فیلتر تکالیف">
+        <label class="teacher-workspace-filter-search">
+            <span>جست‌وجو</span>
+            <input type="search" name="q" value="{{ request('q') }}" maxlength="100" placeholder="نام، دوره یا کلاس…" autocomplete="off">
+        </label>
+        <label>
+            <span>وضعیت</span>
+            <select name="status">
+                <option value="" @selected(request('status') === '')>همه وضعیت‌ها</option>
+                <option value="draft" @selected(request('status') === 'draft')>پیش‌نویس</option>
+                <option value="published" @selected(request('status') === 'published')>منتشرشده</option>
+                <option value="closed" @selected(request('status') === 'closed')>بسته</option>
+            </select>
+        </label>
+        <label>
+            <span>اولویت رسیدگی</span>
+            <select name="queue">
+                <option value="" @selected(request('queue') !== 'needs_review')>همه موارد</option>
+                <option value="needs_review" @selected(request('queue') === 'needs_review')>فقط نیازمند تصحیح</option>
+            </select>
+        </label>
+        <div class="teacher-workspace-filter-actions">
+            <button type="submit" class="teacher-workspace-btn primary">اعمال فیلتر</button>
+            @if(request()->query())
+                <a href="{{ route('teacher.assignments.index') }}" class="teacher-workspace-btn secondary">پاک‌کردن</a>
+            @endif
+        </div>
+    </form>
+
     <section class="teacher-workspace-stats">
         <div class="teacher-workspace-stat"><small>کل تکالیف</small><strong>{{ App\Support\PersianUi::digits($assignments->total()) }}</strong><span>تحت مدیریت شما</span></div>
         <div class="teacher-workspace-stat"><small>ارسال‌شده</small><strong>{{ App\Support\PersianUi::digits($assignments->getCollection()->sum('submitted_count')) }}</strong><span>در این صفحه</span></div>

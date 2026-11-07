@@ -32,6 +32,35 @@ final class MessageController extends Controller
                     ->orWhere(fn (Builder $direct) => $direct
                         ->where('audience', 'parent')
                         ->where('recipient_id', $parent->id))
+                    ->orWhere(function (Builder $teacherClassNotice) use ($parent): void {
+                        $teacherClassNotice->where('audience', 'teacher_class_parents')
+                            ->whereExists(function ($membership) use ($parent): void {
+                                $membership->selectRaw('1')
+                                    ->from('classroom_student as cs')
+                                    ->join('classrooms as cr', 'cr.id', '=', 'cs.classroom_id')
+                                    ->join('classroom_teacher as teacher_assignment', function ($join): void {
+                                        $join->on('teacher_assignment.classroom_id', '=', 'cs.classroom_id')
+                                            ->whereColumn('teacher_assignment.teacher_id', 'academy_messages.sender_id');
+                                    })
+                                    ->join('academy_user as teacher_membership', function ($join): void {
+                                        $join->on('teacher_membership.user_id', '=', 'academy_messages.sender_id')
+                                            ->on('teacher_membership.academy_id', '=', 'cr.academy_id')
+                                            ->where('teacher_membership.role', '=', 'teacher')
+                                            ->where('teacher_membership.status', '=', 'active');
+                                    })
+                                    ->join('academy_user as student_membership', function ($join): void {
+                                        $join->on('student_membership.user_id', '=', 'cs.student_id')
+                                            ->on('student_membership.academy_id', '=', 'cr.academy_id')
+                                            ->where('student_membership.role', '=', 'student')
+                                            ->where('student_membership.status', '=', 'active');
+                                    })
+                                    ->join('parent_student as parent_link', 'parent_link.student_id', '=', 'cs.student_id')
+                                    ->whereColumn('cr.academy_id', 'academy_messages.academy_id')
+                                    ->where('parent_link.parent_id', $parent->id)
+                                    ->where('cs.status', 'active')
+                                    ->where('cr.status', 'active');
+                            });
+                    })
                     ->orWhere(function (Builder $classroomNotice) use ($parent): void {
                         $classroomNotice->where('audience', 'classroom_parents')
                             ->whereExists(function ($membership) use ($parent): void {

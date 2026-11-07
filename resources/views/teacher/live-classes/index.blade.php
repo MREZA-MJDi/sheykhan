@@ -15,6 +15,29 @@
 
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
 
+    <form method="GET" action="{{ route('teacher.live-classes.index') }}" class="teacher-workspace-filters" role="search" aria-label="جست‌وجو و فیلتر جلسات">
+        <label class="teacher-workspace-filter-search">
+            <span>جست‌وجو</span>
+            <input type="search" name="q" value="{{ request('q') }}" maxlength="100" placeholder="نام، دوره یا کلاس…" autocomplete="off">
+        </label>
+        <label>
+            <span>وضعیت</span>
+            <select name="status">
+                <option value="" @selected(request('status') === '')>همه وضعیت‌ها</option>
+                <option value="scheduled" @selected(request('status') === 'scheduled')>برنامه‌ریزی‌شده</option>
+                <option value="live" @selected(request('status') === 'live')>در حال برگزاری</option>
+                <option value="completed" @selected(request('status') === 'completed')>پایان‌یافته</option>
+                <option value="cancelled" @selected(request('status') === 'cancelled')>لغوشده</option>
+            </select>
+        </label>
+        <div class="teacher-workspace-filter-actions">
+            <button type="submit" class="teacher-workspace-btn primary">اعمال فیلتر</button>
+            @if(request()->query())
+                <a href="{{ route('teacher.live-classes.index') }}" class="teacher-workspace-btn secondary">پاک‌کردن</a>
+            @endif
+        </div>
+    </form>
+
     <section class="teacher-workspace-stats">
         <div class="teacher-workspace-stat"><small>کل جلسات</small><strong>{{ App\Support\PersianUi::digits($liveClasses->total()) }}</strong><span>جلسه ثبت‌شده</span></div>
         <div class="teacher-workspace-stat"><small>برنامه‌ریزی‌شده</small><strong>{{ App\Support\PersianUi::digits($liveClasses->getCollection()->where('status','scheduled')->count()) }}</strong><span>در این صفحه</span></div>
@@ -54,6 +77,11 @@
                             <a href="{{ $liveClass->meeting_url }}" target="_blank" rel="noopener noreferrer" class="teacher-workspace-link primary">ورود به جلسه</a>
                         @endif
                     </div>
+                    <details class="teacher-live-recording">
+                        <summary>
+                            <span>مدیریت ضبط و آرشیو جلسه</span>
+                            <small>{{ $liveClass->recording ? 'فایل ضبط‌شده ثبت شده' : 'هنوز فایلی ثبت نشده' }}</small>
+                        </summary>
                     @if($liveClass->recording)
                         @php
                             $recordingIsReleased = $liveClass->isRecordingAvailable();
@@ -101,6 +129,7 @@
                             <button type="submit" class="teacher-workspace-link primary min-h-10">ذخیره ضبط</button>
                         </form>
                     @endif
+                    </details>
                 </article>
             @empty
                 <div class="teacher-workspace-empty"><strong>جلسه‌ای ثبت نشده است.</strong>اولین جلسه آنلاین را برای یک دوره یا کلاس برنامه‌ریزی کن.</div>

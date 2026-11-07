@@ -106,6 +106,7 @@ final class TeacherWorkspaceService
                             ->where('course_enrollments.status', 'active');
                     }),
                 'schedules',
+                'attendance as attendance_today_count' => fn ($query) => $query->whereDate('attendance_date', today()),
             ])
             ->orderBy('title')
             ->get();
@@ -135,6 +136,7 @@ final class TeacherWorkspaceService
                             ->where('course_enrollments.status', 'active');
                     }),
                 'schedules',
+                'attendance as attendance_today_count' => fn ($query) => $query->whereDate('attendance_date', today()),
             ])
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($matches) use ($search): void {
@@ -234,7 +236,8 @@ final class TeacherWorkspaceService
         int $perPage = 20,
         string $sort = 'name',
         string $direction = 'asc',
-        string $search = ''
+        string $search = '',
+        ?int $classroomId = null
     ): LengthAwarePaginator {
         // Keep the roster small, searchable and limited to active classes visible
         // to this teacher; never fetch the complete academy roster into memory.
@@ -245,6 +248,7 @@ final class TeacherWorkspaceService
         $classroomIds = $teacher->classroomsAsTeacher()
             ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->when($classroomId !== null, fn ($query) => $query->whereKey($classroomId))
             ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
@@ -311,8 +315,92 @@ final class TeacherWorkspaceService
             ->withQueryString();
     }
 
+    /**
+     * Return a student's teaching record only when the student is actively enrolled
+     * in at least one active classroom assigned to this teacher.
+     *
+     * @return array{student: User, classrooms: Collection, progress: Collection, progress_count: int, submissions: Collection, submission_count: int, attempts: Collection, attempt_count: int, attendance: Collection}
+     */
+    public function studentProfileForTeacher(User $teacher, int $studentId): array
+    {
+        $classrooms = $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->whereHas('students', function ($studentQuery) use ($studentId): void {
+                $studentQuery
+                    ->whereKey($studentId)
+                    ->where('users.status', 'active')
+                    ->where('classroom_student.status', 'active')
+                    ->whereExists(function ($enrollment): void {
+                        $enrollment->selectRaw('1')
+                            ->from('course_enrollments')
+                            ->whereColumn('course_enrollments.classroom_id', 'classroom_student.classroom_id')
+                            ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                            ->whereColumn('course_enrollments.student_id', 'users.id')
+                            ->where('course_enrollments.status', 'active');
+                    });
+            })
+            ->with('course:id,title')
+            ->orderBy('classrooms.title')
+            ->get();
+
+        abort_if($classrooms->isEmpty(), 404);
+
+        $student = User::query()
+            ->whereKey($studentId)
+            ->where('status', 'active')
+            ->whereNull('deleted_at')
+            ->with('studentProfile.gradeRelation')
+            ->firstOrFail();
+
+        $classroomIds = $classrooms->pluck('id');
+        $courseIds = $classrooms->pluck('course_id')->unique()->values();
+
+        $progressQuery = $student->lessonProgress()
+            ->whereHas('lesson.section', fn ($section) => $section->whereIn('course_id', $courseIds));
+
+        $submissionQuery = $student->assignmentSubmissions()
+            ->whereHas('assignment', fn ($assignment) => $assignment
+                ->where('teacher_id', $teacher->id)
+                ->whereIn('course_id', $courseIds));
+
+        $attemptQuery = $student->examAttempts()
+            ->whereHas('exam', fn ($exam) => $exam
+                ->where('teacher_id', $teacher->id)
+                ->whereIn('course_id', $courseIds));
+
+        $progressCount = (clone $progressQuery)->count();
+        $submissionCount = (clone $submissionQuery)->count();
+        $attemptCount = (clone $attemptQuery)->count();
+
+        return [
+            'student' => $student,
+            'classrooms' => $classrooms,
+            'progress' => $progressQuery->with('lesson:id,title,course_section_id')
+                ->latest('last_watched_at')->limit(10)->get(),
+            'progress_count' => $progressCount,
+            'submissions' => $submissionQuery->with('assignment:id,title,course_id,classroom_id')
+                ->latest('submitted_at')->limit(10)->get(),
+            'submission_count' => $submissionCount,
+            'attempts' => $attemptQuery->with('exam:id,title,course_id,classroom_id')
+                ->latest('submitted_at')->limit(10)->get(),
+            'attempt_count' => $attemptCount,
+            'attendance' => $student->attendance()
+                ->whereIn('classroom_id', $classroomIds)
+                ->with('classroom:id,title')
+                ->latest('attendance_date')
+                ->limit(10)
+                ->get(),
+        ];
+    }
+
     public function assignments(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
+        $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
+        $status = request()->query('status');
+        $queue = request()->query('queue');
+        $allowedStatuses = ['draft', 'published', 'closed'];
+
         return Assignment::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
@@ -323,6 +411,15 @@ final class TeacherWorkspaceService
                     ->whereNotNull('submitted_at')
                     ->whereNull('graded_at'),
             ])
+            ->when($search !== '', fn ($query) => $query->where(function ($matches) use ($search): void {
+                $matches->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                    ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
+            }))
+            ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
+            ->when($queue === 'needs_review', fn ($query) => $query->whereHas('submissions', fn ($submission) => $submission
+                ->whereNotNull('submitted_at')
+                ->whereNull('graded_at')))
             ->latest('due_at')
             ->latest('id')
             ->paginate($perPage)
@@ -331,6 +428,11 @@ final class TeacherWorkspaceService
 
     public function exams(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
+        $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
+        $status = request()->query('status');
+        $queue = request()->query('queue');
+        $allowedStatuses = ['draft', 'published', 'closed'];
+
         return Exam::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
@@ -343,6 +445,15 @@ final class TeacherWorkspaceService
                 'attempts as submitted_attempts_count' => fn ($query) => $query->whereNotNull('submitted_at'),
                 'attempts as graded_attempts_count' => fn ($query) => $query->where('status', 'graded'),
             ])
+            ->when($search !== '', fn ($query) => $query->where(function ($matches) use ($search): void {
+                $matches->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                    ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
+            }))
+            ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
+            ->when($queue === 'needs_review', fn ($query) => $query->whereHas('attempts', fn ($attempt) => $attempt
+                ->whereNotNull('submitted_at')
+                ->whereIn('status', ['submitted', 'pending_review', 'needs_review'])))
             ->latest('starts_at')
             ->latest('id')
             ->paginate($perPage)
@@ -351,10 +462,20 @@ final class TeacherWorkspaceService
 
     public function liveClasses(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
+        $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
+        $status = request()->query('status');
+        $allowedStatuses = ['scheduled', 'live', 'ended', 'completed', 'published', 'cancelled'];
+
         return LiveClass::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with(['course:id,title', 'classroom:id,title', 'recording:id,original_name,mime_type,size,status,visibility'])
+            ->when($search !== '', fn ($query) => $query->where(function ($matches) use ($search): void {
+                $matches->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                    ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
+            }))
+            ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
             ->orderByDesc('scheduled_at')
             ->orderByDesc('id')
             ->paginate($perPage)

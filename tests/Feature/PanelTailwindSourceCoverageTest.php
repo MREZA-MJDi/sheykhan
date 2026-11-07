@@ -75,10 +75,17 @@ class PanelTailwindSourceCoverageTest extends TestCase
     {
         $view = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $this->assertIsString($view);
-        $this->assertStringContainsString("'route'=>'teacher.messages.index','permission'=>'parent_messages.view'", $view);
-        $this->assertStringContainsString("'route'=>'teacher.student-messages.index','permission'=>'student_messages.view'", $view);
-        $this->assertStringContainsString("'route'=>'teacher.direct-messages.index','permission'=>'parent_messages.manage'", $view);
-        $this->assertStringContainsString("'route'=>'teacher.communications.index','permission'=>'parent_messages.manage'", $view);
+        foreach ([
+            "'teacher.messages.index'",
+            "hasPermission('parent_messages.view')",
+            "hasPermission('student_messages.view')",
+            "hasPermission('parent_messages.manage')",
+            "route('teacher.student-messages.index')",
+            "route('teacher.direct-messages.index')",
+            "route('teacher.communications.index')",
+        ] as $expected) {
+            $this->assertStringContainsString($expected, $view);
+        }
     }
 
     public function test_parent_hero_styles_the_real_h1_used_by_the_dashboard(): void
