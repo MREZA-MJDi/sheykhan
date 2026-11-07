@@ -929,3 +929,36 @@
 .parent-empty-state__icon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#e2f4eb;color:#16845f;font-size:22px;font-weight:900}
 .parent-empty-state h3{margin:0;font-size:14px;font-weight:900}
 .parent-empty-state p{max-width:520px;margin:0;color:#718092;font-size:11px;line-height:2}
+
+
+/* Parent portal: comfortable reading sizes and clear family-first hierarchy. */
+.parent-dashboard .parent-hero { padding: clamp(24px, 3.2vw, 42px); }
+.parent-dashboard .parent-hero h1 { max-width: 760px; font-size: clamp(25px, 2.7vw, 35px); line-height: 1.55; }
+.parent-dashboard .parent-hero p { max-width: 780px; font-size: 14px; line-height: 2.1; }
+.parent-dashboard .parent-kicker { font-size: 11px; }
+.parent-dashboard .parent-child { padding: 20px; }
+.parent-dashboard .parent-child-name { font-size: 15px; line-height: 1.7; }
+.parent-dashboard .parent-child-meta { font-size: 11px; }
+.parent-dashboard .parent-child-stat { padding: 12px; }
+.parent-dashboard .parent-child-stat span { font-size: 11px; line-height: 1.7; }
+.parent-dashboard .parent-child-stat strong { font-size: 20px; line-height: 1.6; }
+.parent-dashboard .parent-panel-head h2,
+.parent-dashboard .parent-panel-head h3 { font-size: 17px; line-height: 1.7; }
+.parent-dashboard .parent-panel-head p { font-size: 12px; line-height: 1.9; }
+.parent-dashboard .parent-row { padding: 13px; }
+.parent-dashboard .parent-row-title { font-size: 13px; line-height: 1.8; }
+.parent-dashboard .parent-row-meta { font-size: 10.5px; line-height: 1.8; }
+.parent-dashboard .parent-date strong { font-size: 13px; }
+.parent-dashboard .parent-date small { font-size: 10px; }
+.parent-dashboard .parent-score { font-size: 11px; }
+.parent-dashboard .parent-hero .inline-flex { min-height: 44px; font-size: 12px; }
+.parent-dashboard :is(a,button) { min-height: 40px; }
+.parent-dashboard .parent-progress-method { font-size: 12px; line-height: 2; }
+.parent-dashboard .parent-empty-state p { font-size: 12px; }
+@media (max-width: 700px) {
+  .parent-dashboard .parent-hero { padding: 22px 18px; }
+  .parent-dashboard .parent-hero p { font-size: 13px; }
+  .parent-dashboard .parent-child { padding: 15px; }
+  .parent-dashboard .parent-child-stat span { font-size: 10.5px; }
+  .parent-dashboard .parent-row-title { font-size: 12px; }
+}
