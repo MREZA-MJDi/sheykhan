@@ -89,9 +89,10 @@
                     </div>
 
                     <div class="teacher-workspace-actions-row">
-                        <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">حضور و غیاب</a>
+                        <a href="{{ route('teacher.classrooms.edit', $classroom) }}" class="teacher-workspace-link secondary">ویرایش کلاس</a>
+                        <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">ثبت حضور و غیاب</a>
                         <a href="{{ route('teacher.courses.progress',$classroom->course) }}" class="teacher-workspace-link">پیشرفت دوره</a>
-                        <a href="{{ route('teacher.students.index') }}" class="teacher-workspace-link">دانش‌آموزان</a>
+                        <a href="{{ route('teacher.students.index', ['classroom_id' => $classroom->id]) }}" class="teacher-workspace-link">دانش‌آموزان همین کلاس</a>
                     </div>
                 </div>
             </article>
