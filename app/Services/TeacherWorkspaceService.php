@@ -106,6 +106,7 @@ final class TeacherWorkspaceService
                             ->where('course_enrollments.status', 'active');
                     }),
                 'schedules',
+                'attendance as attendance_today_count' => fn ($query) => $query->whereDate('attendance_date', today()),
             ])
             ->orderBy('title')
             ->get();
