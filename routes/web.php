@@ -148,6 +148,8 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/assignments', [OwnerAssignmentController::class, 'index'])->middleware('permission:assignments.view')->name('assignments.index');
     Route::get('/academy/{academy}/assignments/{assignment}', [OwnerAssignmentController::class, 'show'])->middleware('permission:assignments.view')->name('assignments.show');
     Route::patch('/academy/{academy}/assignments/{assignment}/submissions/{submission}', [OwnerAssignmentController::class, 'grade'])->middleware('permission:assignments.manage')->name('assignments.grade');
+    Route::patch('/academy/{academy}/assignments/{assignment}/status', [OwnerAssignmentController::class, 'updateStatus'])->middleware('permission:assignments.manage')->name('assignments.status');
+    Route::delete('/academy/{academy}/assignments/{assignment}', [OwnerAssignmentController::class, 'destroy'])->middleware('permission:assignments.manage')->name('assignments.destroy');
     Route::get('/academy/{academy}/classrooms', [OwnerClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
     Route::get('/academy/{academy}/classrooms/create', [OwnerClassroomController::class, 'create'])->middleware('permission:classrooms.manage')->name('classrooms.create');
     Route::post('/academy/{academy}/classrooms', [OwnerClassroomController::class, 'store'])->middleware('permission:classrooms.manage')->name('classrooms.store');
