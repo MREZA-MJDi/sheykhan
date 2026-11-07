@@ -14,6 +14,14 @@ final class StudentController extends Controller
 
     private const SORT_OPTIONS = ['name', 'progress', 'assignments', 'exams'];
 
+    public function show(User $student, TeacherWorkspaceService $workspace): View
+    {
+        return view('teacher.students.show', $workspace->studentProfileForTeacher(
+            request()->user(),
+            (int) $student->id,
+        ));
+    }
+
     public function index(Request $request, TeacherWorkspaceService $workspace): View
     {
         $requestedSort = $request->query('sort', 'name');
