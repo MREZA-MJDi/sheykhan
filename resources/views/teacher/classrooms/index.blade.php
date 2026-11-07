@@ -86,13 +86,14 @@
                         <div class="teacher-workspace-mini-stat"><strong>{{ App\Support\PersianUi::digits($classroom->active_students_count) }}</strong><span>دانش‌آموز</span></div>
                         <div class="teacher-workspace-mini-stat"><strong>{{ $classroom->capacity ? App\Support\PersianUi::digits($classroom->capacity) : '—' }}</strong><span>ظرفیت</span></div>
                         <div class="teacher-workspace-mini-stat"><strong>{{ App\Support\PersianUi::digits($classroom->schedules_count) }}</strong><span>برنامه</span></div>
+                        <div class="teacher-workspace-mini-stat"><strong>{{ App\Support\PersianUi::digits($classroom->attendance_today_count) }}</strong><span>ثبت حضور امروز</span></div>
                     </div>
 
                     <div class="teacher-workspace-actions-row">
                         <a href="{{ route('teacher.classrooms.edit', $classroom) }}" class="teacher-workspace-link secondary">ویرایش کلاس</a>
                         <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">ثبت حضور و غیاب</a>
                         <a href="{{ route('teacher.courses.progress',$classroom->course) }}" class="teacher-workspace-link">پیشرفت دوره</a>
-                        <a href="{{ route('teacher.students.index', ['classroom_id' => $classroom->id]) }}" class="teacher-workspace-link">دانش‌آموزان همین کلاس</a>
+                        <a href="{{ route('teacher.students.index', ['classroom_id' => $classroom->id]) }}" class="teacher-workspace-link">فهرست همین کلاس</a>
                     </div>
                 </div>
             </article>
