@@ -117,19 +117,30 @@ class AcademyCommunicationTest extends TestCase
         $this->assertDatabaseCount('academy_messages', 0);
     }
 
-    public function test_owner_recipient_search_is_scoped_and_returns_a_small_result_page(): void
+    public function test_owner_recipient_search_is_scoped_and_returns_at_most_twenty_results(): void
     {
         $w = $this->workspace();
 
+        for ($index = 1; $index <= 21; $index++) {
+            $student = User::factory()->create([
+                'name' => 'Searchable Student ' . $index,
+                'status' => 'active',
+            ]);
+            $w['academy']->users()->attach($student->id, [
+                'role' => 'student',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+        }
+
         $url = route('owner.communications.recipients', $w['academy'])
-            . '?type=students&q=' . urlencode((string) $w['student']->name);
+            . '?type=students&q=' . urlencode('Searchable');
 
         $this->actingAs($w['owner'])
             ->getJson($url)
             ->assertOk()
-            ->assertJsonPath('data.0.value', 'student:' . $w['student']->id)
-            ->assertJsonPath('data.0.label', 'دانش‌آموز: ' . $w['student']->name)
-            ->assertJsonPath('has_more', false);
+            ->assertJsonCount(20, 'data')
+            ->assertJsonPath('has_more', true);
 
         $this->actingAs($w['parent'])
             ->getJson($url)
