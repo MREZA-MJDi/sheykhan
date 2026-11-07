@@ -29,6 +29,45 @@ class TeacherWorkspaceRedesignTest extends TestCase
             ->assertSee('teacher-home__metrics', false);
     }
 
+    public function test_teacher_work_queues_accept_search_and_status_filters(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.assignments.index', ['q' => 'ریاضی', 'status' => 'published']))
+            ->assertOk()
+            ->assertSee('جست‌وجو و فیلتر تکالیف');
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.exams.index', ['q' => 'ریاضی', 'status' => 'draft']))
+            ->assertOk()
+            ->assertSee('جست‌وجو و فیلتر آزمون‌ها');
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.live-classes.index', ['q' => 'ریاضی', 'status' => 'scheduled']))
+            ->assertOk()
+            ->assertSee('جست‌وجو و فیلتر جلسات');
+    }
+
+    public function test_teacher_student_directory_can_be_filtered_by_class(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.students.index'))
+            ->assertOk()
+            ->assertSee('name="classroom_id"', false)
+            ->assertSee('همه کلاس‌های من');
+    }
+
     public function test_teacher_sidebar_uses_clear_grouped_labels_instead_of_duplicate_message_links(): void
     {
         $this->seed();
