@@ -368,18 +368,22 @@ final class TeacherWorkspaceService
                 ->where('teacher_id', $teacher->id)
                 ->whereIn('course_id', $courseIds));
 
+        $progressCount = (clone $progressQuery)->count();
+        $submissionCount = (clone $submissionQuery)->count();
+        $attemptCount = (clone $attemptQuery)->count();
+
         return [
             'student' => $student,
             'classrooms' => $classrooms,
             'progress' => $progressQuery->with('lesson:id,title,course_section_id')
                 ->latest('last_watched_at')->limit(10)->get(),
-            'progress_count' => (clone $progressQuery)->count(),
+            'progress_count' => $progressCount,
             'submissions' => $submissionQuery->with('assignment:id,title,course_id,classroom_id')
                 ->latest('submitted_at')->limit(10)->get(),
-            'submission_count' => (clone $submissionQuery)->count(),
+            'submission_count' => $submissionCount,
             'attempts' => $attemptQuery->with('exam:id,title,course_id,classroom_id')
                 ->latest('submitted_at')->limit(10)->get(),
-            'attempt_count' => (clone $attemptQuery)->count(),
+            'attempt_count' => $attemptCount,
             'attendance' => $student->attendance()
                 ->whereIn('classroom_id', $classroomIds)
                 ->with('classroom:id,title')
