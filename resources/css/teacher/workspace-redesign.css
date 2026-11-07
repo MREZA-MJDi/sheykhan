@@ -621,3 +621,101 @@
 .teacher-panel .teacher-student-profile-link { color: var(--tw-primary); text-decoration: none; text-underline-offset: 3px; }
 .teacher-panel .teacher-student-profile-link:hover { text-decoration: underline; }
 .teacher-panel .teacher-workspace-page .teacher-workspace-grid > .teacher-workspace-card { align-self: start; }
+
+
+/* A clean, student-facing A4 paper is assembled from the current editor state. */
+.teacher-exam-print-sheet { display: none; }
+
+@media print {
+  @page { size: A4; margin: 14mm; }
+
+  html, body {
+    width: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #111827 !important;
+  }
+
+  body * { visibility: hidden !important; }
+
+  #teacher-exam-print-sheet,
+  #teacher-exam-print-sheet * { visibility: visible !important; }
+
+  #teacher-exam-print-sheet {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #111827 !important;
+    background: #fff !important;
+    direction: rtl !important;
+    font-family: Tahoma, Arial, sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.9 !important;
+  }
+
+  .teacher-exam-print-header {
+    padding-bottom: 10mm;
+    border-bottom: 1px solid #9ca3af;
+    text-align: center;
+  }
+
+  .teacher-exam-print-brand { margin: 0 0 2mm; font-size: 10pt; font-weight: 800; }
+  .teacher-exam-print-title { margin: 0 0 2mm; font-size: 18pt; font-weight: 900; }
+  .teacher-exam-print-course { margin: 0; font-size: 10pt; }
+
+  .teacher-exam-print-student-fields {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4mm;
+    margin: 7mm 0 5mm;
+    font-size: 9.5pt;
+  }
+
+  .teacher-exam-print-facts {
+    display: flex;
+    justify-content: space-around;
+    gap: 4mm;
+    padding: 3mm;
+    margin-bottom: 5mm;
+    border: 1px solid #d1d5db;
+    border-radius: 2mm;
+    font-size: 9.5pt;
+    font-weight: 700;
+  }
+
+  .teacher-exam-print-note {
+    padding: 3mm;
+    margin: 0 0 5mm;
+    border: 1px dashed #9ca3af;
+    font-size: 9pt;
+  }
+
+  .teacher-exam-print-question {
+    padding: 3mm 0 4mm;
+    margin: 0 0 3mm;
+    border-bottom: 1px solid #e5e7eb;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .teacher-exam-print-question-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1mm;
+    font-size: 9pt;
+  }
+
+  .teacher-exam-print-prompt { margin: 0 0 2mm; font-weight: 700; white-space: pre-wrap; }
+  .teacher-exam-print-options { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 7mm; padding: 0; margin: 0; list-style: none; }
+  .teacher-exam-print-option { display: flex; gap: 2mm; align-items: flex-start; }
+  .teacher-exam-print-option-marker { font-weight: 800; }
+  .teacher-exam-print-answer-space { display: grid; gap: 8mm; margin: 5mm 0 1mm; }
+  .teacher-exam-print-answer-space i { display: block; height: 1px; border-bottom: 1px solid #9ca3af; }
+  .teacher-exam-print-footer { margin-top: 7mm; padding-top: 3mm; border-top: 1px solid #d1d5db; text-align: center; font-size: 8.5pt; }
+}
