@@ -247,6 +247,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::post('/courses/{course}/sections', [TeacherLessonController::class, 'storeSection'])->middleware('permission:lessons.manage')->name('courses.sections.store');
     Route::post('/lessons', [TeacherLessonController::class, 'store'])->middleware('permission:lessons.manage')->name('lessons.store');
     Route::patch('/lessons/{lesson}', [TeacherLessonController::class, 'update'])->middleware('permission:lessons.manage')->name('lessons.update');
+    Route::delete('/lessons/{lesson}', [TeacherLessonController::class, 'destroy'])->middleware('permission:lessons.manage')->name('lessons.destroy');
     Route::post('/lessons/{lesson}/media', [TeacherLessonMediaController::class, 'store'])->middleware('permission:media.upload')->name('lessons.media.store');
     Route::get('/classrooms', [TeacherClassroomController::class, 'index'])->middleware('permission:classrooms.view')->name('classrooms.index');
     Route::get('/classrooms/create', [TeacherClassroomController::class, 'create'])->middleware('permission:classrooms.manage')->name('classrooms.create');
