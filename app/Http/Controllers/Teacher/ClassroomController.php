@@ -184,4 +184,10 @@ class ClassroomController extends Controller
         return redirect()->route('teacher.classrooms.index')
             ->with('success', 'کلاس دوباره فعال شد؛ سوابق قبلی حفظ شده‌اند.');
     }
+
+    /** Legacy DELETE requests archive a class instead of erasing history. */
+    public function destroy(Classroom $classroom, TeacherWorkspaceService $workspace): RedirectResponse
+    {
+        return $this->archive($classroom, $workspace);
+    }
 }
