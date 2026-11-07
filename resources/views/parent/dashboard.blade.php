@@ -41,6 +41,7 @@
                 <a href="{{ route('parent.attendance.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیگیری حضور و غیاب</a>
                 <a href="{{ route('parent.messages.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیام به آموزشگاه</a>
                 <a href="{{ route('parent.counseling.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">درخواست راهنمایی</a>
+                <a href="{{ route('courses.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">انتخاب دوره برای فرزند</a>
             </div>
 
             <span class="parent-orb" aria-hidden="true"></span>
