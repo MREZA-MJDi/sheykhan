@@ -389,7 +389,7 @@ class OwnerReportingAndCourseShowTest extends TestCase
 
     public function test_owner_metrics_exclude_excused_absences_and_archived_classroom_teachers(): void
     {
-        [$owner, $academy, $course] = $this->ownerWorkspace(['reports.view', 'dashboard.view']);
+        [$owner, $academy, $course] = $this->ownerWorkspace(['reports.view', 'dashboard.view', 'classrooms.view']);
 
         $teacher = User::factory()->create(['name' => 'مدرس آرشیوشده', 'email' => 'archived-teacher-' . Str::random(6) . '@test.local']);
         $studentPresent = User::factory()->create(['email' => 'present-student-' . Str::random(6) . '@test.local']);
