@@ -75,6 +75,22 @@
         </section>
     @endif
 
+    <section class="teacher-home__model" aria-labelledby="teacher-model-title">
+        <div class="teacher-home__model-heading">
+            <div>
+                <h3 id="teacher-model-title">چه چیزی را کجا مدیریت می‌کنی؟</h3>
+                <p>هر بخش یک کار مشخص دارد؛ این تفکیک جلوی ثبت اطلاعات در جای اشتباه را می‌گیرد.</p>
+            </div>
+            <a href="{{ route('account.guide') }}">راهنمای کامل پنل</a>
+        </div>
+        <div class="teacher-home__model-grid">
+            <article><strong>دوره</strong><p>محتوای آموزشی، سرفصل، درس، قیمت و ویدئوهای ضبط‌شده.</p><a href="{{ route('teacher.courses.index') }}">مدیریت دوره‌ها</a></article>
+            <article><strong>کلاس / گروه</strong><p>گروه دانش‌آموزان یک دوره؛ اعضا، ظرفیت، برنامه و حضور و غیاب.</p><a href="{{ route('teacher.classrooms.index') }}">مدیریت گروه‌ها</a></article>
+            <article><strong>جلسه آنلاین</strong><p>تدریس زنده در ساعت مشخص و با لینک ورود دانش‌آموزان.</p><a href="{{ route('teacher.live-classes.index') }}">زمان‌بندی جلسه</a></article>
+            <article><strong>SpotPlayer</strong><p>پخش امن ویدئوهای از پیش ضبط‌شده داخل صفحهٔ دوره؛ نه جلسهٔ زنده.</p><a href="{{ route('teacher.courses.index') }}">اتصال در تنظیمات دوره</a></article>
+        </div>
+    </section>
+
     <div class="teacher-home__columns">
         @if($user?->hasPermission('live_classes.view'))
             <section class="teacher-home__panel">
