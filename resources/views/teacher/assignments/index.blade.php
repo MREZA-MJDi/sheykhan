@@ -69,6 +69,18 @@
                         <span class="teacher-workspace-chip">{{ $assignment->status === 'published' ? 'منتشرشده' : ($assignment->status === 'closed' ? 'بسته' : 'پیش‌نویس') }}</span>
                         <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($assignment->submitted_count) }} ارسال</span>
                         <span class="teacher-workspace-chip {{ $assignment->pending_review_count ? 'warning' : 'success' }}">{{ App\Support\PersianUi::digits($assignment->pending_review_count) }} نیازمند بررسی</span>
+                        @if($assignment->status === 'published')
+                            <form method="POST" action="{{ route('teacher.assignments.status', $assignment) }}">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="closed">
+                                <button type="submit" class="teacher-workspace-link danger" data-confirm="تکلیف بسته شود؟ پاسخ‌های ثبت‌شده حفظ می‌شوند.">بستن تکلیف</button>
+                            </form>
+                        @elseif((int) $assignment->total_submissions_count === 0)
+                            <form method="POST" action="{{ route('teacher.assignments.destroy', $assignment) }}">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="teacher-workspace-link danger" data-confirm="این تکلیف و فایل‌های بلااستفاده آن حذف شوند؟ این کار قابل بازگشت نیست.">حذف تکلیف</button>
+                            </form>
+                        @endif
                         <a href="{{ route('teacher.assignments.submissions',$assignment) }}" class="teacher-workspace-link primary">بررسی پاسخ‌ها</a>
                     </div>
                 </article>
