@@ -29,6 +29,13 @@
                 <option value="closed" @selected(request('status') === 'closed')>بسته</option>
             </select>
         </label>
+        <label>
+            <span>اولویت رسیدگی</span>
+            <select name="queue">
+                <option value="" @selected(request('queue') !== 'needs_review')>همه موارد</option>
+                <option value="needs_review" @selected(request('queue') === 'needs_review')>فقط نیازمند تصحیح</option>
+            </select>
+        </label>
         <div class="teacher-workspace-filter-actions">
             <button type="submit" class="teacher-workspace-btn primary">اعمال فیلتر</button>
             @if(request()->query())
