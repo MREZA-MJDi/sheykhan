@@ -1038,3 +1038,402 @@
 .public-library-empty-state{margin-top:10px;padding:28px 20px;border-color:#dfe2f0;background:linear-gradient(145deg,#fbfaff,#f4f2ff)}
 .public-library-empty-state__icon{background:#e9e5ff;color:#6554d4}
 @media(max-width:640px){.public-empty-state,.public-library-empty-state{padding:24px 15px;border-radius:16px}}
+
+
+/* -------------------------------------------------------------------------
+   Distinct public page systems: course catalogue, store, journal and faculty.
+   Keep these styles scoped so internal dashboards and checkout logic are untouched.
+   ------------------------------------------------------------------------- */
+
+/* Course catalogue — learning-path selection, not a generic card wall. */
+.sheykhan-site .public-courses-page .public-page-intro--courses {
+    min-height: 230px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(28px, 5vw, 58px);
+    border-radius: 26px;
+    border-color: #e2e8f0;
+    background:
+        radial-gradient(ellipse at 90% 0%, rgba(86,103,232,.12), transparent 26rem),
+        linear-gradient(125deg, #fff 0%, #f7f9ff 58%, #f2f8fb 100%);
+    box-shadow: 0 16px 50px rgba(25,42,70,.055);
+}
+.sheykhan-site .public-courses-page .public-page-intro--courses > div > span:first-child {
+    display: none;
+}
+.sheykhan-site .public-courses-page .public-page-intro--courses h1 {
+    margin-top: 0;
+    max-width: 720px;
+    font-size: clamp(2rem, 4vw, 3.45rem);
+    line-height: 1.4;
+    letter-spacing: -.045em;
+}
+.sheykhan-site .public-courses-page .public-page-intro--courses p {
+    max-width: 760px;
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 2.1;
+}
+.sheykhan-site .public-courses-page section[aria-labelledby] > .mb-6 > div > span:first-child {
+    display: none;
+}
+.sheykhan-site .public-courses-page section[aria-labelledby] > .mb-6 h2 {
+    margin-top: 0;
+    font-size: clamp(1.45rem, 2.3vw, 2rem);
+}
+.sheykhan-site .public-courses-page .public-course-grid {
+    align-items: stretch;
+    gap: 1.2rem;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card {
+    overflow: hidden;
+    border: 1px solid #e1e7ef;
+    border-radius: 21px;
+    background: #fff;
+    box-shadow: 0 8px 26px rgba(18,34,56,.045);
+    transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card:hover {
+    transform: translateY(-4px);
+    border-color: #c8d4f5;
+    box-shadow: 0 18px 42px rgba(25,42,70,.10);
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card > a:first-child > div {
+    aspect-ratio: 16 / 9;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card > div:last-child {
+    padding: 1.35rem;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card h3 {
+    font-size: 1.18rem;
+    line-height: 1.8;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card > div:last-child > div:last-child {
+    margin-top: auto;
+    padding-top: 1rem;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card > div:last-child > div:last-child > a {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    padding: .45rem .85rem;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #4654b5;
+    font-size: .78rem;
+    font-weight: 900;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card > div:last-child > div:last-child > a::after {
+    content: "جزئیات و ثبت‌نام";
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card > div:last-child > div:last-child > a {
+    font-size: 0;
+}
+.sheykhan-site .public-courses-page .public-catalog-course-card > div:last-child > div:last-child > a::after {
+    font-size: .78rem;
+}
+
+/* Course detail — clear hierarchy and a purchase panel that stays in view. */
+.sheykhan-site .public-course-page .public-course-hero {
+    align-items: start;
+    gap: clamp(24px, 4vw, 48px);
+}
+.sheykhan-site .public-course-page .public-course-hero > div:first-child h1 {
+    max-width: 820px;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.45;
+}
+.sheykhan-site .public-course-page .public-course-hero > aside {
+    top: 100px;
+}
+.sheykhan-site .public-course-page .public-course-hero > aside > div {
+    overflow: hidden;
+    border-radius: 22px;
+    border-color: #dfe6ef;
+    box-shadow: 0 18px 48px rgba(25,42,70,.09);
+}
+.sheykhan-site .public-course-page .public-course-hero > aside .text-2xl,
+.sheykhan-site .public-course-page .public-course-hero > aside .sm\:text-3xl {
+    letter-spacing: -.03em;
+}
+.sheykhan-site .public-course-page [aria-labelledby="course-curriculum-title"] > div:first-child > span {
+    display: none;
+}
+.sheykhan-site .public-course-page [aria-labelledby="course-curriculum-title"] h2 {
+    margin-top: 0;
+    font-size: clamp(1.5rem, 2.4vw, 2.15rem);
+}
+.sheykhan-site .public-course-page [aria-labelledby="course-curriculum-title"] details {
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(20,36,58,.035);
+}
+.sheykhan-site .public-course-page [aria-labelledby="course-curriculum-title"] summary {
+    min-height: 74px;
+}
+.sheykhan-site .public-course-page .public-course-hero > aside .public-course-purchase-note {
+    font-size: .84rem;
+    line-height: 1.9;
+}
+
+/* Store — product first, price visible, details before checkout. */
+.sheykhan-site .public-store-page .public-page-intro {
+    padding: clamp(28px, 4.5vw, 54px);
+    border-radius: 24px;
+    background:
+        radial-gradient(ellipse at 90% 0%, rgba(20,151,128,.11), transparent 24rem),
+        linear-gradient(130deg, #fff 0%, #f7fbfa 100%);
+}
+.sheykhan-site .public-store-page .public-page-intro .ui-eyebrow {
+    display: none;
+}
+.sheykhan-site .public-store-page .public-page-intro h1 {
+    margin-top: 0;
+    font-size: clamp(2rem, 3.8vw, 3.25rem);
+}
+.sheykhan-site .public-store-page section[aria-labelledby] > div:first-child > span {
+    display: none;
+}
+.sheykhan-site .public-store-page section[aria-labelledby] h2 {
+    margin-top: 0;
+    font-size: clamp(1.45rem, 2.3vw, 1.95rem);
+}
+.sheykhan-site .public-store-page .public-store-product-card {
+    overflow: hidden;
+    border: 1px solid #e2e8ef;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(19,35,57,.045);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.sheykhan-site .public-store-page .public-store-product-card:hover {
+    transform: translateY(-4px);
+    border-color: #c9d8ec;
+    box-shadow: 0 18px 38px rgba(19,35,57,.095);
+}
+.sheykhan-site .public-store-page .public-store-product-card > div:last-child {
+    padding: 1.25rem;
+}
+.sheykhan-site .public-store-page .public-store-product-card > div:last-child > div:last-child {
+    align-items: center;
+}
+.sheykhan-site .public-store-page .public-store-product-card > div:last-child > div:last-child > span[aria-hidden="true"] {
+    width: auto;
+    min-width: 94px;
+    padding-inline: .85rem;
+    font-size: 0;
+}
+.sheykhan-site .public-store-page .public-store-product-card > div:last-child > div:last-child > span[aria-hidden="true"]::after {
+    content: "جزئیات محصول";
+    font-size: .72rem;
+    font-weight: 900;
+}
+
+/* Product detail — gallery and purchase decision are separate, balanced columns. */
+.sheykhan-site .public-product-page > section > div > article {
+    gap: clamp(24px, 4vw, 48px);
+}
+.sheykhan-site .public-product-page > section > div > article > div:first-child {
+    overflow: hidden;
+    border: 1px solid #e2e8ef;
+    border-radius: 22px;
+    background: #f8fafc;
+}
+.sheykhan-site .public-product-page h1 {
+    font-size: clamp(2rem, 3.8vw, 3.25rem);
+    line-height: 1.45;
+}
+.sheykhan-site .public-product-page .ui-eyebrow {
+    display: none;
+}
+
+/* Journal — editorial cards and a readable article measure. */
+.sheykhan-site .public-blog-page .public-page-intro--editorial {
+    padding: clamp(28px, 4.7vw, 56px);
+    border-radius: 25px;
+    background:
+        radial-gradient(ellipse at 88% 0%, rgba(182,125,63,.12), transparent 24rem),
+        linear-gradient(130deg, #fff 0%, #fbf8f3 100%);
+}
+.sheykhan-site .public-blog-page .public-page-intro--editorial > div > span:first-child {
+    display: none;
+}
+.sheykhan-site .public-blog-page .public-page-intro--editorial h1 {
+    margin-top: 0;
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
+}
+.sheykhan-site .public-blog-page section[aria-labelledby="blog-posts-title"] > div:first-child > span {
+    display: none;
+}
+.sheykhan-site .public-blog-page section[aria-labelledby="blog-posts-title"] h2 {
+    margin-top: 0;
+    font-size: clamp(1.5rem, 2.4vw, 2.05rem);
+}
+.sheykhan-site .public-blog-page .public-blog-card {
+    border-radius: 20px;
+    border-color: #e5e7eb;
+    box-shadow: 0 8px 26px rgba(34,32,27,.045);
+}
+.sheykhan-site .public-blog-page .public-blog-card--featured {
+    border-color: #ded8cf;
+    background: linear-gradient(145deg,#fff,#fbf8f3);
+}
+.sheykhan-site .public-blog-page .public-blog-card h2 {
+    font-size: 1.15rem;
+    line-height: 1.9;
+}
+.sheykhan-site .public-blog-post-page article > header h1 {
+    max-width: 900px;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.55;
+}
+.sheykhan-site .public-blog-post-page .public-article-body {
+    max-width: 760px;
+    margin-inline: auto;
+    font-size: 1.05rem;
+    line-height: 2.35;
+}
+.sheykhan-site .public-blog-post-page .public-article-body :is(h2,h3,h4) {
+    margin-block: 2.2em .65em;
+    color: #18263a;
+    line-height: 1.7;
+}
+.sheykhan-site .public-blog-post-page .public-article-body p {
+    margin-block: 0 1.25em;
+}
+.sheykhan-site .public-blog-post-page .public-article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 14px;
+}
+.sheykhan-site .public-blog-post-page .public-article-body blockquote {
+    margin: 1.8rem 0;
+    padding: 1rem 1.35rem;
+    border-inline-start: 3px solid #b78b53;
+    border-radius: 12px;
+    background: #fbf7f0;
+    color: #46556a;
+}
+
+/* Faculty — people first, credibility and course paths second. */
+.sheykhan-site .public-teachers-page .public-page-intro {
+    padding: clamp(28px, 4.5vw, 54px);
+    border-radius: 24px;
+    background:
+        radial-gradient(ellipse at 90% 0%, rgba(34,108,160,.12), transparent 24rem),
+        linear-gradient(130deg, #fff 0%, #f5f9fc 100%);
+}
+.sheykhan-site .public-teachers-page .public-page-intro .ui-eyebrow {
+    display: none;
+}
+.sheykhan-site .public-teachers-page .public-page-intro h1 {
+    margin-top: 0;
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
+}
+.sheykhan-site .public-teachers-page .public-teacher-card {
+    overflow: hidden;
+    border: 1px solid #e1e7ee;
+    border-radius: 21px;
+    background: #fff;
+    box-shadow: 0 8px 26px rgba(18,34,56,.05);
+}
+.sheykhan-site .public-teachers-page .teacher-card__media {
+    min-height: 250px;
+}
+.sheykhan-site .public-teachers-page .teacher-card__body {
+    padding: 1.25rem;
+}
+.sheykhan-site .public-teachers-page .teacher-card__name {
+    font-size: 1.1rem;
+}
+.sheykhan-site .teacher-profile-page .teacher-profile-hero {
+    border-radius: 24px;
+}
+.sheykhan-site .teacher-profile-page .teacher-profile-hero h1 {
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
+}
+.sheykhan-site .teacher-profile-page .teacher-profile-hero .inline-flex.items-center {
+    backdrop-filter: blur(8px);
+}
+.sheykhan-site .teacher-profile-page .teacher-profile-hero + div {
+    gap: clamp(24px, 4vw, 48px);
+}
+.sheykhan-site .teacher-profile-page .teacher-profile-hero + div h2 {
+    font-size: clamp(1.5rem, 2.4vw, 2.05rem);
+}
+.sheykhan-site .teacher-profile-page .teacher-profile-hero + div > aside {
+    align-self: start;
+}
+
+/* Checkout — steps are legible, not compressed into micro labels. */
+.sheykhan-site .public-checkout-page .public-checkout-heading {
+    max-width: 800px;
+    margin: 0 auto 2rem;
+}
+.sheykhan-site .public-checkout-page .public-checkout-heading .ui-eyebrow {
+    display: none;
+}
+.sheykhan-site .public-checkout-page .public-checkout-heading h1 {
+    font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+    line-height: 1.55;
+    letter-spacing: -.035em;
+}
+.sheykhan-site .public-checkout-page .public-checkout-heading p {
+    font-size: .96rem;
+    line-height: 2.1;
+}
+.sheykhan-site .public-checkout-page .public-checkout-block {
+    border-radius: 17px;
+    padding: clamp(18px, 2.4vw, 25px);
+}
+.sheykhan-site .public-checkout-page .public-checkout-block h2 {
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+.sheykhan-site .public-checkout-page .public-checkout-step {
+    display: inline-flex;
+    margin-bottom: .4rem;
+    font-size: .76rem;
+}
+.sheykhan-site .public-checkout-page .public-checkout-submit {
+    min-height: 52px;
+    font-size: .95rem;
+}
+.sheykhan-site .public-checkout-page .public-checkout-note {
+    font-size: .82rem;
+    line-height: 2;
+}
+.sheykhan-site .public-checkout-page .public-checkout-summary {
+    align-self: start;
+    border-radius: 21px;
+}
+.sheykhan-site .public-checkout-page .public-checkout-summary__body {
+    padding: 1.4rem;
+}
+@media(max-width:850px) {
+    .sheykhan-site .public-course-page .public-course-hero > aside {
+        position: static;
+    }
+    .sheykhan-site .public-checkout-page .public-checkout-summary {
+        order: -1;
+    }
+}
+@media(max-width:640px) {
+    .sheykhan-site .public-courses-page .public-page-intro--courses,
+    .sheykhan-site .public-store-page .public-page-intro,
+    .sheykhan-site .public-blog-page .public-page-intro--editorial,
+    .sheykhan-site .public-teachers-page .public-page-intro {
+        padding: 22px 18px;
+        border-radius: 18px;
+    }
+    .sheykhan-site .public-course-page .public-course-hero > div:first-child h1,
+    .sheykhan-site .public-product-page h1,
+    .sheykhan-site .public-blog-post-page article > header h1 {
+        font-size: 1.9rem;
+    }
+    .sheykhan-site .public-blog-post-page .public-article-body {
+        font-size: .98rem;
+        line-height: 2.2;
+    }
+}
+
