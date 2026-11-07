@@ -125,11 +125,11 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $css = file_get_contents(resource_path('css/teacher.css'));
         foreach ([$dashboard,$layout,$css] as $source) $this->assertIsString($source);
 
-        $this->assertStringContainsString('id="teacher-dashboard"', $dashboard);
-        $this->assertStringContainsString('class="teacher-stat-card"', $dashboard);
-        $this->assertStringContainsString('class="teacher-quick-action"', $dashboard);
-        $this->assertStringContainsString('teacher-stat-card', $css);
-        $this->assertStringContainsString('teacher-quick-action', $css);
+        $this->assertStringContainsString('class="teacher-home"', $dashboard);
+        $this->assertStringContainsString('teacher-home__metric', $dashboard);
+        $this->assertStringContainsString('teacher-home__quick', $dashboard);
+        $this->assertStringContainsString('teacher-home__metric', $css);
+        $this->assertStringContainsString('teacher-home__quick', $css);
         $this->assertStringContainsString('data-teacher-menu-open', $layout);
         $this->assertStringContainsString('data-teacher-menu-close', $layout);
         $this->assertStringNotContainsString('<x-navigation.role-mobile-nav role="teacher"', $layout);
