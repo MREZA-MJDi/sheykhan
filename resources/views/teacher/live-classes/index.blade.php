@@ -77,6 +77,11 @@
                             <a href="{{ $liveClass->meeting_url }}" target="_blank" rel="noopener noreferrer" class="teacher-workspace-link primary">ورود به جلسه</a>
                         @endif
                     </div>
+                    <details class="teacher-live-recording">
+                        <summary>
+                            <span>مدیریت ضبط و آرشیو جلسه</span>
+                            <small>{{ $liveClass->recording ? 'فایل ضبط‌شده ثبت شده' : 'هنوز فایلی ثبت نشده' }}</small>
+                        </summary>
                     @if($liveClass->recording)
                         @php
                             $recordingIsReleased = $liveClass->isRecordingAvailable();
@@ -124,6 +129,7 @@
                             <button type="submit" class="teacher-workspace-link primary min-h-10">ذخیره ضبط</button>
                         </form>
                     @endif
+                    </details>
                 </article>
             @empty
                 <div class="teacher-workspace-empty"><strong>جلسه‌ای ثبت نشده است.</strong>اولین جلسه آنلاین را برای یک دوره یا کلاس برنامه‌ریزی کن.</div>
