@@ -123,13 +123,15 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $dashboard = file_get_contents(resource_path('views/teacher/dashboard.blade.php'));
         $layout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $css = file_get_contents(resource_path('css/teacher.css'));
-        foreach ([$dashboard,$layout,$css] as $source) $this->assertIsString($source);
+        $workspaceCss = file_get_contents(resource_path('css/teacher/workspace-redesign.css'));
+        foreach ([$dashboard,$layout,$css,$workspaceCss] as $source) $this->assertIsString($source);
 
         $this->assertStringContainsString('class="teacher-home"', $dashboard);
         $this->assertStringContainsString('teacher-home__metric', $dashboard);
         $this->assertStringContainsString('teacher-home__quick', $dashboard);
-        $this->assertStringContainsString('teacher-home__metric', $css);
-        $this->assertStringContainsString('teacher-home__quick', $css);
+        $this->assertStringContainsString("@import './teacher/workspace-redesign.css';", $css);
+        $this->assertStringContainsString('.teacher-home__metric', $workspaceCss);
+        $this->assertStringContainsString('.teacher-home__quick', $workspaceCss);
         $this->assertStringContainsString('data-teacher-menu-open', $layout);
         $this->assertStringContainsString('data-teacher-menu-close', $layout);
         $this->assertStringNotContainsString('<x-navigation.role-mobile-nav role="teacher"', $layout);
