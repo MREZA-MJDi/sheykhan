@@ -127,6 +127,7 @@
       @endif
     @endforeach
     <div class="side-footer">
+      <a class="nv" href="{{ route('account.guide') }}"><i>؟</i><span>راهنمای کار با پنل</span></a>
       <a class="nv" href="{{ route('home') }}"><i>↗</i><span>مشاهده سایت</span></a>
       <form method="POST" action="{{ route('logout') }}">@csrf<button class="nv" type="submit"><i>⇥</i><span>خروج از حساب</span></button></form>
     </div>
