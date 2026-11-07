@@ -71,6 +71,17 @@
                             <a href="{{ route('teacher.courses.progress',$course) }}" class="teacher-workspace-link">پیشرفت</a>
                             <a href="{{ route('teacher.courses.edit',$course) }}"
                                class="teacher-workspace-link">تنظیمات</a>
+                            @if($course->status === 'archived')
+                                <form method="POST" action="{{ route('teacher.courses.restore', $course) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="teacher-workspace-link" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی</button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('teacher.courses.archive', $course) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="teacher-workspace-link danger" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو</button>
+                                </form>
+                            @endif
                             @if($course->isPublished())
                                 <a href="{{ route('courses.show',$course) }}" class="teacher-workspace-link"
                                    target="_blank" rel="noopener">نمایش سایت</a>
