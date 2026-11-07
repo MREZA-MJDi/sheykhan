@@ -114,5 +114,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 status.textContent = 'برای دیدن گزینه‌های این دوره، نام یا بخشی از عنوان را جست‌وجو کن.';
             });
         }
+
+        if (type.endsWith('courses')) {
+            select.addEventListener('change', () => {
+                form?.querySelectorAll('[data-academy-option-picker][data-depends-on-course="true"]').forEach((dependent) => {
+                    const dependentSearch = dependent.querySelector('[data-academy-option-search]');
+                    const dependentSelect = dependent.querySelector('[data-academy-option-select]');
+                    const dependentMore = dependent.querySelector('[data-academy-option-more]');
+                    const dependentStatus = dependent.querySelector('[data-academy-option-status]');
+                    dependentSearch.value = '';
+                    dependentSelect.querySelectorAll('[data-dynamic-academy-option]').forEach((option) => option.remove());
+                    const placeholder = dependentSelect.querySelector('[data-option-placeholder]');
+                    dependentSelect.replaceChildren(...(placeholder ? [placeholder.cloneNode(true)] : []));
+                    if (dependentMore) dependentMore.hidden = true;
+                    if (dependentStatus) dependentStatus.textContent = 'دوره تغییر کرد؛ گزینهٔ مرتبط را دوباره جست‌وجو کن.';
+                });
+            });
+        }
     });
 });
