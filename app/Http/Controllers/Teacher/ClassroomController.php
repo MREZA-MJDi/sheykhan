@@ -158,15 +158,30 @@ class ClassroomController extends Controller
         }
     }
 
-    public function destroy(Classroom $classroom, TeacherWorkspaceService $workspace): RedirectResponse
+    public function archive(Classroom $classroom, TeacherWorkspaceService $workspace): RedirectResponse
     {
         $classroomModel = $workspace->classroomOwnedBy(request()->user(), $classroom->id);
 
         DB::transaction(function () use ($classroomModel): void {
-            $classroomModel->delete();
-        });
+            $locked = Classroom::query()->whereKey($classroomModel->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status !== 'archived') {
+                $locked->forceFill(['status' => 'archived'])->save();
+            }
+        }, 3);
+
+        return redirect()->route('teacher.classrooms.index', ['status' => 'archived'])
+            ->with('success', 'کلاس آرشیو شد؛ حضور و غیاب، تکالیف و سوابق دانش‌آموزان حفظ شده‌اند.');
+    }
+
+    public function restore(Classroom $classroom, TeacherWorkspaceService $workspace): RedirectResponse
+    {
+        $classroomModel = $workspace->classroomOwnedBy(request()->user(), $classroom->id);
+
+        if ($classroomModel->status === 'archived') {
+            $classroomModel->forceFill(['status' => 'active'])->save();
+        }
 
         return redirect()->route('teacher.classrooms.index')
-            ->with('success', 'کلاس با موفقیت حذف شد.');
+            ->with('success', 'کلاس دوباره فعال شد؛ سوابق قبلی حفظ شده‌اند.');
     }
 }
