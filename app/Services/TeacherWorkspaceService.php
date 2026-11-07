@@ -90,6 +90,7 @@ final class TeacherWorkspaceService
     public function classrooms(User $teacher): Collection
     {
         return $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
@@ -115,11 +116,13 @@ final class TeacherWorkspaceService
     public function classroomsPaginated(User $teacher, int $perPage = 12): LengthAwarePaginator
     {
         $search = trim((string) request()->query('q', ''));
-        $status = in_array(request()->query('status'), ['active', 'archived'], true)
-            ? (string) request()->query('status')
-            : '';
+        $requestedStatus = (string) request()->query('status', 'active');
+        $status = in_array($requestedStatus, ['active', 'archived', 'all'], true)
+            ? $requestedStatus
+            : 'active';
 
         return $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
@@ -145,7 +148,7 @@ final class TeacherWorkspaceService
                         ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'));
                 });
             })
-            ->when($status !== '', fn ($query) => $query->where('classrooms.status', $status))
+            ->when($status !== 'all', fn ($query) => $query->where('classrooms.status', $status))
             ->orderBy('title')
             ->paginate($perPage)
             ->withQueryString();
@@ -502,6 +505,7 @@ final class TeacherWorkspaceService
     {
         return $teacher->classroomsAsTeacher()
             ->whereKey($classroomId)
+            ->where('classrooms.status', 'active')
             ->where('course_id', $courseId)
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->firstOrFail();
