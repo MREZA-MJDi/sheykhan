@@ -59,6 +59,9 @@
         <p style="font-size:12px;color:var(--mu);margin:-6px 0 12px">
             میانگین پیشرفت ثبت‌شده برای درس‌های مشاهده‌شده توسط دانش‌آموزان شما
         </p>
+        <div class="teacher-workspace-actions-row" style="margin:0 0 12px">
+            <a href="{{ route('teacher.students.index') }}" class="teacher-workspace-link">مشاهده فهرست دانش‌آموزان و ورود به پرونده‌ها ←</a>
+        </div>
         <div class="bars" data-chart-bars aria-label="نمودار درصد پیشرفت">
             @foreach(($chart['week']['values'] ?? []) as $index => $value)
                 <div>
@@ -190,9 +193,14 @@
                         <span style="font-size:11px;color:var(--mu)">
                             {{ \App\Support\PersianUi::digits($classroom->attended_minutes) }} از {{ \App\Support\PersianUi::digits($classroom->scheduled_minutes) }} دقیقه
                         </span>
-                        <a href="{{ route('teacher.classrooms.attendance.edit', $classroom->id) }}" style="font-size:11px;font-weight:700;color:var(--pri)">
-                            ثبت و مشاهده حضور و غیاب ←
-                        </a>
+                        <div style="display:flex;flex-wrap:wrap;gap:10px">
+                            <a href="{{ route('teacher.students.index', ['classroom_id' => $classroom->id]) }}" style="font-size:11px;font-weight:700;color:var(--pri)">
+                                جزئیات دانش‌آموزان کلاس ←
+                            </a>
+                            <a href="{{ route('teacher.attendance.index', ['classroom_id' => $classroom->id]) }}" style="font-size:11px;font-weight:700;color:var(--pri)">
+                                تاریخچه حضور و غیاب
+                            </a>
+                        </div>
                     </div>
                 </article>
             @empty
@@ -222,7 +230,7 @@
                         @endif
                     </span>
                     <span class="t">
-                        <b>{{ $student->name }}</b>
+                        <b><a href="{{ route('teacher.students.show', $student->id) }}" style="color:inherit;text-decoration:underline;text-decoration-color:var(--ln);text-underline-offset:3px">{{ $student->name }}</a></b>
                         <small>{{ \App\Support\PersianUi::digits($student->courses_count) }} دوره فعال</small>
                     </span>
                     <div style="text-align:left;min-width:65px">
