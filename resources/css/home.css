@@ -5146,3 +5146,178 @@ a.home-academy-item:hover { transform:translateX(-2px); border-color:#d8d2fc; ba
     .home-workflow-card, .home-workflow__button { transition: none; }
     .home-workflow-card:hover, .home-workflow__button:hover { transform: none; }
 }
+
+
+/* 2026 public experience: editorial hierarchy, fewer decorative labels, clearer page rhythm. */
+.sheykhan-site .home-section {
+    padding-block: clamp(3.75rem, 7.4vw, 6.75rem);
+}
+.sheykhan-site .home-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: clamp(1.75rem, 3vw, 2.75rem);
+}
+.sheykhan-site .home-heading > div > span,
+.sheykhan-site .home-paths__intro > div > span,
+.sheykhan-site .home-why-copy > span,
+.sheykhan-site .home-cta > div > span {
+    display: none !important;
+}
+.sheykhan-site .home-heading h2 {
+    max-width: 48rem;
+    margin: 0;
+    font-size: clamp(1.55rem, 2.65vw, 2.35rem);
+    font-weight: 900;
+    line-height: 1.55;
+    letter-spacing: -.035em;
+    text-wrap: balance;
+}
+.sheykhan-site .home-heading p {
+    max-width: 42rem;
+    margin: .6rem 0 0;
+    color: var(--color-text-secondary);
+    font-size: .95rem;
+    line-height: 2;
+}
+.sheykhan-site .home-heading > a {
+    flex: 0 0 auto;
+    min-height: 2.8rem;
+    display: inline-flex;
+    align-items: center;
+    padding: .55rem 1rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: .75rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: .84rem;
+    font-weight: 800;
+    transition: border-color .2s ease, background .2s ease;
+}
+.sheykhan-site .home-heading > a:hover {
+    border-color: var(--color-primary-400);
+    background: var(--color-primary-50);
+}
+.sheykhan-site .home-heading > a i { display: none !important; }
+.sheykhan-site .home-feature-card__code,
+.sheykhan-site .home-feature-card__note i { display: none !important; }
+.sheykhan-site .home-feature-card { min-height: 250px; border-radius: 1.15rem; }
+.sheykhan-site .home-feature-card__icon { margin-bottom: 1.1rem; }
+.sheykhan-site .home-feature-card strong { font-size: 1.15rem; }
+.sheykhan-site .home-feature-card p { line-height: 2; }
+.sheykhan-site .home-academy-story { padding-block: clamp(3.75rem, 7vw, 6.5rem); }
+.sheykhan-site .home-academy-story__eyebrow { display: none !important; }
+.sheykhan-site .home-academy-story__copy h2 {
+    max-width: 11ch;
+    font-size: clamp(2.25rem, 4.2vw, 4rem);
+    line-height: 1.38;
+    letter-spacing: -.045em;
+}
+.sheykhan-site .home-academy-story__copy p { max-width: 42rem; font-size: 1rem; line-height: 2.15; }
+.sheykhan-site .home-academy-story__actions a { gap: .4rem; }
+.sheykhan-site .home-academy-story__actions a span { display: none !important; }
+.sheykhan-site .home-path-card__index,
+.sheykhan-site .home-path-grid a > i { display: none !important; }
+.sheykhan-site .home-banner-link span,
+.sheykhan-site .home-live-card__action span,
+.sheykhan-site .home-teacher-card__action span,
+.sheykhan-site .home-product-link i { display: none !important; }
+.sheykhan-site .home-platform-model {
+    background: #f6f8fb;
+    border-block: 1px solid #e7ebf1;
+}
+.sheykhan-site .home-platform-model__heading {
+    max-width: 54rem;
+    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+}
+.sheykhan-site .home-platform-model__heading h2 {
+    margin: 0;
+    color: #142237;
+    font-size: clamp(1.65rem, 2.6vw, 2.35rem);
+    font-weight: 950;
+    line-height: 1.5;
+    letter-spacing: -.035em;
+}
+.sheykhan-site .home-platform-model__heading p {
+    margin: .7rem 0 0;
+    color: #56657a;
+    font-size: .96rem;
+    line-height: 2;
+}
+.sheykhan-site .home-platform-model__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+.sheykhan-site .home-platform-model__card {
+    min-width: 0;
+    padding: clamp(1.15rem, 1.8vw, 1.55rem);
+    border: 1px solid #e1e7ef;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(18, 32, 52, .045);
+}
+.sheykhan-site .home-platform-model__number {
+    display: inline-block;
+    margin-bottom: 1.2rem;
+    color: #62738b;
+    font-size: .77rem;
+    font-weight: 900;
+    direction: ltr;
+}
+.sheykhan-site .home-platform-model__card h3 {
+    margin: 0;
+    color: #17253a;
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+.sheykhan-site .home-platform-model__card p {
+    min-height: 7.5rem;
+    margin: .65rem 0 1.15rem;
+    color: #546277;
+    font-size: .88rem;
+    line-height: 2;
+}
+.sheykhan-site .home-platform-model__card small {
+    display: block;
+    padding-top: .85rem;
+    border-top: 1px solid #edf0f4;
+    color: #34465e;
+    font-size: .77rem;
+    font-weight: 800;
+    line-height: 1.8;
+}
+.sheykhan-site .home-platform-model__card--protected {
+    border-color: #b9d6ee;
+    background: linear-gradient(160deg, #f5faff, #fff 70%);
+}
+.sheykhan-site .home-platform-model__note {
+    margin: 1.25rem 0 0;
+    padding: 1rem 1.2rem;
+    border-inline-start: 3px solid #3876b7;
+    border-radius: .35rem .85rem .85rem .35rem;
+    background: #eaf2fa;
+    color: #344b66;
+    font-size: .86rem;
+    line-height: 2;
+}
+.sheykhan-site .home-post-card,
+.sheykhan-site .home-course-card,
+.sheykhan-site .home-teacher-card,
+.sheykhan-site .home-product-card { box-shadow: 0 8px 26px rgba(16, 24, 40, .055); }
+.sheykhan-site .home-post-card:hover,
+.sheykhan-site .home-course-card:hover,
+.sheykhan-site .home-teacher-card:hover,
+.sheykhan-site .home-product-card:hover { box-shadow: 0 18px 38px rgba(16, 24, 40, .09); }
+@media (max-width: 1050px) {
+    .sheykhan-site .home-platform-model__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+    .sheykhan-site .home-heading { display: grid; align-items: start; }
+    .sheykhan-site .home-heading > a { justify-self: start; }
+    .sheykhan-site .home-platform-model__grid { grid-template-columns: 1fr; }
+    .sheykhan-site .home-platform-model__card p { min-height: 0; }
+    .sheykhan-site .home-platform-model__heading h2 { font-size: 1.55rem; }
+}
+
