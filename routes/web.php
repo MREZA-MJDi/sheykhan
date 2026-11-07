@@ -255,6 +255,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->middleware('permission:live_classes.manage')->name('schedule.store');
     Route::delete('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->middleware('permission:live_classes.manage')->name('schedule.destroy');
     Route::get('/students', [TeacherStudentController::class, 'index'])->middleware('permission:students.view')->name('students.index');
+    Route::get('/students/{student}', [TeacherStudentController::class, 'show'])->middleware('permission:students.view')->name('students.show');
     Route::get('/assignments', [TeacherAssignmentController::class, 'index'])->middleware('permission:assignments.view')->name('assignments.index');
     Route::get('/assignments/create', [TeacherAssignmentController::class, 'create'])->middleware('permission:assignments.manage')->name('assignments.create');
     Route::post('/assignments', [TeacherAssignmentController::class, 'store'])->middleware('permission:assignments.manage')->name('assignments.store');
