@@ -84,10 +84,16 @@
             <a href="{{ route('account.guide') }}">راهنمای کامل پنل</a>
         </div>
         <div class="teacher-home__model-grid">
-            <article><strong>دوره</strong><p>محتوای آموزشی، سرفصل، درس، قیمت و ویدئوهای ضبط‌شده.</p><a href="{{ route('teacher.courses.index') }}">مدیریت دوره‌ها</a></article>
-            <article><strong>کلاس / گروه</strong><p>گروه دانش‌آموزان یک دوره؛ اعضا، ظرفیت، برنامه و حضور و غیاب.</p><a href="{{ route('teacher.classrooms.index') }}">مدیریت گروه‌ها</a></article>
-            <article><strong>جلسه آنلاین</strong><p>تدریس زنده در ساعت مشخص و با لینک ورود دانش‌آموزان.</p><a href="{{ route('teacher.live-classes.index') }}">زمان‌بندی جلسه</a></article>
-            <article><strong>SpotPlayer</strong><p>پخش امن ویدئوهای از پیش ضبط‌شده داخل صفحهٔ دوره؛ نه جلسهٔ زنده.</p><a href="{{ route('teacher.courses.index') }}">اتصال در تنظیمات دوره</a></article>
+            @if($user?->hasPermission('courses.view'))
+                <article><strong>دوره</strong><p>محتوای آموزشی، سرفصل، درس، قیمت و ویدئوهای ضبط‌شده.</p><a href="{{ route('teacher.courses.index') }}">مدیریت دوره‌ها</a></article>
+                <article><strong>SpotPlayer</strong><p>پخش امن ویدئوهای از پیش ضبط‌شده داخل صفحهٔ دوره؛ نه جلسهٔ زنده.</p><a href="{{ route('teacher.courses.index') }}">اتصال در تنظیمات دوره</a></article>
+            @endif
+            @if($user?->hasPermission('classrooms.view'))
+                <article><strong>کلاس / گروه</strong><p>گروه دانش‌آموزان یک دوره؛ اعضا، ظرفیت، برنامه و حضور و غیاب.</p><a href="{{ route('teacher.classrooms.index') }}">مدیریت گروه‌ها</a></article>
+            @endif
+            @if($user?->hasPermission('live_classes.view'))
+                <article><strong>جلسه آنلاین</strong><p>تدریس زنده در ساعت مشخص و با لینک ورود دانش‌آموزان.</p><a href="{{ route('teacher.live-classes.index') }}">زمان‌بندی جلسه</a></article>
+            @endif
         </div>
     </section>
 
