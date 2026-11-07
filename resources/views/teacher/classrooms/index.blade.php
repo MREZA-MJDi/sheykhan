@@ -94,6 +94,17 @@
                         <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">ثبت حضور و غیاب</a>
                         <a href="{{ route('teacher.courses.progress',$classroom->course) }}" class="teacher-workspace-link">پیشرفت دوره</a>
                         <a href="{{ route('teacher.students.index', ['classroom_id' => $classroom->id]) }}" class="teacher-workspace-link">فهرست همین کلاس</a>
+                        @if($classroom->status === 'archived')
+                            <form method="POST" action="{{ route('teacher.classrooms.restore', $classroom) }}">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="teacher-workspace-link" data-confirm="کلاس دوباره فعال شود؟">بازیابی کلاس</button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route('teacher.classrooms.archive', $classroom) }}">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="teacher-workspace-link danger" data-confirm="کلاس آرشیو شود؟ حضور و غیاب و سوابق آموزشی حذف نمی‌شوند.">آرشیو کلاس</button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </article>
