@@ -408,6 +408,10 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
         Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.update');
     });
 
+Route::middleware(['auth', 'active'])
+    ->get('/guide', [\\App\\Http\\Controllers\\GuideController::class, 'show'])
+    ->name('account.guide');
+
 /*
 |--------------------------------------------------------------------------
 | Final fallback
