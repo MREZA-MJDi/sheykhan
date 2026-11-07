@@ -37,6 +37,7 @@
             </div>
 
             <div class="mt-5 flex flex-wrap gap-2" aria-label="کارهای اصلی خانواده">
+                <a href="{{ route('account.guide', ['role' => 'parent']) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-black text-indigo-700 shadow-sm transition hover:-translate-y-0.5">راهنمای استفاده از پنل والد</a>
                 <a href="{{ route('parent.results.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-black text-indigo-700 shadow-sm transition hover:-translate-y-0.5">دیدن نمره‌ها و بازخوردها</a>
                 <a href="{{ route('parent.attendance.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیگیری حضور و غیاب</a>
                 <a href="{{ route('parent.messages.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیام به آموزشگاه</a>
