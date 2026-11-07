@@ -189,7 +189,7 @@
                         </div>
                     </div>
 
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;padding-top:8px;border-top:1px solid var(--ln)">
+                    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-top:2px;padding-top:8px;border-top:1px solid var(--ln)">
                         <span style="font-size:11px;color:var(--mu)">
                             {{ \App\Support\PersianUi::digits($classroom->attended_minutes) }} از {{ \App\Support\PersianUi::digits($classroom->scheduled_minutes) }} دقیقه
                         </span>
