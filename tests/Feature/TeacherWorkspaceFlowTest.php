@@ -939,7 +939,7 @@ class TeacherWorkspaceFlowTest extends TestCase
         $this->actingAs($teacher)
             ->get(route('teacher.dashboard'))
             ->assertOk()
-            ->assertSee('teacher-live-join', false)
+            ->assertSee('teacher-home__join', false)
             ->assertSee($live->meeting_url, false);
 
         $live->update(['meeting_url' => 'javascript:alert(1)']);
