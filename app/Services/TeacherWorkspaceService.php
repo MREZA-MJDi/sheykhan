@@ -190,6 +190,7 @@ final class TeacherWorkspaceService
         $classroomIds = $teacher->classroomsAsTeacher()
             ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->when($classroomId !== null, fn ($query) => $query->whereKey($classroomId))
             ->pluck('classrooms.id');
 
         if ($classroomIds->isEmpty()) {
@@ -234,7 +235,8 @@ final class TeacherWorkspaceService
         int $perPage = 20,
         string $sort = 'name',
         string $direction = 'asc',
-        string $search = ''
+        string $search = '',
+        ?int $classroomId = null
     ): LengthAwarePaginator {
         // Keep the roster small, searchable and limited to active classes visible
         // to this teacher; never fetch the complete academy roster into memory.
