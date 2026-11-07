@@ -478,66 +478,65 @@ final class OwnerDashboardService
         $sparkDates = collect(range(0, 6))
             ->map(fn (int $offset) => $today->copy()->subDays(6 - $offset)->toDateString());
 
-$studentsByDay = !empty($permissions['students'])
+        $studentsByDay = !empty($permissions['students'])
             ? DB::table('academy_user as membership')
-            ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
-            ->whereIn('membership.academy_id', $academyIds)
-            ->where('membership.role', 'student')
-            ->where('membership.status', 'active')
-            ->where('accounts.status', 'active')
-            ->whereNull('accounts.deleted_at')
-            ->whereRaw('COALESCE(membership.joined_at, membership.created_at) BETWEEN ? AND ?', [$from, $to])
-            ->groupByRaw('DATE(COALESCE(membership.joined_at, membership.created_at))')
-            ->selectRaw('DATE(COALESCE(membership.joined_at, membership.created_at)) as day, COUNT(DISTINCT membership.user_id) as value')
-            ->pluck('value', 'day');
-            : collect()
+                ->join('users as accounts', 'accounts.id', '=', 'membership.user_id')
+                ->whereIn('membership.academy_id', $academyIds)
+                ->where('membership.role', 'student')
+                ->where('membership.status', 'active')
+                ->where('accounts.status', 'active')
+                ->whereNull('accounts.deleted_at')
+                ->whereRaw('COALESCE(membership.joined_at, membership.created_at) BETWEEN ? AND ?', [$from, $to])
+                ->groupByRaw('DATE(COALESCE(membership.joined_at, membership.created_at))')
+                ->selectRaw('DATE(COALESCE(membership.joined_at, membership.created_at)) as day, COUNT(DISTINCT membership.user_id) as value')
+                ->pluck('value', 'day')
+            : collect();
 
-$attendanceByDay = !empty($permissions['attendance'])
+        $attendanceByDay = !empty($permissions['attendance'])
             ? DB::table('attendances')
-            ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
-            ->whereIn('classrooms.academy_id', $academyIds)
-            ->where('classrooms.status', 'active')
-            ->whereDate('attendances.attendance_date', '>=', $chartStart->toDateString())
-            ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
-            ->groupByRaw('DATE(attendances.attendance_date)')
-            ->selectRaw(
-                "DATE(attendances.attendance_date) as day,
-                SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) as total,
-                SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) as attended"
-            )
-            ->get()
-            ->keyBy('day');
-            : collect()
+                ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+                ->whereIn('classrooms.academy_id', $academyIds)
+                ->where('classrooms.status', 'active')
+                ->whereDate('attendances.attendance_date', '>=', $chartStart->toDateString())
+                ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
+                ->groupByRaw('DATE(attendances.attendance_date)')
+                ->selectRaw(
+                    "DATE(attendances.attendance_date) as day,
+                    SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) as total,
+                    SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) as attended"
+                )
+                ->get()
+                ->keyBy('day')
+            : collect();
 
-        // Extend revenue to four Jalali/Gregorian calendar months for the cylinder chart.
-        // A single grouped-by-day query is reused to derive both weekly and monthly totals.
-$salesByDay = !empty($permissions['sales'])
+        // One grouped query supplies both sparklines and the weekly finance chart.
+        $salesByDay = !empty($permissions['sales'])
             ? DB::table('financial_transactions')
-            ->whereIn('academy_id', $academyIds)
-            ->where('status', 'completed')
-            ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
-            ->whereIn('type', ['enrollment_payment', 'refund'])
-            ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$from, $to])
-            ->groupByRaw('DATE(COALESCE(occurred_at, created_at))')
-            ->selectRaw(
-                "DATE(COALESCE(occurred_at, created_at)) as day,
-                SUM(CASE WHEN type = 'enrollment_payment' THEN amount WHEN type = 'refund' THEN -amount ELSE 0 END) as value"
-            )
-            ->pluck('value', 'day');
-            : collect()
+                ->whereIn('academy_id', $academyIds)
+                ->where('status', 'completed')
+                ->whereIn('currency', ['IRT', 'TOMAN', 'TOMANS'])
+                ->whereIn('type', ['enrollment_payment', 'refund'])
+                ->whereRaw('COALESCE(occurred_at, created_at) BETWEEN ? AND ?', [$from, $to])
+                ->groupByRaw('DATE(COALESCE(occurred_at, created_at))')
+                ->selectRaw(
+                    "DATE(COALESCE(occurred_at, created_at)) as day,
+                    SUM(CASE WHEN type = 'enrollment_payment' THEN amount WHEN type = 'refund' THEN -amount ELSE 0 END) as value"
+                )
+                ->pluck('value', 'day')
+            : collect();
 
-$pendingByDay = !empty($permissions['pendingReviews'])
+        $pendingByDay = !empty($permissions['pendingReviews'])
             ? DB::table('assignment_submissions as submissions')
-            ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-            ->join('courses', 'courses.id', '=', 'assignments.course_id')
-            ->whereIn('courses.academy_id', $academyIds)
-            ->whereNotNull('submissions.submitted_at')
-            ->whereNull('submissions.graded_at')
-            ->whereBetween('submissions.submitted_at', [$from, $to])
-            ->groupByRaw('DATE(submissions.submitted_at)')
-            ->selectRaw('DATE(submissions.submitted_at) as day, COUNT(*) as value')
-            ->pluck('value', 'day');
-            : collect()
+                ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
+                ->join('courses', 'courses.id', '=', 'assignments.course_id')
+                ->whereIn('courses.academy_id', $academyIds)
+                ->whereNotNull('submissions.submitted_at')
+                ->whereNull('submissions.graded_at')
+                ->whereBetween('submissions.submitted_at', [$from, $to])
+                ->groupByRaw('DATE(submissions.submitted_at)')
+                ->selectRaw('DATE(submissions.submitted_at) as day, COUNT(*) as value')
+                ->pluck('value', 'day')
+            : collect();
 
         $weekly = collect(range(0, 12))->map(function (int $offset) use (
             $chartStart,
