@@ -6,32 +6,7 @@
 @php
     $firstLiveClass = $todayClasses->first() ?? $nextLiveClass;
     $firstPendingAssignment = $assignments->first(fn ($item) => $item->submitted_at === null);
-
-    if (!empty($nextLesson)) {
-        $nextAction = (object) [
-            'text' => 'درس بعدی تو آماده است؛ از همان‌جایی که مانده‌ای ادامه بده.',
-            'url' => route('student.lessons.show', $nextLesson->id),
-            'label' => 'ادامه یادگیری',
-        ];
-    } elseif ($firstLiveClass) {
-        $nextAction = (object) [
-            'text' => 'برنامه کلاس‌های پیش‌رو را بررسی کن و برای جلسه بعدی آماده شو.',
-            'url' => route('student.live-classes.index'),
-            'label' => 'دیدن برنامه کلاس‌ها',
-        ];
-    } elseif ($firstPendingAssignment) {
-        $nextAction = (object) [
-            'text' => 'یک تکلیف در انتظار ارسال داری؛ قبل از پایان مهلت آن را بررسی کن.',
-            'url' => route('student.assignments.show', $firstPendingAssignment->id),
-            'label' => 'بررسی تکلیف',
-        ];
-    } else {
-        $nextAction = (object) [
-            'text' => 'از دوره‌های فعال خودت شروع کن و قدم بعدی مسیر یادگیری را بردار.',
-            'url' => route('student.courses.index'),
-            'label' => 'رفتن به دوره‌ها',
-        ];
-    }
+    $nextAction = $nextAction ?? \App\Support\NextAction::student($nextLesson ?? null, $firstLiveClass, $firstPendingAssignment);
 @endphp
 
 <section class="hero">

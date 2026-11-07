@@ -2,8 +2,9 @@
 
 @import 'tailwindcss' source(none);
 
-@import './panels/parent/calendar.css';
-@import './panels/parent/components.css';
+@import './shared/calendar.css';
+@import './shared/components.css';
+@import './shared/next-action.css';
 
 
 @source '../../resources/views/parent';

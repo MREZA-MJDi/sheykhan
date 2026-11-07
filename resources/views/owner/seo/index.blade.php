@@ -146,6 +146,7 @@
                 <div class="owner-empty">صفحه‌ای برای مدیریت SEO پیدا نشد.</div>
             @endforelse
         </div>
+        @if(is_object($items) && method_exists($items, 'hasPages') && $items->hasPages())<div class="owner-pagination">{{ $items->links() }}</div>@endif
     </section>
 </div>
 @endsection

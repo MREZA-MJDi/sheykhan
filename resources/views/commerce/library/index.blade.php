@@ -149,6 +149,7 @@
                             </article>
                         @endforeach
                     </div>
+                    @if(is_object($products) && method_exists($products, 'hasPages') && $products->hasPages())<div class="library-pagination">{{ $products->links() }}</div>@endif
                 @else
                     <div class="public-library-empty-state" role="status">
                         <span class="public-library-empty-state__icon" aria-hidden="true">↓</span>

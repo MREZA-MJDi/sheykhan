@@ -1,5 +1,6 @@
 @import 'tailwindcss' source(none);
 @import './teacher/workspace-redesign.css';
+@import './shared/next-action.css';
 @source '../../resources/views/teacher';
 @source '../../resources/views/layouts/teacher.blade.php';
 @theme { --font-sans: 'Vazirmatn', Tahoma, sans-serif; }

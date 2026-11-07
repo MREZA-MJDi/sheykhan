@@ -61,5 +61,6 @@
       <x-empty icon="i-file" text="هنوز منبع خریداری‌شده‌ای برای دریافت نداری." :href="route('store.index')" action="رفتن به فروشگاه" />
     @endforelse
   </div>
+  @if(is_object($products) && method_exists($products, 'hasPages') && $products->hasPages())<div class="frm">{{ $products->links() }}</div>@endif
 </section>
 @endsection

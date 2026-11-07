@@ -8,9 +8,12 @@
         $childrenCount = $children->count();
         $progress = max(0, min(100, (float) $overallProgress));
         $childNames = $children->keyBy('id');
+        $nextAction = $nextAction ?? \App\Support\NextAction::parentDashboard(collect($pendingAssignmentItems ?? []), collect($upcomingLiveClasses ?? []), collect($recentResults ?? []));
     @endphp
 
     <div class="parent-dashboard">
+
+        <x-dashboard.next-action :action="$nextAction" />
 
         <section class="parent-hero">
             <span class="parent-kicker">مرکز پیگیری خانواده</span>

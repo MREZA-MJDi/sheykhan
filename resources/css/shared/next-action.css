@@ -1,0 +1,9 @@
+/* «کار بعدی» بالای داشبوردها. رنگ از متغیرهای هر پنل می‌آید. */
+.next-action{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin:0 0 18px;padding:20px 22px;border:1px solid color-mix(in srgb,var(--panel-primary,var(--acc,#5667e8)) 28%,transparent);border-radius:20px;background:color-mix(in srgb,var(--panel-primary,var(--acc,#5667e8)) 8%,var(--panel-surface,var(--sf,#fff)));color:var(--panel-text,var(--tx,#263247))}
+.next-action__copy{display:grid;flex:1 1 260px;gap:6px;min-width:0}
+.next-action__eyebrow{color:var(--panel-primary,var(--acc,#5667e8));font-size:12px;font-weight:800}
+.next-action__text{margin:0;font-size:18px;font-weight:800;line-height:1.8}
+.next-action__btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border-radius:14px;background:var(--panel-primary,var(--acc,#5667e8));color:#fff;font-size:16px;font-weight:900;text-decoration:none}
+.next-action__btn:hover{filter:brightness(1.08)}
+.next-action__btn:focus-visible{outline:3px solid color-mix(in srgb,var(--panel-primary,var(--acc,#5667e8)) 45%,transparent);outline-offset:3px}
+@media (max-width:640px){.next-action{padding:16px}.next-action__btn{width:100%}}

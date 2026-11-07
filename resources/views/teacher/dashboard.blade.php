@@ -22,9 +22,12 @@
         ['label' => 'ارسال پیام', 'description' => 'ارتباط با دانش‌آموز یا خانواده', 'icon' => '✉', 'route' => 'teacher.direct-messages.index', 'permission' => 'parent_messages.manage', 'tone' => 'amber'],
     ];
     $quick = array_values(array_filter($quick, fn ($item) => $user?->hasPermission($item['permission'])));
+    $nextAction = $nextAction ?? \App\Support\NextAction::teacher($user, $metrics, $today);
 @endphp
 
 <div class="teacher-home">
+    <x-dashboard.next-action :action="$nextAction" />
+
     <section class="teacher-home__welcome">
         <div>
             <span class="teacher-home__eyebrow">فضای کاری مدرس</span>
@@ -115,11 +118,11 @@
                 @forelse($upcoming->take(4) as $class)
                     <div class="teacher-home__list-row">
                         <span class="class-icon class-icon--online">◉</span>
-                        <span class="list-copy"><b>{{ $class->course?->title ?? 'کلاس آنلاین' }}</b><small>{{ $class->classroom?->title ?? 'جلسه آموزشی' }} · {{ \App\Support\PersianUi::date($class->scheduled_at) }}، {{ \App\Support\PersianUi::time($class->scheduled_at) }}</small></span>
-                        @if(($class->can_join ?? false) && filled($class->meeting_url))
-                            <a class="teacher-home__join" href="{{ $class->meeting_url }}" target="_blank" rel="noopener noreferrer">ورود</a>
+                        <span class="list-copy"><b>{{ data_get($class, 'course.title') ?? 'کلاس آنلاین' }}</b><small>{{ data_get($class, 'classroom.title') ?? 'جلسه آموزشی' }} · {{ \App\Support\PersianUi::date(data_get($class, 'scheduled_at')) }}، {{ \App\Support\PersianUi::time(data_get($class, 'scheduled_at')) }}</small></span>
+                        @if(data_get($class, 'can_join', false) && filled(data_get($class, 'meeting_url')))
+                            <a class="teacher-home__join" href="{{ data_get($class, 'meeting_url') }}" target="_blank" rel="noopener noreferrer">ورود</a>
                         @else
-                            <span class="list-status">{{ $class->status }}</span>
+                            <span class="list-status">{{ data_get($class, 'status') }}</span>
                         @endif
                     </div>
                 @empty
@@ -133,8 +136,8 @@
                 <div class="teacher-home__section-heading"><div><h3>نیازمند پیگیری</h3><p>آخرین تکالیف و تعداد ارسال‌های منتظر بررسی.</p></div><a href="{{ route('teacher.assignments.index') }}">همه تکالیف</a></div>
                 @forelse($recent->take(4) as $activity)
                     <a class="teacher-home__list-row" href="{{ route('teacher.assignments.index') }}">
-                        <span class="class-icon class-icon--task">✎</span><span class="list-copy"><b>{{ $activity->title }}</b><small>{{ $activity->classroom?->title ?? 'دوره' }} · {{ $activity->due_at ? \App\Support\PersianUi::date($activity->due_at) : 'بدون مهلت' }}</small></span>
-                        <span class="list-count">{{ \App\Support\PersianUi::digits($activity->pending_review_count ?? 0) }} در انتظار</span>
+                        <span class="class-icon class-icon--task">✎</span><span class="list-copy"><b>{{ data_get($activity, 'title') }}</b><small>{{ data_get($activity, 'classroom.title') ?? 'دوره' }} · {{ data_get($activity, 'due_at') ? \App\Support\PersianUi::date(data_get($activity, 'due_at')) : 'بدون مهلت' }}</small></span>
+                        <span class="list-count">{{ \App\Support\PersianUi::digits(data_get($activity, 'pending_review_count', 0)) }} در انتظار</span>
                     </a>
                 @empty
                     <div class="teacher-home__empty"><span>✓</span><b>کار عقب‌افتاده‌ای ثبت نشده</b><small>تکالیف نیازمند بررسی در این بخش نشان داده می‌شوند.</small></div>

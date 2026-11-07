@@ -134,9 +134,17 @@
                 ? route('owner.classrooms.index', $firstAcademy)
                 : route('owner.assignments.index', $firstAcademy)))
         : route('owner.dashboard');
+    $nextAction = $nextAction ?? \App\Support\NextAction::owner(
+        (int) $attentionCount,
+        $attentionRoute,
+        $nextLiveClass,
+        ($canViewMeetings && $firstAcademy) ? route('owner.schedules.index', $firstAcademy) : null
+    );
 
 @endphp
 
+
+        <x-dashboard.next-action :action="$nextAction" class="c12" />
 
         <section class="ph c12">
             <div>
