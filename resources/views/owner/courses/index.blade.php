@@ -104,6 +104,17 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary">بازبینی</a>
                                 <a href="{{ route('owner.courses.edit',$course) }}" class="course-action-btn">ویرایش</a>
+                                @if($course->status === 'archived')
+                                    <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
+                                        @csrf @method('PATCH')
+                                        <button type="submit" class="course-action-btn" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی</button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('owner.courses.archive', $course) }}">
+                                        @csrf @method('PATCH')
+                                        <button type="submit" class="course-action-btn" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو</button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -151,6 +162,17 @@
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary justify-center">بازبینی دوره</a>
                         <a href="{{ route('owner.courses.edit',$course) }}" class="course-action-btn justify-center">ویرایش</a>
+                        @if($course->status === 'archived')
+                            <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="course-action-btn justify-center" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی</button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route('owner.courses.archive', $course) }}">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="course-action-btn justify-center" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو</button>
+                            </form>
+                        @endif
                     </div>
                 </article>
             @empty
