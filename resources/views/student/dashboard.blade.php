@@ -63,7 +63,7 @@
   <x-stat color="blue" icon="i-video" label="کلاس‌های امروز" :value="\App\Support\PersianUi::digits($todayLiveClassCount)" hint="جلسه‌های برنامه‌ریزی‌شده و در حال برگزاری" :href="route('student.live-classes.index')" />
   <x-stat color="red" icon="i-task" label="تکالیف باز" :value="\App\Support\PersianUi::digits($pendingAssignments)" hint="{{ \App\Support\PersianUi::digits($dueTomorrowCount) }} مورد تا فردا" :href="route('student.assignments.index')" />
   <x-stat color="amber" icon="i-exam" label="آزمون پیش‌رو" :value="\App\Support\PersianUi::digits($upcomingExamCount)" hint="{{ $nextExamDate ? 'نزدیک‌ترین آزمون: '.\App\Support\PersianUi::date($nextExamDate) : 'هنوز آزمون زمان‌دار اعلام نشده' }}" :href="route('student.exams.index')" />
-  <x-stat color="mint" icon="i-rocket" label="رشد این ماه" :value="'—'" hint="امتیاز یادگیری در صفحه رشد تحصیلی" :href="route('student.growth')" />
+  <x-stat color="mint" icon="i-rocket" label="پیشرفت دوره‌ها" :value="\App\Support\PersianUi::digits($overallProgress)" hint="{{ \App\Support\PersianUi::digits($completedLessonsCount) }} از {{ \App\Support\PersianUi::digits($totalLessonsCount) }} درس تکمیل شده" :href="route('student.growth')" />
 </div>
 
 <section class="card student-dashboard-contact">
