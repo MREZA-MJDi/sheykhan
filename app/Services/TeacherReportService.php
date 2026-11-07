@@ -176,7 +176,8 @@ final class TeacherReportService
             ->selectRaw('COUNT(*) as submissions_count')
             ->pluck('submissions_count', 'course_id');
 
-function ($course) use ($courseProgressData, $submissionsByCourse) {
+        $courseReports = $courses;
+        $courseReports->setCollection($courses->getCollection()->map(function ($course) use ($courseProgressData, $submissionsByCourse) {
             $progressRow = $courseProgressData->firstWhere('course_id', $course->id);
             $studentCount = $progressRow->student_count ?? 0;
             $progressAverage = $progressRow->progress_average ?? 0;
@@ -260,7 +261,7 @@ function ($course) use ($courseProgressData, $submissionsByCourse) {
             });
 
         $studentsNeedingFollowup = $studentProgressQuery()
-            ->havingRaw('AVG(progress.progress_percent) < ?', [25])
+            ->havingRaw('COALESCE(AVG(progress.progress_percent), 0) < ?', [25])
             ->orderBy('progress_average')
             ->orderBy('learners.id')
             ->limit(5)
