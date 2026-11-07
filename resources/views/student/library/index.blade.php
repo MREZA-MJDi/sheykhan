@@ -25,7 +25,7 @@
 @endif
 
 <section class="card">
-  <div class="chead"><h2>دوره‌های من</h2><x-tag tone="b">{{ \App\Support\PersianUi::digits($myCourses->count()) }} دوره</x-tag></div>
+  <div class="chead"><h2>دوره‌های من</h2><x-tag tone="b">{{ \App\Support\PersianUi::digits($myCourses->total()) }} دوره</x-tag></div>
   <div class="g3">
     @forelse($myCourses as $enrollment)
       <article class="card cc">
@@ -44,7 +44,7 @@
 </section>
 
 <section class="card">
-  <div class="chead"><h2>منابع و فایل‌های خریداری‌شده</h2><x-tag tone="b">{{ \App\Support\PersianUi::digits($products->count()) }} منبع</x-tag></div>
+  <div class="chead"><h2>منابع و فایل‌های خریداری‌شده</h2><x-tag tone="b">{{ \App\Support\PersianUi::digits($products->total()) }} منبع</x-tag></div>
   <div class="g3">
     @forelse($products as $entitlement)
       @php($order = $entitlement->orderItem?->order)
