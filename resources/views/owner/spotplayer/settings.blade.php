@@ -29,8 +29,12 @@
                 <p class="mt-1 text-sm leading-7 text-slate-500">این وضعیت از روی تنظیمات واقعی برنامه محاسبه می‌شود؛ ذخیره‌شدن یک کلید به‌تنهایی پخش واقعی را اثبات نمی‌کند.</p>
             </div>
             <span class="rounded-full px-3 py-2 text-xs font-black {{ $isConfigured ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">
-                {{ $isConfigured ? 'کلید و حالت اتصال تنظیم شده' : 'اتصال هنوز کامل تنظیم نشده' }}
+                {{ $isConfigured ? 'تنظیمات سرور آماده است' : 'کلید API یا حالت اجرا کامل نیست' }}
             </span>
+        </div>
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-950">
+            <strong>وضعیت پخش زنده</strong>
+            <p class="mt-1">این صفحه فقط آماده‌بودن تنظیمات سرور را نشان می‌دهد. تا وقتی یک ویدئوی آزمایشی با حساب واقعی ناشر و یک حساب دانش‌آموز پخش نشده باشد، اتصال زنده تأییدشده محسوب نمی‌شود. تست‌های خودکار با پاسخ شبیه‌سازی‌شده اجرا می‌شوند و جای تست واقعی را نمی‌گیرند.</p>
         </div>
         <div class="grid gap-3 sm:grid-cols-2">
             <div class="rounded-xl border border-slate-200 p-4">
@@ -106,7 +110,7 @@
             </li>
             <li class="flex gap-3">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-black text-indigo-800">۲</span>
-                <div><strong>یک دورهٔ مجزا و آزمایشی بساز</strong><p class="mt-1 text-sm leading-7 text-slate-600">یک ویدئوی مجاز و غیرحساس بارگذاری کن؛ شناسهٔ خارجی همان دوره را از پنل بردار. ID داخلی شیخان، slug دوره یا License Key را جای آن قرار نده.</p></div>
+                <div><strong>دوره و ویدئو را در پنل ناشر بساز</strong><p class="mt-1 text-sm leading-7 text-slate-600">ویدئوهای آموزشی را در همان پنل SpotPlayer و داخل یک دورهٔ جداگانه بارگذاری کن. شیخان در حال حاضر شناسهٔ دوره را به لایسنس دانش‌آموز متصل می‌کند؛ فایل MP4 را از فرم فایل‌های خصوصی شیخان به‌عنوان ویدئوی SpotPlayer بارگذاری نکن.</p></div>
             </li>
             <li class="flex gap-3">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-black text-indigo-800">۳</span>
