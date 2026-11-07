@@ -264,7 +264,7 @@
                         @endif
                     </span>
                     <span class="t">
-                        <b>{{ $student->name }}</b>
+                        <b><a href="{{ route('teacher.students.show', $student->id) }}" style="color:inherit;text-decoration:underline;text-decoration-color:var(--ln);text-underline-offset:3px">{{ $student->name }}</a></b>
                         <small>پیشرفت یادگیری: کمتر از ۲۵٪</small>
                     </span>
                     <div style="display:flex;align-items:center;gap:6px">
