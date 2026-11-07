@@ -38,12 +38,12 @@ class TeacherWorkspaceRedesignTest extends TestCase
             ->firstOrFail();
 
         $this->actingAs($teacher)
-            ->get(route('teacher.assignments.index', ['q' => 'ریاضی', 'status' => 'published']))
+            ->get(route('teacher.assignments.index', ['q' => 'ریاضی', 'status' => 'published', 'queue' => 'needs_review']))
             ->assertOk()
             ->assertSee('جست‌وجو و فیلتر تکالیف');
 
         $this->actingAs($teacher)
-            ->get(route('teacher.exams.index', ['q' => 'ریاضی', 'status' => 'draft']))
+            ->get(route('teacher.exams.index', ['q' => 'ریاضی', 'status' => 'draft', 'queue' => 'needs_review']))
             ->assertOk()
             ->assertSee('جست‌وجو و فیلتر آزمون‌ها');
 
