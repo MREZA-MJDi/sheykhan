@@ -87,7 +87,7 @@ class DashboardController extends Controller
                 ->whereIn('subject_id', $activeStudentIds)
                 ->with('subject:id,name,email')
                 ->orderByDesc('created_at')
-                ->limit(8)
+                ->limit(3)
                 ->get();
         }
 
