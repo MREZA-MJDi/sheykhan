@@ -15,6 +15,28 @@
 
     @if(session('success'))<div class="teacher-workspace-alert success">{{ session('success') }}</div>@endif
 
+    <form method="GET" action="{{ route('teacher.exams.index') }}" class="teacher-workspace-filters" role="search" aria-label="جست‌وجو و فیلتر آزمون‌ها">
+        <label class="teacher-workspace-filter-search">
+            <span>جست‌وجو</span>
+            <input type="search" name="q" value="{{ request('q') }}" maxlength="100" placeholder="نام، دوره یا کلاس…" autocomplete="off">
+        </label>
+        <label>
+            <span>وضعیت</span>
+            <select name="status">
+                <option value="" @selected(request('status') === '')>همه وضعیت‌ها</option>
+                <option value="draft" @selected(request('status') === 'draft')>پیش‌نویس</option>
+                <option value="published" @selected(request('status') === 'published')>منتشرشده</option>
+                <option value="closed" @selected(request('status') === 'closed')>بسته</option>
+            </select>
+        </label>
+        <div class="teacher-workspace-filter-actions">
+            <button type="submit" class="teacher-workspace-btn primary">اعمال فیلتر</button>
+            @if(request()->query())
+                <a href="{{ route('teacher.exams.index') }}" class="teacher-workspace-btn secondary">پاک‌کردن</a>
+            @endif
+        </div>
+    </form>
+
     <section class="teacher-workspace-stats">
         <div class="teacher-workspace-stat"><small>کل آزمون‌ها</small><strong>{{ App\Support\PersianUi::digits($exams->total()) }}</strong><span>آزمون تحت مدیریت</span></div>
         <div class="teacher-workspace-stat"><small>ارسال‌شده</small><strong>{{ App\Support\PersianUi::digits($exams->getCollection()->sum('submitted_attempts_count')) }}</strong><span>تلاش در این صفحه</span></div>
