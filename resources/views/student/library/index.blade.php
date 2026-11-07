@@ -38,6 +38,9 @@
       <x-empty icon="i-book" text="هنوز دورهٔ فعالی در کتابخانهٔ تو وجود ندارد." :href="route('store.index')" action="مشاهده فروشگاه" />
     @endforelse
   </div>
+  @if($myCourses->hasPages())
+    <div class="mt-4">{{ $myCourses->onEachSide(1)->links() }}</div>
+  @endif
 </section>
 
 <section class="card">
@@ -61,5 +64,8 @@
       <x-empty icon="i-file" text="هنوز منبع خریداری‌شده‌ای برای دریافت نداری." :href="route('store.index')" action="رفتن به فروشگاه" />
     @endforelse
   </div>
+  @if($products->hasPages())
+    <div class="mt-4">{{ $products->onEachSide(1)->links() }}</div>
+  @endif
 </section>
 @endsection
