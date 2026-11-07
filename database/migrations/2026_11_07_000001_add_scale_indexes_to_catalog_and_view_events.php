@@ -31,14 +31,12 @@ return new class extends Migration
 
         Schema::table('spot_player_playback_views', function (Blueprint $table): void {
             $table->index(['viewed_at', 'id'], 'spv_retention_time_idx');
-            $table->index(['course_id', 'viewed_at', 'id'], 'spv_course_time_id_idx');
         });
     }
 
     public function down(): void
     {
         Schema::table('spot_player_playback_views', function (Blueprint $table): void {
-            $table->dropIndex('spv_course_time_id_idx');
             $table->dropIndex('spv_retention_time_idx');
         });
 
