@@ -65,6 +65,12 @@
                             </div>
                         </div>
                         <div class="teacher-workspace-item-actions">
+                            @if($lesson->status === 'draft')
+                                <form method="POST" action="{{ route('teacher.lessons.destroy', $lesson) }}">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="teacher-workspace-link danger" data-confirm="این درس پیش‌نویس حذف شود؟ فقط در صورت نداشتن سابقه یا منبع آموزشی انجام می‌شود.">حذف درس</button>
+                                </form>
+                            @endif
                             <form method="POST" action="{{ route('teacher.lessons.media.store',$lesson) }}" enctype="multipart/form-data" class="flex flex-wrap items-center gap-2">
                                 @csrf
                                 <input type="file" name="media" required accept=".pdf,.jpg,.jpeg,.png,.webp,.zip" class="max-w-[210px] rounded-lg border border-slate-200 bg-white px-2 py-2 text-[8px]">
