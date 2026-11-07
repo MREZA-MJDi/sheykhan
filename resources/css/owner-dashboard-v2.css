@@ -3,6 +3,7 @@
 @import 'tailwindcss' source(none);
 @import './panels/owner/calendar.css';
 @import './panels/owner/components.css';
+@import './spotplayer.css';
 @source '../../resources/views/owner';
 @source '../../resources/views/components';
 @source '../../resources/views/layouts/owner.blade.php';
