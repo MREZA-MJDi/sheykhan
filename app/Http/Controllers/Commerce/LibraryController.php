@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\ProductEntitlement;
 use App\Services\StudentAccessService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 
 final class LibraryController extends Controller
