@@ -27,7 +27,6 @@ final class DirectMessageController extends Controller
             ->withQueryString();
 
         return view('teacher.direct-messages.index', [
-            'targets' => $this->contactableTargets($teacher),
             'messages' => $messages,
         ]);
     }
@@ -147,92 +146,5 @@ final class DirectMessageController extends Controller
             ->with('success', 'پاسخ برای والد ثبت شد.');
     }
 
-    /**
-     * Options are derived only from active classroom membership and current teaching assignments.
-     *
-     * @return Collection<int, object>
-     */
-    private function contactableTargets(User $teacher): Collection
-    {
-        $base = DB::table('classroom_student as student_membership')
-            ->join('classrooms', 'classrooms.id', '=', 'student_membership.classroom_id')
-            ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'classrooms.id')
-            ->join('courses', 'courses.id', '=', 'classrooms.course_id')
-            ->join('users as students', 'students.id', '=', 'student_membership.student_id')
-            ->join('academy_user as teacher_membership', function ($join): void {
-                $join->on('teacher_membership.user_id', '=', 'teaching_assignment.teacher_id')
-                    ->on('teacher_membership.academy_id', '=', 'classrooms.academy_id')
-                    ->where('teacher_membership.role', '=', 'teacher')
-                    ->where('teacher_membership.status', '=', 'active');
-            })
-            ->join('academy_user as student_membership_active', function ($join): void {
-                $join->on('student_membership_active.user_id', '=', 'students.id')
-                    ->on('student_membership_active.academy_id', '=', 'classrooms.academy_id')
-                    ->where('student_membership_active.role', '=', 'student')
-                    ->where('student_membership_active.status', '=', 'active');
-            })
-            ->where('teaching_assignment.teacher_id', $teacher->id)
-            ->where('classrooms.status', 'active')
-            ->where('student_membership.status', 'active')
-            ->where('students.status', 'active')
-            ->whereNull('students.deleted_at')
-            ->distinct();
 
-        $studentTargets = (clone $base)
-            ->orderBy('classrooms.title')->orderBy('students.name')
-            ->get([
-                'classrooms.id as classroom_id', 'classrooms.title as classroom_title',
-                'classrooms.academy_id', 'courses.id as course_id', 'courses.title as course_title',
-                'students.id as student_id', 'students.name as student_name',
-            ])
-            ->map(fn (object $row): object => (object) [
-                'key' => 'student:' . $row->classroom_id . ':' . $row->student_id,
-                'recipient_type' => 'student',
-                'classroom_id' => $row->classroom_id,
-                'classroom_title' => $row->classroom_title,
-                'academy_id' => $row->academy_id,
-                'course_id' => $row->course_id,
-                'course_title' => $row->course_title,
-                'student_id' => $row->student_id,
-                'student_name' => $row->student_name,
-                'recipient_id' => $row->student_id,
-                'recipient_name' => $row->student_name,
-            ]);
-
-        $parentTargets = (clone $base)
-            ->join('parent_student as parent_link', 'parent_link.student_id', '=', 'students.id')
-            ->join('users as parents', 'parents.id', '=', 'parent_link.parent_id')
-            ->join('academy_user as parent_membership', function ($join): void {
-                $join->on('parent_membership.user_id', '=', 'parents.id')
-                    ->on('parent_membership.academy_id', '=', 'classrooms.academy_id')
-                    ->where('parent_membership.role', '=', 'parent')
-                    ->where('parent_membership.status', '=', 'active');
-            })
-            ->where('parents.status', 'active')
-            ->whereNull('parents.deleted_at')
-            ->orderBy('classrooms.title')->orderBy('students.name')->orderBy('parents.name')
-            ->get([
-                'classrooms.id as classroom_id', 'classrooms.title as classroom_title',
-                'classrooms.academy_id', 'courses.id as course_id', 'courses.title as course_title',
-                'students.id as student_id', 'students.name as student_name',
-                'parents.id as parent_id', 'parents.name as parent_name',
-            ])
-            ->map(fn (object $row): object => (object) [
-                'key' => 'parent:' . $row->classroom_id . ':' . $row->student_id . ':' . $row->parent_id,
-                'recipient_type' => 'parent',
-                'classroom_id' => $row->classroom_id,
-                'classroom_title' => $row->classroom_title,
-                'academy_id' => $row->academy_id,
-                'course_id' => $row->course_id,
-                'course_title' => $row->course_title,
-                'student_id' => $row->student_id,
-                'student_name' => $row->student_name,
-                'recipient_id' => $row->parent_id,
-                'recipient_name' => $row->parent_name,
-            ]);
-
-        return $studentTargets->concat($parentTargets)
-            ->sortBy(fn (object $target): string => $target->classroom_title . ' ' . $target->student_name . ' ' . $target->recipient_name)
-            ->values();
-    }
 }

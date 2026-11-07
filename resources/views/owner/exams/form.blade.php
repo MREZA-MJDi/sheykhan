@@ -14,7 +14,7 @@
         <a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به آزمون‌ها ←</a>
     </header>
 
-    @if($courses->isEmpty())
+    @if(!$hasAssignableCourses)
         <section class="owner-exam-section">
             <h2>هنوز دوره‌ی قابل انتخاب وجود ندارد</h2>
             <p>برای ساخت آزمون، ابتدا یک دوره ایجاد کنید و دست‌کم یک مدرس را به آن تخصیص دهید.</p>
@@ -35,24 +35,37 @@
                 <div class="owner-exam-grid">
                     <label class="owner-exam-field">
                         <span>دوره</span>
-                        <select name="course_id" data-course-select required>
-                            <option value="">انتخاب دوره</option>
-                            @foreach($courses as $course)
-                                @php($primaryTeacher = $course->teachers->first())
-                                <option value="{{ $course->id }}" @selected((string) old('course_id', $exam->course_id) === (string) $course->id)>{{ $course->title }}@if($primaryTeacher) — مدرس: {{ $primaryTeacher->name }}@endif</option>
-                            @endforeach
-                        </select>
-                        <small class="owner-exam-help">آزمون به این دوره تعلق می‌گیرد؛ دوره‌های خارج از آموزشگاه در فهرست پذیرفته نمی‌شوند.</small>
+                        <div data-academy-option-picker data-type="exam-courses" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                            <input type="search" data-academy-option-search minlength="2" maxlength="80" autocomplete="off" placeholder="نام دوره را جست‌وجو کن…" class="mb-2 w-full" aria-label="جست‌وجوی دوره">
+                            <select name="course_id" data-academy-option-select required>
+                                <option value="" data-option-placeholder>ابتدا نام دوره را جست‌وجو کن…</option>
+                                @if($exam->course)
+                                    <option value="{{ $exam->course->id }}" selected>{{ $exam->course->title }}@if($exam->course->teachers->first()) — مدرس: {{ $exam->course->teachers->first()->name }}@endif</option>
+                                @elseif(old('course_id'))
+                                    <option value="{{ old('course_id') }}" selected>دورهٔ انتخاب‌شده از فرم قبلی</option>
+                                @endif
+                            </select>
+                            <p data-academy-option-status class="owner-exam-help">برای سبک ماندن فرم، فهرست کامل بارگذاری نمی‌شود؛ حداقل دو حرف از نام دوره را جست‌وجو کن.</p>
+                            <button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ دورهٔ بعدی</button>
+                        </div>
+                        <small class="owner-exam-help">فقط دوره‌های همین آموزشگاه که مدرس تخصیص‌یافته دارند قابل انتخاب‌اند.</small>
                         @error('course_id')<small class="text-rose-600">{{ $message }}</small>@enderror
                     </label>
                     <label class="owner-exam-field">
                         <span>کلاس / گروه <small class="text-slate-400">اختیاری</small></span>
-                        <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
-                            <option value="">همه دانش‌آموزان دوره</option>
-                            @foreach($classrooms as $classroom)
-                                <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected((string) old('classroom_id', $exam->classroom_id) === (string) $classroom->id)>{{ $classroom->title }} — {{ $classroom->course?->title }}</option>
-                            @endforeach
-                        </select>
+                        <div data-academy-option-picker data-type="exam-classrooms" data-depends-on-course="true" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                            <input type="search" data-academy-option-search minlength="2" maxlength="80" autocomplete="off" placeholder="نام کلاس را جست‌وجو کن…" class="mb-2 w-full" aria-label="جست‌وجوی کلاس">
+                            <select name="classroom_id" data-academy-option-select>
+                                <option value="" data-option-placeholder>همه دانش‌آموزان دوره</option>
+                                @if($exam->classroom)
+                                    <option value="{{ $exam->classroom->id }}" selected>{{ $exam->classroom->title }} — {{ $exam->course?->title }}</option>
+                                @elseif(old('classroom_id'))
+                                    <option value="{{ old('classroom_id') }}" selected>کلاس انتخاب‌شده از فرم قبلی</option>
+                                @endif
+                            </select>
+                            <p data-academy-option-status class="owner-exam-help">ابتدا دوره را انتخاب کن؛ سپس کلاس مرتبط را جست‌وجو کن.</p>
+                            <button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ کلاس بعدی</button>
+                        </div>
                         <small class="owner-exam-help">با انتخاب کلاس، آزمون به همان گروه محدود می‌شود؛ خالی گذاشتن آن دامنهٔ دوره را نگه می‌دارد.</small>
                         @error('classroom_id')<small class="text-rose-600">{{ $message }}</small>@enderror
                     </label>

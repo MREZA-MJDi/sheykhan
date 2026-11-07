@@ -77,7 +77,25 @@ class AcademyCommunicationTest extends TestCase
             ->get(route('teacher.communications.index'))
             ->assertOk()
             ->assertSee('ارسال پیام و اطلاعیه')
-            ->assertSee('کلاس یک');
+            ->assertSee('جست‌وجوی مخاطب'); 
+
+        $this->actingAs($w['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'announcement',
+                'type' => 'classrooms',
+                'q' => 'کلاس یک',
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.0.value', 'classroom:' . $w['classroom']->id . ':parents');
+
+        $this->actingAs($w['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'announcement',
+                'type' => 'students',
+                'q' => $w['student']->name,
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.0.value', 'student:' . $w['classroom']->id . ':' . $w['student']->id);
 
         $this->actingAs($w['teacher'])->post(route('teacher.communications.store'), [
             'target' => 'classroom:' . $w['classroom']->id . ':parents',

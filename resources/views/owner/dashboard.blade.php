@@ -155,6 +155,13 @@
             </div>
         </section>
 
+        <x-dashboard-next-step
+            :href="$canViewPeople && $firstAcademy ? route('owner.people.index', $firstAcademy) : route('owner.courses.index')"
+            :link-label="$canViewPeople && $firstAcademy ? 'رفتن به فهرست اعضا' : 'رفتن به فهرست دوره‌ها'"
+            eyebrow="از کجا شروع کنم؟">
+            برای ساخت و مدیریت دوره، از منوی «کلاس‌ها و آموزش» گزینهٔ «دوره‌ها» را باز کن. برای ثبت‌نام یا پیگیری دانش‌آموزها و خانواده‌ها، از منوی «افراد و ارتباطات» وارد «مدیریت اعضا» شو.
+        </x-dashboard-next-step>
+
         {{-- KPI band: one whole card is one destination, as in dashboard.zip. --}}
         @if($canViewPeople)
             <a class="card kpi c3 kpi-link" href="{{ route('owner.people.index', $firstAcademy) }}" style="--c:#22d3ee" aria-label="مشاهده اعضا؛ {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز فعال">

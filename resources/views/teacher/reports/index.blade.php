@@ -9,7 +9,7 @@
             <span class="teacher-workspace-kicker">مرکز تحلیل و ارزیابی</span>
             <h1 class="teacher-workspace-title">گزارش جامع عملکرد آموزشی</h1>
             <p class="teacher-workspace-description">
-                برآیند جامع پیشرفت یادگیری، نرخ حضور، وضعیت تکالیف، آزمون‌ها و کلاس‌های آنلاین تحت هدایت شما · تاریخ گزارش: {{ $reportDate }}
+                خلاصهٔ عملکرد دوره‌ها، کلاس‌ها، حضور، تکالیف و آزمون‌ها. برای پیگیری یک دانش‌آموز، از لینک «فهرست دانش‌آموزان» در منوی پنل وارد شو. · تاریخ گزارش: {{ $reportDate }}
             </p>
         </div>
         <div class="teacher-workspace-actions">
@@ -83,7 +83,7 @@
                 <h2>عملکرد دوره‌های آموزشی</h2>
                 <p>تعداد دانش‌آموزان، پیشرفت محتوا، تکالیف و جلسات آنلاین به تفکیک دوره</p>
             </div>
-            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($courseReports->count()) }} دوره</span>
+            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($metrics['courseCount']) }} دوره</span>
         </div>
         <div class="teacher-workspace-table-wrap">
             <table class="teacher-workspace-table">
@@ -150,6 +150,9 @@
                 </tbody>
             </table>
         </div>
+        @if($courseReports->hasPages())
+            <div class="mt-4" aria-label="صفحه‌بندی گزارش دوره‌ها">{{ $courseReports->onEachSide(1)->links() }}</div>
+        @endif
     </section>
 
     {{-- Classrooms & Attendance Section --}}
@@ -159,7 +162,7 @@
                 <h2>کلاس‌ها و آمار حضور و غیاب</h2>
                 <p>شاخص حضور دانش‌آموزان بر اساس جلسات برگزارشده و دقایق واقعی حضور</p>
             </div>
-            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($classroomReports->count()) }} کلاس فعال</span>
+            <span class="teacher-workspace-chip">{{ \App\Support\PersianUi::digits($metrics['classroomCount']) }} کلاس فعال</span>
         </div>
         <div class="teacher-workspace-grid">
             @forelse($classroomReports as $classroom)
@@ -210,6 +213,9 @@
                 </div>
             @endforelse
         </div>
+        @if($classroomReports->hasPages())
+            <div class="mt-4" aria-label="صفحه‌بندی گزارش کلاس‌ها">{{ $classroomReports->onEachSide(1)->links() }}</div>
+        @endif
     </section>
 
     {{-- Top Learners & Students Needing Follow-up --}}

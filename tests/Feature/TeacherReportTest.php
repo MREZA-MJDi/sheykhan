@@ -36,6 +36,46 @@ class TeacherReportTest extends TestCase
             ->assertSee('تاریخچه حضور و غیاب');
     }
 
+
+    public function test_teacher_report_pages_courses_and_classrooms_instead_of_loading_every_row(): void
+    {
+        $this->seed();
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $academy = $teacher->academies()->where('academies.status', 'active')->firstOrFail();
+
+        for ($index = 1; $index <= 22; $index++) {
+            $course = \App\Models\Course::query()->create([
+                'academy_id' => $academy->id,
+                'created_by' => $academy->owner_id,
+                'title' => 'گزارش دوره ' . $index,
+                'slug' => 'report-course-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(8)),
+                'status' => 'draft',
+                'access_type' => 'free',
+                'price' => 0,
+            ]);
+            $course->teachers()->attach($teacher->id, ['is_primary' => true]);
+
+            if ($index <= 13) {
+                $classroom = \App\Models\Classroom::query()->create([
+                    'academy_id' => $academy->id,
+                    'course_id' => $course->id,
+                    'title' => 'گزارش کلاس ' . $index,
+                    'code' => 'RPT-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                    'status' => 'active',
+                ]);
+                $classroom->teachers()->attach($teacher->id);
+            }
+        }
+
+        $response = $this->actingAs($teacher)->get(route('teacher.reports.index'));
+
+        $response->assertOk()
+            ->assertViewHas('courseReports', fn ($paginator): bool => $paginator->total() >= 22 && $paginator->perPage() === 20)
+            ->assertViewHas('classroomReports', fn ($paginator): bool => $paginator->total() >= 13 && $paginator->perPage() === 12)
+            ->assertSee('صفحه‌بندی گزارش دوره‌ها')
+            ->assertSee('صفحه‌بندی گزارش کلاس‌ها');
+    }
+
     public function test_unauthenticated_or_unauthorized_user_cannot_view_teacher_reports(): void
     {
         $this->get(route('teacher.reports.index'))

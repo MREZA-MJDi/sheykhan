@@ -44,6 +44,10 @@
   </div>
 </section>
 
+<x-dashboard-next-step href="{{ route('student.courses.index') }}" link-label="رفتن به دوره‌های من" eyebrow="ادامهٔ مسیر یادگیری">
+  برای ادامهٔ درس‌ها، «دوره‌های من» را باز کن. تکلیف‌ها و آزمون‌ها در بخش‌های جداگانهٔ منوی پنل هستند؛ پیام مدرس و اطلاعیه‌ها را هم از «پیام‌ها» دنبال کن.
+</x-dashboard-next-step>
+
 @if ($announcements->isNotEmpty())
 <section class="card">
   <div class="chead"><h2>اطلاعیه‌های آموزشگاه</h2><a class="pill" href="{{ route('student.messages.index') }}">همه پیام‌ها</a></div>

@@ -41,10 +41,25 @@
             </div>
             <p id="owner-resource-file-feedback" class="owner-image-feedback" data-owner-resource-feedback role="status" aria-live="polite">این بخش فایل خصوصی برای اعضای مجاز آموزشگاه می‌سازد؛ تصویر اینجا به بنر یا کاور عمومی سایت تبدیل نمی‌شود.</p>
             <div class="owner-form-two">
-                <label><span>دوره (اختیاری)</span><select name="course_id"><option value="">همهٔ دانش‌آموزان مجاز آموزشگاه</option>@foreach($courses as $course)<option value="{{ $course->id }}" @selected((string)old('course_id')===(string)$course->id)>{{ $course->title }}</option>@endforeach</select><small class="owner-field-help">با انتخاب دوره، دسترسی به دانش‌آموزان مجاز همان دوره محدود می‌شود؛ برای دسترسی در سطح آموزشگاه خالی بگذار.</small></label>
-                <label><span>کلاس (اختیاری)</span><select name="classroom_id"><option value="">بدون محدودیت کلاس</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)old('classroom_id')===(string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select><small class="owner-field-help">در صورت انتخاب کلاس، دسترسی به همان گروه محدودتر می‌شود.</small></label>
+                <div class="grid gap-2" data-academy-option-picker data-type="resource-courses" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                    <label><span>دوره (اختیاری)</span><input type="search" data-academy-option-search minlength="2" maxlength="80" placeholder="نام دوره را جست‌وجو کن…" class="w-full"><select name="course_id" data-academy-option-select><option value="" data-option-placeholder>همهٔ دانش‌آموزان مجاز آموزشگاه</option>@if(old('course_id'))<option value="{{ old('course_id') }}" selected>دورهٔ انتخاب‌شده از فرم قبلی</option>@endif</select></label>
+                    <p data-academy-option-status class="owner-field-help">برای انتخاب، دست‌کم دو حرف از نام دوره را جست‌وجو کن.</p>
+                    <button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ گزینهٔ بعدی</button>
+                    <small class="owner-field-help">با انتخاب دوره، دسترسی به دانش‌آموزان مجاز همان دوره محدود می‌شود؛ برای دسترسی در سطح آموزشگاه خالی بگذار.</small>
+                </div>
+                <div class="grid gap-2" data-academy-option-picker data-type="resource-classrooms" data-depends-on-course="true" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                    <label><span>کلاس (اختیاری)</span><input type="search" data-academy-option-search minlength="2" maxlength="80" placeholder="نام کلاس را جست‌وجو کن…" class="w-full"><select name="classroom_id" data-academy-option-select><option value="" data-option-placeholder>بدون محدودیت کلاس</option></select></label>
+                    <p data-academy-option-status class="owner-field-help">ابتدا دوره را انتخاب کن؛ سپس نام کلاس را جست‌وجو کن.</p>
+                    <button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ گزینهٔ بعدی</button>
+                    <small class="owner-field-help">در صورت انتخاب کلاس، دسترسی به همان گروه محدودتر می‌شود.</small>
+                </div>
             </div>
-            <label><span>درس مشخص (اختیاری)</span><select name="lesson_id"><option value="">بدون محدودیت درس</option>@foreach($lessons as $lesson)<option value="{{ $lesson->id }}" @selected((string)old('lesson_id')===(string)$lesson->id)>{{ $lesson->section?->course?->title }} — {{ $lesson->title }}</option>@endforeach</select><small class="owner-field-help">این فایل را به درس مشخص وصل کن تا در زمینهٔ همان درس نمایش داده شود.</small></label>
+            <div class="grid gap-2" data-academy-option-picker data-type="resource-lessons" data-depends-on-course="true" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                <label><span>درس مشخص (اختیاری)</span><input type="search" data-academy-option-search minlength="2" maxlength="80" placeholder="نام درس را جست‌وجو کن…" class="w-full"><select name="lesson_id" data-academy-option-select><option value="" data-option-placeholder>بدون محدودیت درس</option></select></label>
+                <p data-academy-option-status class="owner-field-help">ابتدا دوره را انتخاب کن؛ سپس نام درس را جست‌وجو کن.</p>
+                <button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ گزینهٔ بعدی</button>
+                <small class="owner-field-help">این فایل را به درس مشخص وصل کن تا در زمینهٔ همان درس نمایش داده شود.</small>
+            </div>
         </section>
         <aside class="owner-form-side">
             <section class="owner-form-section">

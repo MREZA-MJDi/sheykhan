@@ -16,8 +16,8 @@
                     </div>
                 </div>
                 <div class="public-library-counts">
-                    <span><strong>{{ App\Support\PersianUi::digits($myCourses->count() + $childCourses->count()) }}</strong><small>دوره فعال</small></span>
-                    <span><strong>{{ App\Support\PersianUi::digits($products->count()) }}</strong><small>منبع خریداری‌شده</small></span>
+                    <span><strong>{{ App\Support\PersianUi::digits($myCourses->total() + $childCourses->total()) }}</strong><small>دوره فعال</small></span>
+                    <span><strong>{{ App\Support\PersianUi::digits($products->total()) }}</strong><small>منبع خریداری‌شده</small></span>
                     <div class="public-library-motif" aria-hidden="true"><span></span><span></span><span></span></div>
                 </div>
             </header>
@@ -84,6 +84,9 @@
                             <a href="{{ route('courses.index') }}" class="public-library-inline-link">دیدن دوره‌ها <span aria-hidden="true">←</span></a>
                         </div>
                     @endif
+                    @if($childCourses->hasPages())
+                        <div class="mt-4">{{ $childCourses->onEachSide(1)->links() }}</div>
+                    @endif
                 </section>
             @elseif($isStudent)
                 <section class="public-library-section" aria-labelledby="my-courses-title">
@@ -114,6 +117,9 @@
                             <p>با ثبت‌نام در یک دوره رایگان یا تأیید خرید یک دوره پولی، مسیر یادگیری اینجا نمایش داده می‌شود.</p>
                             <a href="{{ route('courses.index') }}" class="public-library-inline-link">پیدا کردن دوره مناسب <span aria-hidden="true">←</span></a>
                         </div>
+                    @endif
+                    @if($myCourses->hasPages())
+                        <div class="mt-4">{{ $myCourses->onEachSide(1)->links() }}</div>
                     @endif
                 </section>
             @endif
@@ -156,6 +162,9 @@
                         <p>پس از تأیید پرداخت یک محصول دیجیتال، نسخه‌ی امن آن از همین صفحه قابل دریافت است.</p>
                         <a href="{{ route('store.index') }}" class="public-library-inline-link">رفتن به فروشگاه <span aria-hidden="true">←</span></a>
                     </div>
+                @endif
+                @if($products->hasPages())
+                    <div class="mt-4">{{ $products->onEachSide(1)->links() }}</div>
                 @endif
             </section>
         </x-layout.container>

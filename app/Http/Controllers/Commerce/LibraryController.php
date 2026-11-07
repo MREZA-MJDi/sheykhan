@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\ProductEntitlement;
 use App\Services\StudentAccessService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 
 final class LibraryController extends Controller
@@ -39,7 +40,9 @@ final class LibraryController extends Controller
                 'orderItem.order',
             ])
             ->latest('granted_at')
-            ->get();
+            ->orderByDesc('id')
+            ->paginate(12, ['*'], 'products_page')
+            ->withQueryString();
 
         $pendingOrders = Order::query()
             ->where('buyer_id', $user->id)
@@ -54,24 +57,27 @@ final class LibraryController extends Controller
             ->limit(5)
             ->get();
 
-        $myCourses = collect();
+        $emptyCoursesPaginator = fn (string $pageName) => new LengthAwarePaginator(
+            [], 0, 12, LengthAwarePaginator::resolveCurrentPage($pageName),
+            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'pageName' => $pageName],
+        );
+        $myCourses = $emptyCoursesPaginator('courses_page');
         if ($user->hasRole('student')) {
-            $courseIds = $studentAccess->enrolledCourseIds($user);
-            $myCourses = CourseEnrollment::query()
-                ->where('student_id', $user->id)
-                ->whereIn('course_id', $courseIds)
+            $myCourses = $studentAccess->enrolledCoursesQuery($user)
                 ->with([
                     'course.academy:id,name',
                     'course.teachers:id,name',
                     'course.media' => fn ($media) => $media->where('visibility', 'public')->where('status', 'active')->orderByPivot('sort_order'),
                 ])
                 ->orderByDesc('started_at')
-                ->get();
+                ->orderByDesc('id')
+                ->paginate(12, ['*'], 'courses_page')
+                ->withQueryString();
         }
 
-        $childCourses = collect();
+        $childCourses = $emptyCoursesPaginator('child_courses_page');
         if ($user->hasRole('parent')) {
-            $childIds = $user->children()->whereHas('roles', fn ($roles) => $roles->where('slug', 'student'))->pluck('users.id');
+            $childIds = $user->children()->whereHas('roles', fn ($roles) => $roles->where('slug', 'student'))->select('users.id');
             $childCourses = CourseEnrollment::query()
                 ->whereIn('student_id', $childIds)
                 ->active()
@@ -92,7 +98,9 @@ final class LibraryController extends Controller
                     'course.media' => fn ($media) => $media->where('visibility', 'public')->where('status', 'active')->orderByPivot('sort_order'),
                 ])
                 ->orderByDesc('started_at')
-                ->get();
+                ->orderByDesc('id')
+                ->paginate(12, ['*'], 'child_courses_page')
+                ->withQueryString();
         }
 
         $viewData = [

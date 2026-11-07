@@ -6,6 +6,7 @@ import './shared/persian-money.js';
 import './teacher/assessment-builder.js';
 import { bootFileUploadProgress } from './shared/upload-progress.js';
 import './teacher/course-media-uploader.js';
+import './teacher/recipient-picker.js';
 
 bootAlpine();
 bootSharedBehaviors();
