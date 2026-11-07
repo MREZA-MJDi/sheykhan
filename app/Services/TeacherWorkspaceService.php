@@ -122,7 +122,6 @@ final class TeacherWorkspaceService
             : 'active';
 
         return $teacher->classroomsAsTeacher()
-            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with('course:id,title')
             ->withCount([
@@ -157,6 +156,7 @@ final class TeacherWorkspaceService
     public function classroomsForSchedule(User $teacher): Collection
     {
         return $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with([
                 'course:id,title',
@@ -170,6 +170,7 @@ final class TeacherWorkspaceService
     {
         return $teacher->classroomsAsTeacher()
             ->whereKey($classroomId)
+            ->where('classrooms.status', 'active')
             ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with([
                 'course:id,title',
