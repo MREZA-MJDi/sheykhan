@@ -317,6 +317,7 @@ final class TeacherWorkspaceService
     {
         $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
         $status = request()->query('status');
+        $queue = request()->query('queue');
         $allowedStatuses = ['draft', 'published', 'closed'];
 
         return Assignment::query()
@@ -335,6 +336,9 @@ final class TeacherWorkspaceService
                     ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
             }))
             ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
+            ->when($queue === 'needs_review', fn ($query) => $query->whereHas('submissions', fn ($submission) => $submission
+                ->whereNotNull('submitted_at')
+                ->whereNull('graded_at')))
             ->latest('due_at')
             ->latest('id')
             ->paginate($perPage)
@@ -345,6 +349,7 @@ final class TeacherWorkspaceService
     {
         $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
         $status = request()->query('status');
+        $queue = request()->query('queue');
         $allowedStatuses = ['draft', 'published', 'closed'];
 
         return Exam::query()
@@ -365,6 +370,9 @@ final class TeacherWorkspaceService
                     ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
             }))
             ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
+            ->when($queue === 'needs_review', fn ($query) => $query->whereHas('attempts', fn ($attempt) => $attempt
+                ->whereNotNull('submitted_at')
+                ->whereIn('status', ['submitted', 'pending_review', 'needs_review'])))
             ->latest('starts_at')
             ->latest('id')
             ->paginate($perPage)
