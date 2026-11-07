@@ -311,21 +311,36 @@ final class OwnerDashboardService
                 ->count()
             : 0;
 
-        $teacherReports = $canViewReports ? DB::table('course_teacher as ct')
-            ->join('users', 'users.id', '=', 'ct.teacher_id')
-            ->join('courses', 'courses.id', '=', 'ct.course_id')
-            ->leftJoinSub(
-                $this->analytics->teacherRosterCountsQuery($academyIds),
-                'cohort_counts',
-                'cohort_counts.teacher_id',
-                '=',
-                'ct.teacher_id'
-            )
-            ->leftJoin('course_enrollments as enrollments', function ($join): void {
+        $teacherReportsQuery = $canViewReports
+            ? DB::table('course_teacher as ct')
+                ->join('users', 'users.id', '=', 'ct.teacher_id')
+                ->join('courses', 'courses.id', '=', 'ct.course_id')
+                ->leftJoinSub(
+                    $this->analytics->teacherRosterCountsQuery($academyIds),
+                    'cohort_counts',
+                    'cohort_counts.teacher_id',
+                    '=',
+                    'ct.teacher_id'
+                )
+                ->whereIn('courses.academy_id', $academyIds)
+                ->where('users.status', 'active')
+                ->whereNull('users.deleted_at')
+                ->whereExists(function ($membership): void {
+                    $membership->selectRaw('1')
+                        ->from('academy_user as active_teacher_membership')
+                        ->whereColumn('active_teacher_membership.user_id', 'ct.teacher_id')
+                        ->whereColumn('active_teacher_membership.academy_id', 'courses.academy_id')
+                        ->where('active_teacher_membership.role', 'teacher')
+                        ->where('active_teacher_membership.status', 'active');
+                })
+            : null;
+
+        // Financial rows are not even joined unless the viewer has finance access.
+        if ($teacherReportsQuery && $canViewFinance) {
+            $teacherReportsQuery->leftJoin('course_enrollments as enrollments', function ($join): void {
                 $join->on('enrollments.course_id', '=', 'courses.id')
                     ->where('enrollments.status', '=', 'active');
-            })
-            ->leftJoin('financial_transactions as transactions', function ($join) use ($periodStart, $now): void {
+            })->leftJoin('financial_transactions as transactions', function ($join) use ($periodStart, $now): void {
                 $join->on('transactions.enrollment_id', '=', 'enrollments.id')
                     ->where('transactions.status', '=', 'completed')
                     ->whereIn('transactions.currency', ['IRT', 'TOMAN', 'TOMANS'])
@@ -341,30 +356,25 @@ final class OwnerDashboardService
                                 ]);
                         });
                     });
-            })
-            ->whereIn('courses.academy_id', $academyIds)
-            ->where('users.status', 'active')
-            ->whereNull('users.deleted_at')
-            ->whereExists(function ($membership): void {
-                $membership->selectRaw('1')
-                    ->from('academy_user as active_teacher_membership')
-                    ->whereColumn('active_teacher_membership.user_id', 'ct.teacher_id')
-                    ->whereColumn('active_teacher_membership.academy_id', 'courses.academy_id')
-                    ->where('active_teacher_membership.role', 'teacher')
-                    ->where('active_teacher_membership.status', 'active');
-            })
-            ->groupBy('ct.teacher_id', 'users.name', 'cohort_counts.student_count')
-            ->select([
-                'ct.teacher_id',
-                'users.name',
-                DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
-                DB::raw('COALESCE(cohort_counts.student_count, 0) AS student_count'),
-                DB::raw("COALESCE(SUM(CASE WHEN transactions.type = 'enrollment_payment' THEN transactions.amount WHEN transactions.type = 'refund' THEN -transactions.amount ELSE 0 END),0) AS sales"),
-            ])
-            ->orderByDesc('student_count')
-            ->orderBy('users.name')
-            ->limit(8)
-            ->get()
+            });
+        }
+
+        $teacherReports = $teacherReportsQuery
+            ? $teacherReportsQuery
+                ->groupBy('ct.teacher_id', 'users.name', 'cohort_counts.student_count')
+                ->select([
+                    'ct.teacher_id',
+                    'users.name',
+                    DB::raw('COUNT(DISTINCT courses.id) AS course_count'),
+                    DB::raw('COALESCE(cohort_counts.student_count, 0) AS student_count'),
+                    $canViewFinance
+                        ? DB::raw("COALESCE(SUM(CASE WHEN transactions.type = 'enrollment_payment' THEN transactions.amount WHEN transactions.type = 'refund' THEN -transactions.amount ELSE 0 END),0) AS sales")
+                        : DB::raw('0 AS sales'),
+                ])
+                ->orderByDesc('student_count')
+                ->orderBy('users.name')
+                ->limit(8)
+                ->get()
             : collect();
 
         $dashboardTeacherIds = $teacherReports->pluck('teacher_id')->map(fn ($id) => (int) $id)->all();
