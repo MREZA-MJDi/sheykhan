@@ -9,7 +9,7 @@
             <span class="teacher-workspace-kicker">مرکز تحلیل و ارزیابی</span>
             <h1 class="teacher-workspace-title">گزارش جامع عملکرد آموزشی</h1>
             <p class="teacher-workspace-description">
-                برآیند جامع پیشرفت یادگیری، نرخ حضور، وضعیت تکالیف، آزمون‌ها و کلاس‌های آنلاین تحت هدایت شما · تاریخ گزارش: {{ $reportDate }}
+                خلاصهٔ عملکرد دوره‌ها، کلاس‌ها، حضور، تکالیف و آزمون‌ها. برای پیگیری یک دانش‌آموز، از لینک «فهرست دانش‌آموزان» در منوی پنل وارد شو. · تاریخ گزارش: {{ $reportDate }}
             </p>
         </div>
         <div class="teacher-workspace-actions">
@@ -150,6 +150,9 @@
                 </tbody>
             </table>
         </div>
+        @if($courseReports->hasPages())
+            <div class="mt-4" aria-label="صفحه‌بندی گزارش دوره‌ها">{{ $courseReports->onEachSide(1)->links() }}</div>
+        @endif
     </section>
 
     {{-- Classrooms & Attendance Section --}}
@@ -210,6 +213,9 @@
                 </div>
             @endforelse
         </div>
+        @if($classroomReports->hasPages())
+            <div class="mt-4" aria-label="صفحه‌بندی گزارش کلاس‌ها">{{ $classroomReports->onEachSide(1)->links() }}</div>
+        @endif
     </section>
 
     {{-- Top Learners & Students Needing Follow-up --}}
