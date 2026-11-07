@@ -217,7 +217,7 @@
                 <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>شروع ممیزی صفحات</span></a>
             </section>
         @endif
-        <div class="side-foot"><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
+        <div class="side-foot"><a href="{{ route('account.guide') }}"><svg class="ic"><use href="#i-book"/></svg>راهنمای پنل و بروشور</a><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
     </aside>
     @include('owner.partials.admin-main')
     @include('owner.partials.admin-command-palette')
