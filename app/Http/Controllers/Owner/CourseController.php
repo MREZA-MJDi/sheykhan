@@ -95,4 +95,20 @@ class CourseController extends Controller
         return redirect()->route('owner.courses.show', $course)
             ->with('success', 'دوره با موفقیت به‌روزرسانی شد.');
     }
+
+    public function archive(Course $course, CourseManagementService $service): RedirectResponse
+    {
+        $service->archive(request()->user(), $course);
+
+        return redirect()->route('owner.courses.index')
+            ->with('success', 'دوره از فهرست فعال خارج شد؛ سوابق ثبت‌نام و آموزشی حفظ شده‌اند.');
+    }
+
+    public function restore(Course $course, CourseManagementService $service): RedirectResponse
+    {
+        $service->restoreArchived(request()->user(), $course);
+
+        return redirect()->route('owner.courses.index')
+            ->with('success', 'دوره به‌صورت پیش‌نویس بازیابی شد؛ برای نمایش دوباره باید آن را منتشر کنی.');
+    }
 }
