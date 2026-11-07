@@ -99,7 +99,7 @@
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی و کپی‌رایت', 'icon' => 'scale', 'scope' => 'global'],
                 ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
                 ['route' => 'owner.academy.edit', 'permission' => 'academy.view', 'label' => 'تنظیمات آموزشگاه', 'icon' => 'cog', 'scope' => 'academy'],
-                ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'اتصال SpotPlayer', 'icon' => 'video', 'scope' => 'global'],
+                ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'SpotPlayer و لایسنس‌ها', 'icon' => 'video', 'scope' => 'global'],
             ],
         ],
     ];
