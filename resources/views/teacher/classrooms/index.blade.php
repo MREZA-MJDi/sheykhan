@@ -90,16 +90,17 @@
                     </div>
 
                     <div class="teacher-workspace-actions-row">
-                        <a href="{{ route('teacher.classrooms.edit', $classroom) }}" class="teacher-workspace-link secondary">ویرایش کلاس</a>
-                        <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">ثبت حضور و غیاب</a>
-                        <a href="{{ route('teacher.courses.progress',$classroom->course) }}" class="teacher-workspace-link">پیشرفت دوره</a>
-                        <a href="{{ route('teacher.students.index', ['classroom_id' => $classroom->id]) }}" class="teacher-workspace-link">فهرست همین کلاس</a>
                         @if($classroom->status === 'archived')
                             <form method="POST" action="{{ route('teacher.classrooms.restore', $classroom) }}">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="teacher-workspace-link" data-confirm="کلاس دوباره فعال شود؟">بازیابی کلاس</button>
                             </form>
+                            <span class="text-xs leading-6 text-slate-500">برای بازکردن فهرست دانش‌آموزان و حضور و غیاب، ابتدا کلاس را بازیابی کن.</span>
                         @else
+                            <a href="{{ route('teacher.classrooms.edit', $classroom) }}" class="teacher-workspace-link secondary">ویرایش کلاس</a>
+                            <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">ثبت حضور و غیاب</a>
+                            <a href="{{ route('teacher.courses.progress',$classroom->course) }}" class="teacher-workspace-link">پیشرفت دوره</a>
+                            <a href="{{ route('teacher.students.index', ['classroom_id' => $classroom->id]) }}" class="teacher-workspace-link">فهرست همین کلاس</a>
                             <form method="POST" action="{{ route('teacher.classrooms.archive', $classroom) }}">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="teacher-workspace-link danger" data-confirm="کلاس آرشیو شود؟ حضور و غیاب و سوابق آموزشی حذف نمی‌شوند.">آرشیو کلاس</button>
