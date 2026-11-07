@@ -313,6 +313,10 @@ final class TeacherWorkspaceService
 
     public function assignments(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
+        $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
+        $status = request()->query('status');
+        $allowedStatuses = ['draft', 'published', 'closed'];
+
         return Assignment::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
@@ -323,6 +327,12 @@ final class TeacherWorkspaceService
                     ->whereNotNull('submitted_at')
                     ->whereNull('graded_at'),
             ])
+            ->when($search !== '', fn ($query) => $query->where(function ($matches) use ($search): void {
+                $matches->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                    ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
+            }))
+            ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
             ->latest('due_at')
             ->latest('id')
             ->paginate($perPage)
@@ -331,6 +341,10 @@ final class TeacherWorkspaceService
 
     public function exams(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
+        $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
+        $status = request()->query('status');
+        $allowedStatuses = ['draft', 'published', 'closed'];
+
         return Exam::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
@@ -343,6 +357,12 @@ final class TeacherWorkspaceService
                 'attempts as submitted_attempts_count' => fn ($query) => $query->whereNotNull('submitted_at'),
                 'attempts as graded_attempts_count' => fn ($query) => $query->where('status', 'graded'),
             ])
+            ->when($search !== '', fn ($query) => $query->where(function ($matches) use ($search): void {
+                $matches->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                    ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
+            }))
+            ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
             ->latest('starts_at')
             ->latest('id')
             ->paginate($perPage)
@@ -351,10 +371,20 @@ final class TeacherWorkspaceService
 
     public function liveClasses(User $teacher, int $perPage = 15): LengthAwarePaginator
     {
+        $search = trim(mb_substr((string) request()->query('q', ''), 0, 100));
+        $status = request()->query('status');
+        $allowedStatuses = ['scheduled', 'live', 'ended', 'completed', 'published', 'cancelled'];
+
         return LiveClass::query()
             ->where('teacher_id', $teacher->id)
             ->whereHas('course.academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
             ->with(['course:id,title', 'classroom:id,title', 'recording:id,original_name,mime_type,size,status,visibility'])
+            ->when($search !== '', fn ($query) => $query->where(function ($matches) use ($search): void {
+                $matches->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $search . '%'))
+                    ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $search . '%'));
+            }))
+            ->when(is_string($status) && in_array($status, $allowedStatuses, true), fn ($query) => $query->where('status', $status))
             ->orderByDesc('scheduled_at')
             ->orderByDesc('id')
             ->paginate($perPage)
