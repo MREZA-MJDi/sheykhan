@@ -25,7 +25,8 @@ class AcademyCommunicationTest extends TestCase
             ->get(route('owner.communications.index', $w['academy']))
             ->assertOk()
             ->assertSee('اطلاعیه و پیام به خانواده‌ها')
-            ->assertSee('همه خانواده‌های آموزشگاه');
+            ->assertSee('همه خانواده‌های آموزشگاه')
+            ->assertDontSee('پیام مستقیم به دانش‌آموز ' . $w['student']->name);
 
         $this->actingAs($w['owner'])->post(route('owner.communications.store', $w['academy']), [
             'target' => 'all_parents',
