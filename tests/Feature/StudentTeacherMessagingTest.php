@@ -242,6 +242,118 @@ class StudentTeacherMessagingTest extends TestCase
             ->assertSee('این پیام برای خانواده‌های کلاس‌هایی است');
     }
 
+
+    public function test_teacher_recipient_search_is_scoped_and_returns_only_twenty_rows_per_page(): void
+    {
+        $workspace = $this->workspace();
+        $studentRole = $workspace['student']->roles()->firstOrFail();
+
+        for ($index = 1; $index <= 23; $index++) {
+            $student = User::factory()->create([
+                'name' => 'مخاطب جست‌وجو ' . str_pad((string) $index, 2, '0', STR_PAD_LEFT),
+                'status' => 'active',
+            ]);
+            $student->roles()->attach($studentRole->id);
+            $workspace['academy']->users()->attach($student->id, [
+                'role' => 'student',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+            $workspace['classroom']->students()->attach($student->id, [
+                'status' => 'active',
+                'enrolled_at' => now(),
+            ]);
+            $student->enrollments()->create([
+                'course_id' => $workspace['course']->id,
+                'classroom_id' => $workspace['classroom']->id,
+                'status' => 'active',
+                'paid_amount' => 0,
+                'started_at' => now(),
+            ]);
+        }
+
+        $firstPage = $this->actingAs($workspace['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'direct',
+                'type' => 'students',
+                'q' => 'مخاطب جست‌وجو',
+            ]));
+
+        $firstPage->assertOk()
+            ->assertJsonCount(20, 'data')
+            ->assertJsonPath('has_more', true);
+
+        $secondPage = $this->actingAs($workspace['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'direct',
+                'type' => 'students',
+                'q' => 'مخاطب جست‌وجو',
+                'page' => 2,
+            ]));
+
+        $secondPage->assertOk()
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('has_more', false);
+
+        $this->actingAs($workspace['otherTeacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'direct',
+                'type' => 'students',
+                'q' => 'مخاطب جست‌وجو',
+            ]))
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
+    public function test_teacher_recipient_search_finds_only_linked_parents_and_assigned_classrooms(): void
+    {
+        $workspace = $this->workspace();
+        $parent = User::factory()->create(['name' => 'والد مجاز تست', 'status' => 'active']);
+        $parentRole = $this->role('parent', ['dashboard.view']);
+        $parent->roles()->attach($parentRole->id);
+        $workspace['academy']->users()->attach($parent->id, [
+            'role' => 'parent',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        DB::table('parent_student')->insert([
+            'parent_id' => $parent->id,
+            'student_id' => $workspace['student']->id,
+            'relation' => 'parent',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($workspace['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'direct',
+                'type' => 'parents',
+                'q' => 'والد مجاز',
+            ]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.value', 'parent:' . $workspace['classroom']->id . ':' . $workspace['student']->id . ':' . $parent->id);
+
+        $this->actingAs($workspace['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'announcement',
+                'type' => 'classrooms',
+                'q' => 'کلاس تست مکاتبات',
+            ]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.value', 'classroom:' . $workspace['classroom']->id . ':parents');
+
+        $this->actingAs($workspace['otherTeacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'announcement',
+                'type' => 'classrooms',
+                'q' => 'کلاس تست مکاتبات',
+            ]))
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create(['status' => 'active']);
