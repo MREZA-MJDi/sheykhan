@@ -28,8 +28,8 @@
         <label>
             <span>وضعیت کلاس</span>
             <select name="status">
-                <option value="">همه وضعیت‌ها</option>
-                <option value="active" @selected(request('status') === 'active')>فعال</option>
+                <option value="all" @selected(request('status') === 'all')>همه وضعیت‌ها</option>
+                <option value="active" @selected(request('status', 'active') === 'active')>فعال</option>
                 <option value="archived" @selected(request('status') === 'archived')>آرشیو</option>
             </select>
         </label>
