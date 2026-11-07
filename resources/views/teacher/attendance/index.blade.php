@@ -24,9 +24,9 @@
                         <div class="teacher-workspace-card-title">{{ $classroom->title }}</div>
                         <div class="teacher-workspace-card-subtitle">{{ $classroom->course?->title ?: 'بدون دوره' }}</div>
                         <div class="teacher-workspace-mini-stats">
-                            <div class="teacher-workspace-mini-stat"><strong>{{ App\\Support\\PersianUi::digits($classroom->active_students_count) }}</strong><span>دانش‌آموز</span></div>
-                            <div class="teacher-workspace-mini-stat"><strong>{{ $classroom->capacity ? App\\Support\\PersianUi::digits($classroom->capacity) : '—' }}</strong><span>ظرفیت</span></div>
-                            <div class="teacher-workspace-mini-stat"><strong>{{ App\\Support\\PersianUi::digits($classroom->attendance_today_count ?? 0) }}</strong><span>ثبت امروز</span></div>
+                            <div class="teacher-workspace-mini-stat"><strong>{{ App\Support\PersianUi::digits($classroom->active_students_count) }}</strong><span>دانش‌آموز</span></div>
+                            <div class="teacher-workspace-mini-stat"><strong>{{ $classroom->capacity ? App\Support\PersianUi::digits($classroom->capacity) : '—' }}</strong><span>ظرفیت</span></div>
+                            <div class="teacher-workspace-mini-stat"><strong>{{ App\Support\PersianUi::digits($classroom->attendance_today_count ?? 0) }}</strong><span>ثبت امروز</span></div>
                         </div>
                         <div class="teacher-workspace-actions-row">
                             <a href="{{ route('teacher.classrooms.attendance.edit',$classroom) }}" class="teacher-workspace-link primary">ثبت یا اصلاح حضور امروز</a>
@@ -44,7 +44,7 @@
     <section class="teacher-workspace-card">
         <div class="teacher-workspace-card-head">
             <div><h2>تاریخچه حضور و غیاب</h2><p>سوابق به‌صورت صفحه‌بندی‌شده نمایش داده می‌شوند؛ فیلترها را می‌توانی ترکیب کنی.</p></div>
-            <span class="teacher-workspace-chip">{{ App\\Support\\PersianUi::digits($historySummary->records_count ?? 0) }} رکورد</span>
+            <span class="teacher-workspace-chip">{{ App\Support\PersianUi::digits($historySummary->records_count ?? 0) }} رکورد</span>
         </div>
 
         <form method="GET" action="{{ route('teacher.attendance.index') }}" class="teacher-workspace-filters">
@@ -77,10 +77,10 @@
         </form>
 
         <div class="teacher-workspace-stats" style="padding:0 14px 14px">
-            <article class="teacher-workspace-stat"><span>حاضر</span><strong>{{ App\\Support\\PersianUi::digits($historySummary->present_count ?? 0) }}</strong></article>
-            <article class="teacher-workspace-stat"><span>با تأخیر</span><strong>{{ App\\Support\\PersianUi::digits($historySummary->late_count ?? 0) }}</strong></article>
-            <article class="teacher-workspace-stat"><span>غایب</span><strong>{{ App\\Support\\PersianUi::digits($historySummary->absent_count ?? 0) }}</strong></article>
-            <article class="teacher-workspace-stat"><span>موجه</span><strong>{{ App\\Support\\PersianUi::digits($historySummary->excused_count ?? 0) }}</strong></article>
+            <article class="teacher-workspace-stat"><span>حاضر</span><strong>{{ App\Support\PersianUi::digits($historySummary->present_count ?? 0) }}</strong></article>
+            <article class="teacher-workspace-stat"><span>با تأخیر</span><strong>{{ App\Support\PersianUi::digits($historySummary->late_count ?? 0) }}</strong></article>
+            <article class="teacher-workspace-stat"><span>غایب</span><strong>{{ App\Support\PersianUi::digits($historySummary->absent_count ?? 0) }}</strong></article>
+            <article class="teacher-workspace-stat"><span>موجه</span><strong>{{ App\Support\PersianUi::digits($historySummary->excused_count ?? 0) }}</strong></article>
         </div>
 
         <div class="teacher-workspace-table-wrap">
@@ -89,14 +89,14 @@
                 <tbody>
                 @forelse($attendanceHistory as $record)
                     <tr>
-                        <td>{{ App\\Support\\PersianUi::date($record->attendance_date) }}</td>
+                        <td>{{ App\Support\PersianUi::date($record->attendance_date) }}</td>
                         <td><a href="{{ route('teacher.students.show', $record->student_id) }}">{{ $record->student?->name ?? 'دانش‌آموز حذف‌شده' }}</a></td>
                         <td>{{ $record->classroom?->title ?? '—' }}</td>
                         <td>
                             @php($statusLabels = ['present' => 'حاضر', 'late' => 'با تأخیر', 'absent' => 'غایب', 'excused' => 'موجه'])
                             <span class="teacher-workspace-chip">{{ $statusLabels[$record->status] ?? $record->status }}</span>
                         </td>
-                        <td>{{ $record->attended_minutes !== null ? App\\Support\\PersianUi::digits($record->attended_minutes) : '—' }} / {{ $record->scheduled_minutes !== null ? App\\Support\\PersianUi::digits($record->scheduled_minutes) : '—' }}</td>
+                        <td>{{ $record->attended_minutes !== null ? App\Support\PersianUi::digits($record->attended_minutes) : '—' }} / {{ $record->scheduled_minutes !== null ? App\Support\PersianUi::digits($record->scheduled_minutes) : '—' }}</td>
                         <td><a class="teacher-workspace-link" href="{{ route('teacher.classrooms.attendance.edit', ['classroom' => $record->classroom_id, 'attendance_date' => $record->attendance_date->format('Y-m-d')]) }}">مشاهده / اصلاح</a></td>
                     </tr>
                 @empty
