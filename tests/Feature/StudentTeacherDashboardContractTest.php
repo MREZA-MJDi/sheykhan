@@ -69,7 +69,7 @@ class StudentTeacherDashboardContractTest extends TestCase
     public function test_teacher_dashboard_roster_uses_real_student_profile_photos(): void
     {
         $this->seed();
-        \\Illuminate\\Support\\Facades\\Storage::fake('local');
+        \Illuminate\Support\Facades\Storage::fake('local');
 
         $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
         $classroom = $teacher->classroomsAsTeacher()
@@ -85,10 +85,10 @@ class StudentTeacherDashboardContractTest extends TestCase
                 ->where('status', 'active'))
             ->firstOrFail();
 
-        $profile = \\App\\Models\\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
+        $profile = \App\Models\StudentProfile::query()->firstOrCreate(['user_id' => $student->id]);
         $path = 'students/' . $student->id . '/avatar.webp';
-        \\Illuminate\\Support\\Facades\\Storage::disk('local')->put($path, 'real-avatar-fixture');
-        $media = \\App\\Models\\Media::query()->create([
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'real-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
             'uploaded_by' => $student->id,
             'disk' => 'local',
             'path' => $path,
@@ -115,7 +115,10 @@ class StudentTeacherDashboardContractTest extends TestCase
 
         $response->assertViewHas('classroomRosterPreviews', function ($previews) use ($classroom, $student, $media): bool {
             $classPreview = $previews->firstWhere('classroom_id', $classroom->id);
-            $studentPreview = $classPreview['students']->firstWhere('id', $student->id) ?? null;
+            if (!is_array($classPreview)) {
+                return false;
+            }
+            $studentPreview = $classPreview['students']->firstWhere('id', $student->id);
 
             return $studentPreview !== null && $studentPreview->avatar_url === $media->url();
         });
@@ -124,18 +127,18 @@ class StudentTeacherDashboardContractTest extends TestCase
     public function test_teacher_dashboard_hero_uses_the_saved_teacher_avatar(): void
     {
         $this->seed();
-        \\Illuminate\\Support\\Facades\\Storage::fake('local');
+        \Illuminate\Support\Facades\Storage::fake('local');
 
         $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
-        $profile = \\App\\Models\\TeacherProfile::query()->firstOrCreate(
+        $profile = \App\Models\TeacherProfile::query()->firstOrCreate(
             ['user_id' => $teacher->id],
             ['is_verified' => true, 'is_public' => true],
         );
         $profile->forceFill(['is_public' => true])->save();
 
         $path = 'teachers/' . $teacher->id . '/teacher-avatar.webp';
-        \\Illuminate\\Support\\Facades\\Storage::disk('local')->put($path, 'teacher-avatar-fixture');
-        $media = \\App\\Models\\Media::query()->create([
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'teacher-avatar-fixture');
+        $media = \App\Models\Media::query()->create([
             'uploaded_by' => $teacher->id,
             'disk' => 'local',
             'path' => $path,
@@ -347,6 +350,7 @@ class StudentTeacherDashboardContractTest extends TestCase
     public function test_teacher_and_student_portals_use_role_owned_presentation_and_shared_behavior_modules(): void
     {
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
+        $teacherWorkspaceCss = file_get_contents(resource_path('css/teacher/workspace-redesign.css'));
         $teacherJs = file_get_contents(resource_path('js/teacher.js'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
         $studentJs = file_get_contents(resource_path('js/student.js'));
@@ -363,7 +367,7 @@ class StudentTeacherDashboardContractTest extends TestCase
         $vite = file_get_contents(base_path('vite.config.js'));
 
         foreach ([
-            $teacherCss, $teacherJs, $studentCss, $studentJs, $calendarCore,
+            $teacherCss, $teacherWorkspaceCss, $teacherJs, $studentCss, $studentJs, $calendarCore,
             $calendarRuntime, $moneyRuntime, $uploadRuntime, $panelRuntime,
             $teacherLayout, $studentLayout, $dashboard, $teacherProfileView,
             $mobileNavigation, $vite,
@@ -388,7 +392,9 @@ class StudentTeacherDashboardContractTest extends TestCase
         $this->assertStringNotContainsString("@source '../../resources/views/components';", $teacherCss);
         $this->assertStringContainsString("@source '../../resources/views/student';", $studentCss);
         $this->assertStringContainsString("@import './teacher/workspace-redesign.css';", $teacherCss);
-        $this->assertStringContainsString('.teacher-workspace-page', $teacherCss);
+        $this->assertStringContainsString('.teacher-home__metric', $teacherWorkspaceCss);
+        $this->assertStringContainsString('.teacher-home__quick', $teacherWorkspaceCss);
+        $this->assertStringContainsString('.teacher-home__panel', $teacherWorkspaceCss);
         $this->assertStringContainsString('.teacher-profile-mini', $teacherCss);
         $this->assertStringContainsString('prefers-reduced-motion', $teacherCss);
         $this->assertStringContainsString('@media(max-width:860px)', $teacherCss);
