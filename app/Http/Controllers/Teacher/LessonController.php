@@ -9,9 +9,11 @@ use App\Http\Requests\Teacher\Lesson\UpdateLessonRequest;
 use App\Models\Course;
 use App\Models\CourseSection;
 use App\Models\LearningResource;
+use App\Services\MediaService;
 use Illuminate\Support\Facades\DB;
 use App\Models\Lesson;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class LessonController extends Controller
@@ -108,5 +110,56 @@ class LessonController extends Controller
         });
 
         return back()->with('success', 'درس به‌روزرسانی شد.');
+    }
+
+    public function destroy(Request $request, Lesson $lesson, MediaService $media): RedirectResponse
+    {
+        $course = $lesson->section()->with('course')->firstOrFail()->course;
+
+        abort_unless(
+            $course->teachers()->whereKey($request->user()->id)->exists()
+                && $course->academy?->status === 'active',
+            403
+        );
+
+        $files = collect();
+
+        DB::transaction(function () use ($request, $lesson, $media, &$files): void {
+            $locked = Lesson::query()->whereKey($lesson->id)->lockForUpdate()->firstOrFail();
+            $course = $locked->section()->with('course')->firstOrFail()->course;
+
+            abort_unless(
+                $course->teachers()->whereKey($request->user()->id)->exists()
+                    && $course->academy?->status === 'active',
+                403
+            );
+
+            if ($locked->status !== 'draft') {
+                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                    'lesson' => 'برای حذف درس منتشرشده، ابتدا آن را از انتشار خارج کن.',
+                ]);
+            }
+
+            if ($locked->progress()->exists() || LearningResource::query()->where('lesson_id', $locked->id)->exists()) {
+                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                    'lesson' => 'برای این درس سابقهٔ پیشرفت یا منبع آموزشی ثبت شده است؛ حذف مجاز نیست تا سوابق حفظ شوند.',
+                ]);
+            }
+
+            $files = $locked->media()->get();
+            foreach ($files as $file) {
+                $media->detach($file, $locked);
+            }
+
+            $locked->delete();
+        }, 3);
+
+        foreach ($files->unique('id') as $file) {
+            if ($file->attachments()->doesntExist()) {
+                $media->delete($file);
+            }
+        }
+
+        return back()->with('success', 'درس پیش‌نویس و فایل‌های بدون استفادهٔ آن حذف شدند.');
     }
 }
