@@ -27,6 +27,7 @@ use App\Http\Controllers\PublicSite\StoreController;
 use App\Http\Controllers\PublicSite\ProductController;
 use App\Http\Controllers\PublicSite\SeoController as PublicSeoController;
 use App\Http\Controllers\PublicSite\AcademyContentController;
+use App\Http\Controllers\PublicSite\HeroChallengeAnswerController;
 use App\Http\Controllers\Student\AchievementController as StudentAchievementController;
 use App\Http\Controllers\Student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
@@ -61,6 +62,10 @@ use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::post('/hero-challenges/{heroChallenge}/answer', [HeroChallengeAnswerController::class, 'store'])
+    ->middleware('throttle:8,1')
+    ->whereNumber('heroChallenge')
+    ->name('hero-challenges.answer');
 Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
 Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
 Route::get('/courses/{course}/lessons/{lesson}/preview', [CourseController::class, 'preview'])->name('courses.lessons.preview');
@@ -382,6 +387,9 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
         Route::get('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'edit'])->name('academy.banners.edit');
         Route::patch('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'update'])->middleware('throttle:10,1')->name('academy.banners.update');
         Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->name('website.index');
+        Route::get('/website/hero-challenges', [\App\Http\Controllers\Owner\HeroChallengeController::class, 'index'])->name('website.hero-challenges.index');
+        Route::get('/website/hero-challenges/{challenge}/edit', [\App\Http\Controllers\Owner\HeroChallengeController::class, 'edit'])->whereNumber('challenge')->name('website.hero-challenge.edit');
+        Route::patch('/website/hero-challenges/{challenge}', [\App\Http\Controllers\Owner\HeroChallengeController::class, 'update'])->whereNumber('challenge')->middleware('throttle:10,1')->name('website.hero-challenge.update');
         Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->name('website.hero.edit');
         Route::patch('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'update'])->middleware('throttle:10,1')->name('website.hero.update');
 

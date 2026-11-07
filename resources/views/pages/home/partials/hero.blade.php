@@ -1,145 +1,56 @@
 @php
-    // Hero slides come only from HomeHeroSlide; academy banners are rendered separately below.
     $heroSlides = collect($homeHeroSlides ?? [])
         ->filter(fn ($slide) => filled($slide['image'] ?? null))
         ->values();
-
-    $fallbackImage = asset('images/home/hero-fallback.svg');
-
-    if ($heroSlides->isEmpty()) {
-        $heroSlides = collect([[
-            'image' => $fallbackImage,
-            'mobileImage' => null,
-            'academy' => 'شیخان؛ آموزش، رشد، آینده',
-            'title' => null,
-            'description' => null,
-            'ctaLabel' => null,
-            'ctaUrl' => null,
-            'cropX' => 50,
-            'cropY' => 46,
-            'mobileCropX' => 54,
-            'mobileCropY' => 50,
-        ]]);
-    }
 @endphp
 
-<section
-    class="sheykhan-home-hero"
-    role="region"
-    aria-label="معرفی شیخان"
-    aria-labelledby="sheykhan-home-hero-title"
-    aria-roledescription="carousel"
-    data-home-hero
->
-    <h1 id="sheykhan-home-hero-title" class="sr-only">آینده‌ات را با یادگیری بساز | شیخان</h1>
-
-    <div class="sheykhan-home-hero__slides">
-        @foreach($heroSlides as $slide)
-            <article
-                class="sheykhan-home-hero__slide{{ $loop->first ? ' is-active' : '' }}"
-                data-home-hero-slide
-                aria-hidden="{{ $loop->first ? 'false' : 'true' }}"
-                aria-label="اسلاید {{ $loop->iteration }} از {{ $loop->count }}"
-                style="--hero-crop-x: {{ (int) ($slide['cropX'] ?? 50) }}%; --hero-crop-y: {{ (int) ($slide['cropY'] ?? 46) }}%; --hero-mobile-crop-x: {{ (int) ($slide['mobileCropX'] ?? 54) }}%; --hero-mobile-crop-y: {{ (int) ($slide['mobileCropY'] ?? 50) }}%;"
-            >
-                <div class="sheykhan-home-hero__media" aria-hidden="true">
-                    <picture>
-                        @if(filled($slide['mobileImage'] ?? null))
-                            <source
-                                srcset="{{ $slide['mobileImage'] }}"
-                                media="(max-width: 640px)"
-                                data-home-hero-mobile-source
-                            >
-                        @endif
-                        <img
-                            src="{{ $slide['image'] }}"
-                            data-home-hero-image
-                            data-desktop-src="{{ $slide['image'] }}"
-                            data-fallback-src="{{ $fallbackImage }}"
-                            alt=""
-                            decoding="async"
-                            loading="{{ $loop->first ? 'eager' : 'lazy' }}"
-                            fetchpriority="{{ $loop->first ? 'high' : 'low' }}"
-                        >
-                    </picture>
-                </div>
-
-                <div class="sheykhan-home-hero__overlay" aria-hidden="true"></div>
-
-                <div class="sheykhan-home-hero__content">
-                    <p class="sheykhan-home-hero__eyebrow">
-                        <span aria-hidden="true"></span>
-                        {{ $slide['academy'] ?: 'شیخان؛ آموزش، رشد، آینده' }}
-                    </p>
-
-                    <h2 class="sheykhan-home-hero__title" @if(filled($slide['title'] ?? null)) data-hero-slide-title @endif>
-                        @if(filled($slide['title'] ?? null))
-                            {{ $slide['title'] }}
-                        @else
-                            آینده‌ات را با <span>یادگیری</span> بساز
-                        @endif
-                    </h2>
-
-                    <p class="sheykhan-home-hero__description">
-                        {{ $slide['description'] ?: 'از دوره و کلاس تا تمرین و آزمون؛ مسیر یادگیری‌ات را یکپارچه و روشن دنبال کن.' }}
-                    </p>
-
-                    <div class="sheykhan-home-hero__actions">
-                        @if(filled($slide['ctaUrl'] ?? null) && filled($slide['ctaLabel'] ?? null))
-                            <a href="{{ $slide['ctaUrl'] }}" class="sheykhan-home-hero__cta">
-                                {{ $slide['ctaLabel'] }}
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M19 12H5m6 6-6-6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </a>
-                        @else
-                            <a href="{{ route('courses.index') }}" class="sheykhan-home-hero__cta">
-                                مشاهده دوره‌ها
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M19 12H5m6 6-6-6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </a>
-                        @endif
-
-                        <a
-                            href="{{ auth()->check() ? route('dashboard') : route('login') }}"
-                            class="sheykhan-home-hero__secondary"
-                        >
-                            ورود به فضای یادگیری
-                        </a>
-                    </div>
-                </div>
-            </article>
-        @endforeach
-    </div>
-
-    <span class="sheykhan-home-hero__corner sheykhan-home-hero__corner--top" aria-hidden="true"></span>
-    <span class="sheykhan-home-hero__corner sheykhan-home-hero__corner--bottom" aria-hidden="true"></span>
-
-    @if($heroSlides->count() > 1)
-        <div class="sheykhan-home-hero__controls" aria-label="کنترل اسلایدر">
-            <button type="button" data-home-hero-prev class="sheykhan-home-hero__arrow" aria-label="اسلاید قبلی">
-                <span aria-hidden="true">‹</span>
-            </button>
-
-            <div class="sheykhan-home-hero__dots">
-                @foreach($heroSlides as $slide)
-                    <button
-                        type="button"
-                        data-home-hero-dot
-                        data-index="{{ $loop->index }}"
-                        class="sheykhan-home-hero__dot{{ $loop->first ? ' is-active' : '' }}"
-                        aria-label="نمایش اسلاید {{ $loop->iteration }}"
-                        aria-pressed="{{ $loop->first ? 'true' : 'false' }}"
-                    ></button>
-                @endforeach
+<section class="shx-public-hero" aria-labelledby="shx-public-hero-title">
+    <span class="shx-public-hero__shape shx-public-hero__shape--circle" aria-hidden="true"></span>
+    <span class="shx-public-hero__shape shx-public-hero__shape--square" aria-hidden="true"></span>
+    <span class="shx-public-hero__shape shx-public-hero__shape--triangle" aria-hidden="true"></span>
+    <div class="wrap shx-public-hero__grid">
+        <div class="shx-public-hero__copy">
+            <span class="shx-public-eyebrow">آموزش، تمرین و پیشرفت</span>
+            <h1 id="shx-public-hero-title">مغزت را <em>محک</em> بزن، مسیرت را هوشمندانه انتخاب کن.</h1>
+            <p class="shx-public-hero__lead">کلاس زنده، آزمون و کارنامه‌ای که مسیر یادگیری را روشن‌تر می‌کند. شروعش فقط یک سؤال است.</p>
+            <div class="shx-public-hero__actions">
+                <a class="shx-public-button shx-public-button--blue" href="#hero-challenge">شروع چالش هوش <span aria-hidden="true">←</span></a>
+                <a class="shx-public-button shx-public-button--outline" href="{{ route('courses.index') }}">دیدن دوره‌ها</a>
             </div>
-
-            <span class="sheykhan-home-hero__count" data-home-hero-count aria-hidden="true">۱ / {{ \App\Support\PersianUi::digits($heroSlides->count()) }}</span>
-
-            <button type="button" data-home-hero-next class="sheykhan-home-hero__arrow" aria-label="اسلاید بعدی">
-                <span aria-hidden="true">›</span>
-            </button>
+            <div class="shx-public-hero__chips" aria-label="امکانات سامانه"><span>دوره‌های آموزشی</span><span>کلاس و تمرین</span><span>گزارش پیشرفت</span></div>
         </div>
-    @endif
+        <div class="shx-public-hero__challenge">
+            @if(!empty($heroChallenge))
+                <x-public.hero-challenge :challenge="$heroChallenge" />
+            @else
+                <div class="shx-public-puzzle shx-public-puzzle--empty" id="hero-challenge">
+                    <span class="shx-public-puzzle__eyebrow">چالش هوش شیخان</span>
+                    <h2>آماده‌ای مهارت حل مسئله‌ات را محک بزنی؟</h2>
+                    <p>چالش جدیدی در حال آماده‌سازی است. فعلاً دوره‌های منتشرشده را ببین.</p>
+                    <a class="shx-public-button shx-public-button--light" href="{{ route('courses.index') }}">مشاهده دوره‌ها</a>
+                </div>
+            @endif
+        </div>
+    </div>
 </section>
+
+@if($heroSlides->isNotEmpty())
+    <section class="shx-public-banners" aria-label="بنرهای ویژه شیخان">
+        <div class="wrap"><div class="shx-public-banner-grid">
+            @foreach($heroSlides as $slide)
+                @if(filled($slide['ctaUrl'] ?? null))<a class="shx-public-banner" href="{{ $slide['ctaUrl'] }}">@else<article class="shx-public-banner">@endif
+                    <picture>
+                        @if(filled($slide['mobileImage'] ?? null))<source srcset="{{ $slide['mobileImage'] }}" media="(max-width: 640px)">@endif
+                        <img src="{{ $slide['image'] }}" alt="{{ $slide['title'] ?: 'بنر شیخان' }}" loading="lazy" decoding="async" style="object-position: {{ (int) ($slide['cropX'] ?? 50) }}% {{ (int) ($slide['cropY'] ?? 50) }}%;">
+                    </picture>
+                    <span class="shx-public-banner__overlay">
+                        @if(filled($slide['academy'] ?? null))<small>{{ $slide['academy'] }}</small>@endif
+                        @if(filled($slide['title'] ?? null))<strong>{{ $slide['title'] }}</strong>@endif
+                        @if(filled($slide['description'] ?? null))<span>{{ $slide['description'] }}</span>@endif
+                        @if(filled($slide['ctaLabel'] ?? null))<b>{{ $slide['ctaLabel'] }} ←</b>@endif
+                    </span>
+                @if(filled($slide['ctaUrl'] ?? null))</a>@else</article>@endif
+            @endforeach
+        </div></div>
+    </section>
+@endif

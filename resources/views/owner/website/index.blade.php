@@ -19,6 +19,15 @@
         </a>
     </section>
 
+    <section class="website-hero-control-card">
+        <div class="website-hero-control-copy">
+            <span>چالش تعاملی صفحه اصلی</span>
+            <h2>مدیریت بانک معماهای Hero</h2>
+            <p>صورت سؤال، دنباله، گزینه‌ها، پاسخ صحیح، توضیح و ترتیب نمایش را از بانک معماها مدیریت کن.</p>
+        </div>
+        <a href="{{ route('owner.website.hero-challenges.index') }}" class="course-primary-btn">مدیریت معماها</a>
+    </section>
+
     @if($canManagePublicHero)
         <section class="website-hero-control-card">
             <div class="website-hero-control-copy">
