@@ -409,7 +409,7 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
     });
 
 Route::middleware(['auth', 'active'])
-    ->get('/guide', [\\App\\Http\\Controllers\\GuideController::class, 'show'])
+    ->get('/guide', [\App\Http\Controllers\GuideController::class, 'show'])
     ->name('account.guide');
 
 /*
