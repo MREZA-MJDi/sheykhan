@@ -728,6 +728,36 @@ class ParentPortalWorkflowTest extends TestCase
             ->assertDontSee('یادداشت خصوصی دانش‌آموز');
     }
 
+    public function test_parent_dashboard_can_filter_one_linked_child_and_rejects_unlinked_child_ids(): void
+    {
+        $workspace = $this->workspace();
+        $parent = $workspace['parent'];
+        $student = $workspace['student'];
+        $secondStudent = $workspace['unlinkedStudent'];
+
+        $parent->children()->attach($secondStudent->id, ['relation' => 'پدر']);
+
+        $outsider = User::factory()->create(['status' => 'active']);
+        $parent->children()->attach($outsider->id, ['relation' => 'قیم']);
+
+        $response = $this->actingAs($parent)
+            ->get(route('parent.dashboard', ['child' => $student->id]))
+            ->assertOk()
+            ->assertSee('parent-child-filter', false)
+            ->assertSee($student->name)
+            ->assertSee($secondStudent->name);
+
+        $this->assertSame(
+            1,
+            substr_count($response->getContent(), 'class="parent-child"'),
+            'Only the selected linked child should have a dashboard detail card.',
+        );
+
+        $this->actingAs($parent)
+            ->get(route('parent.dashboard', ['child' => $outsider->id]))
+            ->assertNotFound();
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create(['status' => 'active']);

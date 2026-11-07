@@ -83,6 +83,11 @@
             <strong>{{ $stats['needsWork'] }}</strong>
             <small>صفحات با پوشش فیلدهای اختصاصی کمتر از ۸۰٪</small>
         </article>
+        <article class="owner-seo-stat">
+            <span>قابل ایندکس</span>
+            <strong>{{ $stats['indexable'] ?? 0 }}</strong>
+            <small>صفحات منتشرشده بدون دستور noindex</small>
+        </article>
     </section>
 
     <section class="dashboard-panel owner-panel">
@@ -90,8 +95,49 @@
             <div>
                 <h2>وضعیت صفحات</h2>
                 <p>درصد هر ردیف میزان تکمیل تنظیمات اختصاصی ذخیره‌شده است، نه پیش‌بینی رتبه در گوگل. برای پیشنهادها، هر ردیف را باز کن.</p>
+                <p class="mt-2 text-xs text-slate-500">
+                    آخرین ممیزی: {{ isset($scannedAt) ? \\App\\Support\\PersianUi::dateTime($scannedAt) : 'نامشخص' }}
+                    @if($latestContentUpdateAt)
+                        · آخرین به‌روزرسانی محتوای عمومی: {{ \\App\\Support\\PersianUi::dateTime($latestContentUpdateAt) }}
+                    @endif
+                </p>
             </div>
         </div>
+
+        <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs leading-6 text-blue-900">
+            این بخش متادیتا و صفحات منتشرشدهٔ واقعی شیخان را ممیزی می‌کند. آمار بازدید، کلیک و رتبهٔ زندهٔ گوگل فقط پس از اتصال رسمی Search Console قابل نمایش است؛ تا آن زمان هیچ عدد تخمینی به‌عنوان آمار واقعی نشان داده نمی‌شود.
+        </div>
+
+        <form method="GET" action="{{ route('owner.seo.index') }}" class="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1.5fr)_minmax(150px,1fr)_minmax(160px,1fr)_auto_auto] md:items-end">
+            <label class="grid gap-1 text-xs font-bold text-slate-700">
+                جست‌وجوی صفحه
+                <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="عنوان، آموزشگاه یا آدرس صفحه" class="ui-control px-3 py-2">
+            </label>
+            <label class="grid gap-1 text-xs font-bold text-slate-700">
+                نوع محتوا
+                <select name="type" class="ui-control px-3 py-2">
+                    <option value="">همه انواع</option>
+                    @foreach(['course' => 'دوره', 'content' => 'محتوای آموزشگاه', 'blog' => 'مقاله', 'product' => 'محصول', 'teacher' => 'مدرس'] as $key => $label)
+                        <option value="{{ $key }}" @selected(($filters['type'] ?? '') === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label class="grid gap-1 text-xs font-bold text-slate-700">
+                وضعیت ممیزی
+                <select name="status" class="ui-control px-3 py-2">
+                    <option value="">همه وضعیت‌ها</option>
+                    @foreach(['ready' => 'پوشش مناسب', 'partial' => 'ناقص', 'empty' => 'بدون تنظیم اختصاصی', 'noindex' => 'noindex', 'findings' => 'دارای پیشنهاد'] as $key => $label)
+                        <option value="{{ $key }}" @selected(($filters['status'] ?? '') === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <button type="submit" class="course-action-btn primary">اعمال فیلتر</button>
+            <a href="{{ route('owner.seo.index') }}" class="course-action-btn">پاک‌کردن</a>
+        </form>
+
+        <p class="mt-3 text-xs text-slate-500">
+            {{ \\App\\Support\\PersianUi::digits($filteredTotal ?? $stats['total']) }} صفحه با فیلتر فعلی پیدا شد؛ هر بار حداکثر ۲۵ صفحه نمایش داده می‌شود.
+        </p>
 
         <div class="owner-seo-list mt-4">
             @forelse($items as $item)
@@ -147,6 +193,9 @@
                 <div class="owner-empty">صفحه‌ای برای مدیریت SEO پیدا نشد.</div>
             @endforelse
         </div>
+        @if($items->hasPages())
+            <div class="mt-5 border-t border-slate-200 pt-4">{{ $items->links() }}</div>
+        @endif
     </section>
 </div>
 @endsection

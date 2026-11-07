@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 
 final class ParentDashboardService
 {
-    public function build(User $parent): array
+    public function build(User $parent, ?int $selectedChildId = null): array
     {
         $parentAcademyIds = fn () => DB::table('academy_user as parent_scope')
             ->join('academies as parent_scoped_academies', 'parent_scoped_academies.id', '=', 'parent_scope.academy_id')
@@ -40,12 +40,24 @@ final class ParentDashboardService
             ->orderBy('users.name')
             ->get();
 
+        $allChildren = $children;
+
+        if ($selectedChildId !== null) {
+            $selectedChild = $allChildren->firstWhere('id', $selectedChildId);
+            abort_if($selectedChild === null, 404);
+            $children = collect([$selectedChild]);
+        }
+
         if ($children->isEmpty()) {
             return [
                 'parent' => $parent,
                 'children' => collect(),
+                'allChildren' => $allChildren,
+                'selectedChildId' => null,
                 'overallProgress' => 0,
                 'upcomingLiveClasses' => collect(),
+                'pendingAssignmentItems' => collect(),
+                'recentAttendance' => collect(),
                 'recentResults' => collect(),
                 'recentAchievements' => collect(),
             ];
@@ -577,7 +589,7 @@ final class ParentDashboardService
                     ->where('academies.status', 'active');
             })
             ->where('academy_meetings.status', 'scheduled')
-            ->whereBetween('academy_meetings.scheduled_at', [now(), now()->addDays(30)])
+            ->whereBetween('academy_meetings.scheduled_at', [now(), now()->addDays(7)])
             ->orderBy('academy_meetings.scheduled_at')
             ->limit(8)
             ->get([
@@ -717,6 +729,8 @@ final class ParentDashboardService
         return [
             'parent' => $parent,
             'children' => $children,
+            'allChildren' => $allChildren,
+            'selectedChildId' => $selectedChildId,
             'overallProgress' => round((float) $progress->avg()),
             'upcomingLiveClasses' => $upcomingItems,
             'pendingAssignmentItems' => $pendingAssignmentItems,

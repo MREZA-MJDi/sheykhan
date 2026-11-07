@@ -6,8 +6,14 @@
 @section('content')
     @php
         $childrenCount = $children->count();
+        $allChildren = collect($allChildren ?? $children);
+        $selectedChildId = $selectedChildId ?? null;
         $progress = max(0, min(100, (float) $overallProgress));
         $childNames = $children->keyBy('id');
+        $pendingAssignmentCount = (int) $children->sum('dashboard_pending');
+        $upcomingCount = collect($upcomingLiveClasses ?? [])->count();
+        $recentResultCount = collect($recentResults ?? [])->count();
+        $absenceCount = (int) $children->sum('dashboard_attendance_absent');
     @endphp
 
     <div class="parent-dashboard">
@@ -42,7 +48,7 @@
                 <a href="{{ route('parent.attendance.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیگیری حضور و غیاب</a>
                 <a href="{{ route('parent.messages.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیام به آموزشگاه</a>
                 <a href="{{ route('parent.counseling.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">درخواست راهنمایی</a>
-                <a href="{{ route('courses.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">انتخاب دوره برای فرزند</a>
+                <a href="{{ route('courses.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">مشاهده دوره‌های منتشرشده</a>
             </div>
 
             <span class="parent-orb" aria-hidden="true"></span>
@@ -63,6 +69,54 @@
         <p>پس از اتصال حساب دانش‌آموز، وضعیت دوره‌ها، پیشرفت و جلسات در این داشبورد نمایش داده می‌شود.</p>
     </div>
         @else
+            @if($allChildren->count() > 1)
+                <form method="GET" action="{{ route('parent.dashboard') }}" class="mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-end sm:justify-between">
+                    <label for="parent-child-filter" class="grid min-w-0 flex-1 gap-1.5">
+                        <span class="text-sm font-black text-slate-800">نمایش اطلاعات کدام فرزند؟</span>
+                        <select id="parent-child-filter" name="child" class="ui-control px-3 py-2">
+                            <option value="">همه فرزندان</option>
+                            @foreach($allChildren as $linkedChild)
+                                <option value="{{ $linkedChild->id }}" @selected((int) $selectedChildId === (int) $linkedChild->id)>{{ $linkedChild->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-xs leading-5 text-slate-500">فقط فرزندانی در این فهرست هستند که به همین حساب والد و آموزشگاه‌های مجاز متصل‌اند.</small>
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="submit" class="course-primary-btn">نمایش وضعیت</button>
+                        @if($selectedChildId)
+                            <a href="{{ route('parent.dashboard') }}" class="course-secondary-btn">همه فرزندان</a>
+                        @endif
+                    </div>
+                </form>
+            @endif
+
+            <section class="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="خلاصه وضعیت واقعی">
+                <a href="#parent-tasks-title" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
+                    <span class="block text-xs text-slate-500">تکلیف ارسال‌نشده</span>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($pendingAssignmentCount) }}</strong>
+                    <small class="mt-1 block text-xs text-slate-500">برای فرزندان انتخاب‌شده</small>
+                </a>
+                <a href="#parent-live-title" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
+                    <span class="block text-xs text-slate-500">جلسه و هماهنگی آینده</span>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($upcomingCount) }}</strong>
+                    <small class="mt-1 block text-xs text-slate-500">موارد نمایش‌داده‌شده در ۷ روز آینده</small>
+                </a>
+                <a href="{{ route('parent.results.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
+                    <span class="block text-xs text-slate-500">نتایج اخیر</span>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($recentResultCount) }}</strong>
+                    <small class="mt-1 block text-xs text-slate-500">آزمون و تکلیف ثبت‌شده</small>
+                </a>
+                <a href="{{ route('parent.attendance.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
+                    <span class="block text-xs text-slate-500">غیبت ثبت‌شده</span>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($absenceCount) }}</strong>
+                    <small class="mt-1 block text-xs text-slate-500">در سوابق حضور و غیاب سامانه</small>
+                </a>
+            </section>
+
+            <p class="mb-5 rounded-xl bg-slate-50 px-4 py-3 text-xs leading-6 text-slate-600" role="note">
+                همه اعداد این خلاصه از حضور و غیاب، تکلیف‌ها، جلسات و نتایج ثبت‌شده در سامانه می‌آیند؛ این صفحه اطلاعات دانش‌آموزان یا آموزشگاه‌های نامرتبط را نمایش نمی‌دهد.
+            </p>
+
             <section aria-labelledby="parent-children-title">
                 <div class="mb-4">
                     <span class="parent-kicker" style="color: var(--panel-primary)">

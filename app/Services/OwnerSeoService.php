@@ -17,7 +17,11 @@ final class OwnerSeoService
     {
         $this->authorizeSpecialist($owner);
 
-        return $this->publicSiteOverview();
+        return Cache::remember(
+            'owner-seo:public-site-overview:v2',
+            now()->addMinute(),
+            fn (): array => $this->publicSiteOverview(),
+        );
     }
 
     /**
@@ -130,6 +134,8 @@ final class OwnerSeoService
             'items' => $items,
             'isGlobal' => true,
             'stats' => $this->statsFor($items),
+            'scannedAt' => now(),
+            'latestContentUpdateAt' => $items->pluck('updated_at')->filter()->sortDesc()->first(),
         ];
     }
 
@@ -214,6 +220,7 @@ final class OwnerSeoService
 
         // Changes to robots directives must be reflected in the sitemap immediately.
         Cache::forget('public:seo:sitemap:v1');
+        Cache::forget('owner-seo:public-site-overview:v2');
     }
 
     private function authorizeSpecialist(User $user): void
@@ -324,8 +331,13 @@ final class OwnerSeoService
                 fn (array $issue): bool => str_starts_with((string) ($issue['key'] ?? ''), 'duplicate_')
             ))->count(),
             'noindex' => $items->filter(
-                fn (array $item): bool => str_starts_with((string) ($item['robots'] ?? ''), 'noindex')
+                fn (array $item): bool => str_contains((string) ($item['robots'] ?? ''), 'noindex')
             )->count(),
+            'indexable' => $items->filter(
+                fn (array $item): bool => ! str_contains((string) ($item['robots'] ?? 'index,follow'), 'noindex')
+            )->count(),
+            'averageCoverage' => $items->isEmpty() ? 0 : (int) round((float) $items->avg('score')),
+            'byType' => $items->countBy('type')->all(),
         ];
     }
 
@@ -446,6 +458,8 @@ final class OwnerSeoService
             'canonical_url' => trim((string) ($seo?->canonical_url ?? '')),
             'issues' => $issues,
             'issue_count' => count($issues),
+            'updated_at' => $model->getAttribute('updated_at'),
+            'published_at' => $model->getAttribute('published_at'),
         ];
     }
 }

@@ -84,6 +84,25 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('ظاهر و محتوای قابل‌دیدن آموزشگاه را از یکجا مدیریت کن.');
     }
 
+    public function test_seo_audit_can_filter_real_public_pages_and_paginates_the_results(): void
+    {
+        [$specialist, $course] = $this->makeSeoWorkspace();
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index', [
+                'q' => 'SEO Visible Course',
+                'type' => 'course',
+                'status' => 'empty',
+            ]))
+            ->assertOk()
+            ->assertSee('SEO Visible Course')
+            ->assertSee('نوع محتوا')
+            ->assertSee('وضعیت ممیزی')
+            ->assertSee('قابل ایندکس')
+            ->assertSee('Search Console')
+            ->assertSee('صفحه با فیلتر فعلی');
+    }
+
     public function test_audit_flags_duplicate_public_page_titles(): void
     {
         [$specialist, $course] = $this->makeSeoWorkspace();
