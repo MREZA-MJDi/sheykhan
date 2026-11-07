@@ -288,6 +288,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::patch('/exam-attempts/{attempt}/grade-manual', [TeacherExamAttemptController::class, 'gradeManual'])->middleware('permission:exams.manage')->name('exam-attempts.grade-manual');
     Route::get('/messages', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'index'])->middleware('permission:parent_messages.view')->name('messages.index');
     Route::patch('/messages/{message}/reply', [\App\Http\Controllers\Teacher\ParentMessageController::class, 'reply'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('messages.reply');
+    Route::get('/recipient-options', \App\Http\Controllers\Teacher\RecipientOptionsController::class)->middleware(['permission:parent_messages.manage','throttle:60,1'])->name('recipient-options');
     Route::get('/direct-messages', [\App\Http\Controllers\Teacher\DirectMessageController::class, 'index'])->middleware('permission:parent_messages.manage')->name('direct-messages.index');
     Route::post('/direct-messages', [\App\Http\Controllers\Teacher\DirectMessageController::class, 'store'])->middleware(['permission:parent_messages.manage','throttle:10,1'])->name('direct-messages.store');
     Route::get('/communications', [\App\Http\Controllers\Teacher\AcademyMessageController::class, 'index'])->middleware('permission:parent_messages.manage')->name('communications.index');
