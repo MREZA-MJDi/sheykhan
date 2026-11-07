@@ -170,6 +170,8 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/courses/{course}', [OwnerCourseController::class, 'show'])->middleware('permission:courses.view')->name('courses.show');
     Route::get('/courses/{course}/edit', [OwnerCourseController::class, 'edit'])->middleware('permission:courses.manage')->name('courses.edit');
     Route::patch('/courses/{course}', [OwnerCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
+    Route::patch('/courses/{course}/archive', [OwnerCourseController::class, 'archive'])->middleware('permission:courses.manage')->name('courses.archive');
+    Route::patch('/courses/{course}/restore', [OwnerCourseController::class, 'restore'])->middleware('permission:courses.manage')->name('courses.restore');
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/academy/{academy}/communications', [\App\Http\Controllers\Owner\AcademyMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('communications.index');
@@ -233,6 +235,8 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::post('/courses', [TeacherCourseController::class, 'store'])->middleware('permission:courses.manage')->name('courses.store');
     Route::get('/courses/{course}/edit', [TeacherCourseController::class, 'edit'])->middleware('permission:courses.manage')->name('courses.edit');
     Route::patch('/courses/{course}', [TeacherCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
+    Route::patch('/courses/{course}/archive', [TeacherCourseController::class, 'archive'])->middleware('permission:courses.manage')->name('courses.archive');
+    Route::patch('/courses/{course}/restore', [TeacherCourseController::class, 'restore'])->middleware('permission:courses.manage')->name('courses.restore');
     Route::post('/courses/{course}/media', [TeacherCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [TeacherCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/courses/{course}/progress', CourseLearningProgressController::class)->middleware('permission:courses.view')->name('courses.progress');
