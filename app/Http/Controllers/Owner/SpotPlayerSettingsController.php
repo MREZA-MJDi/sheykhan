@@ -29,7 +29,9 @@ final class SpotPlayerSettingsController extends Controller
 
         $academyIds = $courseManagement->accessibleAcademies($request->user())->modelKeys();
 
-        $courseQuery = Course::query()->whereIn('academy_id', $academyIds);
+        $courseQuery = Course::query()
+            ->select(['id', 'academy_id', 'title', 'status', 'spotplayer_course_id', 'updated_at'])
+            ->whereIn('academy_id', $academyIds);
         $licenseQuery = SpotPlayerLicense::query()
             ->whereHas('course', fn ($query) => $query->whereIn('academy_id', $academyIds));
         $issuanceQuery = SpotPlayerLicenseIssuance::query()
@@ -66,7 +68,7 @@ final class SpotPlayerSettingsController extends Controller
                 ->withCount('spotplayerLicenses')
                 ->orderByDesc('updated_at')
                 ->orderByDesc('id')
-                ->paginate(8, ['id', 'academy_id', 'title', 'status', 'spotplayer_course_id', 'updated_at'])
+                ->paginate(8)
                 ->withQueryString(),
             'licenseRecords' => (clone $licenseQuery)
                 ->with(['student:id,name', 'course:id,title,academy_id'])
