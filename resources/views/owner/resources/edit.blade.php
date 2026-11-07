@@ -17,10 +17,19 @@
             <label><span>عنوان</span><input name="title" value="{{ old('title', $resource->title) }}" maxlength="255" required></label>
             <label><span>توضیح</span><textarea name="description" maxlength="255" rows="4">{{ old('description', $resource->description) }}</textarea><small class="owner-field-help">حداکثر ۲۵۵ نویسه تا با ساختار فعلی پایگاه داده سازگار بماند.</small></label>
             <div class="owner-form-two">
-                <label><span>دوره</span><select name="course_id"><option value="">سطح آموزشگاه</option>@foreach($courses as $course)<option value="{{ $course->id }}" @selected((string)old('course_id', $resource->course_id)===(string)$course->id)>{{ $course->title }}</option>@endforeach</select></label>
-                <label><span>کلاس</span><select name="classroom_id"><option value="">بدون محدودیت کلاس</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)old('classroom_id', $resource->classroom_id)===(string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
+                <div class="grid gap-2" data-academy-option-picker data-type="resource-courses" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                    <label><span>دوره</span><input type="search" data-academy-option-search minlength="2" maxlength="80" placeholder="نام دوره را جست‌وجو کن…" class="w-full"><select name="course_id" data-academy-option-select><option value="" data-option-placeholder>سطح آموزشگاه</option><option value="{{ old('course_id', $resource->course_id) }}" selected>{{ old('course_id') ? 'دورهٔ انتخاب‌شده از فرم قبلی' : ($resource->course?->title ?? 'دوره فعلی') }}</option></select></label>
+                    <p data-academy-option-status class="owner-field-help">برای تغییر دوره، نام آن را جست‌وجو کن.</p><button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ گزینهٔ بعدی</button>
+                </div>
+                <div class="grid gap-2" data-academy-option-picker data-type="resource-classrooms" data-depends-on-course="true" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                    <label><span>کلاس</span><input type="search" data-academy-option-search minlength="2" maxlength="80" placeholder="نام کلاس را جست‌وجو کن…" class="w-full"><select name="classroom_id" data-academy-option-select><option value="" data-option-placeholder>بدون محدودیت کلاس</option>@if($resource->classroom)<option value="{{ old('classroom_id', $resource->classroom_id) }}" selected>{{ old('classroom_id') ? 'کلاس انتخاب‌شده از فرم قبلی' : $resource->classroom->title }}</option>@endif</select></label>
+                    <p data-academy-option-status class="owner-field-help">کلاس‌های دورهٔ انتخاب‌شده را جست‌وجو کن.</p><button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ گزینهٔ بعدی</button>
+                </div>
             </div>
-            <label><span>درس</span><select name="lesson_id"><option value="">بدون محدودیت درس</option>@foreach($lessons as $lesson)<option value="{{ $lesson->id }}" @selected((string)old('lesson_id', $resource->lesson_id)===(string)$lesson->id)>{{ $lesson->section?->course?->title }} — {{ $lesson->title }}</option>@endforeach</select></label>
+            <div class="grid gap-2" data-academy-option-picker data-type="resource-lessons" data-depends-on-course="true" data-endpoint="{{ route('owner.form-options', $academy) }}">
+                <label><span>درس</span><input type="search" data-academy-option-search minlength="2" maxlength="80" placeholder="نام درس را جست‌وجو کن…" class="w-full"><select name="lesson_id" data-academy-option-select><option value="" data-option-placeholder>بدون محدودیت درس</option>@if($resource->lesson)<option value="{{ old('lesson_id', $resource->lesson_id) }}" selected>{{ old('lesson_id') ? 'درس انتخاب‌شده از فرم قبلی' : $resource->lesson->title }}</option>@endif</select></label>
+                <p data-academy-option-status class="owner-field-help">درس‌های دورهٔ انتخاب‌شده را جست‌وجو کن.</p><button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ گزینهٔ بعدی</button>
+            </div>
         </section>
         <aside class="owner-form-side space-y-4">
             <section class="owner-form-section space-y-4">
