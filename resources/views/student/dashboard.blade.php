@@ -66,6 +66,26 @@
   <x-stat color="mint" icon="i-rocket" label="پیشرفت دوره‌ها" :value="\App\Support\PersianUi::digits($overallProgress)" hint="{{ \App\Support\PersianUi::digits($completedLessonsCount) }} از {{ \App\Support\PersianUi::digits($totalLessonsCount) }} درس تکمیل شده" :href="route('student.growth')" />
 </div>
 
+<section class="card student-dashboard-monthly-growth" aria-labelledby="student-monthly-growth-title">
+  <div class="chead">
+    <div>
+      <h2 id="student-monthly-growth-title">رشد این ماه</h2>
+      <p class="muted small">برای نمایش تغییر نسبت به ماه قبل، سامانه باید تاریخچهٔ ماهانهٔ پیشرفت را ذخیره کند.</p>
+    </div>
+    <span class="pill">روند ماهانه هنوز ثبت نشده</span>
+  </div>
+  <div class="student-monthly-growth__body">
+    <div class="student-monthly-growth__change">
+      <strong>—</strong>
+      <span>تغییر نسبت به ماه گذشته</span>
+    </div>
+    <div class="student-monthly-growth__current">
+      <strong>{{ \App\Support\PersianUi::digits($overallProgress) }}٪</strong>
+      <span>پیشرفت فعلی دوره‌ها</span>
+    </div>
+  </div>
+</section>
+
 <section class="card student-dashboard-contact">
   <div class="chead">
     <div>
