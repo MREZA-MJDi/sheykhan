@@ -34,6 +34,7 @@ class TeacherWorkspaceFlowTest extends TestCase
             'teacher.assignments.index',
             'teacher.exams.index',
             'teacher.live-classes.index',
+            'teacher.spotplayer.index',
         ] as $route) {
             $this->actingAs($teacher)
                 ->get(route($route))
