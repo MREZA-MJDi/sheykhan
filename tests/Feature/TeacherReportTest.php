@@ -30,7 +30,7 @@ class TeacherReportTest extends TestCase
             ->assertSee('دانش‌آموزان نیازمند توجه و پیگیری')
             ->assertSee('data-dashboard-chart', false)
             ->assertSee('data-chart-range="week"', false)
-            ->assertSee('data-chart-range="month"', false);
+            ->assertSee('data-chart-range="month"', false)\n            ->assertSee('مشاهده فهرست دانش‌آموزان و ورود به پرونده‌ها')\n            ->assertSee('جزئیات دانش‌آموزان کلاس')\n            ->assertSee('تاریخچه حضور و غیاب');
     }
 
     public function test_unauthenticated_or_unauthorized_user_cannot_view_teacher_reports(): void
