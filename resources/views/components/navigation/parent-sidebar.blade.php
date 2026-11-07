@@ -41,6 +41,9 @@
         <a href="{{ route('parent.counseling.index') }}" class="role-nav-link {{ request()->routeIs('parent.counseling.*') ? 'is-active' : '' }}">
             <span class="role-nav-icon"></span><span>درخواست مشاوره</span>
         </a>
+        <a href="{{ route('account.guide') }}" class="role-nav-link {{ request()->routeIs('account.guide') ? 'is-active' : '' }}">
+            <span class="role-nav-icon"></span><span>راهنمای استفاده از پنل</span>
+        </a>
 
         <div class="role-sidebar-label mt-6">دسترسی‌ها</div>
         @if(\Illuminate\Support\Facades\Route::has('library.index'))
