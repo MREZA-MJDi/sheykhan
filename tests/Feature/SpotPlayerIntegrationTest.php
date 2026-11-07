@@ -93,7 +93,17 @@ final class SpotPlayerIntegrationTest extends TestCase
             ->assertOk()
             ->assertSee('مرکز SpotPlayer')
             ->assertSee('دوره آزمایشی SpotPlayer')
+            ->assertDontSee('server-secret-must-not-render')
+            ->assertDontSee('encrypted-license-secret-must-not-render');
+
+        $this->get(route('owner.spotplayer.edit', ['tab' => 'courses']))
+            ->assertOk()
             ->assertSee('publisher-course-123')
+            ->assertDontSee('server-secret-must-not-render')
+            ->assertDontSee('encrypted-license-secret-must-not-render');
+
+        $this->get(route('owner.spotplayer.edit', ['tab' => 'licenses']))
+            ->assertOk()
             ->assertSee('دانش‌آموز آزمایشی')
             ->assertSee('نیازمند بررسی')
             ->assertDontSee('server-secret-must-not-render')
