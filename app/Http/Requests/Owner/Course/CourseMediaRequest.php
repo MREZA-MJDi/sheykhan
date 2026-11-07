@@ -27,7 +27,7 @@ class CourseMediaRequest extends FormRequest
                 'file',
                 ...($isCover ? ['image'] : []),
                 'max:' . ($isCover ? 10240 : $this->maxSizeKilobytes()),
-                $isCover ? 'mimes:jpg,jpeg,png,webp' : 'mimes:jpg,jpeg,png,webp,pdf,mp4,webm,mov,zip',
+                $isCover ? 'mimes:jpg,jpeg,png,webp' : 'mimes:jpg,jpeg,png,webp,pdf,zip',
             ],
             'collection' => ['nullable', 'string', 'in:course-assets,course-cover'],
         ];
@@ -38,7 +38,7 @@ class CourseMediaRequest extends FormRequest
             'media.required' => 'انتخاب فایل الزامی است.',
             'media.file' => 'فایل انتخاب‌شده معتبر نیست.',
             'media.max' => 'حجم فایل برای این نوع محتوا نباید بیشتر از ' . $this->maxSizeMegabytes() . ' مگابایت باشد.',
-            'media.mimes' => 'فرمت فایل پشتیبانی نمی‌شود.',
+            'media.mimes' => 'برای فایل‌های این بخش از JPG، PNG، WebP، PDF یا ZIP استفاده کن؛ ویدئو باید در SpotPlayer بارگذاری شود.',
         ];
     }
 
