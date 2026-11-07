@@ -112,7 +112,7 @@
                                     decoding="async"
                                 >
                                 <span>
-                                    <strong>{{ $student->name }}</strong>
+                                    <strong><a class="teacher-student-profile-link" href="{{ route('teacher.students.show', $student) }}">{{ $student->name }}</a></strong>
                                     @if($student->email)
                                         <small style="display:block;margin-top:3px;color:#8993aa;font-size:10px">{{ $student->email }}</small>
                                     @endif
