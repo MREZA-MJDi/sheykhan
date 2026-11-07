@@ -94,6 +94,12 @@
                                 <button type="submit" class="teacher-workspace-link">انتشار آزمون</button>
                             </form>
                         @endif
+                                                @if((int) $exam->attempts_count === 0 && $exam->status !== 'published')
+                                                    <form method="POST" action="{{ route('teacher.exams.destroy', $exam) }}">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="teacher-workspace-link danger" data-confirm="این آزمون و پیوست‌های بلااستفاده حذف شوند؟">حذف آزمون</button>
+                                                    </form>
+                                                @endif
                                                 <a href="{{ route('teacher.exams.attempts',$exam) }}" class="teacher-workspace-link primary">مشاهده پاسخ‌ها</a>
                     </div>
                 </article>
