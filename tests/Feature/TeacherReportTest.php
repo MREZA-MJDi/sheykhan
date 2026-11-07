@@ -44,11 +44,11 @@ class TeacherReportTest extends TestCase
         $academy = $teacher->academies()->where('academies.status', 'active')->firstOrFail();
 
         for ($index = 1; $index <= 22; $index++) {
-            $course = \\App\\Models\\Course::query()->create([
+            $course = \App\Models\Course::query()->create([
                 'academy_id' => $academy->id,
                 'created_by' => $academy->owner_id,
                 'title' => 'گزارش دوره ' . $index,
-                'slug' => 'report-course-' . \\Illuminate\\Support\\Str::lower(\\Illuminate\\Support\\Str::random(8)),
+                'slug' => 'report-course-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(8)),
                 'status' => 'draft',
                 'access_type' => 'free',
                 'price' => 0,
@@ -56,11 +56,11 @@ class TeacherReportTest extends TestCase
             $course->teachers()->attach($teacher->id, ['is_primary' => true]);
 
             if ($index <= 13) {
-                $classroom = \\App\\Models\\Classroom::query()->create([
+                $classroom = \App\Models\Classroom::query()->create([
                     'academy_id' => $academy->id,
                     'course_id' => $course->id,
                     'title' => 'گزارش کلاس ' . $index,
-                    'code' => 'RPT-' . strtoupper(\\Illuminate\\Support\\Str::random(6)),
+                    'code' => 'RPT-' . strtoupper(\Illuminate\Support\Str::random(6)),
                     'status' => 'active',
                 ]);
                 $classroom->teachers()->attach($teacher->id);
