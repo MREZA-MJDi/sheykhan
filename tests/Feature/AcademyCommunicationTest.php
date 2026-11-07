@@ -25,7 +25,8 @@ class AcademyCommunicationTest extends TestCase
             ->get(route('owner.communications.index', $w['academy']))
             ->assertOk()
             ->assertSee('اطلاعیه و پیام به خانواده‌ها')
-            ->assertSee('همه خانواده‌های آموزشگاه');
+            ->assertSee('همه خانواده‌های آموزشگاه')
+            ->assertDontSee('پیام مستقیم به دانش‌آموز ' . $w['student']->name);
 
         $this->actingAs($w['owner'])->post(route('owner.communications.store', $w['academy']), [
             'target' => 'all_parents',
@@ -115,6 +116,36 @@ class AcademyCommunicationTest extends TestCase
         ])->assertNotFound();
 
         $this->assertDatabaseCount('academy_messages', 0);
+    }
+
+    public function test_owner_recipient_search_is_scoped_and_returns_at_most_twenty_results(): void
+    {
+        $w = $this->workspace();
+
+        for ($index = 1; $index <= 21; $index++) {
+            $student = User::factory()->create([
+                'name' => 'Searchable Student ' . $index,
+                'status' => 'active',
+            ]);
+            $w['academy']->users()->attach($student->id, [
+                'role' => 'student',
+                'status' => 'active',
+                'joined_at' => now(),
+            ]);
+        }
+
+        $url = route('owner.communications.recipients', $w['academy'])
+            . '?type=students&q=' . urlencode('Searchable');
+
+        $this->actingAs($w['owner'])
+            ->getJson($url)
+            ->assertOk()
+            ->assertJsonCount(20, 'data')
+            ->assertJsonPath('has_more', true);
+
+        $this->actingAs($w['parent'])
+            ->getJson($url)
+            ->assertForbidden();
     }
 
     private function workspace(): array

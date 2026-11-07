@@ -179,6 +179,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/academy/{academy}/communications', [\App\Http\Controllers\Owner\AcademyMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('communications.index');
+    Route::get('/academy/{academy}/communications/recipients', [\App\Http\Controllers\Owner\AcademyMessageController::class, 'recipients'])->middleware(['permission:parents.manage','throttle:60,1'])->withoutScopedBindings()->name('communications.recipients');
     Route::post('/academy/{academy}/communications', [\App\Http\Controllers\Owner\AcademyMessageController::class, 'store'])->middleware(['permission:parents.manage','throttle:10,1'])->withoutScopedBindings()->name('communications.store');
     Route::get('/academy/{academy}/messages', [\App\Http\Controllers\Owner\ParentMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('messages.index');
     Route::patch('/academy/{academy}/messages/{message}/reply', [\App\Http\Controllers\Owner\ParentMessageController::class, 'reply'])->middleware('permission:parents.manage')->withoutScopedBindings()->name('messages.reply');
