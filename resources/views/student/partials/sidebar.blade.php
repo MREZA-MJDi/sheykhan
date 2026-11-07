@@ -31,6 +31,7 @@
     <h4>مسیر یادگیری</h4>
     <p>درس‌ها، کلاس‌ها و تکالیف خودت را از همین‌جا دنبال کن.</p>
     <a class="btn s" href="{{ route('student.courses.index') }}">ادامه یادگیری</a>
+    <a class="btn s" href="{{ route('account.guide') }}" style="width:100%;margin-top:8px;background:rgba(255,255,255,.16);box-shadow:none">راهنمای پنل و بروشور</a>
     <form method="POST" action="{{ route('logout') }}" style="margin-top:8px">
       @csrf
       <button class="btn s" type="submit" style="width:100%;background:rgba(255,255,255,.1);box-shadow:none">خروج از حساب</button>
