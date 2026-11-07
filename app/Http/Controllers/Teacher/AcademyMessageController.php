@@ -130,81 +130,28 @@ final class AcademyMessageController extends Controller
     /** @return array<int, array{value:string,label:string}> */
     private function targetOptions(User $teacher): array
     {
-        $rooms = DB::table('classroom_teacher as assignment')
+        // The initial page only loads one option per academy. Individual people
+        // and class groups are searched through the bounded recipient endpoint.
+        return DB::table('classroom_teacher as assignment')
             ->join('classrooms', 'classrooms.id', '=', 'assignment.classroom_id')
-            ->join('courses', 'courses.id', '=', 'classrooms.course_id')
             ->join('academies', 'academies.id', '=', 'classrooms.academy_id')
             ->join('academy_user as teacher_membership', function ($join): void {
                 $join->on('teacher_membership.user_id', '=', 'assignment.teacher_id')
                     ->on('teacher_membership.academy_id', '=', 'classrooms.academy_id')
-                    ->where('teacher_membership.role', 'teacher')->where('teacher_membership.status', 'active');
+                    ->where('teacher_membership.role', 'teacher')
+                    ->where('teacher_membership.status', 'active');
             })
-            ->where('assignment.teacher_id', $teacher->id)->where('classrooms.status', 'active')->where('academies.status', 'active')
-            ->orderBy('classrooms.title')->distinct()
-            ->get(['classrooms.id as classroom_id', 'classrooms.title as classroom_title', 'classrooms.academy_id', 'academies.name as academy_name', 'courses.title as course_title']);
-
-        $roster = DB::table('classroom_student as roster')
-            ->join('classrooms', 'classrooms.id', '=', 'roster.classroom_id')
-            ->join('classroom_teacher as assignment', 'assignment.classroom_id', '=', 'classrooms.id')
-            ->join('courses', 'courses.id', '=', 'classrooms.course_id')
-            ->join('academies', 'academies.id', '=', 'classrooms.academy_id')
-            ->join('users as students', 'students.id', '=', 'roster.student_id')
-            ->join('academy_user as teacher_membership', function ($join): void {
-                $join->on('teacher_membership.user_id', '=', 'assignment.teacher_id')
-                    ->on('teacher_membership.academy_id', '=', 'classrooms.academy_id')
-                    ->where('teacher_membership.role', 'teacher')->where('teacher_membership.status', 'active');
-            })
-            ->join('academy_user as student_membership', function ($join): void {
-                $join->on('student_membership.user_id', '=', 'students.id')
-                    ->on('student_membership.academy_id', '=', 'classrooms.academy_id')
-                    ->where('student_membership.role', 'student')->where('student_membership.status', 'active');
-            })
-            ->where('assignment.teacher_id', $teacher->id)->where('classrooms.status', 'active')
-            ->where('roster.status', 'active')->where('academies.status', 'active')
-            ->where('students.status', 'active')->whereNull('students.deleted_at')->distinct();
-
-        $students = (clone $roster)->orderBy('classrooms.title')->orderBy('students.name')->get([
-            'classrooms.id as classroom_id', 'classrooms.title as classroom_title',
-            'classrooms.academy_id', 'classrooms.course_id', 'courses.title as course_title',
-            'students.id as student_id', 'students.name as student_name',
-        ]);
-        $parents = (clone $roster)
-            ->join('parent_student as links', 'links.student_id', '=', 'students.id')
-            ->join('users as parents', 'parents.id', '=', 'links.parent_id')
-            ->join('academy_user as parent_membership', function ($join): void {
-                $join->on('parent_membership.user_id', '=', 'parents.id')
-                    ->on('parent_membership.academy_id', '=', 'classrooms.academy_id')
-                    ->where('parent_membership.role', 'parent')->where('parent_membership.status', 'active');
-            })
-            ->where('parents.status', 'active')->whereNull('parents.deleted_at')
-            ->orderBy('classrooms.title')->orderBy('students.name')->orderBy('parents.name')
-            ->get([
-                'classrooms.id as classroom_id', 'classrooms.title as classroom_title',
-                'classrooms.academy_id', 'classrooms.course_id', 'courses.title as course_title',
-                'students.id as student_id', 'students.name as student_name',
-                'parents.id as parent_id', 'parents.name as parent_name',
-            ]);
-
-        $roomsWithParents = $parents->pluck('classroom_id')->map(fn ($id) => (int) $id)->unique()->all();
-        $targets = [];
-        foreach ($rooms->groupBy('academy_id') as $academyId => $academyRooms) {
-            $targets[] = [
-                'value' => 'all-class-parents:' . $academyId,
-                'label' => 'همه خانواده‌های کلاس‌های من · ' . $academyRooms->first()->academy_name,
-            ];
-        }
-        foreach ($rooms as $room) {
-            if (in_array((int) $room->classroom_id, $roomsWithParents, true)) {
-                $targets[] = ['value' => 'classroom:' . $room->classroom_id . ':parents', 'label' => 'همه خانواده‌های ' . $room->classroom_title . ' · ' . $room->course_title];
-            }
-        }
-        foreach ($students as $row) {
-            $targets[] = ['value' => 'student:' . $row->classroom_id . ':' . $row->student_id, 'label' => 'دانش‌آموز ' . $row->student_name . ' · ' . $row->classroom_title];
-        }
-        foreach ($parents as $row) {
-            $targets[] = ['value' => 'parent:' . $row->classroom_id . ':' . $row->student_id . ':' . $row->parent_id, 'label' => 'ولی ' . $row->parent_name . ' · فرزند ' . $row->student_name . ' · ' . $row->classroom_title];
-        }
-        return $targets;
+            ->where('assignment.teacher_id', $teacher->id)
+            ->where('classrooms.status', 'active')
+            ->where('academies.status', 'active')
+            ->groupBy('academies.id', 'academies.name')
+            ->orderBy('academies.name')
+            ->get(['academies.id as academy_id', 'academies.name as academy_name'])
+            ->map(fn ($academy): array => [
+                'value' => 'all-class-parents:' . $academy->academy_id,
+                'label' => 'همه خانواده‌های کلاس‌های من · ' . $academy->academy_name,
+            ])
+            ->all();
     }
 
     private function activeClassroom(User $teacher, int $classroomId): Classroom
