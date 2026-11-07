@@ -19,6 +19,23 @@ class StudentTeacherMessagingTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_teacher_can_open_a_learning_profile_only_for_a_student_in_their_assigned_class(): void
+    {
+        $workspace = $this->workspace();
+
+        $this->actingAs($workspace['teacher'])
+            ->get(route('teacher.students.show', $workspace['student']))
+            ->assertOk()
+            ->assertSee('پرونده آموزشی')
+            ->assertSee($workspace['student']->name)
+            ->assertSee($workspace['classroom']->title)
+            ->assertSee('آخرین حضور و غیاب');
+
+        $this->actingAs($workspace['otherTeacher'])
+            ->get(route('teacher.students.show', $workspace['student']))
+            ->assertNotFound();
+    }
+
     public function test_student_can_message_an_assigned_teacher_and_read_the_reply(): void
     {
         $workspace = $this->workspace();
@@ -233,7 +250,7 @@ class StudentTeacherMessagingTest extends TestCase
         $student = User::factory()->create(['status' => 'active']);
 
         $ownerRole = $this->role('academy-owner', ['dashboard.view']);
-        $teacherRole = $this->role('teacher', ['dashboard.view', 'student_messages.view', 'student_messages.manage', 'parent_messages.manage']);
+        $teacherRole = $this->role('teacher', ['dashboard.view', 'student_messages.view', 'student_messages.manage', 'parent_messages.manage', 'students.view', 'attendance.view', 'assignments.view', 'exams.view']);
         $studentRole = $this->role('student', ['dashboard.view', 'student_messages.view', 'student_messages.manage']);
 
         $owner->roles()->attach($ownerRole->id);
