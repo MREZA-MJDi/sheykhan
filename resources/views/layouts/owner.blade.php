@@ -139,69 +139,129 @@
     @include('owner.partials.admin-topbar')
     <aside class="side card" id="side" aria-label="منوی مدیریت">
         <nav id="nv" aria-label="منوی اصلی">
-            @foreach($ownerNavGroups as $navGroup)
-                @php
-                    $visibleGlobalLinks = collect($navGroup['links'])->filter(fn ($link) => $link['scope'] === 'global' && $ownerUser?->hasPermission($link['permission']));
-                    $visibleAcademyLinks = collect($navGroup['links'])->filter(fn ($link) => $link['scope'] === 'academy' && $ownerUser?->hasPermission($link['permission']));
+            <?php foreach ($ownerNavGroups as $navGroup) { ?>
+                <?php
+                    $visibleGlobalLinks = collect($navGroup['links'])
+                        ->filter(fn ($link) => $link['scope'] === 'global' && $ownerUser?->hasPermission($link['permission']));
+                    $visibleAcademyLinks = collect($navGroup['links'])
+                        ->filter(fn ($link) => $link['scope'] === 'academy' && $ownerUser?->hasPermission($link['permission']));
                     $showSiteGroup = $navGroup['key'] === 'site' && $canManagePublicSite;
-                @endphp
+                    $showNavGroup = (
+                        ! $isSeoOnlyUser
+                        && (
+                            $visibleGlobalLinks->isNotEmpty()
+                            || ($academies->isNotEmpty() && $visibleAcademyLinks->isNotEmpty())
+                        )
+                    ) || $showSiteGroup;
+                    $isNavGroupExpanded = $currentOwnerNavGroupKey === $navGroup['key'];
+                ?>
 
-                @if((!$isSeoOnlyUser && ($visibleGlobalLinks->isNotEmpty() || ($academies->isNotEmpty() && $visibleAcademyLinks->isNotEmpty()))) || $showSiteGroup)
+                <?php if ($showNavGroup) { ?>
                     <div class="nav-group">
-                        @php($isNavGroupExpanded = $currentOwnerNavGroupKey === $navGroup['key'])
-                        <button class="gh" type="button" data-group-toggle aria-expanded="{{ $isNavGroupExpanded ? 'true' : 'false' }}" style="--c:{{ $navGroup['color'] }}">
-                            <i aria-hidden="true"></i><span>{{ $navGroup['title'] }}</span><em>{{ $isNavGroupExpanded ? '−' : '+' }}</em>
+                        <button class="gh" type="button" data-group-toggle
+                            aria-expanded="{{ $isNavGroupExpanded ? 'true' : 'false' }}"
+                            style="--c:{{ $navGroup['color'] }}">
+                            <i aria-hidden="true"></i>
+                            <span>{{ $navGroup['title'] }}</span>
+                            <em>{{ $isNavGroupExpanded ? '−' : '+' }}</em>
                         </button>
-                        <div class="nav-group-items" @if(!$isNavGroupExpanded) hidden @endif>
-                            @if(!$isSeoOnlyUser)
-                                @foreach($navGroup['links'] as $navLink)
-                                    @if($navLink['scope'] === 'global' && $ownerUser?->hasPermission($navLink['permission']))
-                                        @php
+
+                        <div class="nav-group-items" <?php if (! $isNavGroupExpanded) echo 'hidden'; ?>>
+                            <?php if (! $isSeoOnlyUser) { ?>
+                                <?php foreach ($navGroup['links'] as $navLink) { ?>
+                                    <?php if ($navLink['scope'] === 'global' && $ownerUser?->hasPermission($navLink['permission'])) { ?>
+                                        <?php
                                             $navRoutePattern = str_contains($navLink['route'], '.index')
                                                 ? str_replace('.index', '.*', $navLink['route'])
                                                 : $navLink['route'];
-                                        @endphp
-                                        <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route($navLink['route']) }}"
-                                           @if(request()->routeIs($navRoutePattern)) aria-current="page" @endif
+                                        ?>
+                                        <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                           href="{{ route($navLink['route']) }}"
+                                           <?php if (request()->routeIs($navRoutePattern)) echo 'aria-current="page"'; ?>
                                            data-nav-label="{{ $navLink['label'] }}">
-                                            <svg class="ic" aria-hidden="true"><use href="#i-{{ $navLink['icon'] }}"/></svg><span>{{ $navLink['label'] }}</span>
+                                            <svg class="ic" aria-hidden="true"><use href="#i-{{ $navLink['icon'] }}"/></svg>
+                                            <span>{{ $navLink['label'] }}</span>
                                         </a>
-                                    @elseif($navLink['scope'] === 'academy' && $ownerUser?->hasPermission($navLink['permission']))
-                                        @foreach($academies as $academy)
-                                            @php
+                                    <?php } elseif ($navLink['scope'] === 'academy' && $ownerUser?->hasPermission($navLink['permission'])) { ?>
+                                        <?php foreach ($academies as $academy) { ?>
+                                            <?php
                                                 $navRoutePattern = str_contains($navLink['route'], '.index')
                                                     ? str_replace('.index', '.*', $navLink['route'])
                                                     : $navLink['route'];
                                                 $academyNavLabel = $academies->count() > 1
                                                     ? $navLink['label'] . ' · ' . $academy->name
                                                     : $navLink['label'];
-                                            @endphp
-                                            <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route($navLink['route'], $academy) }}"
-                                               @if(request()->routeIs($navRoutePattern) && $routeAcademyId === (int) $academy->id) aria-current="page" @endif
+                                            ?>
+                                            <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                               href="{{ route($navLink['route'], $academy) }}"
+                                               <?php if (request()->routeIs($navRoutePattern) && $routeAcademyId === (int) $academy->id) echo 'aria-current="page"'; ?>
                                                data-nav-label="{{ $academyNavLabel }}">
-                                                <svg class="ic" aria-hidden="true"><use href="#i-{{ $navLink['icon'] }}"/></svg><span>{{ $academyNavLabel }}</span>
+                                                <svg class="ic" aria-hidden="true"><use href="#i-{{ $navLink['icon'] }}"/></svg>
+                                                <span>{{ $academyNavLabel }}</span>
                                             </a>
-                                        @endforeach
-                                    @endif
-                                @endforeach
-                            @endif
+                                        <?php } ?>
+                                    <?php } ?>
+                                <?php } ?>
+                            <?php } ?>
 
-                            @if($showSiteGroup)
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}" @if(request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update')) aria-current="page" @endif data-nav-label="ممیزی SEO"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>ممیزی SEO</span></a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.keywords.index') }}" @if(request()->routeIs('owner.seo.keywords.*')) aria-current="page" @endif data-nav-label="کلمات کلیدی"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>کلمات کلیدی</span></a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.website.index') }}" @if(request()->routeIs('owner.website.index')) aria-current="page" @endif data-nav-label="مرکز سایت"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>مرکز سایت و بنرها</span></a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.website.hero.edit') }}" @if(request()->routeIs('owner.website.hero.*')) aria-current="page" @endif data-nav-label="اسلایدر صفحه اصلی"><svg class="ic" aria-hidden="true"><use href="#i-mega"/></svg><span>اسلایدر صفحه اصلی</span></a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.content.index') }}" @if(request()->routeIs('owner.content.*')) aria-current="page" @endif data-nav-label="محتوای عمومی"><svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>محتوای عمومی</span></a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.blog.index') }}" @if(request()->routeIs('owner.blog.*')) aria-current="page" @endif data-nav-label="بلاگ و مقالات"><svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>بلاگ و مقالات</span></a>
-                                @foreach($websiteAcademies as $websiteAcademy)
-                                    <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.academy.banners.edit', $websiteAcademy) }}" @if(request()->routeIs('owner.academy.banners.*') && $routeAcademyId === (int) $websiteAcademy->id) aria-current="page" @endif data-nav-label="بنرهای {{ $websiteAcademy->name }}"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg><span>بنرهای {{ $websiteAcademy->name }}</span></a>
-                                    <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.showcase.index', $websiteAcademy) }}" @if(request()->routeIs('owner.showcase.*') && $routeAcademyId === (int) $websiteAcademy->id) aria-current="page" @endif data-nav-label="افتخارآفرینان {{ $websiteAcademy->name }}"><svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg><span>افتخارآفرینان و رضایتمندی · {{ $websiteAcademy->name }}</span></a>
-                                @endforeach
-                            @endif
+                            <?php if ($showSiteGroup) { ?>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                   href="{{ route('owner.seo.index') }}"
+                                   <?php if (request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update')) echo 'aria-current="page"'; ?>
+                                   data-nav-label="ممیزی SEO">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>ممیزی SEO</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                   href="{{ route('owner.seo.keywords.index') }}"
+                                   <?php if (request()->routeIs('owner.seo.keywords.*')) echo 'aria-current="page"'; ?>
+                                   data-nav-label="کلمات کلیدی">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>کلمات کلیدی</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                   href="{{ route('owner.website.index') }}"
+                                   <?php if (request()->routeIs('owner.website.index')) echo 'aria-current="page"'; ?>
+                                   data-nav-label="مرکز سایت">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>مرکز سایت و بنرها</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                   href="{{ route('owner.website.hero.edit') }}"
+                                   <?php if (request()->routeIs('owner.website.hero.*')) echo 'aria-current="page"'; ?>
+                                   data-nav-label="اسلایدر صفحه اصلی">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-mega"/></svg><span>اسلایدر صفحه اصلی</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                   href="{{ route('owner.content.index') }}"
+                                   <?php if (request()->routeIs('owner.content.*')) echo 'aria-current="page"'; ?>
+                                   data-nav-label="محتوای عمومی">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>محتوای عمومی</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                   href="{{ route('owner.blog.index') }}"
+                                   <?php if (request()->routeIs('owner.blog.*')) echo 'aria-current="page"'; ?>
+                                   data-nav-label="بلاگ و مقالات">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>بلاگ و مقالات</span>
+                                </a>
+                                <?php foreach ($websiteAcademies as $websiteAcademy) { ?>
+                                    <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                       href="{{ route('owner.academy.banners.edit', $websiteAcademy) }}"
+                                       <?php if (request()->routeIs('owner.academy.banners.*') && $routeAcademyId === (int) $websiteAcademy->id) echo 'aria-current="page"'; ?>
+                                       data-nav-label="بنرهای {{ $websiteAcademy->name }}">
+                                        <svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>
+                                        <span>بنرهای {{ $websiteAcademy->name }}</span>
+                                    </a>
+                                    <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                       href="{{ route('owner.showcase.index', $websiteAcademy) }}"
+                                       <?php if (request()->routeIs('owner.showcase.*') && $routeAcademyId === (int) $websiteAcademy->id) echo 'aria-current="page"'; ?>
+                                       data-nav-label="افتخارآفرینان {{ $websiteAcademy->name }}">
+                                        <svg class="ic" aria-hidden="true"><use href="#i-heart"/></svg>
+                                        <span>افتخارآفرینان و رضایتمندی · {{ $websiteAcademy->name }}</span>
+                                    </a>
+                                <?php } ?>
+                            <?php } ?>
                         </div>
                     </div>
-                @endif
-            @endforeach
+                <?php } ?>
+            <?php } ?>
         </nav>
         @if(!$isSeoOnlyUser)
         <section class="tm" aria-label="کلاس آنلاین بعدی">
