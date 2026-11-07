@@ -35,6 +35,10 @@
         <div class="teacher-home__welcome-mark" aria-hidden="true">✦</div>
     </section>
 
+    <x-dashboard-next-step href="{{ route('teacher.students.index') }}" link-label="رفتن به فهرست دانش‌آموزان" eyebrow="ادامهٔ کار در منوی مدرس">
+        برای مدیریت اعضای کلاس، از منوی «دانش‌آموزان» وارد پروندهٔ هر نفر شو. برای حضور و غیاب، تکلیف، آزمون یا پیام هم از همان نام بخش در منوی کناری استفاده کن.
+    </x-dashboard-next-step>
+
     <section class="teacher-home__metrics" aria-label="خلاصه وضعیت آموزشی">
         @if($user?->hasPermission('classrooms.view'))
             <a class="teacher-home__metric metric-blue" href="{{ route('teacher.classrooms.index') }}">
