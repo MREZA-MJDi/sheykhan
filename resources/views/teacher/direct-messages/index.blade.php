@@ -15,30 +15,40 @@
 
     <section class="communication-page__card dashboard-panel p-5 sm:p-7">
         <h2 class="text-lg font-black">پیام جدید</h2>
-        @if($targets->isEmpty())
-            <p class="mt-4 rounded-xl bg-amber-50 p-4 text-sm leading-7 text-amber-800">برای ارسال پیام باید در یک کلاس فعال مدرس باشی و دانش‌آموز یا ولی به همان کلاس و آموزشگاه متصل باشد.</p>
-        @else
-            <form method="POST" action="{{ route('teacher.direct-messages.store') }}" class="communication-page__form communication-page__form--two-column mt-5 grid gap-4 md:grid-cols-2">
-                @csrf
-                <label class="grid gap-1 md:col-span-2"><span class="text-xs font-bold">مخاطب</span>
-                    <select name="target" required class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
-                        <option value="">انتخاب مخاطب مجاز</option>
-                        @foreach($targets as $target)
-                            <option value="{{ $target->key }}" @selected(old('target') === $target->key)>{{ $target->recipient_name }} — {{ $target->student_name }} / {{ $target->classroom_title }} ({{ $target->recipient_type === 'parent' ? 'ولی' : 'دانش‌آموز' }})</option>
-                        @endforeach
+        <p class="mt-2 text-sm leading-7 text-slate-500">ابتدا نوع مخاطب را انتخاب کن، سپس نام او را جست‌وجو کن. فقط دانش‌آموزان و والدین کلاس‌های فعال شما نمایش داده می‌شوند.</p>
+        <form method="POST" action="{{ route('teacher.direct-messages.store') }}" class="communication-page__form communication-page__form--two-column mt-5 grid gap-4 md:grid-cols-2">
+            @csrf
+            <div class="grid gap-3 md:col-span-2" data-teacher-recipient-picker data-context="direct" data-endpoint="{{ route('teacher.recipient-options') }}">
+                <label class="grid gap-1"><span class="text-xs font-bold">نوع مخاطب</span>
+                    <select data-recipient-type class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                        <option value="students">دانش‌آموز</option>
+                        <option value="parents">ولی / خانواده</option>
+                    </select>
+                </label>
+                <label class="grid gap-1"><span class="text-xs font-bold">جست‌وجوی نام</span>
+                    <input type="search" data-recipient-query minlength="2" maxlength="80" autocomplete="off" class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm" placeholder="حداقل دو حرف از نام را وارد کن">
+                </label>
+                <p data-recipient-status role="status" aria-live="polite" class="text-xs leading-6 text-slate-500">برای سبک ماندن پنل، مخاطب‌ها فقط پس از جست‌وجو دریافت می‌شوند؛ هر بار حداکثر ۲۰ نتیجه.</p>
+                <label class="grid gap-1"><span class="text-xs font-bold">انتخاب مخاطب</span>
+                    <select name="target" data-recipient-results required size="5" class="min-h-12 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+                        <option value="" data-static>ابتدا نام مخاطب را جست‌وجو کن…</option>
+                        @if(old('target'))
+                            <option value="{{ old('target') }}" data-static selected>مخاطب انتخاب‌شده از ارسال قبلی</option>
+                        @endif
                     </select>
                     @error('target')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror
                 </label>
-                <label class="grid gap-1"><span class="text-xs font-bold">نوع پیام</span>
-                    <select name="category" required class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
-                        <option value="question">پرسش</option><option value="suggestion">پیشنهاد</option><option value="complaint">انتقاد یا شکایت</option><option value="other">سایر</option>
-                    </select>
-                </label>
-                <label class="grid gap-1"><span class="text-xs font-bold">موضوع</span><input name="subject" value="{{ old('subject') }}" minlength="3" maxlength="180" required class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm" placeholder="مثلاً پیگیری تمرین هفته">@error('subject')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror</label>
-                <label class="grid gap-1 md:col-span-2"><span class="text-xs font-bold">متن پیام</span><textarea name="body" rows="4" minlength="5" maxlength="10000" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm leading-7">{{ old('body') }}</textarea>@error('body')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror</label>
-                <button class="communication-page__button md:col-span-2 min-h-11 rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ارسال پیام</button>
-            </form>
-        @endif
+                <button type="button" data-recipient-more hidden class="min-h-10 justify-self-start rounded-lg border border-slate-200 px-4 text-xs font-bold">نمایش ۲۰ مخاطب بعدی</button>
+            </div>
+            <label class="grid gap-1"><span class="text-xs font-bold">نوع پیام</span>
+                <select name="category" required class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+                    <option value="question">پرسش</option><option value="suggestion">پیشنهاد</option><option value="complaint">انتقاد یا شکایت</option><option value="other">سایر</option>
+                </select>
+            </label>
+            <label class="grid gap-1"><span class="text-xs font-bold">موضوع</span><input name="subject" value="{{ old('subject') }}" minlength="3" maxlength="180" required class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm" placeholder="مثلاً پیگیری تمرین هفته">@error('subject')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror</label>
+            <label class="grid gap-1 md:col-span-2"><span class="text-xs font-bold">متن پیام</span><textarea name="body" rows="4" minlength="5" maxlength="10000" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm leading-7">{{ old('body') }}</textarea>@error('body')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror</label>
+            <button class="communication-page__button md:col-span-2 min-h-11 rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ارسال پیام</button>
+        </form>
     </section>
 
     <section class="communication-page__message-list space-y-4">
