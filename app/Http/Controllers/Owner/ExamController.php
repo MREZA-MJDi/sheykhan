@@ -52,8 +52,9 @@ final class ExamController extends Controller
         $this->authorizeAcademy($request, $academy, 'exams.manage');
         return view('owner.exams.form', [
             'academy' => $academy,
-            'courses' => $this->assignableCourses($academy),
-            'classrooms' => $academy->classrooms()->where('status', 'active')->with('course:id,title')->orderBy('title')->get(),
+            'hasAssignableCourses' => $this->assignableCourses($academy)->exists(),
+            'courses' => collect(),
+            'classrooms' => collect(),
             'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
             'initialQuestions' => [],
         ]);
@@ -82,7 +83,14 @@ final class ExamController extends Controller
         $this->authorizeAcademy($request, $academy, 'exams.manage');
         $record = $this->ownedExam($academy, $exam);
         abort_if($record->attempts()->exists(), 409, 'پس از اولین تلاش دانش‌آموز، ویرایش سؤال‌ها برای حفظ تاریخچه قفل می‌شود.');
-        $record->load(['course', 'classroom', 'questions']);
+        $record->load([
+            'course.teachers' => fn ($teachers) => $teachers
+                ->where('users.status', 'active')
+                ->orderByPivot('is_primary', 'desc')
+                ->orderBy('users.name'),
+            'classroom',
+            'questions',
+        ]);
         $initialQuestions = $record->questions->map(function ($question): array {
             $correctAnswer = $question->correct_answer;
             if (in_array($question->type, ['multiple', 'checkbox'], true)) {
@@ -100,8 +108,9 @@ final class ExamController extends Controller
         })->values()->all();
         return view('owner.exams.form', [
             'academy' => $academy,
-            'courses' => $this->assignableCourses($academy),
-            'classrooms' => $academy->classrooms()->where('status', 'active')->with('course:id,title')->orderBy('title')->get(),
+            'hasAssignableCourses' => true,
+            'courses' => collect(),
+            'classrooms' => collect(),
             'exam' => $record,
             'initialQuestions' => $initialQuestions,
         ]);
@@ -253,11 +262,9 @@ final class ExamController extends Controller
             ->firstOrFail();
     }
 
-    private function assignableCourses(Academy $academy)
+    private function assignableCourses(Academy $academy): Builder
     {
-        return $academy->courses()->whereHas('teachers')
-            ->with(['teachers' => fn ($teachers) => $teachers->orderByPivot('is_primary', 'desc')->orderBy('users.name')])
-            ->orderBy('title')->get();
+        return $academy->courses()->whereHas('teachers');
     }
 
     private function assignedTeacher(Course $course, ?int $classroomId = null): User
