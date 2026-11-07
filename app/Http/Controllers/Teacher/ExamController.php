@@ -10,6 +10,7 @@ use App\Services\MediaService;
 use App\Services\TeacherAccessService;
 use App\Services\TeacherWorkspaceService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -204,6 +205,41 @@ class ExamController extends Controller
 
         return redirect()->route('teacher.exams.index')
             ->with('success', 'ویرایش برگهٔ آزمون با موفقیت ذخیره شد.');
+    }
+
+    public function updateStatus(
+        Request $request,
+        Exam $exam,
+        TeacherAccessService $access
+    ): RedirectResponse {
+        $data = $request->validate([
+            'status' => ['required', 'string', 'in:draft,published,closed'],
+        ]);
+
+        DB::transaction(function () use ($request, $exam, $access, $data): void {
+            $locked = Exam::query()->whereKey($exam->id)->lockForUpdate()->firstOrFail();
+            abort_unless($access->canManageExam($request->user(), $locked), 403);
+
+            if ($data['status'] === 'published' && ! $locked->questions()->exists()) {
+                throw ValidationException::withMessages([
+                    'status' => 'آزمون بدون سؤال منتشر نمی‌شود.',
+                ]);
+            }
+
+            if (
+                $data['status'] !== 'published'
+                && $locked->attempts()->where('status', 'in_progress')->exists()
+            ) {
+                throw ValidationException::withMessages([
+                    'status' => 'یک یا چند دانش‌آموز در حال پاسخ‌گویی هستند؛ ابتدا اجازه بده تلاش‌های باز ثبت شوند، سپس آزمون را ببند.',
+                ]);
+            }
+
+            $locked->forceFill(['status' => $data['status']])->save();
+        }, 3);
+
+        return redirect()->route('teacher.exams.index')
+            ->with('success', $data['status'] === 'published' ? 'آزمون منتشر شد.' : ($data['status'] === 'closed' ? 'آزمون بسته شد؛ پاسخ‌ها و نمره‌ها حفظ شدند.' : 'آزمون به پیش‌نویس برگشت.'));
     }
 
     public function attempts(Exam $exam, TeacherAccessService $access): View
