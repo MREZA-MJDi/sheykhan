@@ -242,6 +242,58 @@ class ExamController extends Controller
             ->with('success', $data['status'] === 'published' ? 'آزمون منتشر شد.' : ($data['status'] === 'closed' ? 'آزمون بسته شد؛ پاسخ‌ها و نمره‌ها حفظ شدند.' : 'آزمون به پیش‌نویس برگشت.'));
     }
 
+    public function destroy(
+        Exam $exam,
+        TeacherAccessService $access,
+        MediaService $media
+    ): RedirectResponse {
+        abort_unless($access->canManageExam(request()->user(), $exam), 403);
+
+        $files = collect();
+
+        DB::transaction(function () use ($exam, $access, $media, &$files): void {
+            $locked = Exam::query()->whereKey($exam->id)->lockForUpdate()->firstOrFail();
+            abort_unless($access->canManageExam(request()->user(), $locked), 403);
+
+            if ($locked->attempts()->exists()) {
+                throw ValidationException::withMessages([
+                    'exam' => 'برای این آزمون تلاش دانش‌آموز ثبت شده است؛ حذف مجاز نیست. آزمون را ببند تا پاسخ‌ها و نمره‌ها حفظ شوند.',
+                ]);
+            }
+
+            if (! in_array($locked->status, ['draft', 'closed'], true)) {
+                throw ValidationException::withMessages([
+                    'exam' => 'ابتدا آزمون منتشرشده را ببند؛ سپس در صورت نداشتن تلاش می‌توانی آن را حذف کنی.',
+                ]);
+            }
+
+            $locked->load(['media', 'questions.media']);
+            foreach ($locked->questions as $question) {
+                foreach ($question->media as $file) {
+                    $media->detach($file, $question);
+                    $files->push($file);
+                }
+            }
+
+            foreach ($locked->media as $file) {
+                $media->detach($file, $locked);
+                $files->push($file);
+            }
+
+            $locked->questions()->delete();
+            $locked->delete();
+        }, 3);
+
+        foreach ($files->unique('id') as $file) {
+            if ($file->attachments()->doesntExist()) {
+                $media->delete($file);
+            }
+        }
+
+        return redirect()->route('teacher.exams.index')
+            ->with('success', 'آزمون بدون تلاش دانش‌آموز و فایل‌های بدون استفاده حذف شد.');
+    }
+
     public function attempts(Exam $exam, TeacherAccessService $access): View
     {
         abort_unless($access->canManageExam(request()->user(), $exam), 403);
