@@ -62,41 +62,54 @@
     <section class="dashboard-panel p-5 sm:p-7">
         <h2 class="text-xl font-black text-[var(--panel-text)]">ارسال پیام تازه</h2>
         <p class="mt-1 text-sm leading-7 text-[var(--panel-muted)]">اطلاعیه عمومی، پیام خانواده‌های یک کلاس و پیام مستقیم، گیرنده‌های جداگانه دارند.</p>
-        @if(empty($targetOptions))
-            <p class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-900">مخاطب مجاز فعالی پیدا نشد؛ عضویت آموزشگاه و کلاس‌ها را بررسی کن.</p>
-        @else
-            <form method="POST" action="{{ $storeRoute }}" class="mt-5 grid gap-4 md:grid-cols-2">
-                @csrf
-                <label class="grid gap-2 text-sm font-bold md:col-span-2">مخاطب
-                    <select name="target" required class="min-h-12 w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3">
-                        <option value="">انتخاب مخاطب...</option>
+        <form method="POST" action="{{ $storeRoute }}" class="mt-5 grid gap-4 md:grid-cols-2">
+            @csrf
+            <div class="grid gap-3 text-sm font-bold md:col-span-2" data-teacher-recipient-picker data-context="announcement" data-endpoint="{{ route('teacher.recipient-options') }}">
+                <label class="grid gap-2">گروه مخاطب
+                    <select data-recipient-type class="min-h-12 w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3">
+                        <option value="students">دانش‌آموز مشخص</option>
+                        <option value="parents">ولی مشخص</option>
+                        <option value="classrooms">خانواده‌های یک کلاس</option>
+                    </select>
+                </label>
+                <label class="grid gap-2">جست‌وجوی مخاطب
+                    <input type="search" data-recipient-query minlength="2" maxlength="80" autocomplete="off" class="min-h-12 w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3" placeholder="حداقل دو حرف از نام دانش‌آموز، ولی یا کلاس">
+                </label>
+                <p data-recipient-status role="status" aria-live="polite" class="text-xs font-normal leading-6 text-[var(--panel-muted)]">برای جلوگیری از بارگذاری فهرست‌های بزرگ، مخاطب را جست‌وجو کن. هر بار حداکثر ۲۰ نتیجه نمایش داده می‌شود.</p>
+                <label class="grid gap-2">انتخاب مخاطب
+                    <select name="target" data-recipient-results required size="5" class="min-h-12 w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3 py-2">
+                        <option value="" data-static>ابتدا مخاطب را جست‌وجو کن…</option>
                         @foreach($targetOptions as $target)
-                            <option value="{{ $target['value'] }}" @selected(old('target') === $target['value'])>{{ $target['label'] }}</option>
+                            <option value="{{ $target['value'] }}" data-static @selected(old('target') === $target['value'])>{{ $target['label'] }}</option>
                         @endforeach
+                        @if(old('target') && !collect($targetOptions)->contains('value', old('target')) && old('target') !== 'all_parents')
+                            <option value="{{ old('target') }}" data-static selected>مخاطب انتخاب‌شده از ارسال قبلی</option>
+                        @endif
                     </select>
                     @error('target')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror
                 </label>
-                <label class="grid gap-2 text-sm font-bold">نوع
-                    <select name="category" required class="min-h-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3">
-                        @foreach($categoryLabels as $value => $label)
-                            <option value="{{ $value }}" @selected(old('category', 'announcement') === $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label class="grid gap-2 text-sm font-bold">عنوان
-                    <input name="subject" value="{{ old('subject') }}" minlength="3" maxlength="180" required class="min-h-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3" placeholder="مثلاً تغییر ساعت کلاس">
-                    @error('subject')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror
-                </label>
-                <label class="grid gap-2 text-sm font-bold md:col-span-2">متن پیام
-                    <textarea name="body" rows="4" minlength="5" maxlength="10000" required class="w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3 py-3 leading-7">{{ old('body') }}</textarea>
-                    @error('body')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror
-                </label>
-                <div class="flex flex-col gap-3 border-t border-[var(--panel-border)] pt-4 md:col-span-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p class="text-xs leading-6 text-[var(--panel-muted)]">مخاطب هنگام ارسال سمت سرور دوباره اعتبارسنجی می‌شود.</p>
-                    <button class="min-h-12 rounded-xl bg-[var(--panel-primary)] px-6 font-black text-white transition hover:brightness-105">ارسال پیام</button>
-                </div>
-            </form>
-        @endif
+                <button type="button" data-recipient-more hidden class="min-h-10 justify-self-start rounded-lg border border-[var(--panel-border)] px-4 text-xs font-bold">نمایش ۲۰ مخاطب بعدی</button>
+            </div>
+            <label class="grid gap-2 text-sm font-bold">نوع پیام
+                <select name="category" required class="min-h-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3">
+                    @foreach($categoryLabels as $value => $label)
+                        <option value="{{ $value }}" @selected(old('category', 'announcement') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label class="grid gap-2 text-sm font-bold">عنوان
+                <input name="subject" value="{{ old('subject') }}" minlength="3" maxlength="180" required class="min-h-12 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3" placeholder="مثلاً تغییر ساعت کلاس">
+                @error('subject')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror
+            </label>
+            <label class="grid gap-2 text-sm font-bold md:col-span-2">متن پیام
+                <textarea name="body" rows="4" minlength="5" maxlength="10000" required class="w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3 py-3 leading-7">{{ old('body') }}</textarea>
+                @error('body')<span class="text-xs text-rose-600">{{ $message }}</span>@enderror
+            </label>
+            <div class="flex flex-col gap-3 border-t border-[var(--panel-border)] pt-4 md:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-xs leading-6 text-[var(--panel-muted)]">هنگام ارسال، ارتباط مخاطب با کلاس و آموزشگاه دوباره بررسی می‌شود.</p>
+                <button class="min-h-12 rounded-xl bg-[var(--panel-primary)] px-6 font-black text-white transition hover:brightness-105">ارسال پیام</button>
+            </div>
+        </form>
     </section>
     @else
         <section class="dashboard-panel p-5 sm:p-7" role="status">
