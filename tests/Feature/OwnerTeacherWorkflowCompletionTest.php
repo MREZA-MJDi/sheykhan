@@ -187,8 +187,26 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         $this->actingAs($workspace['teacher'])
             ->get(route('teacher.direct-messages.index'))
             ->assertOk()
-            ->assertSee($workspace['student']->name)
-            ->assertSee($workspace['parent']->name);
+            ->assertSee('جست‌وجوی نام')
+            ->assertSee('مخاطب‌ها فقط پس از جست‌وجو دریافت می‌شوند');
+
+        $this->actingAs($workspace['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'direct',
+                'type' => 'students',
+                'q' => $workspace['student']->name,
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.0.value', 'student:' . $workspace['classroom']->id . ':' . $workspace['student']->id);
+
+        $this->actingAs($workspace['teacher'])
+            ->getJson(route('teacher.recipient-options', [
+                'context' => 'direct',
+                'type' => 'parents',
+                'q' => $workspace['parent']->name,
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.0.value', 'parent:' . $workspace['classroom']->id . ':' . $workspace['student']->id . ':' . $workspace['parent']->id);
 
         $this->actingAs($workspace['teacher'])
             ->post(route('teacher.direct-messages.store'), [
