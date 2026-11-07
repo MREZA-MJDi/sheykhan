@@ -4,7 +4,11 @@
 @section('content')
 <div class="teacher-form-shell">
     <div class="teacher-form-head">
-        <div><span class="text-xs font-black text-[var(--panel-primary)]">کلاس و گروه</span><h1>کلاس جدید</h1><p>کلاس را به یکی از دوره‌های خودت وصل کن تا دانش‌آموز، حضور و غیاب و برنامه آن یکجا مدیریت شود.</p></div>
+        <div><span class="text-xs font-black text-[var(--panel-primary)]">کلاس و گروه</span><h1>کلاس جدید</h1><p>کلاس را به یکی از دوره‌های خودت وصل کن تا دانش‌آموز، حضور و غیاب و برنامه آن یکجا مدیریت شود.</p>
+            <div class="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-700" role="note">
+                <strong>دوره با کلاس فرق دارد:</strong> دوره محتوای آموزشی و درس‌هاست؛ کلاس یک گروه از دانش‌آموزان همان دوره است. جلسهٔ آنلاین را جداگانه زمان‌بندی کن و ویدئوی ضبط‌شده را در SpotPlayer دوره قرار بده.
+            </div>
+        </div>
         <a href="{{ route('teacher.classrooms.index') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کلاس‌ها ←</a>
     </div>
     <form method="POST" action="{{ route('teacher.classrooms.store') }}" class="grid gap-4 md:grid-cols-2">

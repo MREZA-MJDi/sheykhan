@@ -13,6 +13,7 @@
         </div>
 
         <div class="seo-console-hero-actions">
+            <a href="{{ route('account.guide', ['role' => 'seo']) }}" class="course-action-btn">راهنمای پنل SEO</a>
             <a href="{{ route('owner.seo.keywords.index') }}" class="course-action-btn primary">مدیریت کلمات کلیدی و رتبه‌ها ↗</a>
             <a href="{{ route('home') }}" target="_blank" rel="noopener" class="website-open-btn">مشاهده سایت ↗</a>
         </div>

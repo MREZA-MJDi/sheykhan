@@ -30,6 +30,7 @@
             <span class="teacher-home__eyebrow">فضای کاری مدرس</span>
             <h2>سلام {{ $user?->name }}، خوش آمدی</h2>
             <p>کارهای مهم امروزت را یک‌جا ببین و بدون جابه‌جایی بین صفحه‌ها ادامه بده.</p>
+            <a href="{{ route('account.guide', ['role' => 'teacher']) }}" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:9px 14px;border:1px solid rgba(255,255,255,.28);border-radius:12px;color:inherit;font-weight:800;text-decoration:none">راهنمای کار با پنل و آموزش مرحله‌به‌مرحله ←</a>
         </div>
         <div class="teacher-home__welcome-mark" aria-hidden="true">✦</div>
     </section>
@@ -74,6 +75,28 @@
             </div>
         </section>
     @endif
+
+    <section class="teacher-home__model" aria-labelledby="teacher-model-title">
+        <div class="teacher-home__model-heading">
+            <div>
+                <h3 id="teacher-model-title">چه چیزی را کجا مدیریت می‌کنی؟</h3>
+                <p>هر بخش یک کار مشخص دارد؛ این تفکیک جلوی ثبت اطلاعات در جای اشتباه را می‌گیرد.</p>
+            </div>
+            <a href="{{ route('account.guide') }}">راهنمای کامل پنل</a>
+        </div>
+        <div class="teacher-home__model-grid">
+            @if($user?->hasPermission('courses.view'))
+                <article><strong>دوره</strong><p>محتوای آموزشی، سرفصل، درس، قیمت و ویدئوهای ضبط‌شده.</p><a href="{{ route('teacher.courses.index') }}">مدیریت دوره‌ها</a></article>
+                <article><strong>SpotPlayer</strong><p>پخش امن ویدئوهای از پیش ضبط‌شده داخل صفحهٔ دوره؛ نه جلسهٔ زنده.</p><a href="{{ route('teacher.courses.index') }}">اتصال در تنظیمات دوره</a></article>
+            @endif
+            @if($user?->hasPermission('classrooms.view'))
+                <article><strong>کلاس / گروه</strong><p>گروه دانش‌آموزان یک دوره؛ اعضا، ظرفیت، برنامه و حضور و غیاب.</p><a href="{{ route('teacher.classrooms.index') }}">مدیریت گروه‌ها</a></article>
+            @endif
+            @if($user?->hasPermission('live_classes.view'))
+                <article><strong>جلسه آنلاین</strong><p>تدریس زنده در ساعت مشخص و با لینک ورود دانش‌آموزان.</p><a href="{{ route('teacher.live-classes.index') }}">زمان‌بندی جلسه</a></article>
+            @endif
+        </div>
+    </section>
 
     <div class="teacher-home__columns">
         @if($user?->hasPermission('live_classes.view'))

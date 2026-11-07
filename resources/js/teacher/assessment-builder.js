@@ -355,7 +355,91 @@ const initializeExamBuilder = () => {
         initialQuestions = [];
     }
 
-    examBuilder.querySelector('[data-print-exam]')?.addEventListener('click', () => window.print());
+    const printButton = examBuilder.querySelector('[data-print-exam]');
+
+    const buildPrintableSheet = () => {
+        document.getElementById('teacher-exam-print-sheet')?.remove();
+
+        const sheet = document.createElement('main');
+        sheet.id = 'teacher-exam-print-sheet';
+        sheet.className = 'teacher-exam-print-sheet';
+        sheet.dir = 'rtl';
+
+        const make = (tag, className, text, parent = sheet) => {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            if (text !== undefined && text !== null) node.textContent = String(text);
+            parent.appendChild(node);
+            return node;
+        };
+
+        const title = examBuilder.querySelector('[data-exam-title]')?.value.trim() || 'برگهٔ آزمون';
+        const course = examBuilder.querySelector('[data-course-select]')?.selectedOptions?.[0]?.textContent?.trim() || '—';
+        const duration = Number(examBuilder.querySelector('[data-exam-duration]')?.value || 0);
+        const questions = [...container.querySelectorAll('[data-exam-question]')].filter((item) =>
+            Boolean(item.querySelector('[data-name="question"]')?.value.trim())
+        );
+        const totalScore = questions.reduce((sum, item) => {
+            const score = Number(item.querySelector('[data-name="score"]')?.value || 0);
+            return sum + (Number.isFinite(score) && score > 0 ? score : 0);
+        }, 0);
+
+        const heading = make('header', 'teacher-exam-print-header');
+        make('p', 'teacher-exam-print-brand', 'آکادمی شیخان', heading);
+        make('h1', 'teacher-exam-print-title', title, heading);
+        make('p', 'teacher-exam-print-course', 'دوره: ' + course, heading);
+
+        const studentFields = make('div', 'teacher-exam-print-student-fields');
+        make('span', '', 'نام و نام خانوادگی: ................................................', studentFields);
+        make('span', '', 'کلاس: .............................', studentFields);
+        make('span', '', 'تاریخ: .............................', studentFields);
+
+        const facts = make('div', 'teacher-exam-print-facts');
+        make('span', '', 'تعداد سؤال: ' + toFaDigits(questions.length), facts);
+        make('span', '', 'نمرهٔ کل: ' + formatScore(totalScore), facts);
+        make('span', '', 'زمان: ' + (duration > 0 ? toFaDigits(duration) + ' دقیقه' : 'بدون محدودیت'), facts);
+
+        const note = examBuilder.querySelector('[data-exam-description]')?.value.trim();
+        if (note) make('p', 'teacher-exam-print-note', note);
+
+        questions.forEach((item, index) => {
+            const type = item.querySelector('[data-name="type"]')?.value || 'text';
+            const prompt = item.querySelector('[data-name="question"]')?.value.trim() || '';
+            const scoreValue = Number(item.querySelector('[data-name="score"]')?.value || 0);
+            const score = Number.isFinite(scoreValue) && scoreValue > 0 ? scoreValue : 0;
+            const question = make('article', 'teacher-exam-print-question');
+            const meta = make('div', 'teacher-exam-print-question-meta', undefined, question);
+            make('strong', '', 'سؤال ' + toFaDigits(index + 1), meta);
+            make('span', '', formatScore(score) + ' نمره', meta);
+            make('p', 'teacher-exam-print-prompt', prompt, question);
+
+            if (type === 'text') {
+                const answerSpace = make('div', 'teacher-exam-print-answer-space', undefined, question);
+                for (let line = 0; line < 3; line += 1) {
+                    make('i', '', undefined, answerSpace);
+                }
+                return;
+            }
+
+            const options = readQuestionOptions(item);
+            const list = make('ol', 'teacher-exam-print-options', undefined, question);
+            options.forEach((option, optionIndex) => {
+                const row = make('li', 'teacher-exam-print-option', undefined, list);
+                make('span', 'teacher-exam-print-option-marker', ['الف', 'ب', 'ج', 'د'][optionIndex] || toFaDigits(optionIndex + 1), row);
+                make('span', '', option, row);
+            });
+        });
+
+        make('footer', 'teacher-exam-print-footer', 'با دقت بخوانید و پاسخ‌ها را خوانا بنویسید.');
+        document.body.appendChild(sheet);
+        return sheet;
+    };
+
+    printButton?.addEventListener('click', () => {
+        const sheet = buildPrintableSheet();
+        window.addEventListener('afterprint', () => sheet.remove(), { once: true });
+        window.print();
+    });
     examBuilder.querySelector('[data-exam-title]')?.addEventListener('input', updatePaperSummary);
     examBuilder.querySelector('[data-course-select]')?.addEventListener('change', updatePaperSummary);
     examBuilder.querySelector('[data-exam-duration]')?.addEventListener('input', updatePaperSummary);

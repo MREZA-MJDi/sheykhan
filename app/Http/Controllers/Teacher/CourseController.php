@@ -55,4 +55,20 @@ class CourseController extends Controller
         return redirect()->route('teacher.courses.edit', $course)
             ->with('success', 'دوره با موفقیت به‌روزرسانی شد.');
     }
+
+    public function archive(Course $course, CourseManagementService $service): RedirectResponse
+    {
+        $service->archive(request()->user(), $course);
+
+        return redirect()->route('teacher.courses.index')
+            ->with('success', 'دوره آرشیو شد؛ ثبت‌نام‌ها و سوابق دانش‌آموزان حذف نشدند.');
+    }
+
+    public function restore(Course $course, CourseManagementService $service): RedirectResponse
+    {
+        $service->restoreArchived(request()->user(), $course);
+
+        return redirect()->route('teacher.courses.index')
+            ->with('success', 'دوره به‌صورت پیش‌نویس بازیابی شد؛ برای دانش‌آموزان دوباره منتشرش کن.');
+    }
 }

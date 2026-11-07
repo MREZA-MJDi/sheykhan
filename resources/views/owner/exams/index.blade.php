@@ -41,7 +41,17 @@
                             <td class="px-4 py-4 text-xs leading-6">{{ $exam->starts_at ? \App\Support\PersianUi::date($exam->starts_at) . ' ' . \App\Support\PersianUi::time($exam->starts_at) : 'بدون زمان شروع' }}</td>
                             <td class="px-4 py-4 text-sm font-bold">{{ \App\Support\PersianUi::digits($exam->attempts_count) }}</td>
                             <td class="px-4 py-4 text-xs"><span class="rounded-full px-2.5 py-1.5 {{ $exam->status === 'published' ? 'bg-emerald-50 text-emerald-700' : ($exam->status === 'closed' ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-amber-700') }}">{{ ['draft' => 'پیش‌نویس', 'published' => 'منتشرشده', 'closed' => 'بسته‌شده'][$exam->status] ?? $exam->status }}</span></td>
-                            <td class="px-4 py-4"><a href="{{ route('owner.exams.show', [$academy, $exam->id]) }}" class="inline-flex min-h-9 items-center rounded-lg border border-slate-200 px-3 text-xs font-bold hover:bg-slate-50">مشاهده نتایج</a></td>
+                            <td class="px-4 py-4">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <a href="{{ route('owner.exams.show', [$academy, $exam->id]) }}" class="inline-flex min-h-9 items-center rounded-lg border border-slate-200 px-3 text-xs font-bold hover:bg-slate-50">مشاهده نتایج</a>
+                                    @if(auth()->user()->hasPermission('exams.manage') && (int) $exam->attempts_count === 0 && $exam->status !== 'published')
+                                        <form method="POST" action="{{ route('owner.exams.destroy', [$academy, $exam->id]) }}">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="inline-flex min-h-9 items-center rounded-lg border border-rose-200 px-3 text-xs font-bold text-rose-700 hover:bg-rose-50" data-confirm="این آزمون و پیوست‌های بلااستفاده حذف شوند؟">حذف</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr><td colspan="7" class="px-4 py-12 text-center"><p class="font-bold">آزمونی برای این آموزشگاه پیدا نشد.</p><p class="mt-2 text-sm text-slate-500">ممکن است هنوز آزمونی ساخته نشده یا فیلترها محدودکننده باشند.</p></td></tr>

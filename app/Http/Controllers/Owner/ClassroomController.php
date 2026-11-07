@@ -99,4 +99,22 @@ class ClassroomController extends Controller
             ->route('owner.classrooms.show', [$academy, $item])
             ->with('success', 'اطلاعات کلاس به‌روزرسانی شد.');
     }
+
+    public function archive(Academy $academy, int $classroom, OwnerClassroomService $service): RedirectResponse
+    {
+        $item = Classroom::query()->findOrFail($classroom);
+        $service->archive(request()->user(), $academy, $item);
+
+        return redirect()->route('owner.classrooms.index', ['academy' => $academy, 'status' => 'archived'])
+            ->with('success', 'کلاس آرشیو شد؛ دانش‌آموزان، حضور و غیاب و سوابق آموزشی حفظ شده‌اند.');
+    }
+
+    public function restore(Academy $academy, int $classroom, OwnerClassroomService $service): RedirectResponse
+    {
+        $item = Classroom::query()->findOrFail($classroom);
+        $service->restore(request()->user(), $academy, $item);
+
+        return redirect()->route('owner.classrooms.index', $academy)
+            ->with('success', 'کلاس دوباره فعال شد؛ همهٔ سوابق قبلی حفظ شده‌اند.');
+    }
 }

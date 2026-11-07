@@ -16,11 +16,11 @@
             <span class="parent-kicker">مرکز پیگیری خانواده</span>
 
             <h1>
-                مسیر تحصیلی فرزندت را روشن‌تر ببین.
+                از وضعیت درس و کلاس فرزندتان باخبر باشید.
             </h1>
 
             <p>
-                میانگین تکمیل درس‌های منتشرشده در دوره‌های فعال، تکلیف‌های باز، جلسات پیش‌رو و نتیجه‌های اخیر فرزندان را از یک فضای امن دنبال کن.
+                در این صفحه می‌توانید پیشرفت درسی، تکلیف‌های باقی‌مانده، کلاس‌های پیش‌رو و نتیجه‌های فرزندانتان را ببینید و در صورت نیاز با آموزشگاه در ارتباط باشید.
             </p>
 
             <div class="mt-5 flex flex-wrap gap-2">
@@ -36,21 +36,13 @@
                 </span>
             </div>
 
-            <div class="mt-5 flex flex-wrap gap-2" aria-label="اقدام‌های سریع خانواده">
-                <a href="{{ route('parent.resources.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-black text-indigo-700 shadow-sm transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">
-                    جزوه‌ها و منابع فرزندان <span aria-hidden="true">←</span>
-                </a>
-                <a href="{{ route('parent.messages.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">
-                    پیام به آموزشگاه <span aria-hidden="true">←</span>
-                </a>
-                <a href="{{ route('parent.results.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">
-                    نتایج آموزشی <span aria-hidden="true">←</span>
-                </a>
-                <a href="{{ route('parent.counseling.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">درخواست مشاوره</a>
-                <a href="{{ route('parent.attendance.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">حضور و غیاب</a>
-                <a href="{{ route('courses.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">دوره‌های عمومی</a>
-                <a href="{{ route('store.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">فروشگاه و کتاب‌ها</a>
-                <a href="{{ route('blog.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">محتوای عمومی</a>
+            <div class="mt-5 flex flex-wrap gap-2" aria-label="کارهای اصلی خانواده">
+                <a href="{{ route('account.guide', ['role' => 'parent']) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-black text-indigo-700 shadow-sm transition hover:-translate-y-0.5">راهنمای استفاده از پنل والد</a>
+                <a href="{{ route('parent.results.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-black text-indigo-700 shadow-sm transition hover:-translate-y-0.5">دیدن نمره‌ها و بازخوردها</a>
+                <a href="{{ route('parent.attendance.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیگیری حضور و غیاب</a>
+                <a href="{{ route('parent.messages.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">پیام به آموزشگاه</a>
+                <a href="{{ route('parent.counseling.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">درخواست راهنمایی</a>
+                <a href="{{ route('courses.index') }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/15">انتخاب دوره برای فرزند</a>
             </div>
 
             <span class="parent-orb" aria-hidden="true"></span>

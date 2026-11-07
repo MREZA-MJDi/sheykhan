@@ -222,6 +222,54 @@ final class CourseManagementService
         });
     }
 
+    /**
+     * Archive a course without destroying enrollments, grades, attendance, or media.
+     * SpotPlayer licenses must be reconciled with the provider before local access
+     * is disabled, because the provider may still honour an already-issued license.
+     */
+    public function archive(User $user, Course $course): void
+    {
+        abort_unless($this->canManage($user, $course), 403);
+
+        DB::transaction(function () use ($course): void {
+            $locked = Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
+
+            if ($locked->status === 'archived') {
+                return;
+            }
+
+            if ($locked->spotplayerLicenses()->where('status', 'active')->exists()) {
+                throw ValidationException::withMessages([
+                    'course' => 'این دوره لایسنس فعال SpotPlayer دارد. ابتدا وضعیت لایسنس‌ها را با ناشر تطبیق بده؛ بعد می‌توانی دوره را آرشیو کنی.',
+                ]);
+            }
+
+            $locked->forceFill([
+                'status' => 'archived',
+                'published_at' => null,
+            ])->save();
+        }, 3);
+
+        $this->catalog->clearPublicCache();
+    }
+
+    /** Restore an archived course as a draft; never republish it silently. */
+    public function restoreArchived(User $user, Course $course): void
+    {
+        abort_unless($this->canManage($user, $course), 403);
+
+        if ($course->status !== 'archived') {
+            return;
+        }
+
+        $course->forceFill([
+            'status' => 'draft',
+            'published_at' => null,
+        ])->save();
+
+        $this->catalog->clearPublicCache();
+    }
+
     public function ownerIndexData(User $owner): array
     {
         $base = Course::query()

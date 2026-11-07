@@ -247,6 +247,42 @@ final class OwnerClassroomService
         });
     }
 
+    public function archive(User $owner, Academy $academy, Classroom $classroom): void
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        abort_if((int) $classroom->academy_id !== (int) $academy->id, 404);
+
+        DB::transaction(function () use ($academy, $classroom): void {
+            $locked = Classroom::query()
+                ->whereKey($classroom->id)
+                ->where('academy_id', $academy->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($locked->status !== 'archived') {
+                $locked->forceFill(['status' => 'archived'])->save();
+            }
+        }, 3);
+    }
+
+    public function restore(User $owner, Academy $academy, Classroom $classroom): void
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        abort_if((int) $classroom->academy_id !== (int) $academy->id, 404);
+
+        DB::transaction(function () use ($academy, $classroom): void {
+            $locked = Classroom::query()
+                ->whereKey($classroom->id)
+                ->where('academy_id', $academy->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($locked->status === 'archived') {
+                $locked->forceFill(['status' => 'active'])->save();
+            }
+        }, 3);
+    }
+
     public function show(User $owner, Academy $academy, Classroom $classroom): array
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);

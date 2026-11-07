@@ -281,7 +281,7 @@
                     </label>
 
                     <label class="course-field sm:col-span-2">
-                        <span class="course-label">شناسهٔ دوره در SpotPlayer <small>اختیاری</small></span>
+                        <span class="course-label">اتصال ویدئوهای دوره به SpotPlayer</span>
                         <input
                             name="spotplayer_course_id"
                             value="{{ old('spotplayer_course_id', $course->spotplayer_course_id) }}"
@@ -290,7 +290,12 @@
                             autocomplete="off"
                             placeholder="شناسهٔ دوره در پنل SpotPlayer"
                             class="course-input">
-                        <span class="course-help">شناسه را پس از ایجاد دوره و بارگذاری ویدئوها در پنل SpotPlayer وارد کن. هر دورهٔ شیخان باید به شناسهٔ دورهٔ متناظر در SpotPlayer وصل شود. اینجا شناسهٔ دوره را وارد کن، نه API key یا کلید لایسنس.</span>
+                        <span class="course-help">۱) در پنل ناشر SpotPlayer یک دوره بساز و ویدئوهای همین درس‌ها را آنجا بارگذاری کن. ۲) شناسهٔ همان دوره را کپی کن. ۳) شناسه را اینجا بچسبان و دوره را ذخیره کن. دانش‌آموز از صفحهٔ دورهٔ شیخان دکمهٔ «پخش امن ویدئو» را می‌زند. این فیلد API Key یا License Key نیست.</span>
+                        @if(filled($course->spotplayer_course_id))
+                            <span class="inline-flex rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800">شناسهٔ خارجی ثبت شده است؛ صدور لایسنس برای دانش‌آموزان واجد دسترسی امکان‌پذیر است.</span>
+                        @else
+                            <span class="inline-flex rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">هنوز شناسهٔ خارجی ثبت نشده؛ تا آن زمان پخش ویدئوی SpotPlayer برای این دوره فعال نمی‌شود.</span>
+                        @endif
                         @error('spotplayer_course_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                     </label>
                 </div>
@@ -397,11 +402,10 @@
                         <div>
                             <span>رسانه</span>
                             <h2>فایل‌های خصوصی دوره</h2>
-                            <p>ویدیو، PDF و فایل‌های آموزشی اینجا نگهداری می‌شوند.</p>
+                            <p>جزوه، PDF، تصویر و ZIP خصوصی اینجا نگهداری می‌شوند. ویدئوی آموزشی را در پنل SpotPlayer بارگذاری کن.</p>
                         </div>
                     </div>
                     <div class="course-upload-specs mt-4">
-                        <span><b>ویدیو:</b> حداکثر ۵۰۰ مگابایت</span>
                         <span><b>ZIP:</b> حداکثر ۲۰۰ مگابایت</span>
                         <span><b>PDF:</b> حداکثر ۵۰ مگابایت</span>
                         <span><b>تصویر:</b> حداکثر ۱۰ مگابایت</span>
@@ -413,10 +417,10 @@
                     <input type="hidden" name="collection" value="course-assets">
                     <label class="course-file-input">
                         <span>انتخاب فایل</span>
-                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.mov,.zip">
+                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.zip">
                     </label>
                     <p class="course-cover-scope-note mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900" role="note">
-                        این بخش برای فایل‌های خصوصی دوره است؛ تصویر عمومی کارت دوره را تغییر نمی‌دهد. کارت‌های دوره در سایت با قاب ۱۶:۹ نمایش داده می‌شوند، اما فرم فعلی مسیر جداگانه‌ای برای آپلود تصویر کاور عمومی ندارد.
+                        ویدئوهای آموزشی در این فرم آپلود نمی‌شوند؛ فایل ویدئو را در دورهٔ متناظر در پنل SpotPlayer قرار بده و شناسهٔ آن را در فیلد «اتصال ویدئوهای دوره» ثبت کن. این بخش فقط برای فایل‌های همراه دوره است و کاور عمومی سایت را تغییر نمی‌دهد.
                     </p>
 
                     <div class="course-upload-preview" data-upload-preview hidden>

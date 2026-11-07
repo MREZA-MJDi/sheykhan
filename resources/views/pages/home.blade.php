@@ -148,30 +148,36 @@
         </section>
     @endif
 
-    {{-- Primary destinations: clear visual navigation after the academy introduction. --}}
-    <section class="home-paths" aria-labelledby="home-paths-title">
-        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
+    <section id="public-destinations" class="home-section home-paths" aria-labelledby="home-paths-title">
+        <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
             <div class="home-paths__intro">
                 <div>
-                    <span>راه‌های کشف شیخان</span>
-                    <h2 id="home-paths-title">قدم بعدی تو از کجاست؟</h2>
+                    <h2 id="home-paths-title">دسترسی سریع به بخش‌های شیخان</h2>
+                    <p>برای پیدا کردن مسیر مناسب، از موضوعی شروع کن که همین حالا به آن نیاز داری.</p>
                 </div>
-                <p>برای پیدا کردن مسیر آموزشی، شناخت مدرس‌ها یا مطالعه نکته‌های کاربردی، از اینجا شروع کن.</p>
             </div>
-            <nav class="home-path-grid" aria-label="دسترسی سریع به بخش‌های شیخان">
-                <a href="{{ route('courses.index') }}">
-                    <span class="home-path-card__index">۰۱</span><b>مسیرهای آموزشی</b><span>دوره‌ها و درس‌هایی که می‌توانی دنبال کنی.</span><i aria-hidden="true">←</i>
+            <div class="home-paths__grid">
+                <a href="{{ route('courses.index') }}" class="home-path-card">
+                    <strong>دوره‌های آموزشی</strong>
+                    <p>محتوای دوره، مدرس، سرفصل‌ها و شرایط ثبت‌نام را مقایسه کن.</p>
+                    <span>مشاهده دوره‌ها</span>
                 </a>
-                <a href="{{ route('teachers.index') }}">
-                    <span class="home-path-card__index">۰۲</span><b>آشنایی با مدرس‌ها</b><span>تخصص‌ها و معرفی مدرس‌های منتشرشده.</span><i aria-hidden="true">←</i>
+                <a href="{{ route('teachers.index') }}" class="home-path-card">
+                    <strong>مدرس‌ها</strong>
+                    <p>با تخصص و سوابق آموزشی مدرس‌ها آشنا شو.</p>
+                    <span>آشنایی با مدرس‌ها</span>
                 </a>
-                <a href="{{ route('blog.index') }}">
-                    <span class="home-path-card__index">۰۳</span><b>مجله یادگیری</b><span>نکته‌ها و مطلب‌هایی برای یادگیری بهتر.</span><i aria-hidden="true">←</i>
+                <a href="{{ route('store.index') }}" class="home-path-card">
+                    <strong>فروشگاه آموزشی</strong>
+                    <p>جزوه‌ها، بسته‌ها و محصولات آموزشی را ببین.</p>
+                    <span>ورود به فروشگاه</span>
                 </a>
-                <a href="{{ route('store.index') }}">
-                    <span class="home-path-card__index">۰۴</span><b>فروشگاه آموزشی</b><span>منابع و محصولاتی که در دسترس قرار گرفته‌اند.</span><i aria-hidden="true">←</i>
+                <a href="{{ route('blog.index') }}" class="home-path-card">
+                    <strong>مجلهٔ یادگیری</strong>
+                    <p>مقاله‌ها و راهنماهای آموزشی را دنبال کن.</p>
+                    <span>خواندن مقاله‌ها</span>
                 </a>
-            </nav>
+            </div>
         </div>
     </section>
 
@@ -361,7 +367,7 @@
     </section>
 
 
-    @include('pages.home.partials.learning-workflow')
+    @include('pages.home.partials.platform-model')
 
     {{-- Teachers: an empty directory still offers a clear next step. --}}
     <section id="teachers-section" class="home-section">

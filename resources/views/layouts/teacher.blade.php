@@ -29,6 +29,7 @@
         ['label'=>'کلاس‌های من','icon'=>'▤','route'=>'teacher.classrooms.index','permission'=>'classrooms.view'],
         ['label'=>'کلاس آنلاین','icon'=>'▹','route'=>'teacher.live-classes.index','permission'=>'live_classes.view'],
         ['label'=>'دوره‌ها و درس‌ها','icon'=>'▣','route'=>'teacher.courses.index','permission'=>'courses.view'],
+        ['label'=>'SpotPlayer و لایسنس‌ها','icon'=>'▶','route'=>'teacher.spotplayer.index','permission'=>'courses.view'],
       ]],
       ['label'=>'ارزیابی و پیگیری','items'=>[
         ['label'=>'تکالیف','icon'=>'✎','route'=>'teacher.assignments.index','permission'=>'assignments.view'],
@@ -54,6 +55,7 @@
       request()->routeIs('teacher.classrooms.attendance.*') || request()->routeIs('teacher.attendance.*') => 'حضور و غیاب',
       request()->routeIs('teacher.classrooms.*') => 'کلاس‌ها',
       request()->routeIs('teacher.courses.*') => 'دوره‌ها',
+      request()->routeIs('teacher.spotplayer.*') => 'SpotPlayer و لایسنس‌ها',
       request()->routeIs('teacher.assignments.*') => 'تکالیف',
       request()->routeIs('teacher.exams.*') || request()->routeIs('teacher.exam-attempts.*') => 'آزمون‌ها',
       request()->routeIs('teacher.students.*') => 'دانش‌آموزان',
@@ -127,6 +129,7 @@
       @endif
     @endforeach
     <div class="side-footer">
+      <a class="nv" href="{{ route('account.guide') }}"><i>؟</i><span>راهنمای کار با پنل</span></a>
       <a class="nv" href="{{ route('home') }}"><i>↗</i><span>مشاهده سایت</span></a>
       <form method="POST" action="{{ route('logout') }}">@csrf<button class="nv" type="submit"><i>⇥</i><span>خروج از حساب</span></button></form>
     </div>

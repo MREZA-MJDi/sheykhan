@@ -12,6 +12,11 @@
             <span>برنامه‌ریزی کلاس</span>
             <h1>جلسه آنلاین جدید</h1>
             <p>فقط اطلاعاتی را وارد کن که دانش‌آموز برای شرکت در جلسه واقعاً به آن نیاز دارد.</p>
+            <div class="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-7 text-blue-950" role="note">
+                <strong>این صفحه برای جلسهٔ زنده است.</strong>
+                مدرس و دانش‌آموز در ساعت تعیین‌شده وارد لینک جلسه می‌شوند. ویدئوی ضبط‌شدهٔ درس را اینجا نمی‌سازی؛ ویدئوی ضبط‌شده در دوره و از طریق SpotPlayer پخش می‌شود.
+                <a class="ms-1 font-black underline" href="{{ route('teacher.courses.index') }}">رفتن به دوره‌ها</a>
+            </div>
         </div>
         <a href="{{ route('teacher.live-classes.index') }}">بازگشت به جلسات ←</a>
     </div>

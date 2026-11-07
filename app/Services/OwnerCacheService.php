@@ -9,7 +9,7 @@ use Throwable;
 
 final class OwnerCacheService
 {
-    private const DASHBOARD_TTL = 30;
+    private const DASHBOARD_TTL = 120;
     private const REPORT_TTL = 60;
 
     public function dashboardKey(User $owner, string $period = 'month'): string
