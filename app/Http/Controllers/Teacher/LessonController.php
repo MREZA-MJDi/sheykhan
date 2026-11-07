@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Lesson;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class LessonController extends Controller
@@ -135,13 +136,13 @@ class LessonController extends Controller
             );
 
             if ($locked->status !== 'draft') {
-                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'lesson' => 'برای حذف درس منتشرشده، ابتدا آن را از انتشار خارج کن.',
                 ]);
             }
 
             if ($locked->progress()->exists() || LearningResource::query()->where('lesson_id', $locked->id)->exists()) {
-                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'lesson' => 'برای این درس سابقهٔ پیشرفت یا منبع آموزشی ثبت شده است؛ حذف مجاز نیست تا سوابق حفظ شوند.',
                 ]);
             }
