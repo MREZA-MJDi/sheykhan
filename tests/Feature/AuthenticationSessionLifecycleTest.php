@@ -33,7 +33,7 @@ class AuthenticationSessionLifecycleTest extends TestCase
             $sessionIdBeforeLogin = session()->getId();
 
             $login = $this->post(route('login.store'), [
-                'identifier' => $email,
+                'mobile' => $user->mobile,
                 'password' => $password,
             ]);
 
@@ -61,11 +61,11 @@ class AuthenticationSessionLifecycleTest extends TestCase
         $student->forceFill(['status' => 'inactive'])->save();
 
         $response = $this->from(route('login'))->post(route('login.store'), [
-            'identifier' => $student->email,
+            'mobile' => $student->mobile,
             'password' => (string) (config('role_access.seed_password') ?? 'Sheykhan@12345'),
         ]);
 
-        $response->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
+        $response->assertRedirect(route('login'))->assertSessionHasErrors('mobile');
         $this->assertGuest();
     }
 }
