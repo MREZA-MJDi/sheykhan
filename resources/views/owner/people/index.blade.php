@@ -27,6 +27,18 @@
 @endif
 
 
+@if(session('temporary_teacher_password'))
+<section class="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950" role="status" aria-live="polite">
+    <h2 class="font-black">اطلاعات ورود مدرس — فقط همین یک‌بار</h2>
+    <p class="mt-1 text-sm">این اطلاعات را از مسیر امن به مدرس تحویل بده. رمز در اولین ورود باید تغییر کند.</p>
+    <div class="mt-3 grid gap-2 sm:grid-cols-3">
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs">نام</span><strong>{{ session('temporary_teacher_name') }}</strong></div>
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs">موبایل</span><strong dir="ltr">{{ session('temporary_teacher_mobile') }}</strong></div>
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs">رمز اولیه</span><code dir="ltr">{{ session('temporary_teacher_password') }}</code></div>
+    </div>
+</section>
+@endif
+
 <div class="owner-people-tabs" data-owner-people-tabs data-initial-tab="{{ $activePeopleTab }}">
     <nav class="owner-people-tabbar" role="tablist" aria-label="مدیریت اعضای آموزشگاه">
         <button type="button" role="tab" id="owner-people-management-tab" aria-controls="owner-people-management-panel" data-owner-tab-button="management" aria-selected="{{ $activePeopleTab === 'management' ? 'true' : 'false' }}">
@@ -89,19 +101,17 @@
     </div>
     <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}" class="mt-5 grid gap-3 sm:grid-cols-2" data-confirm="حساب والد ساخته یا به دانش‌آموز متصل شود؟">
         @csrf
-        <label class="grid gap-1 text-xs font-bold">نام والد
-            <input name="name" value="{{ old('name') }}" minlength="2" maxlength="100" required autocomplete="name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
-            <small class="owner-field-help">نام و نام خانوادگی والد را وارد کن؛ این نام در ارتباط‌ها و فهرست اعضا نمایش داده می‌شود.</small>
-            @error('name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        <label class="grid gap-1 text-xs font-bold">نام
+            <input name="first_name" value="{{ old('first_name') }}" minlength="2" maxlength="60" required autocomplete="given-name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            @error('first_name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        </label>
+        <label class="grid gap-1 text-xs font-bold">نام خانوادگی
+            <input name="last_name" value="{{ old('last_name') }}" minlength="2" maxlength="80" required autocomplete="family-name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            @error('last_name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
         <label class="grid gap-1 text-xs font-bold">شماره موبایل والد
             <input type="tel" name="mobile" value="{{ old('mobile') }}" maxlength="11" required inputmode="tel" dir="ltr" autocomplete="tel" placeholder="۰۹۱۲…" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
             <small class="owner-field-help">شماره موبایل یکتا و در دسترس والد؛ شناسه ورود به حساب خواهد بود.</small>
-            @error('email')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
-        </label>
-        <label class="grid gap-1 text-xs font-bold">شماره موبایل
-            
-            <small class="owner-field-help">اختیاری؛ شماره‌ای وارد کن که برای هماهنگی با خانواده قابل استفاده باشد.</small>
             @error('mobile')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
         <label class="grid gap-1 text-xs font-bold">نوع ارتباط با دانش‌آموز
@@ -130,7 +140,8 @@
 </section>
 <div class="grid gap-5 xl:grid-cols-3">
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-confirm="حساب مدرس ساخته شود؟">@csrf
-<label class="grid gap-1"><span class="text-xs font-bold">نام و نام خانوادگی</span><input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">نام کامل مدرس را وارد کن؛ در فهرست دوره‌ها و کلاس‌ها نمایش داده می‌شود.</small>@error('name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+<label class="grid gap-1"><span class="text-xs font-bold">نام</span><input name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('first_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+<label class="grid gap-1"><span class="text-xs font-bold">نام خانوادگی</span><input name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('last_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">شماره موبایل</span><input name="mobile" type="tel" inputmode="tel" dir="ltr" value="{{ old('mobile') }}" maxlength="11" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">شماره موبایل یکتا؛ شناسه ورود مدرس خواهد بود.</small>@error('mobile')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <p class="text-xs text-slate-500">رمز اولیه به‌صورت تصادفی ساخته می‌شود و باید در اولین ورود تغییر کند.</p>
 <label class="grid gap-1"><span class="text-xs font-bold">تخصص</span><input name="specialization" value="{{ old('specialization') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">حوزه تخصصی اصلی مدرس، مانند ریاضی، فیزیک یا زبان.</small>@error('specialization')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
