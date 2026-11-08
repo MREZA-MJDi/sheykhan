@@ -223,6 +223,7 @@ class LegacyStudentOnboardingTest extends TestCase
                 'name' => 'نباید ثبت شود',
                 'national_id' => '4444444444',
                 'grade_id' => $grade->id,
+                'mobile' => '09121234568',
                 'idempotency_key' => (string) Str::uuid(),
             ])
             ->assertForbidden();
