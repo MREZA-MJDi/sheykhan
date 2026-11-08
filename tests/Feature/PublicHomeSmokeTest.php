@@ -29,7 +29,7 @@ class PublicHomeSmokeTest extends TestCase
             ->assertSee('data-home-hero', false)
             ->assertSee('shx-public-hero-title', false)
             ->assertSee('public-announcement', false)
-            ->assertSee('public-nav', false)
+            ->assertSee('site-navbar', false)
             ->assertSee('public-footer', false)
             ->assertSee('public-journey', false)
             ->assertSee('public-faq', false)
