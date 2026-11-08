@@ -207,7 +207,7 @@ final class OwnerWorkspaceService
                     ->orWhere('users.mobile', 'like', '%' . $term . '%');
 
                 if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
-                    $lookup = \\App\\Support\\NationalIdLookup::make($term);
+                    $lookup = \App\Support\NationalIdLookup::make($term);
                     $builder->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
                 }
             });
@@ -273,8 +273,8 @@ final class OwnerWorkspaceService
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $mobile = \\App\\Support\\MobileNumber::normalize($data['mobile'] ?? null);
-        $temporaryPassword = \\Illuminate\\Support\\Str::password(16, true, true, true, false);
+        $mobile = \App\Support\MobileNumber::normalize($data['mobile'] ?? null);
+        $temporaryPassword = \Illuminate\Support\Str::password(16, true, true, true, false);
 
         try {
             return DB::transaction(function () use ($academy, $data, $mobile, $temporaryPassword): array {
