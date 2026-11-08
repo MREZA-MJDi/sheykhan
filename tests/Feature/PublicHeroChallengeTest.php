@@ -26,6 +26,29 @@ final class PublicHeroChallengeTest extends TestCase
             ->assertDontSee('hero_challenge_options');
     }
 
+    public function test_advanced_seeded_challenges_are_ordered_and_have_one_correct_answer_each(): void
+    {
+        $this->seed(HeroChallengeSeeder::class);
+
+        $challenges = HeroChallenge::query()
+            ->where('is_active', true)
+            ->with('options')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->limit(3)
+            ->get();
+
+        $this->assertCount(3, $challenges);
+        $this->assertSame('hero-difference-squares', $challenges[0]->slug);
+        $this->assertSame('hero-recursive-three', $challenges[1]->slug);
+        $this->assertSame('hero-factorial-offset', $challenges[2]->slug);
+
+        foreach ($challenges as $challenge) {
+            $this->assertCount(4, $challenge->options);
+            $this->assertSame(1, $challenge->options->where('is_correct', true)->count());
+        }
+    }
+
     public function test_correct_answer_is_checked_on_the_server_and_returns_the_explanation(): void
     {
         $this->seed(HeroChallengeSeeder::class);
