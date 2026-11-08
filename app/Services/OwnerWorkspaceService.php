@@ -43,7 +43,7 @@ final class OwnerWorkspaceService
             ->wherePivot('status', 'active')
             ->wherePivot('role', $role)
             ->where('users.status', 'active')
-            ->select('users.id', 'users.name', 'users.email')
+            ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(25, ['*'], $pageName);
@@ -53,7 +53,7 @@ final class OwnerWorkspaceService
         $archivedTeachers = $academy->users()
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'archived')
-            ->select('users.id', 'users.name', 'users.email')
+            ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(25, ['*'], 'archived_teachers_page');
@@ -195,7 +195,7 @@ final class OwnerWorkspaceService
         $query = $academy->users()
             ->wherePivot('role', $role)
             ->wherePivot('status', $membershipStatus)
-            ->select('users.id', 'users.name', 'users.email', 'users.status', 'users.created_at');
+            ->select('users.id', 'users.name', 'users.mobile', 'users.status', 'users.created_at');
 
         if ($activeAccountsOnly) {
             $query->where('users.status', 'active');
@@ -204,12 +204,12 @@ final class OwnerWorkspaceService
         if ($term !== '') {
             $query->where(function ($builder) use ($term): void {
                 $builder->where('users.name', 'like', '%' . $term . '%')
-                    ->orWhere('users.email', 'like', '%' . $term . '%');
+                    ->orWhere('users.mobile', 'like', '%' . $term . '%');
             });
         }
 
         $sortColumn = match ($sort) {
-            'email' => 'users.email',
+            'mobile' => 'users.mobile',
             'joined_at' => 'academy_user.joined_at',
             'created_at' => 'users.created_at',
             default => 'users.name',
@@ -226,7 +226,7 @@ final class OwnerWorkspaceService
         // supported databases. Use cursor mode for the default non-null sort keys;
         // keep page mode for nullable email/joined_at sort options.
         $usesCursor = ! array_key_exists('page', $filters)
-            && ! in_array($sort, ['email', 'joined_at'], true);
+            && ! in_array($sort, ['mobile', 'joined_at'], true);
 
         $paginator = $usesCursor
             ? $query->cursorPaginate($perPage, ['*'], 'cursor')
