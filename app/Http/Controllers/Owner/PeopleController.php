@@ -130,13 +130,12 @@ class PeopleController extends Controller
         Academy $academy,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
-        $workspace->createTeacher(
-            $request->user(),
-            $academy,
-            $request->validated()
-        );
+        $result = $workspace->createTeacher($request->user(), $academy, $request->validated());
 
-        return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.');
+        return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.')
+            ->with('temporary_teacher_mobile', $result['teacher']->mobile)
+            ->with('temporary_teacher_name', $result['teacher']->name)
+            ->with('temporary_teacher_password', $result['temporary_password']);
     }
 
     public function storeParent(
@@ -159,7 +158,7 @@ class PeopleController extends Controller
         if ($result['temporary_password']) {
             $response
                 ->with('temporary_parent_password', $result['temporary_password'])
-                ->with('temporary_parent_email', $result['parent']->email);
+                ->with('temporary_parent_mobile', $result['parent']->mobile);
         }
 
         return $response;
