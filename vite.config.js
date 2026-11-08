@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/js/public-site.js',
                 'resources/css/public-experience.css',
                 'resources/css/public-site.css',
+                'resources/css/public-design-system.css',
                 'resources/css/student.css',
                 'resources/js/student.js',
                 'resources/css/teacher.css',
