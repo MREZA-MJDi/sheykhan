@@ -429,8 +429,25 @@
 
 
 /* Route templates are wrapped in an outer page section before the content rail. */
-.public-site .public-main:not(.home-page) > section > section > .mx-auto {
+.public-site .public-main:not(.home-page) > section > section > .mx-auto,
+.public-site .public-main:not(.home-page) > article > section > .mx-auto {
     width:100% !important;
     max-width:1100px !important;
     margin-inline:auto;
+}
+
+
+/* Shared detail-page media and reading surfaces. */
+.public-site .public-main :is(.public-product-media-card,.public-course-preview-card,.public-content-detail-card) {
+    overflow:hidden;
+    border:1px solid var(--public-line);
+    border-radius:var(--public-radius-lg);
+    background:var(--public-surface);
+    box-shadow:var(--public-shadow-card);
+}
+.public-site .public-main :is(.public-product-media-card,.public-course-preview-card,.public-content-detail-card) :is(img,video) {
+    max-width:100%;
+}
+.public-site .public-main :is(.public-product-media-card,.public-course-preview-card,.public-content-detail-card) :is(p,h2,h3) {
+    overflow-wrap:anywhere;
 }
