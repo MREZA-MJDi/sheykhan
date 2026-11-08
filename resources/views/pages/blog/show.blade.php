@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', $post->title . ' | شیخان')
 @section('description', $post->excerpt ?: 'مقاله ' . $post->title . ' در شیخان.')

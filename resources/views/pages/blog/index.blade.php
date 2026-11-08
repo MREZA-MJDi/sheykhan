@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', 'مقالات | شیخان')
 @section('description', 'مقالات آموزشی منتشرشده در شیخان.')

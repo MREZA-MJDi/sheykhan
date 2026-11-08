@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', $product->title . ' | فروشگاه شیخان')
 @section('description', $product->subtitle ?: \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 155))
