@@ -70,6 +70,7 @@
         const queryInput = root.querySelector('[data-directory-query]');
         const sortSelect = root.querySelector('[data-directory-sort]');
         const directionSelect = root.querySelector('[data-directory-direction]');
+        const perPageSelect = root.querySelector('[data-directory-per-page]');
         const resetButton = root.querySelector('[data-directory-reset]');
         const resultBox = root.querySelector('[data-directory-results]');
         const status = root.querySelector('[data-directory-status]');
@@ -94,7 +95,7 @@
             const url = new URL(baseUrl, window.location.origin);
             const params = url.searchParams;
             const query = queryInput.value.trim();
-            params.set('per_page', '25');
+            params.set('per_page', String(perPageSelect?.value || '25'));
             params.set('page', String(page));
             params.set('sort', sortSelect.value || 'name');
             params.set('direction', directionSelect.value || 'asc');
@@ -162,10 +163,12 @@
         });
         sortSelect.addEventListener('change', () => load(1));
         directionSelect.addEventListener('change', () => load(1));
+        perPageSelect?.addEventListener('change', () => load(1));
         resetButton?.addEventListener('click', () => {
             queryInput.value = '';
             sortSelect.value = 'name';
             directionSelect.value = 'asc';
+            if (perPageSelect) perPageSelect.value = '25';
             load(1);
         });
         previousButton?.addEventListener('click', () => {
