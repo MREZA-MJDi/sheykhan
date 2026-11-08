@@ -14,7 +14,7 @@ class LoginRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'mobile' => \\App\\Support\\MobileNumber::normalize((string) $this->input('mobile')),
+            'mobile' => \App\Support\MobileNumber::normalize((string) $this->input('mobile')),
         ]);
     }
 
