@@ -106,8 +106,9 @@
             </section>
 
             <div class="teacher-profile-form-grid">
-                <label class="teacher-workspace-field"><span>نام و نام خانوادگی</span><input name="name" value="{{ old('name',$teacher->name) }}" required maxlength="120"></label>
-                <label class="teacher-workspace-field"><span>ایمیل</span><input type="email" name="email" value="{{ old('email',$teacher->email) }}" maxlength="255" dir="ltr"></label>
+                <label class="teacher-workspace-field"><span>نام</span><input name="first_name" value="{{ old('first_name', \Illuminate\Support\Str::before($teacher->name, ' ')) }}" required maxlength="60" autocomplete="given-name"></label>
+                <label class="teacher-workspace-field"><span>نام خانوادگی</span><input name="last_name" value="{{ old('last_name', \Illuminate\Support\Str::after($teacher->name, ' ')) }}" required maxlength="80" autocomplete="family-name"></label>
+                <label class="teacher-workspace-field"><span>شماره موبایل / نام کاربری</span><input type="tel" name="mobile" value="{{ old('mobile',$teacher->mobile) }}" inputmode="tel" dir="ltr" maxlength="11" required autocomplete="tel"></label>
                 <label class="teacher-workspace-field"><span>تخصص / حوزه تدریس</span><input name="specialization" value="{{ old('specialization',$profile->specialization) }}" maxlength="255" placeholder="مثلاً ریاضی و فیزیک"></label>
                 <label class="teacher-workspace-field"><span>سابقه تدریس <small>سال</small></span><input type="number" name="experience_years" min="0" max="80" value="{{ old('experience_years',$profile->experience_years) }}"></label>
                 <label class="teacher-workspace-field full"><span>تحصیلات</span><input name="education" value="{{ old('education',$profile->education) }}" maxlength="1000" placeholder="مثلاً کارشناسی ارشد مهندسی..."></label>
