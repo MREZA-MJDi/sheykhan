@@ -504,15 +504,15 @@ class ParentPortalWorkflowTest extends TestCase
             ->from(route('owner.people.index', $workspace['academy']))
             ->post(route('owner.people.store-parent', $workspace['academy']), [
                 'student_id' => $workspace['unlinkedStudent']->id,
-                'name' => 'والد تازه',
-                'email' => 'new-parent-' . Str::lower(Str::random(8)) . '@test.local',
+                'first_name' => 'والد',
+                'last_name' => 'تازه',
                 'mobile' => '09120000000',
                 'relation' => 'مادر',
             ])
             ->assertRedirect(route('owner.people.index', $workspace['academy']))
             ->assertSessionHas('temporary_parent_password');
 
-        $parent = User::query()->where('email', 'like', 'new-parent-%@test.local')->firstOrFail();
+        $parent = User::query()->where('mobile', '09120000000')->firstOrFail();
 
         $this->assertTrue((bool) $parent->must_change_password);
         $this->assertTrue($parent->hasRole('parent'));
