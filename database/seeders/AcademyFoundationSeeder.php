@@ -177,7 +177,7 @@ class AcademyFoundationSeeder extends Seeder
             ['email' => $email],
             [
                 'name' => $name,
-                'mobile' => '09' . str_pad((string) (100000000 + abs(crc32($key)) % 899999999), 9, '0', STR_PAD_LEFT),
+                'mobile' => '0912' . str_pad((string) (abs(crc32($key)) % 10000000), 7, '0', STR_PAD_LEFT),
                 'status' => 'active',
                 'password' => Hash::make($seedPassword),
                 'deleted_at' => null,
