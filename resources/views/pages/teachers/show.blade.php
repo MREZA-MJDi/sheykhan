@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', ($teacher->name ?: 'مدرس') . ' | مدرس شیخان')
 @section('description', \Illuminate\Support\Str::limit(

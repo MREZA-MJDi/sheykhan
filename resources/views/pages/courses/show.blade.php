@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', $course->title . ' | شیخان')
 @section('description', $course->short_description ?: 'جزئیات دوره ' . $course->title)

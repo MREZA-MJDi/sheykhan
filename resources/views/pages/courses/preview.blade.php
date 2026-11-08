@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', $lesson->title . ' | پیش‌نمایش | شیخان')
 @section('description', $lesson->summary ?: 'پیش‌نمایش رایگان درس «' . $lesson->title . '» از دوره ' . $course->title)

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', 'مدرس‌ها | شیخان')
 @section('description', 'مدرس‌های تاییدشده و قابل نمایش شیخان.')
