@@ -14,15 +14,14 @@ class LoginRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'identifier' => trim((string) $this->input('identifier')),
-            'email' => strtolower(trim((string) $this->input('email'))),
+            'mobile' => \\App\\Support\\MobileNumber::normalize((string) $this->input('mobile')),
         ]);
     }
 
     public function rules(): array
     {
         return [
-            'identifier' => ['required', 'string', 'max:255'],
+            'mobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'password' => ['required', 'string'],
             'remember' => ['nullable', 'boolean'],
         ];
@@ -31,7 +30,8 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'identifier.required' => 'ایمیل یا شماره موبایل را وارد کنید.',
+            'mobile.required' => 'شماره موبایل را وارد کنید.',
+            'mobile.regex' => 'شماره موبایل معتبر نیست.',
             'password.required' => 'رمز عبور را وارد کنید.',
         ];
     }
