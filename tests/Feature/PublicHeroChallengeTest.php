@@ -49,6 +49,25 @@ final class PublicHeroChallengeTest extends TestCase
         }
     }
 
+    public function test_incomplete_active_challenge_is_skipped_without_hiding_valid_challenges(): void
+    {
+        $this->seed(HeroChallengeSeeder::class);
+
+        $incomplete = HeroChallenge::query()
+            ->with('options')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->firstOrFail();
+        $nextValid = HeroChallenge::query()->where('slug', 'hero-two-uneven-ropes')->firstOrFail();
+
+        $incomplete->options()->orderBy('id')->firstOrFail()->delete();
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee($nextValid->title)
+            ->assertDontSee($incomplete->title);
+    }
+
     public function test_correct_answer_is_checked_on_the_server_and_returns_the_explanation(): void
     {
         $this->seed(HeroChallengeSeeder::class);
