@@ -154,7 +154,7 @@
 
             <div class="mt-2 grid gap-1 text-xs text-[var(--color-text-secondary)]">
                 <div class="overflow-x-auto">
-                    <span class="font-bold">Username:</span>
+                    <span class="font-bold">Mobile:</span>
                     <code dir="ltr">{{ $account['username'] }}</code>
                 </div>
 
