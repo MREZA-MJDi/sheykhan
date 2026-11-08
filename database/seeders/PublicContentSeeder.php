@@ -16,7 +16,7 @@ class PublicContentSeeder extends Seeder
  public function run(): void
  {
   $academy=Academy::where('slug','sheykhan-academy')->firstOrFail(); $owner=User::where('email','owner@sheykhan.test')->firstOrFail(); $year=AcademicYear::where('title','1405-1406')->firstOrFail();
-  $students=User::whereIn('email',['student.armin@sheykhan.test','student.nika@sheykhan.test','student.parsa@sheykhan.test'])->get();
+  $students=User::whereIn('email',['student.armin@sheykhan.test','student.nika@sheykhan.test','student.parsa@sheykhan.test'])->with('studentProfile')->get();
   $parents=User::whereIn('email',['parent.armin@sheykhan.test','parent.nika@sheykhan.test'])->get();
   foreach([
    ['parents','سخنی با اولیاء'],['students','سخنی با دانش‌آموزان'],['gifted','سلام تیزهوشان'],
