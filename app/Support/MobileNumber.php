@@ -15,6 +15,7 @@ final class MobileNumber
         if (str_starts_with($digits, '0098')) $digits = '0' . substr($digits, 4);
         elseif (str_starts_with($digits, '98') && strlen($digits) === 12) $digits = '0' . substr($digits, 2);
         elseif (str_starts_with($digits, '9') && strlen($digits) === 10) $digits = '0' . $digits;
+        elseif (! str_starts_with($digits, '09')) return null;
         return $digits !== '' ? $digits : null;
     }
 
