@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AuthenticationSessionLifecycleTest extends TestCase
@@ -68,4 +69,45 @@ class AuthenticationSessionLifecycleTest extends TestCase
         $response->assertRedirect(route('login'))->assertSessionHasErrors('mobile');
         $this->assertGuest();
     }
+    public function test_email_is_not_accepted_as_a_login_identifier(): void
+    {
+        $this->seed();
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+
+        $this->from(route('login'))->post(route('login.store'), [
+            'identifier' => $student->email,
+            'password' => (string) (config('role_access.seed_password') ?? 'Sheykhan@12345'),
+        ])->assertRedirect(route('login'))->assertSessionHasErrors('mobile');
+
+        $this->assertGuest();
+    }
+
+    public function test_public_registration_generates_a_temporary_password_for_mobile_account(): void
+    {
+        $this->seed();
+        $mobile = '09129998877';
+
+        $response = $this->post(route('register.store'), [
+            'first_name' => 'کاربر',
+            'last_name' => 'جدید',
+            'mobile' => $mobile,
+            'account_type' => 'student',
+        ]);
+
+        $response->assertRedirect(route('password.change.show'));
+        $this->assertAuthenticated();
+        $user = User::query()->where('mobile', $mobile)->firstOrFail();
+        $temporaryPassword = $response->getSession()->get('registration_temporary_password');
+
+        $this->assertNull($user->email);
+        $this->assertTrue((bool) $user->must_change_password);
+        $this->assertIsString($temporaryPassword);
+        $this->assertTrue(Hash::check($temporaryPassword, $user->password));
+
+        $this->get(route('password.change.show'))
+            ->assertOk()
+            ->assertSee($mobile)
+            ->assertSee($temporaryPassword);
+    }
+
 }
