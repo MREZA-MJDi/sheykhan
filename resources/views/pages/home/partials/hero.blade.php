@@ -5,7 +5,7 @@
     $hasHeroSlides = $heroSlides->isNotEmpty();
 @endphp
 
-<section class="sheykhan-home-hero" data-home-hero aria-label="اسلایدر اصلی شیخان">
+<section class="sheykhan-home-hero" data-home-hero aria-label="اسلایدر اصلی شیخان" aria-labelledby="shx-public-hero-title">
     @if($hasHeroSlides)
         <div class="sheykhan-home-hero__slides">
             @foreach($heroSlides as $slide)
@@ -33,7 +33,7 @@
                         <div class="sheykhan-home-hero__copy">
                             <p class="sheykhan-home-hero__eyebrow"><span></span>آموزش، تمرین و پیشرفت</p>
                             @if(filled($slide['title'] ?? null))
-                                <h1 class="sheykhan-home-hero__title" data-hero-slide-title>{{ $slide['title'] }}</h1>
+                                <h1 id="{{ $loop->first ? 'shx-public-hero-title' : '' }}" class="sheykhan-home-hero__title" data-hero-slide-title>{{ $slide['title'] }}</h1>
                             @else
                                 <h1 class="sheykhan-home-hero__title" data-hero-slide-title>مغزت را <span>محک</span> بزن، مسیرت را هوشمندانه انتخاب کن.</h1>
                             @endif
