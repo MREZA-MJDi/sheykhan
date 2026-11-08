@@ -2,55 +2,95 @@
     $heroSlides = collect($homeHeroSlides ?? [])
         ->filter(fn ($slide) => filled($slide['image'] ?? null))
         ->values();
+    $hasHeroSlides = $heroSlides->isNotEmpty();
 @endphp
 
-<section class="shx-public-hero" aria-labelledby="shx-public-hero-title">
-    <span class="shx-public-hero__shape shx-public-hero__shape--circle" aria-hidden="true"></span>
-    <span class="shx-public-hero__shape shx-public-hero__shape--square" aria-hidden="true"></span>
-    <span class="shx-public-hero__shape shx-public-hero__shape--triangle" aria-hidden="true"></span>
-    <div class="wrap shx-public-hero__grid">
-        <div class="shx-public-hero__copy">
-            <span class="shx-public-eyebrow">آموزش، تمرین و پیشرفت</span>
-            <h1 id="shx-public-hero-title">مغزت را <em>محک</em> بزن، مسیرت را هوشمندانه انتخاب کن.</h1>
-            <p class="shx-public-hero__lead">کلاس زنده، آزمون و کارنامه‌ای که مسیر یادگیری را روشن‌تر می‌کند. شروعش فقط یک سؤال است.</p>
-            <div class="shx-public-hero__actions">
-                <a class="shx-public-button shx-public-button--blue" href="#hero-challenge">شروع چالش هوش <span aria-hidden="true">←</span></a>
-                <a class="shx-public-button shx-public-button--outline" href="{{ route('courses.index') }}">دیدن دوره‌ها</a>
-            </div>
-            <div class="shx-public-hero__chips" aria-label="امکانات سامانه"><span>دوره‌های آموزشی</span><span>کلاس و تمرین</span><span>گزارش پیشرفت</span></div>
-        </div>
-        <div class="shx-public-hero__challenge">
-            @if(!empty($heroChallenge))
-                <x-public.hero-challenge :challenge="$heroChallenge" />
-            @else
-                <div class="shx-public-puzzle shx-public-puzzle--empty" id="hero-challenge">
-                    <span class="shx-public-puzzle__eyebrow">چالش هوش شیخان</span>
-                    <h2>آماده‌ای مهارت حل مسئله‌ات را محک بزنی؟</h2>
-                    <p>چالش جدیدی در حال آماده‌سازی است. فعلاً دوره‌های منتشرشده را ببین.</p>
-                    <a class="shx-public-button shx-public-button--light" href="{{ route('courses.index') }}">مشاهده دوره‌ها</a>
-                </div>
-            @endif
-        </div>
-    </div>
-</section>
-
-@if($heroSlides->isNotEmpty())
-    <section class="shx-public-banners" aria-label="بنرهای ویژه شیخان">
-        <div class="wrap"><div class="shx-public-banner-grid">
+<section class="sheykhan-home-hero" data-home-hero aria-label="اسلایدر اصلی شیخان">
+    @if($hasHeroSlides)
+        <div class="sheykhan-home-hero__slides">
             @foreach($heroSlides as $slide)
-                @if(filled($slide['ctaUrl'] ?? null))<a class="shx-public-banner" href="{{ $slide['ctaUrl'] }}">@else<article class="shx-public-banner">@endif
-                    <picture>
-                        @if(filled($slide['mobileImage'] ?? null))<source srcset="{{ $slide['mobileImage'] }}" media="(max-width: 640px)">@endif
-                        <img src="{{ $slide['image'] }}" alt="{{ $slide['title'] ?: 'بنر شیخان' }}" loading="lazy" decoding="async" style="object-position: {{ (int) ($slide['cropX'] ?? 50) }}% {{ (int) ($slide['cropY'] ?? 50) }}%;">
-                    </picture>
-                    <span class="shx-public-banner__overlay">
-                        @if(filled($slide['academy'] ?? null))<small>{{ $slide['academy'] }}</small>@endif
-                        @if(filled($slide['title'] ?? null))<strong>{{ $slide['title'] }}</strong>@endif
-                        @if(filled($slide['description'] ?? null))<span>{{ $slide['description'] }}</span>@endif
-                        @if(filled($slide['ctaLabel'] ?? null))<b>{{ $slide['ctaLabel'] }} ←</b>@endif
-                    </span>
-                @if(filled($slide['ctaUrl'] ?? null))</a>@else</article>@endif
+                <article class="sheykhan-home-hero__slide {{ $loop->first ? 'is-active' : '' }}"
+                    data-home-hero-slide aria-hidden="{{ $loop->first ? 'false' : 'true' }}">
+                    <div class="sheykhan-home-hero__media">
+                        <picture>
+                            @if(filled($slide['mobileImage'] ?? null))
+                                <source data-home-hero-mobile-source srcset="{{ $slide['mobileImage'] }}" media="(max-width: 640px)">
+                            @endif
+                            <img
+                                data-home-hero-image
+                                data-desktop-src="{{ $slide['image'] }}"
+                                src="{{ $slide['image'] }}"
+                                alt="{{ $slide['title'] ?: 'تصویر معرفی شیخان' }}"
+                                style="--hero-crop-x: {{ (int) ($slide['cropX'] ?? 50) }}%; --hero-crop-y: {{ (int) ($slide['cropY'] ?? 46) }}%; --hero-mobile-crop-x: {{ (int) ($slide['mobileCropX'] ?? 54) }}%; --hero-mobile-crop-y: {{ (int) ($slide['mobileCropY'] ?? 50) }}%;"
+                                loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                                decoding="async"
+                                @if($loop->first) fetchpriority="high" @endif
+                            >
+                        </picture>
+                    </div>
+                    <div class="sheykhan-home-hero__overlay"></div>
+                    <div class="sheykhan-home-hero__content">
+                        <div class="sheykhan-home-hero__copy">
+                            <p class="sheykhan-home-hero__eyebrow"><span></span>آموزش، تمرین و پیشرفت</p>
+                            @if(filled($slide['title'] ?? null))
+                                <h1 class="sheykhan-home-hero__title" data-hero-slide-title>{{ $slide['title'] }}</h1>
+                            @else
+                                <h1 class="sheykhan-home-hero__title" data-hero-slide-title>مغزت را <span>محک</span> بزن، مسیرت را هوشمندانه انتخاب کن.</h1>
+                            @endif
+                            <p class="sheykhan-home-hero__description">{{ $slide['description'] ?: 'کلاس زنده، آزمون و کارنامه‌ای که مسیر یادگیری را روشن‌تر می‌کند. شروعش فقط یک سؤال است.' }}</p>
+                            <div class="sheykhan-home-hero__actions">
+                                <a class="sheykhan-home-hero__cta" href="{{ $slide['ctaUrl'] ?: route('courses.index') }}">
+                                    {{ $slide['ctaLabel'] ?: 'مشاهده دوره‌ها' }} <span aria-hidden="true">←</span>
+                                </a>
+                                <a class="sheykhan-home-hero__secondary" href="#hero-challenge">شروع چالش هوش</a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
             @endforeach
-        </div></div>
-    </section>
-@endif
+        </div>
+    @else
+        <article class="sheykhan-home-hero__slide is-active" data-home-hero-slide aria-hidden="false">
+            <div class="sheykhan-home-hero__overlay"></div>
+            <div class="sheykhan-home-hero__content">
+                <div class="sheykhan-home-hero__copy">
+                    <p class="sheykhan-home-hero__eyebrow"><span></span>آموزش، تمرین و پیشرفت</p>
+                    <h1 id="shx-public-hero-title" class="sheykhan-home-hero__title" data-hero-slide-title>مغزت را <span>محک</span> بزن، مسیرت را هوشمندانه انتخاب کن.</h1>
+                    <p class="sheykhan-home-hero__description">کلاس زنده، آزمون و کارنامه‌ای که مسیر یادگیری را روشن‌تر می‌کند. شروعش فقط یک سؤال است.</p>
+                    <div class="sheykhan-home-hero__actions">
+                        <a class="sheykhan-home-hero__cta" href="{{ route('courses.index') }}">مشاهده دوره‌ها ←</a>
+                        <a class="sheykhan-home-hero__secondary" href="#hero-challenge">شروع چالش هوش</a>
+                    </div>
+                </div>
+            </div>
+        </article>
+    @endif
+
+    <div class="sheykhan-home-hero__challenge">
+        @if(!empty($heroChallenge))
+            <x-public.hero-challenge :challenge="$heroChallenge" />
+        @else
+            <div class="shx-public-puzzle shx-public-puzzle--empty" id="hero-challenge">
+                <span class="shx-public-puzzle__eyebrow">چالش هوش شیخان</span>
+                <h2>آماده‌ای مهارت حل مسئله‌ات را محک بزنی؟</h2>
+                <p>چالش تازه‌ای در حال آماده‌سازی است. فعلاً دوره‌های منتشرشده را ببین.</p>
+                <a class="shx-public-button shx-public-button--light" href="{{ route('courses.index') }}">مشاهده دوره‌ها</a>
+            </div>
+        @endif
+    </div>
+
+    @if($heroSlides->count() > 1)
+        <div class="sheykhan-home-hero__controls" aria-label="کنترل اسلایدر">
+            <button class="sheykhan-home-hero__arrow" type="button" data-home-hero-prev aria-label="اسلاید قبلی">‹</button>
+            <div class="sheykhan-home-hero__dots">
+                @foreach($heroSlides as $slide)
+                    <button class="sheykhan-home-hero__dot {{ $loop->first ? 'is-active' : '' }}" type="button"
+                        data-home-hero-dot data-index="{{ $loop->index }}" aria-label="نمایش اسلاید {{ \App\Support\PersianUi::digits($loop->iteration) }}"
+                        aria-pressed="{{ $loop->first ? 'true' : 'false' }}"></button>
+                @endforeach
+            </div>
+            <span class="sheykhan-home-hero__count" data-home-hero-count>۱ / {{ \App\Support\PersianUi::digits($heroSlides->count()) }}</span>
+            <button class="sheykhan-home-hero__arrow" type="button" data-home-hero-next aria-label="اسلاید بعدی">›</button>
+        </div>
+    @endif
+</section>

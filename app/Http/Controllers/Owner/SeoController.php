@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Models\Academy;
 use App\Http\Requests\Owner\Seo\UpdateSeoRequest;
 use App\Services\OwnerSeoService;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -53,6 +54,11 @@ final class SeoController extends Controller
         );
         $data['filters'] = compact('search', 'type', 'status');
         $data['filteredTotal'] = $filtered->count();
+        $data['academies'] = Academy::query()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         return view('owner.seo.index', $data);
     }
 

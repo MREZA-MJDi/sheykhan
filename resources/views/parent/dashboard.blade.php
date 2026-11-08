@@ -93,22 +93,22 @@
             <section class="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="خلاصه وضعیت واقعی">
                 <a href="#parent-tasks-title" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
                     <span class="block text-xs text-slate-500">تکلیف ارسال‌نشده</span>
-                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($pendingAssignmentCount) }}</strong>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \App\Support\PersianUi::digits($pendingAssignmentCount) }}</strong>
                     <small class="mt-1 block text-xs text-slate-500">برای فرزندان انتخاب‌شده</small>
                 </a>
                 <a href="#parent-live-title" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
                     <span class="block text-xs text-slate-500">جلسه و هماهنگی آینده</span>
-                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($upcomingCount) }}</strong>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \App\Support\PersianUi::digits($upcomingCount) }}</strong>
                     <small class="mt-1 block text-xs text-slate-500">موارد نمایش‌داده‌شده در ۷ روز آینده</small>
                 </a>
                 <a href="{{ route('parent.results.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
                     <span class="block text-xs text-slate-500">نتایج اخیر</span>
-                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($recentResultCount) }}</strong>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \App\Support\PersianUi::digits($recentResultCount) }}</strong>
                     <small class="mt-1 block text-xs text-slate-500">آزمون و تکلیف ثبت‌شده</small>
                 </a>
                 <a href="{{ route('parent.attendance.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
                     <span class="block text-xs text-slate-500">غیبت ثبت‌شده</span>
-                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \\App\\Support\\PersianUi::digits($absenceCount) }}</strong>
+                    <strong class="mt-1 block text-2xl font-black text-slate-900">{{ \App\Support\PersianUi::digits($absenceCount) }}</strong>
                     <small class="mt-1 block text-xs text-slate-500">در سوابق حضور و غیاب سامانه</small>
                 </a>
             </section>
