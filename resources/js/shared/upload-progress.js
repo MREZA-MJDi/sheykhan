@@ -68,4 +68,4 @@ const bind=form=>{
         xhr.send(new FormData(form));
     });
 };
-export function bootFileUploadProgress(root=document){root.querySelectorAll('form[data-upload-progress]').forEach(bind);}
+export function bootFileUploadProgress(root=document){root.querySelectorAll('form').forEach(form=>{if(form.hasAttribute('data-upload-progress')||form.querySelector('[data-upload-progress-ui]'))bind(form);});}
