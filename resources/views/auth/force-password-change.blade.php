@@ -22,6 +22,15 @@
         </div>
     @endif
 
+    @if(session('registration_temporary_password'))
+        <div class="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950" role="status">
+            <strong>رمز اولیه حساب</strong>
+            <p class="mt-1 text-xs">این رمز فقط برای ورود اولیه است. آن را امن نگه دار و رمز شخصی خودت را در فرم پایین تعیین کن.</p>
+            <p class="mt-3 text-xs">موبایل: <b dir="ltr">{{ session('registration_mobile') }}</b></p>
+            <p class="mt-1 text-xs">رمز اولیه: <code dir="ltr">{{ session('registration_temporary_password') }}</code></p>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('password.change.update') }}" class="space-y-5">
         @csrf
         @method('PUT')
