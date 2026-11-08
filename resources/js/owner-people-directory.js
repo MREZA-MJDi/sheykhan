@@ -238,7 +238,7 @@
             button.addEventListener('click', () => {
                 idInput.value = String(student.id);
                 labelInput.value = String(student.name || '');
-                input.value = String(student.name || '') + (student.mobile ? ' · ' + String(student.mobile) : '');
+                input.value = String(student.name || '');
                 results.replaceChildren();
                 more.hidden = true;
                 status.textContent = 'دانش‌آموز انتخاب شد: ' + String(student.name || '') + (student.mobile ? ' — ' + String(student.mobile) : '');
