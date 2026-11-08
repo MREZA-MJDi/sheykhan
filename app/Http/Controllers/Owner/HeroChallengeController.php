@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\HeroChallenge;
+use App\Services\HeroChallengeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ final class HeroChallengeController extends Controller
         ]);
     }
 
-    public function update(Request $request, HeroChallenge $challenge): RedirectResponse
+    public function update(Request $request, HeroChallenge $challenge, HeroChallengeService $heroChallenges): RedirectResponse
     {
         $this->authorizeEditor($request->user());
 
@@ -83,6 +84,8 @@ final class HeroChallengeController extends Controller
                 );
             }
         });
+
+        $heroChallenges->forgetActiveChallenges();
 
         return redirect()
             ->route('owner.website.hero-challenges.index')
