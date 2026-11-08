@@ -99,8 +99,9 @@ class TeacherProfileWorkflowTest extends TestCase
 
         $this->actingAs($teacher)
             ->patch(route('teacher.profile.update'), [
-                'name' => $teacher->name,
-                'email' => $teacher->email,
+                'first_name' => 'سارا',
+                'last_name' => 'مدرس',
+                'mobile' => $teacher->mobile,
                 'is_public' => 0,
             ])
             ->assertRedirect();
@@ -117,8 +118,6 @@ class TeacherProfileWorkflowTest extends TestCase
 
         $this->actingAs($teacher)
             ->patch(route('teacher.profile.update'), [
-                'name' => $teacher->name,
-                'email' => $teacher->email,
                 'is_public' => 1,
                 'notification_preferences' => [
                     'parent_messages' => 0,
