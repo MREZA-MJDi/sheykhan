@@ -93,16 +93,14 @@ class PeopleController extends Controller
     ): RedirectResponse {
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
 
-        $onboarding->onboard(
+        $record = $onboarding->onboard(
             $request->user(),
             $academy,
             $request->validated(),
         );
 
-        return back()->with(
-            'success',
-            'دانش‌آموز قدیمی با موفقیت ثبت/به‌روزرسانی شد و به این آموزشگاه متصل شد.'
-        );
+        return redirect()->to(route('owner.people.index', $academy) . '?tab=create-student')
+            ->with('success', 'دانش‌آموز قدیمی با موفقیت ثبت/به‌روزرسانی شد و به این آموزشگاه متصل شد.');
     }
 
 
