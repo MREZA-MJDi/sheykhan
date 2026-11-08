@@ -18,7 +18,7 @@ class RegisterRequest extends FormRequest
         $this->merge([
             'first_name' => trim((string) $this->input('first_name')),
             'last_name' => trim((string) $this->input('last_name')),
-            'mobile' => \\App\\Support\\MobileNumber::normalize((string) $this->input('mobile')),
+            'mobile' => \App\Support\MobileNumber::normalize((string) $this->input('mobile')),
             'account_type' => $this->input('account_type', 'student'),
         ]);
     }
@@ -79,7 +79,7 @@ class RegisterRequest extends FormRequest
             'mobile.required' => 'شماره موبایل را وارد کنید.',
             'mobile.regex' => 'شماره موبایل معتبر نیست.',
             'mobile.unique' => 'این شماره موبایل قبلاً ثبت شده است.',
-            'name.min' => 'نام باید حداقل ۲ کاراکتر باشد.',
+            'first_name.min' => 'نام باید حداقل ۲ کاراکتر باشد.',
 
             'cf-turnstile-response.required' => 'لطفاً تأیید ضدربات را انجام بده.',
             'account_type.in' => 'نوع حساب انتخاب‌شده معتبر نیست.',
