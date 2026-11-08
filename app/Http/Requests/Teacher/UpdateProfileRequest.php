@@ -19,8 +19,8 @@ class UpdateProfileRequest extends FormRequest
         $merge = [];
         if ($this->exists('first_name') || $this->exists('last_name')) {
             $currentName = (string) ($this->user()?->name ?? '');
-            $firstName = trim((string) $this->input('first_name', \\Illuminate\\Support\\Str::before($currentName, ' ')));
-            $lastName = trim((string) $this->input('last_name', \\Illuminate\\Support\\Str::after($currentName, ' ')));
+            $firstName = trim((string) $this->input('first_name', \Illuminate\Support\Str::before($currentName, ' ')));
+            $lastName = trim((string) $this->input('last_name', \Illuminate\Support\Str::after($currentName, ' ')));
             $merge['first_name'] = $firstName;
             $merge['last_name'] = $lastName;
             $merge['name'] = trim($firstName . ' ' . $lastName);
