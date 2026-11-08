@@ -31,6 +31,18 @@ if (!window.__sheykhanAlpineBooted) {
     ready(() => {
         // A failed custom/CDN hero must not leave a broken-image glyph over the hero.
         document.querySelectorAll('[data-home-hero-image]').forEach((image) => {
+            const cropProperties = [
+                ['--hero-crop-x', image.dataset.cropX, 50],
+                ['--hero-crop-y', image.dataset.cropY, 46],
+                ['--hero-mobile-crop-x', image.dataset.mobileCropX, 54],
+                ['--hero-mobile-crop-y', image.dataset.mobileCropY, 50],
+            ];
+            cropProperties.forEach(([property, value, fallbackValue]) => {
+                const parsed = Number(value);
+                const normalized = Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : fallbackValue;
+                image.style.setProperty(property, `${normalized}%`);
+            });
+
             const fallback = image.dataset.fallbackSrc;
             const desktopSource = image.dataset.desktopSrc || image.getAttribute('src') || '';
             const mobileSource = image.closest('picture')?.querySelector('[data-home-hero-mobile-source]');

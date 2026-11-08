@@ -21,7 +21,7 @@
                                 data-desktop-src="{{ $slide['image'] }}"
                                 src="{{ $slide['image'] }}"
                                 alt="{{ $slide['title'] ?: 'تصویر معرفی شیخان' }}"
-                                style="--hero-crop-x: {{ (int) ($slide['cropX'] ?? 50) }}%; --hero-crop-y: {{ (int) ($slide['cropY'] ?? 46) }}%; --hero-mobile-crop-x: {{ (int) ($slide['mobileCropX'] ?? 54) }}%; --hero-mobile-crop-y: {{ (int) ($slide['mobileCropY'] ?? 50) }}%;"
+                                data-crop-x="{{ (int) ($slide['cropX'] ?? 50) }}" data-crop-y="{{ (int) ($slide['cropY'] ?? 46) }}" data-mobile-crop-x="{{ (int) ($slide['mobileCropX'] ?? 54) }}" data-mobile-crop-y="{{ (int) ($slide['mobileCropY'] ?? 50) }}"
                                 loading="{{ $loop->first ? 'eager' : 'lazy' }}"
                                 decoding="async"
                                 @if($loop->first) fetchpriority="high" @endif

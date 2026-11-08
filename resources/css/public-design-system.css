@@ -451,3 +451,144 @@
 .public-site .public-main :is(.public-product-media-card,.public-course-preview-card,.public-content-detail-card) :is(p,h2,h3) {
     overflow-wrap:anywhere;
 }
+
+
+/* Hero layout: keep the existing database-backed visual, but give the challenge its own column. */
+.public-site .sheykhan-home-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr);
+    align-items: stretch;
+    gap: clamp(1rem, 2.4vw, 2rem);
+    min-height: 0;
+    overflow: visible;
+    padding: clamp(1rem, 3vw, 2rem) max(calc((100% - 1280px) / 2), 1.25rem);
+    background: var(--public-surface-soft);
+    color: var(--public-ink);
+}
+.public-site .sheykhan-home-hero__slides {
+    position: relative;
+    grid-column: 1;
+    inset: auto;
+    width: 100%;
+    min-height: clamp(32rem, calc(100svh - 8rem), 42rem);
+    overflow: hidden;
+    border-radius: var(--public-radius-lg);
+    background: var(--public-ink);
+}
+.public-site .sheykhan-home-hero__slide {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    min-height: 100%;
+    place-items: center;
+}
+.public-site .sheykhan-home-hero__content {
+    display: flex;
+    width: min(100% - 3rem, 760px);
+    min-height: clamp(32rem, calc(100svh - 8rem), 42rem);
+    align-items: center;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 5vw, 4rem);
+    text-align: start;
+}
+.public-site .sheykhan-home-hero__copy {
+    width: 100%;
+    text-align: start;
+}
+.public-site .sheykhan-home-hero__eyebrow {
+    justify-content: flex-start;
+}
+.public-site .sheykhan-home-hero__title,
+.public-site .sheykhan-home-hero__description {
+    margin-inline: 0;
+    text-align: start;
+}
+.public-site .sheykhan-home-hero__actions {
+    justify-content: flex-start;
+}
+.public-site .sheykhan-home-hero__challenge {
+    position: static;
+    grid-column: 2;
+    align-self: center;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    transform: none;
+}
+.public-site .sheykhan-home-hero__challenge .shx-public-puzzle {
+    border: 0;
+    border-radius: var(--public-radius-lg);
+    background: var(--public-primary);
+    box-shadow: none;
+    backdrop-filter: none;
+}
+.public-site .sheykhan-home-hero__controls {
+    position: absolute;
+    inset-inline-start: max(calc((100% - 1280px) / 2), 1.25rem);
+    bottom: clamp(1.5rem, 3vw, 2.5rem);
+    width: calc((100% - 2.5rem) * .65);
+}
+.public-site .sheykhan-home-hero > .sheykhan-home-hero__slide {
+    position: relative;
+    grid-column: 1;
+    min-height: clamp(32rem, calc(100svh - 8rem), 42rem);
+    overflow: hidden;
+    border-radius: var(--public-radius-lg);
+    background: var(--public-ink);
+}
+@media (max-width: 900px) {
+    .public-site .sheykhan-home-hero {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.25rem;
+        padding: 1rem;
+    }
+    .public-site .sheykhan-home-hero__slides,
+    .public-site .sheykhan-home-hero > .sheykhan-home-hero__slide {
+        grid-column: 1;
+        min-height: 0;
+    }
+    .public-site .sheykhan-home-hero__slides {
+        min-height: 0;
+    }
+    .public-site .sheykhan-home-hero__slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        min-height: 0;
+    }
+    .public-site .sheykhan-home-hero__slide.is-active {
+        position: relative;
+        display: grid;
+    }
+    .public-site .sheykhan-home-hero__content {
+        width: min(100% - 2rem, 680px);
+        min-height: 0;
+        padding-block: 3rem 2rem;
+    }
+    .public-site .sheykhan-home-hero__challenge {
+        grid-column: 1;
+        width: min(100%, 680px);
+        justify-self: center;
+    }
+    .public-site .sheykhan-home-hero__controls {
+        position: relative;
+        inset: auto;
+        grid-column: 1;
+        justify-self: center;
+        width: auto;
+        margin-block-start: -4.5rem;
+        margin-block-end: 1rem;
+    }
+}
+@media (max-width: 560px) {
+    .public-site .sheykhan-home-hero {
+        padding: .75rem;
+    }
+    .public-site .sheykhan-home-hero__content {
+        width: min(100% - 1.5rem, 680px);
+        padding-block: 2.5rem 1.5rem;
+    }
+    .public-site .sheykhan-home-hero__challenge .shx-public-puzzle {
+        padding: 1rem;
+    }
+}
