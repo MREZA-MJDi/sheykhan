@@ -12,6 +12,7 @@
     @endphp
 {{-- Full-bleed hero uses the independent HomeHeroSlide source. --}}
     @include('pages.home.partials.hero')
+    @include('pages.home.partials.public-stats')
 
 
     {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
@@ -627,6 +628,8 @@
         </div>
     </section>
     @endif
+
+    @include('pages.home.partials.public-reference-sections')
 
     {{-- CTA --}}
     <section id="start-learning" class="home-section home-start-learning">
