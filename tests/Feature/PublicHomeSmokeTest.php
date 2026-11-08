@@ -125,6 +125,11 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringContainsString('resources/css/public-design-system.css', $layout);
         $this->assertStringContainsString('.home-page>section:not(.sheykhan-home-hero)', $designSystem);
         $this->assertStringContainsString('.home-course-card', $designSystem);
+        $this->assertStringContainsString('.public-course-card', $designSystem);
+        $this->assertStringContainsString('.public-teacher-card', $designSystem);
+        $this->assertStringContainsString('.public-store-product-card', $designSystem);
+        $this->assertStringContainsString('.public-blog-card', $designSystem);
+        $this->assertStringContainsString('.public-next-step__card', $designSystem);
         $this->assertStringNotContainsString('.sheykhan-home-hero {', $designSystem);
 
         $blade = file_get_contents(resource_path('views/pages/home/partials/hero.blade.php'));
