@@ -31,19 +31,21 @@
 
         <div>
             <label for="identifier" class="mb-2 block text-sm font-bold text-[var(--color-text)]">
-                ایمیل، شماره موبایل یا شناسه قدیمی دانش‌آموز
+                شماره موبایل
             </label>
 
             <input
-                id="identifier"
-                name="identifier"
-                type="text"
-                value="{{ old('identifier') }}"
+                id="mobile"
+                name="mobile"
+                type="tel"
+                inputmode="tel"
+                dir="ltr"
+                value="{{ old('mobile') }}"
                 autocomplete="username"
                 autofocus
                 required
                 class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                placeholder="ایمیل، ۰۹۱۲... یا شناسه قدیمی"
+                placeholder="۰۹۱۲۱۲۳۴۵۶۷"
             >
         </div>
 
@@ -86,7 +88,7 @@
     <div class="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4">
         <strong class="block text-sm font-black text-[var(--color-text)]">دانش‌آموز سامانه قبلی شیخان هستی؟</strong>
         <p class="mt-2 text-xs leading-7 text-[var(--color-text-secondary)]">
-            اگر از سامانه قبلی شیخان وارد می‌شوی، شناسهٔ عددی کاربر قدیمی را وارد کن و از رمز موقتی که آموزشگاه در اختیارت گذاشته استفاده کن. برای امنیت حساب، بعد از اولین ورود باید رمز اختصاصی جدید تعیین کنی و تا آن زمان پنل باز نمی‌شود. اگر شناسه یا رمز موقت را نداری، با آموزشگاه تماس بگیر.
+            اگر از سامانه قبلی شیخان وارد می‌شوی، شماره موبایل ثبت‌شده را وارد کن و از رمز موقتی که آموزشگاه در اختیارت گذاشته استفاده کن. برای امنیت حساب، بعد از اولین ورود باید رمز اختصاصی جدید تعیین کنی و تا آن زمان پنل باز نمی‌شود. اگر شناسه یا رمز موقت را نداری، با آموزشگاه تماس بگیر.
         </p>
     </div>
 
@@ -222,7 +224,7 @@
 
     document.querySelectorAll('[data-test-login-fill]').forEach((button) => {
         button.addEventListener('click', () => {
-            const identifier = document.getElementById('identifier');
+            const identifier = document.getElementById('mobile');
             const password = document.getElementById('password');
 
             if (!identifier || !password) return;
@@ -243,7 +245,7 @@
 
     document.querySelectorAll('[data-test-login-copy]').forEach((button) => {
         button.addEventListener('click', async () => {
-            const credentials = `Username: ${button.dataset.username || ''}\nPassword: ${button.dataset.password || ''}`;
+            const credentials = `Mobile: ${button.dataset.username || ''}\nPassword: ${button.dataset.password || ''}`;
             const feedback = getFeedback(button);
 
             try {
