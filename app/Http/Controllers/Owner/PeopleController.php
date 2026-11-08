@@ -74,6 +74,7 @@ class PeopleController extends Controller
                 'id' => (int) $student->id,
                 'name' => $student->name,
                 'mobile' => $student->mobile,
+                'mobile' => $student->mobile,
             ])->values(),
             'meta' => [
                 'current_page' => $students->currentPage(),
