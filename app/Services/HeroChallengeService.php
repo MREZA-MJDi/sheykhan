@@ -104,12 +104,12 @@ final class HeroChallengeService
     {
         return HeroChallenge::query()
             ->where('is_active', true)
+            ->has('options', '=', 4)
             ->with(['options:id,hero_challenge_id,label,content,sort_order'])
             ->orderBy('sort_order')
             ->orderBy('id')
+            ->limit(self::HOME_CHALLENGE_COUNT)
             ->get(['id', 'title', 'prompt', 'sequence', 'explanation', 'sort_order'])
-            ->filter(fn (HeroChallenge $challenge): bool => $challenge->options->count() === 4)
-            ->take(self::HOME_CHALLENGE_COUNT)
             ->values();
     }
 }
