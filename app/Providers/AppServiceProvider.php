@@ -6,10 +6,12 @@ use App\Auth\LegacyAwareUserProvider;
 use App\Models\AcademicGrade;
 use App\Models\Media;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\LazyLoadingViolationException;
 use App\Policies\MediaPolicy;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -33,6 +35,23 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::preventLazyLoading(! $this->app->isProduction());
+        Model::handleLazyLoadingViolationUsing(static function (Model $model, string $relation): void {
+            $routeName = request()->route()?->getName();
+
+            // Dashboard rendering is intentionally outside this public-site refactor.
+            // Keep detecting its existing lazy loads without changing dashboard behavior.
+            if (is_string($routeName) && preg_match('/^(owner|teacher|student|parent|seo)\\./', $routeName) === 1) {
+                Log::warning('Lazy loading detected in an isolated dashboard route.', [
+                    'model' => $model::class,
+                    'relation' => $relation,
+                    'route' => $routeName,
+                ]);
+
+                return;
+            }
+
+            throw new LazyLoadingViolationException($model, $relation);
+        });
 
         RateLimiter::for('public-registration', function (Request $request): array {
             $key = (string) $request->ip();
