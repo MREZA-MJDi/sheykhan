@@ -422,3 +422,10 @@
         .public-blog-card,.teacher-card
     ):hover { transform:none; }
 }
+
+
+/* Route templates are wrapped in an outer page section before the content rail. */
+.public-site .public-main:not(.home-page) > section > section > .mx-auto {
+    width:min(100% - 2 * var(--public-page-gutter, 1.25rem), 1100px) !important;
+    max-width:1100px !important;
+}
