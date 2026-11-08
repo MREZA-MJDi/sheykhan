@@ -25,8 +25,13 @@ class PublicHomeSmokeTest extends TestCase
             ->assertSee('home-academy-story', false)
             ->assertSee('home-paths__intro', false)
             ->assertSee('دسترسی سریع به بخش‌های شیخان')
-            ->assertSee('data-home-hero', false)
-            ->assertSee('sheykhan-home-hero__title', false)
+            ->assertSee('shx-public-hero', false)
+            ->assertSee('shx-public-hero-title', false)
+            ->assertSee('public-announcement', false)
+            ->assertSee('public-nav', false)
+            ->assertSee('public-footer', false)
+            ->assertSee('public-journey', false)
+            ->assertSee('public-faq', false)
             ->assertDontSee('data-tiamir-intro', false)
             ->assertDontSee('data-tiamir-canvas', false)
             ->assertDontSee('pater/pater.css')
@@ -136,7 +141,7 @@ class PublicHomeSmokeTest extends TestCase
             $this->assertStringNotContainsString($externalOrMissingDemoDependency, $source);
         }
 
-        $this->assertStringContainsString('data-home-hero', $blade);
+        $this->assertStringContainsString('shx-public-hero', $blade);
         $this->assertStringContainsString('aria-labelledby', $blade);
         $this->assertStringContainsString('prefers-reduced-motion', $styles);
         $this->assertStringContainsString('sheykhan-hero-image-drift', $styles);
