@@ -44,6 +44,7 @@ class CourseCatalogService
             fn () => Course::query()
                 ->published()
                 ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
+                ->select(['id', 'academy_id', 'title', 'slug', 'short_description', 'description', 'level', 'access_type', 'price', 'duration_minutes', 'published_at'])
                 ->with([
                     'academy:id,name',
                     'teachers:id,name',

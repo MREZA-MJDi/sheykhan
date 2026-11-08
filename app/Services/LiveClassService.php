@@ -17,6 +17,7 @@ class LiveClassService
                 ->whereIn('status', ['scheduled', 'live'])
                 ->where('scheduled_at', '>=', now()->subHour())
                 ->whereHas('course', fn ($query) => $query->published())
+                ->select(['id', 'course_id', 'teacher_id', 'title', 'scheduled_at', 'status'])
                 ->with([
                     'course:id,title',
                     'course.media' => fn ($media) => $media

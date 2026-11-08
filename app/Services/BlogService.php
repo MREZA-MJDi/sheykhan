@@ -22,7 +22,17 @@ class BlogService
         return Cache::remember(
             "public:home:blog:latest:{$limit}:v1",
             now()->addMinutes(3),
-            fn () => $this->publishedQuery()
+            fn () => BlogPost::query()
+                ->where('status', 'published')
+                ->whereNotNull('published_at')
+                ->where('published_at', '<=', now())
+                ->with([
+                    'category:id,name,slug',
+                    'media' => fn ($query) => $query
+                        ->where('visibility', 'public')
+                        ->where('status', 'active')
+                        ->orderByPivot('sort_order'),
+                ])
                 ->latest('published_at')
                 ->limit($limit)
                 ->get(['id', 'category_id', 'title', 'slug', 'excerpt', 'published_at'])
