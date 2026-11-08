@@ -35,7 +35,7 @@
                             @if(filled($slide['title'] ?? null))
                                 <h1 id="{{ $loop->first ? 'shx-public-hero-title' : '' }}" class="sheykhan-home-hero__title" data-hero-slide-title>{{ $slide['title'] }}</h1>
                             @else
-                                <h1 class="sheykhan-home-hero__title" data-hero-slide-title>مغزت را <span>محک</span> بزن، مسیرت را هوشمندانه انتخاب کن.</h1>
+                                <h1 id="{{ $loop->first ? 'shx-public-hero-title' : '' }}" class="sheykhan-home-hero__title" data-hero-slide-title>مغزت را <span>محک</span> بزن، مسیرت را هوشمندانه انتخاب کن.</h1>
                             @endif
                             <p class="sheykhan-home-hero__description">{{ $slide['description'] ?: 'کلاس زنده، آزمون و کارنامه‌ای که مسیر یادگیری را روشن‌تر می‌کند. شروعش فقط یک سؤال است.' }}</p>
                             <div class="sheykhan-home-hero__actions">
