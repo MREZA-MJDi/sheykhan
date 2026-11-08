@@ -27,11 +27,10 @@ class TurnstileRegistrationTest extends TestCase
             ->push(['success' => true, 'hostname' => 'localhost', 'action' => 'register'], 200);
 
         $payload = [
-            'name' => 'دانش‌آموز آزمایشی',
-            'email' => 'turnstile.student@example.test',
+            'first_name' => 'دانش‌آموز',
+            'last_name' => 'آزمایشی',
+            'mobile' => '09129997777',
             'account_type' => 'student',
-            'password' => 'SafePass123!',
-            'password_confirmation' => 'SafePass123!',
             'cf-turnstile-response' => 'invalid-token',
         ];
 
@@ -40,16 +39,16 @@ class TurnstileRegistrationTest extends TestCase
             ->assertRedirect(route('register'))
             ->assertSessionHasErrors('cf-turnstile-response');
 
-        $this->assertDatabaseMissing('users', ['email' => $payload['email']]);
+        $this->assertDatabaseMissing('users', ['mobile' => $payload['mobile']]);
         $this->assertGuest();
 
         $payload['cf-turnstile-response'] = 'valid-token';
 
         $this->post(route('register.store'), $payload)
-            ->assertRedirect(route('student.dashboard'));
+            ->assertRedirect(route('password.change.show'));
 
         $this->assertAuthenticated();
-        $this->assertDatabaseHas('users', ['email' => $payload['email']]);
+        $this->assertDatabaseHas('users', ['mobile' => $payload['mobile'], 'email' => null]);
         Http::assertSentCount(2);
         Http::assertSent(function ($request): bool {
             return $request->url() === 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
@@ -71,16 +70,15 @@ class TurnstileRegistrationTest extends TestCase
 
         $this->from(route('register'))
             ->post(route('register.store'), [
-                'name' => 'دانش‌آموز آزمایشی',
-                'email' => 'missing.turnstile@example.test',
+                'first_name' => 'دانش‌آموز',
+                'last_name' => 'آزمایشی',
+                'mobile' => '09129997778',
                 'account_type' => 'student',
-                'password' => 'SafePass123!',
-                'password_confirmation' => 'SafePass123!',
             ])
             ->assertRedirect(route('register'))
             ->assertSessionHasErrors('cf-turnstile-response');
 
-        $this->assertDatabaseMissing('users', ['email' => 'missing.turnstile@example.test']);
+        $this->assertDatabaseMissing('users', ['mobile' => '09129997778']);
         Http::assertNothingSent();
     }
 }
