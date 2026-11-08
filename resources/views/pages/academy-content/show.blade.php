@@ -48,7 +48,7 @@
                 </figure>
             @endif
 
-            <div class="mx-auto mt-9 max-w-4xl overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_8px_30px_rgba(15,23,42,.04)]">
+            <div class="public-content-detail-card mx-auto mt-9 max-w-4xl overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_8px_30px_rgba(15,23,42,.04)]">
                 <div class="px-5 py-7 sm:px-8 sm:py-10 lg:px-10">
                     @if($content->body)
                         <div class="text-[15px] leading-[2.25] text-[var(--color-text-secondary)] sm:text-base">
