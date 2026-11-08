@@ -269,20 +269,21 @@ final class OwnerWorkspaceService
         ];
     }
 
-    public function createTeacher(User $owner, Academy $academy, array $data): User
+    public function createTeacher(User $owner, Academy $academy, array $data): array
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $email = mb_strtolower(trim((string) $data['email']), 'UTF-8');
+        $mobile = \\App\\Support\\MobileNumber::normalize($data['mobile'] ?? null);
+        $temporaryPassword = \\Illuminate\\Support\\Str::password(16, true, true, true, false);
 
         try {
-            return DB::transaction(function () use ($academy, $data, $email): User {
+            return DB::transaction(function () use ($academy, $data, $mobile, $temporaryPassword): array {
                 $teacher = User::create([
                     'name' => trim((string) $data['name']),
-                    'email' => $email,
+                    'email' => null,
+                    'mobile' => $mobile,
                     'status' => 'active',
-                    // User::casts() hashes raw passwords through the "hashed" cast.
-                    'password' => $data['password'],
+                    'password' => $temporaryPassword,
                 ]);
 
                 if (Schema::hasColumn('users', 'must_change_password')) {
@@ -291,7 +292,6 @@ final class OwnerWorkspaceService
 
                 $roleId = Role::query()->where('slug', 'teacher')->value('id');
                 abort_unless($roleId, 500, 'نقش مدرس در سیستم تعریف نشده است.');
-
                 $teacher->roles()->syncWithoutDetaching([$roleId]);
 
                 TeacherProfile::create([
@@ -304,25 +304,17 @@ final class OwnerWorkspaceService
                 ]);
 
                 $academy->users()->syncWithoutDetaching([
-                    $teacher->id => [
-                        'role' => 'teacher',
-                        'status' => 'active',
-                        'joined_at' => now(),
-                    ],
+                    $teacher->id => ['role' => 'teacher', 'status' => 'active', 'joined_at' => now()],
                 ]);
 
-                return $teacher;
+                return ['teacher' => $teacher, 'temporary_password' => $temporaryPassword];
             });
         } catch (UniqueConstraintViolationException $exception) {
-            // The request's "unique" rule is only a preflight check. A concurrent
-            // create can still lose the database race; turn only an email conflict
-            // into a validation response and preserve unrelated integrity failures.
-            if (User::withTrashed()->where('email', $email)->exists()) {
+            if (User::withTrashed()->where('mobile', $mobile)->exists()) {
                 throw ValidationException::withMessages([
-                    'email' => 'این ایمیل قبلاً استفاده شده است.',
+                    'mobile' => 'این شماره موبایل قبلاً استفاده شده است.',
                 ]);
             }
-
             throw $exception;
         }
     }
