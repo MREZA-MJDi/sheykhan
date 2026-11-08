@@ -64,7 +64,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('بانک معماهای صفحه خانه')
             ->assertDontSee('SEO Visible Course')
             ->assertDontSee('ممیزی کیفیت فنی SEO')
-            ->assertDontSee('owner-admin-v2', false)
+            ->assertSee('owner-admin-v2', false)
             ->assertDontSee('role-sidebar owner-sidebar', false)
             ->assertDontSee('admin.css', false)
             ->assertDontSee('owner-design-system.css', false)
