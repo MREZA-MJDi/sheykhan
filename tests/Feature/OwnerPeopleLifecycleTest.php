@@ -198,6 +198,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             $student = User::factory()->create([
                 'name' => sprintf('دانش‌آموز %02d', $i),
                 'email' => sprintf('student-%02d@test.local', $i),
+                'mobile' => sprintf('0913%07d', $i),
             ]);
             $student->roles()->attach($studentRole->id);
             $academy->users()->attach($student->id, [
@@ -219,20 +220,20 @@ class OwnerPeopleLifecycleTest extends TestCase
 
         $searchUrl = route('owner.people.student-options', $academy);
         $this->actingAs($owner)
-            ->get($searchUrl . '?q=student-30%40test.local')
+            ->get($searchUrl . '?q=09130000030')
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonMissingPath('data.0.email');
 
         $this->actingAs($owner)
-            ->get($searchUrl . '?q=student-')
+            ->get($searchUrl . '?q=دانش‌آموز')
             ->assertOk()
             ->assertJsonPath('meta.total', 30)
             ->assertJsonPath('meta.current_page', 1)
             ->assertJsonCount(20, 'data');
 
         $this->actingAs($owner)
-            ->get($searchUrl . '?q=student-&page=2')
+            ->get($searchUrl . '?q=دانش‌آموز&page=2')
             ->assertOk()
             ->assertJsonPath('meta.current_page', 2)
             ->assertJsonCount(10, 'data')
@@ -261,15 +262,12 @@ class OwnerPeopleLifecycleTest extends TestCase
     public function test_owner_created_teacher_password_is_hashed_and_requires_change_on_first_login(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
-        $email = 'new-teacher-' . Str::lower(Str::random(8)) . '@test.local';
-        $plainPassword = 'T!acher-password-2026';
+        $mobile = sprintf('0912%07d', random_int(0, 9999999));
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-teacher', $academy), [
                 'name' => 'مدرس تازه',
-                'email' => $email,
-                'password' => $plainPassword,
-                'password_confirmation' => $plainPassword,
+                'mobile' => $mobile,
                 'specialization' => 'ریاضی',
                 'experience_years' => 4,
             ])
@@ -277,10 +275,10 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSessionHas('success')
             ->assertSessionHasNoErrors();
 
-        $teacher = User::query()->where('email', $email)->firstOrFail();
-
+        $teacher = User::query()->where('mobile', $mobile)->firstOrFail();
+        $plainPassword = session('temporary_teacher_password');
+        $this->assertIsString($plainPassword);
         $this->assertTrue(Hash::check($plainPassword, $teacher->password));
-        $this->assertNotSame($plainPassword, $teacher->password);
         $this->assertTrue($teacher->must_change_password);
         $this->assertTrue($teacher->hasRole('teacher'));
 
@@ -301,6 +299,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             $teacher = User::factory()->create([
                 'name' => sprintf('Directory Teacher %02d', $i),
                 'email' => sprintf('directory-teacher-%02d-%s@test.local', $i, Str::lower(Str::random(6))),
+                'mobile' => sprintf('0912%07d', $i),
                 'status' => 'active',
             ]);
             $teacher->roles()->attach($teacherRole->id);
@@ -373,7 +372,7 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->actingAs($owner)
             ->getJson($directoryUrl . '?' . http_build_query([
                 'q' => 'Directory Teacher 03',
-                'sort' => 'email',
+                'sort' => 'mobile',
                 'per_page' => 7,
             ]))
             ->assertOk()
