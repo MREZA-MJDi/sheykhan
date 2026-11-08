@@ -90,10 +90,10 @@ class OwnerHomeHeroManagementTest extends TestCase
 
         Cache::flush();
         $response = $this->get(route('home'))->assertOk();
-        $heroStyles = file_get_contents(resource_path('css/public-design-system.css'));
+        $heroStyles = file_get_contents(resource_path('css/public/components.css')) . file_get_contents(resource_path('css/public/sections.css'));
         $this->assertIsString($heroStyles);
-        $this->assertStringContainsString('grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr);', $heroStyles);
-        $this->assertStringContainsString('position: static;', $heroStyles);
+        $this->assertStringContainsString('grid-template-columns:minmax(0,1.3fr)minmax(300px,.7fr)', $heroStyles);
+        $this->assertStringContainsString('position:static', $heroStyles);
 
         $response->assertSee(route('media.public', $slides[0]->media), false)
             ->assertSee(route('media.public', $slides[0]->mobileMedia), false)
