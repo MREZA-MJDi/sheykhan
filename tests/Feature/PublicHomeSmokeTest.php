@@ -147,7 +147,6 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringContainsString("resources/css/public.css", $layout);
         $this->assertStringContainsString("resources/js/public.js", $layout);
         foreach ([
-            'resources/css/home.css',
             'resources/css/public-experience.css',
             'resources/css/public-site.css',
             'resources/css/public-design-system.css',
@@ -156,9 +155,12 @@ class PublicHomeSmokeTest extends TestCase
             $this->assertStringNotContainsString($legacyPublicAsset, $vite);
         }
 
+        $this->assertStringNotContainsString('resources/css/home.css', $layout);
         $this->assertStringNotContainsString('resources/css/app.css', $layout);
         $this->assertStringNotContainsString('resources/js/app.js', $layout);
         $this->assertStringContainsString("'resources/css/app.css'", $vite);
+        $this->assertStringContainsString("'resources/css/home.css'", $vite);
+        $this->assertStringContainsString("'resources/js/home.js'", $vite);
         $this->assertStringContainsString("'resources/js/app.js'", $vite);
         $this->assertStringContainsString("'resources/css/public.css'", $vite);
         $this->assertStringContainsString("'resources/js/public.js'", $vite);
@@ -200,7 +202,9 @@ class PublicHomeSmokeTest extends TestCase
             $this->assertStringNotContainsString('box-shadow:', $css);
         }
 
-        foreach (['home.css', 'public-experience.css', 'public-site.css', 'public-design-system.css'] as $legacyFile) {
+        $this->assertFileExists(resource_path('css/home.css'));
+        $this->assertFileExists(resource_path('css/home/experience-legacy.css'));
+        foreach (['public-experience.css', 'public-site.css', 'public-design-system.css'] as $legacyFile) {
             $this->assertFileDoesNotExist(resource_path('css/' . $legacyFile));
         }
 

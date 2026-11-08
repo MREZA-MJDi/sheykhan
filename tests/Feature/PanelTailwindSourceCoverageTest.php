@@ -100,10 +100,12 @@ class PanelTailwindSourceCoverageTest extends TestCase
 
     public function test_public_catalog_styles_include_colorful_but_scoped_card_states(): void
     {
-        $css = file_get_contents(resource_path('css/public-experience.css'));
+        $css = file_get_contents(resource_path('css/public/components.css'));
+        $base = file_get_contents(resource_path('css/public/base.css'));
         $this->assertIsString($css);
-        $this->assertStringContainsString('.public-store-page .edu-card:nth-child(4n + 2)', $css);
-        $this->assertStringContainsString('.public-blog-page .public-blog-card:nth-child(4n + 3)', $css);
-        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
+        $this->assertIsString($base);
+        $this->assertStringContainsString('.public-store-page .edu-card:nth-child(4n+2)', $css);
+        $this->assertStringContainsString('.public-blog-page .public-blog-card:nth-child(4n+3)', $css);
+        $this->assertStringContainsString('prefers-reduced-motion', $base);
     }
 }
