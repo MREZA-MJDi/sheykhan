@@ -70,6 +70,8 @@ final class HeroChallengeController extends Controller
                 'updated_by' => $request->user()->id,
             ]);
 
+            $challenge->options()->whereNotIn('label', ['A', 'B', 'C', 'D'])->delete();
+
             foreach (['A', 'B', 'C', 'D'] as $index => $label) {
                 $challenge->options()->updateOrCreate(
                     ['label' => $label],
