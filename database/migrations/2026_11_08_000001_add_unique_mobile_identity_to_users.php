@@ -5,6 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Support\MobileNumber;
 
 return new class extends Migration
 {
@@ -17,6 +18,13 @@ return new class extends Migration
         if (Schema::hasIndex('users', 'users_mobile_unique')) {
             return;
         }
+
+        DB::table('users')->whereNotNull('mobile')->orderBy('id')->get(['id', 'mobile'])->each(function ($user): void {
+            $normalized = MobileNumber::normalize((string) $user->mobile);
+            if (MobileNumber::valid($normalized) && $normalized !== $user->mobile) {
+                DB::table('users')->where('id', $user->id)->update(['mobile' => $normalized]);
+            }
+        });
 
         $hasDuplicates = DB::table('users')
             ->select('mobile')
