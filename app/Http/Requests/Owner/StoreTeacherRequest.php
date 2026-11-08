@@ -28,6 +28,7 @@ class StoreTeacherRequest extends FormRequest
         return [
             'first_name' => ['required', 'string', 'min:2', 'max:100'],
             'last_name' => ['required', 'string', 'min:2', 'max:120'],
+            'name' => ['required', 'string', 'min:5', 'max:255'],
             'mobile' => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile'],
             'specialization' => ['nullable', 'string', 'max:255'],
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:80'],
