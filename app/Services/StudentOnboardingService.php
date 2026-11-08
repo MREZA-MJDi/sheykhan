@@ -13,7 +13,7 @@ use App\Models\User;
 use App\Support\NationalIdLookup;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -44,7 +44,8 @@ final class StudentOnboardingService
             )
         );
 
-        return DB::transaction(function () use ($admin, $academy, $data, $lookup, $requestHash): StudentOnboarding {
+        $temporaryPassword = null;
+        $onboarding = DB::transaction(function () use ($admin, $academy, $data, $lookup, $requestHash, &$temporaryPassword): StudentOnboarding {
             DB::table('idempotency_keys')->insertOrIgnore([
                 'key' => $data['idempotency_key'],
                 'scope' => self::IDEMPOTENCY_SCOPE,
@@ -151,13 +152,17 @@ final class StudentOnboardingService
                 : null;
 
             if (!$student) {
+                $temporaryPassword = Str::password(16, true, true, true, false);
                 $student = User::create([
                     'name' => $data['name'],
                     'email' => null,
                     'mobile' => $normalizedMobile,
                     'status' => 'active',
-                    'password' => Hash::make(Str::random(40)),
+                    'password' => $temporaryPassword,
                 ]);
+                if (Schema::hasColumn('users', 'must_change_password')) {
+                    $student->forceFill(['must_change_password' => true])->save();
+                }
             } elseif ($student->trashed()) {
                 $student->restore();
             }
@@ -263,6 +268,14 @@ final class StudentOnboardingService
 
             return $onboarding->fresh(['student.studentProfile', 'requestedGrade']);
         }, 3);
+
+        if ($temporaryPassword) {
+            request()->session()->flash('temporary_student_name', $onboarding->student?->name);
+            request()->session()->flash('temporary_student_mobile', $onboarding->student?->mobile);
+            request()->session()->flash('temporary_student_password', $temporaryPassword);
+        }
+
+        return $onboarding;
     }
 
     private function normalizeMobile(?string $value): ?string
