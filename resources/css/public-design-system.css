@@ -110,3 +110,315 @@
     .public-site :is(.public-course-card,.public-teacher-card,.public-store-product-card,.public-blog-card) { transition:none; }
     .public-site :is(.public-course-card,.public-teacher-card,.public-store-product-card,.public-blog-card):hover { transform:none; }
 }
+
+
+/* Unified public experience inspired by the supplied Sheykhan reference.
+   The existing Home Hero is intentionally excluded from all visual overrides. */
+.public-site {
+    --public-ink:#0f172a;
+    --public-ink-soft:#1e293b;
+    --public-muted:#566072;
+    --public-line:#e3e6ec;
+    --public-surface:#fff;
+    --public-surface-soft:#f5f7fa;
+    --public-primary:#1f4e9e;
+    --public-primary-soft:#edf3fc;
+    --public-success:#0b7a63;
+    --public-violet:#5b3fc4;
+    --public-accent:#b25a06;
+    --public-danger:#b72b58;
+    --public-radius-sm:12px;
+    --public-radius-md:18px;
+    --public-radius-lg:24px;
+    --public-shadow-card:0 8px 28px rgb(15 23 42 / 6%);
+    --public-shadow-hover:0 18px 42px rgb(15 23 42 / 11%);
+    color:var(--public-ink);
+    background:#fff;
+}
+
+/* Homepage follows the reference's narrative order without replacing content or data. */
+.public-site .public-main.home-page {
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+}
+.public-site .public-main.home-page > [data-ui-flash-stack] { order:0; }
+.public-site .public-main.home-page > .sheykhan-home-hero { order:10; }
+.public-site .public-main.home-page > .public-proof-stats { order:20; }
+.public-site .public-main.home-page > #upcoming-classes { order:30; }
+.public-site .public-main.home-page > .public-comparison { order:40; }
+.public-site .public-main.home-page > .public-journey { order:50; }
+.public-site .public-main.home-page > #public-destinations { order:60; }
+.public-site .public-main.home-page > #featured-courses { order:70; }
+.public-site .public-main.home-page > #teachers-section { order:80; }
+.public-site .public-main.home-page > #platform-model { order:90; }
+.public-site .public-main.home-page > #learning-experience { order:100; }
+.public-site .public-main.home-page > #academy-story { order:110; }
+.public-site .public-main.home-page > .home-banner-stage { order:120; }
+.public-site .public-main.home-page > #academy-journal { order:130; }
+.public-site .public-main.home-page > #educational-store { order:140; }
+.public-site .public-main.home-page > #academy-content { order:150; }
+.public-site .public-main.home-page > #academy-achievements { order:160; }
+.public-site .public-main.home-page > .public-parent-preview { order:170; }
+.public-site .public-main.home-page > #family-stories { order:180; }
+.public-site .public-main.home-page > .public-faq { order:190; }
+.public-site .public-main.home-page > #start-learning { order:200; }
+.public-site .public-main.home-page > section { width:100%; scroll-margin-top:6rem; }
+
+/* A shared content rail and section rhythm across every public route. */
+.public-site .public-main:not(.home-page) {
+    --public-page-gutter:clamp(1rem,3vw,1.5rem);
+}
+.public-site .public-main:not(.home-page) > section > .mx-auto,
+.public-site .public-main:not(.home-page) .public-shell,
+.public-site .public-main.home-page > .home-section > .mx-auto {
+    width:min(100% - 2 * var(--public-page-gutter, 1.25rem), 1100px) !important;
+    max-width:1100px !important;
+}
+.public-site .public-main:not(.home-page) > section > section:first-child {
+    padding-block:clamp(2.5rem,5vw,4.5rem);
+}
+.public-site .public-main:not(.home-page) :is(.public-page-intro,.public-course-hero,.teacher-profile-hero) {
+    border:1px solid var(--public-line);
+    border-radius:var(--public-radius-lg);
+    padding:clamp(1.4rem,3.2vw,2.6rem);
+    background:
+        radial-gradient(ellipse at 90% 0%,rgb(31 78 158 / 7%),transparent 24rem),
+        linear-gradient(135deg,#fff 0%,#f8faff 100%);
+    box-shadow:var(--public-shadow-card);
+    color:var(--public-ink);
+}
+.public-site .public-main:not(.home-page) .public-page-intro--editorial {
+    border-color:var(--public-line);
+    background:
+        radial-gradient(ellipse at 90% 0%,rgb(91 63 196 / 7%),transparent 24rem),
+        linear-gradient(135deg,#fff 0%,#f8faff 100%);
+}
+.public-site .public-main:not(.home-page) .public-page-intro :is(h1,h2),
+.public-site .public-main:not(.home-page) .public-page-intro--editorial h1 {
+    color:var(--public-ink);
+    font-size:clamp(1.85rem,4vw,3rem);
+    font-weight:950;
+    line-height:1.45;
+    letter-spacing:-.035em;
+    text-wrap:balance;
+}
+.public-site .public-main:not(.home-page) .public-page-intro p,
+.public-site .public-main:not(.home-page) .public-page-intro--editorial p {
+    max-width:62ch;
+    color:var(--public-muted);
+    font-size:.95rem;
+    line-height:2.15;
+}
+.public-site .public-main:not(.home-page) :is(.ui-eyebrow,.public-page-intro > div > span) {
+    color:var(--public-primary);
+}
+
+/* Consistent heading hierarchy, regardless of the route or section. */
+.public-site .public-main :is(.home-heading,.public-feature-heading,.home-banner-heading) {
+    margin-bottom:clamp(1.25rem,2.6vw,2rem);
+}
+.public-site .public-main :is(.home-heading h2,.public-feature-heading h2,.home-banner-heading h2) {
+    color:var(--public-ink);
+    font-size:clamp(1.45rem,3vw,2.15rem);
+    font-weight:950;
+    line-height:1.55;
+    letter-spacing:-.03em;
+    text-wrap:balance;
+}
+.public-site .public-main :is(.home-heading p,.public-feature-heading p,.home-banner-heading p) {
+    color:var(--public-muted);
+    line-height:2;
+}
+.public-site .public-main :is(h1,h2,h3,h4) { text-wrap:pretty; }
+
+/* All public cards share one surface, border, radius and hover language. */
+.public-site .public-main :is(
+    .home-course-card,.home-post-card,.home-teacher-card,.home-live-card,
+    .home-store-card,.home-product-card,.home-academy-card,.home-achievement-card,
+    .home-testimonial-card,.home-feature-card,.home-path-card,.home-banner-card,
+    .public-course-card,.public-catalog-course-card,.public-teacher-card,
+    .public-store-product-card,.public-blog-card,.home-platform-model__card,
+    .home-workflow__role,.public-journey__steps li,.teacher-card
+) {
+    min-width:0;
+    border:1px solid var(--public-line);
+    border-radius:var(--public-radius-md);
+    background:var(--public-surface);
+    box-shadow:var(--public-shadow-card);
+}
+.public-site .public-main :is(
+    .home-course-card,.home-post-card,.home-teacher-card,.home-live-card,
+    .home-product-card,.home-path-card,.home-banner-card,.public-course-card,
+    .public-catalog-course-card,.public-teacher-card,.public-store-product-card,
+    .public-blog-card,.teacher-card
+) {
+    transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.public-site .public-main :is(
+    .home-course-card,.home-post-card,.home-teacher-card,.home-live-card,
+    .home-product-card,.home-path-card,.home-banner-card,.public-course-card,
+    .public-catalog-course-card,.public-teacher-card,.public-store-product-card,
+    .public-blog-card,.teacher-card
+):hover {
+    transform:translateY(-3px);
+    border-color:rgb(31 78 158 / 28%);
+    box-shadow:var(--public-shadow-hover);
+}
+.public-site .public-main :is(
+    .home-course-card,.home-post-card,.home-teacher-card,.home-live-card,
+    .home-product-card,.public-course-card,.public-catalog-course-card,
+    .public-teacher-card,.public-store-product-card,.public-blog-card
+) :is(h3,h2) {
+    color:var(--public-ink);
+    font-weight:900;
+}
+.public-site .public-main :is(
+    .home-course-card,.home-post-card,.home-teacher-card,.home-live-card,
+    .home-product-card,.home-store-card,.public-course-card,.public-catalog-course-card,
+    .public-teacher-card,.public-store-product-card,.public-blog-card
+) :is(p,small) {
+    color:var(--public-muted);
+    line-height:1.95;
+}
+.public-site .public-main :is(.home-course-card img,.home-post-media img,.teacher-card__photo,
+    .home-live-card__media img,.home-banner-media img,.public-blog-card__media img) {
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+.public-site .public-main :is(.home-course-card,.home-post-card,.home-live-card,.home-product-card,
+    .public-course-card,.public-catalog-course-card,.public-blog-card) :is(img,.media) {
+    border-radius:0;
+}
+.public-site .public-main :is(.home-path-card,.home-store-card) {
+    display:flex;
+    flex-direction:column;
+    gap:.65rem;
+    padding:clamp(1.15rem,2.2vw,1.5rem);
+    text-decoration:none;
+}
+.public-site .public-main :is(.home-path-card,.home-store-card) :is(strong,h3) {
+    color:var(--public-ink);
+    font-size:1rem;
+    font-weight:950;
+}
+.public-site .public-main :is(.home-path-card,.home-store-card) :is(p,span) {
+    color:var(--public-muted);
+    font-size:.84rem;
+    line-height:1.9;
+}
+.public-site .public-main :is(.home-path-card,.home-store-card) > :last-child {
+    margin-top:auto;
+    color:var(--public-primary);
+    font-weight:900;
+}
+
+/* Shared filters, form controls, pagination, tables and empty states. */
+.public-site .public-main :is(button,[role="button"],input,select,textarea) {
+    font-family:inherit;
+}
+.public-site .public-main :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    border-color:var(--public-line);
+    border-radius:var(--public-radius-sm);
+}
+.public-site .public-main :is(input,select,textarea):focus-visible {
+    outline:3px solid rgb(91 63 196 / 22%);
+    outline-offset:2px;
+    border-color:var(--public-violet);
+}
+.public-site .public-main :is(.home-empty-state,.public-empty-state,.public-empty,.empty-state) {
+    border:1px dashed #c8d1df;
+    border-radius:var(--public-radius-md);
+    background:var(--public-surface-soft);
+    color:var(--public-muted);
+}
+.public-site .public-main :is(.public-comparison__table-wrap,.public-table-wrap) {
+    overflow-x:auto;
+    border:1px solid var(--public-line);
+    border-radius:var(--public-radius-md);
+    background:#fff;
+    box-shadow:var(--public-shadow-card);
+}
+.public-site .public-main :is(.public-comparison__table,.public-table) {
+    width:100%;
+    border-collapse:collapse;
+}
+.public-site .public-main :is(.public-comparison__table,.public-table) :is(th,td) {
+    padding:.9rem 1rem;
+    border-bottom:1px solid var(--public-line);
+    text-align:start;
+}
+.public-site .public-main :is(.public-comparison__table,.public-table) thead th {
+    background:var(--public-surface-soft);
+    color:var(--public-ink-soft);
+    font-weight:900;
+}
+.public-site .public-main :is(.public-comparison__table,.public-table) tr:last-child > * { border-bottom:0; }
+.public-site .public-main :is(.pagination,.public-pagination) a,
+.public-site .public-main :is(.pagination,.public-pagination) span {
+    border-radius:999px;
+}
+.public-site .public-main :is(.home-final-action,.home-heading>a,.home-banner-link,
+    .teacher-card__action,.public-next-step__button,.public-page-intro a[class*="button"]) {
+    min-height:42px;
+    border-radius:999px;
+    font-weight:900;
+}
+
+/* Dark editorial blocks use the same palette and contrast rules on every page. */
+.public-site .public-main .home-dark {
+    background:#0f172a;
+}
+.public-site .public-main .home-dark :is(.home-heading h2,.home-feature-card strong,.home-testimonial-card strong) {
+    color:#fff;
+}
+.public-site .public-main .home-dark :is(.home-heading p,.home-feature-card p,.home-testimonial-card p,.home-testimonial-card span) {
+    color:#c1cada;
+}
+.public-site .public-main .home-dark :is(.home-feature-card,.home-testimonial-card) {
+    border-color:#ffffff20;
+    background:#ffffff0a;
+    box-shadow:none;
+}
+.public-site .public-main .home-cta {
+    border-radius:var(--public-radius-lg);
+    background:linear-gradient(125deg,#0f172a,#1f4e9e);
+}
+.public-site .public-main :is(.public-next-step__card,.public-course-hero,.teacher-profile-hero) {
+    border-radius:var(--public-radius-lg);
+}
+.public-site .public-main :is(.public-article-body,.course-content,.teacher-profile-content) {
+    color:var(--public-ink-soft);
+    line-height:2.15;
+}
+.public-site .public-main :is(.public-article-body,.course-content,.teacher-profile-content) :is(h2,h3,h4) {
+    color:var(--public-ink);
+    font-weight:950;
+}
+@media(max-width:760px) {
+    .public-site .public-main:not(.home-page) > section > .mx-auto,
+    .public-site .public-main:not(.home-page) .public-shell,
+    .public-site .public-main.home-page > .home-section > .mx-auto {
+        width:calc(100% - 2rem) !important;
+    }
+    .public-site .public-main:not(.home-page) :is(.public-page-intro,.public-course-hero,.teacher-profile-hero) {
+        border-radius:18px;
+        padding:1.25rem;
+    }
+}
+@media(prefers-reduced-motion:reduce) {
+    .public-site .public-main :is(
+        .home-course-card,.home-post-card,.home-teacher-card,.home-live-card,
+        .home-product-card,.home-path-card,.home-banner-card,.public-course-card,
+        .public-catalog-course-card,.public-teacher-card,.public-store-product-card,
+        .public-blog-card,.teacher-card
+    ) { transition:none; }
+    .public-site .public-main :is(
+        .home-course-card,.home-post-card,.home-teacher-card,.home-live-card,
+        .home-product-card,.home-path-card,.home-banner-card,.public-course-card,
+        .public-catalog-course-card,.public-teacher-card,.public-store-product-card,
+        .public-blog-card,.teacher-card
+    ):hover { transform:none; }
+}
