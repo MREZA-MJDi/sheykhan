@@ -30,7 +30,7 @@
         @csrf
 
         <div>
-            <label for="identifier" class="mb-2 block text-sm font-bold text-[var(--color-text)]">
+            <label for="mobile" class="mb-2 block text-sm font-bold text-[var(--color-text)]">
                 شماره موبایل
             </label>
 
