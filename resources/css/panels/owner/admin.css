@@ -551,3 +551,104 @@
 .owner-admin-v2 .main-content .owner-exam-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
 .owner-admin-v2 .main-content .owner-exam-help{color:var(--oa-muted);font-size:10px;line-height:1.8;font-weight:500}
 @media(max-width:760px){.owner-admin-v2 .main-content .owner-exam-grid{grid-template-columns:minmax(0,1fr)}}
+
+
+/* Mobile-first member workspace: consistent hierarchy, readable controls and compact result rows. */
+.owner-admin-v2 .main-content .owner-people-workspace{
+    display:grid;
+    gap:20px;
+    align-content:start;
+    color:var(--oa-text);
+}
+.owner-admin-v2 .main-content .owner-people-workspace .dashboard-panel,
+.owner-admin-v2 .main-content .owner-people-workspace .owner-people-tab-panel{
+    min-width:0;
+    border:1px solid rgba(119,136,190,.18);
+    border-radius:16px;
+    background:var(--oa-surface);
+    box-shadow:0 8px 24px rgba(0,0,0,.10);
+}
+.owner-admin-v2 .main-content .owner-people-workspace :is(input,select,textarea){
+    min-width:0;
+    min-height:42px;
+    border:1px solid rgba(119,136,190,.25);
+    border-radius:10px;
+    background:#101832;
+    color:var(--oa-text);
+    font:inherit;
+}
+.owner-admin-v2 .main-content .owner-people-workspace :is(input,select,textarea)::placeholder{
+    color:#8f9bbd;
+}
+.owner-admin-v2 .main-content .owner-people-workspace :is(input,select,textarea):focus-visible{
+    outline:3px solid rgba(129,140,248,.24);
+    border-color:var(--oa-accent);
+    outline-offset:1px;
+}
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-results]>div{
+    min-width:0;
+    border:1px solid rgba(119,136,190,.14);
+    background:#101832;
+    color:var(--oa-text);
+}
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-status],
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-page-info]{
+    color:var(--oa-muted);
+    line-height:1.8;
+}
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-pagination] button{
+    min-width:76px;
+    min-height:38px;
+    border-color:rgba(119,136,190,.28);
+    background:#182344;
+    color:var(--oa-text);
+}
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-pagination] button:disabled{
+    opacity:.42;
+    cursor:not-allowed;
+}
+.owner-admin-v2 .main-content .owner-people-workspace .owner-people-tabbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+.owner-admin-v2 .main-content .owner-people-workspace .owner-people-tabbar [role=tab]{
+    min-height:42px;
+    padding:9px 15px;
+    border:1px solid rgba(119,136,190,.2);
+    border-radius:11px;
+    background:#141e3b;
+    color:var(--oa-muted);
+    font-size:12px;
+    font-weight:800;
+}
+.owner-admin-v2 .main-content .owner-people-workspace .owner-people-tabbar [role=tab][aria-selected=true]{
+    border-color:var(--oa-accent);
+    background:rgba(129,140,248,.15);
+    color:var(--oa-text);
+}
+.owner-admin-v2 .main-content .owner-people-workspace :is(button,a){
+    transition:background-color .16s ease,border-color .16s ease,transform .16s ease;
+}
+.owner-admin-v2 .main-content .owner-people-workspace button:focus-visible,
+.owner-admin-v2 .main-content .owner-people-workspace a:focus-visible{
+    outline:3px solid rgba(129,140,248,.32);
+    outline-offset:3px;
+}
+@media(max-width:700px){
+    .owner-admin-v2 .main-content .owner-people-workspace .grid.xl\:grid-cols-3{
+        grid-template-columns:minmax(0,1fr);
+    }
+    .owner-admin-v2 .main-content .owner-people-workspace [data-directory-controls]{
+        grid-template-columns:minmax(0,1fr);
+    }
+    .owner-admin-v2 .main-content .owner-people-workspace [data-directory-pagination]{
+        position:sticky;
+        bottom:8px;
+        z-index:2;
+        padding:10px;
+        border:1px solid rgba(119,136,190,.2);
+        border-radius:12px;
+        background:#111a34;
+    }
+}
