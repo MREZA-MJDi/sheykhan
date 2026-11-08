@@ -60,20 +60,19 @@ class PeopleController extends Controller
                 $query->where('users.name', 'like', '%' . $term . '%')
                     ->orWhere('users.mobile', 'like', '%' . $term . '%');
                 if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
-                    $lookup = \\App\\Support\\NationalIdLookup::make($term);
+                    $lookup = \App\Support\NationalIdLookup::make($term);
                     $query->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
                 }
             })
             ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
-            ->paginate(20, ['users.id', 'users.name'], 'page');
+            ->paginate(20, ['users.id', 'users.name', 'users.mobile'], 'page');
 
         return response()->json([
             'data' => $students->getCollection()->map(fn (User $student): array => [
                 'id' => (int) $student->id,
                 'name' => $student->name,
-                'mobile' => $student->mobile,
                 'mobile' => $student->mobile,
             ])->values(),
             'meta' => [
