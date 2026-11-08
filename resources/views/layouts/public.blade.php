@@ -9,7 +9,7 @@
 <body id="top" class="sheykhan-site public-site">
 <a class="site-skip-link" href="#main-content">رفتن به محتوای اصلی</a>
 <div id="app"><x-public-site.navbar />
-<main id="main-content" class="public-main">
+<main id="main-content" class="public-main home-page">
 @if(session()->hasAny(['success','error','warning','info']) || $errors->any())
 <div class="ui-flash-stack public-shell" data-ui-flash-stack>
 @foreach(['success'=>['title'=>'انجام شد','icon'=>'✓'],'error'=>['title'=>'نیاز به توجه','icon'=>'!'],'warning'=>['title'=>'توجه','icon'=>'⚠'],'info'=>['title'=>'اطلاع','icon'=>'i']] as $type=>$meta)
