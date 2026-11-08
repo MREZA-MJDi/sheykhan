@@ -34,9 +34,32 @@ const fail=(panel,message)=>{
     const error=panel.querySelector('[data-upload-progress-error]'),status=panel.querySelector('[data-upload-progress-status]');
     if(error){error.textContent=message;error.hidden=false;}if(status)status.hidden=true;
 };
+const ensurePanel=form=>{
+    let panel=form.querySelector('[data-upload-progress-ui]');
+    if(panel)return panel;
+    panel=document.createElement('section');
+    panel.dataset.uploadProgressUi='true';
+    panel.hidden=true;
+    panel.className='mt-3 rounded-xl border border-slate-200 bg-white p-3 text-slate-700';
+    panel.setAttribute('aria-live','polite');
+    const status=document.createElement('div');status.dataset.uploadProgressStatus='true';status.hidden=true;
+    const heading=document.createElement('div');heading.className='flex items-center justify-between gap-3 text-xs font-bold';
+    const message=document.createElement('span');message.dataset.uploadProgressMessage='true';message.textContent='در انتظار ارسال فایل‌ها…';
+    const percent=document.createElement('span');percent.dataset.uploadProgressPercent='true';percent.textContent='۰٪';
+    heading.append(message,percent);
+    const track=document.createElement('div');track.dataset.uploadProgressTrack='true';track.className='mt-2 h-2 overflow-hidden rounded-full bg-slate-100';track.setAttribute('role','progressbar');track.setAttribute('aria-label','پیشرفت بارگذاری فایل');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow','0');
+    const bar=document.createElement('div');bar.dataset.uploadProgressBar='true';bar.className='h-full w-0 rounded-full bg-indigo-600 transition-[width] duration-150';track.append(bar);
+    status.append(heading,track);
+    const summary=document.createElement('p');summary.dataset.uploadSummary='true';summary.className='text-xs text-slate-500';
+    const list=document.createElement('ul');list.dataset.uploadFileList='true';list.className='mt-2 grid gap-1 text-xs';list.setAttribute('role','list');
+    const error=document.createElement('p');error.dataset.uploadProgressError='true';error.hidden=true;error.className='mt-2 text-xs font-semibold text-rose-600';error.setAttribute('role','alert');
+    panel.append(status,summary,list,error);
+    form.append(panel);
+    return panel;
+};
 const bind=form=>{
     if(form.dataset.uploadProgressBound==='true')return;
-    const panel=form.querySelector('[data-upload-progress-ui]');if(!panel)return;
+    const panel=ensurePanel(form);if(!panel)return;
     form.dataset.uploadProgressBound='true';
     form.addEventListener('change',event=>{
         if(event.target instanceof HTMLInputElement&&event.target.type==='file'){
@@ -68,4 +91,4 @@ const bind=form=>{
         xhr.send(new FormData(form));
     });
 };
-export function bootFileUploadProgress(root=document){root.querySelectorAll('form').forEach(form=>{if(form.hasAttribute('data-upload-progress')||form.querySelector('[data-upload-progress-ui]'))bind(form);});}
+export function bootFileUploadProgress(root=document){root.querySelectorAll('form').forEach(form=>{if(form.dataset.uploadProgress==='off'||form.hasAttribute('data-custom-upload')||form.closest('[data-media-uploader]'))return;if(form.querySelector('input[type=file]'))bind(form);});}
