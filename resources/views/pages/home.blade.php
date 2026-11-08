@@ -14,8 +14,244 @@
     @include('pages.home.partials.hero')
     @include('pages.home.partials.public-stats')
 
+{{-- Live classes --}}
+    <section id="upcoming-classes" class="home-section home-soft">
+            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
+                <div class="home-heading">
+                    <div>
+                        <span>کلاس‌های پیش‌رو</span>
+                        <h2>جلسه بعدی را از دست نده.</h2>
+                    </div>
+                </div>
+                <div class="home-live-grid">
+                    @forelse($liveClassCards as $class)
+                        @php
+                            $liveStatusClass = match($class['status']) {
+                                'در حال برگزاری' => 'is-live',
+                                'به‌زودی', 'برنامه‌ریزی‌شده' => 'is-upcoming',
+                                default => 'is-neutral',
+                            };
+                        @endphp
+                        <article class="home-live-card">
+                            @if(filled($class['image'] ?? null))
+                                <div class="home-live-card__media"><img src="{{ $class['image'] }}" alt="{{ $class['title'] }}" loading="lazy" decoding="async"></div>
+                            @endif
+                            <div class="home-live-card__top"><span class="home-live-card__mark" aria-hidden="true">◷</span><span class="home-live-status {{ $liveStatusClass }}">{{ $class['status'] }}</span></div>
+                            @if($class['course'])<span class="home-live-card__course">{{ $class['course'] }}</span>@endif
+                            <h3><a href="{{ $class['href'] }}">{{ $class['title'] }}</a></h3>
+                            <div class="home-live-card__details"><div><span>تاریخ</span><strong>{{ $class['date'] ?: '—' }}</strong></div><div><span>ساعت</span><strong>{{ $class['time'] ?: '—' }}</strong></div></div>
+                            @if($class['teacher'])<p class="home-live-card__teacher">مدرس: {{ $class['teacher'] }}</p>@endif
+                            <a class="home-live-card__action" href="{{ $class['href'] }}">مشاهده کلاس <span aria-hidden="true">←</span></a>
+                        </article>
+                    @empty
+                        <div class="home-empty-state"><strong>در حال حاضر کلاس آینده‌ای برای نمایش منتشر نشده است.</strong><span>برنامه کلاس‌ها پس از ثبت و انتشار توسط آموزشگاه در این بخش قرار می‌گیرد.</span><a href="{{ route('courses.index') }}">مشاهده دوره‌ها ←</a></div>
+                    @endforelse
+                </div>
+            </div>
+        </section>
 
-    {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
+@include('pages.home.partials.public-comparison')
+
+@include('pages.home.partials.public-journey')
+
+<section id="public-destinations" class="home-section home-paths" aria-labelledby="home-paths-title">
+        <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
+            <div class="home-paths__intro">
+                <div>
+                    <h2 id="home-paths-title">دسترسی سریع به بخش‌های شیخان</h2>
+                    <p>برای پیدا کردن مسیر مناسب، از موضوعی شروع کن که همین حالا به آن نیاز داری.</p>
+                </div>
+            </div>
+            <div class="home-paths__grid">
+                <a href="{{ route('courses.index') }}" class="home-path-card">
+                    <strong>دوره‌های آموزشی</strong>
+                    <p>محتوای دوره، مدرس، سرفصل‌ها و شرایط ثبت‌نام را مقایسه کن.</p>
+                    <span>مشاهده دوره‌ها</span>
+                </a>
+                <a href="{{ route('teachers.index') }}" class="home-path-card">
+                    <strong>مدرس‌ها</strong>
+                    <p>با تخصص و سوابق آموزشی مدرس‌ها آشنا شو.</p>
+                    <span>آشنایی با مدرس‌ها</span>
+                </a>
+                <a href="{{ route('store.index') }}" class="home-path-card">
+                    <strong>فروشگاه آموزشی</strong>
+                    <p>جزوه‌ها، بسته‌ها و محصولات آموزشی را ببین.</p>
+                    <span>ورود به فروشگاه</span>
+                </a>
+                <a href="{{ route('blog.index') }}" class="home-path-card">
+                    <strong>مجلهٔ یادگیری</strong>
+                    <p>مقاله‌ها و راهنماهای آموزشی را دنبال کن.</p>
+                    <span>خواندن مقاله‌ها</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+{{-- Courses: keep the discovery section visible even before the first course is published. --}}
+    <section id="featured-courses" class="home-section home-soft">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
+            <div class="home-heading">
+                <div>
+                    <span>دوره‌های منتخب</span>
+                    <h2>از همین‌جا مسیرت را پیدا کن.</h2>
+                    <p>دوره‌های منتشرشده از آموزشگاه‌های فعال شیخان.</p>
+                </div>
+                <a href="{{ route('courses.index') }}">همه دوره‌ها <i>←</i></a>
+            </div>
+
+            <div class="home-course-grid">
+                @forelse($courseCards as $course)
+                    <article class="home-course-card edu-card group flex h-full min-w-0 flex-col">
+    <a href="{{ $course['href'] }}" class="block" aria-label="مشاهده دوره {{ $course['title'] }}">
+        <div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
+            @if($course['image'])
+                <img src="{{ $course['image'] }}" alt="{{ $course['title'] }}" class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.045]" loading="lazy" decoding="async">
+                <span class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent"></span>
+            @else
+                <div class="flex h-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(104,121,245,.20),transparent_38%),linear-gradient(135deg,#eef2ff,#f7fbff)] text-[var(--color-primary-600)]">
+                    <svg class="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="m4 15 4-4 3 3 3-4 6 6"/></svg>
+                </div>
+            @endif
+            <div class="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
+                @if($course['category'])<span class="home-card-badge"><span class="home-badge-dot"></span>{{ $course['category'] }}</span>@endif
+                @if($course['price'] === 'رایگان')<span class="home-card-badge is-free">پیش‌نمایش رایگان</span>@endif
+            </div>
+        </div>
+    </a>
+    <div class="flex flex-1 flex-col p-5 sm:p-6">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex min-w-0 flex-wrap gap-1.5">
+                @foreach(array_slice(array_filter($course['grades'] ?? []), 0, 3) as $grade)
+                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">{{ $grade }}</span>
+                @endforeach
+                @if(empty($course['grades']) && $course['level'])
+                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">سطح {{ $course['level'] }}</span>
+                @endif
+            </div>
+            @if($course['price'] !== null)<span class="ms-auto shrink-0 text-sm font-black text-[var(--color-primary-600)]">{{ $course['price'] }}</span>@endif
+        </div>
+        <h3 class="mt-4 text-xl font-black leading-snug text-[var(--color-text)]"><a href="{{ $course['href'] }}" class="transition-colors hover:text-[var(--color-primary-600)]">{{ $course['title'] }}</a></h3>
+        @if($course['description'])<p class="mt-2 line-clamp-2 text-sm leading-7 text-[var(--color-text-secondary)]">{{ $course['description'] }}</p>@endif
+        @if($course['teacher'])
+            <div class="mt-4 flex min-w-0 items-center gap-2 text-xs font-semibold text-[var(--color-text-muted)]">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]" aria-hidden="true">مد</span>
+                <span class="truncate">{{ $course['teacher'] }}</span>
+            </div>
+        @endif
+        <div class="mt-auto pt-5"><div class="flex flex-wrap items-center gap-3 border-t border-[var(--color-border)] pt-4 text-xs font-semibold text-[var(--color-text-muted)]">
+            @if($course['lessons'])<span class="home-meta-signal"><i aria-hidden="true">◫</i>{{ $course['lessons'] }} درس</span>@endif
+            @if($course['duration'])<span class="home-meta-signal"><i aria-hidden="true">◷</i>{{ $course['duration'] }}</span>@endif
+            <a href="{{ $course['href'] }}" class="ms-auto font-black text-[var(--color-primary-600)]">مشاهده دوره ←</a>
+        </div></div>
+    </div>
+</article>
+                @empty
+                    <div class="home-empty-state">
+                        <strong>هنوز دوره‌ای منتشر نشده است.</strong>
+                        <span>به‌محض انتشار، دوره‌ها در این بخش نمایش داده می‌شوند.</span>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+{{-- Teachers: an empty directory still offers a clear next step. --}}
+    <section id="teachers-section" class="home-section">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
+            <div class="home-heading">
+                <div>
+                    <span>اساتید</span>
+                    <h2>آدم‌های خوب، آموزش خوب می‌سازند.</h2>
+                    <p>مدرس‌های تأییدشده و فعال شیخان.</p>
+                </div>
+                <a href="{{ route('teachers.index') }}">همه اساتید <i>←</i></a>
+            </div>
+
+            <div class="home-teacher-grid">
+                @forelse($teacherCards as $teacher)
+                    <article class="home-teacher-card teacher-card edu-card group h-full min-w-0">
+    <a href="{{ $teacher['href'] }}" class="teacher-card__media" aria-label="مشاهده پروفایل {{ $teacher['name'] }}">
+        @if($teacher['avatar'])<img src="{{ $teacher['avatar'] }}" alt="تصویر {{ $teacher['name'] }}" class="teacher-card__photo" loading="lazy" decoding="async">
+        @else<span class="teacher-card__fallback" aria-hidden="true">{{ mb_substr(trim((string) $teacher['name']),0,1) }}</span>@endif
+        <span class="teacher-card__media-overlay" aria-hidden="true"></span>
+        <span class="teacher-card__media-action">پروفایل مدرس <span aria-hidden="true">↗</span></span>
+    </a>
+    <div class="teacher-card__body">
+        <div class="teacher-card__identity">
+            <h3 class="teacher-card__name"><a href="{{ $teacher['href'] }}">{{ $teacher['name'] }}</a></h3>
+            @if(filled($teacher['role']))<p class="teacher-card__role">{{ $teacher['role'] }}</p>@endif
+        </div>
+        @if(filled($teacher['bio']))<p class="teacher-card__bio">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $teacher['bio'])),155) }}</p>@endif
+        <div class="teacher-card__footer">
+            <span class="teacher-card__course-count"><span aria-hidden="true">▤</span>{{ \App\Support\PersianUi::digits((int) ($teacher['courses'] ?? 0)) }} دوره آموزشی</span>
+            <a href="{{ $teacher['href'] }}" class="teacher-card__action">دیدن پروفایل <span aria-hidden="true">←</span></a>
+        </div>
+    </div>
+</article>
+                @empty
+                    <div class="home-empty-state"><strong>هنوز مدرس عمومی ثبت نشده است.</strong></div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+@include('pages.home.partials.platform-model')
+
+{{-- Why Sheykhan --}}
+    <section id="learning-experience" class="home-section home-dark">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
+            <div class="home-why">
+                <div class="home-why-copy">
+                    <span>چرا شیخان؟</span>
+                    <h2>یک پلتفرم؛<br><em>چهار تجربه آموزشی.</em></h2>
+                    <p>
+                        دانش‌آموز، مدرس، والد و آموزشگاه هرکدام محیط مخصوص خودشان را دارند،
+                        اما همه در یک مسیر آموزشی به هم متصل‌اند.
+                    </p>
+                </div>
+                <div class="home-role-grid home-feature-grid">
+                    <article class="home-feature-card" data-feature-index="01">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><path d="M4 12.5 16 6l12 6.5L16 19 4 12.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 16v6.2c4.3 3.4 9.7 3.4 14 0V16M28 13v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۱</b><span>LEARN</span></div>
+                        <strong>دانش‌آموز</strong>
+                        <p>دوره، کلاس، تکلیف، آزمون و پیشرفت در یک فضای شخصی.</p>
+                        <span class="home-feature-card__note">کارتابل یادگیری <i aria-hidden="true">↗</i></span>
+                    </article>
+                    <article class="home-feature-card" data-feature-index="02">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5.5" width="22" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M11 26.5h10M16 20.5v6M9 10h8m-8 4h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۲</b><span>TEACH</span></div>
+                        <strong>مدرس</strong>
+                        <p>مدیریت کلاس، حضور و غیاب، تکلیف، آزمون و تصحیح.</p>
+                        <span class="home-feature-card__note">فضای تدریس <i aria-hidden="true">↗</i></span>
+                    </article>
+                    <article class="home-feature-card" data-feature-index="03">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><circle cx="12" cy="11" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="23" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 26c.7-5 3.1-7.6 7.5-7.6s6.8 2.6 7.5 7.6M20 20c3.9-.3 6.1 1.7 7 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۳</b><span>FOLLOW</span></div>
+                        <strong>والد</strong>
+                        <p>دیدی روشن‌تر از مسیر آموزشی و عملکرد فرزند.</p>
+                        <span class="home-feature-card__note">نمای پیگیری <i aria-hidden="true">↗</i></span>
+                    </article>
+                    <article class="home-feature-card" data-feature-index="04">
+                        <span class="home-feature-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="5" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
+                        </span>
+                        <div class="home-feature-card__code"><b>۰۴</b><span>MANAGE</span></div>
+                        <strong>آموزشگاه</strong>
+                        <p>مدیریت افراد، کلاس‌ها، محتوا، دوره‌ها و گزارش‌ها.</p>
+                        <span class="home-feature-card__note">مرکز مدیریت <i aria-hidden="true">↗</i></span>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
     <section id="academy-story" class="home-section home-academy-story" aria-labelledby="home-academy-story-title">
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-academy-story__grid">
@@ -104,7 +340,7 @@
         </div>
     </section>
 
-    {{-- Academy banners remain a separate content section below the Hero. --}}
+{{-- Academy banners remain a separate content section below the Hero. --}}
     @if($homeBanners->isNotEmpty())
         <section class="home-section home-banner-stage" aria-label="بنرهای ویژه شیخان">
             <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
@@ -149,109 +385,7 @@
         </section>
     @endif
 
-    <section id="public-destinations" class="home-section home-paths" aria-labelledby="home-paths-title">
-        <div class="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
-            <div class="home-paths__intro">
-                <div>
-                    <h2 id="home-paths-title">دسترسی سریع به بخش‌های شیخان</h2>
-                    <p>برای پیدا کردن مسیر مناسب، از موضوعی شروع کن که همین حالا به آن نیاز داری.</p>
-                </div>
-            </div>
-            <div class="home-paths__grid">
-                <a href="{{ route('courses.index') }}" class="home-path-card">
-                    <strong>دوره‌های آموزشی</strong>
-                    <p>محتوای دوره، مدرس، سرفصل‌ها و شرایط ثبت‌نام را مقایسه کن.</p>
-                    <span>مشاهده دوره‌ها</span>
-                </a>
-                <a href="{{ route('teachers.index') }}" class="home-path-card">
-                    <strong>مدرس‌ها</strong>
-                    <p>با تخصص و سوابق آموزشی مدرس‌ها آشنا شو.</p>
-                    <span>آشنایی با مدرس‌ها</span>
-                </a>
-                <a href="{{ route('store.index') }}" class="home-path-card">
-                    <strong>فروشگاه آموزشی</strong>
-                    <p>جزوه‌ها، بسته‌ها و محصولات آموزشی را ببین.</p>
-                    <span>ورود به فروشگاه</span>
-                </a>
-                <a href="{{ route('blog.index') }}" class="home-path-card">
-                    <strong>مجلهٔ یادگیری</strong>
-                    <p>مقاله‌ها و راهنماهای آموزشی را دنبال کن.</p>
-                    <span>خواندن مقاله‌ها</span>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    {{-- Courses: keep the discovery section visible even before the first course is published. --}}
-    <section id="featured-courses" class="home-section home-soft">
-        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
-            <div class="home-heading">
-                <div>
-                    <span>دوره‌های منتخب</span>
-                    <h2>از همین‌جا مسیرت را پیدا کن.</h2>
-                    <p>دوره‌های منتشرشده از آموزشگاه‌های فعال شیخان.</p>
-                </div>
-                <a href="{{ route('courses.index') }}">همه دوره‌ها <i>←</i></a>
-            </div>
-
-            <div class="home-course-grid">
-                @forelse($courseCards as $course)
-                    <article class="home-course-card edu-card group flex h-full min-w-0 flex-col">
-    <a href="{{ $course['href'] }}" class="block" aria-label="مشاهده دوره {{ $course['title'] }}">
-        <div class="relative aspect-[16/9] overflow-hidden bg-[var(--color-slate-100)]">
-            @if($course['image'])
-                <img src="{{ $course['image'] }}" alt="{{ $course['title'] }}" class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.045]" loading="lazy" decoding="async">
-                <span class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent"></span>
-            @else
-                <div class="flex h-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(104,121,245,.20),transparent_38%),linear-gradient(135deg,#eef2ff,#f7fbff)] text-[var(--color-primary-600)]">
-                    <svg class="h-12 w-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="m4 15 4-4 3 3 3-4 6 6"/></svg>
-                </div>
-            @endif
-            <div class="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
-                @if($course['category'])<span class="home-card-badge"><span class="home-badge-dot"></span>{{ $course['category'] }}</span>@endif
-                @if($course['price'] === 'رایگان')<span class="home-card-badge is-free">پیش‌نمایش رایگان</span>@endif
-            </div>
-        </div>
-    </a>
-    <div class="flex flex-1 flex-col p-5 sm:p-6">
-        <div class="flex items-center justify-between gap-3">
-            <div class="flex min-w-0 flex-wrap gap-1.5">
-                @foreach(array_slice(array_filter($course['grades'] ?? []), 0, 3) as $grade)
-                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">{{ $grade }}</span>
-                @endforeach
-                @if(empty($course['grades']) && $course['level'])
-                    <span class="rounded-full bg-[var(--color-background-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-text-tertiary)]">سطح {{ $course['level'] }}</span>
-                @endif
-            </div>
-            @if($course['price'] !== null)<span class="ms-auto shrink-0 text-sm font-black text-[var(--color-primary-600)]">{{ $course['price'] }}</span>@endif
-        </div>
-        <h3 class="mt-4 text-xl font-black leading-snug text-[var(--color-text)]"><a href="{{ $course['href'] }}" class="transition-colors hover:text-[var(--color-primary-600)]">{{ $course['title'] }}</a></h3>
-        @if($course['description'])<p class="mt-2 line-clamp-2 text-sm leading-7 text-[var(--color-text-secondary)]">{{ $course['description'] }}</p>@endif
-        @if($course['teacher'])
-            <div class="mt-4 flex min-w-0 items-center gap-2 text-xs font-semibold text-[var(--color-text-muted)]">
-                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]" aria-hidden="true">مد</span>
-                <span class="truncate">{{ $course['teacher'] }}</span>
-            </div>
-        @endif
-        <div class="mt-auto pt-5"><div class="flex flex-wrap items-center gap-3 border-t border-[var(--color-border)] pt-4 text-xs font-semibold text-[var(--color-text-muted)]">
-            @if($course['lessons'])<span class="home-meta-signal"><i aria-hidden="true">◫</i>{{ $course['lessons'] }} درس</span>@endif
-            @if($course['duration'])<span class="home-meta-signal"><i aria-hidden="true">◷</i>{{ $course['duration'] }}</span>@endif
-            <a href="{{ $course['href'] }}" class="ms-auto font-black text-[var(--color-primary-600)]">مشاهده دوره ←</a>
-        </div></div>
-    </div>
-</article>
-                @empty
-                    <div class="home-empty-state">
-                        <strong>هنوز دوره‌ای منتشر نشده است.</strong>
-                        <span>به‌محض انتشار، دوره‌ها در این بخش نمایش داده می‌شوند.</span>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-    </section>
-
-
-    {{-- Keep the journal discovery area visible when no post has been published yet. --}}
+{{-- Keep the journal discovery area visible when no post has been published yet. --}}
     {{-- Latest articles --}}
     <section id="academy-journal" class="home-section home-blog">
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
@@ -312,142 +446,7 @@
         </div>
     </section>
 
-
-    {{-- Why Sheykhan --}}
-    <section id="learning-experience" class="home-section home-dark">
-        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
-            <div class="home-why">
-                <div class="home-why-copy">
-                    <span>چرا شیخان؟</span>
-                    <h2>یک پلتفرم؛<br><em>چهار تجربه آموزشی.</em></h2>
-                    <p>
-                        دانش‌آموز، مدرس، والد و آموزشگاه هرکدام محیط مخصوص خودشان را دارند،
-                        اما همه در یک مسیر آموزشی به هم متصل‌اند.
-                    </p>
-                </div>
-                <div class="home-role-grid home-feature-grid">
-                    <article class="home-feature-card" data-feature-index="01">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><path d="M4 12.5 16 6l12 6.5L16 19 4 12.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 16v6.2c4.3 3.4 9.7 3.4 14 0V16M28 13v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۱</b><span>LEARN</span></div>
-                        <strong>دانش‌آموز</strong>
-                        <p>دوره، کلاس، تکلیف، آزمون و پیشرفت در یک فضای شخصی.</p>
-                        <span class="home-feature-card__note">کارتابل یادگیری <i aria-hidden="true">↗</i></span>
-                    </article>
-                    <article class="home-feature-card" data-feature-index="02">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5.5" width="22" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M11 26.5h10M16 20.5v6M9 10h8m-8 4h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۲</b><span>TEACH</span></div>
-                        <strong>مدرس</strong>
-                        <p>مدیریت کلاس، حضور و غیاب، تکلیف، آزمون و تصحیح.</p>
-                        <span class="home-feature-card__note">فضای تدریس <i aria-hidden="true">↗</i></span>
-                    </article>
-                    <article class="home-feature-card" data-feature-index="03">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><circle cx="12" cy="11" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="23" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 26c.7-5 3.1-7.6 7.5-7.6s6.8 2.6 7.5 7.6M20 20c3.9-.3 6.1 1.7 7 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۳</b><span>FOLLOW</span></div>
-                        <strong>والد</strong>
-                        <p>دیدی روشن‌تر از مسیر آموزشی و عملکرد فرزند.</p>
-                        <span class="home-feature-card__note">نمای پیگیری <i aria-hidden="true">↗</i></span>
-                    </article>
-                    <article class="home-feature-card" data-feature-index="04">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="5" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۴</b><span>MANAGE</span></div>
-                        <strong>آموزشگاه</strong>
-                        <p>مدیریت افراد، کلاس‌ها، محتوا، دوره‌ها و گزارش‌ها.</p>
-                        <span class="home-feature-card__note">مرکز مدیریت <i aria-hidden="true">↗</i></span>
-                    </article>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    @include('pages.home.partials.platform-model')
-
-    {{-- Teachers: an empty directory still offers a clear next step. --}}
-    <section id="teachers-section" class="home-section">
-        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
-            <div class="home-heading">
-                <div>
-                    <span>اساتید</span>
-                    <h2>آدم‌های خوب، آموزش خوب می‌سازند.</h2>
-                    <p>مدرس‌های تأییدشده و فعال شیخان.</p>
-                </div>
-                <a href="{{ route('teachers.index') }}">همه اساتید <i>←</i></a>
-            </div>
-
-            <div class="home-teacher-grid">
-                @forelse($teacherCards as $teacher)
-                    <article class="home-teacher-card teacher-card edu-card group h-full min-w-0">
-    <a href="{{ $teacher['href'] }}" class="teacher-card__media" aria-label="مشاهده پروفایل {{ $teacher['name'] }}">
-        @if($teacher['avatar'])<img src="{{ $teacher['avatar'] }}" alt="تصویر {{ $teacher['name'] }}" class="teacher-card__photo" loading="lazy" decoding="async">
-        @else<span class="teacher-card__fallback" aria-hidden="true">{{ mb_substr(trim((string) $teacher['name']),0,1) }}</span>@endif
-        <span class="teacher-card__media-overlay" aria-hidden="true"></span>
-        <span class="teacher-card__media-action">پروفایل مدرس <span aria-hidden="true">↗</span></span>
-    </a>
-    <div class="teacher-card__body">
-        <div class="teacher-card__identity">
-            <h3 class="teacher-card__name"><a href="{{ $teacher['href'] }}">{{ $teacher['name'] }}</a></h3>
-            @if(filled($teacher['role']))<p class="teacher-card__role">{{ $teacher['role'] }}</p>@endif
-        </div>
-        @if(filled($teacher['bio']))<p class="teacher-card__bio">{{ \Illuminate\Support\Str::limit(trim(strip_tags((string) $teacher['bio'])),155) }}</p>@endif
-        <div class="teacher-card__footer">
-            <span class="teacher-card__course-count"><span aria-hidden="true">▤</span>{{ \App\Support\PersianUi::digits((int) ($teacher['courses'] ?? 0)) }} دوره آموزشی</span>
-            <a href="{{ $teacher['href'] }}" class="teacher-card__action">دیدن پروفایل <span aria-hidden="true">←</span></a>
-        </div>
-    </div>
-</article>
-                @empty
-                    <div class="home-empty-state"><strong>هنوز مدرس عمومی ثبت نشده است.</strong></div>
-                @endforelse
-            </div>
-        </div>
-    </section>
-
-
-    {{-- Live classes --}}
-    <section id="upcoming-classes" class="home-section home-soft">
-            <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
-                <div class="home-heading">
-                    <div>
-                        <span>کلاس‌های پیش‌رو</span>
-                        <h2>جلسه بعدی را از دست نده.</h2>
-                    </div>
-                </div>
-                <div class="home-live-grid">
-                    @forelse($liveClassCards as $class)
-                        @php
-                            $liveStatusClass = match($class['status']) {
-                                'در حال برگزاری' => 'is-live',
-                                'به‌زودی', 'برنامه‌ریزی‌شده' => 'is-upcoming',
-                                default => 'is-neutral',
-                            };
-                        @endphp
-                        <article class="home-live-card">
-                            @if(filled($class['image'] ?? null))
-                                <div class="home-live-card__media"><img src="{{ $class['image'] }}" alt="{{ $class['title'] }}" loading="lazy" decoding="async"></div>
-                            @endif
-                            <div class="home-live-card__top"><span class="home-live-card__mark" aria-hidden="true">◷</span><span class="home-live-status {{ $liveStatusClass }}">{{ $class['status'] }}</span></div>
-                            @if($class['course'])<span class="home-live-card__course">{{ $class['course'] }}</span>@endif
-                            <h3><a href="{{ $class['href'] }}">{{ $class['title'] }}</a></h3>
-                            <div class="home-live-card__details"><div><span>تاریخ</span><strong>{{ $class['date'] ?: '—' }}</strong></div><div><span>ساعت</span><strong>{{ $class['time'] ?: '—' }}</strong></div></div>
-                            @if($class['teacher'])<p class="home-live-card__teacher">مدرس: {{ $class['teacher'] }}</p>@endif
-                            <a class="home-live-card__action" href="{{ $class['href'] }}">مشاهده کلاس <span aria-hidden="true">←</span></a>
-                        </article>
-                    @empty
-                        <div class="home-empty-state"><strong>در حال حاضر کلاس آینده‌ای برای نمایش منتشر نشده است.</strong><span>برنامه کلاس‌ها پس از ثبت و انتشار توسط آموزشگاه در این بخش قرار می‌گیرد.</span><a href="{{ route('courses.index') }}">مشاهده دوره‌ها ←</a></div>
-                    @endforelse
-                </div>
-            </div>
-        </section>
-
-    {{-- Educational store --}}
+{{-- Educational store --}}
     <section id="educational-store" class="home-section">
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-heading">
@@ -491,7 +490,7 @@
         </div>
     </section>
 
-    {{-- Academy editorial content: show only content paths that have public material. --}}
+{{-- Academy editorial content: show only content paths that have public material. --}}
     @php
         $academyPathTitles = [
             'parents' => 'سخنی با اولیاء',
@@ -552,7 +551,7 @@
         </section>
     @endif
 
-    {{-- Achievers --}}
+{{-- Achievers --}}
     @if(count($achievementCards))
     <section id="academy-achievements" class="home-section home-trust">
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
@@ -587,7 +586,9 @@
     </section>
     @endif
 
-    {{-- Testimonials --}}
+@include('pages.home.partials.public-parent-preview')
+
+{{-- Testimonials --}}
     @if(count($testimonialCards))
     <section id="family-stories" class="home-section home-dark">
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
@@ -629,9 +630,9 @@
     </section>
     @endif
 
-    @include('pages.home.partials.public-reference-sections')
+@include('pages.home.partials.public-faq')
 
-    {{-- CTA --}}
+{{-- CTA --}}
     <section id="start-learning" class="home-section home-start-learning">
         <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
             <div class="home-cta">
@@ -647,4 +648,5 @@
             </div>
         </div>
     </section>
+
 @endsection
