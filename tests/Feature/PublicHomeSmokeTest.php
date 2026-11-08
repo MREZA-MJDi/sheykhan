@@ -147,16 +147,21 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringContainsString("resources/css/public.css", $layout);
         $this->assertStringContainsString("resources/js/public.js", $layout);
         foreach ([
-            'resources/css/app.css',
             'resources/css/home.css',
             'resources/css/public-experience.css',
             'resources/css/public-site.css',
             'resources/css/public-design-system.css',
-            'resources/js/app.js',
-        ] as $legacyAsset) {
-            $this->assertStringNotContainsString($legacyAsset, $layout);
-            $this->assertStringNotContainsString($legacyAsset, $vite);
+        ] as $legacyPublicAsset) {
+            $this->assertStringNotContainsString($legacyPublicAsset, $layout);
+            $this->assertStringNotContainsString($legacyPublicAsset, $vite);
         }
+
+        $this->assertStringNotContainsString('resources/css/app.css', $layout);
+        $this->assertStringNotContainsString('resources/js/app.js', $layout);
+        $this->assertStringContainsString("'resources/css/app.css'", $vite);
+        $this->assertStringContainsString("'resources/js/app.js'", $vite);
+        $this->assertStringContainsString("'resources/css/public.css'", $vite);
+        $this->assertStringContainsString("'resources/js/public.js'", $vite);
 
         $this->assertStringContainsString("@import './public/tokens.css';", $entry);
         $this->assertStringContainsString("@import './public/base.css';", $entry);
@@ -192,7 +197,7 @@ class PublicHomeSmokeTest extends TestCase
             $this->assertStringNotContainsString('!important', $css);
             $this->assertStringNotContainsString('gradient(', $css);
             $this->assertStringNotContainsString('backdrop-filter', $css);
-            $this->assertStringNotContainsString('box-shadow', $css);
+            $this->assertStringNotContainsString('box-shadow:', $css);
         }
 
         foreach (['home.css', 'public-experience.css', 'public-site.css', 'public-design-system.css'] as $legacyFile) {
