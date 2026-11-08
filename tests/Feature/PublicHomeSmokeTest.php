@@ -34,7 +34,9 @@ class PublicHomeSmokeTest extends TestCase
             ->assertSee('public-journey', false)
             ->assertSee('public-faq', false)
             ->assertSeeInOrder([
+                'class="sheykhan-home-hero"',
                 'id="upcoming-classes"',
+                'class="public-proof-stats"',
                 'class="public-comparison',
                 'class="public-journey',
                 'id="public-destinations"',
