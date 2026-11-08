@@ -15,7 +15,7 @@ final class PublicHeroChallengeTest extends TestCase
     {
         $this->seed(HeroChallengeSeeder::class);
 
-        $challenge = HeroChallenge::query()->with('options')->firstOrFail();
+        $challenge = HeroChallenge::query()->with('options')->orderBy('sort_order')->orderBy('id')->firstOrFail();
 
         $this->get(route('home'))
             ->assertOk()
@@ -53,7 +53,7 @@ final class PublicHeroChallengeTest extends TestCase
     {
         $this->seed(HeroChallengeSeeder::class);
 
-        $challenge = HeroChallenge::query()->with('options')->firstOrFail();
+        $challenge = HeroChallenge::query()->with('options')->orderBy('sort_order')->orderBy('id')->firstOrFail();
         $correctOption = $challenge->options->firstWhere('is_correct', true);
 
         $this->post(route('hero-challenges.answer', $challenge), [
@@ -68,7 +68,7 @@ final class PublicHeroChallengeTest extends TestCase
     {
         $this->seed(HeroChallengeSeeder::class);
 
-        $challenge = HeroChallenge::query()->with('options')->firstOrFail();
+        $challenge = HeroChallenge::query()->with('options')->orderBy('sort_order')->orderBy('id')->firstOrFail();
         $wrongOption = $challenge->options->firstWhere('is_correct', false);
 
         $this->post(route('hero-challenges.answer', $challenge), [
@@ -83,7 +83,7 @@ final class PublicHeroChallengeTest extends TestCase
     {
         $this->seed(HeroChallengeSeeder::class);
 
-        $challenge = HeroChallenge::query()->with('options')->firstOrFail();
+        $challenge = HeroChallenge::query()->with('options')->orderBy('sort_order')->orderBy('id')->firstOrFail();
         $otherChallenge = HeroChallenge::query()->create([
             'slug' => 'inactive-foreign-challenge',
             'title' => 'معمای دیگر',
