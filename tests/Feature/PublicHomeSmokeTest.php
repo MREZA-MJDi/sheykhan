@@ -129,57 +129,81 @@ class PublicHomeSmokeTest extends TestCase
     }
 
 
-    public function test_home_hero_uses_the_existing_vite_pipeline_and_keeps_academy_banners_separate(): void
+    public function test_public_layout_uses_one_isolated_asset_pipeline_and_a_small_flat_design_system(): void
     {
         $layout = file_get_contents(resource_path('views/layouts/public.blade.php'));
-        $designSystem = file_get_contents(resource_path('css/public-design-system.css'));
-        $this->assertIsString($layout);
-        $this->assertIsString($designSystem);
-        $this->assertStringContainsString('resources/css/public-design-system.css', $layout);
-        $this->assertStringContainsString('.home-page>section:not(.sheykhan-home-hero)', $designSystem);
-        $this->assertStringContainsString('.home-course-card', $designSystem);
-        $this->assertStringContainsString('.public-course-card', $designSystem);
-        $this->assertStringContainsString('.public-teacher-card', $designSystem);
-        $this->assertStringContainsString('.public-store-product-card', $designSystem);
-        $this->assertStringContainsString('.public-blog-card', $designSystem);
-        $this->assertStringContainsString('.public-next-step__card', $designSystem);
-        $this->assertStringContainsString('--public-ink:#0f172a', $designSystem);
-        $this->assertStringContainsString('.public-site .public-main.home-page > #upcoming-classes { order:20; }', $designSystem);
-        $this->assertStringContainsString('.public-main:not(.home-page) > section > section > .mx-auto', $designSystem);
-        $this->assertStringContainsString('.public-site .sheykhan-home-hero {', $designSystem);
+        $entry = file_get_contents(resource_path('css/public.css'));
+        $tokens = file_get_contents(resource_path('css/public/tokens.css'));
+        $base = file_get_contents(resource_path('css/public/base.css'));
+        $components = file_get_contents(resource_path('css/public/components.css'));
+        $sections = file_get_contents(resource_path('css/public/sections.css'));
+        $publicJs = file_get_contents(resource_path('js/public.js'));
+        $vite = file_get_contents(base_path('vite.config.js'));
 
-        $blade = file_get_contents(resource_path('views/pages/home/partials/hero.blade.php'));
-        // The hero stylesheet was consolidated into home.css, the active Vite entrypoint.
-        $styles = file_get_contents(resource_path('css/home.css'));
-        $homeStyles = $styles;
-
-        $this->assertIsString($blade);
-        $this->assertIsString($styles);
-        $this->assertIsString($homeStyles);
-
-        $source = strtolower($blade . "\\n" . $styles);
-
-        foreach ([
-            'cdn.tailwindcss.com',
-            'unpkg.com/alpinejs',
-            'tympanus.net',
-            'img/map.png',
-            'imagesloaded',
-            'anime.min.js',
-            'demo4.js',
-            'pater/pater.css',
-        ] as $externalOrMissingDemoDependency) {
-            $this->assertStringNotContainsString($externalOrMissingDemoDependency, $source);
+        foreach ([$layout, $entry, $tokens, $base, $components, $sections, $publicJs, $vite] as $source) {
+            $this->assertIsString($source);
         }
 
+        $this->assertStringContainsString("resources/css/public.css", $layout);
+        $this->assertStringContainsString("resources/js/public.js", $layout);
+        foreach ([
+            'resources/css/app.css',
+            'resources/css/home.css',
+            'resources/css/public-experience.css',
+            'resources/css/public-site.css',
+            'resources/css/public-design-system.css',
+            'resources/js/app.js',
+        ] as $legacyAsset) {
+            $this->assertStringNotContainsString($legacyAsset, $layout);
+            $this->assertStringNotContainsString($legacyAsset, $vite);
+        }
+
+        $this->assertStringContainsString("@import './public/tokens.css';", $entry);
+        $this->assertStringContainsString("@import './public/base.css';", $entry);
+        $this->assertStringContainsString("@import './public/components.css';", $entry);
+        $this->assertStringContainsString("@import './public/sections.css';", $entry);
+        $this->assertStringContainsString("@source '../../resources/views/pages';", $entry);
+        $this->assertStringNotContainsString("@source '../../resources/views';", $entry);
+        $this->assertStringContainsString('--public-ink:#0f172a', $tokens);
+        $this->assertStringContainsString('--public-blue:#1f4e9e', $tokens);
+        $this->assertStringContainsString('--public-green:#0b7a63', $tokens);
+        $this->assertStringContainsString('--public-violet:#5b3fc4', $tokens);
+        $this->assertStringContainsString('--public-orange:#b25a06', $tokens);
+        $this->assertStringContainsString('--public-rose:#b72b58', $tokens);
+        $this->assertStringContainsString('.public-site .sheykhan-home-hero', $components);
+        $this->assertStringContainsString('.public-course-card', $components);
+        $this->assertStringContainsString('.public-teacher-card', $components);
+        $this->assertStringContainsString('.public-store-product-card', $components);
+        $this->assertStringContainsString('.public-blog-card', $components);
+        $this->assertStringContainsString('.public-next-step__card', $components);
+        $this->assertStringContainsString('.public-site .home-banner-grid', $sections);
+        $this->assertStringContainsString('.public-site .home-banner-media img', $sections);
+        $this->assertStringContainsString('sheykhan-hero-image-drift', $sections);
+        $this->assertStringContainsString('prefers-reduced-motion', $base);
+        $this->assertStringContainsString("import './home.js';", $publicJs);
+        $this->assertStringContainsString("import './public-site.js';", $publicJs);
+        $this->assertStringNotContainsString('panel-runtime', $publicJs);
+        $this->assertStringNotContainsString("@stack('styles')", $layout);
+
+        $cssFiles = [$entry, $tokens, $base, $components, $sections];
+        $this->assertLessThan(100_000, array_sum(array_map('strlen', $cssFiles)));
+
+        foreach ($cssFiles as $css) {
+            $this->assertStringNotContainsString('!important', $css);
+            $this->assertStringNotContainsString('gradient(', $css);
+            $this->assertStringNotContainsString('backdrop-filter', $css);
+            $this->assertStringNotContainsString('box-shadow', $css);
+        }
+
+        foreach (['home.css', 'public-experience.css', 'public-site.css', 'public-design-system.css'] as $legacyFile) {
+            $this->assertFileDoesNotExist(resource_path('css/' . $legacyFile));
+        }
+
+        $blade = file_get_contents(resource_path('views/pages/home/partials/hero.blade.php'));
+        $this->assertIsString($blade);
         $this->assertStringContainsString('sheykhan-home-hero', $blade);
         $this->assertStringContainsString('data-home-hero-slide', $blade);
         $this->assertStringContainsString('aria-labelledby', $blade);
-        $this->assertStringContainsString('prefers-reduced-motion', $styles);
-        $this->assertStringContainsString('sheykhan-hero-image-drift', $styles);
-        $this->assertStringNotContainsString('tiamir-intro.css', $homeStyles);
-        $this->assertStringNotContainsString("@source '../../resources/views';", $homeStyles);
-        $this->assertStringContainsString('.home-banner-grid', $homeStyles);
-        $this->assertStringContainsString('.home-banner-media img', $homeStyles);
+        $this->assertStringNotContainsString('style=', $blade);
     }
 }

@@ -1,0 +1,22 @@
+@import 'tailwindcss' source(none);
+@import './public/tokens.css';
+@import './public/base.css';
+@import './public/components.css';
+@import './public/sections.css';
+
+@source '../../resources/views/pages';
+@source '../../resources/views/auth';
+@source '../../resources/views/layouts/public.blade.php';
+@source '../../resources/views/layouts/auth.blade.php';
+@source '../../resources/views/components/public';
+@source '../../resources/views/components/public-site';
+@source '../../resources/views/components/navigation';
+@source '../../resources/views/components/education';
+@source '../../resources/views/components/branding';
+@source '../../resources/views/components/layout';
+@source '../../resources/views/components/ui';
+@source '../../resources/views/components/seo';
+
+@theme {
+    --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
+}

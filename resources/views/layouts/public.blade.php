@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#111c32">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#0F172A">
 <x-seo.head :seo-meta="$seoMeta ?? null" />
-@vite(['resources/css/app.css','resources/css/home.css','resources/css/public-experience.css','resources/css/public-site.css','resources/css/public-design-system.css','resources/js/app.js','resources/js/home.js','resources/js/public-site.js'])
-@stack('styles')
+@vite(['resources/css/public.css','resources/js/public.js'])
 </head>
 <body id="top" class="sheykhan-site public-site">
 <a class="site-skip-link" href="#main-content">رفتن به محتوای اصلی</a>

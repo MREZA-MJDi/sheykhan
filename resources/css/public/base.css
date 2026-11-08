@@ -1,0 +1,18 @@
+@font-face{font-family:Vazirmatn;src:url('../../fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:Vazirmatn;src:url('../../fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
+@font-face{font-family:Vazirmatn;src:url('../../fonts/webfonts/Vazirmatn-SemiBold.woff2') format('woff2');font-style:normal;font-weight:600;font-display:swap}
+@font-face{font-family:Vazirmatn;src:url('../../fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:Vazirmatn;src:url('../../fonts/webfonts/Vazirmatn-ExtraBold.woff2') format('woff2');font-style:normal;font-weight:800;font-display:swap}
+@font-face{font-family:Vazirmatn;src:url('../../fonts/webfonts/Vazirmatn-Black.woff2') format('woff2');font-style:normal;font-weight:900;font-display:swap}
+html{direction:rtl;scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px);color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#fff;color:var(--public-ink);font-family:Vazirmatn,Tahoma,'Segoe UI',sans-serif;font-size:16px;line-height:1.85;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#fff;z-index:50;pointer-events:none}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;height:auto}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.public-site button,.public-site input,.public-site select,.public-site textarea{min-height:44px}
+.public-site input,.public-site select,.public-site textarea{border:1px solid var(--public-line);border-radius:12px}
+:focus-visible{outline:3px solid var(--public-violet);outline-offset:2px;border-radius:6px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms;transition-duration:.01ms;scroll-behavior:auto}}
