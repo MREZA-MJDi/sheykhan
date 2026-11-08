@@ -20,7 +20,7 @@
     <h2 class="font-black">رمز موقت والد — فقط همین یک‌بار</h2>
     <p class="mt-1 text-sm leading-6">این رمز را از راه امن به والد تحویل دهید. حساب مجبور است در اولین ورود رمز را عوض کند؛ برای امنیت، صفحه را دوباره بارگذاری نکنید تا رمز از پیام موقت حذف شود.</p>
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
-        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">ایمیل</span><strong class="mt-1 block break-all text-sm">{{ session('temporary_parent_email') }}</strong></div>
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">شماره موبایل / نام کاربری</span><strong class="mt-1 block break-all text-sm">{{ session('temporary_parent_mobile') }}</strong></div>
         <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">رمز موقت</span><code class="mt-1 block break-all text-base font-black">{{ session('temporary_parent_password') }}</code></div>
     </div>
 </section>
@@ -48,7 +48,7 @@
                 <div><strong>حساب ساخته شد</strong><p>این اطلاعات را از راه امن تحویل بده. رمز پس از خروج از این صفحه دوباره نمایش داده نمی‌شود.</p></div>
                 <div class="owner-student-credential-grid">
                     <div><span>نام دانش‌آموز</span><strong>{{ session('temporary_student_name') }}</strong></div>
-                    <div><span>نام کاربری / ایمیل</span><strong dir="ltr">{{ session('temporary_student_email') }}</strong></div>
+                    <div><span>شماره موبایل / نام کاربری</span><strong dir="ltr">{{ session('temporary_student_mobile') }}</strong></div>
                     <div><span>کد دانش‌آموز</span><strong dir="ltr">{{ session('temporary_student_number') }}</strong></div>
                     <div><span>رمز اولیه</span><code dir="ltr">{{ session('temporary_student_password') }}</code></div>
                 </div>
@@ -84,7 +84,7 @@
 <section class="dashboard-panel p-5 sm:p-7">
     <div>
         <h2 class="text-base font-black">ساخت حساب والد و اتصال به دانش‌آموز</h2>
-        <p class="mt-1 max-w-3xl text-xs leading-6 text-slate-500">اگر ایمیل از قبل متعلق به حساب والد فعال باشد، همان حساب متصل می‌شود و رمز آن تغییر نمی‌کند. در غیر این صورت حساب والد ساخته می‌شود و رمز موقت یک‌باره نمایش داده خواهد شد.</p>
+        <p class="mt-1 max-w-3xl text-xs leading-6 text-slate-500">اگر شماره موبایل از قبل متعلق به حساب والد فعال باشد، همان حساب متصل می‌شود و رمز آن تغییر نمی‌کند. در غیر این صورت حساب والد ساخته می‌شود و رمز موقت یک‌باره نمایش داده خواهد شد.</p>
     </div>
     <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}" class="mt-5 grid gap-3 sm:grid-cols-2" data-confirm="حساب والد ساخته یا به دانش‌آموز متصل شود؟">
         @csrf
@@ -93,13 +93,13 @@
             <small class="owner-field-help">نام و نام خانوادگی والد را وارد کن؛ این نام در ارتباط‌ها و فهرست اعضا نمایش داده می‌شود.</small>
             @error('name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
-        <label class="grid gap-1 text-xs font-bold">ایمیل والد
-            <input type="email" name="email" value="{{ old('email') }}" maxlength="255" required autocomplete="email" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
-            <small class="owner-field-help">ایمیل معتبر و تحت کنترل والد را ثبت کن؛ برای ورود به حساب و بازیابی دسترسی استفاده می‌شود.</small>
+        <label class="grid gap-1 text-xs font-bold">شماره موبایل والد
+            <input type="tel" name="mobile" value="{{ old('mobile') }}" maxlength="11" required inputmode="tel" dir="ltr" autocomplete="tel" placeholder="۰۹۱۲…" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            <small class="owner-field-help">شماره موبایل یکتا و در دسترس والد؛ شناسه ورود به حساب خواهد بود.</small>
             @error('email')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
-        <label class="grid gap-1 text-xs font-bold">موبایل (اختیاری)
-            <input type="tel" name="mobile" value="{{ old('mobile') }}" maxlength="30" autocomplete="tel" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+        <label class="grid gap-1 text-xs font-bold">شماره موبایل
+            
             <small class="owner-field-help">اختیاری؛ شماره‌ای وارد کن که برای هماهنگی با خانواده قابل استفاده باشد.</small>
             @error('mobile')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
@@ -130,9 +130,8 @@
 <div class="grid gap-5 xl:grid-cols-3">
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-confirm="حساب مدرس ساخته شود؟">@csrf
 <label class="grid gap-1"><span class="text-xs font-bold">نام و نام خانوادگی</span><input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">نام کامل مدرس را وارد کن؛ در فهرست دوره‌ها و کلاس‌ها نمایش داده می‌شود.</small>@error('name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<label class="grid gap-1"><span class="text-xs font-bold">ایمیل</span><input name="email" type="email" value="{{ old('email') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">ایمیل یکتا و قابل‌دسترسی مدرس؛ برای ورود به پنل استفاده خواهد شد.</small>@error('email')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<label class="grid gap-1"><span class="text-xs font-bold">رمز عبور</span><input name="password" type="password" required autocomplete="new-password" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">رمز قوی و اختصاصی بساز؛ آن را از راه امن به مدرس تحویل بده.</small>@error('password')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<label class="grid gap-1"><span class="text-xs font-bold">تکرار رمز عبور</span><input name="password_confirmation" type="password" required autocomplete="new-password" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">همان رمز بالا را دوباره وارد کن تا اشتباه تایپی مشخص شود.</small></label>
+<label class="grid gap-1"><span class="text-xs font-bold">شماره موبایل</span><input name="mobile" type="tel" inputmode="tel" dir="ltr" value="{{ old('mobile') }}" maxlength="11" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">شماره موبایل یکتا؛ شناسه ورود مدرس خواهد بود.</small>@error('mobile')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+<p class="text-xs text-slate-500">رمز اولیه به‌صورت تصادفی ساخته می‌شود و باید در اولین ورود تغییر کند.</p>
 <label class="grid gap-1"><span class="text-xs font-bold">تخصص</span><input name="specialization" value="{{ old('specialization') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">حوزه تخصصی اصلی مدرس، مانند ریاضی، فیزیک یا زبان.</small>@error('specialization')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">سابقهٔ تدریس را به سال و در بازهٔ صفر تا ۸۰ وارد کن.</small>@error('experience_years')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <button class="rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت حساب مدرس</button></form></section>
@@ -148,12 +147,12 @@
 <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key',(string)\Illuminate\Support\Str::uuid()) }}">
 <div class="owner-student-picker" data-student-picker data-options-url="{{ route('owner.people.student-options',$academy) }}">
 <label for="owner-enrollment-student-search" class="mb-1 block text-xs font-bold">دانش‌آموز (جست‌وجوی صفحه‌بندی‌شده)</label>
-<input id="owner-enrollment-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-enrollment-student-results" placeholder="نام یا ایمیل را برای جست‌وجو وارد کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+<input id="owner-enrollment-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-enrollment-student-results" placeholder="نام، موبایل یا کد ملی را جست‌وجو کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
 <input type="hidden" name="student_id" data-student-id value="{{ old('student_id') }}">
 <input type="hidden" name="student_label" data-student-label value="{{ old('student_label') }}">
 <div id="owner-enrollment-student-results" data-student-results class="owner-student-picker-results" role="listbox"></div>
 <button type="button" data-student-more class="owner-student-picker-more" hidden>نمایش نتایج بعدی</button>
-<p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو حرف از نام یا ایمیل را برای جست‌وجو وارد کن؛ ایمیل در نتایج نمایش داده نمی‌شود.</p>
+<p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو نویسه از نام، موبایل یا ۱۰ رقم کد ملی را برای جست‌وجو وارد کن؛ ایمیل در نتایج نمایش داده نمی‌شود.</p>
 @error('student_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</div>
 <label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree() ? 'رایگان' : (is_numeric($course->price) ? \App\Support\PersianUi::money($course->price) : 'قیمت تعیین نشده') }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><small class="owner-field-help">دوره‌ای را انتخاب کن که ثبت‌نام دانش‌آموز در آن انجام می‌شود؛ مبلغ و دسترسی براساس دوره بررسی می‌شوند.</small>@error('course_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="" selected disabled>ابتدا کلاس را انتخاب کن</option>@foreach($classroomOptions as $classroom)<option data-course-id="{{ $classroom->course_id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><small class="owner-field-help">کلاسی را انتخاب کن که به همین دوره تعلق دارد؛ کلاس‌های دیگر معتبر نیستند.</small>@error('classroom_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
