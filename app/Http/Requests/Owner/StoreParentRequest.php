@@ -30,6 +30,7 @@ final class StoreParentRequest extends FormRequest
             'student_id' => ['required', 'integer', 'min:1'],
             'first_name' => ['required', 'string', 'min:2', 'max:60'],
             'last_name' => ['required', 'string', 'min:2', 'max:80'],
+            'name' => ['required', 'string', 'min:5', 'max:140'],
             'mobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'relation' => ['required', 'string', Rule::in(['مادر', 'پدر', 'سرپرست', 'سایر'])],
         ];
