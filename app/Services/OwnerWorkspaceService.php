@@ -76,7 +76,7 @@ final class OwnerWorkspaceService
             ? StudentOnboarding::query()
                 ->where('academy_id', $academy->id)
                 ->with([
-                    'student:id,name,email,mobile',
+                    'student:id,name,mobile',
                     'requestedGrade:id,title',
                     'admin:id,name',
                 ])
@@ -229,7 +229,7 @@ final class OwnerWorkspaceService
 
         // Cursor pagination cannot reliably traverse nullable order values on all
         // supported databases. Use cursor mode for the default non-null sort keys;
-        // keep page mode for nullable email/joined_at sort options.
+        // keep page mode for nullable mobile/joined_at sort options.
         $usesCursor = ! array_key_exists('page', $filters)
             && ! in_array($sort, ['mobile', 'joined_at'], true);
 
