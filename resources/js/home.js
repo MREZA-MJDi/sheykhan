@@ -174,6 +174,178 @@ if (!window.__sheykhanAlpineBooted) {
             }
         }
 
+        const puzzle = root.querySelector('[data-hero-challenge]');
+        if (puzzle) {
+            const form = puzzle.querySelector('[data-hero-challenge-form]');
+            const endpoint = puzzle.dataset.answerEndpoint || '/hero-challenges';
+            const feedback = puzzle.querySelector('[data-challenge-feedback]');
+            const title = puzzle.querySelector('[data-challenge-title]');
+            const prompt = puzzle.querySelector('[data-challenge-prompt]');
+            const position = puzzle.querySelector('[data-challenge-position]');
+            const kind = puzzle.querySelector('[data-challenge-kind]');
+            const sequence = puzzle.querySelector('[data-challenge-sequence]');
+            const numberFormat = new Intl.NumberFormat('fa-IR');
+
+            const showFeedback = (correct, message, detail = '', nextId = null) => {
+                if (!feedback) return;
+                feedback.replaceChildren();
+                feedback.hidden = false;
+                feedback.classList.toggle('is-correct', correct);
+                feedback.classList.toggle('is-incorrect', !correct);
+
+                const heading = document.createElement('strong');
+                heading.textContent = message;
+                feedback.append(heading);
+
+                if (detail) {
+                    const paragraph = document.createElement('p');
+                    paragraph.textContent = detail;
+                    feedback.append(paragraph);
+                }
+
+                if (correct && nextId) {
+                    const nextButton = document.createElement('button');
+                    nextButton.type = 'button';
+                    nextButton.className = 'shx-public-puzzle__next';
+                    nextButton.dataset.nextChallenge = String(nextId);
+                    nextButton.textContent = puzzle.dataset.nextLabel || 'سؤال بعدی ←';
+                    feedback.append(nextButton);
+                } else if (correct) {
+                    const paragraph = document.createElement('p');
+                    paragraph.textContent = puzzle.dataset.completeLabel || '';
+                    feedback.append(paragraph);
+                    const coursesLink = document.createElement('a');
+                    coursesLink.className = 'shx-public-puzzle__next';
+                    coursesLink.href = puzzle.dataset.coursesUrl || '/courses';
+                    coursesLink.textContent = puzzle.dataset.coursesLabel || '';
+                    feedback.append(coursesLink);
+                }
+            };
+
+            const requestJson = async (url, options = {}) => {
+                const response = await fetch(url, {
+                    credentials: 'same-origin',
+                    ...options,
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(options.headers || {}),
+                    },
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    const validationMessage = Object.values(payload.errors || {}).flat()[0];
+                    throw new Error(validationMessage || payload.message || puzzle.dataset.networkError || 'Request failed');
+                }
+                return payload;
+            };
+
+            const renderOptions = (options) => {
+                if (!form) return;
+                form.replaceChildren();
+                options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.type = 'submit';
+                    button.name = 'option_id';
+                    button.value = String(option.id);
+                    button.textContent = option.content;
+                    button.setAttribute('aria-label', `گزینه ${numberFormat.format(index + 1)}: ${option.content}`);
+                    form.append(button);
+                });
+            };
+
+            const loadChallenge = async (challengeId) => {
+                const challenge = await requestJson(`${endpoint}/${encodeURIComponent(challengeId)}`);
+                if (title) title.textContent = challenge.title || '';
+                if (prompt) prompt.textContent = challenge.prompt || '';
+                if (position) {
+                    position.textContent = `سؤال ${numberFormat.format(challenge.position)} از ${numberFormat.format(challenge.total)}`;
+                }
+                if (kind) kind.textContent = Array.isArray(challenge.sequence) && challenge.sequence.length
+                    ? 'الگوی بعدی چیست؟'
+                    : 'چالش منطق';
+
+                if (sequence) {
+                    sequence.replaceChildren();
+                    (challenge.sequence || []).forEach((item) => {
+                        const value = document.createElement('span');
+                        value.textContent = item;
+                        sequence.append(value);
+                    });
+                    const questionMark = document.createElement('span');
+                    questionMark.className = 'is-question';
+                    questionMark.textContent = '؟';
+                    sequence.append(questionMark);
+                    sequence.hidden = !challenge.sequence?.length;
+                }
+
+                if (feedback) {
+                    feedback.replaceChildren();
+                    feedback.hidden = true;
+                    feedback.classList.remove('is-correct', 'is-incorrect');
+                }
+
+                if (form) {
+                    form.action = `${endpoint}/${challenge.id}/answer`;
+                    form.hidden = false;
+                    renderOptions(challenge.options || []);
+                }
+            };
+
+            form?.addEventListener('submit', async (event) => {
+                const submitter = event.submitter || document.activeElement;
+                const optionId = submitter?.value;
+                if (!optionId) return;
+
+                event.preventDefault();
+                const buttons = Array.from(form.querySelectorAll('button[type="submit"]'));
+                buttons.forEach((button) => {
+                    button.disabled = true;
+                    button.setAttribute('aria-busy', 'true');
+                });
+
+                const payload = new FormData(form);
+                payload.set('option_id', optionId);
+
+                try {
+                    const result = await requestJson(form.action, { method: 'POST', body: payload });
+                    if (result.correct) {
+                        submitter.classList.add('is-correct');
+                        form.hidden = true;
+                        showFeedback(true, puzzle.dataset.correctLabel || 'درست است!', result.explanation || '', result.next);
+                    } else {
+                        submitter.classList.add('is-incorrect');
+                        submitter.disabled = true;
+                        submitter.removeAttribute('aria-busy');
+                        buttons.filter((button) => button !== submitter).forEach((button) => {
+                            button.disabled = false;
+                            button.removeAttribute('aria-busy');
+                        });
+                        showFeedback(false, puzzle.dataset.incorrectLabel || 'این گزینه درست نبود؛ دوباره امتحان کن.', puzzle.dataset.incorrectHint || '');
+                    }
+                } catch (error) {
+                    buttons.forEach((button) => {
+                        button.disabled = false;
+                        button.removeAttribute('aria-busy');
+                    });
+                    showFeedback(false, error.message || puzzle.dataset.networkError || 'ارتباط با سرور برقرار نشد.');
+                }
+            });
+
+            puzzle.addEventListener('click', async (event) => {
+                const nextButton = event.target.closest('[data-next-challenge]');
+                if (!nextButton) return;
+                event.preventDefault();
+                nextButton.disabled = true;
+                try {
+                    await loadChallenge(nextButton.dataset.nextChallenge);
+                } catch (error) {
+                    nextButton.disabled = false;
+                    showFeedback(false, error.message || puzzle.dataset.networkError || 'ارتباط با سرور برقرار نشد.');
+                }
+            });
+        }
+
         root.querySelectorAll('[data-order-proof-form]').forEach((form) => {
             const input = form.querySelector('[data-proof-input]');
             const feedback = form.querySelector('[data-proof-file-name]');

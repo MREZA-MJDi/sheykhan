@@ -7,7 +7,10 @@ use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\HeroChallengeSeeder;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 final class PublicHeroChallengeTest extends TestCase
@@ -146,6 +149,75 @@ final class PublicHeroChallengeTest extends TestCase
             ->assertRedirect(route('home', ['challenge_id' => $challenge->id]) . '#hero-challenge')
             ->assertSessionHas('hero_challenge_result.correct', false)
             ->assertSessionMissing('hero_challenge_result.explanation');
+    }
+
+    public function test_json_answer_returns_the_compact_contract_with_at_most_two_queries(): void
+    {
+        $this->seed(HeroChallengeSeeder::class);
+
+        $challenges = HeroChallenge::query()
+            ->with('options')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->limit(3)
+            ->get();
+        $challenge = $challenges->firstOrFail();
+        $nextChallenge = $challenges->get(1);
+        $correctOption = $challenge->options->firstWhere('is_correct', true);
+
+        Cache::forget('public.hero-challenges.active.v1');
+        $queryCount = 0;
+        DB::listen(static function (QueryExecuted $query) use (&$queryCount): void {
+            $queryCount++;
+        });
+
+        $this->postJson(route('hero-challenges.answer', $challenge->id), [
+            'option_id' => $correctOption->id,
+        ])
+            ->assertOk()
+            ->assertExactJson([
+                'correct' => true,
+                'explanation' => $challenge->explanation,
+                'next' => $nextChallenge?->id,
+            ]);
+
+        $this->assertLessThanOrEqual(2, $queryCount);
+    }
+
+    public function test_json_wrong_answer_never_returns_explanation_or_next_challenge(): void
+    {
+        $this->seed(HeroChallengeSeeder::class);
+
+        $challenge = HeroChallenge::query()->with('options')->orderBy('sort_order')->orderBy('id')->firstOrFail();
+        $wrongOption = $challenge->options->firstWhere('is_correct', false);
+
+        $this->postJson(route('hero-challenges.answer', $challenge->id), [
+            'option_id' => $wrongOption->id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('correct', false)
+            ->assertJsonPath('explanation', null)
+            ->assertJsonPath('next', null);
+    }
+
+    public function test_next_challenge_endpoint_returns_only_public_challenge_fields(): void
+    {
+        $this->seed(HeroChallengeSeeder::class);
+
+        $challenge = HeroChallenge::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->skip(1)
+            ->firstOrFail();
+
+        $this->getJson(route('hero-challenges.show', $challenge->id))
+            ->assertOk()
+            ->assertJsonPath('id', $challenge->id)
+            ->assertJsonPath('title', $challenge->title)
+            ->assertJsonCount(4, 'options')
+            ->assertJsonMissingPath('options.0.is_correct');
     }
 
     public function test_an_option_from_another_challenge_cannot_be_submitted(): void

@@ -4,21 +4,29 @@ namespace App\Http\Controllers\PublicSite;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublicSite\AnswerHeroChallengeRequest;
-use App\Models\HeroChallenge;
 use App\Services\HeroChallengeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 final class HeroChallengeAnswerController extends Controller
 {
     public function store(
         AnswerHeroChallengeRequest $request,
-        HeroChallenge $heroChallenge,
+        int $heroChallenge,
         HeroChallengeService $challenges,
-    ): RedirectResponse {
+    ): JsonResponse|RedirectResponse {
         $answer = $challenges->answer(
-            (int) $heroChallenge->id,
+            $heroChallenge,
             (int) $request->validated('option_id'),
         );
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'correct' => (bool) $answer['correct'],
+                'explanation' => $answer['correct'] ? $answer['explanation'] : null,
+                'next' => $answer['correct'] ? $answer['next_id'] : null,
+            ]);
+        }
 
         $result = [
             'id' => $answer['id'],
@@ -32,7 +40,7 @@ final class HeroChallengeAnswerController extends Controller
         }
 
         return redirect()
-            ->to(route('home', ['challenge_id' => $heroChallenge->id]) . '#hero-challenge')
+            ->to(route('home', ['challenge_id' => $heroChallenge]) . '#hero-challenge')
             ->with('hero_challenge_result', $result);
     }
 }
