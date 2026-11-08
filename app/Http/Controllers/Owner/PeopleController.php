@@ -44,6 +44,7 @@ class PeopleController extends Controller
             'page' => ['nullable', 'integer', 'min:1'],
         ]);
         $term = trim((string) ($filters['q'] ?? ''));
+        $mobileTerm = \App\Support\MobileNumber::normalize($term) ?: $term;
 
         if (mb_strlen($term) < 2) {
             return response()->json([
@@ -56,9 +57,9 @@ class PeopleController extends Controller
             ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->where('users.status', 'active')
-            ->where(function ($query) use ($term): void {
+            ->where(function ($query) use ($term, $mobileTerm): void {
                 $query->where('users.name', 'like', '%' . $term . '%')
-                    ->orWhere('users.mobile', 'like', '%' . $term . '%');
+                    ->orWhere('users.mobile', 'like', '%' . $mobileTerm . '%');
                 if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
                     $lookup = \App\Support\NationalIdLookup::make($term);
                     $query->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
