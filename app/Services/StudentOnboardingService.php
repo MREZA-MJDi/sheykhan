@@ -11,6 +11,7 @@ use App\Models\StudentOnboarding;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Support\NationalIdLookup;
+use App\Support\MobileNumber;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -126,7 +127,10 @@ final class StudentOnboardingService
                 }
             }
 
-            $normalizedMobile = $this->normalizeMobile($data['mobile'] ?? null);
+            $normalizedMobile = MobileNumber::normalize($data['mobile'] ?? null);
+            if (! MobileNumber::valid($normalizedMobile)) {
+                throw ValidationException::withMessages(['mobile' => 'شماره موبایل معتبر نیست.']);
+            }
 
             if ($normalizedMobile) {
                 $mobileOwner = User::query()
@@ -278,29 +282,4 @@ final class StudentOnboardingService
         return $onboarding;
     }
 
-    private function normalizeMobile(?string $value): ?string
-    {
-        if (!$value) {
-            return null;
-        }
-
-        $digits = strtr($value, [
-            '۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4',
-            '۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9',
-            '٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4',
-            '٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9',
-        ]);
-
-        $digits = preg_replace('/\D+/', '', $digits) ?? '';
-
-        if (str_starts_with($digits, '0098')) {
-            return '0' . substr($digits, 4);
-        }
-
-        if (str_starts_with($digits, '98') && strlen($digits) === 12) {
-            return '0' . substr($digits, 2);
-        }
-
-        return $digits !== '' ? $digits : null;
-    }
 }
