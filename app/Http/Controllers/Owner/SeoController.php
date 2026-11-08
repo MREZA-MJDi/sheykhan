@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\Seo\UpdateSeoRequest;
+use App\Models\Academy;
 use App\Services\OwnerSeoService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 final class SeoController extends Controller
@@ -15,19 +16,15 @@ final class SeoController extends Controller
     {
         $data = $seo->overview(request()->user());
         $items = collect($data['items']);
-
         $search = trim((string) request()->query('q', ''));
         $type = (string) request()->query('type', '');
         $status = (string) request()->query('status', '');
 
-        $allowedTypes = ['course', 'content', 'blog', 'product', 'teacher'];
-        $allowedStatuses = ['ready', 'partial', 'empty', 'noindex', 'findings'];
-
-        if (! in_array($type, $allowedTypes, true)) {
+        if (! in_array($type, ['blog', 'content'], true)) {
             $type = '';
         }
 
-        if (! in_array($status, $allowedStatuses, true)) {
+        if (! in_array($status, ['index', 'noindex'], true)) {
             $status = '';
         }
 
@@ -36,52 +33,31 @@ final class SeoController extends Controller
                 return false;
             }
 
-            $matchesStatus = match ($status) {
-                'ready' => $item['score'] >= 80,
-                'partial' => $item['score'] > 0 && $item['score'] < 80,
-                'empty' => $item['score'] === 0,
-                'noindex' => str_contains((string) ($item['robots'] ?? ''), 'noindex'),
-                'findings' => $item['issue_count'] > 0,
-                default => true,
-            };
-
-            if (! $matchesStatus) {
+            $noindex = str_starts_with($item['robots'], 'noindex');
+            if (($status === 'index' && $noindex) || ($status === 'noindex' && ! $noindex)) {
                 return false;
             }
 
-            if ($search === '') {
-                return true;
-            }
-
-            $haystack = implode(' ', [
-                $item['label'],
-                $item['academy'] ?? '',
-                $item['audit_title'] ?? '',
-                $item['audit_description'] ?? '',
-                $item['url'] ?? '',
-            ]);
-
-            return mb_stripos($haystack, $search) !== false;
+            return $search === '' || mb_stripos(
+                implode(' ', [$item['label'], $item['academy'] ?? '', $item['url'] ?? '']),
+                $search,
+            ) !== false;
         })->values();
 
-        $perPage = 25;
         $page = LengthAwarePaginator::resolveCurrentPage();
         $data['items'] = new LengthAwarePaginator(
-            $filtered->forPage($page, $perPage)->values(),
+            $filtered->forPage($page, 20)->values(),
             $filtered->count(),
-            $perPage,
+            20,
             $page,
-            [
-                'path' => request()->url(),
-                'query' => request()->query(),
-            ],
+            ['path' => request()->url(), 'query' => request()->query()],
         );
-        $data['filters'] = [
-            'q' => $search,
-            'type' => $type,
-            'status' => $status,
-        ];
+        $data['filters'] = compact('search', 'type', 'status');
         $data['filteredTotal'] = $filtered->count();
+        $data['academies'] = Academy::query()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return view('owner.seo.index', $data);
     }
@@ -108,6 +84,6 @@ final class SeoController extends Controller
 
         return redirect()
             ->route('owner.seo.index')
-            ->with('success', 'تنظیمات SEO با موفقیت ذخیره شد.');
+            ->with('success', 'تنظیمات ایندکس صفحه ذخیره شد.');
     }
 }

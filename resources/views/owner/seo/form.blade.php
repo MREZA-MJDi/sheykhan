@@ -1,114 +1,27 @@
 @extends('layouts.seo-specialist')
 
-@section('title','ویرایش SEO | شیخان')
-@section('header-title','ویرایش SEO')
+@section('title', 'تنظیم ایندکس | شیخان')
+@section('header-title', 'تنظیم ایندکس')
 
 @section('content')
-@php
-    $initialOgImage = old('og_image_url', $seoMeta?->og_image_url);
-    $initialOgTitle = old('og_title', $seoMeta?->og_title ?: old('title', $seoMeta?->title ?: $item->getAttribute('title')));
-    $initialOgDescription = old('og_description', $seoMeta?->og_description ?: old('description', $seoMeta?->description));
-@endphp
-<div class="owner-form-shell">
-    @if($errors->any())
-        <div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-            <strong>تنظیمات SEO ذخیره نشد؛ خطاهای زیر را بررسی کن:</strong>
-            <ul class="mt-2 list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+<div class="mx-auto max-w-3xl space-y-5">
+    <section class="dashboard-panel p-5 sm:p-7">
+        <a href="{{ route('owner.seo.index') }}" class="text-xs font-bold text-indigo-600">← بازگشت به فهرست محتوا</a>
+        <div class="mt-4">
+            <span class="text-xs font-black text-slate-500">{{ $type === 'blog' ? 'بلاگ' : 'مقاله آموزشگاه' }}</span>
+            <h1 class="mt-2 text-xl font-black text-slate-900">{{ $item->getAttribute('title') ?: 'محتوای منتشرشده' }}</h1>
+            <p class="mt-2 text-sm leading-7 text-slate-500">عنوان و توضیحات مخصوص موتورهای جستجو را در صورت نیاز تنظیم کن و وضعیت ایندکس را مشخص کن.</p>
         </div>
-    @endif
-    <div class="owner-form-head">
-        <div>
-            <span>کنترل دیده‌شدن</span>
-            <h1>{{ $item->getAttribute('title') ?: $item->getAttribute('name') ?: 'صفحه' }}</h1>
-            <p>این تنظیمات در HTML عمومی صفحه قرار می‌گیرند. مقدارهای خالی از metadata پیش‌فرض صفحه استفاده می‌کنند.</p>
-        </div>
-        <a href="{{ route('owner.seo.index') }}">بازگشت به SEO</a>
-    </div>
+    </section>
 
-    <form method="POST" action="{{ route('owner.seo.update', [$type, $item->getKey()]) }}" class="owner-form-grid">
+    <form method="POST" action="{{ route('owner.seo.update', [$type, $item->getKey()]) }}" class="dashboard-panel space-y-5 p-5 sm:p-7">
         @csrf
         @method('PATCH')
-
-        <section class="owner-form-section">
-            <h2>هویت جستجو</h2>
-
-            <label>
-                <span>عنوان SEO</span>
-                <input name="title" value="{{ old('title', $seoMeta?->title) }}" maxlength="255" data-seo-title-input>
-                <small>عنوانی که در عنوان نتایج جستجو و تب مرورگر استفاده می‌شود.</small>
-            </label>
-
-            <label>
-                <span>توضیحات SEO</span>
-                <textarea name="description" rows="4" maxlength="500" data-seo-description-input>{{ old('description', $seoMeta?->description) }}</textarea>
-            </label>
-
-            <label>
-                <span>کلمات کلیدی</span>
-                <textarea name="keywords" rows="3" maxlength="1500">{{ old('keywords', $seoMeta?->keywords) }}</textarea>
-            </label>
-
-            <label>
-                <span>Canonical</span>
-                <input type="url" name="canonical_url" value="{{ old('canonical_url', $seoMeta?->canonical_url) }}" maxlength="2048">
-            </label>
-
-            <label>
-                <span>Robots</span>
-                <select name="robots">
-                    @foreach(['index,follow','noindex,follow','index,nofollow','noindex,nofollow'] as $robots)
-                        <option value="{{ $robots }}" @selected(old('robots', $seoMeta?->robots ?: 'index,follow') === $robots)>{{ $robots }}</option>
-                    @endforeach
-                </select>
-            </label>
-        </section>
-
-        <aside class="owner-form-side">
-            <section class="owner-form-section">
-                <h2>اشتراک‌گذاری</h2>
-
-                <label>
-                    <span>OG Title</span>
-                    <input name="og_title" value="{{ old('og_title', $seoMeta?->og_title) }}" maxlength="255" data-seo-og-title-input>
-                </label>
-
-                <label>
-                    <span>OG Description</span>
-                    <textarea name="og_description" rows="4" maxlength="500" data-seo-og-description-input>{{ old('og_description', $seoMeta?->og_description) }}</textarea>
-                </label>
-
-                <label>
-                    <span>OG Image URL</span>
-                    <input type="url" name="og_image_url" value="{{ old('og_image_url', $seoMeta?->og_image_url) }}" maxlength="2048" data-seo-og-image-input aria-describedby="seo-og-image-help">
-                    <small id="seo-og-image-help">تصویر لینک اشتراک‌گذاری اجتماعی است، نه بنر لندینگ. نسبت پیشنهادی ۱۲۰۰×۶۳۰ پیکسل (حدود ۱٫۹۱:۱) است و URL باید عمومی و قابل دسترسی باشد.</small>
-                </label>
-
-                <div class="seo-og-preview" data-seo-og-preview>
-                    <div class="seo-og-preview-card">
-                        <div class="seo-og-preview-image" data-seo-og-image-wrap>
-                            <img @if(filled($initialOgImage)) src="{{ $initialOgImage }}" @endif alt="" data-seo-og-preview-image @if(blank($initialOgImage)) hidden @endif>
-                            <span class="seo-og-preview-empty" data-seo-og-preview-empty @if(filled($initialOgImage)) hidden @endif>با واردکردن URL عمومی، تصویر اشتراک‌گذاری اینجا نمایش داده می‌شود.</span>
-                        </div>
-                        <div class="seo-og-preview-copy">
-                            <small>{{ parse_url(config('app.url'), PHP_URL_HOST) ?: config('app.url') }}</small>
-                            <strong data-seo-og-preview-title>{{ $initialOgTitle ?: 'عنوان صفحه' }}</strong>
-                            <p data-seo-og-preview-description>{{ $initialOgDescription ?: 'توضیحات صفحه هنگام اشتراک‌گذاری در این بخش نمایش داده می‌شود.' }}</p>
-                        </div>
-                    </div>
-                    <p class="seo-og-preview-status" data-seo-og-preview-status role="status" aria-live="polite">
-                        @if(filled($initialOgImage)) در حال بررسی دسترسی تصویر… @else تصویر اشتراک‌گذاری هنوز تنظیم نشده است. @endif
-                    </p>
-                </div>
-
-                <label>
-                    <span>Schema JSON</span>
-                    <textarea name="schema_json" rows="11" maxlength="20000" dir="ltr" spellcheck="false">{{ old('schema_json', $seoMeta?->schema_json ? json_encode($seoMeta->schema_json, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT) : '') }}</textarea>
-                    <small>اختیاری؛ JSON معتبر برای داده ساختاریافته.</small>
-                </label>
-            </section>
-
-            <button type="submit" class="owner-primary-btn w-full">ذخیره تنظیمات SEO</button>
-        </aside>
+        <label class="block space-y-2"><span class="text-sm font-bold text-slate-700">عنوان SEO</span><input class="ui-control px-3" name="title" maxlength="255" value="{{ old('title', $seoMeta?->title) }}" placeholder="{{ $item->getAttribute('title') }}"></label>
+        <label class="block space-y-2"><span class="text-sm font-bold text-slate-700">توضیحات SEO</span><textarea class="ui-control px-3 py-2" name="description" rows="4" maxlength="500" placeholder="توضیح کوتاه و دقیق درباره محتوای این صفحه">{{ old('description', $seoMeta?->description) }}</textarea></label>
+        <label class="block space-y-2"><span class="text-sm font-bold text-slate-700">وضعیت نمایش در موتور جستجو</span><select class="ui-control px-3" name="robots" required><option value="index,follow" @selected(old('robots', $seoMeta?->robots ?: 'index,follow')==='index,follow')>اجازه ایندکس (index,follow)</option><option value="noindex,follow" @selected(old('robots', $seoMeta?->robots)==='noindex,follow')>عدم ایندکس (noindex,follow)</option></select><small class="text-xs leading-6 text-slate-500">با انتخاب noindex، صفحه از sitemap عمومی نیز حذف می‌شود.</small></label>
+        @if($errors->any())<div role="alert" class="rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{{ $errors->first() }}</div>@endif
+        <div class="flex justify-end"><button type="submit" class="course-primary-btn">ذخیره تنظیمات</button></div>
     </form>
 </div>
 @endsection

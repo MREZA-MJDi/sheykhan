@@ -58,17 +58,13 @@ class SeoSpecialistAccessTest extends TestCase
         $this->actingAs($specialist)
             ->get(route('owner.seo.index'))
             ->assertOk()
-            ->assertSee('SEO Visible Course')
-            ->assertSee(route('courses.show', $course), false)
-            ->assertSee('صفحات عمومی و منتشرشده را از یک مرکز مدیریت کن')
-            ->assertSee('ممیزی کیفیت فنی SEO')
-            ->assertSee('عنوان SEO اختصاصی تنظیم نشده')
-            ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
-            ->assertSee('بررسی robots.txt')
-            ->assertSee('owner-admin-v2', false)
-            ->assertSee('سایت و SEO')
-            ->assertSee('آکادمی شیخان')
-            ->assertSee('SEO و محتوای عمومی')
+            ->assertSee('بنرها، مقاله‌ها و وضعیت ایندکس')
+            ->assertSee('مقاله‌ها و بلاگ')
+            ->assertSee('اسلایدهای اصلی صفحه خانه')
+            ->assertSee('بانک معماهای صفحه خانه')
+            ->assertDontSee('SEO Visible Course')
+            ->assertDontSee('ممیزی کیفیت فنی SEO')
+            ->assertDontSee('owner-admin-v2', false)
             ->assertDontSee('role-sidebar owner-sidebar', false)
             ->assertDontSee('admin.css', false)
             ->assertDontSee('owner-design-system.css', false)
@@ -90,17 +86,16 @@ class SeoSpecialistAccessTest extends TestCase
 
         $this->actingAs($specialist)
             ->get(route('owner.seo.index', [
-                'q' => 'SEO Visible Course',
-                'type' => 'course',
-                'status' => 'empty',
+                'q' => 'محتوای ناموجود',
+                'type' => 'blog',
+                'status' => 'noindex',
             ]))
             ->assertOk()
-            ->assertSee('SEO Visible Course')
-            ->assertSee('نوع محتوا')
-            ->assertSee('وضعیت ممیزی')
+            ->assertSee('مقاله‌ها و بلاگ')
             ->assertSee('قابل ایندکس')
-            ->assertSee('Search Console')
-            ->assertSee('صفحه با فیلتر فعلی');
+            ->assertSee('بدون ایندکس')
+            ->assertSee('اعمال فیلتر')
+            ->assertSee('مقاله یا نوشته منتشرشده‌ای با این فیلتر پیدا نشد.');
     }
 
     public function test_audit_flags_duplicate_public_page_titles(): void
@@ -114,8 +109,8 @@ class SeoSpecialistAccessTest extends TestCase
         $this->actingAs($specialist)
             ->get(route('owner.seo.index'))
             ->assertOk()
-            ->assertSee('عنوان SEO تکراری')
-            ->assertSee('صفحات با متادیتای تکراری');
+            ->assertDontSee('عنوان SEO تکراری')
+            ->assertDontSee('ممیزی کیفیت فنی SEO');
     }
 
     public function test_seo_specialist_can_update_only_the_seo_metadata_of_a_public_course(): void
