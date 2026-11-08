@@ -8,6 +8,7 @@ use App\Models\StudentOnboarding;
 use App\Models\Role;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use App\Support\MobileNumber;
 use Illuminate\Support\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Cache;
@@ -191,6 +192,7 @@ final class OwnerWorkspaceService
         $sort = (string) ($filters['sort'] ?? 'name');
         $direction = (string) ($filters['direction'] ?? 'asc');
         $term = trim((string) ($filters['q'] ?? ''));
+        $mobileTerm = MobileNumber::normalize($term) ?: $term;
 
         $query = $academy->users()
             ->wherePivot('role', $role)
@@ -202,9 +204,9 @@ final class OwnerWorkspaceService
         }
 
         if ($term !== '') {
-            $query->where(function ($builder) use ($term): void {
+            $query->where(function ($builder) use ($term, $mobileTerm): void {
                 $builder->where('users.name', 'like', '%' . $term . '%')
-                    ->orWhere('users.mobile', 'like', '%' . $term . '%');
+                    ->orWhere('users.mobile', 'like', '%' . $mobileTerm . '%');
 
                 if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
                     $lookup = \App\Support\NationalIdLookup::make($term);
