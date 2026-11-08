@@ -28,7 +28,7 @@
         <a href="{{ route('owner.website.hero-challenges.index') }}" class="dashboard-panel flex items-center justify-between gap-3 p-5 transition hover:-translate-y-0.5">
             <span><strong class="block text-sm font-black text-slate-900">بانک معماهای صفحه خانه</strong><small class="mt-1 block text-xs text-slate-500">ویرایش سؤال‌ها و ترتیب نمایش</small></span><b class="text-xl text-indigo-600">←</b>
         </a>
-        @foreach($academies as $academy)
+        @foreach($websiteAcademies as $academy)
             <a href="{{ route('owner.academy.banners.edit', $academy) }}" class="dashboard-panel flex items-center justify-between gap-3 p-5 transition hover:-translate-y-0.5">
                 <span><strong class="block text-sm font-black text-slate-900">بنرهای {{ $academy->name }}</strong><small class="mt-1 block text-xs text-slate-500">مدیریت بنرهای آموزشگاه</small></span><b class="text-xl text-indigo-600">←</b>
             </a>

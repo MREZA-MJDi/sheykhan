@@ -67,15 +67,15 @@
                 <div class="nav-group">
                     <button class="gh" type="button" data-group-toggle aria-expanded="true" style="--c:#22d3ee"><i aria-hidden="true"></i><span>سایت و SEO</span><em>−</em></button>
                     <div class="nav-group-items">
-                        <a class="ni" href="{{ route('owner.seo.index') }}" @if(request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update')) aria-current="page" @endif data-nav-label="ممیزی SEO"><svg class="ic"><use href="#i-chart"/></svg><span>ممیزی SEO</span></a>
-                        <a class="ni" href="{{ route('owner.seo.keywords.index') }}" @if(request()->routeIs('owner.seo.keywords.*')) aria-current="page" @endif data-nav-label="کلمات کلیدی"><svg class="ic"><use href="#i-search"/></svg><span>کلمات کلیدی</span></a>
+                        <a class="ni" href="{{ route('owner.seo.index') }}" @if(request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update')) aria-current="page" @endif data-nav-label="ایندکس محتوا"><svg class="ic"><use href="#i-chart"/></svg><span>ایندکس محتوا</span></a>
+                        
                         <a class="ni" href="{{ route('owner.website.index') }}" @if(request()->routeIs('owner.website.index')) aria-current="page" @endif data-nav-label="مرکز سایت"><svg class="ic"><use href="#i-globe"/></svg><span>مرکز سایت و بنرها</span></a>
                         <a class="ni" href="{{ route('owner.website.hero.edit') }}" @if(request()->routeIs('owner.website.hero.*')) aria-current="page" @endif data-nav-label="اسلایدر صفحه اصلی"><svg class="ic"><use href="#i-mega"/></svg><span>اسلایدر صفحه اصلی</span></a>
                         <a class="ni" href="{{ route('owner.content.index') }}" @if(request()->routeIs('owner.content.*')) aria-current="page" @endif data-nav-label="محتوای عمومی"><svg class="ic"><use href="#i-book"/></svg><span>محتوای عمومی</span></a>
                         <a class="ni" href="{{ route('owner.blog.index') }}" @if(request()->routeIs('owner.blog.*')) aria-current="page" @endif data-nav-label="بلاگ و مقالات"><svg class="ic"><use href="#i-doc"/></svg><span>بلاگ و مقالات</span></a>
                         @foreach($websiteAcademies as $websiteAcademy)
                             <a class="ni" href="{{ route('owner.academy.banners.edit', $websiteAcademy) }}" @if(request()->routeIs('owner.academy.banners.*') && $routeAcademyId === (int) $websiteAcademy->id) aria-current="page" @endif data-nav-label="بنرهای {{ $websiteAcademy->name }}"><svg class="ic"><use href="#i-image"/></svg><span>بنرهای {{ $websiteAcademy->name }}</span></a>
-                            <a class="ni" href="{{ route('owner.showcase.index', $websiteAcademy) }}" @if(request()->routeIs('owner.showcase.*') && $routeAcademyId === (int) $websiteAcademy->id) aria-current="page" @endif data-nav-label="افتخارآفرینان {{ $websiteAcademy->name }}"><svg class="ic"><use href="#i-users"/></svg><span>افتخارآفرینان و رضایتمندی · {{ $websiteAcademy->name }}</span></a>
+                            
                         @endforeach
                     </div>
                 </div>
@@ -116,7 +116,7 @@
             <section class="tm owner-seo-sidebar-note" aria-label="مرکز مدیریت SEO">
                 <small>مرکز مدیریت سایت</small>
                 <b>SEO و محتوای عمومی</b>
-                <small>متادیتا، کلمات کلیدی، بنرها و مقاله‌ها از همین پنل مدیریت می‌شوند.</small>
+                <small>بنرها، مقاله‌ها، بلاگ و وضعیت ایندکس از همین پنل مدیریت می‌شوند.</small>
                 <a class="ni" href="{{ route('owner.seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>شروع ممیزی صفحات</span></a>
             </section>
         @endif
