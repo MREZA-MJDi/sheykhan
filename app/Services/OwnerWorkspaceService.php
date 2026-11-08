@@ -205,6 +205,11 @@ final class OwnerWorkspaceService
             $query->where(function ($builder) use ($term): void {
                 $builder->where('users.name', 'like', '%' . $term . '%')
                     ->orWhere('users.mobile', 'like', '%' . $term . '%');
+
+                if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
+                    $lookup = \\App\\Support\\NationalIdLookup::make($term);
+                    $builder->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
+                }
             });
         }
 
