@@ -12,15 +12,16 @@ class LocalRoleLoginTest extends TestCase
     public function test_local_login_page_lists_quick_fill_credentials_for_every_dashboard_role(): void
     {
         $this->seed();
+        $mobiles = User::query()->whereIn('email', ['owner@sheykhan.test', 'teacher.math@sheykhan.test', 'student.armin@sheykhan.test', 'parent.armin@sheykhan.test', 'seo@sheykhan.test'])->pluck('mobile')->filter()->values();
 
         $this->get(route('login'))
             ->assertOk()
             ->assertSee('ورود سریع به نقش‌های سامانه')
-            ->assertSee('owner@sheykhan.test')
-            ->assertSee('teacher.math@sheykhan.test')
-            ->assertSee('student.armin@sheykhan.test')
-            ->assertSee('parent.armin@sheykhan.test')
-            ->assertSee('seo@sheykhan.test')
+            ->assertSee($mobiles[0])
+            ->assertSee($mobiles[1])
+            ->assertSee($mobiles[2])
+            ->assertSee($mobiles[3])
+            ->assertSee($mobiles[4])
             ->assertSee((string) config('role_access.test_password'))
             ->assertSee('data-test-login-fill', false);
     }
@@ -43,7 +44,7 @@ class LocalRoleLoginTest extends TestCase
             $this->get(route('login'))
                 ->assertOk()
                 ->assertSee('ورود سریع به نقش‌های سامانه')
-                ->assertSee('seo@sheykhan.test')
+                ->assertSee(User::query()->where('email', 'seo@sheykhan.test')->value('mobile'))
                 ->assertSee('Staging-Only-Secret-2026')
                 ->assertSee('data-test-login-fill', false);
         } finally {
@@ -55,12 +56,14 @@ class LocalRoleLoginTest extends TestCase
     public function test_only_active_accounts_with_the_expected_role_are_listed(): void
     {
         $this->seed();
+        $ownerMobile = User::query()->where('email', 'owner@sheykhan.test')->value('mobile');
+        $studentMobile = User::query()->where('email', 'student.armin@sheykhan.test')->value('mobile');
         User::query()->where('email', 'student.armin@sheykhan.test')->update(['status' => 'inactive']);
 
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('owner@sheykhan.test')
-            ->assertDontSee('student.armin@sheykhan.test');
+            ->assertSee($ownerMobile)
+            ->assertDontSee($studentMobile);
     }
 
     public function test_role_credentials_are_hidden_when_the_configured_password_does_not_match_the_account(): void
@@ -70,7 +73,7 @@ class LocalRoleLoginTest extends TestCase
 
         $this->get(route('login'))
             ->assertOk()
-            ->assertDontSee('owner@sheykhan.test')
+            ->assertDontSee(User::query()->where('email', 'owner@sheykhan.test')->value('mobile'))
             ->assertSee('حساب فعالی برای نمایش پیدا نشد');
     }
 
