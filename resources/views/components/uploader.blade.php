@@ -25,6 +25,7 @@
                 <div data-upload-progress-bar class="h-full w-0 rounded-full bg-indigo-600 transition-[width] duration-150"></div>
             </div>
         </div>
+        <p data-upload-progress-eta class="mt-1 text-[10px] text-slate-500" aria-live="polite"></p>
         <p data-upload-summary class="text-xs text-slate-500"></p>
         <ul data-upload-file-list class="mt-2 grid gap-1 text-xs" role="list"></ul>
         <p data-upload-progress-error hidden class="mt-2 text-xs font-semibold text-rose-600" role="alert"></p>
