@@ -118,6 +118,15 @@ class PublicHomeSmokeTest extends TestCase
 
     public function test_home_hero_uses_the_existing_vite_pipeline_and_keeps_academy_banners_separate(): void
     {
+        $layout = file_get_contents(resource_path('views/layouts/public.blade.php'));
+        $designSystem = file_get_contents(resource_path('css/public-design-system.css'));
+        $this->assertIsString($layout);
+        $this->assertIsString($designSystem);
+        $this->assertStringContainsString('resources/css/public-design-system.css', $layout);
+        $this->assertStringContainsString('.home-page>section:not(.sheykhan-home-hero)', $designSystem);
+        $this->assertStringContainsString('.home-course-card', $designSystem);
+        $this->assertStringNotContainsString('.sheykhan-home-hero {', $designSystem);
+
         $blade = file_get_contents(resource_path('views/pages/home/partials/hero.blade.php'));
         // The hero stylesheet was consolidated into home.css, the active Vite entrypoint.
         $styles = file_get_contents(resource_path('css/home.css'));
