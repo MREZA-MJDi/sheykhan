@@ -116,8 +116,9 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         $this->actingAs($seoSpecialist)
             ->get(route('owner.seo.index'))
             ->assertOk()
-            ->assertSee('مرکز کنترل SEO شیخان')
-            ->assertSee('دوره SEO آزمایشی');
+            ->assertSee('بنرها، مقاله‌ها و وضعیت ایندکس')
+            ->assertSee('محتوای آموزشگاه SEO')
+            ->assertDontSee('دوره SEO آزمایشی');
 
         $this->actingAs($seoSpecialist)
             ->get(route('owner.seo.edit', ['course', $course->id]))
