@@ -44,7 +44,7 @@ class LegacyStudentOnboardingTest extends TestCase
                 'notes' => 'ورود از بایگانی مدرسه',
                 'idempotency_key' => (string) Str::uuid(),
             ])
-            ->assertRedirect(route('owner.people.index', [$academy, 'tab' => 'create-student']))
+            ->assertRedirect(route('owner.people.index', $academy) . '?tab=create-student')
             ->assertSessionHas('success')
             ->assertSessionHas('temporary_student_mobile', '09121234567')
             ->assertSessionHas('temporary_student_password');
