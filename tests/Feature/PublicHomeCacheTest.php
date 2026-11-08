@@ -17,6 +17,7 @@ final class PublicHomeCacheTest extends TestCase
             'public:home:data:v3',
             'public:home:data:v4',
             'public:home:data:v5',
+            'public:home:data:v6',
             'public:home:courses:3',
             'public:home:courses:6',
             'public:home:teachers:4:v2',
