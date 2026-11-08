@@ -27,7 +27,7 @@
                         </p>
                     @endif
 
-                    <article class="mt-8 overflow-hidden rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_20px_60px_rgba(15,23,42,.07)]">
+                    <article class="public-course-preview-card mt-8 overflow-hidden rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_20px_60px_rgba(15,23,42,.07)]">
                         <div class="border-b border-[var(--color-border)] bg-[var(--color-background-soft)] px-5 py-4 sm:px-7">
                             <div class="flex flex-wrap items-center justify-between gap-3">
                                 <span class="text-xs font-black text-[var(--color-primary-600)]">درس آزمایشی</span>
