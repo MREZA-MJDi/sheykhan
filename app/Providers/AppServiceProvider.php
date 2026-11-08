@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Auth\LegacyAwareUserProvider;
 use App\Models\AcademicGrade;
 use App\Models\Media;
+use Illuminate\Database\Eloquent\Model;
 use App\Policies\MediaPolicy;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -31,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Model::preventLazyLoading(! $this->app->isProduction());
+
         RateLimiter::for('public-registration', function (Request $request): array {
             $key = (string) $request->ip();
 
