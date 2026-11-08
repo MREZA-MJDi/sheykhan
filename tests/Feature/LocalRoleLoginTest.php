@@ -12,16 +12,16 @@ class LocalRoleLoginTest extends TestCase
     public function test_local_login_page_lists_quick_fill_credentials_for_every_dashboard_role(): void
     {
         $this->seed();
-        $mobiles = User::query()->whereIn('email', ['owner@sheykhan.test', 'teacher.math@sheykhan.test', 'student.armin@sheykhan.test', 'parent.armin@sheykhan.test', 'seo@sheykhan.test'])->pluck('mobile')->filter()->values();
+        $mobiles = User::query()->whereIn('email', ['owner@sheykhan.test', 'teacher.math@sheykhan.test', 'student.armin@sheykhan.test', 'parent.armin@sheykhan.test', 'seo@sheykhan.test'])->get(['email', 'mobile'])->keyBy('email');
 
         $this->get(route('login'))
             ->assertOk()
             ->assertSee('ورود سریع به نقش‌های سامانه')
-            ->assertSee($mobiles[0])
-            ->assertSee($mobiles[1])
-            ->assertSee($mobiles[2])
-            ->assertSee($mobiles[3])
-            ->assertSee($mobiles[4])
+            ->assertSee($mobiles['owner@sheykhan.test']->mobile)
+            ->assertSee($mobiles['teacher.math@sheykhan.test']->mobile)
+            ->assertSee($mobiles['student.armin@sheykhan.test']->mobile)
+            ->assertSee($mobiles['parent.armin@sheykhan.test']->mobile)
+            ->assertSee($mobiles['seo@sheykhan.test']->mobile)
             ->assertSee((string) config('role_access.test_password'))
             ->assertSee('data-test-login-fill', false);
     }
