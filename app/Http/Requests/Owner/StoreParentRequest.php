@@ -17,6 +17,9 @@ final class StoreParentRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
+            'first_name' => trim((string) $this->input('first_name')),
+            'last_name' => trim((string) $this->input('last_name')),
+            'name' => trim((string) $this->input('first_name') . ' ' . (string) $this->input('last_name')),
             'mobile' => MobileNumber::normalize((string) $this->input('mobile')),
         ]);
     }
@@ -25,7 +28,8 @@ final class StoreParentRequest extends FormRequest
     {
         return [
             'student_id' => ['required', 'integer', 'min:1'],
-            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'first_name' => ['required', 'string', 'min:2', 'max:60'],
+            'last_name' => ['required', 'string', 'min:2', 'max:80'],
             'mobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'relation' => ['required', 'string', Rule::in(['مادر', 'پدر', 'سرپرست', 'سایر'])],
         ];
@@ -35,7 +39,8 @@ final class StoreParentRequest extends FormRequest
     {
         return [
             'student_id.required' => 'دانش‌آموز را انتخاب کنید.',
-            'name.required' => 'نام والد را وارد کنید.',
+            'first_name.required' => 'نام والد را وارد کنید.',
+            'last_name.required' => 'نام خانوادگی والد را وارد کنید.',
             'mobile.required' => 'شماره موبایل والد را وارد کنید.',
             'mobile.regex' => 'شماره موبایل معتبر نیست.',
             'relation.required' => 'نوع ارتباط را انتخاب کنید.',
