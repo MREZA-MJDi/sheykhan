@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Models\AuditLog;
+use App\Support\MobileNumber;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,20 +24,10 @@ final class AuthService
 
     public function login(array $credentials, bool $remember = false): User
     {
-        $identifier = trim((string) ($credentials['identifier'] ?? ''));
-        $user = filter_var($identifier, FILTER_VALIDATE_EMAIL)
-            ? User::query()->whereRaw('LOWER(email) = ?', [Str::lower($identifier)])->first()
-            : User::query()->where('mobile', $this->normalizeMobile($identifier))->first();
-
-        // The verified legacy export contains students without email/mobile.
-        // Their original WordPress numeric ID is an alternate identifier, never
-        // a substitute for the password check.
-        if (!$user && ctype_digit($identifier)) {
-            $user = User::query()
-                ->where('legacy_source', 'wordpress')
-                ->where('legacy_id', (int) $identifier)
-                ->first();
-        }
+        $mobile = MobileNumber::normalize((string) ($credentials['mobile'] ?? ''));
+        $user = MobileNumber::valid($mobile)
+            ? User::query()->where('mobile', $mobile)->first()
+            : null;
 
         $plainPassword = (string) ($credentials['password'] ?? '');
         $isLegacyHash = $user
@@ -50,7 +41,7 @@ final class AuthService
 
         if (!$user || $user->status !== 'active' || $user->deleted_at !== null || !$passwordValid) {
             throw ValidationException::withMessages([
-                'identifier' => 'اطلاعات ورود صحیح نیست یا این حساب فعال نیست.',
+                'mobile' => 'شماره موبایل یا رمز عبور صحیح نیست، یا این حساب فعال نیست.',
             ]);
         }
 
@@ -84,22 +75,6 @@ final class AuthService
         return $user;
     }
 
-    private function normalizeMobile(string $value): string
-    {
-        $digits = strtr($value, ['۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9']);
-        $digits = preg_replace('/\D+/', '', $digits) ?? '';
-
-        if (str_starts_with($digits, '0098')) {
-            return '0' . substr($digits, 4);
-        }
-
-        if (str_starts_with($digits, '98') && strlen($digits) === 12) {
-            return '0' . substr($digits, 2);
-        }
-
-        return $digits;
-    }
-
     public function register(array $data): User
     {
         return DB::transaction(function () use ($data): User {
@@ -111,11 +86,20 @@ final class AuthService
                 ->where('slug', $roleSlug)
                 ->firstOrFail();
 
+            $temporaryPassword = Str::password(16, true, true, true, false);
+            $mobile = MobileNumber::normalize((string) $data['mobile']);
             $user = User::create([
-                'name' => $data['name'],
-                'email' => strtolower($data['email']),
-                'password' => $data['password'],
+                'name' => trim($data['first_name'] . ' ' . $data['last_name']),
+                'email' => null,
+                'mobile' => $mobile,
+                'status' => 'active',
+                'password' => $temporaryPassword,
             ]);
+            if (Schema::hasColumn('users', 'must_change_password')) {
+                $user->forceFill(['must_change_password' => true])->save();
+            }
+            request()->session()->flash('registration_mobile', $mobile);
+            request()->session()->flash('registration_temporary_password', $temporaryPassword);
 
             $user->roles()->attach($role->id);
 
