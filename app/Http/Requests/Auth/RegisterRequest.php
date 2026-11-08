@@ -3,8 +3,6 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Http;
 
 class RegisterRequest extends FormRequest
@@ -17,7 +15,9 @@ class RegisterRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'email' => strtolower(trim((string) $this->input('email'))),
+            'first_name' => trim((string) $this->input('first_name')),
+            'last_name' => trim((string) $this->input('last_name')),
+            'mobile' => \\App\\Support\\MobileNumber::normalize((string) $this->input('mobile')),
             'account_type' => $this->input('account_type', 'student'),
         ]);
     }
@@ -25,9 +25,9 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'first_name' => ['required', 'string', 'min:2', 'max:60'],
+            'last_name' => ['required', 'string', 'min:2', 'max:80'],
+            'mobile' => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile'],
             'account_type' => ['required', Rule::in(['student', 'parent'])],
             'cf-turnstile-response' => [Rule::requiredIf((bool) config('services.turnstile.enabled')), 'nullable', 'string', 'max:2048'],
         ];
@@ -73,13 +73,13 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'نام و نام خانوادگی را وارد کنید.',
+            'first_name.required' => 'نام را وارد کنید.',
+            'last_name.required' => 'نام خانوادگی را وارد کنید.',
+            'mobile.required' => 'شماره موبایل را وارد کنید.',
+            'mobile.regex' => 'شماره موبایل معتبر نیست.',
+            'mobile.unique' => 'این شماره موبایل قبلاً ثبت شده است.',
             'name.min' => 'نام باید حداقل ۲ کاراکتر باشد.',
-            'email.required' => 'ایمیل را وارد کنید.',
-            'email.email' => 'فرمت ایمیل صحیح نیست.',
-            'email.unique' => 'این ایمیل قبلاً ثبت شده است.',
-            'password.required' => 'رمز عبور را وارد کنید.',
-            'password.confirmed' => 'تکرار رمز عبور با رمز عبور یکسان نیست.',
+
             'cf-turnstile-response.required' => 'لطفاً تأیید ضدربات را انجام بده.',
             'account_type.in' => 'نوع حساب انتخاب‌شده معتبر نیست.',
         ];
