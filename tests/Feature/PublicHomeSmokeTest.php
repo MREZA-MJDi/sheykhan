@@ -146,7 +146,7 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringContainsString('--public-ink:#0f172a', $designSystem);
         $this->assertStringContainsString('.public-site .public-main.home-page > #upcoming-classes { order:20; }', $designSystem);
         $this->assertStringContainsString('.public-main:not(.home-page) > section > section > .mx-auto', $designSystem);
-        $this->assertStringNotContainsString('.sheykhan-home-hero {', $designSystem);
+        $this->assertStringContainsString('.public-site .sheykhan-home-hero {', $designSystem);
 
         $blade = file_get_contents(resource_path('views/pages/home/partials/hero.blade.php'));
         // The hero stylesheet was consolidated into home.css, the active Vite entrypoint.
