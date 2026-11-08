@@ -28,6 +28,7 @@ final class StoreStudentAccountRequest extends FormRequest
         return [
             'first_name' => ['required', 'string', 'min:2', 'max:100'],
             'last_name' => ['required', 'string', 'min:2', 'max:120'],
+            'name' => ['required', 'string', 'min:5', 'max:255'],
             'national_id' => ['required', 'regex:/^[0-9]{10}$/'],
             
             'mobile' => ['required', 'regex:/^09[0-9]{9}$/', Rule::unique('users', 'mobile')],
@@ -51,7 +52,7 @@ final class StoreStudentAccountRequest extends FormRequest
         return [
             'first_name.required' => 'نام دانش‌آموز را وارد کن.',
             'last_name.required' => 'نام خانوادگی دانش‌آموز را وارد کن.',
-            'name.min' => 'نام دانش‌آموز باید حداقل دو نویسه باشد.',
+            'name.min' => 'نام و نام خانوادگی دانش‌آموز را کامل وارد کن.',
             'national_id.required' => 'کد ملی برای جلوگیری از ساخت پروفایل تکراری الزامی است.',
             'national_id.regex' => 'کد ملی باید دقیقاً ۱۰ رقم باشد.',
             
