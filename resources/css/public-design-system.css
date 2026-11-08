@@ -1,0 +1,47 @@
+/* Sheykhan public Design System. Hero remains owned by home.css. */
+.public-site {
+    --public-ink:#17233b; --public-muted:#68778d; --public-line:#e5eaf2;
+    --public-surface:#fff; --public-surface-soft:#f6f8fc; --public-primary:#3568d4;
+    --public-primary-soft:#eff5ff; --public-radius-md:18px; --public-radius-lg:26px;
+    --public-shadow-card:0 10px 32px rgb(17 32 58 / 7%);
+    --public-shadow-hover:0 20px 44px rgb(17 32 58 / 12%);
+    color:var(--public-ink);font-family:"Vazirmatn",ui-sans-serif,system-ui,sans-serif;
+}
+.public-site .home-page>section:not(.sheykhan-home-hero){scroll-margin-top:6rem}
+.public-site .home-section{padding-block:clamp(3.5rem,6vw,6rem)}
+.public-site .home-soft,.public-site .home-trust,.public-site .home-blog,.public-site .home-banner-stage,.public-site .home-paths{background-color:var(--public-surface-soft)}
+.public-site .home-heading,.public-site .home-banner-heading{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;margin-bottom:clamp(1.5rem,3vw,2.5rem)}
+.public-site .home-heading>div>span,.public-site .home-banner-heading>div>span{display:inline-flex;align-items:center;gap:.45rem;color:var(--public-primary);font-size:.76rem;font-weight:900}
+.public-site .home-heading h2,.public-site .home-paths__intro h2,.public-site .home-why-copy h2{margin:.55rem 0 0;color:var(--public-ink);font-size:clamp(1.55rem,3vw,2.35rem);font-weight:950;line-height:1.55;letter-spacing:-.035em;text-wrap:balance}
+.public-site .home-heading p,.public-site .home-paths__intro p,.public-site .home-why-copy>p{max-width:660px;margin:.55rem 0 0;color:var(--public-muted);font-size:.9rem;line-height:2}
+.public-site .home-heading>a{display:inline-flex;flex:none;align-items:center;gap:.5rem;border:1px solid var(--public-line);border-radius:999px;padding:.65rem 1rem;background:var(--public-surface);color:var(--public-primary);font-size:.78rem;font-weight:900;text-decoration:none;transition:background-color .18s,border-color .18s}
+.public-site .home-heading>a:hover{border-color:var(--public-primary);background:var(--public-primary-soft)}
+.public-site .home-course-card,.public-site .home-post-card,.public-site .home-teacher-card,.public-site .home-live-card,.public-site .home-store-card,.public-site .home-product-card,.public-site .home-academy-card,.public-site .home-achievement-card,.public-site .home-testimonial-card,.public-site .home-feature-card,.public-site .home-path-card,.public-site .home-banner-card{min-width:0;overflow:hidden;border:1px solid var(--public-line);border-radius:var(--public-radius-md);background:var(--public-surface);box-shadow:var(--public-shadow-card)}
+.public-site .home-course-card,.public-site .home-post-card,.public-site .home-teacher-card,.public-site .home-live-card,.public-site .home-product-card,.public-site .home-path-card,.public-site .home-banner-card{transition:transform .2s,border-color .2s,box-shadow .2s}
+.public-site .home-course-card:hover,.public-site .home-post-card:hover,.public-site .home-teacher-card:hover,.public-site .home-live-card:hover,.public-site .home-product-card:hover,.public-site .home-path-card:hover,.public-site .home-banner-card:hover{transform:translateY(-4px);border-color:#cbd8ee;box-shadow:var(--public-shadow-hover)}
+.public-site .home-course-card> a:first-child,.public-site .home-post-media,.public-site .teacher-card__media,.public-site .home-live-card__media,.public-site .home-banner-media{display:block;overflow:hidden;background:#edf2f8}
+.public-site .home-course-card img,.public-site .home-post-media img,.public-site .teacher-card__photo,.public-site .home-live-card__media img,.public-site .home-product-card img,.public-site .home-achievement-card>img,.public-site .home-banner-media img{display:block;width:100%;height:100%;object-fit:cover}
+.public-site .home-course-card h3,.public-site .home-post-card h3,.public-site .home-product-card h3,.public-site .home-achievement-card h3,.public-site .home-academy-card h3,.public-site .home-live-card h3{color:var(--public-ink);font-weight:900;line-height:1.7}
+.public-site .home-course-card p,.public-site .home-post-card p,.public-site .home-live-card__teacher,.public-site .home-achievement-card p,.public-site .home-testimonial-card>p{color:var(--public-muted);line-height:1.95}
+.public-site .home-path-card{display:flex;flex-direction:column;gap:.6rem;padding:clamp(1.15rem,2vw,1.6rem);text-decoration:none}
+.public-site .home-path-card strong{color:var(--public-ink);font-size:1rem;font-weight:950}
+.public-site .home-path-card p{margin:0;color:var(--public-muted);font-size:.82rem;line-height:1.9}
+.public-site .home-path-card>span{margin-top:auto;padding-top:.6rem;color:var(--public-primary);font-size:.78rem;font-weight:900}
+.public-site .home-empty-state{display:grid;min-height:150px;align-content:center;gap:.5rem;border:1px dashed #cbd5e1;border-radius:var(--public-radius-md);padding:1.5rem;background:#ffffffb8;color:var(--public-muted);text-align:center}
+.public-site .home-empty-state strong{color:var(--public-ink);font-weight:900}
+.public-site .home-dark{background:#111c32}
+.public-site .home-dark .home-heading h2,.public-site .home-dark .home-why-copy h2{color:#fff}
+.public-site .home-dark .home-heading p,.public-site .home-dark .home-why-copy>p{color:#b8c5d8}
+.public-site .home-dark .home-feature-card,.public-site .home-dark .home-testimonial-card{border-color:#ffffff20;background:#ffffff0b;box-shadow:none}
+.public-site .home-dark .home-feature-card strong,.public-site .home-dark .home-testimonial-card strong{color:#fff}
+.public-site .home-dark .home-feature-card p,.public-site .home-dark .home-testimonial-card>p,.public-site .home-dark .home-testimonial-card>span{color:#b8c5d8}
+.public-site .home-cta{border:1px solid #ffffff24;border-radius:var(--public-radius-lg);padding:clamp(1.5rem,4vw,3.25rem);background:linear-gradient(125deg,#172b4d,#244b83);box-shadow:0 24px 60px rgb(20 45 82 / 18%)}
+.public-site .home-cta h2{color:#fff;font-size:clamp(1.5rem,3vw,2.4rem);font-weight:950;line-height:1.55}
+.public-site .home-cta p{color:#d6e2f4}
+.public-site .home-final-action{display:inline-flex;min-height:46px;align-items:center;justify-content:center;border:1px solid transparent;border-radius:999px;padding:.7rem 1.2rem;font-size:.82rem;font-weight:900;text-decoration:none;transition:transform .18s}
+.public-site .home-final-action--primary{background:#fff;color:#1d3e70}
+.public-site .home-final-action--secondary{border-color:#ffffff66;background:#ffffff12;color:#fff}
+.public-site .home-final-action:hover{transform:translateY(-2px)}
+.public-site .home-page :is(a,button,summary,audio,video):focus-visible{outline:3px solid #5c8fe8;outline-offset:3px}
+@media(max-width:760px){.public-site .home-section{padding-block:3.25rem}.public-site .home-heading,.public-site .home-banner-heading{align-items:flex-start;flex-direction:column;gap:1rem}.public-site .home-heading>a{align-self:flex-start}}
+@media(prefers-reduced-motion:reduce){.public-site .home-course-card,.public-site .home-post-card,.public-site .home-teacher-card,.public-site .home-live-card,.public-site .home-product-card,.public-site .home-path-card,.public-site .home-banner-card,.public-site .home-final-action{transition:none}.public-site .home-course-card:hover,.public-site .home-post-card:hover,.public-site .home-teacher-card:hover,.public-site .home-live-card:hover,.public-site .home-product-card:hover,.public-site .home-path-card:hover,.public-site .home-banner-card:hover,.public-site .home-final-action:hover{transform:none}}
