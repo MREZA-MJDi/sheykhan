@@ -58,9 +58,13 @@ class PeopleController extends Controller
             ->where('users.status', 'active')
             ->where(function ($query) use ($term): void {
                 $query->where('users.name', 'like', '%' . $term . '%')
-                    ->orWhere('users.email', 'like', '%' . $term . '%');
+                    ->orWhere('users.mobile', 'like', '%' . $term . '%');
+                if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
+                    $lookup = \\App\\Support\\NationalIdLookup::make($term);
+                    $query->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
+                }
             })
-            ->select('users.id', 'users.name')
+            ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(20, ['users.id', 'users.name'], 'page');
@@ -69,6 +73,7 @@ class PeopleController extends Controller
             'data' => $students->getCollection()->map(fn (User $student): array => [
                 'id' => (int) $student->id,
                 'name' => $student->name,
+                'mobile' => $student->mobile,
             ])->values(),
             'meta' => [
                 'current_page' => $students->currentPage(),
@@ -114,7 +119,7 @@ class PeopleController extends Controller
             ->to(route('owner.people.index', $academy) . '?tab=create-student')
             ->with('success', 'حساب دانش‌آموز ساخته شد. نام کاربری و رمز اولیه را فقط همین یک‌بار تحویل بده.')
             ->with('temporary_student_name', $result['student']->name)
-            ->with('temporary_student_email', $result['student']->email)
+            ->with('temporary_student_mobile', $result['student']->mobile)
             ->with('temporary_student_number', $result['student']->studentProfile?->student_number)
             ->with('temporary_student_password', $result['temporary_password']);
     }
