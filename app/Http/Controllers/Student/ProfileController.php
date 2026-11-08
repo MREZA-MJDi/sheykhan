@@ -35,7 +35,7 @@ class ProfileController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($request, $student, $data, $mediaService): void {
-            $userUpdates = ['name' => $data['name'], 'mobile' => $data['mobile']];
+            $userUpdates = array_intersect_key($data, array_flip(['name', 'mobile']));
 
             $student->update($userUpdates);
 
