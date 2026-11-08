@@ -151,11 +151,9 @@ final class StudentOnboardingService
                 : null;
 
             if (!$student) {
-                $email = 'legacy.' . substr($lookup, 0, 32) . '@students.sheykhan.local';
-
                 $student = User::create([
                     'name' => $data['name'],
-                    'email' => $email,
+                    'email' => null,
                     'mobile' => $normalizedMobile,
                     'status' => 'active',
                     'password' => Hash::make(Str::random(40)),
