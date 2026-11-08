@@ -12,9 +12,7 @@
     @endphp
 {{-- Full-bleed hero uses the independent HomeHeroSlide source. --}}
     @include('pages.home.partials.hero')
-    @include('pages.home.partials.public-stats')
-
-{{-- Live classes --}}
+    {{-- Live classes --}}
     <section id="upcoming-classes" class="home-section home-soft">
             <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
                 <div class="home-heading">
@@ -49,6 +47,8 @@
                 </div>
             </div>
         </section>
+
+@include('pages.home.partials.public-stats')
 
 @include('pages.home.partials.public-comparison')
 
