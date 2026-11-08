@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\HeroChallenge;
+use App\Models\Role;
+use App\Models\User;
 use Database\Seeders\HeroChallengeSeeder;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -66,6 +69,53 @@ final class PublicHeroChallengeTest extends TestCase
             ->assertOk()
             ->assertSee($nextValid->title)
             ->assertDontSee($incomplete->title);
+    }
+
+    public function test_owner_editor_restores_the_exact_four_option_contract_when_saving_a_challenge(): void
+    {
+        $this->seed(RolePermissionSeeder::class);
+        $this->seed(HeroChallengeSeeder::class);
+
+        $editor = User::factory()->create(['status' => 'active']);
+        $seoRole = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
+        $editor->roles()->attach($seoRole->id);
+
+        $challenge = HeroChallenge::query()
+            ->with('options')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->firstOrFail();
+        $challenge->options()->create([
+            'label' => 'E',
+            'content' => 'گزینه اضافه',
+            'is_correct' => false,
+            'sort_order' => 5,
+        ]);
+
+        $this->actingAs($editor)
+            ->patch(route('owner.website.hero-challenge.update', $challenge), [
+                'title' => $challenge->title,
+                'prompt' => $challenge->prompt,
+                'sequence_text' => '',
+                'explanation' => $challenge->explanation,
+                'options' => [
+                    'A' => 'پاسخ اول',
+                    'B' => 'پاسخ دوم',
+                    'C' => 'پاسخ سوم',
+                    'D' => 'پاسخ چهارم',
+                ],
+                'correct_option' => 'C',
+                'sort_order' => 1,
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('owner.website.hero-challenges.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSame(
+            ['A', 'B', 'C', 'D'],
+            $challenge->options()->orderBy('sort_order')->pluck('label')->all(),
+        );
+        $this->assertSame(1, $challenge->options()->where('is_correct', true)->count());
     }
 
     public function test_correct_answer_is_checked_on_the_server_and_returns_the_explanation(): void
