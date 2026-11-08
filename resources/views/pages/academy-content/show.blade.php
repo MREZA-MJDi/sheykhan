@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.public')
 
 @section('title', ($seoMeta?->title ?: $content->title) . ' | ' . $academy->name)
 @section('description', $seoMeta?->description ?: ($content->excerpt ?: 'محتوای آموزشی ' . $academy->name))
