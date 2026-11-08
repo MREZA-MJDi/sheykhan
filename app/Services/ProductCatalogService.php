@@ -20,7 +20,10 @@ class ProductCatalogService
             ->when($category, fn ($query) => $query->whereHas('category', fn ($q) => $q->where('slug', $category)->where('is_active', true)))
             ->with([
                 'category:id,name,slug',
-                'media' => fn ($query) => $query->where('visibility', 'public')->orderByPivot('sort_order'),
+                'media' => fn ($query) => $query
+                    ->where('visibility', 'public')
+                    ->where('status', 'active')
+                    ->orderByPivot('sort_order'),
             ])
             ->orderByDesc('is_featured')
             ->orderByDesc('published_at')
