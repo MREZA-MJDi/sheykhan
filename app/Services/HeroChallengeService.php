@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\HeroChallenge;
 use App\Models\HeroChallengeOption;
 use App\Support\PersianUi;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 final class HeroChallengeService
@@ -16,13 +17,7 @@ final class HeroChallengeService
      */
     public function activeForHome(?int $requestedId = null): ?array
     {
-        $challenges = HeroChallenge::query()
-            ->where('is_active', true)
-            ->with(['options:id,hero_challenge_id,label,content,sort_order'])
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->limit(self::HOME_CHALLENGE_COUNT)
-            ->get(['id', 'title', 'prompt', 'sequence', 'sort_order']);
+        $challenges = $this->activeChallenges();
 
         if ($challenges->isEmpty()) {
             return null;
@@ -34,10 +29,6 @@ final class HeroChallengeService
 
         $index = $index === false ? 0 : $index;
         $challenge = $challenges->get($index);
-
-        if (! $challenge || $challenge->options->count() !== 4) {
-            return null;
-        }
 
         return [
             'id' => (int) $challenge->id,
@@ -74,6 +65,12 @@ final class HeroChallengeService
             ->with('options:id,hero_challenge_id,is_correct')
             ->firstOrFail();
 
+        if ($challenge->options->count() !== 4) {
+            throw ValidationException::withMessages([
+                'hero_challenge' => 'این معما هنوز برای انتشار آماده نیست.',
+            ]);
+        }
+
         $option = $challenge->options->firstWhere('id', $optionId);
 
         if (! $option) {
@@ -82,13 +79,7 @@ final class HeroChallengeService
             ]);
         }
 
-        $rotation = HeroChallenge::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->limit(self::HOME_CHALLENGE_COUNT)
-            ->pluck('id');
-
+        $rotation = $this->activeChallenges()->pluck('id');
         $index = $rotation->search((int) $challenge->id);
         $nextId = $index !== false && $rotation->get($index + 1)
             ? (int) $rotation->get($index + 1)
@@ -101,5 +92,24 @@ final class HeroChallengeService
             'explanation' => $challenge->explanation,
             'next_id' => $nextId,
         ];
+    }
+
+    /**
+     * Keep malformed active records out of the public rotation without allowing
+     * one incomplete challenge to hide every subsequent valid challenge.
+     *
+     * @return Collection<int, HeroChallenge>
+     */
+    private function activeChallenges(): Collection
+    {
+        return HeroChallenge::query()
+            ->where('is_active', true)
+            ->with(['options:id,hero_challenge_id,label,content,sort_order'])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get(['id', 'title', 'prompt', 'sequence', 'explanation', 'sort_order'])
+            ->filter(fn (HeroChallenge $challenge): bool => $challenge->options->count() === 4)
+            ->take(self::HOME_CHALLENGE_COUNT)
+            ->values();
     }
 }
