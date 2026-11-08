@@ -42,7 +42,7 @@
                 </nav>
 
                 <article class="mx-auto mt-8 grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,.92fr)] lg:items-start">
-                    <div class="min-w-0 overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_22px_70px_rgba(15,23,42,.08)]">
+                    <div class="public-product-media-card min-w-0 overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_22px_70px_rgba(15,23,42,.08)]">
                         <div class="aspect-[16/10] overflow-hidden bg-[var(--color-slate-100)]">
                             @if($cover)
                                 <img src="{{ $cover }}" alt="{{ $product->title }}" class="h-full w-full object-cover" fetchpriority="high">
