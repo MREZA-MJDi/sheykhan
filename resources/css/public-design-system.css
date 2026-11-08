@@ -1,6 +1,6 @@
 /* Sheykhan public Design System. Hero remains owned by home.css. */
 .public-site {
-    --public-ink:#17233b; --public-muted:#68778d; --public-line:#e5eaf2;
+    --public-ink:#17233b; --public-ink-soft:#34445f; --public-muted:#68778d; --public-line:#e5eaf2;
     --public-surface:#fff; --public-surface-soft:#f6f8fc; --public-primary:#3568d4;
     --public-primary-soft:#eff5ff; --public-radius-md:18px; --public-radius-lg:26px;
     --public-shadow-card:0 10px 32px rgb(17 32 58 / 7%);
