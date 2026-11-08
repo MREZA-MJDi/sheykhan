@@ -38,10 +38,7 @@ class ProfileController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($request, $teacher, $data, $mediaService): void {
-            $teacherUpdates = ['name' => $data['name']];
-            if (array_key_exists('email', $data)) {
-                $teacherUpdates['email'] = $data['email'];
-            }
+            $teacherUpdates = ['name' => $data['name'], 'mobile' => $data['mobile']];
             $teacher->update($teacherUpdates);
 
             $profile = TeacherProfile::query()->firstOrCreate(
