@@ -31,6 +31,7 @@ final class PublicHomeCache
             'public:home:banners:v1:1',
             'public:home:banners:v1:2',
             'public:home:banners:v1:3',
+            'public:home:hero-slides:v1',
         ] as $key) {
             Cache::forget($key);
         }
