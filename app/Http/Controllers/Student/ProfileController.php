@@ -35,10 +35,7 @@ class ProfileController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($request, $student, $data, $mediaService): void {
-            $userUpdates = ['name' => $data['name']];
-            if (array_key_exists('email', $data)) {
-                $userUpdates['email'] = $data['email'];
-            }
+            $userUpdates = ['name' => $data['name'], 'mobile' => $data['mobile']];
 
             $student->update($userUpdates);
 
