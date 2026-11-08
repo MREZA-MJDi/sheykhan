@@ -54,11 +54,12 @@
         name.textContent = String(person.name ?? 'بدون نام');
         details.append(name);
 
-        if (role !== 'students' && person.email) {
-            const email = document.createElement('span');
-            email.className = 'mt-1 block break-all text-[9px] text-slate-500';
-            email.textContent = String(person.email);
-            details.append(email);
+        if (person.mobile) {
+            const mobile = document.createElement('span');
+            mobile.className = 'mt-1 block text-[11px] text-slate-500';
+            mobile.dir = 'ltr';
+            mobile.textContent = String(person.mobile);
+            details.append(mobile);
         }
 
         row.append(details);
