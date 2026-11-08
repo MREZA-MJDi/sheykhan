@@ -45,3 +45,68 @@
 .public-site .home-page :is(a,button,summary,audio,video):focus-visible{outline:3px solid #5c8fe8;outline-offset:3px}
 @media(max-width:760px){.public-site .home-section{padding-block:3.25rem}.public-site .home-heading,.public-site .home-banner-heading{align-items:flex-start;flex-direction:column;gap:1rem}.public-site .home-heading>a{align-self:flex-start}}
 @media(prefers-reduced-motion:reduce){.public-site .home-course-card,.public-site .home-post-card,.public-site .home-teacher-card,.public-site .home-live-card,.public-site .home-product-card,.public-site .home-path-card,.public-site .home-banner-card,.public-site .home-final-action{transition:none}.public-site .home-course-card:hover,.public-site .home-post-card:hover,.public-site .home-teacher-card:hover,.public-site .home-live-card:hover,.public-site .home-product-card:hover,.public-site .home-path-card:hover,.public-site .home-banner-card:hover,.public-site .home-final-action:hover{transform:none}}
+
+/* The same public tokens continue across catalog, editorial and product routes. */
+.public-site .public-page-intro {
+    border-color:var(--public-line);
+    border-radius:var(--public-radius-lg);
+    box-shadow:var(--public-shadow-card);
+}
+.public-site .public-page-intro:not(.public-page-intro--editorial) h1 {
+    color:var(--public-ink);
+    font-weight:950;
+    letter-spacing:-.035em;
+}
+.public-site .public-page-intro p {
+    color:var(--public-muted);
+    line-height:2.1;
+}
+.public-site .public-page-intro--editorial h1,
+.public-site .public-page-intro--editorial p {
+    color:#f7f8fb;
+}
+.public-site :is(.public-course-grid,.teacher-directory-grid,.public-blog-grid) {
+    gap:clamp(1rem,2vw,1.5rem);
+}
+.public-site :is(.public-course-card,.public-teacher-card,.public-store-product-card,.public-blog-card) {
+    border:1px solid var(--public-line);
+    border-radius:var(--public-radius-md);
+    background:var(--public-surface);
+    box-shadow:var(--public-shadow-card);
+}
+.public-site :is(.public-course-card,.public-teacher-card,.public-store-product-card,.public-blog-card) {
+    transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.public-site :is(.public-course-card,.public-teacher-card,.public-store-product-card,.public-blog-card):hover {
+    transform:translateY(-4px);
+    border-color:#cbd8ee;
+    box-shadow:var(--public-shadow-hover);
+}
+.public-site .public-next-step__card {
+    border-color:var(--public-line);
+    border-radius:var(--public-radius-lg);
+    box-shadow:var(--public-shadow-card);
+}
+.public-site .public-next-step__button {
+    min-height:44px;
+    border-radius:999px;
+    font-weight:900;
+}
+.public-site .public-empty-state {
+    border:1px dashed #cbd5e1;
+    border-radius:var(--public-radius-md);
+    background:var(--public-surface-soft);
+}
+.public-site .public-course-hero,
+.public-site .teacher-profile-hero {
+    border:1px solid var(--public-line);
+    border-radius:var(--public-radius-lg);
+}
+.public-site .public-article-body {
+    color:var(--public-ink-soft,#34445f);
+    line-height:2.15;
+}
+@media(prefers-reduced-motion:reduce) {
+    .public-site :is(.public-course-card,.public-teacher-card,.public-store-product-card,.public-blog-card) { transition:none; }
+    .public-site :is(.public-course-card,.public-teacher-card,.public-store-product-card,.public-blog-card):hover { transform:none; }
+}
