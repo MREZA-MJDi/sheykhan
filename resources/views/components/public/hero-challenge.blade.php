@@ -8,7 +8,7 @@
 <div class="shx-public-puzzle" id="hero-challenge">
     <div class="shx-public-puzzle__top">
         <span>سؤال {{ \App\Support\PersianUi::digits($challenge['position']) }} از {{ \App\Support\PersianUi::digits($challenge['total']) }}</span>
-        <span>الگوی بعدی چیست؟</span>
+        <span>{{ empty($challenge['sequence']) ? 'چالش منطق' : 'الگوی بعدی چیست؟' }}</span>
     </div>
     <h2>{{ $challenge['title'] }}</h2>
     <p class="shx-public-puzzle__prompt">{{ $challenge['prompt'] }}</p>
@@ -28,7 +28,7 @@
                     <p>هر سه چالش را پشت سر گذاشتی.</p><a class="shx-public-puzzle__next" href="{{ route('courses.index') }}">دیدن دوره‌ها ←</a>
                 @endif
             @else
-                <strong>این گزینه درست نبود؛ دوباره امتحان کن.</strong><p>به اختلاف یا نسبت بین عددها دقت کن.</p>
+                <strong>این گزینه درست نبود؛ دوباره امتحان کن.</strong><p>صورت سؤال را دوباره با دقت بخوان و به جزئیات آن توجه کن.</p>
             @endif
         </div>
     @endif

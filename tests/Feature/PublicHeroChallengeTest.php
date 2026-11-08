@@ -39,9 +39,9 @@ final class PublicHeroChallengeTest extends TestCase
             ->get();
 
         $this->assertCount(3, $challenges);
-        $this->assertSame('hero-difference-squares', $challenges[0]->slug);
-        $this->assertSame('hero-recursive-three', $challenges[1]->slug);
-        $this->assertSame('hero-factorial-offset', $challenges[2]->slug);
+        $this->assertSame('hero-three-mislabeled-boxes', $challenges[0]->slug);
+        $this->assertSame('hero-two-uneven-ropes', $challenges[1]->slug);
+        $this->assertSame('hero-three-switches', $challenges[2]->slug);
 
         foreach ($challenges as $challenge) {
             $this->assertCount(4, $challenge->options);
