@@ -172,8 +172,12 @@
 .public-site .public-main:not(.home-page) > section > .mx-auto,
 .public-site .public-main:not(.home-page) .public-shell,
 .public-site .public-main.home-page > .home-section > .mx-auto {
-    width:min(100% - 2 * var(--public-page-gutter, 1.25rem), 1100px) !important;
+    width:100% !important;
     max-width:1100px !important;
+    margin-inline:auto;
+}
+.public-site .public-main:not(.home-page) .public-shell {
+    width:calc(100% - 2rem) !important;
 }
 .public-site .public-main:not(.home-page) > section > section:first-child {
     padding-block:clamp(2.5rem,5vw,4.5rem);
@@ -426,6 +430,7 @@
 
 /* Route templates are wrapped in an outer page section before the content rail. */
 .public-site .public-main:not(.home-page) > section > section > .mx-auto {
-    width:min(100% - 2 * var(--public-page-gutter, 1.25rem), 1100px) !important;
+    width:100% !important;
     max-width:1100px !important;
+    margin-inline:auto;
 }
