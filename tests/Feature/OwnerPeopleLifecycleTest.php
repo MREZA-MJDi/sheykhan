@@ -266,7 +266,8 @@ class OwnerPeopleLifecycleTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-teacher', $academy), [
-                'name' => 'مدرس تازه',
+                'first_name' => 'مدرس',
+                'last_name' => 'تازه',
                 'mobile' => $mobile,
                 'specialization' => 'ریاضی',
                 'experience_years' => 4,
