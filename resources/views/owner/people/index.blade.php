@@ -20,12 +20,24 @@
     <h2 class="font-black">رمز موقت والد — فقط همین یک‌بار</h2>
     <p class="mt-1 text-sm leading-6">این رمز را از راه امن به والد تحویل دهید. حساب مجبور است در اولین ورود رمز را عوض کند؛ برای امنیت، صفحه را دوباره بارگذاری نکنید تا رمز از پیام موقت حذف شود.</p>
     <div class="mt-3 grid gap-2 sm:grid-cols-2">
-        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">ایمیل</span><strong class="mt-1 block break-all text-sm">{{ session('temporary_parent_email') }}</strong></div>
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">شماره موبایل / نام کاربری</span><strong class="mt-1 block break-all text-sm">{{ session('temporary_parent_mobile') }}</strong></div>
         <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs text-amber-800">رمز موقت</span><code class="mt-1 block break-all text-base font-black">{{ session('temporary_parent_password') }}</code></div>
     </div>
 </section>
 @endif
 
+
+@if(session('temporary_teacher_password'))
+<section class="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950" role="status" aria-live="polite">
+    <h2 class="font-black">اطلاعات ورود مدرس — فقط همین یک‌بار</h2>
+    <p class="mt-1 text-sm">این اطلاعات را از مسیر امن به مدرس تحویل بده. رمز در اولین ورود باید تغییر کند.</p>
+    <div class="mt-3 grid gap-2 sm:grid-cols-3">
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs">نام</span><strong>{{ session('temporary_teacher_name') }}</strong></div>
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs">موبایل</span><strong dir="ltr">{{ session('temporary_teacher_mobile') }}</strong></div>
+        <div class="rounded-xl bg-white/80 p-3"><span class="block text-xs">رمز اولیه</span><code dir="ltr">{{ session('temporary_teacher_password') }}</code></div>
+    </div>
+</section>
+@endif
 
 <div class="owner-people-tabs" data-owner-people-tabs data-initial-tab="{{ $activePeopleTab }}">
     <nav class="owner-people-tabbar" role="tablist" aria-label="مدیریت اعضای آموزشگاه">
@@ -48,7 +60,7 @@
                 <div><strong>حساب ساخته شد</strong><p>این اطلاعات را از راه امن تحویل بده. رمز پس از خروج از این صفحه دوباره نمایش داده نمی‌شود.</p></div>
                 <div class="owner-student-credential-grid">
                     <div><span>نام دانش‌آموز</span><strong>{{ session('temporary_student_name') }}</strong></div>
-                    <div><span>نام کاربری / ایمیل</span><strong dir="ltr">{{ session('temporary_student_email') }}</strong></div>
+                    <div><span>شماره موبایل / نام کاربری</span><strong dir="ltr">{{ session('temporary_student_mobile') }}</strong></div>
                     <div><span>کد دانش‌آموز</span><strong dir="ltr">{{ session('temporary_student_number') }}</strong></div>
                     <div><span>رمز اولیه</span><code dir="ltr">{{ session('temporary_student_password') }}</code></div>
                 </div>
@@ -62,10 +74,11 @@
 
         <form method="POST" action="{{ route('owner.people.store-student', $academy) }}?tab=create-student" class="owner-student-create-form" autocomplete="off">
             @csrf
-            <div class="owner-student-form-field"><label for="new-student-name">نام و نام خانوادگی</label><input id="new-student-name" name="name" value="{{ old('name') }}" minlength="2" maxlength="255" required autocomplete="name" placeholder="مثلاً آرش محمدی">@error('name')<small>{{ $message }}</small>@enderror</div>
+            <div class="owner-student-form-field"><label for="new-student-first-name">نام</label><input id="new-student-first-name" name="first_name" value="{{ old('first_name') }}" minlength="2" maxlength="100" required autocomplete="given-name" placeholder="آرش">@error('first_name')<small>{{ $message }}</small>@enderror</div>
+            <div class="owner-student-form-field"><label for="new-student-last-name">نام خانوادگی</label><input id="new-student-last-name" name="last_name" value="{{ old('last_name') }}" minlength="2" maxlength="120" required autocomplete="family-name" placeholder="محمدی">@error('last_name')<small>{{ $message }}</small>@enderror</div>
             <div class="owner-student-form-field"><label for="new-student-national-id">کد ملی</label><input id="new-student-national-id" name="national_id" value="{{ old('national_id') }}" inputmode="numeric" pattern="[0-9۰-۹٠-٩]{10}" maxlength="10" minlength="10" required autocomplete="off" dir="ltr" placeholder="۱۰ رقم"><small class="owner-student-national-id-help">فقط برای تطبیق هویت؛ کد ملی خام ذخیره نمی‌شود.</small>@error('national_id')<small>{{ $message }}</small>@enderror</div>
-            <div class="owner-student-form-field"><label for="new-student-email">نام کاربری / ایمیل</label><input id="new-student-email" type="email" name="email" value="{{ old('email') }}" maxlength="255" required autocomplete="email" dir="ltr" placeholder="student@example.com">@error('email')<small>{{ $message }}</small>@enderror</div>
-            <div class="owner-student-form-field"><label for="new-student-mobile">شماره موبایل <em>اختیاری</em></label><input id="new-student-mobile" type="tel" name="mobile" value="{{ old('mobile') }}" inputmode="tel" maxlength="30" autocomplete="tel" placeholder="۰۹۱۲…">@error('mobile')<small>{{ $message }}</small>@enderror</div>
+            
+            <div class="owner-student-form-field"><label for="new-student-mobile">شماره موبایل</label><input id="new-student-mobile" type="tel" name="mobile" value="{{ old('mobile') }}" inputmode="tel" maxlength="11" required autocomplete="tel" placeholder="۰۹۱۲…">@error('mobile')<small>{{ $message }}</small>@enderror</div>
             <div class="owner-student-form-field"><label for="new-student-grade">پایه تحصیلی</label><select id="new-student-grade" name="grade_id" required><option value="">انتخاب پایه</option>@foreach($grades as $grade)<option value="{{ $grade->id }}" @selected((string)old('grade_id') === (string)$grade->id)>{{ $grade->title }}</option>@endforeach</select>@error('grade_id')<small>{{ $message }}</small>@enderror</div>
             <div class="owner-student-form-field"><label for="new-student-birth">تاریخ تولد <em>اختیاری</em></label><input id="new-student-birth" type="date" name="birth_date" value="{{ old('birth_date') }}" autocomplete="bday">@error('birth_date')<small>{{ $message }}</small>@enderror</div>
             <div class="owner-student-form-field"><label for="new-student-school">نام مدرسه <em>اختیاری</em></label><input id="new-student-school" name="school_name" value="{{ old('school_name') }}" maxlength="255" placeholder="نام مدرسه">@error('school_name')<small>{{ $message }}</small>@enderror</div>
@@ -84,23 +97,21 @@
 <section class="dashboard-panel p-5 sm:p-7">
     <div>
         <h2 class="text-base font-black">ساخت حساب والد و اتصال به دانش‌آموز</h2>
-        <p class="mt-1 max-w-3xl text-xs leading-6 text-slate-500">اگر ایمیل از قبل متعلق به حساب والد فعال باشد، همان حساب متصل می‌شود و رمز آن تغییر نمی‌کند. در غیر این صورت حساب والد ساخته می‌شود و رمز موقت یک‌باره نمایش داده خواهد شد.</p>
+        <p class="mt-1 max-w-3xl text-xs leading-6 text-slate-500">اگر شماره موبایل از قبل متعلق به حساب والد فعال باشد، همان حساب متصل می‌شود و رمز آن تغییر نمی‌کند. در غیر این صورت حساب والد ساخته می‌شود و رمز موقت یک‌باره نمایش داده خواهد شد.</p>
     </div>
     <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}" class="mt-5 grid gap-3 sm:grid-cols-2" data-confirm="حساب والد ساخته یا به دانش‌آموز متصل شود؟">
         @csrf
-        <label class="grid gap-1 text-xs font-bold">نام والد
-            <input name="name" value="{{ old('name') }}" minlength="2" maxlength="100" required autocomplete="name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
-            <small class="owner-field-help">نام و نام خانوادگی والد را وارد کن؛ این نام در ارتباط‌ها و فهرست اعضا نمایش داده می‌شود.</small>
-            @error('name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        <label class="grid gap-1 text-xs font-bold">نام
+            <input name="first_name" value="{{ old('first_name') }}" minlength="2" maxlength="60" required autocomplete="given-name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            @error('first_name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
-        <label class="grid gap-1 text-xs font-bold">ایمیل والد
-            <input type="email" name="email" value="{{ old('email') }}" maxlength="255" required autocomplete="email" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
-            <small class="owner-field-help">ایمیل معتبر و تحت کنترل والد را ثبت کن؛ برای ورود به حساب و بازیابی دسترسی استفاده می‌شود.</small>
-            @error('email')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        <label class="grid gap-1 text-xs font-bold">نام خانوادگی
+            <input name="last_name" value="{{ old('last_name') }}" minlength="2" maxlength="80" required autocomplete="family-name" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            @error('last_name')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
-        <label class="grid gap-1 text-xs font-bold">موبایل (اختیاری)
-            <input type="tel" name="mobile" value="{{ old('mobile') }}" maxlength="30" autocomplete="tel" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
-            <small class="owner-field-help">اختیاری؛ شماره‌ای وارد کن که برای هماهنگی با خانواده قابل استفاده باشد.</small>
+        <label class="grid gap-1 text-xs font-bold">شماره موبایل والد
+            <input type="tel" name="mobile" value="{{ old('mobile') }}" maxlength="11" required inputmode="tel" dir="ltr" autocomplete="tel" placeholder="۰۹۱۲…" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm">
+            <small class="owner-field-help">شماره موبایل یکتا و در دسترس والد؛ شناسه ورود به حساب خواهد بود.</small>
             @error('mobile')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
         <label class="grid gap-1 text-xs font-bold">نوع ارتباط با دانش‌آموز
@@ -129,10 +140,10 @@
 </section>
 <div class="grid gap-5 xl:grid-cols-3">
 <section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-confirm="حساب مدرس ساخته شود؟">@csrf
-<label class="grid gap-1"><span class="text-xs font-bold">نام و نام خانوادگی</span><input name="name" value="{{ old('name') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">نام کامل مدرس را وارد کن؛ در فهرست دوره‌ها و کلاس‌ها نمایش داده می‌شود.</small>@error('name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<label class="grid gap-1"><span class="text-xs font-bold">ایمیل</span><input name="email" type="email" value="{{ old('email') }}" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">ایمیل یکتا و قابل‌دسترسی مدرس؛ برای ورود به پنل استفاده خواهد شد.</small>@error('email')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<label class="grid gap-1"><span class="text-xs font-bold">رمز عبور</span><input name="password" type="password" required autocomplete="new-password" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">رمز قوی و اختصاصی بساز؛ آن را از راه امن به مدرس تحویل بده.</small>@error('password')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<label class="grid gap-1"><span class="text-xs font-bold">تکرار رمز عبور</span><input name="password_confirmation" type="password" required autocomplete="new-password" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">همان رمز بالا را دوباره وارد کن تا اشتباه تایپی مشخص شود.</small></label>
+<label class="grid gap-1"><span class="text-xs font-bold">نام</span><input name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('first_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+<label class="grid gap-1"><span class="text-xs font-bold">نام خانوادگی</span><input name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('last_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+<label class="grid gap-1"><span class="text-xs font-bold">شماره موبایل</span><input name="mobile" type="tel" inputmode="tel" dir="ltr" value="{{ old('mobile') }}" maxlength="11" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">شماره موبایل یکتا؛ شناسه ورود مدرس خواهد بود.</small>@error('mobile')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+<p class="text-xs text-slate-500">رمز اولیه به‌صورت تصادفی ساخته می‌شود و باید در اولین ورود تغییر کند.</p>
 <label class="grid gap-1"><span class="text-xs font-bold">تخصص</span><input name="specialization" value="{{ old('specialization') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">حوزه تخصصی اصلی مدرس، مانند ریاضی، فیزیک یا زبان.</small>@error('specialization')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">سابقهٔ تدریس را به سال و در بازهٔ صفر تا ۸۰ وارد کن.</small>@error('experience_years')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <button class="rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت حساب مدرس</button></form></section>
@@ -148,12 +159,12 @@
 <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key',(string)\Illuminate\Support\Str::uuid()) }}">
 <div class="owner-student-picker" data-student-picker data-options-url="{{ route('owner.people.student-options',$academy) }}">
 <label for="owner-enrollment-student-search" class="mb-1 block text-xs font-bold">دانش‌آموز (جست‌وجوی صفحه‌بندی‌شده)</label>
-<input id="owner-enrollment-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-enrollment-student-results" placeholder="نام یا ایمیل را برای جست‌وجو وارد کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
+<input id="owner-enrollment-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-enrollment-student-results" placeholder="نام، موبایل یا کد ملی را جست‌وجو کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
 <input type="hidden" name="student_id" data-student-id value="{{ old('student_id') }}">
 <input type="hidden" name="student_label" data-student-label value="{{ old('student_label') }}">
 <div id="owner-enrollment-student-results" data-student-results class="owner-student-picker-results" role="listbox"></div>
 <button type="button" data-student-more class="owner-student-picker-more" hidden>نمایش نتایج بعدی</button>
-<p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو حرف از نام یا ایمیل را برای جست‌وجو وارد کن؛ ایمیل در نتایج نمایش داده نمی‌شود.</p>
+<p data-student-status class="owner-student-picker-status" aria-live="polite">برای جلوگیری از بارگذاری همه اعضا، حداقل دو نویسه از نام، موبایل یا ۱۰ رقم کد ملی را برای جست‌وجو وارد کن؛ در نتایج فقط نام و شماره موبایل نمایش داده می‌شود.</p>
 @error('student_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</div>
 <label class="grid gap-1"><span class="text-xs font-bold">دوره</span><select id="enrollment-course" name="course_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@forelse($courseOptions as $course)<option value="{{ $course->id }}">{{ $course->title }} — {{ $course->isFree() ? 'رایگان' : (is_numeric($course->price) ? \App\Support\PersianUi::money($course->price) : 'قیمت تعیین نشده') }}</option>@empty<option value="">دوره‌ای وجود ندارد</option>@endforelse</select><small class="owner-field-help">دوره‌ای را انتخاب کن که ثبت‌نام دانش‌آموز در آن انجام می‌شود؛ مبلغ و دسترسی براساس دوره بررسی می‌شوند.</small>@error('course_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select data-classroom-select data-course-select="enrollment-course" name="classroom_id" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="" selected disabled>ابتدا کلاس را انتخاب کن</option>@foreach($classroomOptions as $classroom)<option data-course-id="{{ $classroom->course_id }}" value="{{ $classroom->id }}">{{ $classroom->title }} — {{ $classroom->capacity??'بدون محدودیت' }}</option>@endforeach</select><span data-no-classrooms hidden class="text-xs text-slate-500">برای این دوره کلاسی تعریف نشده است.</span><small class="owner-field-help">کلاسی را انتخاب کن که به همین دوره تعلق دارد؛ کلاس‌های دیگر معتبر نیستند.</small>@error('classroom_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
@@ -292,17 +303,20 @@
         <h2 class="font-black">{{ $title }}</h2>
         <span data-directory-count class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $items->total() }}</span>
     </div>
-    <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_auto]" data-directory-controls>
+    <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_100px_auto]" data-directory-controls>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">جست‌وجو
-            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام یا ایمیل…" aria-label="جست‌وجو در {{ $title }}" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
+            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام، موبایل یا کد ملی…" aria-label="جست‌وجو در {{ $title }}" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
         </label>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">مرتب‌سازی
             <select data-directory-sort class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
-                <option value="name">نام</option><option value="email">ایمیل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
+                <option value="name">نام و نام خانوادگی</option><option value="mobile">موبایل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
             </select>
         </label>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">جهت
             <select data-directory-direction class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs"><option value="asc">صعودی</option><option value="desc">نزولی</option></select>
+        </label>
+        <label class="grid gap-1 text-[10px] font-bold text-slate-500">تعداد در صفحه
+            <select data-directory-per-page class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs"><option value="25">۲۵</option><option value="50">۵۰</option><option value="100">۱۰۰</option></select>
         </label>
         <button type="button" data-directory-reset class="self-end rounded-lg border border-slate-200 bg-white px-3 py-2 text-[10px] font-bold">پاک‌کردن</button>
     </div>
@@ -312,8 +326,8 @@
             <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                 <div class="min-w-0">
                     <strong class="text-xs">{{ $person->name }}</strong>
-                    @if($title !== 'دانش‌آموزان')
-                        <span class="mt-1 block break-all text-[9px] text-slate-500">{{ $person->email }}</span>
+                    @if($person->mobile)
+                        <span class="mt-1 block text-[11px] text-slate-500" dir="ltr">{{ $person->mobile }}</span>
                     @endif
                 </div>
                 @if($title === 'مدرس‌ها')
@@ -328,7 +342,11 @@
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">عضوی نیست.</div>
         @endforelse
     </div>
-    <button type="button" data-directory-more hidden class="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold">نمایش نتایج بعدی</button>
+    <nav data-directory-pagination hidden class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3" aria-label="صفحه‌بندی فهرست">
+        <button type="button" data-directory-prev disabled class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold disabled:opacity-40">قبلی</button>
+        <span data-directory-page-info class="text-[10px] text-slate-500" aria-live="polite">صفحه ۱</span>
+        <button type="button" data-directory-next disabled class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold disabled:opacity-40">بعدی</button>
+    </nav>
     @if($items->hasPages())
         <div data-directory-server-pagination class="mt-4 border-t border-slate-100 pt-3 text-xs">
             {{ $items->withQueryString()->links() }}
@@ -348,11 +366,11 @@
     </div>
     <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_auto]" data-directory-controls>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">جست‌وجو
-            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام یا ایمیل…" aria-label="جست‌وجو در مدرس‌های آرشیوشده" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
+            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام، موبایل یا کد ملی…" aria-label="جست‌وجو در مدرس‌های آرشیوشده" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
         </label>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">مرتب‌سازی
             <select data-directory-sort class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
-                <option value="name">نام</option><option value="email">ایمیل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
+                <option value="name">نام و نام خانوادگی</option><option value="mobile">موبایل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
             </select>
         </label>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">جهت
@@ -366,7 +384,7 @@
             <div class="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <strong class="text-xs">{{ $teacher->name }}</strong>
-                    <span class="mt-1 block text-[9px] text-slate-500">{{ $teacher->email }}</span>
+                    <span class="mt-1 block text-[9px] text-slate-500">{{ $teacher->mobile }}</span>
                 </div>
                 <form method="POST" action="{{ route('owner.people.restore-teacher', [$academy, $teacher]) }}" class="shrink-0">
                     @csrf

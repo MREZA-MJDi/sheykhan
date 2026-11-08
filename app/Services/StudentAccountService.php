@@ -10,6 +10,7 @@ use App\Models\StudentProfile;
 use App\Models\StudentIdentityLock;
 use App\Models\StudentOnboarding;
 use App\Support\NationalIdLookup;
+use App\Support\MobileNumber;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -72,13 +73,11 @@ final class StudentAccountService
                 ]);
             }
 
-            $email = strtolower(trim((string) $data['email']));
-            if (User::query()->whereRaw('LOWER(email) = ?', [$email])->exists()) {
-                throw ValidationException::withMessages(['email' => 'این ایمیل به یک حساب دیگر اختصاص پیدا کرده است.']);
+            $mobile = MobileNumber::normalize($data['mobile'] ?? null);
+            if (! MobileNumber::valid($mobile)) {
+                throw ValidationException::withMessages(['mobile' => 'شماره موبایل معتبر نیست.']);
             }
-
-            $mobile = $this->normalizeMobile($data['mobile'] ?? null);
-            if ($mobile && User::query()->where('mobile', $mobile)->exists()) {
+            if (User::query()->where('mobile', $mobile)->exists()) {
                 throw ValidationException::withMessages(['mobile' => 'این شماره موبایل به یک حساب دیگر متصل است.']);
             }
 
@@ -88,7 +87,7 @@ final class StudentAccountService
             $temporaryPassword = Str::password(12, true, true, true, false);
             $student = User::query()->create([
                 'name' => trim((string) $data['name']),
-                'email' => $email,
+                'email' => null,
                 'mobile' => $mobile,
                 'status' => 'active',
                 'password' => Hash::make($temporaryPassword),

@@ -97,10 +97,13 @@ class LegacyStudentImportTest extends TestCase
                     ->count()
             );
 
+            // Legacy accounts need a verified mobile identity before mobile-only login.
+            DB::table('users')->where('legacy_source', 'wordpress')->where('legacy_id', 8)->update(['mobile' => '09128880008']);
+
             // The 54 WordPress bcrypt accounts use the configured temporary password
             // and must change it before accessing any authenticated page.
             $this->post(route('login.store'), [
-                'identifier' => '8',
+                'mobile' => '09128880008',
                 'password' => '12345678',
             ])->assertRedirect(route('password.change.show'))->assertSessionHasNoErrors();
 

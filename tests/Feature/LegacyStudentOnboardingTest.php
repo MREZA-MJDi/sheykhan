@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Support\NationalIdLookup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class LegacyStudentOnboardingTest extends TestCase
@@ -33,7 +34,7 @@ class LegacyStudentOnboardingTest extends TestCase
         $academy = Academy::where('slug', 'sheykhan-academy')->firstOrFail();
         $grade = AcademicGrade::where('code', '8')->firstOrFail();
 
-        $this->actingAs($owner)
+        $response = $this->actingAs($owner)
             ->post(route('owner.people.legacy-students.store', $academy), [
                 'name' => 'دانش‌آموز قدیمی تست',
                 'national_id' => '1234567890',
@@ -43,8 +44,10 @@ class LegacyStudentOnboardingTest extends TestCase
                 'notes' => 'ورود از بایگانی مدرسه',
                 'idempotency_key' => (string) Str::uuid(),
             ])
-            ->assertRedirect()
-            ->assertSessionHas('success');
+            ->assertRedirect(route('owner.people.index', $academy) . '?tab=create-student')
+            ->assertSessionHas('success')
+            ->assertSessionHas('temporary_student_mobile', '09121234567')
+            ->assertSessionHas('temporary_student_password');
 
         $lookup = NationalIdLookup::make('1234567890');
         $profile = StudentProfile::where('national_id_lookup', $lookup)->firstOrFail();
@@ -52,6 +55,10 @@ class LegacyStudentOnboardingTest extends TestCase
 
         $this->assertSame('دانش‌آموز قدیمی تست', $student->name);
         $this->assertSame('09121234567', $student->mobile);
+        $temporaryPassword = $response->getSession()->get('temporary_student_password');
+        $this->assertIsString($temporaryPassword);
+        $this->assertTrue(Hash::check($temporaryPassword, $student->password));
+        $this->assertTrue((bool) $student->must_change_password);
         $this->assertSame($grade->id, $profile->grade_id);
         $this->assertSame('legacy', $profile->registration_source);
         $this->assertSame('active', $profile->status);
@@ -216,6 +223,7 @@ class LegacyStudentOnboardingTest extends TestCase
                 'name' => 'نباید ثبت شود',
                 'national_id' => '4444444444',
                 'grade_id' => $grade->id,
+                'mobile' => '09121234568',
                 'idempotency_key' => (string) Str::uuid(),
             ])
             ->assertForbidden();

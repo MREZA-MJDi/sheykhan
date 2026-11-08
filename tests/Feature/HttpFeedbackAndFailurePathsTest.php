@@ -69,15 +69,15 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
     {
         $this->from(route('login'))
             ->post(route('login.store'), [
-                'identifier' => '',
+                'mobile' => '',
                 'password' => '',
             ])
             ->assertRedirect(route('login'))
-            ->assertSessionHasErrors(['identifier', 'password']);
+            ->assertSessionHasErrors(['mobile', 'password']);
 
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('ایمیل یا شماره موبایل را وارد کنید.')
+            ->assertSee('شماره موبایل را وارد کنید.')
             ->assertSee('رمز عبور را وارد کنید.')
             ->assertSee('role="alert"', false);
     }
@@ -86,15 +86,15 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
     {
         $this->from(route('login'))
             ->post(route('login.store'), [
-                'identifier' => 'missing-user@example.test',
+                'mobile' => '09120000001',
                 'password' => 'incorrect-password',
             ])
             ->assertRedirect(route('login'))
-            ->assertSessionHasErrors('identifier');
+            ->assertSessionHasErrors('mobile');
 
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('اطلاعات ورود صحیح نیست یا این حساب فعال نیست.')
+            ->assertSee('شماره موبایل یا رمز عبور صحیح نیست، یا این حساب فعال نیست.')
             ->assertSee('role="alert"', false);
     }
     public function test_registration_validation_redirects_back_and_displays_accessible_errors(): void
@@ -102,12 +102,12 @@ class HttpFeedbackAndFailurePathsTest extends TestCase
         $this->from(route('register'))
             ->post(route('register.store'), [])
             ->assertRedirect(route('register'))
-            ->assertSessionHasErrors(['name', 'email', 'password']);
+            ->assertSessionHasErrors(['first_name', 'last_name', 'mobile']);
 
         $this->get(route('register'))
             ->assertOk()
-            ->assertSee('نام و نام خانوادگی را وارد کنید.')
-            ->assertSee('ایمیل را وارد کنید.')
+            ->assertSee('نام را وارد کنید.')
+            ->assertSee('نام خانوادگی را وارد کنید.')
             ->assertSee('role="alert"', false);
     }
 

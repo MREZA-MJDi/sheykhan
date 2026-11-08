@@ -26,18 +26,14 @@
         @csrf
 
         <div>
-            <label for="name" class="mb-2 block text-sm font-bold text-[var(--color-text)]">نام و نام خانوادگی</label>
-            <input id="name" name="name" type="text" value="{{ old('name') }}" autocomplete="name" required
-                   class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                   placeholder="نام شما">
+            <label for="first_name" class="mb-2 block text-sm font-bold text-[var(--color-text)]">نام</label>
+            <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" autocomplete="given-name" required class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none" placeholder="نام">
         </div>
 
-        <div>
-            <label for="email" class="mb-2 block text-sm font-bold text-[var(--color-text)]">ایمیل</label>
-            <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required
-                   class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                   placeholder="you@example.com">
-        </div>
+        <div><label for="last_name" class="mb-2 block text-sm font-bold text-[var(--color-text)]">نام خانوادگی</label>
+            <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" autocomplete="family-name" required class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none" placeholder="نام خانوادگی"></div>
+        <div><label for="mobile" class="mb-2 block text-sm font-bold text-[var(--color-text)]">شماره موبایل</label>
+            <input id="mobile" name="mobile" type="tel" inputmode="tel" dir="ltr" value="{{ old('mobile') }}" autocomplete="tel" required class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none" placeholder="۰۹۱۲۱۲۳۴۵۶۷"></div>
 
         <div>
             <label for="account_type" class="mb-2 block text-sm font-bold text-[var(--color-text)]">نوع حساب</label>
@@ -51,19 +47,7 @@
             </p>
         </div>
 
-        <div>
-            <label for="password" class="mb-2 block text-sm font-bold text-[var(--color-text)]">رمز عبور</label>
-            <input id="password" name="password" type="password" autocomplete="new-password" required
-                   class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                   placeholder="حداقل ۸ کاراکتر">
-        </div>
-
-        <div>
-            <label for="password_confirmation" class="mb-2 block text-sm font-bold text-[var(--color-text)]">تکرار رمز عبور</label>
-            <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" required
-                   class="block min-h-12 w-full rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-400)] focus:ring-4 focus:ring-[var(--color-primary-100)]"
-                   placeholder="رمز را دوباره وارد کن">
-        </div>
+        <p class="rounded-xl bg-slate-50 p-3 text-xs leading-6 text-slate-600">رمز اولیه به‌صورت تصادفی و امن ساخته می‌شود و در اولین ورود باید آن را تغییر بدهی.</p>
 
         @if(config('services.turnstile.enabled'))
             <div class="space-y-2">
