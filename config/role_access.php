@@ -16,9 +16,9 @@ $seedPassword = $seedPasswordAvailable
     ? ($seedUserPassword !== '' ? $seedUserPassword : 'Sheykhan@12345')
     : null;
 
-$mobileForSeedKey = static fn (string $key): string => '09' . str_pad(
-    (string) (100000000 + abs(crc32($key)) % 899999999),
-    9,
+$mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
+    (string) (abs(crc32($key)) % 10000000),
+    7,
     '0',
     STR_PAD_LEFT
 );
