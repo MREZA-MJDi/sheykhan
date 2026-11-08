@@ -144,8 +144,8 @@
 }
 .public-site .public-main.home-page > [data-ui-flash-stack] { order:0; }
 .public-site .public-main.home-page > .sheykhan-home-hero { order:10; }
-.public-site .public-main.home-page > .public-proof-stats { order:20; }
-.public-site .public-main.home-page > #upcoming-classes { order:30; }
+.public-site .public-main.home-page > #upcoming-classes { order:20; }
+.public-site .public-main.home-page > .public-proof-stats { order:30; }
 .public-site .public-main.home-page > .public-comparison { order:40; }
 .public-site .public-main.home-page > .public-journey { order:50; }
 .public-site .public-main.home-page > #public-destinations { order:60; }
