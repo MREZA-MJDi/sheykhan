@@ -16,6 +16,7 @@ class PlatformStatsService
                 ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
                 ->count(),
             'teachers' => User::query()
+                ->where('status', 'active')
                 ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
                 ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
                 ->count(),
