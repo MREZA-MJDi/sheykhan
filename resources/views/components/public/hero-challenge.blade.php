@@ -46,7 +46,7 @@
             <strong>درست است!</strong>
             <p>{{ $result['explanation'] }}</p>
             @if(!empty($result['next_id']))
-                <button class="shx-public-puzzle__next" type="button" data-next-challenge="{{ $result['next_id'] }}">سؤال بعدی ←</button>
+                <a class="shx-public-puzzle__next" href="{{ route('home', ['challenge_id' => $result['next_id']]) }}#hero-challenge" data-next-challenge="{{ $result['next_id'] }}">سؤال بعدی ←</a>
             @else
                 <p>هر سه چالش را پشت سر گذاشتی.</p>
                 <a class="shx-public-puzzle__next" href="{{ route('courses.index') }}">دیدن دوره‌ها ←</a>

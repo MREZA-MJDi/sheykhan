@@ -242,7 +242,9 @@ if (!window.__sheykhanAlpineBooted) {
 
             const renderOptions = (options) => {
                 if (!form) return;
+                const csrfInput = form.querySelector('input[name="_token"]');
                 form.replaceChildren();
+                if (csrfInput) form.append(csrfInput);
                 options.forEach((option, index) => {
                     const button = document.createElement('button');
                     button.type = 'submit';
