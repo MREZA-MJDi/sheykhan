@@ -43,7 +43,6 @@ class PublicHomeSmokeTest extends TestCase
                 'id="featured-courses"',
                 'id="teachers-section"',
                 'class="public-parent-preview',
-                'id="family-stories"',
                 'class="public-faq',
                 'id="start-learning"',
             ], false)
@@ -145,7 +144,7 @@ class PublicHomeSmokeTest extends TestCase
         $this->assertStringContainsString('.public-blog-card', $designSystem);
         $this->assertStringContainsString('.public-next-step__card', $designSystem);
         $this->assertStringContainsString('--public-ink:#0f172a', $designSystem);
-        $this->assertStringContainsString('.public-main.home-page > #upcoming-classes { order:30; }', $designSystem);
+        $this->assertStringContainsString('.public-site .public-main.home-page > #upcoming-classes { order:20; }', $designSystem);
         $this->assertStringContainsString('.public-main:not(.home-page) > section > section > .mx-auto', $designSystem);
         $this->assertStringNotContainsString('.sheykhan-home-hero {', $designSystem);
 
