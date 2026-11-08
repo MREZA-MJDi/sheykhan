@@ -67,74 +67,6 @@ final class ParentDashboardService
 
         // Parent progress must use the same denominator as student progress:
         // active enrolled courses, published lessons only, and unstarted lessons count as 0.
-        $progress = DB::table('course_enrollments as enrollments')
-            ->join('courses', 'courses.id', '=', 'enrollments.course_id')
-            ->leftJoin('course_sections as sections', 'sections.course_id', '=', 'courses.id')
-            ->leftJoin('lessons as lessons', function ($join): void {
-                $join->on('lessons.course_section_id', '=', 'sections.id')
-                    ->where('lessons.status', '=', 'published')
-                    ->where(fn ($published) => $published
-                        ->whereNull('lessons.published_at')
-                        ->orWhere('lessons.published_at', '<=', now()));
-            })
-            ->leftJoin('lesson_progress as lesson_progress', function ($join): void {
-                $join->on('lesson_progress.lesson_id', '=', 'lessons.id')
-                    ->on('lesson_progress.user_id', '=', 'enrollments.student_id');
-            })
-            ->whereIn('enrollments.student_id', $childIds)
-            ->whereIn('courses.academy_id', $parentAcademyIds())
-            ->where('enrollments.status', 'active')
-            ->where('courses.status', 'published')
-            ->whereNotNull('courses.published_at')
-            ->where('courses.published_at', '<=', now())
-            ->whereExists(function ($academy): void {
-                $academy->selectRaw('1')->from('academies')
-                    ->whereColumn('academies.id', 'courses.academy_id')
-                    ->where('academies.status', 'active')
-                    ->whereExists(function ($membership): void {
-                        $membership->selectRaw('1')->from('academy_user as enrolled_student_membership')
-                            ->whereColumn('enrolled_student_membership.academy_id', 'courses.academy_id')
-                            ->whereColumn('enrolled_student_membership.user_id', 'enrollments.student_id')
-                            ->where('enrolled_student_membership.role', 'student')
-                            ->where('enrolled_student_membership.status', 'active');
-                    });
-            })
-            ->where(function ($access): void {
-                $access->where('courses.access_type', 'free')
-                    ->orWhere(function ($paid): void {
-                        $paid->where('enrollments.payment_status', 'paid')
-                            ->where('enrollments.paid_amount', '>', 0)
-                            ->where(function ($amount): void {
-                                $amount->whereNull('enrollments.price_amount')
-                                    ->orWhereColumn('enrollments.paid_amount', '>=', 'enrollments.price_amount');
-                            })
-                            ->whereExists(function ($transaction): void {
-                                $transaction->selectRaw('1')->from('financial_transactions')
-                                    ->whereColumn('financial_transactions.enrollment_id', 'enrollments.id')
-                                    ->where('financial_transactions.status', 'completed')
-                                    ->where('financial_transactions.amount', '>', 0);
-                            });
-                    });
-            })
-            ->where(function ($classroom): void {
-                $classroom->whereNull('enrollments.classroom_id')
-                    ->orWhereExists(function ($membership): void {
-                        $membership->selectRaw('1')->from('classroom_student')
-                            ->whereColumn('classroom_student.classroom_id', 'enrollments.classroom_id')
-                            ->whereColumn('classroom_student.student_id', 'enrollments.student_id')
-                            ->where('classroom_student.status', 'active');
-                    });
-            })
-            ->groupBy('enrollments.student_id')
-            ->select('enrollments.student_id')
-            ->selectRaw(
-                'CASE WHEN COUNT(lessons.id) = 0 THEN 0
-                    ELSE AVG(COALESCE(lesson_progress.progress_percent, 0))
-                END AS progress_average'
-            )
-            ->get()
-            ->mapWithKeys(fn ($row) => [(int) $row->student_id => (float) $row->progress_average]);
-
         $courseProgressRows = DB::table('course_enrollments as enrollments')
             ->join('courses', 'courses.id', '=', 'enrollments.course_id')
             ->leftJoin('classrooms', 'classrooms.id', '=', 'enrollments.classroom_id')
@@ -207,6 +139,23 @@ final class ParentDashboardService
             ->orderBy('courses.title')
             ->get()
             ->groupBy('student_id');
+
+        // Derive the child-level average from the already fetched per-course
+        // progress rows. This preserves the lesson-weighted denominator while
+        // avoiding a second copy of the same expensive enrollment/lesson joins.
+        $progress = $courseProgressRows->map(function ($rows): float {
+            $lessonCount = (int) $rows->sum(fn ($row) => (int) $row->total_lessons);
+
+            if ($lessonCount === 0) {
+                return 0.0;
+            }
+
+            $weightedProgress = $rows->sum(
+                fn ($row) => (float) $row->progress_average * (int) $row->total_lessons
+            );
+
+            return (float) $weightedProgress / $lessonCount;
+        });
 
         $enrollmentCounts = $courseProgressRows->map(
             fn ($rows) => $rows->pluck('course_id')->unique()->count()
