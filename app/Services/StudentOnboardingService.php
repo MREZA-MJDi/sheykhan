@@ -11,9 +11,10 @@ use App\Models\StudentOnboarding;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Support\NationalIdLookup;
+use App\Support\MobileNumber;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -44,7 +45,8 @@ final class StudentOnboardingService
             )
         );
 
-        return DB::transaction(function () use ($admin, $academy, $data, $lookup, $requestHash): StudentOnboarding {
+        $temporaryPassword = null;
+        $onboarding = DB::transaction(function () use ($admin, $academy, $data, $lookup, $requestHash, &$temporaryPassword): StudentOnboarding {
             DB::table('idempotency_keys')->insertOrIgnore([
                 'key' => $data['idempotency_key'],
                 'scope' => self::IDEMPOTENCY_SCOPE,
@@ -125,7 +127,10 @@ final class StudentOnboardingService
                 }
             }
 
-            $normalizedMobile = $this->normalizeMobile($data['mobile'] ?? null);
+            $normalizedMobile = MobileNumber::normalize($data['mobile'] ?? null);
+            if (! MobileNumber::valid($normalizedMobile)) {
+                throw ValidationException::withMessages(['mobile' => 'شماره موبایل معتبر نیست.']);
+            }
 
             if ($normalizedMobile) {
                 $mobileOwner = User::query()
@@ -151,15 +156,17 @@ final class StudentOnboardingService
                 : null;
 
             if (!$student) {
-                $email = 'legacy.' . substr($lookup, 0, 32) . '@students.sheykhan.local';
-
+                $temporaryPassword = Str::password(16, true, true, true, false);
                 $student = User::create([
                     'name' => $data['name'],
-                    'email' => $email,
+                    'email' => null,
                     'mobile' => $normalizedMobile,
                     'status' => 'active',
-                    'password' => Hash::make(Str::random(40)),
+                    'password' => $temporaryPassword,
                 ]);
+                if (Schema::hasColumn('users', 'must_change_password')) {
+                    $student->forceFill(['must_change_password' => true])->save();
+                }
             } elseif ($student->trashed()) {
                 $student->restore();
             }
@@ -265,31 +272,14 @@ final class StudentOnboardingService
 
             return $onboarding->fresh(['student.studentProfile', 'requestedGrade']);
         }, 3);
+
+        if ($temporaryPassword) {
+            request()->session()->flash('temporary_student_name', $onboarding->student?->name);
+            request()->session()->flash('temporary_student_mobile', $onboarding->student?->mobile);
+            request()->session()->flash('temporary_student_password', $temporaryPassword);
+        }
+
+        return $onboarding;
     }
 
-    private function normalizeMobile(?string $value): ?string
-    {
-        if (!$value) {
-            return null;
-        }
-
-        $digits = strtr($value, [
-            '۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4',
-            '۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9',
-            '٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4',
-            '٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9',
-        ]);
-
-        $digits = preg_replace('/\D+/', '', $digits) ?? '';
-
-        if (str_starts_with($digits, '0098')) {
-            return '0' . substr($digits, 4);
-        }
-
-        if (str_starts_with($digits, '98') && strlen($digits) === 12) {
-            return '0' . substr($digits, 2);
-        }
-
-        return $digits !== '' ? $digits : null;
-    }
 }

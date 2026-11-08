@@ -33,7 +33,7 @@ final class OwnerPersonResource extends JsonResource
         return [
             'id' => (int) $this->id,
             'name' => (string) $this->name,
-            'email' => $this->email,
+            'mobile' => $this->mobile,
             'account_status' => $this->status,
             'membership' => [
                 'role' => $pivot?->role,

@@ -44,6 +44,7 @@ class PeopleController extends Controller
             'page' => ['nullable', 'integer', 'min:1'],
         ]);
         $term = trim((string) ($filters['q'] ?? ''));
+        $mobileTerm = \App\Support\MobileNumber::normalize($term) ?: $term;
 
         if (mb_strlen($term) < 2) {
             return response()->json([
@@ -56,19 +57,24 @@ class PeopleController extends Controller
             ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->where('users.status', 'active')
-            ->where(function ($query) use ($term): void {
+            ->where(function ($query) use ($term, $mobileTerm): void {
                 $query->where('users.name', 'like', '%' . $term . '%')
-                    ->orWhere('users.email', 'like', '%' . $term . '%');
+                    ->orWhere('users.mobile', 'like', '%' . $mobileTerm . '%');
+                if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
+                    $lookup = \App\Support\NationalIdLookup::make($term);
+                    $query->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
+                }
             })
-            ->select('users.id', 'users.name')
+            ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
-            ->paginate(20, ['users.id', 'users.name'], 'page');
+            ->paginate(20, ['users.id', 'users.name', 'users.mobile'], 'page');
 
         return response()->json([
             'data' => $students->getCollection()->map(fn (User $student): array => [
                 'id' => (int) $student->id,
                 'name' => $student->name,
+                'mobile' => $student->mobile,
             ])->values(),
             'meta' => [
                 'current_page' => $students->currentPage(),
@@ -87,16 +93,14 @@ class PeopleController extends Controller
     ): RedirectResponse {
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
 
-        $onboarding->onboard(
+        $record = $onboarding->onboard(
             $request->user(),
             $academy,
             $request->validated(),
         );
 
-        return back()->with(
-            'success',
-            'دانش‌آموز قدیمی با موفقیت ثبت/به‌روزرسانی شد و به این آموزشگاه متصل شد.'
-        );
+        return redirect()->to(route('owner.people.index', $academy) . '?tab=create-student')
+            ->with('success', 'دانش‌آموز قدیمی با موفقیت ثبت/به‌روزرسانی شد و به این آموزشگاه متصل شد.');
     }
 
 
@@ -114,7 +118,7 @@ class PeopleController extends Controller
             ->to(route('owner.people.index', $academy) . '?tab=create-student')
             ->with('success', 'حساب دانش‌آموز ساخته شد. نام کاربری و رمز اولیه را فقط همین یک‌بار تحویل بده.')
             ->with('temporary_student_name', $result['student']->name)
-            ->with('temporary_student_email', $result['student']->email)
+            ->with('temporary_student_mobile', $result['student']->mobile)
             ->with('temporary_student_number', $result['student']->studentProfile?->student_number)
             ->with('temporary_student_password', $result['temporary_password']);
     }
@@ -124,13 +128,12 @@ class PeopleController extends Controller
         Academy $academy,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
-        $workspace->createTeacher(
-            $request->user(),
-            $academy,
-            $request->validated()
-        );
+        $result = $workspace->createTeacher($request->user(), $academy, $request->validated());
 
-        return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.');
+        return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.')
+            ->with('temporary_teacher_mobile', $result['teacher']->mobile)
+            ->with('temporary_teacher_name', $result['teacher']->name)
+            ->with('temporary_teacher_password', $result['temporary_password']);
     }
 
     public function storeParent(
@@ -153,7 +156,7 @@ class PeopleController extends Controller
         if ($result['temporary_password']) {
             $response
                 ->with('temporary_parent_password', $result['temporary_password'])
-                ->with('temporary_parent_email', $result['parent']->email);
+                ->with('temporary_parent_mobile', $result['parent']->mobile);
         }
 
         return $response;

@@ -32,14 +32,19 @@
         </div>
         <div class="pf" style="margin-top:20px">
             <div>
-                <label for="profile-name">نام و نام خانوادگی</label>
-                <input class="fld" id="profile-name" name="name" value="{{ old('name', $student->name) }}" maxlength="120" autocomplete="name" required>
-                @error('name')<small class="tag no">{{ $message }}</small>@enderror
+                <label for="profile-first-name">نام</label>
+                <input class="fld" id="profile-first-name" name="first_name" value="{{ old('first_name', \Illuminate\Support\Str::before($student->name, ' ')) }}" maxlength="60" autocomplete="given-name" required>
+                @error('first_name')<small class="tag no">{{ $message }}</small>@enderror
             </div>
             <div>
-                <label for="profile-email">ایمیل</label>
-                <input class="fld" id="profile-email" type="email" name="email" value="{{ old('email', $student->email) }}" maxlength="255" autocomplete="email">
-                @error('email')<small class="tag no">{{ $message }}</small>@enderror
+                <label for="profile-last-name">نام خانوادگی</label>
+                <input class="fld" id="profile-last-name" name="last_name" value="{{ old('last_name', \Illuminate\Support\Str::after($student->name, ' ')) }}" maxlength="80" autocomplete="family-name" required>
+                @error('last_name')<small class="tag no">{{ $message }}</small>@enderror
+            </div>
+            <div>
+                <label for="profile-mobile">شماره موبایل / نام کاربری</label>
+                <input class="fld" id="profile-mobile" type="tel" inputmode="tel" dir="ltr" name="mobile" value="{{ old('mobile', $student->mobile) }}" maxlength="11" autocomplete="tel" required>
+                @error('mobile')<small class="tag no">{{ $message }}</small>@enderror
             </div>
             <div>
                 <label for="profile-grade">پایه تحصیلی</label>

@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Support\MobileNumber;
 use Illuminate\Validation\ValidationException;
 
 final class ParentOnboardingService
@@ -28,17 +29,14 @@ final class ParentOnboardingService
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $email = strtolower(trim((string) $data['email']));
+            $mobile = MobileNumber::normalize($data['mobile'] ?? null);
+            if (! MobileNumber::valid($mobile)) {
+                throw ValidationException::withMessages(['mobile' => 'شماره موبایل معتبر نیست.']);
+            }
             $candidate = User::withTrashed()
-                ->whereRaw('LOWER(email) = ?', [$email])
+                ->where('mobile', $mobile)
                 ->lockForUpdate()
                 ->first();
-
-            if ($candidate?->trashed()) {
-                throw ValidationException::withMessages([
-                    'email' => 'این ایمیل متعلق به حساب آرشیوشده است؛ ابتدا حساب را از مسیر مدیریت حساب‌ها بررسی کنید.',
-                ]);
-            }
 
             $temporaryPassword = null;
             $created = false;
@@ -46,23 +44,23 @@ final class ParentOnboardingService
             if ($candidate) {
                 if (! $candidate->hasRole('parent')) {
                     throw ValidationException::withMessages([
-                        'email' => 'این ایمیل قبلاً برای حسابی با نقش دیگری ثبت شده است.',
+                        'mobile' => 'این شماره موبایل قبلاً برای حسابی با نقش دیگری ثبت شده است.',
                     ]);
                 }
 
                 if ($candidate->status !== 'active') {
                     throw ValidationException::withMessages([
-                        'email' => 'حساب والد غیرفعال است؛ پیش از اتصال، وضعیت حساب را بررسی کنید.',
+                        'mobile' => 'حساب والد غیرفعال است؛ پیش از اتصال، وضعیت حساب را بررسی کنید.',
                     ]);
                 }
 
                 $parent = $candidate;
             } else {
-                $temporaryPassword = Str::random(24);
+                $temporaryPassword = Str::password(16, true, true, true, false);
                 $parent = User::query()->create([
                     'name' => trim((string) $data['name']),
-                    'email' => $email,
-                    'mobile' => filled($data['mobile'] ?? null) ? trim((string) $data['mobile']) : null,
+                    'email' => null,
+                    'mobile' => $mobile,
                     'password' => $temporaryPassword,
                     'status' => 'active',
                 ]);
@@ -86,7 +84,7 @@ final class ParentOnboardingService
 
             if ($membership && $membership->role !== 'parent') {
                 throw ValidationException::withMessages([
-                    'email' => 'این حساب در همین آموزشگاه با نقش دیگری عضو است؛ برای جلوگیری از تغییر ناخواستهٔ دسترسی، عضویت جدید ثبت نشد.',
+                    'mobile' => 'این حساب در همین آموزشگاه با نقش دیگری عضو است؛ برای جلوگیری از تغییر ناخواستهٔ دسترسی، عضویت جدید ثبت نشد.',
                 ]);
             }
 

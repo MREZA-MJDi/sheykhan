@@ -39,9 +39,9 @@ class OwnerStudentAccountTest extends TestCase
 
         $response = $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy) . '?tab=create-student', [
-                'name' => 'آوا تستی',
+                'first_name' => 'آوا',
+                'last_name' => 'تستی',
                 'national_id' => $studentNationalId,
-                'email' => 'ava.created@student-test.example',
                 'mobile' => $studentMobile,
                 'grade_id' => $gradeId,
                 'birth_date' => '2012-03-05',
@@ -51,13 +51,13 @@ class OwnerStudentAccountTest extends TestCase
             ->assertRedirect(route('owner.people.index', $academy) . '?tab=create-student')
             ->assertSessionHasNoErrors()
             ->assertSessionHas('temporary_student_password')
-            ->assertSessionHas('temporary_student_email', 'ava.created@student-test.example');
+            ->assertSessionHas('temporary_student_mobile', $studentMobile);
 
         $temporaryPassword = $response->getSession()->get('temporary_student_password');
         $this->assertIsString($temporaryPassword);
         $this->assertSame(12, strlen($temporaryPassword));
 
-        $student = User::query()->where('email', 'ava.created@student-test.example')->firstOrFail();
+        $student = User::query()->where('mobile', $studentMobile)->firstOrFail();
         $this->assertTrue(Hash::check($temporaryPassword, $student->password));
         $this->assertTrue((bool) $student->must_change_password);
         $this->assertTrue($student->hasRole('student'));
@@ -91,7 +91,7 @@ class OwnerStudentAccountTest extends TestCase
         $this->post(route('logout'))->assertRedirect(route('home'));
 
         $this->post(route('login.store'), [
-            'identifier' => 'ava.created@student-test.example',
+            'mobile' => $studentMobile,
             'password' => $temporaryPassword,
         ])->assertRedirect(route('password.change.show'));
 
@@ -108,7 +108,7 @@ class OwnerStudentAccountTest extends TestCase
             ->assertSee('آوا تستی', false);
     }
 
-    public function test_student_account_creation_rejects_duplicate_email_and_mobile(): void
+    public function test_student_account_creation_rejects_duplicate_mobile(): void
     {
         $this->seed();
 
@@ -123,13 +123,13 @@ class OwnerStudentAccountTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
-                'name' => 'دانش‌آموز تکراری',
+                'first_name' => 'دانش‌آموز',
+                'last_name' => 'تکراری',
                 'national_id' => $duplicateNationalId,
-                'email' => $existing->email,
                 'mobile' => $duplicateMobile,
                 'grade_id' => $gradeId,
             ])
-            ->assertSessionHasErrors(['email', 'mobile']);
+            ->assertSessionHasErrors(['mobile']);
 
         $this->assertSame($userCountBefore, User::query()->count(), 'A rejected duplicate account must not create a user row.');
     }
@@ -148,9 +148,9 @@ class OwnerStudentAccountTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
-                'name' => 'دانش‌آموز اول',
+                'first_name' => 'دانش‌آموز',
+                'last_name' => 'اول',
                 'national_id' => $sharedNationalId,
-                'email' => 'first.national.id@student-test.example',
                 'mobile' => $firstMobile,
                 'grade_id' => $gradeId,
             ])
@@ -161,9 +161,9 @@ class OwnerStudentAccountTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.people.store-student', $academy), [
-                'name' => 'دانش‌آموز دوم',
+                'first_name' => 'دانش‌آموز',
+                'last_name' => 'دوم',
                 'national_id' => $this->toPersianDigits($sharedNationalId),
-                'email' => 'second.national.id@student-test.example',
                 'mobile' => $secondMobile,
                 'grade_id' => $gradeId,
             ])

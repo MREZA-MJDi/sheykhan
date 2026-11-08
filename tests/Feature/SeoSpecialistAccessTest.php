@@ -31,13 +31,14 @@ class SeoSpecialistAccessTest extends TestCase
         $user = User::factory()->create([
             'name' => 'متخصص SEO تست',
             'email' => 'seo@sheykhan.test',
+            'mobile' => '09120000077',
             'password' => $password,
             'status' => 'active',
         ]);
         $user->roles()->attach($seoRole->id);
 
         $this->post(route('login.store'), [
-            'identifier' => 'seo@sheykhan.test',
+            'mobile' => '09120000077',
             'password' => $password,
         ])->assertRedirect(route('owner.seo.index'));
 

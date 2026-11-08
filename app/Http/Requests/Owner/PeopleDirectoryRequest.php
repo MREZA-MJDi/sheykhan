@@ -27,7 +27,7 @@ final class PeopleDirectoryRequest extends FormRequest
             'per_page' => ['sometimes', 'integer', 'min:5', 'max:100'],
             'page' => ['sometimes', 'integer', 'min:1'],
             'cursor' => ['sometimes', 'nullable', 'string', 'max:2048'],
-            'sort' => ['sometimes', 'string', Rule::in(['name', 'email', 'joined_at', 'created_at'])],
+            'sort' => ['sometimes', 'string', Rule::in(['name', 'mobile', 'joined_at', 'created_at'])],
             'direction' => ['sometimes', 'string', Rule::in(['asc', 'desc'])],
         ];
     }
@@ -40,10 +40,10 @@ final class PeopleDirectoryRequest extends FormRequest
             }
 
             $sort = (string) $this->input('sort', 'name');
-            if ($this->filled('cursor') && in_array($sort, ['email', 'joined_at'], true)) {
+            if ($this->filled('cursor') && in_array($sort, ['mobile', 'joined_at'], true)) {
                 $validator->errors()->add(
                     'cursor',
-                    'برای مرتب‌سازی بر اساس ایمیل یا زمان عضویت از صفحه‌بندی page استفاده کنید؛ این فیلدها ممکن است خالی باشند.'
+                    'برای مرتب‌سازی بر اساس موبایل یا زمان عضویت از صفحه‌بندی page استفاده کنید؛ این فیلدها ممکن است خالی باشند.'
                 );
             }
         });

@@ -28,11 +28,11 @@ class AuthController extends Controller
 
         if ($showTestAccounts && $configuredAccounts->isNotEmpty()) {
             $usersByEmail = User::query()
-                ->whereIn('email', $configuredAccounts->pluck('username')->all())
+                ->whereIn('mobile', $configuredAccounts->pluck('username')->all())
                 ->where('status', 'active')
                 ->with('roles:id,slug')
-                ->get(['id', 'name', 'email', 'password'])
-                ->keyBy('email');
+                ->get(['id', 'name', 'mobile', 'password'])
+                ->keyBy('mobile');
 
             $testAccounts = $configuredAccounts
                 ->filter(function (array $account) use ($usersByEmail, $testPassword): bool {
@@ -67,7 +67,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request): RedirectResponse
     {
         $user = $this->auth->login(
-            $request->safe()->only(['identifier', 'password']),
+            $request->safe()->only(['mobile', 'password']),
             $request->boolean('remember'),
         );
 
@@ -87,8 +87,8 @@ class AuthController extends Controller
     {
         $user = $this->auth->register($request->validated());
 
-        return $this->dashboard->redirect($user)
-            ->with('success', 'حساب شما با موفقیت ساخته شد.');
+        return redirect()->route('password.change.show')
+            ->with('success', 'حساب ساخته شد؛ رمز اولیه را در جای امن نگه دار و رمز شخصی خودت را تعیین کن.');
     }
 
     public function logout(): RedirectResponse

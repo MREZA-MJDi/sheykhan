@@ -4,6 +4,7 @@ namespace App\Http\Requests\Owner;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Support\MobileNumber;
 
 final class StoreParentRequest extends FormRequest
 {
@@ -16,8 +17,10 @@ final class StoreParentRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'email' => strtolower(trim((string) $this->input('email'))),
-            'mobile' => trim((string) $this->input('mobile')),
+            'first_name' => trim((string) $this->input('first_name')),
+            'last_name' => trim((string) $this->input('last_name')),
+            'name' => trim((string) $this->input('first_name') . ' ' . (string) $this->input('last_name')),
+            'mobile' => MobileNumber::normalize((string) $this->input('mobile')),
         ]);
     }
 
@@ -25,9 +28,10 @@ final class StoreParentRequest extends FormRequest
     {
         return [
             'student_id' => ['required', 'integer', 'min:1'],
-            'name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'email', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:30'],
+            'first_name' => ['required', 'string', 'min:2', 'max:60'],
+            'last_name' => ['required', 'string', 'min:2', 'max:80'],
+            'name' => ['required', 'string', 'min:5', 'max:140'],
+            'mobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'relation' => ['required', 'string', Rule::in(['مادر', 'پدر', 'سرپرست', 'سایر'])],
         ];
     }
@@ -36,8 +40,10 @@ final class StoreParentRequest extends FormRequest
     {
         return [
             'student_id.required' => 'دانش‌آموز را انتخاب کنید.',
-            'name.required' => 'نام والد را وارد کنید.',
-            'email.required' => 'ایمیل والد را وارد کنید.',
+            'first_name.required' => 'نام والد را وارد کنید.',
+            'last_name.required' => 'نام خانوادگی والد را وارد کنید.',
+            'mobile.required' => 'شماره موبایل والد را وارد کنید.',
+            'mobile.regex' => 'شماره موبایل معتبر نیست.',
             'relation.required' => 'نوع ارتباط را انتخاب کنید.',
         ];
     }

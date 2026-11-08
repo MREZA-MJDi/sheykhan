@@ -8,6 +8,7 @@ use App\Models\StudentOnboarding;
 use App\Models\Role;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use App\Support\MobileNumber;
 use Illuminate\Support\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Cache;
@@ -43,7 +44,7 @@ final class OwnerWorkspaceService
             ->wherePivot('status', 'active')
             ->wherePivot('role', $role)
             ->where('users.status', 'active')
-            ->select('users.id', 'users.name', 'users.email')
+            ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(25, ['*'], $pageName);
@@ -53,7 +54,7 @@ final class OwnerWorkspaceService
         $archivedTeachers = $academy->users()
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'archived')
-            ->select('users.id', 'users.name', 'users.email')
+            ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(25, ['*'], 'archived_teachers_page');
@@ -76,7 +77,7 @@ final class OwnerWorkspaceService
             ? StudentOnboarding::query()
                 ->where('academy_id', $academy->id)
                 ->with([
-                    'student:id,name,email,mobile',
+                    'student:id,name,mobile',
                     'requestedGrade:id,title',
                     'admin:id,name',
                 ])
@@ -191,25 +192,31 @@ final class OwnerWorkspaceService
         $sort = (string) ($filters['sort'] ?? 'name');
         $direction = (string) ($filters['direction'] ?? 'asc');
         $term = trim((string) ($filters['q'] ?? ''));
+        $mobileTerm = MobileNumber::normalize($term) ?: $term;
 
         $query = $academy->users()
             ->wherePivot('role', $role)
             ->wherePivot('status', $membershipStatus)
-            ->select('users.id', 'users.name', 'users.email', 'users.status', 'users.created_at');
+            ->select('users.id', 'users.name', 'users.mobile', 'users.status', 'users.created_at');
 
         if ($activeAccountsOnly) {
             $query->where('users.status', 'active');
         }
 
         if ($term !== '') {
-            $query->where(function ($builder) use ($term): void {
+            $query->where(function ($builder) use ($term, $mobileTerm): void {
                 $builder->where('users.name', 'like', '%' . $term . '%')
-                    ->orWhere('users.email', 'like', '%' . $term . '%');
+                    ->orWhere('users.mobile', 'like', '%' . $mobileTerm . '%');
+
+                if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
+                    $lookup = \App\Support\NationalIdLookup::make($term);
+                    $builder->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
+                }
             });
         }
 
         $sortColumn = match ($sort) {
-            'email' => 'users.email',
+            'mobile' => 'users.mobile',
             'joined_at' => 'academy_user.joined_at',
             'created_at' => 'users.created_at',
             default => 'users.name',
@@ -224,9 +231,9 @@ final class OwnerWorkspaceService
 
         // Cursor pagination cannot reliably traverse nullable order values on all
         // supported databases. Use cursor mode for the default non-null sort keys;
-        // keep page mode for nullable email/joined_at sort options.
+        // keep page mode for nullable mobile/joined_at sort options.
         $usesCursor = ! array_key_exists('page', $filters)
-            && ! in_array($sort, ['email', 'joined_at'], true);
+            && ! in_array($sort, ['mobile', 'joined_at'], true);
 
         $paginator = $usesCursor
             ? $query->cursorPaginate($perPage, ['*'], 'cursor')
@@ -264,20 +271,21 @@ final class OwnerWorkspaceService
         ];
     }
 
-    public function createTeacher(User $owner, Academy $academy, array $data): User
+    public function createTeacher(User $owner, Academy $academy, array $data): array
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        $email = mb_strtolower(trim((string) $data['email']), 'UTF-8');
+        $mobile = \App\Support\MobileNumber::normalize($data['mobile'] ?? null);
+        $temporaryPassword = \Illuminate\Support\Str::password(16, true, true, true, false);
 
         try {
-            return DB::transaction(function () use ($academy, $data, $email): User {
+            return DB::transaction(function () use ($academy, $data, $mobile, $temporaryPassword): array {
                 $teacher = User::create([
                     'name' => trim((string) $data['name']),
-                    'email' => $email,
+                    'email' => null,
+                    'mobile' => $mobile,
                     'status' => 'active',
-                    // User::casts() hashes raw passwords through the "hashed" cast.
-                    'password' => $data['password'],
+                    'password' => $temporaryPassword,
                 ]);
 
                 if (Schema::hasColumn('users', 'must_change_password')) {
@@ -286,7 +294,6 @@ final class OwnerWorkspaceService
 
                 $roleId = Role::query()->where('slug', 'teacher')->value('id');
                 abort_unless($roleId, 500, 'نقش مدرس در سیستم تعریف نشده است.');
-
                 $teacher->roles()->syncWithoutDetaching([$roleId]);
 
                 TeacherProfile::create([
@@ -299,25 +306,17 @@ final class OwnerWorkspaceService
                 ]);
 
                 $academy->users()->syncWithoutDetaching([
-                    $teacher->id => [
-                        'role' => 'teacher',
-                        'status' => 'active',
-                        'joined_at' => now(),
-                    ],
+                    $teacher->id => ['role' => 'teacher', 'status' => 'active', 'joined_at' => now()],
                 ]);
 
-                return $teacher;
+                return ['teacher' => $teacher, 'temporary_password' => $temporaryPassword];
             });
         } catch (UniqueConstraintViolationException $exception) {
-            // The request's "unique" rule is only a preflight check. A concurrent
-            // create can still lose the database race; turn only an email conflict
-            // into a validation response and preserve unrelated integrity failures.
-            if (User::withTrashed()->where('email', $email)->exists()) {
+            if (User::withTrashed()->where('mobile', $mobile)->exists()) {
                 throw ValidationException::withMessages([
-                    'email' => 'این ایمیل قبلاً استفاده شده است.',
+                    'mobile' => 'این شماره موبایل قبلاً استفاده شده است.',
                 ]);
             }
-
             throw $exception;
         }
     }
