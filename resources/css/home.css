@@ -5530,8 +5530,9 @@ a.home-academy-item:hover { transform:translateX(-2px); border-color:#d8d2fc; ba
 }
 @media(max-width:820px) {
     .sheykhan-home-hero { min-height: 0; padding-bottom: 4.8rem; }
-    .sheykhan-home-hero__slides { min-height: 100%; }
-    .sheykhan-home-hero__slide { min-height: 100%; }
+    .sheykhan-home-hero__slides { position: relative; inset: auto; min-height: 0; }
+    .sheykhan-home-hero__slide { position: relative; inset: auto; display: none; min-height: 0; }
+    .sheykhan-home-hero__slide.is-active { display: block; }
     .sheykhan-home-hero__content {
         width: min(100% - 2rem, 680px);
         min-height: 0;
