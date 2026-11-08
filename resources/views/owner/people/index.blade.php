@@ -294,11 +294,11 @@
     </div>
     <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_auto]" data-directory-controls>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">جست‌وجو
-            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام یا ایمیل…" aria-label="جست‌وجو در {{ $title }}" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
+            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام، موبایل یا کد ملی…" aria-label="جست‌وجو در {{ $title }}" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
         </label>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">مرتب‌سازی
             <select data-directory-sort class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
-                <option value="name">نام</option><option value="email">ایمیل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
+                <option value="name">نام و نام خانوادگی</option><option value="mobile">موبایل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
             </select>
         </label>
         <label class="grid gap-1 text-[10px] font-bold text-slate-500">جهت
@@ -312,8 +312,8 @@
             <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                 <div class="min-w-0">
                     <strong class="text-xs">{{ $person->name }}</strong>
-                    @if($title !== 'دانش‌آموزان')
-                        <span class="mt-1 block break-all text-[9px] text-slate-500">{{ $person->email }}</span>
+                    @if($person->mobile)
+                        <span class="mt-1 block text-[11px] text-slate-500" dir="ltr">{{ $person->mobile }}</span>
                     @endif
                 </div>
                 @if($title === 'مدرس‌ها')
