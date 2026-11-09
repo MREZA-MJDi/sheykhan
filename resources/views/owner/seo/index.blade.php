@@ -79,7 +79,7 @@
                 <p>آمار جست‌وجوی ارگانیک ثبت‌شده برای صفحات سایت؛ نه تخمین یا رتبه‌سازی داخلی.</p>
             </div>
             @if($searchConsole['last_synced_at'])
-                <span class="seo-result-count">آخرین دریافت: {{ \\Illuminate\\Support\\Carbon::parse($searchConsole['last_synced_at'])->format('Y-m-d H:i') }}</span>
+                <span class="seo-result-count">آخرین دریافت: {{ \Illuminate\Support\Carbon::parse($searchConsole['last_synced_at'])->format('Y-m-d H:i') }}</span>
             @endif
         </div>
 
