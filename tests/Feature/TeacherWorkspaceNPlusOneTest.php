@@ -93,13 +93,15 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
         $capture = true;
         app(TeacherDashboardService::class)->build($teacher);
         $after = $selects - $baseline;
+        $growth = $after - $baseline;
         $addedQueries = array_slice($queries, $baselineQueryCount);
         $capture = false;
 
         $this->assertLessThanOrEqual(
             8,
-            $after,
-            "Adding many classrooms must not add one or more dashboard queries per classroom. Added SQL:\n"
+            $growth,
+            "Adding 40 classrooms must not increase dashboard SELECTs by more than 8. "
+                . "Baseline: {$baseline}; after: {$after}. SQL from the second build:\n"
                 . implode("\n", $addedQueries)
         );
     }
