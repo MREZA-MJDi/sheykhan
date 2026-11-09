@@ -93,10 +93,16 @@ final class SeoController extends Controller
             $overview['items']->getCollection(),
         );
 
-        foreach ($overview['items'] as $index => $item) {
-            $pageHash = hash('sha256', $this->normalizePageUrlForHash((string) ($item['url'] ?? '')));
-            $overview['items'][$index]['top_queries'] = $topQueries[$pageHash] ?? [];
-        }
+        $pageItems = $overview['items']->getCollection()->map(
+            function (array $item) use ($topQueries): array {
+                $pageHash = hash('sha256', $this->normalizePageUrlForHash((string) ($item['url'] ?? '')));
+                $item['top_queries'] = $topQueries[$pageHash] ?? [];
+
+                return $item;
+            }
+        );
+
+        $overview['items']->setCollection($pageItems);
 
         $overview['filters'] = [
             'q' => $query,
