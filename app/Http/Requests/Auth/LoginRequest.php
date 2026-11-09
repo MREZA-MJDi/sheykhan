@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Http\\Requests\\Auth;
+namespace App\Http\Requests\Auth;
 
-use App\\Support\\MobileNumber;
-use Illuminate\\Foundation\\Http\\FormRequest;
+use App\Support\MobileNumber;
+use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
@@ -24,7 +24,7 @@ class LoginRequest extends FormRequest
         return [
             'mobile' => [
                 'required',
-                function (string $attribute, mixed $value, \\Closure $fail): void {
+                function (string $attribute, mixed $value, \Closure $fail): void {
                     $mobile = MobileNumber::normalize((string) $value);
                     $isValidStandardMobile = MobileNumber::valid($mobile);
                     $isConfiguredDemoMobile = collect(config('role_access.test_accounts', []))
