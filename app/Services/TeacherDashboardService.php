@@ -482,16 +482,18 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         $rankedRoster = DB::table('classroom_student as memberships')
             ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
             ->join('users', 'users.id', '=', 'memberships.student_id')
-            ->join('course_enrollments as enrollments', function ($join): void {
-                $join->on('enrollments.student_id', '=', 'memberships.student_id')
-                    ->on('enrollments.classroom_id', '=', 'classrooms.id')
-                    ->on('enrollments.course_id', '=', 'classrooms.course_id')
-                    ->where('enrollments.status', '=', 'active');
-            })
             ->whereIn('memberships.classroom_id', $classroomIds)
             ->where('memberships.status', 'active')
             ->where('users.status', 'active')
             ->whereNull('users.deleted_at')
+            ->whereExists(function ($enrollment): void {
+                $enrollment->selectRaw('1')
+                    ->from('course_enrollments')
+                    ->whereColumn('course_enrollments.student_id', 'memberships.student_id')
+                    ->whereColumn('course_enrollments.classroom_id', 'memberships.classroom_id')
+                    ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                    ->where('course_enrollments.status', 'active');
+            })
             ->select([
                 'memberships.classroom_id',
                 'users.id as student_id',
