@@ -55,6 +55,13 @@ return [
         'verify_url' => 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
     ],
 
+    'google_search_console' => [
+        'site_url' => env('GOOGLE_SEARCH_CONSOLE_SITE_URL'),
+        'client_id' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET'),
+        'refresh_token' => env('GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN'),
+    ],
+
     'spotplayer' => [
         'api_key' => env('SPOTPLAYER_API_KEY'),
         'mode' => env('SPOTPLAYER_MODE'),

@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'کارتابل مدیر آموزشگاه | شیخان')</title>
     @vite(['resources/css/seo-dashboard.css', 'resources/js/seo-dashboard.js'])
+    @vite(['resources/css/panels/shared/enterprise.css'])
     @stack('styles')
 </head>
 <body class="owner-shell owner-admin-v2">

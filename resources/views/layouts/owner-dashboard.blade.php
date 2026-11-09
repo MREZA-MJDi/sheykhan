@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'داشبورد آکادمی شیخان')</title>
     @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
+    @vite(['resources/css/panels/shared/enterprise.css'])
     @stack('styles')
 </head>
 <body>

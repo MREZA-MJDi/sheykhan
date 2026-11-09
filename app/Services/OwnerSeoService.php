@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 final class OwnerSeoService
 {
@@ -120,6 +121,14 @@ final class OwnerSeoService
         )->values();
 
         $items = $this->appendDuplicateFindings($items);
+        $searchConsole = $this->searchConsolePerformance($items);
+
+        $items = $items->map(function (array $item) use ($searchConsole): array {
+            $pageHash = hash('sha256', $this->normalizePageUrlForHash((string) ($item['url'] ?? '')));
+            $item['performance'] = $searchConsole['by_page'][$pageHash] ?? null;
+
+            return $item;
+        });
 
         return [
             'academies' => collect(),
@@ -130,7 +139,146 @@ final class OwnerSeoService
             'items' => $items,
             'isGlobal' => true,
             'stats' => $this->statsFor($items),
+            'searchConsole' => $searchConsole['summary'],
         ];
+    }
+
+    /**
+     * Search Console is an optional, read-only data source. Missing configuration
+     * or snapshots must never be represented as zero search performance.
+     */
+    private function searchConsolePerformance(Collection $items): array
+    {
+        $configured = collect([
+            config('services.google_search_console.site_url'),
+            config('services.google_search_console.client_id'),
+            config('services.google_search_console.client_secret'),
+            config('services.google_search_console.refresh_token'),
+        ])->every(fn ($value): bool => filled($value));
+
+        $endDate = now()->subDays(3)->toDateString();
+        $startDate = now()->subDays(30)->toDateString();
+
+        $baseQuery = DB::table('seo_performance_snapshots')
+            ->where('dimension', 'page')
+            ->whereBetween('date', [$startDate, $endDate]);
+
+        $totals = (clone $baseQuery)->selectRaw(
+            'COALESCE(SUM(clicks), 0) as clicks,
+             COALESCE(SUM(impressions), 0) as impressions,
+             SUM(clicks) * 1.0 / NULLIF(SUM(impressions), 0) as ctr,
+             SUM(position * impressions) * 1.0 / NULLIF(SUM(impressions), 0) as average_position'
+        )->first();
+
+        $pageRows = (clone $baseQuery)
+            ->select('page_hash')
+            ->selectRaw(
+                'COALESCE(SUM(clicks), 0) as clicks,
+                 COALESCE(SUM(impressions), 0) as impressions,
+                 SUM(clicks) * 1.0 / NULLIF(SUM(impressions), 0) as ctr,
+                 SUM(position * impressions) * 1.0 / NULLIF(SUM(impressions), 0) as average_position'
+            )
+            ->groupBy('page_hash')
+            ->get()
+            ->keyBy('page_hash');
+
+        $lastSyncedAt = DB::table('seo_performance_snapshots')->max('synced_at');
+        $impressions = (int) ($totals->impressions ?? 0);
+        $clicks = (int) ($totals->clicks ?? 0);
+
+        return [
+            'by_page' => $pageRows->map(fn ($row): array => [
+                'clicks' => (int) $row->clicks,
+                'impressions' => (int) $row->impressions,
+                'ctr' => $row->ctr !== null ? (float) $row->ctr : null,
+                'average_position' => $row->average_position !== null ? (float) $row->average_position : null,
+            ])->all(),
+            'summary' => [
+                'configured' => $configured,
+                'has_data' => $impressions > 0 || $clicks > 0,
+                'property' => $configured ? (string) config('services.google_search_console.site_url') : null,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'clicks' => $clicks,
+                'impressions' => $impressions,
+                'ctr' => $impressions > 0 ? $clicks / $impressions : null,
+                'average_position' => $impressions > 0 && $totals->average_position !== null
+                    ? (float) $totals->average_position
+                    : null,
+                'pages_with_data' => $pageRows->count(),
+                'last_synced_at' => $lastSyncedAt,
+            ],
+        ];
+    }
+
+    private function normalizePageUrlForHash(string $url): string
+    {
+        if ($url === '') {
+            return '';
+        }
+
+        $parts = parse_url($url);
+        if (! is_array($parts) || empty($parts['host'])) {
+            return $url;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? 'https'));
+        $host = strtolower((string) $parts['host']);
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $path = rtrim((string) ($parts['path'] ?? '/'), '/') ?: '/';
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+        return $scheme . '://' . $host . $port . $path . $query;
+    }
+
+    /**
+     * Return the highest-click search queries for only the visible, paginated
+     * page records. Query dimensions are aggregated independently from page
+     * dimensions to avoid mixing incompatible Search Console totals.
+     */
+    public function topQueriesForPages(User $owner, Collection $items): array
+    {
+        $this->authorizeSpecialist($owner);
+
+        $pageHashes = $items
+            ->pluck('url')
+            ->filter()
+            ->map(fn (string $url): string => hash('sha256', $this->normalizePageUrlForHash($url)))
+            ->unique()
+            ->values();
+
+        if ($pageHashes->isEmpty()) {
+            return [];
+        }
+
+        $startDate = now()->subDays(30)->toDateString();
+        $endDate = now()->subDays(3)->toDateString();
+
+        return DB::table('seo_performance_snapshots')
+            ->where('dimension', 'query')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->whereIn('page_hash', $pageHashes->all())
+            ->whereNotNull('query')
+            ->select('page_hash', 'query', 'query_hash')
+            ->selectRaw(
+                'COALESCE(SUM(clicks), 0) as clicks,
+                 COALESCE(SUM(impressions), 0) as impressions,
+                 SUM(clicks) * 1.0 / NULLIF(SUM(impressions), 0) as ctr,
+                 SUM(position * impressions) * 1.0 / NULLIF(SUM(impressions), 0) as average_position'
+            )
+            ->groupBy('page_hash', 'query_hash', 'query')
+            ->orderByDesc('clicks')
+            ->limit(500)
+            ->get()
+            ->groupBy('page_hash')
+            ->map(fn (Collection $rows): array => $rows->take(5)->map(fn ($row): array => [
+                'query' => (string) $row->query,
+                'clicks' => (int) $row->clicks,
+                'impressions' => (int) $row->impressions,
+                'ctr' => $row->ctr !== null ? (float) $row->ctr : null,
+                'average_position' => $row->average_position !== null ? (float) $row->average_position : null,
+            ])->values()->all())
+            ->all();
     }
 
     public function resolveOwned(User $owner, string $type, int $id): mixed

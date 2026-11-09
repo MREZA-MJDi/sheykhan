@@ -30,7 +30,7 @@ class SeoSpecialistAccessTest extends TestCase
         $seoRole = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
         $user = User::factory()->create([
             'name' => 'متخصص SEO تست',
-            'email' => 'seo@sheykhan.test',
+            'email' => 'seo@sheykhan.com',
             'mobile' => '09120000077',
             'password' => $password,
             'status' => 'active',
@@ -61,11 +61,11 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertOk()
             ->assertSee('SEO Visible Course')
             ->assertSee(route('courses.show', $course), false)
-            ->assertSee('صفحات عمومی و منتشرشده را از یک مرکز مدیریت کن')
-            ->assertSee('ممیزی کیفیت فنی SEO')
+            ->assertSee('مدیریت دیده‌شدن شیخان در جست‌وجو')
+            ->assertSee('عملکرد واقعی در Google Search Console')
             ->assertSee('عنوان SEO اختصاصی تنظیم نشده')
             ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
-            ->assertSee('بررسی robots.txt')
+            ->assertSee('robots.txt')
             ->assertSee('owner-admin-v2', false)
             ->assertSee('سایت و SEO')
             ->assertSee('آکادمی شیخان')
@@ -83,6 +83,50 @@ class SeoSpecialistAccessTest extends TestCase
             ->get(route('owner.website.index'))
             ->assertOk()
             ->assertSee('ظاهر و محتوای قابل‌دیدن آموزشگاه را از یکجا مدیریت کن.');
+    }
+
+    public function test_seo_page_inventory_filters_by_type_status_and_search_term(): void
+    {
+        [$specialist, $course] = $this->makeSeoWorkspace();
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index', [
+                'q' => 'SEO Visible Course',
+                'type' => 'course',
+                'status' => 'unconfigured',
+            ]))
+            ->assertOk()
+            ->assertSee('SEO Visible Course')
+            ->assertSee('عملکرد واقعی در Google Search Console')
+            ->assertSee('بدون دادهٔ دریافتی');
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index', ['type' => 'not-a-real-type']))
+            ->assertOk()
+            ->assertSee('SEO Visible Course');
+    }
+
+    public function test_seo_page_inventory_paginates_public_records(): void
+    {
+        [$specialist, $course] = $this->makeSeoWorkspace();
+
+        for ($index = 1; $index <= 18; $index++) {
+            $page = $course->replicate(['slug']);
+            $page->slug = 'seo-paginated-' . $index . '-' . Str::lower(Str::random(5));
+            $page->title = 'Paginated SEO Course ' . $index;
+            $page->save();
+        }
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course']))
+            ->assertOk()
+            ->assertSee('18 نتیجه')
+            ->assertSee('seo-pagination', false);
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course', 'page' => 2]))
+            ->assertOk()
+            ->assertSee('Paginated SEO Course');
     }
 
     public function test_audit_flags_duplicate_public_page_titles(): void

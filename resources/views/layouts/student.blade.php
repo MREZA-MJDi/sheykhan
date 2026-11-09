@@ -7,6 +7,7 @@
     <title>@yield('title', 'پنل دانش‌آموز') · شیخان</title>
     @include('layouts.partials.panel-theme-init')
     @vite(['resources/css/student.css', 'resources/js/student.js'])
+    @vite(['resources/css/panels/shared/enterprise.css'])
     @stack('head')
     @stack('styles')
 </head>

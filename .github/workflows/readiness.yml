@@ -1,6 +1,9 @@
 name: Sheykhan Readiness
 
 on:
+  push:
+    branches:
+      - "redesign/**"
   pull_request:
     branches:
       - main
