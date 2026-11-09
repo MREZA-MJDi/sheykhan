@@ -52,7 +52,7 @@
                     <input id="owner-classroom-course-search" type="search" data-academy-option-search
                            autocomplete="off" maxlength="80" placeholder="نام دوره را بنویس…"
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
-                    <select id="owner-classroom-course" name="course_id" required data-academy-option-select
+                    <select id="owner-classroom-course" name="course_id" aria-label="انتخاب دوره کلاس" required data-academy-option-select
                             class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]">
                         <option data-option-placeholder value="">انتخاب دوره</option>
                         @foreach($courses as $course)
