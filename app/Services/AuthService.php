@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Services;
+namespace App\\Services;
 
-use App\Models\ParentProfile;
-use App\Models\Role;
-use App\Models\StudentProfile;
-use App\Models\User;
-use App\Models\AuditLog;
-use App\Support\MobileNumber;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
+use App\\Models\\ParentProfile;
+use App\\Models\\Role;
+use App\\Models\\StudentProfile;
+use App\\Models\\User;
+use App\\Models\\AuditLog;
+use App\\Support\\MobileNumber;
+use Illuminate\\Support\\Facades\\Schema;
+use Illuminate\\Support\\Facades\\Auth;
+use Illuminate\\Support\\Facades\\DB;
+use Illuminate\\Support\\Facades\\Hash;
+use Illuminate\\Support\\Str;
+use Illuminate\\Validation\\ValidationException;
 
 final class AuthService
 {
@@ -25,7 +25,10 @@ final class AuthService
     public function login(array $credentials, bool $remember = false): User
     {
         $mobile = MobileNumber::normalize((string) ($credentials['mobile'] ?? ''));
-        $user = MobileNumber::valid($mobile)
+        $isConfiguredDemoMobile = collect(config('role_access.test_accounts', []))
+            ->contains(fn (array $account): bool => ($account['username'] ?? null) === $mobile);
+
+        $user = (MobileNumber::valid($mobile) || $isConfiguredDemoMobile)
             ? User::query()->where('mobile', $mobile)->first()
             : null;
 
@@ -45,17 +48,13 @@ final class AuthService
             ]);
         }
 
-        // Upgrade a verified WordPress hash to the configured Laravel hasher
-        // immediately, so the legacy verifier is needed only for first login.
         if ($isLegacyHash) {
             $user->forceFill(['password' => Hash::make($plainPassword)])->save();
         }
 
         Auth::login($user, $remember);
-
         request()->session()->regenerate();
 
-        // Store a lightweight audit event; credentials and login identifiers are never logged.
         try {
             if (Schema::hasTable('audit_logs')) {
                 AuditLog::create([
@@ -68,7 +67,7 @@ final class AuthService
                     'user_agent' => mb_substr((string) request()->userAgent(), 0, 2000),
                 ]);
             }
-        } catch (\Throwable $exception) {
+        } catch (\\Throwable $exception) {
             report($exception);
         }
 
@@ -121,7 +120,6 @@ final class AuthService
     public function logout(): void
     {
         Auth::logout();
-
         request()->session()->invalidate();
         request()->session()->regenerateToken();
     }
