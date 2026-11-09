@@ -20,7 +20,7 @@ class LocalRoleLoginTest extends TestCase
             ->assertSee('teacher.math@sheykhan.test')
             ->assertSee('student.armin@sheykhan.test')
             ->assertSee('parent.armin@sheykhan.test')
-            ->assertSee('seo@sheykhan.test')
+            ->assertSee('seo@sheykhan.com')
             ->assertSee((string) config('role_access.test_password'))
             ->assertSee('data-test-login-fill', false);
     }
@@ -43,7 +43,7 @@ class LocalRoleLoginTest extends TestCase
             $this->get(route('login'))
                 ->assertOk()
                 ->assertSee('ورود سریع به نقش‌های سامانه')
-                ->assertSee('seo@sheykhan.test')
+                ->assertSee('seo@sheykhan.com')
                 ->assertSee('Staging-Only-Secret-2026')
                 ->assertSee('data-test-login-fill', false);
         } finally {
