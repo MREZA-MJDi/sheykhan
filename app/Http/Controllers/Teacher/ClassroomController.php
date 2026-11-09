@@ -24,7 +24,7 @@ class ClassroomController extends Controller
     public function create(TeacherWorkspaceService $workspace): View
     {
         return view('teacher.classrooms.form', [
-            'courses' => $workspace->courses(request()->user()),
+            'courses' => collect(),
             'classroom' => new Classroom(['code' => app(ClassroomCodeGenerator::class)->generate()]),
         ]);
     }
@@ -59,9 +59,10 @@ class ClassroomController extends Controller
     public function edit(Classroom $classroom, TeacherWorkspaceService $workspace): View
     {
         $classroomModel = $workspace->classroomOwnedBy(request()->user(), $classroom->id);
+        $classroomModel->loadMissing('course:id,title');
 
         return view('teacher.classrooms.form', [
-            'courses' => $workspace->courses(request()->user()),
+            'courses' => collect(),
             'classroom' => $classroomModel,
         ]);
     }

@@ -28,8 +28,8 @@ class LiveClassController extends Controller
     public function create(TeacherWorkspaceService $workspace): View
     {
         return view('teacher.live-classes.form', [
-            'courses' => $workspace->courses(request()->user()),
-            'classrooms' => $workspace->classrooms(request()->user()),
+            'courses' => collect(),
+            'classrooms' => collect(),
             'liveClass' => new LiveClass(['duration_minutes' => 60, 'status' => 'scheduled']),
         ]);
     }

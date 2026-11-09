@@ -28,8 +28,8 @@ class ExamController extends Controller
     public function create(TeacherWorkspaceService $workspace): View
     {
         return view('teacher.exams.form', [
-            'courses' => $workspace->courses(request()->user()),
-            'classrooms' => $workspace->classrooms(request()->user()),
+            'courses' => collect(),
+            'classrooms' => collect(),
             'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
             'initialQuestions' => [],
         ]);
@@ -93,7 +93,7 @@ class ExamController extends Controller
                 ->with('warning', 'این آزمون قبلاً شروع شده است؛ برای حفظ صحت پاسخ‌ها و نمره‌ها، متن و کلید آن قفل شده است.');
         }
 
-        $exam->load(['questions', 'media']);
+        $exam->load(['questions', 'media', 'course:id,title', 'classroom:id,title,course_id']);
         $initialQuestions = $exam->questions
             ->sortBy('sort_order')
             ->map(function ($question): array {
@@ -120,8 +120,8 @@ class ExamController extends Controller
             ->all();
 
         return view('teacher.exams.form', [
-            'courses' => $workspace->courses(request()->user()),
-            'classrooms' => $workspace->classrooms(request()->user()),
+            'courses' => collect(),
+            'classrooms' => collect(),
             'exam' => $exam,
             'initialQuestions' => $initialQuestions,
         ]);

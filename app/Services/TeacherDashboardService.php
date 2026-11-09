@@ -25,39 +25,46 @@ final class TeacherDashboardService
             ->whereIn('courses.academy_id', $activeAcademyIds)
             ->pluck('courses.id');
 
-        $classrooms = $teacher->classroomsAsTeacher()
+        // Dashboard cards are a bounded preview, not a reason to hydrate every
+        // classroom (and every schedule) assigned to the teacher. Keep aggregate
+        // metrics scoped to the complete relationship in SQL.
+        $classroomScope = $teacher->classroomsAsTeacher()
             ->whereIn('classrooms.academy_id', $activeAcademyIds)
-            ->where('classrooms.status', 'active')
+            ->where('classrooms.status', 'active');
+
+        $activeClassroomCount = (clone $classroomScope)->count('classrooms.id');
+        $classroomIdsQuery = (clone $classroomScope)->select('classrooms.id');
+
+        $classrooms = (clone $classroomScope)
             ->with([
                 'course:id,title',
                 'schedules' => fn ($query) => $query->orderBy('start_time'),
             ])
+            ->orderBy('classrooms.title')
+            ->orderBy('classrooms.id')
+            ->limit(50)
             ->get();
 
-        $classroomIds = $classrooms->modelKeys();
-
-        $studentCount = $classroomIds
-            ? DB::table('classroom_student as memberships')
-                ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
-                ->join('users', 'users.id', '=', 'memberships.student_id')
-                ->join('course_enrollments as enrollments', function ($join): void {
-                    $join->on('enrollments.student_id', '=', 'memberships.student_id')
-                        ->on('enrollments.classroom_id', '=', 'classrooms.id')
-                        ->on('enrollments.course_id', '=', 'classrooms.course_id')
-                        ->where('enrollments.status', '=', 'active');
-                })
-                ->whereIn('memberships.classroom_id', $classroomIds)
-                ->where('memberships.status', 'active')
-                ->where('users.status', 'active')
-                ->whereNull('users.deleted_at')
-                ->distinct()
-                ->count('memberships.student_id')
-            : 0;
+        $studentCount = DB::table('classroom_student as memberships')
+            ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
+            ->join('users', 'users.id', '=', 'memberships.student_id')
+            ->join('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.student_id', '=', 'memberships.student_id')
+                    ->on('enrollments.classroom_id', '=', 'classrooms.id')
+                    ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                    ->where('enrollments.status', '=', 'active');
+            })
+            ->whereIn('memberships.classroom_id', $classroomIdsQuery)
+            ->where('memberships.status', 'active')
+            ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
+            ->distinct()
+            ->count('memberships.student_id');
 
         $classroomRosterPreviews = $this->classroomRosterPreviews($classrooms);
 
         if ($courseIds->isEmpty()) {
-            return $this->emptyState($teacher, $classrooms, $studentCount, $classroomRosterPreviews);
+            return $this->emptyState($teacher, $classrooms, $studentCount, $classroomRosterPreviews, $activeClassroomCount);
         }
 
         $weekStart = now()->startOfWeek(Carbon::SATURDAY);
@@ -215,7 +222,7 @@ final class TeacherDashboardService
             'dashboardDate' => PersianUi::date(now()),
             'completedSessions' => $completedSessions,
             'metrics' => [
-                'activeClasses' => count($classroomIds),
+                'activeClasses' => $activeClassroomCount,
                 'studentCount' => $studentCount,
                 'weeklySessions' => $weeklySessions,
                 'pendingAssignmentReviews' => $pendingAssignmentReviews,
@@ -499,14 +506,14 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
         })->values();
     }
 
-    private function emptyState(User $teacher, $classrooms, int $studentCount, $classroomRosterPreviews = null): array
+    private function emptyState(User $teacher, $classrooms, int $studentCount, $classroomRosterPreviews = null, ?int $activeClassroomCount = null): array
     {
         return [
             'teacher' => $teacher,
             'dashboardDate' => PersianUi::date(now()),
             'completedSessions' => 0,
             'metrics' => [
-                'activeClasses' => $classrooms->count(),
+                'activeClasses' => $activeClassroomCount ?? $classrooms->count(),
                 'studentCount' => $studentCount,
                 'weeklySessions' => 0,
                 'pendingAssignmentReviews' => 0,

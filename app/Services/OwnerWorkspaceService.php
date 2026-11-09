@@ -47,7 +47,7 @@ final class OwnerWorkspaceService
             ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
-            ->paginate(25, ['*'], $pageName);
+            ->paginate(10, ['*'], $pageName);
 
         $activeTeachers = $base('teacher', 'teachers_page');
 
@@ -57,7 +57,7 @@ final class OwnerWorkspaceService
             ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
-            ->paginate(25, ['*'], 'archived_teachers_page');
+            ->paginate(10, ['*'], 'archived_teachers_page');
 
         // These are supporting modules. Keep the compatibility fallback, but do
         // not ask information_schema about every optional column on every request.
@@ -242,34 +242,8 @@ final class OwnerWorkspaceService
         return $paginator->appends($queryString);
     }
 
-    public function courseTeacherOptions(User $owner, Academy $academy): array
-    {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
-
-        $teachers = $academy->users()
-            ->wherePivot('role', 'teacher')
-            ->wherePivot('status', 'active')
-            ->where('users.status', 'active')
-            ->orderBy('users.name')
-            ->get(['users.id', 'users.name']);
-
-        $courses = $academy->courses()
-            ->select('id', 'title', 'access_type', 'price')
-            ->orderBy('title')
-            ->get();
-
-        $classrooms = $academy->classrooms()
-            ->where('status', 'active')
-            ->with('course:id,title')
-            ->orderBy('title')
-            ->get(['id', 'academy_id', 'course_id', 'title', 'code', 'capacity']);
-
-        return [
-            'teacherOptions' => $teachers,
-            'courseOptions' => $courses,
-            'classroomOptions' => $classrooms,
-        ];
-    }
+    // Form option lists are served by PeopleController::lookupOptions so
+    // large academies never hydrate every teacher, course or classroom here.
 
     public function createTeacher(User $owner, Academy $academy, array $data): array
     {

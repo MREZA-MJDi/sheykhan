@@ -420,3 +420,130 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }));
 });
+
+/* Teacher form selectors use server-side search instead of loading whole rosters. */
+(() => {
+  'use strict';
+  document.querySelectorAll('[data-teacher-lookup-picker]').forEach(root => {
+    const endpoint = root.dataset.optionsUrl;
+    const type = root.dataset.lookupType;
+    const search = root.querySelector('[data-teacher-lookup-search]');
+    const hidden = root.querySelector('[data-teacher-lookup-value]');
+    const labelHidden = root.querySelector('[data-teacher-lookup-label]');
+    const results = root.querySelector('[data-teacher-lookup-results]');
+    const status = root.querySelector('[data-teacher-lookup-status]');
+    const more = root.querySelector('[data-teacher-lookup-more]');
+    const courseInput = root.dataset.courseInput ? document.getElementById(root.dataset.courseInput) : null;
+    if (!endpoint || !type || !search || !hidden || !results || !status || !more) return;
+
+    if (root.dataset.initialLabel && !search.value) search.value = root.dataset.initialLabel;
+    let page = 1;
+    let lastPage = 1;
+    let timer = null;
+    let sequence = 0;
+    let controller = null;
+
+    const render = (items, append) => {
+      if (!append) results.replaceChildren();
+      items.forEach(item => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'teacher-lookup-option';
+        option.textContent = String(item.label || '');
+        option.addEventListener('click', () => {
+          hidden.value = String(item.id);
+          if (labelHidden) labelHidden.value = String(item.label || '');
+          search.value = String(item.label || '');
+          search.removeAttribute('aria-invalid');
+          results.replaceChildren();
+          more.hidden = true;
+          status.textContent = 'انتخاب شد: ' + search.value;
+          hidden.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        results.append(option);
+      });
+    };
+
+    const load = async (nextPage = 1, append = false) => {
+      const term = search.value.trim();
+      if (term.length < 2) {
+        results.replaceChildren();
+        more.hidden = true;
+        status.textContent = 'برای جست‌وجو حداقل دو نویسه وارد کن.';
+        return;
+      }
+      if (courseInput && !courseInput.value) {
+        results.replaceChildren();
+        more.hidden = true;
+        status.textContent = 'ابتدا دوره را انتخاب کن.';
+        return;
+      }
+      controller?.abort();
+      controller = new AbortController();
+      const current = ++sequence;
+      const url = new URL(endpoint, window.location.origin);
+      url.searchParams.set('q', term);
+      url.searchParams.set('page', String(nextPage));
+      if (courseInput?.value) url.searchParams.set('course_id', courseInput.value);
+      status.textContent = 'در حال جست‌وجو…';
+      more.disabled = true;
+      try {
+        const response = await fetch(url, {
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('lookup-failed');
+        const payload = await response.json();
+        if (current !== sequence) return;
+        const items = Array.isArray(payload.data) ? payload.data : [];
+        page = Number(payload.meta?.current_page ?? nextPage);
+        lastPage = Number(payload.meta?.last_page ?? 1);
+        render(items, append);
+        more.hidden = page >= lastPage || items.length === 0;
+        status.textContent = items.length
+          ? (Number(payload.meta?.total ?? items.length) + ' نتیجه؛ صفحه ' + page + ' از ' + lastPage)
+          : 'نتیجه‌ای پیدا نشد.';
+      } catch (error) {
+        if (error?.name !== 'AbortError' && current === sequence) {
+          status.textContent = 'جست‌وجو انجام نشد؛ دوباره تلاش کن.';
+          more.hidden = true;
+        }
+      } finally {
+        if (current === sequence) {
+          controller = null;
+          more.disabled = false;
+        }
+      }
+    };
+
+    search.addEventListener('input', () => {
+      hidden.value = '';
+      if (labelHidden) labelHidden.value = '';
+      search.removeAttribute('aria-invalid');
+      clearTimeout(timer);
+      timer = setTimeout(() => load(1, false), 250);
+    });
+    more.addEventListener('click', () => {
+      if (page < lastPage) load(page + 1, true);
+    });
+    courseInput?.addEventListener('change', () => {
+      hidden.value = '';
+      if (labelHidden) labelHidden.value = '';
+      search.value = '';
+      results.replaceChildren();
+      more.hidden = true;
+      status.textContent = 'حالا کلاس مربوط به این دوره را جست‌وجو کن.';
+    });
+    root.closest('form')?.addEventListener('submit', event => {
+      const hasUnselectedSearch = search.value.trim().length > 0 && !hidden.value;
+      if ((root.dataset.required === 'true' && !hidden.value) || hasUnselectedSearch) {
+        event.preventDefault();
+        search.setAttribute('aria-invalid', 'true');
+        status.textContent = 'لطفاً یکی از گزینه‌های نتایج جست‌وجو را انتخاب کن.';
+        search.focus();
+      }
+    });
+  });
+})();
+

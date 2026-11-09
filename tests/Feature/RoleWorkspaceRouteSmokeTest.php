@@ -220,6 +220,6 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
             ->assertSee('اعضای آموزشگاه')
             ->assertSee('مدرس‌ها')
             ->assertSee('دانش‌آموزان')
-            ->assertSee('والدین');
+            ->assertSee('اولیا');
     }
 }

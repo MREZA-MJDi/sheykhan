@@ -163,7 +163,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertOk()
             ->assertSee('فهرست اعضای آموزشگاه در دسترس است')
             ->assertSee('ساخت حساب مدرس')
-            ->assertSee('ساخت حساب والد و اتصال به دانش‌آموز')
+            ->assertSee('ثبت اولیا و اتصال به دانش‌آموز')
             ->assertSee('تاریخچه فعلاً قابل نمایش نیست');
     }
 
@@ -178,10 +178,21 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
             ->assertOk()
-            ->assertSee(\App\Support\PersianUi::money($course->fresh()->price))
-            ->assertDontSee('قیمت تعیین نشده')
+            ->assertSee('data-lookup-picker')
             ->assertSee('ساخت حساب مدرس')
-            ->assertSee('ساخت حساب والد و اتصال به دانش‌آموز');
+            ->assertSee('ثبت اولیا و اتصال به دانش‌آموز');
+
+        $options = $this->getJson(route('owner.people.lookup-options', [
+            'academy' => $academy,
+            'type' => 'courses',
+            'q' => 'دوره تست',
+        ]))->assertOk();
+
+        $this->assertStringContainsString(
+            '۲۵۰',
+            (string) $options->json('data.0.label')
+        );
+        $this->assertStringNotContainsString('قیمت تعیین نشده', (string) $options->json('data.0.label'));
     }
 
     public function test_student_roster_and_enrollment_search_are_server_paginated(): void
@@ -211,7 +222,7 @@ class OwnerPeopleLifecycleTest extends TestCase
         $response = $this->actingAs($owner)
             ->get(route('owner.people.index', $academy))
             ->assertOk()
-            ->assertViewHas('students', fn ($students) => $students->total() === 30 && $students->count() === 25)
+            ->assertViewHas('students', fn ($students) => $students->total() === 30 && $students->count() === 10)
             ->assertSee('data-student-picker')
             ->assertSee('آرشیو عضویت')
             ->assertDontSee('student-30@test.local');

@@ -27,8 +27,8 @@ class AssignmentController extends Controller
     public function create(TeacherWorkspaceService $workspace): View
     {
         return view('teacher.assignments.form', [
-            'courses' => $workspace->courses(request()->user()),
-            'classrooms' => $workspace->classrooms(request()->user()),
+            'courses' => collect(),
+            'classrooms' => collect(),
             'assignment' => new Assignment(['status' => 'draft', 'max_score' => 20]),
         ]);
     }

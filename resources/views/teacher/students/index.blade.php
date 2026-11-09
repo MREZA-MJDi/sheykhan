@@ -59,15 +59,14 @@
                 <input type="search" name="q" value="{{ $studentSearch }}" maxlength="100" placeholder="جست‌وجوی نام، ایمیل یا شماره دانش‌آموزی…" aria-label="جست‌وجوی دانش‌آموز">
                 <input type="hidden" name="sort" value="{{ $studentSort }}">
                 <input type="hidden" name="direction" value="{{ $studentDirection }}">
-                <label class="teacher-student-class-filter">
-                    <span>کلاس</span>
-                    <select name="classroom_id" onchange="this.form.submit()">
-                        <option value="">همه کلاس‌های من</option>
-                        @foreach($classrooms as $classroom)
-                            <option value="{{ $classroom->id }}" @selected($selectedClassroomId === $classroom->id)>{{ $classroom->title }}</option>
-                        @endforeach
-                    </select>
-                </label>
+                <div class="teacher-student-class-filter teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'classrooms']) }}" data-lookup-type="classrooms" data-initial-label="{{ $selectedClassroom?->title ?? '' }}">
+                    <label for="student-classroom-search"><span>کلاس</span></label>
+                    <input id="student-classroom-search" type="search" data-teacher-lookup-search value="{{ $selectedClassroom?->title ?? '' }}" placeholder="نام کلاس را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" name="classroom_id" data-teacher-lookup-value value="{{ $selectedClassroomId ?? '' }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">همه کلاس‌های من؛ برای دیدن همه دانش‌آموزان، کلاس را خالی بگذار.</small>
+                </div>
                 <button type="submit" class="teacher-workspace-btn primary">جست‌وجو</button>
                 @if($selectedClassroomId || $studentSearch !== '')
                     <a href="{{ route('teacher.students.index') }}" class="teacher-workspace-btn secondary">پاک‌کردن فیلتر</a>

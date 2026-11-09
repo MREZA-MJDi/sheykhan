@@ -37,26 +37,28 @@
             </header>
 
             <div class="mt-5 grid gap-4 md:grid-cols-2">
-                <label class="teacher-form-field">
-                    <span>دوره</span>
-                    <select name="course_id" data-course-select required>
-                        @foreach($courses as $course)
-                            <option value="{{ $course->id }}" @selected(old('course_id', $exam->course_id) == $course->id)>{{ $course->title }}</option>
-                        @endforeach
-                    </select>
-                    <small class="teacher-exam-field-help">آزمون، پاسخ‌ها و نتیجه‌ها به این دوره وصل می‌شوند. فقط دوره‌هایی را می‌بینی که مجاز به مدیریتشان هستی.</small>
-                </label>
+                <div class="teacher-form-field teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'courses']) }}" data-lookup-type="courses" data-required="true">
+                    <label for="exam-course-search"><span>دوره</span></label>
+                    <input id="exam-course-search" type="search" data-teacher-lookup-search value="{{ old('course_label', $exam->course?->title) }}" placeholder="نام دوره را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" id="exam-course-id" name="course_id" data-teacher-lookup-value value="{{ old('course_id', $exam->course_id) }}">
+                    <input type="hidden" name="course_label" data-teacher-lookup-label value="{{ old('course_label', $exam->course?->title) }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">برای جست‌وجو حداقل دو حرف وارد کن.</small>
+                    <small class="teacher-exam-field-help">آزمون، پاسخ‌ها و نتیجه‌ها به این دوره وصل می‌شوند.</small>
+                    @error('course_id')<small class="teacher-field-error">{{ $message }}</small>@enderror
+                </div>
 
-                <label class="teacher-form-field">
-                    <span>کلاس / گروه <small>اختیاری</small></span>
-                    <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
-                        <option value="">همهٔ دانش‌آموزان دوره</option>
-                        @foreach($classrooms as $classroom)
-                            <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id', $exam->classroom_id) == $classroom->id)>{{ $classroom->title }}</option>
-                        @endforeach
-                    </select>
-                    <small class="teacher-exam-field-help">اگر یک کلاس را انتخاب کنی فقط همان گروه آزمون را می‌بیند؛ اگر خالی بماند، آزمون برای دانش‌آموزان مجاز تمام کلاس‌های این دوره در دسترس خواهد بود.</small>
-                </label>
+                <div class="teacher-form-field teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'classrooms']) }}" data-lookup-type="classrooms" data-course-input="exam-course-id">
+                    <label for="exam-classroom-search"><span>کلاس / گروه <small>اختیاری</small></span></label>
+                    <input id="exam-classroom-search" type="search" data-teacher-lookup-search value="{{ old('classroom_label', $exam->classroom?->title) }}" placeholder="نام کلاس را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" name="classroom_id" data-teacher-lookup-value value="{{ old('classroom_id', $exam->classroom_id) }}">
+                    <input type="hidden" name="classroom_label" data-teacher-lookup-label value="{{ old('classroom_label', $exam->classroom?->title) }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">برای همه دانش‌آموزان دوره، این بخش را خالی بگذار.</small>
+                    <small class="teacher-exam-field-help">اگر یک کلاس را انتخاب کنی فقط همان گروه آزمون را می‌بیند.</small>
+                </div>
 
                 <label class="teacher-form-field md:col-span-2">
                     <span>عنوان آزمون</span>

@@ -17,6 +17,29 @@ bootPanelRuntime();
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
+    // Course directory rows are keyboard- and pointer-accessible without hijacking their controls.
+    document.querySelectorAll('[data-course-row]').forEach((row) => {
+        const navigate = () => {
+            const target = row.dataset.courseRow;
+            if (target) window.location.assign(target);
+        };
+        row.addEventListener('click', (event) => {
+            if (event.target.closest('a, button, form, summary, details, input, select, textarea, label')) return;
+            navigate();
+        });
+        row.addEventListener('keydown', (event) => {
+            if (event.target !== row || !['Enter', ' '].includes(event.key)) return;
+            event.preventDefault();
+            navigate();
+        });
+    });
+
+    document.addEventListener('click', (event) => {
+        document.querySelectorAll('.course-more-menu[open]').forEach((menu) => {
+            if (!menu.contains(event.target)) menu.open = false;
+        });
+    });
+
     const sidebar = $('#side');
     const burger = $('#burger');
 

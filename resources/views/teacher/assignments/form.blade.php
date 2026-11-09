@@ -8,8 +8,25 @@
         @csrf
         <section class="teacher-form-section md:col-span-2"><h2>این تکلیف برای چه کسانی است؟</h2><p>اگر کلاس انتخاب نکنی، تکلیف برای همه دانش‌آموزان ثبت‌نام‌شده در دوره قابل مشاهده خواهد بود.</p>
             <div class="mt-5 grid gap-4 md:grid-cols-2">
-                <label class="teacher-form-field"><span>دوره</span><select name="course_id" data-course-select required>@foreach($courses as $course)<option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>@endforeach</select></label>
-                <label class="teacher-form-field"><span>کلاس / گروه <small class="text-slate-400">اختیاری</small></span><select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]"><option value="">همه دانش‌آموزان دوره</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
+                <div class="teacher-form-field teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'courses']) }}" data-lookup-type="courses" data-required="true">
+                    <label for="assignment-course-search"><span>دوره</span></label>
+                    <input id="assignment-course-search" type="search" data-teacher-lookup-search value="{{ old('course_label') }}" placeholder="نام دوره را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" id="assignment-course-id" name="course_id" data-teacher-lookup-value value="{{ old('course_id') }}">
+                    <input type="hidden" name="course_label" data-teacher-lookup-label value="{{ old('course_label') }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">برای جست‌وجو حداقل دو حرف وارد کن.</small>
+                    @error('course_id')<small class="teacher-field-error">{{ $message }}</small>@enderror
+                </div>
+                <div class="teacher-form-field teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'classrooms']) }}" data-lookup-type="classrooms" data-course-input="assignment-course-id">
+                    <label for="assignment-classroom-search"><span>کلاس / گروه <small class="text-slate-400">اختیاری</small></span></label>
+                    <input id="assignment-classroom-search" type="search" data-teacher-lookup-search value="{{ old('classroom_label') }}" placeholder="نام کلاس را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" name="classroom_id" data-teacher-lookup-value value="{{ old('classroom_id') }}">
+                    <input type="hidden" name="classroom_label" data-teacher-lookup-label value="{{ old('classroom_label') }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">برای همه دانش‌آموزان دوره، این بخش را خالی بگذار.</small>
+                </div>
             </div>
         </section>
         <section class="teacher-form-section md:col-span-2"><h2>جزئیات تکلیف</h2><p>عنوان و دستورالعمل را طوری بنویس که دانش‌آموز دقیقاً بداند چه کاری باید انجام دهد.</p>

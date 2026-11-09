@@ -132,6 +132,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::get('/academy/{academy}/form-options', \App\Http\Controllers\Owner\AcademyFormOptionsController::class)->middleware(['permission:academy.view','throttle:60,1'])->name('form-options');
     Route::get('/academy/{academy}/people', [OwnerPeopleController::class, 'index'])->middleware('permission:academy.view')->name('people.index');
     Route::get('/academy/{academy}/people/student-options', [OwnerPeopleController::class, 'studentOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.student-options');
+    Route::get('/academy/{academy}/people/lookup-options/{type}', [OwnerPeopleController::class, 'lookupOptions'])->middleware(['permission:academy.view','throttle:60,1'])->name('people.lookup-options');
     Route::get('/academy/{academy}/people/data/{role}', OwnerPeopleDirectoryController::class)
         ->where('role', 'active-teachers|archived-teachers|students|parents')
         ->middleware(['permission:academy.view','throttle:120,1'])
@@ -236,6 +237,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/spotplayer', [\App\Http\Controllers\Teacher\SpotPlayerController::class, 'index'])->middleware('permission:courses.view')->name('spotplayer.index');
     Route::get('/dashboard', TeacherDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/lookup-options/{type}', \App\Http\Controllers\Teacher\LookupOptionsController::class)->middleware(['permission:courses.view','throttle:60,1'])->name('lookup-options');
     Route::get('/profile', [TeacherProfileController::class, 'edit'])->middleware('permission:profile.view')->name('profile.edit');
     Route::patch('/profile', [TeacherProfileController::class, 'update'])->middleware(['permission:profile.manage','throttle:10,1'])->name('profile.update');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');

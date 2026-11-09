@@ -30,24 +30,26 @@
                 <div><h2>این جلسه برای کدام دوره است؟</h2><p>دوره را انتخاب کن تا جلسه به مسیر آموزشی درست وصل شود.</p></div>
             </div>
             <div class="teacher-live-fields-row">
-                <label>
-                    <span>دوره</span>
-                    <select name="course_id" data-course-select required>
-                        @foreach($courses as $course)
-                            <option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label>
-                    <span>کلاس / گروه <small>اختیاری</small></span>
-                    <select name="classroom_id" data-course-classroom-select data-course-select="[name=course_id]">
-                        <option value="">برای همه دانش‌آموزان دوره</option>
-                        @foreach($classrooms as $classroom)
-                            <option value="{{ $classroom->id }}" data-course-id="{{ $classroom->course_id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }}</option>
-                        @endforeach
-                    </select>
+                <div class="teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'courses']) }}" data-lookup-type="courses" data-required="true">
+                    <label for="live-course-search"><span>دوره</span></label>
+                    <input id="live-course-search" type="search" data-teacher-lookup-search value="{{ old('course_label') }}" placeholder="نام دوره را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" id="live-course-id" name="course_id" data-teacher-lookup-value value="{{ old('course_id') }}">
+                    <input type="hidden" name="course_label" data-teacher-lookup-label value="{{ old('course_label') }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">برای جست‌وجو حداقل دو حرف وارد کن.</small>
+                    @error('course_id')<small class="teacher-field-error">{{ $message }}</small>@enderror
+                </div>
+                <div class="teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'classrooms']) }}" data-lookup-type="classrooms" data-course-input="live-course-id">
+                    <label for="live-classroom-search"><span>کلاس / گروه <small>اختیاری</small></span></label>
+                    <input id="live-classroom-search" type="search" data-teacher-lookup-search value="{{ old('classroom_label') }}" placeholder="نام کلاس را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" name="classroom_id" data-teacher-lookup-value value="{{ old('classroom_id') }}">
+                    <input type="hidden" name="classroom_label" data-teacher-lookup-label value="{{ old('classroom_label') }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">برای همه دانش‌آموزان دوره، این بخش را خالی بگذار.</small>
                     <em>اگر کلاس مشخصی انتخاب کنی، فقط اعضای همان کلاس جلسه را می‌بینند.</em>
-                </label>
+                </div>
             </div>
         </section>
 

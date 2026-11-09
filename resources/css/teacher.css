@@ -354,3 +354,71 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .teacher-roster-preview{display:inline-flex;align-items:center;flex:0 0 auto;direction:rtl;padding-inline-start:5px}
 .teacher-roster-avatar{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;overflow:hidden;margin-inline-start:-6px;border:2px solid var(--sf);border-radius:50%;background:var(--pl);color:var(--pri);font-size:10px;font-weight:900;box-shadow:0 2px 5px rgba(35,42,77,.12)}
 .teacher-roster-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+
+
+/* Searchable, bounded course/class selectors. */
+.teacher-lookup-picker{
+  display:grid;
+  gap:8px;
+  min-width:0;
+}
+.teacher-lookup-picker>label{
+  display:block;
+  color:#263449;
+  font-size:14px;
+  font-weight:800;
+}
+.teacher-lookup-picker [data-teacher-lookup-search]{
+  width:100%;
+  min-height:44px;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  background:#fff;
+  color:#172033;
+  padding:10px 12px;
+  font:inherit;
+  font-size:14px;
+}
+.teacher-lookup-picker [data-teacher-lookup-search]:focus{
+  outline:3px solid rgba(59,130,246,.16);
+  border-color:#64748b;
+}
+.teacher-lookup-results{
+  display:grid;
+  gap:6px;
+  max-height:220px;
+  overflow:auto;
+}
+.teacher-lookup-option{
+  width:100%;
+  min-height:42px;
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+  background:#fff;
+  color:#1e293b;
+  padding:9px 12px;
+  text-align:right;
+  font-size:14px;
+}
+.teacher-lookup-option:hover{
+  border-color:#94a3b8;
+  background:#f8fafc;
+}
+.teacher-lookup-picker [data-teacher-lookup-more]{
+  min-height:38px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  background:#f8fafc;
+  color:#334155;
+  padding:7px 12px;
+  font-size:13px;
+  font-weight:700;
+}
+.teacher-lookup-picker [data-teacher-lookup-status]{
+  color:#64748b;
+  font-size:13px;
+  line-height:1.8;
+}
+.teacher-lookup-picker [aria-invalid="true"]{
+  border-color:#dc2626;
+}

@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\User;
 use App\Services\TeacherWorkspaceService;
+use App\Services\TeacherDashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -52,6 +53,82 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
         $this->assertLessThanOrEqual(4, $selects);
         $this->assertDatabaseCount('attendances', $before + 2);
     }
+    public function test_teacher_dashboard_query_count_does_not_grow_per_classroom(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+        $course = $teacher->taughtCourses()->firstOrFail();
+
+        $selects = 0;
+        $capture = false;
+        DB::listen(function ($query) use (&$selects, &$capture): void {
+            if ($capture && str_starts_with(strtolower(ltrim($query->sql)), 'select')) {
+                $selects++;
+            }
+        });
+
+        $capture = true;
+        app(TeacherDashboardService::class)->build($teacher);
+        $baseline = $selects;
+        $capture = false;
+
+        for ($index = 1; $index <= 40; $index++) {
+            $classroom = Classroom::query()->create([
+                'academy_id' => $course->academy_id,
+                'course_id' => $course->id,
+                'title' => 'کلاس مقیاس ' . $index,
+                'code' => 'SCALE-' . strtoupper(bin2hex(random_bytes(4))),
+                'status' => 'active',
+            ]);
+            $classroom->teachers()->attach($teacher->id);
+        }
+
+        $capture = true;
+        app(TeacherDashboardService::class)->build($teacher);
+        $after = $selects - $baseline;
+        $capture = false;
+
+        $this->assertLessThanOrEqual(
+            $baseline + 8,
+            $after,
+            'Adding many classrooms must not add one or more dashboard queries per classroom.'
+        );
+    }
+
+    public function test_teacher_class_lookup_is_paginated_instead_of_loading_every_class(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+        $course = $teacher->taughtCourses()->firstOrFail();
+
+        for ($index = 1; $index <= 23; $index++) {
+            $classroom = Classroom::query()->create([
+                'academy_id' => $course->academy_id,
+                'course_id' => $course->id,
+                'title' => 'کلاس جست‌وجو ' . str_pad((string) $index, 2, '0', STR_PAD_LEFT),
+                'code' => 'LOOK-' . strtoupper(bin2hex(random_bytes(4))),
+                'status' => 'active',
+            ]);
+            $classroom->teachers()->attach($teacher->id);
+        }
+
+        $response = $this->actingAs($teacher)->getJson(route('teacher.lookup-options', [
+            'type' => 'classrooms',
+            'q' => 'کلاس جست‌وجو',
+        ]));
+
+        $response->assertOk()
+            ->assertJsonCount(20, 'data')
+            ->assertJsonPath('meta.total', 23)
+            ->assertJsonPath('meta.last_page', 2);
+    }
+
     public function test_paginated_roster_uses_only_current_active_academy_memberships(): void
     {
         $this->seed();

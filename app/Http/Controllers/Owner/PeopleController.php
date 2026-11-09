@@ -26,13 +26,80 @@ class PeopleController extends Controller
     public function index(Academy $academy, OwnerWorkspaceService $workspace): View
     {
         $people = $workspace->people(request()->user(), $academy);
-        $options = $workspace->courseTeacherOptions(request()->user(), $academy);
 
         return view('owner.people.index', [
             'academy' => $academy,
             ...$people,
-            ...$options,
         ]);
+    }
+
+
+    /**
+     * Search academy-scoped options without hydrating every teacher, course or classroom.
+     */
+    public function lookupOptions(Request $request, Academy $academy, string $type, OwnerWorkspaceService $workspace): JsonResponse
+    {
+        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+
+        abort_unless(in_array($type, ['teachers', 'courses', 'classrooms'], true), 404);
+
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'course_id' => ['nullable', 'integer', 'min:1'],
+        ]);
+        $term = trim((string) ($filters['q'] ?? ''));
+
+        if (mb_strlen($term) < 2) {
+            return response()->json([
+                'data' => [],
+                'meta' => ['current_page' => 1, 'last_page' => 1, 'next_page' => null, 'total' => 0],
+            ], 200, ['Cache-Control' => 'private, no-store']);
+        }
+
+        if ($type === 'teachers') {
+            $query = $academy->users()
+                ->wherePivot('role', 'teacher')
+                ->wherePivot('status', 'active')
+                ->where('users.status', 'active')
+                ->where('users.name', 'like', '%' . $term . '%')
+                ->select('users.id', 'users.name')
+                ->orderBy('users.name')
+                ->orderBy('users.id');
+            $label = fn ($item) => $item->name;
+        } elseif ($type === 'courses') {
+            $query = $academy->courses()
+                ->where('title', 'like', '%' . $term . '%')
+                ->select('courses.id', 'courses.title', 'courses.price', 'courses.access_type')
+                ->orderBy('courses.title')
+                ->orderBy('courses.id');
+            $label = fn ($item) => $item->title . ' — ' . ($item->isFree() ? 'رایگان' : \App\Support\PersianUi::money($item->price));
+        } else {
+            $query = $academy->classrooms()
+                ->where('status', 'active')
+                ->where('title', 'like', '%' . $term . '%')
+                ->when(isset($filters['course_id']), fn ($builder) => $builder->where('course_id', (int) $filters['course_id']))
+                ->with('course:id,title')
+                ->select('classrooms.id', 'classrooms.title', 'classrooms.course_id')
+                ->orderBy('classrooms.title')
+                ->orderBy('classrooms.id');
+            $label = fn ($item) => $item->title . ($item->course?->title ? ' — ' . $item->course->title : '');
+        }
+
+        $paginator = $query->paginate(20, ['*'], 'page', (int) ($filters['page'] ?? 1));
+
+        return response()->json([
+            'data' => $paginator->getCollection()->map(fn ($item) => [
+                'id' => (int) $item->id,
+                'label' => $label($item),
+            ])->values(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'next_page' => $paginator->hasMorePages() ? $paginator->currentPage() + 1 : null,
+                'total' => $paginator->total(),
+            ],
+        ], 200, ['Cache-Control' => 'private, no-store']);
     }
 
     public function studentOptions(Request $request, Academy $academy, OwnerWorkspaceService $workspace): JsonResponse
