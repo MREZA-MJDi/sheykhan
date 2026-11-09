@@ -11,6 +11,9 @@ $mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
 // Keep these fixture keys identical to AcademyFoundationSeeder and the role demo seeders.
 // A mismatch makes AuthController correctly hide the credentials because no matching
 // active user with the expected role/password exists.
+$studentMobileKey = $appEnvironment === 'testing' ? 'student-SH-1001' : 'student-armin';
+$parentMobileKey = $appEnvironment === 'testing' ? 'parent-0' : 'parent-armin';
+
 $testAccounts = [
     [
         'role' => 'مدیر آموزشگاه',
@@ -34,13 +37,13 @@ $testAccounts = [
         'role' => 'دانش‌آموز',
         'role_key' => 'student',
         'name' => 'آرین محمدی',
-        'username' => $mobileForSeedKey('student-armin'),
+        'username' => $mobileForSeedKey($studentMobileKey),
     ],
     [
         'role' => 'والد',
         'role_key' => 'parent',
         'name' => 'مریم محمدی',
-        'username' => $mobileForSeedKey('parent-armin'),
+        'username' => $mobileForSeedKey($parentMobileKey),
     ],
 ];
 
