@@ -130,8 +130,19 @@ final class OwnerPeopleLookupOptionsTest extends TestCase
             'q' => 'مدرس',
         ]))->assertNotFound();
 
-        $other = User::factory()->create(['status' => 'active']);
-        $this->actingAs($other)->getJson(route('owner.people.lookup-options', [
+        // Having the academy-owner role is not enough: the owner must own
+        // this exact academy, not merely know its identifier.
+        $otherOwner = User::factory()->create(['status' => 'active']);
+        $otherOwner->roles()->attach($owner->roles()->firstOrFail()->id);
+
+        $this->actingAs($otherOwner)->getJson(route('owner.people.lookup-options', [
+            'academy' => $academy,
+            'type' => 'teachers',
+            'q' => 'مدرس',
+        ]))->assertForbidden();
+
+        $unprivileged = User::factory()->create(['status' => 'active']);
+        $this->actingAs($unprivileged)->getJson(route('owner.people.lookup-options', [
             'academy' => $academy,
             'type' => 'teachers',
             'q' => 'مدرس',
