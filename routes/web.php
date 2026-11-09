@@ -237,7 +237,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/spotplayer', [\App\Http\Controllers\Teacher\SpotPlayerController::class, 'index'])->middleware('permission:courses.view')->name('spotplayer.index');
     Route::get('/dashboard', TeacherDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
-    Route::get('/lookup-options/{type}', \App\Http\Controllers\Teacher\LookupOptionsController::class)->middleware(['permission:courses.view','throttle:60,1'])->name('lookup-options');
+    Route::get('/lookup-options/{type}', \App\Http\Controllers\Teacher\LookupOptionsController::class)->middleware('throttle:60,1')->name('lookup-options');
     Route::get('/profile', [TeacherProfileController::class, 'edit'])->middleware('permission:profile.view')->name('profile.edit');
     Route::patch('/profile', [TeacherProfileController::class, 'update'])->middleware(['permission:profile.manage','throttle:10,1'])->name('profile.update');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
