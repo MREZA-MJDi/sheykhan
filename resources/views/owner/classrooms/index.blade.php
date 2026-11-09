@@ -65,15 +65,21 @@
                 <option value="archived" @selected(request('status') === 'archived')>آرشیو</option>
             </select>
         </label>
-        <label class="owner-classroom-filter-field">
-            <span>دوره</span>
-            <select name="course_id">
-                <option value="">همه دوره‌ها</option>
+        <div class="owner-classroom-filter-field" data-academy-option-picker
+             data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="classroom-courses">
+            <label for="owner-classroom-filter-course-search">جست‌وجوی دوره</label>
+            <input id="owner-classroom-filter-course-search" type="search" data-academy-option-search
+                   autocomplete="off" maxlength="80" placeholder="نام دوره…">
+            <select name="course_id" data-academy-option-select>
+                <option data-option-placeholder value="">همه دوره‌ها</option>
                 @foreach($courses as $course)
-                    <option value="{{ $course->id }}" @selected((string) request('course_id') === (string) $course->id)>{{ $course->title }}</option>
+                    <option data-dynamic-academy-option="1" value="{{ $course->id }}"
+                        @selected((string) request('course_id') === (string) $course->id)>{{ $course->title }}</option>
                 @endforeach
             </select>
-        </label>
+            <p data-academy-option-status class="text-[10px] text-slate-500" role="status" aria-live="polite">برای فیلتر بر اساس دوره، نام آن را جست‌وجو کن.</p>
+            <button type="button" data-academy-option-more hidden class="w-fit rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-bold">دوره‌های بیشتر</button>
+        </div>
         <div class="owner-classroom-filter-actions">
             <button type="submit" class="owner-primary-btn">اعمال فیلتر</button>
             @if(request()->query())
