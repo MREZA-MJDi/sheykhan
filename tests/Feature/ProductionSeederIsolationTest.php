@@ -9,7 +9,7 @@ class ProductionSeederIsolationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_database_seeder_does_not_create_demo_people_or_catalog_in_production(): void
+    public function test_database_seeder_creates_role_demo_accounts_without_seeding_synthetic_catalog_in_production(): void
     {
         config(['legacy_students.import_on_db_seed' => false]);
         $this->app->detectEnvironment(static fn (): string => 'production');
@@ -17,7 +17,16 @@ class ProductionSeederIsolationTest extends TestCase
         try {
             $this->artisan('db:seed', ['--force' => true])->assertExitCode(0);
 
-            $this->assertDatabaseMissing('users', ['email' => 'owner@sheykhan.test']);
+            foreach ([
+                'owner@sheykhan.test',
+                'seo.demo@sheykhan.test',
+                'teacher.math@sheykhan.test',
+                'student.armin@sheykhan.test',
+                'parent.armin@sheykhan.test',
+            ] as $email) {
+                $this->assertDatabaseHas('users', ['email' => $email]);
+            }
+
             $this->assertDatabaseCount('courses', 0);
             $this->assertDatabaseCount('products', 0);
             $this->assertDatabaseCount('home_hero_slides', 0);

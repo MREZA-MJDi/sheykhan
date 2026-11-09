@@ -65,7 +65,7 @@ class AcademyFoundationSeeder extends Seeder
     {
         $owner = $this->user('owner@sheykhan.test', 'مدیر آکادمی شیخان', 'owner', 'academy-owner');
         // SEO has its own restricted role and deliberately has no academy membership.
-        $this->user((string) config('role_access.seo_specialist_email'), 'متخصص SEO', 'seo-specialist', 'seo-specialist');
+        $this->user('seo.demo@sheykhan.test', 'متخصص SEO', 'seo-specialist', 'seo-specialist');
 
         $teacherDefinitions = [
             ['teacher.math@sheykhan.test', 'سمیه احمدی', 'teacher-math', 'ریاضی'],
@@ -173,13 +173,13 @@ class AcademyFoundationSeeder extends Seeder
         }
         $seedPassword = $seedPassword ?: 'Sheykhan@12345';
 
-        $user = User::withTrashed()->updateOrCreate(
+        $user = User::withTrashed()->firstOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
                 'mobile' => '0912' . str_pad((string) (abs(crc32($key)) % 10000000), 7, '0', STR_PAD_LEFT),
                 'status' => 'active',
-                'password' => Hash::make($seedPassword),
+                'password' => $seedPassword,
                 'deleted_at' => null,
             ],
         );
