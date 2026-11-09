@@ -173,13 +173,13 @@ class AcademyFoundationSeeder extends Seeder
         }
         $seedPassword = $seedPassword ?: 'Sheykhan@12345';
 
-        $user = User::withTrashed()->updateOrCreate(
+        $user = User::withTrashed()->firstOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
                 'mobile' => '0912' . str_pad((string) (abs(crc32($key)) % 10000000), 7, '0', STR_PAD_LEFT),
                 'status' => 'active',
-                'password' => Hash::make($seedPassword),
+                'password' => 'password',
                 'deleted_at' => null,
             ],
         );
