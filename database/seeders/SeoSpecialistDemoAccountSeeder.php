@@ -12,7 +12,7 @@ class SeoSpecialistDemoAccountSeeder extends Seeder
     public function run(): void
     {
         $this->createDemoRoleAccount(
-            (string) config('role_access.seo_specialist_email'),
+            'seo.demo@sheykhan.test',
             'متخصص SEO',
             'seo-specialist',
             'seo-specialist',
