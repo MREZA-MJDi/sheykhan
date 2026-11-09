@@ -65,21 +65,26 @@
                 <option value="archived" @selected(request('status') === 'archived')>آرشیو</option>
             </select>
         </label>
-        <div class="owner-classroom-filter-field" data-academy-option-picker
-             data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="classroom-filter-courses">
-            <label for="owner-classroom-filter-course-search">جست‌وجوی دوره</label>
-            <input id="owner-classroom-filter-course-search" type="search" data-academy-option-search
-                   autocomplete="off" maxlength="80" placeholder="نام دوره…">
-            <select name="course_id" aria-label="انتخاب دوره برای فیلتر کلاس‌ها" data-academy-option-select>
-                <option data-option-placeholder value="">همه دوره‌ها</option>
-                @foreach($courses as $course)
-                    <option value="{{ $course->id }}"
-                        @selected((string) request('course_id') === (string) $course->id)>{{ $course->title }}</option>
-                @endforeach
-            </select>
-            <p data-academy-option-status class="text-[10px] text-slate-500" role="status" aria-live="polite">برای فیلتر بر اساس دوره، نام آن را جست‌وجو کن.</p>
-            <button type="button" data-academy-option-more hidden class="w-fit rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-bold">دوره‌های بیشتر</button>
-        </div>
+        <x-academy-option-picker
+            id="owner-classroom-filter-course"
+            label="جست‌وجوی دوره"
+            name="course_id"
+            type="classroom-filter-courses"
+            endpoint="{{ route('owner.form-options', $academy) }}"
+            empty-label="همه دوره‌ها"
+            search-placeholder="نام دوره…"
+            status-text="برای فیلتر بر اساس دوره، نام آن را جست‌وجو کن."
+            more-label="دوره‌های بیشتر"
+            select-label="انتخاب دوره برای فیلتر کلاس‌ها"
+            wrapper-class="owner-classroom-filter-field"
+            label-class="text-xs font-bold"
+            status-class="text-[10px] text-slate-500"
+            more-class="w-fit rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-bold">
+            @foreach($courses as $course)
+                <option value="{{ $course->id }}"
+                    @selected((string) request('course_id') === (string) $course->id)>{{ $course->title }}</option>
+            @endforeach
+        </x-academy-option-picker>
         <div class="owner-classroom-filter-actions">
             <button type="submit" class="owner-primary-btn">اعمال فیلتر</button>
             @if(request()->query())
