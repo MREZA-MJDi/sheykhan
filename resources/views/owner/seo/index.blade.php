@@ -208,6 +208,21 @@
                         @endif
                     </div>
 
+                    @if(!empty($item['top_queries']))
+                        <details class="seo-record-queries">
+                            <summary>عبارت‌های جست‌وجوی واقعی <span>{{ number_format(count($item['top_queries'])) }} مورد</span></summary>
+                            <ul>
+                                @foreach($item['top_queries'] as $query)
+                                    <li>
+                                        <strong>{{ $query['query'] }}</strong>
+                                        <small>{{ number_format($query['clicks']) }} کلیک · {{ number_format($query['impressions']) }} نمایش ·
+                                            جایگاه {{ $query['average_position'] !== null ? number_format($query['average_position'], 1) : '—' }}</small>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </details>
+                    @endif
+
                     <div class="seo-record-progress">
                         <div class="seo-progress-heading">
                             <span>تکمیل تنظیمات</span>
