@@ -70,7 +70,7 @@
             <label for="owner-classroom-filter-course-search">جست‌وجوی دوره</label>
             <input id="owner-classroom-filter-course-search" type="search" data-academy-option-search
                    autocomplete="off" maxlength="80" placeholder="نام دوره…">
-            <select name="course_id" data-academy-option-select>
+            <select name="course_id" aria-label="انتخاب دوره برای فیلتر کلاس‌ها" data-academy-option-select>
                 <option data-option-placeholder value="">همه دوره‌ها</option>
                 @foreach($courses as $course)
                     <option data-dynamic-academy-option="1" value="{{ $course->id }}"
