@@ -18,7 +18,7 @@ final class AcademyFormOptionsController extends Controller
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
 
         $filters = $request->validate([
-            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms,classroom-courses,classroom-teachers,attendance-classrooms'],
+            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms,classroom-courses,classroom-filter-courses,classroom-teachers,attendance-classrooms'],
             'q' => ['required', 'string', 'min:2', 'max:80'],
             'course_id' => ['nullable', 'integer', 'min:1'],
         ]);
@@ -26,7 +26,8 @@ final class AcademyFormOptionsController extends Controller
         $requiredPermission = match (true) {
             str_starts_with($filters['type'], 'resource-') => 'resources.manage',
             str_starts_with($filters['type'], 'exam-') => 'exams.manage',
-            $filters['type'] === 'classroom-teachers' => 'classrooms.manage',
+            in_array($filters['type'], ['classroom-courses', 'classroom-teachers'], true) => 'classrooms.manage',
+            $filters['type'] === 'classroom-filter-courses' => 'classrooms.view',
             $filters['type'] === 'attendance-classrooms' => 'attendance.view',
             default => 'classrooms.view',
         };
@@ -47,6 +48,13 @@ final class AcademyFormOptionsController extends Controller
                 ->where('title', 'like', $like)
                 ->orderBy('title')->orderBy('id')
                 ->simplePaginate(20),
+
+            'classroom-filter-courses' => Course::query()
+                ->where('academy_id', $academy->id)
+                ->where('title', 'like', $like)
+                ->orderBy('title')->orderBy('id')
+                ->simplePaginate(20),
+
 
             'classroom-teachers' => (function () use ($academy, $courseId, $like) {
                 abort_unless($courseId, 422, 'ابتدا یک دوره انتخاب کن.');
