@@ -73,7 +73,7 @@
             <select name="course_id" aria-label="انتخاب دوره برای فیلتر کلاس‌ها" data-academy-option-select>
                 <option data-option-placeholder value="">همه دوره‌ها</option>
                 @foreach($courses as $course)
-                    <option data-dynamic-academy-option="1" value="{{ $course->id }}"
+                    <option value="{{ $course->id }}"
                         @selected((string) request('course_id') === (string) $course->id)>{{ $course->title }}</option>
                 @endforeach
             </select>
