@@ -123,10 +123,12 @@ final class OwnerSeoService
         $items = $this->appendDuplicateFindings($items);
         $searchConsole = $this->searchConsolePerformance($items);
 
-        foreach ($items as $index => $item) {
+        $items = $items->map(function (array $item) use ($searchConsole): array {
             $pageHash = hash('sha256', $this->normalizePageUrlForHash((string) ($item['url'] ?? '')));
-            $items[$index]['performance'] = $searchConsole['by_page'][$pageHash] ?? null;
-        }
+            $item['performance'] = $searchConsole['by_page'][$pageHash] ?? null;
+
+            return $item;
+        });
 
         return [
             'academies' => collect(),
