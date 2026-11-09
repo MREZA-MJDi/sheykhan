@@ -1,19 +1,19 @@
 <?php
 
-namespace App\\Services;
+namespace App\Services;
 
-use App\\Models\\ParentProfile;
-use App\\Models\\Role;
-use App\\Models\\StudentProfile;
-use App\\Models\\User;
-use App\\Models\\AuditLog;
-use App\\Support\\MobileNumber;
-use Illuminate\\Support\\Facades\\Schema;
-use Illuminate\\Support\\Facades\\Auth;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Hash;
-use Illuminate\\Support\\Str;
-use Illuminate\\Validation\\ValidationException;
+use App\Models\ParentProfile;
+use App\Models\Role;
+use App\Models\StudentProfile;
+use App\Models\User;
+use App\Models\AuditLog;
+use App\Support\MobileNumber;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 final class AuthService
 {
@@ -67,7 +67,7 @@ final class AuthService
                     'user_agent' => mb_substr((string) request()->userAgent(), 0, 2000),
                 ]);
             }
-        } catch (\\Throwable $exception) {
+        } catch (\Throwable $exception) {
             report($exception);
         }
 
