@@ -72,6 +72,48 @@
         دادهٔ کلیک، نمایش و جایگاه فقط پس از اتصال منبع واقعی مثل Search Console قابل گزارش است.
     </aside>
 
+    <section class="dashboard-panel owner-panel seo-performance-panel" aria-labelledby="seo-performance-title">
+        <div class="owner-panel-head">
+            <div>
+                <h2 id="seo-performance-title">عملکرد واقعی در Google Search Console</h2>
+                <p>آمار جست‌وجوی ارگانیک ثبت‌شده برای صفحات سایت؛ نه تخمین یا رتبه‌سازی داخلی.</p>
+            </div>
+            @if($searchConsole['last_synced_at'])
+                <span class="seo-result-count">آخرین دریافت: {{ \\Illuminate\\Support\\Carbon::parse($searchConsole['last_synced_at'])->format('Y-m-d H:i') }}</span>
+            @endif
+        </div>
+
+        @if($searchConsole['has_data'])
+            <div class="seo-performance-meta">
+                <span>بازهٔ گزارش: {{ $searchConsole['start_date'] }} تا {{ $searchConsole['end_date'] }}</span>
+                <span>Property: <b dir="ltr">{{ $searchConsole['property'] }}</b></span>
+            </div>
+            <div class="seo-performance-stats">
+                <article><span>کلیک ارگانیک</span><strong>{{ number_format($searchConsole['clicks']) }}</strong></article>
+                <article><span>نمایش در جست‌وجو</span><strong>{{ number_format($searchConsole['impressions']) }}</strong></article>
+                <article><span>نرخ کلیک (CTR)</span><strong>{{ number_format(($searchConsole['ctr'] ?? 0) * 100, 2) }}٪</strong></article>
+                <article><span>میانگین جایگاه</span><strong>{{ $searchConsole['average_position'] !== null ? number_format($searchConsole['average_position'], 1) : '—' }}</strong></article>
+            </div>
+            <p class="seo-performance-footnote">میانگین جایگاه، میانگین وزنی داده‌های Search Console است. بعضی عبارت‌ها یا ردیف‌ها ممکن است به‌دلیل محدودیت‌های خود Google در گزارش API نمایش داده نشوند.</p>
+        @elseif($searchConsole['configured'])
+            <div class="seo-connection-state is-pending">
+                <strong>تنظیمات اتصال وارد شده؛ هنوز داده‌ای دریافت نشده است.</strong>
+                <p>پس از اجرای همگام‌سازی، آمار واقعی در همین بخش و کنار هر صفحه نمایش داده می‌شود. property باید در Search Console تأیید شده باشد.</p>
+                <code dir="ltr">php artisan sheykhan:seo-search-console-sync --days=28</code>
+            </div>
+        @else
+            <div class="seo-connection-state">
+                <strong>اتصال Search Console هنوز راه‌اندازی نشده است.</strong>
+                <p>برای گزارش کلیک، نمایش، CTR و میانگین جایگاه، ابتدا property سایت را در Google Search Console تأیید و OAuth فقط‌خواندنی را در تنظیمات خصوصی سرور وارد کن.</p>
+                <code dir="ltr">GOOGLE_SEARCH_CONSOLE_SITE_URL</code>
+                <code dir="ltr">GOOGLE_SEARCH_CONSOLE_CLIENT_ID</code>
+                <code dir="ltr">GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET</code>
+                <code dir="ltr">GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN</code>
+                <small>پس از تنظیم متغیرها و اجرای <code dir="ltr">php artisan config:cache</code>، همگام‌سازی را از ترمینال سرور اجرا کن.</small>
+            </div>
+        @endif
+    </section>
+
     <section class="dashboard-panel owner-panel seo-page-list">
         <div class="owner-panel-head">
             <div>
@@ -148,6 +190,21 @@
                             </details>
                         @else
                             <p class="seo-record-clean">هشدار محتوایی از ممیزی فعلی ثبت نشده است.</p>
+                        @endif
+                    </div>
+
+                    <div class="seo-record-performance">
+                        <span>عملکرد جست‌وجو</span>
+                        @if($item['performance'])
+                            <strong>{{ number_format($item['performance']['clicks']) }} کلیک</strong>
+                            <small>{{ number_format($item['performance']['impressions']) }} نمایش</small>
+                            <small>
+                                CTR: {{ $item['performance']['ctr'] !== null ? number_format($item['performance']['ctr'] * 100, 2).'٪' : '—' }}
+                                · جایگاه: {{ $item['performance']['average_position'] !== null ? number_format($item['performance']['average_position'], 1) : '—' }}
+                            </small>
+                        @else
+                            <strong class="is-no-data">بدون دادهٔ دریافتی</strong>
+                            <small>از Search Console گزارش نشده</small>
                         @endif
                     </div>
 
