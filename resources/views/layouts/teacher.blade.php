@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل مدرس | شیخان')</title>
-    @vite(['resources/css/teacher.css', 'resources/js/teacher.js'])
+    @vite(['resources/css/teacher.css', 'resources/css/panels/shared/enterprise.css', 'resources/js/teacher.js'])
     @stack('styles')
 </head>
 <body class="teacher-panel">
