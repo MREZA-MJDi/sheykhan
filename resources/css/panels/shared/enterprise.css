@@ -612,3 +612,21 @@
 }
 .owner-admin-v2 .main-content .seo-record-queries li strong{color:var(--ui-text);font-size:10px;overflow-wrap:anywhere}
 .owner-admin-v2 .main-content .seo-record-queries li small{color:var(--ui-muted);font-size:9px}
+
+
+.owner-admin-v2 .main-content .seo-duplicate-summary{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px 16px;border:1px solid #f0dfb8;border-inline-start:4px solid #d49a22;
+  border-radius:12px;background:#fffdf8;
+}
+.owner-admin-v2 .main-content .seo-duplicate-summary strong{display:block;color:#805b11;font-size:12px;font-weight:850}
+.owner-admin-v2 .main-content .seo-duplicate-summary p{margin:4px 0 0;color:#79694c;font-size:10px;line-height:1.8}
+.owner-admin-v2 .main-content .seo-duplicate-summary a{
+  flex:0 0 auto;padding:8px 11px;border:1px solid #ead5a6;border-radius:9px;
+  background:#fff;color:#805b11!important;font-size:10px;font-weight:800;
+}
+.owner-admin-v2 .main-content .seo-duplicate-summary a:hover{background:#fff6e3}
+@media(max-width:700px){
+  .owner-admin-v2 .main-content .seo-duplicate-summary{align-items:stretch;flex-direction:column}
+  .owner-admin-v2 .main-content .seo-duplicate-summary a{text-align:center}
+}
