@@ -175,7 +175,8 @@ final class OwnerDashboardService
         // One conditional attendance aggregate provides both period and today's KPIs.
         // A small, aggregate attendance KPI belongs to the dashboard summary itself.
         // Detailed attendance pages and actions remain permission-gated below.
-        $attendanceSummary = DB::table('attendances')
+        $attendanceSummary = $canViewAttendance
+            ? DB::table('attendances')
             ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
             ->whereIn('classrooms.academy_id', $academyIds)
             ->where('classrooms.status', 'active')
@@ -196,7 +197,8 @@ final class OwnerDashboardService
             ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS period_total")
             ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS period_attended")
             ->selectRaw("SUM(CASE WHEN attendances.status = 'absent' THEN 1 ELSE 0 END) AS period_absent")
-            ->first();
+                ->first()
+            : null;
 
         $attendanceTodayTotal = (int) ($attendanceSummary->today_total ?? 0);
         $attendanceTodayAttended = (int) ($attendanceSummary->today_attended ?? 0);
