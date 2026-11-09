@@ -26,7 +26,8 @@ final class AcademyFormOptionsController extends Controller
         $requiredPermission = match (true) {
             str_starts_with($filters['type'], 'resource-') => 'resources.manage',
             str_starts_with($filters['type'], 'exam-') => 'exams.manage',
-            default => 'classrooms.manage',
+            $filters['type'] === 'classroom-teachers' => 'classrooms.manage',
+            default => 'classrooms.view',
         };
         abort_unless($request->user()->hasPermission($requiredPermission), 403);
 
