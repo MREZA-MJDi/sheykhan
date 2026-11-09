@@ -30,14 +30,14 @@ class SeoSpecialistAccessTest extends TestCase
         $seoRole = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
         $user = User::factory()->create([
             'name' => 'متخصص SEO تست',
-            'email' => 'seo@sheykhan.test',
+            'email' => 'seo@sheykhan.com',
             'password' => $password,
             'status' => 'active',
         ]);
         $user->roles()->attach($seoRole->id);
 
         $this->post(route('login.store'), [
-            'identifier' => 'seo@sheykhan.test',
+            'identifier' => 'seo@sheykhan.com',
             'password' => $password,
         ])->assertRedirect(route('owner.seo.index'));
 
