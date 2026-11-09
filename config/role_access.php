@@ -8,70 +8,50 @@ $mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
     STR_PAD_LEFT
 );
 
-// Tests and local development seed accounts with deterministic fixture mobiles.
-// Production uses the persisted demo users' real mobile numbers.
-$testAccounts = in_array($appEnvironment, ['local', 'testing'], true)
-    ? [
-        [
-            'role' => 'مدیر آموزشگاه',
-            'role_key' => 'academy-owner',
-            'name' => 'مدیر آموزشگاه',
-            'username' => $mobileForSeedKey('owner'),
-        ],
-        [
-            'role' => 'متخصص SEO',
-            'role_key' => 'seo-specialist',
-            'name' => 'متخصص SEO',
-            'username' => $mobileForSeedKey('seo-specialist'),
-        ],
-        [
-            'role' => 'مدرس',
-            'role_key' => 'teacher',
-            'name' => 'سمیه احمدی',
-            'username' => $mobileForSeedKey('teacher-math'),
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'آرین محمدی',
-            'username' => $mobileForSeedKey('student-SH-1001'),
-        ],
-        [
-            'role' => 'والد',
-            'role_key' => 'parent',
-            'name' => 'مریم محمدی',
-            'username' => $mobileForSeedKey('parent-0'),
-        ],
-    ]
-    : [
-        [
-            'role' => 'مدیر آموزشگاه',
-            'role_key' => 'academy-owner',
-            'name' => 'مدیر آموزشگاه',
-            'username' => '091779234175',
-        ],
-        [
-            'role' => 'مدرس',
-            'role_key' => 'teacher',
-            'name' => 'سمیه احمدی',
-            'username' => '091193581267',
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'آرین محمدی',
-            'username' => '091866242658',
-        ],
-        [
-            'role' => 'والد',
-            'role_key' => 'parent',
-            'name' => 'مریم محمدی',
-            'username' => '091207448926',
-        ],
-    ];
+// Keep these fixture keys identical to AcademyFoundationSeeder and the role demo seeders.
+// A mismatch makes AuthController correctly hide the credentials because no matching
+// active user with the expected role/password exists.
+$studentMobileKey = $appEnvironment === 'testing' ? 'student-SH-1001' : 'student-armin';
+$parentMobileKey = $appEnvironment === 'testing' ? 'parent-0' : 'parent-armin';
+
+$testAccounts = [
+    [
+        'role' => 'مدیر آموزشگاه',
+        'role_key' => 'academy-owner',
+        'name' => 'مدیر آموزشگاه',
+        'username' => $mobileForSeedKey('owner'),
+    ],
+    [
+        'role' => 'متخصص SEO',
+        'role_key' => 'seo-specialist',
+        'name' => 'متخصص SEO',
+        'username' => $mobileForSeedKey('seo-specialist'),
+    ],
+    [
+        'role' => 'مدرس',
+        'role_key' => 'teacher',
+        'name' => 'سمیه احمدی',
+        'username' => $mobileForSeedKey('teacher-math'),
+    ],
+    [
+        'role' => 'دانش‌آموز',
+        'role_key' => 'student',
+        'name' => 'آرین محمدی',
+        'username' => $mobileForSeedKey($studentMobileKey),
+    ],
+    [
+        'role' => 'والد',
+        'role_key' => 'parent',
+        'name' => 'مریم محمدی',
+        'username' => $mobileForSeedKey($parentMobileKey),
+    ],
+];
 
 return [
-    'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', 'seo@sheykhan.com'),
+    'seo_specialist_email' => env(
+        'SEO_SPECIALIST_EMAIL',
+        $appEnvironment === 'testing' ? 'seo@sheykhan.com' : 'seo.demo@sheykhan.test'
+    ),
 
     'dashboard_routes' => [
         'seo-specialist' => 'owner.seo.index',
@@ -81,10 +61,9 @@ return [
         'parent' => 'parent.dashboard',
     ],
 
-    // Demo credentials are intentionally available in every environment.
+    // Quick-fill credentials are shown only for matching, active, persisted demo users.
     'show_test_accounts' => true,
     'seed_password' => 'password',
     'test_password' => 'password',
-
     'test_accounts' => $testAccounts,
 ];
