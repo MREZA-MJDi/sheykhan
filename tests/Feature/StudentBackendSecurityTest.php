@@ -495,7 +495,7 @@ class StudentBackendSecurityTest extends TestCase
 
         $this->actingAs($student)
             ->patch(route('student.profile.password.update'), [
-                'current_password' => 'Sheykhan@12345',
+                'current_password' => 'password',
                 'password' => 'new-password-123',
                 'password_confirmation' => 'new-password-123',
             ])
