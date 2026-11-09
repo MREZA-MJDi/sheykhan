@@ -140,23 +140,47 @@ final class OwnerClassroomService
         ];
     }
 
-    public function formData(User $owner, Academy $academy): array
-    {
+    public function formData(
+        User $owner,
+        Academy $academy,
+        ?int $selectedCourseId = null,
+        array $selectedTeacherIds = [],
+    ): array {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
-        return [
-            'courses' => $academy->courses()
-                ->with([
-                    'teachers:id,name',
-                ])
-                ->select('id', 'academy_id', 'title', 'status')
-                ->orderBy('title')
-                ->get(),
-            'teachers' => $academy->users()
-                ->wherePivot('role', 'teacher')
-                ->wherePivot('status', 'active')
+        // Forms only hydrate the currently selected option. Large course and
+        // teacher directories are searched through the paginated form-options API.
+        $selectedCourse = $selectedCourseId
+            ? $academy->courses()
+                ->whereKey($selectedCourseId)
+                ->first(['courses.id', 'courses.academy_id', 'courses.title', 'courses.status'])
+            : null;
+
+        $selectedTeacherIds = array_values(array_unique(array_filter(
+            array_map('intval', $selectedTeacherIds),
+            static fn (int $id): bool => $id > 0,
+        )));
+
+        $selectedTeachers = collect();
+        if ($selectedCourse && $selectedTeacherIds !== []) {
+            $selectedTeachers = $selectedCourse->teachers()
+                ->whereIn('users.id', $selectedTeacherIds)
+                ->where('users.status', 'active')
+                ->whereExists(function ($membership) use ($academy): void {
+                    $membership->selectRaw('1')
+                        ->from('academy_user as active_teacher_membership')
+                        ->whereColumn('active_teacher_membership.user_id', 'users.id')
+                        ->where('active_teacher_membership.academy_id', $academy->id)
+                        ->where('active_teacher_membership.role', 'teacher')
+                        ->where('active_teacher_membership.status', 'active');
+                })
                 ->orderBy('users.name')
-                ->get(['users.id', 'users.name']),
+                ->get(['users.id', 'users.name']);
+        }
+
+        return [
+            'courses' => $selectedCourse ? collect([$selectedCourse]) : collect(),
+            'teachers' => $selectedTeachers,
             'grades' => DB::table('academic_grades')
                 ->where('is_active', true)
                 ->orderBy('sort_order')
