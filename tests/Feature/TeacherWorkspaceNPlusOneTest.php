@@ -92,7 +92,7 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
         $capture = false;
 
         $this->assertLessThanOrEqual(
-            $baseline + 8,
+            8,
             $after,
             'Adding many classrooms must not add one or more dashboard queries per classroom.'
         );
