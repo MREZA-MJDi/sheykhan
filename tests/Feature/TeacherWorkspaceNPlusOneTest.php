@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Attendance;
 use App\Models\Classroom;
+use App\Models\Permission;
 use App\Models\User;
 use App\Services\TeacherWorkspaceService;
 use App\Services\TeacherDashboardService;
