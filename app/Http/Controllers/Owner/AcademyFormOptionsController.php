@@ -43,18 +43,11 @@ final class AcademyFormOptionsController extends Controller
                 ->orderBy('title')->orderBy('id')
                 ->simplePaginate(20),
 
-            'classroom-courses' => Course::query()
+            in_array($filters['type'], ['classroom-courses', 'classroom-filter-courses'], true) => Course::query()
                 ->where('academy_id', $academy->id)
                 ->where('title', 'like', $like)
                 ->orderBy('title')->orderBy('id')
                 ->simplePaginate(20),
-
-            'classroom-filter-courses' => Course::query()
-                ->where('academy_id', $academy->id)
-                ->where('title', 'like', $like)
-                ->orderBy('title')->orderBy('id')
-                ->simplePaginate(20),
-
 
             'classroom-teachers' => (function () use ($academy, $courseId, $like) {
                 abort_unless($courseId, 422, 'ابتدا یک دوره انتخاب کن.');
