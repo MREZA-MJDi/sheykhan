@@ -4,130 +4,109 @@
 @section('header-title','دوره‌ها')
 
 @section('content')
-<div class="course-page panel-page-enter space-y-6">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+@php
+    $statusTabs = [
+        'all' => ['label' => 'همه', 'count' => $stats['total']],
+        'published' => ['label' => 'منتشرشده', 'count' => $stats['published']],
+        'draft' => ['label' => 'پیش‌نویس', 'count' => $stats['draft']],
+        'archived' => ['label' => 'آرشیو', 'count' => $stats['archived']],
+    ];
+    $coursePriceLabel = static function ($price): string {
+        $amount = (float) $price;
+        if ($amount >= 1000000 && fmod($amount, 1000000) === 0.0) {
+            return \App\Support\PersianUi::number($amount / 1000000) . ' میلیون تومان';
+        }
+        if ($amount >= 1000000) {
+            return \App\Support\PersianUi::number($amount / 1000000, 1) . ' میلیون تومان';
+        }
+        return \App\Support\PersianUi::money($amount);
+    };
+@endphp
+<div class="course-page panel-page-enter space-y-4">
+    <div class="course-page-heading">
         <div>
-            <p class="text-xs font-black text-[var(--color-brand-600)]">مدیریت آموزش</p>
-            <h1 class="mt-2 text-2xl font-black tracking-tight">دوره‌ها</h1>
-            <p class="mt-2 max-w-2xl text-sm leading-7 text-[var(--color-text-secondary)]">
-                دوره‌ها را بساز، قیمت و وضعیت انتشارشان را مدیریت کن و قبل از انتشار یک‌جا بازبینی‌شان کن.
-            </p>
+            <h1 class="text-2xl font-black tracking-tight">دوره‌ها</h1>
+            <p class="mt-1 text-sm text-[var(--color-text-secondary)]">فهرست و وضعیت دوره‌های آموزشگاه</p>
         </div>
         <a href="{{ route('owner.courses.create') }}" class="course-primary-btn">+ ساخت دوره جدید</a>
     </div>
 
-    <section class="grid gap-3 sm:grid-cols-3" aria-label="آمار دوره‌ها">
-        @foreach([
-            ['کل دوره‌ها', $stats['total'], 'همه دوره‌های ثبت‌شده', 'all'],
-            ['منتشرشده', $stats['published'], 'آماده ارائه', 'published'],
-            ['رایگان', $stats['free'], 'بدون نیاز به پرداخت', 'free'],
-        ] as [$label,$value,$hint,$tone])
-            <article class="course-stat {{ $tone }}">
-                <div class="flex items-start justify-between gap-3">
-                    <span>{{ $label }}</span>
-                    <i aria-hidden="true"></i>
-                </div>
-                <strong>{{ \App\Support\PersianUi::number($value) }}</strong>
-                <small>{{ $hint }}</small>
-            </article>
-        @endforeach
-    </section>
-
-    <section class="course-status-guide">
-        <div>
-            <span class="course-guide-kicker">راهنمای وضعیت</span>
-            <strong>رنگ‌ها را ساده نگه داشتیم؛ هر رنگ یک معنی دارد.</strong>
-        </div>
-        <div class="course-guide-items">
-            <span><i class="published"></i>منتشرشده</span>
-            <span><i class="draft"></i>پیش‌نویس</span>
-            <span><i class="archived"></i>آرشیو</span>
-            <span><i class="paid"></i>پولی</span>
-        </div>
-    </section>
-
-    <section class="panel-card overflow-hidden">
-        <div class="flex flex-col gap-3 border-b border-[var(--color-border)] bg-[var(--color-background-soft)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h2 class="text-sm font-black">فهرست دوره‌ها</h2>
-                <p class="mt-1 text-xs text-[var(--color-text-muted)]">برای دیدن جزئیات «بازبینی» و برای تغییرات «ویرایش» را بزن.</p>
-            </div>
-            @if($courses->total())
-                <span class="course-count-badge">{{ \App\Support\PersianUi::number($courses->total()) }} دوره</span>
-            @endif
+    <section class="course-list-panel" aria-label="فهرست دوره‌ها">
+        <div class="course-list-toolbar">
+            <h2>فهرست دوره‌ها <span>{{ \App\Support\PersianUi::number($stats['total']) }}</span></h2>
+            <nav class="course-filter-tabs" aria-label="فیلتر وضعیت دوره‌ها">
+                @foreach($statusTabs as $key => $tab)
+                    <a href="{{ route('owner.courses.index', $key === 'all' ? [] : ['status' => $key]) }}"
+                       @if($activeStatus === $key) aria-current="page" @endif>
+                        {{ $tab['label'] }}
+                        <span>{{ \App\Support\PersianUi::number($tab['count']) }}</span>
+                    </a>
+                @endforeach
+            </nav>
         </div>
 
         <div class="hidden overflow-x-auto md:block">
-            <table class="w-full min-w-[860px] text-right">
-                <thead class="border-b border-[var(--color-border)] bg-white">
+            <table class="course-table w-full text-right">
+                <thead>
                     <tr>
-                        <th class="px-5 py-4 text-[11px] font-black text-[var(--color-text-muted)]">دوره</th>
-                        <th class="px-5 py-4 text-[11px] font-black text-[var(--color-text-muted)]">وضعیت</th>
-                        <th class="px-5 py-4 text-[11px] font-black text-[var(--color-text-muted)]">دسترسی</th>
-                        <th class="px-5 py-4 text-[11px] font-black text-[var(--color-text-muted)]">دانش‌آموز فعال</th>
-                        <th class="px-5 py-4 text-[11px] font-black text-[var(--color-text-muted)]">عملیات</th>
+                        <th>دوره</th>
+                        <th>وضعیت</th>
+                        <th>هزینه</th>
+                        <th>دانش‌آموز فعال</th>
+                        <th><span class="sr-only">عملیات</span></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[var(--color-border)]">
+                <tbody>
                 @forelse($courses as $course)
-                    <tr class="course-table-row">
-                        <td class="px-5 py-4">
-                            <div class="min-w-0">
-                                <div class="truncate text-sm font-black">{{ $course->title }}</div>
-                                <div class="mt-1 text-[11px] text-[var(--color-text-muted)]">
-                                    {{ \App\Support\PersianUi::digits($course->sections_count) }} بخش
-                                    <span class="mx-1">·</span>
-                                    {{ $course->academy?->name }}
-                                </div>
-                            </div>
+                    <tr class="course-table-row" data-course-row="{{ route('owner.courses.show', $course) }}" tabindex="0" role="link" aria-label="مشاهده دوره {{ $course->title }}">
+                        <td>
+                            <a class="course-row-title" href="{{ route('owner.courses.show', $course) }}">{{ $course->title }}</a>
+                            <span class="course-row-meta">{{ \App\Support\PersianUi::number($course->sections_count) }} بخش</span>
                         </td>
-                        <td class="px-5 py-4">
+                        <td>
                             <span class="course-status-badge {{ $course->status }}">
                                 <i aria-hidden="true"></i>
                                 {{ match($course->status){'published'=>'منتشرشده','archived'=>'آرشیو',default=>'پیش‌نویس'} }}
                             </span>
                         </td>
-                        <td class="px-5 py-4">
+                        <td>
                             @if($course->isFree())
                                 <span class="course-access-badge free">رایگان</span>
                             @else
-                                <div class="space-y-1">
-                                    <span class="course-access-badge paid">پولی</span>
-                                    <div class="text-xs font-black">{{ number_format((float)$course->price,0,'.',',') }} تومان</div>
-                                </div>
+                                <span class="course-price">{{ $coursePriceLabel($course->price) }}</span>
                             @endif
                         </td>
-                        <td class="px-5 py-4">
-                            <span class="text-sm font-black">{{ number_format($course->active_students_count) }}</span>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary">بازبینی</a>
-                                <a href="{{ route('owner.courses.edit',$course) }}" class="course-action-btn">ویرایش</a>
-                                @if($course->status === 'archived')
-                                    <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
-                                        @csrf @method('PATCH')
-                                        <button type="submit" class="course-action-btn" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی</button>
-                                    </form>
-                                @else
-                                    <form method="POST" action="{{ route('owner.courses.archive', $course) }}">
-                                        @csrf @method('PATCH')
-                                        <button type="submit" class="course-action-btn" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو</button>
-                                    </form>
-                                @endif
+                        <td><span class="course-student-count">{{ \App\Support\PersianUi::number($course->active_students_count) }}</span></td>
+                        <td>
+                            <div class="course-row-actions">
+                                <a href="{{ route('owner.courses.edit', $course) }}" class="course-action-btn">ویرایش</a>
+                                <details class="course-more-menu">
+                                    <summary aria-label="عملیات بیشتر برای {{ $course->title }}" title="عملیات بیشتر">⋯</summary>
+                                    @if($course->status === 'archived')
+                                        <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی دوره</button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('owner.courses.archive', $course) }}">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="is-danger" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو دوره</button>
+                                        </form>
+                                    @endif
+                                </details>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-5 py-16">
+                        <td colspan="5">
                             <div class="course-empty-state">
-                                <div class="course-empty-icon">+</div>
-                                <div class="text-sm font-black">هنوز دوره‌ای ساخته نشده است</div>
-                                <p class="mt-1 max-w-md text-xs leading-6 text-[var(--color-text-muted)]">
-                                    اولین دوره را بساز؛ بعد از آن می‌توانی محتوا، رسانه، مدرس و وضعیت انتشارش را مدیریت کنی.
-                                </p>
-                                <a href="{{ route('owner.courses.create') }}" class="course-primary-btn mt-4">ساخت اولین دوره</a>
+                                <div class="text-sm font-black">{{ $activeStatus === 'all' ? 'هنوز دوره‌ای ساخته نشده است' : 'دوره‌ای در این وضعیت وجود ندارد' }}</div>
+                                @if($activeStatus === 'all')
+                                    <a href="{{ route('owner.courses.create') }}" class="course-primary-btn mt-3">ساخت اولین دوره</a>
+                                @else
+                                    <a href="{{ route('owner.courses.index') }}" class="course-empty-link">نمایش همه دوره‌ها</a>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -136,59 +115,34 @@
             </table>
         </div>
 
-        <div class="divide-y divide-[var(--color-border)] md:hidden">
+        <div class="course-mobile-list md:hidden">
             @forelse($courses as $course)
-                <article class="p-4">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                            <h3 class="truncate text-sm font-black">{{ $course->title }}</h3>
-                            <p class="mt-1 text-[11px] text-[var(--color-text-muted)]">{{ $course->academy?->name }} · {{ \App\Support\PersianUi::digits($course->sections_count) }} بخش</p>
-                        </div>
-                        <span class="course-status-badge {{ $course->status }}">
-                            <i aria-hidden="true"></i>
-                            {{ match($course->status){'published'=>'منتشر','archived'=>'آرشیو',default=>'پیش‌نویس'} }}
-                        </span>
+                <article class="course-mobile-row">
+                    <a href="{{ route('owner.courses.show', $course) }}" class="course-row-title">{{ $course->title }}</a>
+                    <div class="course-mobile-meta">
+                        <span class="course-status-badge {{ $course->status }}"><i aria-hidden="true"></i>{{ match($course->status){'published'=>'منتشرشده','archived'=>'آرشیو',default=>'پیش‌نویس'} }}</span>
+                        <span>{{ $course->isFree() ? 'رایگان' : $coursePriceLabel($course->price) }}</span>
+                        <span>{{ \App\Support\PersianUi::number($course->active_students_count) }} دانش‌آموز</span>
                     </div>
-                    <div class="mt-4 grid grid-cols-2 gap-2">
-                        <div class="course-mobile-metric">
-                            <span>دسترسی</span>
-                            <strong>{{ $course->isFree() ? 'رایگان' : number_format((float)$course->price,0,'.',',').' تومان' }}</strong>
-                        </div>
-                        <div class="course-mobile-metric">
-                            <span>دانش‌آموز فعال</span>
-                            <strong>{{ number_format($course->active_students_count) }}</strong>
-                        </div>
-                    </div>
-                    <div class="mt-3 grid grid-cols-2 gap-2">
-                        <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary justify-center">بازبینی دوره</a>
-                        <a href="{{ route('owner.courses.edit',$course) }}" class="course-action-btn justify-center">ویرایش</a>
-                        @if($course->status === 'archived')
-                            <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
-                                @csrf @method('PATCH')
-                                <button type="submit" class="course-action-btn justify-center" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی</button>
-                            </form>
-                        @else
-                            <form method="POST" action="{{ route('owner.courses.archive', $course) }}">
-                                @csrf @method('PATCH')
-                                <button type="submit" class="course-action-btn justify-center" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو</button>
-                            </form>
-                        @endif
+                    <div class="course-row-actions">
+                        <a href="{{ route('owner.courses.edit', $course) }}" class="course-action-btn">ویرایش</a>
+                        <details class="course-more-menu">
+                            <summary aria-label="عملیات بیشتر برای {{ $course->title }}">⋯</summary>
+                            @if($course->status === 'archived')
+                                <form method="POST" action="{{ route('owner.courses.restore', $course) }}">@csrf @method('PATCH')<button type="submit" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی دوره</button></form>
+                            @else
+                                <form method="POST" action="{{ route('owner.courses.archive', $course) }}">@csrf @method('PATCH')<button type="submit" class="is-danger" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو دوره</button></form>
+                            @endif
+                        </details>
                     </div>
                 </article>
             @empty
-                <div class="course-empty-state px-5 py-14">
-                    <div class="course-empty-icon">+</div>
-                    <div class="text-sm font-black">هنوز دوره‌ای ساخته نشده است</div>
-                    <p class="mt-1 max-w-md text-xs leading-6 text-[var(--color-text-muted)]">اولین دوره را بساز و ادامه مسیر را از همین‌جا مدیریت کن.</p>
-                    <a href="{{ route('owner.courses.create') }}" class="course-primary-btn mt-4">ساخت اولین دوره</a>
-                </div>
+                <div class="course-empty-state">دوره‌ای در این وضعیت وجود ندارد.</div>
             @endforelse
         </div>
 
         @if($courses->hasPages())
-            <div class="border-t border-[var(--color-border)] p-4">
-                {{ $courses->links() }}
-            </div>
+            <div class="border-t border-[var(--color-border)] p-4">{{ $courses->links() }}</div>
         @endif
     </section>
 </div>

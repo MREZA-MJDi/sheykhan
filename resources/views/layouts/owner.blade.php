@@ -86,14 +86,8 @@
             ],
         ],
         [
-            'key' => 'site',
-            'title' => 'سایت و محتوا',
-            'color' => '#ff9a1f',
-            'links' => [],
-        ],
-        [
-            'key' => 'settings',
-            'title' => 'تنظیمات و اسناد',
+            'key' => 'more',
+            'title' => 'بیشتر',
             'color' => '#9aa3d8',
             'links' => [
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی و کپی‌رایت', 'icon' => 'scale', 'scope' => 'global'],
@@ -107,7 +101,7 @@
     $currentOwnerNavGroupKey = null;
     foreach ($ownerNavGroups as $candidateGroup) {
         if (
-            $candidateGroup['key'] === 'site'
+            $candidateGroup['key'] === 'more'
             && request()->routeIs(
                 'owner.seo.*',
                 'owner.website.*',
@@ -117,7 +111,7 @@
                 'owner.showcase.*'
             )
         ) {
-            $currentOwnerNavGroupKey = 'site';
+            $currentOwnerNavGroupKey = 'more';
             break;
         }
 
@@ -145,7 +139,7 @@
                         ->filter(fn ($link) => $link['scope'] === 'global' && $ownerUser?->hasPermission($link['permission']));
                     $visibleAcademyLinks = collect($navGroup['links'])
                         ->filter(fn ($link) => $link['scope'] === 'academy' && $ownerUser?->hasPermission($link['permission']));
-                    $showSiteGroup = $navGroup['key'] === 'site' && $canManagePublicSite;
+                    $showSiteGroup = $navGroup['key'] === 'more' && $canManagePublicSite;
                     $showNavGroup = (
                         ! $isSeoOnlyUser
                         && (
@@ -263,7 +257,7 @@
                 <?php } ?>
             <?php } ?>
         </nav>
-        @if(!$isSeoOnlyUser)
+        @if(!$isSeoOnlyUser && !request()->routeIs('owner.people.*'))
         <section class="tm" aria-label="کلاس آنلاین بعدی">
             <small>{{ $nextClass ? 'جلسه آنلاین بعدی' : 'وضعیت کلاس آنلاین' }}</small>
             <svg viewBox="0 0 130 130" aria-hidden="true"><circle cx="65" cy="65" r="58" fill="none" stroke="#2b3270" stroke-width="2" stroke-dasharray="2 6"/><circle cx="65" cy="65" r="48" fill="none" stroke="#0a0e27" stroke-width="9"/><circle id="rg" cx="65" cy="65" r="48" fill="none" stroke-width="9" stroke-dasharray="302" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 65 65)"/><text id="rt" x="65" y="71" text-anchor="middle" fill="#fff" font-size="17" font-weight="800">{{ $nextClassTarget ? '۰۰:۰۰:۰۰' : '—:—:—' }}</text></svg>

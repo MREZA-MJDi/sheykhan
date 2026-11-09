@@ -278,11 +278,23 @@ final class CourseManagementService
         $stats = (clone $base)->select([
             DB::raw('COUNT(*) as total'),
             DB::raw("SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) as published"),
-            DB::raw("SUM(CASE WHEN access_type = 'free' THEN 1 ELSE 0 END) as free"),
+            DB::raw("SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft"),
+            DB::raw("SUM(CASE WHEN status = 'archived' THEN 1 ELSE 0 END) as archived"),
         ])->first();
 
+        $status = request()->query('status', 'all');
+        if (! in_array($status, ['all', 'published', 'draft', 'archived'], true)) {
+            $status = 'all';
+        }
+
+        $courseQuery = clone $base;
+        if ($status !== 'all') {
+            $courseQuery->where('status', $status);
+        }
+
         return [
-            'courses' => (clone $base)
+            'activeStatus' => $status,
+            'courses' => $courseQuery
                 ->with('academy:id,name')
                 ->withCount([
                     'sections',
@@ -294,7 +306,8 @@ final class CourseManagementService
             'stats' => [
                 'total' => (int) ($stats->total ?? 0),
                 'published' => (int) ($stats->published ?? 0),
-                'free' => (int) ($stats->free ?? 0),
+                'draft' => (int) ($stats->draft ?? 0),
+                'archived' => (int) ($stats->archived ?? 0),
             ],
         ];
     }

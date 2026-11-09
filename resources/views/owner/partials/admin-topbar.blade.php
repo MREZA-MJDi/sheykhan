@@ -11,14 +11,9 @@
                 <a class="tab {{ request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update') ? 'on' : '' }}" href="{{ route('owner.seo.index') }}">ممیزی SEO</a>
                 <a class="tab {{ request()->routeIs('owner.seo.keywords.*') ? 'on' : '' }}" href="{{ route('owner.seo.keywords.index') }}">کلمات کلیدی</a>
                 <a class="tab {{ request()->routeIs('owner.website.*') ? 'on' : '' }}" href="{{ route('owner.website.index') }}">مرکز سایت</a>
-            @else
-                <a class="tab" href="{{ route('owner.dashboard') }}">نمای کلی</a>
-                @if($ownerUser?->hasPermission('courses.view'))<a class="tab" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
-                @if($ownerUser?->hasPermission('reports.view'))<a class="tab" href="{{ route('owner.reports.index') }}">گزارش‌ها</a>@endif
-                @if($ownerUser?->hasPermission('finance.view'))<a class="tab" href="{{ route('owner.finance.index') }}">مالی</a>@endif
             @endif
         </nav>
-        <button class="srch" id="srch" type="button" aria-label="جستجوی صفحه‌ها"><svg class="ic"><use href="#i-search"/></svg><span>جستجوی صفحه</span><kbd>Ctrl K</kbd></button>
+        <button class="srch" id="srch" type="button" aria-label="جستجوی صفحه‌ها"><svg class="ic"><use href="#i-search"/></svg><span>جست‌وجوی بخش‌ها</span></button>
         <div class="nt">
             <button class="bell" id="bell" type="button" aria-label="اعلان‌ها" aria-expanded="false" aria-controls="pop"><svg class="ic"><use href="#i-bell"/></svg><b id="nb">{{ $notifications->count() ? \App\Support\PersianUi::digits($notifications->count()) : '' }}</b></button>
             <div class="pop" id="pop" hidden>

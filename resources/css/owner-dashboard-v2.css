@@ -2121,3 +2121,254 @@ body.owner-admin-v2 {
     .owner-admin-v2 .main-content .communication-page__form{grid-template-columns:minmax(0,1fr)!important}
     .owner-admin-v2 .main-content .communication-page__form .communication-page__button{width:100%}
 }
+
+
+/* Owner dashboard: calm, readable operational cards instead of decorative neon. */
+.owner-admin-v2 .main-content .owner-dashboard-start,
+.owner-admin-v2 .main-content .owner-dashboard-kpi{
+    background:#fff!important;
+    color:#172033!important;
+    border:1px solid #e2e8f0!important;
+    box-shadow:0 8px 24px rgba(15,23,42,.045)!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-start .card-title h2,
+.owner-admin-v2 .main-content .owner-dashboard-kpi .kpi-head,
+.owner-admin-v2 .main-content .owner-dashboard-kpi .metric-caption,
+.owner-admin-v2 .main-content .owner-dashboard-kpi .metric-foot{
+    color:#243047!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-start .card-title p,
+.owner-admin-v2 .main-content .owner-dashboard-kpi .metric-caption{
+    font-size:14px!important;
+    line-height:1.85!important;
+    color:#475569!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-kpi .kpi-head{
+    font-size:14px!important;
+    font-weight:800!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-kpi>b{
+    color:#0f172a!important;
+    font-size:clamp(25px,3vw,34px)!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-kpi .metric-foot{
+    border-top:1px solid #e2e8f0!important;
+    font-size:13px!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-kpi .table-link{
+    color:#334155!important;
+    font-weight:800!important;
+}
+.owner-admin-v2 .main-content .owner-kpi-empty-value{
+    font-size:23px!important;
+    color:#64748b!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-start-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+.owner-admin-v2 .main-content .owner-dashboard-start-actions a{
+    min-height:42px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:9px 16px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:800;
+}
+@media(max-width:760px){
+    .owner-admin-v2 .main-content .owner-dashboard-start-actions a{flex:1 1 100%}
+}
+
+
+/* Owner people workspace: list-first layout and accessible collapsed operations. */
+.owner-admin-v2 .main-content .owner-people-directory-first{
+    display:grid;
+    gap:14px;
+}
+.owner-admin-v2 .main-content .owner-people-directory-first>header h2{
+    color:#172033!important;
+    font-size:19px!important;
+}
+.owner-admin-v2 .main-content .owner-people-directory-first>header p{
+    color:#475569!important;
+    font-size:14px!important;
+    line-height:1.9!important;
+}
+.owner-admin-v2 .main-content .owner-people-directory-first .dashboard-panel{
+    background:#fff!important;
+    border:1px solid #e2e8f0!important;
+    color:#172033!important;
+    box-shadow:0 5px 18px rgba(15,23,42,.04)!important;
+}
+.owner-admin-v2 .main-content .owner-people-directory-first [data-directory-controls] label,
+.owner-admin-v2 .main-content .owner-people-directory-first [data-directory-status]{
+    color:#475569!important;
+    font-size:13px!important;
+}
+.owner-admin-v2 .main-content .owner-people-directory-first :is(input,select,button){
+    min-height:42px;
+    border-color:#cbd5e1!important;
+    background:#fff!important;
+    color:#172033!important;
+    font-size:14px!important;
+}
+.owner-admin-v2 .main-content .owner-people-directory-first [data-directory-results] strong{
+    color:#172033!important;
+    font-size:14px!important;
+}
+.owner-admin-v2 .main-content .owner-people-directory-first [data-directory-results] span{
+    color:#475569!important;
+    font-size:13px!important;
+}
+.owner-admin-v2 .main-content .owner-people-operations{
+    border:1px solid #dbe3ef;
+    border-radius:16px;
+    background:#fff;
+    color:#172033;
+    overflow:hidden;
+}
+.owner-admin-v2 .main-content .owner-people-operations>summary{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    min-height:54px;
+    padding:14px 18px;
+    cursor:pointer;
+    list-style:none;
+    font-size:15px;
+    font-weight:850;
+}
+.owner-admin-v2 .main-content .owner-people-operations>summary::-webkit-details-marker{display:none}
+.owner-admin-v2 .main-content .owner-people-operations>summary:after{
+    content:"+";
+    font-size:22px;
+    color:#475569;
+}
+.owner-admin-v2 .main-content .owner-people-operations[open]>summary:after{content:"−"}
+.owner-admin-v2 .main-content .owner-people-operations-body{
+    display:grid;
+    gap:14px;
+    padding:0 14px 14px;
+}
+.owner-admin-v2 .main-content .owner-people-operations-body .dashboard-panel{
+    background:#f8fafc!important;
+    border:1px solid #e2e8f0!important;
+    color:#172033!important;
+}
+.owner-admin-v2 .main-content .owner-people-operations-body :is(label,small,.owner-field-help){
+    color:#334155!important;
+    font-size:13px!important;
+    line-height:1.8!important;
+}
+.owner-admin-v2 .main-content .owner-people-operations-body :is(input,select,textarea){
+    min-height:44px;
+    border:1px solid #cbd5e1!important;
+    background:#fff!important;
+    color:#172033!important;
+    font-size:14px!important;
+}
+.owner-admin-v2 .main-content .owner-lookup-picker{
+    display:grid;
+    gap:7px;
+    min-width:0;
+}
+.owner-admin-v2 .main-content .owner-lookup-picker [data-lookup-results]{
+    display:grid;
+    gap:6px;
+    max-height:240px;
+    overflow:auto;
+}
+.owner-admin-v2 .main-content .owner-lookup-picker [data-lookup-status]{
+    color:#475569;
+    font-size:13px;
+}
+.owner-admin-v2 .main-content .owner-people-workspace{
+    color:#172033;
+}
+
+.owner-admin-v2 .main-content .owner-dashboard-absences{
+    background:#fff!important;
+    color:#172033!important;
+    border:1px solid #e2e8f0!important;
+    box-shadow:0 8px 24px rgba(15,23,42,.045)!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-absences .card-title h2,
+.owner-admin-v2 .main-content .owner-dashboard-absences .owner-dashboard-absent-row strong{
+    color:#172033!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-absences .card-title p,
+.owner-admin-v2 .main-content .owner-dashboard-absences .owner-dashboard-absent-row span{
+    color:#475569!important;
+    font-size:14px!important;
+    line-height:1.8!important;
+}
+.owner-admin-v2 .main-content .owner-dashboard-absent-row{
+    display:grid;
+    gap:3px;
+    padding:11px 0;
+    border-bottom:1px solid #e2e8f0;
+}
+.owner-admin-v2 .main-content .owner-dashboard-absent-row:last-child{border-bottom:0}
+
+.owner-admin-v2 .main-content .owner-dashboard-kpi .ic{
+    color:#475569!important;
+    filter:none!important;
+    box-shadow:none!important;
+}
+
+
+/* Owner course list: compact, readable and consistent with other directory pages. */
+.owner-admin-v2 .course-page { gap: 16px; }
+.owner-admin-v2 .course-page-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.owner-admin-v2 .course-list-panel { overflow:hidden; border:1px solid var(--oa-border); border-radius:16px; background:var(--oa-panel, #fff); color:var(--oa-text, #172033); }
+.owner-admin-v2 .course-list-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--oa-border); }
+.owner-admin-v2 .course-list-toolbar h2 { display:flex; align-items:center; gap:9px; margin:0; font-size:15px; font-weight:850; }
+.owner-admin-v2 .course-list-toolbar h2 span { color:var(--oa-muted); font-size:12px; font-weight:700; }
+.owner-admin-v2 .course-filter-tabs { display:flex; flex-wrap:wrap; align-items:center; gap:5px; }
+.owner-admin-v2 .course-filter-tabs a { display:inline-flex; align-items:center; gap:7px; min-height:36px; padding:6px 11px; border:1px solid transparent; border-radius:9px; color:var(--oa-muted); font-size:12px; font-weight:750; text-decoration:none; }
+.owner-admin-v2 .course-filter-tabs a span { color:inherit; font-variant-numeric:tabular-nums; }
+.owner-admin-v2 .course-filter-tabs a:hover { background:rgba(100,116,139,.09); color:var(--oa-text); }
+.owner-admin-v2 .course-filter-tabs a[aria-current="page"] { border-color:rgba(13,148,136,.25); background:rgba(13,148,136,.10); color:#0f766e; }
+.owner-admin-v2 .course-table { min-width:720px; border:0!important; border-radius:0!important; border-spacing:0!important; font-size:13px!important; }
+.owner-admin-v2 .course-table thead { background:var(--oa-table-head, #f8fafc)!important; color:var(--oa-muted)!important; }
+.owner-admin-v2 .course-table thead th { padding:13px 16px!important; font-size:12px!important; }
+.owner-admin-v2 .course-table tbody tr { background:transparent!important; cursor:pointer; }
+.owner-admin-v2 .course-table tbody tr:hover, .owner-admin-v2 .course-table tbody tr:focus-visible { background:rgba(13,148,136,.065)!important; outline:none; }
+.owner-admin-v2 .course-table tbody tr:focus-visible { box-shadow:inset 0 0 0 2px rgba(13,148,136,.55); }
+.owner-admin-v2 .course-table td { padding:13px 16px!important; border-bottom:1px solid var(--oa-border)!important; vertical-align:middle; }
+.owner-admin-v2 .course-row-title { display:block; width:fit-content; max-width:100%; color:var(--oa-text); font-size:14px; font-weight:850; text-decoration:none; }
+.owner-admin-v2 .course-row-title:hover { color:#0f766e; }
+.owner-admin-v2 .course-row-meta { display:block; margin-top:4px; color:var(--oa-muted); font-size:12px; }
+.owner-admin-v2 .course-status-badge { display:inline-flex; align-items:center; gap:7px; min-height:27px; padding:4px 9px; border:1px solid transparent; border-radius:999px; font-size:12px; font-weight:800; white-space:nowrap; }
+.owner-admin-v2 .course-status-badge i { width:7px; height:7px; border-radius:50%; background:currentColor; }
+.owner-admin-v2 .course-status-badge.published { color:#047857; background:#ecfdf5; border-color:#a7f3d0; }
+.owner-admin-v2 .course-status-badge.draft { color:#92400e; background:#fffbeb; border-color:#fde68a; }
+.owner-admin-v2 .course-status-badge.archived { color:#64748b; background:#f1f5f9; border-color:#cbd5e1; }
+.owner-admin-v2 .course-access-badge.free { color:#0f766e; background:#f0fdfa; border:1px solid #99f6e4; }
+.owner-admin-v2 .course-price, .owner-admin-v2 .course-student-count { color:var(--oa-text); font-size:13px; font-weight:800; white-space:nowrap; }
+.owner-admin-v2 .course-row-actions { display:flex; align-items:center; justify-content:flex-start; gap:7px; white-space:nowrap; }
+.owner-admin-v2 .course-row-actions .course-action-btn { min-height:34px!important; padding:6px 12px!important; border:1px solid var(--oa-border)!important; border-radius:9px!important; background:var(--oa-surface, #fff)!important; color:var(--oa-text)!important; font-size:12px!important; text-decoration:none; }
+.owner-admin-v2 .course-row-actions .course-action-btn:hover { border-color:#0d9488!important; color:#0f766e!important; }
+.owner-admin-v2 .course-more-menu { position:relative; }
+.owner-admin-v2 .course-more-menu summary { display:grid; width:36px; height:34px; place-items:center; border:1px solid var(--oa-border); border-radius:9px; background:var(--oa-surface, #fff); color:var(--oa-text); cursor:pointer; font-size:21px; line-height:1; list-style:none; }
+.owner-admin-v2 .course-more-menu summary::-webkit-details-marker { display:none; }
+.owner-admin-v2 .course-more-menu[open] summary { border-color:#0d9488; color:#0f766e; }
+.owner-admin-v2 .course-more-menu > form { position:absolute; z-index:20; inset-inline-end:0; top:calc(100% + 5px); min-width:145px; padding:5px; border:1px solid var(--oa-border); border-radius:11px; background:var(--oa-surface, #fff); box-shadow:0 12px 30px rgba(15,23,42,.16); }
+.owner-admin-v2 .course-more-menu > form button { display:block; width:100%; min-height:36px; padding:7px 10px; border:0; border-radius:7px; background:transparent; color:var(--oa-text); text-align:right; font:inherit; font-size:12px; font-weight:750; cursor:pointer; }
+.owner-admin-v2 .course-more-menu > form button:hover { background:rgba(100,116,139,.10); }
+.owner-admin-v2 .course-more-menu > form button.is-danger { color:#b91c1c; }
+.owner-admin-v2 .course-empty-state { padding:42px 18px; text-align:center; color:var(--oa-muted); font-size:13px; }
+.owner-admin-v2 .course-empty-link { display:inline-block; margin-top:10px; color:#0f766e; font-weight:800; }
+.owner-admin-v2 .course-mobile-list { display:block; }
+.owner-admin-v2 .course-mobile-row { display:grid; gap:12px; padding:16px; border-bottom:1px solid var(--oa-border); }
+.owner-admin-v2 .course-mobile-meta { display:flex; flex-wrap:wrap; align-items:center; gap:10px; color:var(--oa-muted); font-size:12px; }
+@media (max-width:767px) {
+ .owner-admin-v2 .course-page-heading { align-items:flex-start; }
+ .owner-admin-v2 .course-page-heading .course-primary-btn { flex-shrink:0; }
+ .owner-admin-v2 .course-list-toolbar { align-items:flex-start; flex-direction:column; }
+ .owner-admin-v2 .course-filter-tabs { width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:2px; }
+ .owner-admin-v2 .course-filter-tabs a { flex-shrink:0; }
+}

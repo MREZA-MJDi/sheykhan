@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 final class TeacherWorkspaceService
 {
+    /** @deprecated Use coursesPaginated() or lookupOptions() for course screens. */
     public function courses(User $teacher): Collection
     {
         $courses = $teacher->taughtCourses()
@@ -23,6 +24,7 @@ final class TeacherWorkspaceService
             ->with('academy:id,name')
             ->withCount(['sections'])
             ->latest('courses.updated_at')
+            ->limit(50)
             ->get();
 
         $this->attachTeacherVisibleStudentCounts($courses, $teacher);
@@ -87,6 +89,7 @@ final class TeacherWorkspaceService
         }
     }
 
+    /** @deprecated Use classroomsPaginated() or lookupOptions() for classroom screens. */
     public function classrooms(User $teacher): Collection
     {
         return $teacher->classroomsAsTeacher()
@@ -110,6 +113,7 @@ final class TeacherWorkspaceService
                 'attendance as attendance_today_count' => fn ($query) => $query->whereDate('attendance_date', today()),
             ])
             ->orderBy('title')
+            ->limit(50)
             ->get();
     }
 
@@ -153,7 +157,37 @@ final class TeacherWorkspaceService
             ->withQueryString();
     }
 
-    public function classroomsForSchedule(User $teacher): Collection
+    /**
+     * Search teacher-owned course/class options without loading every record into forms.
+     */
+    public function lookupOptions(User $teacher, string $type, string $search, ?int $courseId = null, int $perPage = 20): LengthAwarePaginator
+    {
+        $search = trim(mb_substr($search, 0, 100));
+        abort_unless(in_array($type, ['courses', 'classrooms'], true), 404);
+
+        if ($type === 'courses') {
+            return $teacher->taughtCourses()
+                ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+                ->where('courses.title', 'like', '%' . $search . '%')
+                ->select('courses.id', 'courses.title')
+                ->orderBy('courses.title')
+                ->orderBy('courses.id')
+                ->paginate($perPage);
+        }
+
+        return $teacher->classroomsAsTeacher()
+            ->where('classrooms.status', 'active')
+            ->whereHas('academy', fn ($query) => $this->activeTeacherAcademy($query, $teacher->id))
+            ->when($courseId, fn ($query) => $query->where('classrooms.course_id', $courseId))
+            ->where('classrooms.title', 'like', '%' . $search . '%')
+            ->with('course:id,title')
+            ->select('classrooms.id', 'classrooms.title', 'classrooms.course_id')
+            ->orderBy('classrooms.title')
+            ->orderBy('classrooms.id')
+            ->paginate($perPage);
+    }
+
+    public function classroomsForSchedule(User $teacher): LengthAwarePaginator
     {
         return $teacher->classroomsAsTeacher()
             ->where('classrooms.status', 'active')
@@ -163,7 +197,8 @@ final class TeacherWorkspaceService
                 'schedules:id,classroom_id,weekday,start_time,end_time,room,provider,meeting_url',
             ])
             ->orderBy('title')
-            ->get();
+            ->paginate(12)
+            ->withQueryString();
     }
 
     public function classroomWithStudents(User $teacher, int $classroomId): Classroom
@@ -191,6 +226,7 @@ final class TeacherWorkspaceService
             ->firstOrFail();
     }
 
+    /** @deprecated Use studentsPaginated() for all roster screens. */
     public function students(User $teacher): Collection
     {
         $classroomIds = $teacher->classroomsAsTeacher()
@@ -232,6 +268,7 @@ final class TeacherWorkspaceService
                     ->whereIn('course_id', $courseIds)),
             ])
             ->orderBy('name')
+            ->limit(50)
             ->get();
     }
 

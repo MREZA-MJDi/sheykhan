@@ -28,15 +28,16 @@
         </div>
         <form method="POST" action="{{ route('teacher.schedule.store') }}" class="teacher-workspace-form-grid" data-meeting-provider-form>
             @csrf
-            <label class="teacher-workspace-field">
-                <span>کلاس</span>
-                <select name="classroom_id" required>
-                    <option value="">انتخاب کلاس</option>
-                    @foreach($classrooms as $classroom)
-                        <option value="{{ $classroom->id }}" @selected(old('classroom_id') == $classroom->id)>{{ $classroom->title }} · {{ $classroom->course?->title }}</option>
-                    @endforeach
-                </select>
-            </label>
+            <div class="teacher-workspace-field teacher-lookup-picker" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'classrooms']) }}" data-lookup-type="classrooms" data-required="true">
+                <label for="schedule-classroom-search"><span>کلاس</span></label>
+                <input id="schedule-classroom-search" type="search" data-teacher-lookup-search value="{{ old('classroom_label') }}" placeholder="نام کلاس را جست‌وجو کن…" autocomplete="off">
+                <input type="hidden" name="classroom_id" data-teacher-lookup-value value="{{ old('classroom_id') }}">
+                <input type="hidden" name="classroom_label" data-teacher-lookup-label value="{{ old('classroom_label') }}">
+                <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                <small data-teacher-lookup-status aria-live="polite">برای جست‌وجو حداقل دو حرف وارد کن.</small>
+                @error('classroom_id')<small class="teacher-field-error">{{ $message }}</small>@enderror
+            </div>
             <label class="teacher-workspace-field">
                 <span>روز هفته</span>
                 <select name="weekday" required>
@@ -129,6 +130,11 @@
         @empty
             <div class="teacher-workspace-card" style="grid-column:1/-1"><div class="teacher-workspace-empty"><strong>کلاسی برای برنامه‌ریزی وجود ندارد.</strong>ابتدا یک کلاس بساز.</div></div>
         @endforelse
+        @if($classrooms->hasPages())
+            <div class="mt-5 border-t border-slate-200 pt-4">
+                {{ $classrooms->withQueryString()->links() }}
+            </div>
+        @endif
     </section>
 </div>
 @endsection

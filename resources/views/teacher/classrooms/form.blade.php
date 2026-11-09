@@ -16,7 +16,16 @@
         <section class="teacher-form-section md:col-span-2">
             <h2>هویت کلاس</h2><p>دوره و نامی را انتخاب کن که دانش‌آموزان در پنل خودشان خواهند دید.</p>
             <div class="mt-5 grid gap-4 md:grid-cols-2">
-                <label class="teacher-form-field md:col-span-2"><span>دوره</span><select name="course_id" required>@foreach($courses as $course)<option value="{{ $course->id }}" @selected(old('course_id') == $course->id)>{{ $course->title }}</option>@endforeach</select>@error('course_id')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
+                <div class="teacher-form-field teacher-lookup-picker md:col-span-2" data-teacher-lookup-picker data-options-url="{{ route('teacher.lookup-options', ['type' => 'courses']) }}" data-lookup-type="courses" data-required="true">
+                    <label for="classroom-course-search"><span>دوره</span></label>
+                    <input id="classroom-course-search" type="search" data-teacher-lookup-search value="{{ old('course_label', $classroom->course?->title) }}" placeholder="نام دوره را جست‌وجو کن…" autocomplete="off">
+                    <input type="hidden" id="classroom-course-id" name="course_id" data-teacher-lookup-value value="{{ old('course_id', $classroom->course_id) }}">
+                    <input type="hidden" name="course_label" data-teacher-lookup-label value="{{ old('course_label', $classroom->course?->title) }}">
+                    <div data-teacher-lookup-results class="teacher-lookup-results" role="listbox"></div>
+                    <button type="button" data-teacher-lookup-more hidden>نتایج بعدی</button>
+                    <small data-teacher-lookup-status aria-live="polite">برای جست‌وجو حداقل دو حرف وارد کن.</small>
+                    @error('course_id')<small class="teacher-field-error">{{ $message }}</small>@enderror
+                </div>
                 <label class="teacher-form-field"><span>عنوان کلاس</span><input name="title" value="{{ old('title',$classroom->title) }}" placeholder="مثلاً کلاس دهم - گروه A" required>@error('title')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
                 <label class="teacher-form-field"><span>کد داخلی کلاس · خودکار</span><input name="code" value="{{ old('code',$classroom->code) }}" required readonly dir="ltr" class="is-generated-code" aria-describedby="teacher-classroom-code-help"><small id="teacher-classroom-code-help">کد یکتا را شیخان تولید می‌کند؛ لازم نیست چیزی وارد کنی.</small>@error('code')<small class="teacher-field-error">{{ $message }}</small>@enderror</label>
                 <label class="teacher-form-field"><span>ظرفیت <small class="text-slate-400">اختیاری</small></span><input type="number" min="1" name="capacity" value="{{ old('capacity',$classroom->capacity) }}" placeholder="۳۰" inputmode="numeric"></label>

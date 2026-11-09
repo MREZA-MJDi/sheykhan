@@ -58,7 +58,7 @@ final class StudentController extends Controller
                 $search,
                 $classroomId,
             ),
-            'classrooms' => $workspace->classrooms($teacher),
+            'classrooms' => collect(),
             'selectedClassroom' => $selectedClassroom,
             'selectedClassroomId' => $classroomId,
             'studentSearch' => $search,

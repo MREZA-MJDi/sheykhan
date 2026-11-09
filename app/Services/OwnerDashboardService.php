@@ -133,8 +133,9 @@ final class OwnerDashboardService
                 ])
                 ->selectRaw("COALESCE(SUM(CASE WHEN type = 'enrollment_payment' THEN amount ELSE 0 END), 0) AS revenue")
                 ->selectRaw("COALESCE(SUM(CASE WHEN type = 'refund' THEN amount ELSE 0 END), 0) AS refunds")
+                ->selectRaw('COUNT(*) AS transaction_count')
                 ->first()
-            : (object) ['revenue' => 0, 'refunds' => 0];
+            : (object) ['revenue' => 0, 'refunds' => 0, 'transaction_count' => 0];
 
         $revenue = (float) ($financeSummary->revenue ?? 0);
         $refunds = (float) ($financeSummary->refunds ?? 0);
@@ -188,14 +189,45 @@ final class OwnerDashboardService
                 "SUM(CASE WHEN DATE(attendances.attendance_date) = ? AND attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS today_attended",
                 [$now->toDateString()]
             )
+            ->selectRaw(
+                "SUM(CASE WHEN DATE(attendances.attendance_date) = ? AND attendances.status = 'absent' THEN 1 ELSE 0 END) AS today_absent",
+                [$now->toDateString()]
+            )
             ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late', 'absent') THEN 1 ELSE 0 END) AS period_total")
             ->selectRaw("SUM(CASE WHEN attendances.status IN ('present', 'late') THEN 1 ELSE 0 END) AS period_attended")
+            ->selectRaw("SUM(CASE WHEN attendances.status = 'absent' THEN 1 ELSE 0 END) AS period_absent")
             ->first();
 
         $attendanceTodayTotal = (int) ($attendanceSummary->today_total ?? 0);
         $attendanceTodayAttended = (int) ($attendanceSummary->today_attended ?? 0);
         $attendancePeriodTotal = (int) ($attendanceSummary->period_total ?? 0);
         $attendancePeriodAttended = (int) ($attendanceSummary->period_attended ?? 0);
+        $attendanceTodayAbsent = (int) ($attendanceSummary->today_absent ?? 0);
+        $attendancePeriodAbsent = (int) ($attendanceSummary->period_absent ?? 0);
+
+        // A short, useful preview answers "who was absent?" without loading a
+        // complete attendance register into the dashboard.
+        $absentStudents = $canViewAttendance
+            ? DB::table('attendances')
+                ->join('users', 'users.id', '=', 'attendances.student_id')
+                ->join('classrooms', 'classrooms.id', '=', 'attendances.classroom_id')
+                ->whereIn('classrooms.academy_id', $academyIds)
+                ->where('classrooms.status', 'active')
+                ->whereDate('attendances.attendance_date', '>=', $periodStart->toDateString())
+                ->whereDate('attendances.attendance_date', '<=', $now->toDateString())
+                ->where('attendances.status', 'absent')
+                ->where('users.status', 'active')
+                ->whereNull('users.deleted_at')
+                ->orderByDesc('attendances.attendance_date')
+                ->orderByDesc('attendances.id')
+                ->limit(5)
+                ->get([
+                    'attendances.id',
+                    'attendances.attendance_date',
+                    'users.name as student_name',
+                    'classrooms.title as classroom_title',
+                ])
+            : collect();
 
         // Scope the roster subquery to this owner's active classrooms and derive
         // classroom count, capacity totals and capacity alerts in one aggregate.
@@ -238,24 +270,21 @@ final class OwnerDashboardService
 
         // The live-now KPI is an aggregate dashboard signal. Limit the scan to
         // the maximum valid session duration (24h); full session previews stay gated.
-        $liveNowClasses = LiveClass::query()
+        // Count currently-running sessions in SQL. Hydrating every session from
+        // the last 24 hours just to filter it in PHP makes dashboard cost grow
+        // with historical activity and provides no UI value.
+        $databaseDriver = DB::connection()->getDriverName();
+        $liveEndExpression = $databaseDriver === 'sqlite'
+            ? "COALESCE(scheduled_end_at, datetime(scheduled_at, '+' || MAX(COALESCE(duration_minutes, 60), 1) || ' minutes'))"
+            : 'COALESCE(scheduled_end_at, TIMESTAMPADD(MINUTE, GREATEST(COALESCE(duration_minutes, 60), 1), scheduled_at))';
+
+        $liveNowCount = LiveClass::query()
             ->whereIn('status', ['scheduled', 'live'])
-            ->whereBetween('scheduled_at', [$now->copy()->subDay(), $now])
+            ->where('scheduled_at', '<=', $now)
+            ->whereRaw($liveEndExpression . ' >= ?', [$now->toDateTimeString()])
             ->whereHas('classroom', fn ($query) => $query
                 ->whereIn('academy_id', $academyIds)
                 ->where('status', 'active'))
-            ->orderByDesc('scheduled_at')
-            ->get(['id', 'scheduled_at', 'scheduled_end_at', 'duration_minutes']);
-
-        $liveNowCount = $liveNowClasses
-            ->filter(function (LiveClass $liveClass) use ($now): bool {
-                $start = $liveClass->scheduled_at;
-                $end = $liveClass->scheduled_end_at
-                    ? Carbon::parse($liveClass->scheduled_end_at)
-                    : $start->copy()->addMinutes(max(1, (int) ($liveClass->duration_minutes ?? 60)));
-
-                return $start->lte($now) && $end->gte($now);
-            })
             ->count();
 
         $todayLiveClasses = $canViewMeetings ? LiveClass::query()
@@ -424,6 +453,7 @@ final class OwnerDashboardService
                 'students' => $studentCount,
                 'classrooms' => $classroomCount,
                 'sales' => $revenue - $refunds,
+                'transactionCount' => (int) ($financeSummary->transaction_count ?? 0),
                 'published' => $publishedCourseCount,
                 'pendingReviews' => (int) $pendingReviews,
                 'todayAttendanceRate' => $attendanceTodayTotal > 0
@@ -432,6 +462,10 @@ final class OwnerDashboardService
                 'attendanceRate' => $attendancePeriodTotal > 0
                     ? round(($attendancePeriodAttended / $attendancePeriodTotal) * 100, 1)
                     : null,
+                'todayAbsentCount' => $attendanceTodayAbsent,
+                'absentCount' => $attendancePeriodAbsent,
+                'todayAttendanceTotal' => $attendanceTodayTotal,
+                'attendanceTotal' => $attendancePeriodTotal,
                 'liveNow' => $liveNowCount,
                 'capacityAlerts' => $capacityAlerts,
                 'classroomsWithoutTeacher' => $classroomsWithoutTeacher,
@@ -449,6 +483,7 @@ final class OwnerDashboardService
             ],
             'upcomingLiveClasses' => $upcomingLiveClasses,
             'todayLiveClasses' => $todayLiveClasses,
+            'absentStudents' => $absentStudents,
             'recentCourses' => $canViewCourses
                 ? Course::query()
                     ->whereIn('academy_id', $academyIds)

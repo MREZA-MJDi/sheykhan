@@ -25,39 +25,46 @@ final class TeacherDashboardService
             ->whereIn('courses.academy_id', $activeAcademyIds)
             ->pluck('courses.id');
 
-        $classrooms = $teacher->classroomsAsTeacher()
+        // Dashboard cards are a bounded preview, not a reason to hydrate every
+        // classroom (and every schedule) assigned to the teacher. Keep aggregate
+        // metrics scoped to the complete relationship in SQL.
+        $classroomScope = $teacher->classroomsAsTeacher()
             ->whereIn('classrooms.academy_id', $activeAcademyIds)
-            ->where('classrooms.status', 'active')
+            ->where('classrooms.status', 'active');
+
+        $activeClassroomCount = (clone $classroomScope)->count('classrooms.id');
+        $classroomIdsQuery = (clone $classroomScope)->select('classrooms.id');
+
+        $classrooms = (clone $classroomScope)
             ->with([
                 'course:id,title',
                 'schedules' => fn ($query) => $query->orderBy('start_time'),
             ])
+            ->orderBy('classrooms.title')
+            ->orderBy('classrooms.id')
+            ->limit(50)
             ->get();
 
-        $classroomIds = $classrooms->modelKeys();
-
-        $studentCount = $classroomIds
-            ? DB::table('classroom_student as memberships')
-                ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
-                ->join('users', 'users.id', '=', 'memberships.student_id')
-                ->join('course_enrollments as enrollments', function ($join): void {
-                    $join->on('enrollments.student_id', '=', 'memberships.student_id')
-                        ->on('enrollments.classroom_id', '=', 'classrooms.id')
-                        ->on('enrollments.course_id', '=', 'classrooms.course_id')
-                        ->where('enrollments.status', '=', 'active');
-                })
-                ->whereIn('memberships.classroom_id', $classroomIds)
-                ->where('memberships.status', 'active')
-                ->where('users.status', 'active')
-                ->whereNull('users.deleted_at')
-                ->distinct()
-                ->count('memberships.student_id')
-            : 0;
+        $studentCount = DB::table('classroom_student as memberships')
+            ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
+            ->join('users', 'users.id', '=', 'memberships.student_id')
+            ->join('course_enrollments as enrollments', function ($join): void {
+                $join->on('enrollments.student_id', '=', 'memberships.student_id')
+                    ->on('enrollments.classroom_id', '=', 'classrooms.id')
+                    ->on('enrollments.course_id', '=', 'classrooms.course_id')
+                    ->where('enrollments.status', '=', 'active');
+            })
+            ->whereIn('memberships.classroom_id', $classroomIdsQuery)
+            ->where('memberships.status', 'active')
+            ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
+            ->distinct()
+            ->count('memberships.student_id');
 
         $classroomRosterPreviews = $this->classroomRosterPreviews($classrooms);
 
         if ($courseIds->isEmpty()) {
-            return $this->emptyState($teacher, $classrooms, $studentCount, $classroomRosterPreviews);
+            return $this->emptyState($teacher, $classrooms, $studentCount, $classroomRosterPreviews, $activeClassroomCount);
         }
 
         $weekStart = now()->startOfWeek(Carbon::SATURDAY);
@@ -215,7 +222,7 @@ final class TeacherDashboardService
             'dashboardDate' => PersianUi::date(now()),
             'completedSessions' => $completedSessions,
             'metrics' => [
-                'activeClasses' => count($classroomIds),
+                'activeClasses' => $activeClassroomCount,
                 'studentCount' => $studentCount,
                 'weeklySessions' => $weeklySessions,
                 'pendingAssignmentReviews' => $pendingAssignmentReviews,
@@ -461,52 +468,89 @@ private function exclusiveCourseIdsForTeacher(int $teacherId, $courseIds)
      */
     private function classroomRosterPreviews($classrooms)
     {
-        return $classrooms->take(4)->map(function ($classroom): array {
-            $roster = $classroom->students()
-                ->wherePivot('status', 'active')
-                ->where('users.status', 'active')
-                ->whereNull('users.deleted_at')
-                ->whereHas('enrollments', fn ($query) => $query
-                    ->where('course_id', $classroom->course_id)
-                    ->where('classroom_id', $classroom->id)
-                    ->where('status', 'active'));
+        $previewClassrooms = $classrooms->take(4)->values();
 
-            $total = (clone $roster)->count();
-            $students = $roster
-                ->with(['studentProfile.media' => fn ($query) => $query
-                    ->wherePivot('collection', 'student-avatar')
-                    ->orderByPivot('sort_order')])
-                ->orderBy('users.name')
-                ->limit(4)
-                ->get(['users.id', 'users.name']);
+        if ($previewClassrooms->isEmpty()) {
+            return collect();
+        }
 
-            $students->each(function (User $student): void {
-                $avatar = $student->studentProfile?->media?->first();
-                $student->setAttribute(
-                    'avatar_url',
-                    $avatar && $avatar->visibility === 'public' ? $avatar->url() : null,
-                );
-            });
+        $classroomIds = $previewClassrooms->pluck('id')->map(fn ($id) => (int) $id)->all();
+
+        // Rank eligible students per classroom and calculate each roster total
+        // in the same SQL pass. This keeps the dashboard query count constant
+        // instead of issuing count + roster + profile queries for every class.
+        $rankedRoster = DB::table('classroom_student as memberships')
+            ->join('classrooms', 'classrooms.id', '=', 'memberships.classroom_id')
+            ->join('users', 'users.id', '=', 'memberships.student_id')
+            ->whereIn('memberships.classroom_id', $classroomIds)
+            ->where('memberships.status', 'active')
+            ->where('users.status', 'active')
+            ->whereNull('users.deleted_at')
+            ->whereExists(function ($enrollment): void {
+                $enrollment->selectRaw('1')
+                    ->from('course_enrollments')
+                    ->whereColumn('course_enrollments.student_id', 'memberships.student_id')
+                    ->whereColumn('course_enrollments.classroom_id', 'memberships.classroom_id')
+                    ->whereColumn('course_enrollments.course_id', 'classrooms.course_id')
+                    ->where('course_enrollments.status', 'active');
+            })
+            ->select([
+                'memberships.classroom_id',
+                'users.id as student_id',
+                'users.name as student_name',
+            ])
+            ->selectRaw('COUNT(*) OVER (PARTITION BY memberships.classroom_id) AS roster_total')
+            ->selectRaw('ROW_NUMBER() OVER (PARTITION BY memberships.classroom_id ORDER BY users.name, users.id) AS roster_rank');
+
+        $rosterRows = DB::query()
+            ->fromSub($rankedRoster, 'ranked_roster')
+            ->where('roster_rank', '<=', 4)
+            ->orderBy('classroom_id')
+            ->orderBy('roster_rank')
+            ->get();
+
+        $avatarUsers = User::query()
+            ->whereIn('id', $rosterRows->pluck('student_id')->unique()->all())
+            ->with(['studentProfile.media' => fn ($query) => $query
+                ->wherePivot('collection', 'student-avatar')
+                ->orderByPivot('sort_order')])
+            ->get(['id', 'name'])
+            ->keyBy('id');
+
+        $rostersByClassroom = $rosterRows->groupBy('classroom_id');
+
+        return $previewClassrooms->map(function ($classroom) use ($rostersByClassroom, $avatarUsers): array {
+            $rows = $rostersByClassroom->get($classroom->id, collect());
+            $students = $rows->map(function ($row) use ($avatarUsers): object {
+                $student = $avatarUsers->get((int) $row->student_id);
+                $avatar = $student?->studentProfile?->media?->first();
+
+                return (object) [
+                    'id' => (int) $row->student_id,
+                    'name' => (string) $row->student_name,
+                    'avatar_url' => $avatar && $avatar->visibility === 'public' ? $avatar->url() : null,
+                ];
+            })->values();
 
             return [
                 'classroom_id' => (int) $classroom->id,
                 'title' => (string) $classroom->title,
                 'course_title' => (string) ($classroom->course?->title ?? 'بدون دوره'),
-                'student_count' => $total,
+                'student_count' => (int) ($rows->first()->roster_total ?? 0),
                 'students' => $students,
                 'url' => route('teacher.classrooms.index'),
             ];
         })->values();
     }
 
-    private function emptyState(User $teacher, $classrooms, int $studentCount, $classroomRosterPreviews = null): array
+    private function emptyState(User $teacher, $classrooms, int $studentCount, $classroomRosterPreviews = null, ?int $activeClassroomCount = null): array
     {
         return [
             'teacher' => $teacher,
             'dashboardDate' => PersianUi::date(now()),
             'completedSessions' => 0,
             'metrics' => [
-                'activeClasses' => $classrooms->count(),
+                'activeClasses' => $activeClassroomCount ?? $classrooms->count(),
                 'studentCount' => $studentCount,
                 'weeklySessions' => 0,
                 'pendingAssignmentReviews' => 0,
