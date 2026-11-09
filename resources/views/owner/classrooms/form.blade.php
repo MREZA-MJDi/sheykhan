@@ -75,7 +75,7 @@
                     <input id="owner-classroom-teacher-search" type="search" data-academy-option-search
                            autocomplete="off" maxlength="80" placeholder="نام مدرس را بنویس…"
                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
-                    <select id="owner-classroom-teacher" name="teacher_ids[]" required data-academy-option-select
+                    <select id="owner-classroom-teacher" name="teacher_ids[]" aria-label="انتخاب مدرس کلاس" required data-academy-option-select
                             class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
                         <option data-option-placeholder value="">ابتدا دوره را انتخاب کن</option>
                         @foreach($teachers as $teacher)
