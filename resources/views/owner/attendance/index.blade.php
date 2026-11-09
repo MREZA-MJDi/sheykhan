@@ -31,7 +31,7 @@
             <div class="grid gap-2" data-academy-option-picker data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="attendance-classrooms">
                 <label for="owner-attendance-classroom-search" class="text-xs font-bold">جست‌وجوی کلاس</label>
                 <input id="owner-attendance-classroom-search" type="search" data-academy-option-search autocomplete="off" maxlength="80" placeholder="نام کلاس را بنویس…" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
-                <select name="classroom_id" data-academy-option-select class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                <select name="classroom_id" aria-label="انتخاب کلاس برای فیلتر حضور و غیاب" data-academy-option-select class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <option data-option-placeholder value="">همه کلاس‌ها</option>
                     @foreach($classrooms as $classroom)
                         <option data-dynamic-academy-option="1" value="{{ $classroom->id }}" @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>
