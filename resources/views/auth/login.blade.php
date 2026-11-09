@@ -154,13 +154,13 @@
 
             <div class="mt-2 grid gap-1 text-xs text-[var(--color-text-secondary)]">
                 <div class="overflow-x-auto">
-                    <span class="font-bold">Mobile:</span>
+                    <span class="font-bold">موبایل:</span>
                     <code dir="ltr">{{ $account['username'] }}</code>
                 </div>
 
                 @if($testPassword)
                     <div class="overflow-x-auto">
-                        <span class="font-bold">Password:</span>
+                        <span class="font-bold">رمز عبور:</span>
                         <code dir="ltr">{{ $testPassword }}</code>
                     </div>
 
@@ -193,7 +193,7 @@
 
                 @if($dashboardUrl)
                     <div class="overflow-x-auto">
-                        <span class="font-bold">Path:</span>
+                        <span class="font-bold">مسیر داشبورد:</span>
                         <code dir="ltr">{{ $dashboardUrl }}</code>
                     </div>
                 @endif
