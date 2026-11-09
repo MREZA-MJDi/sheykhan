@@ -33,7 +33,7 @@ final class GoogleSearchConsoleSyncService
      * Page aggregates and page/query rows are stored separately because their
      * aggregation and completeness characteristics are not interchangeable.
      *
-     * @return array{page_rows:int,query_rows:int,truncated_days:int}
+     * @return array{page_rows:int,query_rows:int,truncated_sets:int}
      */
     public function sync(CarbonImmutable $startDate, CarbonImmutable $endDate): array
     {
@@ -50,7 +50,7 @@ final class GoogleSearchConsoleSyncService
         $accessToken = $this->refreshAccessToken();
         $property = rawurlencode((string) $this->siteUrl());
         $endpoint = 'https://searchconsole.googleapis.com/webmasters/v3/sites/' . $property . '/searchAnalytics/query';
-        $totals = ['page_rows' => 0, 'query_rows' => 0, 'truncated_days' => 0];
+        $totals = ['page_rows' => 0, 'query_rows' => 0, 'truncated_sets' => 0];
 
         for ($day = $startDate; $day->lessThanOrEqualTo($endDate); $day = $day->addDay()) {
             $date = $day->toDateString();
@@ -60,7 +60,6 @@ final class GoogleSearchConsoleSyncService
                 'query' => ['page', 'query', 'date'],
             ] as $dimension => $dimensions) {
                 $startRow = 0;
-                $rowsForDimension = 0;
 
                 do {
                     $payload = [
@@ -144,7 +143,6 @@ final class GoogleSearchConsoleSyncService
                     }
 
                     $count = count($rows);
-                    $rowsForDimension += $count;
                     $totals[$dimension . '_rows'] += count($records);
 
                     if ($count < self::ROW_LIMIT) {
@@ -153,7 +151,7 @@ final class GoogleSearchConsoleSyncService
 
                     $startRow += $count;
                     if ($startRow >= self::MAX_ROWS_PER_DAY_AND_DIMENSION) {
-                        $totals['truncated_days']++;
+                        $totals['truncated_sets']++;
                         break;
                     }
                 } while (true);
