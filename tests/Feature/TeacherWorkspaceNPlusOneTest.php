@@ -129,6 +129,31 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
             ->assertJsonPath('meta.last_page', 2);
     }
 
+    public function test_teacher_lookup_options_require_the_matching_view_permission(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        $role = $teacher->roles()->firstOrFail();
+        $permissionIds = Permission::query()
+            ->whereIn('name', ['courses.view', 'classrooms.view'])
+            ->pluck('id');
+        $role->permissions()->detach($permissionIds);
+
+        $this->actingAs($teacher)->getJson(route('teacher.lookup-options', [
+            'type' => 'courses',
+            'q' => 'ریاضی',
+        ]))->assertForbidden();
+
+        $this->getJson(route('teacher.lookup-options', [
+            'type' => 'classrooms',
+            'q' => 'کلاس',
+        ]))->assertForbidden();
+    }
+
     public function test_paginated_roster_uses_only_current_active_academy_memberships(): void
     {
         $this->seed();
