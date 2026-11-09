@@ -11,6 +11,14 @@ final class LookupOptionsController extends Controller
 {
     public function __invoke(Request $request, string $type, TeacherWorkspaceService $workspace): JsonResponse
     {
+        $permission = match ($type) {
+            'courses' => 'courses.view',
+            'classrooms' => 'classrooms.view',
+            default => null,
+        };
+
+        abort_unless($permission !== null && $request->user()?->hasPermission($permission), 403);
+
         $filters = $request->validate([
             'q' => ['required', 'string', 'min:2', 'max:100'],
             'page' => ['nullable', 'integer', 'min:1'],
