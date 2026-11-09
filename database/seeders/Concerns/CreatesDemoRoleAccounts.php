@@ -35,21 +35,43 @@ trait CreatesDemoRoleAccounts
             $user->restore();
         }
 
-        // Demo identities are deliberately reset to the documented shared password.
-        // No name, mobile, status, profile, or other existing account data is overwritten.
-        if (! Hash::check('password', (string) $user->getAuthPassword())) {
-            $user->forceFill(['password' => 'password'])->save();
-        }
-
         $role = Role::query()->where('slug', $roleSlug)->firstOrFail();
         $hasAnyRole = $user->roles()->exists();
 
-        if (! $hasAnyRole) {
-            $user->roles()->attach($role->id);
-        } elseif (! $user->roles()->whereKey($role->id)->exists()) {
+        if ($hasAnyRole && ! $user->roles()->whereKey($role->id)->exists()) {
             throw new \RuntimeException(
                 "Demo account {$email} already belongs to another role; refusing to change its access."
             );
+        }
+
+        $mobileInUse = User::withTrashed()
+            ->where('mobile', $mobile)
+            ->whereKeyNot($user->getKey())
+            ->exists();
+
+        if ($mobileInUse) {
+            throw new \RuntimeException(
+                "Cannot sync demo account {$email}: mobile {$mobile} is already assigned to another user."
+            );
+        }
+
+        // These fixed demo identities must always match the credentials shown on
+        // the login page, including installations where the account existed before
+        // the quick-login configuration was introduced.
+        $user->forceFill([
+            'name' => $name,
+            'mobile' => $mobile,
+            'status' => 'active',
+        ]);
+
+        if (! Hash::check('password', (string) $user->getAuthPassword())) {
+            $user->password = 'password';
+        }
+
+        $user->save();
+
+        if (! $hasAnyRole) {
+            $user->roles()->attach($role->id);
         }
 
         return $user;
