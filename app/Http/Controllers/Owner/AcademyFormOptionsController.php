@@ -18,7 +18,7 @@ final class AcademyFormOptionsController extends Controller
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
 
         $filters = $request->validate([
-            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms,classroom-courses,classroom-teachers'],
+            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms,classroom-courses,classroom-teachers,attendance-classrooms'],
             'q' => ['required', 'string', 'min:2', 'max:80'],
             'course_id' => ['nullable', 'integer', 'min:1'],
         ]);
@@ -27,6 +27,7 @@ final class AcademyFormOptionsController extends Controller
             str_starts_with($filters['type'], 'resource-') => 'resources.manage',
             str_starts_with($filters['type'], 'exam-') => 'exams.manage',
             $filters['type'] === 'classroom-teachers' => 'classrooms.manage',
+            $filters['type'] === 'attendance-classrooms' => 'attendance.view',
             default => 'classrooms.view',
         };
         abort_unless($request->user()->hasPermission($requiredPermission), 403);
@@ -35,6 +36,12 @@ final class AcademyFormOptionsController extends Controller
         $courseId = isset($filters['course_id']) ? (int) $filters['course_id'] : null;
 
         $paginator = match ($filters['type']) {
+            'attendance-classrooms' => $academy->classrooms()
+                ->where('title', 'like', $like)
+                ->with('course:id,title')
+                ->orderBy('title')->orderBy('id')
+                ->simplePaginate(20),
+
             'classroom-courses' => Course::query()
                 ->where('academy_id', $academy->id)
                 ->where('title', 'like', $like)
