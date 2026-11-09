@@ -20,6 +20,17 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
+        // Demo logins are intentionally available in every non-testing environment.
+        // Each role has an independent idempotent seeder; no synthetic learning/content
+        // records are added to production by this block.
+        $this->call([
+            AcademyOwnerDemoAccountSeeder::class,
+            SeoSpecialistDemoAccountSeeder::class,
+            TeacherDemoAccountsSeeder::class,
+            StudentDemoAccountsSeeder::class,
+            ParentDemoAccountsSeeder::class,
+        ]);
+
         // Legacy identities are imported only with explicit private-environment opt-in.
         if (config('legacy_students.import_on_db_seed')) {
             $this->call(LegacyStudentsSeeder::class);
