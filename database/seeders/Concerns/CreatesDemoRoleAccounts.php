@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\\Seeders\\Concerns;
+namespace Database\Seeders\Concerns;
 
-use App\\Models\\Role;
-use App\\Models\\User;
-use Illuminate\\Support\\Facades\\Hash;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 trait CreatesDemoRoleAccounts
 {
@@ -43,7 +43,7 @@ trait CreatesDemoRoleAccounts
         if (! $hasAnyRole) {
             $user->roles()->attach($role->id);
         } elseif (! $user->roles()->whereKey($role->id)->exists()) {
-            throw new \\RuntimeException(
+            throw new \RuntimeException(
                 "Demo account {$email} already belongs to another role; refusing to change its access."
             );
         }
