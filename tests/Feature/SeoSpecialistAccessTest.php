@@ -30,7 +30,7 @@ class SeoSpecialistAccessTest extends TestCase
         $seoRole = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
         $user = User::factory()->create([
             'name' => 'متخصص SEO تست',
-            'email' => 'seo@sheykhan.test',
+            'email' => 'seo@sheykhan.com',
             'mobile' => '09120000077',
             'password' => $password,
             'status' => 'active',
