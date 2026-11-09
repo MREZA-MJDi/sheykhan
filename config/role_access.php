@@ -36,6 +36,6 @@ return [
         ['role' => 'معلم', 'role_key' => 'teacher', 'name' => 'سمیه احمدی · ریاضی', 'username' => 'teacher.math@sheykhan.test'],
         ['role' => 'دانش‌آموز', 'role_key' => 'student', 'name' => 'آرین محمدی', 'username' => 'student.armin@sheykhan.test'],
         ['role' => 'اولیا', 'role_key' => 'parent', 'name' => 'مریم محمدی', 'username' => 'parent.armin@sheykhan.test'],
-        ['role' => 'متخصص SEO', 'role_key' => 'seo-specialist', 'name' => 'متخصص SEO', 'username' => 'seo@sheykhan.test'],
+        ['role' => 'متخصص SEO', 'role_key' => 'seo-specialist', 'name' => 'متخصص SEO', 'username' => 'seo@sheykhan.com'],
     ],
 ];
