@@ -28,18 +28,26 @@
     <section class="dashboard-panel p-5 sm:p-6">
         <form method="GET" action="{{ route('owner.attendance.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <label class="grid gap-1"><span class="text-xs font-bold">نام یا ایمیل دانش‌آموز</span><input name="q" value="{{ $filters['q'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="جست‌وجو..."></label>
-            <div class="grid gap-2" data-academy-option-picker data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="attendance-classrooms">
-                <label for="owner-attendance-classroom-search" class="text-xs font-bold">جست‌وجوی کلاس</label>
-                <input id="owner-attendance-classroom-search" type="search" data-academy-option-search autocomplete="off" maxlength="80" placeholder="نام کلاس را بنویس…" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
-                <select name="classroom_id" aria-label="انتخاب کلاس برای فیلتر حضور و غیاب" data-academy-option-select class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
-                    <option data-option-placeholder value="">همه کلاس‌ها</option>
-                    @foreach($classrooms as $classroom)
-                        <option value="{{ $classroom->id }}" @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>
-                    @endforeach
-                </select>
-                <p data-academy-option-status class="text-[10px] text-slate-500" role="status" aria-live="polite">برای فیلتر بر اساس کلاس، نام آن را جست‌وجو کن.</p>
-                <button type="button" data-academy-option-more hidden class="w-fit rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-bold">کلاس‌های بیشتر</button>
-            </div>
+            <x-academy-option-picker
+                id="owner-attendance-classroom"
+                label="جست‌وجوی کلاس"
+                name="classroom_id"
+                type="attendance-classrooms"
+                endpoint="{{ route('owner.form-options', $academy) }}"
+                empty-label="همه کلاس‌ها"
+                search-placeholder="نام کلاس را بنویس…"
+                status-text="برای فیلتر بر اساس کلاس، نام آن را جست‌وجو کن."
+                more-label="کلاس‌های بیشتر"
+                select-label="انتخاب کلاس برای فیلتر حضور و غیاب"
+                wrapper-class="grid gap-2"
+                label-class="text-xs font-bold"
+                status-class="text-[10px] text-slate-500"
+                more-class="w-fit rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-bold">
+                @foreach($classrooms as $classroom)
+                    <option value="{{ $classroom->id }}"
+                        @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>
+                @endforeach
+            </x-academy-option-picker>
             <label class="grid gap-1"><span class="text-xs font-bold">تاریخ</span><input type="date" name="attendance_date" value="{{ $filters['attendance_date'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"></label>
             <label class="grid gap-1"><span class="text-xs font-bold">وضعیت</span><select name="status" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">همه وضعیت‌ها</option>@foreach($statusLabels as $status => $label)<option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $label }}</option>@endforeach</select></label>
             <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-4"><button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">اعمال فیلتر</button><a href="{{ route('owner.attendance.index', $academy) }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">پاک‌کردن فیلترها</a><span class="text-xs text-slate-500">{{ \App\Support\PersianUi::digits($attendances->total()) }} رکورد منطبق</span></div>
