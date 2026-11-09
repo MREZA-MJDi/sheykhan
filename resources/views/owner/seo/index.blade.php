@@ -19,12 +19,21 @@
         'unconfigured' => 'تنظیم‌نشده',
         'noindex' => 'خارج از نتایج جست‌وجو',
     ];
+    $hasDuplicateMetadata = $items->getCollection()->contains(
+        fn (array $item): bool => collect($item['issues'] ?? [])->contains(
+            fn (array $issue): bool => in_array(
+                $issue['key'] ?? '',
+                ['duplicate_title', 'duplicate_description', 'duplicate_canonical'],
+                true,
+            )
+        )
+    );
 @endphp
 
 <div class="owner-seo-page seo-workspace">
     <header class="owner-seo-hero">
         <div class="seo-hero-copy">
-            <span class="owner-seo-kicker">مرکز کنترل صفحات عمومی</span>
+            <span class="owner-seo-kicker">مرکز کنترل SEO شیخان · صفحات عمومی</span>
             <h1>مدیریت دیده‌شدن شیخان در جست‌وجو</h1>
             <p>
                 تنظیمات صفحات منتشرشدهٔ دوره‌ها، مقاله‌های مجله، محتوای آموزشگاه، محصولات و مدرس‌های عمومی را از یک جا بررسی کن.
@@ -113,6 +122,16 @@
             </div>
         @endif
     </section>
+
+    @if($hasDuplicateMetadata)
+        <section class="seo-duplicate-summary" role="status" aria-labelledby="seo-duplicate-title">
+            <div>
+                <strong id="seo-duplicate-title">صفحات با متادیتای تکراری</strong>
+                <p>در چند صفحه، عنوان، توضیحات یا نشانی Canonical مشابه/یکسان پیدا شده است. از فیلتر «نیازمند اقدام» استفاده کن و جزئیات هر صفحه را باز کن.</p>
+            </div>
+            <a href="{{ route('owner.seo.index', ['status' => 'attention']) }}">مشاهده صفحات نیازمند اقدام</a>
+        </section>
+    @endif
 
     <section class="dashboard-panel owner-panel seo-page-list">
         <div class="owner-panel-head">
