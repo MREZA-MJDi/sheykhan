@@ -120,7 +120,7 @@
         </div>
 
         <span class="rounded-full bg-[var(--color-primary-50)] px-2.5 py-1 text-[10px] font-bold text-[var(--color-primary-700)]">
-            TEST
+            حساب نمایشی
         </span>
     </div>
 
