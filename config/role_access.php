@@ -26,6 +26,8 @@ $studentSeedKey = $appEnvironment === 'testing' ? 'student-SH-1001' : 'student-a
 $parentSeedKey = $appEnvironment === 'testing' ? 'parent-0' : 'parent-armin';
 
 return [
+    'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', 'seo@sheykhan.com'),
+
     'dashboard_routes' => [
         'seo-specialist' => 'owner.seo.index',
         'academy-owner' => 'owner.dashboard',
