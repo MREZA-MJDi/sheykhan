@@ -118,10 +118,15 @@ class SeoSpecialistAccessTest extends TestCase
         }
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course']))
+            ->get(route('owner.seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course', 'page' => 1]))
             ->assertOk()
             ->assertSee('Paginated SEO Course 1')
-            ->assertSee('صفحه بعد');
+            ->assertDontSee('Paginated SEO Course 18');
+
+        $this->actingAs($specialist)
+            ->get(route('owner.seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course', 'page' => 2]))
+            ->assertOk()
+            ->assertSee('Paginated SEO Course 18');
     }
 
     public function test_audit_flags_duplicate_public_page_titles(): void
