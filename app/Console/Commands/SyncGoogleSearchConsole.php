@@ -59,11 +59,11 @@ final class SyncGoogleSearchConsole extends Command
                 [
                     ['Page performance rows', number_format($result['page_rows'])],
                     ['Page + query rows', number_format($result['query_rows'])],
-                    ['Days reaching the API 50,000-row cap', number_format($result['truncated_days'])],
+                    ['Days reaching the API 50,000-row cap', number_format($result['truncated_sets'])],
                 ],
             );
 
-            if ($result['truncated_days'] > 0) {
+            if ($result['truncated_sets'] > 0) {
                 $this->warn('Some day/dimension result sets reached the 50,000-row API cap. The imported dataset is not complete for those sets.');
             }
 
