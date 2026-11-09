@@ -18,18 +18,48 @@ final class AcademyFormOptionsController extends Controller
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
 
         $filters = $request->validate([
-            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms'],
+            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms,classroom-courses,classroom-teachers'],
             'q' => ['required', 'string', 'min:2', 'max:80'],
             'course_id' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $isResourceOption = str_starts_with($filters['type'], 'resource-');
-        abort_unless($request->user()->hasPermission($isResourceOption ? 'resources.manage' : 'exams.manage'), 403);
+        $requiredPermission = match (true) {
+            str_starts_with($filters['type'], 'resource-') => 'resources.manage',
+            str_starts_with($filters['type'], 'exam-') => 'exams.manage',
+            default => 'classrooms.manage',
+        };
+        abort_unless($request->user()->hasPermission($requiredPermission), 403);
 
         $like = trim($filters['q']) . '%';
         $courseId = isset($filters['course_id']) ? (int) $filters['course_id'] : null;
 
         $paginator = match ($filters['type']) {
+            'classroom-courses' => Course::query()
+                ->where('academy_id', $academy->id)
+                ->where('title', 'like', $like)
+                ->orderBy('title')->orderBy('id')
+                ->simplePaginate(20),
+
+            'classroom-teachers' => (function () use ($academy, $courseId, $like) {
+                abort_unless($courseId, 422, 'ابتدا یک دوره انتخاب کن.');
+                $course = $academy->courses()->whereKey($courseId)->firstOrFail();
+
+                return $course->teachers()
+                    ->where('users.status', 'active')
+                    ->where('users.name', 'like', $like)
+                    ->whereExists(function ($membership) use ($academy): void {
+                        $membership->selectRaw('1')
+                            ->from('academy_user as active_teacher_membership')
+                            ->whereColumn('active_teacher_membership.user_id', 'users.id')
+                            ->where('active_teacher_membership.academy_id', $academy->id)
+                            ->where('active_teacher_membership.role', 'teacher')
+                            ->where('active_teacher_membership.status', 'active');
+                    })
+                    ->select('users.id', 'users.name')
+                    ->orderBy('users.name')->orderBy('users.id')
+                    ->simplePaginate(20);
+            })(),
+
             'resource-courses' => Course::query()
                 ->where('academy_id', $academy->id)
                 ->where('title', 'like', $like)
@@ -76,6 +106,13 @@ final class AcademyFormOptionsController extends Controller
         };
 
         $data = $paginator->getCollection()->map(function ($item) use ($filters): array {
+            if ($filters['type'] === 'classroom-teachers') {
+                return [
+                    'id' => (int) $item->id,
+                    'label' => $item->name,
+                ];
+            }
+
             if (str_contains($filters['type'], 'courses')) {
                 return [
                     'id' => (int) $item->id,
