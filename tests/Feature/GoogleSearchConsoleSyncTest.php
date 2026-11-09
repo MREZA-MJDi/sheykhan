@@ -52,7 +52,7 @@ class GoogleSearchConsoleSyncTest extends TestCase
             CarbonImmutable::parse('2026-11-01'),
         );
 
-        $this->assertSame(['page_rows' => 1, 'query_rows' => 1, 'truncated_days' => 0], $result);
+        $this->assertSame(['page_rows' => 1, 'query_rows' => 1, 'truncated_sets' => 0], $result);
 
         $this->assertDatabaseHas('seo_performance_snapshots', [
             'date' => '2026-11-01',
