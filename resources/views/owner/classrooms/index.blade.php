@@ -66,7 +66,7 @@
             </select>
         </label>
         <div class="owner-classroom-filter-field" data-academy-option-picker
-             data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="classroom-courses">
+             data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="classroom-filter-courses">
             <label for="owner-classroom-filter-course-search">جست‌وجوی دوره</label>
             <input id="owner-classroom-filter-course-search" type="search" data-academy-option-search
                    autocomplete="off" maxlength="80" placeholder="نام دوره…">
