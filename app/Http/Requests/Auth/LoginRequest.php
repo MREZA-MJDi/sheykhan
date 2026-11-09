@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\\Http\\Requests\\Auth;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\\Support\\MobileNumber;
+use Illuminate\\Foundation\\Http\\FormRequest;
 
 class LoginRequest extends FormRequest
 {
@@ -14,14 +15,26 @@ class LoginRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'mobile' => \App\Support\MobileNumber::normalize((string) $this->input('mobile')),
+            'mobile' => MobileNumber::normalize((string) $this->input('mobile')),
         ]);
     }
 
     public function rules(): array
     {
         return [
-            'mobile' => ['required', 'regex:/^09[0-9]{9}$/'],
+            'mobile' => [
+                'required',
+                function (string $attribute, mixed $value, \\Closure $fail): void {
+                    $mobile = MobileNumber::normalize((string) $value);
+                    $isValidStandardMobile = MobileNumber::valid($mobile);
+                    $isConfiguredDemoMobile = collect(config('role_access.test_accounts', []))
+                        ->contains(fn (array $account): bool => ($account['username'] ?? null) === $mobile);
+
+                    if (! $isValidStandardMobile && ! $isConfiguredDemoMobile) {
+                        $fail('شماره موبایل معتبر نیست.');
+                    }
+                },
+            ],
             'password' => ['required', 'string'],
             'remember' => ['nullable', 'boolean'],
         ];
@@ -31,7 +44,6 @@ class LoginRequest extends FormRequest
     {
         return [
             'mobile.required' => 'شماره موبایل را وارد کنید.',
-            'mobile.regex' => 'شماره موبایل معتبر نیست.',
             'password.required' => 'رمز عبور را وارد کنید.',
         ];
     }
