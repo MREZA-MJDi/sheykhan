@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Http\\Controllers\\Owner;
+namespace App\Http\Controllers\Owner;
 
-use App\\Http\\Controllers\\Controller;
-use App\\Http\\Requests\\Owner\\Seo\\UpdateSeoRequest;
-use App\\Services\\OwnerSeoService;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Pagination\\LengthAwarePaginator;
-use Illuminate\\View\\View;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\Seo\UpdateSeoRequest;
+use App\Services\OwnerSeoService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\View\View;
 
 final class SeoController extends Controller
 {
