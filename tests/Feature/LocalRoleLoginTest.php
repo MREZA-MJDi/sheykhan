@@ -12,7 +12,7 @@ class LocalRoleLoginTest extends TestCase
     public function test_local_login_page_lists_quick_fill_credentials_for_every_dashboard_role(): void
     {
         $this->seed();
-        $mobiles = User::query()->whereIn('email', ['owner@sheykhan.test', 'teacher.math@sheykhan.test', 'student.armin@sheykhan.test', 'parent.armin@sheykhan.test', 'seo.demo@sheykhan.test'])->get(['email', 'mobile'])->keyBy('email');
+        $mobiles = User::query()->whereIn('email', ['owner@sheykhan.test', 'teacher.math@sheykhan.test', 'student.armin@sheykhan.test', 'parent.armin@sheykhan.test', 'seo@sheykhan.com'])->get(['email', 'mobile'])->keyBy('email');
 
         $this->get(route('login'))
             ->assertOk()
@@ -21,7 +21,7 @@ class LocalRoleLoginTest extends TestCase
             ->assertSee($mobiles['teacher.math@sheykhan.test']->mobile)
             ->assertSee($mobiles['student.armin@sheykhan.test']->mobile)
             ->assertSee($mobiles['parent.armin@sheykhan.test']->mobile)
-            ->assertSee($mobiles['seo.demo@sheykhan.test']->mobile)
+            ->assertSee($mobiles['seo@sheykhan.com']->mobile)
             ->assertSee((string) config('role_access.test_password'))
             ->assertSee('data-test-login-fill', false);
     }
@@ -44,7 +44,7 @@ class LocalRoleLoginTest extends TestCase
             $this->get(route('login'))
                 ->assertOk()
                 ->assertSee('ورود سریع به نقش‌های سامانه')
-                ->assertSee(User::query()->where('email', 'seo.demo@sheykhan.test')->value('mobile'))
+                ->assertSee(User::query()->where('email', 'seo@sheykhan.com')->value('mobile'))
                 ->assertSee('Staging-Only-Secret-2026')
                 ->assertSee('data-test-login-fill', false);
         } finally {
