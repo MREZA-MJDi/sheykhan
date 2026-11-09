@@ -88,6 +88,16 @@ final class SeoController extends Controller
             ],
         );
 
+        $topQueries = $seo->topQueriesForPages(
+            $request->user(),
+            $overview['items']->getCollection(),
+        );
+
+        foreach ($overview['items'] as $index => $item) {
+            $pageHash = hash('sha256', $this->normalizePageUrlForHash((string) ($item['url'] ?? '')));
+            $overview['items'][$index]['top_queries'] = $topQueries[$pageHash] ?? [];
+        }
+
         $overview['filters'] = [
             'q' => $query,
             'type' => $type,
@@ -105,6 +115,26 @@ final class SeoController extends Controller
         ];
 
         return view('owner.seo.index', $overview);
+    }
+
+    private function normalizePageUrlForHash(string $url): string
+    {
+        if ($url === '') {
+            return '';
+        }
+
+        $parts = parse_url($url);
+        if (! is_array($parts) || empty($parts['host'])) {
+            return $url;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? 'https'));
+        $host = strtolower((string) $parts['host']);
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $path = rtrim((string) ($parts['path'] ?? '/'), '/') ?: '/';
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+        return $scheme . '://' . $host . $port . $path . $query;
     }
 
     public function edit(string $type, int $id, OwnerSeoService $seo): View
