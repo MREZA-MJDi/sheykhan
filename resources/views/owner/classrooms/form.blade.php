@@ -46,45 +46,46 @@
                     @error('code')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
-                <label class="grid gap-1 md:col-span-2">
-                    <span class="text-xs font-black">دوره</span>
-                    <select id="owner-classroom-course" name="course_id" required
+                <div class="grid gap-2 md:col-span-2" data-academy-option-picker
+                     data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="classroom-courses">
+                    <label for="owner-classroom-course-search" class="text-xs font-black">جست‌وجوی دوره</label>
+                    <input id="owner-classroom-course-search" type="search" data-academy-option-search
+                           autocomplete="off" maxlength="80" placeholder="نام دوره را بنویس…"
+                           class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <select id="owner-classroom-course" name="course_id" required data-academy-option-select
                             class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]">
-                        <option value="">انتخاب دوره</option>
+                        <option data-option-placeholder value="">انتخاب دوره</option>
                         @foreach($courses as $course)
-                            <option value="{{ $course->id }}"
-                                    data-teacher-ids="{{ $course->teachers->pluck('id')->implode(',') }}"
+                            <option data-dynamic-academy-option="1" value="{{ $course->id }}"
                                 @selected((int) old('course_id', $classroom->course_id) === (int) $course->id)>
                                 {{ $course->title }}{{ $course->status !== 'published' ? ' · پیش‌نویس' : '' }}
                             </option>
                         @endforeach
                     </select>
-                    <small class="owner-field-help">دوره، محتوای آموزشی کلاس را مشخص می‌کند؛ فقط مدرس‌های اختصاص‌یافته به همین دوره قابل انتخاب‌اند.</small>
+                    <p data-academy-option-status class="text-[11px] text-slate-500" role="status" aria-live="polite">برای پیدا کردن دوره، دست‌کم دو حرف از عنوان آن را جست‌وجو کن.</p>
+                    <button type="button" data-academy-option-more hidden class="w-fit rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">نمایش دوره‌های بعدی</button>
+                    <small class="owner-field-help">فقط دوره‌های همین آموزشگاه نمایش داده می‌شوند؛ با جست‌وجو لازم نیست فهرست کامل بارگذاری شود.</small>
                     @error('course_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
-                </label>
+                </div>
 
-                <div class="md:col-span-2">
-                    <div class="flex items-end justify-between gap-3">
-                        <div>
-                            <span class="text-xs font-black">مدرس‌های کلاس</span>
-                            <p class="mt-1 text-[10px] text-slate-500">فقط مدرس‌های اختصاص‌یافته به همان دوره قابل انتخاب‌اند.</p>
-                        </div>
-                        <span id="owner-teacher-hint" class="text-[10px] text-slate-400"></span>
-                    </div>
-
-                    <div id="owner-teacher-list" class="mt-3 grid gap-2 sm:grid-cols-2">
+                <div class="grid gap-2 md:col-span-2" data-academy-option-picker
+                     data-endpoint="{{ route('owner.form-options', $academy) }}" data-type="classroom-teachers"
+                     data-depends-on-course="true">
+                    <label for="owner-classroom-teacher-search" class="text-xs font-black">جست‌وجوی مدرس</label>
+                    <input id="owner-classroom-teacher-search" type="search" data-academy-option-search
+                           autocomplete="off" maxlength="80" placeholder="نام مدرس را بنویس…"
+                           class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <select id="owner-classroom-teacher" name="teacher_ids[]" required data-academy-option-select
+                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                        <option data-option-placeholder value="">ابتدا دوره را انتخاب کن</option>
                         @foreach($teachers as $teacher)
-                            <label data-teacher-option="{{ $teacher->id }}"
-                                   class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
-                                <input type="radio"
-                                       name="teacher_ids[]"
-                                       value="{{ $teacher->id }}"
-                                       @checked(in_array((int) $teacher->id, $selectedTeacherIds, true))
-                                       class="h-4 w-4 rounded border-slate-300 text-[var(--panel-primary)]">
-                                <span class="text-xs font-bold text-slate-700">{{ $teacher->name }}</span>
-                            </label>
+                            <option data-dynamic-academy-option="1" value="{{ $teacher->id }}"
+                                @selected(in_array((int) $teacher->id, $selectedTeacherIds, true))>{{ $teacher->name }}</option>
                         @endforeach
-                    </div>
+                    </select>
+                    <p data-academy-option-status class="text-[11px] text-slate-500" role="status" aria-live="polite">پس از انتخاب دوره، مدرس‌های اختصاص‌یافته به همان دوره را جست‌وجو کن.</p>
+                    <button type="button" data-academy-option-more hidden class="w-fit rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold">نمایش مدرس‌های بعدی</button>
+                    <small class="owner-field-help">فقط مدرس فعال همان دوره و آموزشگاه قابل انتخاب است؛ یک مدرس را انتخاب کن.</small>
                     @error('teacher_ids')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </div>
 
@@ -179,47 +180,3 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const course = document.getElementById('owner-classroom-course');
-    const hint = document.getElementById('owner-teacher-hint');
-    const options = [...document.querySelectorAll('[data-teacher-option]')];
-
-    const syncTeacherOptions = () => {
-        const selected = course?.selectedOptions?.[0];
-        const allowed = new Set(
-            (selected?.dataset.teacherIds || '')
-                .split(',')
-                .map((value) => Number(value))
-                .filter(Boolean)
-        );
-
-        let count = 0;
-
-        options.forEach((wrapper) => {
-            const teacherId = Number(wrapper.dataset.teacherOption);
-            const teacherInput = wrapper.querySelector('input[name="teacher_ids[]"]');
-            if (!teacherInput) return;
-
-            const enabled = allowed.has(teacherId);
-            wrapper.hidden = !enabled;
-            teacherInput.disabled = !enabled;
-
-            if (!enabled && teacherInput.checked) {
-                teacherInput.checked = false;
-            }
-
-            if (enabled) count += 1;
-        });
-
-        hint.textContent = selected?.value
-            ? (count ? count + ' مدرس قابل انتخاب' : 'برای این دوره هنوز مدرسی اختصاص داده نشده است')
-            : '';
-    };
-
-    course?.addEventListener('change', syncTeacherOptions);
-    syncTeacherOptions();
-});
-</script>
-@endpush
