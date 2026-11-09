@@ -34,7 +34,7 @@
                 <select name="classroom_id" aria-label="انتخاب کلاس برای فیلتر حضور و غیاب" data-academy-option-select class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
                     <option data-option-placeholder value="">همه کلاس‌ها</option>
                     @foreach($classrooms as $classroom)
-                        <option data-dynamic-academy-option="1" value="{{ $classroom->id }}" @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>
+                        <option value="{{ $classroom->id }}" @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>
                     @endforeach
                 </select>
                 <p data-academy-option-status class="text-[10px] text-slate-500" role="status" aria-live="polite">برای فیلتر بر اساس کلاس، نام آن را جست‌وجو کن.</p>
