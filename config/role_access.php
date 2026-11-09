@@ -1,13 +1,5 @@
 <?php
 
-$appEnvironment = (string) env('APP_ENV', 'production');
-$mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
-    (string) (abs(crc32($key)) % 10000000),
-    7,
-    '0',
-    STR_PAD_LEFT
-);
-
 return [
     'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', 'seo@sheykhan.com'),
 
@@ -24,38 +16,37 @@ return [
     'seed_password' => 'password',
     'test_password' => 'password',
 
-    // Exactly one visible demo login for each supported role.
-    // These keys match the role-specific seeders and AcademyFoundationSeeder.
+    // These mobile numbers match the existing demo users in the database.
     'test_accounts' => [
         [
             'role' => 'مدیر آموزشگاه',
             'role_key' => 'academy-owner',
             'name' => 'مدیر آموزشگاه',
-            'username' => $mobileForSeedKey('owner'),
+            'username' => '091779234175',
         ],
         [
             'role' => 'متخصص SEO',
             'role_key' => 'seo-specialist',
             'name' => 'متخصص SEO',
-            'username' => $mobileForSeedKey('seo-specialist'),
+            'username' => '09124860735',
         ],
         [
             'role' => 'مدرس',
             'role_key' => 'teacher',
             'name' => 'سمیه احمدی',
-            'username' => $mobileForSeedKey('teacher-math'),
+            'username' => '091193581267',
         ],
         [
             'role' => 'دانش‌آموز',
             'role_key' => 'student',
             'name' => 'آرین محمدی',
-            'username' => $mobileForSeedKey($appEnvironment === 'testing' ? 'student-SH-1001' : 'student-armin'),
+            'username' => '091866242658',
         ],
         [
             'role' => 'والد',
             'role_key' => 'parent',
             'name' => 'مریم محمدی',
-            'username' => $mobileForSeedKey($appEnvironment === 'testing' ? 'parent-0' : 'parent-armin'),
+            'username' => '091207448926',
         ],
     ],
 ];
