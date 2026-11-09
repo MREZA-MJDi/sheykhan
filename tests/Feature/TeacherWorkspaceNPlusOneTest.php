@@ -50,7 +50,7 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
             '2026-10-07',
         );
 
-        // Ownership + batched roster + weekly schedule duration; no per-student queries.
+        // Ownership, batched roster, and weekly schedule duration stay bounded; no per-student queries.
         $this->assertLessThanOrEqual(4, $selects);
         $this->assertDatabaseCount('attendances', $before + 2);
     }
