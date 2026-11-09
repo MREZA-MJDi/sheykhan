@@ -56,7 +56,7 @@
                             class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]">
                         <option data-option-placeholder value="">انتخاب دوره</option>
                         @foreach($courses as $course)
-                            <option data-dynamic-academy-option="1" value="{{ $course->id }}"
+                            <option value="{{ $course->id }}"
                                 @selected((int) old('course_id', $classroom->course_id) === (int) $course->id)>
                                 {{ $course->title }}{{ $course->status !== 'published' ? ' · پیش‌نویس' : '' }}
                             </option>
@@ -79,7 +79,7 @@
                             class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
                         <option data-option-placeholder value="">ابتدا دوره را انتخاب کن</option>
                         @foreach($teachers as $teacher)
-                            <option data-dynamic-academy-option="1" value="{{ $teacher->id }}"
+                            <option value="{{ $teacher->id }}"
                                 @selected(in_array((int) $teacher->id, $selectedTeacherIds, true))>{{ $teacher->name }}</option>
                         @endforeach
                     </select>
