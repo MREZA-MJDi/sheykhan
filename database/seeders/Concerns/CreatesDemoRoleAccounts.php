@@ -31,6 +31,10 @@ trait CreatesDemoRoleAccounts
             ],
         );
 
+        if ($user->trashed()) {
+            $user->restore();
+        }
+
         // Demo identities are deliberately reset to the documented shared password.
         // No name, mobile, status, profile, or other existing account data is overwritten.
         if (! Hash::check('password', (string) $user->getAuthPassword())) {
