@@ -199,14 +199,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         options.forEach((wrapper) => {
             const teacherId = Number(wrapper.dataset.teacherOption);
-            const checkbox = wrapper.querySelector('input[type="checkbox"]');
+            const teacherInput = wrapper.querySelector('input[name="teacher_ids[]"]');
+            if (!teacherInput) return;
+
             const enabled = allowed.has(teacherId);
-
             wrapper.hidden = !enabled;
-            checkbox.disabled = !enabled;
+            teacherInput.disabled = !enabled;
 
-            if (!enabled && checkbox.checked) {
-                checkbox.checked = false;
+            if (!enabled && teacherInput.checked) {
+                teacherInput.checked = false;
             }
 
             if (enabled) count += 1;
