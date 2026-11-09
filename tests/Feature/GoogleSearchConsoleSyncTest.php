@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Services\\GoogleSearchConsoleSyncService;
-use Carbon\\CarbonImmutable;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Illuminate\\Support\\Facades\\Http;
-use Tests\\TestCase;
+use App\Services\GoogleSearchConsoleSyncService;
+use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Tests\TestCase;
 
 class GoogleSearchConsoleSyncTest extends TestCase
 {
@@ -96,7 +96,7 @@ class GoogleSearchConsoleSyncTest extends TestCase
             );
 
             $this->fail('Expected the service to reject incomplete OAuth configuration.');
-        } catch (\\RuntimeException $exception) {
+        } catch (\RuntimeException $exception) {
             $this->assertStringContainsString('not configured', $exception->getMessage());
         }
 
