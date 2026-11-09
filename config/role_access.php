@@ -16,19 +16,14 @@ return [
     'seed_password' => 'password',
     'test_password' => 'password',
 
-    // Match the existing demo users' persisted mobile numbers.
+    // Only the four requested demo roles are displayed on the login page.
+    // SEO specialist remains a valid role/account but is not exposed here.
     'test_accounts' => [
         [
             'role' => 'مدیر آموزشگاه',
             'role_key' => 'academy-owner',
             'name' => 'مدیر آموزشگاه',
             'username' => '091779234175',
-        ],
-        [
-            'role' => 'متخصص SEO',
-            'role_key' => 'seo-specialist',
-            'name' => 'متخصص SEO',
-            'username' => '09124860735',
         ],
         [
             'role' => 'مدرس',
