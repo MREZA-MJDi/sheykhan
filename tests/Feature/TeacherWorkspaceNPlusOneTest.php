@@ -63,16 +63,19 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
         $course = $teacher->taughtCourses()->firstOrFail();
 
         $selects = 0;
+        $queries = [];
         $capture = false;
-        DB::listen(function ($query) use (&$selects, &$capture): void {
+        DB::listen(function ($query) use (&$selects, &$queries, &$capture): void {
             if ($capture && str_starts_with(strtolower(ltrim($query->sql)), 'select')) {
                 $selects++;
+                $queries[] = $query->sql;
             }
         });
 
         $capture = true;
         app(TeacherDashboardService::class)->build($teacher);
         $baseline = $selects;
+        $baselineQueryCount = count($queries);
         $capture = false;
 
         for ($index = 1; $index <= 40; $index++) {
@@ -89,12 +92,14 @@ class TeacherWorkspaceNPlusOneTest extends TestCase
         $capture = true;
         app(TeacherDashboardService::class)->build($teacher);
         $after = $selects - $baseline;
+        $addedQueries = array_slice($queries, $baselineQueryCount);
         $capture = false;
 
         $this->assertLessThanOrEqual(
             8,
             $after,
-            'Adding many classrooms must not add one or more dashboard queries per classroom.'
+            "Adding many classrooms must not add one or more dashboard queries per classroom. Added SQL:\n"
+                . implode("\n", $addedQueries)
         );
     }
 
