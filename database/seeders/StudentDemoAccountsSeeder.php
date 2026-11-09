@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\\Seeders;
+namespace Database\Seeders;
 
-use Database\\Seeders\\Concerns\\CreatesDemoRoleAccounts;
-use Illuminate\\Database\\Seeder;
+use Database\Seeders\Concerns\CreatesDemoRoleAccounts;
+use Illuminate\Database\Seeder;
 
 class StudentDemoAccountsSeeder extends Seeder
 {
