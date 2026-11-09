@@ -179,7 +179,7 @@ class AcademyFoundationSeeder extends Seeder
                 'name' => $name,
                 'mobile' => '0912' . str_pad((string) (abs(crc32($key)) % 10000000), 7, '0', STR_PAD_LEFT),
                 'status' => 'active',
-                'password' => 'password',
+                'password' => $seedPassword,
                 'deleted_at' => null,
             ],
         );
