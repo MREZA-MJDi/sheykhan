@@ -1,0 +1,407 @@
+/* Sheykhan Enterprise UI — shared visual language for every role workspace.
+   Inspired by established enterprise patterns: task-first navigation, clear record hierarchy,
+   predictable forms, quiet surfaces, responsive data views and accessible focus states. */
+:root{
+  --ui-bg:#f4f6fa;
+  --ui-surface:#fff;
+  --ui-surface-muted:#f8fafc;
+  --ui-text:#172033;
+  --ui-muted:#667085;
+  --ui-subtle:#98a2b3;
+  --ui-border:#e5eaf1;
+  --ui-border-strong:#d5dce6;
+  --ui-primary:#3659d9;
+  --ui-primary-hover:#2948bd;
+  --ui-primary-soft:#eef2ff;
+  --ui-success:#087b55;
+  --ui-success-bg:#eaf8f1;
+  --ui-warning:#946200;
+  --ui-warning-bg:#fff7e6;
+  --ui-danger:#b42332;
+  --ui-danger-bg:#fff0f1;
+  --ui-info:#3158b8;
+  --ui-info-bg:#eef4ff;
+  --ui-radius:14px;
+  --ui-radius-sm:10px;
+  --ui-shadow:0 8px 28px rgba(16,24,40,.055);
+  color-scheme:light;
+}
+.owner-admin-v2,
+.student-shell,
+.teacher-panel,
+.parent-shell{
+  color:var(--ui-text);
+  color-scheme:light;
+  font-family:Vazirmatn,Tahoma,sans-serif;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(button,input,select,textarea){
+  font:inherit;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(a,button):focus-visible,
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(input,select,textarea):focus-visible{
+  outline:3px solid color-mix(in srgb,var(--ui-primary) 32%,transparent);
+  outline-offset:2px;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(h1,h2,h3,h4){
+  color:var(--ui-text);
+  letter-spacing:0;
+  text-wrap:pretty;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(p,small,.muted){
+  color:var(--ui-muted);
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){
+  min-height:42px;
+  border:1px solid var(--ui-border-strong);
+  border-radius:var(--ui-radius-sm);
+  background:#fff;
+  color:var(--ui-text);
+  box-shadow:none;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(input,textarea)::placeholder{
+  color:var(--ui-subtle);
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(input,select,textarea):focus{
+  border-color:var(--ui-primary);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--ui-primary) 12%,transparent);
+  outline:0;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(button[type=submit],.primary,.btn-primary,.go,.owner-primary-btn,.course-action-btn.primary){
+  border-color:var(--ui-primary);
+  background:var(--ui-primary);
+  color:#fff;
+  box-shadow:none;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(button[type=submit],.primary,.btn-primary,.go,.owner-primary-btn,.course-action-btn.primary):hover{
+  background:var(--ui-primary-hover);
+  filter:none;
+  transform:translateY(-1px);
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(.card,.panel,.dashboard-panel,.owner-panel,.ui-card){
+  border:1px solid var(--ui-border);
+  border-radius:var(--ui-radius);
+  background:var(--ui-surface);
+  box-shadow:var(--ui-shadow);
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(table){
+  color:var(--ui-text);
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(th){
+  color:#475467;
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(td){
+  color:var(--ui-text);
+}
+:is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) :is(.alert,.notice,[role=alert],[role=status]){
+  border-radius:12px;
+  line-height:1.9;
+}
+
+/* Owner, academy operations and SEO workspaces */
+.owner-admin-v2{
+  --oa-bg:var(--ui-bg);
+  --oa-surface:var(--ui-surface);
+  --oa-surface-2:var(--ui-surface-muted);
+  --oa-input:#fff;
+  --oa-border:var(--ui-border);
+  --oa-text:var(--ui-text);
+  --oa-muted:var(--ui-muted);
+  --oa-accent:var(--ui-primary);
+  background:var(--ui-bg)!important;
+  color:var(--ui-text)!important;
+}
+.owner-admin-v2 body{background:var(--ui-bg)}
+.owner-admin-v2 .app{
+  max-width:1720px;
+  padding:22px clamp(14px,2vw,30px);
+  gap:22px;
+  grid-template-columns:252px minmax(0,1fr);
+  background:transparent;
+  box-shadow:none;
+}
+.owner-admin-v2 .top{
+  min-height:66px;
+  padding:10px 14px;
+  border:1px solid var(--ui-border);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:var(--ui-shadow);
+}
+.owner-admin-v2 .brand-mark .lg{
+  width:38px;height:38px;border-radius:11px;
+  background:var(--ui-primary);color:#fff;box-shadow:none;
+}
+.owner-admin-v2 .brand-mark .brand{
+  padding:7px 10px;background:transparent;color:var(--ui-text);
+  font-size:14px;font-weight:800;
+}
+.owner-admin-v2 .top-page-title{color:var(--ui-muted)}
+.owner-admin-v2 .tabs{gap:6px}
+.owner-admin-v2 .tab{
+  border:1px solid transparent;border-radius:9px;padding:8px 12px;
+  background:transparent;color:var(--ui-muted);box-shadow:none;
+}
+.owner-admin-v2 .tab:hover{background:var(--ui-surface-muted);color:var(--ui-text)}
+.owner-admin-v2 .tab.on{background:var(--ui-primary-soft);border-color:#dce4ff;color:var(--ui-primary);box-shadow:none}
+.owner-admin-v2 .srch,.owner-admin-v2 .bell,.owner-admin-v2 .burger{
+  border:1px solid var(--ui-border);border-radius:10px;background:#fff;color:var(--ui-muted);box-shadow:none;
+}
+.owner-admin-v2 .av{background:var(--ui-primary-soft);border:1px solid #dce4ff;color:var(--ui-primary);box-shadow:none}
+.owner-admin-v2 .side.card{
+  top:18px;max-height:calc(100vh - 36px);
+  padding:12px;border:1px solid var(--ui-border);border-radius:16px;
+  background:#fff;color:var(--ui-text);box-shadow:var(--ui-shadow);
+}
+.owner-admin-v2 .gh{
+  border-radius:9px;color:#475467;font-size:12px;font-weight:800;
+}
+.owner-admin-v2 .gh i{width:7px;height:7px;background:var(--ui-primary);box-shadow:none}
+.owner-admin-v2 .gh em{color:var(--ui-subtle)}
+.owner-admin-v2 .ni{
+  min-height:38px;padding:8px 10px;border-radius:9px;
+  color:#596579;font-size:12px;
+}
+.owner-admin-v2 .ni:hover{background:#f4f6fa;color:var(--ui-text)}
+.owner-admin-v2 .ni[aria-current=page]{
+  background:var(--ui-primary-soft);color:var(--ui-primary);
+  box-shadow:inset -3px 0 0 var(--ui-primary);
+}
+.owner-admin-v2 .ni[aria-current=page] .ic{stroke:var(--ui-primary)}
+.owner-admin-v2 .tm{border-color:var(--ui-border)}
+.owner-admin-v2 .side-foot{border-color:var(--ui-border)}
+.owner-admin-v2 .side-foot :is(a,button){color:var(--ui-muted)}
+.owner-admin-v2 .main-content{
+  min-width:0;color:var(--ui-text);
+  padding:2px 0 28px;
+}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-form-shell,.owner-form-card,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card){
+  border:1px solid var(--ui-border);border-radius:var(--ui-radius);
+  background:#fff;color:var(--ui-text);box-shadow:var(--ui-shadow);
+}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-form-shell,.owner-form-card,.owner-people-tab-panel){padding:clamp(15px,1.8vw,22px)}
+.owner-admin-v2 .main-content :is(.owner-panel-head h2,.owner-panel-head h3,.owner-form-head h1,.owner-form-head h2){color:var(--ui-text)}
+.owner-admin-v2 .main-content :is(.owner-panel-head p,.owner-form-head p){color:var(--ui-muted)}
+.owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters,.seo-keyword-filters){
+  border:1px solid var(--ui-border);border-radius:12px;background:var(--ui-surface-muted);
+}
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){
+  border:1px solid var(--ui-border-strong);border-radius:10px;background:#fff;color:var(--ui-text);
+  box-shadow:none;padding:10px 12px;
+}
+.owner-admin-v2 .main-content :is(input,textarea)::placeholder{color:var(--ui-subtle)}
+.owner-admin-v2 .main-content :is(input,select,textarea):focus{
+  border-color:var(--ui-primary);box-shadow:0 0 0 3px #3659d91a;outline:0;
+}
+.owner-admin-v2 .main-content :is(button[type=submit],.owner-primary-btn,.owner-workspace-btn,.owner-action-btn,.owner-btn,.course-action-btn,.go){
+  min-height:39px;border:1px solid var(--ui-primary);border-radius:10px;padding:8px 13px;
+  background:var(--ui-primary);color:#fff;box-shadow:none;font-weight:750;
+}
+.owner-admin-v2 .main-content :is(.course-action-btn:not(.primary),.course-secondary-btn,.website-open-btn){
+  border:1px solid var(--ui-border-strong);background:#fff;color:#344054!important;box-shadow:none;
+}
+.owner-admin-v2 .main-content :is(.course-action-btn:not(.primary),.course-secondary-btn,.website-open-btn):hover{
+  border-color:#c4d0f5;background:#f8faff;color:var(--ui-primary)!important;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.owner-seo-stat,.course-stat){
+  border:1px solid var(--ui-border);border-radius:12px;background:#fff;box-shadow:none;
+}
+.owner-admin-v2 .main-content :is(.owner-seo-stat span,.owner-seo-stat small,.course-stat span,.course-stat small){color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content :is(.owner-seo-stat strong,.course-stat strong){color:var(--ui-text)!important}
+.owner-admin-v2 .main-content table{
+  width:100%;border:1px solid var(--ui-border);border-radius:12px;
+  border-collapse:separate;border-spacing:0;background:#fff;color:var(--ui-text);
+}
+.owner-admin-v2 .main-content thead{background:#f8fafc!important;color:#475467!important}
+.owner-admin-v2 .main-content thead th{
+  padding:12px 14px;border-bottom:1px solid var(--ui-border);
+  color:#475467!important;font-size:11px;font-weight:800;text-align:right;
+}
+.owner-admin-v2 .main-content tbody tr,
+.owner-admin-v2 .main-content tbody tr:nth-child(even){background:#fff}
+.owner-admin-v2 .main-content tbody tr:hover{background:#f8faff}
+.owner-admin-v2 .main-content td{padding:12px 14px;border-bottom:1px solid #edf0f4;color:var(--ui-text)}
+.owner-admin-v2 .main-content tbody tr:last-child td{border-bottom:0}
+.owner-admin-v2 .main-content :is(.overflow-x-auto,.table-wrap,.owner-table-wrap){max-width:100%;overflow-x:auto}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar,.owner-people-tabs nav){
+  border:1px solid var(--ui-border);border-radius:12px;background:#f8fafc;
+}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar button,[data-owner-tab-button]){color:var(--ui-muted)}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar button.is-active,[data-owner-tab-button][aria-selected=true]){
+  background:var(--ui-primary-soft);color:var(--ui-primary);
+}
+.owner-admin-v2 .main-content .pagination a,
+.owner-admin-v2 .main-content .pagination span{
+  border-color:var(--ui-border);background:#fff;color:var(--ui-text);
+}
+.owner-admin-v2 .main-content .pagination [aria-current=page] span{background:var(--ui-primary);color:#fff}
+.owner-admin-v2 .command-palette{
+  border:1px solid var(--ui-border);border-radius:16px;background:#fff;color:var(--ui-text);
+  box-shadow:0 24px 80px rgba(16,24,40,.2);
+}
+.owner-admin-v2 .command-palette::backdrop{background:rgba(16,24,40,.35);backdrop-filter:blur(3px)}
+.owner-admin-v2 .command-palette-head{border-color:var(--ui-border)}
+.owner-admin-v2 .command-palette-head button{border-color:var(--ui-border);background:#f8fafc;color:var(--ui-text)}
+.owner-admin-v2 #pl a{color:var(--ui-text)}
+.owner-admin-v2 #pl a:hover,.owner-admin-v2 #pl a.on{background:var(--ui-primary-soft);color:var(--ui-primary)}
+.owner-admin-v2 .main-content :is(.alert,.notice,[role=alert]){
+  border:1px solid #f2c9ce;background:var(--ui-danger-bg);color:var(--ui-danger);
+}
+.owner-admin-v2 .main-content .alert.is-success{border-color:#bce7d2;background:var(--ui-success-bg);color:var(--ui-success)}
+.owner-admin-v2 .main-content :is(.owner-status,.owner-badge,.badge,.status-badge){
+  border:1px solid var(--ui-border);border-radius:999px;background:#f8fafc;color:#475467;
+}
+
+/* SEO console: calm record-first list with a clear action and readable signal. */
+.owner-admin-v2 .main-content .owner-seo-page{gap:18px}
+.owner-admin-v2 .main-content .owner-seo-hero,
+.owner-admin-v2 .main-content .seo-console-hero{
+  padding:20px 22px;border:1px solid var(--ui-border);border-radius:16px;
+  background:#fff;box-shadow:var(--ui-shadow);
+}
+.owner-admin-v2 .main-content :is(.owner-seo-kicker,.website-kicker,.seo-console-hero .owner-seo-kicker){
+  color:var(--ui-primary)!important;font-size:11px;font-weight:800;
+}
+.owner-admin-v2 .main-content :is(.owner-seo-hero h1,.seo-console-hero h1){color:var(--ui-text)!important}
+.owner-admin-v2 .main-content :is(.owner-seo-hero p,.seo-console-hero p){color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .owner-seo-row{
+  grid-template-columns:minmax(0,1.7fr) minmax(145px,.65fr) minmax(110px,.5fr) auto;
+  gap:16px;padding:16px 12px;border-bottom:1px solid var(--ui-border);
+  background:#fff;
+}
+.owner-admin-v2 .main-content .owner-seo-row:hover{background:#fbfcff}
+.owner-admin-v2 .main-content .owner-seo-row:last-child{border-bottom:0}
+.owner-admin-v2 .main-content .owner-seo-type{color:var(--ui-primary)!important}
+.owner-admin-v2 .main-content .owner-seo-main strong{color:var(--ui-text)!important;font-size:13px}
+.owner-admin-v2 .main-content .owner-seo-main small{color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .owner-seo-score-top{color:var(--ui-muted)}
+.owner-admin-v2 .main-content .owner-seo-score-top strong{color:var(--ui-text)}
+.owner-admin-v2 .main-content .owner-seo-track{background:#edf1f7}
+.owner-admin-v2 .main-content .owner-seo-track span{background:var(--ui-primary)}
+.owner-admin-v2 .main-content .owner-seo-status{border:1px solid var(--ui-border);background:#f8fafc;color:#475467}
+.owner-admin-v2 .main-content .owner-seo-status.ready{border-color:#bce7d2;background:var(--ui-success-bg);color:var(--ui-success)}
+.owner-admin-v2 .main-content .owner-seo-status.partial{border-color:#f3dfae;background:var(--ui-warning-bg);color:var(--ui-warning)}
+.owner-admin-v2 .main-content .owner-seo-status.empty{border-color:#e5e7eb;background:#f8fafc;color:#667085}
+.owner-admin-v2 .main-content .seo-console-switcher{
+  display:flex;gap:6px;flex-wrap:wrap;padding:5px;
+  border:1px solid var(--ui-border);border-radius:12px;background:#fff;
+}
+.owner-admin-v2 .main-content .seo-console-switcher a{
+  padding:9px 13px;border-radius:9px;color:var(--ui-muted)!important;font-size:12px;font-weight:700;
+}
+.owner-admin-v2 .main-content .seo-console-switcher a.is-active{
+  background:var(--ui-primary-soft);color:var(--ui-primary)!important;
+}
+.owner-admin-v2 .main-content :is(.seo-keyword-table,.seo-keyword-table-wrap){min-width:0}
+.owner-admin-v2 .main-content .seo-keyword-disclaimer{
+  padding:13px 15px;border:1px solid #cddafc;border-radius:12px;
+  background:#f5f8ff;color:#475467;font-size:12px;line-height:1.9;
+}
+
+/* Student workspace */
+.student-shell{
+  --bg1:var(--ui-bg);--bg2:var(--ui-bg);--panel:#fff;--panel-b:var(--ui-border);
+  --text:var(--ui-text);--muted:var(--ui-muted);--side:#fff;--side2:#fff;
+  --teal:var(--ui-primary);--teal-d:var(--ui-primary-hover);
+  background:var(--ui-bg)!important;color:var(--ui-text);
+}
+.student-shell body{background:var(--ui-bg)}
+.student-shell .app{
+  max-width:1600px;width:100%;margin:0 auto;padding:22px;
+  grid-template-columns:250px minmax(0,1fr);gap:22px;
+  border:0;border-radius:0;background:transparent;box-shadow:none;
+}
+.student-shell .side{
+  border:1px solid var(--ui-border);border-radius:16px;background:#fff;color:var(--ui-text);
+  box-shadow:var(--ui-shadow);padding:14px;
+}
+.student-shell .side :is(h1,h2,h3,h4,.me h3){color:var(--ui-text)}
+.student-shell .nav button{color:#596579;border-radius:10px;padding:10px 12px;font-size:13px}
+.student-shell .nav button:hover{background:#f4f6fa;color:var(--ui-text)}
+.student-shell .nav button.on{
+  border:1px solid #dce4ff;background:var(--ui-primary-soft);color:var(--ui-primary);
+  box-shadow:inset -3px 0 0 var(--ui-primary);
+}
+.student-shell .prem{border:1px solid var(--ui-border);background:#f8fafc;box-shadow:none;color:var(--ui-text)}
+.student-shell .prem p{color:var(--ui-muted)}
+.student-shell .main{min-width:0;padding:6px 0 28px}
+.student-shell :is(.card,.panel,.box,.surface,.task-card,.course-card,.stat-card){
+  border:1px solid var(--ui-border);border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow);
+}
+.student-shell :is(.btn,.button,.primary-button){border-radius:10px;background:var(--ui-primary);color:#fff;box-shadow:none}
+.student-shell :is(.alert.g){border:1px solid #bce7d2;background:var(--ui-success-bg);color:var(--ui-success)}
+.student-shell :is(.alert.r){border:1px solid #f2c9ce;background:var(--ui-danger-bg);color:var(--ui-danger)}
+
+/* Teacher workspace */
+.teacher-panel{
+  --bg:var(--ui-bg);--sf:#fff;--tx:var(--ui-text);--mu:var(--ui-muted);
+  --pri:var(--ui-primary);--pl:var(--ui-primary-soft);--ln:var(--ui-border);
+  --gr:var(--ui-success);--or:var(--ui-warning);--rd:var(--ui-danger);
+  background:var(--ui-bg)!important;color:var(--ui-text);
+}
+.teacher-panel body{padding:0;background:var(--ui-bg)}
+.teacher-panel .shell{
+  max-width:1680px;min-height:100vh;margin:0 auto;border:0;border-radius:0;
+  background:transparent;box-shadow:none;overflow:visible;
+}
+.teacher-panel aside.side{
+  background:#fff;border:1px solid var(--ui-border);border-radius:16px;
+  box-shadow:var(--ui-shadow);color:var(--ui-text);
+}
+.teacher-panel .teacher-profile-mini{background:#f8fafc;border:1px solid var(--ui-border)}
+.teacher-panel .nv{color:#596579;border-radius:10px}
+.teacher-panel .nv:hover{background:#f4f6fa;color:var(--ui-text)}
+.teacher-panel .nv.on{background:var(--ui-primary-soft);color:var(--ui-primary)}
+.teacher-panel .main{padding:24px 28px 40px}
+.teacher-panel :is(.card,.panel,.box,.surface,.dashboard-card,.stat-card){
+  border:1px solid var(--ui-border);border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow);
+}
+.teacher-panel :is(input,select,textarea){background:#fff;color:var(--ui-text);border-color:var(--ui-border-strong)}
+.teacher-panel :is(.btn,.button,.primary-button){background:var(--ui-primary);color:#fff;box-shadow:none}
+
+/* Parent workspace */
+.parent-shell{
+  background:var(--ui-bg)!important;color:var(--ui-text);
+  --panel-primary:var(--ui-primary);--panel-primary-soft:var(--ui-primary-soft);
+}
+.parent-shell .role-layout{
+  max-width:1680px;margin:0 auto;background:var(--ui-bg);
+  color:var(--ui-text);gap:22px;padding:22px;
+}
+.parent-shell .role-content{min-width:0;background:transparent}
+.parent-shell .role-main{padding:22px;background:transparent;color:var(--ui-text)}
+.parent-shell :is(.role-main .card,.role-main .panel,.role-main .dashboard-panel,.role-main .ui-card){
+  border:1px solid var(--ui-border);border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow);
+}
+.parent-shell :is(input,select,textarea){background:#fff;color:var(--ui-text);border-color:var(--ui-border-strong)}
+.parent-shell :is(button[type=submit],.primary,.btn-primary){background:var(--ui-primary);border-color:var(--ui-primary);color:#fff}
+.parent-shell .ui-flash-success{background:var(--ui-success-bg);color:var(--ui-success);border-color:#bce7d2}
+.parent-shell .ui-flash-error{background:var(--ui-danger-bg);color:var(--ui-danger);border-color:#f2c9ce}
+
+/* Responsive behavior: collapse navigation, avoid clipped action rows and keep tables usable. */
+@media(max-width:1050px){
+  .owner-admin-v2 .app{grid-template-columns:1fr}
+  .owner-admin-v2 .side.card{display:none;position:fixed;z-index:150;inset-block:10px;inset-inline-start:10px;width:min(86vw,310px);max-height:calc(100dvh - 20px);overflow:auto}
+  .owner-admin-v2 .side.card.open{display:block}
+  .owner-admin-v2 .main-content{grid-column:1/-1}
+  .student-shell .app{grid-template-columns:1fr}
+  .student-shell .side{position:static}
+  .teacher-panel .shell{display:block}
+  .teacher-panel aside.side{width:100%;max-width:none}
+}
+@media(max-width:700px){
+  .owner-admin-v2 .app,.student-shell .app{padding:12px;gap:14px}
+  .owner-admin-v2 .top{flex-wrap:wrap}
+  .owner-admin-v2 .main-content :is(.owner-seo-hero,.seo-console-hero,.owner-form-head){align-items:flex-start;flex-direction:column}
+  .owner-admin-v2 .main-content .owner-seo-row{grid-template-columns:1fr;gap:9px;padding:14px 4px}
+  .owner-admin-v2 .main-content .owner-seo-row>.course-action-btn{width:100%}
+  .owner-admin-v2 .main-content :is(table){min-width:640px}
+  .student-shell .main{padding:0 0 20px}
+  .teacher-panel .main{padding:16px 12px 32px}
+  .parent-shell .role-layout{padding:10px;gap:10px}
+  .parent-shell .role-main{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  :is(.owner-admin-v2,.student-shell,.teacher-panel,.parent-shell) *{
+    scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important;
+  }
+}
