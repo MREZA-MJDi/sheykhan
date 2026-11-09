@@ -228,6 +228,56 @@ final class OwnerSeoService
         return $scheme . '://' . $host . $port . $path . $query;
     }
 
+    /**
+     * Return the highest-click search queries for only the visible, paginated
+     * page records. Query dimensions are aggregated independently from page
+     * dimensions to avoid mixing incompatible Search Console totals.
+     */
+    public function topQueriesForPages(User $owner, Collection $items): array
+    {
+        $this->authorizeSpecialist($owner);
+
+        $pageHashes = $items
+            ->pluck('url')
+            ->filter()
+            ->map(fn (string $url): string => hash('sha256', $this->normalizePageUrlForHash($url)))
+            ->unique()
+            ->values();
+
+        if ($pageHashes->isEmpty()) {
+            return [];
+        }
+
+        $startDate = now()->subDays(30)->toDateString();
+        $endDate = now()->subDays(3)->toDateString();
+
+        return DB::table('seo_performance_snapshots')
+            ->where('dimension', 'query')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->whereIn('page_hash', $pageHashes->all())
+            ->whereNotNull('query')
+            ->select('page_hash', 'query', 'query_hash')
+            ->selectRaw(
+                'COALESCE(SUM(clicks), 0) as clicks,
+                 COALESCE(SUM(impressions), 0) as impressions,
+                 SUM(clicks) * 1.0 / NULLIF(SUM(impressions), 0) as ctr,
+                 SUM(position * impressions) * 1.0 / NULLIF(SUM(impressions), 0) as average_position'
+            )
+            ->groupBy('page_hash', 'query_hash', 'query')
+            ->orderByDesc('clicks')
+            ->limit(500)
+            ->get()
+            ->groupBy('page_hash')
+            ->map(fn (Collection $rows): array => $rows->take(5)->map(fn ($row): array => [
+                'query' => (string) $row->query,
+                'clicks' => (int) $row->clicks,
+                'impressions' => (int) $row->impressions,
+                'ctr' => $row->ctr !== null ? (float) $row->ctr : null,
+                'average_position' => $row->average_position !== null ? (float) $row->average_position : null,
+            ])->values()->all())
+            ->all();
+    }
+
     public function resolveOwned(User $owner, string $type, int $id): mixed
     {
         $this->authorizeSpecialist($owner);
