@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            if (root.dataset.dependsOnCourse === 'true' && !courseSelect?.value) {
+                status.textContent = 'ابتدا دوره را جست‌وجو و انتخاب کن.';
+                return;
+            }
+
             if (activeRequest) activeRequest.abort();
             activeRequest = new AbortController();
             const requestSequence = ++sequence;
