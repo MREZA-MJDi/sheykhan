@@ -39,6 +39,27 @@ final class ScheduleController extends Controller
             ->with('success', 'زمان هفتگی و لینک ورود کلاس ذخیره شد.');
     }
 
+    public function update(
+        StoreOwnerScheduleRequest $request,
+        Academy $academy,
+        Classroom $classroom,
+        ClassSchedule $schedule,
+        OwnerScheduleService $schedules,
+        MeetingLinkService $links
+    ): RedirectResponse {
+        $schedules->update(
+            $request->user(),
+            $academy,
+            $classroom,
+            $schedule,
+            $request->validated(),
+            $links
+        );
+
+        return redirect()->route('owner.schedules.index', $academy)
+            ->with('success', 'زمان هفتگی و لینک ورود کلاس به‌روزرسانی شد.');
+    }
+
     public function destroy(
         Request $request,
         Academy $academy,
