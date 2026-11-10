@@ -29,6 +29,7 @@
         <section class="dashboard-panel p-5 sm:p-7">
             <form method="POST" action="{{ route('owner.assignments.store', $academy) . ($modalMode ? '?modal=1' : '') }}" enctype="multipart/form-data" class="grid gap-4 md:grid-cols-2">
                 @csrf
+                <input type="hidden" name="form_modal" value="assignment">
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">کلاس</span>
                     <select name="classroom_id" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
