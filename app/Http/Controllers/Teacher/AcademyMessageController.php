@@ -18,7 +18,27 @@ final class AcademyMessageController extends Controller
         $teacher = $request->user();
         abort_unless($teacher->hasPermission('parent_messages.manage'), 403);
 
-        $messages = AcademyMessage::query()->where('sender_id', $teacher->id)->where('sender_role', 'teacher')
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+            'category' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['announcement', 'academic', 'schedule', 'important', 'other'])],
+            'audience' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['teacher_class_parents', 'classroom_parents', 'parent', 'student'])],
+        ]);
+
+        $messages = AcademyMessage::query()
+            ->where('sender_id', $teacher->id)
+            ->where('sender_role', 'teacher')
+            ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category', $category))
+            ->when($filters['audience'] ?? null, fn ($query, $audience) => $query->where('audience', $audience))
+            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                $term = trim((string) $filters['q']);
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('recipient', fn ($recipient) => $recipient->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['sender:id,name', 'recipient:id,name', 'student:id,name', 'classroom:id,title'])
             ->latest()->paginate(12)->withQueryString();
 
@@ -30,6 +50,7 @@ final class AcademyMessageController extends Controller
             'backRoute' => route('teacher.dashboard'),
             'canManage' => $teacher->hasPermission('parent_messages.manage'),
             'messages' => $messages,
+            'filters' => $filters,
         ]);
     }
 
