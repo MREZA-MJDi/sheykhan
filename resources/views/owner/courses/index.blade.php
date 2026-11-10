@@ -105,8 +105,10 @@
                         <td class="px-5 py-4">
                             <div class="flex flex-wrap items-center gap-2">
                                 <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary">بازبینی</a>
-                                <a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn">ویرایش</a>
-                                @if($course->status === 'archived')
+                                @if(auth()->user()->hasPermission('courses.manage'))
+<a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn">ویرایش</a>
+                                @endif
+@if($course->status === 'archived')
                                     <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
                                         @csrf @method('PATCH')
                                         <button type="submit" class="course-action-btn" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی</button>
@@ -163,8 +165,10 @@
                     </div>
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary justify-center">بازبینی دوره</a>
-                        <a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn justify-center">ویرایش</a>
-                        @if($course->status === 'archived')
+                        @if(auth()->user()->hasPermission('courses.manage'))
+<a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn justify-center">ویرایش</a>
+                        @endif
+@if($course->status === 'archived')
                             <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="course-action-btn justify-center" data-confirm="دوره به پیش‌نویس برگردد؟">بازیابی</button>
