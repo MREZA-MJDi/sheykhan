@@ -141,7 +141,6 @@ $showGroup=(!$isSeoOnlyUser && ($visibleGlobal->isNotEmpty() || ($academies->isN
 @endforeach
 @endif
 @endif
-@endif
 </div></details>
 @endif
 @endforeach
