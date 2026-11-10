@@ -357,7 +357,8 @@ final class ProductManagementController extends Controller
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
         abort_unless((int) $product->academy_id === (int) $academy->id, 404);
 
-        $hasRealPdf = $product->files()
+        $hasRealPdf = false;
+        $product->files()
             ->where('is_preview', false)
             ->whereHas('media', fn ($media) => $media
                 ->where('status', 'active')
@@ -366,9 +367,17 @@ final class ProductManagementController extends Controller
                 ->whereNotNull('path')
                 ->whereRaw('TRIM(path) <> ?', ['']))
             ->with('media')
-            ->get()
-            ->contains(fn ($file): bool => $file->media !== null
-                && Storage::disk($file->media->disk)->exists($file->media->path));
+            ->chunkById(25, function ($files) use (&$hasRealPdf): bool {
+                foreach ($files as $file) {
+                    if ($file->media !== null && Storage::disk($file->media->disk)->exists($file->media->path)) {
+                        $hasRealPdf = true;
+
+                        return false;
+                    }
+                }
+
+                return true;
+            });
 
         abort_unless($hasRealPdf, 422, 'بدون فایل PDF واقعی موجود در فضای خصوصی، انتشار محصول ممکن نیست.');
 
