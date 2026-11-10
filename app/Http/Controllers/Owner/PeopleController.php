@@ -39,7 +39,7 @@ class PeopleController extends Controller
      */
     public function lookupOptions(Request $request, Academy $academy, string $type, OwnerWorkspaceService $workspace): JsonResponse
     {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy);
 
         abort_unless(in_array($type, ['teachers', 'courses', 'classrooms'], true), 404);
 
@@ -104,7 +104,7 @@ class PeopleController extends Controller
 
     public function studentOptions(Request $request, Academy $academy, OwnerWorkspaceService $workspace): JsonResponse
     {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy);
 
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
@@ -158,7 +158,7 @@ class PeopleController extends Controller
         StudentOnboardingService $onboarding,
         OwnerWorkspaceService $workspace,
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy);
 
         $record = $onboarding->onboard(
             $request->user(),
@@ -177,7 +177,7 @@ class PeopleController extends Controller
         StudentAccountService $students,
         OwnerWorkspaceService $workspace,
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy);
 
         $result = $students->create($request->user(), $academy, $request->validated());
 
@@ -209,7 +209,7 @@ class PeopleController extends Controller
         ParentOnboardingService $onboarding,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy);
 
         $result = $onboarding->createOrLink($academy, $request->validated());
 
