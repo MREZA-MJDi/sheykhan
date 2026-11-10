@@ -20,6 +20,25 @@
         </div>
     @endif
 
+    <form method="GET" class="dashboard-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_220px_auto_auto] sm:items-end" role="search" aria-label="فیلتر درخواست‌های مشاوره">
+        <label class="grid gap-1 text-xs font-bold">جست‌وجو
+            <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm" placeholder="موضوع، نام دانش‌آموز، والد یا آموزشگاه">
+        </label>
+        <label class="grid gap-1 text-xs font-bold">وضعیت
+            <select name="status" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="requested" @selected(($filters['status'] ?? '') === 'requested')>در انتظار پیشنهاد مدرس</option>
+                <option value="proposed" @selected(($filters['status'] ?? '') === 'proposed')>پیشنهاد ارسال‌شده</option>
+                <option value="scheduled" @selected(($filters['status'] ?? '') === 'scheduled')>زمان نهایی تعیین شده</option>
+                <option value="completed" @selected(($filters['status'] ?? '') === 'completed')>برگزارشده</option>
+                <option value="declined" @selected(($filters['status'] ?? '') === 'declined')>پذیرفته‌نشده</option>
+                <option value="cancelled" @selected(($filters['status'] ?? '') === 'cancelled')>لغوشده</option>
+            </select>
+        </label>
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
+        <a href="{{ route('teacher.counseling-requests.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">پاک‌کردن</a>
+    </form>
+
     <section class="space-y-4">
         @php($labels = ['requested' => 'در انتظار پیشنهاد مدرس', 'proposed' => 'در انتظار تأیید آموزشگاه', 'scheduled' => 'زمان نهایی تعیین شده', 'completed' => 'برگزارشده', 'declined' => 'پذیرفته نشد', 'cancelled' => 'لغوشده'])
         @forelse($requests as $item)
