@@ -349,6 +349,11 @@ final class ProductManagementController extends Controller
                 ->with('success', 'اطلاعات محصول ذخیره شد؛ نسخه‌های قبلی فایل حفظ شدند و فایل جدید به‌صورت خصوصی و واترمارک‌پذیر ثبت شد.');
         }
 
+        if ($request->boolean('modal')) {
+            return redirect()->route('owner.products.index', $academy)
+                ->with('success', 'اطلاعات محصول ذخیره شد؛ نسخه‌های قبلی فایل حفظ شدند و فایل جدید به‌صورت خصوصی و واترمارک‌پذیر ثبت شد.');
+        }
+
         return redirect()->route('owner.products.edit', [$academy, $product])
             ->with('success', 'اطلاعات محصول ذخیره شد؛ نسخه‌های قبلی فایل حفظ شدند و فایل جدید به‌صورت خصوصی و واترمارک‌پذیر ثبت شد.');
     }
