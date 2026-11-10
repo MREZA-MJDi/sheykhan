@@ -24,7 +24,7 @@
             <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
         </header>
         <div class="owner-floating-modal__body">
-<form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.store', $academy) }}" class="owner-form-grid">
+<form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.store', $academy) }}?modal=1" class="owner-form-grid">
         @csrf
         <input type="hidden" name="form_modal" value="product">
         <section class="owner-form-section space-y-4">
@@ -98,7 +98,7 @@
         @empty
             <p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز محصول واقعی ثبت نشده است. داده‌های seed جایگزین فایل‌های واقعی تولید محتوا نیستند.</p>
         @endforelse
-        @if($products->hasPages())<div>{{ $products->links() }}</div>@endif
+        @if($products->hasPages())<div>{{ $products->links('components.navigation.pagination') }}</div>@endif
     </section>
 </div>
 @endsection
