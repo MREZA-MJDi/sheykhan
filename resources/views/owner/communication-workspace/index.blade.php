@@ -176,8 +176,18 @@
                 @if(($targetQuery ?? '') !== '' && mb_strlen($targetQuery) < 2)
                     <p class="mt-2 text-xs text-amber-700">برای جست‌وجو حداقل دو حرف وارد کن.</p>
                 @elseif(isset($meetingTargets) && $meetingTargets->isNotEmpty())
-                    <form method="POST" action="{{ route('owner.meetings.store', $academy) }}" class="mt-4 grid gap-3 md:grid-cols-2">
+                    <div class="mt-4">
+                        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-meeting-create-modal">＋ ثبت جلسه جدید</button>
+                    </div>
+                    <dialog class="owner-floating-modal" id="owner-meeting-create-modal" aria-labelledby="owner-meeting-create-title">
+                        <header class="owner-floating-modal__header">
+                            <div><span class="owner-record-modal-kicker">هماهنگی با خانواده</span><h2 id="owner-meeting-create-title">ثبت جلسه جدید</h2></div>
+                            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+                        </header>
+                        <div class="owner-floating-modal__body">
+<form method="POST" action="{{ route('owner.meetings.store', $academy) }}" class="mt-4 grid gap-3 md:grid-cols-2">
                         @csrf
+                        <input type="hidden" name="form_modal" value="meeting">
                         <label class="grid gap-1 text-xs font-bold md:col-span-2">کلاس، دانش‌آموز و ولی
                             <select name="meeting_target" required class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm">
                                 <option value="">انتخاب ارتباط</option>
@@ -192,6 +202,8 @@
                         <label class="grid gap-1 text-xs font-bold md:col-span-2">پیام برای خانواده (اختیاری)<textarea name="message" rows="2" maxlength="1500" class="rounded-xl border border-[var(--panel-border)] px-3 py-2 text-sm">{{ old('message') }}</textarea></label>
                         <button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white md:col-span-2">ثبت جلسه و اطلاع‌رسانی</button>
                     </form>
+                        </div>
+                    </dialog>
                     <div class="mt-3 text-sm">{{ $meetingTargets->links('components.navigation.pagination') }}</div>
                 @elseif(($targetQuery ?? '') !== '')
                     <p class="mt-3 rounded-xl bg-[var(--panel-bg)] p-4 text-sm">مخاطب فعالی با این عبارت پیدا نشد. نام دیگری را امتحان کن.</p>
@@ -205,8 +217,18 @@
                     <p class="mt-2 text-xs text-[var(--panel-muted)]">{{ $item->scheduled_at ? \App\Support\PersianUi::dateTime($item->scheduled_at) : 'زمان مشخص نشده' }}</p>
                     @if($item->message)<p class="mt-2 whitespace-pre-line text-sm leading-7">{{ $item->message }}</p>@endif
                     @if($canManageMeetings)
-                        <form method="POST" action="{{ route('owner.meetings.status', [$academy, $item->id]) }}" class="mt-4 flex flex-wrap items-end gap-2 border-t border-[var(--panel-border)] pt-4">
-                            @csrf @method('PATCH')
+                        <div class="mt-4">
+                            <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-meeting-status-{{ $item->id }}">تغییر وضعیت</button>
+                        </div>
+                        <dialog class="owner-floating-modal" id="owner-meeting-status-{{ $item->id }}" aria-labelledby="owner-meeting-status-title-{{ $item->id }}">
+                            <header class="owner-floating-modal__header">
+                                <div><span class="owner-record-modal-kicker">مدیریت جلسه</span><h2 id="owner-meeting-status-title-{{ $item->id }}">تغییر وضعیت · {{ $item->title }}</h2></div>
+                                <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+                            </header>
+                            <div class="owner-floating-modal__body">
+<form method="POST" action="{{ route('owner.meetings.status', [$academy, $item->id]) }}" class="mt-4 flex flex-wrap items-end gap-2 border-t border-[var(--panel-border)] pt-4">
+                            @csrf
+                            <input type="hidden" name="form_modal" value="meeting-status-{{ $item->id }}"> @method('PATCH')
                             <label class="grid gap-1 text-xs font-bold">وضعیت<select name="status" class="min-h-10 rounded-xl border border-[var(--panel-border)] px-3 text-sm">@foreach(($item->status === 'proposed' ? ['scheduled'=>'تأیید و زمان‌بندی','declined'=>'رد پیشنهاد'] : ['scheduled'=>'برنامه‌ریزی‌شده','completed'=>'برگزارشده','cancelled'=>'لغوشده']) as $value=>$label)<option value="{{ $value }}" @selected($item->status === $value)>{{ $label }}</option>@endforeach</select></label>
                             @if($item->status === 'proposed')
                                 <label class="grid gap-1 text-xs font-bold">زمان نهایی<input type="datetime-local" name="scheduled_at" value="{{ $item->scheduled_at?->format('Y-m-d\TH:i') }}" min="{{ now()->format('Y-m-d\TH:i') }}" required class="min-h-10 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
@@ -214,6 +236,8 @@
                             @endif
                             <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">ذخیره وضعیت</button>
                         </form>
+                            </div>
+                        </dialog>
                     @endif
                 </article>
             @empty

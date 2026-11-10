@@ -12,12 +12,22 @@
         </div>
         <a href="{{ route('owner.people.index', $academy) }}">مدیریت اعضا</a>
     </header>
+    <div class="owner-page-actions">
+        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-resource-create-modal">＋ افزودن منبع آموزشی</button>
+    </div>
 
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.store', $academy) }}" class="owner-form-grid">
+    <dialog class="owner-floating-modal" id="owner-resource-create-modal" aria-labelledby="owner-resource-create-title" @if($errors->any() && old('form_modal') === 'resource') data-owner-modal-open-on-load @endif>
+        <header class="owner-floating-modal__header">
+            <div><span class="owner-record-modal-kicker">کتابخانهٔ آموزشگاه</span><h2 id="owner-resource-create-title">افزودن منبع جدید</h2></div>
+            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+        </header>
+        <div class="owner-floating-modal__body">
+<form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.store', $academy) }}?modal=1" class="owner-form-grid">
         @csrf
+        <input type="hidden" name="form_modal" value="resource">
         <section class="owner-form-section">
             <h2>فایل جدید</h2>
             <label><span>عنوان</span><input name="title" value="{{ old('title') }}" maxlength="255" required><small class="owner-field-help">عنوانی مشخص انتخاب کن تا عضو آموزشگاه فایل را از فهرست منابع تشخیص بدهد.</small></label>
@@ -71,6 +81,8 @@
             <button type="submit" class="owner-primary-btn w-full">ثبت فایل خصوصی</button>
         </aside>
     </form>
+        </div>
+    </dialog>
 
     <section class="owner-form-section">
         <h2>فایل‌های ثبت‌شده</h2>
@@ -82,7 +94,7 @@
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->course?->title ?? 'آموزشگاه' }} @if($resource->classroom) · {{ $resource->classroom->title }} @endif @if($resource->lesson) · {{ $resource->lesson->title }} @endif</p>
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->media?->original_name }} · فقط مشاهدهٔ احرازشده · {{ $resource->release_at?->format('Y-m-d H:i') ?? 'بدون تأخیر انتشار' }}</p>
                         <div class="mt-2 flex flex-wrap gap-3">
-                            <a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', [$academy, $resource]) }}">ویرایش منبع</a>
+                            <a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-title="ویرایش منبع آموزشی">ویرایش منبع</a>
                             @if($resource->status === 'active')
                                 <form method="POST" action="{{ route('owner.resources.archive', [$academy, $resource]) }}" data-confirm-submit="true" data-confirm="این منبع از فهرست فعال دانش‌آموزان خارج می‌شود؛ فایل و سوابق آن حذف نمی‌شوند.">
                                     @csrf @method('PATCH')
@@ -102,7 +114,7 @@
                 <p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز فایلی ثبت نشده است.</p>
             @endforelse
         </div>
-        @if($resources->hasPages())<div class="mt-5">{{ $resources->links() }}</div>@endif
+        @if($resources->hasPages())<div class="mt-5">{{ $resources->links('components.navigation.pagination') }}</div>@endif
     </section>
 </div>
 @endsection

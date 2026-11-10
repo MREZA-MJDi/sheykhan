@@ -92,6 +92,11 @@ final class ExamController extends Controller
             $questionWriter->storeBankQuestions($exam, $bankQuestions);
             return $exam;
         });
+        if ($request->boolean('modal')) {
+            return redirect()->route('owner.exams.index', $academy)
+                ->with('success', 'آزمون و سؤال‌های آن با موفقیت ثبت شدند.');
+        }
+
         return redirect()->route('owner.exams.show', [$academy, $exam->id])->with('success', 'آزمون و سؤال‌های آن با موفقیت ثبت شدند.');
     }
 

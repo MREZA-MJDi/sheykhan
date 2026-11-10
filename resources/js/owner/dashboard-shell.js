@@ -30,6 +30,20 @@
 
     const sidebar = $('#side');
     const burger = $('#burger');
+    const miniToggle = $('#mini');
+    const syncSidebarMiniState = () => {
+        const collapsed = document.body.classList.contains('mini');
+        miniToggle?.setAttribute('aria-pressed', String(collapsed));
+        miniToggle?.setAttribute('aria-label', collapsed ? 'باز کردن منوی کامل' : 'جمع کردن منو');
+        miniToggle?.setAttribute('title', collapsed ? 'باز کردن منوی کامل' : 'جمع کردن منو');
+        const label = miniToggle?.querySelector('span:not(.owner-sidebar-mini-icon)');
+        if (label) label.textContent = collapsed ? 'باز کردن منو' : 'جمع کردن منو';
+    };
+    miniToggle?.addEventListener('click', () => {
+        document.body.classList.toggle('mini');
+        syncSidebarMiniState();
+    });
+    syncSidebarMiniState();
 
     burger?.addEventListener('click', () => {
         const open = sidebar?.classList.toggle('open') ?? false;

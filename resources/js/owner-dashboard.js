@@ -6,6 +6,13 @@ import './owner-admin-common.js';
 import './owner/workspace-tabs.js';
 import './owner/exam-builder.js';
 import './owner/academy-form-options.js';
+import './owner-record-modal.js';
+import Alpine from 'alpinejs';
+
+if (!window.Alpine) {
+    window.Alpine = Alpine;
+    Alpine.start();
+}
 import { bootPanelRuntime, closePanelMenu } from './panel-runtime.js';
 export { closePanelMenu };
 

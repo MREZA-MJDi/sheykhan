@@ -153,9 +153,15 @@ final class ProductManagementController extends Controller
 
         $this->clearCatalogCache();
 
-        return back()->with('success', $publish
+        $successMessage = $publish
             ? 'محصول منتشر شد. PDF اصلی در فضای خصوصی ذخیره شده و تحویل خرید فقط به‌شکل واترمارک‌شده انجام می‌شود.'
-            : 'پیش‌نویس محصول ذخیره شد. برای انتشار، ابتدا PDF واقعی اضافه کن.');
+            : 'پیش‌نویس محصول ذخیره شد. برای انتشار، ابتدا PDF واقعی اضافه کن.';
+
+        if ($request->boolean('modal') || $request->input('form_modal') === 'product') {
+            return redirect()->route('owner.products.index', $academy)->with('success', $successMessage);
+        }
+
+        return back()->with('success', $successMessage);
     }
 
 
@@ -343,6 +349,11 @@ final class ProductManagementController extends Controller
         }
 
         $this->clearCatalogCache();
+
+        if ($request->boolean('modal')) {
+            return redirect()->route('owner.products.index', $academy)
+                ->with('success', 'اطلاعات محصول ذخیره شد؛ نسخه‌های قبلی فایل حفظ شدند و فایل جدید به‌صورت خصوصی و واترمارک‌پذیر ثبت شد.');
+        }
 
         return redirect()->route('owner.products.edit', [$academy, $product])
             ->with('success', 'اطلاعات محصول ذخیره شد؛ نسخه‌های قبلی فایل حفظ شدند و فایل جدید به‌صورت خصوصی و واترمارک‌پذیر ثبت شد.');

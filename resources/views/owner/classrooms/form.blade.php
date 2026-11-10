@@ -1,26 +1,31 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 
 @section('title', ($classroom->exists ? 'ویرایش کلاس' : 'ساخت کلاس').' | شیخان')
 @section('header-title', $classroom->exists ? 'ویرایش کلاس' : 'ساخت کلاس')
 
 @section('content')
+@php($modalMode = request()->boolean('modal'))
+@unless($modalMode)
 @include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'classrooms', 'academy' => $academy])
+@endunless
 @php
     $selectedTeacherIds = old('teacher_ids', $selectedTeacherIds ?? []);
     $selectedTeacherIds = array_map('intval', (array) $selectedTeacherIds);
 @endphp
 
 <div class="mx-auto max-w-5xl space-y-6 panel-page-enter">
-    <div>
+    @unless($modalMode)
+<div>
         <p class="text-xs font-black text-[var(--panel-primary)]">مدیریت کلاس</p>
         <h1 class="mt-1 text-2xl font-black">{{ $classroom->exists ? 'ویرایش '.$classroom->title : 'ساخت کلاس جدید' }}</h1>
         <p class="mt-2 text-sm leading-7 text-slate-500">
             مشخصات اجرایی کلاس را ثبت کن. مدرس باید عضو فعال آموزشگاه و از قبل به دوره انتخاب‌شده اختصاص داده شده باشد.
         </p>
     </div>
+@endunless
 
     <form method="POST"
-          action="{{ $classroom->exists ? route('owner.classrooms.update', [$academy, $classroom]) : route('owner.classrooms.store', $academy) }}"
+          action="{{ ($classroom->exists ? route('owner.classrooms.update', [$academy, $classroom]) : route('owner.classrooms.store', $academy)) . ($modalMode ? '?modal=1' : '') }}"
           class="space-y-5">
         @csrf
         @if($classroom->exists)

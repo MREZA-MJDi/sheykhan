@@ -53,6 +53,11 @@ final class AssignmentController extends Controller
             $media
         );
 
+        if ($request->boolean('modal') || $request->input('form_modal') === 'assignment') {
+            return redirect()->route('owner.assignments.index', $academy)
+                ->with('success', 'تکلیف برای کلاس انتخاب‌شده ثبت شد.');
+        }
+
         return redirect()
             ->route('owner.assignments.show', [$academy, $assignment])
             ->with('success', 'تکلیف برای کلاس انتخاب‌شده ثبت شد.');

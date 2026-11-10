@@ -29,7 +29,7 @@
             <h1 class="text-2xl font-black tracking-tight">دوره‌ها</h1>
             <p class="mt-1 text-sm text-[var(--color-text-secondary)]">فهرست و وضعیت دوره‌های آموزشگاه</p>
         </div>
-        <a href="{{ route('owner.courses.create') }}" class="course-primary-btn">+ ساخت دوره جدید</a>
+        <a href="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-title="ساخت دوره جدید" class="course-primary-btn">+ ساخت دوره جدید</a>
     </div>
 
     <section class="course-list-panel" aria-label="فهرست دوره‌ها">
@@ -80,7 +80,7 @@
                         <td><span class="course-student-count">{{ \App\Support\PersianUi::number($course->active_students_count) }}</span></td>
                         <td>
                             <div class="course-row-actions">
-                                <a href="{{ route('owner.courses.edit', $course) }}" class="course-action-btn">ویرایش</a>
+                                <a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn">ویرایش</a>
                                 <details class="course-more-menu">
                                     <summary aria-label="عملیات بیشتر برای {{ $course->title }}" title="عملیات بیشتر">⋯</summary>
                                     @if($course->status === 'archived')

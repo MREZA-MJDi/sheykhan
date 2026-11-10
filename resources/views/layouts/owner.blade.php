@@ -177,6 +177,12 @@
     @include('owner.partials.dashboard-icons')
     @include('owner.partials.admin-topbar')
     <aside class="side card" id="side" aria-label="منوی مدیریت">
+        <div class="owner-sidebar-tools">
+            <button type="button" id="mini" class="owner-sidebar-mini-toggle" aria-label="جمع کردن منو" aria-pressed="false" title="جمع کردن منو">
+                <span class="owner-sidebar-mini-icon" aria-hidden="true">⇔</span>
+                <span>جمع کردن منو</span>
+            </button>
+        </div>
         <nav id="nv" aria-label="منوی اصلی">
             <?php foreach ($ownerNavGroups as $navGroup) { ?>
                 <?php

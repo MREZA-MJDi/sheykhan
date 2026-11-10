@@ -86,8 +86,8 @@
 
     document.addEventListener('submit', async (event) => {
         const form = event.target;
-        const dialog = form.closest('dialog[data-owner-record-modal]');
-        if (!dialog || form.matches('[data-owner-native-submit], [data-upload-form]')) return;
+        const dialog = form.closest('dialog.owner-floating-modal, dialog[data-owner-record-modal]');
+        if (!dialog || form.matches('[data-owner-native-submit]')) return;
 
         event.preventDefault();
         if (!form.reportValidity()) return;

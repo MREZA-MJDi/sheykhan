@@ -1,6 +1,7 @@
 /* Searchable academy-scoped selectors for large owner forms. */
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-academy-option-picker]').forEach((root) => {
+export function bootAcademyFormOptions(scope = document) {
+    scope.querySelectorAll('[data-academy-option-picker]').forEach((root) => {
+        if (root.dataset.academyOptionPickerBound === 'true') return;
         const endpoint = root.dataset.endpoint;
         const type = root.dataset.type;
         const search = root.querySelector('[data-academy-option-search]');
@@ -136,5 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
+        root.dataset.academyOptionPickerBound = 'true';
     });
+}
+
+const initialize = () => bootAcademyFormOptions();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize, { once: true });
+} else {
+    initialize();
+}
+window.addEventListener('owner:modal:mounted', (event) => {
+    const scope = event.detail?.root;
+    if (scope) bootAcademyFormOptions(scope);
 });
