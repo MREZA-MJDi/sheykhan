@@ -15,7 +15,7 @@
 }
 .owner-admin-v2 .main-content :is(h1,h2,h3,h4) {
     max-width: 100%;
-    color: var(--oa-text, #e8ecff);
+    color: var(--oa-text, #16204a);
     overflow-wrap: anywhere;
     letter-spacing: 0;
 }
@@ -71,9 +71,9 @@
     flex-wrap: wrap;
     gap: 14px 22px;
     padding: clamp(16px, 2vw, 26px);
-    border: 1px solid rgba(119,136,190,.22);
+    border: 1px solid rgba(31,47,122,.14);
     border-radius: 18px;
-    background: linear-gradient(145deg, rgba(26,32,80,.94), rgba(14,18,48,.96));
+    background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(248,249,253,.98));
 }
 .owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head) > div {
     min-width: 0;
@@ -82,7 +82,7 @@
 .owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head) :is(p,small) {
     max-width: 780px;
     margin-block: 6px 0;
-    color: var(--oa-muted, #aab3d7);
+    color: var(--oa-muted, #667091);
     font-size: .8rem;
     line-height: 2;
 }
@@ -94,13 +94,13 @@
     align-content: start;
     gap: 14px;
     padding: clamp(15px, 1.7vw, 22px);
-    border: 1px solid rgba(119,136,190,.2);
+    border: 1px solid rgba(31,47,122,.12);
     border-radius: 16px;
-    background: var(--oa-surface, #171d45);
+    background: var(--oa-surface, #ffffff);
 }
 .owner-admin-v2 .main-content :is(.owner-form-section,.owner-exam-section) > :is(h2,h3):first-child {
     padding-block-end: 11px;
-    border-block-end: 1px solid rgba(119,136,190,.2);
+    border-block-end: 1px solid rgba(31,47,122,.12);
 }
 .owner-admin-v2 .main-content :is(.owner-panel-head,.owner-section-heading,.card-title) {
     align-items: flex-start;
@@ -144,14 +144,14 @@
 .owner-admin-v2 .main-content form :is(small,.field-error,.invalid-feedback).text-red-600 {
     display: block;
     margin-block-start: 3px;
-    color: #fda4af !important;
+    color: #d64550 !important;
     font-size: .74rem;
     font-weight: 700;
     line-height: 1.85;
 }
 .owner-admin-v2 .main-content [aria-invalid=true] {
-    border-color: #fb7185 !important;
-    box-shadow: 0 0 0 2px rgba(251,113,133,.13);
+    border-color: #d64550 !important;
+    box-shadow: 0 0 0 2px rgba(214,69,80,.10);
 }
 .owner-admin-v2 .main-content :is(.overflow-x-auto,.table-wrap,.owner-table-wrap) {
     width: 100%;
@@ -186,7 +186,7 @@
     line-height: 1.8;
 }
 .owner-admin-v2 .main-content :is(button,a,input,select,textarea):focus-visible {
-    outline: 2px solid var(--oa-accent, #22d3ee);
+    outline: 2px solid var(--oa-accent, #1f2f7a);
     outline-offset: 3px;
 }
 @media (max-width: 767px) {
@@ -249,18 +249,18 @@
     display: grid;
     gap: 12px;
     padding: 16px 18px;
-    border: 1px solid rgba(119,136,190,.2) !important;
+    border: 1px solid rgba(31,47,122,.12) !important;
     border-radius: 16px;
-    background: var(--oa-surface-2, #111737) !important;
+    background: var(--oa-surface-2, #f8f9fd) !important;
     background-image: none !important;
     box-shadow: none;
-    color: var(--oa-text, #e8ecff) !important;
+    color: var(--oa-text, #16204a) !important;
 }
 .owner-admin-v2 .main-content .owner-workspace-tabs :is(p,span,h2) {
-    color: var(--oa-text, #e8ecff) !important;
+    color: var(--oa-text, #16204a) !important;
 }
 .owner-admin-v2 .main-content .owner-workspace-tabs p {
-    color: var(--oa-muted, #aab3d7) !important;
+    color: var(--oa-muted, #667091) !important;
 }
 .owner-admin-v2 .main-content .owner-workspace-tabs nav {
     display: flex;
@@ -279,7 +279,7 @@
     border: 1px solid rgba(119,136,190,.24) !important;
     border-radius: 10px;
     background: rgba(9,14,39,.55) !important;
-    color: var(--oa-muted, #aab3d7) !important;
+    color: var(--oa-muted, #667091) !important;
     font-size: .78rem;
     font-weight: 750;
     line-height: 1.7;
@@ -288,12 +288,12 @@
 }
 .owner-admin-v2 .main-content .owner-workspace-tabs nav a:hover {
     border-color: rgba(34,211,238,.55) !important;
-    color: var(--oa-text, #e8ecff) !important;
+    color: var(--oa-text, #16204a) !important;
 }
 .owner-admin-v2 .main-content .owner-workspace-tabs nav a[aria-current=page] {
     border-color: rgba(34,211,238,.45) !important;
     background: rgba(34,211,238,.14) !important;
-    color: #a5f3fc !important;
+    color: #e8ebfa !important;
 }
 @media(max-width:767px) {
     .owner-admin-v2 .main-content .owner-workspace-tabs {
