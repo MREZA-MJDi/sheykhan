@@ -1,3 +1,14 @@
+/* Shared JSON request contract for the member directory and async pickers. */
+const fetchJson = async (url, signal) => {
+    const response = await fetch(url, {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        signal,
+    });
+    if (!response.ok) throw new Error('request-failed');
+    return response.json();
+};
+
 /* Owner people directory: accessible server-side search and numbered page navigation. */
 (() => {
     'use strict';
@@ -116,15 +127,7 @@
             setStatus('در حال دریافت فهرست از سرور…');
 
             try {
-                const response = await fetch(makeUrl(page), {
-                    method: 'GET',
-                    credentials: 'same-origin',
-                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    signal: controller.signal,
-                });
-                if (!response.ok) throw new Error('directory-request-failed');
-
-                const payload = await response.json();
+                const payload = await fetchJson(makeUrl(page), controller.signal);
                 if (currentRequestId !== requestId) return;
 
                 const records = Array.isArray(payload.data) ? payload.data : [];
@@ -263,13 +266,7 @@
             url.searchParams.set('q', term);
             url.searchParams.set('page', String(requestedPage));
             try {
-                const response = await fetch(url, {
-                    credentials: 'same-origin',
-                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    signal: activeRequest.signal,
-                });
-                if (!response.ok) throw new Error('student-suggestions-failed');
-                const payload = await response.json();
+                const payload = await fetchJson(url, activeRequest.signal);
                 if (requestSequence !== sequence) return;
                 const records = Array.isArray(payload.data) ? payload.data : [];
                 const meta = payload.meta || {};
