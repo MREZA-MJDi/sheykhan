@@ -38,16 +38,13 @@
     <label class="grid gap-1">
         <span class="text-xs font-bold">سرویس</span>
         <select name="provider" data-meeting-provider required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
-            <option value="Jitsi" @selected(old('provider', $schedule?->provider ?? 'Jitsi') === 'Jitsi')>Jitsi · خودکار</option>
-            <option value="Google Meet" @selected(old('provider', $schedule?->provider) === 'Google Meet')>Google Meet</option>
-            <option value="Zoom" @selected(old('provider', $schedule?->provider) === 'Zoom')>Zoom</option>
-            <option value="سایر" @selected(old('provider', $schedule?->provider) === 'سایر')>سایر سرویس‌ها</option>
+            <option value="Skyroom" selected>Skyroom · اسکای‌روم</option>
         </select>
         @error('provider')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
     </label>
     <label class="grid gap-1 sm:col-span-2">
-        <span class="text-xs font-bold">لینک ورود <small class="font-normal text-slate-400">(برای Jitsi اختیاری، برای سرویس‌های دیگر الزامی)</small></span>
-        <input type="url" name="meeting_url" value="{{ old('meeting_url', $schedule?->meeting_url) }}" maxlength="2000" autocomplete="url" dir="ltr" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="https://...">
+        <span class="text-xs font-bold">لینک ورود <small class="font-normal text-slate-400">(لینک واقعی اتاق Skyroom الزامی است)</small></span>
+        <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url', $schedule?->meeting_url) }}" maxlength="2000" autocomplete="url" dir="ltr" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="https://www.skyroom.online/ch/...">
         @error('meeting_url')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
     </label>
     @if($errors->any() && old('form_modal') === $formModal)
