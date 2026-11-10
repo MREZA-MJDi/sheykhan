@@ -480,3 +480,29 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content .card.kpi[data-tone=green]{background:#16804b!important}
 .owner-admin-v2 .main-content .card.kpi[data-tone=orange]{background:#c47a12!important}
 .owner-admin-v2 .main-content .card.kpi[data-tone=red]{background:#b4233c!important}
+
+/* SpotPlayer status badges, metric cards and controls use the same semantic palette. */
+.owner-admin-v2 .main-content .sp-kpi.cyan{background:#285b91!important}
+.owner-admin-v2 .main-content .sp-kpi.green{background:#16804b!important}
+.owner-admin-v2 .main-content .sp-kpi.orange{background:#c47a12!important}
+.owner-admin-v2 .main-content .sp-kpi.pink{background:#b4233c!important}
+.owner-admin-v2 .main-content .sp-kpi :is(.sp-kpi-label,.sp-kpi-value,.sp-kpi-hint){color:#fff!important}
+.owner-admin-v2 .main-content .sp-status,
+.owner-admin-v2 .main-content .sp-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--ui-border);border-radius:999px;background:var(--ui-surface-soft);color:var(--ui-muted);font-size:10px;font-weight:800}
+.owner-admin-v2 .main-content :is(.sp-status.ok,.sp-pill.ok){border-color:#a9d9bd;background:var(--ui-success-soft);color:var(--ui-success)}
+.owner-admin-v2 .main-content :is(.sp-status.warn,.sp-pill.warn){border-color:#efd29b;background:var(--ui-warning-soft);color:#875006}
+.owner-admin-v2 .main-content :is(.sp-status.bad,.sp-pill.bad){border-color:#edb9c2;background:var(--ui-danger-soft);color:var(--ui-danger)}
+.owner-admin-v2 .main-content .sp-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:8px 12px;border:1px solid var(--ui-primary);border-radius:9px;background:var(--ui-primary)!important;color:#fff!important;font-size:11px;font-weight:800}
+.owner-admin-v2 .main-content .sp-button.soft{border-color:var(--ui-border-strong);background:#fff!important;color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .sp-nav{display:flex;flex-wrap:wrap;gap:7px;padding:10px;border:1px solid var(--ui-border);border-radius:12px;background:#fff}
+.owner-admin-v2 .main-content .sp-nav a{padding:7px 10px;border:1px solid transparent;border-radius:8px;color:var(--ui-muted)}
+.owner-admin-v2 .main-content .sp-nav a:hover,.owner-admin-v2 .main-content .sp-nav a:focus-visible{border-color:var(--ui-border);background:var(--ui-surface-soft);color:var(--ui-heading)}
+.owner-admin-v2 .main-content .sp-mini{padding:11px;border:1px solid var(--ui-border);border-radius:10px;background:var(--ui-surface-soft)}
+.owner-admin-v2 .main-content .sp-mini :is(span,small){color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .sp-mini strong{color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .sp-flash.success{border-color:#a9d9bd;background:var(--ui-success-soft);color:#12663c}
+.owner-admin-v2 .main-content .sp-flash.error{border-color:#edb9c2;background:var(--ui-danger-soft);color:#9f1d34}
+.owner-admin-v2 .main-content .sp-callout.info{border-color:#b8d2ed;background:var(--ui-info-soft);color:#205487}
+.owner-admin-v2 .main-content .sp-danger-note{border-color:#edb9c2;background:var(--ui-danger-soft);color:#9f1d34}
+.owner-admin-v2 .main-content .sp-code{display:inline-block;padding:4px 7px;border:1px solid var(--ui-border);border-radius:7px;background:var(--ui-surface-soft);color:var(--ui-heading)}
+.owner-admin-v2 .main-content .sp-empty{padding:18px;border:1px dashed var(--ui-border-strong);border-radius:12px;background:var(--ui-surface-soft);color:var(--ui-muted)}
