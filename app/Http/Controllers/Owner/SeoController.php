@@ -120,7 +120,7 @@ final class SeoController extends Controller
             )->count(),
         ];
 
-        return view('seo.index', $overview);
+        return view('owner.seo.index', $overview);
     }
 
     private function normalizePageUrlForHash(string $url): string
