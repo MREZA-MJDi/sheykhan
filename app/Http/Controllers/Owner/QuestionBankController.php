@@ -99,9 +99,17 @@ final class QuestionBankController extends Controller
             static fn ($value) => $value !== ''
         ));
         if (count($options) !== count(array_unique($options))) {
-            throw \Illuminate\Validation\ValidationException::withMessages(['options' => 'گزینه‌های تکراری مجاز نیستند.']);
+            throw \Illuminate\Validation\ValidationException::withMessages(['options_text' => 'گزینه‌های تکراری مجاز نیستند.']);
+        }
+        if (count($options) > 30 || count($answers) > 30
+            || collect($options)->contains(fn ($option) => mb_strlen($option) > 500)
+            || collect($answers)->contains(fn ($answer) => mb_strlen($answer) > 500)) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['options_text' => 'حداکثر ۳۰ گزینه یا پاسخ با طول ۵۰۰ نویسه مجاز است.']);
         }
         unset($data['options_text'], $data['correct_answers_text']);
+        $data['question'] = trim($data['question']);
+        $data['topic'] = filled($data['topic'] ?? null) ? trim($data['topic']) : null;
+        $data['expected_answer'] = filled($data['expected_answer'] ?? null) ? trim($data['expected_answer']) : null;
 
         if ($data['type'] === 'text') {
             $data['options'] = null;
@@ -109,7 +117,10 @@ final class QuestionBankController extends Controller
         } else {
             validator([], [])->after(function ($validator) use ($data, $options, $answers): void {
                 if (count($options) < 2) {
-                    $validator->errors()->add('options', 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
+                    $validator->errors()->add('options_text', 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
+                }
+                if ($data['type'] === 'single' && count($options) !== 4) {
+                    $validator->errors()->add('options_text', 'برای سؤال تک‌گزینه‌ای دقیقاً چهار گزینه لازم است.');
                 }
                 if ($answers === [] || array_diff($answers, $options) !== []) {
                     $validator->errors()->add('correct_answers', 'پاسخ صحیح باید از بین گزینه‌های همین سؤال انتخاب شود.');
