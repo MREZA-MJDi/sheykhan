@@ -47,10 +47,10 @@ class OwnerMeetingWorkflowTest extends TestCase
 
         $this->actingAs($owner)
             ->get(route('owner.meetings.index', $academy))
-            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']));
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=meetings');
 
         $this->actingAs($owner)
-            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
+            ->get(route('owner.communication-workspace', $academy) . '?tab=meetings')
             ->assertOk()
             ->assertSee($payload['title'])
             ->assertSee($payload['message'])
@@ -134,7 +134,7 @@ class OwnerMeetingWorkflowTest extends TestCase
         [$owner, $academy] = $this->workspace();
 
         $this->actingAs($owner)
-            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
+            ->get(route('owner.communication-workspace', $academy) . '?tab=meetings')
             ->assertOk()
             ->assertDontSee('value="هماهنگی با آقای سبحانی"', false)
             ->assertSee('placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده"', false);
