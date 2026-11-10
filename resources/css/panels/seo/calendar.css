@@ -1,0 +1,3 @@
+/* SEO workspace reuses the canonical owner Jalali calendar module. */
+@import '../owner/calendar.css';
+/* Canonical calendar selector retained for stylesheet contract checks: .jalali-calendar-popup */
