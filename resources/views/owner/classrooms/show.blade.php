@@ -22,7 +22,7 @@
     ];
 @endphp
 
-<div class="space-y-6 panel-page-enter">
+<div class="space-y-6 panel-page-enter owner-classroom-details-page">
     <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
             <div class="flex flex-wrap items-center gap-2">
