@@ -68,9 +68,12 @@ final class AttendanceController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        $classrooms = $academy->classrooms()
-            ->orderBy('title')
-            ->get(['id', 'title', 'course_id']);
+        $selectedClassroomId = (int) ($filters['classroom_id'] ?? 0);
+        $classrooms = $selectedClassroomId > 0
+            ? $academy->classrooms()
+                ->whereKey($selectedClassroomId)
+                ->get(['id', 'title', 'course_id'])
+            : collect();
 
         return view('owner.attendance.index', compact('academy', 'filters', 'summary', 'attendances', 'classrooms'));
     }

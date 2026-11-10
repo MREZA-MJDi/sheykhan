@@ -1,21 +1,8 @@
 import { bootPanel, closePanelMenu } from './panel-base.js';
 import { bootFileUploadProgress } from './shared/upload-progress.js';
-import { bootSharedBehaviors, initializeTabs } from './shared/behavior-runtime.js';
+import { bootSharedBehaviors } from './shared/behavior-runtime.js';
 
 export { closePanelMenu };
-
-const bootOwnerPeopleTabs = () => {
-    document.querySelectorAll('[data-owner-people-tabs]').forEach((root) => {
-        initializeTabs(root, {
-            triggerSelector: '[data-owner-tab-button]',
-            panelSelector: '[data-owner-tab-panel]',
-            triggerKey: (button) => button.dataset.ownerTabButton || '',
-            panelKey: (panel) => panel.dataset.ownerTabPanel || '',
-            initialKey: root.dataset.initialTab,
-            activeClass: 'is-active',
-        });
-    });
-};
 
 const bootRoleMobileNavigation = () => {
     document.querySelectorAll('[data-role-more-panel]').forEach((panel) => {
@@ -87,7 +74,6 @@ function initializePanelRuntime() {
 
     bootSharedBehaviors();
     bootPanel();
-    bootOwnerPeopleTabs();
     bootRoleMobileNavigation();
     bootFileUploadProgress();
 }

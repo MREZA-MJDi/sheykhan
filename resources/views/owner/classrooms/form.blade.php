@@ -46,47 +46,50 @@
                     @error('code')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                 </label>
 
-                <label class="grid gap-1 md:col-span-2">
-                    <span class="text-xs font-black">دوره</span>
-                    <select id="owner-classroom-course" name="course_id" required
-                            class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]">
-                        <option value="">انتخاب دوره</option>
-                        @foreach($courses as $course)
-                            <option value="{{ $course->id }}"
-                                    data-teacher-ids="{{ $course->teachers->pluck('id')->implode(',') }}"
-                                @selected((int) old('course_id', $classroom->course_id) === (int) $course->id)>
-                                {{ $course->title }}{{ $course->status !== 'published' ? ' · پیش‌نویس' : '' }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <small class="owner-field-help">دوره، محتوای آموزشی کلاس را مشخص می‌کند؛ فقط مدرس‌های اختصاص‌یافته به همین دوره قابل انتخاب‌اند.</small>
-                    @error('course_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
-                </label>
+                <x-academy-option-picker
+                    id="owner-classroom-course"
+                    label="جست‌وجوی دوره"
+                    name="course_id"
+                    type="classroom-courses"
+                    endpoint="{{ route('owner.form-options', $academy) }}"
+                    empty-label="انتخاب دوره"
+                    search-placeholder="نام دوره را بنویس…"
+                    status-text="برای پیدا کردن دوره، دست‌کم دو حرف از عنوان آن را جست‌وجو کن."
+                    more-label="نمایش دوره‌های بعدی"
+                    select-label="انتخاب دوره کلاس"
+                    help-text="فقط دوره‌های همین آموزشگاه نمایش داده می‌شوند؛ با جست‌وجو لازم نیست فهرست کامل بارگذاری شود."
+                    error-key="course_id"
+                    required
+                    wrapper-class="grid gap-2 md:col-span-2">
+                    @foreach($courses as $course)
+                        <option value="{{ $course->id }}"
+                            @selected((int) old('course_id', $classroom->course_id) === (int) $course->id)>
+                            {{ $course->title }}{{ $course->status !== 'published' ? ' · پیش‌نویس' : '' }}
+                        </option>
+                    @endforeach
+                </x-academy-option-picker>
 
-                <div class="md:col-span-2">
-                    <div class="flex items-end justify-between gap-3">
-                        <div>
-                            <span class="text-xs font-black">مدرس‌های کلاس</span>
-                            <p class="mt-1 text-[10px] text-slate-500">فقط مدرس‌های اختصاص‌یافته به همان دوره قابل انتخاب‌اند.</p>
-                        </div>
-                        <span id="owner-teacher-hint" class="text-[10px] text-slate-400"></span>
-                    </div>
-
-                    <div id="owner-teacher-list" class="mt-3 grid gap-2 sm:grid-cols-2">
-                        @foreach($teachers as $teacher)
-                            <label data-teacher-option="{{ $teacher->id }}"
-                                   class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
-                                <input type="radio"
-                                       name="teacher_ids[]"
-                                       value="{{ $teacher->id }}"
-                                       @checked(in_array((int) $teacher->id, $selectedTeacherIds, true))
-                                       class="h-4 w-4 rounded border-slate-300 text-[var(--panel-primary)]">
-                                <span class="text-xs font-bold text-slate-700">{{ $teacher->name }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                    @error('teacher_ids')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
-                </div>
+                <x-academy-option-picker
+                    id="owner-classroom-teacher"
+                    label="جست‌وجوی مدرس"
+                    name="teacher_ids[]"
+                    type="classroom-teachers"
+                    endpoint="{{ route('owner.form-options', $academy) }}"
+                    empty-label="ابتدا دوره را انتخاب کن"
+                    search-placeholder="نام مدرس را بنویس…"
+                    status-text="پس از انتخاب دوره، مدرس‌های اختصاص‌یافته به همان دوره را جست‌وجو کن."
+                    more-label="نمایش مدرس‌های بعدی"
+                    select-label="انتخاب مدرس کلاس"
+                    help-text="فقط مدرس فعال همان دوره و آموزشگاه قابل انتخاب است؛ یک مدرس را انتخاب کن."
+                    error-key="teacher_ids"
+                    required
+                    depends-on-course
+                    wrapper-class="grid gap-2 md:col-span-2">
+                    @foreach($teachers as $teacher)
+                        <option value="{{ $teacher->id }}"
+                            @selected(in_array((int) $teacher->id, $selectedTeacherIds, true))>{{ $teacher->name }}</option>
+                    @endforeach
+                </x-academy-option-picker>
 
                 <label class="grid gap-1">
                     <span class="text-xs font-black">پایه</span>
@@ -179,46 +182,3 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const course = document.getElementById('owner-classroom-course');
-    const hint = document.getElementById('owner-teacher-hint');
-    const options = [...document.querySelectorAll('[data-teacher-option]')];
-
-    const syncTeacherOptions = () => {
-        const selected = course?.selectedOptions?.[0];
-        const allowed = new Set(
-            (selected?.dataset.teacherIds || '')
-                .split(',')
-                .map((value) => Number(value))
-                .filter(Boolean)
-        );
-
-        let count = 0;
-
-        options.forEach((wrapper) => {
-            const teacherId = Number(wrapper.dataset.teacherOption);
-            const checkbox = wrapper.querySelector('input[type="checkbox"]');
-            const enabled = allowed.has(teacherId);
-
-            wrapper.hidden = !enabled;
-            checkbox.disabled = !enabled;
-
-            if (!enabled && checkbox.checked) {
-                checkbox.checked = false;
-            }
-
-            if (enabled) count += 1;
-        });
-
-        hint.textContent = selected?.value
-            ? (count ? count + ' مدرس قابل انتخاب' : 'برای این دوره هنوز مدرسی اختصاص داده نشده است')
-            : '';
-    };
-
-    course?.addEventListener('change', syncTeacherOptions);
-    syncTeacherOptions();
-});
-</script>
-@endpush
