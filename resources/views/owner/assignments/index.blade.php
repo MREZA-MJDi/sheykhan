@@ -29,7 +29,7 @@
     </section>
 
     <section class="dashboard-panel p-5 sm:p-6">
-        <form method="GET" action="{{ route('owner.assignments.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <form method="GET" action="{{ route('owner.assignments.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <label class="grid gap-1 sm:col-span-2">
                 <span class="text-xs font-bold">جست‌وجوی عنوان، دوره یا کلاس</span>
                 <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="مثلاً فصل سوم یا کلاس فیزیک">
@@ -40,6 +40,15 @@
                     <option value="">همه وضعیت‌ها</option>
                     @foreach($statusLabels as $key => $label)
                         <option value="{{ $key }}" @selected(($filters['status'] ?? '') === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label class="grid gap-1">
+                <span class="text-xs font-bold">کلاس</span>
+                <select name="classroom_id" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <option value="">همه کلاس‌ها</option>
+                    @foreach($classrooms as $classroom)
+                        <option value="{{ $classroom->id }}" @selected((string) ($filters['classroom_id'] ?? '') === (string) $classroom->id)>{{ $classroom->title }}{{ $classroom->status === 'archived' ? ' · آرشیو' : '' }}</option>
                     @endforeach
                 </select>
             </label>
