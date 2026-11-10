@@ -62,7 +62,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('SEO Visible Course')
             ->assertSee(route('courses.show', $course), false)
             ->assertSee('مدیریت دیده‌شدن شیخان در جست‌وجو')
-            ->assertSee('عملکرد واقعی در Google Search Console')
+            ->assertSee('آمار واقعی نمایش سایت در گوگل')
             ->assertSee('عنوان SEO اختصاصی تنظیم نشده')
             ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
             ->assertSee('robots.txt')
