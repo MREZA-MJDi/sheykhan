@@ -63,15 +63,10 @@
 
     <dialog class="owner-floating-modal" id="owner-student-create-modal" aria-labelledby="owner-student-create-title" @if(session('temporary_student_password') || ($errors->any() && request('tab') === 'create-student')) data-owner-modal-open-on-load @endif>
         <header class="owner-floating-modal__header">
-            <div><span class="owner-record-modal-kicker">حساب جدید</span><h2 id="owner-student-create-title">ساخت حساب دانش‌آموز</h2></div>
+            <div><span class="owner-record-modal-kicker">حساب جدید</span><h2 id="owner-student-create-title">ساخت حساب دانش‌آموز</h2><p class="owner-modal-subtitle">اطلاعات اصلی را وارد کن؛ کد دانش‌آموز و رمز اولیه را سامانه می‌سازد.</p></div><span class="owner-student-create-badge">رمز یک‌بار نمایش داده می‌شود</span>
             <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
         </header>
         <div class="owner-floating-modal__body">
-        <header class="owner-student-create-head">
-            <div><span>حساب جدید</span><h2>ساخت حساب دانش‌آموز</h2><p>اطلاعات اصلی را وارد کن؛ کد دانش‌آموز و رمز اولیه را سامانه می‌سازد.</p></div>
-            <span class="owner-student-create-badge">رمز یک‌بار نمایش داده می‌شود</span>
-        </header>
-
         @if(session('temporary_student_password'))
             <section class="owner-student-credentials" role="status" aria-live="polite">
                 <div><strong>حساب ساخته شد</strong><p>این اطلاعات را از راه امن تحویل بده. رمز پس از خروج از این صفحه دوباره نمایش داده نمی‌شود.</p></div>
