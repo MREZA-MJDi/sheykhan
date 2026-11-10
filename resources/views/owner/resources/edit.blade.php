@@ -39,7 +39,20 @@
                 <h2>فایل و انتشار</h2>
                 <p class="text-sm text-slate-600">فایل فعلی: {{ $resource->media?->original_name ?? 'در دسترس نیست' }}</p>
                 <p class="text-xs text-slate-500">نوع: {{ $resource->media?->mime_type ?? '—' }} · وضعیت: {{ $resource->status }}</p>
-                <label><span>جایگزینی فایل (اختیاری)</span><input type="file" name="file" accept=".pdf,.mp4,.webm,.mov,.mp3,.m4a,.jpg,.jpeg,.png,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip"><small class="owner-field-help">حداکثر ۲۰۰ مگابایت. فایل جدید خصوصی ذخیره می‌شود؛ در صورت خالی‌بودن، فایل قبلی حفظ می‌شود.</small></label>
+                <label><span>جایگزینی فایل (اختیاری)</span><input type="file" name="file" data-owner-resource-input accept=".pdf,.mp4,.webm,.mov,.mp3,.m4a,.jpg,.jpeg,.png,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip"><small class="owner-field-help">حداکثر ۲۰۰ مگابایت. فایل جدید خصوصی ذخیره می‌شود؛ در صورت خالی‌بودن، فایل قبلی حفظ می‌شود.</small></label>
+                <div class="owner-resource-preview" data-owner-resource-preview hidden>
+                    <div class="owner-resource-preview-media">
+                        <img data-owner-resource-image alt="" hidden>
+                        <video data-owner-resource-video controls preload="metadata" hidden></video>
+                        <audio data-owner-resource-audio controls preload="metadata" hidden></audio>
+                        <div data-owner-resource-generic hidden>پیش‌نمایش برای این نوع فایل در دسترس نیست.</div>
+                    </div>
+                    <div class="owner-resource-preview-copy">
+                        <strong data-owner-resource-name></strong>
+                        <span data-owner-resource-size></span>
+                        <span data-owner-resource-dimensions></span>
+                    </div>
+                </div>
                 <label><span>زمان انتشار</span><input type="datetime-local" name="release_at" value="{{ old('release_at', $resource->release_at?->format('Y-m-d\TH:i')) }}"><small class="owner-field-help">پیش از این زمان فایل برای دانش‌آموزان قابل مشاهده نیست؛ خالی یعنی انتشار بدون تأخیر.</small></label>
                 <p class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900">منابع آموزشی خصوصی‌اند و دسترسی از کنترل ثبت‌نام و عضویت می‌گذرد. فایل‌ها URL عمومی نمی‌گیرند.</p>
             </section>
