@@ -32,7 +32,7 @@ class OwnerMeetingWorkflowTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.meetings.store', $academy), $payload)
-            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=meetings')
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('academy_meetings', [
@@ -109,7 +109,7 @@ class OwnerMeetingWorkflowTest extends TestCase
             ->get(route('owner.attendance.index', $academy) . '?sheet=report&status=absent')
             ->assertOk()
             ->assertSee('غیبت‌ها و گزارش کلاسی')
-            ->assertSee('گزارش خلاصه')
+            ->assertSee('دامنهٔ گزارش')
             ->assertViewHas('sheet', 'report')
             ->assertViewHas('attendances', null)
             ->assertViewHas('summary', fn ($summary) => (int) $summary->total === 1 && (int) $summary->absent_count === 1);
