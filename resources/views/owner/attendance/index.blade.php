@@ -19,11 +19,31 @@
         <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a>
     </header>
 
-    <section class="grid gap-3 grid-cols-2 xl:grid-cols-5">
-        @foreach([['کل رکوردها', $summary->total ?? 0], ['حاضر', $summary->present_count ?? 0], ['با تأخیر', $summary->late_count ?? 0], ['غایب', $summary->absent_count ?? 0], ['موجه', $summary->excused_count ?? 0]] as [$label, $value])
-            <article class="owner-stat-card"><span>{{ $label }}</span><strong>{{ \App\Support\PersianUi::digits($value) }}</strong><small>بر اساس فیلترهای فعلی</small></article>
-        @endforeach
-    </section>
+    <nav class="dashboard-panel flex flex-wrap gap-2 p-3" aria-label="بخش‌های حضور و غیاب">
+        <a href="{{ route('owner.attendance.index', ['academy' => $academy->id, ...request()->except('page', 'sheet'), 'sheet' => 'history']) }}"
+           @if($sheet === 'history') aria-current="page" @endif
+           class="inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-bold {{ $sheet === 'history' ? 'bg-[var(--panel-primary)] text-white' : 'border border-[var(--panel-border)] text-[var(--panel-text)] hover:bg-[var(--panel-bg)]' }}">
+            سوابق و اصلاح رکوردها
+        </a>
+        <a href="{{ route('owner.attendance.index', ['academy' => $academy->id, ...request()->except('page', 'sheet'), 'sheet' => 'report']) }}"
+           @if($sheet === 'report') aria-current="page" @endif
+           class="inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-bold {{ $sheet === 'report' ? 'bg-[var(--panel-primary)] text-white' : 'border border-[var(--panel-border)] text-[var(--panel-text)] hover:bg-[var(--panel-bg)]' }}">
+            گزارش خلاصه
+        </a>
+    </nav>
+
+    @if($sheet === 'report')
+        <section class="grid gap-3 grid-cols-2 xl:grid-cols-5" aria-label="گزارش وضعیت حضور و غیاب">
+            @foreach([['کل رکوردها', $summary->total ?? 0], ['حاضر', $summary->present_count ?? 0], ['با تأخیر', $summary->late_count ?? 0], ['غایب', $summary->absent_count ?? 0], ['موجه', $summary->excused_count ?? 0]] as [$label, $value])
+                <article class="owner-stat-card"><span>{{ $label }}</span><strong>{{ \App\Support\PersianUi::digits($value) }}</strong><small>بر اساس فیلترهای انتخاب‌شده</small></article>
+            @endforeach
+        </section>
+        <section class="dashboard-panel p-5 sm:p-6">
+            <h2 class="text-base font-black">دامنهٔ گزارش</h2>
+            <p class="mt-2 text-sm leading-7 text-slate-500">این گزارش از همان فیلترهای تاریخ، کلاس، وضعیت و جست‌وجوی انتخاب‌شده استفاده می‌کند. برای بررسی جزئیات هر رکورد، به شیت «سوابق و اصلاح رکوردها» برو.</p>
+            <a href="{{ route('owner.attendance.index', ['academy' => $academy->id, ...request()->except('page', 'sheet'), 'sheet' => 'history']) }}" class="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">مشاهده رکوردهای گزارش</a>
+        </section>
+    @endif
 
     <section class="dashboard-panel p-5 sm:p-6">
         <form method="GET" action="{{ route('owner.attendance.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -35,6 +55,7 @@
         </form>
     </section>
 
+    @if($sheet === 'history')
     <section class="dashboard-panel p-5 sm:p-6">
         <div class="mb-4"><h2 class="text-base font-black">سوابق ثبت‌شده</h2><p class="mt-1 text-xs text-slate-500">نمایش ۲۵ رکورد در هر صفحه؛ فیلترها بین صفحه‌ها حفظ می‌شوند.</p></div>
         <div class="grid gap-3">
@@ -77,5 +98,6 @@
             <div class="mt-5 border-t border-slate-100 pt-4 text-sm">{{ $attendances->links('components.navigation.pagination') }}</div>
         @endif
     </section>
+    @endif
 </div>
 @endsection
