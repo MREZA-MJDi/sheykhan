@@ -7,7 +7,7 @@
 .owner-admin-v2 .main-content .owner-exam-head h1{margin:0;color:var(--oa-text);font-size:clamp(20px,2.2vw,28px);font-weight:950;line-height:1.5}
 .owner-admin-v2 .main-content .owner-exam-head p{max-width:760px;margin:0;color:var(--oa-muted);font-size:11px;line-height:1.9}
 .owner-admin-v2 .main-content .owner-exam-head>a{display:inline-flex;align-items:center;min-height:38px;padding:7px 12px;border:1px solid rgba(119,136,190,.2);border-radius:10px;color:var(--oa-accent);font-size:11px;font-weight:850;text-decoration:none}
-.owner-admin-v2 .main-content .owner-exam-section{display:grid;gap:16px;min-width:0;padding:18px;border:1px solid rgba(119,136,190,.16);border-radius:17px;background:rgba(17,23,55,.82);box-shadow:0 12px 28px rgba(2,6,23,.10)}
+.owner-admin-v2 .main-content .owner-exam-section{display:grid;gap:16px;min-width:0;padding:18px;border:1px solid rgba(119,136,190,.16);border-radius:17px;background:#fff;box-shadow:0 12px 28px rgba(2,6,23,.10)}
 .owner-admin-v2 .main-content .owner-exam-section>h2{margin:0;color:var(--oa-text);font-size:15px;font-weight:950}
 .owner-admin-v2 .main-content .owner-exam-section>p{margin:-9px 0 0;color:var(--oa-muted);font-size:11px;line-height:1.9}
 .owner-admin-v2 .main-content .owner-exam-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
@@ -86,7 +86,7 @@
     min-height:42px;
     border:1px solid rgba(119,136,190,.25);
     border-radius:10px;
-    background:#101832;
+    background:#fff;
     color:var(--oa-text);
     font:inherit;
 }
@@ -101,7 +101,7 @@
 .owner-admin-v2 .owner-people-workspace [data-directory-results]>div{
     min-width:0;
     border:1px solid rgba(119,136,190,.14);
-    background:#101832;
+    background:#fff;
     color:var(--oa-text);
 }
 .owner-admin-v2 .owner-people-workspace [data-directory-status],
@@ -162,7 +162,7 @@
         padding:10px;
         border:1px solid rgba(119,136,190,.2);
         border-radius:12px;
-        background:#111a34;
+        background:#fff;
     }
 }
 
