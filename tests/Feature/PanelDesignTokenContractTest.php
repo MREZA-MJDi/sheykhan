@@ -17,7 +17,7 @@ class PanelDesignTokenContractTest extends TestCase
 
         foreach ($entries as $role => $entry) {
             $source = file_get_contents(resource_path($entry));
-            $panel = $role === 'owner' ? 'shared' : $role;
+            $panel = in_array($role, ['owner', 'seo'], true) ? 'shared' : $role;
             $calendar = file_get_contents(resource_path("css/panels/{$panel}/calendar.css"));
             $components = file_get_contents(resource_path("css/panels/{$panel}/components.css"));
 
@@ -27,10 +27,10 @@ class PanelDesignTokenContractTest extends TestCase
 
             $calendarImport = $role === 'owner'
                 ? "@import '../../../../css/panels/shared/calendar.css';"
-                : "@import './panels/{$role}/calendar.css';";
+                : "@import './panels/{$panel}/calendar.css';";
             $componentsImport = $role === 'owner'
                 ? "@import '../../../../css/panels/shared/components.css';"
-                : "@import './panels/{$role}/components.css';";
+                : "@import './panels/{$panel}/components.css';";
 
             $this->assertStringContainsString($calendarImport, $source, $role);
             $this->assertStringContainsString($componentsImport, $source, $role);
