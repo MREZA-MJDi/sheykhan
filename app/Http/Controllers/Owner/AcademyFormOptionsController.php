@@ -123,11 +123,17 @@ final class AcademyFormOptionsController extends Controller
             }
 
             if (str_contains($filters['type'], 'courses')) {
+                $label = $item->title;
+                if (str_starts_with($filters['type'], 'classroom-') && $item->status !== 'published') {
+                    $label .= ' · پیش‌نویس';
+                }
+                if (str_starts_with($filters['type'], 'exam-') && $item->teachers->first()) {
+                    $label .= ' · مدرس: ' . $item->teachers->first()->name;
+                }
+
                 return [
                     'id' => (int) $item->id,
-                    'label' => $item->title . (str_starts_with($filters['type'], 'exam-') && $item->teachers->first()
-                        ? ' · مدرس: ' . $item->teachers->first()->name
-                        : ''),
+                    'label' => $label,
                 ];
             }
 
