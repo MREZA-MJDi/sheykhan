@@ -61,7 +61,7 @@
         @endif
 
         @if($canViewMeetings)
-            <section class="card c8" aria-labelledby="today-schedule-title" style="--c:#22d3ee">
+            <section class="card c8" aria-labelledby="today-schedule-title" style="--c:#0e9f8e">
                 <div class="card-title">
                     <div>
                         <h2 id="today-schedule-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span>برنامه امروز</h2>
@@ -70,13 +70,13 @@
                     @if($firstAcademy)<a class="table-link" href="{{ route('owner.schedules.index', $firstAcademy) }}">برنامه کامل ←</a>@endif
                 </div>
                 @forelse($todayLiveClasses as $item)
-                    <a class="tl {{ $item->status === 'live' ? 'live' : '' }}" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : route('owner.dashboard') }}" style="--c:{{ $item->status === 'live' ? '#ff1f6b' : '#22d3ee' }}">
+                    <a class="tl {{ $item->status === 'live' ? 'live' : '' }}" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : route('owner.dashboard') }}" style="--c:{{ $item->status === 'live' ? '#d64550' : '#0e9f8e' }}">
                         <b>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</b>
                         <span class="gx"><b>{{ $item->title }}</b><small>{{ $item->course?->title ?? 'بدون دوره مرتبط' }} · {{ $item->teacher?->name ?? 'مدرس تعیین نشده' }}</small></span>
                         @if($item->status === 'live')
-                            <span class="pl" style="--c:#ff1f6b">در حال اجرا</span>
+                            <span class="pl" style="--c:#d64550">در حال اجرا</span>
                         @else
-                            <span class="pl" style="--c:#22d3ee">زمان‌بندی‌شده</span>
+                            <span class="pl" style="--c:#0e9f8e">زمان‌بندی‌شده</span>
                         @endif
                     </a>
                 @empty
@@ -119,14 +119,14 @@
                         </a>
                     @endif
                     @if($capacityAlerts > 0 && $firstAcademy && $canViewClassrooms)
-                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#ff1f6b">
+                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#d64550">
                             <span class="ct">{{ \App\Support\PersianUi::digits($capacityAlerts) }}</span>
                             <span class="gx"><b>کلاس نزدیک ظرفیت</b><small>کلاس‌هایی با ظرفیت ۹۰٪ یا بیشتر</small></span>
                             <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
                         </a>
                     @endif
                     @if($pendingReviews > 0 && $firstAcademy && $canViewAssignments)
-                        <a class="at" href="{{ route('owner.assignments.index', $firstAcademy) }}" style="--c:#22d3ee">
+                        <a class="at" href="{{ route('owner.assignments.index', $firstAcademy) }}" style="--c:#0e9f8e">
                             <span class="ct">{{ \App\Support\PersianUi::digits($pendingReviews) }}</span>
                             <span class="gx"><b>تکلیف بررسی‌نشده</b><small>پاسخ‌های ثبت‌شده و تصحیح‌نشده</small></span>
                             <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
