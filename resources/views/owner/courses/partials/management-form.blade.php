@@ -388,7 +388,7 @@
         </div>
     </form>
 
-    @if($isEdit)
+    @if($isEdit && !request()->boolean('modal'))
         @php
             $publicCourseCover = $course->media->first(fn ($media) => $media->pivot?->collection === 'course-cover' && $media->visibility === 'public' && str_starts_with((string) $media->mime_type, 'image/'));
         @endphp
