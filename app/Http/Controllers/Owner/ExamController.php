@@ -317,7 +317,7 @@ final class ExamController extends Controller
 
     private function authorizeAcademy(Request $request, Academy $academy, string $permission): void
     {
-        app(\\App\\Services\\OwnerWorkspaceService::class)
+        app(\App\Services\OwnerWorkspaceService::class)
             ->authorizeAcademy($request->user(), $academy, $permission);
     }
 }
