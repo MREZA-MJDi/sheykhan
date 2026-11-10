@@ -27,14 +27,16 @@
             <a class="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white" href="{{ route('owner.courses.index') }}">رفتن به دوره‌ها</a>
         </section>
     @else
-        @if($exam->exists)
-            <form method="POST" action="{{ route('owner.exams.update', [$academy, $exam->id]) }}{{ $modalMode ? '?modal=1' : '' }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
-                @csrf
+        @php
+            $examFormAction = $exam->exists
+                ? route('owner.exams.update', [$academy, $exam->id])
+                : route('owner.exams.store', $academy);
+        @endphp
+        <form method="POST" action="{{ $examFormAction }}{{ $modalMode ? '?modal=1' : '' }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+            @csrf
+            @if($exam->exists)
                 @method('PATCH')
-        @else
-            <form method="POST" action="{{ route('owner.exams.store', $academy) }}{{ $modalMode ? '?modal=1' : '' }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
-                @csrf
-        @endif
+            @endif
             <section class="owner-exam-section">
                 <h2>مشخصات و محدوده آزمون</h2>
                 <p>فقط دوره و کلاسی را انتخاب کن که متعلق به همین آموزشگاه باشد.</p>
