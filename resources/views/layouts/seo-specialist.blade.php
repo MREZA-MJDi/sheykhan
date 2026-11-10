@@ -58,7 +58,7 @@
 @endphp
 <div class="app">
     @include('owner.admin.partials.dashboard-icons')
-    @include('owner.partials.admin-topbar')
+    @include('owner.admin.partials.topbar')
     <aside class="side card" id="side" aria-label="منوی مدیریت">
         <nav id="nv" aria-label="منوی اصلی">
             @if(!$isSeoOnlyUser && $ownerUser?->hasPermission('dashboard.view'))
@@ -123,8 +123,8 @@
         @endif
         <div class="side-foot"><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
     </aside>
-    @include('owner.partials.admin-main')
-    @include('owner.partials.admin-command-palette')
+    @include('owner.admin.partials.main')
+    @include('owner.admin.partials.command-palette')
 </div>
 @stack('scripts')
 </body>
