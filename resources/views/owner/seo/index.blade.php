@@ -92,7 +92,13 @@
             @endif
         </div>
 
-        @if($searchConsole['has_data'])
+        @if(!$searchConsole['storage_available'])
+            <div class="seo-connection-state is-pending" role="status">
+                <strong>جدول ذخیرهٔ آمار SEO هنوز آماده نیست.</strong>
+                <p>بخش ممیزی صفحات فعال است؛ برای فعال‌شدن کارت آمار Search Console، migrationهای پروژه را روی سرور اجرا کن.</p>
+                <code dir="ltr">php artisan migrate --force</code>
+            </div>
+        @elseif($searchConsole['has_data'])
             <div class="seo-performance-meta">
                 <span>بازهٔ گزارش: {{ $searchConsole['start_date'] }} تا {{ $searchConsole['end_date'] }}</span>
                 <span>Property: <b dir="ltr">{{ $searchConsole['property'] }}</b></span>
