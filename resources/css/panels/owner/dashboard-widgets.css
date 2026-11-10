@@ -157,12 +157,12 @@
     vector-effect: non-scaling-stroke;
 }
 .owner-admin-v2 .owner-line-students {
-    stroke: #ff1f6b;
-    filter: drop-shadow(0 0 5px rgba(255,31,107,.48));
+    stroke: #b4233c;
+    filter: drop-shadow(0 0 5px rgba(180,35,60,.34));
 }
 .owner-admin-v2 .owner-line-attendance {
-    stroke: #22d3ee;
-    filter: drop-shadow(0 0 5px rgba(34,211,238,.45));
+    stroke: #285b91;
+    filter: drop-shadow(0 0 5px rgba(40,91,145,.32));
 }
 .owner-admin-v2 .owner-chart-labels {
     display: flex;
@@ -268,10 +268,10 @@
     pointer-events: none;
 }
 .owner-admin-v2 .owner-range-handle circle {
-    fill: #22d3ee;
+    fill: #285b91;
     stroke: var(--bg);
     stroke-width: 3;
-    filter: drop-shadow(0 0 6px #22d3ee);
+    filter: drop-shadow(0 0 6px #285b91);
     vector-effect: non-scaling-stroke;
 }
 .owner-admin-v2 .owner-range-handle:focus-visible circle {
@@ -453,7 +453,7 @@
     inset-inline-start: 0;
     width: 3px;
     border-radius: 0 8px 8px 0;
-    background: linear-gradient(180deg, #22d3ee, #8b3dff);
+    background: linear-gradient(180deg, #285b91, #7b2c42);
     box-shadow: 0 0 16px rgba(34,211,238,.3);
 }
 .owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro, header:first-child) > *,
@@ -614,16 +614,16 @@
     font: inherit;
     font-size: 12px;
     line-height: 1.6;
-    box-shadow: inset 0 1px 3px rgba(2,5,23,.3);
+    box-shadow: inset 0 1px 3px rgba(22,38,58,.05);
 }
 .owner-admin-v2 .main-content .panel-page-enter textarea {
     min-height: 100px;
     resize: vertical;
 }
 .owner-admin-v2 .main-content .panel-page-enter :is(input, select, textarea):focus {
-    outline: 2px solid rgba(34,211,238,.6);
+    outline: 2px solid rgba(123,44,66,.22);
     outline-offset: 2px;
-    border-color: #22d3ee;
+    border-color: #285b91;
 }
 .owner-admin-v2 .main-content .panel-page-enter input[type=checkbox],
 .owner-admin-v2 .main-content .panel-page-enter input[type=radio] {
@@ -689,17 +689,17 @@
     background: rgba(34,211,238,.035);
 }
 .owner-admin-v2 .main-content .panel-page-enter :is(.owner-empty-state, .card-empty, .border-dashed) {
-    border-color: rgba(119,136,190,.28) !important;
+    border-color: #e1e7ef !important;
     border-radius: 14px;
-    background: rgba(9,14,39,.36) !important;
+    background: #f6f8fb !important;
     color: var(--mu) !important;
 }
 .owner-admin-v2 .main-content .panel-page-enter .owner-info-banner {
     padding: 14px 17px;
-    border-color: rgba(34,211,238,.25) !important;
-    border-inline-start: 3px solid #22d3ee;
+    border-color: #b8d2ed !important;
+    border-inline-start: 3px solid #285b91;
     border-radius: 14px;
-    background: rgba(34,211,238,.07) !important;
+    background: #edf5ff !important;
     color: var(--tx) !important;
     line-height: 2;
 }
