@@ -101,7 +101,7 @@
             'color' => '#9aa3d8',
             'links' => [
                 ['route' => 'owner.academy.edit', 'permission' => 'academy.view', 'label' => 'تنظیمات آموزشگاه', 'icon' => 'cog', 'scope' => 'academy'],
-                ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'SpotPlayer و لایسنس‌ها', 'icon' => 'video', 'scope' => 'global'],
+                ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'پخش ویدئوهای آموزشی', 'icon' => 'video', 'scope' => 'global'],
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی', 'icon' => 'scale', 'scope' => 'global'],
                 ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
             ],
@@ -255,8 +255,8 @@
                                 <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.website.index') }}" <?php if (request()->routeIs('owner.website.*')) echo 'aria-current="page"'; ?> data-nav-label="صفحات و بنرها">
                                     <svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>صفحات و بنرها</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}" <?php if (request()->routeIs('owner.seo.*')) echo 'aria-current="page"'; ?> data-nav-label="SEO و کلمات کلیدی">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>SEO و کلمات کلیدی</span>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}" <?php if (request()->routeIs('owner.seo.*')) echo 'aria-current="page"'; ?> data-nav-label="نمایش سایت در گوگل">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>نمایش سایت در گوگل</span>
                                 </a>
                                 <?php foreach ($websiteAcademies as $websiteAcademy) { ?>
                                     <a class="ni" style="--c:{{ $navGroup['color'] }}"
@@ -289,9 +289,9 @@
         @else
             <section class="tm owner-seo-sidebar-note" aria-label="مرکز مدیریت SEO">
                 <small>مرکز مدیریت سایت</small>
-                <b>SEO و محتوای عمومی</b>
+                <b>محتوا و نمایش سایت در گوگل</b>
                 <small>اطلاعات سایت، عبارت‌های جست‌وجو، بنرها و مقاله‌ها از این بخش مدیریت می‌شوند.</small>
-                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>شروع ممیزی صفحات</span></a>
+                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>بررسی وضعیت صفحه‌های سایت</span></a>
             </section>
         @endif
         <div class="side-foot"><a href="{{ route('account.guide') }}"><svg class="ic"><use href="#i-book"/></svg>راهنمای استفاده</a><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
