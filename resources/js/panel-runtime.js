@@ -76,6 +76,7 @@ function initializePanelRuntime() {
     bootSharedBehaviors();
     bootPanel();
     bootOwnerPeopleTabs();
+    bootOwnerPeopleDirectoryTabs();
     bootRoleMobileNavigation();
     bootFileUploadProgress();
 }
