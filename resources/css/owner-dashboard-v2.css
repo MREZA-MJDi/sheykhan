@@ -21,7 +21,7 @@
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-ExtraBold.woff2') format('woff2');font-style:normal;font-weight:800;font-display:swap}
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Black.woff2') format('woff2');font-style:normal;font-weight:900;font-display:swap}
 /* Owner-only shell: it intentionally does not import cross-role component or calendar styles. */
-:root{--acc:#1f2f7a;--tx:#16204a;--mu:#667091;--bg:#f2f4f9;--card:#ffffff;--c1:#ffffff;--c2:#ffffff;--in:#f8f9fd;--ln:#e3e7f1;--sh:rgba(22,32,74,.08);--pk:#d64550;--ok:#0e9f8e;--side:#121b45;--sideInk:#c9d0f0;--r:16px;color-scheme:light;box-sizing:border-box}
+:root{--acc:#1f2f7a;--pri:#1f2f7a;--pri2:#e8ebfa;--c:#1f2f7a;--warning:#f2a81d;--danger:#d64550;--tx:#16204a;--mu:#667091;--bg:#f2f4f9;--card:#ffffff;--c1:#ffffff;--c2:#ffffff;--in:#f8f9fd;--ln:#e3e7f1;--sh:rgba(22,32,74,.08);--pk:#d64550;--ok:#0e9f8e;--side:#121b45;--sideInk:#c9d0f0;--r:16px;color-scheme:light;box-sizing:border-box}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;min-height:100vh;font-family:Vazirmatn,Tahoma,sans-serif;color:var(--tx);line-height:1.7;background:var(--bg);padding:0}
