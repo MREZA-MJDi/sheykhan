@@ -218,7 +218,9 @@
                         <span class="text-xs font-black text-[var(--panel-primary)]">شروع مدیریت کلاس</span>
                         <h2 class="mt-2 text-lg font-black">هنوز کلاسی در این آموزشگاه نساخته‌ای.</h2>
                         <p class="mt-2 text-sm leading-7 text-slate-500">اولین کلاس را بساز تا ظرفیت، مدرس، دانش‌آموز و اتفاقات آموزشی‌اش از همین‌جا قابل مدیریت باشد.</p>
+                        @if(auth()->user()->hasPermission('classrooms.manage'))
                         <a href="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ساخت کلاس جدید" class="mt-5 inline-flex rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت اولین کلاس</a>
+                    @endif
                     @endif
                 </div>
             </div>
