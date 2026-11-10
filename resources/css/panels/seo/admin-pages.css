@@ -1,0 +1,49 @@
+/* SEO and public-site page components. */
+
+/* Blog workspace: one consistent dark SEO theme, with clear hierarchy and mobile-safe actions. */
+.owner-admin-v2 .main-content .owner-blog-workspace{display:grid;gap:18px;width:100%;max-width:1500px;margin-inline:auto}
+.owner-admin-v2 .main-content .owner-blog-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:0 0 18px;border-bottom:1px solid rgba(119,136,190,.22)}
+.owner-admin-v2 .main-content .owner-blog-kicker{display:block;margin-bottom:5px;color:var(--oa-accent);font-size:11px;font-weight:800}
+.owner-admin-v2 .main-content .owner-blog-hero h1{margin:0;color:var(--oa-text);font-size:clamp(22px,2vw,29px);font-weight:850}
+.owner-admin-v2 .main-content .owner-blog-hero p{max-width:70ch;margin:7px 0 0;color:var(--oa-muted);font-size:12px;line-height:1.9}
+.owner-admin-v2 .main-content .owner-blog-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.owner-admin-v2 .main-content .owner-blog-list-panel{min-width:0}
+.owner-admin-v2 .main-content .owner-blog-count{color:var(--oa-muted);font-size:11px}
+.owner-admin-v2 .main-content .owner-blog-list{display:grid;min-width:0}
+.owner-admin-v2 .main-content .owner-blog-row{display:grid;grid-template-columns:104px minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(119,136,190,.15)}
+.owner-admin-v2 .main-content .owner-blog-row:last-child{border-bottom:0}
+.owner-admin-v2 .main-content .owner-blog-thumb{display:grid;place-items:center;width:104px;aspect-ratio:16/10;overflow:hidden;border:1px solid rgba(119,136,190,.18);border-radius:10px;background:#0a0e27;color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .owner-blog-thumb img{width:100%;height:100%;object-fit:cover}
+.owner-admin-v2 .main-content .owner-blog-copy{min-width:0}
+.owner-admin-v2 .main-content .owner-blog-copy strong{display:block;color:var(--oa-text);font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.owner-admin-v2 .main-content .owner-blog-copy small{display:block;margin-top:4px;color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .owner-blog-copy p{margin:5px 0 0;color:var(--oa-muted);font-size:11px;line-height:1.7}
+.owner-admin-v2 .main-content .owner-blog-actions{display:flex;align-items:center;gap:7px}
+.owner-admin-v2 .main-content .owner-blog-actions form{margin:0}
+.owner-admin-v2 .main-content .owner-blog-actions .danger{border-color:rgba(255,100,130,.28);background:rgba(255,70,100,.1);color:#ff9eb1}
+.owner-admin-v2 .main-content .owner-blog-errors{padding:12px 15px;border:1px solid rgba(255,100,130,.35);border-radius:12px;background:rgba(120,25,48,.2);color:#ffdce5;font-size:12px}
+.owner-admin-v2 .main-content .owner-blog-errors ul{margin:6px 0 0;padding-inline-start:20px}
+.owner-admin-v2 .main-content .owner-blog-errors li+li{margin-top:3px}
+.owner-admin-v2 .main-content .owner-blog-form-shell{max-width:1500px}
+.owner-admin-v2 .main-content .owner-blog-main-fields{display:grid;gap:14px;min-width:0}
+.owner-admin-v2 .main-content .owner-blog-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.owner-admin-v2 .main-content .owner-blog-section-heading>div{min-width:0}
+.owner-admin-v2 .main-content .owner-blog-section-heading p{margin:3px 0 0;color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .owner-blog-section-heading>span{flex:0 0 auto;color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .owner-form-section label>span b{color:#ff9eb1}
+.owner-admin-v2 .main-content .owner-field-error{display:block;color:#ff9eb1;font-size:10px;font-style:normal;font-weight:700}
+.owner-admin-v2 .main-content .owner-cover-editor{grid-template-columns:minmax(0,1.1fr) minmax(220px,.9fr);align-items:center}
+.owner-admin-v2 .main-content .owner-cover-preview{min-height:0;aspect-ratio:16/10}
+.owner-admin-v2 .main-content .owner-cover-preview img{width:100%;height:100%;object-fit:cover}
+.owner-admin-v2 .main-content .owner-cover-preview [data-owner-cover-empty]{display:grid;place-items:center;width:100%;height:100%;min-height:150px;padding:16px;text-align:center;color:var(--oa-muted);font-size:11px}
+.owner-admin-v2 .main-content .owner-cover-controls{min-width:0}
+.owner-admin-v2 .main-content .owner-image-feedback{display:block;padding:8px 10px;border:1px solid rgba(119,136,190,.18);border-radius:9px;background:rgba(10,14,39,.5);color:var(--oa-muted);font-size:10px;line-height:1.8}
+.owner-admin-v2 .main-content .owner-image-feedback[data-state=success]{border-color:rgba(46,230,166,.3);color:#8af0c7}
+.owner-admin-v2 .main-content .owner-image-feedback[data-state=error]{border-color:rgba(255,100,130,.35);color:#ff9eb1}
+.owner-admin-v2 .main-content .owner-blog-current-image{margin:8px 0 0;color:var(--oa-muted);font-size:10px}
+.owner-admin-v2 .main-content .owner-blog-save-panel{display:grid;gap:10px;padding:14px;border:1px solid rgba(119,136,190,.18);border-radius:12px;background:var(--oa-surface)}
+.owner-admin-v2 .main-content .owner-blog-save-panel>a,.owner-admin-v2 .main-content .owner-blog-public-link{color:var(--oa-muted)!important;font-size:11px;text-align:center}
+.owner-admin-v2 .main-content .owner-blog-public-link{display:block;padding:10px;border:1px solid rgba(119,136,190,.18);border-radius:10px}
+@media(max-width:900px){.owner-admin-v2 .main-content .owner-blog-row{grid-template-columns:84px minmax(0,1fr) auto}.owner-admin-v2 .main-content .owner-blog-actions{grid-column:2/-1;justify-content:flex-start}.owner-admin-v2 .main-content .owner-blog-thumb{width:84px}}
+@media(max-width:600px){.owner-admin-v2 .main-content .owner-blog-hero{align-items:stretch;flex-direction:column}.owner-admin-v2 .main-content .owner-blog-hero>.owner-primary-btn{width:100%;justify-content:center}.owner-admin-v2 .main-content .owner-blog-stats{grid-template-columns:1fr}.owner-admin-v2 .main-content .owner-blog-row{grid-template-columns:76px minmax(0,1fr);gap:10px}.owner-admin-v2 .main-content .owner-blog-row>.owner-pill{grid-column:2;justify-self:start}.owner-admin-v2 .main-content .owner-blog-actions{grid-column:1/-1;justify-content:flex-start}.owner-admin-v2 .main-content .owner-cover-editor{grid-template-columns:minmax(0,1fr)}}
+
