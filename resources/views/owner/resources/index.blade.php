@@ -13,13 +13,16 @@
     </header>
     <div class="owner-people-actionbar">
         <div><strong>کتابخانه منابع</strong><span>افزودن و ویرایش فایل‌های خصوصی آموزشی</span></div>
-        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-resource-create-modal">＋ افزودن فایل آموزشی</button>
+        @if(auth()->user()->hasPermission('resources.manage'))
+            <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-resource-create-modal">＋ افزودن فایل آموزشی</button>
+        @endif
     </div>
 
 
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
+    @if(auth()->user()->hasPermission('resources.manage'))
     <dialog class="owner-floating-modal" id="owner-resource-create-modal" aria-labelledby="owner-resource-create-modal-title" @if(old('form_modal') === 'resource' && $errors->any()) data-owner-modal-open-on-load @endif>
         <header class="owner-floating-modal__header">
             <div><span class="owner-record-modal-kicker">ثبت رکورد جدید</span><h2 id="owner-resource-create-modal-title">افزودن فایل آموزشی</h2></div>
@@ -84,6 +87,7 @@
     </form>
         </div>
     </dialog>
+@endif
 
     <section class="owner-form-section">
         <h2>فایل‌های ثبت‌شده</h2>
@@ -95,7 +99,7 @@
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->course?->title ?? 'آموزشگاه' }} @if($resource->classroom) · {{ $resource->classroom->title }} @endif @if($resource->lesson) · {{ $resource->lesson->title }} @endif</p>
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->media?->original_name }} · فقط مشاهدهٔ احرازشده · {{ $resource->release_at?->format('Y-m-d H:i') ?? 'بدون تأخیر انتشار' }}</p>
                         <div class="mt-2 flex flex-wrap gap-3">
-                            <a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-title="ویرایش منبع">ویرایش منبع</a>
+                            @if(auth()->user()->hasPermission('resources.manage'))<a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-title="ویرایش منبع">ویرایش منبع</a>@endif
                             @if($resource->status === 'active')
                                 <form method="POST" action="{{ route('owner.resources.archive', [$academy, $resource]) }}" data-confirm-submit="true" data-confirm="این منبع از فهرست فعال دانش‌آموزان خارج می‌شود؛ فایل و سوابق آن حذف نمی‌شوند.">
                                     @csrf @method('PATCH')
