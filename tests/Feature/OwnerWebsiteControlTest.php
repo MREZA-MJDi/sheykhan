@@ -29,7 +29,7 @@ class OwnerWebsiteControlTest extends TestCase
         $this->actingAs($seo)
             ->get(route('seo.website.index'))
             ->assertOk()
-            ->assertViewIs('seo.website.index')
+            ->assertViewIs('owner.website.index')
             ->assertViewHas('academies', fn ($academies) => $academies->contains($academy));
     }
 
