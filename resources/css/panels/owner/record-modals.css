@@ -9,7 +9,7 @@ dialog[data-owner-record-modal] {
     overflow: auto;
     border: 1px solid color-mix(in srgb, var(--panel-border, #dbe3ef) 85%, transparent);
     border-radius: 24px;
-    color: var(--panel-text, #172033);
+    color: var(--panel-text, #16204a);
     background: var(--panel-surface, #fff);
     box-shadow: 0 28px 90px rgb(2 8 23 / 35%);
     overscroll-behavior: contain;
@@ -74,7 +74,7 @@ dialog[data-owner-record-modal]::backdrop {
     border: 1px solid var(--panel-border, #dbe3ef);
     border-radius: 13px;
     padding: 9px 15px;
-    color: var(--panel-text, #172033);
+    color: var(--panel-text, #16204a);
     background: var(--panel-surface, #fff);
     font-size: 12px;
     font-weight: 900;
@@ -83,11 +83,11 @@ dialog[data-owner-record-modal]::backdrop {
 .owner-modal-trigger--primary {
     border-color: transparent;
     color: #fff;
-    background: var(--panel-primary, #0f766e);
+    background: var(--panel-primary, #1f2f7a);
 }
 .owner-modal-trigger:focus-visible,
 .owner-modal-close:focus-visible {
-    outline: 3px solid var(--panel-focus, #38bdf8);
+    outline: 3px solid var(--panel-focus, #f2a81d);
     outline-offset: 3px;
 }
 .owner-modal-loading {
@@ -129,9 +129,9 @@ dialog[data-owner-record-modal]::backdrop {
     font-weight: 900;
 }
 .owner-people-directory-tabbar [role="tab"][aria-selected="true"] {
-    border-color: var(--panel-primary, #0f766e);
-    color: var(--panel-primary, #0f766e);
-    background: color-mix(in srgb, var(--panel-primary, #0f766e) 8%, white);
+    border-color: var(--panel-primary, #1f2f7a);
+    color: var(--panel-primary, #1f2f7a);
+    background: color-mix(in srgb, var(--panel-primary, #1f2f7a) 8%, white);
 }
 .owner-people-directory-tabpanel[hidden] { display: none !important; }
 .owner-people-directory-tabpanel > [data-owner-people-directory] { min-width: 0; }
