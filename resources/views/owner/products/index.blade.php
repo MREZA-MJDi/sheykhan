@@ -9,12 +9,15 @@
     </header>
     <div class="owner-people-actionbar">
         <div><strong>فروشگاه محصولات</strong><span>مدیریت محصول و فایل‌های واقعی فروش</span></div>
-        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-product-create-modal">＋ افزودن محصول</button>
+        @if(auth()->user()->hasPermission('products.manage'))
+            <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-product-create-modal">＋ افزودن محصول</button>
+        @endif
     </div>
 
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
+    @if(auth()->user()->hasPermission('products.manage'))
     <dialog class="owner-floating-modal" id="owner-product-create-modal" aria-labelledby="owner-product-create-modal-title" @if(old('form_modal') === 'product' && $errors->any()) data-owner-modal-open-on-load @endif>
         <header class="owner-floating-modal__header">
             <div><span class="owner-record-modal-kicker">ثبت رکورد جدید</span><h2 id="owner-product-create-modal-title">افزودن محصول</h2></div>
@@ -64,6 +67,7 @@
     </form>
         </div>
     </dialog>
+@endif
 
     <section class="owner-form-section space-y-3">
         <h2>محصول‌های ثبت‌شده</h2>
@@ -74,7 +78,7 @@
                     <p class="mt-1 text-xs text-slate-500">{{ $product->category?->name }} · {{ \App\Support\PersianUi::moneyInCurrency($product->sale_price ?? $product->price, $product->currency) }} · {{ $product->status }}</p>
                     <p class="mt-1 text-xs text-slate-500">PDF: {{ $product->files->where('is_preview', false)->count() ? 'ثبت شده' : 'ثبت نشده' }} · فایل اصلی خصوصی</p>
                     <div class="mt-2 flex flex-wrap gap-3">
-                        <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-title="ویرایش محصول و فایل‌ها">ویرایش محصول و فایل‌ها</a>
+                        @if(auth()->user()->hasPermission('products.manage'))<a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-title="ویرایش محصول و فایل‌ها">ویرایش محصول و فایل‌ها</a>@endif
                         @if($product->status === 'published')
                             <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('store.product.show', $product) }}" target="_blank" rel="noopener noreferrer">مشاهده صفحه عمومی ←</a>
                         @endif
