@@ -14,6 +14,10 @@ bootPanelRuntime();
 (() => {
 'use strict';
 const side=document.getElementById('side'),burger=document.getElementById('burger');
+const collapse=document.getElementById('collapseSidebar');
+collapse?.addEventListener('click',()=>{const collapsed=document.body.classList.toggle('admin-sidebar-collapsed');collapse.setAttribute('aria-pressed',String(collapsed));});
+const themeToggle=document.getElementById('themeToggle');
+themeToggle?.addEventListener('click',()=>{const dark=document.body.dataset.theme!=='dark';document.body.dataset.theme=dark?'dark':'light';themeToggle.setAttribute('aria-pressed',String(dark));});
 burger?.addEventListener('click',()=>{const open=side?.classList.toggle('open')??false;burger.setAttribute('aria-expanded',String(open));});
 document.addEventListener('click',event=>{if(!side||!burger||!side.classList.contains('open'))return;if(side.contains(event.target)||burger.contains(event.target))return;side.classList.remove('open');burger.setAttribute('aria-expanded','false');});
 const bell=document.getElementById('bell'),pop=document.getElementById('pop');
