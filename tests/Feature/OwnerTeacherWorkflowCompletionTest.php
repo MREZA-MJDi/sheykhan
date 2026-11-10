@@ -14,6 +14,7 @@ use App\Models\ExamAttempt;
 use App\Models\LiveClass;
 use App\Models\Permission;
 use App\Models\Question;
+use App\Models\QuestionBankItem;
 use App\Models\Role;
 use App\Models\TeacherDirectMessage;
 use App\Models\User;
@@ -118,6 +119,67 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         $this->assertNotNull($session->recording_released_at);
         $this->assertSame('enrolled_students', $session->recording_visibility);
         $this->assertSame('published', $session->status);
+    }
+
+    public function test_published_exam_can_be_created_from_question_bank_without_manual_questions(): void
+    {
+        $workspace = $this->workspace();
+        $bankQuestion = QuestionBankItem::query()->create([
+            'academy_id' => $workspace['academy']->id,
+            'created_by' => $workspace['owner']->id,
+            'type' => 'single',
+            'question' => 'کدام گزینه پاسخ صحیح است؟',
+            'options' => ['الف', 'ب', 'ج', 'د'],
+            'correct_answers' => ['ب'],
+            'default_score' => 3,
+            'topic' => 'آزمون',
+            'difficulty' => 'medium',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($workspace['owner'])
+            ->post(route('owner.exams.store', $workspace['academy']), [
+                'course_id' => $workspace['course']->id,
+                'title' => 'آزمون ساخته‌شده از بانک',
+                'status' => 'published',
+                'attempts_allowed' => 1,
+                'bank_question_ids' => [$bankQuestion->id],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $exam = Exam::query()->where('title', 'آزمون ساخته‌شده از بانک')->firstOrFail();
+        $this->assertSame('published', $exam->status);
+        $this->assertDatabaseHas('questions', [
+            'exam_id' => $exam->id,
+            'source_bank_question_id' => $bankQuestion->id,
+            'question' => 'کدام گزینه پاسخ صحیح است؟',
+            'correct_answer' => 'ب',
+        ]);
+    }
+
+    public function test_published_exam_rejects_incomplete_single_choice_questions(): void
+    {
+        $workspace = $this->workspace();
+
+        $this->actingAs($workspace['owner'])
+            ->from(route('owner.exams.create', $workspace['academy']))
+            ->post(route('owner.exams.store', $workspace['academy']), [
+                'course_id' => $workspace['course']->id,
+                'title' => 'آزمون با گزینه ناقص',
+                'status' => 'published',
+                'attempts_allowed' => 1,
+                'questions' => [[
+                    'type' => 'single',
+                    'question' => 'پاسخ درست کدام است؟',
+                    'options' => ['الف', 'ب'],
+                    'correct_answer' => 'الف',
+                    'score' => 1,
+                ]],
+            ])
+            ->assertRedirect(route('owner.exams.create', $workspace['academy']))
+            ->assertSessionHasErrors('questions.0.options');
+
+        $this->assertDatabaseMissing('exams', ['title' => 'آزمون با گزینه ناقص']);
     }
 
     public function test_owner_can_manually_grade_a_submitted_online_exam_attempt(): void
