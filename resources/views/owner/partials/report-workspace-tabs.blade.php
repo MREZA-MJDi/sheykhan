@@ -1,4 +1,4 @@
-<section class="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-l from-slate-50 via-white to-indigo-50 p-4 sm:p-5" aria-label="بخش‌های گزارش مدیریتی">
+<section class="owner-workspace-tabs mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-l from-slate-50 via-white to-indigo-50 p-4 sm:p-5" aria-label="بخش‌های گزارش مدیریتی">
     <div><p class="text-[11px] font-black text-slate-600">مرکز گزارش و تحلیل</p><h2 class="mt-1 text-lg font-black text-slate-900">نمایش عملکرد آموزشگاه</h2><p class="mt-1 text-xs leading-6 text-slate-600">بخش‌های تحلیلی در همین صفحه؛ هر فهرست صفحه‌بندی مستقل دارد.</p></div>
     <nav class="mt-4 flex flex-wrap gap-2">
         @foreach([['#overview','نمای کلی'],['#teacher-performance','عملکرد مدرس‌ها'],['#course-performance','عملکرد دوره‌ها'],['#classroom-performance','گزارش کلاس‌ها'],['#enrollments','ثبت‌نام‌ها و پرداخت']] as [$href,$label])
