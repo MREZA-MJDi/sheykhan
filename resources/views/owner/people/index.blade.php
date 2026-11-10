@@ -383,7 +383,7 @@
         <button type="button" role="tab" id="owner-members-archived-tab" aria-controls="owner-members-archived-teachers-panel" data-owner-tab-button="archived-teachers" aria-selected="{{ request('members_tab') === 'archived-teachers' ? 'true' : 'false' }}">مدرس‌های آرشیوشده <span>{{ $archivedTeachers->total() }}</span></button>
     </nav>
 @foreach([['دانش‌آموزان',$students,'students'],['اولیا',$parents,'parents'],['مدرس‌ها',$teachers,'active-teachers']] as [$title,$items,$directoryRole])
-<section class="owner-people-directory-tabpanel" id="owner-members-{{ $directoryRole }}-panel" role="tabpanel" aria-labelledby="owner-members-{{ $directoryRole === 'active-teachers' ? 'active-teachers' : $directoryRole }}-tab" data-owner-tab-panel="{{ $directoryRole }}" @if(request('members_tab', 'students') !== $directoryRole) hidden @endif>
+<section class="owner-people-directory-tabpanel" id="owner-members-{{ $directoryRole }}-panel" role="tabpanel" aria-labelledby="owner-members-{{ $directoryRole === 'active-teachers' ? 'active-teachers' : ($directoryRole === 'archived-teachers' ? 'archived' : $directoryRole) }}-tab" data-owner-tab-panel="{{ $directoryRole }}" @if(request('members_tab', 'students') !== $directoryRole) hidden @endif>
 <section class="dashboard-panel p-5" data-owner-people-directory data-directory-role="{{ $directoryRole }}" data-directory-url="{{ route('owner.people.data', ['academy' => $academy, 'role' => $directoryRole]) }}">
     <div class="flex items-center justify-between gap-3">
         <h2 class="font-black">{{ $title }}</h2>
