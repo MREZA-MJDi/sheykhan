@@ -10,7 +10,7 @@
 @endphp
 
 <div class="space-y-6 panel-page-enter">
-    @include('owner.partials.attendance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
+    @include('owner.admin.partials.attendance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">مدیریت حضور و غیاب</p>
