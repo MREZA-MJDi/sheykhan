@@ -55,6 +55,24 @@
 
     <section class="space-y-4">
         <div><h2 class="text-xl font-black">وضعیت درخواست‌ها</h2><p class="mt-1 text-sm text-slate-500">وضعیت درخواست‌ها و زمان نهایی جلسه پس از ثبت توسط آموزشگاه به‌روز می‌شود.</p></div>
+        <form method="GET" class="parent-panel dashboard-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_220px_auto_auto] sm:items-end" role="search" aria-label="جست‌وجو در درخواست‌های مشاوره">
+            <label class="grid gap-1 text-xs font-bold">جست‌وجو
+                <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm" placeholder="موضوع، توضیحات، نام فرزند یا آموزشگاه">
+            </label>
+            <label class="grid gap-1 text-xs font-bold">وضعیت درخواست
+                <select name="status" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="requested" @selected(($filters['status'] ?? '') === 'requested')>در انتظار بررسی</option>
+                    <option value="proposed" @selected(($filters['status'] ?? '') === 'proposed')>پیشنهاد زمان از مدرس</option>
+                    <option value="scheduled" @selected(($filters['status'] ?? '') === 'scheduled')>زمان تعیین شده</option>
+                    <option value="completed" @selected(($filters['status'] ?? '') === 'completed')>برگزارشده</option>
+                    <option value="declined" @selected(($filters['status'] ?? '') === 'declined')>پذیرفته‌نشده</option>
+                    <option value="cancelled" @selected(($filters['status'] ?? '') === 'cancelled')>لغوشده</option>
+                </select>
+            </label>
+            <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">جست‌وجو</button>
+            <a href="{{ route('parent.counseling.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">پاک‌کردن</a>
+        </form>
         @php($labels = ['requested' => 'در انتظار بررسی', 'proposed' => 'پیشنهاد زمان از مدرس · در انتظار تأیید آموزشگاه', 'scheduled' => 'زمان جلسه تعیین شده', 'completed' => 'برگزارشده', 'declined' => 'پذیرفته نشد', 'cancelled' => 'لغوشده'])
         @forelse($requests as $item)
             <article class="parent-panel dashboard-panel p-5 sm:p-6">
