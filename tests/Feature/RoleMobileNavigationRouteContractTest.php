@@ -137,22 +137,22 @@ class RoleMobileNavigationRouteContractTest extends TestCase
         $this->assertIsString($sidebar);
 
         foreach ([
-            'route(\'owner.resources.index\', $academy)',
-            'route(\'owner.showcase.index\', $websiteAcademy)',
-            'route(\'owner.products.index\', $academy)',
-            'route(\'owner.orders.index\', $academy)',
+            "'route'=>'owner.resources.index'",
+            "route('owner.showcase.index', $websiteAcademy)",
+            "'route'=>'owner.products.index'",
+            "'route'=>'owner.orders.index'",
             "'route'=>'owner.legal-documents.index'",
-        ] as $destination) {
-            $this->assertStringContainsString($destination, $sidebar, 'Desktop owner sidebar missing ' . $destination);
+            "'permission'=>'resources.view'",
+            "'permission'=>'products.view'",
+            "'permission'=>'orders.view'",
+            "'permission'=>'legal.manage'",
+            '$isSeoOnlyUser',
+            '$canManagePublicSite',
+            'owner.blog.index',
+            'owner.content.index',
+        ] as $contract) {
+            $this->assertStringContainsString($contract, $sidebar, 'Desktop owner sidebar missing ' . $contract);
         }
-
-        foreach (["resources.view", "products.view", "orders.view", "legal.manage"] as $permission) {
-            $this->assertStringContainsString("'permission'=>'" . $permission . "'", $sidebar);
-        }
-
-        $this->assertStringContainsString('$seoOnly && $user->hasPermission(\'seo.manage\')', $sidebar);
-        $this->assertStringContainsString("owner.blog.index", $sidebar);
-        $this->assertStringContainsString("owner.content.index", $sidebar);
     }
 
     public function test_every_declared_mobile_navigation_item_points_to_a_registered_route(): void
