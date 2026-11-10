@@ -26,8 +26,7 @@ final class MeetingController extends Controller
     ): RedirectResponse {
         $meetings->create($request->user(), $academy, $request->validated());
 
-        return redirect()->route('owner.meetings.index', $academy)
-            ->with('success', 'جلسه ثبت شد؛ زمان و پیام آن در کارتابل دانش‌آموز و ولی انتخاب‌شده نمایش داده می‌شود.');
+        return back()->with('success', 'جلسه ثبت شد؛ زمان و پیام آن در کارتابل دانش‌آموز و ولی انتخاب‌شده نمایش داده می‌شود.');
     }
 
     public function updateStatus(
@@ -48,7 +47,6 @@ final class MeetingController extends Controller
 
         $meetings->changeStatus($request->user(), $academy, $meeting, $data['status'], $data['scheduled_at'] ?? null, $data['scheduled_end_at'] ?? null);
 
-        return redirect()->route('owner.meetings.index', $academy)
-            ->with('success', 'وضعیت جلسه به‌روزرسانی شد.');
+        return back()->with('success', 'وضعیت جلسه به‌روزرسانی شد.');
     }
 }
