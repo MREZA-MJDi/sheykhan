@@ -1210,3 +1210,117 @@ body.owner-shell.owner-admin-v2 {
         grid-column: 1;
     }
 }
+
+
+/* Owner dashboard visual repair: white surfaces, navy hierarchy, restrained KPI accents. */
+.owner-admin-v2 {
+    --ui-primary: #243b5a;
+    --ui-primary-hover: #172b45;
+    --ui-primary-soft: #edf2f8;
+    --ui-navy: #243b5a;
+    --oa-accent: #243b5a;
+    --acc: #243b5a;
+}
+.owner-admin-v2 .main-content > .card,
+.owner-admin-v2 .main-content .card:not(.kpi) {
+    border: 1px solid var(--ui-border) !important;
+    border-radius: var(--ui-radius) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: var(--ui-shadow) !important;
+}
+.owner-admin-v2 .main-content .card :is(h2,h3,h4,b,strong) {
+    color: var(--ui-navy) !important;
+    text-shadow: none !important;
+}
+.owner-admin-v2 .main-content .card :is(p,small,.sub,.bl,.metric-caption) {
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content .card .kpi-head {
+    color: var(--ui-muted) !important;
+    font-weight: 750;
+}
+.owner-admin-v2 .main-content .card .kpi-head .ic {
+    color: var(--c) !important;
+}
+.owner-admin-v2 .main-content .card .go,
+.owner-admin-v2 .main-content .card .mb {
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content .kpi {
+    min-height: 164px;
+    padding: 17px !important;
+    border: 1px solid var(--ui-border) !important;
+    border-inline-start: 4px solid var(--c) !important;
+    border-radius: 14px !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: var(--ui-shadow) !important;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.owner-admin-v2 .main-content .kpi::after {
+    width: 84px;
+    height: 84px;
+    background: color-mix(in srgb, var(--c) 8%, transparent) !important;
+}
+.owner-admin-v2 .main-content .kpi:hover {
+    border-color: color-mix(in srgb, var(--c) 40%, var(--ui-border)) !important;
+    box-shadow: 0 12px 28px rgba(15,23,42,.08) !important;
+    transform: translateY(-2px);
+}
+.owner-admin-v2 .main-content .kpi .kpi-head,
+.owner-admin-v2 .main-content .kpi .metric-caption {
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content .kpi > b {
+    color: var(--ui-navy) !important;
+    font-size: clamp(24px, 2vw, 31px);
+    font-weight: 900;
+}
+.owner-admin-v2 .main-content .kpi > b small {
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content .kpi .dl,
+.owner-admin-v2 .main-content .kpi .metric-foot {
+    color: var(--c) !important;
+}
+.owner-admin-v2 .main-content .kpi .sp polyline {
+    stroke: var(--c) !important;
+    filter: none !important;
+}
+.owner-admin-v2 .main-content .metric-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 9px;
+    border-top: 1px solid var(--ui-border);
+    font-size: 11px;
+    font-weight: 750;
+}
+.owner-admin-v2 .main-content .kpi-link:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--c) 35%, transparent) !important;
+    outline-offset: 3px;
+}
+.owner-admin-v2 .main-content .owner-chart-grid line {
+    stroke: #e2e8f0 !important;
+}
+.owner-admin-v2 .main-content .owner-range-handle line {
+    stroke: #64748b !important;
+}
+.owner-admin-v2 .main-content .owner-range-handle circle {
+    fill: #315b88 !important;
+    stroke: #fff !important;
+    filter: none !important;
+}
+.owner-admin-v2 .main-content .owner-chart-legend,
+.owner-admin-v2 .main-content .owner-chart-labels,
+.owner-admin-v2 .main-content .owner-range-summary {
+    color: var(--ui-muted) !important;
+}
+@media (max-width: 760px) {
+    .owner-admin-v2 .main-content .kpi {
+        min-height: 148px;
+    }
+}
