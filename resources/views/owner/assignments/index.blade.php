@@ -70,7 +70,8 @@
                             <span class="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-slate-600">{{ $statusLabels[$assignment->status] ?? $assignment->status }}</span>
                             <span class="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-slate-600">{{ \App\Support\PersianUi::digits($assignment->submitted_count) }} ارسال</span>
                             <span class="rounded-full {{ $assignment->pending_review_count ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700' }} px-3 py-1.5 text-xs font-bold">{{ \App\Support\PersianUi::digits($assignment->pending_review_count) }} در انتظار تصحیح</span>
-                            @if($assignment->status === 'published')
+                            @if(auth()->user()->hasPermission('assignments.manage'))
+@if($assignment->status === 'published')
                                 <form method="POST" action="{{ route('owner.assignments.status', [$academy, $assignment]) }}">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="status" value="closed">
@@ -82,6 +83,7 @@
                                     <button type="submit" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-black text-rose-700" data-confirm="این تکلیف و فایل‌های بلااستفاده آن حذف شوند؟">حذف</button>
                                 </form>
                             @endif
+@endif
                             <a href="{{ route('owner.assignments.show', [$academy, $assignment]) }}" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-[var(--panel-primary)]">بررسی پاسخ‌ها ←</a>
                         </div>
                     </div>
