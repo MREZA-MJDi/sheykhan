@@ -46,6 +46,11 @@ class AcademyCommunicationTest extends TestCase
         $this->actingAs($w['parent'])->get(route('parent.messages.index'))
             ->assertOk()->assertSee('اطلاعیه شروع ترم');
 
+        $this->actingAs($w['parent'])
+            ->get(route('parent.messages.index', ['q' => 'اطلاعیه شروع ترم']))
+            ->assertOk()
+            ->assertSee('اطلاعیه شروع ترم');
+
         $this->actingAs($w['student'])->get(route('student.messages.index'))
             ->assertOk()->assertSee('پیام‌های من');
     }
