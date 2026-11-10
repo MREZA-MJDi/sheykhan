@@ -1,10 +1,12 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 
 @section('title', $exam->exists ? 'ویرایش آزمون | شیخان' : 'ساخت آزمون | شیخان')
 @section('header-title', $exam->exists ? 'ویرایش آزمون' : 'ساخت آزمون')
 
 @section('content')
+@php($modalMode = request()->boolean('modal'))
 <div class="owner-exam-page owner-workspace-page">
+    @unless($modalMode)
     <header class="owner-exam-head">
         <div>
             <span class="text-xs font-black text-[var(--panel-primary)]">ارزیابی آموزشی · کارتابل ادمین / منشی</span>
@@ -13,6 +15,7 @@
         </div>
         <a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به آزمون‌ها ←</a>
     </header>
+    @endunless
 
     @if(!$hasAssignableCourses)
         <section class="owner-exam-section">
@@ -22,11 +25,11 @@
         </section>
     @else
         @if($exam->exists)
-            <form method="POST" action="{{ route('owner.exams.update', [$academy, $exam->id]) }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+            <form method="POST" action="{{ (route('owner.exams.update', [$academy, $exam->id]) . ($modalMode ? '?modal=1' : '')) }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
                 @csrf
                 @method('PATCH')
         @else
-            <form method="POST" action="{{ route('owner.exams.store', $academy) }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
+            <form method="POST" action="{{ (route('owner.exams.store', $academy) . ($modalMode ? '?modal=1' : '')) }}" class="owner-exam-form" data-exam-builder data-initial-questions="{{ json_encode(old('questions', $initialQuestions), JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) }}">
                 @csrf
         @endif
             <section class="owner-exam-section">
