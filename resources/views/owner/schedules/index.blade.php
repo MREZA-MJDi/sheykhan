@@ -19,7 +19,7 @@
     </header>
 
     <section class="owner-info-banner rounded-2xl border border-sky-100 bg-sky-50 p-4 text-xs leading-7 text-sky-900" aria-label="راهنمای لینک جلسه">
-        لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet و Zoom باید لینک دعوت واقعی را از همان سرویس وارد کنی؛ شیخان لینک ساختگی تولید نمی‌کند.
+        برای هر برنامهٔ هفتگی، لینک واقعی اتاق Skyroom را از پنل اسکای‌روم وارد کن. لینک باید از دامنهٔ رسمی اسکای‌روم و مسیر اتاق باشد؛ شیخان لینک ساختگی تولید نمی‌کند.
     </section>
 
     <section class="owner-calendar-section" aria-label="تقویم هفتگی کلاس‌ها">
