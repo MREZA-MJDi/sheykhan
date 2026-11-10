@@ -31,7 +31,7 @@
 
         <div>
             <label for="mobile" class="mb-2 block text-sm font-bold text-[var(--color-text)]">
-                شماره موبایل
+                نام کاربری (شماره موبایل)
             </label>
 
             <input
@@ -154,7 +154,7 @@
 
             <div class="mt-2 grid gap-1 text-xs text-[var(--color-text-secondary)]">
                 <div class="overflow-x-auto">
-                    <span class="font-bold">موبایل:</span>
+                    <span class="font-bold">نام کاربری:</span>
                     <code dir="ltr">{{ $account['username'] }}</code>
                 </div>
 
@@ -173,7 +173,7 @@
                             aria-label="پر کردن فرم ورود با حساب {{ $account['role'] }}"
                             class="inline-flex min-h-9 items-center justify-center rounded-lg bg-[var(--color-primary-600)] px-3 py-2 text-[11px] font-bold text-white transition hover:bg-[var(--color-primary-700)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary-100)]"
                         >
-                            پر کردن فرم ورود
+                            پر کردن خودکار نام کاربری و رمز عبور
                         </button>
 
                         <button
@@ -238,7 +238,7 @@
             password.dispatchEvent(new Event('change', { bubbles: true }));
 
             const feedback = getFeedback(button);
-            if (feedback) feedback.textContent = 'فرم پر شد؛ برای ورود روی «ورود به حساب» بزن.';
+            if (feedback) feedback.textContent = 'نام کاربری و رمز عبور وارد شد؛ برای ورود روی «ورود به حساب» بزن.';
             password.focus();
         });
     });
