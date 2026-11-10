@@ -84,6 +84,8 @@
         dialog.close();
     });
 
+    // Capture before per-form duplicate-submit guards so the modal owns the
+    // request lifecycle and can render validation errors without a full reload.
     document.addEventListener('submit', async (event) => {
         const form = event.target;
         const dialog = form.closest('dialog.owner-floating-modal, dialog[data-owner-record-modal]');
@@ -171,7 +173,7 @@
                 submitButton.textContent = originalText || 'ذخیره';
             }
         }
-    });
+    }, true);
 
     document.addEventListener('close', (event) => {
         const dialog = event.target;
