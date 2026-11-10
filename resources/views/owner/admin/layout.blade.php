@@ -136,6 +136,7 @@ $showGroup=(!$isSeoOnlyUser && ($visibleGlobal->isNotEmpty() || ($academies->isN
 @if(\Illuminate\Support\Facades\Route::has($routeName))<a class="ni" href="{{ route($routeName) }}" data-nav-label="{{ $label }}"><span class="nav-icon">↗</span><span>{{ $label }}</span></a>@endif
 @endforeach
 @endif
+@endif
 </div></details>
 @endif
 @endforeach
