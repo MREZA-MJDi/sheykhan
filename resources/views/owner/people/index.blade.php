@@ -291,12 +291,36 @@
 
     </section>
     <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="operations">
-<details class="owner-people-operations" @if($errors->any() || session('success')) open @endif>
+<details class="owner-people-operations" open>
     <summary>افزودن عضو و عملیات مدیریتی</summary>
     <div class="owner-people-operations-body">
+        <header class="owner-people-actionbar mb-4">
+            <div><strong>عملیات و سوابق</strong><span>فرم‌های اجرایی در پنجرهٔ شناور باز می‌شوند.</span></div>
+            <div class="owner-people-actionbar__buttons">
+                <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-class-teacher-modal">اختصاص مدرس کلاس</button>
+                <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-enrollment-modal">＋ ثبت‌نام دانش‌آموز</button>
+                @if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
+                    <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-legacy-student-modal">ورود دانش‌آموز قدیمی</button>
+                @endif
+            </div>
+        </header>
+<dialog class="owner-floating-modal" id="owner-class-teacher-modal" aria-labelledby="owner-class-teacher-title" @if($errors->any() && old('form_modal') === 'assign') data-owner-modal-open-on-load @endif>
+    <header class="owner-floating-modal__header">
+        <div><span class="owner-record-modal-kicker">مدیریت کلاس</span><h2 id="owner-class-teacher-title">اختصاص مدرس مسئول</h2></div>
+        <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+    </header>
+    <div class="owner-floating-modal__body">
+<dialog class="owner-floating-modal" id="owner-legacy-student-modal" aria-labelledby="owner-legacy-student-title" @if($errors->any() && old('form_modal') === 'legacy') data-owner-modal-open-on-load @endif>
+    <header class="owner-floating-modal__header">
+        <div><span class="owner-record-modal-kicker">تکمیل سوابق</span><h2 id="owner-legacy-student-title">ورود دانش‌آموز قدیمی</h2></div>
+        <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+    </header>
+    <div class="owner-floating-modal__body">
 <section class="dashboard-panel p-5 sm:p-7">
 <div><h2 class="text-base font-black">اختصاص مدرس مسئول به کلاس</h2><p class="mt-1 text-xs leading-6 text-slate-500">هر کلاس یک مدرس فعال مسئول دارد. اتصال مدرس به دوره نیز در همین عملیات تکمیل می‌شود.</p></div>
-<form method="POST" action="{{ route('owner.people.assign-class-teacher',$academy) }}" class="mt-5 grid gap-3">@csrf
+<form method="POST" action="{{ route('owner.people.assign-class-teacher',$academy) }}?modal=1" class="mt-5 grid gap-3">@csrf
+<input type="hidden" name="form_modal" value="legacy">
+<input type="hidden" name="form_modal" value="assign">
 <div class="owner-lookup-picker" data-lookup-picker data-lookup-type="classrooms" data-options-url="{{ route('owner.people.lookup-options', [$academy, 'classrooms']) }}" >
 <label for="owner-assignment-classroom-search" class="mb-1 block text-xs font-bold">کلاس فعال</label>
 <input id="owner-assignment-classroom-search" type="search" data-lookup-search autocomplete="off" placeholder="برای جست‌وجو حداقل دو حرف وارد کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
@@ -315,9 +339,19 @@
 <p data-lookup-status class="owner-student-picker-status" aria-live="polite">نتایج به‌صورت صفحه‌بندی‌شده دریافت می‌شوند.</p>
 @error('teacher_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
 </div>
-<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت مدرس کلاس</button></form></section>
+<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت مدرس کلاس</button></div>
+</dialog>
 
-<section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ثبت‌نام دانش‌آموز</h2><p class="mt-1 text-xs text-slate-500">ثبت‌نام امن با بررسی ظرفیت کلاس و مبلغ پرداخت.</p></div><form method="POST" action="{{ route('owner.people.enroll-student',$academy) }}" class="mt-5 grid gap-3">@csrf
+</form></section>
+
+<dialog class="owner-floating-modal" id="owner-enrollment-modal" aria-labelledby="owner-enrollment-title" @if($errors->any() && old('form_modal') === 'enrollment') data-owner-modal-open-on-load @endif>
+    <header class="owner-floating-modal__header">
+        <div><span class="owner-record-modal-kicker">عضویت در کلاس</span><h2 id="owner-enrollment-title">ثبت‌نام دانش‌آموز</h2></div>
+        <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+    </header>
+    <div class="owner-floating-modal__body">
+<section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ثبت‌نام دانش‌آموز</h2><p class="mt-1 text-xs text-slate-500">ثبت‌نام امن با بررسی ظرفیت کلاس و مبلغ پرداخت.</p></div><form method="POST" action="{{ route('owner.people.enroll-student',$academy) }}?modal=1" class="mt-5 grid gap-3">@csrf
+<input type="hidden" name="form_modal" value="enrollment">
 <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key',(string)\Illuminate\Support\Str::uuid()) }}">
 <div class="owner-student-picker" data-student-picker data-options-url="{{ route('owner.people.student-options',$academy) }}">
 <label for="owner-enrollment-student-search" class="mb-1 block text-xs font-bold">دانش‌آموز (جست‌وجوی صفحه‌بندی‌شده)</label>
@@ -347,7 +381,9 @@
 @error('classroom_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
 </div><small class="owner-field-help">کلاس‌های دوره انتخاب‌شده را جست‌وجو کن.</small>
 <label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی (تومان)</span><input name="paid_amount" type="number" data-money-input data-money-unit="تومان" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">مبلغ پرداخت‌شده را به تومان وارد کن؛ اگر پرداختی ثبت نشده است خالی بگذار.</small>@error('paid_amount')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت‌نام دانش‌آموز</button></form></section>
+<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت‌نام دانش‌آموز</button></div>
+</dialog>
+</form></section>
 </div>
 
 @if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
@@ -365,7 +401,7 @@
         </span>
     </div>
 
-    <form method="POST" action="{{ route('owner.people.legacy-students.store', $academy) }}" class="mt-5 grid gap-4 md:grid-cols-2" data-confirm="اطلاعات دانش‌آموز ثبت و به‌روزرسانی شود؟">
+    <form method="POST" action="{{ route('owner.people.legacy-students.store', $academy) }}?modal=1" class="mt-5 grid gap-4 md:grid-cols-2" data-confirm="اطلاعات دانش‌آموز ثبت و به‌روزرسانی شود؟">
         @csrf
         <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) \Illuminate\Support\Str::uuid()) }}">
 
@@ -416,7 +452,8 @@
             ثبت / به‌روزرسانی دانش‌آموز قدیمی
         </button>
     </form>
-</section>
+</section></div>
+</dialog>
 @else
 <section class="dashboard-panel p-5 sm:p-7">
     <h2 class="text-base font-black">ورود دانش‌آموز قدیمی</h2>
