@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\CounselingRequest as ParentCounselingRequest;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -12,16 +13,16 @@ use Illuminate\Validation\Rule;
 
 final class CounselingRequestController extends Controller
 {
-    public function index(Academy $academy, Request $request): RedirectResponse
+    public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'parents.view');
 
         return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'counseling']);
     }
 
-    public function update(Request $request, Academy $academy, int $counselingRequest): RedirectResponse
+    public function update(Request $request, Academy $academy, int $counselingRequest, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy, manage: true);
+        $workspace->authorizeAcademy($request->user(), $academy, 'parents.manage');
 
         $data = $request->validate([
             'status' => ['required', 'string', 'in:scheduled,completed,declined,cancelled'],
@@ -47,13 +48,4 @@ final class CounselingRequestController extends Controller
             ->with('success', 'وضعیت درخواست مشاوره ذخیره شد.');
     }
 
-    private function authorizeAcademy(Request $request, Academy $academy, bool $manage = false): void
-    {
-        abort_unless(
-            $request->user()->hasRole('academy-owner')
-            && $request->user()->hasPermission($manage ? 'parents.manage' : 'parents.view')
-            && (int) $academy->owner_id === (int) $request->user()->id,
-            404
-        );
-    }
 }
