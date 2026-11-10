@@ -73,7 +73,7 @@ class OwnerProductResourceManagementTest extends TestCase
         Storage::fake('local');
         [$owner, $academy, $category] = $this->workspace();
 
-        $cover = UploadedFile::fake()->image('booklet-cover.jpg', 1200, 900);
+        $cover = UploadedFile::fake()->image('booklet-cover.png', 1200, 900);
         $pdf = UploadedFile::fake()->create('booklet.pdf', 24, 'application/pdf');
 
         $this->actingAs($owner)
@@ -112,7 +112,7 @@ class OwnerProductResourceManagementTest extends TestCase
 
         $this->get($publicImageUrl)
             ->assertOk()
-            ->assertHeader('content-type', 'image/jpeg');
+            ->assertHeader('content-type', 'image/png');
     }
 
     public function test_owner_cannot_edit_another_academys_product_or_resource(): void
