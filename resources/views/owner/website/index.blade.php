@@ -26,7 +26,7 @@
                 <h2>تصویر بزرگ ابتدای صفحه (Hero)</h2>
                 <p>تا ۵ اسلاید مستقل Hero را با تصویر دسکتاپ و موبایل، متن، لینک، ترتیب جایگاه و نقطهٔ تمرکز هر قاب مدیریت کن. این اسلایدها از بنرهای مستقل پایین صفحه جدا هستند.</p>
             </div>
-            <a href="{{ route('owner.website.hero.edit') }}" class="course-primary-btn">مدیریت تصویر Hero</a>
+            <a href="{{ route('seo.website.hero.edit') }}" class="course-primary-btn">مدیریت تصویر Hero</a>
         </section>
     @endif
 
@@ -79,7 +79,7 @@
             </div>
 
             <div class="website-academy-actions">
-                <a href="{{ route('owner.academy.banners.edit', $academy) }}" class="course-primary-btn">
+                <a href="{{ route('seo.academy.banners.edit', $academy) }}" class="course-primary-btn">
                     مدیریت تصاویر و بنرها
                 </a>
                 @if(!auth()->user()?->hasRole('seo-specialist'))
