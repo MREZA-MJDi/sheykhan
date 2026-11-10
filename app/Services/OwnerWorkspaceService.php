@@ -7,6 +7,8 @@ use App\Models\AcademicGrade;
 use App\Models\StudentOnboarding;
 use App\Models\Role;
 use App\Models\TeacherProfile;
+use App\Models\StudentProfile;
+use App\Models\ParentProfile;
 use App\Models\User;
 use App\Support\MobileNumber;
 use Illuminate\Support\Collection;
