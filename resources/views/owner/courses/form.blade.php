@@ -1,12 +1,16 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 
 @section('title',($course->exists?'ویرایش دوره':'ساخت دوره').' | شیخان')
 @section('header-title',$course->exists?'ویرایش دوره':'ساخت دوره')
 
 @section('content')
+@php($modalMode = request()->boolean('modal'))
+@unless($modalMode)
 @include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => ($course->academy ?? $academies->first())])
+@endunless
 <div class="course-page panel-page-enter space-y-6">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    @unless($modalMode)
+<div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--color-brand-600)]">{{ $course->exists ? 'مدیریت دوره' : 'راه‌اندازی دوره' }}</p>
             <h1 class="mt-2 text-2xl font-black tracking-tight">{{ $course->exists?'ویرایش دوره':'ساخت دوره جدید' }}</h1>
@@ -16,6 +20,7 @@
         </div>
         <a href="{{ route('owner.courses.index') }}" class="course-secondary-btn">بازگشت به دوره‌ها</a>
     </div>
+@endunless
 
     @if($course->exists)
         <div class="course-info-strip">
@@ -27,6 +32,6 @@
         </div>
     @endif
 
-    @include('owner.courses.partials.management-form', ['course' => $course, 'academies' => $academies, 'action' => $course->exists ? route('owner.courses.update', $course) : route('owner.courses.store'), 'method' => $course->exists ? 'PATCH' : 'POST', 'routePrefix' => 'owner.courses'])
+    @include('owner.courses.partials.management-form', ['course' => $course, 'academies' => $academies, 'action' => ($course->exists ? route('owner.courses.update', $course) : route('owner.courses.store')) . ($modalMode ? '?modal=1' : ''), 'method' => $course->exists ? 'PATCH' : 'POST', 'routePrefix' => 'owner.courses'])
 </div>
 @endsection
