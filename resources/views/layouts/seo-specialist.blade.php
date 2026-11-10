@@ -69,7 +69,7 @@
                     <button class="gh" type="button" data-group-toggle aria-expanded="true" style="--c:#22d3ee"><i aria-hidden="true"></i><span>سایت و نمایش در گوگل</span><em>−</em></button>
                     <div class="nav-group-items">
                         <a class="ni" href="{{ route('owner.seo.index') }}" @if(request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update')) aria-current="page" @endif data-nav-label="بررسی نمایش در گوگل"><svg class="ic"><use href="#i-chart"/></svg><span>بررسی نمایش در گوگل</span></a>
-                        <a class="ni" href="{{ route('owner.seo.keywords.index') }}" @if(request()->routeIs('owner.seo.keywords.*')) aria-current="page" @endif data-nav-label="کلمات کلیدی"><svg class="ic"><use href="#i-search"/></svg><span>کلمات کلیدی</span></a>
+                        <a class="ni" href="{{ route('owner.seo.keywords.index') }}" @if(request()->routeIs('owner.seo.keywords.*')) aria-current="page" @endif data-nav-label="عبارت‌های جست‌وجو"><svg class="ic"><use href="#i-search"/></svg><span>عبارت‌های جست‌وجو</span></a>
                         <a class="ni" href="{{ route('owner.website.index') }}" @if(request()->routeIs('owner.website.index')) aria-current="page" @endif data-nav-label="مرکز سایت"><svg class="ic"><use href="#i-globe"/></svg><span>مرکز سایت و بنرها</span></a>
                         <a class="ni" href="{{ route('owner.website.hero.edit') }}" @if(request()->routeIs('owner.website.hero.*')) aria-current="page" @endif data-nav-label="اسلایدر صفحه اصلی"><svg class="ic"><use href="#i-mega"/></svg><span>اسلایدر صفحه اصلی</span></a>
                         <a class="ni" href="{{ route('owner.content.index') }}" @if(request()->routeIs('owner.content.*')) aria-current="page" @endif data-nav-label="محتوای عمومی"><svg class="ic"><use href="#i-book"/></svg><span>محتوای عمومی</span></a>
@@ -114,7 +114,7 @@
             @if($nextClass)<b>{{ $nextClass->title }}</b><small>{{ $nextClass->course?->title }} · {{ \App\Support\PersianUi::dateTime($nextClass->scheduled_at) }}</small><span class="sr-only" id="timer-data" data-target="{{ $nextClassTarget }}"></span>@else<b>جلسه آینده ثبت نشده</b><small class="timer-empty">برای نمایش زمان، جلسه آینده را در برنامه کلاس ثبت کنید.</small>@endif
         </section>
         @else
-            <section class="tm owner-seo-sidebar-note" aria-label="مرکز مدیریت SEO">
+            <section class="tm owner-seo-sidebar-note" aria-label="مدیریت نمایش سایت در گوگل">
                 <small>مرکز مدیریت سایت</small>
                 <b>SEO و محتوای عمومی</b>
                 <small>متادیتا، کلمات کلیدی، بنرها و مقاله‌ها از همین پنل مدیریت می‌شوند.</small>
