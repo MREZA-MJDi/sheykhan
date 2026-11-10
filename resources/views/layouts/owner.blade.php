@@ -100,10 +100,6 @@
             'title' => 'محتوا و سایت',
             'color' => '#9aa3d8',
             'links' => [
-                ['route' => 'owner.blog.index', 'permission' => 'content.manage', 'label' => 'مقاله‌ها و محتوا', 'icon' => 'news', 'scope' => 'global'],
-                ['route' => 'owner.content.index', 'permission' => 'content.manage', 'label' => 'محتوای عمومی', 'icon' => 'news', 'scope' => 'global'],
-                ['route' => 'owner.website.index', 'permission' => 'seo.manage', 'label' => 'مرکز سایت و بنرها', 'icon' => 'globe', 'scope' => 'global'],
-                ['route' => 'owner.seo.index', 'permission' => 'seo.manage', 'label' => 'SEO و کلمات کلیدی', 'icon' => 'search', 'scope' => 'global'],
                 ['route' => 'owner.academy.edit', 'permission' => 'academy.view', 'label' => 'تنظیمات آموزشگاه', 'icon' => 'cog', 'scope' => 'academy'],
                 ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'SpotPlayer و لایسنس‌ها', 'icon' => 'video', 'scope' => 'global'],
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی', 'icon' => 'scale', 'scope' => 'global'],
@@ -215,6 +211,18 @@
                             <?php } ?>
 
                             <?php if ($showSiteGroup) { ?>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.blog.index') }}" <?php if (request()->routeIs('owner.blog.*')) echo 'aria-current="page"'; ?> data-nav-label="مقاله‌ها">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>مقاله‌ها</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.content.index') }}" <?php if (request()->routeIs('owner.content.*')) echo 'aria-current="page"'; ?> data-nav-label="محتوای آموزشی">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>محتوای آموزشی</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.website.index') }}" <?php if (request()->routeIs('owner.website.*')) echo 'aria-current="page"'; ?> data-nav-label="صفحات و بنرها">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>صفحات و بنرها</span>
+                                </a>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}" <?php if (request()->routeIs('owner.seo.*')) echo 'aria-current="page"'; ?> data-nav-label="SEO و کلمات کلیدی">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>SEO و کلمات کلیدی</span>
+                                </a>
                                 <?php foreach ($websiteAcademies as $websiteAcademy) { ?>
                                     <a class="ni" style="--c:{{ $navGroup['color'] }}"
                                        href="{{ route('owner.academy.banners.edit', $websiteAcademy) }}"
