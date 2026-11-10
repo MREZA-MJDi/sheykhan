@@ -69,6 +69,8 @@ final class OwnerAccessIsolationTest extends TestCase
         ]);
 
         $readRoutes = [
+            'owner.communication-workspace',
+            'owner.people.index',
             'owner.attendance.index',
             'owner.communications.index',
             'owner.messages.index',
