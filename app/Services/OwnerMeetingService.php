@@ -151,8 +151,7 @@ final class OwnerMeetingService
         ?string $scheduledAt = null,
         ?string $scheduledEndAt = null,
     ): void {
-        $this->authorizeAcademy($owner, $academy);
-        abort_unless($owner->hasPermission('live_classes.manage'), 403);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.manage');
         abort_unless((int) $meeting->academy_id === (int) $academy->id, 404);
 
         if ($meeting->status === 'proposed') {
