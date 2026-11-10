@@ -1,57 +1,12 @@
 <?php
 
 $appEnvironment = (string) env('APP_ENV', 'production');
-$mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
-    (string) (abs(crc32($key)) % 10000000),
-    7,
-    '0',
-    STR_PAD_LEFT
-);
-
-// Keep these fixture keys identical to AcademyFoundationSeeder and the role demo seeders.
-// A mismatch makes AuthController correctly hide the credentials because no matching
-// active user with the expected role/password exists.
-$studentMobileKey = $appEnvironment === 'testing' ? 'student-SH-1001' : 'student-armin';
-$parentMobileKey = $appEnvironment === 'testing' ? 'parent-0' : 'parent-armin';
-
-$testAccounts = [
-    [
-        'role' => 'مدیر آموزشگاه',
-        'role_key' => 'academy-owner',
-        'name' => 'مدیر آموزشگاه',
-        'username' => $mobileForSeedKey('owner'),
-    ],
-    [
-        'role' => 'متخصص SEO',
-        'role_key' => 'seo-specialist',
-        'name' => 'متخصص SEO',
-        'username' => $mobileForSeedKey('seo-specialist'),
-    ],
-    [
-        'role' => 'مدرس',
-        'role_key' => 'teacher',
-        'name' => 'سمیه احمدی',
-        'username' => $mobileForSeedKey('teacher-math'),
-    ],
-    [
-        'role' => 'دانش‌آموز',
-        'role_key' => 'student',
-        'name' => 'آرین محمدی',
-        'username' => $mobileForSeedKey($studentMobileKey),
-    ],
-    [
-        'role' => 'والد',
-        'role_key' => 'parent',
-        'name' => 'مریم محمدی',
-        'username' => $mobileForSeedKey($parentMobileKey),
-    ],
-];
+$seoDemoEmail = $appEnvironment === 'testing'
+    ? env('SEO_SPECIALIST_EMAIL', 'seo@sheykhan.com')
+    : 'seo.demo@sheykhan.test';
 
 return [
-    'seo_specialist_email' => env(
-        'SEO_SPECIALIST_EMAIL',
-        $appEnvironment === 'testing' ? 'seo@sheykhan.com' : 'seo.demo@sheykhan.test'
-    ),
+    'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', $seoDemoEmail),
 
     'dashboard_routes' => [
         'seo-specialist' => 'owner.seo.index',
@@ -61,9 +16,36 @@ return [
         'parent' => 'parent.dashboard',
     ],
 
-    // Quick-fill credentials are shown only for matching, active, persisted demo users.
+    // Stable identities locate demo users; the login identifier is always the
+    // mobile number currently stored on that user, never a generated config value.
     'show_test_accounts' => true,
     'seed_password' => 'password',
     'test_password' => 'password',
-    'test_accounts' => $testAccounts,
+    'test_accounts' => [
+        [
+            'role' => 'مدیر آموزشگاه',
+            'role_key' => 'academy-owner',
+            'email' => 'owner@sheykhan.test',
+        ],
+        [
+            'role' => 'متخصص SEO',
+            'role_key' => 'seo-specialist',
+            'email' => $seoDemoEmail,
+        ],
+        [
+            'role' => 'مدرس',
+            'role_key' => 'teacher',
+            'email' => 'teacher.math@sheykhan.test',
+        ],
+        [
+            'role' => 'دانش‌آموز',
+            'role_key' => 'student',
+            'email' => 'student.armin@sheykhan.test',
+        ],
+        [
+            'role' => 'والد',
+            'role_key' => 'parent',
+            'email' => 'parent.armin@sheykhan.test',
+        ],
+    ],
 ];
