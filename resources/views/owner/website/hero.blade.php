@@ -18,7 +18,7 @@
             </div>
             <div class="website-hero-editor-actions">
                 <a href="{{ route('home') }}" target="_blank" rel="noopener" class="course-secondary-btn">مشاهده سایت ↗</a>
-                <a href="{{ route('owner.website.index') }}" class="course-secondary-btn">بازگشت به مرکز سایت</a>
+                <a href="{{ route('seo.website.index') }}" class="course-secondary-btn">بازگشت به مرکز سایت</a>
             </div>
         </header>
 
@@ -53,7 +53,7 @@
 
                 <form
                     method="POST"
-                    action="{{ route('owner.website.hero.update') }}"
+                    action="{{ route('seo.website.hero.update') }}"
                     enctype="multipart/form-data"
                     class="website-hero-editor-form"
                     data-home-hero-editor
