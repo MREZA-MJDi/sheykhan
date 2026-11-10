@@ -4,20 +4,20 @@
 @section('content')
 <div class="space-y-6 panel-page-enter">
     @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
-    <div><span class="text-xs font-black text-[var(--panel-primary)]">گزارش مالی</span><h1 class="mt-1 text-2xl font-black">جریان مالی آموزشگاه</h1><p class="mt-2 text-sm leading-7 text-slate-500">این صفحه فقط گزارش می‌دهد؛ ledger اصلی فقط از جریان پرداخت معتبر تغذیه می‌شود.</p></div>
+    <div><span class="text-xs font-black text-[var(--panel-primary)]">وضعیت مالی آموزشگاه</span><h1 class="mt-1 text-2xl font-black">دریافت‌ها و بدهی‌ها</h1><p class="mt-2 text-sm leading-7 text-slate-500">در این صفحه می‌توانی پرداخت‌های ثبت‌شده و شهریه‌های باقی‌مانده را ببینی.</p></div>
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <article class="owner-stat-card"><span>دریافت</span><strong>{{ \App\Support\PersianUi::number($stats['income']) }}</strong><small>تومان</small></article>
         <article class="owner-stat-card"><span>بازپرداخت</span><strong>{{ \App\Support\PersianUi::number($stats['refunds']) }}</strong><small>تومان</small></article>
         <article class="owner-stat-card"><span>خالص</span><strong>{{ \App\Support\PersianUi::number($stats['net']) }}</strong><small>تومان</small></article>
-        <article class="owner-stat-card"><span>تراکنش قطعی</span><strong>{{ \App\Support\PersianUi::digits($stats['completed']) }}</strong><small>ثبت‌شده</small></article>
+        <article class="owner-stat-card"><span>پرداخت موفق</span><strong>{{ \App\Support\PersianUi::digits($stats['completed']) }}</strong><small>ثبت‌شده</small></article>
         <article class="owner-stat-card"><span>بدهی شهریه</span><strong>{{ \App\Support\PersianUi::number($debtSummary['amount'] ?? 0) }}</strong><small>{{ \App\Support\PersianUi::digits($debtSummary['count'] ?? 0) }} ثبت‌نام با مانده · تومان</small></article>
     </section>
     <form method="GET" action="{{ route('owner.finance.index') }}" class="dashboard-panel flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
         <input type="hidden" name="sheet" value="{{ $sheet }}">
-        <label class="grid flex-1 gap-1 text-xs font-bold"><span>{{ $sheet === 'debts' ? 'جست‌وجوی هنرجو یا دوره' : 'جست‌وجوی کاربر، دوره یا شناسه تراکنش' }}</span><input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 px-3 text-sm"></label>
+        <label class="grid flex-1 gap-1 text-xs font-bold"><span>{{ $sheet === 'debts' ? 'جست‌وجوی هنرجو یا دوره' : 'جست‌وجوی نام، دوره یا شماره پرداخت' }}</span><input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 px-3 text-sm"></label>
         @if($sheet === 'transactions')
-            <select name="status" aria-label="وضعیت تراکنش" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs"><option value="">همه وضعیت‌ها</option><option value="completed" @selected(($filters['status'] ?? '') === 'completed')>قطعی</option><option value="pending" @selected(($filters['status'] ?? '') === 'pending')>در انتظار</option><option value="failed" @selected(($filters['status'] ?? '') === 'failed')>ناموفق</option><option value="refunded" @selected(($filters['status'] ?? '') === 'refunded')>بازپرداخت‌شده</option></select>
-            <select name="type" aria-label="نوع تراکنش" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs"><option value="">همه نوع‌ها</option><option value="enrollment_payment" @selected(($filters['type'] ?? '') === 'enrollment_payment')>دریافت شهریه</option><option value="refund" @selected(($filters['type'] ?? '') === 'refund')>بازپرداخت</option></select>
+            <select name="status" aria-label="وضعیت تراکنش" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs"><option value="">همه وضعیت‌های پرداخت</option><option value="completed" @selected(($filters['status'] ?? '') === 'completed')>قطعی</option><option value="pending" @selected(($filters['status'] ?? '') === 'pending')>در انتظار</option><option value="failed" @selected(($filters['status'] ?? '') === 'failed')>ناموفق</option><option value="refunded" @selected(($filters['status'] ?? '') === 'refunded')>بازپرداخت‌شده</option></select>
+            <select name="type" aria-label="نوع پرداخت تراکنش" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs"><option value="">همه نوع پرداخت پرداخت</option><option value="enrollment_payment" @selected(($filters['type'] ?? '') === 'enrollment_payment')>دریافت شهریه</option><option value="refund" @selected(($filters['type'] ?? '') === 'refund')>بازپرداخت</option></select>
         @endif
         <select name="sort" aria-label="مرتب‌سازی" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs">
             @if($sheet === 'debts')
@@ -30,17 +30,17 @@
             <label class="grid gap-1 text-[10px] font-bold">از تاریخ<input type="date" name="from" value="{{ $filters['from'] ?? '' }}" class="min-h-10 rounded-xl border border-slate-200 px-2 text-xs"></label>
             <label class="grid gap-1 text-[10px] font-bold">تا تاریخ<input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="min-h-10 rounded-xl border border-slate-200 px-2 text-xs"></label>
         @endif
-        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">اعمال فیلتر</button>
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">نمایش نتیجه‌ها</button>
         <a href="{{ route('owner.finance.index', ['sheet' => $sheet]) }}" class="min-h-10 rounded-xl border border-slate-200 px-4 py-3 text-center text-xs font-bold">پاک‌کردن</a>
     </form>
     <section class="dashboard-panel owner-panel">
-        <div class="owner-panel-head"><div><h2>{{ $sheet === 'debts' ? 'شهریه‌های دارای مانده' : 'تراکنش‌ها' }}</h2><p>{{ $sheet === 'debts' ? 'فقط ثبت‌نام‌های فعال دوره‌های همین آموزشگاه' : 'فقط آموزشگاه‌های متعلق به این Owner' }}</p></div></div>
+        <div class="owner-panel-head"><div><h2>{{ $sheet === 'debts' ? 'شهریه‌های دارای مانده' : 'پرداخت‌ها' }}</h2><p>{{ $sheet === 'debts' ? 'شهریه‌های باقی‌مانده هنرجویان این آموزشگاه' : 'پرداخت‌های آموزشگاه‌های شما' }}</p></div></div>
         @if($sheet === 'transactions')
-        <div class="mt-4 overflow-x-auto"><table class="w-full min-w-[720px] text-right"><thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">زمان</th><th class="px-4 py-3">آموزشگاه</th><th class="px-4 py-3">کاربر</th><th class="px-4 py-3">دوره</th><th class="px-4 py-3">نوع</th><th class="px-4 py-3">مبلغ</th></tr></thead><tbody class="divide-y divide-slate-100">
+        <div class="mt-4 overflow-x-auto"><table class="w-full min-w-[720px] text-right"><thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">تاریخ پرداخت</th><th class="px-4 py-3">آموزشگاه</th><th class="px-4 py-3">نام پرداخت‌کننده</th><th class="px-4 py-3">دوره</th><th class="px-4 py-3">نوع پرداخت</th><th class="px-4 py-3">مبلغ</th></tr></thead><tbody class="divide-y divide-slate-100">
         @forelse($transactions as $tx)
             <tr><td class="px-4 py-3 text-xs">{{ \App\Support\PersianUi::dateTime($tx->occurred_at) }}</td><td class="px-4 py-3 text-xs font-bold">{{ $tx->academy?->name }}</td><td class="px-4 py-3 text-xs">{{ $tx->user?->name ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->enrollment?->course?->title ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->type === 'refund' ? 'بازپرداخت' : 'دریافت' }}</td><td class="px-4 py-3 text-xs font-black">{{ \App\Support\PersianUi::number($tx->amount) }} تومان</td></tr>
         @empty
-            <tr><td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">تراکنشی ثبت نشده است.</td></tr>
+            <tr><td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">هنوز پرداختی برای نمایش وجود ندارد.</td></tr>
         @endforelse
         </tbody></table></div>
         <div class="mt-4">{{ $transactions->links() }}</div>
