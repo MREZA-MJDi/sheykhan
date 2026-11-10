@@ -36,6 +36,21 @@ final class OwnerWorkspaceService
             && (int) $academy->owner_id === (int) $owner->id;
     }
 
+    /**
+     * Single authorization boundary for Owner workspace requests.
+     * Keep academy ownership and permission checks consistent across modules.
+     */
+    public function canAccessAcademy(User $owner, Academy $academy, ?string $permission = null): bool
+    {
+        return $this->canManageAcademy($owner, $academy)
+            && ($permission === null || $owner->hasPermission($permission));
+    }
+
+    public function authorizeAcademy(User $owner, Academy $academy, ?string $permission = null): void
+    {
+        abort_unless($this->canAccessAcademy($owner, $academy, $permission), 404);
+    }
+
     public function people(User $owner, Academy $academy): array
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
