@@ -3460,6 +3460,7 @@ body.owner-admin-unified .main-content :is(.badge,.status-badge){border-radius:9
 .owner-admin-unified .sidebar-collapse{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border:1px solid #ffffff26;border-radius:9px;background:#ffffff12;color:#fff;cursor:pointer}
 .owner-admin-unified .theme-toggle{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--oa-line);border-radius:10px;background:#f1f3fa;color:#26377f;cursor:pointer;font-size:18px}
 body.owner-admin-unified.admin-sidebar-collapsed .app{grid-template-columns:76px minmax(0,1fr)}
+body.owner-admin-unified.admin-sidebar-collapsed .admin-sidebar{width:76px;min-width:76px}
 body.owner-admin-unified.admin-sidebar-collapsed .admin-sidebar-brand{justify-content:center;padding-inline:0}
 body.owner-admin-unified.admin-sidebar-collapsed .admin-sidebar-brand>div,
 body.owner-admin-unified.admin-sidebar-collapsed .nav-group .gh span:not(:first-child),
