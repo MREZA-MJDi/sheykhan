@@ -6,7 +6,6 @@ use App\Models\Academy;
 use App\Models\AcademyMeeting;
 use App\Models\Classroom;
 use App\Models\User;
-use App\Services\OwnerWorkspaceService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
