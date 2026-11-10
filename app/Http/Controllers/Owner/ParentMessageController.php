@@ -5,21 +5,22 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\ParentMessage;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 final class ParentMessageController extends Controller
 {
-    public function index(Academy $academy, Request $request): RedirectResponse
+    public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'parents.view');
 
         return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'messages']);
     }
 
-    public function reply(Request $request, Academy $academy, int $message): RedirectResponse
+    public function reply(Request $request, Academy $academy, int $message, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy, manage: true);
+        $workspace->authorizeAcademy($request->user(), $academy, 'parents.manage');
 
         $data = $request->validate([
             'status' => ['required', 'string', 'in:in_review,responded,closed'],
@@ -43,16 +44,4 @@ final class ParentMessageController extends Controller
             ->with('success', 'وضعیت و پاسخ پیام ذخیره شد.');
     }
 
-    private function authorizeAcademy(Request $request, Academy $academy, bool $manage = false): void
-    {
-        $user = $request->user();
-
-        abort_unless(
-            $user
-                && $user->hasRole('academy-owner')
-                && $user->hasPermission($manage ? 'parents.manage' : 'parents.view')
-                && (int) $academy->owner_id === (int) $user->id,
-            404
-        );
-    }
 }
