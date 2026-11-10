@@ -10,6 +10,31 @@
         <h1 class="mt-1 text-2xl font-black">پیام‌های مرتبط با کلاس‌های شما</h1>
         <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">فقط پیام‌های والدین دانش‌آموزان کلاس‌ها و دوره‌های تخصیص‌یافته به شما نمایش داده می‌شوند. پاسخ شما در کارتابل والد و مدیر آموزشگاه ثبت می‌شود.</p>
     </header>
+    <form method="GET" class="dashboard-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_180px_180px_auto_auto] sm:items-end" role="search" aria-label="فیلتر پیام‌های والدین">
+        <label class="grid gap-1 text-xs font-bold">جست‌وجو
+            <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm" placeholder="موضوع، متن، نام والد یا دانش‌آموز">
+        </label>
+        <label class="grid gap-1 text-xs font-bold">وضعیت
+            <select name="status" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="open" @selected(($filters['status'] ?? '') === 'open')>در انتظار بررسی</option>
+                <option value="in_review" @selected(($filters['status'] ?? '') === 'in_review')>در حال پیگیری</option>
+                <option value="responded" @selected(($filters['status'] ?? '') === 'responded')>پاسخ‌داده‌شده</option>
+                <option value="closed" @selected(($filters['status'] ?? '') === 'closed')>بسته‌شده</option>
+            </select>
+        </label>
+        <label class="grid gap-1 text-xs font-bold">نوع پیام
+            <select name="category" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                <option value="">همه انواع</option>
+                <option value="question" @selected(($filters['category'] ?? '') === 'question')>پرسش</option>
+                <option value="suggestion" @selected(($filters['category'] ?? '') === 'suggestion')>پیشنهاد</option>
+                <option value="complaint" @selected(($filters['category'] ?? '') === 'complaint')>انتقاد یا شکایت</option>
+                <option value="other" @selected(($filters['category'] ?? '') === 'other')>سایر</option>
+            </select>
+        </label>
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
+        <a href="{{ route('teacher.messages.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">پاک‌کردن</a>
+    </form>
     <section class="communication-page__message-list space-y-4">
         @php($statusLabels = ['open' => 'در انتظار بررسی', 'in_review' => 'در حال پیگیری', 'responded' => 'پاسخ داده‌شده', 'closed' => 'بسته‌شده'])
         @php($categoryLabels = ['question' => 'پرسش', 'suggestion' => 'پیشنهاد', 'complaint' => 'انتقاد یا شکایت', 'other' => 'سایر'])
