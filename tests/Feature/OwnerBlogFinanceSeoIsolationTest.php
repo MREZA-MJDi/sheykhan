@@ -67,13 +67,13 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         ]);
 
         foreach ([
-            route('owner.blog.index'),
-            route('owner.blog.create'),
-            route('owner.blog.edit', $post),
-            route('owner.content.index'),
-            route('owner.content.create'),
-            route('owner.content.edit', $item),
-            route('owner.website.index'),
+            route('seo.blog.index'),
+            route('seo.blog.create'),
+            route('seo.blog.edit', $post),
+            route('seo.content.index'),
+            route('seo.content.create'),
+            route('seo.content.edit', $item),
+            route('seo.website.index'),
         ] as $url) {
             $this->actingAs($owner)->get($url)->assertForbidden();
         }
@@ -81,7 +81,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         $this->actingAs($owner)->get(route('owner.dashboard'))
             ->assertOk()
             ->assertDontSee('SEO و دیده‌شدن')
-            ->assertDontSee(route('owner.seo.index'), false);
+            ->assertDontSee(route('seo.index'), false);
 
         try {
             app(\App\Services\OwnerBlogService::class)->index($owner);
@@ -91,11 +91,11 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         }
 
         foreach ([
-            route('owner.seo.index'),
-            route('owner.seo.edit', ['course', $course->id]),
-            route('owner.seo.edit', ['blog', $post->id]),
-            route('owner.seo.edit', ['content', $item->id]),
-            route('owner.seo.edit', ['academy', $academy->id]),
+            route('seo.index'),
+            route('seo.pages.edit', ['course', $course->id]),
+            route('seo.pages.edit', ['blog', $post->id]),
+            route('seo.pages.edit', ['content', $item->id]),
+            route('seo.pages.edit', ['academy', $academy->id]),
         ] as $url) {
             $this->actingAs($owner)->get($url)->assertForbidden();
         }
@@ -103,33 +103,33 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         $seoSpecialist = $this->seoSpecialist();
 
         foreach ([
-            route('owner.blog.index'),
-            route('owner.blog.create'),
-            route('owner.blog.edit', $post),
-            route('owner.content.index'),
-            route('owner.content.create'),
-            route('owner.content.edit', $item),
-            route('owner.website.index'),
+            route('seo.blog.index'),
+            route('seo.blog.create'),
+            route('seo.blog.edit', $post),
+            route('seo.content.index'),
+            route('seo.content.create'),
+            route('seo.content.edit', $item),
+            route('seo.website.index'),
         ] as $url) {
             $this->actingAs($seoSpecialist)->get($url)->assertOk();
         }
         $this->actingAs($seoSpecialist)
-            ->get(route('owner.seo.index'))
+            ->get(route('seo.index'))
             ->assertOk()
             ->assertSee('مرکز کنترل SEO شیخان')
             ->assertSee('دوره SEO آزمایشی');
 
         $this->actingAs($seoSpecialist)
-            ->get(route('owner.seo.edit', ['course', $course->id]))
+            ->get(route('seo.pages.edit', ['course', $course->id]))
             ->assertOk();
 
         $this->actingAs($seoSpecialist)
-            ->patch(route('owner.seo.update', ['course', $course->id]), [
+            ->patch(route('seo.pages.update', ['course', $course->id]), [
                 'title' => 'عنوان SEO اختصاصی',
                 'description' => 'توضیح صفحه',
                 'robots' => 'index,follow',
             ])
-            ->assertRedirect(route('owner.seo.index'));
+            ->assertRedirect(route('seo.index'));
 
         $this->assertDatabaseHas('seo_metas', [
             'seoable_type' => Course::class,
@@ -159,15 +159,15 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $this->actingAs($ownerA)->get(route('owner.blog.edit', $ownPost))->assertForbidden();
-        $this->actingAs($ownerA)->get(route('owner.blog.edit', $otherPost))->assertForbidden();
+        $this->actingAs($ownerA)->get(route('seo.blog.edit', $ownPost))->assertForbidden();
+        $this->actingAs($ownerA)->get(route('seo.blog.edit', $otherPost))->assertForbidden();
 
         $seo = $this->seoSpecialist();
-        $this->actingAs($seo)->get(route('owner.blog.edit', $ownPost))->assertOk();
-        $this->actingAs($seo)->get(route('owner.blog.edit', $otherPost))->assertOk();
+        $this->actingAs($seo)->get(route('seo.blog.edit', $ownPost))->assertOk();
+        $this->actingAs($seo)->get(route('seo.blog.edit', $otherPost))->assertOk();
 
         $this->actingAs($ownerA)
-            ->patch(route('owner.seo.update', ['blog', $ownPost->id]), [
+            ->patch(route('seo.pages.update', ['blog', $ownPost->id]), [
                 'title' => 'SEO مقاله من',
                 'description' => 'توضیح SEO',
                 'robots' => 'index,follow',
@@ -181,7 +181,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         ]);
 
         $this->actingAs($ownerA)
-            ->patch(route('owner.seo.update', ['blog', $otherPost->id]), [
+            ->patch(route('seo.pages.update', ['blog', $otherPost->id]), [
                 'title' => 'نباید ثبت شود',
                 'robots' => 'index,follow',
             ])
@@ -229,11 +229,11 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         ]);
 
         $this->actingAs($ownerA)
-            ->get(route('owner.seo.edit', ['product', $myProduct->id]))
+            ->get(route('seo.pages.edit', ['product', $myProduct->id]))
             ->assertForbidden();
 
         $this->actingAs($ownerA)
-            ->patch(route('owner.seo.update', ['product', $myProduct->id]), [
+            ->patch(route('seo.pages.update', ['product', $myProduct->id]), [
                 'title' => 'عنوان SEO محصول من',
                 'description' => 'توضیح اختصاصی محصول',
                 'robots' => 'index,follow',
@@ -241,7 +241,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
             ->assertForbidden();
 
         $this->actingAs($ownerA)
-            ->get(route('owner.seo.edit', ['product', $otherProduct->id]))
+            ->get(route('seo.pages.edit', ['product', $otherProduct->id]))
             ->assertForbidden();
 
         $this->assertDatabaseMissing('seo_metas', [
@@ -307,7 +307,7 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         ]);
 
         $this->actingAs($owner)
-            ->patch(route('owner.seo.update', ['content', $content->id]), [
+            ->patch(route('seo.pages.update', ['content', $content->id]), [
                 'title' => 'آزمون آزمایشی | SEO',
                 'description' => 'توضیح متا',
                 'robots' => 'index,follow',
