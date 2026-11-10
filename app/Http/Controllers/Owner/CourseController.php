@@ -35,6 +35,11 @@ class CourseController extends Controller
     {
         $course = $service->create($request->user(), $request->validated());
 
+        if ($request->boolean('modal')) {
+            return redirect()->route('owner.courses.index')
+                ->with('success', 'دوره با موفقیت ساخته شد.');
+        }
+
         return redirect()->route('owner.courses.show', $course)
             ->with('success', 'دوره با موفقیت ساخته شد.');
     }
@@ -96,6 +101,11 @@ class CourseController extends Controller
     public function update(UpdateCourseRequest $request, Course $course, CourseManagementService $service): RedirectResponse
     {
         $service->update($request->user(), $course, $request->validated());
+
+        if (request()->boolean('modal')) {
+            return redirect()->route('owner.courses.index')
+                ->with('success', 'دوره با موفقیت به‌روزرسانی شد.');
+        }
 
         return redirect()->route('owner.courses.show', $course)
             ->with('success', 'دوره با موفقیت به‌روزرسانی شد.');
