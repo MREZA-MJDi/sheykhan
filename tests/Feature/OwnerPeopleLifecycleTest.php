@@ -500,6 +500,132 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->assertSame(1, $classroom->teachers()->count());
     }
 
+    public function test_owner_people_page_uses_separate_member_sheets_and_floating_crud_dialogs(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertSee('id="owner-members-students-panel"', false)
+            ->assertSee('id="owner-members-parents-panel"', false)
+            ->assertSee('id="owner-members-active-teachers-panel"', false)
+            ->assertSee('id="owner-members-archived-teachers-panel"', false)
+            ->assertSee('id="owner-parent-create-modal"', false)
+            ->assertSee('id="owner-teacher-create-modal"', false)
+            ->assertSee('id="owner-enrollment-modal"', false)
+            ->assertSee('data-directory-pagination', false);
+    }
+
+    public function test_course_and_classroom_create_forms_can_render_as_same_page_modal_fragments(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace(true);
+
+        $this->actingAs($owner)
+            ->get(route('owner.courses.create', ['modal' => 1]))
+            ->assertOk()
+            ->assertDontSee('<!doctype html>', false)
+            ->assertSee('course-form-shell', false)
+            ->assertSee('name="title"', false);
+
+        $classroomsManage = Permission::create([
+            'name' => 'classrooms.manage',
+            'label' => 'Manage classrooms',
+            'group' => 'classrooms',
+        ]);
+        Role::query()
+            ->where('slug', 'academy-owner')
+            ->firstOrFail()
+            ->permissions()
+            ->attach($classroomsManage->id);
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]))
+            ->assertOk()
+            ->assertDontSee('<!doctype html>', false)
+            ->assertSee('data-owner-classroom-form', false)
+            ->assertSee('data-classroom-course', false)
+            ->assertSee('data-classroom-teachers', false);
+    }
+
+    public function test_owner_can_update_weekly_schedule_without_creating_an_overlap(): void
+    {
+        [$owner, $academy, , $course] = $this->makeWorkspace(true);
+
+        $liveClassesManage = Permission::create([
+            'name' => 'live_classes.manage',
+            'label' => 'Manage live classes',
+            'group' => 'live_classes',
+        ]);
+        Role::query()
+            ->where('slug', 'academy-owner')
+            ->firstOrFail()
+            ->permissions()
+            ->attach($liveClassesManage->id);
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس تست برنامه آنلاین',
+            'code' => 'SCHEDULE-TEST',
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+
+        $schedule = $classroom->schedules()->create([
+            'weekday' => 6,
+            'start_time' => '09:00:00',
+            'end_time' => '10:00:00',
+            'room' => 'اتاق یک',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-Test-Room',
+        ]);
+
+        $service = app(\App\Services\OwnerScheduleService::class);
+        $links = app(\App\Services\MeetingLinkService::class);
+
+        $updated = $service->update($owner, $academy, $classroom, $schedule, [
+            'weekday' => 6,
+            'start_time' => '10:00',
+            'end_time' => '11:00',
+            'room' => 'اتاق دو',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-Updated-Room',
+        ], $links);
+
+        $this->assertSame('10:00:00', $updated->start_time);
+        $this->assertSame('11:00:00', $updated->end_time);
+        $this->assertSame('اتاق دو', $updated->room);
+        $this->assertDatabaseHas('class_schedules', [
+            'id' => $schedule->id,
+            'classroom_id' => $classroom->id,
+            'start_time' => '10:00:00',
+            'end_time' => '11:00:00',
+        ]);
+
+        $classroom->schedules()->create([
+            'weekday' => 6,
+            'start_time' => '12:00:00',
+            'end_time' => '13:00:00',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-Conflict-Room',
+        ]);
+
+        try {
+            $service->update($owner, $academy, $classroom, $updated, [
+                'weekday' => 6,
+                'start_time' => '12:30',
+                'end_time' => '13:30',
+                'room' => null,
+                'provider' => 'Jitsi',
+                'meeting_url' => 'https://meet.jit.si/Sheykhan-Overlap-Room',
+            ], $links);
+            $this->fail('An overlapping weekly schedule should be rejected.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('start_time', $exception->errors());
+        }
+    }
+
     private function makeWorkspace(bool $withCourse = false): array
     {
         $owner = User::factory()->create(['email' => 'owner-' . Str::random(6) . '@test.local']);
