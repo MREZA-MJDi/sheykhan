@@ -53,9 +53,7 @@
             'links' => [
                 ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'دانش‌آموزان، مدرس‌ها و اولیا', 'icon' => 'users', 'scope' => 'academy'],
                 ['route' => 'owner.attendance.index', 'permission' => 'attendance.view', 'label' => 'حضور و غیاب', 'icon' => 'checksq', 'scope' => 'academy'],
-                ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'پیام‌های اولیا', 'icon' => 'chat', 'scope' => 'academy'],
-                ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها', 'icon' => 'mega', 'scope' => 'academy'],
-                ['route' => 'owner.counseling.index', 'permission' => 'parents.view', 'label' => 'درخواست‌های مشاوره', 'icon' => 'heart', 'scope' => 'academy'],
+                ['route' => 'owner.communication-workspace', 'permission' => 'parents.view', 'label' => 'ارتباطات، پیام‌ها و جلسات', 'icon' => 'chat', 'scope' => 'academy'],
             ],
         ],
         [
