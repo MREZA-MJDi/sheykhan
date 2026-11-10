@@ -50,11 +50,15 @@ final class OwnerAssignmentService
             $query->where('classroom_id', (int) $filters['classroom_id']);
         }
 
-        $assignments = $query
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
-            ->paginate(15)
-            ->withQueryString();
+        $sort = $filters['sort'] ?? 'recent';
+        match ($sort) {
+            'oldest' => $query->orderBy('created_at')->orderBy('id'),
+            'title' => $query->orderBy('title')->orderByDesc('id'),
+            'pending' => $query->orderByDesc('pending_review_count')->orderByDesc('created_at')->orderByDesc('id'),
+            default => $query->orderByDesc('created_at')->orderByDesc('id'),
+        };
+
+        $assignments = $query->paginate(15)->withQueryString();
 
         $classrooms = $academy->classrooms()
             ->orderBy('title')
