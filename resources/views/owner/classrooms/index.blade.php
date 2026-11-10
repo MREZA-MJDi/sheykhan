@@ -25,7 +25,7 @@
             </p>
         </div>
 
-        <a href="{{ route('owner.classrooms.create', $academy) }}"
+        <a href="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ساخت کلاس جدید"
            class="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white shadow-sm">
             + ساخت کلاس جدید
         </a>
@@ -196,7 +196,7 @@
                        class="rounded-xl bg-slate-900 px-4 py-2.5 text-[10px] font-black text-white">
                         مشاهده جزئیات
                     </a>
-                    <a href="{{ route('owner.classrooms.edit', [$academy, $classroom]) }}"
+                    <a href="{{ route('owner.classrooms.edit', ['academy' => $academy, 'classroom' => $classroom, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.classrooms.edit', ['academy' => $academy, 'classroom' => $classroom, 'modal' => 1]) }}" data-owner-modal-title="ویرایش کلاس"
                        class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[10px] font-black text-slate-700">
                         ویرایش
                     </a>
@@ -225,7 +225,7 @@
                         <span class="text-xs font-black text-[var(--panel-primary)]">شروع مدیریت کلاس</span>
                         <h2 class="mt-2 text-lg font-black">هنوز کلاسی در این آموزشگاه نساخته‌ای.</h2>
                         <p class="mt-2 text-sm leading-7 text-slate-500">اولین کلاس را بساز تا ظرفیت، مدرس، دانش‌آموز و اتفاقات آموزشی‌اش از همین‌جا قابل مدیریت باشد.</p>
-                        <a href="{{ route('owner.classrooms.create', $academy) }}" class="mt-5 inline-flex rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت اولین کلاس</a>
+                        <a href="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ساخت کلاس جدید" class="mt-5 inline-flex rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت اولین کلاس</a>
                     @endif
                 </div>
             </div>
