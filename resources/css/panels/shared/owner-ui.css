@@ -1,0 +1,301 @@
+/* =========================================================
+   Owner UI language: one readable hierarchy across every
+   admin page, form, table, alert and mobile layout.
+   Keep business logic and page-specific components untouched.
+========================================================= */
+.owner-admin-v2 .main-content {
+    --owner-page-title-size: clamp(1.35rem, 1.8vw, 1.75rem);
+    --owner-section-title-size: 1rem;
+    --owner-card-title-size: .9rem;
+    --owner-body-size: .875rem;
+    --owner-help-size: .75rem;
+    --owner-control-height: 44px;
+    gap: 20px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content :is(h1,h2,h3,h4) {
+    max-width: 100%;
+    color: var(--oa-text, #e8ecff);
+    overflow-wrap: anywhere;
+    letter-spacing: 0;
+}
+.owner-admin-v2 .main-content h1 {
+    margin-block: 0;
+    font-size: var(--owner-page-title-size);
+    font-weight: 850;
+    line-height: 1.65;
+}
+.owner-admin-v2 .main-content h2 {
+    margin-block: 0;
+    font-size: var(--owner-section-title-size);
+    font-weight: 800;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content h3 {
+    margin-block: 0;
+    font-size: var(--owner-card-title-size);
+    font-weight: 800;
+    line-height: 1.85;
+}
+.owner-admin-v2 .main-content h4 {
+    margin-block: 0;
+    font-size: .84rem;
+    font-weight: 750;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content :is(p,li) {
+    font-size: var(--owner-body-size);
+    line-height: 2;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content :is(small,.owner-field-help,.owner-exam-help) {
+    font-size: var(--owner-help-size);
+    line-height: 1.9;
+}
+.owner-admin-v2 .main-content :is(.panel-page-enter,.owner-form-shell,.owner-academy-form-page,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
+    min-width: 0;
+    width: 100%;
+    max-width: 1500px;
+    margin-inline: auto;
+}
+.owner-admin-v2 .main-content :is(.owner-form-shell,.owner-academy-form-page,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+}
+.owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head,.owner-page-intro) {
+    min-width: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+    padding: clamp(16px, 2vw, 26px);
+    border: 1px solid rgba(119,136,190,.22);
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(26,32,80,.94), rgba(14,18,48,.96));
+}
+.owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head) > div {
+    min-width: 0;
+    flex: 1 1 280px;
+}
+.owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head) :is(p,small) {
+    max-width: 780px;
+    margin-block: 6px 0;
+    color: var(--oa-muted, #aab3d7);
+    font-size: .8rem;
+    line-height: 2;
+}
+.owner-admin-v2 .main-content :is(.owner-form-section,.owner-exam-section,.owner-panel,.dashboard-panel,.owner-form-card,.owner-people-tab-panel) {
+    min-width: 0;
+}
+.owner-admin-v2 .main-content :is(.owner-form-section,.owner-exam-section) {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    padding: clamp(15px, 1.7vw, 22px);
+    border: 1px solid rgba(119,136,190,.2);
+    border-radius: 16px;
+    background: var(--oa-surface, #171d45);
+}
+.owner-admin-v2 .main-content :is(.owner-form-section,.owner-exam-section) > :is(h2,h3):first-child {
+    padding-block-end: 11px;
+    border-block-end: 1px solid rgba(119,136,190,.2);
+}
+.owner-admin-v2 .main-content :is(.owner-panel-head,.owner-section-heading,.card-title) {
+    align-items: flex-start;
+    gap: 8px 14px;
+}
+.owner-admin-v2 .main-content :is(.owner-panel-head,.owner-section-heading,.card-title) :is(h2,h3) {
+    font-size: var(--owner-section-title-size);
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content :is(label,.owner-form-field,.owner-classroom-filter-field,.owner-student-form-field) {
+    min-width: 0;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]),select,textarea) {
+    min-height: var(--owner-control-height);
+    max-width: 100%;
+    font-family: inherit;
+    font-size: .84rem;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content textarea {
+    min-height: 104px;
+}
+.owner-admin-v2 .main-content :is(input,select,textarea):disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}
+.owner-admin-v2 .main-content :is([role=alert],.alert,.owner-student-create-errors,.owner-form-notice) {
+    max-width: 100%;
+    padding: 12px 15px;
+    border-radius: 12px;
+    font-size: .8rem;
+    line-height: 2;
+    overflow-wrap: anywhere;
+}
+.owner-admin-v2 .main-content [role=alert] :is(ul,ol) {
+    margin-block: 6px 0;
+    padding-inline-start: 1.25rem;
+}
+.owner-admin-v2 .main-content [aria-invalid=true] {
+    border-color: #fb7185 !important;
+    box-shadow: 0 0 0 2px rgba(251,113,133,.13);
+}
+.owner-admin-v2 .main-content :is(.overflow-x-auto,.table-wrap,.owner-table-wrap) {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+.owner-admin-v2 .main-content table {
+    min-width: 620px;
+    font-size: .8rem;
+}
+.owner-admin-v2 .main-content :is(th,td) {
+    padding: 12px 14px;
+    line-height: 1.9;
+    vertical-align: middle;
+}
+.owner-admin-v2 .main-content th {
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content :is(.pagination,.pagination nav) {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content :is(button[type=submit],button[type=button],.owner-primary-btn,.owner-workspace-btn,.owner-action-btn,.course-primary-btn,.course-action-btn) {
+    min-height: 42px;
+    font-family: inherit;
+    font-size: .8rem;
+    line-height: 1.8;
+}
+.owner-admin-v2 .main-content :is(button,a,input,select,textarea):focus-visible {
+    outline: 2px solid var(--oa-accent, #22d3ee);
+    outline-offset: 3px;
+}
+@media (max-width: 767px) {
+    .owner-admin-v2 .app {
+        padding: 10px;
+        gap: 12px;
+    }
+    .owner-admin-v2 .main-content {
+        gap: 14px;
+        padding-block-end: max(18px, env(safe-area-inset-bottom));
+    }
+    .owner-admin-v2 .main-content :is(.panel-page-enter,.owner-form-shell,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
+        gap: 14px;
+    }
+    .owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head,.owner-page-intro) {
+        align-items: flex-start;
+        padding: 16px;
+        border-radius: 15px;
+    }
+    .owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head) > a,
+    .owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head) > button {
+        width: 100%;
+        justify-content: center;
+    }
+    .owner-admin-v2 .main-content :is(.owner-form-section,.owner-exam-section,.dashboard-panel,.owner-panel,.owner-form-card,.owner-people-tab-panel) {
+        padding: 14px;
+    }
+    .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-form-two,.owner-exam-form,.owner-exam-grid,.owner-website-form,.seo-keyword-observation-form) {
+        grid-template-columns: minmax(0,1fr);
+    }
+    .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-exam-form) > * {
+        min-width: 0;
+        grid-column: 1 / -1;
+    }
+    .owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]),select,textarea) {
+        min-height: 46px;
+        font-size: 16px;
+    }
+    .owner-admin-v2 .main-content table {
+        min-width: 620px;
+    }
+    .owner-admin-v2 .main-content :is(.pagination a,.pagination span) {
+        min-width: 38px;
+        min-height: 38px;
+    }
+    .owner-admin-v2 .main-content :is(button[type=submit],.owner-primary-btn,.owner-workspace-btn,.course-primary-btn) {
+        min-height: 44px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-admin-v2 .main-content * {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* Shared navigation strip for learning, finance, attendance, reports and site content. */
+.owner-admin-v2 .main-content .owner-workspace-tabs {
+    display: grid;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px solid rgba(119,136,190,.2) !important;
+    border-radius: 16px;
+    background: var(--oa-surface-2, #111737) !important;
+    background-image: none !important;
+    box-shadow: none;
+    color: var(--oa-text, #e8ecff) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs :is(p,span,h2) {
+    color: var(--oa-text, #e8ecff) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs p {
+    color: var(--oa-muted, #aab3d7) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 8px 13px;
+    border: 1px solid rgba(119,136,190,.24) !important;
+    border-radius: 10px;
+    background: rgba(9,14,39,.55) !important;
+    color: var(--oa-muted, #aab3d7) !important;
+    font-size: .78rem;
+    font-weight: 750;
+    line-height: 1.7;
+    white-space: normal;
+    text-align: center;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav a:hover {
+    border-color: rgba(34,211,238,.55) !important;
+    color: var(--oa-text, #e8ecff) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav a[aria-current=page] {
+    border-color: rgba(34,211,238,.45) !important;
+    background: rgba(34,211,238,.14) !important;
+    color: #a5f3fc !important;
+}
+@media(max-width:767px) {
+    .owner-admin-v2 .main-content .owner-workspace-tabs {
+        padding: 14px;
+    }
+    .owner-admin-v2 .main-content .owner-workspace-tabs nav {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+    .owner-admin-v2 .main-content .owner-workspace-tabs nav a {
+        min-width: 0;
+        padding-inline: 8px;
+    }
+}
