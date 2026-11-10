@@ -27,7 +27,13 @@ final class ParentOnboardingService
                 ->where('users.status', 'active')
                 ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
                 ->lockForUpdate()
-                ->firstOrFail();
+                ->first();
+
+            if (! $student) {
+                throw ValidationException::withMessages([
+                    'student_id' => 'دانش‌آموز انتخاب‌شده دیگر فعال نیست یا به این آموزشگاه تعلق ندارد؛ دوباره انتخاب کن.',
+                ]);
+            }
 
             $mobile = MobileNumber::normalize($data['mobile'] ?? null);
             if (! MobileNumber::valid($mobile)) {
