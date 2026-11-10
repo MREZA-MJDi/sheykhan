@@ -1,5 +1,5 @@
 @if($canViewAssignments)
-            <section class="card c4 owner-quick-approvals" aria-labelledby="quick-approval-title" style="--c:#ff9a1f">
+            <section class="card c4 owner-quick-approvals" aria-labelledby="quick-approval-title" style="--c:#f2a81d">
                 <div class="card-title">
                     <div>
                         <h2 id="quick-approval-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span>تأیید سریع</h2>
@@ -8,7 +8,7 @@
                     <a class="table-link" href="{{ route('owner.assignments.index', $firstAcademy) }}">همه تکالیف ←</a>
                 </div>
                 @forelse($pendingApprovalItems as $item)
-                    <a class="ckr" href="{{ route('owner.assignments.show', [$item->academy_id, $item->assignment_id]) }}" style="--c:#ff9a1f">
+                    <a class="ckr" href="{{ route('owner.assignments.show', [$item->academy_id, $item->assignment_id]) }}" style="--c:#f2a81d">
                         <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg></i>
                         <span class="gx">
                             <b>{{ $item->student_name }}</b>
