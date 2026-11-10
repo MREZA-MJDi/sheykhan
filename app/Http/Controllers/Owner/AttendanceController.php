@@ -72,7 +72,11 @@ final class AttendanceController extends Controller
             ->orderBy('title')
             ->get(['id', 'title', 'course_id']);
 
-        return view('owner.attendance.index', compact('academy', 'filters', 'summary', 'attendances', 'classrooms'));
+        $sheet = in_array($request->query('sheet', 'history'), ['history', 'report'], true)
+            ? (string) $request->query('sheet', 'history')
+            : 'history';
+
+        return view('owner.attendance.index', compact('academy', 'filters', 'summary', 'attendances', 'classrooms', 'sheet'));
     }
 
     public function update(Academy $academy, int $attendance, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
@@ -112,7 +116,7 @@ final class AttendanceController extends Controller
 
         return redirect()->route('owner.attendance.index', [
             'academy' => $academy->id,
-            ...$request->only(['q', 'classroom_id', 'attendance_date', 'status']),
+            ...$request->only(['q', 'classroom_id', 'attendance_date', 'status', 'sheet']),
         ])->with('success', 'رکورد حضور و غیاب به‌روزرسانی شد.');
     }
 }
