@@ -13,7 +13,7 @@
     $capacityAlerts = (int) ($summary['capacity_alerts'] ?? 0);
 @endphp
 
-@include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'classrooms', 'academy' => $academy])
+@include('owner.admin.partials.learning-workspace-tabs', ['activeSheet' => 'classrooms', 'academy' => $academy])
 
 <div class="space-y-6 panel-page-enter">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
