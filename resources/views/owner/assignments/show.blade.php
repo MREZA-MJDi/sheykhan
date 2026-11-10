@@ -4,7 +4,7 @@
 @section('header-title', 'بررسی تکلیف')
 
 @section('content')
-<div class="space-y-6 panel-page-enter">
+<div class="space-y-6 panel-page-enter owner-assignment-details-page">
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
