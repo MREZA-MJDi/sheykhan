@@ -77,6 +77,11 @@ class StudentTeacherMessagingTest extends TestCase
             ->assertSee($student->name);
 
         $this->actingAs($teacher)
+            ->get(route('teacher.student-messages.index', ['status' => 'open', 'q' => 'سؤال درباره تکلیف']))
+            ->assertOk()
+            ->assertSee('سؤال درباره تکلیف هفته');
+
+        $this->actingAs($teacher)
             ->patch(route('teacher.student-messages.reply', $message), [
                 'response' => 'ابتدا صورت سؤال را به دو بخش تقسیم کن و هر بخش را جدا حل کن.',
             ])
@@ -99,6 +104,16 @@ class StudentTeacherMessagingTest extends TestCase
             'id' => $message->id,
             'status' => 'closed',
         ]);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.student-messages.index', ['status' => 'closed', 'q' => 'سؤال درباره تکلیف']))
+            ->assertOk()
+            ->assertSee('سؤال درباره تکلیف هفته');
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.student-messages.index', ['status' => 'open']))
+            ->assertOk()
+            ->assertDontSee('سؤال درباره تکلیف هفته');
 
         $this->actingAs($student)
             ->get(route('student.messages.index'))
