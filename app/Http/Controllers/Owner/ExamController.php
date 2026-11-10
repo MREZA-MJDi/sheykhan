@@ -107,7 +107,8 @@ final class ExamController extends Controller
             'classroom',
             'questions',
         ]);
-        $initialQuestions = $record->questions->map(function ($question): array {
+        $selectedBankQuestionIds = $record->questions->pluck('source_bank_question_id')->filter()->map(fn ($id) => (int) $id)->values()->all();
+        $initialQuestions = $record->questions->whereNull('source_bank_question_id')->map(function ($question): array {
             $correctAnswer = $question->correct_answer;
             if (in_array($question->type, ['multiple', 'checkbox'], true)) {
                 $decoded = json_decode((string) $correctAnswer, true);
@@ -129,7 +130,10 @@ final class ExamController extends Controller
             'classrooms' => collect(),
             'exam' => $record,
             'initialQuestions' => $initialQuestions,
-            'bankQuestions' => $academy->questionBankItems()->where('status', 'active')->orderByDesc('created_at')->limit(100)->get(),
+            'bankQuestions' => $academy->questionBankItems()
+                ->where(fn ($query) => $query->where('status', 'active')->orWhereIn('id', $selectedBankQuestionIds))
+                ->orderByDesc('created_at')->limit(100)->get(),
+            'selectedBankQuestionIds' => $selectedBankQuestionIds,
         ]);
     }
 
