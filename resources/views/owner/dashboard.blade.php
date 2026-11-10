@@ -296,27 +296,12 @@
                 <div class="owner-chart-legend" aria-label="راهنمای نمودار">
                     <span><i style="--legend:#22d3ee"></i>میانگین نرخ حضور</span>
                 </div>
-                <svg class="ln owner-line-chart"
-                     viewBox="0 0 520 150"
-                     role="img"
-                     aria-label="روند نرخ حضور هفتگی در ۱۳ هفته اخیر">
-                    <g class="owner-chart-grid">
-                        @for($grid = 0; $grid < 6; $grid++)
-                            <line x1="0" y1="{{ 8 + ($grid * 26) }}" x2="520" y2="{{ 8 + ($grid * 26) }}"/>
-                        @endfor
-                        @for($grid = 0; $grid < 13; $grid++)
-                            <line x1="{{ $grid * (520 / 12) }}" y1="8" x2="{{ $grid * (520 / 12) }}" y2="138"/>
-                        @endfor
-                    </g>
-                    @foreach($weeklyAttendanceSegments as $points)
-                        <polyline class="owner-line-attendance" points="{{ $points }}"/>
-                    @endforeach
-                </svg>
-                <div class="owner-chart-labels">
-                    @foreach([0, 3, 6, 9, 12] as $labelIndex)
-                        <span>{{ $weeklyLabels[$labelIndex] ?? '' }}</span>
-                    @endforeach
-                </div>
+                <x-owner.dashboard.line-chart
+                    :segments="$weeklyAttendanceSegments"
+                    :labels="$weeklyLabels"
+                    series-class="owner-line-attendance"
+                    aria-label="روند نرخ حضور هفتگی در ۱۳ هفته اخیر"
+                    :show-vertical-grid="true" />
             @else
                 <div class="card-empty">هنوز داده کافی برای نمایش روند حضور در ۱۳ هفته اخیر ثبت نشده است.</div>
             @endif
@@ -472,21 +457,13 @@
                     @if($canViewReports)<a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>@endif
                 </div>
                 @if(count(array_filter(is_array($weeklyStudents) ? $weeklyStudents : [], 'is_numeric')) >= 2 && array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) > 0)
-                    <svg class="ln owner-line-chart owner-growth-chart" viewBox="0 0 520 150" role="img" aria-label="روند هفتگی ثبت‌نام دانش‌آموزان">
-                        <g class="owner-chart-grid">
-                            @for($grid = 0; $grid < 6; $grid++)
-                                <line x1="0" y1="{{ 8 + ($grid * 26) }}" x2="520" y2="{{ 8 + ($grid * 26) }}"/>
-                            @endfor
-                        </g>
-                        @foreach($weeklyStudentSegments as $points)
-                            <polyline class="owner-line-students" points="{{ $points }}"/>
-                        @endforeach
-                    </svg>
-                    <div class="owner-chart-labels">
-                        @foreach([0, 3, 6, 9, 12] as $labelIndex)
-                            <span>{{ $weeklyLabels[$labelIndex] ?? '' }}</span>
-                        @endforeach
-                    </div>
+                    <x-owner.dashboard.line-chart
+                        :segments="$weeklyStudentSegments"
+                        :labels="$weeklyLabels"
+                        series-class="owner-line-students"
+                        chart-class="owner-growth-chart"
+                        aria-label="روند هفتگی ثبت‌نام دانش‌آموزان"
+                        :show-vertical-grid="false" />
                 @else
                     <div class="card-empty">هنوز داده کافی برای نمایش روند ثبت‌نام در ۱۳ هفته اخیر وجود ندارد.</div>
                 @endif
