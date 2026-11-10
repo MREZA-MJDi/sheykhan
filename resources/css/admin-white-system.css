@@ -1130,14 +1130,13 @@ body.owner-shell.owner-admin-v2 {
     border-color: var(--ui-border) !important;
 }
 .owner-admin-v2 .command-palette :is(input,a,button,small,p) { color: var(--ui-text) !important; }
-.owner-admin-v2 .owner-admin-v2 .main-content a:not([class*=btn]):not([class*=action]) { color: var(--ui-primary); }
+.owner-admin-v2 .main-content a:not([class*=btn]):not([class*=action]) { color: var(--ui-primary); }
 
 /* Mobile: keep section tabs scrollable, forms single-column and action buttons reachable. */
 @media (max-width: 1050px) {
-    .owner-admin-v2 .app { grid-template-columns: minmax(0,1fr); gap: 12px; }
-    .owner-admin-v2 .side.card { display: none; position: fixed; z-index: 150; inset-block: 10px; inset-inline-start: 10px; width: min(86vw,310px); max-height: calc(100dvh - 20px); }
-    .owner-admin-v2 .side.card.open { display: block; }
-    .owner-admin-v2 .main-content { grid-column: 1; }
+    .owner-admin-v2 .app { grid-template-columns: minmax(190px,225px) minmax(0,1fr); gap: 12px; }
+    .owner-admin-v2 .side.card { display: block; position: sticky; top: 92px; max-height: calc(100vh - 108px); }
+    .owner-admin-v2 .main-content { grid-column: 2; }
 }
 @media (max-width: 760px) {
     body.owner-shell.owner-admin-v2 { padding: 10px; }
