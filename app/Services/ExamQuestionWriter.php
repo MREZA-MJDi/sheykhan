@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Exam;
+use Illuminate\Support\Collection;
 
 final class ExamQuestionWriter
 {
