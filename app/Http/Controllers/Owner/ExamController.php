@@ -27,6 +27,7 @@ final class ExamController extends Controller
         $filters = $request->validate([
             'status' => ['nullable', 'string', 'in:draft,published,closed'],
             'q' => ['nullable', 'string', 'max:120'],
+            'sort' => ['nullable', 'string', 'in:recent,oldest,title,attempts'],
         ]);
         $exams = Exam::query()
             ->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))
@@ -38,7 +39,11 @@ final class ExamController extends Controller
                 $query->where(fn ($nested) => $nested->where('title', 'like', '%' . $term . '%')
                     ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $term . '%')));
             })
-            ->orderByDesc('created_at')->paginate(20)->withQueryString();
+            ->when(($filters['sort'] ?? 'recent') === 'oldest', fn ($query) => $query->orderBy('created_at')->orderBy('id'))
+            ->when(($filters['sort'] ?? 'recent') === 'title', fn ($query) => $query->orderBy('title')->orderByDesc('id'))
+            ->when(($filters['sort'] ?? 'recent') === 'attempts', fn ($query) => $query->orderByDesc('attempts_count')->orderByDesc('created_at'))
+            ->when(! in_array(($filters['sort'] ?? 'recent'), ['oldest', 'title', 'attempts'], true), fn ($query) => $query->orderByDesc('created_at')->orderByDesc('id'))
+            ->paginate(20)->withQueryString();
         $stats = [
             'all' => Exam::query()->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))->count(),
             'published' => Exam::query()->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))->where('status', 'published')->count(),
