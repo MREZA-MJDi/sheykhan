@@ -3,7 +3,7 @@
 @section('header-title','محتوای آموزشگاه')
 @section('content')
 <div class="space-y-6 panel-page-enter">
-    @include('owner.partials.public-site-workspace-tabs')
+    @include('owner.admin.partials.public-site-workspace-tabs')
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
             <span class="text-xs font-black text-[var(--panel-primary)]">تولید محتوا</span>
