@@ -14,11 +14,11 @@ use Illuminate\View\View;
 
 final class MeetingController extends Controller
 {
-    public function index(Academy $academy, OwnerMeetingService $meetings): RedirectResponse
+    public function index(Academy $academy, Request $request): RedirectResponse
     {
         abort_unless(
-            request()->user()->hasRole('academy-owner')
-                && (int) $academy->owner_id === (int) request()->user()->id,
+            $request->user()->hasRole('academy-owner')
+                && (int) $academy->owner_id === (int) $request->user()->id,
             404
         );
 
