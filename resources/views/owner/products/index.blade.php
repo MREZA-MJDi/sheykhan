@@ -15,7 +15,7 @@
         <section class="owner-form-section space-y-4">
             <h2>محصول جدید</h2>
             <label><span>عنوان محصول</span><input name="title" value="{{ old('title') }}" required maxlength="255"><small class="owner-field-help">عنوانی بنویس که در کارت فروشگاه و رسید خرید به‌راحتی شناخته شود.</small></label>
-            <label><span>نامک (اختیاری)</span><input name="slug" value="{{ old('slug') }}" maxlength="255" placeholder="از عنوان ساخته می‌شود"><small class="owner-field-help">برای URL عمومی استفاده می‌شود؛ در صورت خالی بودن از عنوان ساخته می‌شود.</small></label>
+            <label><span>نشانی کوتاه محصول (اختیاری)</span><input name="slug" value="{{ old('slug') }}" maxlength="255" placeholder="از عنوان ساخته می‌شود"><small class="owner-field-help">برای ساخت نشانی صفحه محصول استفاده می‌شود؛ اگر خالی بماند، از عنوان محصول ساخته می‌شود.</small></label>
             <label><span>زیرعنوان</span><input name="subtitle" value="{{ old('subtitle') }}" maxlength="255"><small class="owner-field-help">یک جملهٔ کوتاه برای توضیح نوع یا ارزش محصول.</small></label>
             <label><span>شرح محصول</span><textarea name="description" rows="5" maxlength="12000">{{ old('description') }}</textarea><small class="owner-field-help">محتوا، سطح مخاطب و آنچه خریدار دریافت می‌کند را توضیح بده؛ جزئیات تحویل فایل را هم روشن کن.</small></label>
             <div class="owner-form-two">
@@ -47,7 +47,7 @@
                 <label class="owner-check"><input type="checkbox" name="publish" value="1" @checked(old('publish'))><span>انتشار عمومی (نیازمند PDF واقعی)</span></label>
             </section>
             <button type="submit" class="owner-primary-btn w-full">ذخیره محصول</button>
-            <p class="text-xs leading-6 text-slate-500">قیمت از فرم خریدار گرفته نمی‌شود؛ سفارش مبلغ محصول را دوباره از دیتابیس محاسبه می‌کند. فایل اصلی با URL عمومی منتشر نمی‌شود.</p>
+            <p class="text-xs leading-6 text-slate-500">قیمت نهایی هنگام ثبت سفارش از اطلاعات محصول محاسبه می‌شود؛ فایل اصلی محصول نیز به‌صورت عمومی در دسترس قرار نمی‌گیرد.</p>
         </aside>
     </form>
 
