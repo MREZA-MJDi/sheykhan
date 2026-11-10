@@ -10,6 +10,8 @@
         <a href="{{ route('owner.dashboard') }}" class="communication-page__button communication-page__button--secondary inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">بازگشت به داشبورد</a>
     </header>
 
+    @include('owner.partials.communications-nav')
+
     <section class="communication-page__stats grid gap-3 sm:grid-cols-3">
         <article class="communication-page__stat owner-stat-card"><span>در انتظار بررسی</span><strong>{{ \App\Support\PersianUi::digits($stats['open']) }}</strong><small>پیام باز</small></article>
         <article class="communication-page__stat owner-stat-card"><span>در حال پیگیری</span><strong>{{ \App\Support\PersianUi::digits($stats['in_review']) }}</strong><small>نیازمند اقدام</small></article>
