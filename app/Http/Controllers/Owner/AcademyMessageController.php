@@ -13,22 +13,11 @@ use Illuminate\View\View;
 
 final class AcademyMessageController extends Controller
 {
-    public function index(Academy $academy, Request $request): View
+    public function index(Academy $academy, Request $request): RedirectResponse
     {
         $this->authorizeAcademy($request, $academy);
-        $messages = AcademyMessage::query()->where('academy_id', $academy->id)
-            ->with(['sender:id,name', 'recipient:id,name', 'student:id,name', 'classroom:id,title'])
-            ->latest()->paginate(12)->withQueryString();
 
-        return view('owner.communications.index', [
-            'academy' => $academy,
-            'pageTitle' => 'اطلاعیه و پیام به خانواده‌ها',
-            'pageDescription' => 'برای همه خانواده‌های فعال اطلاعیه بفرست یا فقط به ولی یا دانش‌آموز مرتبط پیام بده.',
-            'storeRoute' => route('owner.communications.store', $academy),
-            'backRoute' => route('owner.dashboard'),
-            'canManage' => $request->user()->hasPermission('parents.manage'),
-            'messages' => $messages,
-        ]);
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'announcements']);
     }
 
     public function recipients(Academy $academy, Request $request)
