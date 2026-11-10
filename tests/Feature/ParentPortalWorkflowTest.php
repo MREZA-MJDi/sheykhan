@@ -80,6 +80,16 @@ class ParentPortalWorkflowTest extends TestCase
             ->get(route('parent.counseling.index'))
             ->assertOk()
             ->assertSee('جلسه درباره برنامه درسی');
+
+        $this->actingAs($parent)
+            ->get(route('parent.counseling.index', ['status' => 'requested', 'q' => 'برنامه درسی']))
+            ->assertOk()
+            ->assertSee('جلسه درباره برنامه درسی');
+
+        $this->actingAs($parent)
+            ->get(route('parent.counseling.index', ['status' => 'scheduled']))
+            ->assertOk()
+            ->assertDontSee('جلسه درباره برنامه درسی');
     }
 
     public function test_parent_cannot_send_a_message_for_an_unlinked_student_or_unassigned_academy(): void
@@ -340,6 +350,11 @@ class ParentPortalWorkflowTest extends TestCase
             ->assertSee('هماهنگی برنامهٔ مطالعاتی');
 
         $this->actingAs($teacher)
+            ->get(route('teacher.counseling-requests.index', ['status' => 'requested', 'q' => 'برنامهٔ مطالعاتی']))
+            ->assertOk()
+            ->assertSee('هماهنگی برنامهٔ مطالعاتی');
+
+        $this->actingAs($teacher)
             ->post(route('teacher.counseling-requests.propose', $request->id), [
                 'proposed_at' => $proposedAt->format('Y-m-d\TH:i'),
                 'proposal_notes' => 'می‌توانیم پس از کلاس آنلاین صحبت کنیم.',
@@ -375,6 +390,11 @@ class ParentPortalWorkflowTest extends TestCase
             'scheduled_at' => $proposedAt->format('Y-m-d H:i:s'),
             'handled_by' => $owner->id,
         ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.counseling.index', [$academy, 'status' => 'scheduled', 'q' => 'برنامهٔ مطالعاتی']))
+            ->assertOk()
+            ->assertSee('هماهنگی برنامهٔ مطالعاتی');
 
         $this->actingAs($parent)
             ->get(route('parent.counseling.index'))
