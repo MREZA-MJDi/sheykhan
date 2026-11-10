@@ -8,6 +8,7 @@
         ['key' => 'allocations', 'label' => 'تخصیص مدرس و هنرجو', 'permission' => ['teachers.manage', 'enrollments.manage'], 'route' => 'owner.people.index', 'scope' => 'academy', 'query' => ['tab' => 'management', 'sheet' => 'operations'], 'icon' => '⇄'],
         ['key' => 'assignments', 'label' => 'تکالیف و تصحیح', 'permission' => 'assignments.view', 'route' => 'owner.assignments.index', 'scope' => 'academy', 'icon' => '✓'],
         ['key' => 'exams', 'label' => 'آزمون و نتایج', 'permission' => 'exams.view', 'route' => 'owner.exams.index', 'scope' => 'academy', 'icon' => '✎'],
+        ['key' => 'question-bank', 'label' => 'بانک سؤال', 'permission' => 'exams.view', 'route' => 'owner.question-bank.index', 'scope' => 'academy', 'icon' => '▤'],
         ['key' => 'recordings', 'label' => 'ضبط جلسات', 'permission' => 'live_classes.view', 'route' => 'owner.recordings.index', 'scope' => 'academy', 'icon' => '▣'],
         ['key' => 'resources', 'label' => 'منابع آموزشی', 'permission' => 'resources.view', 'route' => 'owner.resources.index', 'scope' => 'academy', 'icon' => '▧'],
     ];
