@@ -847,8 +847,11 @@ body.owner-shell.owner-admin-v2 {
     background: #fff !important;
     color: var(--ui-text) !important;
 }
-.owner-admin-v2 .main-content :is(.bg-slate-900,.bg-slate-800,.bg-gray-900,.bg-gray-800,.bg-indigo-950,.bg-indigo-900) {
+.owner-admin-v2 .main-content :is(.bg-slate-900,.bg-slate-800,.bg-gray-900,.bg-gray-800,.bg-indigo-950,.bg-indigo-900):not(a):not(button) {
     background-color: #f8fafc !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content :is(.bg-slate-900,.bg-slate-800,.bg-gray-900,.bg-gray-800,.bg-indigo-950,.bg-indigo-900):not(a):not(button) :is(.text-white,.text-slate-50,.text-gray-50) {
     color: var(--ui-text) !important;
 }
 .owner-admin-v2 .main-content :is(a,button).bg-slate-900,
@@ -858,9 +861,9 @@ body.owner-shell.owner-admin-v2 {
     background: var(--ui-primary) !important;
     color: #fff !important;
 }
-.owner-admin-v2 .main-content :is(.text-white,.text-slate-50,.text-gray-50):not(button):not(a) {
-    color: var(--ui-text) !important;
-}
+.owner-admin-v2 .main-content :is(a,button).bg-slate-900 :is(.text-white,.text-slate-50,.text-gray-50),
+.owner-admin-v2 .main-content :is(a,button).bg-gray-900 :is(.text-white,.text-slate-50,.text-gray-50),
+.owner-admin-v2 .main-content :is(a,button).bg-indigo-900 :is(.text-white,.text-slate-50,.text-gray-50),
 .owner-admin-v2 .main-content :is(button,a).text-white { color: #fff !important; }
 
 
