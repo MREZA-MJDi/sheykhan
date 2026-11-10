@@ -19,7 +19,7 @@ final class MeetingController extends Controller
     {
         $workspace->authorizeAcademy($request->user(), $academy, 'live_classes.view');
 
-        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'meetings']);
+        return redirect()->route('owner.communication-workspace', array_merge($request->query(), ['academy' => $academy, 'tab' => 'meetings']));
     }
 
     public function store(
