@@ -14,7 +14,7 @@ final class OwnerReportService
 
     public function build(User $owner): array
     {
-        abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission('reports.view'), 404);
+        app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'reports.view');
 
         $academies = $owner->ownedAcademies()
             ->where('status', 'active')
