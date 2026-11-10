@@ -78,9 +78,8 @@
                     <p class="mt-1 text-xs text-slate-500">{{ $product->category?->name }} · {{ \App\Support\PersianUi::moneyInCurrency($product->sale_price ?? $product->price, $product->currency) }} · {{ $product->status }}</p>
                     <p class="mt-1 text-xs text-slate-500">PDF: {{ $product->files->where('is_preview', false)->count() ? 'ثبت شده' : 'ثبت نشده' }} · فایل اصلی خصوصی</p>
                     <div class="mt-2 flex flex-wrap gap-3">
-                        @if(auth()->user()->hasPermission('products.manage'))@if(auth()->user()->hasPermission('products.manage'))
+                        @if(auth()->user()->hasPermission('products.manage'))
 <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-title="ویرایش محصول و فایل‌ها">ویرایش محصول و فایل‌ها</a>@endif
-                        @endif
 @if($product->status === 'published')
                             <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('store.product.show', $product) }}" target="_blank" rel="noopener noreferrer">مشاهده صفحه عمومی ←</a>
                         @endif
