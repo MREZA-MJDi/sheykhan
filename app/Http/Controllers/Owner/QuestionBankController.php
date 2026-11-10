@@ -82,24 +82,26 @@ final class QuestionBankController extends Controller
         $data = $request->validate([
             'type' => ['required', Rule::in(['text', 'single', 'multiple', 'checkbox'])],
             'question' => ['required', 'string', 'max:10000'],
-            'options' => ['nullable', 'array', 'max:30'],
-            'options.*' => ['nullable', 'string', 'max:500'],
-            'correct_answers' => ['nullable', 'array', 'max:30'],
-            'correct_answers.*' => ['required', 'string', 'max:500'],
+            'options_text' => ['nullable', 'string', 'max:15000'],
+            'correct_answers_text' => ['nullable', 'string', 'max:15000'],
             'expected_answer' => ['nullable', 'string', 'max:15000'],
             'default_score' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'topic' => ['nullable', 'string', 'max:120'],
             'difficulty' => ['required', Rule::in(['easy', 'medium', 'hard'])],
         ]);
 
-        $options = array_values(array_unique(array_filter(
-            array_map(static fn ($value) => is_string($value) ? trim($value) : '', $data['options'] ?? []),
+        $options = array_values(array_filter(
+            array_map('trim', preg_split('/\\R/u', (string) ($data['options_text'] ?? '')) ?: []),
             static fn ($value) => $value !== ''
-        )));
-        $answers = array_values(array_unique(array_filter(
-            array_map(static fn ($value) => is_string($value) ? trim($value) : '', $data['correct_answers'] ?? []),
+        ));
+        $answers = array_values(array_filter(
+            array_map('trim', preg_split('/\\R/u', (string) ($data['correct_answers_text'] ?? '')) ?: []),
             static fn ($value) => $value !== ''
-        )));
+        ));
+        if (count($options) !== count(array_unique($options))) {
+            throw \\Illuminate\\Validation\\ValidationException::withMessages(['options' => 'گزینه‌های تکراری مجاز نیستند.']);
+        }
+        unset($data['options_text'], $data['correct_answers_text']);
 
         if ($data['type'] === 'text') {
             $data['options'] = null;
@@ -108,9 +110,6 @@ final class QuestionBankController extends Controller
             validator([], [])->after(function ($validator) use ($data, $options, $answers): void {
                 if (count($options) < 2) {
                     $validator->errors()->add('options', 'برای سؤال گزینه‌ای حداقل دو گزینه لازم است.');
-                }
-                if (count($options) !== count(array_unique($options))) {
-                    $validator->errors()->add('options', 'گزینه‌های تکراری مجاز نیستند.');
                 }
                 if ($answers === [] || array_diff($answers, $options) !== []) {
                     $validator->errors()->add('correct_answers', 'پاسخ صحیح باید از بین گزینه‌های همین سؤال انتخاب شود.');
