@@ -9,7 +9,7 @@
             <h1 class="mt-1 text-2xl font-black">محتوای ارزشمند آموزشگاه</h1>
             <p class="mt-2 text-sm leading-7 text-slate-500">مقاله و ویدئو را از همین‌جا منتشر کن؛ همان رکورد در سایت عمومی و SEO استفاده می‌شود.</p>
         </div>
-        <a href="{{ route('owner.content.create') }}" class="owner-primary-btn">+ محتوای جدید</a>
+        <a href="{{ route('seo.content.create') }}" class="owner-primary-btn">+ محتوای جدید</a>
     </div>
 
     <section class="grid gap-3 sm:grid-cols-3">
@@ -28,7 +28,7 @@
                         <small>{{ $item->academy?->name }} · {{ $item->category?->title }}</small>
                     </div>
                     <span class="owner-pill {{ $item->status === 'published' ? 'success' : '' }}">{{ $item->status === 'published' ? 'منتشرشده' : ($item->status === 'draft' ? 'پیش‌نویس' : 'آرشیو') }}</span>
-                    <a class="course-action-btn primary" href="{{ route('owner.content.edit', $item) }}">ویرایش</a>
+                    <a class="course-action-btn primary" href="{{ route('seo.content.edit', $item) }}">ویرایش</a>
                 </article>
             @empty
                 <div class="owner-empty">هنوز محتوایی ساخته نشده است.</div>
