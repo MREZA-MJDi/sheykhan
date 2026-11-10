@@ -451,7 +451,7 @@ final class OwnerAccessIsolationTest extends TestCase
             ->post(route('owner.question-bank.store', $academy), $payload)
             ->assertRedirect(route('owner.question-bank.index', $academy));
 
-        $question = \\App\\Models\\QuestionBankItem::query()->where('academy_id', $academy->id)->firstOrFail();
+        $question = \App\Models\QuestionBankItem::query()->where('academy_id', $academy->id)->firstOrFail();
         $this->assertSame(['تهران', 'اصفهان', 'شیراز', 'تبریز'], $question->options);
         $this->assertSame(['تهران'], $question->correct_answers);
 
