@@ -108,8 +108,18 @@
         ],
     ];
 
-    $currentOwnerNavGroupKey = null;
+    $currentOwnerNavGroupKey = match (true) {
+        request()->routeIs('owner.classrooms.*', 'owner.assignments.*', 'owner.exams.*', 'owner.schedules.*', 'owner.meetings.*', 'owner.recordings.*', 'owner.resources.*', 'owner.courses.*') => 'learning',
+        request()->routeIs('owner.finance.*', 'owner.teacher-payments.*', 'owner.orders.*') => 'finance',
+        request()->routeIs('owner.attendance.*') => 'attendance',
+        request()->routeIs('owner.reports.*') => 'reports',
+        request()->routeIs('owner.people.*', 'owner.communication-workspace', 'owner.communications.*', 'owner.messages.*', 'owner.counseling.*') => 'people',
+        default => null,
+    };
     foreach ($ownerNavGroups as $candidateGroup) {
+        if ($currentOwnerNavGroupKey !== null) {
+            break;
+        }
         if (
             $candidateGroup['key'] === 'learning'
             && request()->routeIs(
@@ -207,7 +217,7 @@
                                         ?>
                                         <a class="ni" style="--c:{{ $navGroup['color'] }}"
                                            href="{{ route($navLink['route']) }}"
-                                           <?php if (request()->routeIs($navRoutePattern)) echo 'aria-current="page"'; ?>
+                                           <?php if (request()->routeIs($navRoutePattern) || ($navGroup['key'] === $currentOwnerNavGroupKey && in_array($navGroup['key'], ['learning', 'finance', 'attendance', 'reports'], true))) echo 'aria-current="page"'; ?>
                                            data-nav-label="{{ $navLink['label'] }}">
                                             <svg class="ic" aria-hidden="true"><use href="#i-{{ $navLink['icon'] }}"/></svg>
                                             <span>{{ $navLink['label'] }}</span>
