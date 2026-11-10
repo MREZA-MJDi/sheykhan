@@ -277,10 +277,7 @@ final class LearningResourceController extends Controller
                 ->with('success', 'مشخصات فایل ذخیره شد؛ فایل جدید خصوصی است و دسترسی آن همچنان بر اساس ثبت‌نام و زمان انتشار کنترل می‌شود.');
         }
 
-        if ($request->boolean('modal')) {
-            return redirect()->route('owner.resources.index', $academy)
-                ->with('success', 'مشخصات فایل ذخیره شد؛ فایل جدید خصوصی است و دسترسی آن همچنان بر اساس ثبت‌نام و زمان انتشار کنترل می‌شود.');
-        }
+        
 
         return redirect()->route('owner.resources.edit', [$academy, $resource])
             ->with('success', 'مشخصات فایل ذخیره شد؛ فایل جدید خصوصی است و دسترسی آن همچنان بر اساس ثبت‌نام و زمان انتشار کنترل می‌شود.');
