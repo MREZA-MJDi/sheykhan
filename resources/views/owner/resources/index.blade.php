@@ -102,6 +102,7 @@
                             @if(auth()->user()->hasPermission('resources.manage'))
 <a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-title="ویرایش منبع">ویرایش منبع</a>@endif
                             @endif
+@if(auth()->user()->hasPermission('resources.manage'))
 @if($resource->status === 'active')
                                 <form method="POST" action="{{ route('owner.resources.archive', [$academy, $resource]) }}" data-confirm-submit="true" data-confirm="این منبع از فهرست فعال دانش‌آموزان خارج می‌شود؛ فایل و سوابق آن حذف نمی‌شوند.">
                                     @csrf @method('PATCH')
@@ -113,6 +114,7 @@
                                     <button type="submit" class="text-xs font-bold text-emerald-700">فعال‌سازی دوباره</button>
                                 </form>
                             @endif
+@endif
                         </div>
                     </div>
                     <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">{{ $resource->status }}</span>
