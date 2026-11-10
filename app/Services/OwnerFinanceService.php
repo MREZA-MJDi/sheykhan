@@ -39,6 +39,15 @@ final class OwnerFinanceService
             ? FinancialTransaction::query()
                 ->whereIn('academy_id', $academyIds)
                 ->with(['academy:id,name', 'user:id,name', 'enrollment.course:id,title'])
+                ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                    $term = trim((string) $filters['q']);
+                    $query->where(function ($nested) use ($term): void {
+                        $nested->where('reference', 'like', '%' . $term . '%')
+                            ->orWhere('description', 'like', '%' . $term . '%')
+                            ->orWhereHas('user', fn ($user) => $user->where('name', 'like', '%' . $term . '%'))
+                            ->orWhereHas('enrollment.course', fn ($course) => $course->where('title', 'like', '%' . $term . '%'));
+                    });
+                })
                 ->latest('occurred_at')
                 ->latest('id')
                 ->paginate(25)
