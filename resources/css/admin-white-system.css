@@ -475,3 +475,8 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
  .owner-admin-v2 .side.card.open{display:block}
  .owner-admin-v2 .main-content{grid-column:1;grid-row:2}
 }
+
+.owner-admin-v2 .main-content .card.kpi[data-tone=blue]{background:#285b91!important}
+.owner-admin-v2 .main-content .card.kpi[data-tone=green]{background:#16804b!important}
+.owner-admin-v2 .main-content .card.kpi[data-tone=orange]{background:#c47a12!important}
+.owner-admin-v2 .main-content .card.kpi[data-tone=red]{background:#b4233c!important}
