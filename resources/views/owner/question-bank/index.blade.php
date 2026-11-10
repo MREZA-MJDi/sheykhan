@@ -69,6 +69,25 @@
                     @if($question->options)<p class="mt-2 text-xs leading-6 text-slate-500">{{ implode(' · ', $question->options) }}</p>@endif
                 </div>
                 @if(auth()->user()->hasPermission('exams.manage'))
+                    <details class="w-full sm:max-w-md">
+                        <summary class="cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-bold">ویرایش سؤال</summary>
+                        <form method="POST" action="{{ route('owner.question-bank.update', [$academy, $question->id]) }}" class="mt-2 grid gap-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="type" value="{{ $question->type }}">
+                            <textarea name="question" required maxlength="10000" rows="3" class="rounded-lg border border-slate-200 p-2 text-sm">{{ $question->question }}</textarea>
+                            @if($question->type !== 'text')
+                                <label class="grid gap-1 text-xs font-bold">گزینه‌ها<textarea name="options_text" rows="3" class="rounded-lg border border-slate-200 p-2 text-sm">{{ implode("\n", $question->options ?? []) }}</textarea></label>
+                                <label class="grid gap-1 text-xs font-bold">پاسخ‌های صحیح<textarea name="correct_answers_text" rows="2" class="rounded-lg border border-slate-200 p-2 text-sm">{{ implode("\n", $question->correct_answers ?? []) }}</textarea></label>
+                            @endif
+                            <input name="expected_answer" value="{{ $question->expected_answer }}" maxlength="15000" placeholder="پاسخ مورد انتظار" class="rounded-lg border border-slate-200 p-2 text-sm">
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="number" name="default_score" min="0" max="999999.99" step="0.01" value="{{ $question->default_score }}" required class="rounded-lg border border-slate-200 p-2 text-sm">
+                                <input name="topic" maxlength="120" value="{{ $question->topic }}" placeholder="موضوع" class="rounded-lg border border-slate-200 p-2 text-sm">
+                                <select name="difficulty" class="rounded-lg border border-slate-200 p-2 text-sm"><option value="easy" @selected($question->difficulty === 'easy')>آسان</option><option value="medium" @selected($question->difficulty === 'medium')>متوسط</option><option value="hard" @selected($question->difficulty === 'hard')>سخت</option></select>
+                            </div>
+                            <button class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white">ذخیره تغییرات</button>
+                        </form>
+                    </details>
                     <form method="POST" action="{{ route('owner.question-bank.destroy', [$academy, $question->id]) }}" onsubmit="return confirm('این سؤال از بانک فعال خارج شود؟')">@csrf @method('DELETE')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">بایگانی</button></form>
                 @endif
             </article>
