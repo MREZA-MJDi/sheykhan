@@ -213,6 +213,9 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertOk()
             ->assertViewHas('students', fn ($students) => $students->total() === 30 && $students->count() === 25)
             ->assertSee('data-student-picker')
+            ->assertSee('owner-parent-student-search', false)
+            ->assertSee('data-student-initial-browse="true"', false)
+            ->assertDontSee('<select name="student_id"', false)
             ->assertSee('آرشیو عضویت')
             ->assertDontSee('student-30@test.local');
 
@@ -238,6 +241,21 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertJsonPath('meta.current_page', 2)
             ->assertJsonCount(10, 'data')
             ->assertJsonMissingPath('data.9.email');
+
+        // The parent form can browse a large roster without rendering every student into HTML.
+        $this->actingAs($owner)
+            ->getJson($searchUrl . '?browse=1')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 30)
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.next_page', 2)
+            ->assertJsonCount(20, 'data');
+
+        $this->actingAs($owner)
+            ->getJson($searchUrl . '?browse=1&page=2')
+            ->assertOk()
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonCount(10, 'data');
     }
 
     public function test_assigning_an_existing_course_teacher_does_not_demote_the_primary_teacher(): void
