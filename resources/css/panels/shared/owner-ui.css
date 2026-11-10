@@ -140,6 +140,15 @@
     margin-block: 6px 0;
     padding-inline-start: 1.25rem;
 }
+.owner-admin-v2 .main-content form :is(small,.field-error,.invalid-feedback).text-rose-600,
+.owner-admin-v2 .main-content form :is(small,.field-error,.invalid-feedback).text-red-600 {
+    display: block;
+    margin-block-start: 3px;
+    color: #fda4af !important;
+    font-size: .74rem;
+    font-weight: 700;
+    line-height: 1.85;
+}
 .owner-admin-v2 .main-content [aria-invalid=true] {
     border-color: #fb7185 !important;
     box-shadow: 0 0 0 2px rgba(251,113,133,.13);
@@ -189,7 +198,7 @@
         gap: 14px;
         padding-block-end: max(18px, env(safe-area-inset-bottom));
     }
-    .owner-admin-v2 .main-content :is(.panel-page-enter,.owner-form-shell,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
+    .owner-admin-v2 .main-content :is(.panel-page-enter,.owner-form-shell,.owner-academy-form-page,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
         gap: 14px;
     }
     .owner-admin-v2 .main-content :is(.owner-form-head,.owner-exam-head,.website-center-hero,.website-hero-editor-head,.owner-page-intro) {
@@ -205,10 +214,10 @@
     .owner-admin-v2 .main-content :is(.owner-form-section,.owner-exam-section,.dashboard-panel,.owner-panel,.owner-form-card,.owner-people-tab-panel) {
         padding: 14px;
     }
-    .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-form-two,.owner-exam-form,.owner-exam-grid,.owner-website-form,.seo-keyword-observation-form) {
+    .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-form-two,.owner-exam-form,.owner-exam-grid,.owner-website-form,.owner-student-create-form,.owner-content-form,.owner-blog-form,.owner-classroom-form,.owner-product-form,.owner-resource-form,.seo-keyword-observation-form) {
         grid-template-columns: minmax(0,1fr);
     }
-    .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-exam-form) > * {
+    .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-exam-form,.owner-student-create-form,.owner-content-form,.owner-blog-form,.owner-classroom-form,.owner-product-form,.owner-resource-form) > * {
         min-width: 0;
         grid-column: 1 / -1;
     }
