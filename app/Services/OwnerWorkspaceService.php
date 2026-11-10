@@ -30,6 +30,19 @@ final class OwnerWorkspaceService
             ->get();
     }
 
+    /**
+     * Authorize workspace pages that aggregate across every academy owned by the user.
+     */
+    public function authorizeOwnedAcademies(User $owner, string $permission): Collection
+    {
+        abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission($permission), 404);
+
+        return $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function canManageAcademy(User $owner, Academy $academy): bool
     {
         return $owner->hasRole('academy-owner')
