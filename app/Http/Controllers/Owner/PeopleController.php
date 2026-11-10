@@ -42,29 +42,37 @@ class PeopleController extends Controller
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
             'page' => ['nullable', 'integer', 'min:1'],
+            'browse' => ['sometimes', 'boolean'],
         ]);
         $term = trim((string) ($filters['q'] ?? ''));
         $mobileTerm = \App\Support\MobileNumber::normalize($term) ?: $term;
+        $browse = (bool) ($filters['browse'] ?? false);
 
-        if (mb_strlen($term) < 2) {
+        if (mb_strlen($term) < 2 && ! $browse) {
             return response()->json([
                 'data' => [],
                 'meta' => ['current_page' => 1, 'last_page' => 1, 'next_page' => null, 'total' => 0],
             ], 200, ['Cache-Control' => 'no-store']);
         }
 
-        $students = $academy->users()
+        $studentQuery = $academy->users()
             ->wherePivot('role', 'student')
             ->wherePivot('status', 'active')
             ->where('users.status', 'active')
-            ->where(function ($query) use ($term, $mobileTerm): void {
+            ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'));
+
+        if ($term !== '') {
+            $studentQuery->where(function ($query) use ($term, $mobileTerm): void {
                 $query->where('users.name', 'like', '%' . $term . '%')
                     ->orWhere('users.mobile', 'like', '%' . $mobileTerm . '%');
                 if (preg_match('/^[0-9۰-۹٠-٩]{10}$/u', $term) === 1) {
                     $lookup = \App\Support\NationalIdLookup::make($term);
                     $query->orWhereHas('studentProfile', fn ($profile) => $profile->where('national_id_lookup', $lookup));
                 }
-            })
+            });
+        }
+
+        $students = $studentQuery
             ->select('users.id', 'users.name', 'users.mobile')
             ->orderBy('users.name')
             ->orderBy('users.id')
