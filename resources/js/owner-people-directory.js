@@ -10,10 +10,11 @@ const fetchJson = async (url, signal) => {
 };
 
 /* Owner people directory: accessible server-side search and numbered page navigation. */
-(() => {
+const bootOwnerPeopleDirectory = (scope = document) => {
     'use strict';
 
-    const roots = Array.from(document.querySelectorAll('[data-owner-people-directory]'));
+    const roots = Array.from(scope.querySelectorAll('[data-owner-people-directory]'))
+        .filter((root) => root.dataset.ownerPeopleDirectoryBound !== 'true');
     if (!roots.length) return;
 
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
@@ -180,14 +181,22 @@ const fetchJson = async (url, signal) => {
         nextButton?.addEventListener('click', () => {
             if (currentPage < lastPage) load(currentPage + 1);
         });
+        root.dataset.ownerPeopleDirectoryBound = 'true';
     });
-})();
+};
+
+bootOwnerPeopleDirectory();
+window.addEventListener('owner:modal:mounted', (event) => {
+    const scope = event.detail?.root;
+    if (scope) bootOwnerPeopleDirectory(scope);
+});
 
 
 /* Academy-scoped student suggestions: mobile, full name and privacy-safe national ID. */
-(() => {
+const bootOwnerStudentPickers = (scope = document) => {
     'use strict';
-    document.querySelectorAll('[data-student-picker]').forEach((root) => {
+    scope.querySelectorAll('[data-student-picker]').forEach((root) => {
+        if (root.dataset.studentPickerBound === 'true') return;
         if (root.dataset.studentPickerBound === 'true') return;
         const endpoint = root.dataset.optionsUrl;
         const input = root.querySelector('[data-student-search]');
@@ -315,7 +324,13 @@ const fetchJson = async (url, signal) => {
         });
         root.dataset.studentPickerBound = 'true';
     });
-})();
+};
+
+bootOwnerStudentPickers();
+window.addEventListener('owner:modal:mounted', (event) => {
+    const scope = event.detail?.root;
+    if (scope) bootOwnerStudentPickers(scope);
+});
 
 /* One-time credentials: copy only on explicit user action. */
 document.addEventListener('click', async (event) => {
@@ -347,9 +362,10 @@ document.addEventListener('click', async (event) => {
 });
 
 /* Large academy form option lists are searched and paginated on the server. */
-(() => {
+const bootOwnerLookupPickers = (scope = document) => {
     'use strict';
-    document.querySelectorAll('[data-lookup-picker]').forEach((root) => {
+    scope.querySelectorAll('[data-lookup-picker]').forEach((root) => {
+        if (root.dataset.lookupPickerBound === 'true') return;
         const endpoint = root.dataset.optionsUrl;
         const type = root.dataset.lookupType;
         const input = root.querySelector('[data-lookup-search]');
@@ -468,6 +484,13 @@ document.addEventListener('click', async (event) => {
                 input.removeAttribute('aria-invalid');
             }
         });
+        root.dataset.lookupPickerBound = 'true';
     });
-})();
+};
+
+bootOwnerLookupPickers();
+window.addEventListener('owner:modal:mounted', (event) => {
+    const scope = event.detail?.root;
+    if (scope) bootOwnerLookupPickers(scope);
+});
 
