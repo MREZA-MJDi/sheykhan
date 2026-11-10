@@ -169,7 +169,7 @@ final class ProductManagementController extends Controller
         abort_unless((int) $product->academy_id === (int) $academy->id, 404);
 
         $product->load(['category', 'files.media']);
-        $cover = $product->media()->wherePivot('collection', 'cover')->get()->first();
+        $cover = $product->media()->wherePivot('collection', 'cover')->first();
 
         return view('owner.products.edit', [
             'academy' => $academy,
@@ -359,18 +359,15 @@ final class ProductManagementController extends Controller
 
         $hasRealPdf = $product->files()
             ->where('is_preview', false)
+            ->whereHas('media', fn ($media) => $media
+                ->where('status', 'active')
+                ->where('visibility', 'private')
+                ->where('mime_type', 'application/pdf')
+                ->whereNotNull('path')
+                ->where('path', '!=', ''))
             ->with('media')
             ->get()
-            ->contains(function ($file): bool {
-                $media = $file->media;
-
-                return $media
-                    && $media->status === 'active'
-                    && $media->visibility === 'private'
-                    && strtolower((string) $media->mime_type) === 'application/pdf'
-                    && filled($media->path)
-                    && Storage::disk($media->disk)->exists($media->path);
-            });
+            ->contains(fn ($file): bool => Storage::disk($file->media->disk)->exists($file->media->path));
 
         abort_unless($hasRealPdf, 422, 'بدون فایل PDF واقعی موجود در فضای خصوصی، انتشار محصول ممکن نیست.');
 
