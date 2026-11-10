@@ -14,6 +14,11 @@ final class StudentMessageController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = $request->validate([
+            'status' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['open', 'responded', 'closed'])],
+            'q' => ['nullable', 'string', 'max:120'],
+        ]);
+
         $messages = $this->visibleMessages($request->user())
             ->with([
                 'student:id,name',
@@ -21,11 +26,22 @@ final class StudentMessageController extends Controller
                 'classroom:id,title',
                 'responder:id,name',
             ])
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                $term = trim((string) $filters['q']);
+                $query->where(function (Builder $nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('student', fn (Builder $student) => $student->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('course', fn (Builder $course) => $course->where('title', 'like', '%' . $term . '%'))
+                        ->orWhereHas('classroom', fn (Builder $classroom) => $classroom->where('title', 'like', '%' . $term . '%'));
+                });
+            })
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
-        return view('teacher.student-messages.index', compact('messages'));
+        return view('teacher.student-messages.index', compact('messages', 'filters'));
     }
 
     public function reply(Request $request, StudentMessage $message): RedirectResponse
