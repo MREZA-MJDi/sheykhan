@@ -109,7 +109,7 @@
     ];
 
     $currentOwnerNavGroupKey = match (true) {
-        request()->routeIs('owner.classrooms.*', 'owner.assignments.*', 'owner.exams.*', 'owner.schedules.*', 'owner.meetings.*', 'owner.recordings.*', 'owner.resources.*', 'owner.courses.*') => 'learning',
+        request()->routeIs('owner.classrooms.*', 'owner.assignments.*', 'owner.exams.*', 'owner.question-bank.*', 'owner.schedules.*', 'owner.meetings.*', 'owner.recordings.*', 'owner.resources.*', 'owner.courses.*') => 'learning',
         request()->routeIs('owner.finance.*', 'owner.teacher-payments.*', 'owner.orders.*') => 'finance',
         request()->routeIs('owner.attendance.*') => 'attendance',
         request()->routeIs('owner.reports.*') => 'reports',
@@ -128,6 +128,7 @@
                 'owner.schedules.*',
                 'owner.assignments.*',
                 'owner.exams.*',
+                'owner.question-bank.*',
                 'owner.recordings.*',
                 'owner.resources.*'
             )
