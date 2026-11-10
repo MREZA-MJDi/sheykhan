@@ -99,7 +99,7 @@ final class QuestionBankController extends Controller
             static fn ($value) => $value !== ''
         ));
         if (count($options) !== count(array_unique($options))) {
-            throw \\Illuminate\\Validation\\ValidationException::withMessages(['options' => 'گزینه‌های تکراری مجاز نیستند.']);
+            throw \Illuminate\Validation\ValidationException::withMessages(['options' => 'گزینه‌های تکراری مجاز نیستند.']);
         }
         unset($data['options_text'], $data['correct_answers_text']);
 
