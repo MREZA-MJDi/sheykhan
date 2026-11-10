@@ -115,6 +115,19 @@ final class OwnerMeetingService
             ]);
         }
 
+        $hasActiveParentMembership = DB::table('academy_user')
+            ->where('academy_id', $academy->id)
+            ->where('user_id', $parentId)
+            ->where('role', 'parent')
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$hasActiveParentMembership) {
+            throw ValidationException::withMessages([
+                'meeting_target' => 'حساب ولی در این آموزشگاه عضویت فعال ندارد.',
+            ]);
+        }
+
         return AcademyMeeting::query()->create([
             'academy_id' => $academy->id,
             'classroom_id' => $classroom->id,
