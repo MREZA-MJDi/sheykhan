@@ -362,12 +362,13 @@ final class ProductManagementController extends Controller
             ->whereHas('media', fn ($media) => $media
                 ->where('status', 'active')
                 ->where('visibility', 'private')
-                ->where('mime_type', 'application/pdf')
+                ->whereRaw('LOWER(mime_type) = ?', ['application/pdf'])
                 ->whereNotNull('path')
-                ->where('path', '!=', ''))
+                ->whereRaw('TRIM(path) <> ?', ['']))
             ->with('media')
             ->get()
-            ->contains(fn ($file): bool => Storage::disk($file->media->disk)->exists($file->media->path));
+            ->contains(fn ($file): bool => $file->media !== null
+                && Storage::disk($file->media->disk)->exists($file->media->path));
 
         abort_unless($hasRealPdf, 422, 'بدون فایل PDF واقعی موجود در فضای خصوصی، انتشار محصول ممکن نیست.');
 
