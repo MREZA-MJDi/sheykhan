@@ -13,9 +13,9 @@
     padding: clamp(15px, 1.8vw, 24px);
     border: 1px solid rgba(119,136,190,.2);
     border-radius: 17px;
-    background: linear-gradient(145deg, rgba(26,32,80,.94), rgba(14,18,48,.97));
+    background:#fff;
     color: var(--tx);
-    box-shadow: 0 10px 25px rgba(3,6,24,.13);
+    box-shadow:0 4px 16px rgba(22,38,58,.055);
 }
 .owner-admin-v2 .main-content .communication-page__hero {
     border-color: rgba(34,211,238,.24);
@@ -53,7 +53,7 @@
     padding: 15px;
     border: 1px solid rgba(119,136,190,.2);
     border-radius: 14px;
-    background: rgba(23,29,69,.76);
+    background:#f6f8fb;
 }
 .owner-admin-v2 .main-content .communication-page__stat span {
     color: var(--mu) !important;
@@ -84,14 +84,14 @@
     padding: 13px 15px;
     border: 1px solid rgba(119,136,190,.16);
     border-radius: 12px;
-    background: rgba(9,14,39,.58);
+    background:#f6f8fb;
     color: var(--tx) !important;
     font-size: 12px;
     line-height: 2;
     overflow-wrap: anywhere;
 }
 .owner-admin-v2 .main-content .communication-page__response {
-    background: rgba(34,211,238,.055);
+    background:#f7edf0;
     border-color: rgba(34,211,238,.18);
 }
 .owner-admin-v2 .main-content .communication-page__form {
@@ -127,7 +127,7 @@
 }
 .owner-admin-v2 .main-content .communication-page__button.is-secondary {
     border-color: var(--ln);
-    background: rgba(9,14,39,.6);
+    background:#f6f8fb;
     color: var(--tx) !important;
 }
 .owner-admin-v2 .main-content .communication-page__empty {
