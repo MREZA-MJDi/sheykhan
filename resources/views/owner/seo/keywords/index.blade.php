@@ -5,6 +5,7 @@
 
 @section('content')
 <div class="owner-seo-page seo-keywords-page space-y-6">
+    @include('owner.partials.public-site-workspace-tabs')
     <section class="owner-seo-hero">
         <div>
             <span class="owner-seo-kicker">برنامه‌ریزی و پیگیری عبارت‌های جست‌وجو</span>
