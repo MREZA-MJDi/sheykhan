@@ -354,6 +354,8 @@ Route::middleware(['auth','active','role:student'])->prefix('student')->name('st
     Route::get('/achievements', [StudentAchievementController::class, 'index'])->middleware('permission:achievements.view')->name('achievements.index');
 
     Route::get('/notes', [StudentNoteController::class, 'index'])->middleware('permission:notes.view')->name('notes.index');
+    Route::post('/notes', [StudentNoteController::class, 'storePersonal'])->middleware(['permission:notes.manage','throttle:20,1'])->name('notes.store');
+    Route::delete('/notes/personal/{note}', [StudentNoteController::class, 'destroyPersonal'])->whereNumber('note')->middleware('permission:notes.manage')->name('notes.personal.destroy');
     Route::post('/lessons/{lesson}/notes', [StudentNoteController::class, 'store'])->middleware(['permission:notes.manage','throttle:20,1'])->name('lessons.notes.store');
     Route::delete('/notes/{note}', [StudentNoteController::class, 'destroy'])->middleware('permission:notes.manage')->name('notes.destroy');
 
