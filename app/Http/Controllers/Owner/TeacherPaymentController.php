@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\TeacherPayment;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -102,7 +103,7 @@ final class TeacherPaymentController extends Controller
 
     private function authorizeAcademy(Request $request, Academy $academy, string $permission): void
     {
-        app(\\App\\Services\\OwnerWorkspaceService::class)
+        app(OwnerWorkspaceService::class)
             ->authorizeAcademy($request->user(), $academy, $permission);
     }
 }
