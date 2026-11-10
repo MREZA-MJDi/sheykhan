@@ -136,7 +136,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
 
         foreach ([
             "'route'=>'owner.resources.index'",
-            "route('owner.showcase.index', $websiteAcademy)",
+            'route(\'owner.showcase.index\', $websiteAcademy)',
             "'route'=>'owner.products.index'",
             "'route'=>'owner.orders.index'",
             "'route'=>'owner.legal-documents.index'",
