@@ -75,7 +75,7 @@ final class ProductManagementController extends Controller
             ]);
         }
 
-        $slugBase = Str::slug(Str::transliterate($data['slug'] ?: $data['title']));
+        $slugBase = Str::slug(Str::transliterate(($data['slug'] ?? '') ?: $data['title']));
         if ($slugBase === '') {
             $slugBase = 'product-' . Str::lower(Str::random(10));
         }
