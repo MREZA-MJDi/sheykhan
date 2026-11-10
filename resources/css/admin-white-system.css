@@ -50,7 +50,8 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content .owner-stat-card:nth-child(4n+1),.owner-admin-v2 .main-content .course-stat.all{background:#285b91!important}
 .owner-admin-v2 .main-content .owner-stat-card:nth-child(4n+2),.owner-admin-v2 .main-content .course-stat.published{background:#16804b!important}
 .owner-admin-v2 .main-content .owner-stat-card:nth-child(4n+3),.owner-admin-v2 .main-content .course-stat.free{background:#c47a12!important}
-.owner-admin-v2 .main-content .owner-stat-card:nth-child(4n),.owner-admin-v2 .main-content .course-stat.archived{background:#b4233c!important}
+.owner-admin-v2 .main-content .owner-stat-card:nth-child(4n){background:#2866a5!important}
+.owner-admin-v2 .main-content .course-stat.archived{background:#64748b!important}
 .owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat) :is(span,strong,b,small,p,i){color:#fff!important}
 .owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat)>strong{font-size:clamp(23px,2.2vw,32px);line-height:1.35;font-weight:900;font-variant-numeric:tabular-nums}
 .owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat)>small{opacity:.9;font-size:11px;line-height:1.8}
@@ -293,6 +294,7 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 
 /* Feature-level KPI semantics: attendance, assignments, exams and classroom capacity. */
 .owner-admin-v2 .main-content .owner-exams-page .owner-stat-card:nth-child(3),
+.owner-admin-v2 .main-content .owner-classrooms-page .owner-stat-card:nth-child(3){background:#2866a5!important}
 .owner-admin-v2 .main-content .owner-assignments-page .owner-stat-card:nth-child(3),
 .owner-admin-v2 .main-content .owner-classrooms-page .owner-stat-card:nth-child(4){background:#c47a12!important}
 .owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(4){background:#b4233c!important}
