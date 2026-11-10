@@ -473,6 +473,7 @@
             }
         });
 
+        clearResults();
         root.dataset.studentPickerBound = 'true';
 
         if (input.value.trim().length >= minimumSearchLength) load(false);
