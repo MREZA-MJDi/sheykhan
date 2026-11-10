@@ -7,7 +7,7 @@
     ];
 @endphp
 @if(auth()->user()?->hasRole('seo-specialist') && auth()->user()?->hasPermission('seo.manage'))
-    <section class="mb-5 overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-l from-indigo-50 via-white to-slate-50 p-4 sm:p-5" aria-label="فضای کاری محتوا و بازاریابی">
+    <section class="owner-workspace-tabs mb-5 overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-l from-indigo-50 via-white to-slate-50 p-4 sm:p-5" aria-label="فضای کاری محتوا و بازاریابی">
         <div><p class="text-[11px] font-black text-indigo-700">فضای کاری محتوا و بازاریابی</p><h2 class="mt-1 text-lg font-black text-slate-900">مدیریت حضور عمومی شیخان</h2><p class="mt-1 text-xs leading-6 text-slate-600">مقاله، محتوای آموزشی، صفحات سایت، بنرها و تنظیمات جست‌وجو در یک مسیر کاری مشخص</p></div>
         <nav class="mt-4 flex flex-wrap gap-2" aria-label="شیت‌های محتوا و بازاریابی">
             @foreach($publicSiteSheets as $sheet)
