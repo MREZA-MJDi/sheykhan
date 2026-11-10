@@ -113,7 +113,7 @@
     $licenseStatusTone = fn ($status) => $status === 'active' ? 'ok' : 'warn';
     $issuanceStatusLabel = fn ($status) => match ($status) {
         'issuing' => 'در حال صدور',
-        'failed' => 'ردشده توسط ناشر',
+        'failed' => 'ردشده توسط شرکت ارائه‌دهنده سرویس',
         'review_required' => 'نیازمند تطبیق دستی',
         'active' => 'تکمیل‌شده',
         default => $status ?: 'نامشخص',
@@ -136,7 +136,7 @@
         <div class="sp-hero-actions">
             <span class="sp-pill {{ $isConfigured ? 'ok' : 'warn' }}"><i class="sp-dot"></i>{{ $isConfigured ? 'تنظیمات سرور آماده است' : 'اتصال نیازمند تنظیم است' }}</span>
             <span class="sp-pill">{{ $mode === 'production' ? 'واقعی' : 'آزمایشی' }}</span>
-            <a class="sp-button" href="https://panel.spotplayer.ir/" target="_blank" rel="noopener noreferrer">پنل ناشر SpotPlayer ↗</a>
+            <a class="sp-button" href="https://panel.spotplayer.ir/" target="_blank" rel="noopener noreferrer">پنل شرکت ارائه‌دهنده سرویس SpotPlayer ↗</a>
         </div>
     </header>
 
@@ -179,9 +179,9 @@
                 <div class="sp-kpi-hint">{{ $persianNumber($licenseStats['active']) }} مجوز پخش فعال در شیخان</div>
             </article>
             <article class="sp-kpi {{ $reviewRequiredCount ? 'pink' : 'orange' }}">
-                <div class="sp-kpi-label">نیازمند تطبیق با ناشر</div>
+                <div class="sp-kpi-label">نیازمند تطبیق با شرکت ارائه‌دهنده سرویس</div>
                 <div class="sp-kpi-value">{{ $persianNumber($reviewRequiredCount + $issuingCount) }}</div>
-                <div class="sp-kpi-hint">{{ $persianNumber($failedCount) }} درخواست با رد قطعی ناشر</div>
+                <div class="sp-kpi-hint">{{ $persianNumber($failedCount) }} درخواست با رد قطعی شرکت ارائه‌دهنده سرویس</div>
             </article>
         </div>
 
@@ -202,7 +202,7 @@
                         <div class="sp-callout mt-3"><div><strong>حالت اتصال از تنظیمات سرور خوانده می‌شود</strong><p>اگر حالت اتصال در سرور تنظیم شده باشد، همان تنظیم بر گزینه‌ی انتخابی این فرم اولویت دارد.</p></div></div>
                     @endif
                     <div class="sp-callout info mt-3">
-                        <div><strong>پخش زنده هنوز از این صفحه قابل تأیید نیست</strong><p>تا زمانی که ویدئوی آزمایشی با حساب واقعی ناشر و حساب دانش‌آموز پخش نشود، این وضعیت فقط آمادگی تنظیمات را نشان می‌دهد.</p></div>
+                        <div><strong>پخش زنده هنوز از این صفحه قابل تأیید نیست</strong><p>تا زمانی که ویدئوی آزمایشی با حساب واقعی شرکت ارائه‌دهنده سرویس و حساب دانش‌آموز پخش نشود، این وضعیت فقط آمادگی تنظیمات را نشان می‌دهد.</p></div>
                     </div>
                 </div>
             </article>
@@ -218,27 +218,27 @@
                         <div class="sp-mini"><span>درخواست در حال صدور</span><strong>{{ $persianNumber($issuingCount) }}</strong></div>
                         <div class="sp-mini"><span>درخواست‌های ناموفق قطعی</span><strong>{{ $persianNumber($failedCount) }}</strong></div>
                     </div>
-                    <p class="sp-help mt-3">این آمار از رکوردهای داخلی شیخان خوانده می‌شود؛ شمارندهٔ آنلاین دستگاه‌ها یا فهرست زندهٔ پنل ناشر نیست.</p>
+                    <p class="sp-help mt-3">این آمار از رکوردهای داخلی شیخان خوانده می‌شود؛ شمارندهٔ آنلاین دستگاه‌ها یا فهرست زندهٔ پنل شرکت ارائه‌دهنده سرویس نیست.</p>
                 </div>
             </article>
         </div>
 
         @if($reviewRequiredCount > 0)
             <div class="sp-callout sp-danger-note mt-4">
-                <div><strong>{{ $persianNumber($reviewRequiredCount) }} وضعیت مجوز پخش نیاز به بررسی دارد</strong><p>در این وضعیت‌ها ممکن است ناشر لایسنس را ساخته باشد ولی پاسخ شبکه یا ثبت داخلی قطعی نباشد. قبل از هر تلاش مجدد، شناسه و وضعیت را در پنل ناشر بررسی کن؛ صدور دوبارهٔ خودکار می‌تواند مجوز پخش تکراری ایجاد کند.</p></div>
+                <div><strong>{{ $persianNumber($reviewRequiredCount) }} وضعیت مجوز پخش نیاز به بررسی دارد</strong><p>در این وضعیت‌ها ممکن است شرکت ارائه‌دهنده سرویس مجوز پخش را ساخته باشد ولی پاسخ سرویس یا ثبت اطلاعات هنوز قطعی نباشد. قبل از هر تلاش مجدد، شناسه و وضعیت را در پنل شرکت ارائه‌دهنده سرویس بررسی کن؛ صدور دوبارهٔ خودکار می‌تواند مجوز پخش تکراری ایجاد کند.</p></div>
             </div>
         @endif
     </section>
 
     <section id="sp-courses" class="sp-card sp-section">
         <div class="sp-card-head">
-            <div><h2>دوره‌ها و نگاشت به SpotPlayer</h2><p>برای هر دورهٔ شیخان، شناسهٔ متناظر ناشر باید ثبت شده باشد. ویدئوها از پنل ناشر بارگذاری می‌شوند.</p></div>
+            <div><h2>دوره‌ها و نگاشت به SpotPlayer</h2><p>برای هر دورهٔ شیخان، شناسهٔ متناظر شرکت ارائه‌دهنده سرویس باید ثبت شده باشد. ویدئوها از پنل شرکت ارائه‌دهنده سرویس بارگذاری می‌شوند.</p></div>
             <a class="sp-button soft" href="{{ route('owner.courses.index') }}">مدیریت همهٔ دوره‌ها</a>
         </div>
         @if($spotPlayerCourses->count())
             <div class="sp-table-wrap">
                 <table class="sp-table">
-                    <thead><tr><th>دوره</th><th>آموزشگاه</th><th>وضعیت</th><th>شناسهٔ ناشر</th><th>مجوزهای پخش ثبت‌شده</th><th>عملیات</th></tr></thead>
+                    <thead><tr><th>دوره</th><th>آموزشگاه</th><th>وضعیت</th><th>شناسهٔ شرکت ارائه‌دهنده سرویس</th><th>مجوزهای پخش ثبت‌شده</th><th>عملیات</th></tr></thead>
                     <tbody>
                     @foreach($spotPlayerCourses as $course)
                         <tr>
@@ -275,7 +275,7 @@
         @if($licenseRecords->isNotEmpty())
             <div class="sp-table-wrap">
                 <table class="sp-table">
-                    <thead><tr><th>دانش‌آموز</th><th>دوره</th><th>شناسهٔ ناشر</th><th>محیط صدور</th><th>تاریخ صدور</th><th>وضعیت</th></tr></thead>
+                    <thead><tr><th>دانش‌آموز</th><th>دوره</th><th>شناسهٔ شرکت ارائه‌دهنده سرویس</th><th>محیط صدور</th><th>تاریخ صدور</th><th>وضعیت</th></tr></thead>
                     <tbody>
                     @foreach($licenseRecords as $license)
                         <tr>
@@ -291,13 +291,13 @@
                 </table>
             </div>
         @else
-            <div class="sp-empty">هنوز لایسنسی در شیخان ثبت نشده است. پس از ثبت خرید/دسترسی و فعال‌سازی پخش امن توسط دانش‌آموز، رکورد واقعی اینجا نمایش داده می‌شود.</div>
+            <div class="sp-empty">هنوز مجوز پخشی در شیخان ثبت نشده است. پس از ثبت خرید/دسترسی و فعال‌سازی پخش امن توسط دانش‌آموز، مورد ثبت‌شده اینجا نمایش داده می‌شود.</div>
         @endif
     </section>
 
     <section id="sp-activity" class="sp-card sp-section">
         <div class="sp-card-head">
-            <div><h2>درخواست‌های نیازمند بررسی</h2><p>وضعیت‌هایی که از روی پاسخ ناشر یا قطعیت ذخیره‌سازی باید پیگیری شوند.</p></div>
+            <div><h2>درخواست‌های نیازمند بررسی</h2><p>وضعیت‌هایی که از روی پاسخ شرکت ارائه‌دهنده سرویس یا قطعیت ذخیره‌سازی باید پیگیری شوند.</p></div>
             <span class="sp-pill {{ $reviewRequiredCount ? 'warn' : 'ok' }}">{{ $persianNumber($reviewRequiredCount) }} نیازمند تطبیق</span>
         </div>
         @if($issuanceRecords->isNotEmpty())
@@ -312,7 +312,7 @@
                             <td><span class="sp-status {{ $issuanceStatusTone($issuance->status) }}">{{ $issuanceStatusLabel($issuance->status) }}</span></td>
                             <td>{{ $persianNumber($issuance->attempt_count) }}</td>
                             <td>{{ $issuance->updated_at ? \App\Support\PersianUi::dateTime($issuance->updated_at) : '—' }}</td>
-                            <td><span class="sp-secondary-text">{{ $issuance->last_error ?: 'برای ادامه، وضعیت پنل ناشر را بررسی کن.' }}</span></td>
+                            <td><span class="sp-secondary-text">{{ $issuance->last_error ?: 'برای ادامه، وضعیت پنل شرکت ارائه‌دهنده سرویس را بررسی کن.' }}</span></td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -323,7 +323,7 @@
         @endif
         <div class="sp-card-body">
             <div class="sp-callout">
-                <div><strong>چرا این ردیف‌ها دکمهٔ «صدور مجدد» ندارند؟</strong><p>در سرویس فعلی، API و گردش‌کار مطمئن برای استعلام، ابطال یا صدور مجدد از سمت مدیر پیاده نشده است. بنابراین این صفحه وضعیت را نشان می‌دهد و از ارسال درخواست تکراریِ پرریسک جلوگیری می‌کند. تطبیق و ابطال باید از پنل ناشر انجام شود.</p></div>
+                <div><strong>چرا این ردیف‌ها دکمهٔ «صدور مجدد» ندارند؟</strong><p>در سرویس فعلی، API و گردش‌کار مطمئن برای استعلام، ابطال یا صدور مجدد از سمت مدیر پیاده نشده است. بنابراین این صفحه وضعیت را نشان می‌دهد و از ارسال درخواست تکراریِ پرریسک جلوگیری می‌کند. تطبیق و ابطال باید از پنل شرکت ارائه‌دهنده سرویس انجام شود.</p></div>
             </div>
         </div>
     </section>
@@ -338,8 +338,8 @@
                     @csrf
                     @method('PUT')
                     <div class="sp-field">
-                        <label for="sp-api-key">کلید API ناشر SpotPlayer</label>
-                        <input id="sp-api-key" type="password" name="api_key" value="" autocomplete="new-password" autocapitalize="none" spellcheck="false" maxlength="2048" dir="ltr" class="sp-input" placeholder="{{ $isConfigured ? 'برای نگه‌داشتن کلید فعلی خالی بگذار' : 'کلید API را از پنل ناشر وارد کن' }}">
+                        <label for="sp-api-key">کلید اتصال شرکت ارائه‌دهنده سرویس SpotPlayer</label>
+                        <input id="sp-api-key" type="password" name="api_key" value="" autocomplete="new-password" autocapitalize="none" spellcheck="false" maxlength="2048" dir="ltr" class="sp-input" placeholder="{{ $isConfigured ? 'برای نگه‌داشتن کلید فعلی خالی بگذار' : 'کلید اتصال را از پنل شرکت ارائه‌دهنده سرویس وارد کن' }}">
                         <p class="sp-help">مقدار قبلی هیچ‌وقت دوباره در فرم قرار نمی‌گیرد. کلید را داخل سورس، توضیحات دوره یا پیام به مدرس ننویس.</p>
                     </div>
 
@@ -358,7 +358,7 @@
                         @endif
                     </div>
 
-                    <label class="sp-check"><input type="checkbox" name="confirm_production" value="1"><span>اگر اتصال واقعی را انتخاب می‌کنم، تأیید می‌کنم پخش ویدئو با حساب ناشر و هنرجو آزمایش شده است.</span></label>
+                    <label class="sp-check"><input type="checkbox" name="confirm_production" value="1"><span>اگر اتصال واقعی را انتخاب می‌کنم، تأیید می‌کنم پخش ویدئو با حساب شرکت ارائه‌دهنده سرویس و هنرجو آزمایش شده است.</span></label>
                     <button type="submit" class="sp-button primary">ذخیرهٔ تنظیمات اتصال</button>
                 </form>
             </div>
@@ -370,7 +370,7 @@
                 <div class="sp-mini-grid">
                     <div class="sp-mini"><span>محدودیت کل دستگاه‌ها</span><strong>{{ $persianNumber($maxActiveDevices) }}</strong></div>
                     <div class="sp-mini"><span>دستگاه وب</span><strong>{{ $persianNumber($webAppDevices) }}</strong></div>
-                    <div class="sp-mini"><span>کلید API</span><strong>{{ $environmentKeyConfigured ? 'از تنظیمات سرور' : ($storedKeyConfigured ? 'ذخیره امن' : 'وجود ندارد') }}</strong></div>
+                    <div class="sp-mini"><span>کلید اتصال</span><strong>{{ $environmentKeyConfigured ? 'از تنظیمات سرور' : ($storedKeyConfigured ? 'ذخیره امن' : 'وجود ندارد') }}</strong></div>
                     <div class="sp-mini"><span>حالت مؤثر</span><strong>{{ $mode === 'production' ? 'واقعی' : 'آزمایشی' }}</strong></div>
                 </div>
                 <div class="sp-callout info mt-3"><div><strong>تست واقعی را با دانش‌آموز آزمایشی انجام بده</strong><p>پس از تکمیل اتصال، از خود حساب دانش‌آموز وارد دوره شو و گزینهٔ فعال‌سازی پخش امن را اجرا کن. بازشدن پلیر و پخش واقعی را جداگانه بررسی کن.</p></div></div>
@@ -382,13 +382,13 @@
         <div class="sp-card-head"><div><h2>راهنمای راه‌اندازی و تحویل</h2><p>ترتیب کار روشن است؛ هر شناسه یا کلید فقط در جای خودش استفاده می‌شود.</p></div></div>
         <div class="sp-card-body">
             <ol class="sp-guide">
-                <li><div><strong>کلید اتصال را از پنل سرویس دریافت کن</strong><p>با حساب ناشر وارد پنل شو، کلید API را بردار و فقط در فرم امن بالا ثبت کن. این کلید با شناسه دوره و کلید دسترسی هنرجو متفاوت است.</p><a class="sp-button mt-2" href="https://panel.spotplayer.ir/" target="_blank" rel="noopener noreferrer">بازکردن پنل ناشر ↗</a></div></li>
-                <li><div><strong>ویدئوها را در دورهٔ ناشر بارگذاری کن</strong><p>فایل‌های MP4/WebM را در پنل SpotPlayer بارگذاری کن؛ فرم فایل‌های همراه شیخان برای PDF، تصویر و ZIP است.</p></div></li>
-                <li><div><strong>شناسهٔ خارجی را به دورهٔ متناظر شیخان وصل کن</strong><p>از فهرست دوره‌ها وارد ویرایش دوره شو و شناسهٔ واقعی SpotPlayer را در فیلد اتصال قرار بده. شناسهٔ داخلی شیخان را اینجا وارد نکن.</p></div></li>
+                <li><div><strong>کلید اتصال را از پنل سرویس دریافت کن</strong><p>با حساب شرکت ارائه‌دهنده سرویس وارد پنل شو، کلید اتصال را بردار و فقط در فرم امن بالا ثبت کن. این کلید با شناسه دوره و کلید دسترسی هنرجو متفاوت است.</p><a class="sp-button mt-2" href="https://panel.spotplayer.ir/" target="_blank" rel="noopener noreferrer">بازکردن پنل شرکت ارائه‌دهنده سرویس ↗</a></div></li>
+                <li><div><strong>ویدئوها را در دورهٔ شرکت ارائه‌دهنده سرویس بارگذاری کن</strong><p>فایل‌های MP4/WebM را در پنل SpotPlayer بارگذاری کن؛ فرم فایل‌های همراه شیخان برای PDF، تصویر و ZIP است.</p></div></li>
+                <li><div><strong>شناسه سرویس پخش را به دورهٔ متناظر شیخان وصل کن</strong><p>از فهرست دوره‌ها وارد ویرایش دوره شو و شناسهٔ واقعی SpotPlayer را در فیلد اتصال قرار بده. شناسهٔ داخلی شیخان را اینجا وارد نکن.</p></div></li>
                 <li><div><strong>با حساب آزمایشی هنرجو دسترسی ایجاد کن</strong><p>دانش‌آموز واجد دسترسی، از صفحهٔ دوره دکمهٔ «فعال‌سازی پخش امن ویدئو» را می‌زند. ثبت مجوز در شیخان به معنی آزمایش موفق پخش ویدئو نیست.</p></div></li>
-                <li><div><strong>پخش و محدودیت دستگاه‌ها را بررسی کن؛ سپس اتصال واقعی را فعال کن</strong><p>پلیر وب، واترمارک، دسترسی و تعداد دستگاه را با حساب ناشر آزمایش کن. فقط پس از اطمینان از پخش موفق و فعال‌بودن دسترسی، اتصال واقعی را انتخاب کن.</p></div></li>
+                <li><div><strong>پخش و محدودیت دستگاه‌ها را بررسی کن؛ سپس اتصال واقعی را فعال کن</strong><p>پخش‌کننده ویدئو در سایت، نشان اختصاصی آموزشگاه، دسترسی و تعداد دستگاه را با حساب شرکت ارائه‌دهنده سرویس آزمایش کن. فقط پس از اطمینان از پخش موفق و فعال‌بودن دسترسی، اتصال واقعی را انتخاب کن.</p></div></li>
             </ol>
-            <div class="sp-callout mt-4"><div><strong>حفاظت محتوا</strong><p>این سرویس برای ویدئوهای ضبط‌شده است؛ جلسه‌های زنده از بخش کلاس‌های آنلاین مدیریت می‌شوند. واترمارک و لایسنس ریسک اشتراک‌گذاری را کاهش می‌دهند، اما ضبط صفحه با دستگاه دیگر را صددرصد ناممکن نمی‌کنند.</p></div></div>
+            <div class="sp-callout mt-4"><div><strong>حفاظت محتوا</strong><p>این سرویس برای ویدئوهای ضبط‌شده است؛ جلسه‌های زنده از بخش کلاس‌های آنلاین مدیریت می‌شوند. نشان اختصاصی آموزشگاه و مجوز پخش ریسک اشتراک‌گذاری را کاهش می‌دهند، اما ضبط صفحه با دستگاه دیگر را صددرصد ناممکن نمی‌کنند.</p></div></div>
         </div>
     </section>
 </div>
