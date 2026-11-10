@@ -5,7 +5,7 @@ import './owner/people-tabs.js';
 import './owner/exam-builder.js';
 import './owner/academy-form-options.js';
 import './owner-record-modal.js';
-import { bootOwnerClassroomForms } from './owner/classroom-form.js';
+import './owner/classroom-form.js';
 import Alpine from 'alpinejs';
 
 if (!window.Alpine) {
