@@ -2428,13 +2428,13 @@ body.owner-admin-v2 {
     font-size: var(--owner-help-size);
     line-height: 1.9;
 }
-.owner-admin-v2 .main-content :is(.panel-page-enter,.owner-form-shell,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
+.owner-admin-v2 .main-content :is(.panel-page-enter,.owner-form-shell,.owner-academy-form-page,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
     min-width: 0;
     width: 100%;
     max-width: 1500px;
     margin-inline: auto;
 }
-.owner-admin-v2 .main-content :is(.owner-form-shell,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
+.owner-admin-v2 .main-content :is(.owner-form-shell,.owner-academy-form-page,.owner-workspace-page,.owner-people-workspace,.website-center,.website-hero-editor,.owner-seo-page,.seo-keywords-page,.banner-page,.course-page,.owner-online-links-page) {
     display: grid;
     align-content: start;
     gap: 20px;
