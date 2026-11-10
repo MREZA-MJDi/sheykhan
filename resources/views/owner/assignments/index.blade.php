@@ -8,7 +8,7 @@
     $statusLabels = ['draft' => 'پیش‌نویس', 'published' => 'منتشرشده', 'closed' => 'بسته'];
 @endphp
 
-<div class="space-y-6 panel-page-enter">
+<div class="space-y-6 panel-page-enter owner-assignments-page">
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
