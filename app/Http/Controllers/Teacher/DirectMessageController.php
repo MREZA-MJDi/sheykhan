@@ -19,8 +19,27 @@ final class DirectMessageController extends Controller
         $teacher = $request->user();
         abort_unless($teacher->hasPermission('parent_messages.manage'), 403);
 
+        $filters = $request->validate([
+            'status' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['sent', 'responded'])],
+            'direction' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['incoming', 'outgoing'])],
+            'q' => ['nullable', 'string', 'max:120'],
+        ]);
+
         $messages = TeacherDirectMessage::query()
             ->where('teacher_id', $teacher->id)
+            ->when(($filters['direction'] ?? null) === 'incoming', fn ($query) => $query->where('sender_type', 'parent'))
+            ->when(($filters['direction'] ?? null) === 'outgoing', fn ($query) => $query->where('sender_type', 'teacher'))
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                $term = trim((string) $filters['q']);
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('sender', fn ($sender) => $sender->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('recipient', fn ($recipient) => $recipient->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['sender:id,name', 'recipient:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title', 'responder:id,name'])
             ->latest()
             ->paginate(15)
@@ -28,6 +47,7 @@ final class DirectMessageController extends Controller
 
         return view('teacher.direct-messages.index', [
             'messages' => $messages,
+            'filters' => $filters,
         ]);
     }
 
