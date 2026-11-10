@@ -9,6 +9,7 @@ use App\Models\AcademyMessage;
 use App\Models\CounselingRequest;
 use App\Models\ParentMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 final class CommunicationWorkspaceController extends Controller
