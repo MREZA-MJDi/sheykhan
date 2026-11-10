@@ -1,0 +1,3 @@
+/* SEO workspace reuses the canonical owner panel controls and upload components. */
+@import '../owner/components.css';
+/* Canonical component token: --panel-control-height */
