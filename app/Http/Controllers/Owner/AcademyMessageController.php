@@ -17,7 +17,7 @@ final class AcademyMessageController extends Controller
     {
         $this->authorizeAcademy($request, $academy);
 
-        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'announcements']);
+        return redirect()->route('owner.communication-workspace', array_merge($request->query(), ['academy' => $academy, 'tab' => 'announcements']));
     }
 
     public function recipients(Academy $academy, Request $request)
