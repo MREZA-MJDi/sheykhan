@@ -8,6 +8,7 @@ import './owner/seo-site-editors.js';
   'use strict';
   document.querySelectorAll('form[method="POST"],form[method="post"]').forEach((form) => {
     if (form.action.includes('/logout')) return;
+    if (form.closest('dialog.owner-floating-modal, dialog[data-owner-record-modal]')) return;
     guardFormOnce(form, { pendingText: 'در حال ذخیره…' });
   });
 })();
