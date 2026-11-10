@@ -36,14 +36,14 @@
 .sp-brand-mark { display:inline-grid; place-items:center; width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#1f2f7a,#0e9f8e); color:#ffffff; font-size:12px; font-weight:900; letter-spacing:.4px; }
 .sp-divider { width:1px; height:17px; background:rgba(31,47,122,.14); }
 .sp-page .sp-hero h1 { margin:18px 0 7px; color:#fff; font-size:clamp(25px,3vw,34px); line-height:1.45; font-weight:900; }
-.sp-page .sp-hero p { max-width:680px; margin:0; color:#aeb9df; line-height:2; }
+.sp-page .sp-hero p { max-width:680px; margin:0; color:#667091; line-height:2; }
 .sp-hero-actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:20px; }
 .sp-connection-card { display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:165px; padding:17px; border:1px solid rgba(31,47,122,.11); border-radius:17px; background:rgba(248,249,253,.98); backdrop-filter:blur(8px); }
 .sp-connection-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
 .sp-connection-icon { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; background:rgba(31,47,122,.09); color:var(--sp-cyan); font-size:21px; }
 .sp-connection-card strong { font-size:21px; color:#fff; }
 .sp-connection-card > span:not(.sp-status) { font-size:12px; color:var(--sp-muted); }
-.sp-connection-card > small { color:#bac4e5; font-size:11px; line-height:1.9; }
+.sp-connection-card > small { color:#667091; font-size:11px; line-height:1.9; }
 .sp-connection-card > a { display:flex; justify-content:space-between; gap:8px; align-items:center; margin-top:9px; padding-top:10px; border-top:1px solid var(--sp-line); color:var(--sp-cyan); font-size:12px; font-weight:800; }
 .sp-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:39px; padding:8px 14px; border:1px solid transparent; border-radius:11px; font-size:12px; font-weight:800; cursor:pointer; transition:transform .16s,border-color .16s,background .16s; }
 .sp-btn:hover { transform:translateY(-1px); }
@@ -79,8 +79,8 @@
 .sp-course-row { display:flex; align-items:center; gap:11px; padding:12px 0; border-top:1px solid rgba(31,47,122,.075); }
 .sp-course-symbol { display:grid; flex:none; width:38px; height:38px; place-items:center; border:1px solid rgba(31,47,122,.075); border-radius:12px; background:rgba(31,47,122,.07); color:var(--sp-cyan); font-size:14px; }
 .sp-course-info { display:flex; min-width:0; flex:1; flex-direction:column; gap:3px; }
-.sp-course-info strong { overflow:hidden; color:#f2f4ff; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
-.sp-course-info small { color:#8996c0; font-size:10px; }
+.sp-course-info strong { overflow:hidden; color:#16204a; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+.sp-course-info small { color:#667091; font-size:10px; }
 .sp-status { display:inline-flex; flex:none; align-items:center; gap:6px; width:max-content; max-width:100%; padding:4px 9px; border-radius:30px; font-size:10px; font-weight:800; white-space:nowrap; }
 .sp-status i { display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; }
 .sp-status.is-ready,.sp-status.success { background:rgba(14,159,142,.1); color:#0e9f8e; }
@@ -92,7 +92,7 @@
 .sp-mini-steps li { display:flex; align-items:flex-start; gap:10px; color:#667091; font-size:11px; line-height:1.9; }
 .sp-mini-steps b { display:grid; flex:none; width:25px; height:25px; place-items:center; border-radius:50%; background:rgba(31,47,122,.12); color:var(--sp-cyan); font-size:11px; }
 .sp-guide-panel { display:flex; flex-direction:column; }
-.sp-empty { padding:25px 14px; border:1px dashed rgba(255,255,255,.15); border-radius:13px; color:#9ca8cf; text-align:center; font-size:12px; line-height:2; }
+.sp-empty { padding:25px 14px; border:1px dashed rgba(255,255,255,.15); border-radius:13px; color:#667091; text-align:center; font-size:12px; line-height:2; }
 .sp-callout { margin-top:15px; padding:13px 15px; border:1px solid; border-radius:13px; font-size:11px; line-height:2; }
 .sp-callout p { margin:3px 0; }
 .sp-callout a { display:inline-block; margin-top:5px; font-weight:900; }
@@ -125,7 +125,7 @@
 .sp-course-card > p { margin:-5px 0 0; color:#667091; font-size:10px; }
 .sp-course-metrics { display:flex; gap:8px; padding:10px 0; border-block:1px solid rgba(31,47,122,.06); }
 .sp-course-metrics span { flex:1; color:#667091; font-size:10px; }
-.sp-course-metrics b { color:#f2f4ff; font-size:16px; }
+.sp-course-metrics b { color:#16204a; font-size:16px; }
 .sp-provider-id { display:grid; gap:5px; min-height:47px; }
 .sp-provider-id small { color:#667091; font-size:10px; }
 .sp-provider-id code { width:max-content; max-width:100%; padding:4px 7px; border-radius:7px; background:rgba(31,47,122,.06); color:#1f2f7a; direction:ltr; font:11px ui-monospace,monospace; overflow-wrap:anywhere; }
