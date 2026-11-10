@@ -76,7 +76,7 @@ final class OwnerFinanceService
                 ->when(($filters['sort'] ?? 'recent') === 'oldest', fn ($query) => $query->orderBy('created_at')->orderBy('id'))
                 ->when(($filters['sort'] ?? 'recent') === 'balance_desc', fn ($query) => $query->orderByRaw('(price_amount - paid_amount) DESC')->orderByDesc('id'))
                 ->when(($filters['sort'] ?? 'recent') === 'balance_asc', fn ($query) => $query->orderByRaw('(price_amount - paid_amount) ASC')->orderBy('id'))
-                ->when(($filters['sort'] ?? 'recent') === 'name', fn ($query) => $query->orderBy(User::query()->select('name')->whereColumn('users.id', 'course_enrollments.student_id'))->orderByDesc('id'))
+                ->when(($filters['sort'] ?? 'recent') === 'name', fn ($query) => $query->orderByRaw('(SELECT name FROM users WHERE users.id = course_enrollments.student_id) ASC')->orderByDesc('id'))
                 ->when(! in_array(($filters['sort'] ?? 'recent'), ['oldest', 'balance_desc', 'balance_asc', 'name'], true), fn ($query) => $query->orderByDesc('id'))
                 ->paginate(25, ['*'], 'debts_page')
                 ->withQueryString()
