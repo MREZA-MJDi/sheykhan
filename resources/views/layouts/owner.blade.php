@@ -140,7 +140,7 @@
     <aside class="side card" id="side" aria-label="منوی مدیریت">
         <div class="owner-sidebar-tools">
             <button type="button" id="mini" class="owner-sidebar-mini-toggle" aria-label="جمع کردن منو" aria-pressed="false" title="جمع کردن منو">
-                <svg class="ic" aria-hidden="true"><use href="#i-panel-left-close"/></svg>
+                <span class="owner-sidebar-mini-icon" aria-hidden="true">⇔</span>
                 <span>جمع کردن منو</span>
             </button>
         </div>
