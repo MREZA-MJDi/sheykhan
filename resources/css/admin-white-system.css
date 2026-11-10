@@ -6,12 +6,13 @@
     --ui-surface-soft: #f8fafc;
     --ui-border: #e3e8f0;
     --ui-border-strong: #cbd5e1;
-    --ui-text: #1e293b;
-    --ui-muted: #64748b;
-    --ui-primary: #34466f;
-    --ui-primary-hover: #26395f;
-    --ui-primary-soft: #eef2f8;
-    --ui-success: #15805d;
+    --ui-text: #243247;
+    --ui-muted: #5d6a7d;
+    --ui-navy: #24364f;
+    --ui-primary: #7b2c42;
+    --ui-primary-hover: #632035;
+    --ui-primary-soft: #f3edf0;
+    --ui-success: #167653;
     --ui-success-soft: #ecfdf5;
     --ui-warning: #a16207;
     --ui-warning-soft: #fffbeb;
@@ -363,7 +364,7 @@ body.owner-shell.owner-admin-v2 {
 .owner-admin-v2 .main-content textarea::placeholder { color: #94a3b8 !important; opacity: 1; }
 .owner-admin-v2 .main-content :is(input,select,textarea):focus {
     border-color: var(--ui-primary) !important;
-    outline: 3px solid rgba(52,70,111,.13) !important;
+    outline: 3px solid rgba(123,44,66,.14) !important;
     outline-offset: 1px;
     box-shadow: none !important;
 }
@@ -508,7 +509,7 @@ body.owner-shell.owner-admin-v2 {
     cursor: pointer;
 }
 .owner-admin-v2 .main-content :is(.owner-people-tabbar button.is-active,[data-owner-tab-button][aria-selected=true],.owner-people-directory-tabbar [role=tab][aria-selected=true]) {
-    border-color: #d8e0ec !important;
+    border-color: color-mix(in srgb,var(--ui-primary) 25%,var(--ui-border)) !important;
     background: #fff !important;
     color: var(--ui-primary) !important;
     box-shadow: 0 1px 2px rgba(15,23,42,.05);
@@ -613,7 +614,7 @@ body.owner-shell.owner-admin-v2 {
 }
 .owner-admin-v2 .admin-context-tab:hover,
 .owner-admin-v2 .admin-context-tab[aria-current=page] {
-    border-color: #d7e0ed;
+    border-color: color-mix(in srgb,var(--ui-primary) 25%,var(--ui-border));
     background: var(--ui-primary-soft);
     color: var(--ui-primary) !important;
 }
@@ -861,3 +862,295 @@ body.owner-shell.owner-admin-v2 {
     color: var(--ui-text) !important;
 }
 .owner-admin-v2 .main-content :is(button,a).text-white { color: #fff !important; }
+
+
+/* Cross-module polish: one predictable interaction and component language for every owner + SEO page. */
+.owner-admin-v2 {
+    --panel-primary: var(--ui-primary);
+    --panel-primary-soft: var(--ui-primary-soft);
+    --panel-surface: var(--ui-surface);
+    --panel-input: var(--ui-surface);
+    --panel-border: var(--ui-border);
+    --panel-text: var(--ui-text);
+    --panel-muted: var(--ui-muted);
+    --panel-focus-color: var(--ui-primary);
+    --panel-card-radius: 14px;
+    --panel-control-radius: 10px;
+    --panel-control-height: 42px;
+}
+
+/* Keep the page canvas quiet and the content surface consistently white. */
+.owner-admin-v2 .main-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 16px;
+}
+.owner-admin-v2 .main-content > * { min-width: 0; }
+.owner-admin-v2 .main-content :is(.panel-page-enter,.owner-workspace-page,.owner-form-shell,.seo-workspace) {
+    min-width: 0;
+    width: 100%;
+}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-form-shell,.owner-form-section,.owner-stat-card,.owner-classroom-card,.owner-resource-card,.owner-product-card,.owner-calendar-section,.owner-schedule-list,.seo-page-list,.seo-performance-panel) {
+    border-color: var(--ui-border) !important;
+    background: var(--ui-surface) !important;
+    color: var(--ui-text) !important;
+    box-shadow: var(--ui-shadow) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-page-intro,.panel-page-enter > header:first-child,.owner-workspace-page > header:first-child) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    min-width: 0;
+    padding: 17px 19px;
+    border: 1px solid var(--ui-border);
+    border-radius: 14px;
+    background: var(--ui-surface);
+    box-shadow: var(--ui-shadow);
+}
+.owner-admin-v2 .main-content :is(.owner-page-intro,.panel-page-enter > header:first-child,.owner-workspace-page > header:first-child) :is(h1,h2,h3) {
+    margin: 0;
+    color: var(--ui-navy) !important;
+    font-size: clamp(18px, 1.7vw, 23px);
+    font-weight: 850;
+    line-height: 1.55;
+}
+.owner-admin-v2 .main-content :is(.owner-page-intro,.panel-page-enter > header:first-child,.owner-workspace-page > header:first-child) p {
+    max-width: 820px;
+    margin: 5px 0 0;
+    color: var(--ui-muted) !important;
+    font-size: 12px;
+    line-height: 1.9;
+}
+.owner-admin-v2 .main-content :is(h1,h2,h3,h4) { color: var(--ui-navy) !important; }
+.owner-admin-v2 .main-content :is(p,small,label,.owner-field-help,.form-text) { color: var(--ui-muted); }
+.owner-admin-v2 .main-content :is(.owner-section-heading,.owner-blog-section-heading,.owner-panel-head) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content :is(.owner-section-heading h2,.owner-blog-section-heading h2,.owner-panel-head h2) {
+    color: var(--ui-navy) !important;
+    font-size: 15px;
+    font-weight: 850;
+}
+.owner-admin-v2 .main-content :is(.owner-section-heading p,.owner-blog-section-heading p,.owner-panel-head p) {
+    color: var(--ui-muted) !important;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+/* Navigation: white surfaces, navy structure, burgundy active state. */
+.owner-admin-v2 .top {
+    border-color: var(--ui-border) !important;
+    background: rgba(255,255,255,.98) !important;
+}
+.owner-admin-v2 .side.card {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+}
+.owner-admin-v2 .side .gh i,
+.owner-admin-v2 .side .ni[aria-current=page] .ic { color: var(--ui-primary) !important; }
+.owner-admin-v2 .side .ni[aria-current=page] {
+    border: 1px solid color-mix(in srgb,var(--ui-primary) 18%,white);
+    background: var(--ui-primary-soft) !important;
+    color: var(--ui-primary) !important;
+    box-shadow: inset -3px 0 0 var(--ui-primary) !important;
+}
+.owner-admin-v2 .tabs .tab[aria-current=page],
+.owner-admin-v2 .tabs .tab.on,
+.owner-admin-v2 .admin-context-tab[aria-current=page],
+.owner-admin-v2 .seo-console-switcher a.is-active {
+    border-color: color-mix(in srgb,var(--ui-primary) 28%,white) !important;
+    background: var(--ui-primary-soft) !important;
+    color: var(--ui-primary) !important;
+    font-weight: 850;
+}
+.owner-admin-v2 .admin-context-tabs {
+    grid-template-columns: auto minmax(0,1fr);
+    gap: 10px 14px;
+    padding: 10px 12px;
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+}
+.owner-admin-v2 .admin-context-tabs__label {
+    color: var(--ui-navy) !important;
+    font-weight: 900;
+}
+.owner-admin-v2 .admin-context-tabs__list {
+    gap: 5px;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+}
+.owner-admin-v2 .admin-context-tab {
+    min-height: 38px;
+    padding-inline: 13px;
+    border-radius: 9px;
+}
+.owner-admin-v2 .admin-context-tab:hover,
+.owner-admin-v2 .admin-context-tab[aria-current=page] {
+    border-color: color-mix(in srgb,var(--ui-primary) 26%,white) !important;
+    background: var(--ui-primary-soft) !important;
+    color: var(--ui-primary) !important;
+}
+.owner-admin-v2 .admin-context-tabs__scope {
+    color: var(--ui-muted) !important;
+    font-size: 10px;
+}
+
+/* Buttons and links are predictable: one primary, one quiet secondary, semantic danger. */
+.owner-admin-v2 .main-content :is(.owner-primary-btn,.course-primary-btn,.owner-workspace-btn,.owner-action-btn,.course-action-btn.primary,button.primary,[type=submit].primary) {
+    border-color: var(--ui-primary) !important;
+    background: var(--ui-primary) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(.owner-primary-btn,.course-primary-btn,.owner-workspace-btn,.owner-action-btn,.course-action-btn.primary,button.primary,[type=submit].primary):hover {
+    border-color: var(--ui-primary-hover) !important;
+    background: var(--ui-primary-hover) !important;
+    color: #fff !important;
+}
+.owner-admin-v2 .main-content :is(.course-action-btn:not(.primary),.course-secondary-btn,.owner-secondary-btn,.owner-modal-trigger,.owner-person-preview-trigger,.owner-blog-public-link) {
+    border: 1px solid var(--ui-border-strong) !important;
+    border-radius: 10px;
+    background: #fff !important;
+    color: var(--ui-navy) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(.course-action-btn:not(.primary),.course-secondary-btn,.owner-secondary-btn,.owner-modal-trigger,.owner-person-preview-trigger,.owner-blog-public-link):hover {
+    border-color: var(--ui-primary) !important;
+    background: var(--ui-primary-soft) !important;
+    color: var(--ui-primary) !important;
+}
+.owner-admin-v2 .main-content :is(button.danger,.owner-danger-btn,.danger-action) {
+    border-color: #e8c5cd !important;
+    background: #fff !important;
+    color: var(--ui-danger) !important;
+}
+.owner-admin-v2 .main-content :is(button.danger,.owner-danger-btn,.danger-action):hover {
+    border-color: var(--ui-danger) !important;
+    background: var(--ui-danger-soft) !important;
+    color: var(--ui-danger) !important;
+}
+.owner-admin-v2 .main-content :is(a,button):focus-visible,
+.owner-admin-v2 .side :is(a,button):focus-visible {
+    outline: 3px solid color-mix(in srgb,var(--ui-primary) 28%,transparent) !important;
+    outline-offset: 2px;
+}
+
+/* Forms: labels, helper text, validation and file selection all use the same contrast. */
+.owner-admin-v2 .main-content label {
+    color: var(--ui-navy) !important;
+    font-size: 12px;
+    font-weight: 750;
+}
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]):not([type=submit]):not([type=button]),select,textarea,.jalali-calendar-date-input,.jalali-calendar-time-input) {
+    border-color: var(--ui-border-strong) !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(input,select,textarea,.jalali-calendar-date-input,.jalali-calendar-time-input):focus {
+    border-color: var(--ui-primary) !important;
+    outline: 3px solid color-mix(in srgb,var(--ui-primary) 14%,transparent) !important;
+    outline-offset: 1px;
+}
+.owner-admin-v2 .main-content :is(input[type=checkbox],input[type=radio],input[type=range]) { accent-color: var(--ui-primary) !important; }
+.owner-admin-v2 .main-content :is(.jalali-calendar-open,.jalali-calendar-month-button) {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+    color: var(--ui-primary) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(.jalali-calendar-popup,.owner-floating-modal,.command-palette,dialog[data-owner-record-modal]) {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content .owner-field-error,
+.owner-admin-v2 .main-content .field-error { color: var(--ui-danger) !important; }
+.owner-admin-v2 .main-content :is(.owner-info-banner,.owner-form-notice,.owner-schema-warning,.seo-honesty-note,.seo-connection-state,.seo-duplicate-summary) {
+    border-color: var(--ui-border) !important;
+    border-radius: 12px;
+    background: var(--ui-surface-soft) !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-info-banner,.owner-form-notice,.owner-schema-warning,.seo-honesty-note,.seo-connection-state,.seo-duplicate-summary) :is(strong,p,small) {
+    color: inherit !important;
+}
+
+/* Tables, lists, pagination and empty states should never inherit a dark/colored panel. */
+.owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters,.seo-keyword-filters,.seo-page-filters,.seo-keyword-observation-form,.seo-keyword-import-form) {
+    border-color: var(--ui-border) !important;
+    background: var(--ui-surface-soft) !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-blog-row,.owner-content-row,.owner-session-card,.owner-meeting-row,.owner-recording-row,.owner-resource-row,.owner-order-row) {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-empty,.seo-keyword-empty,.seo-empty-state,.owner-no-results) {
+    border-color: var(--ui-border) !important;
+    background: var(--ui-surface-soft) !important;
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-empty,.seo-keyword-empty,.seo-empty-state,.owner-no-results) :is(h2,h3,strong,p,small) {
+    color: inherit !important;
+}
+.owner-admin-v2 .main-content :is(.overflow-x-auto,.table-wrap,.owner-table-wrap,.seo-keyword-table-wrap) {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+.owner-admin-v2 .main-content table { max-width: 100%; }
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.seo-overview-stat,.seo-performance-stats article) {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: var(--ui-shadow) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.seo-overview-stat,.seo-performance-stats article)>:is(span,small) { color: var(--ui-muted) !important; }
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.seo-overview-stat,.seo-performance-stats article)>strong { color: var(--ui-navy) !important; }
+
+/* Dialogs, notices and upload previews keep the same neutral treatment. */
+.owner-admin-v2 .main-content :is(.owner-cover-editor,.owner-cover-preview,.owner-blog-thumb,.owner-resource-preview,.owner-upload-preview,.website-hero-preview-card) {
+    border-color: var(--ui-border) !important;
+    background: var(--ui-surface-soft) !important;
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-floating-modal__header,.owner-record-modal__header,.owner-blog-save-panel) {
+    border-color: var(--ui-border) !important;
+}
+.owner-admin-v2 .command-palette :is(input,a,button,small,p) { color: var(--ui-text) !important; }
+.owner-admin-v2 .owner-admin-v2 .main-content a:not([class*=btn]):not([class*=action]) { color: var(--ui-primary); }
+
+/* Mobile: keep section tabs scrollable, forms single-column and action buttons reachable. */
+@media (max-width: 1050px) {
+    .owner-admin-v2 .app { grid-template-columns: minmax(0,1fr); gap: 12px; }
+    .owner-admin-v2 .side.card { display: none; position: fixed; z-index: 150; inset-block: 10px; inset-inline-start: 10px; width: min(86vw,310px); max-height: calc(100dvh - 20px); }
+    .owner-admin-v2 .side.card.open { display: block; }
+    .owner-admin-v2 .main-content { grid-column: 1; }
+}
+@media (max-width: 760px) {
+    body.owner-shell.owner-admin-v2 { padding: 10px; }
+    .owner-admin-v2 .top { position: relative; top: auto; flex-wrap: wrap; }
+    .owner-admin-v2 .admin-context-tabs { grid-template-columns: minmax(0,1fr); }
+    .owner-admin-v2 .admin-context-tabs__list { max-width: 100%; }
+    .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-student-create-form,.owner-blog-form,.owner-content-form,.owner-classroom-form,.owner-exam-form,.owner-product-form,.owner-resource-form) {
+        grid-template-columns: minmax(0,1fr) !important;
+    }
+    .owner-admin-v2 .main-content :is(.owner-form-head,.owner-panel-head,.owner-section-heading) { align-items: flex-start; }
+    .owner-admin-v2 .main-content :is(.owner-primary-btn,.course-primary-btn,.course-action-btn,.owner-workspace-btn,.owner-action-btn) { max-width: 100%; white-space: normal; }
+}
+@media (max-width: 480px) {
+    .owner-admin-v2 .main-content :is(table) { min-width: 600px; }
+    .owner-admin-v2 .main-content :is(.owner-filter-actions,.owner-classroom-filter-actions,.seo-filter-actions) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
