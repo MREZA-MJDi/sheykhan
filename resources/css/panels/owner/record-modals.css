@@ -371,3 +371,34 @@ dialog[data-owner-record-modal]::backdrop {
 @media (max-width: 820px) {
     .owner-sidebar-tools { display: none; }
 }
+
+/* Sidebar collapse control from the reference admin shell. */
+.owner-sidebar-tools { display:flex; justify-content:flex-end; margin:2px 2px 12px; }
+.owner-sidebar-mini-toggle {
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:36px;
+    border:1px solid rgba(201,208,240,.18);border-radius:10px;padding:6px 10px;
+    color:var(--sideInk,#c9d0f0);background:rgba(255,255,255,.055);
+    font:inherit;font-size:10px;font-weight:800;cursor:pointer;
+}
+.owner-sidebar-mini-toggle:hover { color:#fff;background:rgba(255,255,255,.1); }
+.owner-sidebar-mini-icon {
+    display:inline-grid;width:23px;height:23px;place-items:center;border-radius:7px;
+    background:rgba(255,255,255,.1);font-size:16px;line-height:1;
+}
+@media (min-width: 821px) {
+    .owner-shell.mini .app { grid-template-columns:76px minmax(0,1fr); }
+    .owner-shell.mini .side { width:76px;padding-inline:7px;overflow-x:hidden; }
+    .owner-shell.mini .owner-sidebar-tools { justify-content:center; }
+    .owner-shell.mini .owner-sidebar-mini-toggle { width:42px;padding:6px; }
+    .owner-shell.mini .owner-sidebar-mini-toggle > span:not(.owner-sidebar-mini-icon) { display:none; }
+    .owner-shell.mini .side .nav-group .gh { justify-content:center;gap:0;padding-inline:0;font-size:0; }
+    .owner-shell.mini .side .nav-group .gh > span,
+    .owner-shell.mini .side .nav-group .gh > em,
+    .owner-shell.mini .side .ni > span,
+    .owner-shell.mini .side .side-foot,
+    .owner-shell.mini .side .tm { display:none; }
+    .owner-shell.mini .side .ni { justify-content:center;padding:8px 4px; }
+    .owner-shell.mini .side .ni .ic { width:19px;height:19px; }
+}
+@media(max-width:820px) { .owner-sidebar-tools { display:none; } }
+.owner-people-tabs:not(.owner-people-tabs--sheets) > .owner-people-tabbar { display:none; }
