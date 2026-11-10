@@ -1,16 +1,19 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 @section('title', 'ویرایش محصول | شیخان')
 @section('header-title', 'ویرایش محصول')
 @section('content')
+@php($modalMode = request()->boolean('modal'))
 <div class="owner-form-shell space-y-6">
-    <header class="owner-form-head">
+    @unless($modalMode)
+<header class="owner-form-head">
         <div><span>کاتالوگ آموزشگاه</span><h1>ویرایش: {{ $product->title }}</h1><p>ذخیره تغییرات، فایل قبلی را بدون نیاز حذف نمی‌کند؛ PDF اصلی خصوصی می‌ماند و نسخه جدید جای نسخه اصلی را می‌گیرد.</p></div>
         <a href="{{ route('owner.products.index', $academy) }}">بازگشت به محصولات</a>
     </header>
+@endunless
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.update', [$academy, $product]) }}" class="owner-form-grid">
+    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.update', [$academy, $product]) . ($modalMode ? '?modal=1' : '') }}" class="owner-form-grid">
         @csrf @method('PATCH')
         <section class="owner-form-section space-y-4">
             <h2>اطلاعات محصول</h2>
