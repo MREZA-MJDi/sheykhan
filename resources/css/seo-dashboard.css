@@ -1,8 +1,10 @@
 /* SEO-specialist panel: independent CSS entry; no owner/admin design-system stylesheet is imported. */
 
 @import 'tailwindcss' source(none);
-@import './panels/seo/calendar.css';
-@import './panels/seo/components.css';
+@import './panels/owner/calendar.css';
+@import './panels/owner/components.css';
+@import './panels/shared/admin-base.css';
+@import './panels/seo/admin-pages.css';
 @source '../../resources/views/owner';
 @source '../../resources/views/seo';
 @source '../../resources/views/components';
@@ -262,7 +264,7 @@ dialog::backdrop{background:rgba(5,7,25,.7);backdrop-filter:blur(4px)}
     background:transparent!important;
     box-shadow:none!important;
 }
-@import './panels/seo/admin.css';
+
 
 /* Unified light workspace theme. Interaction and layout contracts remain unchanged. */
 :root {
