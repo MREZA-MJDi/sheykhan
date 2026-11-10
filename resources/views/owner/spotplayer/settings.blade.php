@@ -26,7 +26,7 @@
 .sp-button:focus-visible,.sp-workspace input:focus-visible,.sp-workspace select:focus-visible{outline:3px solid var(--sp-cyan);outline-offset:2px}
 .sp-flash{margin-bottom:16px;padding:12px 15px;border:1px solid var(--sp-line);border-radius:13px;background:var(--sp-bg2);font-size:12px;line-height:2}
 .sp-flash.success{border-color:rgba(14,159,142,.22);color:var(--sp-green)}
-.sp-flash.error{border-color:rgba(255,61,129,.3);color:var(--sp-pink)}
+.sp-flash.error{border-color:rgba(214,69,80,.3);color:var(--sp-pink)}
 .sp-nav{display:flex;gap:5px;overflow:auto;border-bottom:1px solid var(--sp-line);margin:0 0 18px;padding:0 0 10px;scrollbar-width:thin}
 .sp-nav a{display:inline-flex;align-items:center;min-height:38px;padding:7px 13px;border-radius:10px;color:var(--sp-muted);font-size:11px;font-weight:850;white-space:nowrap}
 .sp-nav a:hover{background:rgba(31,47,122,.055);color:var(--sp-text)}
