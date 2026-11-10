@@ -317,6 +317,7 @@ final class ExamController extends Controller
 
     private function authorizeAcademy(Request $request, Academy $academy, string $permission): void
     {
-        abort_unless($request->user()->hasRole('academy-owner') && $request->user()->hasPermission($permission) && (int) $academy->owner_id === (int) $request->user()->id, 404);
+        app(\\App\\Services\\OwnerWorkspaceService::class)
+            ->authorizeAcademy($request->user(), $academy, $permission);
     }
 }
