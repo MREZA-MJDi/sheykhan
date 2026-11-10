@@ -13,7 +13,7 @@
                 دوره‌ها را بساز، قیمت و وضعیت انتشارشان را مدیریت کن و قبل از انتشار یک‌جا بازبینی‌شان کن.
             </p>
         </div>
-        <a href="{{ route('owner.courses.create') }}" class="course-primary-btn">+ ساخت دوره جدید</a>
+        <a href="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-title="ساخت دوره جدید" class="course-primary-btn">+ ساخت دوره جدید</a>
     </div>
 
     <section class="grid gap-3 sm:grid-cols-3" aria-label="آمار دوره‌ها">
@@ -103,7 +103,7 @@
                         <td class="px-5 py-4">
                             <div class="flex flex-wrap items-center gap-2">
                                 <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary">بازبینی</a>
-                                <a href="{{ route('owner.courses.edit',$course) }}" class="course-action-btn">ویرایش</a>
+                                <a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn">ویرایش</a>
                                 @if($course->status === 'archived')
                                     <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
                                         @csrf @method('PATCH')
@@ -161,7 +161,7 @@
                     </div>
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         <a href="{{ route('owner.courses.show',$course) }}" class="course-action-btn primary justify-center">بازبینی دوره</a>
-                        <a href="{{ route('owner.courses.edit',$course) }}" class="course-action-btn justify-center">ویرایش</a>
+                        <a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn justify-center">ویرایش</a>
                         @if($course->status === 'archived')
                             <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
                                 @csrf @method('PATCH')
