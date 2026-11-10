@@ -440,9 +440,7 @@
     overflow: hidden;
     border: 1px solid rgba(119, 136, 190, .22);
     border-radius: 20px;
-    background:
-        radial-gradient(ellipse at 100% 0%, rgba(34,211,238,.12), transparent 48%),
-        linear-gradient(145deg, rgba(26,32,80,.96), rgba(14,18,48,.98));
+    background:#fff;
     box-shadow: 0 14px 30px rgba(3,6,24,.16);
 }
 .owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro, header:first-child)::before,
@@ -556,9 +554,7 @@
     overflow: hidden;
     border: 1px solid rgba(119,136,190,.2);
     border-radius: 16px;
-    background:
-        radial-gradient(circle at 100% 0%, rgba(34,211,238,.1), transparent 46%),
-        linear-gradient(145deg, rgba(26,32,80,.94), rgba(14,18,48,.96));
+    background:#fff;
     box-shadow: 0 8px 22px rgba(3,6,24,.13);
 }
 .owner-admin-v2 .main-content .panel-page-enter .owner-stat-card::after {
