@@ -24,7 +24,7 @@
             <span class="inline-flex min-h-9 items-center rounded-xl border border-violet-100 bg-white/80 px-3 text-xs font-bold text-violet-800">{{ $learningAcademy->name }}</span>
         @endif
     </div>
-    <nav class="mt-4 flex flex-wrap gap-2" aria-label="شیت‌های بخش آموزش">
+    <nav class="mt-4 flex flex-wrap gap-2" aria-label="بخش‌های آموزش">
         @foreach($learningSheets as $sheet)
             @if(collect((array) $sheet['permission'])->contains(fn ($permission) => $learningUser?->hasPermission($permission)) && ($sheet['scope'] === 'global' || $learningAcademy))
                 <a href="{{ $sheet['scope'] === 'global' ? route($sheet['route']) : route($sheet['route'], array_merge([$learningAcademy], $sheet['query'] ?? [])) }}"
