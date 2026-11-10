@@ -350,6 +350,51 @@ class OwnerBlogFinanceSeoIsolationTest extends TestCase
         return $user;
     }
 
+    public function test_finance_workspace_applies_transaction_filters_and_keeps_sheet_pagination_independent(): void
+    {
+        [$owner, $academy] = $this->ownerWithPermissions(['finance.view']);
+
+        FinancialTransaction::query()->create([
+            'academy_id' => $academy->id,
+            'user_id' => $owner->id,
+            'type' => 'enrollment_payment',
+            'status' => 'completed',
+            'amount' => 450000,
+            'currency' => 'IRT',
+            'reference' => 'FILTER-KEEP-' . Str::random(6),
+            'occurred_at' => now()->subDay(),
+        ]);
+        FinancialTransaction::query()->create([
+            'academy_id' => $academy->id,
+            'user_id' => $owner->id,
+            'type' => 'enrollment_payment',
+            'status' => 'failed',
+            'amount' => 990000,
+            'currency' => 'IRT',
+            'reference' => 'FILTER-HIDE-' . Str::random(6),
+            'occurred_at' => now(),
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.finance.index', [
+                'sheet' => 'transactions',
+                'status' => 'completed',
+                'type' => 'enrollment_payment',
+                'from' => now()->subDays(3)->toDateString(),
+                'to' => now()->toDateString(),
+                'sort' => 'amount_desc',
+                'transactions_page' => 1,
+            ]))
+            ->assertOk()
+            ->assertSee('FILTER-KEEP-')
+            ->assertDontSee('FILTER-HIDE-');
+
+        $this->actingAs($owner)
+            ->get(route('owner.finance.index', ['sheet' => 'debts', 'debts_page' => 2]))
+            ->assertOk()
+            ->assertSee('شهریه‌های دارای مانده');
+    }
+
     private function ownerWithPermissions(array $permissions = []): array
     {
         $role = Role::firstOrCreate(
