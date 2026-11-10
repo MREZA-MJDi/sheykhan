@@ -4,7 +4,7 @@
 @section('header-title','بازبینی دوره')
 
 @section('content')
-<div class="course-page panel-page-enter space-y-6">
+<div class="course-page panel-page-enter space-y-6 owner-course-details-page">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
