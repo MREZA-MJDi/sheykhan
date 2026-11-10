@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\User;
 use App\Services\AuthService;
 use App\Services\DashboardRedirector;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -28,20 +28,26 @@ class AuthController extends Controller
 
         if ($showTestAccounts && $configuredAccounts->isNotEmpty()) {
             $usersByEmail = User::query()
-                ->whereIn('mobile', $configuredAccounts->pluck('username')->all())
+                ->whereIn('email', $configuredAccounts->pluck('email')->filter()->all())
                 ->where('status', 'active')
+                ->whereNotNull('mobile')
                 ->with('roles:id,slug')
-                ->get(['id', 'name', 'mobile', 'password'])
-                ->keyBy('mobile');
+                ->get(['id', 'name', 'email', 'mobile', 'password'])
+                ->keyBy('email');
 
             $testAccounts = $configuredAccounts
                 ->filter(function (array $account) use ($usersByEmail, $testPassword): bool {
-                    $user = $usersByEmail->get($account['username']);
-                    if ($user === null || ! $user->roles->contains('slug', $account['role_key'])) {
+                    $user = $usersByEmail->get($account['email'] ?? '');
+
+                    if (
+                        $user === null
+                        || blank($user->mobile)
+                        || ! $user->roles->contains('slug', $account['role_key'])
+                    ) {
                         return false;
                     }
 
-                    // Show credentials only if the password still authenticates this persisted user.
+                    // Never advertise credentials that do not authenticate this persisted account.
                     try {
                         return Hash::check((string) $testPassword, (string) $user->getAuthPassword());
                     } catch (\Throwable) {
@@ -49,7 +55,9 @@ class AuthController extends Controller
                     }
                 })
                 ->map(function (array $account) use ($usersByEmail): array {
-                    $account['name'] = $usersByEmail->get($account['username'])->name;
+                    $user = $usersByEmail->get($account['email']);
+                    $account['username'] = (string) $user->mobile;
+                    $account['name'] = $user->name;
 
                     return $account;
                 })

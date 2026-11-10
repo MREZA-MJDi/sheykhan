@@ -2,28 +2,78 @@
 
 namespace Tests\Feature;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class LocalRoleLoginTest extends TestCase
 {
     use RefreshDatabase;
-    public function test_local_login_page_lists_quick_fill_credentials_for_every_dashboard_role(): void
+
+    public function test_login_page_lists_quick_fill_credentials_for_every_dashboard_role(): void
     {
         $this->seed();
-        $mobiles = User::query()->whereIn('email', ['owner@sheykhan.test', 'teacher.math@sheykhan.test', 'student.armin@sheykhan.test', 'parent.armin@sheykhan.test', 'seo@sheykhan.com'])->get(['email', 'mobile'])->keyBy('email');
+
+        $accounts = collect(config('role_access.test_accounts'));
+        $usersByEmail = User::query()
+            ->whereIn('email', $accounts->pluck('email')->all())
+            ->get(['email', 'mobile'])
+            ->keyBy('email');
+
+        $this->assertCount(5, $accounts);
+        $this->assertCount(5, $usersByEmail);
+
+        $response = $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('ورود سریع به نقش‌های سامانه')
+            ->assertSee((string) config('role_access.test_password'))
+            ->assertSee('data-test-login-fill', false);
+
+        foreach ($accounts as $account) {
+            $this->assertNotEmpty($usersByEmail->get($account['email'])?->mobile);
+            $response->assertSee($account['role']);
+            $response->assertSee($usersByEmail->get($account['email'])->mobile);
+        }
+    }
+
+    public function test_quick_login_uses_the_persisted_mobile_when_it_differs_from_the_seed_mobile(): void
+    {
+        $this->seed();
+
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
+        $persistedMobile = '091779234175';
+        $owner->forceFill(['mobile' => $persistedMobile])->save();
 
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('ورود سریع به نقش‌های سامانه')
-            ->assertSee($mobiles['owner@sheykhan.test']->mobile)
-            ->assertSee($mobiles['teacher.math@sheykhan.test']->mobile)
-            ->assertSee($mobiles['student.armin@sheykhan.test']->mobile)
-            ->assertSee($mobiles['parent.armin@sheykhan.test']->mobile)
-            ->assertSee($mobiles['seo@sheykhan.com']->mobile)
-            ->assertSee((string) config('role_access.test_password'))
-            ->assertSee('data-test-login-fill', false);
+            ->assertSee('data-username="' . $persistedMobile . '"', false);
+
+        $this->post(route('login.store'), [
+            'mobile' => $persistedMobile,
+            'password' => config('role_access.test_password'),
+        ])->assertSessionHasNoErrors();
+
+        $this->assertAuthenticatedAs($owner);
+    }
+
+    public function test_all_five_demo_roles_can_authenticate_with_their_persisted_mobile(): void
+    {
+        $this->seed();
+
+        foreach (config('role_access.test_accounts') as $account) {
+            $user = User::query()->where('email', $account['email'])->firstOrFail();
+
+            $this->post(route('login.store'), [
+                'mobile' => $user->mobile,
+                'password' => config('role_access.test_password'),
+            ])->assertSessionHasNoErrors();
+
+            $this->assertAuthenticatedAs($user);
+            Auth::logout();
+            $this->app['auth']->forgetGuards();
+        }
     }
 
     public function test_staging_can_enable_quick_fill_with_a_private_seed_password(): void
@@ -38,13 +88,14 @@ class LocalRoleLoginTest extends TestCase
             config([
                 'role_access.show_test_accounts' => true,
                 'role_access.test_password' => 'Staging-Only-Secret-2026',
-                'role_access.allowed_test_ips' => ['127.0.0.1'],
             ]);
+
+            $seoEmail = config('role_access.seo_specialist_email');
 
             $this->get(route('login'))
                 ->assertOk()
                 ->assertSee('ورود سریع به نقش‌های سامانه')
-                ->assertSee(User::query()->where('email', 'seo@sheykhan.com')->value('mobile'))
+                ->assertSee(User::query()->where('email', $seoEmail)->value('mobile'))
                 ->assertSee('Staging-Only-Secret-2026')
                 ->assertSee('data-test-login-fill', false);
         } finally {
@@ -56,9 +107,11 @@ class LocalRoleLoginTest extends TestCase
     public function test_only_active_accounts_with_the_expected_role_are_listed(): void
     {
         $this->seed();
+
         $ownerMobile = User::query()->where('email', 'owner@sheykhan.test')->value('mobile');
-        $studentMobile = User::query()->where('email', 'student.armin@sheykhan.test')->value('mobile');
-        User::query()->where('email', 'student.armin@sheykhan.test')->update(['status' => 'inactive']);
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $studentMobile = $student->mobile;
+        $student->update(['status' => 'inactive']);
 
         $this->get(route('login'))
             ->assertOk()
@@ -77,21 +130,50 @@ class LocalRoleLoginTest extends TestCase
             ->assertSee('حساب فعالی برای نمایش پیدا نشد');
     }
 
-    public function test_demo_credentials_are_not_rendered_outside_local_and_testing(): void
+    public function test_invalid_mobile_is_still_rejected_for_non_demo_users(): void
     {
+        $this->seed();
+
+        $studentRoleId = Role::query()->where('slug', 'student')->value('id');
+        $user = User::query()->create([
+            'name' => 'کاربر عادی',
+            'email' => 'ordinary-user@sheykhan.test',
+            'mobile' => '091779234176',
+            'status' => 'active',
+            'password' => 'password',
+        ]);
+        $user->roles()->attach($studentRoleId);
+
+        $this->post(route('login.store'), [
+            'mobile' => $user->mobile,
+            'password' => 'password',
+        ])->assertSessionHasErrors('mobile');
+
+        $this->assertGuest();
+    }
+
+    public function test_demo_credentials_are_rendered_in_production_too(): void
+    {
+        $this->seed();
+
         $previousEnvironment = $this->app['env'];
         $this->app['env'] = 'production';
-        config([
-            'role_access.show_test_accounts' => false,
-            'role_access.test_password' => null,
-        ]);
 
         try {
+            config([
+                'role_access.show_test_accounts' => true,
+                'role_access.test_password' => 'password',
+            ]);
+
             $this->get(route('login'))
                 ->assertOk()
-                ->assertDontSee('ورود سریع به نقش‌های سامانه')
-                ->assertDontSee('data-test-login-fill', false)
-                ->assertDontSee('owner@sheykhan.test');
+                ->assertSee('ورود سریع به نقش‌های سامانه')
+                ->assertSee(User::query()->where('email', 'owner@sheykhan.test')->value('mobile'))
+                ->assertSee(User::query()->where('email', 'teacher.math@sheykhan.test')->value('mobile'))
+                ->assertSee(User::query()->where('email', 'student.armin@sheykhan.test')->value('mobile'))
+                ->assertSee(User::query()->where('email', 'parent.armin@sheykhan.test')->value('mobile'))
+                ->assertSee(User::query()->where('email', config('role_access.seo_specialist_email'))->value('mobile'))
+                ->assertSee('data-test-login-fill', false);
         } finally {
             $this->app['env'] = $previousEnvironment;
         }

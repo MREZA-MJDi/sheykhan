@@ -14,7 +14,7 @@ trait CreatesDemoRoleAccounts
         string $mobileKey,
         string $roleSlug,
     ): User {
-        $mobile = '0912' . str_pad(
+        $generatedMobile = '0912' . str_pad(
             (string) (abs(crc32($mobileKey)) % 10000000),
             7,
             '0',
@@ -25,7 +25,7 @@ trait CreatesDemoRoleAccounts
             ['email' => $email],
             [
                 'name' => $name,
-                'mobile' => $mobile,
+                'mobile' => $generatedMobile,
                 'status' => 'active',
                 'password' => 'password',
             ],
@@ -44,23 +44,25 @@ trait CreatesDemoRoleAccounts
             );
         }
 
-        $mobileInUse = User::withTrashed()
-            ->where('mobile', $mobile)
-            ->whereKeyNot($user->getKey())
-            ->exists();
+        // Existing demo users keep their real mobile number. A generated number is
+        // assigned only when the account has no mobile value yet.
+        if (blank($user->mobile)) {
+            $mobileInUse = User::withTrashed()
+                ->where('mobile', $generatedMobile)
+                ->whereKeyNot($user->getKey())
+                ->exists();
 
-        if ($mobileInUse) {
-            throw new \RuntimeException(
-                "Cannot sync demo account {$email}: mobile {$mobile} is already assigned to another user."
-            );
+            if ($mobileInUse) {
+                throw new \RuntimeException(
+                    "Cannot create demo account {$email}: generated mobile {$generatedMobile} is already assigned."
+                );
+            }
+
+            $user->mobile = $generatedMobile;
         }
 
-        // These fixed demo identities must always match the credentials shown on
-        // the login page, including installations where the account existed before
-        // the quick-login configuration was introduced.
         $user->forceFill([
             'name' => $name,
-            'mobile' => $mobile,
             'status' => 'active',
         ]);
 
