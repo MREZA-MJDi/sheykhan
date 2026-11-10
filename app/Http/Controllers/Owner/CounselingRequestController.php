@@ -58,7 +58,7 @@ final class CounselingRequestController extends Controller
             'handled_at' => now(),
         ])->save();
 
-        return redirect()->route('owner.counseling.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'counseling'])
             ->with('success', 'وضعیت درخواست مشاوره ذخیره شد.');
     }
 
