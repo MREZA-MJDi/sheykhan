@@ -49,7 +49,7 @@ class DashboardController extends Controller
                 'title' => 'تکالیف بررسی‌نشده',
                 'detail' => \App\Support\PersianUi::digits($pendingReviews) . ' ارسال منتظر بررسی است.',
                 'url' => route('owner.assignments.index', $firstAcademy),
-                'color' => '#ff1f6b',
+                'color' => '#d64550',
             ];
         }
         if ($classroomsWithoutTeacher > 0 && $firstAcademy) {
@@ -57,7 +57,7 @@ class DashboardController extends Controller
                 'title' => 'کلاس بدون مدرس',
                 'detail' => \App\Support\PersianUi::digits($classroomsWithoutTeacher) . ' کلاس مدرس فعال ندارد.',
                 'url' => route('owner.classrooms.index', $firstAcademy),
-                'color' => '#ff9a1f',
+                'color' => '#f2a81d',
             ];
         }
         if ($capacityAlerts > 0 && $firstAcademy) {
@@ -65,7 +65,7 @@ class DashboardController extends Controller
                 'title' => 'کلاس نزدیک ظرفیت',
                 'detail' => \App\Support\PersianUi::digits($capacityAlerts) . ' کلاس به ۹۰٪ ظرفیت رسیده است.',
                 'url' => route('owner.classrooms.index', $firstAcademy),
-                'color' => '#22d3ee',
+                'color' => '#0e9f8e',
             ];
         }
 
