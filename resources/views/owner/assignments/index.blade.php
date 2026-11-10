@@ -90,7 +90,9 @@
                 <div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center">
                     <strong class="block text-sm font-black">تکلیفی با این شرایط پیدا نشد.</strong>
                     <p class="mt-2 text-xs leading-6 text-slate-500">فیلترها را پاک کن یا برای یکی از کلاس‌های دارای مدرس، تکلیف جدید بساز.</p>
-                    <a href="{{ route('owner.assignments.create', $academy) }}" class="mt-4 inline-block rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ساخت تکلیف</a>
+                    @if(auth()->user()->hasPermission('assignments.manage'))
+                        <a href="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ساخت تکلیف" class="mt-4 inline-block rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ساخت تکلیف</a>
+                    @endif
                 </div>
             @endforelse
         </div>
