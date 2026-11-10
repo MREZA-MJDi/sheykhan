@@ -1,6 +1,7 @@
 /* Shared Owner/SEO upload previews and safe form-submission feedback. */
 import { guardFormOnce } from './shared/behavior-runtime.js';
 import './shared/file-preview.js';
+import './owner/management-upload-previews.js';
 import './owner/seo-site-editors.js';
 /* New owner admin page behavior. Server routes and form submissions stay authoritative. */
 (() => {
