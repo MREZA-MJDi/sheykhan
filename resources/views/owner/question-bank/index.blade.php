@@ -32,11 +32,11 @@
                     <textarea name="question" required maxlength="10000" rows="3" class="rounded-xl border border-slate-200 p-3 text-sm"></textarea>
                 </label>
                 <label class="grid gap-1 text-xs font-bold">گزینه‌ها
-                    <textarea name="options[]" rows="3" class="rounded-xl border border-slate-200 p-3 text-sm" placeholder="هر گزینه را در یک خط وارد کن"></textarea>
+                    <textarea name="options_text" rows="3" class="rounded-xl border border-slate-200 p-3 text-sm" placeholder="هر گزینه را در یک خط وارد کن"></textarea>
                     <small class="font-normal text-slate-500">در این نسخه هر خط یک گزینه است.</small>
                 </label>
                 <label class="grid gap-1 text-xs font-bold">پاسخ‌های صحیح
-                    <textarea name="correct_answers[]" rows="3" class="rounded-xl border border-slate-200 p-3 text-sm" placeholder="هر پاسخ صحیح را در یک خط وارد کن"></textarea>
+                    <textarea name="correct_answers_text" rows="3" class="rounded-xl border border-slate-200 p-3 text-sm" placeholder="هر پاسخ صحیح را در یک خط وارد کن"></textarea>
                     <small class="font-normal text-slate-500">برای سؤال تشریحی خالی بماند.</small>
                 </label>
                 <label class="grid gap-1 text-xs font-bold">پاسخ مورد انتظار
