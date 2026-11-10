@@ -26,7 +26,7 @@ class SeoKeywordWorkspaceTest extends TestCase
         $specialist = $this->specialist();
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.keywords.index'))
+            ->get(route('seo.keywords.index'))
             ->assertOk()
             ->assertSee('مرکز کلمات کلیدی')
             ->assertSee('ورود و خروج دسته‌ای')
@@ -37,7 +37,7 @@ class SeoKeywordWorkspaceTest extends TestCase
     {
         $specialist = $this->specialist();
 
-        $response = $this->actingAs($specialist)->post(route('owner.seo.keywords.store'), [
+        $response = $this->actingAs($specialist)->post(route('seo.keywords.store'), [
             'keyword' => 'کلاس آنلاین ریاضی',
             'cluster' => 'ریاضی هفتم',
             'intent' => 'informational',
@@ -53,7 +53,7 @@ class SeoKeywordWorkspaceTest extends TestCase
 
         $keyword = SeoKeyword::query()->where('keyword', 'کلاس آنلاین ریاضی')->firstOrFail();
 
-        $response->assertRedirect(route('owner.seo.keywords.edit', $keyword));
+        $response->assertRedirect(route('seo.keywords.edit', $keyword));
         $this->assertDatabaseHas('seo_keywords', [
             'id' => $keyword->id,
             'keyword_key' => 'کلاس آنلاین ریاضی',
@@ -76,14 +76,14 @@ class SeoKeywordWorkspaceTest extends TestCase
     {
         $specialist = $this->specialist();
 
-        $this->actingAs($specialist)->post(route('owner.seo.keywords.store'), [
+        $this->actingAs($specialist)->post(route('seo.keywords.store'), [
             'keyword' => 'آموزش آنلاین',
             'intent' => 'informational',
             'priority' => 'medium',
             'status' => 'idea',
         ])->assertRedirect();
 
-        $this->actingAs($specialist)->post(route('owner.seo.keywords.store'), [
+        $this->actingAs($specialist)->post(route('seo.keywords.store'), [
             'keyword' => '  آموزش   آنلاین  ',
             'intent' => 'informational',
             'priority' => 'medium',
@@ -100,10 +100,10 @@ class SeoKeywordWorkspaceTest extends TestCase
             . "آزمون ریاضی هفتم,آزمون,commercial,https://example.com/exam,high,tracking,850,9,2026-10-22,وارد شده از فایل\n";
 
         $this->actingAs($specialist)
-            ->post(route('owner.seo.keywords.import'), [
+            ->post(route('seo.keywords.import'), [
                 'file' => UploadedFile::fake()->createWithContent('keywords.csv', $csv),
             ])
-            ->assertRedirect(route('owner.seo.keywords.index'))
+            ->assertRedirect(route('seo.keywords.index'))
             ->assertSessionHasNoErrors();
 
         $keyword = SeoKeyword::query()->where('keyword', 'آزمون ریاضی هفتم')->firstOrFail();
@@ -126,11 +126,11 @@ class SeoKeywordWorkspaceTest extends TestCase
         $ordinaryUser = User::factory()->create();
 
         $this->actingAs($ordinaryUser)
-            ->get(route('owner.seo.keywords.index'))
+            ->get(route('seo.keywords.index'))
             ->assertForbidden();
 
         $this->actingAs($ordinaryUser)
-            ->post(route('owner.seo.keywords.store'), [
+            ->post(route('seo.keywords.store'), [
                 'keyword' => 'forbidden keyword',
                 'intent' => 'informational',
                 'priority' => 'medium',
