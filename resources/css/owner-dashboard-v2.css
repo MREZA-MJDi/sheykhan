@@ -4,6 +4,7 @@
 @import './panels/shared/workspace-polish.css';
 @import './panels/owner/calendar.css';
 @import './panels/owner/components.css';
+@import './panels/owner/record-modals.css';
 @import './spotplayer.css';
 @source '../../resources/views/owner';
 @source '../../resources/views/components';
