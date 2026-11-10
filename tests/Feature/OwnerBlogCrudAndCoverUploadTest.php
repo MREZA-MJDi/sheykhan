@@ -1,18 +1,18 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Models\\BlogCategory;
-use App\\Models\\BlogPost;
-use App\\Models\\Media;
-use App\\Models\\Permission;
-use App\\Models\\Role;
-use App\\Models\\User;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Illuminate\\Http\\UploadedFile;
-use Illuminate\\Support\\Facades\\Storage;
-use Illuminate\\Support\\Str;
-use Tests\\TestCase;
+use App\Models\BlogCategory;
+use App\Models\BlogPost;
+use App\Models\Media;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 final class OwnerBlogCrudAndCoverUploadTest extends TestCase
 {
