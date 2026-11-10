@@ -35,7 +35,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         [$owner, $academy, $seo] = $this->workspace();
 
         $this->actingAs($seo)
-            ->get(route('owner.website.hero.edit'))
+            ->get(route('seo.website.hero.edit'))
             ->assertOk()
             ->assertViewIs('owner.website.hero')
             ->assertSee('data-home-hero-editor', false)
@@ -43,7 +43,7 @@ class OwnerHomeHeroManagementTest extends TestCase
             ->assertSee('name="slot" value="5"', false);
 
         $this->actingAs($seo)
-            ->patch(route('owner.website.hero.update'), [
+            ->patch(route('seo.website.hero.update'), [
                 'slot' => 1,
                 'image' => UploadedFile::fake()->image('desktop-hero.jpg', 1920, 1080),
                 'mobile_image' => UploadedFile::fake()->image('mobile-hero.jpg', 900, 1200),
@@ -57,10 +57,10 @@ class OwnerHomeHeroManagementTest extends TestCase
                 'mobile_crop_x' => 72,
                 'mobile_crop_y' => 35,
             ])
-            ->assertRedirect(route('owner.website.hero.edit'));
+            ->assertRedirect(route('seo.website.hero.edit'));
 
         $this->actingAs($seo)
-            ->patch(route('owner.website.hero.update'), [
+            ->patch(route('seo.website.hero.update'), [
                 'slot' => 2,
                 'image' => UploadedFile::fake()->image('second-hero.jpg', 1600, 900),
                 'title' => 'Hero slide second',
@@ -70,7 +70,7 @@ class OwnerHomeHeroManagementTest extends TestCase
                 'mobile_crop_x' => 54,
                 'mobile_crop_y' => 50,
             ])
-            ->assertRedirect(route('owner.website.hero.edit'));
+            ->assertRedirect(route('seo.website.hero.edit'));
 
         $slides = HomeHeroSlide::query()->with(['media', 'mobileMedia'])->orderBy('slot')->get();
         $this->assertCount(2, $slides);
@@ -105,7 +105,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         Storage::fake('local');
         [$owner, $academy, $seo] = $this->workspace();
 
-        $this->actingAs($seo)->patch(route('owner.website.hero.update'), [
+        $this->actingAs($seo)->patch(route('seo.website.hero.update'), [
             'slot' => 1,
             'image' => UploadedFile::fake()->image('first-hero.jpg', 1600, 900),
             'mobile_image' => UploadedFile::fake()->image('first-mobile.jpg', 800, 1000),
@@ -120,7 +120,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         $oldDesktopPath = $oldSlide->media->path;
         $oldMobilePath = $oldSlide->mobileMedia->path;
 
-        $this->actingAs($seo)->patch(route('owner.website.hero.update'), [
+        $this->actingAs($seo)->patch(route('seo.website.hero.update'), [
             'slot' => 1,
             'image' => UploadedFile::fake()->image('replacement.jpg', 1600, 900),
             'remove_mobile_image' => true,
@@ -140,7 +140,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         $this->assertDatabaseMissing('media', ['path' => $oldMobilePath]);
 
         $replacementPath = $slide->media->path;
-        $this->actingAs($seo)->patch(route('owner.website.hero.update'), [
+        $this->actingAs($seo)->patch(route('seo.website.hero.update'), [
             'slot' => 1,
             'remove_slide' => true,
         ])->assertRedirect();
@@ -225,7 +225,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         [$owner, $academy, $seo] = $this->workspace();
 
         $this->actingAs($seo)
-            ->patch(route('owner.website.hero.update'), [
+            ->patch(route('seo.website.hero.update'), [
                 'slot' => 1,
                 'title' => 'CTA validation',
                 'cta_label' => 'بازدید',
@@ -244,17 +244,17 @@ class OwnerHomeHeroManagementTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->get(route('owner.website.hero.edit'))
+            ->get(route('seo.website.hero.edit'))
             ->assertForbidden();
 
         [$owner] = $this->workspace();
 
         $this->actingAs($owner)
-            ->get(route('owner.website.hero.edit'))
+            ->get(route('seo.website.hero.edit'))
             ->assertForbidden();
 
         $this->actingAs($owner)
-            ->patch(route('owner.website.hero.update'), ['slot' => 1])
+            ->patch(route('seo.website.hero.update'), ['slot' => 1])
             ->assertForbidden();
     }
 
@@ -263,7 +263,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         [$owner, $academy, $seo] = $this->workspace('sheykhan-main');
 
         $this->actingAs($seo)
-            ->get(route('owner.website.hero.edit'))
+            ->get(route('seo.website.hero.edit'))
             ->assertOk();
     }
 
