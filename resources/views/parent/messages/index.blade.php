@@ -13,6 +13,14 @@
 
     @include('parent.partials.communications-nav')
 
+    <form method="GET" class="parent-panel dashboard-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end" role="search" aria-label="جست‌وجو در پیام‌ها و اطلاعیه‌ها">
+        <label class="grid gap-1 text-xs font-bold">جست‌وجو در همه بخش‌ها
+            <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm" placeholder="موضوع، متن پیام، نام فرستنده، فرزند یا آموزشگاه">
+        </label>
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">جست‌وجو</button>
+        <a href="{{ route('parent.messages.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">پاک‌کردن</a>
+    </form>
+
     <section class="communication-page__card parent-panel dashboard-panel p-5 sm:p-7">
         <h2 class="text-lg font-black">ثبت پیام جدید</h2>
         @if($contactableChildren->isEmpty())
