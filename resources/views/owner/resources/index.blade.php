@@ -11,12 +11,24 @@
         </div>
         <a href="{{ route('owner.people.index', $academy) }}">مدیریت اعضا</a>
     </header>
+    <div class="owner-people-actionbar">
+        <div><strong>کتابخانه منابع</strong><span>افزودن و ویرایش فایل‌های خصوصی آموزشی</span></div>
+        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-resource-create-modal">＋ افزودن فایل آموزشی</button>
+    </div>
+
 
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.store', $academy) }}" class="owner-form-grid">
+    <dialog class="owner-floating-modal" id="owner-resource-create-modal" aria-labelledby="owner-resource-create-modal-title" @if(old('form_modal') === 'resource' && $errors->any()) data-owner-modal-open-on-load @endif>
+        <header class="owner-floating-modal__header">
+            <div><span class="owner-record-modal-kicker">ثبت رکورد جدید</span><h2 id="owner-resource-create-modal-title">افزودن فایل آموزشی</h2></div>
+            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+        </header>
+        <div class="owner-floating-modal__body">
+<form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.store', $academy) }}" class="owner-form-grid">
         @csrf
+        <input type="hidden" name="form_modal" value="resource">
         <section class="owner-form-section">
             <h2>فایل جدید</h2>
             <label><span>عنوان</span><input name="title" value="{{ old('title') }}" maxlength="255" required><small class="owner-field-help">عنوانی مشخص انتخاب کن تا عضو آموزشگاه فایل را از فهرست منابع تشخیص بدهد.</small></label>
@@ -70,6 +82,8 @@
             <button type="submit" class="owner-primary-btn w-full">ثبت فایل خصوصی</button>
         </aside>
     </form>
+        </div>
+    </dialog>
 
     <section class="owner-form-section">
         <h2>فایل‌های ثبت‌شده</h2>
