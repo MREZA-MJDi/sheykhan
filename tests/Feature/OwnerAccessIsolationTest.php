@@ -431,6 +431,68 @@ final class OwnerAccessIsolationTest extends TestCase
         ]);
     }
 
+    public function test_question_bank_is_academy_scoped_and_supports_create_update_and_archive(): void
+    {
+        [$owner, $academy] = $this->ownerAndAcademyWithPermissions(['exams.view', 'exams.manage']);
+
+        $payload = [
+            'type' => 'single',
+            'question' => 'پایتخت ایران کدام شهر است؟',
+            'options_text' => "تهران\nاصفهان\nشیراز\nتبریز",
+            'correct_answers_text' => 'تهران',
+            'expected_answer' => 'تهران',
+            'default_score' => 2,
+            'topic' => 'جغرافیا',
+            'difficulty' => 'easy',
+        ];
+
+        $this->actingAs($owner)
+            ->post(route('owner.question-bank.store', $academy), $payload)
+            ->assertRedirect(route('owner.question-bank.index', $academy));
+
+        $question = \\App\\Models\\QuestionBankItem::query()->where('academy_id', $academy->id)->firstOrFail();
+        $this->assertSame(['تهران', 'اصفهان', 'شیراز', 'تبریز'], $question->options);
+        $this->assertSame(['تهران'], $question->correct_answers);
+
+        $this->actingAs($owner)
+            ->get(route('owner.question-bank.index', [$academy, 'q' => 'پایتخت', 'topic' => 'جغرافیا']))
+            ->assertOk()
+            ->assertSee('پایتخت ایران کدام شهر است؟');
+
+        $this->actingAs($owner)
+            ->patch(route('owner.question-bank.update', [$academy, $question->id]), [
+                ...$payload,
+                'question' => 'پایتخت رسمی ایران چیست؟',
+            ])
+            ->assertRedirect(route('owner.question-bank.index', $academy));
+
+        $this->assertSame('پایتخت رسمی ایران چیست؟', $question->fresh()->question);
+
+        $foreignOwner = User::factory()->create(['status' => 'active']);
+        $foreignAcademy = $this->createForeignAcademy($foreignOwner, 'بانک سؤال خارج از محدوده');
+        $foreignQuestion = $foreignAcademy->questionBankItems()->create([
+            'created_by' => $foreignOwner->id,
+            'type' => 'text',
+            'question' => 'سؤال محرمانه آموزشگاه دیگر',
+            'default_score' => 1,
+            'difficulty' => 'medium',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)
+            ->patch(route('owner.question-bank.update', [$academy, $foreignQuestion->id]), [
+                ...$payload,
+                'question' => 'تغییر غیرمجاز',
+            ])
+            ->assertNotFound();
+
+        $this->actingAs($owner)
+            ->delete(route('owner.question-bank.destroy', [$academy, $question->id]))
+            ->assertRedirect(route('owner.question-bank.index', $academy));
+
+        $this->assertSame('archived', $question->fresh()->status);
+    }
+
     /**
      * @return array{0: User, 1: Academy}
      */
