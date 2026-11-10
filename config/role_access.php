@@ -74,7 +74,7 @@ return [
     'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', 'seo@sheykhan.com'),
 
     'dashboard_routes' => [
-        'seo-specialist' => 'seo.index,
+        'seo-specialist' => 'seo.index',
         'academy-owner' => 'owner.dashboard',
         'teacher' => 'teacher.dashboard',
         'student' => 'student.dashboard',
