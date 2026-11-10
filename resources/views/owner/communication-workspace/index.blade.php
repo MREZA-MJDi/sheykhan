@@ -13,7 +13,7 @@
 
 <div class="owner-workspace-page space-y-5 panel-page-enter">
     @if($tab === 'meetings')
-        @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'meetings'])
+        @include('owner.admin.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'meetings'])
     @endif
     <header class="dashboard-panel p-5 sm:p-7">
         <p class="text-xs font-black text-[var(--panel-primary)]">فضای کاری یکپارچه</p>
