@@ -17,7 +17,7 @@ final class AttendanceController extends Controller
 {
     public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): View
     {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy, 'attendance.view');
 
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
@@ -61,12 +61,20 @@ final class AttendanceController extends Controller
              SUM(CASE WHEN status = 'excused' THEN 1 ELSE 0 END) AS excused_count"
         )->first();
 
-        $attendances = $query
-            ->orderByDesc('attendance_date')
-            ->orderBy('classroom_id')
-            ->orderBy('student_id')
-            ->paginate(25)
-            ->withQueryString();
+        $sheet = in_array($request->query('sheet', 'history'), ['history', 'report'], true)
+            ? (string) $request->query('sheet', 'history')
+            : 'history';
+
+        // The report sheet needs only aggregate data; avoid loading a second
+        // paginated collection and its eager-loaded student/class relations.
+        $attendances = $sheet === 'history'
+            ? $query
+                ->orderByDesc('attendance_date')
+                ->orderBy('classroom_id')
+                ->orderBy('student_id')
+                ->paginate(25)
+                ->withQueryString()
+            : null;
 
         $selectedClassroomId = (int) ($filters['classroom_id'] ?? 0);
         $classrooms = $selectedClassroomId > 0
@@ -75,16 +83,12 @@ final class AttendanceController extends Controller
                 ->get(['id', 'title', 'course_id'])
             : collect();
 
-        return view('owner.attendance.index', compact('academy', 'filters', 'summary', 'attendances', 'classrooms'));
+        return view('owner.attendance.index', compact('academy', 'filters', 'summary', 'attendances', 'classrooms', 'sheet'));
     }
 
     public function update(Academy $academy, int $attendance, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        abort_unless(
-            $workspace->canManageAcademy($request->user(), $academy)
-            && $request->user()->hasPermission('attendance.manage'),
-            403
-        );
+        $workspace->authorizeAcademy($request->user(), $academy, 'attendance.manage');
 
         $data = $request->validate([
             'status' => ['required', Rule::in(['present', 'late', 'absent', 'excused'])],
@@ -119,7 +123,7 @@ final class AttendanceController extends Controller
 
         return redirect()->route('owner.attendance.index', [
             'academy' => $academy->id,
-            ...$request->only(['q', 'classroom_id', 'attendance_date', 'status']),
+            ...$request->only(['q', 'classroom_id', 'attendance_date', 'status', 'sheet']),
         ])->with('success', 'رکورد حضور و غیاب به‌روزرسانی شد.');
     }
 }

@@ -100,10 +100,10 @@
 
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h2 class="text-lg font-black">گزارش بازشدن پلیر SpotPlayer</h2>
+                <h2 class="text-lg font-black">گزارش مشاهده و پخش ویدئوهای آموزشی</h2>
                 <p class="mt-1 text-sm leading-6 text-slate-500">هر نوبت آماده‌سازی پلیر با شناسهٔ VIEW یکتا، حساب دانش‌آموز، دوره، IP و مرورگر ثبت می‌شود. این رویداد بازشدن پلیر را ثبت می‌کند، نه مدت تماشای واقعی ویدئو.</p>
             </div>
-            <span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700">{{ \App\Support\PersianUi::digits($spotplayerViews->total()) }} رویداد پلیر</span>
+            <span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700">{{ \App\Support\PersianUi::digits($spotplayerViews->total()) }} بار مشاهده</span>
         </div>
 
         <div class="mt-4 overflow-x-auto rounded-xl border border-slate-200">
@@ -125,7 +125,7 @@
                             <td class="max-w-xs break-words p-3 text-xs leading-6 text-slate-600">{{ \Illuminate\Support\Str::limit((string) $event->user_agent, 150) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="p-10 text-center text-sm text-slate-500">هنوز رویداد بازشدن پلیر SpotPlayer برای این آموزشگاه ثبت نشده است.</td></tr>
+                        <tr><td colspan="6" class="p-10 text-center text-sm text-slate-500">هنوز مشاهده ویدئوی آموزشی برای این آموزشگاه ثبت نشده است.</td></tr>
                     @endforelse
                 </tbody>
             </table>

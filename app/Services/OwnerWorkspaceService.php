@@ -30,15 +30,43 @@ final class OwnerWorkspaceService
             ->get();
     }
 
+    /**
+     * Authorize workspace pages that aggregate across every academy owned by the user.
+     */
+    public function authorizeOwnedAcademies(User $owner, string $permission): Collection
+    {
+        abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission($permission), 404);
+
+        return $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function canManageAcademy(User $owner, Academy $academy): bool
     {
         return $owner->hasRole('academy-owner')
             && (int) $academy->owner_id === (int) $owner->id;
     }
 
+    /**
+     * Single authorization boundary for Owner workspace requests.
+     * Keep academy ownership and permission checks consistent across modules.
+     */
+    public function canAccessAcademy(User $owner, Academy $academy, ?string $permission = null): bool
+    {
+        return $this->canManageAcademy($owner, $academy)
+            && ($permission === null || $owner->hasPermission($permission));
+    }
+
+    public function authorizeAcademy(User $owner, Academy $academy, ?string $permission = null): void
+    {
+        abort_unless($this->canAccessAcademy($owner, $academy, $permission), 404);
+    }
+
     public function people(User $owner, Academy $academy): array
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         $base = fn (string $role, string $pageName) => $academy->users()
             ->wherePivot('status', 'active')
@@ -172,7 +200,7 @@ final class OwnerWorkspaceService
      */
     public function peopleDirectory(User $owner, Academy $academy, string $tab, array $filters): CursorPaginator|LengthAwarePaginator
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         $tabs = [
             'active-teachers' => ['teacher', 'active', true],
@@ -247,7 +275,7 @@ final class OwnerWorkspaceService
 
     public function createTeacher(User $owner, Academy $academy, array $data): array
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         $mobile = \App\Support\MobileNumber::normalize($data['mobile'] ?? null);
         $temporaryPassword = \Illuminate\Support\Str::password(16, true, true, true, false);
@@ -297,7 +325,7 @@ final class OwnerWorkspaceService
 
     public function archiveTeacher(User $owner, Academy $academy, User $teacher): void
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         $membership = $academy->users()
             ->whereKey($teacher->id)
@@ -324,7 +352,7 @@ final class OwnerWorkspaceService
 
     public function restoreTeacher(User $owner, Academy $academy, User $teacher): void
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         $membership = $academy->users()
             ->whereKey($teacher->id)
@@ -352,7 +380,7 @@ final class OwnerWorkspaceService
 
     public function updateTeacherPublicVisibility(User $owner, Academy $academy, User $teacher, bool $isPublic): void
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         abort_unless(
             $academy->users()
@@ -375,7 +403,7 @@ final class OwnerWorkspaceService
 
     public function assignTeacher(User $owner, Academy $academy, int $teacherId, int $courseId): void
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         DB::transaction(function () use ($academy, $teacherId, $courseId): void {
             $course = $academy->courses()->whereKey($courseId)->lockForUpdate()->first();
@@ -408,7 +436,7 @@ final class OwnerWorkspaceService
 
     public function assignTeacherToClass(User $owner, Academy $academy, int $teacherId, int $classroomId): void
     {
-        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        $this->authorizeAcademy($owner, $academy);
 
         $initialClassroom = $academy->classrooms()->whereKey($classroomId)->first();
 

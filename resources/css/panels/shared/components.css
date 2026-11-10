@@ -1,4 +1,4 @@
-/* SEO panel presentation helpers; independent and editable. */
+/* Shared panel controls, upload feedback and mobile navigation helpers. */
 :root {
     --panel-font-family: 'Vazirmatn', Tahoma, sans-serif;
     --panel-font-size-meta: 0.75rem;

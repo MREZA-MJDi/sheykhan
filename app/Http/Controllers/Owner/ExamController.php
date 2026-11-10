@@ -27,6 +27,7 @@ final class ExamController extends Controller
         $filters = $request->validate([
             'status' => ['nullable', 'string', 'in:draft,published,closed'],
             'q' => ['nullable', 'string', 'max:120'],
+            'sort' => ['nullable', 'string', 'in:recent,oldest,title,attempts'],
         ]);
         $exams = Exam::query()
             ->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))
@@ -38,11 +39,15 @@ final class ExamController extends Controller
                 $query->where(fn ($nested) => $nested->where('title', 'like', '%' . $term . '%')
                     ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $term . '%')));
             })
-            ->orderByDesc('created_at')->paginate(20)->withQueryString();
+            ->when(($filters['sort'] ?? 'recent') === 'oldest', fn ($query) => $query->orderBy('created_at')->orderBy('id'))
+            ->when(($filters['sort'] ?? 'recent') === 'title', fn ($query) => $query->orderBy('title')->orderByDesc('id'))
+            ->when(($filters['sort'] ?? 'recent') === 'attempts', fn ($query) => $query->orderByDesc('attempts_count')->orderByDesc('created_at'))
+            ->when(! in_array(($filters['sort'] ?? 'recent'), ['oldest', 'title', 'attempts'], true), fn ($query) => $query->orderByDesc('created_at')->orderByDesc('id'))
+            ->paginate(20)->withQueryString();
         $stats = [
             'all' => Exam::query()->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))->count(),
             'published' => Exam::query()->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))->where('status', 'published')->count(),
-            'attempts' => DB::table('exam_attempts')
+            'attempts' => (int) DB::table('exam_attempts')
                 ->join('exams', 'exams.id', '=', 'exam_attempts.exam_id')
                 ->join('courses', 'courses.id', '=', 'exams.course_id')
                 ->where('courses.academy_id', $academy->id)
@@ -61,6 +66,8 @@ final class ExamController extends Controller
             'classrooms' => collect(),
             'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
             'initialQuestions' => [],
+            'bankQuestions' => $academy->questionBankItems()->where('status', 'active')->orderByDesc('created_at')->limit(100)->get(),
+            'selectedBankQuestionIds' => [],
         ]);
     }
 
@@ -74,9 +81,15 @@ final class ExamController extends Controller
         $payload = $request->safe()->except(['course_id', 'questions']);
         $payload['classroom_id'] = $classroomId ?: null;
         $payload['teacher_id'] = $teacher->id;
-        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
+        $exam = DB::transaction(function () use ($course, $academy, $payload, $request, $questionWriter): Exam {
             $exam = $course->exams()->create($payload);
             $questionWriter->storeQuestions($exam, $request->validated('questions', []));
+            $bankQuestions = $academy->questionBankItems()
+                ->where('status', 'active')
+                ->whereIn('id', $request->validated('bank_question_ids', []))
+                ->get();
+            abort_unless($bankQuestions->count() === count($request->validated('bank_question_ids', [])), 404, 'یکی از سؤال‌های انتخاب‌شده متعلق به این آموزشگاه نیست یا بایگانی شده است.');
+            $questionWriter->storeBankQuestions($exam, $bankQuestions);
             return $exam;
         });
         return redirect()->route('owner.exams.show', [$academy, $exam->id])->with('success', 'آزمون و سؤال‌های آن با موفقیت ثبت شدند.');
@@ -95,7 +108,8 @@ final class ExamController extends Controller
             'classroom',
             'questions',
         ]);
-        $initialQuestions = $record->questions->map(function ($question): array {
+        $selectedBankQuestionIds = $record->questions->pluck('source_bank_question_id')->filter()->map(fn ($id) => (int) $id)->values()->all();
+        $initialQuestions = $record->questions->whereNull('source_bank_question_id')->map(function ($question): array {
             $correctAnswer = $question->correct_answer;
             if (in_array($question->type, ['multiple', 'checkbox'], true)) {
                 $decoded = json_decode((string) $correctAnswer, true);
@@ -110,6 +124,13 @@ final class ExamController extends Controller
                 'score' => $question->score,
             ];
         })->values()->all();
+        $bankQuestions = $academy->questionBankItems()
+            ->whereIn('id', $selectedBankQuestionIds)
+            ->get()
+            ->concat($academy->questionBankItems()->where('status', 'active')->orderByDesc('created_at')->limit(100)->get())
+            ->unique('id')
+            ->values();
+
         return view('owner.exams.form', [
             'academy' => $academy,
             'hasAssignableCourses' => true,
@@ -117,6 +138,8 @@ final class ExamController extends Controller
             'classrooms' => collect(),
             'exam' => $record,
             'initialQuestions' => $initialQuestions,
+            'bankQuestions' => $bankQuestions,
+            'selectedBankQuestionIds' => $selectedBankQuestionIds,
         ]);
     }
 
@@ -135,13 +158,19 @@ final class ExamController extends Controller
         $payload['course_id'] = $course->id;
         $payload['classroom_id'] = $classroomId ?: null;
         $payload['teacher_id'] = $teacher->id;
-        DB::transaction(function () use ($record, $payload, $request, $questionWriter): void {
+        DB::transaction(function () use ($record, $payload, $request, $questionWriter, $academy): void {
             $record->fill($payload)->save();
             foreach ($record->questions()->get() as $question) {
                 $question->media()->detach();
                 $question->delete();
             }
             $questionWriter->storeQuestions($record, $request->validated('questions', []));
+            $bankQuestions = $academy->questionBankItems()
+                ->where('status', 'active')
+                ->whereIn('id', $request->validated('bank_question_ids', []))
+                ->get();
+            abort_unless($bankQuestions->count() === count($request->validated('bank_question_ids', [])), 422, 'یکی از سؤال‌های انتخاب‌شده متعلق به این آموزشگاه نیست یا بایگانی شده است.');
+            $questionWriter->storeBankQuestions($record, $bankQuestions);
         });
         return redirect()->route('owner.exams.show', [$academy, $record->id])->with('success', 'مشخصات و سؤال‌های آزمون به‌روزرسانی شدند.');
     }
@@ -178,14 +207,33 @@ final class ExamController extends Controller
             ->with('answers.question')
             ->findOrFail($attempt);
 
+        $record->loadMissing('answers.question');
         $data = $request->validate([
-            'scores' => ['required', 'array'],
-            'scores.*' => ['nullable', 'numeric', 'min:0', 'max:100000'],
+            'scores' => ['required', 'array', 'min:1'],
+            'scores.*' => ['required', 'numeric', 'min:0', 'max:100000'],
         ], [
             'scores.required' => 'نمرهٔ هر پاسخ را بررسی و ثبت کنید.',
+            'scores.*.required' => 'برای تمام پاسخ‌ها نمره وارد کنید.',
             'scores.*.numeric' => 'نمره باید عددی باشد.',
             'scores.*.min' => 'نمره نمی‌تواند منفی باشد.',
         ]);
+
+        $answerIds = $record->answers->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $submittedIds = array_map('strval', array_keys($data['scores']));
+        if (array_diff($submittedIds, $answerIds) !== [] || array_diff($answerIds, $submittedIds) !== []) {
+            throw ValidationException::withMessages([
+                'scores' => 'فهرست پاسخ‌ها تغییر کرده است؛ صفحه را تازه‌سازی و دوباره نمره‌دهی کنید.',
+            ]);
+        }
+
+        foreach ($record->answers as $answer) {
+            $maximum = (float) ($answer->question?->score ?? 0);
+            if ((float) $data['scores'][$answer->id] > $maximum) {
+                throw ValidationException::withMessages([
+                    'scores.' . $answer->id => 'نمره نمی‌تواند از امتیاز همین سؤال بیشتر باشد.',
+                ]);
+            }
+        }
 
         $assessments->gradeExamAttemptManually($record, $data['scores'], (int) $request->user()->id);
 
@@ -321,6 +369,7 @@ final class ExamController extends Controller
 
     private function authorizeAcademy(Request $request, Academy $academy, string $permission): void
     {
-        abort_unless($request->user()->hasRole('academy-owner') && $request->user()->hasPermission($permission) && (int) $academy->owner_id === (int) $request->user()->id, 404);
+        app(\App\Services\OwnerWorkspaceService::class)
+            ->authorizeAcademy($request->user(), $academy, $permission);
     }
 }

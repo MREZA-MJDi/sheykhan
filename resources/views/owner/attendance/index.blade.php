@@ -10,23 +10,33 @@
 @endphp
 
 <div class="space-y-6 panel-page-enter">
+    @include('owner.partials.attendance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
+            <p class="text-xs font-black text-[var(--panel-primary)]">مدیریت حضور و غیاب</p>
             <h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1>
             <p class="mt-2 text-sm leading-7 text-slate-500">فهرست صفحه‌بندی‌شدهٔ رکوردهای حضور و غیاب همین آموزشگاه؛ با جست‌وجوی دانش‌آموز، کلاس، تاریخ و وضعیت.</p>
         </div>
-        <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a>
+        <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به داشبورد ←</a>
     </header>
 
-    <section class="grid gap-3 grid-cols-2 xl:grid-cols-5">
-        @foreach([['کل رکوردها', $summary->total ?? 0], ['حاضر', $summary->present_count ?? 0], ['با تأخیر', $summary->late_count ?? 0], ['غایب', $summary->absent_count ?? 0], ['موجه', $summary->excused_count ?? 0]] as [$label, $value])
-            <article class="owner-stat-card"><span>{{ $label }}</span><strong>{{ \App\Support\PersianUi::digits($value) }}</strong><small>بر اساس فیلترهای فعلی</small></article>
-        @endforeach
-    </section>
+
+    @if($sheet === 'report')
+        <section class="grid gap-3 grid-cols-2 xl:grid-cols-5" aria-label="گزارش وضعیت حضور و غیاب">
+            @foreach([['کل رکوردها', $summary->total ?? 0], ['حاضر', $summary->present_count ?? 0], ['با تأخیر', $summary->late_count ?? 0], ['غایب', $summary->absent_count ?? 0], ['موجه', $summary->excused_count ?? 0]] as [$label, $value])
+                <article class="owner-stat-card"><span>{{ $label }}</span><strong>{{ \App\Support\PersianUi::digits($value) }}</strong><small>بر اساس فیلترهای انتخاب‌شده</small></article>
+            @endforeach
+        </section>
+        <section class="dashboard-panel p-5 sm:p-6">
+            <h2 class="text-base font-black">دامنهٔ گزارش</h2>
+            <p class="mt-2 text-sm leading-7 text-slate-500">این گزارش از همان فیلترهای تاریخ، کلاس، وضعیت و جست‌وجوی انتخاب‌شده استفاده می‌کند. برای بررسی جزئیات هر رکورد، به بخش «سوابق حضور و غیاب» برو.</p>
+            <a href="{{ route('owner.attendance.index', ['academy' => $academy->id, ...request()->except('page', 'sheet'), 'sheet' => 'history']) }}" class="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">مشاهده رکوردهای گزارش</a>
+        </section>
+    @endif
 
     <section class="dashboard-panel p-5 sm:p-6">
         <form method="GET" action="{{ route('owner.attendance.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <input type="hidden" name="sheet" value="{{ $sheet }}">
             <label class="grid gap-1"><span class="text-xs font-bold">نام یا ایمیل دانش‌آموز</span><input name="q" value="{{ $filters['q'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="جست‌وجو..."></label>
             <x-academy-option-picker
                 id="owner-attendance-classroom"
@@ -50,10 +60,11 @@
             </x-academy-option-picker>
             <label class="grid gap-1"><span class="text-xs font-bold">تاریخ</span><input type="date" name="attendance_date" value="{{ $filters['attendance_date'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"></label>
             <label class="grid gap-1"><span class="text-xs font-bold">وضعیت</span><select name="status" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">همه وضعیت‌ها</option>@foreach($statusLabels as $status => $label)<option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $label }}</option>@endforeach</select></label>
-            <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-4"><button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">اعمال فیلتر</button><a href="{{ route('owner.attendance.index', $academy) }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">پاک‌کردن فیلترها</a><span class="text-xs text-slate-500">{{ \App\Support\PersianUi::digits($attendances->total()) }} رکورد منطبق</span></div>
+            <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-4"><button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">اعمال فیلتر</button><a href="{{ route('owner.attendance.index', $academy) }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">پاک‌کردن فیلترها</a><span class="text-xs text-slate-500">{{ \App\Support\PersianUi::digits($sheet === 'history' ? $attendances->total() : ($summary->total ?? 0)) }} رکورد منطبق</span></div>
         </form>
     </section>
 
+    @if($sheet === 'history')
     <section class="dashboard-panel p-5 sm:p-6">
         <div class="mb-4"><h2 class="text-base font-black">سوابق ثبت‌شده</h2><p class="mt-1 text-xs text-slate-500">نمایش ۲۵ رکورد در هر صفحه؛ فیلترها بین صفحه‌ها حفظ می‌شوند.</p></div>
         <div class="grid gap-3">
@@ -96,5 +107,6 @@
             <div class="mt-5 border-t border-slate-100 pt-4 text-sm">{{ $attendances->links('components.navigation.pagination') }}</div>
         @endif
     </section>
+    @endif
 </div>
 @endsection

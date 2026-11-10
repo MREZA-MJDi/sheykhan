@@ -20,7 +20,7 @@
         <div>
             <span>کنترل دیده‌شدن</span>
             <h1>{{ $item->getAttribute('title') ?: $item->getAttribute('name') ?: 'صفحه' }}</h1>
-            <p>این تنظیمات در HTML عمومی صفحه قرار می‌گیرند. مقدارهای خالی از metadata پیش‌فرض صفحه استفاده می‌کنند.</p>
+            <p>این نوشته‌ها ممکن است در نتیجه جست‌وجوی گوگل نمایش داده شوند. اگر خالی باشند، عنوان و توضیح پیش‌فرض صفحه استفاده می‌شود.</p>
         </div>
         <a href="{{ route('owner.seo.index') }}">بازگشت به SEO</a>
     </div>
@@ -30,16 +30,16 @@
         @method('PATCH')
 
         <section class="owner-form-section">
-            <h2>هویت جستجو</h2>
+            <h2>عنوان و توضیح صفحه در گوگل</h2>
 
             <label>
-                <span>عنوان SEO</span>
+                <span>عنوانی که در گوگل نمایش داده می‌شود</span>
                 <input name="title" value="{{ old('title', $seoMeta?->title) }}" maxlength="255" data-seo-title-input>
                 <small>عنوانی که در عنوان نتایج جستجو و تب مرورگر استفاده می‌شود.</small>
             </label>
 
             <label>
-                <span>توضیحات SEO</span>
+                <span>توضیح کوتاهی که زیر عنوان در گوگل می‌آید</span>
                 <textarea name="description" rows="4" maxlength="500" data-seo-description-input>{{ old('description', $seoMeta?->description) }}</textarea>
             </label>
 

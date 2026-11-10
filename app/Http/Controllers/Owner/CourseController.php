@@ -15,7 +15,12 @@ class CourseController extends Controller
 {
     public function index(CourseManagementService $service): View
     {
-        return view('owner.courses.index', $service->ownerIndexData(request()->user()));
+        $owner = request()->user();
+        $data = $service->ownerIndexData($owner);
+        $workspaceAcademy = $service->accessibleAcademies($owner)
+            ->first(fn ($academy) => (int) $academy->owner_id === (int) $owner->id);
+
+        return view('owner.courses.index', [...$data, 'workspaceAcademy' => $workspaceAcademy]);
     }
 
     public function create(CourseManagementService $service): View

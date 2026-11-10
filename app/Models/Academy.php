@@ -71,6 +71,11 @@ class Academy extends Model
         return $this->hasMany(Course::class);
     }
 
+    public function questionBankItems(): HasMany
+    {
+        return $this->hasMany(QuestionBankItem::class);
+    }
+
     public function classrooms(): HasMany
     {
         return $this->hasMany(Classroom::class);

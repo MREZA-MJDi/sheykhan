@@ -13,7 +13,7 @@ final class OwnerScheduleService
 {
     public function index(User $owner, Academy $academy): array
     {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.view');
 
         $classrooms = $academy->classrooms()
             ->where('status', 'active')
@@ -37,8 +37,7 @@ final class OwnerScheduleService
         array $data,
         MeetingLinkService $links
     ): ClassSchedule {
-        $this->authorizeAcademy($owner, $academy);
-        abort_unless($owner->hasPermission('live_classes.manage'), 403);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.manage');
         abort_unless((int) $classroom->academy_id === (int) $academy->id, 404);
 
         if ($classroom->status !== 'active') {
@@ -96,8 +95,7 @@ final class OwnerScheduleService
         Classroom $classroom,
         ClassSchedule $schedule
     ): void {
-        $this->authorizeAcademy($owner, $academy);
-        abort_unless($owner->hasPermission('live_classes.manage'), 403);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.manage');
         abort_unless(
             (int) $classroom->academy_id === (int) $academy->id
                 && (int) $schedule->classroom_id === (int) $classroom->id,
@@ -107,11 +105,8 @@ final class OwnerScheduleService
         $schedule->delete();
     }
 
-    private function authorizeAcademy(User $owner, Academy $academy): void
+    private function authorizeAcademy(User $owner, Academy $academy, string $permission): void
     {
-        abort_unless(
-            $owner->hasRole('academy-owner') && (int) $academy->owner_id === (int) $owner->id,
-            403
-        );
+        app(OwnerWorkspaceService::class)->authorizeAcademy($owner, $academy, $permission);
     }
 }

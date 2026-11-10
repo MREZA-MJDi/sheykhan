@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'کارتابل مدیر آموزشگاه | شیخان')</title>
-    @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
+    <title>@yield('title', 'مدیریت آموزشگاه | شیخان')</title>
+    @vite(['resources/css/owner-dashboard-v2.css', 'resources/css/panels/shared/owner-ui.css', 'resources/js/owner-dashboard.js'])
     @stack('styles')
 </head>
 <body class="owner-shell owner-admin-v2">
@@ -28,10 +28,19 @@
     $ownerHomeRoute = $isSeoOnlyUser ? 'owner.seo.index' : 'owner.dashboard';
     $routeAcademy = request()->route('academy');
     $routeAcademyId = $routeAcademy instanceof \App\Models\Academy ? (int) $routeAcademy->getKey() : (int) ($routeAcademy ?? 0);
-    $pageHeading = trim($__env->yieldContent('header-title')) ?: 'کارتابل ادمین / منشی';
+    $pageHeading = trim($__env->yieldContent('header-title')) ?: 'مدیریت آموزشگاه';
     $period = in_array($period ?? request()->query('period', 'month'), ['today','week','month'], true) ? ($period ?? request()->query('period','month')) : 'month';
     $notifications = collect($notifications ?? []);
     $ownerInitial = mb_substr(trim((string) ($ownerUser?->name ?? 'ش')), 0, 1);
+    $hasNavPermission = static function ($permission) use ($ownerUser): bool {
+        foreach ((array) $permission as $requiredPermission) {
+            if ($ownerUser?->hasPermission($requiredPermission)) {
+                return true;
+            }
+        }
+
+        return false;
+    };
     $nextClass = collect(isset($upcomingLiveClasses) ? $upcomingLiveClasses : [])->first();
     $nextClassTarget = $nextClass?->scheduled_at?->timestamp;
     // Keep the menu task-based: related daily operations live together while
@@ -39,67 +48,103 @@
     $ownerNavGroups = [
         [
             'key' => 'control',
-            'title' => 'خانه و گزارش‌ها',
+            'title' => 'خانه',
             'color' => '#22d3ee',
             'links' => [
                 ['route' => 'owner.dashboard', 'permission' => 'dashboard.view', 'label' => 'داشبورد اصلی', 'icon' => 'home', 'scope' => 'global'],
-                ['route' => 'owner.reports.index', 'permission' => 'reports.view', 'label' => 'گزارش عملکرد', 'icon' => 'chart', 'scope' => 'global'],
             ],
         ],
         [
             'key' => 'people',
-            'title' => 'افراد و ارتباطات',
+            'title' => 'اعضا و ارتباطات',
             'color' => '#ff1f6b',
             'links' => [
-                ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'دانش‌آموزان، مدرس‌ها و اولیا', 'icon' => 'users', 'scope' => 'academy'],
-                ['route' => 'owner.attendance.index', 'permission' => 'attendance.view', 'label' => 'حضور و غیاب', 'icon' => 'checksq', 'scope' => 'academy'],
-                ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'پیام‌های اولیا', 'icon' => 'chat', 'scope' => 'academy'],
-                ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها', 'icon' => 'mega', 'scope' => 'academy'],
-                ['route' => 'owner.counseling.index', 'permission' => 'parents.view', 'label' => 'درخواست‌های مشاوره', 'icon' => 'heart', 'scope' => 'academy'],
+                ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'اعضا و پرونده‌ها', 'icon' => 'users', 'scope' => 'academy'],
+                ['route' => 'owner.communication-workspace', 'permission' => ['parents.view', 'live_classes.view'], 'label' => 'پیام‌ها و ارتباطات', 'icon' => 'chat', 'scope' => 'academy'],
+            ],
+        ],
+        [
+            'key' => 'attendance',
+            'title' => 'حضور و غیاب',
+            'color' => '#0d9488',
+            'links' => [
+                ['route' => 'owner.attendance.index', 'permission' => 'attendance.view', 'label' => 'ثبت، سوابق و گزارش حضور', 'icon' => 'checksq', 'scope' => 'academy'],
             ],
         ],
         [
             'key' => 'learning',
-            'title' => 'کلاس‌ها و آموزش',
+            'title' => 'آموزش',
             'color' => '#8b3dff',
             'links' => [
-                ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'دوره‌ها', 'icon' => 'book', 'scope' => 'global'],
-                ['route' => 'owner.classrooms.index', 'permission' => 'classrooms.view', 'label' => 'کلاس‌ها و گروه‌ها', 'icon' => 'calendar', 'scope' => 'academy'],
-                ['route' => 'owner.assignments.index', 'permission' => 'assignments.view', 'label' => 'تکالیف و تصحیح', 'icon' => 'doc', 'scope' => 'academy'],
-                ['route' => 'owner.exams.index', 'permission' => 'exams.view', 'label' => 'آزمون‌ها و نتایج', 'icon' => 'book', 'scope' => 'academy'],
-                ['route' => 'owner.schedules.index', 'permission' => 'live_classes.view', 'label' => 'برنامه و لینک کلاس آنلاین', 'icon' => 'link', 'scope' => 'academy'],
-                ['route' => 'owner.meetings.index', 'permission' => 'live_classes.view', 'label' => 'هماهنگی جلسات', 'icon' => 'users', 'scope' => 'academy'],
-                ['route' => 'owner.recordings.index', 'permission' => 'live_classes.view', 'label' => 'ضبط کلاس‌ها', 'icon' => 'video', 'scope' => 'academy'],
-                ['route' => 'owner.resources.index', 'permission' => 'resources.view', 'label' => 'منابع آموزشی', 'icon' => 'book', 'scope' => 'academy'],
+                ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'مرکز آموزش', 'icon' => 'book', 'scope' => 'global'],
             ],
         ],
         [
             'key' => 'finance',
-            'title' => 'فروش و امور مالی',
+            'title' => 'مالی',
             'color' => '#2ee6a6',
             'links' => [
-                ['route' => 'owner.finance.index', 'permission' => 'finance.view', 'label' => 'مالی و پرداخت‌ها', 'icon' => 'wallet', 'scope' => 'global'],
-                ['route' => 'owner.teacher-payments.index', 'permission' => 'teacher_payments.view', 'label' => 'پرداخت مدرس‌ها', 'icon' => 'wallet', 'scope' => 'academy'],
-                ['route' => 'owner.products.index', 'permission' => 'products.view', 'label' => 'محصولات و منابع فروش', 'icon' => 'tag', 'scope' => 'academy'],
-                ['route' => 'owner.orders.index', 'permission' => 'orders.view', 'label' => 'سفارش‌ها و رسیدها', 'icon' => 'receipt', 'scope' => 'academy'],
-                ['route' => 'owner.protected-file-views.index', 'permission' => 'orders.view', 'label' => 'گزارش مشاهده فایل‌ها', 'icon' => 'receipt', 'scope' => 'academy'],
+                ['route' => 'owner.finance.index', 'permission' => 'finance.view', 'label' => 'مرکز مالی و پرداخت‌ها', 'icon' => 'wallet', 'scope' => 'global'],
+            ],
+        ],
+        [
+            'key' => 'reports',
+            'title' => 'گزارش‌ها',
+            'color' => '#64748b',
+            'links' => [
+                ['route' => 'owner.reports.index', 'permission' => 'reports.view', 'label' => 'گزارش‌های مدیریتی', 'icon' => 'chart', 'scope' => 'global'],
             ],
         ],
         [
             'key' => 'more',
-            'title' => 'بیشتر',
+            'title' => 'محتوا و سایت',
             'color' => '#9aa3d8',
             'links' => [
-                ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی و کپی‌رایت', 'icon' => 'scale', 'scope' => 'global'],
-                ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
                 ['route' => 'owner.academy.edit', 'permission' => 'academy.view', 'label' => 'تنظیمات آموزشگاه', 'icon' => 'cog', 'scope' => 'academy'],
-                ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'SpotPlayer و لایسنس‌ها', 'icon' => 'video', 'scope' => 'global'],
+                ['route' => 'owner.spotplayer.edit', 'permission' => 'courses.manage', 'label' => 'پخش ویدئوهای آموزشی', 'icon' => 'video', 'scope' => 'global'],
+                ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی', 'icon' => 'scale', 'scope' => 'global'],
+                ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
             ],
         ],
     ];
 
-    $currentOwnerNavGroupKey = null;
+    $currentOwnerNavGroupKey = match (true) {
+        request()->routeIs('owner.classrooms.*', 'owner.assignments.*', 'owner.exams.*', 'owner.question-bank.*', 'owner.schedules.*', 'owner.meetings.*', 'owner.recordings.*', 'owner.resources.*', 'owner.courses.*') => 'learning',
+        request()->routeIs('owner.finance.*', 'owner.teacher-payments.*', 'owner.orders.*') => 'finance',
+        request()->routeIs('owner.attendance.*') => 'attendance',
+        request()->routeIs('owner.reports.*') => 'reports',
+        request()->routeIs('owner.people.*', 'owner.communication-workspace', 'owner.communications.*', 'owner.messages.*', 'owner.counseling.*') => 'people',
+        default => null,
+    };
     foreach ($ownerNavGroups as $candidateGroup) {
+        if ($currentOwnerNavGroupKey !== null) {
+            break;
+        }
+        if (
+            $candidateGroup['key'] === 'learning'
+            && request()->routeIs(
+                'owner.courses.*',
+                'owner.classrooms.*',
+                'owner.schedules.*',
+                'owner.assignments.*',
+                'owner.exams.*',
+                'owner.question-bank.*',
+                'owner.recordings.*',
+                'owner.resources.*'
+            )
+        ) {
+            $currentOwnerNavGroupKey = 'learning';
+            break;
+        }
+
+        if (
+            $candidateGroup['key'] === 'finance'
+            && request()->routeIs('owner.finance.*', 'owner.orders.*', 'owner.teacher-payments.*')
+        ) {
+            $currentOwnerNavGroupKey = 'finance';
+            break;
+        }
+
         if (
             $candidateGroup['key'] === 'more'
             && request()->routeIs(
@@ -136,9 +181,11 @@
             <?php foreach ($ownerNavGroups as $navGroup) { ?>
                 <?php
                     $visibleGlobalLinks = collect($navGroup['links'])
-                        ->filter(fn ($link) => $link['scope'] === 'global' && $ownerUser?->hasPermission($link['permission']));
+                        ->filter(fn ($link) => $link['scope'] === 'global'
+                            && $hasNavPermission($link['permission'])
+                            && (! in_array($link['route'], ['owner.blog.index', 'owner.content.index', 'owner.website.index', 'owner.seo.index'], true) || $canManagePublicSite));
                     $visibleAcademyLinks = collect($navGroup['links'])
-                        ->filter(fn ($link) => $link['scope'] === 'academy' && $ownerUser?->hasPermission($link['permission']));
+                        ->filter(fn ($link) => $link['scope'] === 'academy' && $hasNavPermission($link['permission']));
                     $showSiteGroup = $navGroup['key'] === 'more' && $canManagePublicSite;
                     $showNavGroup = (
                         ! $isSeoOnlyUser
@@ -163,7 +210,7 @@
                         <div class="nav-group-items" <?php if (! $isNavGroupExpanded) echo 'hidden'; ?>>
                             <?php if (! $isSeoOnlyUser) { ?>
                                 <?php foreach ($navGroup['links'] as $navLink) { ?>
-                                    <?php if ($navLink['scope'] === 'global' && $ownerUser?->hasPermission($navLink['permission'])) { ?>
+                                    <?php if ($navLink['scope'] === 'global' && $hasNavPermission($navLink['permission']) && (! in_array($navLink['route'], ['owner.blog.index', 'owner.content.index', 'owner.website.index', 'owner.seo.index'], true) || $canManagePublicSite)) { ?>
                                         <?php
                                             $navRoutePattern = str_contains($navLink['route'], '.index')
                                                 ? str_replace('.index', '.*', $navLink['route'])
@@ -171,12 +218,12 @@
                                         ?>
                                         <a class="ni" style="--c:{{ $navGroup['color'] }}"
                                            href="{{ route($navLink['route']) }}"
-                                           <?php if (request()->routeIs($navRoutePattern)) echo 'aria-current="page"'; ?>
+                                           <?php if (request()->routeIs($navRoutePattern) || ($navGroup['key'] === $currentOwnerNavGroupKey && in_array($navGroup['key'], ['learning', 'finance', 'attendance', 'reports'], true))) echo 'aria-current="page"'; ?>
                                            data-nav-label="{{ $navLink['label'] }}">
                                             <svg class="ic" aria-hidden="true"><use href="#i-{{ $navLink['icon'] }}"/></svg>
                                             <span>{{ $navLink['label'] }}</span>
                                         </a>
-                                    <?php } elseif ($navLink['scope'] === 'academy' && $ownerUser?->hasPermission($navLink['permission'])) { ?>
+                                    <?php } elseif ($navLink['scope'] === 'academy' && $hasNavPermission($navLink['permission'])) { ?>
                                         <?php foreach ($academies as $academy) { ?>
                                             <?php
                                                 $navRoutePattern = str_contains($navLink['route'], '.index')
@@ -199,41 +246,17 @@
                             <?php } ?>
 
                             <?php if ($showSiteGroup) { ?>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.seo.index') }}"
-                                   <?php if (request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="ممیزی SEO">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>ممیزی SEO</span>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.blog.index') }}" <?php if (request()->routeIs('owner.blog.*')) echo 'aria-current="page"'; ?> data-nav-label="مقاله‌ها">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>مقاله‌ها</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.seo.keywords.index') }}"
-                                   <?php if (request()->routeIs('owner.seo.keywords.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="کلمات کلیدی">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>کلمات کلیدی</span>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.content.index') }}" <?php if (request()->routeIs('owner.content.*')) echo 'aria-current="page"'; ?> data-nav-label="محتوای آموزشی">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>محتوای آموزشی</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.website.index') }}"
-                                   <?php if (request()->routeIs('owner.website.index')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="مرکز سایت">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>مرکز سایت و بنرها</span>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.website.index') }}" <?php if (request()->routeIs('owner.website.*')) echo 'aria-current="page"'; ?> data-nav-label="صفحات و بنرها">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>صفحات و بنرها</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.website.hero.edit') }}"
-                                   <?php if (request()->routeIs('owner.website.hero.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="اسلایدر صفحه اصلی">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-mega"/></svg><span>اسلایدر صفحه اصلی</span>
-                                </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.content.index') }}"
-                                   <?php if (request()->routeIs('owner.content.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="محتوای عمومی">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>محتوای عمومی</span>
-                                </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.blog.index') }}"
-                                   <?php if (request()->routeIs('owner.blog.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="بلاگ و مقالات">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>بلاگ و مقالات</span>
+                                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}" <?php if (request()->routeIs('owner.seo.*')) echo 'aria-current="page"'; ?> data-nav-label="نمایش سایت در گوگل">
+                                    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>نمایش سایت در گوگل</span>
                                 </a>
                                 <?php foreach ($websiteAcademies as $websiteAcademy) { ?>
                                     <a class="ni" style="--c:{{ $navGroup['color'] }}"
@@ -266,12 +289,12 @@
         @else
             <section class="tm owner-seo-sidebar-note" aria-label="مرکز مدیریت SEO">
                 <small>مرکز مدیریت سایت</small>
-                <b>SEO و محتوای عمومی</b>
-                <small>متادیتا، کلمات کلیدی، بنرها و مقاله‌ها از همین پنل مدیریت می‌شوند.</small>
-                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>شروع ممیزی صفحات</span></a>
+                <b>محتوا و نمایش سایت در گوگل</b>
+                <small>اطلاعات سایت، عبارت‌های جست‌وجو، بنرها و مقاله‌ها از این بخش مدیریت می‌شوند.</small>
+                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>بررسی وضعیت صفحه‌های سایت</span></a>
             </section>
         @endif
-        <div class="side-foot"><a href="{{ route('account.guide') }}"><svg class="ic"><use href="#i-book"/></svg>راهنمای پنل و بروشور</a><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
+        <div class="side-foot"><a href="{{ route('account.guide') }}"><svg class="ic"><use href="#i-book"/></svg>راهنمای استفاده</a><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
     </aside>
     @include('owner.partials.admin-main')
     @include('owner.partials.admin-command-palette')

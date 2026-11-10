@@ -1,12 +1,17 @@
-/* Owner people-page tab behavior. No presentation rules are defined here. */
+/* Accessible, reusable tabs for Owner workspaces, including nested sheets. */
 export function bootOwnerPeopleTabs(root = document) {
     root.querySelectorAll('[data-owner-people-tabs]').forEach((tabs) => {
         if (tabs.dataset.ownerPeopleTabsBound === 'true') return;
-        const buttons = Array.from(tabs.querySelectorAll('[data-owner-tab-button]'));
-        const panels = Array.from(tabs.querySelectorAll('[data-owner-tab-panel]'));
+
+        // A parent workspace must not capture controls belonging to a nested workspace.
+        const owned = (selector) => Array.from(tabs.querySelectorAll(selector))
+            .filter((element) => element.closest('[data-owner-people-tabs]') === tabs);
+        const buttons = owned('[data-owner-tab-button]');
+        const panels = owned('[data-owner-tab-panel]');
         if (!buttons.length || !panels.length) return;
 
-        const activate = (key, moveFocus = false) => {
+        const queryParam = tabs.dataset.queryParam || null;
+        const activate = (key, moveFocus = false, updateUrl = true) => {
             buttons.forEach((button) => {
                 const active = button.dataset.ownerTabButton === key;
                 button.setAttribute('aria-selected', active ? 'true' : 'false');
@@ -18,6 +23,12 @@ export function bootOwnerPeopleTabs(root = document) {
                 panel.hidden = !active;
                 panel.classList.toggle('is-active', active);
             });
+
+            if (queryParam && updateUrl) {
+                const url = new URL(window.location.href);
+                url.searchParams.set(queryParam, key);
+                window.history.replaceState(window.history.state, '', url);
+            }
             if (moveFocus) buttons.find((button) => button.dataset.ownerTabButton === key)?.focus();
         };
 
@@ -33,10 +44,12 @@ export function bootOwnerPeopleTabs(root = document) {
             });
         });
 
-        const requested = tabs.dataset.initialTab;
-        activate(buttons.some((button) => button.dataset.ownerTabButton === requested)
+        const params = new URLSearchParams(window.location.search);
+        const requested = params.get(queryParam || '') || tabs.dataset.initialTab;
+        const key = buttons.some((button) => button.dataset.ownerTabButton === requested)
             ? requested
-            : buttons[0].dataset.ownerTabButton);
+            : buttons[0].dataset.ownerTabButton;
+        activate(key, false, false);
         tabs.dataset.ownerPeopleTabsBound = 'true';
     });
 }

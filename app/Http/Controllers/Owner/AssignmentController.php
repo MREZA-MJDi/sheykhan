@@ -25,6 +25,7 @@ final class AssignmentController extends Controller
             'q' => ['nullable', 'string', 'max:120'],
             'status' => ['nullable', Rule::in(['draft', 'published', 'closed'])],
             'classroom_id' => ['nullable', 'integer', Rule::exists('classrooms', 'id')->where('academy_id', $academy->id)],
+            'sort' => ['nullable', Rule::in(['recent', 'oldest', 'title', 'pending'])],
         ]);
 
         return view('owner.assignments.index', $assignments->index($request->user(), $academy, $filters));

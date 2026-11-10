@@ -25,6 +25,8 @@ class StoreExamRequest extends FormRequest
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'attempts_allowed' => ['sometimes', 'integer', 'min:1', 'max:255'],
             'status' => ['sometimes', Rule::in(['draft', 'published', 'closed'])],
+            'bank_question_ids' => ['nullable', 'array', 'max:100'],
+            'bank_question_ids.*' => ['required', 'integer', 'distinct', 'exists:question_bank_items,id'],
             'questions' => ['nullable', 'array', 'max:100'],
             'questions.*.type' => ['required_with:questions', Rule::in(['text', 'single', 'multiple', 'checkbox'])],
             'questions.*.question' => ['required_with:questions', 'string', 'max:5000'],
@@ -46,7 +48,9 @@ class StoreExamRequest extends FormRequest
             }
 
             $status = $this->input('status', 'draft');
-            $hasQuestion = count(array_filter($questions, 'is_array')) > 0;
+            $bankQuestionIds = $this->input('bank_question_ids', []);
+            $hasBankQuestion = is_array($bankQuestionIds) && count($bankQuestionIds) > 0;
+            $hasQuestion = count(array_filter($questions, 'is_array')) > 0 || $hasBankQuestion;
 
             if ($status === 'published' && ! $hasQuestion) {
                 $validator->errors()->add('questions', 'برای انتشار آزمون حداقل یک سؤال لازم است.');

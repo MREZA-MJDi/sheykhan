@@ -39,7 +39,7 @@
 </section>
 @endif
 
-<div class="owner-people-tabs" data-owner-people-tabs data-initial-tab="{{ $activePeopleTab }}">
+<div class="owner-people-tabs" data-owner-people-tabs data-query-param="tab" data-initial-tab="{{ $activePeopleTab }}">
     <nav class="owner-people-tabbar" role="tablist" aria-label="مدیریت اعضای آموزشگاه">
         <button type="button" role="tab" id="owner-people-management-tab" aria-controls="owner-people-management-panel" data-owner-tab-button="management" aria-selected="{{ $activePeopleTab === 'management' ? 'true' : 'false' }}">
             <span class="owner-people-tab-icon">☷</span><span>اعضا و عملیات</span>
@@ -93,6 +93,13 @@
 
     <div class="owner-people-tab-panel" id="owner-people-management-panel" role="tabpanel" aria-labelledby="owner-people-management-tab" data-owner-tab-panel="management" @if($activePeopleTab !== 'management') hidden @endif>
 
+<div class="owner-people-tabs owner-people-tabs--sheets" data-owner-people-tabs data-query-param="sheet" data-initial-tab="{{ request('sheet', 'directory') }}">
+    <nav class="owner-people-tabbar" role="tablist" aria-label="بخش‌های مدیریت اعضا">
+        <button type="button" role="tab" data-owner-tab-button="directory" aria-selected="true">فهرست و بایگانی</button>
+        <button type="button" role="tab" data-owner-tab-button="create-accounts" aria-selected="false">ثبت مدرس و ولی</button>
+        <button type="button" role="tab" data-owner-tab-button="operations" aria-selected="false">عملیات و سوابق</button>
+    </nav>
+    <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="directory">
 <section class="owner-people-directory-first">
     <header class="mb-3"><h2 class="text-lg font-black text-slate-900">فهرست اعضای آموزشگاه</h2><p class="mt-1 text-sm text-slate-600">برای پیدا کردن هر عضو جست‌وجو کن؛ در هر صفحه فقط تعداد محدودی نتیجه بارگذاری می‌شود.</p></header>
     <div class="mb-2 flex items-center gap-2">
@@ -106,23 +113,7 @@
         <h2 class="font-black">{{ $title }}</h2>
         <span data-directory-count class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $items->total() }}</span>
     </div>
-    <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_100px_auto]" data-directory-controls>
-        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جست‌وجو
-            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام، موبایل یا کد ملی…" aria-label="جست‌وجو در {{ $title }}" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
-        </label>
-        <label class="grid gap-1 text-[10px] font-bold text-slate-500">مرتب‌سازی
-            <select data-directory-sort class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
-                <option value="name">نام و نام خانوادگی</option><option value="mobile">موبایل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
-            </select>
-        </label>
-        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جهت
-            <select data-directory-direction class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs"><option value="asc">صعودی</option><option value="desc">نزولی</option></select>
-        </label>
-        <label class="grid gap-1 text-[10px] font-bold text-slate-500">تعداد در صفحه
-            <select data-directory-per-page class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs"><option value="10" selected>۱۰</option><option value="25">۲۵</option><option value="50">۵۰</option><option value="100">۱۰۰</option></select>
-        </label>
-        <button type="button" data-directory-reset class="self-end rounded-lg border border-slate-200 bg-white px-3 py-2 text-[10px] font-bold">پاک‌کردن</button>
-    </div>
+    @include('owner.people.partials.directory-controls', ['title' => $title, 'showPerPage' => true])
     <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">نمایش داده‌های همین آموزشگاه؛ برای جست‌وجو عبارت را وارد کن.</p>
     <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($items as $person)
@@ -167,20 +158,7 @@
         </div>
         <span data-directory-count class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $archivedTeachers->total() }}</span>
     </div>
-    <div class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_140px_100px_auto]" data-directory-controls>
-        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جست‌وجو
-            <input type="search" data-directory-query maxlength="120" autocomplete="off" placeholder="نام، موبایل یا کد ملی…" aria-label="جست‌وجو در مدرس‌های آرشیوشده" class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
-        </label>
-        <label class="grid gap-1 text-[10px] font-bold text-slate-500">مرتب‌سازی
-            <select data-directory-sort class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs">
-                <option value="name">نام و نام خانوادگی</option><option value="mobile">موبایل</option><option value="joined_at">تاریخ عضویت</option><option value="created_at">تاریخ ثبت</option>
-            </select>
-        </label>
-        <label class="grid gap-1 text-[10px] font-bold text-slate-500">جهت
-            <select data-directory-direction class="min-h-9 rounded-lg border border-slate-200 px-2.5 text-xs"><option value="asc">صعودی</option><option value="desc">نزولی</option></select>
-        </label>
-        <button type="button" data-directory-reset class="self-end rounded-lg border border-slate-200 bg-white px-3 py-2 text-[10px] font-bold">پاک‌کردن</button>
-    </div>
+    @include('owner.people.partials.directory-controls', ['title' => 'مدرس‌های آرشیوشده', 'showPerPage' => false])
     <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">برای پیدا کردن مدرس آرشیوشده جست‌وجو کن.</p>
     <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($archivedTeachers as $teacher)
@@ -209,10 +187,8 @@
     @endif
 </section>
 </section>
-
-
-
-
+    </section>
+    <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="create-accounts">
 <section class="dashboard-panel p-5 sm:p-7">
     <div>
         <h2 class="text-base font-black">ثبت اولیا و اتصال به دانش‌آموز</h2>
@@ -267,6 +243,8 @@
 <label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">سابقهٔ تدریس را به سال و در بازهٔ صفر تا ۸۰ وارد کن.</small>@error('experience_years')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <button class="rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت حساب مدرس</button></form></section>
 
+    </section>
+    <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="operations">
 <details class="owner-people-operations" @if($errors->any() || session('success')) open @endif>
     <summary>افزودن عضو و عملیات مدیریتی</summary>
     <div class="owner-people-operations-body">
@@ -448,7 +426,8 @@
 
     </div>
 </details>
-
+    </section>
+</div>
 
     </div>
 </div>

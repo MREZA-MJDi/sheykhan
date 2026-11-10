@@ -7,6 +7,7 @@ use App\Http\Requests\Owner\StoreAcademyMeetingRequest;
 use App\Models\Academy;
 use App\Models\AcademyMeeting;
 use App\Services\OwnerMeetingService;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,9 +15,11 @@ use Illuminate\View\View;
 
 final class MeetingController extends Controller
 {
-    public function index(Academy $academy, OwnerMeetingService $meetings): View
+    public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        return view('owner.meetings.index', $meetings->index(request()->user(), $academy));
+        $workspace->authorizeAcademy($request->user(), $academy, 'live_classes.view');
+
+        return redirect()->route('owner.communication-workspace', array_merge($request->query(), ['academy' => $academy, 'tab' => 'meetings']));
     }
 
     public function store(
@@ -26,7 +29,7 @@ final class MeetingController extends Controller
     ): RedirectResponse {
         $meetings->create($request->user(), $academy, $request->validated());
 
-        return redirect()->route('owner.meetings.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'meetings'])
             ->with('success', 'جلسه ثبت شد؛ زمان و پیام آن در کارتابل دانش‌آموز و ولی انتخاب‌شده نمایش داده می‌شود.');
     }
 
@@ -48,7 +51,7 @@ final class MeetingController extends Controller
 
         $meetings->changeStatus($request->user(), $academy, $meeting, $data['status'], $data['scheduled_at'] ?? null, $data['scheduled_end_at'] ?? null);
 
-        return redirect()->route('owner.meetings.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'meetings'])
             ->with('success', 'وضعیت جلسه به‌روزرسانی شد.');
     }
 }

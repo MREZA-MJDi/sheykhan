@@ -1,4 +1,4 @@
-/* Owner calendar presentation; editable without affecting other panels. */
+/* Shared Jalali calendar controls for Owner and SEO workspaces. */
 .jalali-calendar-control {
     position: relative;
     display: flex;

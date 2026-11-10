@@ -4,7 +4,7 @@
 @section('content')
 <div class="owner-form-shell space-y-6">
     <header class="owner-form-head">
-        <div><span>قوانین فروشگاه</span><h1>مدیریت نسخه‌های حقوقی</h1><p>نسخهٔ منتشرشده immutable است؛ برای هر اصلاح، نسخهٔ جدید منتشر کن تا سابقهٔ رضایت سفارش‌های قبلی تغییر نکند.</p></div>
+        <div><span>قوانین فروشگاه</span><h1>مدیریت نسخه‌های حقوقی</h1><p>نسخه‌ای که منتشر شده قابل تغییر نیست. اگر لازم است چیزی را اصلاح کنی، نسخهٔ تازه‌ای منتشر کن تا سابقهٔ سفارش‌های قبلی دست‌نخورده بماند.</p></div>
         <a href="{{ route('owner.dashboard') }}">داشبورد</a>
     </header>
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif

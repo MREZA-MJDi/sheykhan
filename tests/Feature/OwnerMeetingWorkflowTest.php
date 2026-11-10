@@ -32,7 +32,7 @@ class OwnerMeetingWorkflowTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.meetings.store', $academy), $payload)
-            ->assertRedirect(route('owner.meetings.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('academy_meetings', [
@@ -47,6 +47,10 @@ class OwnerMeetingWorkflowTest extends TestCase
 
         $this->actingAs($owner)
             ->get(route('owner.meetings.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']));
+
+        $this->actingAs($owner)
+            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
             ->assertOk()
             ->assertSee($payload['title'])
             ->assertSee($payload['message'])
@@ -89,6 +93,28 @@ class OwnerMeetingWorkflowTest extends TestCase
             ->assertViewHas('attendances', fn ($items) => $items->total() === 1 && $items->count() === 1);
     }
 
+    public function test_owner_attendance_report_sheet_uses_aggregate_data_without_loading_history_paginator(): void
+    {
+        [$owner, $academy, , $classroom, $student] = $this->workspace();
+
+        Attendance::query()->create([
+            'classroom_id' => $classroom->id,
+            'student_id' => $student->id,
+            'marked_by' => $owner->id,
+            'attendance_date' => today()->toDateString(),
+            'status' => 'absent',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.attendance.index', $academy) . '?sheet=report&status=absent')
+            ->assertOk()
+            ->assertSee('غیبت‌ها و گزارش کلاسی')
+            ->assertSee('گزارش خلاصه')
+            ->assertViewHas('sheet', 'report')
+            ->assertViewHas('attendances', null)
+            ->assertViewHas('summary', fn ($summary) => (int) $summary->total === 1 && (int) $summary->absent_count === 1);
+    }
+
     public function test_seo_routes_are_not_available_to_an_academy_owner_even_if_old_permission_remains(): void
     {
         [$owner, $academy] = $this->workspace();
@@ -108,7 +134,7 @@ class OwnerMeetingWorkflowTest extends TestCase
         [$owner, $academy] = $this->workspace();
 
         $this->actingAs($owner)
-            ->get(route('owner.meetings.index', $academy))
+            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
             ->assertOk()
             ->assertDontSee('value="هماهنگی با آقای سبحانی"', false)
             ->assertSee('placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده"', false);

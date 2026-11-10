@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use App\Models\Academy;
 use App\Models\CounselingRequest as ParentCounselingRequest;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -12,31 +13,16 @@ use Illuminate\Validation\Rule;
 
 final class CounselingRequestController extends Controller
 {
-    public function index(Academy $academy, Request $request): View
+    public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'parents.view');
 
-        $requests = ParentCounselingRequest::query()
-            ->where('academy_id', $academy->id)
-            ->with(['parent:id,name,mobile', 'student:id,name', 'handler:id,name', 'proposer:id,name'])
-            ->orderByRaw("CASE WHEN status = 'requested' THEN 0 WHEN status = 'scheduled' THEN 1 ELSE 2 END")
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
-
-        $stats = [
-            'requested' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'requested')->count(),
-            'proposed' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'proposed')->count(),
-            'scheduled' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'scheduled')->count(),
-            'completed' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'completed')->count(),
-        ];
-
-        return view('owner.counseling.index', compact('academy', 'requests', 'stats'));
+        return redirect()->route('owner.communication-workspace', array_merge($request->query(), ['academy' => $academy, 'tab' => 'counseling']));
     }
 
-    public function update(Request $request, Academy $academy, int $counselingRequest): RedirectResponse
+    public function update(Request $request, Academy $academy, int $counselingRequest, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'parents.manage');
 
         $data = $request->validate([
             'status' => ['required', 'string', 'in:scheduled,completed,declined,cancelled'],
@@ -58,17 +44,8 @@ final class CounselingRequestController extends Controller
             'handled_at' => now(),
         ])->save();
 
-        return redirect()->route('owner.counseling.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'counseling'])
             ->with('success', 'وضعیت درخواست مشاوره ذخیره شد.');
     }
 
-    private function authorizeAcademy(Request $request, Academy $academy): void
-    {
-        abort_unless(
-            $request->user()->hasRole('academy-owner')
-            && $request->user()->hasPermission('parents.view')
-            && (int) $academy->owner_id === (int) $request->user()->id,
-            404
-        );
-    }
 }

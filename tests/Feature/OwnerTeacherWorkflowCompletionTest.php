@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Academy;
 use App\Models\AcademyMeeting;
 use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Exam;
@@ -13,6 +14,7 @@ use App\Models\ExamAttempt;
 use App\Models\LiveClass;
 use App\Models\Permission;
 use App\Models\Question;
+use App\Models\QuestionBankItem;
 use App\Models\Role;
 use App\Models\TeacherDirectMessage;
 use App\Models\User;
@@ -119,6 +121,67 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
         $this->assertSame('published', $session->status);
     }
 
+    public function test_published_exam_can_be_created_from_question_bank_without_manual_questions(): void
+    {
+        $workspace = $this->workspace();
+        $bankQuestion = QuestionBankItem::query()->create([
+            'academy_id' => $workspace['academy']->id,
+            'created_by' => $workspace['owner']->id,
+            'type' => 'single',
+            'question' => 'کدام گزینه پاسخ صحیح است؟',
+            'options' => ['الف', 'ب', 'ج', 'د'],
+            'correct_answers' => ['ب'],
+            'default_score' => 3,
+            'topic' => 'آزمون',
+            'difficulty' => 'medium',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($workspace['owner'])
+            ->post(route('owner.exams.store', $workspace['academy']), [
+                'course_id' => $workspace['course']->id,
+                'title' => 'آزمون ساخته‌شده از بانک',
+                'status' => 'published',
+                'attempts_allowed' => 1,
+                'bank_question_ids' => [$bankQuestion->id],
+            ])
+            ->assertSessionHasNoErrors();
+
+        $exam = Exam::query()->where('title', 'آزمون ساخته‌شده از بانک')->firstOrFail();
+        $this->assertSame('published', $exam->status);
+        $this->assertDatabaseHas('questions', [
+            'exam_id' => $exam->id,
+            'source_bank_question_id' => $bankQuestion->id,
+            'question' => 'کدام گزینه پاسخ صحیح است؟',
+            'correct_answer' => 'ب',
+        ]);
+    }
+
+    public function test_published_exam_rejects_incomplete_single_choice_questions(): void
+    {
+        $workspace = $this->workspace();
+
+        $this->actingAs($workspace['owner'])
+            ->from(route('owner.exams.create', $workspace['academy']))
+            ->post(route('owner.exams.store', $workspace['academy']), [
+                'course_id' => $workspace['course']->id,
+                'title' => 'آزمون با گزینه ناقص',
+                'status' => 'published',
+                'attempts_allowed' => 1,
+                'questions' => [[
+                    'type' => 'single',
+                    'question' => 'پاسخ درست کدام است؟',
+                    'options' => ['الف', 'ب'],
+                    'correct_answer' => 'الف',
+                    'score' => 1,
+                ]],
+            ])
+            ->assertRedirect(route('owner.exams.create', $workspace['academy']))
+            ->assertSessionHasErrors('questions.0.options');
+
+        $this->assertDatabaseMissing('exams', ['title' => 'آزمون با گزینه ناقص']);
+    }
+
     public function test_owner_can_manually_grade_a_submitted_online_exam_attempt(): void
     {
         $workspace = $this->workspace();
@@ -177,6 +240,40 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
             'id' => $attempt->id,
             'score' => 4.5,
             'status' => 'graded',
+        ]);
+    }
+
+    public function test_owner_can_grade_assignment_with_assignment_manage_permission(): void
+    {
+        $workspace = $this->workspace();
+        $assignment = Assignment::query()->create([
+            'course_id' => $workspace['course']->id,
+            'classroom_id' => $workspace['classroom']->id,
+            'teacher_id' => $workspace['teacher']->id,
+            'title' => 'تکلیف قابل تصحیح توسط مدیر',
+            'instructions' => 'پاسخ تشریحی',
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
+        $submission = AssignmentSubmission::query()->create([
+            'assignment_id' => $assignment->id,
+            'student_id' => $workspace['student']->id,
+            'content' => 'پاسخ هنرجو',
+            'submitted_at' => now()->subMinute(),
+        ]);
+
+        $this->actingAs($workspace['owner'])
+            ->patch(route('owner.assignments.grade', [$workspace['academy'], $assignment->id, $submission->id]), [
+                'score' => 17.5,
+                'feedback' => 'پاسخ خوب است.',
+            ])
+            ->assertRedirect(route('owner.assignments.show', [$workspace['academy'], $assignment->id]))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('assignment_submissions', [
+            'id' => $submission->id,
+            'score' => 17.5,
+            'graded_by' => $workspace['owner']->id,
         ]);
     }
 
@@ -469,7 +566,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
 
         $ownerRole = $this->role('academy-owner', [
             'dashboard.view', 'academy.view', 'live_classes.view', 'live_classes.manage',
-            'exams.view', 'exams.manage', 'parents.view', 'parents.manage',
+            'exams.view', 'exams.manage', 'assignments.view', 'assignments.manage', 'parents.view', 'parents.manage',
         ]);
         $teacherRole = $this->role('teacher', [
             'dashboard.view', 'live_classes.view', 'live_classes.manage',

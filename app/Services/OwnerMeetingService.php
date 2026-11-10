@@ -14,7 +14,7 @@ final class OwnerMeetingService
 {
     public function index(User $owner, Academy $academy): array
     {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.view');
 
         $targets = $owner->hasPermission('live_classes.manage')
             ? DB::table('classroom_student as classroom_membership')
@@ -66,8 +66,7 @@ final class OwnerMeetingService
 
     public function create(User $owner, Academy $academy, array $data): AcademyMeeting
     {
-        $this->authorizeAcademy($owner, $academy);
-        abort_unless($owner->hasPermission('live_classes.manage'), 403);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.manage');
 
         $target = explode(':', (string) ($data['meeting_target'] ?? ''));
         if (count($target) !== 3 || count(array_filter($target, static fn ($part) => ctype_digit($part))) !== 3) {
@@ -115,6 +114,19 @@ final class OwnerMeetingService
             ]);
         }
 
+        $hasActiveParentMembership = DB::table('academy_user')
+            ->where('academy_id', $academy->id)
+            ->where('user_id', $parentId)
+            ->where('role', 'parent')
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$hasActiveParentMembership) {
+            throw ValidationException::withMessages([
+                'meeting_target' => 'حساب ولی در این آموزشگاه عضویت فعال ندارد.',
+            ]);
+        }
+
         return AcademyMeeting::query()->create([
             'academy_id' => $academy->id,
             'classroom_id' => $classroom->id,
@@ -138,8 +150,7 @@ final class OwnerMeetingService
         ?string $scheduledAt = null,
         ?string $scheduledEndAt = null,
     ): void {
-        $this->authorizeAcademy($owner, $academy);
-        abort_unless($owner->hasPermission('live_classes.manage'), 403);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.manage');
         abort_unless((int) $meeting->academy_id === (int) $academy->id, 404);
 
         if ($meeting->status === 'proposed') {
@@ -175,11 +186,8 @@ final class OwnerMeetingService
         $meeting->update(['status' => $status]);
     }
 
-    private function authorizeAcademy(User $owner, Academy $academy): void
+    private function authorizeAcademy(User $owner, Academy $academy, ?string $permission = null): void
     {
-        abort_unless(
-            $owner->hasRole('academy-owner') && (int) $academy->owner_id === (int) $owner->id,
-            403
-        );
+        app(OwnerWorkspaceService::class)->authorizeAcademy($owner, $academy, $permission);
     }
 }

@@ -23,9 +23,13 @@ class AcademyCommunicationTest extends TestCase
 
         $this->actingAs($w['owner'])
             ->get(route('owner.communications.index', $w['academy']))
+            ->assertRedirect(route('owner.communication-workspace', [$w['academy'], 'tab' => 'announcements']));
+
+        $this->actingAs($w['owner'])
+            ->get(route('owner.communication-workspace', [$w['academy'], 'tab' => 'announcements']))
             ->assertOk()
-            ->assertSee('اطلاعیه و پیام به خانواده‌ها')
-            ->assertSee('همه خانواده‌های آموزشگاه')
+            ->assertSee('ارسال اطلاعیه تازه')
+            ->assertSee('همه خانواده‌های فعال آموزشگاه')
             ->assertDontSee('پیام مستقیم به دانش‌آموز ' . $w['student']->name);
 
         $this->actingAs($w['owner'])->post(route('owner.communications.store', $w['academy']), [
@@ -33,7 +37,7 @@ class AcademyCommunicationTest extends TestCase
             'category' => 'announcement',
             'subject' => 'اطلاعیه شروع ترم',
             'body' => 'جلسه نخست ترم روز شنبه برگزار می‌شود.',
-        ])->assertRedirect(route('owner.communications.index', $w['academy']));
+        ])->assertRedirect(route('owner.communication-workspace', [$w['academy'], 'tab' => 'announcements']));
 
         $this->assertDatabaseHas('academy_messages', [
             'academy_id' => $w['academy']->id,
@@ -60,7 +64,7 @@ class AcademyCommunicationTest extends TestCase
             'category' => 'academic',
             'subject' => 'پیگیری اختصاصی خانواده',
             'body' => 'لطفاً گزارش آموزشی فرزندتان را بررسی کنید.',
-        ])->assertRedirect(route('owner.communications.index', $w['academy']));
+        ])->assertRedirect(route('owner.communication-workspace', [$w['academy'], 'tab' => 'announcements']));
 
         $this->actingAs($w['parent'])->get(route('parent.messages.index'))
             ->assertOk()->assertSee('پیگیری اختصاصی خانواده');

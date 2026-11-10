@@ -9,6 +9,7 @@
 @endphp
 
 <div class="space-y-6 panel-page-enter">
+    @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'assignments'])
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
@@ -28,7 +29,7 @@
     </section>
 
     <section class="dashboard-panel p-5 sm:p-6">
-        <form method="GET" action="{{ route('owner.assignments.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <form method="GET" action="{{ route('owner.assignments.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
             <label class="grid gap-1 sm:col-span-2">
                 <span class="text-xs font-bold">جست‌وجوی عنوان، دوره یا کلاس</span>
                 <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="مثلاً فصل سوم یا کلاس فیزیک">
@@ -40,6 +41,24 @@
                     @foreach($statusLabels as $key => $label)
                         <option value="{{ $key }}" @selected(($filters['status'] ?? '') === $key)>{{ $label }}</option>
                     @endforeach
+                </select>
+            </label>
+            <label class="grid gap-1">
+                <span class="text-xs font-bold">کلاس</span>
+                <select name="classroom_id" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <option value="">همه کلاس‌ها</option>
+                    @foreach($classrooms as $classroom)
+                        <option value="{{ $classroom->id }}" @selected((string) ($filters['classroom_id'] ?? '') === (string) $classroom->id)>{{ $classroom->title }}{{ $classroom->status === 'archived' ? ' · آرشیو' : '' }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label class="grid gap-1">
+                <span class="text-xs font-bold">مرتب‌سازی</span>
+                <select name="sort" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+                    <option value="recent" @selected(($filters['sort'] ?? 'recent') === 'recent')>جدیدترین</option>
+                    <option value="oldest" @selected(($filters['sort'] ?? '') === 'oldest')>قدیمی‌ترین</option>
+                    <option value="title" @selected(($filters['sort'] ?? '') === 'title')>عنوان</option>
+                    <option value="pending" @selected(($filters['sort'] ?? '') === 'pending')>بیشترین در انتظار تصحیح</option>
                 </select>
             </label>
             <div class="flex items-end gap-2">
