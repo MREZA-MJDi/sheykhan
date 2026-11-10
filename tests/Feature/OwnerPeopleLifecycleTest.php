@@ -158,6 +158,28 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('data-owner-directory-panel="parents"', false);
     }
 
+    public function test_invalid_parent_creation_returns_to_the_page_with_the_parent_modal_open(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        $response = $this->actingAs($owner)
+            ->from(route('owner.people.index', $academy))
+            ->followingRedirects()
+            ->post(route('owner.people.store-parent', $academy), [
+                '_form_context' => 'create-parent',
+                'first_name' => 'والد',
+                'last_name' => 'تازه',
+                'mobile' => '09120000000',
+                'relation' => 'مادر',
+                // student_id is intentionally missing to exercise server validation.
+            ]);
+
+        $response->assertOk()
+            ->assertSee('id="owner-create-parent-dialog"', false)
+            ->assertSee('data-owner-modal-open-on-load', false)
+            ->assertSee('دانش‌آموز را انتخاب کنید.');
+    }
+
     public function test_people_workspace_stays_available_when_academic_grade_schema_is_missing(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
