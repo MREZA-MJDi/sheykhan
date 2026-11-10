@@ -391,7 +391,7 @@
     padding: 16px;
     border: 1px solid rgba(119,136,190,.16);
     border-radius: 15px;
-    background: rgba(9,14,39,.38);
+    background:#fff;
 }
 .owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form label {
     gap: 7px;
