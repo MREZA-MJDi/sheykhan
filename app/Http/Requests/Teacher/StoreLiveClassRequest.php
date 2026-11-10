@@ -20,15 +20,9 @@ class StoreLiveClassRequest extends FormRequest
             'classroom_id' => ['nullable', 'integer', 'exists:classrooms,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'provider' => ['required', Rule::in([
-                MeetingLinkService::JITSI,
-                MeetingLinkService::GOOGLE_MEET,
-                MeetingLinkService::ZOOM,
-                MeetingLinkService::OTHER,
-            ])],
+            'provider' => ['required', Rule::in([MeetingLinkService::SKYROOM])],
             'meeting_url' => [
-                'nullable',
-                Rule::requiredIf(fn (): bool => $this->input('provider') !== MeetingLinkService::JITSI),
+                'required',
                 'url',
                 'max:2000',
                 function (string $attribute, mixed $value, \Closure $fail): void {
@@ -57,7 +51,7 @@ class StoreLiveClassRequest extends FormRequest
             'title.required' => 'عنوان جلسه زنده الزامی است.',
             'provider.required' => 'سرویس جلسه را انتخاب کن.',
             'provider.in' => 'سرویس جلسه انتخاب‌شده معتبر نیست.',
-            'meeting_url.required' => 'برای این سرویس باید لینک جلسهٔ ساخته‌شده را وارد کنی.',
+            'meeting_url.required' => 'لینک اتاق واقعی Skyroom را وارد کن.',
             'meeting_url.url' => 'لینک جلسه معتبر نیست.',
             'scheduled_at.required' => 'زمان برگزاری الزامی است.',
             'duration_minutes.min' => 'مدت جلسه باید حداقل یک دقیقه باشد.',
