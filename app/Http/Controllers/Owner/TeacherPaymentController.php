@@ -21,13 +21,13 @@ final class TeacherPaymentController extends Controller
             ->wherePivot('status', 'active')
             ->where('users.status', 'active');
 
-        $hasActiveTeachers = $activeTeachers()->exists();
         $canManagePayments = $request->user()->hasPermission('teacher_payments.manage');
+        $hasActiveTeachers = $canManagePayments && $activeTeachers()->exists();
         $filterTeacherId = $request->integer('teacher_id');
         $filterTeachers = $filterTeacherId > 0
             ? $activeTeachers()->whereKey($filterTeacherId)->get(['users.id', 'users.name', 'users.email'])
             : collect();
-        $formTeacherId = (int) $request->old('teacher_id', 0);
+        $formTeacherId = $canManagePayments ? (int) $request->old('teacher_id', 0) : 0;
         $formTeachers = $formTeacherId > 0
             ? $activeTeachers()->whereKey($formTeacherId)->get(['users.id', 'users.name', 'users.email'])
             : collect();
