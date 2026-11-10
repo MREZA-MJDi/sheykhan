@@ -626,6 +626,57 @@ class OwnerPeopleLifecycleTest extends TestCase
         }
     }
 
+    public function test_resource_and_product_create_forms_are_floating_dialogs_on_their_lists(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        $resourcesView = Permission::create([
+            'name' => 'resources.view',
+            'label' => 'View resources',
+            'group' => 'resources',
+        ]);
+        $resourcesManage = Permission::create([
+            'name' => 'resources.manage',
+            'label' => 'Manage resources',
+            'group' => 'resources',
+        ]);
+        $productsView = Permission::create([
+            'name' => 'products.view',
+            'label' => 'View products',
+            'group' => 'products',
+        ]);
+        $productsManage = Permission::create([
+            'name' => 'products.manage',
+            'label' => 'Manage products',
+            'group' => 'products',
+        ]);
+
+        Role::query()
+            ->where('slug', 'academy-owner')
+            ->firstOrFail()
+            ->permissions()
+            ->attach([
+                $resourcesView->id,
+                $resourcesManage->id,
+                $productsView->id,
+                $productsManage->id,
+            ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.resources.index', $academy))
+            ->assertOk()
+            ->assertSee('id="owner-resource-create-modal"', false)
+            ->assertSee('data-owner-modal-open="owner-resource-create-modal"', false)
+            ->assertSee('name="form_modal" value="resource"', false);
+
+        $this->actingAs($owner)
+            ->get(route('owner.products.index', $academy))
+            ->assertOk()
+            ->assertSee('id="owner-product-create-modal"', false)
+            ->assertSee('data-owner-modal-open="owner-product-create-modal"', false)
+            ->assertSee('name="form_modal" value="product"', false);
+    }
+
     private function makeWorkspace(bool $withCourse = false): array
     {
         $owner = User::factory()->create(['email' => 'owner-' . Str::random(6) . '@test.local']);
