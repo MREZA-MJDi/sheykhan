@@ -524,3 +524,20 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content .website-hero-check small{color:var(--ui-muted)!important}
 .owner-admin-v2 .main-content .banner-preview-academy{background:rgba(23,27,34,.72);color:#fff}
 .owner-admin-v2 .main-content .website-hero-preview-copy :is(span,strong,small){color:#fff!important}
+
+.owner-admin-v2 .main-content .owner-dashboard-feedback{grid-column:1/-1;min-width:0}
+.owner-admin-v2 .main-content .panel-page-enter{display:grid;align-content:start;gap:18px;min-width:0}
+.owner-admin-v2 .main-content .panel-page-enter .owner-stat-card{min-width:0}
+.owner-admin-v2 .main-content .panel-page-enter label{color:var(--ui-text)}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid{display:grid;gap:8px;min-width:0}
+.owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-event-link{color:var(--ui-primary)!important;background:var(--ui-primary-soft);border-radius:8px}
+.owner-admin-v2 .main-content .owner-online-links-page .owner-schedule-form{background:#fff;border:1px solid var(--ui-border);border-radius:var(--ui-radius);padding:16px}
+@media (max-width: 1250px) {
+ .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width: 900px) {
+ .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width: 600px) {
+ .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid{grid-template-columns:minmax(0,1fr)}
+}
