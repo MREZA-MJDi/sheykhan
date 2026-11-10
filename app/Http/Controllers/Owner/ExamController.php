@@ -75,6 +75,11 @@ final class ExamController extends Controller
             $questionWriter->storeQuestions($exam, $request->validated('questions', []));
             return $exam;
         });
+        if ($request->boolean('modal')) {
+            return redirect()->route('owner.exams.index', $academy)
+                ->with('success', 'آزمون و سؤال‌های آن با موفقیت ثبت شدند.');
+        }
+
         return redirect()->route('owner.exams.show', [$academy, $exam->id])->with('success', 'آزمون و سؤال‌های آن با موفقیت ثبت شدند.');
     }
 
@@ -139,7 +144,8 @@ final class ExamController extends Controller
             }
             $questionWriter->storeQuestions($record, $request->validated('questions', []));
         });
-        return redirect()->route('owner.exams.show', [$academy, $record->id])->with('success', 'مشخصات و سؤال‌های آزمون به‌روزرسانی شدند.');
+        return redirect()->route('owner.exams.show', [$academy, $record->id])
+            ->with('success', 'مشخصات و سؤال‌های آزمون به‌روزرسانی شدند.');
     }
 
     public function show(Academy $academy, int $exam): View
