@@ -2,14 +2,14 @@
 @section('title','تنظیمات آموزشگاه | شیخان')
 @section('header-title','تنظیمات آموزشگاه')
 @section('content')
-<div class="owner-academy-form-page mx-auto max-w-4xl"><section class="dashboard-panel p-5 sm:p-7"><div class="mb-6"><p class="text-xs font-black text-[var(--panel-primary)]">Academy</p><h1 class="mt-1 text-2xl font-black">اطلاعات آموزشگاه</h1><p class="mt-2 text-sm text-slate-500">این آموزشگاه مستقل از سایر آموزشگاه‌های این حساب مدیریت می‌شود.</p></div>
+<div class="owner-academy-form-page mx-auto max-w-4xl"><section class="dashboard-panel p-5 sm:p-7"><div class="mb-6"><p class="text-xs font-black text-[var(--panel-primary)]">اطلاعات پایه آموزشگاه</p><h1 class="mt-1 text-2xl font-black">اطلاعات آموزشگاه</h1><p class="mt-2 text-sm text-slate-500">این آموزشگاه مستقل از سایر آموزشگاه‌های این حساب مدیریت می‌شود.</p></div>
 <form method="POST" action="{{ route('owner.academy.update',$academy) }}" class="grid gap-5 sm:grid-cols-2">@csrf @method('PATCH')
-@foreach([['name','نام آموزشگاه','text'],['slug','شناسه URL','text'],['code','کد آموزشگاه','text'],['phone','تلفن','text'],['email','ایمیل','email'],['city','شهر','text'],['province','استان','text'],['website','وب‌سایت','url']] as [$field,$label,$type])
+@foreach([['name','نام آموزشگاه','text'],['slug','نشانی کوتاه آموزشگاه','text'],['code','کد آموزشگاه','text'],['phone','تلفن','text'],['email','ایمیل','email'],['city','شهر','text'],['province','استان','text'],['website','وب‌سایت','url']] as [$field,$label,$type])
 <label class="grid gap-1">
     <span class="text-xs font-bold">{{ $label }}</span>
     <input name="{{ $field }}" type="{{ $type }}" value="{{ old($field,$academy->{$field}) }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
     @if($field === 'name')<small class="owner-field-help">نامی را وارد کن که در سربرگ‌ها و بخش عمومی آموزشگاه نمایش داده می‌شود.</small>
-    @elseif($field === 'slug')<small class="owner-field-help">شناسهٔ خوانا برای نشانی‌های عمومی است؛ از فاصله و علائم غیرضروری پرهیز کن.</small>
+    @elseif($field === 'slug')<small class="owner-field-help">این نشانی در آدرس صفحه آموزشگاه دیده می‌شود؛ کوتاه و بدون فاصله بنویس.</small>
     @elseif($field === 'code')<small class="owner-field-help">کد داخلی آموزشگاه برای شناسایی در گزارش‌ها و عملیات مدیریتی.</small>
     @elseif($field === 'phone')<small class="owner-field-help">شمارهٔ تماس رسمی آموزشگاه؛ کد کشور را در صورت نیاز وارد کن.</small>
     @elseif($field === 'email')<small class="owner-field-help">ایمیل عمومی و قابل‌دسترسی برای تماس‌های رسمی.</small>
