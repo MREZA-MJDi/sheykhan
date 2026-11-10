@@ -334,9 +334,7 @@
 <p data-lookup-status class="owner-student-picker-status" aria-live="polite">نتایج به‌صورت صفحه‌بندی‌شده دریافت می‌شوند.</p>
 @error('teacher_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
 </div>
-<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت مدرس کلاس</button></div>
-</dialog>
-
+<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت مدرس کلاس</button>
 </form>
                 </section>
             </div>
@@ -383,8 +381,7 @@
 @error('classroom_id')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
 </div><small class="owner-field-help">کلاس‌های دوره انتخاب‌شده را جست‌وجو کن.</small>
 <label class="grid gap-1"><span class="text-xs font-bold">مبلغ پرداختی (تومان)</span><input name="paid_amount" type="number" data-money-input data-money-unit="تومان" step="0.01" min="0" value="{{ old('paid_amount') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">مبلغ پرداخت‌شده را به تومان وارد کن؛ اگر پرداختی ثبت نشده است خالی بگذار.</small>@error('paid_amount')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
-<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت‌نام دانش‌آموز</button></div>
-</dialog>
+<button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ثبت‌نام دانش‌آموز</button>
 </form>
                 </section>
             </div>
