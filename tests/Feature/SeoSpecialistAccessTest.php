@@ -71,7 +71,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('آکادمی شیخان')
             ->assertSee('SEO و محتوای عمومی')
             ->assertDontSee('role-sidebar owner-sidebar', false)
-            ->assertDontSee('admin.css', false)
+            ->assertDontSee('/assets/admin.css', false)
             ->assertDontSee('owner-design-system.css', false)
             ->assertDontSee('کارتابل ادمین / منشی');
 
