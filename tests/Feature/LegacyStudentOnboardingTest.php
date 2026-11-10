@@ -44,7 +44,7 @@ class LegacyStudentOnboardingTest extends TestCase
                 'notes' => 'ورود از بایگانی مدرسه',
                 'idempotency_key' => (string) Str::uuid(),
             ])
-            ->assertRedirect(route('owner.people.index', $academy) . '?tab=create-student')
+            ->assertRedirect(route('owner.people.index', $academy) . '?tab=management&sheet=operations')
             ->assertSessionHas('success')
             ->assertSessionHas('temporary_student_mobile', '09121234567')
             ->assertSessionHas('temporary_student_password');
@@ -226,7 +226,7 @@ class LegacyStudentOnboardingTest extends TestCase
                 'mobile' => '09121234568',
                 'idempotency_key' => (string) Str::uuid(),
             ])
-            ->assertForbidden();
+            ->assertNotFound();
 
         $this->assertDatabaseMissing('student_profiles', [
             'national_id_lookup' => NationalIdLookup::make('4444444444'),
