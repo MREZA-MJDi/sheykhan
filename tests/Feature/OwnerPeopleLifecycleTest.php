@@ -213,7 +213,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('id="owner-student-create-modal"', false)
             ->assertSee('id="owner-parent-create-modal"', false)
             ->assertSee('id="owner-teacher-create-modal"', false)
-            ->assertSee('data-owner-directory-controls', false);
+            ->assertSee('data-directory-controls', false);
     }
 
     public function test_student_roster_and_enrollment_search_are_server_paginated(): void
