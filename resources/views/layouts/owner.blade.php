@@ -111,6 +111,30 @@
     $currentOwnerNavGroupKey = null;
     foreach ($ownerNavGroups as $candidateGroup) {
         if (
+            $candidateGroup['key'] === 'learning'
+            && request()->routeIs(
+                'owner.courses.*',
+                'owner.classrooms.*',
+                'owner.schedules.*',
+                'owner.assignments.*',
+                'owner.exams.*',
+                'owner.recordings.*',
+                'owner.resources.*'
+            )
+        ) {
+            $currentOwnerNavGroupKey = 'learning';
+            break;
+        }
+
+        if (
+            $candidateGroup['key'] === 'finance'
+            && request()->routeIs('owner.finance.*', 'owner.orders.*', 'owner.teacher-payments.*')
+        ) {
+            $currentOwnerNavGroupKey = 'finance';
+            break;
+        }
+
+        if (
             $candidateGroup['key'] === 'more'
             && request()->routeIs(
                 'owner.seo.*',
