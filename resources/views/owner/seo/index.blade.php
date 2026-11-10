@@ -1,7 +1,7 @@
 @extends('layouts.seo-specialist')
 
-@section('title', 'مرکز مدیریت SEO | شیخان')
-@section('header-title', 'مرکز مدیریت SEO')
+@section('title', 'نمایش سایت در گوگل | شیخان')
+@section('header-title', 'نمایش سایت در گوگل')
 
 @section('content')
 @php
@@ -34,7 +34,7 @@
     @include('owner.partials.public-site-workspace-tabs')
     <header class="owner-seo-hero">
         <div class="seo-hero-copy">
-            <span class="owner-seo-kicker">مرکز کنترل SEO شیخان · صفحات عمومی</span>
+            <span class="owner-seo-kicker">بهبود نمایش صفحات سایت در گوگل</span>
             <h1>مدیریت دیده‌شدن شیخان در جست‌وجو</h1>
             <p>
                 تنظیمات صفحات منتشرشدهٔ دوره‌ها، مقاله‌های مجله، محتوای آموزشگاه، محصولات و مدرس‌های عمومی را از یک جا بررسی کن.
@@ -42,9 +42,9 @@
             </p>
         </div>
         <div class="seo-console-hero-actions">
-            <a href="{{ route('owner.seo.keywords.index') }}" class="course-action-btn primary">برنامهٔ کلمات کلیدی</a>
-            <a href="{{ route('seo.sitemap') }}" target="_blank" rel="noopener noreferrer" class="course-action-btn">نقشهٔ سایت</a>
-            <a href="{{ route('seo.robots') }}" target="_blank" rel="noopener noreferrer" class="course-action-btn">robots.txt</a>
+            <a href="{{ route('owner.seo.keywords.index') }}" class="course-action-btn primary">عبارت‌هایی که مردم جست‌وجو می‌کنند</a>
+            <a href="{{ route('seo.sitemap') }}" target="_blank" rel="noopener noreferrer" class="course-action-btn">فهرست صفحه‌های سایت</a>
+            <a href="{{ route('seo.robots') }}" target="_blank" rel="noopener noreferrer" class="course-action-btn">تنظیم دسترسی موتورهای جست‌وجو</a>
         </div>
     </header>
 
