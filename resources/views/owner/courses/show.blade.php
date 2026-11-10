@@ -4,7 +4,7 @@
 @section('header-title','بازبینی دوره')
 
 @section('content')
-@include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => $course->academy])
+@include('owner.admin.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => $course->academy])
 <div class="course-page panel-page-enter space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div class="min-w-0">
