@@ -31,9 +31,9 @@
     resize: vertical;
 }
 .owner-admin-v2 .main-content :is(input, select, textarea):focus {
-    outline: 2px solid rgba(34,211,238,.6);
+    outline: 2px solid rgba(123,44,66,.2);
     outline-offset: 2px;
-    border-color: #22d3ee;
+    border-color: #7b2c42;
 }
 .owner-admin-v2 .main-content input[type=checkbox],
 .owner-admin-v2 .main-content input[type=radio] {
@@ -149,8 +149,8 @@
     padding: 10px 18px;
     border: 0;
     border-radius: 11px;
-    background: linear-gradient(135deg, #22d3ee, #3478ff);
-    color: #05162b;
+    background: #7b2c42;
+    color: #fff;
     font-size: 12px;
     font-weight: 800;
 }
