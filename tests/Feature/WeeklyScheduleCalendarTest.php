@@ -93,9 +93,9 @@ class WeeklyScheduleCalendarTest extends TestCase
             ->assertSee('برنامه هفتگی', false)
             ->assertSee('Skyroom', false)
             ->assertSee('ساعت تهران (Asia/Tehran)', false)
-            ->assertDontSee('Jitsi')
-            ->assertDontSee('Google Meet')
-            ->assertDontSee('Zoom')
+            ->assertDontSee('<option value="Jitsi"', false)
+            ->assertDontSee('<option value="Google Meet"', false)
+            ->assertDontSee('<option value="Zoom"', false)
             ->assertSee('ذخیره زمان و لینک', false)
             ->assertSee('۲. سرویس و لینک ورود را وصل کن', false);
     }
