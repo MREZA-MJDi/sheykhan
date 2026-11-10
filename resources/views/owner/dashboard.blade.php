@@ -216,7 +216,7 @@
         @endif
 
         @if($canViewMeetings)
-            <section class="card c8" aria-labelledby="today-schedule-title" style="--c:#22d3ee">
+            <section class="card c8" aria-labelledby="today-schedule-title" style="--c:#315b88">
                 <div class="card-title">
                     <div>
                         <h2 id="today-schedule-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span>برنامه امروز</h2>
@@ -225,13 +225,13 @@
                     @if($firstAcademy)<a class="table-link" href="{{ route('owner.schedules.index', $firstAcademy) }}">برنامه کامل ←</a>@endif
                 </div>
                 @forelse($todayLiveClasses as $item)
-                    <a class="tl {{ $item->status === 'live' ? 'live' : '' }}" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : route('owner.dashboard') }}" style="--c:{{ $item->status === 'live' ? '#ff1f6b' : '#22d3ee' }}">
+                    <a class="tl {{ $item->status === 'live' ? 'live' : '' }}" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : route('owner.dashboard') }}" style="--c:{{ $item->status === 'live' ? '#b4233c' : '#315b88' }}">
                         <b>{{ \App\Support\PersianUi::time($item->scheduled_at) }}</b>
                         <span class="gx"><b>{{ $item->title }}</b><small>{{ $item->course?->title ?? 'بدون دوره مرتبط' }} · {{ $item->teacher?->name ?? 'مدرس تعیین نشده' }}</small></span>
                         @if($item->status === 'live')
-                            <span class="pl" style="--c:#ff1f6b">در حال اجرا</span>
+                            <span class="pl" style="--c:#b4233c">در حال اجرا</span>
                         @else
-                            <span class="pl" style="--c:#22d3ee">زمان‌بندی‌شده</span>
+                            <span class="pl" style="--c:#315b88">زمان‌بندی‌شده</span>
                         @endif
                     </a>
                 @empty
@@ -241,7 +241,7 @@
         @endif
 
         @if($canViewClassrooms || $canViewAssignments)
-            <section class="card {{ $canViewMeetings ? 'c4' : 'c12' }}" aria-labelledby="attention-title" style="--c:#ff9a1f">
+            <section class="card {{ $canViewMeetings ? 'c4' : 'c12' }}" aria-labelledby="attention-title" style="--c:#b7791f">
                 <div class="card-title">
                     <div>
                         <h2 id="attention-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span>نیازمند توجه</h2>
@@ -250,21 +250,21 @@
                 </div>
                 <div class="owner-attention-list">
                     @if($classroomsWithoutTeacher > 0 && $firstAcademy && $canViewClassrooms)
-                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#ff9a1f">
+                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#b7791f">
                             <span class="ct">{{ \App\Support\PersianUi::digits($classroomsWithoutTeacher) }}</span>
                             <span class="gx"><b>کلاس بدون مدرس</b><small>کلاس فعال بدون مدرس فعال</small></span>
                             <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
                         </a>
                     @endif
                     @if($capacityAlerts > 0 && $firstAcademy && $canViewClassrooms)
-                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#ff1f6b">
+                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#b4233c">
                             <span class="ct">{{ \App\Support\PersianUi::digits($capacityAlerts) }}</span>
                             <span class="gx"><b>کلاس نزدیک ظرفیت</b><small>کلاس‌هایی با ظرفیت ۹۰٪ یا بیشتر</small></span>
                             <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
                         </a>
                     @endif
                     @if($pendingReviews > 0 && $firstAcademy && $canViewAssignments)
-                        <a class="at" href="{{ route('owner.assignments.index', $firstAcademy) }}" style="--c:#22d3ee">
+                        <a class="at" href="{{ route('owner.assignments.index', $firstAcademy) }}" style="--c:#315b88">
                             <span class="ct">{{ \App\Support\PersianUi::digits($pendingReviews) }}</span>
                             <span class="gx"><b>تکلیف بررسی‌نشده</b><small>پاسخ‌های ثبت‌شده و تصحیح‌نشده</small></span>
                             <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
@@ -277,7 +277,7 @@
             </section>
         @endif
 
-        <section class="card c8 owner-trend-card" aria-labelledby="weekly-trend-title" style="--c:#ff1f6b">
+        <section class="card c8 owner-trend-card" aria-labelledby="weekly-trend-title" style="--c:#b4233c">
             <div class="card-title">
                 <div>
                     <h2 id="weekly-trend-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>حضور هفتگی؛ بازه را با دستگیره‌ها انتخاب کن</h2>
@@ -286,7 +286,7 @@
                 @if($canViewReports)<a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>@endif
             </div>
             <div class="owner-chart-legend" aria-label="راهنمای نمودار">
-                <span><i style="--legend:#22d3ee"></i>میانگین نرخ حضور</span>
+                <span><i style="--legend:#315b88"></i>میانگین نرخ حضور</span>
             </div>
             <svg class="ln owner-line-chart"
                  id="owner-weekly-trend-chart"
@@ -328,7 +328,7 @@
         </section>
 
         @if($canViewCourses || $canViewClassrooms || $canViewAttendance)
-            <section class="card c4" style="--c:#8b3dff" aria-labelledby="course-publish-title">
+            <section class="card c4" style="--c:#526b8c" aria-labelledby="course-publish-title">
                 <div class="card-title">
                     <div>
                         <h2 id="course-publish-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>وضعیت کلی آموزشگاه</h2>
@@ -340,7 +340,7 @@
                         <svg viewBox="0 0 120 120" role="img" aria-label="سهم دوره‌های منتشرشده">
                             <circle cx="60" cy="60" r="45" fill="none" stroke="#0a0e27" stroke-width="13"/>
                             @if($publishedRate !== null)
-                                <circle cx="60" cy="60" r="45" fill="none" stroke="#8b3dff" stroke-width="13" stroke-linecap="round" stroke-dasharray="{{ 2 * pi() * 45 * $publishedRate / 100 }} {{ 2 * pi() * 45 * (1 - $publishedRate / 100) }}" transform="rotate(-90 60 60)"/>
+                                <circle cx="60" cy="60" r="45" fill="none" stroke="#526b8c" stroke-width="13" stroke-linecap="round" stroke-dasharray="{{ 2 * pi() * 45 * $publishedRate / 100 }} {{ 2 * pi() * 45 * (1 - $publishedRate / 100) }}" transform="rotate(-90 60 60)"/>
                             @endif
                             <text x="60" y="57" text-anchor="middle" fill="#e8ecff" font-size="18" font-weight="800">{{ $publishedRate === null ? '—' : \App\Support\PersianUi::digits($publishedRate) . '٪' }}</text>
                             <text x="60" y="75" text-anchor="middle" fill="#8d96c9" font-size="9">انتشار</text>
@@ -356,7 +356,7 @@
                     <div class="metric-bars">
                         <div>
                             <div class="bar-label"><span id="capacity-title">ظرفیت پرشدهٔ کلاس‌ها</span><strong>{{ $capacityRate === null ? '—' : \App\Support\PersianUi::digits($capacityRate) . '٪' }}</strong></div>
-                            <div class="trk"><span class="fill" style="--c:#22d3ee;width:{{ $capacityRate ?? 0 }}%"></span></div>
+                            <div class="trk"><span class="fill" style="--c:#315b88;width:{{ $capacityRate ?? 0 }}%"></span></div>
                         </div>
                     </div>
                 @endif
@@ -364,7 +364,7 @@
                     <div class="metric-bars">
                         <div>
                             <div class="bar-label"><span>نرخ حضور در بازه انتخابی</span><strong>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) . '٪' }}</strong></div>
-                            <div class="trk"><span class="fill" style="--c:#2ee6a6;width:{{ $attendanceRate === null ? 0 : min(100, max(0, (float) $attendanceRate)) }}%"></span></div>
+                            <div class="trk"><span class="fill" style="--c:#167653;width:{{ $attendanceRate === null ? 0 : min(100, max(0, (float) $attendanceRate)) }}%"></span></div>
                         </div>
                     </div>
                 @endif
@@ -382,7 +382,7 @@
         @endif
 
         @if($canViewExams)
-            <section class="card c4 owner-subject-averages" aria-labelledby="subject-averages-title" style="--c:#8b3dff">
+            <section class="card c4 owner-subject-averages" aria-labelledby="subject-averages-title" style="--c:#526b8c">
                 <div class="card-title">
                     <div>
                         <h2 id="subject-averages-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span>میانگین نمرهٔ دوره‌ها</h2>
@@ -398,7 +398,7 @@
                         @foreach($subjectAverages as $subject)
                             <div class="cyc">
                                 <b>{{ \App\Support\PersianUi::number($subject['average']) }}</b>
-                                <div class="cy" style="--h:{{ max(8, (int) round(abs((float) $subject['average']) / $subjectMax * 138)) }}px;--c:{{ $loop->even ? '#22d3ee' : '#8b3dff' }}"></div>
+                                <div class="cy" style="--h:{{ max(8, (int) round(abs((float) $subject['average']) / $subjectMax * 138)) }}px;--c:{{ $loop->even ? '#315b88' : '#526b8c' }}"></div>
                                 <small>{{ \Illuminate\Support\Str::limit($subject['title'], 18) }}</small>
                             </div>
                         @endforeach
@@ -410,7 +410,7 @@
         @endif
 
         @if($canViewAssignments)
-            <section class="card c4 owner-quick-approvals" aria-labelledby="quick-approval-title" style="--c:#ff9a1f">
+            <section class="card c4 owner-quick-approvals" aria-labelledby="quick-approval-title" style="--c:#b7791f">
                 <div class="card-title">
                     <div>
                         <h2 id="quick-approval-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span>تأیید سریع</h2>
@@ -419,7 +419,7 @@
                     <a class="table-link" href="{{ route('owner.assignments.index', $firstAcademy) }}">همه تکالیف ←</a>
                 </div>
                 @forelse($pendingApprovalItems as $item)
-                    <a class="ckr" href="{{ route('owner.assignments.show', [$item->academy_id, $item->assignment_id]) }}" style="--c:#ff9a1f">
+                    <a class="ckr" href="{{ route('owner.assignments.show', [$item->academy_id, $item->assignment_id]) }}" style="--c:#b7791f">
                         <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg></i>
                         <span class="gx">
                             <b>{{ $item->student_name }}</b>
@@ -434,7 +434,7 @@
         @endif
 
         @if($canViewPeople)
-            <section class="card c4" aria-labelledby="login-title" style="--c:#22d3ee">
+            <section class="card c4" aria-labelledby="login-title" style="--c:#315b88">
                 <div class="card-title">
                     <div>
                         <h2 id="login-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>آخرین رویدادها</h2>
@@ -443,7 +443,7 @@
                     @if($firstAcademy)<a class="table-link" href="{{ route('owner.people.index', $firstAcademy) }}">اعضا ←</a>@endif
                 </div>
                 @forelse($recentStudentLogins as $login)
-                    <a class="lr" href="{{ $firstAcademy ? route('owner.people.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#22d3ee">
+                    <a class="lr" href="{{ $firstAcademy ? route('owner.people.index', $firstAcademy) : route('owner.dashboard') }}" style="--c:#315b88">
                         <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></i>
                         <span class="gx"><b>{{ $login->subject?->name ?? 'حساب حذف‌شده' }}</b><small>{{ $login->subject?->email ?? 'بدون ایمیل' }}</small></span>
                         <span class="row-value">{{ \App\Support\PersianUi::dateTime($login->created_at) }}</span>
@@ -456,7 +456,7 @@
         @endif
 
         @if($canViewPeople)
-            <section class="card c8 owner-growth-card" aria-labelledby="student-growth-title" style="--c:#ff1f6b">
+            <section class="card c8 owner-growth-card" aria-labelledby="student-growth-title" style="--c:#b4233c">
                 <div class="card-title">
                     <div>
                         <h2 id="student-growth-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>رشد ثبت‌نام دانش‌آموزان در ۱۳ هفته</h2>
@@ -485,7 +485,7 @@
             </section>
         @endif
 
-        <section class="card c4 owner-dashboard-shortcuts" aria-labelledby="shortcut-title" style="--c:#22d3ee">
+        <section class="card c4 owner-dashboard-shortcuts" aria-labelledby="shortcut-title" style="--c:#315b88">
             <div class="card-title">
                 <div><h2 id="shortcut-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>میان‌بر</h2><p>دسترسی مستقیم به کارهای روزمره.</p></div>
             </div>
@@ -503,7 +503,7 @@
         </section>
 
         @if($canViewReports)
-            <section class="card c12" aria-labelledby="teacher-report-title" style="--c:#8b3dff">
+            <section class="card c12" aria-labelledby="teacher-report-title" style="--c:#526b8c">
                 <div class="card-title">
                     <div><h2 id="teacher-report-title"><span class="section-icon"><svg class="ic"><use href="#i-chart"/></svg></span>عملکرد مدرس‌ها</h2><p>حداکثر ۸ مدرس بر اساس تعداد دانش‌آموزان فعال؛ میانگین پیشرفت و بررسی‌های معوق از محاسبات بک‌اند.</p></div>
                     <a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>
@@ -519,7 +519,7 @@
                                 <td>{{ \App\Support\PersianUi::digits($teacher->student_count) }}</td>
                                 <td>
                                     <span class="row-value">{{ \App\Support\PersianUi::digits(round((float)$teacher->progress_average,1)) }}٪</span>
-                                    <div class="trk"><span class="fill" style="--c:#8b3dff;width:{{ min(100,max(0,(float)$teacher->progress_average)) }}%"></span></div>
+                                    <div class="trk"><span class="fill" style="--c:#526b8c;width:{{ min(100,max(0,(float)$teacher->progress_average)) }}%"></span></div>
                                 </td>
                                 <td>{{ \App\Support\PersianUi::digits($teacher->pending_reviews) }}</td>
                                 @if($canViewFinance)<td>{{ \App\Support\PersianUi::number($teacher->sales) }}</td>@endif
@@ -534,13 +534,13 @@
         @endif
 
         @if($canViewMeetings)
-            <section class="card c6" aria-labelledby="live-title" style="--c:#ff1f6b">
+            <section class="card c6" aria-labelledby="live-title" style="--c:#b4233c">
                 <div class="card-title">
                     <div><h2 id="live-title"><span class="section-icon"><svg class="ic"><use href="#i-video"/></svg></span>کلاس‌های آنلاین آینده</h2><p>جلسه‌های زمان‌بندی‌شده در هفت روز آینده؛ مرتب‌شده بر اساس زمان شروع.</p></div>
                     @if($firstAcademy)<a class="table-link" href="{{ route('owner.schedules.index', $firstAcademy) }}">برنامه کامل ←</a>@endif
                 </div>
                 @forelse($upcomingLiveClasses as $item)
-                    <a class="at" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : ($firstAcademy ? route('owner.schedules.index', $firstAcademy) : route('owner.dashboard')) }}" style="--c:{{ $loop->first ? '#ff1f6b' : '#8b3dff' }}">
+                    <a class="at" href="{{ $item->classroom?->academy_id ? route('owner.schedules.index', ['academy' => $item->classroom->academy_id]) : ($firstAcademy ? route('owner.schedules.index', $firstAcademy) : route('owner.dashboard')) }}" style="--c:{{ $loop->first ? '#b4233c' : '#526b8c' }}">
                         <span class="ct">{{ \App\Support\PersianUi::digits($loop->iteration) }}</span>
                         <span class="gx"><b>{{ $item->title }}</b><small>{{ $item->course?->title ?? 'بدون دوره مرتبط' }} · {{ $item->teacher?->name ?? 'مدرس تعیین نشده' }}</small><small>{{ $item->classroom?->title ?? 'کلاس آنلاین' }}</small></span>
                         <span class="row-value">{{ \App\Support\PersianUi::dateTime($item->scheduled_at) }}</span>
@@ -552,16 +552,16 @@
         @endif
 
         @if($canViewCourses)
-            <section class="card c6" aria-labelledby="recent-courses-title" style="--c:#22d3ee">
+            <section class="card c6" aria-labelledby="recent-courses-title" style="--c:#315b88">
                 <div class="card-title">
                     <div><h2 id="recent-courses-title"><span class="section-icon"><svg class="ic"><use href="#i-book"/></svg></span>آخرین دوره‌ها</h2><p>آخرین شش رکورد دوره از دیتابیس؛ برچسب وضعیت از خود رکورد خوانده می‌شود.</p></div>
                     <a class="table-link" href="{{ route('owner.courses.index') }}">همه دوره‌ها ←</a>
                 </div>
                 @forelse($recentCourses as $course)
-                    <div class="at" style="--c:{{ $course->status === 'published' ? '#2ee6a6' : '#ff9a1f' }}">
+                    <div class="at" style="--c:{{ $course->status === 'published' ? '#167653' : '#b7791f' }}">
                         <span class="tile"><svg class="ic"><use href="#i-book"/></svg></span>
                         <span class="gx"><b>{{ $course->title }}</b><small>{{ $course->academy?->name ?? 'بدون آموزشگاه' }} · {{ \App\Support\PersianUi::digits($course->active_students_count) }} دانش‌آموز فعال</small></span>
-                        <span class="pl" style="--c:{{ $course->status === 'published' ? '#2ee6a6' : '#ff9a1f' }}">{{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : $course->status) }}</span>
+                        <span class="pl" style="--c:{{ $course->status === 'published' ? '#167653' : '#b7791f' }}">{{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : $course->status) }}</span>
                         <a class="table-link" href="{{ route('owner.courses.show', $course) }}">بازبینی</a>
                     </div>
                 @empty
@@ -571,7 +571,7 @@
         @endif
 
                 @if($canViewLegal)
-            <section class="card c6 owner-content-rights-card" aria-labelledby="content-rights-title" style="--c:#9aa3d8">
+            <section class="card c6 owner-content-rights-card" aria-labelledby="content-rights-title" style="--c:#64748b">
                 <div class="card-title">
                     <div>
                         <h2 id="content-rights-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg></span>حقوق نشر و مجوز محتوا</h2>
