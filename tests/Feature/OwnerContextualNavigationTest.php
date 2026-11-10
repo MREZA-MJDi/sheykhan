@@ -114,7 +114,9 @@ final class OwnerContextualNavigationTest extends TestCase
         $this->assertStringContainsString("'resources/css/admin-white-system.css'", $vite);
         $this->assertStringContainsString("'resources/css/owner-dashboard-v2.css', 'resources/css/admin-white-system.css'", $ownerLayout);
         $this->assertStringContainsString("'resources/css/seo-dashboard.css', 'resources/css/admin-white-system.css'", $seoLayout);
-        $this->assertStringContainsString('--ui-primary: #34466f', $designSystem);
+        $this->assertStringContainsString('--ui-primary: #7b2c42', $designSystem);
+        $this->assertStringContainsString('--ui-navy: #24364f', $designSystem);
+        $this->assertStringContainsString('.owner-admin-v2 .admin-context-tab[aria-current=page]', $designSystem);
         $this->assertStringContainsString('.admin-context-tabs', $designSystem);
         $this->assertStringNotContainsString('#ff1f6b', $designSystem);
     }
