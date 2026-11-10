@@ -12,8 +12,8 @@
             <p>فهرست هزاران عبارت را خوشه‌بندی کن، برای هرکدام صفحهٔ هدف تعیین کن، اولویت و وضعیت کار را مدیریت کن و رتبه‌هایی را که واقعاً مشاهده کرده‌ای با تاریخ و منبع ثبت کن.</p>
         </div>
         <div class="seo-keyword-hero-actions">
-            <a href="{{ route('owner.seo.index') }}" class="website-open-btn">ممیزی صفحات SEO</a>
-            <a href="{{ route('owner.seo.keywords.create') }}" class="course-action-btn primary">افزودن کلمه +</a>
+            <a href="{{ route('seo.index') }}" class="website-open-btn">ممیزی صفحات SEO</a>
+            <a href="{{ route('seo.keywords.create') }}" class="course-action-btn primary">افزودن کلمه +</a>
         </div>
     </section>
 
@@ -29,11 +29,11 @@
         <div class="owner-panel-head">
             <div><h2>ورود و خروج دسته‌ای</h2><p>برای صدها یا هزاران عبارت از CSV استفاده کن؛ موارد تکراری دوباره ساخته نمی‌شوند.</p></div>
             <div class="seo-keyword-hero-actions">
-                <a href="{{ route('owner.seo.keywords.template') }}" class="course-action-btn">دانلود قالب CSV</a>
-                <a href="{{ route('owner.seo.keywords.export') }}" class="course-action-btn">خروجی CSV با فیلترهای فعلی ↓</a>
+                <a href="{{ route('seo.keywords.template') }}" class="course-action-btn">دانلود قالب CSV</a>
+                <a href="{{ route('seo.keywords.export') }}" class="course-action-btn">خروجی CSV با فیلترهای فعلی ↓</a>
             </div>
         </div>
-        <form method="POST" action="{{ route('owner.seo.keywords.import') }}" enctype="multipart/form-data" class="seo-keyword-import">
+        <form method="POST" action="{{ route('seo.keywords.import') }}" enctype="multipart/form-data" class="seo-keyword-import">
             @csrf
             <label class="seo-keyword-file-label" for="keyword-csv">فایل CSV یا TXT (حداکثر ۵ مگابایت)</label>
             <input id="keyword-csv" name="file" type="file" accept=".csv,.txt,text/csv,text/plain" required>
@@ -54,13 +54,13 @@
             <span class="owner-pill">{{ number_format($keywords->total()) }} مورد در این فهرست</span>
         </div>
 
-        <form method="GET" action="{{ route('owner.seo.keywords.index') }}" class="seo-keyword-filters">
+        <form method="GET" action="{{ route('seo.keywords.index') }}" class="seo-keyword-filters">
             <label><span>جست‌وجو</span><input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="کلمه، خوشه، URL یا یادداشت..."></label>
             <label><span>وضعیت کار</span><select name="status"><option value="">همهٔ وضعیت‌ها</option>@foreach($statusLabels as $value => $label)<option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>@endforeach</select></label>
             <label><span>نیت جست‌وجو</span><select name="intent"><option value="">همه</option>@foreach($intentLabels as $value => $label)<option value="{{ $value }}" @selected(($filters['intent'] ?? '') === $value)>{{ $label }}</option>@endforeach</select></label>
             <label><span>اولویت</span><select name="priority"><option value="">همه</option>@foreach($priorityLabels as $value => $label)<option value="{{ $value }}" @selected(($filters['priority'] ?? '') === $value)>{{ $label }}</option>@endforeach</select></label>
             <label><span>خوشه</span><select name="cluster"><option value="">همهٔ خوشه‌ها</option>@foreach($clusters as $cluster)<option value="{{ $cluster }}" @selected(($filters['cluster'] ?? '') === $cluster)>{{ $cluster }}</option>@endforeach</select></label>
-            <div class="seo-keyword-filter-actions"><button type="submit" class="course-action-btn primary">اعمال فیلتر</button><a href="{{ route('owner.seo.keywords.index') }}" class="course-action-btn">پاک کردن</a></div>
+            <div class="seo-keyword-filter-actions"><button type="submit" class="course-action-btn primary">اعمال فیلتر</button><a href="{{ route('seo.keywords.index') }}" class="course-action-btn">پاک کردن</a></div>
         </form>
 
         <div class="seo-keyword-table-wrap">
@@ -107,8 +107,8 @@
                         <td data-label="وضعیت"><span class="seo-keyword-status is-{{ $item->status }}">{{ $statusLabels[$item->status] ?? $item->status }}</span></td>
                         <td data-label="عملیات">
                             <div class="seo-keyword-actions">
-                                <a href="{{ route('owner.seo.keywords.edit', $item) }}" class="course-action-btn primary">ویرایش / رتبه</a>
-                                <form method="POST" action="{{ route('owner.seo.keywords.destroy', $item) }}" onsubmit="return confirm('این کلمه و تاریخچه رتبهٔ آن حذف شود؟');">
+                                <a href="{{ route('seo.keywords.edit', $item) }}" class="course-action-btn primary">ویرایش / رتبه</a>
+                                <form method="POST" action="{{ route('seo.keywords.destroy', $item) }}" onsubmit="return confirm('این کلمه و تاریخچه رتبهٔ آن حذف شود؟');">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="seo-keyword-delete">حذف</button>
                                 </form>
@@ -117,7 +117,7 @@
                     </tr>
                 @empty
                     <tr><td colspan="7">
-                        <div class="seo-keyword-empty"><strong>هنوز کلمه‌ای ثبت نشده</strong><p>اول یک عبارت اضافه کن یا فهرست تحقیق کلمات را از CSV وارد کن. مقدار رتبه و حجم جست‌وجو تا زمان ورود داده خالی می‌ماند.</p><a href="{{ route('owner.seo.keywords.create') }}" class="course-action-btn primary">ثبت اولین کلمه</a></div>
+                        <div class="seo-keyword-empty"><strong>هنوز کلمه‌ای ثبت نشده</strong><p>اول یک عبارت اضافه کن یا فهرست تحقیق کلمات را از CSV وارد کن. مقدار رتبه و حجم جست‌وجو تا زمان ورود داده خالی می‌ماند.</p><a href="{{ route('seo.keywords.create') }}" class="course-action-btn primary">ثبت اولین کلمه</a></div>
                     </td></tr>
                 @endforelse
                 </tbody>
