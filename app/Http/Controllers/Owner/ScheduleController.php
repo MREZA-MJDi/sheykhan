@@ -35,7 +35,7 @@ final class ScheduleController extends Controller
             $links
         );
 
-        return redirect()->route('owner.schedules.index', $academy)
+        return back()
             ->with('success', 'زمان هفتگی و لینک ورود کلاس ذخیره شد.');
     }
 
@@ -56,7 +56,7 @@ final class ScheduleController extends Controller
             $links
         );
 
-        return redirect()->route('owner.schedules.index', $academy)
+        return back()
             ->with('success', 'زمان هفتگی و لینک ورود کلاس به‌روزرسانی شد.');
     }
 
@@ -69,7 +69,7 @@ final class ScheduleController extends Controller
     ): RedirectResponse {
         $schedules->delete($request->user(), $academy, $classroom, $schedule);
 
-        return redirect()->route('owner.schedules.index', $academy)
+        return back()
             ->with('success', 'زمان هفتگی حذف شد.');
     }
 }
