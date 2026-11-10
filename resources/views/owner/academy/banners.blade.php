@@ -24,7 +24,7 @@
 
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('home') }}" target="_blank" rel="noopener" class="course-secondary-btn">مشاهده سایت ↗</a>
-                <a href="{{ route('owner.website.index') }}" class="course-secondary-btn">مرکز سایت</a>
+                <a href="{{ route('seo.website.index') }}" class="course-secondary-btn">مرکز سایت</a>
             </div>
         </section>
 
@@ -40,7 +40,7 @@
 
         <form
             method="POST"
-            action="{{ route('owner.academy.banners.update', $academy) }}"
+            action="{{ route('seo.academy.banners.update', $academy) }}"
             enctype="multipart/form-data"
             class="grid gap-4"
             data-banner-editor
