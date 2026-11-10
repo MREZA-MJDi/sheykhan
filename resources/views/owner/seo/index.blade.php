@@ -41,15 +41,15 @@
             </p>
         </div>
         <div class="seo-console-hero-actions">
-            <a href="{{ route('owner.seo.keywords.index') }}" class="course-action-btn primary">برنامهٔ کلمات کلیدی</a>
+            <a href="{{ route('seo.keywords.index') }}" class="course-action-btn primary">برنامهٔ کلمات کلیدی</a>
             <a href="{{ route('seo.sitemap') }}" target="_blank" rel="noopener noreferrer" class="course-action-btn">نقشهٔ سایت</a>
             <a href="{{ route('seo.robots') }}" target="_blank" rel="noopener noreferrer" class="course-action-btn">robots.txt</a>
         </div>
     </header>
 
     <nav class="seo-console-switcher" aria-label="بخش‌های مرکز SEO">
-        <a href="{{ route('owner.seo.index') }}" class="is-active" aria-current="page">صفحات و متادیتا</a>
-        <a href="{{ route('owner.seo.keywords.index') }}">کلمات کلیدی و رتبه‌ها</a>
+        <a href="{{ route('seo.index') }}" class="is-active" aria-current="page">صفحات و متادیتا</a>
+        <a href="{{ route('seo.keywords.index') }}">کلمات کلیدی و رتبه‌ها</a>
     </nav>
 
     <section class="seo-overview-stats" aria-label="خلاصه وضعیت صفحات">
@@ -129,7 +129,7 @@
                 <strong id="seo-duplicate-title">صفحات با متادیتای تکراری</strong>
                 <p>در چند صفحه، عنوان، توضیحات یا نشانی Canonical مشابه/یکسان پیدا شده است. از فیلتر «نیازمند اقدام» استفاده کن و جزئیات هر صفحه را باز کن.</p>
             </div>
-            <a href="{{ route('owner.seo.index', ['status' => 'attention']) }}">مشاهده صفحات نیازمند اقدام</a>
+            <a href="{{ route('seo.index', ['status' => 'attention']) }}">مشاهده صفحات نیازمند اقدام</a>
         </section>
     @endif
 
@@ -142,7 +142,7 @@
             <span class="seo-result-count">{{ number_format($items->total()) }} نتیجه</span>
         </div>
 
-        <form method="GET" action="{{ route('owner.seo.index') }}" class="seo-page-filters">
+        <form method="GET" action="{{ route('seo.index') }}" class="seo-page-filters">
             <label class="seo-filter-search">
                 <span>جست‌وجوی عنوان یا نشانی</span>
                 <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="نام دوره، مقاله، محصول یا URL..." autocomplete="off">
@@ -166,16 +166,16 @@
             </label>
             <div class="seo-filter-actions">
                 <button type="submit" class="course-action-btn primary">اعمال فیلتر</button>
-                <a href="{{ route('owner.seo.index') }}" class="course-action-btn">پاک‌کردن</a>
+                <a href="{{ route('seo.index') }}" class="course-action-btn">پاک‌کردن</a>
             </div>
         </form>
 
         <div class="seo-filter-chips" aria-label="خلاصه وضعیت‌ها">
-            <a href="{{ route('owner.seo.index') }}" class="{{ $filters['status'] === '' && $filters['type'] === '' && $filters['q'] === '' ? 'is-active' : '' }}">همه <span>{{ number_format($counts['all']) }}</span></a>
-            <a href="{{ route('owner.seo.index', ['status' => 'attention', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'attention' ? 'is-active' : '' }}">نیازمند اقدام <span>{{ number_format($counts['attention']) }}</span></a>
-            <a href="{{ route('owner.seo.index', ['status' => 'ready', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'ready' ? 'is-active' : '' }}">تنظیمات کامل <span>{{ number_format($counts['ready']) }}</span></a>
-            <a href="{{ route('owner.seo.index', ['status' => 'unconfigured', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'unconfigured' ? 'is-active' : '' }}">تنظیم‌نشده <span>{{ number_format($counts['unconfigured']) }}</span></a>
-            <a href="{{ route('owner.seo.index', ['status' => 'noindex', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'noindex' ? 'is-active' : '' }}">noindex <span>{{ number_format($counts['noindex']) }}</span></a>
+            <a href="{{ route('seo.index') }}" class="{{ $filters['status'] === '' && $filters['type'] === '' && $filters['q'] === '' ? 'is-active' : '' }}">همه <span>{{ number_format($counts['all']) }}</span></a>
+            <a href="{{ route('seo.index', ['status' => 'attention', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'attention' ? 'is-active' : '' }}">نیازمند اقدام <span>{{ number_format($counts['attention']) }}</span></a>
+            <a href="{{ route('seo.index', ['status' => 'ready', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'ready' ? 'is-active' : '' }}">تنظیمات کامل <span>{{ number_format($counts['ready']) }}</span></a>
+            <a href="{{ route('seo.index', ['status' => 'unconfigured', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'unconfigured' ? 'is-active' : '' }}">تنظیم‌نشده <span>{{ number_format($counts['unconfigured']) }}</span></a>
+            <a href="{{ route('seo.index', ['status' => 'noindex', 'type' => $filters['type'], 'q' => $filters['q']]) }}" class="{{ $filters['status'] === 'noindex' ? 'is-active' : '' }}">noindex <span>{{ number_format($counts['noindex']) }}</span></a>
         </div>
 
         <div class="seo-record-list">
@@ -270,7 +270,7 @@
                     </div>
 
                     <div class="seo-record-action">
-                        <a href="{{ route('owner.seo.edit', [$item['type'], $item['id']]) }}" class="course-action-btn primary">مدیریت صفحه</a>
+                        <a href="{{ route('seo.pages.edit', [$item['type'], $item['id']]) }}" class="course-action-btn primary">مدیریت صفحه</a>
                     </div>
                 </article>
             @empty
@@ -278,7 +278,7 @@
                     <span class="seo-empty-icon" aria-hidden="true">⌕</span>
                     <strong>صفحه‌ای با این فیلتر پیدا نشد</strong>
                     <p>فیلترها را پاک کن یا عبارت جست‌وجو را کوتاه‌تر بنویس.</p>
-                    <a href="{{ route('owner.seo.index') }}" class="course-action-btn">نمایش همه صفحات</a>
+                    <a href="{{ route('seo.index') }}" class="course-action-btn">نمایش همه صفحات</a>
                 </div>
             @endforelse
         </div>
