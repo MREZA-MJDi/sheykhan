@@ -506,3 +506,21 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content .sp-danger-note{border-color:#edb9c2;background:var(--ui-danger-soft);color:#9f1d34}
 .owner-admin-v2 .main-content .sp-code{display:inline-block;padding:4px 7px;border:1px solid var(--ui-border);border-radius:7px;background:var(--ui-surface-soft);color:var(--ui-heading)}
 .owner-admin-v2 .main-content .sp-empty{padding:18px;border:1px dashed var(--ui-border-strong);border-radius:12px;background:var(--ui-surface-soft);color:var(--ui-muted)}
+
+/* Member directory results and website/banner editing controls. */
+.owner-admin-v2 .main-content .owner-people-workspace{display:grid;align-content:start;gap:16px;min-width:0}
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-results]>div{
+  border:1px solid var(--ui-border)!important;border-radius:10px;background:#fff!important;color:var(--ui-text)!important
+}
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-results]>div:hover{background:var(--ui-primary-soft)!important}
+.owner-admin-v2 .main-content .owner-people-workspace :is([data-directory-status],[data-directory-page-info]){color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .owner-people-workspace [data-directory-pagination]{
+  border:1px solid var(--ui-border)!important;border-radius:12px;background:#fff!important;color:var(--ui-text)!important
+}
+.owner-admin-v2 .main-content :is(.owner-cover-editor,.website-hero-crop-group,.website-hero-check,.banner-crop-tools){
+  border:1px solid var(--ui-border)!important;border-radius:11px;background:var(--ui-surface-soft)!important;color:var(--ui-text)!important;box-shadow:none!important
+}
+.owner-admin-v2 .main-content :is(.website-hero-check,.banner-crop-head,.banner-preview-body) :is(strong,b,span,small){color:var(--ui-text)}
+.owner-admin-v2 .main-content .website-hero-check small{color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .banner-preview-academy{background:rgba(23,27,34,.72);color:#fff}
+.owner-admin-v2 .main-content .website-hero-preview-copy :is(span,strong,small){color:#fff!important}
