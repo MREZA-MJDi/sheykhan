@@ -3,6 +3,7 @@
 @section('header-title','مدیریت محتوا')
 @section('content')
 <div class="owner-form-shell">
+    @include('owner.partials.public-site-workspace-tabs')
     <div class="owner-form-head">
         <div>
             <span>مرکز محتوا</span>
