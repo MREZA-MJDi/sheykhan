@@ -32,7 +32,7 @@ class OwnerMeetingWorkflowTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.meetings.store', $academy), $payload)
-            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=meetings')
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('academy_meetings', [
@@ -47,10 +47,10 @@ class OwnerMeetingWorkflowTest extends TestCase
 
         $this->actingAs($owner)
             ->get(route('owner.meetings.index', $academy))
-            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']));
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=meetings');
 
         $this->actingAs($owner)
-            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
+            ->get(route('owner.communication-workspace', $academy) . '?tab=meetings')
             ->assertOk()
             ->assertSee($payload['title'])
             ->assertSee($payload['message'])
@@ -109,7 +109,7 @@ class OwnerMeetingWorkflowTest extends TestCase
             ->get(route('owner.attendance.index', $academy) . '?sheet=report&status=absent')
             ->assertOk()
             ->assertSee('غیبت‌ها و گزارش کلاسی')
-            ->assertSee('گزارش خلاصه')
+            ->assertSee('دامنهٔ گزارش')
             ->assertViewHas('sheet', 'report')
             ->assertViewHas('attendances', null)
             ->assertViewHas('summary', fn ($summary) => (int) $summary->total === 1 && (int) $summary->absent_count === 1);
@@ -134,7 +134,7 @@ class OwnerMeetingWorkflowTest extends TestCase
         [$owner, $academy] = $this->workspace();
 
         $this->actingAs($owner)
-            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
+            ->get(route('owner.communication-workspace', $academy) . '?tab=meetings')
             ->assertOk()
             ->assertDontSee('value="هماهنگی با آقای سبحانی"', false)
             ->assertSee('placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده"', false);
@@ -192,7 +192,7 @@ class OwnerMeetingWorkflowTest extends TestCase
             'created_by' => $owner->id,
             'title' => 'دوره تست',
             'slug' => 'course-' . Str::lower(Str::random(8)),
-            'status' => 'draft',
+            'status' => 'published',
             'access_type' => 'free',
             'price' => 0,
         ]);

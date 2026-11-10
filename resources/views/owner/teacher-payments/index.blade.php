@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="space-y-6 panel-page-enter owner-workspace-page owner-teacher-payments-page">
-    @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'teacher-payments'])
+    @include('owner.admin.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'teacher-payments'])
     <header><p class="text-xs font-black text-[var(--panel-primary)]">امور مالی مدرس‌ها</p><h1 class="mt-1 text-2xl font-black">ثبت و پیگیری پرداخت مدرس‌ها</h1><p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">در این بخش مبلغ توافق‌شده با هر مدرس را ثبت می‌کنی و وضعیت پرداخت را پیگیری می‌کنی. مبلغ پرداختی فعلاً به‌صورت دستی وارد می‌شود و سامانه آن را از تعداد جلسه یا فروش محاسبه نمی‌کند.</p></header>
     <section class="grid gap-3 sm:grid-cols-2">
         <article class="owner-stat-card"><span>پرداخت ثبت‌شده</span><strong>{{ \App\Support\PersianUi::number($summary['paid']) }}</strong><small>تومان</small></article>

@@ -4,7 +4,7 @@
 @section('header-title', $classroom->exists ? 'ویرایش کلاس' : 'ساخت کلاس')
 
 @section('content')
-@include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'classrooms', 'academy' => $academy])
+@include('owner.admin.partials.learning-workspace-tabs', ['activeSheet' => 'classrooms', 'academy' => $academy])
 @php
     $selectedTeacherIds = old('teacher_ids', $selectedTeacherIds ?? []);
     $selectedTeacherIds = array_map('intval', (array) $selectedTeacherIds);

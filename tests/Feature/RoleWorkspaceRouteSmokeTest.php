@@ -48,10 +48,20 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
             ['owner.reports.index', []],
         ];
 
+        $redirectingAliases = [
+            'owner.meetings.index',
+            'owner.messages.index',
+            'owner.communications.index',
+            'owner.counseling.index',
+        ];
+
         foreach ($routes as [$routeName, $parameters]) {
-            $this->actingAs($owner)
-                ->get(route($routeName, $parameters))
-                ->assertOk($routeName . ' must render successfully from owner/admin navigation.');
+            $request = $this->actingAs($owner);
+            $response = in_array($routeName, $redirectingAliases, true)
+                ? $request->followingRedirects()->get(route($routeName, $parameters))
+                : $request->get(route($routeName, $parameters));
+
+            $response->assertOk($routeName . ' must render successfully from owner/admin navigation.');
         }
     }
 

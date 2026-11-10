@@ -40,15 +40,15 @@ class CommunicationPageStyleCoverageTest extends TestCase
 
     public function test_owner_communication_presentation_is_owned_by_owner_stylesheet_and_partial(): void
     {
-        $css = $this->source('resources/css/owner-dashboard-v2.css');
-        $page = $this->source('resources/views/owner/communications/index.blade.php');
-        $workspace = $this->source('resources/views/owner/communications/partials/messages-workspace.blade.php');
+        $css = $this->source('resources/views/owner/admin/assets/admin.css');
+        $page = $this->source('resources/views/owner/communication-workspace/index.blade.php');
+        $workspace = $this->source('resources/views/owner/admin/partials/learning-workspace-tabs.blade.php');
 
         $this->assertStringContainsString('.owner-admin-v2 .main-content .communication-page__hero', $css);
         $this->assertStringContainsString('.owner-admin-v2 .main-content .communication-page__empty', $css);
-        $this->assertStringContainsString('owner.communications.partials.messages-workspace', $page);
-        $this->assertStringContainsString('owner-communications-workspace', $workspace);
-        $this->assertStringContainsString('dashboard-panel', $workspace);
+        $this->assertStringContainsString('owner.admin.partials.learning-workspace-tabs', $page);
+        $this->assertStringContainsString('owner-workspace-tabs', $workspace);
+        $this->assertStringContainsString('dashboard-panel', $page);
         $this->assertFileDoesNotExist(dirname(__DIR__, 2) . '/resources/views/components/communication/academy-messages-workspace.blade.php');
     }
 }

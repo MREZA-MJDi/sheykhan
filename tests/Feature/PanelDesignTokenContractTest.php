@@ -9,28 +9,41 @@ class PanelDesignTokenContractTest extends TestCase
     public function test_each_role_owns_its_calendar_and_presentation_styles(): void
     {
         $entries = [
-            'parent' => 'parent.css',
-            'student' => 'student.css',
-            'owner' => 'owner-dashboard-v2.css',
-            'seo' => 'seo-dashboard.css',
+            'parent' => 'css/parent.css',
+            'student' => 'css/student.css',
+            'owner' => 'views/owner/admin/assets/admin.css',
+            'seo' => 'views/owner/admin/assets/seo-dashboard.css',
         ];
 
         foreach ($entries as $role => $entry) {
-            $source = file_get_contents(resource_path('css/' . $entry));
-            $calendar = file_get_contents(resource_path('css/panels/' . $role . '/calendar.css'));
-            $components = file_get_contents(resource_path('css/panels/' . $role . '/components.css'));
+            $source = file_get_contents(resource_path($entry));
+            $panel = in_array($role, ['owner', 'seo'], true) ? 'shared' : $role;
+            $calendar = file_get_contents(resource_path("css/panels/{$panel}/calendar.css"));
+            $components = file_get_contents(resource_path("css/panels/{$panel}/components.css"));
 
             foreach ([$source, $calendar, $components] as $css) {
                 $this->assertIsString($css);
             }
 
-            $this->assertStringContainsString("@import './panels/{$role}/calendar.css';", $source, $role);
-            $this->assertStringContainsString("@import './panels/{$role}/components.css';", $source, $role);
+            $calendarImport = in_array($role, ['owner', 'seo'], true)
+                ? "@import '../../../../css/panels/shared/calendar.css';"
+                : "@import './panels/{$panel}/calendar.css';";
+            $componentsImport = in_array($role, ['owner', 'seo'], true)
+                ? "@import '../../../../css/panels/shared/components.css';"
+                : "@import './panels/{$panel}/components.css';";
+
+            $this->assertStringContainsString($calendarImport, $source, $role);
+            $this->assertStringContainsString($componentsImport, $source, $role);
             $this->assertStringContainsString('.jalali-calendar-popup', $calendar, $role);
             $this->assertStringContainsString('--panel-control-height', $components, $role);
             $this->assertStringNotContainsString("@import './panel-design-tokens.css';", $source, $role);
             $this->assertStringNotContainsString("@import './persian-calendar.css';", $source, $role);
         }
+
+        $this->assertFileDoesNotExist(resource_path('css/owner-dashboard-v2.css'));
+        $this->assertFileDoesNotExist(resource_path('css/panels/owner/admin.css'));
+        $this->assertFileDoesNotExist(resource_path('css/panels/seo/admin.css'));
+        $this->assertFileDoesNotExist(resource_path('css/seo-dashboard.css'));
     }
 
     public function test_public_site_owns_a_separate_calendar_stylesheet(): void

@@ -3,7 +3,7 @@
 @section('header-title','مالی')
 @section('content')
 <div class="space-y-6 panel-page-enter">
-    @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
+    @include('owner.admin.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
     <div><span class="text-xs font-black text-[var(--panel-primary)]">وضعیت مالی آموزشگاه</span><h1 class="mt-1 text-2xl font-black">دریافت‌ها و بدهی‌ها</h1><p class="mt-2 text-sm leading-7 text-slate-500">در این صفحه می‌توانی پرداخت‌های ثبت‌شده و شهریه‌های باقی‌مانده را ببینی.</p></div>
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <article class="owner-stat-card"><span>دریافت</span><strong>{{ \App\Support\PersianUi::number($stats['income']) }}</strong><small>تومان</small></article>

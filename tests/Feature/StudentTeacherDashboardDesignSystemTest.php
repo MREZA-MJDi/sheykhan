@@ -93,7 +93,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $money = file_get_contents(resource_path('js/shared/persian-money.js'));
         $upload = file_get_contents(resource_path('js/shared/upload-progress.js'));
         $teacherBuilder = file_get_contents(resource_path('js/teacher/assessment-builder.js'));
-        $ownerBuilder = file_get_contents(resource_path('js/owner/exam-builder.js'));
+        $ownerBuilder = file_get_contents(resource_path('views/owner/admin/assets/js/owner/exam-builder.js'));
         foreach ([$calendar,$money,$upload,$teacherBuilder,$ownerBuilder] as $source) $this->assertIsString($source);
         $this->assertFileDoesNotExist(resource_path('js/shared/assessment-builder.js'));
     }
@@ -103,7 +103,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $behavior = file_get_contents(resource_path('js/shared/behavior-runtime.js'));
         $panelRuntime = file_get_contents(resource_path('js/panel-runtime.js'));
         $teacher = file_get_contents(resource_path('js/teacher.js'));
-        $ownerCommon = file_get_contents(resource_path('js/owner-admin-common.js'));
+        $ownerCommon = file_get_contents(resource_path('views/owner/admin/assets/js/admin-common.js'));
         foreach ([$behavior,$panelRuntime,$teacher,$ownerCommon] as $source) $this->assertIsString($source);
 
         $this->assertStringContainsString('export function initializeTabs', $behavior);
@@ -154,27 +154,31 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
             'resources/js/app.js',
             'resources/js/parent.js',
             'resources/js/student.js',
-            'resources/js/owner-dashboard.js',
-            'resources/js/seo-dashboard.js',
+            'resources/views/owner/admin/assets/admin.js',
+            'resources/views/owner/admin/assets/seo-dashboard.js',
         ] as $entry) {
             $source = file_get_contents(resource_path(str_replace('resources/', '', $entry)));
             $this->assertIsString($source);
-            $this->assertStringContainsString("from './panel-runtime.js'", $source, $entry);
+            if (str_contains($entry, 'resources/views/owner/admin/assets/')) {
+                $this->assertStringContainsString("from '../../../../js/panel-runtime.js'", $source, $entry);
+            } else {
+                $this->assertStringContainsString("from './panel-runtime.js'", $source, $entry);
+            }
         }
     }
 
     public function test_owner_exam_builder_is_fully_owner_owned_and_preserves_essay_reference_answers(): void
     {
-        $ownerEntry = file_get_contents(resource_path('js/owner-dashboard.js'));
-        $ownerBuilder = file_get_contents(resource_path('js/owner/exam-builder.js'));
+        $ownerEntry = file_get_contents(resource_path('views/owner/admin/assets/admin.js'));
+        $ownerBuilder = file_get_contents(resource_path('views/owner/admin/assets/js/owner/exam-builder.js'));
         $ownerView = file_get_contents(resource_path('views/owner/exams/form.blade.php'));
         $ownerController = file_get_contents(app_path('Http/Controllers/Owner/ExamController.php'));
-        $ownerStyles = file_get_contents(resource_path('css/panels/owner/admin.css'));
+        $ownerStyles = file_get_contents(resource_path('views/owner/admin/assets/admin.css'));
         foreach ([$ownerEntry,$ownerBuilder,$ownerView,$ownerController,$ownerStyles] as $source) {
             $this->assertIsString($source);
         }
 
-        $this->assertStringContainsString("import './owner/exam-builder.js';", $ownerEntry);
+        $this->assertStringContainsString("import './js/owner/exam-builder.js';", $ownerEntry);
         $this->assertStringContainsString('owner-exam-correct-choice', $ownerBuilder);
         $this->assertStringContainsString('owner-exam-answer-key-empty', $ownerBuilder);
         $this->assertStringNotContainsString('teacher-exam-', $ownerBuilder);
@@ -202,26 +206,26 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
 
     public function test_owner_and_seo_keep_their_own_shared_interactions_and_styles(): void
     {
-        $ownerScript = file_get_contents(resource_path('js/owner-dashboard.js'));
-        $seoScript = file_get_contents(resource_path('js/seo-dashboard.js'));
-        $sharedScript = file_get_contents(resource_path('js/owner-admin-common.js'));
-        $ownerCss = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
-        $seoCss = file_get_contents(resource_path('css/seo-dashboard.css'));
-        $ownerLayout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
+        $ownerScript = file_get_contents(resource_path('views/owner/admin/assets/admin.js'));
+        $seoScript = file_get_contents(resource_path('views/owner/admin/assets/seo-dashboard.js'));
+        $sharedScript = file_get_contents(resource_path('views/owner/admin/assets/js/admin-common.js'));
+        $ownerCss = file_get_contents(resource_path('views/owner/admin/assets/admin.css'));
+        $seoCss = file_get_contents(resource_path('views/owner/admin/assets/seo-dashboard.css'));
+        $ownerLayout = file_get_contents(resource_path('views/owner/admin/layout.blade.php'));
         $seoLayout = file_get_contents(resource_path('views/layouts/seo-specialist.blade.php'));
         foreach ([$ownerScript,$seoScript,$sharedScript,$ownerCss,$seoCss,$ownerLayout,$seoLayout] as $source) $this->assertIsString($source);
-        $this->assertStringContainsString("import './owner-admin-common.js';", $ownerScript);
-        $this->assertStringContainsString("import './owner-admin-common.js';", $seoScript);
-        $this->assertStringContainsString("import './shared/file-preview.js';", $sharedScript);
+        $this->assertStringContainsString("import './js/admin-common.js';", $ownerScript);
+        $this->assertStringContainsString("import './js/admin-common.js';", $seoScript);
+        $this->assertStringContainsString("import '../../../../../js/shared/file-preview.js';", $sharedScript);
         $this->assertStringNotContainsString('assessment-builder', $sharedScript);
-        $this->assertStringContainsString("import './owner/exam-builder.js';", $ownerScript);
-        $this->assertStringContainsString("import './owner/people-tabs.js';", $ownerScript);
-        $this->assertStringContainsString("import './panels/owner/admin.css';", $ownerCss);
-        $this->assertStringContainsString("import './panels/seo/admin.css';", $seoCss);
+        $this->assertStringContainsString("import './js/owner/exam-builder.js';", $ownerScript);
+        $this->assertStringContainsString("import './js/owner/workspace-tabs.js';", $ownerScript);
+        $this->assertStringContainsString("@import '../../../../css/panels/shared/calendar.css';", $ownerCss);
+        $this->assertStringContainsString("@import '../../../../css/panels/shared/components.css';", $ownerCss);
+        $this->assertStringContainsString("import './seo-admin.css';", $seoCss);
         $this->assertFileDoesNotExist(resource_path('css/owner-admin-shared.css'));
-        foreach ([$ownerLayout,$seoLayout] as $layout) {
-            $this->assertStringContainsString("@include('owner.partials.admin-topbar')", $layout);
-            $this->assertStringContainsString("@include('owner.partials.admin-main')", $layout);
-        }
+        $this->assertStringContainsString("@include('owner.admin.partials.dashboard-icons')", $ownerLayout);
+        $this->assertStringContainsString("@include('owner.admin.partials.topbar')", $seoLayout);
+        $this->assertStringContainsString("@include('owner.admin.partials.main')", $seoLayout);
     }
 }

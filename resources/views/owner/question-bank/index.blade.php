@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="space-y-6 panel-page-enter">
-    @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'question-bank'])
+    @include('owner.admin.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'question-bank'])
     <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">آزمون و ارزیابی</p>

@@ -3,7 +3,7 @@
 @section('header-title', 'بازبینی سفارش‌ها')
 @section('content')
 <div class="owner-form-shell space-y-6">
-    @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'orders'])
+    @include('owner.admin.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'orders'])
     <header class="owner-form-head">
         <div><span>فروشگاه آموزشی</span><h1>سفارش‌ها و رسیدهای واریز</h1><p>رسید فقط پس از تطبیق با صورتحساب واقعی بانک تأیید شود. ثبت رسید به تنهایی مجوز دانلود نیست.</p></div>
         <a href="{{ route('owner.dashboard') }}">داشبورد</a>

@@ -62,16 +62,16 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('SEO Visible Course')
             ->assertSee(route('courses.show', $course), false)
             ->assertSee('مدیریت دیده‌شدن شیخان در جست‌وجو')
-            ->assertSee('عملکرد واقعی در Google Search Console')
+            ->assertSee('آمار واقعی نمایش سایت در گوگل')
             ->assertSee('عنوان SEO اختصاصی تنظیم نشده')
             ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
             ->assertSee('robots.txt')
             ->assertSee('owner-admin-v2', false)
-            ->assertSee('سایت و SEO')
+            ->assertSee('نمایش سایت در گوگل')
             ->assertSee('آکادمی شیخان')
             ->assertSee('SEO و محتوای عمومی')
             ->assertDontSee('role-sidebar owner-sidebar', false)
-            ->assertDontSee('admin.css', false)
+            ->assertDontSee('/assets/admin.css', false)
             ->assertDontSee('owner-design-system.css', false)
             ->assertDontSee('کارتابل ادمین / منشی');
 
@@ -97,7 +97,7 @@ class SeoSpecialistAccessTest extends TestCase
             ]))
             ->assertOk()
             ->assertSee('SEO Visible Course')
-            ->assertSee('عملکرد واقعی در Google Search Console')
+            ->assertSee('آمار واقعی نمایش سایت در گوگل')
             ->assertSee('بدون دادهٔ دریافتی');
 
         $this->actingAs($specialist)

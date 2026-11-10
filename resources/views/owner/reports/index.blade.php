@@ -3,7 +3,7 @@
 @section('header-title','گزارش و عملکرد')
 @section('content')
 <div class="space-y-6 panel-page-enter">
-@include('owner.partials.report-workspace-tabs')
+@include('owner.admin.partials.report-workspace-tabs')
 <div id="overview"><div><p class="text-xs font-black text-[var(--panel-primary)]">مرکز تحلیل</p><h1 class="mt-1 text-2xl font-black">{{ $academies->count() > 1 ? 'گزارش همه آموزشگاه‌ها' : ($academy?->name ?? 'آموزشگاه') }}</h1><p class="mt-2 text-sm leading-7 text-slate-500">برآیند دوره‌ها، مدرس‌ها، کلاس‌ها، آزمون‌ها، حضور و ثبت‌نام.</p></div>
 <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">@foreach([['دانش‌آموز فعال',$metrics['students']],['مدرس فعال',$metrics['teachers']],['دوره منتشرشده',$metrics['published']],['نرخ حضور',$metrics['attendance_rate']===null?'—':$metrics['attendance_rate'].'٪'],['میانگین آزمون',$metrics['exam_average']===null?'—':$metrics['exam_average'].'٪']] as [$label,$value])<article class="owner-stat-card"><span>{{ $label }}</span><strong>{{ $value }}</strong><small>{{ $metrics['enrollments'] }} ثبت‌نام فعال</small></article>@endforeach</section>
 <section class="grid gap-4 sm:grid-cols-3"><article class="dashboard-panel p-5"><span class="text-xs text-slate-500">درآمد خالص ثبت‌شده</span><strong class="mt-2 block text-2xl font-black">{{ \App\Support\PersianUi::number($metrics['revenue']) }} تومان</strong></article><article class="dashboard-panel p-5"><span class="text-xs text-slate-500">کلاس‌ها</span><strong class="mt-2 block text-2xl font-black">{{ $metrics['classrooms'] }}</strong></article><article class="dashboard-panel p-5"><span class="text-xs text-slate-500">نیازمند بررسی</span><strong class="mt-2 block text-2xl font-black">{{ $metrics['pending_reviews'] }}</strong></article></section>

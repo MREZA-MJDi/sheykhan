@@ -6,7 +6,7 @@
 @section('content')
 @php($isEdit = $keyword->exists)
 <div class="owner-form-shell seo-keyword-form-page">
-    @include('owner.partials.public-site-workspace-tabs')
+    @include('owner.admin.partials.public-site-workspace-tabs')
     <div class="owner-form-head">
         <div>
             <span>برنامه‌ریزی هدفمند جست‌وجو</span>

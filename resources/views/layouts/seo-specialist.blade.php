@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'مدیریت سایت آموزشگاه | شیخان')</title>
-    @vite(['resources/css/seo-dashboard.css', 'resources/css/panels/shared/owner-ui.css', 'resources/js/seo-dashboard.js'])
+    @vite(['resources/views/owner/admin/assets/seo-dashboard.css', 'resources/views/owner/admin/assets/seo-ui.css', 'resources/views/owner/admin/assets/seo-dashboard.js'])
     @vite(['resources/css/panels/shared/enterprise.css'])
     @stack('styles')
 </head>
@@ -57,8 +57,8 @@
     ];
 @endphp
 <div class="app">
-    @include('owner.partials.dashboard-icons')
-    @include('owner.partials.admin-topbar')
+    @include('owner.admin.partials.dashboard-icons')
+    @include('owner.admin.partials.topbar')
     <aside class="side card" id="side" aria-label="منوی مدیریت">
         <nav id="nv" aria-label="منوی اصلی">
             @if(!$isSeoOnlyUser && $ownerUser?->hasPermission('dashboard.view'))
@@ -123,8 +123,8 @@
         @endif
         <div class="side-foot"><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
     </aside>
-    @include('owner.partials.admin-main')
-    @include('owner.partials.admin-command-palette')
+    @include('owner.admin.partials.main')
+    @include('owner.admin.partials.command-palette')
 </div>
 @stack('scripts')
 </body>

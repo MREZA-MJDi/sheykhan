@@ -1,7 +1,7 @@
-import './shared/persian-calendar.js';
-import './shared/persian-money.js';
-import './owner-admin-common.js';
-import { bootPanelRuntime, closePanelMenu } from './panel-runtime.js';
+import '../../../../js/shared/persian-calendar.js';
+import '../../../../js/shared/persian-money.js';
+import './js/admin-common.js';
+import { bootPanelRuntime, closePanelMenu } from '../../../../js/panel-runtime.js';
 export { closePanelMenu };
 
 bootPanelRuntime();

@@ -366,7 +366,7 @@ class ParentPortalWorkflowTest extends TestCase
                 'scheduled_at' => $proposedAt->format('Y-m-d\TH:i'),
                 'response_notes' => 'زمان پیشنهادی مدرس تأیید شد.',
             ])
-            ->assertRedirect(route('owner.counseling.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=counseling')
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('counseling_requests', [

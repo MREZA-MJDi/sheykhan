@@ -9,7 +9,7 @@
 @endphp
 
 <div class="space-y-6 panel-page-enter owner-workspace-page owner-online-links-page">
-    @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'schedules'])
+    @include('owner.admin.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'schedules'])
     <header class="owner-page-intro flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
@@ -25,7 +25,7 @@
 
     <section class="owner-calendar-section" aria-label="تقویم هفتگی کلاس‌ها">
         <div class="owner-section-heading"><div><h2>برنامه هفتگی</h2><p>روز و ساعت برگزاری کلاس‌ها را بررسی کن؛ برای جلسه‌های تاریخ‌دار از صفحهٔ کلاس‌های آنلاین مدرس استفاده می‌شود.</p></div></div>
-        @include('owner.schedules.partials.weekly-calendar', ['classrooms' => $classrooms])
+        @include('owner.admin.partials.weekly-calendar', ['classrooms' => $classrooms])
     </section>
 
     <section class="grid gap-4 owner-schedule-list" aria-label="کلاس‌ها و لینک‌های ورود">

@@ -10,7 +10,7 @@
     @endphp
 
     <div class="website-hero-editor">
-    @include('owner.partials.public-site-workspace-tabs')
+    @include('owner.admin.partials.public-site-workspace-tabs')
         <header class="website-hero-editor-head">
             <div>
                 <span class="website-kicker">اسلایدر مستقل سایت عمومی</span>

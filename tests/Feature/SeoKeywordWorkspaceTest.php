@@ -28,8 +28,8 @@ class SeoKeywordWorkspaceTest extends TestCase
         $this->actingAs($specialist)
             ->get(route('owner.seo.keywords.index'))
             ->assertOk()
-            ->assertSee('مرکز کلمات کلیدی')
-            ->assertSee('ورود و خروج دسته‌ای')
+            ->assertSee('عبارت‌هایی که مردم جست‌وجو می‌کنند')
+            ->assertSee('CSV معتبر')
             ->assertSee('رتبهٔ زنده');
     }
 

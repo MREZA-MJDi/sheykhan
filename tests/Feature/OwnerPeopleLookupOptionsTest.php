@@ -139,7 +139,7 @@ final class OwnerPeopleLookupOptionsTest extends TestCase
             'academy' => $academy,
             'type' => 'teachers',
             'q' => 'مدرس',
-        ]))->assertForbidden();
+        ]))->assertNotFound();
 
         $unprivileged = User::factory()->create(['status' => 'active']);
         $this->actingAs($unprivileged)->getJson(route('owner.people.lookup-options', [

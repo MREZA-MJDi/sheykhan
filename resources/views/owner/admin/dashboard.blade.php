@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends('owner.admin.layout')
 
 @section('title', 'داشبورد آکادمی شیخان')
 @section('header-title', 'داشبورد')
@@ -143,9 +143,9 @@
 @endphp
 
 
-        @include('owner.dashboard.partials.overview')
-@include('owner.dashboard.partials.activity')
-@include('owner.dashboard.partials.upcoming')
+        @include('owner.admin.dashboard.partials.overview')
+@include('owner.admin.dashboard.partials.activity')
+@include('owner.admin.dashboard.partials.upcoming')
 
 @if($canViewPeople || $canViewAttendance || $canViewClassrooms || $canViewReports || $canViewCourses || $canViewLegal || $canViewExams || $canViewFinance)
     <details class="c12 group overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
@@ -160,8 +160,8 @@
             </span>
         </summary>
         <div class="grid grid-cols-12 gap-4 border-t border-slate-100 p-4 dark:border-slate-700">
-            @include('owner.dashboard.partials.analytics')
-            @include('owner.dashboard.partials.reports')
+            @include('owner.admin.dashboard.partials.analytics')
+            @include('owner.admin.dashboard.partials.reports')
         </div>
     </details>
 @endif

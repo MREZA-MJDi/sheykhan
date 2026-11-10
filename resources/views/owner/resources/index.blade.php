@@ -3,7 +3,7 @@
 @section('header-title', 'کتابخانه و جزوه‌ها')
 @section('content')
 <div class="owner-form-shell space-y-6">
-    @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'resources'])
+    @include('owner.admin.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'resources'])
     <header class="owner-form-head">
         <div>
             <span>فضای اختصاصی آموزشگاه</span>

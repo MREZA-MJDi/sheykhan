@@ -325,8 +325,8 @@ final class ExamController extends Controller
             ->where('users.status', 'active')
             ->whereHas('academies', fn ($academies) => $academies
                 ->whereKey($course->academy_id)
-                ->wherePivot('role', 'teacher')
-                ->wherePivot('status', 'active'));
+                ->where('academy_user.role', 'teacher')
+                ->where('academy_user.status', 'active'));
 
         if ($classroomId !== null) {
             $teachers->whereHas('classroomsAsTeacher', fn ($classrooms) => $classrooms

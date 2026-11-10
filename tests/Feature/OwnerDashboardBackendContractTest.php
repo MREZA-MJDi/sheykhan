@@ -411,14 +411,19 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false);
 
         $this->get(route('owner.communications.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=announcements');
+
+        $this->get(route('owner.communication-workspace', $academy) . '?tab=announcements')
             ->assertOk()
-            ->assertSee('این حساب دسترسی مشاهده دارد')
+            ->assertSee('هنوز اطلاعیه‌ای ثبت نشده است.')
             ->assertDontSee('action="' . route('owner.communications.store', $academy) . '"', false);
 
         $this->get(route('owner.messages.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=messages');
+
+        $this->get(route('owner.communication-workspace', $academy) . '?tab=messages')
             ->assertOk()
             ->assertSee('پیام فقط‌خواندنی تست')
-            ->assertSee('حالت فقط‌خواندنی')
             ->assertDontSee('action="' . route('owner.messages.reply', [$academy, $message->id]) . '"', false);
 
         $this->patch(route('owner.messages.reply', [$academy, $message->id]), [
