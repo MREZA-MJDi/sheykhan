@@ -40,7 +40,7 @@
         [
             'key' => 'control',
             'title' => 'خانه و گزارش‌ها',
-            'color' => '#22d3ee',
+            'color' => '#315b88',
             'links' => [
                 ['route' => 'owner.dashboard', 'permission' => 'dashboard.view', 'label' => 'داشبورد اصلی', 'icon' => 'home', 'scope' => 'global'],
                 ['route' => 'owner.reports.index', 'permission' => 'reports.view', 'label' => 'گزارش عملکرد', 'icon' => 'chart', 'scope' => 'global'],
@@ -49,7 +49,7 @@
         [
             'key' => 'people',
             'title' => 'مدیریت اعضا',
-            'color' => '#0f766e',
+            'color' => '#167653',
             'links' => [
                 ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'مدرس‌ها، دانش‌آموزان و اولیا', 'icon' => 'users', 'scope' => 'academy'],
             ],
@@ -57,7 +57,7 @@
         [
             'key' => 'communications',
             'title' => 'ارتباطات و پشتیبانی',
-            'color' => '#2563eb',
+            'color' => '#526b8c',
             'links' => [
                 ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'صندوق پیام خانواده‌ها', 'icon' => 'chat', 'scope' => 'academy'],
                 ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها و پیام‌های خروجی', 'icon' => 'mega', 'scope' => 'academy'],
@@ -67,7 +67,7 @@
         [
             'key' => 'learning',
             'title' => 'کلاس‌ها و آموزش',
-            'color' => '#8b3dff',
+            'color' => '#315b88',
             'links' => [
                 ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'دوره‌ها', 'icon' => 'book', 'scope' => 'global'],
                 ['route' => 'owner.classrooms.index', 'permission' => 'classrooms.view', 'label' => 'کلاس‌ها و گروه‌ها', 'icon' => 'calendar', 'scope' => 'academy'],
@@ -83,7 +83,7 @@
         [
             'key' => 'finance',
             'title' => 'فروش و امور مالی',
-            'color' => '#2ee6a6',
+            'color' => '#b7791f',
             'links' => [
                 ['route' => 'owner.finance.index', 'permission' => 'finance.view', 'label' => 'مالی و پرداخت‌ها', 'icon' => 'wallet', 'scope' => 'global'],
                 ['route' => 'owner.teacher-payments.index', 'permission' => 'teacher_payments.view', 'label' => 'پرداخت مدرس‌ها', 'icon' => 'wallet', 'scope' => 'academy'],
@@ -95,13 +95,13 @@
         [
             'key' => 'site',
             'title' => 'سایت و محتوا',
-            'color' => '#ff9a1f',
+            'color' => '#b4233c',
             'links' => [],
         ],
         [
             'key' => 'settings',
             'title' => 'تنظیمات و اسناد',
-            'color' => '#9aa3d8',
+            'color' => '#64748b',
             'links' => [
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی و کپی‌رایت', 'icon' => 'scale', 'scope' => 'global'],
                 ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
@@ -168,6 +168,7 @@
                 <?php if ($showNavGroup) { ?>
                     <div class="nav-group">
                         <button class="gh" type="button" data-group-toggle
+                            aria-controls="owner-nav-group-{{ $navGroup['key'] }}"
                             aria-expanded="{{ $isNavGroupExpanded ? 'true' : 'false' }}"
                             style="--c:{{ $navGroup['color'] }}">
                             <i aria-hidden="true"></i>
@@ -175,7 +176,7 @@
                             <em>{{ $isNavGroupExpanded ? '−' : '+' }}</em>
                         </button>
 
-                        <div class="nav-group-items" <?php if (! $isNavGroupExpanded) echo 'hidden'; ?>>
+                        <div class="nav-group-items" id="owner-nav-group-{{ $navGroup['key'] }}" <?php if (! $isNavGroupExpanded) echo 'hidden'; ?>>
                             <?php if (! $isSeoOnlyUser) { ?>
                                 <?php foreach ($navGroup['links'] as $navLink) { ?>
                                     <?php if ($navLink['scope'] === 'global' && $ownerUser?->hasPermission($navLink['permission'])) { ?>
