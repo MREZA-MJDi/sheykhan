@@ -90,6 +90,78 @@ final class OwnerScheduleService
         }, 3);
     }
 
+    public function update(
+        User $owner,
+        Academy $academy,
+        Classroom $classroom,
+        ClassSchedule $schedule,
+        array $data,
+        MeetingLinkService $links
+    ): ClassSchedule {
+        $this->authorizeAcademy($owner, $academy);
+        abort_unless($owner->hasPermission('live_classes.manage'), 403);
+        abort_unless(
+            (int) $classroom->academy_id === (int) $academy->id
+                && (int) $schedule->classroom_id === (int) $classroom->id,
+            404
+        );
+
+        if ($classroom->status !== 'active') {
+            throw ValidationException::withMessages([
+                'classroom_id' => 'فقط برای کلاس فعال می‌توان زمان آنلاین ویرایش کرد.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($academy, $classroom, $schedule, $data, $links): ClassSchedule {
+            $lockedClassroom = Classroom::query()
+                ->where('academy_id', $academy->id)
+                ->whereKey($classroom->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedClassroom->status !== 'active') {
+                throw ValidationException::withMessages([
+                    'classroom_id' => 'فقط برای کلاس فعال می‌توان زمان آنلاین ویرایش کرد.',
+                ]);
+            }
+
+            $lockedSchedule = ClassSchedule::query()
+                ->where('classroom_id', $lockedClassroom->id)
+                ->whereKey($schedule->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $conflict = $lockedClassroom->schedules()
+                ->whereKeyNot($lockedSchedule->id)
+                ->where('weekday', (int) $data['weekday'])
+                ->where('start_time', '<', $data['end_time'])
+                ->where('end_time', '>', $data['start_time'])
+                ->exists();
+
+            if ($conflict) {
+                throw ValidationException::withMessages([
+                    'start_time' => 'این بازه با یک زمان ثبت‌شدهٔ دیگر برای همین کلاس تداخل دارد.',
+                ]);
+            }
+
+            $meetingUrl = $links->resolve(
+                (string) $data['provider'],
+                $data['meeting_url'] ?? null,
+            );
+
+            $lockedSchedule->update([
+                'weekday' => (int) $data['weekday'],
+                'start_time' => $data['start_time'],
+                'end_time' => $data['end_time'],
+                'room' => filled($data['room'] ?? null) ? trim($data['room']) : null,
+                'provider' => $data['provider'],
+                'meeting_url' => $meetingUrl,
+            ]);
+
+            return $lockedSchedule->fresh();
+        }, 3);
+    }
+
     public function delete(
         User $owner,
         Academy $academy,
