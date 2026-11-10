@@ -44,29 +44,6 @@
             </section>
         @endif
 
-        @if($canViewPeople)
-            <section class="card c8 owner-growth-card" aria-labelledby="student-growth-title" style="--c:#ff1f6b">
-                <div class="card-title">
-                    <div>
-                        <h2 id="student-growth-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span>رشد ثبت‌نام دانش‌آموزان در ۱۳ هفته</h2>
-                        <p>تعداد عضویت‌های فعال ایجادشده در هر هفته.</p>
-                    </div>
-                    @if($canViewReports)<a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>@endif
-                </div>
-                @if(count(array_filter(is_array($weeklyStudents) ? $weeklyStudents : [], 'is_numeric')) >= 2 && array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) > 0)
-                    <x-owner.dashboard.line-chart
-                        :segments="$weeklyStudentSegments"
-                        :labels="$weeklyLabels"
-                        series-class="owner-line-students"
-                        chart-class="owner-growth-chart"
-                        aria-label="روند هفتگی ثبت‌نام دانش‌آموزان"
-                        :show-vertical-grid="false" />
-                @else
-                    <div class="card-empty">هنوز داده کافی برای نمایش روند ثبت‌نام در ۱۳ هفته اخیر وجود ندارد.</div>
-                @endif
-            </section>
-        @endif
-
         <section class="card c4 owner-dashboard-shortcuts" aria-labelledby="shortcut-title" style="--c:#22d3ee">
             <div class="card-title">
                 <div><h2 id="shortcut-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>میان‌بر</h2><p>دسترسی مستقیم به کارهای روزمره.</p></div>
