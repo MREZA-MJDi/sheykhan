@@ -11,6 +11,8 @@
         <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">هر پیام به فرزند و آموزشگاه مشخصی متصل می‌شود. وضعیت پیگیری و پاسخ رسمی را همین‌جا می‌بینی.</p>
     </header>
 
+    @include('parent.partials.communications-nav')
+
     <section class="communication-page__card parent-panel dashboard-panel p-5 sm:p-7">
         <h2 class="text-lg font-black">ثبت پیام جدید</h2>
         @if($contactableChildren->isEmpty())
