@@ -7,6 +7,7 @@ use App\Http\Requests\Owner\StoreAcademyMeetingRequest;
 use App\Models\Academy;
 use App\Models\AcademyMeeting;
 use App\Services\OwnerMeetingService;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,13 +15,9 @@ use Illuminate\View\View;
 
 final class MeetingController extends Controller
 {
-    public function index(Academy $academy, Request $request): RedirectResponse
+    public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        abort_unless(
-            $request->user()->hasRole('academy-owner')
-                && (int) $academy->owner_id === (int) $request->user()->id,
-            404
-        );
+        $workspace->authorizeAcademy($request->user(), $academy, 'live_classes.view');
 
         return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'meetings']);
     }
