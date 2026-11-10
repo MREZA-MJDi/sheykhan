@@ -92,13 +92,3 @@ export function bootOwnerPeopleDirectoryTabs(root = document) {
         tabs.dataset.ownerDirectoryTabsBound = 'true';
     });
 }
-
-const initialize = () => {
-    bootOwnerPeopleTabs();
-    bootOwnerPeopleDirectoryTabs();
-};
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize, { once: true });
-} else {
-    initialize();
-}
