@@ -98,6 +98,7 @@
         const preview = editor?.querySelector('.owner-cover-preview');
         const feedback = editor?.querySelector('[data-owner-cover-feedback]');
         const empty = editor?.querySelector('[data-owner-cover-empty]');
+        const existingImages = Array.from(preview?.querySelectorAll('img') || []);
         if (!preview) return;
 
         input.dataset.ownerCoverPreviewBound = 'true';
@@ -119,7 +120,8 @@
             releaseUrl(image);
             image.hidden = true;
             image.removeAttribute('src');
-            if (empty) empty.hidden = false;
+            existingImages.forEach((node) => { node.hidden = false; });
+            if (empty) empty.hidden = existingImages.length === 0 ? false : true;
 
             const file = input.files?.[0];
             if (!file) {
@@ -145,6 +147,7 @@
             image.dataset.ownerPreviewUrl = url;
             image.src = url;
             image.hidden = false;
+            existingImages.forEach((node) => { node.hidden = true; });
             if (empty) empty.hidden = true;
             image.onload = () => {
                 const recommendedWidth = Number(input.dataset.recommendedWidth || 0);
