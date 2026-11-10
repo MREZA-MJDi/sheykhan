@@ -117,16 +117,14 @@ class RoleMobileNavigationRouteContractTest extends TestCase
     public function test_owner_assignment_navigation_uses_assignment_view_permission(): void
     {
         $ownerLayout = file_get_contents(resource_path('views/owner/admin/layout.blade.php'));
-        $ownerSidebar = file_get_contents(resource_path('views/owner/admin/layout.blade.php'));
         $ownerDashboard = file_get_contents(resource_path('views/owner/admin/dashboard.blade.php'));
 
-        foreach ([$ownerLayout, $ownerSidebar, $ownerDashboard] as $source) {
+        foreach ([$ownerLayout, $ownerDashboard] as $source) {
             $this->assertIsString($source);
         }
 
         $this->assertStringContainsString("'route'=>'owner.assignments.index'", $ownerLayout);
         $this->assertStringContainsString("'permission'=>'assignments.view'", $ownerLayout);
-        $this->assertStringContainsString("'permission'=>'assignments.view'", $ownerSidebar);
         $this->assertStringContainsString("hasPermission('assignments.view')", $ownerDashboard);
         $this->assertStringNotContainsString('hasPermission(\'courses.view\') && $hasAcademy', $ownerDashboard);
     }
