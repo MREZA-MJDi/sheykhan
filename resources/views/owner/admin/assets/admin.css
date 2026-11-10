@@ -3426,3 +3426,31 @@ body.owner-admin-v2 {
 @media(max-width:640px){.owner-admin-unified .admin-dashboard-grid{grid-template-columns:minmax(0,1fr)}.owner-admin-unified .admin-welcome{padding:18px}.owner-admin-unified .admin-welcome-actions{width:100%}.owner-admin-unified .admin-btn{flex:1}.owner-admin-unified .top-page-title{display:none}.owner-admin-unified .admin-search{max-width:145px}.owner-admin-unified .admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-admin-unified .admin-kpi{padding:12px}.owner-admin-unified .admin-kpi strong{font-size:23px}}
 @media(prefers-reduced-motion:reduce){.owner-admin-unified *{transition:none!important;animation:none!important}}
 @media(prefers-color-scheme:dark){.owner-admin-unified:not([data-theme=light]){--oa-bg:#0d1230;background:#0d1230;color:#eef0fb}.owner-admin-unified .top,.owner-admin-unified .admin-kpi,.owner-admin-unified .admin-panel{background:#161d44;border-color:#262f62}.owner-admin-unified .brand-mark,.owner-admin-unified .top-page-title,.owner-admin-unified .admin-panel-head h2,.owner-admin-unified .admin-list-row strong,.owner-admin-unified .admin-kpi strong{color:#eef0fb}.owner-admin-unified .admin-list-row{border-color:#262f62}.owner-admin-unified .admin-search input{background:#101638;color:#eef0fb;border-color:#262f62}.owner-admin-unified .admin-kpi span,.owner-admin-unified .admin-kpi small,.owner-admin-unified .admin-panel-head p,.owner-admin-unified .admin-list-row small{color:#99a3cf}}
+
+
+/* Shared light tokens for every Owner workspace, not only the overview page. */
+body.owner-admin-unified{
+ --oa-bg:#f2f4f9;--oa-surface:#fff;--oa-surface-2:#f7f8fc;--oa-input:#fff;
+ --oa-border:#e3e7f1;--oa-text:#16204a;--oa-muted:#667091;--oa-accent:#26377f;
+ --oa-panel:#fff;--oa-table-head:#f5f6fa;
+ --acc:#26377f;--tx:#16204a;--mu:#667091;--bg:#f2f4f9;--c1:#fff;--c2:#f7f8fc;
+ --in:#fff;--ln:#e3e7f1;--sh:#1a285008;--pk:#d64550;--ok:#0e9f8e;
+ background:#f2f4f9!important;color:#16204a!important;color-scheme:light;
+}
+body.owner-admin-unified .main-content{color:#16204a}
+body.owner-admin-unified .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-form-shell,.owner-form-card,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.owner-calendar-section,.owner-exam-section){background:#fff!important;color:#16204a!important;border-color:#e3e7f1!important;box-shadow:0 5px 20px #1a285008}
+body.owner-admin-unified .main-content :is(h1,h2,h3,h4,strong,b){color:#16204a}
+body.owner-admin-unified .main-content :is(p,small,label,.text-slate-500,.text-slate-600){color:#667091}
+body.owner-admin-unified .main-content a:not(.go):not(.mb):not(.tab):not(.ni):not(.fd):not(.owner-primary-btn){color:#26377f}
+body.owner-admin-unified .main-content :is(input:not([type=checkbox]):not([type=radio]),select,textarea){background:#fff!important;color:#16204a!important;border:1px solid #dce1ed!important;box-shadow:none!important}
+body.owner-admin-unified .main-content :is(input,select,textarea)::placeholder{color:#8b93aa}
+body.owner-admin-unified .main-content :is(th,.table-head){background:#f5f6fa;color:#667091}
+body.owner-admin-unified .main-content :is(td,tr){border-color:#e3e7f1}
+body.owner-admin-unified .main-content :is(.owner-table-wrap,.table-responsive){background:#fff;border-color:#e3e7f1}
+body.owner-admin-unified .main-content :is(.owner-stat-card,.owner-panel,.dashboard-panel){box-shadow:0 5px 20px #1a285008}
+body.owner-admin-unified .main-content :is(.owner-primary-btn,.go){background:#26377f;color:#fff}
+body.owner-admin-unified .main-content :is(.owner-secondary-btn,.mb){background:#e8ebfa;color:#26377f}
+body.owner-admin-unified .main-content :is(.badge,.status-badge){border-radius:999px}
+@media(prefers-color-scheme:dark){
+ body.owner-admin-unified:not([data-theme=light]){background:#f2f4f9!important;color:#16204a!important;color-scheme:light}
+}
