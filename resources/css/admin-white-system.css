@@ -9,9 +9,9 @@
     --ui-text: #243247;
     --ui-muted: #5d6a7d;
     --ui-navy: #24364f;
-    --ui-primary: #7b2c42;
-    --ui-primary-hover: #632035;
-    --ui-primary-soft: #f3edf0;
+    --ui-primary: #315b88;
+    --ui-primary-hover: #24466f;
+    --ui-primary-soft: #eaf1f8;
     --ui-success: #167653;
     --ui-success-soft: #ecfdf5;
     --ui-warning: #a16207;
@@ -1212,201 +1212,339 @@ body.owner-shell.owner-admin-v2 {
 }
 
 
-/* Owner dashboard foundation — one white/navy surface system with restrained semantic accents. */
+/* Unified owner + SEO page system: colored hierarchy, distinct sheets and semantic KPIs. */
 .owner-admin-v2 {
-    --ui-primary: #243b5a;
-    --ui-primary-hover: #172b45;
-    --ui-primary-soft: #edf2f8;
-    --ui-navy: #243b5a;
-    --oa-accent: #243b5a;
-    --acc: #243b5a;
+    --ui-bg: #eef2f7;
+    --ui-surface: #ffffff;
+    --ui-surface-soft: #f5f8fc;
+    --ui-border: #d8e1ed;
+    --ui-border-strong: #b8c7d9;
+    --ui-text: #1f3048;
+    --ui-muted: #5d6d82;
+    --ui-primary: #315b88;
+    --ui-primary-hover: #24466f;
+    --ui-primary-soft: #eaf1f8;
+    --ui-success: #167653;
+    --ui-success-soft: #e8f5ef;
+    --ui-warning: #a86a12;
+    --ui-warning-soft: #fff4df;
+    --ui-danger: #b4233c;
+    --ui-danger-soft: #fff0f2;
+    --ui-info: #426b9b;
+    --ui-info-soft: #edf3fb;
+    --oa-bg: var(--ui-bg);
+    --oa-surface: var(--ui-surface);
+    --oa-surface-2: var(--ui-surface-soft);
+    --oa-input: #fff;
+    --oa-border: var(--ui-border);
+    --oa-text: var(--ui-text);
+    --oa-muted: var(--ui-muted);
+    --oa-accent: var(--ui-primary);
+    --acc: var(--ui-primary);
+    --tx: var(--ui-text);
+    --mu: var(--ui-muted);
+    --bg: var(--ui-bg);
+    --c1: #fff;
+    --c2: var(--ui-surface-soft);
+    --in: #fff;
+    --ln: var(--ui-border);
+    --sh: rgba(31, 48, 72, .07);
+    --pk: var(--ui-danger);
+    --ok: var(--ui-success);
+    --panel-primary: var(--ui-primary);
+    --panel-accent: var(--ui-primary);
+    --panel-text: var(--ui-text);
+    --panel-muted: var(--ui-muted);
+    color-scheme: light;
 }
-.owner-admin-v2 .main-content {
-    min-width: 0;
-    color: var(--ui-text);
-}
-.owner-admin-v2 .main-content > .card,
-.owner-admin-v2 .main-content .card:not(.kpi) {
-    min-width: 0;
-    border: 1px solid var(--ui-border) !important;
-    border-radius: var(--ui-radius) !important;
-    background: var(--ui-surface) !important;
+body.owner-shell.owner-admin-v2 {
+    background:
+        radial-gradient(ellipse at 8% 0%, rgba(49,91,136,.075), transparent 34rem),
+        linear-gradient(180deg, #f1f5fa 0%, #eaf0f6 100%) !important;
     color: var(--ui-text) !important;
-    box-shadow: var(--ui-shadow) !important;
 }
-.owner-admin-v2 .main-content .card :is(h1,h2,h3,h4,h5,b,strong) {
-    color: var(--ui-navy) !important;
+.owner-admin-v2 .app { background: transparent !important; }
+.owner-admin-v2 .main-content {
+    color: var(--ui-text) !important;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content :is(h1,h2,h3,h4,h5,h6) {
+    color: var(--ui-text) !important;
+    letter-spacing: 0;
     text-shadow: none !important;
 }
-.owner-admin-v2 .main-content .card :is(p,small,.sub,.bl,.metric-caption,.card-title p) {
-    color: var(--ui-muted) !important;
+.owner-admin-v2 .main-content :is(p,small,label,.text-slate-500,.text-slate-400,.text-gray-500,.text-gray-400) {
+    color: var(--ui-muted);
+    text-shadow: none !important;
 }
-.owner-admin-v2 .main-content .card .section-icon {
-    background: color-mix(in srgb, var(--c, var(--ui-primary)) 10%, #fff) !important;
-    color: var(--c, var(--ui-primary)) !important;
+.owner-admin-v2 .main-content a:not(.owner-primary-btn):not(.course-primary-btn):not(.course-action-btn):not(.owner-workspace-btn):not(.owner-action-btn):not(.owner-btn) {
+    color: var(--ui-primary);
 }
-.owner-admin-v2 .main-content .kpi {
-    display: flex;
+.owner-admin-v2 .main-content a:hover { color: var(--ui-primary-hover); }
+
+/* Page title bands: every index, form and detail page starts with a visible hierarchy. */
+.owner-admin-v2 .main-content :is(
+    .owner-page-intro,
+    .panel-page-enter > header:first-child,
+    .course-page > header:first-child,
+    .owner-workspace-page > header:first-child,
+    .owner-form-head,
+    .owner-seo-hero,
+    .seo-console-hero,
+    .website-center-hero,
+    .website-hero-editor-head,
+    .ph
+) {
+    position: relative;
     min-width: 0;
-    min-height: 164px;
-    flex-direction: column;
-    gap: 5px;
-    padding: 17px !important;
-    border: 1px solid var(--ui-border) !important;
-    border-inline-start: 4px solid var(--c, var(--ui-primary)) !important;
-    border-radius: 14px !important;
-    background: #fff !important;
-    color: var(--ui-text) !important;
-    box-shadow: var(--ui-shadow) !important;
-    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    padding: 18px 20px !important;
+    border: 1px solid #d5e0ed !important;
+    border-inline-start: 4px solid var(--ui-primary) !important;
+    border-radius: 16px !important;
+    background: linear-gradient(115deg, #e8eff8 0%, #f8fafd 62%, #fff 100%) !important;
+    box-shadow: 0 8px 22px rgba(36,59,90,.055) !important;
 }
-.owner-admin-v2 .main-content .kpi::after {
-    width: 84px;
-    height: 84px;
-    background: color-mix(in srgb, var(--c, var(--ui-primary)) 7%, transparent) !important;
-}
-.owner-admin-v2 .main-content .kpi:hover {
-    border-color: color-mix(in srgb, var(--c, var(--ui-primary)) 38%, var(--ui-border)) !important;
-    box-shadow: 0 12px 28px rgba(15,23,42,.08) !important;
-    transform: translateY(-2px);
-}
-.owner-admin-v2 .main-content .kpi .kpi-head,
-.owner-admin-v2 .main-content .kpi .metric-caption,
-.owner-admin-v2 .main-content .kpi > b small {
-    color: var(--ui-muted) !important;
-}
-.owner-admin-v2 .main-content .kpi .kpi-head .ic {
-    color: var(--c, var(--ui-primary)) !important;
-}
-.owner-admin-v2 .main-content .kpi > b {
-    color: var(--ui-navy) !important;
-    font-size: clamp(24px, 2vw, 31px);
+.owner-admin-v2 .main-content :is(.owner-page-intro,.owner-form-head,.owner-seo-hero,.seo-console-hero,.website-center-hero,.website-hero-editor-head,.ph) h1 {
+    color: #203b5b !important;
+    font-size: clamp(21px, 2vw, 29px);
     font-weight: 900;
-    line-height: 1.35;
-    font-variant-numeric: tabular-nums;
+    line-height: 1.55;
 }
-.owner-admin-v2 .main-content .kpi .dl,
-.owner-admin-v2 .main-content .kpi .metric-foot,
-.owner-admin-v2 .main-content .kpi .table-link {
-    color: var(--c, var(--ui-primary)) !important;
+.owner-admin-v2 .main-content :is(.owner-page-intro,.owner-form-head,.owner-seo-hero,.seo-console-hero,.website-center-hero,.website-hero-editor-head,.ph) :is(p,small) {
+    color: #607187 !important;
 }
-.owner-admin-v2 .main-content .kpi .sp polyline {
-    stroke: var(--c, var(--ui-primary)) !important;
-    filter: none !important;
+.owner-admin-v2 .main-content :is(.owner-seo-kicker,.website-kicker,.owner-form-head>div>span) {
+    color: #315b88 !important;
+    font-weight: 900;
 }
-.owner-admin-v2 .main-content .kpi .metric-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 9px;
-    border-top: 1px solid var(--ui-border);
-    font-size: 11px;
-    font-weight: 750;
+
+/* Distinct content sheets: subtle tinted surfaces instead of a sea of identical white cards. */
+.owner-admin-v2 .main-content :is(
+    .dashboard-panel,.owner-panel,.panel-card,.owner-form-shell,.owner-form-card,
+    .owner-form-section,.owner-people-tab-panel,.owner-classroom-card,
+    .owner-classroom-summary,.owner-product-card,.owner-resource-card,
+    .owner-session-card,.owner-calendar-section,.owner-schedule-list,
+    .owner-schema-warning,.owner-form-notice,.owner-exam-section,
+    .course-section-card,.owner-seo-performance-panel,.seo-performance-panel,
+    .seo-honesty-note,.seo-connection-state,.owner-blog-save-panel
+) {
+    min-width: 0;
+    border: 1px solid #d7e1ed !important;
+    border-radius: 15px !important;
+    background: linear-gradient(145deg, #fff 0%, #f8fafd 100%) !important;
+    color: var(--ui-text) !important;
+    box-shadow: 0 7px 22px rgba(31,48,72,.055) !important;
 }
-.owner-admin-v2 .main-content .kpi-link:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--c, var(--ui-primary)) 28%, transparent) !important;
-    outline-offset: 3px;
+.owner-admin-v2 .main-content :is(.owner-form-section,.owner-form-card,.owner-exam-section,.course-section-card) {
+    padding: 17px !important;
 }
-.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day,.card-empty) {
-    border: 1px solid var(--ui-border) !important;
-    border-radius: 12px;
-    background: #fff !important;
+.owner-admin-v2 .main-content :is(.owner-panel-head,.card-title,.owner-blog-section-heading,.owner-section-heading,.owner-form-section > header,.course-section-heading) {
+    padding: 11px 13px;
+    border: 1px solid #dce5f0;
+    border-radius: 11px;
+    background: #edf3f9;
+}
+.owner-admin-v2 .main-content :is(.owner-panel-head,.card-title,.owner-blog-section-heading,.owner-section-heading) :is(h2,h3,strong) {
+    color: #294b70 !important;
+    font-weight: 900;
+}
+.owner-admin-v2 .main-content :is(.owner-panel-head,.card-title,.owner-blog-section-heading,.owner-section-heading) :is(p,small) {
+    color: #65768b !important;
+}
+.owner-admin-v2 .main-content :is(.owner-form-section,.owner-form-card,.owner-exam-section) > h2,
+.owner-admin-v2 .main-content :is(.owner-form-section,.owner-form-card,.owner-exam-section) > .section-title {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dce5f0;
+    color: #294b70 !important;
+}
+
+/* KPI palette is data-semantic: blue/info, green/success, amber/warning, burgundy/critical. */
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat) {
+    --kpi-color: var(--ui-info);
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--kpi-color) 25%, #dce5ef) !important;
+    border-radius: 14px !important;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--kpi-color) 9%, #fff), #fff 78%) !important;
+    box-shadow: 0 6px 18px rgba(31,48,72,.045) !important;
+}
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat)::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 4px;
+    background: var(--kpi-color);
+    opacity: .9;
+}
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat) :is(span,small,.kpi-head,.metric-caption) {
+    color: #596d84 !important;
+}
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat) strong,
+.owner-admin-v2 .main-content .kpi > b {
+    color: color-mix(in srgb, var(--kpi-color) 78%, #172b45) !important;
+    font-weight: 900;
+}
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat):nth-child(4n+1) { --kpi-color: #315b88; }
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat):nth-child(4n+2) { --kpi-color: #167653; }
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat):nth-child(4n+3) { --kpi-color: #a86a12; }
+.owner-admin-v2 .main-content :is(.kpi,.owner-stat-card,.course-stat,.seo-overview-stat,.owner-seo-stat,.seo-performance-stats article,.seo-keyword-stat):nth-child(4n) { --kpi-color: #b4233c; }
+.owner-admin-v2 .main-content .seo-overview-stat.is-warning { --kpi-color: #a86a12; }
+.owner-admin-v2 .main-content .seo-overview-stat.is-danger { --kpi-color: #b4233c; }
+.owner-admin-v2 .main-content .seo-overview-stat.is-success { --kpi-color: #167653; }
+
+/* Dashboard's explicit --c values drive the same accent system on KPI and activity cards. */
+.owner-admin-v2 .main-content .kpi[style*="--c"],
+.owner-admin-v2 .main-content .owner-stat-card[style*="--c"] { --kpi-color: var(--c); }
+.owner-admin-v2 .main-content :is(.at,.tl,.lr,.ckr,.mc,.day) {
+    border: 1px solid color-mix(in srgb, var(--c, #315b88) 22%, #dce5ef) !important;
+    border-radius: 12px !important;
+    background: color-mix(in srgb, var(--c, #315b88) 6%, #fff) !important;
     color: var(--ui-text) !important;
     box-shadow: none !important;
 }
-.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day) :is(b,strong,span,p) {
-    color: var(--ui-text);
-}
-.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day) small {
-    color: var(--ui-muted) !important;
-}
-.owner-admin-v2 .main-content .tl.live {
-    border-color: #b8c9dd !important;
-    background: #edf3f9 !important;
-    box-shadow: inset 3px 0 0 #315b88 !important;
-}
-.owner-admin-v2 .main-content .tl.done { opacity: .72; }
-.owner-admin-v2 .main-content .at .ct {
-    border: 1px solid color-mix(in srgb, var(--c) 22%, #fff);
-    background: color-mix(in srgb, var(--c) 9%, #fff) !important;
-    color: var(--c) !important;
-}
-.owner-admin-v2 .main-content .tile {
-    border: 1px solid var(--ui-border);
-    background: var(--ui-primary-soft) !important;
-    color: var(--ui-primary) !important;
-}
-.owner-admin-v2 .main-content .av2 {
-    border: 1px solid var(--ui-border);
-    background: var(--ui-primary) !important;
-    color: #fff !important;
+.owner-admin-v2 .main-content :is(.tile,.section-icon,.kpi-icon) {
+    border: 1px solid color-mix(in srgb, var(--c, #315b88) 24%, #fff);
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--c, #315b88) 12%, #fff) !important;
+    color: var(--c, var(--ui-primary)) !important;
     box-shadow: none !important;
 }
-.owner-admin-v2 .main-content .go {
-    border: 1px solid var(--ui-primary) !important;
-    background: var(--ui-primary) !important;
-    color: #fff !important;
-    box-shadow: none !important;
+.owner-admin-v2 .main-content .pl {
+    border-color: color-mix(in srgb, var(--c, #315b88) 45%, #fff) !important;
+    background: color-mix(in srgb, var(--c, #315b88) 9%, #fff) !important;
+    color: var(--c, var(--ui-primary)) !important;
 }
-.owner-admin-v2 .main-content .go:hover {
-    background: var(--ui-primary-hover) !important;
-    border-color: var(--ui-primary-hover) !important;
-}
-.owner-admin-v2 .main-content .mb {
-    border: 1px solid var(--ui-border-strong) !important;
+
+/* Forms, filters and data sheets. */
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]):not([type=submit]):not([type=button]),select,textarea) {
+    min-width: 0;
+    min-height: 42px;
+    border: 1px solid #c7d4e3 !important;
+    border-radius: 10px !important;
     background: #fff !important;
-    color: var(--ui-primary) !important;
+    color: #24364d !important;
+    font: inherit;
+    font-size: 13px;
+    box-shadow: inset 0 1px 2px rgba(31,48,72,.025) !important;
+}
+.owner-admin-v2 .main-content :is(input,select,textarea)::placeholder { color: #8795a8 !important; }
+.owner-admin-v2 .main-content :is(input,select,textarea):focus {
+    border-color: #4774a6 !important;
+    outline: 3px solid rgba(49,91,136,.13) !important;
+    outline-offset: 1px;
+}
+.owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters,.owner-filter-bar,.seo-filter-actions) {
+    padding: 13px;
+    border: 1px solid #d7e1ed !important;
+    border-radius: 13px !important;
+    background: #edf3f9 !important;
+}
+.owner-admin-v2 .main-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid #d9e2ed;
+    border-radius: 12px;
+    background: #fff;
+}
+.owner-admin-v2 .main-content table thead th {
+    padding: 11px 12px;
+    background: #eaf1f8 !important;
+    color: #294b70 !important;
+    font-weight: 900;
+    border-bottom: 1px solid #d4dfeb;
+}
+.owner-admin-v2 .main-content table tbody tr:nth-child(even) { background: #f7f9fc; }
+.owner-admin-v2 .main-content table tbody td {
+    padding: 10px 12px;
+    color: #34465d;
+    border-bottom: 1px solid #e7edf4;
+}
+.owner-admin-v2 .main-content table tbody tr:last-child td { border-bottom: 0; }
+
+/* Tabs and status labels are visibly active without neon fills. */
+.owner-admin-v2 .main-content :is(.owner-people-tabbar [role=tab],.seo-console-switcher a,.admin-context-tabs a,.tabs .tab) {
+    border: 1px solid #d5e0ed;
+    border-radius: 10px;
+    background: #f5f8fc;
+    color: #52677f !important;
+}
+.owner-admin-v2 .main-content :is(.owner-people-tabbar [role=tab][aria-selected=true],.seo-console-switcher a.is-active,.admin-context-tabs a[aria-current=page],.tabs .tab.on) {
+    border-color: #9eb4ce !important;
+    background: #dfeaf6 !important;
+    color: #24466f !important;
+    box-shadow: inset 0 -2px 0 #315b88 !important;
+    font-weight: 900;
+}
+.owner-admin-v2 .main-content :is(.badge,.status-badge,.course-count-badge,.course-mini-badge) {
+    border: 1px solid #d5e0ed;
+    border-radius: 999px;
+    background: #edf3f9;
+    color: #315b88;
+}
+.owner-admin-v2 .main-content :is(.text-green-700,.text-emerald-700,.is-success) { color: #167653 !important; }
+.owner-admin-v2 .main-content :is(.text-amber-700,.is-warning) { color: #94600f !important; }
+.owner-admin-v2 .main-content :is(.text-red-700,.text-rose-700,.is-danger) { color: #a9233b !important; }
+
+/* Buttons retain a consistent primary/secondary hierarchy across all page families. */
+.owner-admin-v2 .main-content :is(.owner-primary-btn,.course-primary-btn,.owner-workspace-btn,.owner-action-btn,.go) {
+    border: 1px solid #315b88 !important;
+    border-radius: 10px !important;
+    background: #315b88 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(49,91,136,.15) !important;
+}
+.owner-admin-v2 .main-content :is(.owner-primary-btn,.course-primary-btn,.owner-workspace-btn,.owner-action-btn,.go):hover {
+    background: #24466f !important;
+    border-color: #24466f !important;
+}
+.owner-admin-v2 .main-content :is(.course-secondary-btn,.course-action-btn:not(.primary),.owner-secondary-btn,.mb) {
+    border: 1px solid #c8d5e4 !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: #315b88 !important;
     box-shadow: none !important;
 }
-.owner-admin-v2 .main-content .mb:hover {
-    border-color: #9aabc0 !important;
-    background: #f3f6fa !important;
+.owner-admin-v2 .main-content :is(.course-action-btn.primary,.website-open-btn.primary) {
+    background: #315b88 !important;
+    color: #fff !important;
 }
-.owner-admin-v2 .main-content .chip {
-    border: 1px solid #d7e0ed;
-    background: var(--ui-primary-soft) !important;
-    color: var(--ui-primary) !important;
-    box-shadow: none !important;
+
+/* Consistent chart and detail-page visual language. */
+.owner-admin-v2 .main-content .owner-chart-grid line { stroke: #dce5ef !important; }
+.owner-admin-v2 .main-content .owner-line-attendance { stroke: #315b88 !important; filter: none !important; }
+.owner-admin-v2 .main-content .owner-line-students { stroke: #167653 !important; filter: none !important; }
+.owner-admin-v2 .main-content .owner-range-handle line { stroke: #8798ad !important; }
+.owner-admin-v2 .main-content .owner-range-handle circle { fill: #315b88 !important; stroke: #fff !important; filter: none !important; }
+.owner-admin-v2 .main-content :is(.owner-chart-legend,.owner-chart-labels,.owner-range-summary) { color: #64758a !important; }
+.owner-admin-v2 .main-content :is(.owner-detail-meta,.owner-detail-summary,.course-detail-summary,.owner-record-summary) {
+    padding: 13px 15px;
+    border: 1px solid #d7e1ed;
+    border-radius: 12px;
+    background: #edf3f9;
 }
-.owner-admin-v2 .main-content .owner-chart-grid line {
-    stroke: #e2e8f0 !important;
-}
-.owner-admin-v2 .main-content .owner-line-attendance {
-    stroke: #315b88 !important;
-    filter: none !important;
-}
-.owner-admin-v2 .main-content .owner-line-students {
-    stroke: #167653 !important;
-    filter: none !important;
-}
-.owner-admin-v2 .main-content .owner-range-handle line {
-    stroke: #64748b !important;
-}
-.owner-admin-v2 .main-content .owner-range-handle circle {
-    fill: #315b88 !important;
-    stroke: #fff !important;
-    filter: none !important;
-}
-.owner-admin-v2 .main-content :is(.owner-chart-legend,.owner-chart-labels,.owner-range-summary) {
-    color: var(--ui-muted) !important;
-}
-.owner-admin-v2 .main-content .owner-chart-legend i { box-shadow: none !important; }
-.owner-admin-v2 .main-content .owner-monthly-sales .cy {
-    background: var(--c, #315b88) !important;
-    box-shadow: none !important;
-}
-.owner-admin-v2 .main-content .owner-monthly-sales .cy::before {
-    background: color-mix(in srgb, var(--c, #315b88) 76%, #fff) !important;
-}
-.owner-admin-v2 .main-content :is(.go,.mb,.chip,.kpi-link,.at,.tl) {
-    -webkit-tap-highlight-color: transparent;
+.owner-admin-v2 .main-content :is(.owner-detail-meta,.owner-detail-summary,.course-detail-summary,.owner-record-summary) :is(strong,b) { color: #294b70 !important; }
+
+@media (max-width: 1050px) {
+    .owner-admin-v2 .main-content :is(.owner-page-intro,.panel-page-enter > header:first-child,.course-page > header:first-child,.owner-workspace-page > header:first-child,.owner-form-head,.owner-seo-hero,.seo-console-hero,.website-center-hero,.website-hero-editor-head,.ph) {
+        padding: 15px !important;
+    }
 }
 @media (max-width: 760px) {
-    .owner-admin-v2 .main-content .kpi { min-height: 148px; }
+    .owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.panel-card,.owner-form-shell,.owner-form-card,.owner-form-section,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.owner-calendar-section,.owner-schedule-list) {
+        border-radius: 13px !important;
+    }
+    .owner-admin-v2 .main-content :is(.owner-panel-head,.card-title,.owner-blog-section-heading,.owner-section-heading) {
+        align-items: flex-start;
+        padding: 10px;
+    }
+    .owner-admin-v2 .main-content table { display: block; overflow-x: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .owner-admin-v2 .main-content .kpi { transition: none; }
-    .owner-admin-v2 .main-content .kpi:hover { transform: none; }
+    .owner-admin-v2 .main-content *,
+    .owner-admin-v2 .main-content *::before,
+    .owner-admin-v2 .main-content *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
