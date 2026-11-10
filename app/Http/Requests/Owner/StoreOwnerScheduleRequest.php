@@ -21,15 +21,9 @@ final class StoreOwnerScheduleRequest extends FormRequest
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
             'room' => ['nullable', 'string', 'max:255'],
-            'provider' => ['required', Rule::in([
-                MeetingLinkService::JITSI,
-                MeetingLinkService::GOOGLE_MEET,
-                MeetingLinkService::ZOOM,
-                MeetingLinkService::OTHER,
-            ])],
+            'provider' => ['required', Rule::in([MeetingLinkService::SKYROOM])],
             'meeting_url' => [
-                'nullable',
-                Rule::requiredIf(fn (): bool => $this->input('provider') !== MeetingLinkService::JITSI),
+                'required',
                 'url',
                 'max:2000',
                 function (string $attribute, mixed $value, \Closure $fail): void {
@@ -59,7 +53,7 @@ final class StoreOwnerScheduleRequest extends FormRequest
             'end_time.after' => 'ساعت پایان باید بعد از شروع باشد.',
             'provider.required' => 'سرویس جلسه را انتخاب کنید.',
             'provider.in' => 'سرویس جلسه انتخاب‌شده معتبر نیست.',
-            'meeting_url.required' => 'برای این سرویس باید لینک واقعی جلسه را وارد کنید.',
+            'meeting_url.required' => 'لینک اتاق واقعی Skyroom را وارد کنید.',
             'meeting_url.url' => 'لینک ورود به جلسه معتبر نیست.',
         ];
     }
