@@ -11,6 +11,7 @@ final class ExamQuestionWriter
     public function storeBankQuestions(Exam $exam, Collection $bankQuestions): void
     {
         $this->storeQuestions($exam, $bankQuestions->values()->map(fn ($question): array => [
+            'source_bank_question_id' => $question->id,
             'type' => $question->type,
             'question' => $question->question,
             'options' => $question->options ?? [],
@@ -34,6 +35,7 @@ final class ExamQuestionWriter
                 $correctAnswer = json_encode(array_values($correctAnswer), JSON_UNESCAPED_UNICODE);
             }
             $exam->questions()->create([
+                'source_bank_question_id' => $question['source_bank_question_id'] ?? null,
                 'type' => $type,
                 'question' => $question['question'],
                 'options' => $options,
