@@ -167,7 +167,7 @@ class PeopleController extends Controller
             $request->validated(),
         );
 
-        return redirect()->to(route('owner.people.index', $academy) . '?tab=create-student')
+        return redirect()->to(route('owner.people.index', $academy) . '?tab=management&sheet=operations')
             ->with('success', 'دانش‌آموز قدیمی با موفقیت ثبت/به‌روزرسانی شد و به این آموزشگاه متصل شد.');
     }
 
