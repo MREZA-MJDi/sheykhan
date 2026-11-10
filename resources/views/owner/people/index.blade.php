@@ -298,9 +298,13 @@
         <header class="owner-people-actionbar mb-4">
             <div><strong>عملیات و سوابق</strong><span>فرم‌های اجرایی در پنجرهٔ شناور باز می‌شوند.</span></div>
             <div class="owner-people-actionbar__buttons">
-                <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-class-teacher-modal">اختصاص مدرس کلاس</button>
-                <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-enrollment-modal">＋ ثبت‌نام دانش‌آموز</button>
-                @if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
+                @if(auth()->user()->hasPermission('teachers.manage'))
+                    <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-class-teacher-modal">اختصاص مدرس کلاس</button>
+                @endif
+                @if(auth()->user()->hasPermission('enrollments.manage'))
+                    <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-enrollment-modal">＋ ثبت‌نام دانش‌آموز</button>
+                @endif
+                @if(auth()->user()->hasPermission('onboarding.manage') && !empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
                     <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-legacy-student-modal">ورود دانش‌آموز قدیمی</button>
                 @endif
             </div>
