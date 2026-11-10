@@ -1,0 +1,2 @@
+    <dialog id="pal" class="command-palette" aria-label="جستجوی صفحه‌ها"><form method="dialog" class="command-palette-head"><svg class="ic"><use href="#i-search"/></svg><input id="pq" type="search" placeholder="نام صفحه را بنویس…" autocomplete="off" aria-label="جستجوی صفحه"><button type="submit" aria-label="بستن جستجو">×</button></form><ul id="pl" aria-label="نتایج جستجو"></ul><p class="command-palette-hint">با کلیدهای جهت‌دار جابه‌جا شو و برای رفتن به صفحه Enter را بزن.</p></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
