@@ -18,7 +18,7 @@ final class PeopleDirectoryController extends Controller
         string $role,
         OwnerWorkspaceService $workspace,
     ): JsonResponse {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy, 'academy.view');
 
         $filters = $request->validated();
         $paginator = $workspace->peopleDirectory($request->user(), $academy, $role, $filters);
