@@ -11,7 +11,9 @@ final class OwnerFinanceService
     {
         app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'finance.view');
 
-        $academyIds = $owner->ownedAcademies()->where('status','active')->pluck('id');
+        $academyIds = app(OwnerWorkspaceService::class)
+            ->authorizeOwnedAcademies($owner, 'finance.view')
+            ->pluck('id');
 
         $completed = FinancialTransaction::query()
             ->whereIn('academy_id',$academyIds)
