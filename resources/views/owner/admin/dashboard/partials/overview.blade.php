@@ -103,7 +103,7 @@
         @endif
 
         @if($canViewClassrooms || $canViewAssignments)
-            <section class="card {{ $canViewMeetings ? 'c4' : 'c12' }}" aria-labelledby="attention-title" style="--c:#ff9a1f">
+            <section class="card {{ $canViewMeetings ? 'c4' : 'c12' }}" aria-labelledby="attention-title" style="--c:#f2a81d">
                 <div class="card-title">
                     <div>
                         <h2 id="attention-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span>نیازمند توجه</h2>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="owner-attention-list">
                     @if($classroomsWithoutTeacher > 0 && $firstAcademy && $canViewClassrooms)
-                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#ff9a1f">
+                        <a class="at" href="{{ route('owner.classrooms.index', $firstAcademy) }}" style="--c:#f2a81d">
                             <span class="ct">{{ \App\Support\PersianUi::digits($classroomsWithoutTeacher) }}</span>
                             <span class="gx"><b>کلاس بدون مدرس</b><small>کلاس فعال بدون مدرس فعال</small></span>
                             <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
