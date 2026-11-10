@@ -40,7 +40,7 @@
         [
             'key' => 'control',
             'title' => 'خانه و گزارش‌ها',
-            'color' => '#1f2f7a',
+            'color' => '#22d3ee',
             'links' => [
                 ['route' => 'owner.dashboard', 'permission' => 'dashboard.view', 'label' => 'داشبورد اصلی', 'icon' => 'home', 'scope' => 'global'],
                 ['route' => 'owner.reports.index', 'permission' => 'reports.view', 'label' => 'گزارش عملکرد', 'icon' => 'chart', 'scope' => 'global'],
@@ -49,7 +49,7 @@
         [
             'key' => 'people',
             'title' => 'افراد و ارتباطات',
-            'color' => '#d68a00',
+            'color' => '#ff1f6b',
             'links' => [
                 ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'دانش‌آموزان، مدرس‌ها و اولیا', 'icon' => 'users', 'scope' => 'academy'],
                 ['route' => 'owner.attendance.index', 'permission' => 'attendance.view', 'label' => 'حضور و غیاب', 'icon' => 'checksq', 'scope' => 'academy'],
@@ -61,7 +61,7 @@
         [
             'key' => 'learning',
             'title' => 'کلاس‌ها و آموزش',
-            'color' => '#0e9f8e',
+            'color' => '#8b3dff',
             'links' => [
                 ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'دوره‌ها', 'icon' => 'book', 'scope' => 'global'],
                 ['route' => 'owner.classrooms.index', 'permission' => 'classrooms.view', 'label' => 'کلاس‌ها و گروه‌ها', 'icon' => 'calendar', 'scope' => 'academy'],
@@ -76,7 +76,7 @@
         [
             'key' => 'finance',
             'title' => 'فروش و امور مالی',
-            'color' => '#d64550',
+            'color' => '#2ee6a6',
             'links' => [
                 ['route' => 'owner.finance.index', 'permission' => 'finance.view', 'label' => 'مالی و پرداخت‌ها', 'icon' => 'wallet', 'scope' => 'global'],
                 ['route' => 'owner.teacher-payments.index', 'permission' => 'teacher_payments.view', 'label' => 'پرداخت مدرس‌ها', 'icon' => 'wallet', 'scope' => 'academy'],
@@ -88,13 +88,13 @@
         [
             'key' => 'site',
             'title' => 'سایت و محتوا',
-            'color' => '#7a55e0',
+            'color' => '#ff9a1f',
             'links' => [],
         ],
         [
             'key' => 'settings',
             'title' => 'تنظیمات و اسناد',
-            'color' => '#64748b',
+            'color' => '#9aa3d8',
             'links' => [
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی و کپی‌رایت', 'icon' => 'scale', 'scope' => 'global'],
                 ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
@@ -138,12 +138,6 @@
     @include('owner.partials.dashboard-icons')
     @include('owner.partials.admin-topbar')
     <aside class="side card" id="side" aria-label="منوی مدیریت">
-        <div class="owner-sidebar-tools">
-            <button type="button" id="mini" class="owner-sidebar-mini-toggle" aria-label="جمع کردن منو" aria-pressed="false" title="جمع کردن منو">
-                <span class="owner-sidebar-mini-icon" aria-hidden="true">⇔</span>
-                <span>جمع کردن منو</span>
-            </button>
-        </div>
         <nav id="nv" aria-label="منوی اصلی">
             <?php foreach ($ownerNavGroups as $navGroup) { ?>
                 <?php

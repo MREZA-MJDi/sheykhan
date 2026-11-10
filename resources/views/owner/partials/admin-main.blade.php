@@ -8,15 +8,3 @@
         @endif
         @yield('content')
     </main>
-    <dialog class="owner-floating-modal" data-owner-record-modal aria-labelledby="owner-record-modal-title">
-        <header class="owner-record-modal-header">
-            <div class="min-w-0">
-                <span class="owner-record-modal-kicker">مدیریت اطلاعات</span>
-                <h2 id="owner-record-modal-title" data-owner-record-modal-title>ویرایش / ثبت اطلاعات</h2>
-            </div>
-            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن پنجره">×</button>
-        </header>
-        <div class="owner-record-modal-body" data-owner-record-modal-body>
-            <p class="owner-modal-loading">فرم آماده بارگذاری است.</p>
-        </div>
-    </dialog>

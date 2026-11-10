@@ -135,46 +135,25 @@
         let debounceHandle = 0;
         let currentPage = 1;
         let lastPage = 1;
-        let paginationMode = 'page';
-        let nextCursor = null;
-        let cursorByPage = new Map([[1, null]]);
 
         const setStatus = (message) => { status.textContent = message; };
 
-        const makeUrl = (page, cursor = null) => {
+        const makeUrl = (page) => {
             const url = new URL(baseUrl, window.location.origin);
             const params = url.searchParams;
             const query = queryInput.value.trim();
             params.set('per_page', String(perPageSelect?.value || '25'));
+            params.set('page', String(page));
             params.set('sort', sortSelect.value || 'name');
             params.set('direction', directionSelect.value || 'asc');
-
-            if (paginationMode === 'cursor') {
-                params.delete('page');
-                params.delete('cursor');
-                if (cursor) params.set('cursor', cursor);
-            } else {
-                params.set('page', String(page));
-                params.delete('cursor');
-            }
-
+            params.delete('cursor');
             if (query) params.set('q', query);
             else params.delete('q');
             return url.toString();
         };
 
-        const load = async (page = 1, requestedCursor = undefined) => {
+        const load = async (page = 1) => {
             if (activeRequest) activeRequest.abort();
-
-            if (page === 1) {
-                cursorByPage = new Map([[1, null]]);
-                nextCursor = null;
-            }
-
-            const cursor = requestedCursor !== undefined
-                ? requestedCursor
-                : (cursorByPage.get(page) ?? null);
-
             const controller = new AbortController();
             activeRequest = controller;
             const currentRequestId = ++requestId;
@@ -184,7 +163,7 @@
             setStatus('در حال دریافت فهرست از سرور…');
 
             try {
-                const response = await fetch(makeUrl(page, cursor), {
+                const response = await fetch(makeUrl(page), {
                     method: 'GET',
                     credentials: 'same-origin',
                     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -197,60 +176,28 @@
 
                 const records = Array.isArray(payload.data) ? payload.data : [];
                 const meta = payload.meta ?? {};
-                const directory = payload.directory ?? {};
-                paginationMode = directory.pagination_mode === 'cursor' ? 'cursor' : 'page';
                 currentPage = Number(meta.current_page ?? page);
-                lastPage = Math.max(1, Number(meta.last_page ?? currentPage));
-                nextCursor = typeof meta.next_cursor === 'string' && meta.next_cursor !== ''
-                    ? meta.next_cursor
-                    : null;
-
-                cursorByPage.set(currentPage, cursor || null);
-                if (paginationMode === 'cursor' && nextCursor) {
-                    cursorByPage.set(currentPage + 1, nextCursor);
-                }
+                lastPage = Math.max(1, Number(meta.last_page ?? 1));
+                const total = Number(meta.total ?? records.length);
 
                 resultBox.replaceChildren();
                 if (!records.length) resultBox.append(createEmptyState('عضوی مطابق این جست‌وجو پیدا نشد.'));
                 else records.forEach((person) => resultBox.append(createRow(person, role)));
 
+                count.textContent = String(total);
                 if (serverPagination) serverPagination.hidden = true;
+                if (pagination) pagination.hidden = lastPage <= 1;
+                if (previousButton) previousButton.disabled = currentPage <= 1;
+                if (nextButton) nextButton.disabled = currentPage >= lastPage;
+                if (pageInfo) pageInfo.textContent = 'صفحه ' + currentPage + ' از ' + lastPage + ' · ' + total + ' عضو';
 
-                const hasPrevious = currentPage > 1 && (
-                    paginationMode !== 'cursor' || cursorByPage.has(currentPage - 1)
-                );
-                const hasNext = paginationMode === 'cursor'
-                    ? Boolean(nextCursor)
-                    : currentPage < lastPage;
-
-                if (pagination) pagination.hidden = !hasPrevious && !hasNext;
-                if (previousButton) previousButton.disabled = !hasPrevious;
-                if (nextButton) nextButton.disabled = !hasNext;
-
-                if (paginationMode === 'cursor') {
-                    if (meta.total !== undefined && meta.total !== null) {
-                        count.textContent = String(meta.total);
-                    } else {
-                        count.textContent = String(records.length) + (hasNext ? '+' : '');
-                    }
-                    if (pageInfo) {
-                        pageInfo.textContent = 'صفحه ' + currentPage + ' · ' + records.length + ' عضو در این صفحه';
-                    }
-                    setStatus(records.length
-                        ? 'صفحه ' + currentPage + ' از فهرست اعضا نمایش داده شد.'
-                        : 'عضوی مطابق این جست‌وجو پیدا نشد.');
-                } else {
-                    const total = Number(meta.total ?? records.length);
-                    count.textContent = String(total);
-                    if (pageInfo) pageInfo.textContent = 'صفحه ' + currentPage + ' از ' + lastPage + ' · ' + total + ' عضو';
-                    setStatus(records.length
-                        ? 'نتایج صفحه ' + currentPage + ' از ' + lastPage + ' نمایش داده شد.'
-                        : 'عضوی مطابق این جست‌وجو پیدا نشد.');
-                }
+                setStatus(records.length
+                    ? 'نتایج صفحه ' + currentPage + ' از ' + lastPage + ' نمایش داده شد.'
+                    : 'عضوی مطابق این جست‌وجو پیدا نشد.');
             } catch (error) {
                 if (error?.name === 'AbortError' || currentRequestId !== requestId) return;
-                if (previousButton) previousButton.disabled = currentPage <= 1;
-                if (nextButton) nextButton.disabled = paginationMode === 'cursor' ? !nextCursor : currentPage >= lastPage;
+                if (previousButton) previousButton.disabled = false;
+                if (nextButton) nextButton.disabled = false;
                 setStatus('فهرست آنلاین بارگذاری نشد. داده‌های سرور و پیوندهای صفحه‌بندی همچنان در دسترس‌اند.');
             } finally {
                 if (currentRequestId === requestId) activeRequest = null;
@@ -272,19 +219,9 @@
             load(1);
         });
         previousButton?.addEventListener('click', () => {
-            if (currentPage <= 1) return;
-            if (paginationMode === 'cursor') {
-                const previousCursor = cursorByPage.get(currentPage - 1);
-                if (cursorByPage.has(currentPage - 1)) load(currentPage - 1, previousCursor ?? null);
-                return;
-            }
             if (currentPage > 1) load(currentPage - 1);
         });
         nextButton?.addEventListener('click', () => {
-            if (paginationMode === 'cursor') {
-                if (nextCursor) load(currentPage + 1, nextCursor);
-                return;
-            }
             if (currentPage < lastPage) load(currentPage + 1);
         });
     });
