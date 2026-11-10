@@ -1,6 +1,6 @@
 import './shared/persian-calendar.js';
 import './shared/persian-money.js';
-import './owner-admin-common.js';
+import '../views/owner/admin/assets/js/admin-common.js';
 import { bootPanelRuntime, closePanelMenu } from './panel-runtime.js';
 export { closePanelMenu };
 

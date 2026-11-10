@@ -433,7 +433,7 @@
 </div>
 </div>
 @push('scripts')
-    @vite(['resources/js/owner-people-directory.js'])
+    @vite(['resources/views/owner/admin/assets/js/people-directory.js'])
 @endpush
 
 @endsection

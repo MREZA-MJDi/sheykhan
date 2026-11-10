@@ -1,11 +1,14 @@
-import '../../../../js/owner/dashboard-range-chart.js';
+import './js/owner/dashboard-range-chart.js';
 import '../../../../js/shared/persian-calendar.js';
 import '../../../../js/shared/persian-money.js';
-import '../../../../js/owner-admin-common.js';
-import '../../../../js/owner/workspace-tabs.js';
-import '../../../../js/owner/exam-builder.js';
-import '../../../../js/owner/academy-form-options.js';
+import './js/admin-common.js';
+import './js/owner/workspace-tabs.js';
+import './js/owner/exam-builder.js';
+import './js/owner/academy-form-options.js';
 import { bootPanelRuntime } from '../../../../js/panel-runtime.js';
+import './js/owner/lookup-picker.js';
+import './js/owner/student-picker.js';
+import './js/owner/copy-one-time-credentials.js';
 bootPanelRuntime();
 
 (() => {
