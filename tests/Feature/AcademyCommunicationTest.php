@@ -23,9 +23,13 @@ class AcademyCommunicationTest extends TestCase
 
         $this->actingAs($w['owner'])
             ->get(route('owner.communications.index', $w['academy']))
+            ->assertRedirect(route('owner.communication-workspace', [$w['academy'], 'tab' => 'announcements']));
+
+        $this->actingAs($w['owner'])
+            ->get(route('owner.communication-workspace', [$w['academy'], 'tab' => 'announcements']))
             ->assertOk()
-            ->assertSee('اطلاعیه و پیام به خانواده‌ها')
-            ->assertSee('همه خانواده‌های آموزشگاه')
+            ->assertSee('ارسال اطلاعیه تازه')
+            ->assertSee('همه خانواده‌های فعال آموزشگاه')
             ->assertDontSee('پیام مستقیم به دانش‌آموز ' . $w['student']->name);
 
         $this->actingAs($w['owner'])->post(route('owner.communications.store', $w['academy']), [
