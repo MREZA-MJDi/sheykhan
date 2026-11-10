@@ -46,6 +46,10 @@ class OwnerMeetingWorkflowTest extends TestCase
         ]);
 
         $this->actingAs($owner)
+            ->get(route('owner.meetings.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']));
+
+        $this->actingAs($owner)
             ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
             ->assertOk()
             ->assertSee($payload['title'])
