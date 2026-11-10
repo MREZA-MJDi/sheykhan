@@ -35,15 +35,15 @@
 .sp-brandline { display:flex; align-items:center; gap:10px; color:#667091; font-size:12px; font-weight:700; }
 .sp-brand-mark { display:inline-grid; place-items:center; width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#1f2f7a,#0e9f8e); color:#ffffff; font-size:12px; font-weight:900; letter-spacing:.4px; }
 .sp-divider { width:1px; height:17px; background:rgba(31,47,122,.14); }
-.sp-page .sp-hero h1 { margin:18px 0 7px; color:#fff; font-size:clamp(25px,3vw,34px); line-height:1.45; font-weight:900; }
-.sp-page .sp-hero p { max-width:680px; margin:0; color:#aeb9df; line-height:2; }
+.sp-page .sp-hero h1 { margin:18px 0 7px; color:#16204a; font-size:clamp(25px,3vw,34px); line-height:1.45; font-weight:900; }
+.sp-page .sp-hero p { max-width:680px; margin:0; color:#667091; line-height:2; }
 .sp-hero-actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:20px; }
 .sp-connection-card { display:flex; flex-direction:column; justify-content:center; gap:8px; min-height:165px; padding:17px; border:1px solid rgba(31,47,122,.11); border-radius:17px; background:rgba(248,249,253,.98); backdrop-filter:blur(8px); }
 .sp-connection-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
 .sp-connection-icon { display:grid; place-items:center; width:38px; height:38px; border-radius:12px; background:rgba(31,47,122,.09); color:var(--sp-cyan); font-size:21px; }
-.sp-connection-card strong { font-size:21px; color:#fff; }
+.sp-connection-card strong { font-size:21px; color:#16204a; }
 .sp-connection-card > span:not(.sp-status) { font-size:12px; color:var(--sp-muted); }
-.sp-connection-card > small { color:#bac4e5; font-size:11px; line-height:1.9; }
+.sp-connection-card > small { color:#667091; font-size:11px; line-height:1.9; }
 .sp-connection-card > a { display:flex; justify-content:space-between; gap:8px; align-items:center; margin-top:9px; padding-top:10px; border-top:1px solid var(--sp-line); color:var(--sp-cyan); font-size:12px; font-weight:800; }
 .sp-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:39px; padding:8px 14px; border:1px solid transparent; border-radius:11px; font-size:12px; font-weight:800; cursor:pointer; transition:transform .16s,border-color .16s,background .16s; }
 .sp-btn:hover { transform:translateY(-1px); }
