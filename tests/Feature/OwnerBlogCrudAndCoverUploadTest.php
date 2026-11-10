@@ -29,7 +29,7 @@ final class OwnerBlogCrudAndCoverUploadTest extends TestCase
         ]);
 
         $this->actingAs($seoUser)
-            ->post(route('owner.blog.store'), [
+            ->post(route('seo.blog.store'), [
                 'category_id' => $category->id,
                 'title' => 'راهنمای آزمایشی',
                 'slug' => 'sample-guide-' . Str::random(6),
@@ -53,7 +53,7 @@ final class OwnerBlogCrudAndCoverUploadTest extends TestCase
         $post->seoMeta()->create(['title' => 'عنوان SEO آزمایشی']);
 
         $this->actingAs($seoUser)
-            ->patch(route('owner.blog.update', $post), [
+            ->patch(route('seo.blog.update', $post), [
                 'category_id' => $category->id,
                 'title' => 'راهنمای به‌روزشده',
                 'slug' => $post->slug,
@@ -62,7 +62,7 @@ final class OwnerBlogCrudAndCoverUploadTest extends TestCase
                 'status' => 'draft',
                 'cover_image' => UploadedFile::fake()->image('new-cover.webp', 1200, 750)->size(210),
             ])
-            ->assertRedirect(route('owner.blog.edit', $post));
+            ->assertRedirect(route('seo.blog.edit', $post));
 
         $post->refresh();
         $this->assertSame('راهنمای به‌روزشده', $post->title);
@@ -76,8 +76,8 @@ final class OwnerBlogCrudAndCoverUploadTest extends TestCase
         Storage::disk('local')->assertExists($replacementMedia->path);
 
         $this->actingAs($seoUser)
-            ->delete(route('owner.blog.destroy', $post))
-            ->assertRedirect(route('owner.blog.index'));
+            ->delete(route('seo.blog.destroy', $post))
+            ->assertRedirect(route('seo.blog.index'));
 
         $this->assertDatabaseMissing('blog_posts', ['id' => $post->id]);
         $this->assertDatabaseMissing('seo_metas', [
@@ -94,7 +94,7 @@ final class OwnerBlogCrudAndCoverUploadTest extends TestCase
         $seoUser = $this->seoSpecialist();
 
         $this->actingAs($seoUser)
-            ->post(route('owner.blog.store'), [
+            ->post(route('seo.blog.store'), [
                 'title' => 'مقاله بدون تصویر معتبر',
                 'content' => 'متن مقاله',
                 'status' => 'draft',
