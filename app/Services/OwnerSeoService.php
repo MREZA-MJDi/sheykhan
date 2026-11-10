@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 final class OwnerSeoService
 {
@@ -159,6 +160,27 @@ final class OwnerSeoService
         $endDate = now()->subDays(3)->toDateString();
         $startDate = now()->subDays(30)->toDateString();
 
+        $emptySummary = [
+            'configured' => $configured,
+            'storage_available' => false,
+            'has_data' => false,
+            'property' => $configured ? (string) config('services.google_search_console.site_url') : null,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'clicks' => 0,
+            'impressions' => 0,
+            'ctr' => null,
+            'average_position' => null,
+            'pages_with_data' => 0,
+            'last_synced_at' => null,
+        ];
+
+        // Search Console is optional. A pending migration must not take down
+        // the complete SEO workspace with a missing-table SQL exception.
+        if (! Schema::hasTable('seo_performance_snapshots')) {
+            return ['by_page' => [], 'summary' => $emptySummary];
+        }
+
         $baseQuery = DB::table('seo_performance_snapshots')
             ->where('dimension', 'page')
             ->whereBetween('date', [$startDate, $endDate]);
@@ -193,12 +215,9 @@ final class OwnerSeoService
                 'ctr' => $row->ctr !== null ? (float) $row->ctr : null,
                 'average_position' => $row->average_position !== null ? (float) $row->average_position : null,
             ])->all(),
-            'summary' => [
-                'configured' => $configured,
+            'summary' => array_merge($emptySummary, [
+                'storage_available' => true,
                 'has_data' => $impressions > 0 || $clicks > 0,
-                'property' => $configured ? (string) config('services.google_search_console.site_url') : null,
-                'start_date' => $startDate,
-                'end_date' => $endDate,
                 'clicks' => $clicks,
                 'impressions' => $impressions,
                 'ctr' => $impressions > 0 ? $clicks / $impressions : null,
@@ -207,7 +226,7 @@ final class OwnerSeoService
                     : null,
                 'pages_with_data' => $pageRows->count(),
                 'last_synced_at' => $lastSyncedAt,
-            ],
+            ]),
         ];
     }
 
@@ -250,6 +269,10 @@ final class OwnerSeoService
         if ($pageHashes->isEmpty()) {
             return [];
         }
+        if (! Schema::hasTable('seo_performance_snapshots')) {
+            return [];
+        }
+
 
         $startDate = now()->subDays(30)->toDateString();
         $endDate = now()->subDays(3)->toDateString();
