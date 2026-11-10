@@ -18,7 +18,7 @@ final class AcademyFormOptionsController extends Controller
         abort_unless($workspace->canManageAcademy($request->user(), $academy), 404);
 
         $filters = $request->validate([
-            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms,classroom-courses,classroom-filter-courses,classroom-teachers,attendance-classrooms'],
+            'type' => ['required', 'string', 'in:resource-courses,resource-classrooms,resource-lessons,exam-courses,exam-classrooms,classroom-courses,classroom-filter-courses,classroom-teachers,attendance-classrooms,teacher-payment-teachers'],
             'q' => ['required', 'string', 'min:2', 'max:80'],
             'course_id' => ['nullable', 'integer', 'min:1'],
         ]);
@@ -29,6 +29,7 @@ final class AcademyFormOptionsController extends Controller
             in_array($filters['type'], ['classroom-courses', 'classroom-teachers'], true) => 'classrooms.manage',
             $filters['type'] === 'classroom-filter-courses' => 'classrooms.view',
             $filters['type'] === 'attendance-classrooms' => 'attendance.view',
+            $filters['type'] === 'teacher-payment-teachers' => 'teacher_payments.view',
             default => 'classrooms.view',
         };
         abort_unless($request->user()->hasPermission($requiredPermission), 403);
@@ -42,6 +43,18 @@ final class AcademyFormOptionsController extends Controller
                 ->with('course:id,title')
                 ->orderBy('title')->orderBy('id')
                 ->simplePaginate(20),
+
+            'teacher-payment-teachers' => $academy->users()
+                ->wherePivot('role', 'teacher')
+                ->wherePivot('status', 'active')
+                ->where('users.status', 'active')
+                ->where(function ($query) use ($like): void {
+                    $query->where('users.name', 'like', $like)
+                        ->orWhere('users.email', 'like', $like);
+                })
+                ->orderBy('users.name')->orderBy('users.id')
+                ->simplePaginate(20),
+
 
             in_array($filters['type'], ['classroom-courses', 'classroom-filter-courses'], true) => Course::query()
                 ->where('academy_id', $academy->id)
@@ -119,6 +132,13 @@ final class AcademyFormOptionsController extends Controller
                 return [
                     'id' => (int) $item->id,
                     'label' => $item->name,
+                ];
+            }
+
+            if ($filters['type'] === 'teacher-payment-teachers') {
+                return [
+                    'id' => (int) $item->id,
+                    'label' => $item->name . (filled($item->email) ? ' — ' . $item->email : ''),
                 ];
             }
 
