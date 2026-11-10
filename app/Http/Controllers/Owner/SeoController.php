@@ -120,7 +120,7 @@ final class SeoController extends Controller
             )->count(),
         ];
 
-        return view('owner.seo.index', $overview);
+        return view('seo.index', $overview);
     }
 
     private function normalizePageUrlForHash(string $url): string
@@ -164,7 +164,7 @@ final class SeoController extends Controller
         $seo->update($request->user(), $type, $id, $request->validated());
 
         return redirect()
-            ->route('owner.seo.index')
+            ->route('seo.index')
             ->with('success', 'تنظیمات SEO با موفقیت ذخیره شد.');
     }
 }
