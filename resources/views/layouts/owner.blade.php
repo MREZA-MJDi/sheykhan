@@ -48,13 +48,19 @@
         ],
         [
             'key' => 'people',
-            'title' => 'افراد و ارتباطات',
-            'color' => '#ff1f6b',
+            'title' => 'مدیریت اعضا',
+            'color' => '#0f766e',
             'links' => [
-                ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'دانش‌آموزان، مدرس‌ها و اولیا', 'icon' => 'users', 'scope' => 'academy'],
-                ['route' => 'owner.attendance.index', 'permission' => 'attendance.view', 'label' => 'حضور و غیاب', 'icon' => 'checksq', 'scope' => 'academy'],
-                ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'پیام‌های اولیا', 'icon' => 'chat', 'scope' => 'academy'],
-                ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها', 'icon' => 'mega', 'scope' => 'academy'],
+                ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'مدرس‌ها، دانش‌آموزان و اولیا', 'icon' => 'users', 'scope' => 'academy'],
+            ],
+        ],
+        [
+            'key' => 'communications',
+            'title' => 'ارتباطات و پشتیبانی',
+            'color' => '#2563eb',
+            'links' => [
+                ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'صندوق پیام خانواده‌ها', 'icon' => 'chat', 'scope' => 'academy'],
+                ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها و پیام‌های خروجی', 'icon' => 'mega', 'scope' => 'academy'],
                 ['route' => 'owner.counseling.index', 'permission' => 'parents.view', 'label' => 'درخواست‌های مشاوره', 'icon' => 'heart', 'scope' => 'academy'],
             ],
         ],
@@ -65,6 +71,7 @@
             'links' => [
                 ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'دوره‌ها', 'icon' => 'book', 'scope' => 'global'],
                 ['route' => 'owner.classrooms.index', 'permission' => 'classrooms.view', 'label' => 'کلاس‌ها و گروه‌ها', 'icon' => 'calendar', 'scope' => 'academy'],
+                ['route' => 'owner.attendance.index', 'permission' => 'attendance.view', 'label' => 'حضور و غیاب', 'icon' => 'checksq', 'scope' => 'academy'],
                 ['route' => 'owner.assignments.index', 'permission' => 'assignments.view', 'label' => 'تکالیف و تصحیح', 'icon' => 'doc', 'scope' => 'academy'],
                 ['route' => 'owner.exams.index', 'permission' => 'exams.view', 'label' => 'آزمون‌ها و نتایج', 'icon' => 'book', 'scope' => 'academy'],
                 ['route' => 'owner.schedules.index', 'permission' => 'live_classes.view', 'label' => 'برنامه و لینک کلاس آنلاین', 'icon' => 'link', 'scope' => 'academy'],
