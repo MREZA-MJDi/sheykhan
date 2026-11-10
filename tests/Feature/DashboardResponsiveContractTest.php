@@ -8,7 +8,7 @@ class DashboardResponsiveContractTest extends TestCase
 {
     public function test_owner_dashboard_feedback_stays_inside_the_owner_workspace(): void
     {
-        $css = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
+        $css = file_get_contents(resource_path('views/owner/admin/assets/admin.css'));
 
         $this->assertIsString($css);
         $this->assertStringContainsString('.owner-dashboard-feedback{grid-column:1/-1}', $css);
@@ -33,7 +33,7 @@ class DashboardResponsiveContractTest extends TestCase
 
     public function test_owner_workspaces_share_readable_sections_and_the_online_calendar_is_responsive(): void
     {
-        $css = file_get_contents(resource_path('css/owner-dashboard-v2.css'));
+        $css = file_get_contents(resource_path('views/owner/admin/assets/admin.css'));
 
         $this->assertIsString($css);
         $this->assertStringContainsString('.main-content .panel-page-enter {', $css);
