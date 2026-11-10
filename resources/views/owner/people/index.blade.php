@@ -93,6 +93,13 @@
 
     <div class="owner-people-tab-panel" id="owner-people-management-panel" role="tabpanel" aria-labelledby="owner-people-management-tab" data-owner-tab-panel="management" @if($activePeopleTab !== 'management') hidden @endif>
 
+<div class="owner-people-tabs owner-people-tabs--sheets" data-owner-people-tabs data-query-param="sheet" data-initial-tab="{{ request('sheet', 'directory') }}">
+    <nav class="owner-people-tabbar" role="tablist" aria-label="بخش‌های مدیریت اعضا">
+        <button type="button" role="tab" data-owner-tab-button="directory" aria-selected="true">فهرست و بایگانی</button>
+        <button type="button" role="tab" data-owner-tab-button="create-accounts" aria-selected="false">ثبت مدرس و ولی</button>
+        <button type="button" role="tab" data-owner-tab-button="operations" aria-selected="false">عملیات و سوابق</button>
+    </nav>
+    <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="directory">
 <section class="owner-people-directory-first">
     <header class="mb-3"><h2 class="text-lg font-black text-slate-900">فهرست اعضای آموزشگاه</h2><p class="mt-1 text-sm text-slate-600">برای پیدا کردن هر عضو جست‌وجو کن؛ در هر صفحه فقط تعداد محدودی نتیجه بارگذاری می‌شود.</p></header>
     <div class="mb-2 flex items-center gap-2">
@@ -205,10 +212,8 @@
     @endif
 </section>
 </section>
-
-
-
-
+    </section>
+    <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="create-accounts">
 <section class="dashboard-panel p-5 sm:p-7">
     <div>
         <h2 class="text-base font-black">ثبت اولیا و اتصال به دانش‌آموز</h2>
@@ -263,6 +268,8 @@
 <label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">سابقهٔ تدریس را به سال و در بازهٔ صفر تا ۸۰ وارد کن.</small>@error('experience_years')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <button class="rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white">ساخت حساب مدرس</button></form></section>
 
+    </section>
+    <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="operations">
 <details class="owner-people-operations" @if($errors->any() || session('success')) open @endif>
     <summary>افزودن عضو و عملیات مدیریتی</summary>
     <div class="owner-people-operations-body">
@@ -444,7 +451,8 @@
 
     </div>
 </details>
-
+    </section>
+</div>
 
     </div>
 </div>
