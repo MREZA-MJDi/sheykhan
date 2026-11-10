@@ -8,9 +8,9 @@
                     <a class="tab {{ $period === $periodKey ? 'on' : '' }}" href="{{ route('owner.dashboard',['period'=>$periodKey]) }}" @if($period === $periodKey) aria-current="page" @endif>{{ $periodLabel }}</a>
                 @endforeach
             @elseif($canManagePublicSite)
-                <a class="tab {{ request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update') ? 'on' : '' }}" href="{{ route('owner.seo.index') }}">ممیزی SEO</a>
-                <a class="tab {{ request()->routeIs('owner.seo.keywords.*') ? 'on' : '' }}" href="{{ route('owner.seo.keywords.index') }}">کلمات کلیدی</a>
-                <a class="tab {{ request()->routeIs('owner.website.*') ? 'on' : '' }}" href="{{ route('owner.website.index') }}">مرکز سایت</a>
+                <a class="tab {{ request()->routeIs('seo.index','seo.pages.edit','seo.pages.update') ? 'on' : '' }}" href="{{ route('seo.index') }}">ممیزی SEO</a>
+                <a class="tab {{ request()->routeIs('seo.keywords.*') ? 'on' : '' }}" href="{{ route('seo.keywords.index') }}">کلمات کلیدی</a>
+                <a class="tab {{ request()->routeIs('seo.website.*') ? 'on' : '' }}" href="{{ route('seo.website.index') }}">مرکز سایت</a>
             @else
                 <a class="tab" href="{{ route('owner.dashboard') }}">نمای کلی</a>
                 @if($ownerUser?->hasPermission('courses.view'))<a class="tab" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
