@@ -64,6 +64,99 @@ final class OwnerWorkspaceService
         abort_unless($this->canAccessAcademy($owner, $academy, $permission), 404);
     }
 
+    /**
+     * Update only editable profile fields for a member of this academy.
+     * Passwords, private identity data, student numbers and family links are intentionally untouched.
+     */
+    public function updateAcademyMember(
+        User $owner,
+        Academy $academy,
+        string $memberRole,
+        User $member,
+        array $data
+    ): User {
+        $permission = match ($memberRole) {
+            'student' => 'onboarding.manage',
+            'parent' => 'parents.manage',
+            'teacher' => 'teachers.manage',
+            default => null,
+        };
+
+        abort_unless($permission !== null, 404);
+        $this->authorizeAcademy($owner, $academy, $permission);
+
+        return DB::transaction(function () use ($owner, $academy, $memberRole, $member, $data): User {
+            $membership = DB::table('academy_user')
+                ->where('academy_id', $academy->id)
+                ->where('user_id', $member->id)
+                ->where('role', $memberRole)
+                ->lockForUpdate()
+                ->first();
+
+            $allowedStatuses = $memberRole === 'teacher' ? ['active', 'archived'] : ['active'];
+            abort_unless($membership && in_array($membership->status, $allowedStatuses, true), 404);
+
+            $lockedMember = User::query()->whereKey($member->id)->lockForUpdate()->firstOrFail();
+            abort_unless($lockedMember->hasRole($memberRole), 404);
+
+            $lockedMember->forceFill([
+                'name' => trim((string) $data['name']),
+                'mobile' => MobileNumber::normalize((string) $data['mobile']),
+            ])->save();
+
+            if ($memberRole === 'student') {
+                $profile = StudentProfile::query()
+                    ->where('user_id', $lockedMember->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $profile) {
+                    throw ValidationException::withMessages([
+                        'member' => 'برای این دانش‌آموز پروفایل تحصیلی ثبت نشده است؛ ویرایش امن انجام نشد.',
+                    ]);
+                }
+
+                $profileData = [
+                    'birth_date' => $data['birth_date'] ?? null,
+                    'school_name' => filled($data['school_name'] ?? null) ? trim((string) $data['school_name']) : null,
+                ];
+
+                if (filled($data['grade_id'] ?? null)) {
+                    $grade = AcademicGrade::query()
+                        ->where('is_active', true)
+                        ->whereKey((int) $data['grade_id'])
+                        ->first();
+
+                    if (! $grade) {
+                        throw ValidationException::withMessages([
+                            'grade_id' => 'پایهٔ انتخاب‌شده دیگر فعال نیست؛ صفحه را تازه کن.',
+                        ]);
+                    }
+
+                    $profileData['grade_id'] = $grade->id;
+                    $profileData['grade'] = $grade->title;
+                }
+
+                $profile->forceFill($profileData)->save();
+            } elseif ($memberRole === 'parent') {
+                $profile = ParentProfile::query()->firstOrNew(['user_id' => $lockedMember->id]);
+                $profile->forceFill([
+                    'occupation' => filled($data['occupation'] ?? null) ? trim((string) $data['occupation']) : null,
+                    'relation_default' => $data['relation_default'] ?? $profile->relation_default,
+                ])->save();
+            } else {
+                $profile = TeacherProfile::query()->firstOrNew(['user_id' => $lockedMember->id]);
+                $profile->forceFill([
+                    'specialization' => filled($data['specialization'] ?? null) ? trim((string) $data['specialization']) : null,
+                    'experience_years' => $data['experience_years'] ?? null,
+                    'is_public' => (bool) ($data['is_public'] ?? false),
+                ])->save();
+            }
+
+            return $lockedMember->fresh();
+        }, 3);
+    }
+
     public function people(User $owner, Academy $academy): array
     {
         $this->authorizeAcademy($owner, $academy);
