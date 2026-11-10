@@ -4,28 +4,25 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 
 final class StudentResultService
 {
     public function paginate(User $student, int $perPage = 20): LengthAwarePaginator
     {
-        $access = app(StudentAccessService::class);
-        $courseIds = $access->enrolledCourseIds($student);
-        $classroomIds = $student->classroomsAsStudent()
-            ->wherePivot('status', 'active')
-            ->pluck('classrooms.id');
+        $courseIds = app(StudentAccessService::class)->enrolledCourseIds($student);
 
         $assignmentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->whereIn('assignments.course_id', $courseIds)
             ->where('assignments.status', 'published')
-            ->where(function ($query) use ($classroomIds): void {
-                $query->whereNull('assignments.classroom_id')
-                    ->orWhereIn('assignments.classroom_id', $classroomIds);
-            })
             ->where('submissions.student_id', $student->id)
-            ->whereNotNull('submissions.graded_at')
+            ->whereNotNull('submissions.graded_at');
+
+        $this->scopeToStudentTeacherCohort($assignmentResults, $student, 'assignments');
+
+        $assignmentResults
             ->selectRaw("'assignment' as result_type")
             ->selectRaw('submissions.id as result_id')
             ->selectRaw('assignments.id as target_id')
@@ -37,12 +34,12 @@ final class StudentResultService
         $examResults = DB::table('exam_attempts as attempts')
             ->join('exams', 'exams.id', '=', 'attempts.exam_id')
             ->whereIn('exams.course_id', $courseIds)
-            ->where(function ($query) use ($classroomIds): void {
-                $query->whereNull('exams.classroom_id')
-                    ->orWhereIn('exams.classroom_id', $classroomIds);
-            })
             ->where('attempts.student_id', $student->id)
-            ->whereNotNull('attempts.submitted_at')
+            ->whereNotNull('attempts.submitted_at');
+
+        $this->scopeToStudentTeacherCohort($examResults, $student, 'exams');
+
+        $examResults
             ->selectRaw("'exam' as result_type")
             ->selectRaw('attempts.id as result_id')
             ->selectRaw('exams.id as target_id')
@@ -57,5 +54,39 @@ final class StudentResultService
             ->orderByDesc('result_id')
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    /**
+     * Results must follow the same teacher/cohort boundary as assignments,
+     * exams, and live classes. A course-level assessment (classroom_id = NULL)
+     * is visible only when its teacher is assigned to one of the student's
+     * active classrooms for that course.
+     */
+    private function scopeToStudentTeacherCohort(
+        QueryBuilder $query,
+        User $student,
+        string $assessmentTable
+    ): void {
+        $query->whereExists(function ($group) use ($student, $assessmentTable): void {
+            $group->selectRaw('1')
+                ->from('classroom_student as student_membership')
+                ->join('classrooms as student_classroom', 'student_classroom.id', '=', 'student_membership.classroom_id')
+                ->join('classroom_teacher as teaching_assignment', 'teaching_assignment.classroom_id', '=', 'student_classroom.id')
+                ->join('course_enrollments as student_enrollment', function ($join) use ($student): void {
+                    $join->on('student_enrollment.classroom_id', '=', 'student_classroom.id')
+                        ->on('student_enrollment.course_id', '=', 'student_classroom.course_id')
+                        ->where('student_enrollment.student_id', '=', $student->id)
+                        ->where('student_enrollment.status', '=', 'active');
+                })
+                ->whereColumn('student_classroom.course_id', $assessmentTable . '.course_id')
+                ->whereColumn('teaching_assignment.teacher_id', $assessmentTable . '.teacher_id')
+                ->where('student_membership.student_id', $student->id)
+                ->where('student_membership.status', 'active')
+                ->where('student_classroom.status', 'active')
+                ->where(function ($scope) use ($assessmentTable): void {
+                    $scope->whereNull($assessmentTable . '.classroom_id')
+                        ->orWhereColumn($assessmentTable . '.classroom_id', 'student_classroom.id');
+                });
+        });
     }
 }
