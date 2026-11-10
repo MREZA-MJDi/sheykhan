@@ -12,6 +12,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use App\Services\ParentOnboardingService;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class OwnerPeopleLifecycleTest extends TestCase
@@ -256,6 +258,23 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertOk()
             ->assertJsonPath('meta.current_page', 2)
             ->assertJsonCount(10, 'data');
+    }
+
+    public function test_parent_onboarding_rejects_a_student_outside_the_selected_academy_as_a_validation_error(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        try {
+            app(ParentOnboardingService::class)->createOrLink($academy, [
+                'student_id' => 999999,
+                'name' => 'والد آزمایشی',
+                'mobile' => '09120000000',
+                'relation' => 'مادر',
+            ]);
+            $this->fail('An unknown student must not be linked to a parent.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('student_id', $exception->errors());
+        }
     }
 
     public function test_assigning_an_existing_course_teacher_does_not_demote_the_primary_teacher(): void
