@@ -159,7 +159,7 @@ final class AcademyMessageController extends Controller
             'published_at' => now(),
         ]);
 
-        return redirect()->route('owner.communications.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'announcements'])
             ->with('success', 'پیام برای مخاطب‌های مجاز منتشر شد.');
     }
 
