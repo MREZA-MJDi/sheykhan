@@ -11,7 +11,7 @@
         <div>
             <span>برنامه‌ریزی هدفمند جست‌وجو</span>
             <h1>{{ $isEdit ? $keyword->keyword : 'ثبت کلمهٔ کلیدی جدید' }}</h1>
-            <p>عبارت را به یک صفحهٔ مشخص وصل کن و وضعیت اجرا و داده‌های واقعی آن را جداگانه نگه دار. رتبهٔ خالی یعنی مشاهده‌ای ثبت نشده است.</p>
+            <p>برای این عبارت یک صفحه مرتبط انتخاب کن و وضعیت رسیدگی را ثبت کن. اگر رتبه خالی است، یعنی هنوز بررسی نشده.</p>
         </div>
         <a href="{{ route('owner.seo.keywords.index') }}">بازگشت به فهرست</a>
     </div>
@@ -21,16 +21,16 @@
         @if($isEdit) @method('PATCH') @endif
 
         <section class="owner-form-section">
-            <h2>مشخصات عبارت و مقصد</h2>
+            <h2>مشخصات عبارت و صفحه مرتبط</h2>
             <label>
                 <span>کلمه یا عبارت کلیدی *</span>
                 <input name="keyword" value="{{ old('keyword', $keyword->keyword) }}" maxlength="255" required placeholder="مثلاً: کلاس آنلاین ریاضی هفتم">
                 @error('keyword')<small class="seo-keyword-error">{{ $message }}</small>@enderror
                 <small>عبارت‌های تکراری پس از یکسان‌سازی فاصله‌ها و شکل رایج حروف فارسی دوباره ساخته نمی‌شوند.</small>
             </label>
-            <label><span>خوشه / گروه موضوعی</span><input name="cluster" value="{{ old('cluster', $keyword->cluster) }}" maxlength="120" placeholder="مثلاً: ریاضی هفتم"></label>
+            <label><span>گروه موضوعی</span><input name="cluster" value="{{ old('cluster', $keyword->cluster) }}" maxlength="120" placeholder="مثلاً: ریاضی هفتم"></label>
             <div class="owner-form-two">
-                <label><span>نیت جست‌وجو *</span><select name="intent" required>@foreach($intentLabels as $value => $label)<option value="{{ $value }}" @selected(old('intent', $keyword->intent ?: 'informational') === $value)>{{ $label }}</option>@endforeach</select></label>
+                <label><span>هدف جست‌وجوی کاربر *</span><select name="intent" required>@foreach($intentLabels as $value => $label)<option value="{{ $value }}" @selected(old('intent', $keyword->intent ?: 'informational') === $value)>{{ $label }}</option>@endforeach</select></label>
                 <label><span>اولویت *</span><select name="priority" required>@foreach($priorityLabels as $value => $label)<option value="{{ $value }}" @selected(old('priority', $keyword->priority ?: 'medium') === $value)>{{ $label }}</option>@endforeach</select></label>
             </div>
             <label>
@@ -45,16 +45,16 @@
 
         <aside class="owner-form-side">
             <section class="owner-form-section">
-                <h2>شاخص‌های قابل استناد</h2>
+                <h2>آمار و اطلاعات بررسی‌شده</h2>
                 <label>
-                    <span>حجم جست‌وجوی ماهانه</span>
+                    <span>تعداد جست‌وجوی ماهانهی ماهانه</span>
                     <input type="number" min="0" max="2147483647" name="search_volume" value="{{ old('search_volume', $keyword->search_volume) }}" placeholder="خالی بگذار اگر منبع نداری">
                     <small>عدد را از منبع دادهٔ خودت وارد کن؛ تخمین خودکار ساخته نمی‌شود.</small>
                 </label>
                 <label><span>رتبهٔ هدف</span><input type="number" min="1" max="1000" name="target_position" value="{{ old('target_position', $keyword->target_position) }}" placeholder="مثلاً ۱۰"></label>
             </section>
             <section class="owner-form-section">
-                <h2>ثبت آخرین مشاهدهٔ واقعی</h2>
+                <h2>ثبت آخرین رتبه بررسی‌شده</h2>
                 <label>
                     <span>رتبهٔ مشاهده‌شده (اختیاری)</span>
                     <input type="number" min="1" max="1000" name="observed_position" value="{{ old('observed_position') }}" placeholder="اگر هنوز بررسی نشده، خالی بماند">
@@ -74,7 +74,7 @@
                 @csrf
                 <label><span>رتبه</span><input type="number" name="position" min="1" max="1000" required></label>
                 <label><span>تاریخ مشاهده</span><input type="date" name="observed_on" value="{{ now()->toDateString() }}" required></label>
-                <label><span>حجم جست‌وجو (در صورت داشتن منبع)</span><input type="number" name="search_volume" min="0" max="2147483647"></label>
+                <label><span>تعداد جست‌وجوی ماهانه (در صورت داشتن منبع)</span><input type="number" name="search_volume" min="0" max="2147483647"></label>
                 <label><span>Impressions (اختیاری)</span><input type="number" name="impressions" min="0"></label>
                 <label><span>Clicks (اختیاری)</span><input type="number" name="clicks" min="0"></label>
                 <label><span>CTR درصدی</span><input type="number" name="ctr" min="0" max="100" step="0.0001"></label>
