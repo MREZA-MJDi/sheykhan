@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 
 @section('title', ($classroom->exists ? 'ویرایش کلاس' : 'ساخت کلاس').' | شیخان')
 @section('header-title', $classroom->exists ? 'ویرایش کلاس' : 'ساخت کلاس')
@@ -7,9 +7,11 @@
 @php
     $selectedTeacherIds = old('teacher_ids', $selectedTeacherIds ?? []);
     $selectedTeacherIds = array_map('intval', (array) $selectedTeacherIds);
+    $modalMode = request()->boolean('modal');
 @endphp
 
 <div class="mx-auto max-w-5xl space-y-6 panel-page-enter">
+    @unless($modalMode)
     <div>
         <p class="text-xs font-black text-[var(--panel-primary)]">مدیریت کلاس</p>
         <h1 class="mt-1 text-2xl font-black">{{ $classroom->exists ? 'ویرایش '.$classroom->title : 'ساخت کلاس جدید' }}</h1>
@@ -17,10 +19,11 @@
             مشخصات اجرایی کلاس را ثبت کن. مدرس باید عضو فعال آموزشگاه و از قبل به دوره انتخاب‌شده اختصاص داده شده باشد.
         </p>
     </div>
+    @endunless
 
     <form method="POST"
           action="{{ $classroom->exists ? route('owner.classrooms.update', [$academy, $classroom]) : route('owner.classrooms.store', $academy) }}"
-          class="space-y-5">
+          class="space-y-5" data-owner-classroom-form>
         @csrf
         @if($classroom->exists)
             @method('PATCH')
@@ -48,7 +51,7 @@
 
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-black">دوره</span>
-                    <select id="owner-classroom-course" name="course_id" required
+                    <select id="owner-classroom-course" data-classroom-course name="course_id" required
                             class="rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[var(--panel-primary)]">
                         <option value="">انتخاب دوره</option>
                         @foreach($courses as $course)
@@ -72,7 +75,7 @@
                         <span id="owner-teacher-hint" class="text-[10px] text-slate-400"></span>
                     </div>
 
-                    <div id="owner-teacher-list" class="mt-3 grid gap-2 sm:grid-cols-2">
+                    <div id="owner-teacher-list" data-classroom-teachers class="mt-3 grid gap-2 sm:grid-cols-2">
                         @foreach($teachers as $teacher)
                             <label data-teacher-option="{{ $teacher->id }}"
                                    class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3">
@@ -179,46 +182,4 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const course = document.getElementById('owner-classroom-course');
-    const hint = document.getElementById('owner-teacher-hint');
-    const options = [...document.querySelectorAll('[data-teacher-option]')];
 
-    const syncTeacherOptions = () => {
-        const selected = course?.selectedOptions?.[0];
-        const allowed = new Set(
-            (selected?.dataset.teacherIds || '')
-                .split(',')
-                .map((value) => Number(value))
-                .filter(Boolean)
-        );
-
-        let count = 0;
-
-        options.forEach((wrapper) => {
-            const teacherId = Number(wrapper.dataset.teacherOption);
-            const checkbox = wrapper.querySelector('input[type="checkbox"]');
-            const enabled = allowed.has(teacherId);
-
-            wrapper.hidden = !enabled;
-            checkbox.disabled = !enabled;
-
-            if (!enabled && checkbox.checked) {
-                checkbox.checked = false;
-            }
-
-            if (enabled) count += 1;
-        });
-
-        hint.textContent = selected?.value
-            ? (count ? count + ' مدرس قابل انتخاب' : 'برای این دوره هنوز مدرسی اختصاص داده نشده است')
-            : '';
-    };
-
-    course?.addEventListener('change', syncTeacherOptions);
-    syncTeacherOptions();
-});
-</script>
-@endpush
