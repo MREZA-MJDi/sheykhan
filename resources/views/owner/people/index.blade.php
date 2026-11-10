@@ -111,10 +111,6 @@
     </header>
     <div class="owner-floating-modal__body">
 
-    <div>
-        <h2 class="text-base font-black">ساخت حساب والد و اتصال به دانش‌آموز</h2>
-        <p class="mt-1 max-w-3xl text-xs leading-6 text-slate-500">اگر شماره موبایل از قبل متعلق به حساب والد فعال باشد، همان حساب متصل می‌شود و رمز آن تغییر نمی‌کند. در غیر این صورت حساب والد ساخته می‌شود و رمز موقت یک‌باره نمایش داده خواهد شد.</p>
-    </div>
     <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}" class="grid gap-3 sm:grid-cols-2">
         @csrf
         <input type="hidden" name="_form_context" value="create-parent">
