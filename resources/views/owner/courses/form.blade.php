@@ -4,7 +4,7 @@
 @section('header-title',$course->exists?'ویرایش دوره':'ساخت دوره')
 
 @section('content')
-@include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => ($course->academy ?? $academies->first())])
+@include('owner.admin.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => ($course->academy ?? $academies->first())])
 <div class="course-page panel-page-enter space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -27,6 +27,6 @@
         </div>
     @endif
 
-    @include('owner.courses.partials.management-form', ['course' => $course, 'academies' => $academies, 'action' => $course->exists ? route('owner.courses.update', $course) : route('owner.courses.store'), 'method' => $course->exists ? 'PATCH' : 'POST', 'routePrefix' => 'owner.courses'])
+    @include('owner.admin.partials.course-management-form', ['course' => $course, 'academies' => $academies, 'action' => $course->exists ? route('owner.courses.update', $course) : route('owner.courses.store'), 'method' => $course->exists ? 'PATCH' : 'POST', 'routePrefix' => 'owner.courses'])
 </div>
 @endsection
