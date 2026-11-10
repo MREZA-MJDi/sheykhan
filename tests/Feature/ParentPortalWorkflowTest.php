@@ -497,6 +497,11 @@ class ParentPortalWorkflowTest extends TestCase
         ]);
 
         $this->actingAs($teacher)
+            ->get(route('teacher.messages.index', ['status' => 'open', 'category' => 'question', 'q' => 'سؤال درباره تکلیف']))
+            ->assertOk()
+            ->assertSee('سؤال درباره تکلیف');
+
+        $this->actingAs($teacher)
             ->patch(route('teacher.messages.reply', $message), [
                 'response' => 'تمرین‌های یک تا سه را دوباره مرور کنید.',
             ])
@@ -513,7 +518,12 @@ class ParentPortalWorkflowTest extends TestCase
         $this->actingAs($workspace['parent'])
             ->get(route('parent.messages.index'))
             ->assertOk()
-            ->assertSee('تمرین‌های یک تا سه را دوباره مرور کنید.');
+            ->assertSee('تمرین‌های یک تا سه را دوباره مرور کنید());
+
+        $this->actingAs($workspace['parent'])
+            ->get(route('parent.messages.index', ['q' => 'سؤال درباره تکلیف']))
+            ->assertOk()
+            ->assertSee('سؤال درباره تکلیف');
     }
 
     public function test_owner_can_create_parent_account_with_forced_password_change_and_link_child(): void
