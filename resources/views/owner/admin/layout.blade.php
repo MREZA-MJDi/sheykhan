@@ -84,7 +84,7 @@ $groups=[
 ];
 @endphp
 @include('owner.admin.partials.dashboard-icons')
-<div class="app admin-app">
+<div class="app">
 <header class="top admin-topbar">
 <button class="burger" id="burger" type="button" aria-label="باز و بسته کردن منو" aria-expanded="false">☰</button>
 <a class="brand-mark" href="{{ $ownerHomeUrl }}"><span class="lg">ش</span><span class="brand">آکادمی شیخان</span></a>
