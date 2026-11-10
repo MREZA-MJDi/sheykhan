@@ -10,6 +10,7 @@ use App\Models\CourseEnrollment;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\User;
+use App\Services\StudentDashboardService;
 use App\Services\StudentResultService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -67,7 +68,10 @@ class StudentResultCohortIsolationTest extends TestCase
 
         $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
         $otherTeacher = User::query()->where('email', 'teacher.science@sheykhan.test')->firstOrFail();
+        $owner = User::query()->where('email', 'owner@sheykhan.test')->firstOrFail();
         $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $dashboardService = app(StudentDashboardService::class);
+        $baselineDashboard = $dashboardService->build($student);
         $originalClassroom = $course->classrooms()->where('code', 'MATH7-01')->firstOrFail();
 
         $otherClassroom = Classroom::query()->create([
@@ -96,7 +100,7 @@ class StudentResultCohortIsolationTest extends TestCase
             'student_id' => $student->id,
             'classroom_id' => $otherClassroom->id,
             'academic_year_id' => null,
-            'registered_by' => $student->id,
+            'registered_by' => $owner->id,
             'registration_source' => 'admin',
             'status' => 'active',
             'payment_status' => 'pending',
@@ -155,6 +159,26 @@ class StudentResultCohortIsolationTest extends TestCase
 
         $this->assertNotContains($assignment->title, $resultTitles);
         $this->assertNotContains($exam->title, $resultTitles);
+
+        $pendingAssignment = Assignment::query()->create([
+            'course_id' => $course->id,
+            'classroom_id' => $otherClassroom->id,
+            'teacher_id' => $otherTeacher->id,
+            'title' => 'تکلیف باز گروه پرداخت‌نشده',
+            'instructions' => 'این تکلیف نباید وارد آمار یا پیش‌نمایش شود.',
+            'due_at' => now()->addDay(),
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
+
+        $dashboard = $dashboardService->build($student);
+
+        $this->assertSame($baselineDashboard['pendingAssignments'], $dashboard['pendingAssignments']);
+        $this->assertSame($baselineDashboard['dueTomorrowCount'], $dashboard['dueTomorrowCount']);
+        $this->assertFalse($dashboard['assignments']->contains('title', $pendingAssignment->title));
+        $this->assertFalse($dashboard['recentResults']->contains('title', $assignment->title));
+        $this->assertFalse($dashboard['recentResults']->contains('title', $exam->title));
+        $this->assertFalse($dashboard['teachers']->contains('id', $otherTeacher->id));
     }
 
 }
