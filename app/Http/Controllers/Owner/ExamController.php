@@ -66,6 +66,7 @@ final class ExamController extends Controller
             'classrooms' => collect(),
             'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
             'initialQuestions' => [],
+            'bankQuestions' => $academy->questionBankItems()->where('status', 'active')->orderByDesc('created_at')->limit(100)->get(),
         ]);
     }
 
@@ -82,6 +83,12 @@ final class ExamController extends Controller
         $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
             $exam = $course->exams()->create($payload);
             $questionWriter->storeQuestions($exam, $request->validated('questions', []));
+            $bankQuestions = $course->academy->questionBankItems()
+                ->where('status', 'active')
+                ->whereIn('id', $request->validated('bank_question_ids', []))
+                ->get();
+            abort_unless($bankQuestions->count() === count($request->validated('bank_question_ids', [])), 422, 'یکی از سؤال‌های انتخاب‌شده متعلق به این آموزشگاه نیست یا بایگانی شده است.');
+            $questionWriter->storeBankQuestions($exam, $bankQuestions);
             return $exam;
         });
         return redirect()->route('owner.exams.show', [$academy, $exam->id])->with('success', 'آزمون و سؤال‌های آن با موفقیت ثبت شدند.');
@@ -122,6 +129,7 @@ final class ExamController extends Controller
             'classrooms' => collect(),
             'exam' => $record,
             'initialQuestions' => $initialQuestions,
+            'bankQuestions' => $academy->questionBankItems()->where('status', 'active')->orderByDesc('created_at')->limit(100)->get(),
         ]);
     }
 
@@ -140,13 +148,19 @@ final class ExamController extends Controller
         $payload['course_id'] = $course->id;
         $payload['classroom_id'] = $classroomId ?: null;
         $payload['teacher_id'] = $teacher->id;
-        DB::transaction(function () use ($record, $payload, $request, $questionWriter): void {
+        DB::transaction(function () use ($record, $payload, $request, $questionWriter, $academy): void {
             $record->fill($payload)->save();
             foreach ($record->questions()->get() as $question) {
                 $question->media()->detach();
                 $question->delete();
             }
             $questionWriter->storeQuestions($record, $request->validated('questions', []));
+            $bankQuestions = $academy->questionBankItems()
+                ->where('status', 'active')
+                ->whereIn('id', $request->validated('bank_question_ids', []))
+                ->get();
+            abort_unless($bankQuestions->count() === count($request->validated('bank_question_ids', [])), 422, 'یکی از سؤال‌های انتخاب‌شده متعلق به این آموزشگاه نیست یا بایگانی شده است.');
+            $questionWriter->storeBankQuestions($record, $bankQuestions);
         });
         return redirect()->route('owner.exams.show', [$academy, $record->id])->with('success', 'مشخصات و سؤال‌های آزمون به‌روزرسانی شدند.');
     }
