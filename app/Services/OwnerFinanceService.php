@@ -9,6 +9,8 @@ final class OwnerFinanceService
 {
     public function index(User $owner): array
     {
+        abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission('finance.view'), 404);
+
         $academyIds = $owner->ownedAcademies()->where('status','active')->pluck('id');
 
         $completed = FinancialTransaction::query()
