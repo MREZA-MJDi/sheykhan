@@ -721,3 +721,143 @@ body.owner-shell.owner-admin-v2 {
 @media (prefers-reduced-motion: reduce) {
     .owner-admin-v2 *, .owner-admin-v2 *::before, .owner-admin-v2 *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
+
+
+/* Remaining SEO, editorial and operational modules use the same neutral surfaces. */
+.owner-admin-v2 .main-content :is(
+    .owner-seo-stat,
+    .seo-overview-stat,
+    .seo-performance-stats article,
+    .seo-connection-state,
+    .seo-duplicate-summary,
+    .seo-keyword-tools,
+    .seo-keyword-list-panel,
+    .seo-keyword-history,
+    .seo-keyword-disclaimer,
+    .seo-keyword-csv-help,
+    .seo-keyword-danger-zone,
+    .owner-blog-row,
+    .owner-blog-stats .owner-stat-card,
+    .owner-content-row,
+    .seo-record,
+    .seo-record-list,
+    .seo-keyword-empty,
+    .owner-blog-errors,
+    .owner-schema-warning
+) {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(
+    .owner-seo-stat span,.owner-seo-stat small,.owner-seo-stat strong,
+    .seo-overview-stat span,.seo-overview-stat small,.seo-overview-stat strong,
+    .seo-performance-stats article span,.seo-performance-stats article strong,
+    .seo-connection-state strong,.seo-connection-state p,
+    .seo-duplicate-summary strong,.seo-duplicate-summary p,
+    .seo-keyword-tools :is(p,small,strong,label),
+    .seo-keyword-list-panel :is(p,small,strong,td,th),
+    .seo-keyword-history :is(p,small,strong,td,th),
+    .owner-blog-row :is(strong,small,p),
+    .owner-content-row :is(strong,small),
+    .seo-record :is(h2,h3,p,small,strong),
+    .seo-record-list :is(h2,h3,p,small,strong)
+) { color: var(--ui-text) !important; text-shadow: none !important; }
+.owner-admin-v2 .main-content :is(
+    .owner-seo-stat small,.owner-seo-stat span,.seo-overview-stat small,.seo-overview-stat span,
+    .seo-performance-footnote,.seo-performance-meta,.seo-keyword-source,.seo-keyword-cluster,
+    .seo-keyword-notes,.owner-blog-row small,.owner-content-row small,.seo-record-eyebrow
+) { color: var(--ui-muted) !important; }
+.owner-admin-v2 .main-content :is(.owner-seo-hero,.seo-console-hero,.owner-blog-hero,.website-center-hero,.website-hero-editor-head) {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(.seo-honesty-note,.seo-keyword-disclaimer,.seo-keyword-csv-help,.seo-connection-state,.seo-duplicate-summary) {
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 12px !important;
+    background: var(--ui-surface-soft) !important;
+    color: var(--ui-text) !important;
+    padding: 12px 14px;
+}
+.owner-admin-v2 .main-content :is(.seo-keyword-status,.seo-keyword-priority,.owner-seo-status,.owner-pill,.status-badge) {
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 999px;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(.seo-keyword-status.is-optimized,.seo-keyword-status.is-active,.owner-seo-status.ready,.owner-seo-status.is-ready,.owner-pill.success,.status-badge.success) {
+    border-color: #a7f3d0 !important;
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+}
+.owner-admin-v2 .main-content :is(.seo-keyword-priority.is-high,.seo-keyword-status.is-needs-review,.owner-seo-status.partial,.owner-pill.warning) {
+    border-color: #fde68a !important;
+    background: #fffbeb !important;
+    color: #92400e !important;
+}
+.owner-admin-v2 .main-content :is(.seo-keyword-status.is-paused,.seo-keyword-status.is-archived,.owner-pill.danger) {
+    border-color: #fecdd3 !important;
+    background: #fff1f2 !important;
+    color: #9f1239 !important;
+}
+.owner-admin-v2 .main-content :is(.seo-keyword-filters,.seo-page-filters,.seo-keyword-observation-form,.seo-keyword-import-form) {
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 13px;
+    background: var(--ui-surface-soft) !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content .seo-record-list { display: grid; gap: 0; }
+.owner-admin-v2 .main-content .seo-record { border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; border-radius: 0 !important; }
+.owner-admin-v2 .main-content .seo-record:last-child { border-bottom: 0 !important; }
+.owner-admin-v2 .main-content .owner-blog-thumb,
+.owner-admin-v2 .main-content .owner-cover-preview {
+    border: 1px solid var(--ui-border);
+    border-radius: 11px;
+    background: #f1f5f9 !important;
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content .owner-blog-thumb img,
+.owner-admin-v2 .main-content .owner-cover-preview img { object-fit: cover; }
+.owner-admin-v2 .main-content .owner-blog-errors {
+    border-color: #fecdd3 !important;
+    background: var(--ui-danger-soft) !important;
+    color: #9f1239 !important;
+}
+.owner-admin-v2 .main-content .owner-blog-errors :is(strong,li) { color: #9f1239 !important; }
+.owner-admin-v2 .main-content .communication-page__hero { border-color: var(--ui-border) !important; }
+.owner-admin-v2 .main-content :is(.communication-page__card,.communication-page__message,.communication-page__empty,.communication-page__response) {
+    border-color: var(--ui-border) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content .communication-page__message :is(h2,h3,.communication-page__body,p,small) { color: var(--ui-text) !important; }
+.owner-admin-v2 .main-content .communication-page__status {
+    border-color: var(--ui-border) !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+}
+.owner-admin-v2 .main-content .communication-page__form :is(input,select,textarea) {
+    border-color: var(--ui-border-strong) !important;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content :is(.bg-slate-900,.bg-slate-800,.bg-gray-900,.bg-gray-800,.bg-indigo-950,.bg-indigo-900) {
+    background-color: #f8fafc !important;
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content :is(a,button).bg-slate-900,
+.owner-admin-v2 .main-content :is(a,button).bg-gray-900,
+.owner-admin-v2 .main-content :is(a,button).bg-indigo-900 {
+    border-color: var(--ui-primary) !important;
+    background: var(--ui-primary) !important;
+    color: #fff !important;
+}
+.owner-admin-v2 .main-content :is(.text-white,.text-slate-50,.text-gray-50):not(button):not(a) {
+    color: var(--ui-text) !important;
+}
+.owner-admin-v2 .main-content :is(button,a).text-white { color: #fff !important; }
