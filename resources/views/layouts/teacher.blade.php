@@ -150,7 +150,7 @@
         <span class="av" aria-label="حساب مدرس">@if($avatarUrl)<img src="{{ $avatarUrl }}" alt="" width="36" height="36">@else{{ $initial }}@endif</span>
       @endif
     </header>
-    @if(request()->routeIs('teacher.messages.*') || request()->routeIs('teacher.direct-messages.*') || request()->routeIs('teacher.student-messages.*') || request()->routeIs('teacher.communications.*'))
+    @if(request()->routeIs('teacher.messages.*') || request()->routeIs('teacher.direct-messages.*') || request()->routeIs('teacher.student-messages.*') || request()->routeIs('teacher.communications.*') || request()->routeIs('teacher.counseling-requests.*'))
       <nav class="teacher-context-nav" aria-label="بخش‌های پیام‌رسانی">
         @if($teacherUser?->hasPermission('parent_messages.manage'))
           <a href="{{ route('teacher.direct-messages.index') }}" class="{{ request()->routeIs('teacher.direct-messages.*') ? 'is-active' : '' }}">ارسال پیام</a>
@@ -164,7 +164,11 @@
         @if($teacherUser?->hasPermission('parent_messages.manage'))
           <a href="{{ route('teacher.communications.index') }}" class="{{ request()->routeIs('teacher.communications.*') ? 'is-active' : '' }}">اطلاعیه‌های آموزشگاه</a>
         @endif
-      </nav>
+      
+        @if($teacherUser?->hasPermission('live_classes.view'))
+          <a href="{{ route('teacher.counseling-requests.index') }}" class="{{ request()->routeIs('teacher.counseling-requests.*') ? 'is-active' : '' }}">درخواست‌های مشاوره</a>
+        @endif
+</nav>
     @endif
     <p class="dashboard-search-empty" data-dashboard-search-empty role="status" aria-live="polite" hidden>موردی با این عبارت پیدا نشد. عبارت دیگری را امتحان کن.</p>
     @if(session('success'))<div class="alert success" role="status">{{ session('success') }}</div>@endif
@@ -185,7 +189,7 @@
     @php
       $mobileActive = match (true) {
         $mobileItem['route'] === 'teacher.dashboard' => request()->routeIs('teacher.dashboard'),
-        $mobileItem['label'] === 'پیام‌ها' => request()->routeIs('teacher.messages.*', 'teacher.direct-messages.*', 'teacher.student-messages.*', 'teacher.communications.*'),
+        $mobileItem['label'] === 'پیام‌ها' => request()->routeIs('teacher.messages.*', 'teacher.direct-messages.*', 'teacher.student-messages.*', 'teacher.communications.*', 'teacher.counseling-requests.*'),
         default => request()->routeIs(str_replace('.index', '.*', $mobileItem['route'])),
       };
       $mobileVisible = isset($mobileItem['permissions_any'])
