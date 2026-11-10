@@ -17,7 +17,7 @@ final class AttendanceController extends Controller
 {
     public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): View
     {
-        abort_unless($workspace->canManageAcademy($request->user(), $academy), 403);
+        $workspace->authorizeAcademy($request->user(), $academy);
 
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
@@ -77,11 +77,7 @@ final class AttendanceController extends Controller
 
     public function update(Academy $academy, int $attendance, Request $request, OwnerWorkspaceService $workspace): RedirectResponse
     {
-        abort_unless(
-            $workspace->canManageAcademy($request->user(), $academy)
-            && $request->user()->hasPermission('attendance.manage'),
-            403
-        );
+        $workspace->authorizeAcademy($request->user(), $academy, 'attendance.manage');
 
         $data = $request->validate([
             'status' => ['required', Rule::in(['present', 'late', 'absent', 'excused'])],
