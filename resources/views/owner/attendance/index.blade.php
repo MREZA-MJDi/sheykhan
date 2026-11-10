@@ -10,6 +10,7 @@
 @endphp
 
 <div class="space-y-6 panel-page-enter">
+    @include('owner.partials.attendance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
@@ -52,7 +53,7 @@
             <label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select name="classroom_id" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">همه کلاس‌ها</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
             <label class="grid gap-1"><span class="text-xs font-bold">تاریخ</span><input type="date" name="attendance_date" value="{{ $filters['attendance_date'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"></label>
             <label class="grid gap-1"><span class="text-xs font-bold">وضعیت</span><select name="status" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">همه وضعیت‌ها</option>@foreach($statusLabels as $status => $label)<option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $label }}</option>@endforeach</select></label>
-            <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-4"><button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">اعمال فیلتر</button><a href="{{ route('owner.attendance.index', $academy) }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">پاک‌کردن فیلترها</a><span class="text-xs text-slate-500">{{ \App\Support\PersianUi::digits($attendances->total()) }} رکورد منطبق</span></div>
+            <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-4"><button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">اعمال فیلتر</button><a href="{{ route('owner.attendance.index', $academy) }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">پاک‌کردن فیلترها</a><span class="text-xs text-slate-500">{{ \App\Support\PersianUi::digits($sheet === 'history' ? $attendances->total() : ($summary->total ?? 0)) }} رکورد منطبق</span></div>
         </form>
     </section>
 
