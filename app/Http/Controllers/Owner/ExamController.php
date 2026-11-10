@@ -197,14 +197,33 @@ final class ExamController extends Controller
             ->with('answers.question')
             ->findOrFail($attempt);
 
+        $record->loadMissing('answers.question');
         $data = $request->validate([
-            'scores' => ['required', 'array'],
-            'scores.*' => ['nullable', 'numeric', 'min:0', 'max:100000'],
+            'scores' => ['required', 'array', 'min:1'],
+            'scores.*' => ['required', 'numeric', 'min:0', 'max:100000'],
         ], [
             'scores.required' => 'نمرهٔ هر پاسخ را بررسی و ثبت کنید.',
+            'scores.*.required' => 'برای تمام پاسخ‌ها نمره وارد کنید.',
             'scores.*.numeric' => 'نمره باید عددی باشد.',
             'scores.*.min' => 'نمره نمی‌تواند منفی باشد.',
         ]);
+
+        $answerIds = $record->answers->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $submittedIds = array_map('strval', array_keys($data['scores']));
+        if (array_diff($submittedIds, $answerIds) !== [] || array_diff($answerIds, $submittedIds) !== []) {
+            throw ValidationException::withMessages([
+                'scores' => 'فهرست پاسخ‌ها تغییر کرده است؛ صفحه را تازه‌سازی و دوباره نمره‌دهی کنید.',
+            ]);
+        }
+
+        foreach ($record->answers as $answer) {
+            $maximum = (float) ($answer->question?->score ?? 0);
+            if ((float) $data['scores'][$answer->id] > $maximum) {
+                throw ValidationException::withMessages([
+                    'scores.' . $answer->id => 'نمره نمی‌تواند از امتیاز همین سؤال بیشتر باشد.',
+                ]);
+            }
+        }
 
         $assessments->gradeExamAttemptManually($record, $data['scores'], (int) $request->user()->id);
 
