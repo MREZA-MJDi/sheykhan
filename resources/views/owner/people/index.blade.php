@@ -249,6 +249,12 @@
 </div>
 
 @if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
+<dialog class="owner-floating-modal" id="owner-legacy-student-modal" aria-labelledby="owner-legacy-student-title" @if(old('form_modal') === 'legacy' && $errors->any()) data-owner-modal-open-on-load @endif>
+    <header class="owner-floating-modal__header">
+        <div><span class="owner-record-modal-kicker">تکمیل سوابق</span><h2 id="owner-legacy-student-title">ورود دانش‌آموز قدیمی</h2></div>
+        <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+    </header>
+    <div class="owner-floating-modal__body">
 <section class="dashboard-panel p-5 sm:p-7">
     <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -265,6 +271,7 @@
 
     <form method="POST" action="{{ route('owner.people.legacy-students.store', $academy) }}" class="mt-5 grid gap-4 md:grid-cols-2" data-confirm="اطلاعات دانش‌آموز ثبت و به‌روزرسانی شود؟">
         @csrf
+        <input type="hidden" name="form_modal" value="legacy">
         <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) \Illuminate\Support\Str::uuid()) }}">
 
         <label class="grid gap-1">
@@ -315,6 +322,8 @@
         </button>
     </form>
 </section>
+    </div>
+</dialog>
 @else
 <section class="dashboard-panel p-5 sm:p-7">
     <h2 class="text-base font-black">ورود دانش‌آموز قدیمی</h2>
