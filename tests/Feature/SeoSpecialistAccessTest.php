@@ -40,12 +40,12 @@ class SeoSpecialistAccessTest extends TestCase
         $this->post(route('login.store'), [
             'mobile' => '09120000077',
             'password' => $password,
-        ])->assertRedirect(route('owner.seo.index'));
+        ])->assertRedirect(route('seo.index'));
 
         $this->assertAuthenticatedAs($user);
 
         $this->get(route('owner.dashboard'))->assertForbidden();
-        $this->get(route('owner.seo.index'))->assertOk();
+        $this->get(route('seo.index'))->assertOk();
     }
 
     public function test_seo_specialist_can_audit_public_pages_across_the_site_without_owner_permissions(): void
@@ -54,10 +54,10 @@ class SeoSpecialistAccessTest extends TestCase
 
         $this->actingAs($specialist)
             ->get(route('dashboard'))
-            ->assertRedirect(route('owner.seo.index'));
+            ->assertRedirect(route('seo.index'));
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index'))
+            ->get(route('seo.index'))
             ->assertOk()
             ->assertSee('SEO Visible Course')
             ->assertSee(route('courses.show', $course), false)
@@ -80,7 +80,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertForbidden();
 
         $this->actingAs($specialist)
-            ->get(route('owner.website.index'))
+            ->get(route('seo.website.index'))
             ->assertOk()
             ->assertSee('ظاهر و محتوای قابل‌دیدن آموزشگاه را از یکجا مدیریت کن.');
     }
@@ -90,7 +90,7 @@ class SeoSpecialistAccessTest extends TestCase
         [$specialist, $course] = $this->makeSeoWorkspace();
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index', [
+            ->get(route('seo.index', [
                 'q' => 'SEO Visible Course',
                 'type' => 'course',
                 'status' => 'unconfigured',
@@ -101,7 +101,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('بدون دادهٔ دریافتی');
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index', ['type' => 'not-a-real-type']))
+            ->get(route('seo.index', ['type' => 'not-a-real-type']))
             ->assertOk()
             ->assertSee('SEO Visible Course');
     }
@@ -118,13 +118,13 @@ class SeoSpecialistAccessTest extends TestCase
         }
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course']))
+            ->get(route('seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course']))
             ->assertOk()
             ->assertSee('18 نتیجه')
             ->assertSee('seo-pagination', false);
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course', 'page' => 2]))
+            ->get(route('seo.index', ['q' => 'Paginated SEO Course', 'type' => 'course', 'page' => 2]))
             ->assertOk()
             ->assertSee('Paginated SEO Course');
     }
@@ -138,7 +138,7 @@ class SeoSpecialistAccessTest extends TestCase
         $duplicate->save();
 
         $this->actingAs($specialist)
-            ->get(route('owner.seo.index'))
+            ->get(route('seo.index'))
             ->assertOk()
             ->assertSee('عنوان SEO تکراری')
             ->assertSee('صفحات با متادیتای تکراری');
@@ -149,14 +149,14 @@ class SeoSpecialistAccessTest extends TestCase
         [$specialist, $course] = $this->makeSeoWorkspace();
 
         $this->actingAs($specialist)
-            ->patch(route('owner.seo.update', ['course', $course->id]), [
+            ->patch(route('seo.pages.update', ['course', $course->id]), [
                 'title' => 'SEO title written by specialist',
                 'description' => 'A real description saved to this published course.',
                 'robots' => 'index,follow',
                 'og_title' => 'Share title',
                 'og_description' => 'Share description',
             ])
-            ->assertRedirect(route('owner.seo.index'))
+            ->assertRedirect(route('seo.index'))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('seo_metas', [
@@ -181,11 +181,11 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee($url, false);
 
         $this->actingAs($specialist)
-            ->patch(route('owner.seo.update', ['course', $course->id]), [
+            ->patch(route('seo.pages.update', ['course', $course->id]), [
                 'title' => 'Keep this page out of search',
                 'robots' => 'noindex,follow',
             ])
-            ->assertRedirect(route('owner.seo.index'));
+            ->assertRedirect(route('seo.index'));
 
         $this->get(route('seo.sitemap'))
             ->assertOk()
