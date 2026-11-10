@@ -14,10 +14,7 @@ final class OwnerReportService
 
     public function build(User $owner): array
     {
-        app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'reports.view');
-
-        $academies = app(OwnerWorkspaceService::class)
-            ->authorizeOwnedAcademies($owner, 'reports.view');
+        $academies = app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'reports.view');
 
         if ($academies->isEmpty()) {
             return $this->empty($owner);
