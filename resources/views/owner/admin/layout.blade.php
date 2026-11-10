@@ -132,9 +132,14 @@ $showGroup=(!$isSeoOnlyUser && ($visibleGlobal->isNotEmpty() || ($academies->isN
 @endforeach
 @endif
 @if($group['title']==='محتوا و سایت' && $canManagePublicSite)
+@foreach($websiteAcademies as $websiteAcademy)
+@if(\Illuminate\Support\Facades\Route::has('owner.showcase.index'))<a class="ni" href="{{ route('owner.showcase.index', $websiteAcademy) }}" data-nav-label="نمایشگاه {{ $websiteAcademy->name }}"><span class="nav-icon">▣</span><span>نمایشگاه{{ $websiteAcademies->count()>1 ? ' · '.$websiteAcademy->name : '' }}</span></a>@endif
+@endforeach
+@if($isSeoOnlyUser)
 @foreach([['owner.blog.index','مقاله‌ها'],['owner.content.index','محتوای آموزشی'],['owner.website.index','صفحات و بنرها'],['owner.seo.index','نمایش سایت در گوگل']] as [$routeName,$label])
 @if(\Illuminate\Support\Facades\Route::has($routeName))<a class="ni" href="{{ route($routeName) }}" data-nav-label="{{ $label }}"><span class="nav-icon">↗</span><span>{{ $label }}</span></a>@endif
 @endforeach
+@endif
 @endif
 @endif
 </div></details>
