@@ -76,13 +76,13 @@ h2{margin:0 0 14px;font-size:14px;display:flex;align-items:center;gap:8px}
 .bl{font-size:12px;color:var(--mu);margin-top:12px}
 .bar{display:grid;grid-template-columns:1fr 56px;gap:12px;align-items:center;margin-top:10px}
 .trk{height:22px;border-radius:6px;background:#eef2f6;border:1px solid #e1e7ef;box-shadow:none;overflow:hidden}
-.fill{display:block;height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.2,.8,.2,1);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 65%,#000),var(--c) 45%,color-mix(in srgb,var(--c) 55%,#000))}
+.fill{display:block;height:100%;width:0;border-radius:6px;transition:width .9s cubic-bezier(.2,.8,.2,1);background:var(--c)}
 .dn{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .dn svg{width:120px;flex-shrink:0}
 .dn b{display:block;font-size:14px}
 .cys{display:flex;justify-content:space-around;align-items:flex-end;height:210px;padding-top:10px}
 .cyc{display:flex;flex-direction:column;align-items:center;gap:14px}
-.cy{width:44px;height:var(--h);min-height:20px;position:relative;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 65%,#000),var(--c) 45%,color-mix(in srgb,var(--c) 55%,#000));border-radius:0 0 50% 50%/0 0 12px 12px;box-shadow:0 0 18px color-mix(in srgb,var(--c) 40%,transparent)}
+.cy{width:44px;height:var(--h);min-height:20px;position:relative;background:var(--c);border-radius:0 0 50% 50%/0 0 12px 12px;box-shadow:none}
 .cy::before{content:"";position:absolute;top:-10px;left:0;right:0;height:20px;border-radius:50%;background:var(--c);filter:brightness(1.35)}
 .ln,.wv{width:100%;height:auto;display:block}
 .wv{touch-action:pan-y;cursor:default}
