@@ -22,7 +22,7 @@ final class HomeHeroController extends Controller
     public function edit(): View {
         $this->ensureSeoSpecialist(request()->user());
 
-        return view('seo.website.hero', [
+        return view('owner.website.hero', [
             'slides' => HomeHeroSlide::query()
                 ->with(['media', 'mobileMedia'])
                 ->orderBy('slot')
