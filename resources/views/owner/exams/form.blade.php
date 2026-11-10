@@ -101,7 +101,7 @@
                     <div class="mt-3 grid gap-2 sm:grid-cols-2">
                         @foreach($bankQuestions as $bankQuestion)
                             <label class="flex items-start gap-2 rounded-xl border border-slate-200 p-3 text-sm">
-                                <input type="checkbox" name="bank_question_ids[]" value="{{ $bankQuestion->id }}" class="mt-1">
+                                <input type="checkbox" name="bank_question_ids[]" value="{{ $bankQuestion->id }}" @checked(in_array((int) $bankQuestion->id, old('bank_question_ids', $selectedBankQuestionIds ?? []), true)) class="mt-1">
                                 <span><strong class="block">{{ $bankQuestion->question }}</strong><small class="text-slate-500">{{ $bankQuestion->topic ?: 'بدون موضوع' }} · {{ $bankQuestion->default_score }} امتیاز</small></span>
                             </label>
                         @endforeach
