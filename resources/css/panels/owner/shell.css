@@ -90,7 +90,7 @@ h2{margin:0 0 14px;font-size:14px;display:flex;align-items:center;gap:8px}
 .wv circle{fill:#285b91;stroke:#fff;stroke-width:3;filter:none}
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:5px}
 .heat i{aspect-ratio:1;border-radius:5px;background:var(--acc);opacity:var(--a);min-height:14px}
-.ckr,.lr,.tl{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#0c1030;margin-bottom:10px;box-shadow:inset 2px 2px 8px #05071a;flex-wrap:wrap;min-width:0}
+.ckr,.lr,.tl{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#fff;margin-bottom:10px;box-shadow:none;border:1px solid var(--ln);flex-wrap:wrap;min-width:0}
 .ckr[data-s]{opacity:.55}
 .tile{width:36px;height:36px;border-radius:10px;background:var(--c1);display:grid;place-items:center;color:var(--acc);flex-shrink:0}
 .cb{width:34px;height:34px;border-radius:9px;border:2px solid #2fb0ff;background:var(--in);color:#2fb0ff;cursor:pointer;font-size:14px}
@@ -100,7 +100,7 @@ h2{margin:0 0 14px;font-size:14px;display:flex;align-items:center;gap:8px}
 .tl>b{min-width:54px;font-size:15px}
 .tl.live{background:#fff0f2;border:1px solid #edb9c2;box-shadow:none}
 .tl.done{opacity:.6}
-.at{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#0c1030;margin-bottom:10px;box-shadow:inset 2px 2px 8px #05071a;transition:transform .15s,box-shadow .15s;min-width:0}
+.at{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#fff;margin-bottom:10px;box-shadow:none;border:1px solid var(--ln);transition:transform .15s,box-shadow .15s;min-width:0}
 .at:hover{box-shadow:inset 2px 2px 8px #05071a,0 0 0 1px var(--c)}
 .at .ct{min-width:38px;height:38px;border-radius:12px;background:var(--c);color:#06101c;font-weight:800;display:grid;place-items:center;flex-shrink:0}
 .at .ic{color:var(--mu)}
@@ -108,7 +108,7 @@ h2{margin:0 0 14px;font-size:14px;display:flex;align-items:center;gap:8px}
 .fd i{width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);margin-top:7px;flex-shrink:0}
 .act{display:flex;flex-wrap:wrap;gap:10px}
 .mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
-.mc{background:#0c1030;border-radius:16px;padding:12px;box-shadow:inset 2px 2px 8px #05071a}
+.mc{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:12px;box-shadow:none}
 .th{height:88px;border-radius:12px;margin-bottom:10px}
 .mr{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
 .seg{display:flex;gap:4px;flex-wrap:wrap}
@@ -123,7 +123,7 @@ th button:hover{color:var(--tx)}
 td{padding:10px 8px 10px 0;border-top:1px solid var(--ln);vertical-align:middle}
 .nm{display:flex;align-items:center;gap:10px;font-weight:600}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
-.day{background:#0c1030;border-radius:14px;padding:10px;min-height:180px;font-size:12px}
+.day{background:#fff;border:1px solid var(--ln);border-radius:14px;padding:10px;min-height:180px;font-size:12px}
 .day.t{box-shadow:0 0 0 2px var(--acc),0 0 22px color-mix(in srgb,var(--acc) 40%,transparent)}
 .day b{display:block;margin-bottom:8px}
 .ev{display:block;width:100%;text-align:right;border:0;border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px;color:#06101c;font-weight:700;cursor:pointer}
@@ -155,7 +155,7 @@ dialog::backdrop{background:rgba(5,7,25,.7);backdrop-filter:blur(4px)}
 .kpi .metric-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:11px;color:var(--mu)}
 .kpi .metric-foot strong{color:var(--c);font-weight:700}
 .row-value{font-size:12px;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
-.card-empty{padding:20px 10px;text-align:center;color:var(--mu);font-size:12px;background:rgba(10,14,39,.6);border:1px dashed var(--ln);border-radius:14px}
+.card-empty{padding:20px 10px;text-align:center;color:var(--mu);font-size:12px;background:#f6f8fb;border:1px dashed var(--ln);border-radius:14px}
 .metric-bars{display:grid;gap:16px}
 .metric-bars .bar:first-child{margin-top:0}
 .metric-bars .bar-label{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px;color:var(--mu);font-size:12px}
