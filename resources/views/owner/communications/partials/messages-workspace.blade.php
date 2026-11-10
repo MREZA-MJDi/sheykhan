@@ -2,6 +2,7 @@
     $audienceLabels = [
         'all_parents' => 'همه خانواده‌های آموزشگاه',
         'classroom_parents' => 'خانواده‌های یک کلاس',
+        'teacher_class_parents' => 'خانواده‌های کلاس‌های مدرس',
         'parent' => 'ولی مشخص',
         'student' => 'دانش‌آموز مشخص',
     ];
@@ -116,7 +117,7 @@
             </select>
         </label>
         <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
-        <a href="{{ $backRoute === route('owner.dashboard') ? route('owner.communications.index', $communicationAcademy ?? $academy) : $backRoute }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-4 text-sm font-bold">پاک‌کردن</a>
+        <a href="{{ route('owner.communications.index', $academy) }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-4 text-sm font-bold">پاک‌کردن</a>
     </form>
     <section class="space-y-4">
         <div class="flex items-end justify-between gap-3">
