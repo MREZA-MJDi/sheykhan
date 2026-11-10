@@ -12,6 +12,9 @@
 @endphp
 
 <div class="owner-workspace-page space-y-5 panel-page-enter">
+    @if($tab === 'meetings')
+        @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'meetings'])
+    @endif
     <header class="dashboard-panel p-5 sm:p-7">
         <p class="text-xs font-black text-[var(--panel-primary)]">فضای کاری یکپارچه</p>
         <h1 class="mt-1 text-2xl font-black text-[var(--panel-text)]">ارتباطات و پیگیری خانواده‌ها</h1>
