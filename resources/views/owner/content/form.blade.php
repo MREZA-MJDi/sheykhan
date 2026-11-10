@@ -9,10 +9,10 @@
             <h1>{{ $content->exists ? 'ویرایش محتوا' : 'ساخت محتوای جدید' }}</h1>
             <p>ساختار داده‌ای محتوا ثابت می‌ماند و با انتشار، صفحه عمومی قابل ایندکس می‌شود.</p>
         </div>
-        <a href="{{ route('owner.content.index') }}">بازگشت</a>
+        <a href="{{ route('seo.content.index') }}">بازگشت</a>
     </div>
 
-    <form enctype="multipart/form-data" method="POST" action="{{ $content->exists ? route('owner.content.update', $content) : route('owner.content.store') }}" class="owner-form-grid">
+    <form enctype="multipart/form-data" method="POST" action="{{ $content->exists ? route('seo.content.update', $content) : route('seo.content.store') }}" class="owner-form-grid">
         @csrf
         @if($content->exists) @method('PATCH') @endif
         <section class="owner-form-section">
