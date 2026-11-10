@@ -19,6 +19,7 @@ export default defineConfig({
                 'resources/css/parent.css',
                 'resources/js/parent.js',
                 'resources/views/owner/admin/assets/admin.css',
+                'resources/views/owner/admin/assets/seo-ui.css',
                 'resources/views/owner/admin/assets/admin.js',
                 'resources/views/owner/admin/assets/js/people-directory.js',
                 'resources/css/seo-dashboard.css',
