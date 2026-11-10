@@ -75,7 +75,7 @@
 
         <form method="POST" action="{{ route('owner.people.store-student', $academy) }}?tab=create-student" class="owner-student-create-form" autocomplete="off">
             @csrf
-        <input type="hidden" name="form_modal" value="parent">
+            <input type="hidden" name="form_modal" value="student">
             <div class="owner-student-form-field"><label for="new-student-first-name">نام</label><input id="new-student-first-name" name="first_name" value="{{ old('first_name') }}" minlength="2" maxlength="100" required autocomplete="given-name" placeholder="آرش">@error('first_name')<small>{{ $message }}</small>@enderror</div>
             <div class="owner-student-form-field"><label for="new-student-last-name">نام خانوادگی</label><input id="new-student-last-name" name="last_name" value="{{ old('last_name') }}" minlength="2" maxlength="120" required autocomplete="family-name" placeholder="محمدی">@error('last_name')<small>{{ $message }}</small>@enderror</div>
             <div class="owner-student-form-field"><label for="new-student-national-id">کد ملی</label><input id="new-student-national-id" name="national_id" value="{{ old('national_id') }}" inputmode="numeric" pattern="[0-9۰-۹٠-٩]{10}" maxlength="10" minlength="10" required autocomplete="off" dir="ltr" placeholder="۱۰ رقم"><small class="owner-student-national-id-help">فقط برای تطبیق هویت؛ کد ملی خام ذخیره نمی‌شود.</small>@error('national_id')<small>{{ $message }}</small>@enderror</div>
