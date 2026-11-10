@@ -530,7 +530,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
             ->assertRedirect(route('owner.communication-workspace', $workspace['academy']) . '?tab=meetings');
 
         $this->actingAs($workspace['owner'])
-            ->get(route('owner.communication-workspace', ['academy' => $workspace['academy'], 'tab' => 'meetings']))
+            ->get(route('owner.communication-workspace', $workspace['academy']) . '?tab=meetings')
             ->assertOk()
             ->assertSee($title)
             ->assertSee('تأیید و زمان‌بندی');
@@ -541,7 +541,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
                 'scheduled_at' => $approvedAt->format('Y-m-d\TH:i'),
                 'scheduled_end_at' => $approvedEndAt->format('Y-m-d\TH:i'),
             ])
-            ->assertRedirect(route('owner.communication-workspace', ['academy' => $workspace['academy'], 'tab' => 'meetings']))
+            ->assertRedirect(route('owner.communication-workspace', $workspace['academy']) . '?tab=meetings')
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('academy_meetings', [
