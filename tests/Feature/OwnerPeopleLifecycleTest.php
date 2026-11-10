@@ -195,6 +195,27 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->assertStringNotContainsString('قیمت تعیین نشده', (string) $options->json('data.0.label'));
     }
 
+    public function test_member_page_renders_independent_role_sheets_and_floating_account_forms(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', ['academy' => $academy, 'sheet' => 'directory']))
+            ->assertOk()
+            ->assertSee('id="owner-members-students-tab"', false)
+            ->assertSee('id="owner-members-parents-tab"', false)
+            ->assertSee('id="owner-members-active-teachers-tab"', false)
+            ->assertSee('id="owner-members-archived-teachers-tab"', false)
+            ->assertSee('id="owner-members-students-panel"', false)
+            ->assertSee('id="owner-members-parents-panel"', false)
+            ->assertSee('id="owner-members-active-teachers-panel"', false)
+            ->assertSee('id="owner-members-archived-teachers-panel"', false)
+            ->assertSee('id="owner-student-create-modal"', false)
+            ->assertSee('id="owner-parent-create-modal"', false)
+            ->assertSee('id="owner-teacher-create-modal"', false)
+            ->assertSee('data-owner-directory-controls', false);
+    }
+
     public function test_student_roster_and_enrollment_search_are_server_paginated(): void
     {
         [$owner, $academy] = $this->makeWorkspace();
