@@ -3,6 +3,7 @@
 @section('header-title','مالی')
 @section('content')
 <div class="space-y-6 panel-page-enter">
+    @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'transactions'])
     <div><span class="text-xs font-black text-[var(--panel-primary)]">گزارش مالی</span><h1 class="mt-1 text-2xl font-black">جریان مالی آموزشگاه</h1><p class="mt-2 text-sm leading-7 text-slate-500">این صفحه فقط گزارش می‌دهد؛ ledger اصلی فقط از جریان پرداخت معتبر تغذیه می‌شود.</p></div>
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article class="owner-stat-card"><span>دریافت</span><strong>{{ \App\Support\PersianUi::number($stats['income']) }}</strong><small>تومان</small></article>
