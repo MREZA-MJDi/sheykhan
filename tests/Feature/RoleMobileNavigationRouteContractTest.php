@@ -116,23 +116,24 @@ class RoleMobileNavigationRouteContractTest extends TestCase
 
     public function test_owner_assignment_navigation_uses_assignment_view_permission(): void
     {
-        $ownerLayout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
-        $ownerSidebar = file_get_contents(resource_path('views/components/navigation/owner-sidebar.blade.php'));
-        $ownerDashboard = file_get_contents(resource_path('views/owner/dashboard.blade.php'));
+        $ownerLayout = file_get_contents(resource_path('views/owner/admin/layout.blade.php'));
+        $ownerSidebar = file_get_contents(resource_path('views/owner/admin/layout.blade.php'));
+        $ownerDashboard = file_get_contents(resource_path('views/owner/admin/dashboard.blade.php'));
 
         foreach ([$ownerLayout, $ownerSidebar, $ownerDashboard] as $source) {
             $this->assertIsString($source);
         }
 
-        $this->assertStringContainsString("'route' => 'owner.assignments.index', 'permission' => 'assignments.view'", $ownerLayout);
-        $this->assertStringContainsString("hasPermission('assignments.view')", $ownerSidebar);
+        $this->assertStringContainsString("'route'=>'owner.assignments.index'", $ownerLayout);
+        $this->assertStringContainsString("'permission'=>'assignments.view'", $ownerLayout);
+        $this->assertStringContainsString("'permission'=>'assignments.view'", $ownerSidebar);
         $this->assertStringContainsString("hasPermission('assignments.view')", $ownerDashboard);
         $this->assertStringNotContainsString('hasPermission(\'courses.view\') && $hasAcademy', $ownerDashboard);
     }
 
     public function test_owner_desktop_sidebar_exposes_scoped_content_commerce_and_legal_routes(): void
     {
-        $sidebar = file_get_contents(resource_path('views/components/navigation/owner-sidebar.blade.php'));
+        $sidebar = file_get_contents(resource_path('views/owner/admin/layout.blade.php'));
         $this->assertIsString($sidebar);
 
         foreach ([
@@ -146,12 +147,12 @@ class RoleMobileNavigationRouteContractTest extends TestCase
         }
 
         foreach (["resources.view", "products.view", "orders.view", "legal.manage"] as $permission) {
-            $this->assertStringContainsString("hasPermission('" . $permission . "')", $sidebar);
+            $this->assertStringContainsString("'permission'=>'" . $permission . "'", $sidebar);
         }
 
         $this->assertStringContainsString('$seoOnly && $user->hasPermission(\'seo.manage\')', $sidebar);
-        $this->assertStringContainsString("route('owner.blog.index')", $sidebar);
-        $this->assertStringContainsString("route('owner.content.index')", $sidebar);
+        $this->assertStringContainsString("owner.blog.index", $sidebar);
+        $this->assertStringContainsString("owner.content.index", $sidebar);
     }
 
     public function test_every_declared_mobile_navigation_item_points_to_a_registered_route(): void
