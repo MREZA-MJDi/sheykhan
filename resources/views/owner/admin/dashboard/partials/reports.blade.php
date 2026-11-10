@@ -36,10 +36,10 @@
                     <a class="table-link" href="{{ route('owner.courses.index') }}">همه دوره‌ها ←</a>
                 </div>
                 @forelse($recentCourses as $course)
-                    <div class="at" style="--c:{{ $course->status === 'published' ? '#0e9f8e' : '#ff9a1f' }}">
+                    <div class="at" style="--c:{{ $course->status === 'published' ? '#0e9f8e' : '#f2a81d' }}">
                         <span class="tile"><svg class="ic"><use href="#i-book"/></svg></span>
                         <span class="gx"><b>{{ $course->title }}</b><small>{{ $course->academy?->name ?? 'بدون آموزشگاه' }} · {{ \App\Support\PersianUi::digits($course->active_students_count) }} دانش‌آموز فعال</small></span>
-                        <span class="pl" style="--c:{{ $course->status === 'published' ? '#0e9f8e' : '#ff9a1f' }}">{{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : $course->status) }}</span>
+                        <span class="pl" style="--c:{{ $course->status === 'published' ? '#0e9f8e' : '#f2a81d' }}">{{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : $course->status) }}</span>
                         <a class="table-link" href="{{ route('owner.courses.show', $course) }}">بازبینی</a>
                     </div>
                 @empty
