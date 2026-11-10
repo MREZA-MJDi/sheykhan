@@ -117,8 +117,16 @@
                             @if($meeting->message)<p class="mt-2 text-xs leading-6 text-slate-500">{{ $meeting->message }}</p>@endif
                         </div>
                         @if(auth()->user()->hasPermission('live_classes.manage'))
-                        <form method="POST" action="{{ route('owner.meetings.status', [$academy, $meeting]) }}" class="flex shrink-0 flex-wrap items-center gap-2">
+                        <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-meeting-status-{{ $meeting->id }}">تغییر وضعیت</button>
+                        <dialog class="owner-floating-modal" id="owner-meeting-status-{{ $meeting->id }}" aria-labelledby="owner-meeting-status-{{ $meeting->id }}-title" @if($errors->any() && old('form_modal') === 'meeting-status-' . $meeting->id) data-owner-modal-open-on-load @endif>
+                            <header class="owner-floating-modal__header">
+                                <div><span class="owner-record-modal-kicker">مدیریت جلسه</span><h2 id="owner-meeting-status-{{ $meeting->id }}-title">ویرایش وضعیت · {{ $meeting->title }}</h2></div>
+                                <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+                            </header>
+                            <div class="owner-floating-modal__body">
+<form method="POST" action="{{ route('owner.meetings.status', [$academy, $meeting]) }}" class="flex shrink-0 flex-wrap items-center gap-2">
                             @csrf @method('PATCH')
+                            <input type="hidden" name="form_modal" value="meeting-status-{{ $meeting->id }}">
                             <label class="sr-only" for="meeting-status-{{ $meeting->id }}">وضعیت جلسه</label>
                             <select id="meeting-status-{{ $meeting->id }}" name="status" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs">
                                 @php($meetingStatusOptions = $meeting->status === 'proposed' ? ['scheduled' => 'تأیید و زمان‌بندی', 'declined' => 'رد پیشنهاد'] : ['scheduled' => 'برنامه‌ریزی‌شده', 'completed' => 'برگزارشده', 'cancelled' => 'لغوشده'])
@@ -136,6 +144,8 @@
                             @endif
                             <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700">ذخیره وضعیت</button>
                         </form>
+                            </div>
+                        </dialog>
                         @else
                             <span class="rounded-full bg-white px-3 py-2 text-xs font-bold text-slate-600">{{ $statusLabels[$meeting->status] ?? $meeting->status }}</span>
                         @endif
