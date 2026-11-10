@@ -459,6 +459,23 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->assertSame(1, $classroom->teachers()->count());
     }
 
+    public function test_members_workspace_exposes_nested_sheets_and_restores_requested_sheet_from_url(): void
+    {
+        [$owner, $academy] = $this->makeWorkspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.people.index', ['academy' => $academy, 'sheet' => 'operations']))
+            ->assertOk()
+            ->assertSee('data-owner-people-tabs data-query-param="sheet"', false)
+            ->assertSee('data-owner-tab-button="directory"', false)
+            ->assertSee('data-owner-tab-button="create-accounts"', false)
+            ->assertSee('data-owner-tab-button="operations"', false)
+            ->assertSee('data-owner-tab-panel="directory"', false)
+            ->assertSee('data-owner-tab-panel="create-accounts"', false)
+            ->assertSee('data-owner-tab-panel="operations"', false)
+            ->assertSee('data-initial-tab="operations"', false);
+    }
+
     private function makeWorkspace(bool $withCourse = false): array
     {
         $owner = User::factory()->create(['email' => 'owner-' . Str::random(6) . '@test.local']);
