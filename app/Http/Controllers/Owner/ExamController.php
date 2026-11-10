@@ -87,7 +87,7 @@ final class ExamController extends Controller
                 ->where('status', 'active')
                 ->whereIn('id', $request->validated('bank_question_ids', []))
                 ->get();
-            abort_unless($bankQuestions->count() === count($request->validated('bank_question_ids', [])), 422, 'یکی از سؤال‌های انتخاب‌شده متعلق به این آموزشگاه نیست یا بایگانی شده است.');
+            abort_unless($bankQuestions->count() === count($request->validated('bank_question_ids', [])), 404, 'یکی از سؤال‌های انتخاب‌شده متعلق به این آموزشگاه نیست یا بایگانی شده است.');
             $questionWriter->storeBankQuestions($exam, $bankQuestions);
             return $exam;
         });
