@@ -14,9 +14,7 @@ final class AttendanceMetricsService
      */
     public function forStudent(User $student): array
     {
-        $classroomIds = $student->classroomsAsStudent()
-            ->wherePivot('status', 'active')
-            ->select('classrooms.id');
+        $classroomIds = app(StudentAccessService::class)->enrolledClassroomIdsQuery($student);
 
         $totals = DB::table('attendances')
             ->where('student_id', $student->id)

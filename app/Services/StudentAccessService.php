@@ -8,7 +8,9 @@ use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\LiveClass;
 use App\Models\ClassSchedule;
+use App\Models\Classroom;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 final class StudentAccessService
@@ -50,6 +52,82 @@ final class StudentAccessService
     public function enrolledCourseIds(User $student): Collection
     {
         return $this->enrolledCoursesQuery($student)->pluck('course_id');
+    }
+
+    /**
+     * Return only active classrooms with a matching, active enrollment for this
+     * exact classroom. A paid enrollment in another classroom of the same course
+     * must never unlock class-scoped files, attendance, or scheduled sessions.
+     */
+    public function enrolledClassroomsQuery(User $student): Builder
+    {
+        $query = Classroom::query()
+            ->where('classrooms.status', 'active')
+            ->whereHas('students', fn (Builder $students) => $students
+                ->whereKey($student->id)
+                ->where('classroom_student.status', 'active'))
+            ->whereHas('course', function (Builder $course) use ($student): void {
+                $course
+                    ->where('status', 'published')
+                    ->whereNotNull('published_at')
+                    ->where('published_at', '<=', now())
+                    ->whereColumn('courses.academy_id', 'classrooms.academy_id')
+                    ->whereHas('academy', fn (Builder $academy) => $academy
+                        ->where('status', 'active')
+                        ->whereExists(function ($membership) use ($student): void {
+                            $membership->selectRaw('1')
+                                ->from('academy_user')
+                                ->whereColumn('academy_user.academy_id', 'academies.id')
+                                ->where('academy_user.user_id', $student->id)
+                                ->where('academy_user.role', 'student')
+                                ->where('academy_user.status', 'active');
+                        }));
+            })
+            ->whereExists(function ($enrollment) use ($student): void {
+                $enrollment->selectRaw('1')
+                    ->from('course_enrollments as eligible_enrollment')
+                    ->join('courses as eligible_course', 'eligible_course.id', '=', 'eligible_enrollment.course_id')
+                    ->whereColumn('eligible_enrollment.classroom_id', 'classrooms.id')
+                    ->whereColumn('eligible_enrollment.course_id', 'classrooms.course_id')
+                    ->where('eligible_enrollment.student_id', $student->id)
+                    ->where('eligible_enrollment.status', 'active')
+                    ->where('eligible_course.status', 'published')
+                    ->whereNotNull('eligible_course.published_at')
+                    ->where('eligible_course.published_at', '<=', now())
+                    ->whereColumn('eligible_course.academy_id', 'classrooms.academy_id')
+                    ->where(function ($entitlement): void {
+                        $entitlement->where('eligible_course.access_type', 'free')
+                            ->orWhere(function ($paid): void {
+                                $paid->where('eligible_enrollment.payment_status', 'paid')
+                                    ->where('eligible_enrollment.paid_amount', '>', 0)
+                                    ->where(function ($amount): void {
+                                        $amount->whereNull('eligible_enrollment.price_amount')
+                                            ->orWhereColumn('eligible_enrollment.paid_amount', '>=', 'eligible_enrollment.price_amount');
+                                    })
+                                    ->whereExists(function ($transaction): void {
+                                        $transaction->selectRaw('1')
+                                            ->from('financial_transactions')
+                                            ->whereColumn('financial_transactions.enrollment_id', 'eligible_enrollment.id')
+                                            ->where('financial_transactions.status', 'completed')
+                                            ->where('financial_transactions.amount', '>', 0);
+                                    });
+                            });
+                    });
+            });
+
+        return $this->isActiveStudent($student)
+            ? $query
+            : $query->whereRaw('1 = 0');
+    }
+
+    public function enrolledClassroomIdsQuery(User $student): Builder
+    {
+        return $this->enrolledClassroomsQuery($student)->select('classrooms.id');
+    }
+
+    public function classroom(User $student, int $classroomId): bool
+    {
+        return $this->enrolledClassroomsQuery($student)->whereKey($classroomId)->exists();
     }
 
     public function course(User $student, Course $course): bool
@@ -255,13 +333,8 @@ final class StudentAccessService
 
         if (
             ! $classroom
-            || $classroom->status !== 'active'
             || ! $course
-            || ! $this->course($student, $course)
-            || ! $student->classroomsAsStudent()
-                ->whereKey($classroom->id)
-                ->wherePivot('status', 'active')
-                ->exists()
+            || ! $this->classroom($student, (int) $classroom->id)
         ) {
             return false;
         }
@@ -302,11 +375,7 @@ final class StudentAccessService
 
     public function attendanceBelongsToStudent(User $student, int $classroomId): bool
     {
-        return $this->isActiveStudent($student)
-            && $student->classroomsAsStudent()
-                ->whereKey($classroomId)
-                ->wherePivot('status', 'active')
-                ->exists();
+        return $this->classroom($student, $classroomId);
     }
 
     /**
