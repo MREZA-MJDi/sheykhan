@@ -28,7 +28,7 @@ final class SeoKeywordController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        return view('owner.seo.keywords.index', [
+        return view('seo.keywords.index', [
             'keywords' => $keywords,
             'filters' => $request->only(['q', 'status', 'intent', 'priority', 'cluster']),
             'clusters' => SeoKeyword::query()->whereNotNull('cluster')->where('cluster', '<>', '')
@@ -50,7 +50,7 @@ final class SeoKeywordController extends Controller
     {
         $this->authorizeSeoSpecialist();
 
-        return view('owner.seo.keywords.form', [
+        return view('seo.keywords.form', [
             'keyword' => new SeoKeyword([
                 'intent' => 'informational',
                 'priority' => 'medium',
@@ -89,7 +89,7 @@ final class SeoKeywordController extends Controller
             return $keyword;
         });
 
-        return redirect()->route('owner.seo.keywords.edit', $keyword)
+        return redirect()->route('seo.keywords.edit', $keyword)
             ->with('success', 'کلمهٔ کلیدی ذخیره شد. رتبه فقط در صورت ثبت مشاهدهٔ واقعی نمایش داده می‌شود.');
     }
 
@@ -98,7 +98,7 @@ final class SeoKeywordController extends Controller
         $this->authorizeSeoSpecialist();
         $keyword->load(['rankings' => fn ($query) => $query->limit(12)]);
 
-        return view('owner.seo.keywords.form', [
+        return view('seo.keywords.form', [
             'keyword' => $keyword,
             'rankings' => $keyword->rankings,
             'intentLabels' => $this->intentLabels(),
@@ -131,7 +131,7 @@ final class SeoKeywordController extends Controller
             }
         });
 
-        return redirect()->route('owner.seo.keywords.edit', $keyword)
+        return redirect()->route('seo.keywords.edit', $keyword)
             ->with('success', 'اطلاعات کلمه ذخیره شد.');
     }
 
@@ -160,7 +160,7 @@ final class SeoKeywordController extends Controller
             ], 'manual', $request->user()->id);
         });
 
-        return redirect()->route('owner.seo.keywords.edit', $keyword)
+        return redirect()->route('seo.keywords.edit', $keyword)
             ->with('success', 'مشاهدهٔ رتبه ثبت شد. این رکورد تاریخچهٔ دستی است و از Google دریافت نشده است.');
     }
 
@@ -169,7 +169,7 @@ final class SeoKeywordController extends Controller
         $this->authorizeSeoSpecialist();
         $keyword->delete();
 
-        return redirect()->route('owner.seo.keywords.index')
+        return redirect()->route('seo.keywords.index')
             ->with('success', 'کلمه و تاریخچهٔ ثبت‌شدهٔ آن حذف شد.');
     }
 
@@ -287,7 +287,7 @@ final class SeoKeywordController extends Controller
             }
         });
 
-        return redirect()->route('owner.seo.keywords.index')
+        return redirect()->route('seo.keywords.index')
             ->with('success', "ورود CSV تمام شد: {$added} کلمهٔ جدید اضافه شد و {$skipped} ردیف تکراری و {$invalidRows} ردیف نامعتبر رد شد. رتبه‌های واردشده با منبع CSV علامت‌گذاری شده‌اند.");
     }
 
