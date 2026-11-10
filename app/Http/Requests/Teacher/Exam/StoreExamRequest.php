@@ -48,7 +48,9 @@ class StoreExamRequest extends FormRequest
             }
 
             $status = $this->input('status', 'draft');
-            $hasQuestion = count(array_filter($questions, 'is_array')) > 0;
+            $bankQuestionIds = $this->input('bank_question_ids', []);
+            $hasBankQuestion = is_array($bankQuestionIds) && count($bankQuestionIds) > 0;
+            $hasQuestion = count(array_filter($questions, 'is_array')) > 0 || $hasBankQuestion;
 
             if ($status === 'published' && ! $hasQuestion) {
                 $validator->errors()->add('questions', 'برای انتشار آزمون حداقل یک سؤال لازم است.');
