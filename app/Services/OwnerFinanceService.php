@@ -9,7 +9,7 @@ final class OwnerFinanceService
 {
     public function index(User $owner): array
     {
-        abort_unless($owner->hasRole('academy-owner') && $owner->hasPermission('finance.view'), 404);
+        app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'finance.view');
 
         $academyIds = $owner->ownedAcademies()->where('status','active')->pluck('id');
 
