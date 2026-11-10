@@ -113,7 +113,7 @@
         <h2 class="font-black">{{ $title }}</h2>
         <span data-directory-count class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $items->total() }}</span>
     </div>
-    @include('owner.people.partials.directory-controls', ['title' => $title, 'showPerPage' => true])
+    @include('owner.admin.partials.directory-controls', ['title' => $title, 'showPerPage' => true])
     <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">نمایش داده‌های همین آموزشگاه؛ برای جست‌وجو عبارت را وارد کن.</p>
     <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($items as $person)
@@ -158,7 +158,7 @@
         </div>
         <span data-directory-count class="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold text-slate-500">{{ $archivedTeachers->total() }}</span>
     </div>
-    @include('owner.people.partials.directory-controls', ['title' => 'مدرس‌های آرشیوشده', 'showPerPage' => false])
+    @include('owner.admin.partials.directory-controls', ['title' => 'مدرس‌های آرشیوشده', 'showPerPage' => false])
     <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">برای پیدا کردن مدرس آرشیوشده جست‌وجو کن.</p>
     <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($archivedTeachers as $teacher)
