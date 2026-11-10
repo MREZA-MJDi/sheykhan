@@ -32,6 +32,15 @@
     $period = in_array($period ?? request()->query('period', 'month'), ['today','week','month'], true) ? ($period ?? request()->query('period','month')) : 'month';
     $notifications = collect($notifications ?? []);
     $ownerInitial = mb_substr(trim((string) ($ownerUser?->name ?? 'ش')), 0, 1);
+    $hasNavPermission = static function ($permission) use ($ownerUser): bool {
+        foreach ((array) $permission as $requiredPermission) {
+            if ($ownerUser?->hasPermission($requiredPermission)) {
+                return true;
+            }
+        }
+
+        return false;
+    };
     $nextClass = collect(isset($upcomingLiveClasses) ? $upcomingLiveClasses : [])->first();
     $nextClassTarget = $nextClass?->scheduled_at?->timestamp;
     // Keep the menu task-based: related daily operations live together while
@@ -53,7 +62,7 @@
             'links' => [
                 ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'دانش‌آموزان، مدرس‌ها و اولیا', 'icon' => 'users', 'scope' => 'academy'],
                 ['route' => 'owner.attendance.index', 'permission' => 'attendance.view', 'label' => 'حضور و غیاب', 'icon' => 'checksq', 'scope' => 'academy'],
-                ['route' => 'owner.communication-workspace', 'permission' => 'parents.view', 'label' => 'ارتباطات، پیام‌ها و جلسات', 'icon' => 'chat', 'scope' => 'academy'],
+                ['route' => 'owner.communication-workspace', 'permission' => ['parents.view', 'live_classes.view'], 'label' => 'ارتباطات، پیام‌ها و جلسات', 'icon' => 'chat', 'scope' => 'academy'],
             ],
         ],
         [
@@ -134,7 +143,7 @@
             <?php foreach ($ownerNavGroups as $navGroup) { ?>
                 <?php
                     $visibleGlobalLinks = collect($navGroup['links'])
-                        ->filter(fn ($link) => $link['scope'] === 'global' && $ownerUser?->hasPermission($link['permission']));
+                        ->filter(fn ($link) => $link['scope'] === 'global' && $hasNavPermission($link['permission']));
                     $visibleAcademyLinks = collect($navGroup['links'])
                         ->filter(fn ($link) => $link['scope'] === 'academy' && $ownerUser?->hasPermission($link['permission']));
                     $showSiteGroup = $navGroup['key'] === 'more' && $canManagePublicSite;
@@ -161,7 +170,7 @@
                         <div class="nav-group-items" <?php if (! $isNavGroupExpanded) echo 'hidden'; ?>>
                             <?php if (! $isSeoOnlyUser) { ?>
                                 <?php foreach ($navGroup['links'] as $navLink) { ?>
-                                    <?php if ($navLink['scope'] === 'global' && $ownerUser?->hasPermission($navLink['permission'])) { ?>
+                                    <?php if ($navLink['scope'] === 'global' && $hasNavPermission($navLink['permission'])) { ?>
                                         <?php
                                             $navRoutePattern = str_contains($navLink['route'], '.index')
                                                 ? str_replace('.index', '.*', $navLink['route'])
