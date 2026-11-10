@@ -150,6 +150,30 @@ final class OwnerBlogService
         return $post->fresh('media');
     }
 
+    public function delete(User $owner, BlogPost $post): void
+    {
+        $this->owned($owner, $post);
+        $coverMedia = $post->media()
+            ->wherePivot('collection', 'cover')
+            ->get();
+
+        DB::transaction(function () use ($post, $coverMedia): void {
+            foreach ($coverMedia as $media) {
+                app(MediaService::class)->detach($media, $post);
+            }
+
+            $post->delete();
+        });
+
+        foreach ($coverMedia as $media) {
+            if ($media->attachments()->doesntExist()) {
+                app(MediaService::class)->delete($media);
+            }
+        }
+
+        app(BlogService::class)->clearPublicCache();
+    }
+
     private function uniqueSlug(string $title, ?string $requested = null, ?int $ignoreId = null): string
     {
         $base = Str::slug(Str::transliterate($requested ?: $title));
