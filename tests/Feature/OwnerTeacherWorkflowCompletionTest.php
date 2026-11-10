@@ -527,7 +527,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
 
         $this->actingAs($workspace['owner'])
             ->get(route('owner.meetings.index', $workspace['academy']))
-            ->assertRedirect(route('owner.communication-workspace', ['academy' => $workspace['academy'], 'tab' => 'meetings']));
+            ->assertRedirect(route('owner.communication-workspace', $workspace['academy']) . '?tab=meetings');
 
         $this->actingAs($workspace['owner'])
             ->get(route('owner.communication-workspace', ['academy' => $workspace['academy'], 'tab' => 'meetings']))
