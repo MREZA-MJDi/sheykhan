@@ -100,4 +100,23 @@ final class OwnerContextualNavigationTest extends TestCase
             ->assertDontSee('کلاس‌ها و گروه‌ها')
             ->assertDontSee('تکالیف و تصحیح');
     }
+    public function test_owner_and_seo_layouts_share_the_same_white_admin_design_system(): void
+    {
+        $vite = file_get_contents(base_path('vite.config.js'));
+        $ownerLayout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
+        $seoLayout = file_get_contents(resource_path('views/layouts/seo-specialist.blade.php'));
+        $designSystem = file_get_contents(resource_path('css/admin-white-system.css'));
+
+        foreach ([$vite, $ownerLayout, $seoLayout, $designSystem] as $source) {
+            $this->assertIsString($source);
+        }
+
+        $this->assertStringContainsString("'resources/css/admin-white-system.css'", $vite);
+        $this->assertStringContainsString("'resources/css/owner-dashboard-v2.css', 'resources/css/admin-white-system.css'", $ownerLayout);
+        $this->assertStringContainsString("'resources/css/seo-dashboard.css', 'resources/css/admin-white-system.css'", $seoLayout);
+        $this->assertStringContainsString('--ui-primary: #34466f', $designSystem);
+        $this->assertStringContainsString('.admin-context-tabs', $designSystem);
+        $this->assertStringNotContainsString('#ff1f6b', $designSystem);
+    }
+
 }
