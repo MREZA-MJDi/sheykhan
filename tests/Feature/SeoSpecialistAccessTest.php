@@ -271,6 +271,29 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('Sitemap: ' . route('seo.sitemap'), false);
     }
 
+    public function test_access_command_refuses_to_turn_an_existing_owner_account_into_a_dual_role_seo_account(): void
+    {
+        $ownerRole = Role::create([
+            'name' => 'مدیر آموزشگاه',
+            'slug' => 'academy-owner',
+            'description' => 'Existing operational role',
+        ]);
+        $user = User::factory()->create([
+            'email' => 'existing-owner-' . Str::random(8) . '@test.local',
+        ]);
+        $user->roles()->attach($ownerRole->id);
+
+        $exitCode = Artisan::call('sheykhan:seo-access', [
+            'email' => $user->email,
+            'action' => 'grant',
+        ]);
+
+        $this->assertSame(1, $exitCode);
+        $this->assertTrue($user->fresh()->hasRole('academy-owner'));
+        $this->assertFalse($user->fresh()->hasRole('seo-specialist'));
+        $this->assertFalse($user->fresh()->hasPermission('seo.manage'));
+    }
+
     public function test_access_command_grants_and_revokes_only_the_seo_specialist_role_for_an_existing_account(): void
     {
         $user = User::factory()->create([
