@@ -67,6 +67,7 @@ final class ExamController extends Controller
             'exam' => new Exam(['status' => 'draft', 'duration_minutes' => 60, 'attempts_allowed' => 1]),
             'initialQuestions' => [],
             'bankQuestions' => $academy->questionBankItems()->where('status', 'active')->orderByDesc('created_at')->limit(100)->get(),
+            'selectedBankQuestionIds' => [],
         ]);
     }
 
@@ -123,6 +124,13 @@ final class ExamController extends Controller
                 'score' => $question->score,
             ];
         })->values()->all();
+        $bankQuestions = $academy->questionBankItems()
+            ->whereIn('id', $selectedBankQuestionIds)
+            ->get()
+            ->concat($academy->questionBankItems()->where('status', 'active')->orderByDesc('created_at')->limit(100)->get())
+            ->unique('id')
+            ->values();
+
         return view('owner.exams.form', [
             'academy' => $academy,
             'hasAssignableCourses' => true,
@@ -130,9 +138,7 @@ final class ExamController extends Controller
             'classrooms' => collect(),
             'exam' => $record,
             'initialQuestions' => $initialQuestions,
-            'bankQuestions' => $academy->questionBankItems()
-                ->where(fn ($query) => $query->where('status', 'active')->orWhereIn('id', $selectedBankQuestionIds))
-                ->orderByDesc('created_at')->limit(100)->get(),
+            'bankQuestions' => $bankQuestions,
             'selectedBankQuestionIds' => $selectedBankQuestionIds,
         ]);
     }
