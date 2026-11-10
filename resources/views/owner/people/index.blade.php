@@ -124,17 +124,38 @@
             <small class="owner-field-help">نسبت والد با دانش‌آموز را مطابق ارتباط واقعی انتخاب کن.</small>
             @error('relation')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
         </label>
-        <label class="grid gap-1 text-xs font-bold sm:col-span-2">دانش‌آموز این آموزشگاه
-            <select name="student_id" required class="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
-                <option value="">انتخاب دانش‌آموز فعال</option>
-                @foreach($students as $studentOption)
-                    <option value="{{ $studentOption->id }}" @selected((string) old('student_id') === (string) $studentOption->id)>{{ $studentOption->name }}</option>
-                @endforeach
-            </select>
-            <small class="owner-field-help">فقط دانش‌آموز فعال همین آموزشگاه را انتخاب کن؛ ارتباط والد به همین دانش‌آموز ثبت می‌شود.</small>
-            @error('student_id')<span class="font-normal text-rose-600">{{ $message }}</span>@enderror
+        <div class="grid gap-2 text-xs font-bold sm:col-span-2">
+            <label for="owner-parent-student-search">دانش‌آموز این آموزشگاه</label>
+            <div class="owner-student-picker owner-student-picker--parent" data-student-picker
+                 data-options-url="{{ route('owner.people.student-options', $academy) }}"
+                 data-student-initial-browse="true">
+                <input id="owner-parent-student-search" type="search" data-student-search
+                       value="{{ old('student_label') }}" autocomplete="off" spellcheck="false"
+                       aria-autocomplete="list" aria-controls="owner-parent-student-results"
+                       aria-expanded="false" placeholder="نام یا شماره موبایل دانش‌آموز را جست‌وجو کن…"
+                       class="min-h-11 w-full rounded-xl border border-slate-200 px-3 text-sm">
+                <input type="hidden" name="student_id" data-student-id value="{{ old('student_id') }}">
+                <input type="hidden" name="student_label" data-student-label value="{{ old('student_label') }}">
+                <div id="owner-parent-student-results" data-student-results class="owner-student-picker-results"
+                     role="listbox" aria-label="دانش‌آموزان فعال این آموزشگاه" hidden></div>
+                <button type="button" data-student-more class="owner-student-picker-more" hidden>نمایش دانش‌آموزان بعدی</button>
+                <div class="owner-student-picker-selection" data-student-selection
+                     @if(!old('student_id') || !old('student_label')) hidden @endif aria-live="polite">
+                    <div class="owner-student-picker-selection__copy">
+                        <small>دانش‌آموز انتخاب‌شده</small>
+                        <strong data-student-selected-name>{{ old('student_label', '—') }}</strong>
+                        <span data-student-selected-mobile></span>
+                    </div>
+                    <button type="button" class="owner-student-picker-clear" data-student-clear>تغییر انتخاب</button>
+                </div>
+                <p data-student-status class="owner-student-picker-status" role="status" aria-live="polite">
+                    در حال دریافت فهرست دانش‌آموزان فعال…
+                </p>
+            </div>
+            <small class="owner-field-help">فقط دانش‌آموز فعال همین آموزشگاه نمایش داده می‌شود. ابتدا ۲۰ نفر نمایش داده می‌شوند؛ برای تعداد بیشتر «نمایش دانش‌آموزان بعدی» را بزن یا با نام و موبایل جست‌وجو کن.</small>
+            @error('student_id')<span role="alert" class="font-normal text-rose-600">{{ $message }}</span>@enderror
             @if($students->isEmpty())<span class="font-normal text-amber-700">ابتدا یک دانش‌آموز فعال به آموزشگاه اضافه کنید.</span>@endif
-        </label>
+        </div>
         <div class="sm:col-span-2"><button @disabled($students->count() === 0) class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-5 text-sm font-black text-white">ساخت حساب / اتصال والد</button></div>
     </form>
 </section>
