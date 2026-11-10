@@ -19,7 +19,7 @@
     $ownerPanelHomeUrl = route('home');
     if ($seoOnly) {
         if ($user->hasPermission('seo.manage')) {
-            $ownerPanelHomeUrl = route('owner.seo.index');
+            $ownerPanelHomeUrl = route('seo.index');
         }
     } elseif ($user->hasPermission('dashboard.view')) {
         $ownerPanelHomeUrl = route('owner.dashboard');
@@ -81,34 +81,34 @@
 
         @if($seoOnly && $user->hasPermission('seo.manage'))
             <div class="role-sidebar-label mt-6">بهینه‌سازی سایت</div>
-            <a href="{{ route('owner.seo.index') }}"
-               class="role-nav-link {{ request()->routeIs('owner.seo.index', 'owner.seo.edit', 'owner.seo.update') ? 'is-active' : '' }}">
+            <a href="{{ route('seo.index') }}"
+               class="role-nav-link {{ request()->routeIs('seo.index', 'seo.pages.edit', 'seo.pages.update') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>ممیزی SEO صفحات</span>
             </a>
-            <a href="{{ route('owner.seo.keywords.index') }}"
-               class="role-nav-link {{ request()->routeIs('owner.seo.keywords.*') ? 'is-active' : '' }}">
+            <a href="{{ route('seo.keywords.index') }}"
+               class="role-nav-link {{ request()->routeIs('seo.keywords.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>کلمات کلیدی و رتبه</span>
             </a>
             <div class="role-sidebar-label mt-6">کنترل سایت عمومی</div>
-            <a href="{{ route('owner.website.index') }}"
-               class="role-nav-link {{ request()->routeIs('owner.website.index', 'owner.website.hero.*', 'owner.academy.banners.*') ? 'is-active' : '' }}">
+            <a href="{{ route('seo.website.index') }}"
+               class="role-nav-link {{ request()->routeIs('seo.website.index', 'seo.website.hero.*', 'seo.academy.banners.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>مرکز سایت و بنرها</span>
             </a>
-            <a href="{{ route('owner.website.hero.edit') }}"
-               class="role-nav-link {{ request()->routeIs('owner.website.hero.*') ? 'is-active' : '' }}">
+            <a href="{{ route('seo.website.hero.edit') }}"
+               class="role-nav-link {{ request()->routeIs('seo.website.hero.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>مدیریت Hero صفحه اصلی</span>
             </a>
-            <a href="{{ route('owner.content.index') }}"
-               class="role-nav-link {{ request()->routeIs('owner.content.*') ? 'is-active' : '' }}">
+            <a href="{{ route('seo.content.index') }}"
+               class="role-nav-link {{ request()->routeIs('seo.content.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>محتوای عمومی صفحات</span>
             </a>
-            <a href="{{ route('owner.blog.index') }}"
-               class="role-nav-link {{ request()->routeIs('owner.blog.*') ? 'is-active' : '' }}">
+            <a href="{{ route('seo.blog.index') }}"
+               class="role-nav-link {{ request()->routeIs('seo.blog.*') ? 'is-active' : '' }}">
                 <span class="role-nav-icon"></span><span>بلاگ و مقالات</span>
             </a>
             @foreach($websiteAcademies as $websiteAcademy)
-                <a href="{{ route('owner.showcase.index', $websiteAcademy) }}"
-                   class="role-nav-link {{ request()->routeIs('owner.showcase.*') && (int) $routeAcademyId === (int) $websiteAcademy->id ? 'is-active' : '' }}">
+                <a href="{{ route('seo.showcase.index', $websiteAcademy) }}"
+                   class="role-nav-link {{ request()->routeIs('seo.showcase.*') && (int) $routeAcademyId === (int) $websiteAcademy->id ? 'is-active' : '' }}">
                     <span class="role-nav-icon"></span><span>افتخارآفرینان و رضایتمندی · {{ $websiteAcademy->name }}</span>
                 </a>
             @endforeach
