@@ -14,12 +14,39 @@ $isSeoOnlyUser=$ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUs
 $canManagePublicSite=$ownerUser && $ownerUser->hasRole('seo-specialist') && $ownerUser->hasPermission('seo.manage');
 $academies=$ownerUser && $ownerUser->hasRole('academy-owner') ? (isset($academies) ? collect($academies) : $ownerUser->ownedAcademies()->where('status','active')->orderBy('name')->get(['id','name','slug','owner_id'])) : collect();
 $websiteAcademies=$canManagePublicSite ? ($isSeoOnlyUser ? \App\Models\Academy::query()->where('status','active')->orderBy('name')->get(['id','name','slug']) : $academies) : collect();
-$ownerHomeRoute=$isSeoOnlyUser ? 'owner.seo.index' : 'owner.dashboard';
 $pageHeading=trim($__env->yieldContent('header-title')) ?: 'مدیریت آموزشگاه';
 $period=in_array($period ?? request()->query('period','month'),['today','week','month'],true) ? ($period ?? request()->query('period','month')) : 'month';
 $notifications=collect($notifications ?? []);
 $ownerInitial=mb_substr(trim((string)($ownerUser?->name ?? 'ش')),0,1);
 $hasPermission=static function($permission) use($ownerUser):bool { foreach((array)$permission as $item){if($ownerUser?->hasPermission($item)) return true;} return false; };
+$ownerHomeUrl=route('home');
+if($isSeoOnlyUser && $canManagePublicSite && \Illuminate\Support\Facades\Route::has('owner.seo.index')) {
+ $ownerHomeUrl=route('owner.seo.index');
+} elseif($hasPermission('dashboard.view') && \Illuminate\Support\Facades\Route::has('owner.dashboard')) {
+ $ownerHomeUrl=route('owner.dashboard');
+} else {
+ $academyHomeLinks=[
+  ['academy.view','owner.people.index'],['classrooms.view','owner.classrooms.index'],
+  ['attendance.view','owner.attendance.index'],['assignments.view','owner.assignments.index'],
+  ['live_classes.view','owner.meetings.index'],['parents.view','owner.messages.index'],
+  ['exams.view','owner.exams.index'],['teacher_payments.view','owner.teacher-payments.index'],
+  ['resources.view','owner.resources.index'],['products.view','owner.products.index'],['orders.view','owner.orders.index'],
+ ];
+ $globalHomeLinks=[
+  ['courses.view','owner.courses.index'],['finance.view','owner.finance.index'],
+  ['legal.manage','owner.legal-documents.index'],['reports.view','owner.reports.index'],
+ ];
+ if($academies->isNotEmpty()) {
+  foreach($academyHomeLinks as [$permission,$routeName]) {
+   if($hasPermission($permission) && \Illuminate\Support\Facades\Route::has($routeName)) { $ownerHomeUrl=route($routeName,$academies->first()); break; }
+  }
+ }
+ if($ownerHomeUrl===route('home')) {
+  foreach($globalHomeLinks as [$permission,$routeName]) {
+   if($hasPermission($permission) && \Illuminate\Support\Facades\Route::has($routeName)) { $ownerHomeUrl=route($routeName); break; }
+  }
+ }
+}
 $routeAcademy=request()->route('academy');
 $routeAcademyId=$routeAcademy instanceof \App\Models\Academy ? (int)$routeAcademy->getKey() : (int)($routeAcademy ?? 0);
 $groups=[
@@ -60,7 +87,7 @@ $groups=[
 <div class="app admin-app">
 <header class="top admin-topbar">
 <button class="burger" id="burger" type="button" aria-label="باز و بسته کردن منو" aria-expanded="false">☰</button>
-<a class="brand-mark" href="{{ route($ownerHomeRoute) }}"><span class="lg">ش</span><span class="brand">آکادمی شیخان</span></a>
+<a class="brand-mark" href="{{ $ownerHomeUrl }}"><span class="lg">ش</span><span class="brand">آکادمی شیخان</span></a>
 <div class="top-page-title">@yield('header-title','داشبورد')</div>
 @if(request()->routeIs('owner.dashboard'))
 <nav class="tabs" aria-label="بازه گزارش">
