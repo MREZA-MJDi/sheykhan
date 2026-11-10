@@ -179,7 +179,7 @@ final class OwnerAssignmentService
 
     public function show(User $owner, Academy $academy, Assignment $assignment): array
     {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'assignments.view');
 
         abort_unless(
             (int) $assignment->course?->academy_id === (int) $academy->id,
@@ -209,7 +209,7 @@ final class OwnerAssignmentService
 
     public function assertAssignmentOwned(User $owner, Academy $academy, Assignment $assignment): void
     {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'assignments.manage');
         abort_unless((int) $assignment->course?->academy_id === (int) $academy->id, 404);
     }
 
