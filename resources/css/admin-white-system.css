@@ -466,3 +466,10 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content :is(.teacher-form-shell,.teacher-form-section,.question-card,.exam-question-card,.course-form-shell,.owner-legacy-onboarding-summary) :is(h1,h2,h3,h4,strong,b){color:var(--ui-heading)!important}
 .owner-admin-v2 .main-content :is(.teacher-form-field,.teacher-form-section label,.question-card label,.exam-question-card label){color:var(--ui-text)!important}
 .owner-admin-v2 .main-content :is(.teacher-form-head,.owner-academy-form-page>header){padding:15px 18px;border:1px solid var(--ui-border);border-inline-start:4px solid var(--ui-primary);border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow)}
+
+@media(max-width:700px){
+ .owner-admin-v2 .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);padding:12px;gap:14px}
+ .owner-admin-v2 .side.card{display:none;position:fixed;z-index:150;top:10px;bottom:10px;inset-inline-start:10px;grid-column:auto;grid-row:auto;width:min(86vw,300px);max-height:calc(100dvh - 20px);overflow-y:auto}
+ .owner-admin-v2 .side.card.open{display:block}
+ .owner-admin-v2 .main-content{grid-column:1;grid-row:2}
+}
