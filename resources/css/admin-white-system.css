@@ -290,3 +290,28 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
  .owner-admin-v2 .main-content :is(.owner-blog-actions,.owner-blog-row>.owner-pill){grid-column:1/-1}
  .owner-admin-v2 .main-content :is(.owner-exam-head,.owner-blog-hero,.owner-seo-hero,.website-center-hero,.website-hero-editor-head,.seo-console-hero,.banner-page-head){align-items:stretch;flex-direction:column}
 }
+
+/* Feature-level KPI semantics: attendance, assignments, exams and classroom capacity. */
+.owner-admin-v2 .main-content .owner-exams-page .owner-stat-card:nth-child(3),
+.owner-admin-v2 .main-content .owner-assignments-page .owner-stat-card:nth-child(3),
+.owner-admin-v2 .main-content .owner-classrooms-page .owner-stat-card:nth-child(4){background:#c47a12!important}
+.owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(4){background:#b4233c!important}
+.owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(5){background:#285b91!important}
+.owner-admin-v2 .main-content :is(.owner-exams-page,.owner-assignments-page,.owner-attendance-page,.owner-classrooms-page,.owner-course-details-page,.owner-exam-details-page,.owner-assignment-details-page,.owner-classroom-details-page){max-width:1500px;margin-inline:auto}
+.owner-admin-v2 .main-content .panel-page-enter>div:first-child:not(.grid):not(.dashboard-panel):not(.owner-people-tabs):not(.owner-form-shell):not(.owner-calendar-section),
+.owner-admin-v2 .main-content .course-page>div:first-child{
+  min-width:0;padding:16px 18px;border:1px solid var(--ui-border);border-inline-start:4px solid var(--ui-primary);
+  border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow)
+}
+.owner-admin-v2 .main-content .panel-page-enter>div:first-child :is(h1,h2,h3),
+.owner-admin-v2 .main-content .course-page>div:first-child :is(h1,h2,h3){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .panel-page-enter>div:first-child p,
+.owner-admin-v2 .main-content .course-page>div:first-child p{color:var(--ui-muted)!important}
+
+/* SpotPlayer's four metric cards keep the same semantic full-color treatment. */
+.owner-admin-v2 .main-content .sp-kpi{border:0!important;color:#fff!important;box-shadow:0 8px 20px rgba(22,38,58,.12)!important}
+.owner-admin-v2 .main-content .sp-kpi-cyan{background:#285b91!important}
+.owner-admin-v2 .main-content .sp-kpi-green{background:#16804b!important}
+.owner-admin-v2 .main-content .sp-kpi-blue{background:#2866a5!important}
+.owner-admin-v2 .main-content .sp-kpi-orange{background:#c47a12!important}
+.owner-admin-v2 .main-content .sp-kpi :is(strong,b,span,small,p){color:#fff!important}
