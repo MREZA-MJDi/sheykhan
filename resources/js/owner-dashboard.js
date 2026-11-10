@@ -15,6 +15,10 @@ bootPanelRuntime();
 (() => {
     'use strict';
 
+    const root = document.body;
+    if (!root || root.dataset.ownerDashboardBooted === 'true') return;
+    root.dataset.ownerDashboardBooted = 'true';
+
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -35,7 +39,8 @@ bootPanelRuntime();
 
     $$('[data-group-toggle]').forEach((button) => {
         const group = button.closest('.nav-group');
-        const content = $('.nav-group-items', group);
+        const controlledId = button.getAttribute('aria-controls');
+        const content = (controlledId && document.getElementById(controlledId)) || $('.nav-group-items', group);
         const state = $('.gh em', button);
 
         button.addEventListener('click', () => {
@@ -133,6 +138,7 @@ bootPanelRuntime();
             if (sidebar?.classList.contains('open')) {
                 sidebar.classList.remove('open');
                 burger?.setAttribute('aria-expanded', 'false');
+                burger?.focus({ preventScroll: true });
             }
         }
 
@@ -206,7 +212,8 @@ bootPanelRuntime();
     'use strict';
 
     const chart = document.querySelector('[data-owner-range-chart]');
-    if (!chart) return;
+    if (!chart || chart.dataset.ownerRangeBound === 'true') return;
+    chart.dataset.ownerRangeBound = 'true';
 
     let values = [];
     let labels = [];
@@ -226,7 +233,9 @@ bootPanelRuntime();
     const spread = maximum - minimum;
     const width = 520;
     const chartHeight = 150;
-    const indices = { start: 2, end: Math.max(2, values.length - 3) };
+    const initialStart = values.length >= 5 ? 2 : 0;
+    const initialEnd = values.length >= 5 ? values.length - 3 : values.length - 1;
+    const indices = { start: initialStart, end: initialEnd };
     let dragging = null;
 
     const summary = document.querySelector('#owner-trend-range-summary');
