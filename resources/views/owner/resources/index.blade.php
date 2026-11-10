@@ -100,10 +100,8 @@
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->media?->original_name }} · فقط مشاهدهٔ احرازشده · {{ $resource->release_at?->format('Y-m-d H:i') ?? 'بدون تأخیر انتشار' }}</p>
                         <div class="mt-2 flex flex-wrap gap-3">
                             @if(auth()->user()->hasPermission('resources.manage'))
-<a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-title="ویرایش منبع">ویرایش منبع</a>@endif
-                            @endif
-@if(auth()->user()->hasPermission('resources.manage'))
-@if($resource->status === 'active')
+                                <a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-title="ویرایش منبع">ویرایش منبع</a>
+                                @if($resource->status === 'active')
                                 <form method="POST" action="{{ route('owner.resources.archive', [$academy, $resource]) }}" data-confirm-submit="true" data-confirm="این منبع از فهرست فعال دانش‌آموزان خارج می‌شود؛ فایل و سوابق آن حذف نمی‌شوند.">
                                     @csrf @method('PATCH')
                                     <button type="submit" class="text-xs font-bold text-rose-700">بایگانی</button>
@@ -113,8 +111,8 @@
                                     @csrf @method('PATCH')
                                     <button type="submit" class="text-xs font-bold text-emerald-700">فعال‌سازی دوباره</button>
                                 </form>
+                                @endif
                             @endif
-@endif
                         </div>
                     </div>
                     <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">{{ $resource->status }}</span>
@@ -123,7 +121,7 @@
                 <p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز فایلی ثبت نشده است.</p>
             @endforelse
         </div>
-        @if($resources->hasPages())<div class="mt-5">{{ $resources->links() }}</div>@endif
+        @if($resources->hasPages())<div class="mt-5">{{ $resources->links('components.navigation.pagination') }}</div>@endif
     </section>
 </div>
 @endsection
