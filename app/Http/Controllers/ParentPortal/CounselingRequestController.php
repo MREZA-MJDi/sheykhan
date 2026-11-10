@@ -13,10 +13,25 @@ final class CounselingRequestController extends Controller
 {
     public function index(Request $request, ParentPortalService $portal): View
     {
+        $filters = $request->validate([
+            'status' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['requested', 'proposed', 'scheduled', 'completed', 'declined', 'cancelled'])],
+            'q' => ['nullable', 'string', 'max:120'],
+        ]);
+
         $requests = CounselingRequest::query()
             ->where('parent_id', $request->user()->id)
             ->with(['student:id,name', 'academy:id,name', 'handler:id,name'])
-            ->orderByRaw("CASE WHEN status = 'requested' THEN 0 WHEN status = 'scheduled' THEN 1 ELSE 2 END")
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                $term = trim((string) $filters['q']);
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('details', 'like', '%' . $term . '%')
+                        ->orWhereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('academy', fn ($academy) => $academy->where('name', 'like', '%' . $term . '%'));
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'requested' THEN 0 WHEN status = 'proposed' THEN 1 WHEN status = 'scheduled' THEN 2 ELSE 3 END")
             ->orderByDesc('created_at')
             ->paginate(15)
             ->withQueryString();
@@ -24,6 +39,7 @@ final class CounselingRequestController extends Controller
         return view('parent.counseling.index', [
             'requests' => $requests,
             'contactableChildren' => $portal->contactableChildren($request->user()),
+            'filters' => $filters,
         ]);
     }
 
