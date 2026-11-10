@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="space-y-6 panel-page-enter owner-workspace-page owner-exam-details-page">
-    @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'exams'])
+    @include('owner.admin.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'exams'])
     <header class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
             <a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-bold text-[var(--panel-primary)]">← بازگشت به آزمون‌ها</a>
