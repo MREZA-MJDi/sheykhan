@@ -46,6 +46,12 @@
             <strong>اطلاعیه‌ها و پیام گروهی</strong>
             <span>ارسال و مشاهده سوابق اطلاع‌رسانی</span>
         </a>
+        @if(auth()->user()?->hasPermission('live_classes.view'))
+            <a href="{{ route('teacher.counseling-requests.index') }}">
+                <strong>درخواست‌های مشاوره</strong>
+                <span>پیشنهاد زمان و هماهنگی جلسه با خانواده</span>
+            </a>
+        @endif
     </nav>
 
     @if(session('success'))
