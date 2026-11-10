@@ -10,6 +10,13 @@ final class FinanceController extends Controller
 {
     public function index(OwnerFinanceService $finance): View
     {
-        return view('owner.finance.index', $finance->index(request()->user()));
+        $owner = request()->user();
+        $data = $finance->index($owner);
+        $data['academy'] = $owner->ownedAcademies()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->first();
+
+        return view('owner.finance.index', $data);
     }
 }
