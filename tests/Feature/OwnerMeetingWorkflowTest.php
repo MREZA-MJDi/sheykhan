@@ -94,7 +94,7 @@ class OwnerMeetingWorkflowTest extends TestCase
         [$owner, $academy] = $this->workspace();
 
         $this->actingAs($owner)
-            ->get(route('owner.seo.index'))
+            ->get(route('seo.index'))
             ->assertForbidden();
 
         $this->actingAs($owner)
