@@ -13,7 +13,7 @@
         ['key' => 'resources', 'label' => 'منابع آموزشی', 'permission' => 'resources.view', 'route' => 'owner.resources.index', 'scope' => 'academy', 'icon' => '▧'],
     ];
 @endphp
-<section class="mb-5 overflow-hidden rounded-2xl border border-violet-100 bg-gradient-to-l from-violet-50 via-white to-indigo-50 p-4 sm:p-5" style="--learning-accent:#6d55c7">
+<section class="owner-workspace-tabs mb-5 overflow-hidden rounded-2xl border border-violet-100 bg-gradient-to-l from-violet-50 via-white to-indigo-50 p-4 sm:p-5" style="--learning-accent:#6d55c7">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <p class="text-[11px] font-black tracking-wide text-violet-700">بخش آموزش</p>
