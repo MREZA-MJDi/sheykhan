@@ -9,7 +9,7 @@
             <h1>{{ $post->exists ? 'ویرایش مقاله' : 'ساخت مقاله جدید' }}</h1>
             <p>محتوا، تصویر شاخص و وضعیت انتشار را در یک فرم یکپارچه مدیریت کن.</p>
         </div>
-        <a class="course-secondary-btn" href="{{ route('owner.blog.index') }}">بازگشت به مقالات</a>
+        <a class="course-secondary-btn" href="{{ route('seo.blog.index') }}">بازگشت به مقالات</a>
     </header>
 
     @if($errors->any())
@@ -19,7 +19,7 @@
         </div>
     @endif
 
-    <form enctype="multipart/form-data" method="POST" action="{{ $post->exists ? route('owner.blog.update',$post) : route('owner.blog.store') }}" class="owner-form-grid">
+    <form enctype="multipart/form-data" method="POST" action="{{ $post->exists ? route('seo.blog.update',$post) : route('seo.blog.store') }}" class="owner-form-grid">
         @csrf
         @if($post->exists) @method('PATCH') @endif
 
@@ -60,7 +60,7 @@
             </section>
             <div class="owner-blog-save-panel">
                 <button class="owner-primary-btn w-full" type="submit">{{ $post->exists ? 'ذخیره تغییرات' : 'ساخت مقاله' }}</button>
-                <a href="{{ route('owner.blog.index') }}">انصراف و بازگشت</a>
+                <a href="{{ route('seo.blog.index') }}">انصراف و بازگشت</a>
             </div>
             @if($post->exists)
                 <a class="owner-blog-public-link" href="{{ route('blog.show',$post->slug) }}" target="_blank" rel="noopener">مشاهده صفحه عمومی مقاله ↗</a>
