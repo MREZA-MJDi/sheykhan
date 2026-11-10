@@ -22,6 +22,7 @@ final class TeacherPaymentController extends Controller
             ->where('users.status', 'active');
 
         $hasActiveTeachers = $activeTeachers()->exists();
+        $canManagePayments = $request->user()->hasPermission('teacher_payments.manage');
         $filterTeacherId = $request->integer('teacher_id');
         $filterTeachers = $filterTeacherId > 0
             ? $activeTeachers()->whereKey($filterTeacherId)->get(['users.id', 'users.name', 'users.email'])
@@ -44,7 +45,7 @@ final class TeacherPaymentController extends Controller
             'pending' => TeacherPayment::query()->where('academy_id', $academy->id)->where('status', 'pending')->sum('amount'),
         ];
 
-        return view('owner.teacher-payments.index', compact('academy', 'hasActiveTeachers', 'filterTeachers', 'formTeachers', 'payments', 'summary'));
+        return view('owner.teacher-payments.index', compact('academy', 'hasActiveTeachers', 'canManagePayments', 'filterTeachers', 'formTeachers', 'payments', 'summary'));
     }
 
     public function store(Request $request, Academy $academy): RedirectResponse
