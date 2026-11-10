@@ -12,43 +12,11 @@ use Illuminate\View\View;
 
 final class ParentMessageController extends Controller
 {
-    public function index(Academy $academy, Request $request): View
+    public function index(Academy $academy, Request $request): RedirectResponse
     {
         $this->authorizeAcademy($request, $academy);
 
-        $filters = $request->validate([
-            'status' => ['nullable', 'string', 'in:open,in_review,responded,closed'],
-            'category' => ['nullable', 'string', 'in:question,suggestion,complaint,other'],
-            'q' => ['nullable', 'string', 'max:120'],
-        ]);
-
-        $messages = ParentMessage::query()
-            ->where('academy_id', $academy->id)
-            ->with(['parent:id,name,mobile', 'student:id,name', 'responder:id,name'])
-            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category', $category))
-            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
-                $term = trim((string) $filters['q']);
-                $query->where(function ($nested) use ($term): void {
-                    $nested->where('subject', 'like', '%' . $term . '%')
-                        ->orWhere('body', 'like', '%' . $term . '%')
-                        ->orWhereHas('parent', fn ($parent) => $parent->where('name', 'like', '%' . $term . '%'))
-                        ->orWhereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%'));
-                });
-            })
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
-
-        $stats = [
-            'open' => ParentMessage::query()->where('academy_id', $academy->id)->where('status', 'open')->count(),
-            'in_review' => ParentMessage::query()->where('academy_id', $academy->id)->where('status', 'in_review')->count(),
-            'responded' => ParentMessage::query()->where('academy_id', $academy->id)->where('status', 'responded')->count(),
-        ];
-
-        $canManage = $request->user()->hasPermission('parents.manage');
-
-        return view('owner.messages.index', compact('academy', 'messages', 'filters', 'stats', 'canManage'));
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'messages']);
     }
 
     public function reply(Request $request, Academy $academy, int $message): RedirectResponse
