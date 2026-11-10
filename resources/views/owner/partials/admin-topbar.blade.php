@@ -10,7 +10,9 @@
             @elseif($canManagePublicSite)
                 <a class="tab {{ request()->routeIs('seo.index','seo.pages.edit','seo.pages.update') ? 'on' : '' }}" href="{{ route('seo.index') }}">ممیزی SEO</a>
                 <a class="tab {{ request()->routeIs('seo.keywords.*') ? 'on' : '' }}" href="{{ route('seo.keywords.index') }}">کلمات کلیدی</a>
-                <a class="tab {{ request()->routeIs('seo.website.*') ? 'on' : '' }}" href="{{ route('seo.website.index') }}">مرکز سایت</a>
+                <a class="tab {{ request()->routeIs('seo.website.*') ? 'on' : '' }}" href="{{ route('seo.website.index') }}" @if(request()->routeIs('seo.website.*')) aria-current="page" @endif>مرکز سایت</a>
+                <a class="tab {{ request()->routeIs('seo.content.*') ? 'on' : '' }}" href="{{ route('seo.content.index') }}" @if(request()->routeIs('seo.content.*')) aria-current="page" @endif>محتوای عمومی</a>
+                <a class="tab {{ request()->routeIs('seo.blog.*') ? 'on' : '' }}" href="{{ route('seo.blog.index') }}" @if(request()->routeIs('seo.blog.*')) aria-current="page" @endif>بلاگ و مقالات</a>
             @else
                 <a class="tab" href="{{ route('owner.dashboard') }}">نمای کلی</a>
                 @if($ownerUser?->hasPermission('courses.view'))<a class="tab" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
