@@ -47,7 +47,7 @@ class OwnerShowcasePaginationTest extends TestCase
         }
 
         $this->actingAs($owner)
-            ->get(route('owner.showcase.index', $academy))
+            ->get(route('seo.showcase.index', $academy))
             ->assertOk()
             ->assertViewHas('achievements', fn ($items) => $items instanceof LengthAwarePaginator
                 && $items->total() === 31
@@ -59,7 +59,7 @@ class OwnerShowcasePaginationTest extends TestCase
                 && $items->currentPage() === 1);
 
         $this->actingAs($owner)
-            ->get(route('owner.showcase.index', $academy) . '?achievements_page=3')
+            ->get(route('seo.showcase.index', $academy) . '?achievements_page=3')
             ->assertOk()
             ->assertViewHas('achievements', fn ($items) => $items instanceof LengthAwarePaginator
                 && $items->total() === 31
