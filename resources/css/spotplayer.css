@@ -48,7 +48,7 @@
 .sp-btn-ghost { border-color:#cbd5e1; background:#fff; color:#24364f!important; }
 .sp-btn-secondary { border-color:#cbd5e1; background:#fff; color:#24364f!important; }
 .sp-btn-wide { width:100%; margin-top:auto; }
-.sp-tabs { display:flex; align-items:center; gap:4px; overflow-x:auto; margin:18px 0; padding:4px; border:1px solid rgba(255,255,255,.07); border-radius:14px; background:#0e1535; scrollbar-width:thin; }
+.sp-tabs { display:flex; align-items:center; gap:4px; overflow-x:auto; margin:18px 0; padding:4px; border:1px solid #e1e7ef; border-radius:14px; background:#f6f8fb; scrollbar-width:thin; }
 .sp-tab { display:inline-flex; align-items:center; gap:8px; flex:none; padding:10px 14px; border-radius:10px; color:#586575!important; font-size:12px; font-weight:800; white-space:nowrap; }
 .sp-tab:hover { color:#24364f!important; background:#f6f8fb; }
 .sp-tab.is-active { color:#7b2c42!important; background:#f7edf0; border:1px solid #e8d4da; box-shadow:none; }
@@ -98,7 +98,7 @@
 .sp-filters { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin:12px 0 16px; }
 .sp-filters select,.sp-search input,.sp-settings-form input,.sp-settings-form select { min-height:40px; border:1px solid #cbd5e1; border-radius:10px; outline:0; background:#fff; color:#171b22; }
 .sp-filters select { min-width:150px; padding:7px 10px; }
-.sp-search { display:flex; align-items:center; gap:8px; flex:1 1 230px; min-width:190px; min-height:40px; padding:0 11px; border:1px solid #cbd5e1; border-radius:10px; background:#0d1431; color:var(--sp-cyan); }
+.sp-search { display:flex; align-items:center; gap:8px; flex:1 1 230px; min-width:190px; min-height:40px; padding:0 11px; border:1px solid #cbd5e1; border-radius:10px; background:#fff; color:var(--sp-cyan); }
 .sp-search input { flex:1; width:100%; min-width:0; border:0; background:transparent; }
 .sp-search input::placeholder,.sp-settings-form input::placeholder { color:#8490a0; }
 .sp-reset { color:#a9b6df; font-size:11px; font-weight:800; }
@@ -187,7 +187,7 @@
 .sp-eyebrow{color:var(--sp-cyan);font-size:10px;font-weight:900;letter-spacing:.06em}
 .sp-hero-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .sp-pill{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--sp-line);border-radius:99px;background:rgba(31,47,122,.045);color:var(--sp-muted);font-size:11px;font-weight:800;white-space:nowrap}
-.sp-pill.ok{border-color:rgba(14,159,142,.22);background:rgba(14,159,142,.09);color:var(--sp-green)}
+.sp-pill.ok{border-color:#a9d9bd;background:#e8f6ee;color:var(--sp-green)}
 .sp-pill.warn{border-color:rgba(242,168,29,.28);background:rgba(242,168,29,.12);color:var(--sp-orange)}
 .sp-pill.bad{border-color:rgba(214,69,80,.25);background:rgba(214,69,80,.11);color:var(--sp-pink)}
 .sp-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:currentColor;box-shadow:0 0 9px currentColor}
@@ -226,7 +226,7 @@
 .sp-secondary-text{display:block;margin-top:3px;color:var(--sp-muted);font-size:10px;white-space:normal;line-height:1.7}
 .sp-code{display:inline-block;max-width:220px;padding:4px 8px;border:1px solid var(--sp-line);border-radius:7px;background:rgba(232,235,250,.7);color:var(--sp-cyan);font:10px ui-monospace,Consolas,monospace;direction:ltr;unicode-bidi:embed;overflow-wrap:anywhere}
 .sp-status{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--sp-line);border-radius:99px;background:rgba(31,47,122,.035);color:var(--sp-muted);font-size:10px;font-weight:850}
-.sp-status.ok{border-color:rgba(14,159,142,.22);background:rgba(14,159,142,.08);color:var(--sp-green)}
+.sp-status.ok{border-color:#a9d9bd;background:#e8f6ee;color:var(--sp-green)}
 .sp-status.warn{border-color:rgba(255,166,43,.24);background:rgba(255,166,43,.09);color:var(--sp-orange)}
 .sp-status.bad{border-color:rgba(214,69,80,.24);background:rgba(214,69,80,.09);color:var(--sp-pink)}
 .sp-callout{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border:1px solid rgba(242,168,29,.30);border-radius:13px;background:rgba(242,168,29,.10);color:#8a5a00;font-size:11px;line-height:2}
