@@ -16,7 +16,7 @@ final class OwnerAssignmentService
 {
     public function index(User $owner, Academy $academy, array $filters = []): array
     {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'assignments.view');
 
         $query = Assignment::query()
             ->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))
@@ -78,7 +78,7 @@ final class OwnerAssignmentService
 
     public function formData(User $owner, Academy $academy): array
     {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'assignments.manage');
 
         $teacherMembership = function ($query) use ($academy): void {
             $query->selectRaw('1')
@@ -112,7 +112,7 @@ final class OwnerAssignmentService
         ?UploadedFile $handout,
         MediaService $media
     ): Assignment {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'assignments.manage');
 
         $assignment = DB::transaction(function () use ($academy, $data): Assignment {
             $classroom = $academy->classrooms()
@@ -213,11 +213,8 @@ final class OwnerAssignmentService
         abort_unless((int) $assignment->course?->academy_id === (int) $academy->id, 404);
     }
 
-    private function authorizeAcademy(User $owner, Academy $academy): void
+    private function authorizeAcademy(User $owner, Academy $academy, string $permission): void
     {
-        abort_unless(
-            $owner->hasRole('academy-owner') && (int) $academy->owner_id === (int) $owner->id,
-            403
-        );
+        app(OwnerWorkspaceService::class)->authorizeAcademy($owner, $academy, $permission);
     }
 }
