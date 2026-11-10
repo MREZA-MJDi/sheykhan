@@ -22,9 +22,10 @@
         <article class="owner-stat-card"><span>تلاش‌های ثبت‌شده</span><strong>{{ \App\Support\PersianUi::digits($stats['attempts']) }}</strong><small>شامل تلاش‌های ارسال‌شده و در جریان</small></article>
     </section>
 
-    <form method="GET" class="dashboard-panel grid gap-3 p-4 sm:grid-cols-[1fr_200px_auto] sm:items-end">
+    <form method="GET" class="dashboard-panel grid gap-3 p-4 sm:grid-cols-[1fr_180px_180px_auto] sm:items-end">
         <label class="grid gap-1 text-xs font-bold">جست‌وجو<input name="q" value="{{ $filters['q'] ?? '' }}" class="min-h-10 rounded-xl border border-slate-200 px-3 text-sm" placeholder="عنوان آزمون یا دوره"></label>
         <label class="grid gap-1 text-xs font-bold">وضعیت<select name="status" class="min-h-10 rounded-xl border border-slate-200 px-3 text-sm"><option value="">همه وضعیت‌ها</option><option value="draft" @selected(($filters['status'] ?? '') === 'draft')>پیش‌نویس</option><option value="published" @selected(($filters['status'] ?? '') === 'published')>منتشرشده</option><option value="closed" @selected(($filters['status'] ?? '') === 'closed')>بسته‌شده</option></select></label>
+        <label class="grid gap-1 text-xs font-bold">مرتب‌سازی<select name="sort" class="min-h-10 rounded-xl border border-slate-200 px-3 text-sm"><option value="recent" @selected(($filters['sort'] ?? 'recent') === 'recent')>جدیدترین</option><option value="oldest" @selected(($filters['sort'] ?? '') === 'oldest')>قدیمی‌ترین</option><option value="title" @selected(($filters['sort'] ?? '') === 'title')>عنوان</option><option value="attempts" @selected(($filters['sort'] ?? '') === 'attempts')>بیشترین تلاش</option></select></label>
         <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
     </form>
 
