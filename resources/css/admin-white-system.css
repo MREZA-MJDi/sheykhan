@@ -1156,3 +1156,57 @@ body.owner-shell.owner-admin-v2 {
     .owner-admin-v2 .main-content :is(table) { min-width: 600px; }
     .owner-admin-v2 .main-content :is(.owner-filter-actions,.owner-classroom-filter-actions,.seo-filter-actions) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
+
+
+/* Weekly schedule editor: stable two-column fields, full-width URL and clear save action. */
+.owner-admin-v2 .main-content .owner-schedule-form {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    align-items: end;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    background: #fff;
+}
+.owner-admin-v2 .main-content .owner-schedule-form > label {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+}
+.owner-admin-v2 .main-content .owner-schedule-form > label > span {
+    color: var(--ui-navy) !important;
+    font-size: 11px;
+    font-weight: 800;
+}
+.owner-admin-v2 .main-content .owner-schedule-form > label small {
+    display: inline;
+    color: var(--ui-muted) !important;
+    font-size: 10px;
+    font-weight: 500;
+}
+.owner-admin-v2 .main-content .owner-schedule-form [role=alert] {
+    grid-column: 1 / -1;
+}
+.owner-admin-v2 .main-content .owner-schedule-form > div:last-child {
+    grid-column: 1 / -1;
+    align-self: end;
+}
+.owner-admin-v2 .main-content .owner-schedule-form .owner-primary-action {
+    width: 100%;
+    min-height: 42px;
+}
+@media (max-width: 520px) {
+    .owner-admin-v2 .main-content .owner-schedule-form {
+        grid-template-columns: minmax(0,1fr);
+        padding: 12px;
+    }
+    .owner-admin-v2 .main-content .owner-schedule-form > label,
+    .owner-admin-v2 .main-content .owner-schedule-form [role=alert],
+    .owner-admin-v2 .main-content .owner-schedule-form > div:last-child {
+        grid-column: 1;
+    }
+}
