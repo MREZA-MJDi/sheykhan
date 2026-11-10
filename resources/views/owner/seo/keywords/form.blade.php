@@ -12,10 +12,10 @@
             <h1>{{ $isEdit ? $keyword->keyword : 'ثبت کلمهٔ کلیدی جدید' }}</h1>
             <p>عبارت را به یک صفحهٔ مشخص وصل کن و وضعیت اجرا و داده‌های واقعی آن را جداگانه نگه دار. رتبهٔ خالی یعنی مشاهده‌ای ثبت نشده است.</p>
         </div>
-        <a href="{{ route('owner.seo.keywords.index') }}">بازگشت به فهرست</a>
+        <a href="{{ route('seo.keywords.index') }}">بازگشت به فهرست</a>
     </div>
 
-    <form method="POST" action="{{ $isEdit ? route('owner.seo.keywords.update', $keyword) : route('owner.seo.keywords.store') }}" class="owner-form-grid">
+    <form method="POST" action="{{ $isEdit ? route('seo.keywords.update', $keyword) : route('seo.keywords.store') }}" class="owner-form-grid">
         @csrf
         @if($isEdit) @method('PATCH') @endif
 
@@ -69,7 +69,7 @@
     @if($isEdit)
         <section class="dashboard-panel owner-panel seo-keyword-history">
             <div class="owner-panel-head"><div><h2>ثبت یک مشاهدهٔ جدید</h2><p>برای حفظ تاریخچه، رتبهٔ تازه را ثبت کن؛ رکوردهای قبلی پاک نمی‌شوند.</p></div></div>
-            <form method="POST" action="{{ route('owner.seo.keywords.rankings.store', $keyword) }}" class="seo-keyword-observation-form">
+            <form method="POST" action="{{ route('seo.keywords.rankings.store', $keyword) }}" class="seo-keyword-observation-form">
                 @csrf
                 <label><span>رتبه</span><input type="number" name="position" min="1" max="1000" required></label>
                 <label><span>تاریخ مشاهده</span><input type="date" name="observed_on" value="{{ now()->toDateString() }}" required></label>
@@ -101,7 +101,7 @@
                 </table>
             </div>
         </section>
-        <form method="POST" action="{{ route('owner.seo.keywords.destroy', $keyword) }}" class="seo-keyword-danger-zone" onsubmit="return confirm('این کلمه و تمام تاریخچهٔ آن حذف شود؟');">
+        <form method="POST" action="{{ route('seo.keywords.destroy', $keyword) }}" class="seo-keyword-danger-zone" onsubmit="return confirm('این کلمه و تمام تاریخچهٔ آن حذف شود؟');">
             @csrf @method('DELETE')
             <span>حذف دائمی کلمه و تاریخچه</span>
             <button type="submit" class="seo-keyword-delete">حذف کلمه</button>
