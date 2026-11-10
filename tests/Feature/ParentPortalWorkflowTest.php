@@ -518,7 +518,7 @@ class ParentPortalWorkflowTest extends TestCase
         $this->actingAs($workspace['parent'])
             ->get(route('parent.messages.index'))
             ->assertOk()
-            ->assertSee('تمرین‌های یک تا سه را دوباره مرور کنید());
+            ->assertSee('تمرین‌های یک تا سه را دوباره مرور کنید.');
 
         $this->actingAs($workspace['parent'])
             ->get(route('parent.messages.index', ['q' => 'سؤال درباره تکلیف']))
