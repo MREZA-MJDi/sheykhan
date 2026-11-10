@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Academy;
 use App\Models\AcademyMeeting;
 use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Exam;
@@ -177,6 +178,40 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
             'id' => $attempt->id,
             'score' => 4.5,
             'status' => 'graded',
+        ]);
+    }
+
+    public function test_owner_can_grade_assignment_with_assignment_manage_permission(): void
+    {
+        $workspace = $this->workspace();
+        $assignment = Assignment::query()->create([
+            'course_id' => $workspace['course']->id,
+            'classroom_id' => $workspace['classroom']->id,
+            'teacher_id' => $workspace['teacher']->id,
+            'title' => 'تکلیف قابل تصحیح توسط مدیر',
+            'instructions' => 'پاسخ تشریحی',
+            'max_score' => 20,
+            'status' => 'published',
+        ]);
+        $submission = AssignmentSubmission::query()->create([
+            'assignment_id' => $assignment->id,
+            'student_id' => $workspace['student']->id,
+            'content' => 'پاسخ هنرجو',
+            'submitted_at' => now()->subMinute(),
+        ]);
+
+        $this->actingAs($workspace['owner'])
+            ->patch(route('owner.assignments.grade', [$workspace['academy'], $assignment->id, $submission->id]), [
+                'score' => 17.5,
+                'feedback' => 'پاسخ خوب است.',
+            ])
+            ->assertRedirect(route('owner.assignments.show', [$workspace['academy'], $assignment->id]))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('assignment_submissions', [
+            'id' => $submission->id,
+            'score' => 17.5,
+            'graded_by' => $workspace['owner']->id,
         ]);
     }
 
@@ -469,7 +504,7 @@ final class OwnerTeacherWorkflowCompletionTest extends TestCase
 
         $ownerRole = $this->role('academy-owner', [
             'dashboard.view', 'academy.view', 'live_classes.view', 'live_classes.manage',
-            'exams.view', 'exams.manage', 'parents.view', 'parents.manage',
+            'exams.view', 'exams.manage', 'assignments.view', 'assignments.manage', 'parents.view', 'parents.manage',
         ]);
         $teacherRole = $this->role('teacher', [
             'dashboard.view', 'live_classes.view', 'live_classes.manage',
