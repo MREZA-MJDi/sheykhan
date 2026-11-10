@@ -23,13 +23,13 @@ class OwnerWebsiteControlTest extends TestCase
         [$owner, $academy, $seo] = $this->workspace();
 
         $this->actingAs($owner)
-            ->get(route('owner.website.index'))
+            ->get(route('seo.website.index'))
             ->assertForbidden();
 
         $this->actingAs($seo)
-            ->get(route('owner.website.index'))
+            ->get(route('seo.website.index'))
             ->assertOk()
-            ->assertViewIs('owner.website.index')
+            ->assertViewIs('seo.website.index')
             ->assertViewHas('academies', fn ($academies) => $academies->contains($academy));
     }
 
@@ -71,7 +71,7 @@ class OwnerWebsiteControlTest extends TestCase
         ]);
 
         $this->actingAs($seo)
-            ->patch(route('owner.academy.banners.update', $academy), [
+            ->patch(route('seo.academy.banners.update', $academy), [
                 'banners' => [
                     1 => [
                         'media_id' => $media->id,
@@ -115,7 +115,7 @@ class OwnerWebsiteControlTest extends TestCase
         Storage::fake('local');
 
         $this->actingAs($seo)
-            ->patch(route('owner.academy.banners.update', $academy), [
+            ->patch(route('seo.academy.banners.update', $academy), [
                 'banners' => [
                     1 => [
                         'image' => UploadedFile::fake()->image('new-banner.jpg', 800, 400),
