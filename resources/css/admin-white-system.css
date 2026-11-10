@@ -385,3 +385,76 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content .admin-context-tabs__scope{color:var(--ui-muted);font-size:10px}
 
 .owner-admin-v2 .admin-context-tab[aria-current=page]{border-color:var(--ui-primary);background:var(--ui-primary);color:#fff!important}
+
+
+/* Online-class calendar and session-management workspaces. */
+.owner-admin-v2 .main-content .owner-online-links-page{display:grid;align-content:start;gap:18px;width:100%;max-width:1500px;min-width:0;margin-inline:auto}
+.owner-admin-v2 .main-content :is(.weekly-calendar,.owner-calendar-section,.owner-session-card,.owner-schedule-editor,.owner-schedule-form,.weekly-calendar-guide,.weekly-calendar-guide-card){
+  border:1px solid var(--ui-border)!important;border-radius:var(--ui-radius);background:#fff!important;color:var(--ui-text)!important;box-shadow:var(--ui-shadow)!important
+}
+.owner-admin-v2 .main-content :is(.weekly-calendar-header,.weekly-calendar-day-head,.weekly-calendar-title,.owner-session-heading,.owner-section-heading){
+  color:var(--ui-heading)!important
+}
+.owner-admin-v2 .main-content :is(.weekly-calendar-kicker,.weekly-calendar-event-meta,.weekly-calendar-event-course,.weekly-calendar-guide-copy p,.weekly-calendar-empty,.weekly-calendar-date-chip){
+  color:var(--ui-muted)!important
+}
+.owner-admin-v2 .main-content .weekly-calendar-grid{gap:8px}
+.owner-admin-v2 .main-content .weekly-calendar-day{min-width:0;border:1px solid var(--ui-border)!important;border-radius:11px;background:#fff!important;color:var(--ui-text)!important;box-shadow:none!important}
+.owner-admin-v2 .main-content .weekly-calendar-day.is-today{border-color:#b8cce0!important;background:var(--ui-info-soft)!important}
+.owner-admin-v2 .main-content .weekly-calendar-day-number{color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .weekly-calendar-count{background:var(--ui-surface-muted);color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .weekly-calendar-event{border:1px solid var(--ui-border)!important;border-inline-start:3px solid var(--ui-info);border-radius:9px;background:#fff!important;color:var(--ui-text)!important;box-shadow:none!important}
+.owner-admin-v2 .main-content .weekly-calendar-event.needs-link{border-inline-start-color:var(--ui-warning);background:var(--ui-warning-soft)!important}
+.owner-admin-v2 .main-content .weekly-calendar-event.needs-link :is(b,strong,span,small){color:#875006!important}
+.owner-admin-v2 .main-content .weekly-calendar-event-title{color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .weekly-calendar-event-time{color:var(--ui-primary)!important}
+.owner-admin-v2 .main-content .weekly-calendar-legend-dot.is-needs-link{background:var(--ui-warning)!important}
+.owner-admin-v2 .main-content .weekly-calendar-guide-art{background:var(--ui-primary-soft)!important;color:var(--ui-primary)!important}
+.owner-admin-v2 .main-content .owner-session-slot{border:1px solid var(--ui-border);border-radius:10px;background:var(--ui-surface-soft);color:var(--ui-text)}
+.owner-admin-v2 .main-content .owner-primary-action{border:1px solid var(--ui-primary);border-radius:10px;background:var(--ui-primary)!important;color:#fff!important}
+.owner-admin-v2 .main-content .owner-info-banner{border:1px solid #b8d2ed;border-radius:10px;background:var(--ui-info-soft);color:#205487}
+.owner-admin-v2 .main-content .owner-empty-state{padding:18px;border:1px dashed var(--ui-border-strong);border-radius:12px;background:var(--ui-surface-soft);color:var(--ui-muted)}
+
+/* Communications, messages, announcements and counseling. */
+.owner-admin-v2 .main-content .communication-page{display:grid;align-content:start;gap:16px;width:100%;min-width:0}
+.owner-admin-v2 .main-content .communication-page__hero{padding:16px 18px;border:1px solid var(--ui-border);border-inline-start:4px solid var(--ui-primary);border-radius:var(--ui-radius);background:#fff!important;color:var(--ui-text)!important;box-shadow:var(--ui-shadow)}
+.owner-admin-v2 .main-content .communication-page__hero :is(h1,h2,h3){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .communication-page__stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.owner-admin-v2 .main-content .communication-page__stat{display:grid;gap:5px;min-width:0;padding:14px;border:1px solid transparent;border-radius:12px;background:#285b91!important;color:#fff!important;box-shadow:none}
+.owner-admin-v2 .main-content .communication-page__stat:nth-child(4n+2){background:var(--ui-success)!important}
+.owner-admin-v2 .main-content .communication-page__stat:nth-child(4n+3){background:#c47a12!important}
+.owner-admin-v2 .main-content .communication-page__stat:nth-child(4n){background:var(--ui-danger)!important}
+.owner-admin-v2 .main-content .communication-page__stat :is(strong,b,span,small){color:#fff!important}
+.owner-admin-v2 .main-content :is(.communication-page__body,.communication-page__message-list,.communication-page__response,.communication-page__empty,.communication-page__help){
+  min-width:0;border:1px solid var(--ui-border);border-radius:12px;background:#fff!important;color:var(--ui-text)!important
+}
+.owner-admin-v2 .main-content .communication-page__message{padding:14px;border:1px solid var(--ui-border)!important;border-radius:12px;background:#fff!important;color:var(--ui-text)!important}
+.owner-admin-v2 .main-content :is(.communication-page__message-meta,.communication-page__response-meta){color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .communication-page__status{display:inline-flex;align-items:center;min-height:25px;padding:3px 9px;border-radius:999px;background:var(--ui-info-soft);color:var(--ui-info)!important;font-size:10px;font-weight:800}
+.owner-admin-v2 .main-content .communication-page__status.is-success{background:var(--ui-success-soft);color:var(--ui-success)!important}
+.owner-admin-v2 .main-content .communication-page__status.is-warning{background:var(--ui-warning-soft);color:#875006!important}
+.owner-admin-v2 .main-content .communication-page__status.is-danger{background:var(--ui-danger-soft);color:var(--ui-danger)!important}
+.owner-admin-v2 .main-content .communication-page__button{border:1px solid var(--ui-primary);border-radius:10px;background:var(--ui-primary)!important;color:#fff!important}
+.owner-admin-v2 .main-content .communication-page__button.is-secondary,
+.owner-admin-v2 .main-content .communication-page__button--secondary{border-color:var(--ui-border-strong);background:#fff!important;color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content :is(.owner-secondary-btn,.communication-page__button.is-secondary){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .owner-danger-btn{border:1px solid var(--ui-danger);background:var(--ui-danger)!important;color:#fff!important}
+.owner-admin-v2 .main-content .owner-person-preview-trigger{border:1px solid var(--ui-border-strong);border-radius:9px;background:#fff;color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .owner-student-picker__option-copy :is(strong,b){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .owner-student-picker__option-meta{color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .owner-student-picker__option-action{color:var(--ui-primary)!important}
+.owner-admin-v2 .main-content .owner-student-picker-more{border:1px solid var(--ui-border);border-radius:9px;background:var(--ui-surface-soft);color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .owner-student-picker-clear{color:var(--ui-danger)!important}
+.owner-admin-v2 .main-content .owner-student-picker__empty{color:var(--ui-muted)!important}
+
+/* Dashboard chart legends, SVG axes and secondary data cards. */
+.owner-admin-v2 .main-content :is(.owner-growth-card,.owner-attention-list,.owner-quick-approvals,.owner-subject-averages,.owner-monthly-sales,.owner-line-chart){background:#fff!important;color:var(--ui-text)!important}
+.owner-admin-v2 .main-content .owner-chart-grid :is(line,path){stroke:#e5eaf0!important}
+.owner-admin-v2 .main-content .owner-chart-labels :is(text,tspan){fill:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .owner-line-students{stroke:#285b91!important}
+.owner-admin-v2 .main-content .owner-line-attendance{stroke:#16804b!important}
+.owner-admin-v2 .main-content .owner-chart-legend{color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .owner-chart-legend .owner-line-students{background:#285b91!important}
+.owner-admin-v2 .main-content .owner-chart-legend .owner-line-attendance{background:#16804b!important}
+.owner-admin-v2 .main-content .owner-attention-list :is(a,button){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .owner-growth-card :is(h2,h3,strong){color:var(--ui-heading)!important}
