@@ -12,7 +12,7 @@ class PanelDesignTokenContractTest extends TestCase
             'parent' => 'css/parent.css',
             'student' => 'css/student.css',
             'owner' => 'views/owner/admin/assets/admin.css',
-            'seo' => 'css/seo-dashboard.css',
+            'seo' => 'views/owner/admin/assets/seo-dashboard.css',
         ];
 
         foreach ($entries as $role => $entry) {
@@ -25,10 +25,10 @@ class PanelDesignTokenContractTest extends TestCase
                 $this->assertIsString($css);
             }
 
-            $calendarImport = $role === 'owner'
+            $calendarImport = in_array($role, ['owner', 'seo'], true)
                 ? "@import '../../../../css/panels/shared/calendar.css';"
                 : "@import './panels/{$panel}/calendar.css';";
-            $componentsImport = $role === 'owner'
+            $componentsImport = in_array($role, ['owner', 'seo'], true)
                 ? "@import '../../../../css/panels/shared/components.css';"
                 : "@import './panels/{$panel}/components.css';";
 
@@ -42,6 +42,8 @@ class PanelDesignTokenContractTest extends TestCase
 
         $this->assertFileDoesNotExist(resource_path('css/owner-dashboard-v2.css'));
         $this->assertFileDoesNotExist(resource_path('css/panels/owner/admin.css'));
+        $this->assertFileDoesNotExist(resource_path('css/panels/seo/admin.css'));
+        $this->assertFileDoesNotExist(resource_path('css/seo-dashboard.css'));
     }
 
     public function test_public_site_owns_a_separate_calendar_stylesheet(): void
