@@ -5,6 +5,7 @@
 
 @section('content')
 <div class="owner-exam-page owner-workspace-page">
+    @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'exams'])
     <header class="owner-exam-head">
         <div>
             <span class="text-xs font-black text-[var(--panel-primary)]">ارزیابی آموزشی · کارتابل ادمین / منشی</span>
