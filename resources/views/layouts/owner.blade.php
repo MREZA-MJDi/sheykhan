@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'مدیریت آموزشگاه | شیخان')</title>
-    @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
+    @vite(['resources/css/owner-dashboard-v2.css', 'resources/css/panels/shared/owner-ui.css', 'resources/js/owner-dashboard.js'])
     @stack('styles')
 </head>
 <body class="owner-shell owner-admin-v2">
