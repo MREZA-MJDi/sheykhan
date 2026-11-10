@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'کارتابل مدیر آموزشگاه | شیخان')</title>
+    <title>@yield('title', 'مدیریت آموزشگاه | شیخان')</title>
     @vite(['resources/css/owner-dashboard-v2.css', 'resources/js/owner-dashboard.js'])
     @stack('styles')
 </head>
@@ -28,7 +28,7 @@
     $ownerHomeRoute = $isSeoOnlyUser ? 'owner.seo.index' : 'owner.dashboard';
     $routeAcademy = request()->route('academy');
     $routeAcademyId = $routeAcademy instanceof \App\Models\Academy ? (int) $routeAcademy->getKey() : (int) ($routeAcademy ?? 0);
-    $pageHeading = trim($__env->yieldContent('header-title')) ?: 'کارتابل ادمین / منشی';
+    $pageHeading = trim($__env->yieldContent('header-title')) ?: 'مدیریت آموزشگاه';
     $period = in_array($period ?? request()->query('period', 'month'), ['today','week','month'], true) ? ($period ?? request()->query('period','month')) : 'month';
     $notifications = collect($notifications ?? []);
     $ownerInitial = mb_substr(trim((string) ($ownerUser?->name ?? 'ش')), 0, 1);
@@ -290,11 +290,11 @@
             <section class="tm owner-seo-sidebar-note" aria-label="مرکز مدیریت SEO">
                 <small>مرکز مدیریت سایت</small>
                 <b>SEO و محتوای عمومی</b>
-                <small>متادیتا، کلمات کلیدی، بنرها و مقاله‌ها از همین پنل مدیریت می‌شوند.</small>
+                <small>اطلاعات سایت، عبارت‌های جست‌وجو، بنرها و مقاله‌ها از این بخش مدیریت می‌شوند.</small>
                 <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('owner.seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>شروع ممیزی صفحات</span></a>
             </section>
         @endif
-        <div class="side-foot"><a href="{{ route('account.guide') }}"><svg class="ic"><use href="#i-book"/></svg>راهنمای پنل و بروشور</a><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
+        <div class="side-foot"><a href="{{ route('account.guide') }}"><svg class="ic"><use href="#i-book"/></svg>راهنمای استفاده</a><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
     </aside>
     @include('owner.partials.admin-main')
     @include('owner.partials.admin-command-palette')
