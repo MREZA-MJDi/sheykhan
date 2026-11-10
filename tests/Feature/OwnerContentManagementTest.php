@@ -29,7 +29,7 @@ class OwnerContentManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($seo)->post(route('owner.content.store'), [
+        $response = $this->actingAs($seo)->post(route('seo.content.store'), [
             'academy_id' => $academy->id,
             'category_id' => $category->id,
             'type' => 'article',
@@ -42,7 +42,7 @@ class OwnerContentManagementTest extends TestCase
 
         $content = AcademyContent::query()->where('academy_id', $academy->id)->firstOrFail();
 
-        $response->assertRedirect(route('owner.content.edit', $content));
+        $response->assertRedirect(route('seo.content.edit', $content));
 
         $this->assertDatabaseHas('academy_contents', [
             'id' => $content->id,
@@ -67,7 +67,7 @@ class OwnerContentManagementTest extends TestCase
         ]);
 
         $this->actingAs($seo)
-            ->post(route('owner.content.store'), [
+            ->post(route('seo.content.store'), [
                 'academy_id' => $academy->id,
                 'category_id' => $category->id,
                 'type' => 'article',
@@ -117,7 +117,7 @@ class OwnerContentManagementTest extends TestCase
         ]);
 
         $this->actingAs($seoA)
-            ->get(route('owner.content.edit', $content))
+            ->get(route('seo.content.edit', $content))
             ->assertOk();
     }
 
@@ -149,7 +149,7 @@ class OwnerContentManagementTest extends TestCase
         ]);
 
         $this->actingAs($owner)
-            ->post(route('owner.content.store'), [
+            ->post(route('seo.content.store'), [
                 'academy_id' => $academy->id,
                 'category_id' => $category->id,
                 'type' => 'article',
