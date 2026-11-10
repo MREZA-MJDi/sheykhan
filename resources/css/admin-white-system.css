@@ -2,8 +2,8 @@
 :root {
   color-scheme: light;
   --ui-page:#fff; --ui-bg:#fff; --ui-surface:#fff; --ui-surface-soft:#f6f8fb; --ui-surface-muted:#eef2f6;
-  --ui-border:#e1e7ef; --ui-border-strong:#cbd5e1; --ui-text:#171b22; --ui-muted:#586575; --ui-heading:#173b63;
-  --ui-primary:#285b91; --ui-primary-hover:#1e4775; --ui-primary-soft:#eaf2fa;
+  --ui-border:#e1e7ef; --ui-border-strong:#cbd5e1; --ui-text:#171b22; --ui-muted:#586575; --ui-heading:#24364f;
+  --ui-primary: #7b2c42; --ui-primary-hover:#632336; --ui-primary-soft:#f7edf0; --ui-navy: #24364f;
   --ui-success:#16804b; --ui-success-soft:#e8f6ee; --ui-warning:#b66d0b; --ui-warning-soft:#fff4df;
   --ui-danger:#b4233c; --ui-danger-soft:#fff0f2; --ui-info:#2866a5; --ui-info-soft:#edf5ff;
   --ui-radius:14px; --ui-radius-sm:10px; --ui-shadow:0 4px 16px rgba(22,38,58,.055);
@@ -363,3 +363,21 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content :is(.owner-page-section-head h2,.owner-section-head h2,.owner-workspace-section-head h2){
   margin:0;color:var(--ui-heading)!important;font-size:15px;font-weight:850;
 }
+
+/* Learning context tabs shared by Owner and SEO shells. */
+.owner-admin-v2 .main-content .admin-context-tabs{
+  display:grid;gap:10px;min-width:0;padding:13px 15px;border:1px solid var(--ui-border);
+  border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow)
+}
+.owner-admin-v2 .main-content .admin-context-tabs__label{color:var(--ui-heading);font-size:11px;font-weight:900}
+.owner-admin-v2 .main-content .admin-context-tabs__list{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+.owner-admin-v2 .main-content .admin-context-tab{
+  display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 12px;
+  border:1px solid var(--ui-border);border-radius:9px;background:#fff;color:var(--ui-muted)!important;
+  font-size:11px;font-weight:750;text-decoration:none
+}
+.owner-admin-v2 .main-content .admin-context-tab:hover{border-color:var(--ui-primary);background:var(--ui-primary-soft);color:var(--ui-primary)!important}
+.owner-admin-v2 .main-content .admin-context-tab[aria-current=page]{
+  border-color:var(--ui-primary);background:var(--ui-primary);color:#fff!important;box-shadow:none
+}
+.owner-admin-v2 .main-content .admin-context-tabs__scope{color:var(--ui-muted);font-size:10px}
