@@ -32,4 +32,11 @@ final class BlogController extends Controller
         $post=$blog->update($request->user(),$post,$request->validated());
         return redirect()->route('owner.blog.edit',$post)->with('success','مقاله به‌روزرسانی شد.');
     }
+    
+    public function destroy(\\Illuminate\\Http\\Request $request, BlogPost $post, OwnerBlogService $blog): RedirectResponse
+    {
+        $blog->delete($request->user(), $post);
+
+        return redirect()->route('owner.blog.index')->with('success', 'مقاله حذف شد.');
+    }
 }
