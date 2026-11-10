@@ -22,10 +22,10 @@
             <h1>{{ $item->getAttribute('title') ?: $item->getAttribute('name') ?: 'صفحه' }}</h1>
             <p>این تنظیمات در HTML عمومی صفحه قرار می‌گیرند. مقدارهای خالی از metadata پیش‌فرض صفحه استفاده می‌کنند.</p>
         </div>
-        <a href="{{ route('owner.seo.index') }}">بازگشت به SEO</a>
+        <a href="{{ route('seo.index') }}">بازگشت به SEO</a>
     </div>
 
-    <form method="POST" action="{{ route('owner.seo.update', [$type, $item->getKey()]) }}" class="owner-form-grid">
+    <form method="POST" action="{{ route('seo.pages.update', [$type, $item->getKey()]) }}" class="owner-form-grid">
         @csrf
         @method('PATCH')
 
