@@ -17,11 +17,6 @@ final class FinanceController extends Controller
             'q' => ['nullable', 'string', 'max:120'],
         ]);
         $data = $finance->index($owner, $filters);
-        $data['academy'] = $owner->ownedAcademies()
-            ->where('status', 'active')
-            ->orderBy('name')
-            ->first();
-
         return view('owner.finance.index', $data);
     }
 }
