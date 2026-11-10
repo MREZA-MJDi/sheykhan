@@ -13,7 +13,7 @@
     $capacityAlerts = (int) ($summary['capacity_alerts'] ?? 0);
 @endphp
 
-<div class="space-y-6 panel-page-enter">
+<div class="space-y-6 panel-page-enter owner-classrooms-page">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">مرکز مدیریت کلاس‌ها</p>
