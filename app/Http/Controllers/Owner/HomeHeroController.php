@@ -22,7 +22,7 @@ final class HomeHeroController extends Controller
     public function edit(): View {
         $this->ensureSeoSpecialist(request()->user());
 
-        return view('owner.website.hero', [
+        return view('seo.website.hero', [
             'slides' => HomeHeroSlide::query()
                 ->with(['media', 'mobileMedia'])
                 ->orderBy('slot')
@@ -155,7 +155,7 @@ final class HomeHeroController extends Controller
         $heroService->forgetCache();
 
         return redirect()
-            ->route('owner.website.hero.edit')
+            ->route('seo.website.hero.edit')
             ->with('success', $request->boolean('remove_slide')
                 ? "اسلاید {$slot} حذف شد."
                 : "تنظیمات اسلاید {$slot} ذخیره شد.");
