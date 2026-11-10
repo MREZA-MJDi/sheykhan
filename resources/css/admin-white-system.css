@@ -381,3 +381,5 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
   border-color:var(--ui-primary);background:var(--ui-primary);color:#fff!important;box-shadow:none
 }
 .owner-admin-v2 .main-content .admin-context-tabs__scope{color:var(--ui-muted);font-size:10px}
+
+.owner-admin-v2 .admin-context-tab[aria-current=page]{border-color:var(--ui-primary);background:var(--ui-primary);color:#fff!important}
