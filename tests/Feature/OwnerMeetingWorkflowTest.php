@@ -192,7 +192,7 @@ class OwnerMeetingWorkflowTest extends TestCase
             'created_by' => $owner->id,
             'title' => 'دوره تست',
             'slug' => 'course-' . Str::lower(Str::random(8)),
-            'status' => 'draft',
+            'status' => 'published',
             'access_type' => 'free',
             'price' => 0,
         ]);
