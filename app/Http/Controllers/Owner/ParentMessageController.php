@@ -15,7 +15,7 @@ final class ParentMessageController extends Controller
     {
         $workspace->authorizeAcademy($request->user(), $academy, 'parents.view');
 
-        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'messages']);
+        return redirect()->route('owner.communication-workspace', array_merge($request->query(), ['academy' => $academy, 'tab' => 'messages']));
     }
 
     public function reply(Request $request, Academy $academy, int $message, OwnerWorkspaceService $workspace): RedirectResponse
