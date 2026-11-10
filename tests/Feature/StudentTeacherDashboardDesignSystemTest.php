@@ -114,7 +114,7 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
         $this->assertStringNotContainsString('resources/css/', $behavior);
         $this->assertStringContainsString('bootSharedBehaviors();', $panelRuntime);
         $this->assertStringContainsString('bootSharedBehaviors();', $teacher);
-        $this->assertStringContainsString('initializeTabs(root', $panelRuntime);
+        $this->assertStringContainsString('initializeTabs(root);', $behavior);
         $this->assertStringContainsString('guardFormOnce(form', $ownerCommon);
     }
 
