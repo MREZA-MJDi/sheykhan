@@ -109,3 +109,7 @@ if (document.readyState === 'loading') {
 } else {
     initialize();
 }
+window.addEventListener('owner:modal:mounted', (event) => {
+    const root = event.detail?.root;
+    if (root) bootFilePreviews(root);
+});
