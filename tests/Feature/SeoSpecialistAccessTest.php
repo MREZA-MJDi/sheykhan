@@ -102,7 +102,9 @@ class SeoSpecialistAccessTest extends TestCase
     public function test_seo_dashboard_does_not_fail_when_search_console_snapshot_table_is_missing(): void
     {
         [$specialist] = $this->makeSeoWorkspace();
-        Schema::dropIfExists('seo_performance_snapshots');
+        Schema::shouldReceive('hasTable')
+            ->with('seo_performance_snapshots')
+            ->andReturn(false);
 
         $this->actingAs($specialist)
             ->get(route('seo.index'))
