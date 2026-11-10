@@ -10,12 +10,7 @@
                 <div class="owner-chart-legend" aria-label="راهنمای نمودار">
                     <span><i style="--legend:#22d3ee"></i>میانگین نرخ حضور</span>
                 </div>
-                <x-owner.dashboard.line-chart
-                    :segments="$weeklyAttendanceSegments"
-                    :labels="$weeklyLabels"
-                    series-class="owner-line-attendance"
-                    aria-label="روند نرخ حضور هفتگی در ۱۳ هفته اخیر"
-                    :show-vertical-grid="true" />
+                @include('owner.admin.components.line-chart', ['segments' => $weeklyAttendanceSegments, 'labels' => $weeklyLabels, 'seriesClass' => 'owner-line-attendance', 'ariaLabel' => 'روند نرخ حضور هفتگی در ۱۳ هفته اخیر', 'showVerticalGrid' => true])
             @else
                 <div class="card-empty">هنوز داده کافی برای نمایش روند حضور در ۱۳ هفته اخیر ثبت نشده است.</div>
             @endif
@@ -125,13 +120,7 @@
                     @if($canViewReports)<a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>@endif
                 </div>
                 @if(count(array_filter(is_array($weeklyStudents) ? $weeklyStudents : [], 'is_numeric')) >= 2 && array_sum(array_map('floatval', is_array($weeklyStudents) ? $weeklyStudents : [])) > 0)
-                    <x-owner.dashboard.line-chart
-                        :segments="$weeklyStudentSegments"
-                        :labels="$weeklyLabels"
-                        series-class="owner-line-students"
-                        chart-class="owner-growth-chart"
-                        aria-label="روند هفتگی ثبت‌نام دانش‌آموزان"
-                        :show-vertical-grid="false" />
+                    @include('owner.admin.components.line-chart', ['segments' => $weeklyStudentSegments, 'labels' => $weeklyLabels, 'seriesClass' => 'owner-line-students', 'chartClass' => 'owner-growth-chart', 'ariaLabel' => 'روند هفتگی ثبت‌نام دانش‌آموزان', 'showVerticalGrid' => false])
                 @else
                     <div class="card-empty">هنوز داده کافی برای نمایش روند ثبت‌نام در ۱۳ هفته اخیر وجود ندارد.</div>
                 @endif
