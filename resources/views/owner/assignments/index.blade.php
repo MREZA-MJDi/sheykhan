@@ -17,8 +17,11 @@
         </div>
         <div class="flex flex-wrap gap-2">
             @if(auth()->user()->hasPermission('assignments.manage'))
-            <a href="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url=
-        @endif"{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ساخت تکلیف" class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">+ تکلیف جدید</a>
+                <a href="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}"
+                   data-owner-modal-url="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}"
+                   data-owner-modal-title="ساخت تکلیف"
+                   class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">+ تکلیف جدید</a>
+            @endif
             <a href="{{ route('owner.dashboard') }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">بازگشت به کارتابل</a>
         </div>
     </header>
