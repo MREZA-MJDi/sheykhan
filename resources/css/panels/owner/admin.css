@@ -1,0 +1,6 @@
+/* Owner admin stylesheet facade. Shared rules and Owner-only page rules live in their canonical modules. */
+@import '../shared/admin-base.css';
+@import './admin-pages.css';
+
+/* Exam builder layout contract. Detailed presentation is maintained in admin-pages.css. */
+.owner-admin-v2 .main-content :is(.owner-exam-question,.owner-exam-correct-choice){min-width:0}
