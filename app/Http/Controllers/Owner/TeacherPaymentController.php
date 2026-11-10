@@ -16,12 +16,20 @@ final class TeacherPaymentController extends Controller
     {
         $this->authorizeAcademy($request, $academy, 'teacher_payments.view');
 
-        $teachers = $academy->users()
+        $activeTeachers = fn () => $academy->users()
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'active')
-            ->where('users.status', 'active')
-            ->orderBy('users.name')
-            ->get(['users.id', 'users.name', 'users.email']);
+            ->where('users.status', 'active');
+
+        $hasActiveTeachers = $activeTeachers()->exists();
+        $filterTeacherId = $request->integer('teacher_id');
+        $filterTeachers = $filterTeacherId > 0
+            ? $activeTeachers()->whereKey($filterTeacherId)->get(['users.id', 'users.name', 'users.email'])
+            : collect();
+        $formTeacherId = (int) $request->old('teacher_id', 0);
+        $formTeachers = $formTeacherId > 0
+            ? $activeTeachers()->whereKey($formTeacherId)->get(['users.id', 'users.name', 'users.email'])
+            : collect();
 
         $payments = TeacherPayment::query()
             ->where('academy_id', $academy->id)
@@ -36,7 +44,7 @@ final class TeacherPaymentController extends Controller
             'pending' => TeacherPayment::query()->where('academy_id', $academy->id)->where('status', 'pending')->sum('amount'),
         ];
 
-        return view('owner.teacher-payments.index', compact('academy', 'teachers', 'payments', 'summary'));
+        return view('owner.teacher-payments.index', compact('academy', 'hasActiveTeachers', 'filterTeachers', 'formTeachers', 'payments', 'summary'));
     }
 
     public function store(Request $request, Academy $academy): RedirectResponse
