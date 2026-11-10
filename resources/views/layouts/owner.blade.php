@@ -150,7 +150,9 @@
             <?php foreach ($ownerNavGroups as $navGroup) { ?>
                 <?php
                     $visibleGlobalLinks = collect($navGroup['links'])
-                        ->filter(fn ($link) => $link['scope'] === 'global' && $hasNavPermission($link['permission']));
+                        ->filter(fn ($link) => $link['scope'] === 'global'
+                            && $hasNavPermission($link['permission'])
+                            && (! in_array($link['route'], ['owner.blog.index', 'owner.content.index', 'owner.website.index', 'owner.seo.index'], true) || $canManagePublicSite));
                     $visibleAcademyLinks = collect($navGroup['links'])
                         ->filter(fn ($link) => $link['scope'] === 'academy' && $hasNavPermission($link['permission']));
                     $showSiteGroup = $navGroup['key'] === 'more' && $canManagePublicSite;
@@ -177,7 +179,7 @@
                         <div class="nav-group-items" <?php if (! $isNavGroupExpanded) echo 'hidden'; ?>>
                             <?php if (! $isSeoOnlyUser) { ?>
                                 <?php foreach ($navGroup['links'] as $navLink) { ?>
-                                    <?php if ($navLink['scope'] === 'global' && $hasNavPermission($navLink['permission'])) { ?>
+                                    <?php if ($navLink['scope'] === 'global' && $hasNavPermission($navLink['permission']) && (! in_array($navLink['route'], ['owner.blog.index', 'owner.content.index', 'owner.website.index', 'owner.seo.index'], true) || $canManagePublicSite)) { ?>
                                         <?php
                                             $navRoutePattern = str_contains($navLink['route'], '.index')
                                                 ? str_replace('.index', '.*', $navLink['route'])
