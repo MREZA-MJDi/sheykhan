@@ -35,7 +35,8 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content :is(h1,h2,h3,h4,.owner-page-title,.top-page-title){color:var(--ui-heading);letter-spacing:0}
 .owner-admin-v2 .main-content h1{font-size:clamp(21px,2.2vw,29px);line-height:1.45;font-weight:900}
 .owner-admin-v2 .main-content h2{font-size:clamp(16px,1.5vw,20px);font-weight:850}
-.owner-admin-v2 .main-content :is(p,li,dt,dd,figcaption,label,small,.sub,.owner-field-help){color:var(--ui-muted)}
+.owner-admin-v2 .main-content :is(p,li,dt,dd,label){color:var(--ui-text)}
+.owner-admin-v2 .main-content :is(figcaption,small,.sub,.owner-field-help){color:var(--ui-muted)}
 .owner-admin-v2 .main-content :is(strong,b,th,td){text-shadow:none}
 .owner-admin-v2 .main-content :is(.owner-page-intro,.owner-workspace-header,.owner-page-header,.owner-workspace-page>header,.owner-exams-page>header,.panel-page-enter>header:first-child){display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;min-width:0;padding:18px 20px;border:1px solid var(--ui-border);border-inline-start:4px solid var(--ui-primary);border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow)}
 .owner-admin-v2 .main-content :is(.owner-workspace-page,.panel-page-enter,.course-page,.owner-page,.owner-form-page,.owner-detail-page){display:grid;align-content:start;gap:18px;width:100%;min-width:0}
@@ -325,7 +326,8 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
   background:#fff!important;color:var(--ui-text)!important;box-shadow:var(--ui-shadow)!important;
 }
 .owner-admin-v2 .main-content .card:not(.kpi) :is(h1,h2,h3,h4,strong,b){color:var(--ui-heading)!important}
-.owner-admin-v2 .main-content .card:not(.kpi) :is(p,small,li,figcaption){color:var(--ui-muted)}
+.owner-admin-v2 .main-content .card:not(.kpi) :is(p,li){color:var(--ui-text)}
+.owner-admin-v2 .main-content .card:not(.kpi) :is(small,figcaption){color:var(--ui-muted)}
 .owner-admin-v2 .main-content .card:not(.kpi) .card-title p{color:var(--ui-muted)!important}
 .owner-admin-v2 .main-content .card:not(.kpi) .card-title .ic{color:var(--ui-primary)}
 .owner-admin-v2 .main-content .card:not(.kpi) .card-empty{border-color:var(--ui-border);background:var(--ui-surface-soft);color:var(--ui-muted)}
