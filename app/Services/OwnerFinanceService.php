@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\CourseEnrollment;
 use App\Models\FinancialTransaction;
 use App\Models\User;
 
