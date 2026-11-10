@@ -5,8 +5,7 @@
 @import './panels/owner/calendar.css';
 @import './panels/owner/record-modals.css';
 @import './panels/owner/components.css';
-@import './panels/shared/admin-base.css';
-@import './panels/owner/admin-pages.css';
+@import './panels/owner/admin.css';
 @import './spotplayer.css';
 @source '../../resources/views/owner';
 @source '../../resources/views/components';
