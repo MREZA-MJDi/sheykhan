@@ -3,6 +3,7 @@
 @import 'tailwindcss' source(none);
 @import './panels/shared/workspace-polish.css';
 @import './panels/owner/calendar.css';
+@import './panels/owner/record-modals.css';
 @import './panels/owner/components.css';
 @import './spotplayer.css';
 @source '../../resources/views/owner';
@@ -2169,3 +2170,177 @@ body.owner-admin-v2 {
 .owner-student-picker-status{margin:0;color:var(--mu,#8d96c9);font-size:10px;line-height:1.8}
 @media(max-width:520px){.owner-student-picker-selection{align-items:flex-start;flex-direction:column}.owner-student-picker-clear{width:100%}}
 @media(prefers-reduced-motion:reduce){.owner-student-picker__option{transition:none}}
+
+
+/* Unified light workspace theme. Interaction and layout contracts remain unchanged. */
+:root {
+    --acc:#33467b;
+    --tx:#1f2937;
+    --mu:#64748b;
+    --bg:#f5f7fb;
+    --c1:#ffffff;
+    --c2:#f8fafc;
+    --in:#ffffff;
+    --ln:#e2e8f0;
+    --sh:rgba(15,23,42,.06);
+    --pk:#be3455;
+    --ok:#16845d;
+    color-scheme:light;
+}
+body.owner-admin-v2 {
+    padding:18px;
+    background:#f4f6fa!important;
+    color:#1f2937!important;
+    color-scheme:light;
+}
+.owner-admin-v2 {
+    --oa-bg:#f5f7fb;
+    --oa-surface:#ffffff;
+    --oa-surface-2:#f8fafc;
+    --oa-input:#ffffff;
+    --oa-border:#e2e8f0;
+    --oa-text:#1f2937;
+    --oa-muted:#64748b;
+    --oa-accent:#33467b;
+    background:#f4f6fa!important;
+    color:#1f2937!important;
+    color-scheme:light;
+}
+.owner-admin-v2 .app {
+    background:#ffffff!important;
+    border:1px solid #e7ecf3;
+    box-shadow:0 14px 42px rgba(15,23,42,.06)!important;
+}
+.owner-admin-v2 .side.card {
+    border:1px solid #e2e8f0!important;
+    background:#ffffff!important;
+    box-shadow:none!important;
+    color:#1f2937!important;
+}
+.owner-admin-v2 .side :is(.gh,.ni,.side-foot,.side-foot a,.side-foot button),
+.owner-admin-v2 .top :is(a,button,.top-page-title) {
+    color:#475569;
+}
+.owner-admin-v2 .side .ni[aria-current="page"],
+.owner-admin-v2 .side .ni:hover {
+    background:#f1f5f9!important;
+    color:#263b70!important;
+}
+.owner-admin-v2 .main-content {
+    color:#1f2937!important;
+}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.course-stat,.course-status-guide,.owner-form-shell,.owner-form-card,.owner-form-section,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.owner-session-card,.owner-calendar-section,.owner-schedule-list) {
+    border-color:#e2e8f0!important;
+    background:#ffffff!important;
+    color:#1f2937!important;
+    box-shadow:0 4px 18px rgba(15,23,42,.035)!important;
+}
+.owner-admin-v2 .main-content :is(.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters,.owner-people-tabbar,.owner-people-tabs nav) {
+    border-color:#e2e8f0!important;
+    background:#f8fafc!important;
+    color:#334155!important;
+    box-shadow:none!important;
+}
+.owner-admin-v2 .main-content :is(h1,h2,h3,h4,strong,b,label,th,td,p,small,span,li) {
+    text-shadow:none!important;
+}
+.owner-admin-v2 .main-content :is(h1,h2,h3,h4,strong,b) {
+    color:#1f2937;
+}
+.owner-admin-v2 .main-content :is(p,small,.owner-field-help,.text-slate-500,.text-gray-500) {
+    color:#64748b;
+}
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea) {
+    border-color:#dbe3ed!important;
+    background:#ffffff!important;
+    color:#1f2937!important;
+    box-shadow:none!important;
+}
+.owner-admin-v2 .main-content :is(input,select,textarea)::placeholder {
+    color:#94a3b8!important;
+}
+.owner-admin-v2 .main-content table {
+    border-color:#e2e8f0!important;
+    background:#ffffff!important;
+    color:#1f2937!important;
+}
+.owner-admin-v2 .main-content thead {
+    background:#f1f5f9!important;
+    color:#334155!important;
+}
+.owner-admin-v2 .main-content thead th {
+    color:#334155!important;
+    border-color:#e2e8f0!important;
+}
+.owner-admin-v2 .main-content tbody tr,
+.owner-admin-v2 .main-content tbody tr:nth-child(even) {
+    background:#ffffff!important;
+    color:#1f2937!important;
+}
+.owner-admin-v2 .main-content tbody tr:nth-child(even) {
+    background:#f8fafc!important;
+}
+.owner-admin-v2 .main-content td {
+    border-color:#eef2f7!important;
+    color:#334155!important;
+}
+.owner-admin-v2 .main-content .pagination a,
+.owner-admin-v2 .main-content .pagination span {
+    border-color:#dbe3ed!important;
+    background:#ffffff!important;
+    color:#334155!important;
+}
+.owner-admin-v2 .main-content .pagination [aria-current="page"] span {
+    border-color:#33467b!important;
+    background:#33467b!important;
+    color:#ffffff!important;
+}
+.owner-admin-v2 .main-content .pagination a:hover {
+    border-color:#33467b!important;
+    background:#f1f5f9!important;
+    color:#273a78!important;
+}
+.owner-admin-v2 .main-content :is(.owner-page-intro,header.owner-form-head,.owner-form-head) {
+    background:#ffffff!important;
+    border-color:#e2e8f0!important;
+    box-shadow:0 4px 18px rgba(15,23,42,.035)!important;
+}
+.owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro,header:first-child),
+.owner-admin-v2 .main-content .panel-page-enter > div:first-child:not(.grid):not(.dashboard-panel):not(.owner-people-tabs):not(.owner-form-shell):not(.owner-calendar-section),
+.owner-admin-v2 .main-content .panel-page-enter > section.dashboard-panel {
+    background:#ffffff!important;
+    border-color:#e2e8f0!important;
+    box-shadow:0 4px 18px rgba(15,23,42,.035)!important;
+}
+.owner-admin-v2 .main-content .panel-page-enter > :is(.owner-page-intro,header:first-child) :is(h1,h2,h3,p),
+.owner-admin-v2 .main-content .panel-page-enter > div:first-child :is(h1,h2,h3,p) {
+    color:#1f2937!important;
+}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat)::after {
+    opacity:.22;
+}
+.owner-admin-v2 .main-content .owner-people-directory-tabbar,
+.owner-admin-v2 .main-content .owner-people-directory-tabbar [role=tab] {
+    background:#ffffff!important;
+    color:#475569!important;
+}
+.owner-admin-v2 .main-content .owner-people-directory-tabbar [role=tab][aria-selected=true] {
+    background:#eef2ff!important;
+    border-color:#c7d2fe!important;
+    color:#273a78!important;
+}
+.owner-admin-v2 .command-palette {
+    border-color:#e2e8f0!important;
+    background:#ffffff!important;
+    color:#1f2937!important;
+    box-shadow:0 24px 70px rgba(15,23,42,.18)!important;
+}
+.owner-admin-v2 .command-palette :is(input,a,button,small,p) {
+    color:#334155!important;
+}
+.owner-floating-modal,
+dialog[data-owner-record-modal] {
+    background:#ffffff!important;
+    color:#1f2937!important;
+    border-color:#e2e8f0!important;
+}
