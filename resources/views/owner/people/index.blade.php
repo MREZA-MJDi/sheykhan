@@ -2,7 +2,7 @@
 @section('title','اعضای آموزشگاه | شیخان')
 @section('header-title','اعضای آموزشگاه')
 @section('content')
-@php($activePeopleTab = request('tab') === 'create-student' ? 'create-student' : 'management')
+@php($activePeopleTab = 'management')
 <div class="space-y-6 panel-page-enter owner-people-workspace">
 <div><p class="text-xs font-bold text-[var(--panel-primary)]">مدیریت افراد</p><h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1><p class="mt-2 text-sm text-slate-500">مدرس‌ها، دانش‌آموزها و اولیا؛ همراه با ثبت‌نام و مدیریت کلاس‌ها.</p></div>
 
@@ -39,21 +39,22 @@
 </section>
 @endif
 
-<div class="owner-people-tabs" data-owner-people-tabs data-query-param="tab" data-initial-tab="{{ $activePeopleTab }}">
+<div class="owner-people-tabs owner-people-root-tabs" data-owner-people-tabs data-initial-tab="management">
     <nav class="owner-people-tabbar" role="tablist" aria-label="مدیریت اعضای آموزشگاه">
         <button type="button" role="tab" id="owner-people-management-tab" aria-controls="owner-people-management-panel" data-owner-tab-button="management" aria-selected="{{ $activePeopleTab === 'management' ? 'true' : 'false' }}">
             <span class="owner-people-tab-icon">☷</span><span>اعضا و عملیات</span>
         </button>
-        <button type="button" role="tab" id="owner-people-create-student-tab" aria-controls="owner-people-create-student-panel" data-owner-tab-button="create-student" aria-selected="{{ $activePeopleTab === 'create-student' ? 'true' : 'false' }}">
-            <span class="owner-people-tab-icon">＋</span><span>ایجاد دانش‌آموز</span>
-        </button>
     </nav>
 
-    <section class="owner-people-tab-panel owner-student-create-panel" id="owner-people-create-student-panel" role="tabpanel" aria-labelledby="owner-people-create-student-tab" data-owner-tab-panel="create-student" @if($activePeopleTab !== 'create-student') hidden @endif>
-        <header class="owner-student-create-head">
-            <div><span>حساب جدید</span><h2>ساخت حساب دانش‌آموز</h2><p>اطلاعات اصلی را وارد کن؛ کد دانش‌آموز و رمز اولیه را سامانه می‌سازد.</p></div>
-            <span class="owner-student-create-badge">رمز یک‌بار نمایش داده می‌شود</span>
+    <div class="owner-people-tab-panel" id="owner-people-management-panel" role="tabpanel" aria-labelledby="owner-people-management-tab" data-owner-tab-panel="management" @if($activePeopleTab !== 'management') hidden @endif>
+
+<dialog class="owner-floating-modal" id="owner-student-create-modal" aria-labelledby="owner-student-create-title" @if(session('temporary_student_password') || ($errors->any() && request('tab') === 'create-student')) data-owner-modal-open-on-load @endif>
+        <header class="owner-floating-modal__header">
+            <div><span class="owner-record-modal-kicker">حساب جدید</span><h2 id="owner-student-create-title">ساخت حساب دانش‌آموز</h2><p class="owner-modal-subtitle">کد دانش‌آموز و رمز اولیه توسط سامانه ساخته می‌شود.</p></div>
+            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
         </header>
+        <div class="owner-floating-modal__body">
+        <p class="owner-student-create-badge mb-3">رمز اولیه فقط یک‌بار نمایش داده می‌شود.</p>
 
         @if(session('temporary_student_password'))
             <section class="owner-student-credentials" role="status" aria-live="polite">
@@ -89,9 +90,12 @@
             </footer>
             @if($grades->isEmpty())<p class="owner-student-no-grades">پایه فعالی در سامانه تعریف نشده است.</p>@endif
         </form>
-    </section>
+    </div>
+    </dialog>
 
-    <div class="owner-people-tab-panel" id="owner-people-management-panel" role="tabpanel" aria-labelledby="owner-people-management-tab" data-owner-tab-panel="management" @if($activePeopleTab !== 'management') hidden @endif>
+
+
+    
 
 <div class="owner-people-tabs owner-people-tabs--sheets" data-owner-people-tabs data-query-param="sheet" data-initial-tab="{{ request('sheet', 'directory') }}">
     <nav class="owner-people-tabbar" role="tablist" aria-label="بخش‌های مدیریت اعضا">
