@@ -99,6 +99,39 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertOk();
     }
 
+    public function test_all_primary_seo_workspace_pages_render_for_an_authorized_specialist(): void
+    {
+        [$specialist] = $this->makeSeoWorkspace();
+
+        foreach ([
+            'seo.keywords.index',
+            'seo.keywords.create',
+            'seo.blog.create',
+            'seo.content.index',
+            'seo.content.create',
+            'seo.website.hero.edit',
+        ] as $routeName) {
+            $this->actingAs($specialist)
+                ->get(route($routeName))
+                ->assertOk();
+        }
+    }
+
+    public function test_academy_owner_without_seo_role_cannot_open_the_seo_console(): void
+    {
+        $role = Role::create([
+            'name' => 'مدیر آموزشگاه',
+            'slug' => 'academy-owner',
+            'description' => 'Owner without SEO access',
+        ]);
+        $user = User::factory()->create();
+        $user->roles()->attach($role->id);
+
+        $this->actingAs($user)
+            ->get(route('seo.index'))
+            ->assertForbidden();
+    }
+
     public function test_seo_dashboard_does_not_fail_when_search_console_snapshot_table_is_missing(): void
     {
         [$specialist] = $this->makeSeoWorkspace();
