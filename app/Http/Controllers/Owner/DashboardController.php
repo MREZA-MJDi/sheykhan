@@ -91,6 +91,6 @@ class DashboardController extends Controller
                 ->get();
         }
 
-        return view('owner.dashboard', $data);
+        return view('owner.admin.dashboard', $data);
     }
 }
