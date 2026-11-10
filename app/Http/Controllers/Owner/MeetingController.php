@@ -26,7 +26,7 @@ final class MeetingController extends Controller
     ): RedirectResponse {
         $meetings->create($request->user(), $academy, $request->validated());
 
-        return redirect()->route('owner.meetings.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'meetings'])
             ->with('success', 'جلسه ثبت شد؛ زمان و پیام آن در کارتابل دانش‌آموز و ولی انتخاب‌شده نمایش داده می‌شود.');
     }
 
