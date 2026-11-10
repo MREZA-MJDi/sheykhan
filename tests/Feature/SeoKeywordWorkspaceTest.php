@@ -29,7 +29,7 @@ class SeoKeywordWorkspaceTest extends TestCase
             ->get(route('owner.seo.keywords.index'))
             ->assertOk()
             ->assertSee('عبارت‌هایی که مردم جست‌وجو می‌کنند')
-            ->assertSee('ورود و خروج دسته‌ای')
+            ->assertSee('CSV معتبر')
             ->assertSee('رتبهٔ زنده');
     }
 
