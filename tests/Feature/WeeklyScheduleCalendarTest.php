@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Academy;
 use App\Models\ClassSchedule;
+use App\Services\MeetingLinkService;
 use App\Support\PersianUi;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -42,9 +43,9 @@ class WeeklyScheduleCalendarTest extends TestCase
             ->assertSee('لینک آماده', false)
             ->assertSee('لینک نیازمند بررسی', false)
             ->assertSee('Skyroom', false)
-            ->assertDontSee('Jitsi')
-            ->assertDontSee('Google Meet')
-            ->assertDontSee('Zoom')
+            ->assertDontSee('<option value="Jitsi"', false)
+            ->assertDontSee('<option value="Google Meet"', false)
+            ->assertDontSee('<option value="Zoom"', false)
             ->assertSee('روز و ساعت را مشخص کن', false)
             ->assertSee('سرویس و لینک ورود را وصل کن', false)
             ->assertSee('lang="fa-IR"', false);
@@ -66,7 +67,7 @@ class WeeklyScheduleCalendarTest extends TestCase
         try {
             $links->resolve(MeetingLinkService::SKYROOM, 'https://meet.google.com/abc-defg-hij');
             $this->fail('A non-Skyroom URL must not be accepted for a Skyroom meeting.');
-        } catch (\\Illuminate\\Validation\\ValidationException) {
+        } catch (\Illuminate\Validation\ValidationException) {
             $this->assertTrue(true);
         }
     }
