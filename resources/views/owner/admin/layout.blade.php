@@ -83,7 +83,7 @@ $groups=[
 @php
 $visibleGlobal=collect($group['links'])->filter(fn($link)=>$link['scope']==='global' && $hasPermission($link['permission']) && \Illuminate\\Support\\Facades\\Route::has($link['route']));
 $visibleAcademy=collect($group['links'])->filter(fn($link)=>$link['scope']==='academy' && $hasPermission($link['permission']) && \Illuminate\\Support\\Facades\\Route::has($link['route']));
-$showGroup=(!$isSeoOnlyUser && ($visibleGlobal->isNotEmpty() || ($academies->isNotEmpty() && $visibleAcademy->isNotEmpty()))) || ($group['title']==='محتوا و سایت' && $canManagePublicSite);
+$showGroup=(!$isSeoOnlyUser && ($visibleGlobal->isNotEmpty() || ($academies->isNotEmpty() && $visibleAcademy->isNotEmpty()))) || ($group['title']==='محتوا و سایت' && $canManagePublicSite && $isSeoOnlyUser);
 @endphp
 @if($showGroup)
 <details class="nav-group" open>
