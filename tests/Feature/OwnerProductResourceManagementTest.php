@@ -68,6 +68,53 @@ class OwnerProductResourceManagementTest extends TestCase
         $this->assertTrue(Storage::disk('local')->exists($newPrimary->media->path));
     }
 
+    public function test_published_product_cover_is_visible_on_public_store_and_product_page(): void
+    {
+        Storage::fake('local');
+        [$owner, $academy, $category] = $this->workspace();
+
+        $cover = UploadedFile::fake()->image('booklet-cover.jpg', 1200, 900);
+        $pdf = UploadedFile::fake()->create('booklet.pdf', 24, 'application/pdf');
+
+        $this->actingAs($owner)
+            ->post(route('owner.products.store', $academy), [
+                'category_id' => $category->id,
+                'title' => 'جزوه تصویری تست',
+                'product_type' => 'booklet',
+                'price' => 75000,
+                'cover_image' => $cover,
+                'pdf_file' => $pdf,
+                'publish' => '1',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+
+        $product = Product::query()->where('title', 'جزوه تصویری تست')->firstOrFail();
+        $this->assertSame('published', $product->status);
+
+        $coverMedia = $product->media()
+            ->wherePivot('collection', 'cover')
+            ->firstOrFail();
+
+        $this->assertSame('public', $coverMedia->visibility);
+        $this->assertSame('active', $coverMedia->status);
+        $this->assertTrue(Storage::disk('local')->exists($coverMedia->path));
+
+        $publicImageUrl = route('media.public', $coverMedia);
+
+        $this->get(route('store.index'))
+            ->assertOk()
+            ->assertSee($publicImageUrl, false);
+
+        $this->get(route('store.product.show', $product))
+            ->assertOk()
+            ->assertSee($publicImageUrl, false);
+
+        $this->get($publicImageUrl)
+            ->assertOk()
+            ->assertHeader('content-type', 'image/jpeg');
+    }
+
     public function test_owner_cannot_edit_another_academys_product_or_resource(): void
     {
         [$owner, $academy] = $this->workspace();
