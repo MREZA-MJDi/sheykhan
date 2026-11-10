@@ -9,7 +9,7 @@
     $statusStyles = ['present' => 'bg-emerald-50 text-emerald-700', 'late' => 'bg-amber-50 text-amber-700', 'absent' => 'bg-rose-50 text-rose-700', 'excused' => 'bg-slate-100 text-slate-600'];
 @endphp
 
-<div class="space-y-6 panel-page-enter">
+<div class="space-y-6 panel-page-enter owner-attendance-page">
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
