@@ -1,7 +1,8 @@
 /* Owner-owned assessment builder. UI presentation remains in the owner Blade form and stylesheet. */
-const initializeExamBuilder = () => {
-    document.querySelectorAll('[data-course-classroom-select]').forEach((classroomSelect) => {
-        const courseSelect = document.querySelector(classroomSelect.dataset.courseSelect);
+const initializeExamBuilder = (scope = document) => {
+    scope.querySelectorAll('[data-course-classroom-select]').forEach((classroomSelect) => {
+        if (classroomSelect.dataset.courseClassroomBound === 'true') return;
+        const courseSelect = scope.querySelector(classroomSelect.dataset.courseSelect) || document.querySelector(classroomSelect.dataset.courseSelect);
         if (!courseSelect) return;
 
         const syncClassrooms = () => {
@@ -15,10 +16,12 @@ const initializeExamBuilder = () => {
 
         courseSelect.addEventListener('change', syncClassrooms);
         syncClassrooms();
+        classroomSelect.dataset.courseClassroomBound = 'true';
     });
 
-    const examBuilder = document.querySelector('[data-exam-builder]');
-    if (!examBuilder) return;
+    const examBuilder = scope.querySelector('[data-exam-builder]');
+    if (!examBuilder || examBuilder.dataset.examBuilderBound === 'true') return;
+    examBuilder.dataset.examBuilderBound = 'true';
 
     const container = examBuilder.querySelector('[data-exam-questions]');
     const template = examBuilder.querySelector('[data-exam-question-template]');
@@ -370,8 +373,13 @@ const initializeExamBuilder = () => {
     updatePaperSummary();
 };
 
+const initialize = () => initializeExamBuilder();
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeExamBuilder, { once: true });
+    document.addEventListener('DOMContentLoaded', initialize, { once: true });
 } else {
-    initializeExamBuilder();
+    initialize();
 }
+window.addEventListener('owner:modal:mounted', (event) => {
+    const scope = event.detail?.root;
+    if (scope) initializeExamBuilder(scope);
+});
