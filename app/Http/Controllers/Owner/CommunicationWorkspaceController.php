@@ -10,18 +10,17 @@ use App\Models\CounselingRequest;
 use App\Models\ParentMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\View\View;
 
 final class CommunicationWorkspaceController extends Controller
 {
-    public function __invoke(Academy $academy, Request $request): View
+    public function __invoke(Academy $academy, Request $request, OwnerWorkspaceService $workspace): View
     {
         $user = $request->user();
 
-        abort_unless(
-            $user && $user->hasRole('academy-owner') && (int) $academy->owner_id === (int) $user->id,
-            404
-        );
+        abort_unless($user, 404);
+        $workspace->authorizeAcademy($user, $academy);
 
         $canViewFamilies = $user->hasPermission('parents.view');
         $canManageFamilies = $user->hasPermission('parents.manage');
