@@ -224,9 +224,9 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.legal-documents.index') . '"', false)
             ->assertSee('href="' . route('owner.reports.index') . '"', false)
             ->assertSee('href="' . route('owner.finance.index') . '"', false)
-            ->assertDontSee('href="' . route('owner.website.index') . '"', false)
-            ->assertDontSee('href="' . route('owner.content.index') . '"', false)
-            ->assertDontSee('href="' . route('owner.blog.index') . '"', false)
+            ->assertDontSee('href="' . route('seo.website.index') . '"', false)
+            ->assertDontSee('href="' . route('seo.content.index') . '"', false)
+            ->assertDontSee('href="' . route('seo.blog.index') . '"', false)
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false)
             ->assertSee('<a class="card kpi c3 kpi-link" href="' . route('owner.people.index', $academy) . '"', false)
             ->assertSee('<a class="card kpi c3 kpi-link" href="' . route('owner.attendance.index', $academy) . '"', false)
@@ -300,15 +300,15 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('مدرس‌های فعال')
             ->assertDontSee('href="' . route('owner.people.index', $academy) . '"', false)
             ->assertDontSee('href="' . route('owner.academy.edit', $academy) . '"', false)
-            ->assertDontSee('href="' . route('owner.academy.banners.edit', $academy) . '"', false)
+            ->assertDontSee('href="' . route('seo.academy.banners.edit', $academy) . '"', false)
             ->assertDontSee('دوره‌های منتشرشده')
             ->assertDontSee('حضور امروز')
             ->assertDontSee('خالص تراکنش‌های تکمیل‌شده')
             ->assertDontSee('گزارش‌های آموزشی')
             ->assertDontSee('href="' . route('owner.finance.index') . '"', false)
-            ->assertDontSee('href="' . route('owner.website.index') . '"', false)
-            ->assertDontSee('href="' . route('owner.content.index') . '"', false)
-            ->assertDontSee('href="' . route('owner.blog.index') . '"', false);
+            ->assertDontSee('href="' . route('seo.website.index') . '"', false)
+            ->assertDontSee('href="' . route('seo.content.index') . '"', false)
+            ->assertDontSee('href="' . route('seo.blog.index') . '"', false);
 
         $this->get(route('owner.people.index', $academy))->assertForbidden();
     }
