@@ -36,11 +36,11 @@
     <section class="dashboard-panel owner-panel">
         <div class="owner-panel-head"><div><h2>{{ $sheet === 'debts' ? 'شهریه‌های دارای مانده' : 'پرداخت‌ها' }}</h2><p>{{ $sheet === 'debts' ? 'شهریه‌های باقی‌مانده هنرجویان این آموزشگاه' : 'پرداخت‌های آموزشگاه‌های شما' }}</p></div></div>
         @if($sheet === 'transactions')
-        <div class="mt-4 overflow-x-auto"><table class="w-full min-w-[720px] text-right"><thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">تاریخ پرداخت</th><th class="px-4 py-3">آموزشگاه</th><th class="px-4 py-3">نام پرداخت‌کننده</th><th class="px-4 py-3">دوره</th><th class="px-4 py-3">نوع پرداخت</th><th class="px-4 py-3">مبلغ</th></tr></thead><tbody class="divide-y divide-slate-100">
+        <div class="mt-4 overflow-x-auto"><table class="w-full min-w-[720px] text-right"><thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">تاریخ پرداخت</th><th class="px-4 py-3">آموزشگاه</th><th class="px-4 py-3">نام پرداخت‌کننده</th><th class="px-4 py-3">دوره</th><th class="px-4 py-3">نوع پرداخت</th><th class="px-4 py-3">شماره پیگیری</th><th class="px-4 py-3">مبلغ</th></tr></thead><tbody class="divide-y divide-slate-100">
         @forelse($transactions as $tx)
-            <tr><td class="px-4 py-3 text-xs">{{ \App\Support\PersianUi::dateTime($tx->occurred_at) }}</td><td class="px-4 py-3 text-xs font-bold">{{ $tx->academy?->name }}</td><td class="px-4 py-3 text-xs">{{ $tx->user?->name ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->enrollment?->course?->title ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->type === 'refund' ? 'بازپرداخت' : 'دریافت' }}</td><td class="px-4 py-3 text-xs font-black">{{ \App\Support\PersianUi::number($tx->amount) }} تومان</td></tr>
+            <tr><td class="px-4 py-3 text-xs">{{ \App\Support\PersianUi::dateTime($tx->occurred_at) }}</td><td class="px-4 py-3 text-xs font-bold">{{ $tx->academy?->name }}</td><td class="px-4 py-3 text-xs">{{ $tx->user?->name ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->enrollment?->course?->title ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->type === 'refund' ? 'بازپرداخت' : 'دریافت' }}</td><td class="px-4 py-3 text-xs" dir="ltr">{{ $tx->reference ?: '—' }}</td><td class="px-4 py-3 text-xs font-black">{{ \App\Support\PersianUi::number($tx->amount) }} تومان</td></tr>
         @empty
-            <tr><td colspan="6" class="px-4 py-12 text-center text-sm text-slate-500">هنوز پرداختی برای نمایش وجود ندارد.</td></tr>
+            <tr><td colspan="7" class="px-4 py-12 text-center text-sm text-slate-500">هنوز پرداختی برای نمایش وجود ندارد.</td></tr>
         @endforelse
         </tbody></table></div>
         <div class="mt-4">{{ $transactions->links() }}</div>
