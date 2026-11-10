@@ -25,12 +25,24 @@ final class AuthService
     public function login(array $credentials, bool $remember = false): User
     {
         $mobile = MobileNumber::normalize((string) ($credentials['mobile'] ?? ''));
-        $isConfiguredDemoMobile = collect(config('role_access.test_accounts', []))
-            ->contains(fn (array $account): bool => ($account['username'] ?? null) === $mobile);
-
-        $user = (MobileNumber::valid($mobile) || $isConfiguredDemoMobile)
-            ? User::query()->where('mobile', $mobile)->first()
+        $user = filled($mobile)
+            ? User::query()->with('roles:id,slug')->where('mobile', $mobile)->first()
             : null;
+
+        // Legacy demo records may contain a non-standard but already-persisted
+        // mobile value. Permit that value only for the configured email + role pair.
+        $isConfiguredDemoAccount = $user !== null && collect(config('role_access.test_accounts', []))
+            ->contains(function (array $account) use ($user): bool {
+                $roleKey = (string) ($account['role_key'] ?? '');
+
+                return $roleKey !== ''
+                    && ($account['email'] ?? null) === $user->email
+                    && $user->roles->contains('slug', $roleKey);
+            });
+
+        if ($user !== null && ! MobileNumber::valid($mobile) && ! $isConfiguredDemoAccount) {
+            $user = null;
+        }
 
         $plainPassword = (string) ($credentials['password'] ?? '');
         $isLegacyHash = $user
