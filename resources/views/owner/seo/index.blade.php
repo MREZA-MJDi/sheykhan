@@ -31,6 +31,7 @@
 @endphp
 
 <div class="owner-seo-page seo-workspace">
+    @include('owner.partials.public-site-workspace-tabs')
     <header class="owner-seo-hero">
         <div class="seo-hero-copy">
             <span class="owner-seo-kicker">مرکز کنترل SEO شیخان · صفحات عمومی</span>
