@@ -29,7 +29,7 @@
             <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
         </header>
         <div class="owner-floating-modal__body">
-<form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.store', $academy) }}" class="owner-form-grid">
+<form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.store', $academy) }}?modal=1" class="owner-form-grid">
         @csrf
         <input type="hidden" name="form_modal" value="resource">
         <section class="owner-form-section">
