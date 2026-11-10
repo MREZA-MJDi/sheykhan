@@ -134,6 +134,56 @@ final class CommunicationWorkspaceController extends Controller
                 ->orderBy('scheduled_at')
                 ->paginate(15, ['*'], 'meetings_page')
                 ->withQueryString();
+
+            if ($canManageMeetings) {
+                $targetQuery = trim((string) $request->query('target_q', ''));
+                $data['targetQuery'] = $targetQuery;
+                $data['meetingTargets'] = collect();
+
+                if (mb_strlen($targetQuery) >= 2) {
+                    $like = '%' . $targetQuery . '%';
+                    $data['meetingTargets'] = DB::table('classroom_student as cm')
+                        ->join('classrooms', 'classrooms.id', '=', 'cm.classroom_id')
+                        ->join('users as students', 'students.id', '=', 'cm.student_id')
+                        ->join('academy_user as sm', function ($join) use ($academy): void {
+                            $join->on('sm.user_id', '=', 'students.id')
+                                ->where('sm.academy_id', '=', $academy->id)
+                                ->where('sm.role', '=', 'student')
+                                ->where('sm.status', '=', 'active');
+                        })
+                        ->join('parent_student as pl', 'pl.student_id', '=', 'students.id')
+                        ->join('users as parents', 'parents.id', '=', 'pl.parent_id')
+                        ->join('academy_user as pm', function ($join) use ($academy): void {
+                            $join->on('pm.user_id', '=', 'parents.id')
+                                ->where('pm.academy_id', '=', $academy->id)
+                                ->where('pm.role', '=', 'parent')
+                                ->where('pm.status', '=', 'active');
+                        })
+                        ->where('classrooms.academy_id', $academy->id)
+                        ->where('classrooms.status', 'active')
+                        ->where('cm.status', 'active')
+                        ->where('students.status', 'active')
+                        ->whereNull('students.deleted_at')
+                        ->where('parents.status', 'active')
+                        ->whereNull('parents.deleted_at')
+                        ->where(function ($query) use ($like): void {
+                            $query->where('students.name', 'like', $like)
+                                ->orWhere('parents.name', 'like', $like)
+                                ->orWhere('classrooms.title', 'like', $like);
+                        })
+                        ->orderBy('classrooms.title')
+                        ->orderBy('students.name')
+                        ->orderBy('parents.name')
+                        ->select([
+                            'classrooms.id as classroom_id', 'classrooms.title as classroom_title',
+                            'students.id as student_id', 'students.name as student_name',
+                            'parents.id as parent_id', 'parents.name as parent_name',
+                        ])
+                        ->distinct()
+                        ->simplePaginate(20, ['*'], 'target_page')
+                        ->withQueryString();
+                }
+            }
         }
 
         return view('owner.communication-workspace.index', $data);
