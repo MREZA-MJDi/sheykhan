@@ -5,7 +5,7 @@
     $action = (string) $action;
     $buttonLabel = $buttonLabel ?? ($method === 'PATCH' ? 'ذخیره تغییرات' : 'ذخیره زمان و لینک');
 @endphp
-<form method="POST" action="{{ $action }}" class="grid gap-3 sm:grid-cols-2" data-meeting-provider-form>
+<form method="POST" action="{{ $action }}" class="owner-schedule-form grid gap-3 sm:grid-cols-2" data-meeting-provider-form>
     @csrf
     @if($method === 'PATCH')
         @method('PATCH')
