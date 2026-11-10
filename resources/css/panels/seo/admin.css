@@ -1,0 +1,3 @@
+/* SEO admin stylesheet facade. Shared rules and SEO-only page rules live in their canonical modules. */
+@import '../shared/admin-base.css';
+@import './admin-pages.css';
