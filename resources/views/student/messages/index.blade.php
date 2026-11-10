@@ -8,6 +8,23 @@
     <header class="card student-messages-intro">
         <div class="chead"><div><h2>ارتباط مستقیم با مدرس</h2><p class="small muted">مدرس مرتبط با دوره یا کلاس را انتخاب کن؛ پاسخ‌ها و ادامه گفتگو در همین صفحه نمایش داده می‌شوند.</p></div><a class="btn s" href="#new-teacher-message">پیام جدید</a></div>
     </header>
+
+    <form method="GET" class="card pf" role="search" aria-label="جست‌وجو در پیام‌های دانش‌آموز">
+        <div>
+            <label for="student-message-query">جست‌وجو در پیام‌ها و اطلاعیه‌ها</label>
+            <input class="fld" id="student-message-query" type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" placeholder="موضوع، متن، نام مدرس، دوره یا کلاس">
+        </div>
+        <div>
+            <label for="student-message-status">وضعیت پیام‌های ارسالی</label>
+            <select class="fld" id="student-message-status" name="status">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="open" @selected(($filters['status'] ?? '') === 'open')>باز / در انتظار پاسخ</option>
+                <option value="responded" @selected(($filters['status'] ?? '') === 'responded')>پاسخ داده‌شده</option>
+                <option value="closed" @selected(($filters['status'] ?? '') === 'closed')>بسته‌شده</option>
+            </select>
+        </div>
+        <div class="frm"><button class="btn s" type="submit">اعمال فیلتر</button><a class="btn" href="{{ route('student.messages.index') }}">پاک‌کردن</a></div>
+    </form>
     <div class="card">
         <div class="chead"><h2>پیام از آموزشگاه</h2><span class="pill">{{ \App\Support\PersianUi::digits($academyMessages->total()) }} پیام</span></div>
         @forelse($academyMessages as $message)
