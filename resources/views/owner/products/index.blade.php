@@ -7,11 +7,23 @@
         <div><span>فروشگاه آموزشی آکادمی</span><h1>مدیریت کتاب، جزوه و آزمون</h1><p>محصولات منتشرشده در صفحه اصلی و فروشگاه نمایش داده می‌شوند. PDF اصلی همیشه خصوصی است و برای خریدار با واترمارک اختصاصی تحویل می‌شود.</p></div>
         <a href="{{ route('owner.dashboard') }}">داشبورد</a>
     </header>
+    <div class="owner-people-actionbar">
+        <div><strong>فروشگاه محصولات</strong><span>مدیریت محصول و فایل‌های واقعی فروش</span></div>
+        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-product-create-modal">＋ افزودن محصول</button>
+    </div>
+
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.store', $academy) }}" class="owner-form-grid">
+    <dialog class="owner-floating-modal" id="owner-product-create-modal" aria-labelledby="owner-product-create-modal-title" @if(old('form_modal') === 'product' && $errors->any()) data-owner-modal-open-on-load @endif>
+        <header class="owner-floating-modal__header">
+            <div><span class="owner-record-modal-kicker">ثبت رکورد جدید</span><h2 id="owner-product-create-modal-title">افزودن محصول</h2></div>
+            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+        </header>
+        <div class="owner-floating-modal__body">
+<form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.store', $academy) }}" class="owner-form-grid">
         @csrf
+        <input type="hidden" name="form_modal" value="product">
         <section class="owner-form-section space-y-4">
             <h2>محصول جدید</h2>
             <label><span>عنوان محصول</span><input name="title" value="{{ old('title') }}" required maxlength="255"><small class="owner-field-help">عنوانی بنویس که در کارت فروشگاه و رسید خرید به‌راحتی شناخته شود.</small></label>
@@ -50,6 +62,8 @@
             <p class="text-xs leading-6 text-slate-500">قیمت از فرم خریدار گرفته نمی‌شود؛ سفارش مبلغ محصول را دوباره از دیتابیس محاسبه می‌کند. فایل اصلی با URL عمومی منتشر نمی‌شود.</p>
         </aside>
     </form>
+        </div>
+    </dialog>
 
     <section class="owner-form-section space-y-3">
         <h2>محصول‌های ثبت‌شده</h2>
