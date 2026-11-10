@@ -323,6 +323,7 @@
     <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">نمایش داده‌های همین آموزشگاه؛ برای جست‌وجو عبارت را وارد کن.</p>
     <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($items as $person)
+            @php($personJoinedAt = $person->pivot?->joined_at)
             <div class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                 <div class="min-w-0">
                     <strong class="text-xs">{{ $person->name }}</strong>
@@ -330,13 +331,21 @@
                         <span class="mt-1 block text-[11px] text-slate-500" dir="ltr">{{ $person->mobile }}</span>
                     @endif
                 </div>
-                @if($title === 'مدرس‌ها')
-                    <form method="POST" action="{{ route('owner.people.archive-teacher', [$academy, $person]) }}" class="shrink-0">
-                        @csrf
-                        @method('PATCH')
-                        <button class="rounded-lg border border-amber-200 bg-white px-2.5 py-2 text-[9px] font-black text-amber-700">آرشیو عضویت</button>
-                    </form>
-                @endif
+                <div class="flex shrink-0 items-center gap-2">
+                    @if($directoryRole === 'active-teachers')
+                        <form method="POST" action="{{ route('owner.people.archive-teacher', [$academy, $person]) }}" class="shrink-0">
+                            @csrf
+                            @method('PATCH')
+                            <button class="rounded-lg border border-amber-200 bg-white px-2.5 py-2 text-[9px] font-black text-amber-700">آرشیو عضویت</button>
+                        </form>
+                    @endif
+                    <button type="button" class="owner-person-preview-trigger" data-owner-person-preview
+                        data-person-name="{{ $person->name }}" data-person-mobile="{{ $person->mobile }}"
+                        data-person-role="{{ $directoryRole }}" data-person-account-status="{{ $person->status }}"
+                        data-person-membership-status="{{ $person->pivot?->status }}"
+                        data-person-joined-at="{{ $personJoinedAt ? \Illuminate\Support\Carbon::parse($personJoinedAt)->toIso8601String() : '' }}"
+                        aria-haspopup="dialog">پیش‌نمایش</button>
+                </div>
             </div>
         @empty
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">عضوی نیست.</div>
@@ -381,16 +390,25 @@
     <p data-directory-status class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">برای پیدا کردن مدرس آرشیوشده جست‌وجو کن.</p>
     <div class="mt-4 grid gap-2" data-directory-results>
         @forelse($archivedTeachers as $teacher)
+            @php($teacherJoinedAt = $teacher->pivot?->joined_at)
             <div class="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+                <div class="min-w-0">
                     <strong class="text-xs">{{ $teacher->name }}</strong>
-                    <span class="mt-1 block text-[9px] text-slate-500">{{ $teacher->mobile }}</span>
+                    <span class="mt-1 block text-[9px] text-slate-500" dir="ltr">{{ $teacher->mobile }}</span>
                 </div>
-                <form method="POST" action="{{ route('owner.people.restore-teacher', [$academy, $teacher]) }}" class="shrink-0">
-                    @csrf
-                    @method('PATCH')
-                    <button class="rounded-lg border border-emerald-200 bg-white px-2.5 py-2 text-[9px] font-black text-emerald-700">بازگردانی</button>
-                </form>
+                <div class="flex shrink-0 items-center gap-2">
+                    <form method="POST" action="{{ route('owner.people.restore-teacher', [$academy, $teacher]) }}" class="shrink-0">
+                        @csrf
+                        @method('PATCH')
+                        <button class="rounded-lg border border-emerald-200 bg-white px-2.5 py-2 text-[9px] font-black text-emerald-700">بازگردانی</button>
+                    </form>
+                    <button type="button" class="owner-person-preview-trigger" data-owner-person-preview
+                        data-person-name="{{ $teacher->name }}" data-person-mobile="{{ $teacher->mobile }}"
+                        data-person-role="archived-teachers" data-person-account-status="{{ $teacher->status }}"
+                        data-person-membership-status="{{ $teacher->pivot?->status }}"
+                        data-person-joined-at="{{ $teacherJoinedAt ? \Illuminate\Support\Carbon::parse($teacherJoinedAt)->toIso8601String() : '' }}"
+                        aria-haspopup="dialog">پیش‌نمایش</button>
+                </div>
             </div>
         @empty
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">مدرس آرشیوشده‌ای وجود ندارد.</div>
@@ -405,6 +423,26 @@
     </div>
 </div>
 </div>
+<dialog class="owner-person-preview-dialog" data-owner-person-preview-dialog aria-labelledby="owner-person-preview-title">
+    <div class="owner-person-preview-dialog__inner">
+        <header class="owner-person-preview-dialog__head">
+            <div><span>پرونده عضو آموزشگاه</span><h2 id="owner-person-preview-title">پیش‌نمایش اطلاعات</h2></div>
+            <button type="button" class="owner-person-preview-dialog__close" data-owner-person-preview-close aria-label="بستن پیش‌نمایش">×</button>
+        </header>
+        <dl class="owner-person-preview-grid">
+            <div><dt>نام و نام خانوادگی</dt><dd data-preview-name>—</dd></div>
+            <div><dt>نقش</dt><dd data-preview-role>—</dd></div>
+            <div><dt>شماره موبایل</dt><dd data-preview-mobile dir="ltr">ثبت نشده</dd></div>
+            <div><dt>وضعیت حساب کاربری</dt><dd data-preview-account-status>—</dd></div>
+            <div><dt>وضعیت عضویت در آموزشگاه</dt><dd data-preview-membership-status>—</dd></div>
+            <div><dt>تاریخ عضویت</dt><dd data-preview-joined-at>ثبت نشده</dd></div>
+        </dl>
+        <footer class="owner-person-preview-dialog__foot">
+            <span>اطلاعات از پرونده همین آموزشگاه دریافت شده است.</span>
+            <button type="button" class="owner-person-preview-trigger" data-owner-person-preview-close>بستن</button>
+        </footer>
+    </div>
+</dialog>
 @push('scripts')
     @vite(['resources/js/owner-people-directory.js'])
 @endpush

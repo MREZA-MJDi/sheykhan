@@ -347,6 +347,7 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertOk()
             ->assertJsonPath('directory.role', 'active-teachers')
             ->assertJsonPath('directory.pagination_mode', 'cursor')
+            ->assertJsonPath('data.0.account_status', 'active')
             ->assertJsonPath('meta.per_page', 25)
             ->assertJsonCount(25, 'data')
             ->assertJsonMissing(['name' => 'Directory Teacher Foreign']);
@@ -388,6 +389,20 @@ class OwnerPeopleLifecycleTest extends TestCase
                 'role' => 'students',
             ]))
             ->assertForbidden();
+    }
+
+    public function test_owner_people_roster_renders_member_preview_for_the_browser(): void
+    {
+        [$owner, $academy, $teacher] = $this->makeWorkspace();
+        $this->actingAs($owner)->get(route('owner.people.index', $academy))
+            ->assertOk()
+            ->assertSee('data-owner-person-preview-dialog', false)
+            ->assertSee('data-owner-person-preview', false)
+            ->assertSee('data-person-role="active-teachers"', false)
+            ->assertSee('data-person-account-status="active"', false)
+            ->assertSee('data-person-membership-status="active"', false)
+            ->assertSee('پیش‌نمایش')
+            ->assertSee($teacher->name);
     }
 
     public function test_active_member_rosters_exclude_inactive_user_accounts(): void

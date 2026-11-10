@@ -44,7 +44,7 @@ final class OwnerWorkspaceService
             ->wherePivot('status', 'active')
             ->wherePivot('role', $role)
             ->where('users.status', 'active')
-            ->select('users.id', 'users.name', 'users.mobile')
+            ->select('users.id', 'users.name', 'users.mobile', 'users.status')
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(25, ['*'], $pageName);
@@ -54,7 +54,7 @@ final class OwnerWorkspaceService
         $archivedTeachers = $academy->users()
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'archived')
-            ->select('users.id', 'users.name', 'users.mobile')
+            ->select('users.id', 'users.name', 'users.mobile', 'users.status')
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(25, ['*'], 'archived_teachers_page');

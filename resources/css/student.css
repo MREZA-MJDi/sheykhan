@@ -1,4 +1,5 @@
 @import 'tailwindcss' source(none);
+@import './panels/shared/workspace-polish.css';
 @import './panels/student/calendar.css';
 @import './panels/student/components.css';
 

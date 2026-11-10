@@ -1,4 +1,5 @@
 @import 'tailwindcss' source(none);
+@import './panels/shared/workspace-polish.css';
 @import './spotplayer.css';
 @import './teacher/workspace-redesign.css';
 @source '../../resources/views/teacher';

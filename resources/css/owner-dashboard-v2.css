@@ -1,6 +1,7 @@
 /* Academy-owner panel: one standalone CSS entry for dashboard, admin sections and owner-side SEO pages. */
 
 @import 'tailwindcss' source(none);
+@import './panels/shared/workspace-polish.css';
 @import './panels/owner/calendar.css';
 @import './panels/owner/components.css';
 @import './spotplayer.css';
@@ -2121,3 +2122,23 @@ body.owner-admin-v2 {
     .owner-admin-v2 .main-content .communication-page__form{grid-template-columns:minmax(0,1fr)!important}
     .owner-admin-v2 .main-content .communication-page__form .communication-page__button{width:100%}
 }
+
+/* Accessible member preview dialog. */
+.owner-person-preview-trigger{display:inline-flex;min-height:34px;align-items:center;justify-content:center;border:1px solid var(--ln,#2b3270);border-radius:10px;padding:7px 11px;background:var(--c1,#1a2050);color:var(--tx,#e8ecff);font-size:10px;font-weight:850;white-space:nowrap;transition:border-color .18s ease,background-color .18s ease,transform .18s ease}
+.owner-person-preview-trigger:hover{transform:translateY(-1px);border-color:var(--acc,#22d3ee);background:color-mix(in srgb,var(--c1,#1a2050) 82%,var(--acc,#22d3ee))}
+.owner-person-preview-dialog{width:min(560px,calc(100% - 2rem));max-width:560px;max-height:min(80dvh,680px);margin:auto;overflow:auto;border:1px solid var(--ln,#2b3270);border-radius:22px;padding:0;background:var(--c1,#1a2050);color:var(--tx,#e8ecff);box-shadow:0 28px 90px rgba(0,0,0,.38)}
+.owner-person-preview-dialog::backdrop{background:rgba(5,9,25,.72);backdrop-filter:blur(5px)}
+.owner-person-preview-dialog__inner{padding:clamp(16px,4vw,24px)}
+.owner-person-preview-dialog__head,.owner-person-preview-dialog__foot{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.owner-person-preview-dialog__head>div{display:grid;gap:5px}
+.owner-person-preview-dialog__head>div>span{color:var(--acc,#22d3ee);font-size:10px;font-weight:850}
+.owner-person-preview-dialog__head h2{font-size:18px;font-weight:950}
+.owner-person-preview-dialog__close{display:grid;width:38px;height:38px;flex:0 0 38px;place-items:center;border:1px solid var(--ln,#2b3270);border-radius:12px;background:transparent;color:inherit;font-size:24px}
+.owner-person-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:20px 0}
+.owner-person-preview-grid>div{min-width:0;border:1px solid var(--ln,#2b3270);border-radius:13px;padding:12px;background:color-mix(in srgb,var(--in,#0a0e27) 64%,transparent)}
+.owner-person-preview-grid dt{margin-bottom:7px;color:var(--mu,#8d96c9);font-size:10px;font-weight:750}
+.owner-person-preview-grid dd{margin:0;overflow-wrap:anywhere;color:var(--tx,#e8ecff);font-size:13px;font-weight:850}
+.owner-person-preview-dialog__foot{flex-wrap:wrap;border-top:1px solid var(--ln,#2b3270);padding-top:15px}
+.owner-person-preview-dialog__foot>span{color:var(--mu,#8d96c9);font-size:10px;line-height:1.8}
+@media(max-width:480px){.owner-person-preview-grid{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.owner-person-preview-trigger{transition:none}}

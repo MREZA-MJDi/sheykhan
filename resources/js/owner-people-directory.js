@@ -6,6 +6,38 @@
     if (!roots.length) return;
 
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    const previewDialog = document.querySelector('[data-owner-person-preview-dialog]');
+    const previewRoleLabels = {'active-teachers':'مدرس','archived-teachers':'مدرس آرشیوشده',students:'دانش‌آموز',parents:'والد'};
+    const setPreviewText = (selector, value, fallback = 'ثبت نشده') => {
+        const node = previewDialog?.querySelector(selector);
+        if (node) node.textContent = value || fallback;
+    };
+    const formatPreviewDate = (value) => {
+        if (!value) return 'ثبت نشده';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? 'ثبت نشده' : new Intl.DateTimeFormat('fa-IR', {dateStyle:'medium'}).format(date);
+    };
+    const closePreview = () => {
+        if (!previewDialog) return;
+        if (typeof previewDialog.close === 'function') previewDialog.close();
+        else previewDialog.removeAttribute('open');
+    };
+    document.addEventListener('click', (event) => {
+        if (event.target.closest('[data-owner-person-preview-close]') && previewDialog) { closePreview(); return; }
+        const trigger = event.target.closest('[data-owner-person-preview]');
+        if (!trigger || !previewDialog) return;
+        const account = trigger.dataset.personAccountStatus;
+        const membership = trigger.dataset.personMembershipStatus;
+        setPreviewText('[data-preview-name]', trigger.dataset.personName, 'بدون نام');
+        setPreviewText('[data-preview-role]', previewRoleLabels[trigger.dataset.personRole] || 'عضو');
+        setPreviewText('[data-preview-mobile]', trigger.dataset.personMobile);
+        setPreviewText('[data-preview-account-status]', account === 'active' ? 'فعال' : account === 'inactive' ? 'غیرفعال' : 'ثبت نشده');
+        setPreviewText('[data-preview-membership-status]', membership === 'active' ? 'عضو فعال' : membership === 'archived' ? 'آرشیوشده' : 'ثبت نشده');
+        setPreviewText('[data-preview-joined-at]', formatPreviewDate(trigger.dataset.personJoinedAt));
+        if (typeof previewDialog.showModal === 'function') previewDialog.showModal();
+        else previewDialog.setAttribute('open', '');
+    });
+    previewDialog?.addEventListener('click', event => { if (event.target === previewDialog) closePreview(); });
     const hiddenInput = (name, value) => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -38,7 +70,20 @@
         return form;
     };
 
-    const createRow = (person) => {
+    const createPreviewButton = (person, role) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'owner-person-preview-trigger'; button.textContent = 'پیش‌نمایش';
+        button.setAttribute('aria-haspopup', 'dialog'); button.setAttribute('data-owner-person-preview', '');
+        button.dataset.personName = String(person.name ?? '');
+        button.dataset.personMobile = String(person.mobile ?? '');
+        button.dataset.personRole = role;
+        button.dataset.personAccountStatus = String(person.account_status ?? '');
+        button.dataset.personMembershipStatus = String(person.membership?.status ?? '');
+        button.dataset.personJoinedAt = String(person.membership?.joined_at ?? '');
+        button.setAttribute('aria-label', 'پیش‌نمایش پرونده ' + String(person.name ?? 'عضو'));
+        return button;
+    };
+    const createRow = (person, role) => {
         const row = document.createElement('div');
         row.className = 'flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3';
         const details = document.createElement('div');
@@ -55,12 +100,14 @@
             mobile.textContent = String(person.mobile);
             details.append(mobile);
         }
-        row.append(details);
-
+        const actions = document.createElement('div');
+        actions.className = 'flex shrink-0 items-center gap-2';
         const archiveForm = createMutationForm(person.actions?.archive_url, 'آرشیو عضویت', 'archive');
         const restoreForm = createMutationForm(person.actions?.restore_url, 'بازگردانی', 'restore');
-        if (archiveForm) row.append(archiveForm);
-        else if (restoreForm) row.append(restoreForm);
+        if (archiveForm) actions.append(archiveForm);
+        else if (restoreForm) actions.append(restoreForm);
+        actions.append(createPreviewButton(person, role));
+        row.append(details, actions);
         return row;
     };
 
@@ -135,7 +182,7 @@
 
                 resultBox.replaceChildren();
                 if (!records.length) resultBox.append(createEmptyState('عضوی مطابق این جست‌وجو پیدا نشد.'));
-                else records.forEach((person) => resultBox.append(createRow(person)));
+                else records.forEach((person) => resultBox.append(createRow(person, role)));
 
                 count.textContent = String(total);
                 if (serverPagination) serverPagination.hidden = true;

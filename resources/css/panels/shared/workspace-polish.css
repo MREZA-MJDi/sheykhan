@@ -1,0 +1,18 @@
+/* Shared accessibility and responsive baseline for public + role workspaces. */
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site){--workspace-focus-color:var(--panel-primary,var(--acc,var(--pri,#5667e8)))}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) :is(a,button,input,select,textarea,[role="button"],[tabindex]):focus-visible{outline:2px solid var(--workspace-focus-color);outline-offset:3px}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) :is(.dashboard-panel,.teacher-workspace-card,.teacher-workspace-stat,.parent-child,.card,.ui-stat,.home-course-card,.home-banner-card,.home-path-card){min-width:0}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) :is(input,select,textarea){max-width:100%}
+@media(max-width:767px){
+ .teacher-workspace-table-wrap{max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+ .teacher-workspace-table{min-width:640px}
+ .owner-people-workspace [data-directory-results]>*{min-width:0;flex-wrap:wrap}
+ .owner-person-preview-dialog{width:calc(100% - 1rem);max-height:calc(100dvh - 1rem)}
+}
+@media(prefers-reduced-motion:reduce){
+ :where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) *,
+ :where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) *::before,
+ :where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) *::after{
+  scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important
+ }
+}

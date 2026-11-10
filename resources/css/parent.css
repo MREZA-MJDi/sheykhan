@@ -1,6 +1,7 @@
 /* Parent panel: standalone stylesheet; no student/teacher/owner theme dependency. */
 
 @import 'tailwindcss' source(none);
+@import './panels/shared/workspace-polish.css';
 
 @import './panels/parent/calendar.css';
 @import './panels/parent/components.css';
