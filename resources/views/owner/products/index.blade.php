@@ -7,11 +7,21 @@
         <div><span>فروشگاه آموزشی آکادمی</span><h1>مدیریت کتاب، جزوه و آزمون</h1><p>محصولات منتشرشده در صفحه اصلی و فروشگاه نمایش داده می‌شوند. PDF اصلی همیشه خصوصی است و برای خریدار با واترمارک اختصاصی تحویل می‌شود.</p></div>
         <a href="{{ route('owner.dashboard') }}">داشبورد</a>
     </header>
+    <div class="owner-page-actions">
+        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-product-create-modal">＋ افزودن محصول</button>
+    </div>
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.store', $academy) }}" class="owner-form-grid">
+    <dialog class="owner-floating-modal" id="owner-product-create-modal" aria-labelledby="owner-product-create-title" @if($errors->any() && old('form_modal') === 'product') data-owner-modal-open-on-load @endif>
+        <header class="owner-floating-modal__header">
+            <div><span class="owner-record-modal-kicker">فروشگاه آموزشگاه</span><h2 id="owner-product-create-title">افزودن محصول جدید</h2></div>
+            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+        </header>
+        <div class="owner-floating-modal__body">
+<form method="POST" enctype="multipart/form-data" action="{{ route('owner.products.store', $academy) }}?modal=1" class="owner-form-grid">
         @csrf
+        <input type="hidden" name="form_modal" value="product">
         <section class="owner-form-section space-y-4">
             <h2>محصول جدید</h2>
             <label><span>عنوان محصول</span><input name="title" value="{{ old('title') }}" required maxlength="255"><small class="owner-field-help">عنوانی بنویس که در کارت فروشگاه و رسید خرید به‌راحتی شناخته شود.</small></label>
@@ -50,6 +60,8 @@
             <p class="text-xs leading-6 text-slate-500">قیمت نهایی هنگام ثبت سفارش از اطلاعات محصول محاسبه می‌شود؛ فایل اصلی محصول نیز به‌صورت عمومی در دسترس قرار نمی‌گیرد.</p>
         </aside>
     </form>
+        </div>
+    </dialog>
 
     <section class="owner-form-section space-y-3">
         <h2>محصول‌های ثبت‌شده</h2>
@@ -60,7 +72,7 @@
                     <p class="mt-1 text-xs text-slate-500">{{ $product->category?->name }} · {{ \App\Support\PersianUi::moneyInCurrency($product->sale_price ?? $product->price, $product->currency) }} · {{ $product->status }}</p>
                     <p class="mt-1 text-xs text-slate-500">PDF: {{ $product->files->where('is_preview', false)->count() ? 'ثبت شده' : 'ثبت نشده' }} · فایل اصلی خصوصی</p>
                     <div class="mt-2 flex flex-wrap gap-3">
-                        <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.products.edit', [$academy, $product]) }}">ویرایش محصول و فایل‌ها</a>
+                        <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.products.edit', ['academy' => $academy, 'product' => $product, 'modal' => 1]) }}" data-owner-modal-title="ویرایش محصول">ویرایش محصول و فایل‌ها</a>
                         @if($product->status === 'published')
                             <a class="inline-flex text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('store.product.show', $product) }}" target="_blank" rel="noopener noreferrer">مشاهده صفحه عمومی ←</a>
                         @endif
@@ -77,7 +89,7 @@
         @empty
             <p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز محصول واقعی ثبت نشده است. داده‌های seed جایگزین فایل‌های واقعی تولید محتوا نیستند.</p>
         @endforelse
-        @if($products->hasPages())<div>{{ $products->links() }}</div>@endif
+        @if($products->hasPages())<div>{{ $products->links('components.navigation.pagination') }}</div>@endif
     </section>
 </div>
 @endsection
