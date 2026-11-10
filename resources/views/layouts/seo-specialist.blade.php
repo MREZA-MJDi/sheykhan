@@ -57,7 +57,7 @@
     ];
 @endphp
 <div class="app">
-    @include('owner.partials.dashboard-icons')
+    @include('owner.admin.partials.dashboard-icons')
     @include('owner.partials.admin-topbar')
     <aside class="side card" id="side" aria-label="منوی مدیریت">
         <nav id="nv" aria-label="منوی اصلی">
