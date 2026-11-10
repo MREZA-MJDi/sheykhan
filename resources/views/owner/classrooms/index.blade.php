@@ -185,11 +185,13 @@
                        class="rounded-xl bg-slate-900 px-4 py-2.5 text-[10px] font-black text-white">
                         مشاهده جزئیات
                     </a>
-                    <a href="{{ route('owner.classrooms.edit', ['academy' => $academy, 'classroom' => $classroom, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.classrooms.edit', ['academy' => $academy, 'classroom' => $classroom, 'modal' => 1]) }}" data-owner-modal-title="ویرایش کلاس"
+                    @if(auth()->user()->hasPermission('classrooms.manage'))
+<a href="{{ route('owner.classrooms.edit', ['academy' => $academy, 'classroom' => $classroom, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.classrooms.edit', ['academy' => $academy, 'classroom' => $classroom, 'modal' => 1]) }}" data-owner-modal-title="ویرایش کلاس"
                        class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[10px] font-black text-slate-700">
                         ویرایش
                     </a>
-                    @if($classroom->status === 'archived')
+                    @endif
+@if($classroom->status === 'archived')
                         <form method="POST" action="{{ route('owner.classrooms.restore', [$academy, $classroom]) }}">
                             @csrf @method('PATCH')
                             <button type="submit" data-confirm="کلاس دوباره فعال شود؟ سوابق قبلی حفظ می‌شوند." class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-[10px] font-black text-emerald-800">بازیابی کلاس</button>
