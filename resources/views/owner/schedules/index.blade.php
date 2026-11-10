@@ -62,9 +62,19 @@
 
                 @if(auth()->user()->hasPermission('live_classes.manage'))
                 <div class="owner-schedule-editor mt-5 border-t border-slate-100 pt-5">
-                    <div class="owner-section-heading"><div><h3>افزودن زمان / لینک</h3><p>برای هر روز و بازهٔ زمانی یک ورودی جدا بساز. سرویس و لینک باید متعلق به همان جلسه باشند.</p></div></div>
-                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="owner-schedule-form mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-meeting-provider-form>
+                    <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-schedule-modal-{{ $classroom->id }}">
+                        ＋ افزودن زمان / لینک برای این کلاس
+                    </button>
+                </div>
+                <dialog class="owner-floating-modal" id="owner-schedule-modal-{{ $classroom->id }}" aria-labelledby="owner-schedule-modal-title-{{ $classroom->id }}" @if($errors->any() && old('form_modal') === 'schedule-' . $classroom->id) data-owner-modal-open-on-load @endif>
+                    <header class="owner-floating-modal__header">
+                        <div><span class="owner-record-modal-kicker">برنامه هفتگی کلاس</span><h2 id="owner-schedule-modal-title-{{ $classroom->id }}">افزودن زمان / لینک · {{ $classroom->title }}</h2></div>
+                        <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+                    </header>
+                    <div class="owner-floating-modal__body">
+                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="owner-schedule-form grid gap-3 sm:grid-cols-2" data-meeting-provider-form>
                         @csrf
+                        <input type="hidden" name="form_modal" value="schedule-{{ $classroom->id }}">
                         <label class="grid gap-1">
                             <span class="text-xs font-bold">روز هفته</span>
                             <select name="weekday" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
@@ -87,21 +97,22 @@
                             </select>
                             @error('provider')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                         </label>
-                        <label class="grid gap-1 sm:col-span-2 xl:col-span-3">
+                        <label class="grid gap-1 sm:col-span-2">
                             <span class="text-xs font-bold">لینک ورود <small class="font-normal text-slate-400">(برای Jitsi اختیاری، برای سرویس‌های دیگر الزامی)</small></span>
                             <input type="url" name="meeting_url" value="{{ old('meeting_url') }}" maxlength="2000" autocomplete="url" dir="ltr" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="https://...">
                             @error('meeting_url')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
                         </label>
-                        <div class="flex items-end sm:col-span-2 xl:col-span-4">
-                            <button type="submit" class="owner-primary-action w-full rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white sm:w-auto">ذخیره زمان و لینک</button>
-                        </div>
-                        @if($errors->any())
-                            <div class="rounded-xl bg-rose-50 p-3 text-xs leading-7 text-rose-700 sm:col-span-2 xl:col-span-4" role="alert">
+                        @if($errors->any() && old('form_modal') === 'schedule-' . $classroom->id)
+                            <div class="rounded-xl bg-rose-50 p-3 text-xs leading-7 text-rose-700 sm:col-span-2" role="alert">
                                 @foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach
                             </div>
                         @endif
+                        <div class="flex items-end sm:col-span-2">
+                            <button type="submit" class="owner-primary-action w-full rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ذخیره زمان و لینک</button>
+                        </div>
                     </form>
-                </div>
+                    </div>
+                </dialog>
                 @else
                     <p class="mt-5 border-t border-slate-100 pt-4 text-xs leading-7 text-slate-500">این بخش فقط در حالت مشاهده است؛ برای افزودن یا حذف زمان و لینک، مجوز مدیریت کلاس آنلاین لازم است.</p>
                 @endif
