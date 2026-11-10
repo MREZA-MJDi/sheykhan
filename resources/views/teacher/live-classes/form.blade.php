@@ -89,18 +89,14 @@
             <label>
                 <span>سرویس جلسه</span>
                 <select name="provider" data-meeting-provider required>
-                    <option value="">انتخاب سرویس</option>
-                    <option value="Jitsi" @selected(old('provider') === 'Jitsi')>Jitsi</option>
-                    <option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option>
-                    <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
-                    <option value="سایر" @selected(old('provider') === 'سایر')>سایر</option>
+                    <option value="Skyroom" selected>Skyroom · اسکای‌روم</option>
                 </select>
-                <em>Jitsi لینک یکتا را بلافاصله می‌سازد؛ Google Meet و Zoom به لینک واقعی ساخته‌شده در همان سرویس نیاز دارند.</em>
+                <em>لینک اتاقی را که در پنل Skyroom ساخته‌ای وارد کن؛ فقط لینک رسمی اتاق پذیرفته می‌شود.</em>
             </label>
             <label>
                 <span>لینک ورود دانش‌آموزان</span>
-                <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url') }}" placeholder="ابتدا سرویس را انتخاب کن" autocomplete="url" aria-describedby="live-meeting-link-help">
-                <em id="live-meeting-link-help" data-meeting-provider-help role="status" aria-live="polite">سرویس را انتخاب کن تا روش ساخت لینک مشخص شود.</em>
+                <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url') }}" placeholder="https://www.skyroom.online/ch/..." autocomplete="url" required maxlength="2000" dir="ltr" aria-describedby="live-meeting-link-help">
+                <em id="live-meeting-link-help" data-meeting-provider-help role="status" aria-live="polite">لینک واقعی اتاق Skyroom را وارد کن؛ ساخت خودکار اتاق بدون کلید API اسکای‌روم فعال نیست.</em>
             </label>
         </section>
 
