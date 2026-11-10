@@ -397,6 +397,7 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
         Route::post('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'store'])->middleware('throttle:10,1')->name('blog.store');
         Route::get('/blog/{post}/edit', [\App\Http\Controllers\Owner\BlogController::class, 'edit'])->whereNumber('post')->name('blog.edit');
         Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->middleware('throttle:10,1')->name('blog.update');
+        Route::delete('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'destroy'])->middleware('throttle:5,1')->name('blog.destroy');
 
         Route::get('/academy/{academy}/showcase', [\App\Http\Controllers\Owner\ShowcaseController::class, 'index'])->name('showcase.index');
         Route::post('/academy/{academy}/achievements', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeAchievement'])->middleware('throttle:10,1')->name('achievements.store');
