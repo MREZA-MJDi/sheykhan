@@ -40,7 +40,6 @@
         [
             'key' => 'control',
             'title' => 'خانه و گزارش‌ها',
-            'color' => '#315b88',
             'links' => [
                 ['route' => 'owner.dashboard', 'permission' => 'dashboard.view', 'label' => 'داشبورد اصلی', 'icon' => 'home', 'scope' => 'global'],
                 ['route' => 'owner.reports.index', 'permission' => 'reports.view', 'label' => 'گزارش عملکرد', 'icon' => 'chart', 'scope' => 'global'],
@@ -49,7 +48,6 @@
         [
             'key' => 'people',
             'title' => 'مدیریت اعضا',
-            'color' => '#167653',
             'links' => [
                 ['route' => 'owner.people.index', 'permission' => 'academy.view', 'label' => 'مدرس‌ها، دانش‌آموزان و اولیا', 'icon' => 'users', 'scope' => 'academy'],
             ],
@@ -57,7 +55,6 @@
         [
             'key' => 'communications',
             'title' => 'ارتباطات و پشتیبانی',
-            'color' => '#526b8c',
             'links' => [
                 ['route' => 'owner.messages.index', 'permission' => 'parents.view', 'label' => 'صندوق پیام خانواده‌ها', 'icon' => 'chat', 'scope' => 'academy'],
                 ['route' => 'owner.communications.index', 'permission' => 'parents.view', 'label' => 'اطلاعیه‌ها و پیام‌های خروجی', 'icon' => 'mega', 'scope' => 'academy'],
@@ -67,7 +64,6 @@
         [
             'key' => 'learning',
             'title' => 'کلاس‌ها و آموزش',
-            'color' => '#315b88',
             'links' => [
                 ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'دوره‌ها', 'icon' => 'book', 'scope' => 'global'],
                 ['route' => 'owner.classrooms.index', 'permission' => 'classrooms.view', 'label' => 'کلاس‌ها و گروه‌ها', 'icon' => 'calendar', 'scope' => 'academy'],
@@ -83,7 +79,6 @@
         [
             'key' => 'finance',
             'title' => 'فروش و امور مالی',
-            'color' => '#b7791f',
             'links' => [
                 ['route' => 'owner.finance.index', 'permission' => 'finance.view', 'label' => 'مالی و پرداخت‌ها', 'icon' => 'wallet', 'scope' => 'global'],
                 ['route' => 'owner.teacher-payments.index', 'permission' => 'teacher_payments.view', 'label' => 'پرداخت مدرس‌ها', 'icon' => 'wallet', 'scope' => 'academy'],
@@ -95,13 +90,11 @@
         [
             'key' => 'site',
             'title' => 'سایت و محتوا',
-            'color' => '#b4233c',
             'links' => [],
         ],
         [
             'key' => 'settings',
             'title' => 'تنظیمات و اسناد',
-            'color' => '#64748b',
             'links' => [
                 ['route' => 'owner.legal-documents.index', 'permission' => 'legal.manage', 'label' => 'اسناد حقوقی و کپی‌رایت', 'icon' => 'scale', 'scope' => 'global'],
                 ['route' => 'owner.content-rights.index', 'permission' => 'legal.manage', 'label' => 'حقوق نشر و مجوز محتوا', 'icon' => 'scale', 'scope' => 'global'],
@@ -170,7 +163,7 @@
                         <button class="gh" type="button" data-group-toggle
                             aria-controls="owner-nav-group-{{ $navGroup['key'] }}"
                             aria-expanded="{{ $isNavGroupExpanded ? 'true' : 'false' }}"
-                            style="--c:{{ $navGroup['color'] }}">
+                           >
                             <i aria-hidden="true"></i>
                             <span>{{ $navGroup['title'] }}</span>
                             <em>{{ $isNavGroupExpanded ? '−' : '+' }}</em>
@@ -185,7 +178,7 @@
                                                 ? str_replace('.index', '.*', $navLink['route'])
                                                 : $navLink['route'];
                                         ?>
-                                        <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                        <a class="ni"
                                            href="{{ route($navLink['route']) }}"
                                            <?php if (request()->routeIs($navRoutePattern)) echo 'aria-current="page"'; ?>
                                            data-nav-label="{{ $navLink['label'] }}">
@@ -202,7 +195,7 @@
                                                     ? $navLink['label'] . ' · ' . $academy->name
                                                     : $navLink['label'];
                                             ?>
-                                            <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                            <a class="ni"
                                                href="{{ route($navLink['route'], $academy) }}"
                                                <?php if (request()->routeIs($navRoutePattern) && $routeAcademyId === (int) $academy->id) echo 'aria-current="page"'; ?>
                                                data-nav-label="{{ $academyNavLabel }}">
@@ -215,51 +208,51 @@
                             <?php } ?>
 
                             <?php if ($showSiteGroup) { ?>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                <a class="ni"
                                    href="{{ route('seo.index') }}"
                                    <?php if (request()->routeIs('seo.index','seo.pages.edit','seo.pages.update')) echo 'aria-current="page"'; ?>
                                    data-nav-label="ممیزی SEO">
                                     <svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>ممیزی SEO</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                <a class="ni"
                                    href="{{ route('seo.keywords.index') }}"
                                    <?php if (request()->routeIs('seo.keywords.*')) echo 'aria-current="page"'; ?>
                                    data-nav-label="کلمات کلیدی">
                                     <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>کلمات کلیدی</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                <a class="ni"
                                    href="{{ route('seo.website.index') }}"
                                    <?php if (request()->routeIs('seo.website.index')) echo 'aria-current="page"'; ?>
                                    data-nav-label="مرکز سایت">
                                     <svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>مرکز سایت و بنرها</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                <a class="ni"
                                    href="{{ route('seo.website.hero.edit') }}"
                                    <?php if (request()->routeIs('seo.website.hero.*')) echo 'aria-current="page"'; ?>
                                    data-nav-label="اسلایدر صفحه اصلی">
                                     <svg class="ic" aria-hidden="true"><use href="#i-mega"/></svg><span>اسلایدر صفحه اصلی</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                <a class="ni"
                                    href="{{ route('seo.content.index') }}"
                                    <?php if (request()->routeIs('seo.content.*')) echo 'aria-current="page"'; ?>
                                    data-nav-label="محتوای عمومی">
                                     <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>محتوای عمومی</span>
                                 </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                <a class="ni"
                                    href="{{ route('seo.blog.index') }}"
                                    <?php if (request()->routeIs('seo.blog.*')) echo 'aria-current="page"'; ?>
                                    data-nav-label="بلاگ و مقالات">
                                     <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>بلاگ و مقالات</span>
                                 </a>
                                 <?php foreach ($websiteAcademies as $websiteAcademy) { ?>
-                                    <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                    <a class="ni"
                                        href="{{ route('seo.academy.banners.edit', $websiteAcademy) }}"
                                        <?php if (request()->routeIs('seo.academy.banners.*') && $routeAcademyId === (int) $websiteAcademy->id) echo 'aria-current="page"'; ?>
                                        data-nav-label="بنرهای {{ $websiteAcademy->name }}">
                                         <svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>
                                         <span>بنرهای {{ $websiteAcademy->name }}</span>
                                     </a>
-                                    <a class="ni" style="--c:{{ $navGroup['color'] }}"
+                                    <a class="ni"
                                        href="{{ route('seo.showcase.index', $websiteAcademy) }}"
                                        <?php if (request()->routeIs('seo.showcase.*') && $routeAcademyId === (int) $websiteAcademy->id) echo 'aria-current="page"'; ?>
                                        data-nav-label="افتخارآفرینان {{ $websiteAcademy->name }}">
@@ -284,7 +277,7 @@
                 <small>مرکز مدیریت سایت</small>
                 <b>SEO و محتوای عمومی</b>
                 <small>متادیتا، کلمات کلیدی، بنرها و مقاله‌ها از همین پنل مدیریت می‌شوند.</small>
-                <a class="ni" style="--c:{{ $navGroup['color'] }}" href="{{ route('seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>شروع ممیزی صفحات</span></a>
+                <a class="ni" href="{{ route('seo.index') }}"><svg class="ic"><use href="#i-chart"/></svg><span>شروع ممیزی صفحات</span></a>
             </section>
         @endif
         <div class="side-foot"><a href="{{ route('account.guide') }}"><svg class="ic"><use href="#i-book"/></svg>راهنمای پنل و بروشور</a><a href="{{ route('home') }}" target="_blank" rel="noopener"><svg class="ic"><use href="#i-globe"/></svg>مشاهده سایت</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">خروج از حساب</button></form></div>
