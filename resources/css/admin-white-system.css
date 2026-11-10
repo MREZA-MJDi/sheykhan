@@ -1212,7 +1212,7 @@ body.owner-shell.owner-admin-v2 {
 }
 
 
-/* Owner dashboard visual repair: white surfaces, navy hierarchy, restrained KPI accents. */
+/* Owner dashboard foundation — one white/navy surface system with restrained semantic accents. */
 .owner-admin-v2 {
     --ui-primary: #243b5a;
     --ui-primary-hover: #172b45;
@@ -1221,37 +1221,39 @@ body.owner-shell.owner-admin-v2 {
     --oa-accent: #243b5a;
     --acc: #243b5a;
 }
+.owner-admin-v2 .main-content {
+    min-width: 0;
+    color: var(--ui-text);
+}
 .owner-admin-v2 .main-content > .card,
 .owner-admin-v2 .main-content .card:not(.kpi) {
+    min-width: 0;
     border: 1px solid var(--ui-border) !important;
     border-radius: var(--ui-radius) !important;
-    background: #fff !important;
+    background: var(--ui-surface) !important;
     color: var(--ui-text) !important;
     box-shadow: var(--ui-shadow) !important;
 }
-.owner-admin-v2 .main-content .card :is(h2,h3,h4,b,strong) {
+.owner-admin-v2 .main-content .card :is(h1,h2,h3,h4,h5,b,strong) {
     color: var(--ui-navy) !important;
     text-shadow: none !important;
 }
-.owner-admin-v2 .main-content .card :is(p,small,.sub,.bl,.metric-caption) {
+.owner-admin-v2 .main-content .card :is(p,small,.sub,.bl,.metric-caption,.card-title p) {
     color: var(--ui-muted) !important;
 }
-.owner-admin-v2 .main-content .card .kpi-head {
-    color: var(--ui-muted) !important;
-    font-weight: 750;
-}
-.owner-admin-v2 .main-content .card .kpi-head .ic {
-    color: var(--c) !important;
-}
-.owner-admin-v2 .main-content .card .go,
-.owner-admin-v2 .main-content .card .mb {
-    box-shadow: none !important;
+.owner-admin-v2 .main-content .card .section-icon {
+    background: color-mix(in srgb, var(--c, var(--ui-primary)) 10%, #fff) !important;
+    color: var(--c, var(--ui-primary)) !important;
 }
 .owner-admin-v2 .main-content .kpi {
+    display: flex;
+    min-width: 0;
     min-height: 164px;
+    flex-direction: column;
+    gap: 5px;
     padding: 17px !important;
     border: 1px solid var(--ui-border) !important;
-    border-inline-start: 4px solid var(--c) !important;
+    border-inline-start: 4px solid var(--c, var(--ui-primary)) !important;
     border-radius: 14px !important;
     background: #fff !important;
     color: var(--ui-text) !important;
@@ -1261,34 +1263,38 @@ body.owner-shell.owner-admin-v2 {
 .owner-admin-v2 .main-content .kpi::after {
     width: 84px;
     height: 84px;
-    background: color-mix(in srgb, var(--c) 8%, transparent) !important;
+    background: color-mix(in srgb, var(--c, var(--ui-primary)) 7%, transparent) !important;
 }
 .owner-admin-v2 .main-content .kpi:hover {
-    border-color: color-mix(in srgb, var(--c) 40%, var(--ui-border)) !important;
+    border-color: color-mix(in srgb, var(--c, var(--ui-primary)) 38%, var(--ui-border)) !important;
     box-shadow: 0 12px 28px rgba(15,23,42,.08) !important;
     transform: translateY(-2px);
 }
 .owner-admin-v2 .main-content .kpi .kpi-head,
-.owner-admin-v2 .main-content .kpi .metric-caption {
+.owner-admin-v2 .main-content .kpi .metric-caption,
+.owner-admin-v2 .main-content .kpi > b small {
     color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content .kpi .kpi-head .ic {
+    color: var(--c, var(--ui-primary)) !important;
 }
 .owner-admin-v2 .main-content .kpi > b {
     color: var(--ui-navy) !important;
     font-size: clamp(24px, 2vw, 31px);
     font-weight: 900;
-}
-.owner-admin-v2 .main-content .kpi > b small {
-    color: var(--ui-muted) !important;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
 }
 .owner-admin-v2 .main-content .kpi .dl,
-.owner-admin-v2 .main-content .kpi .metric-foot {
-    color: var(--c) !important;
+.owner-admin-v2 .main-content .kpi .metric-foot,
+.owner-admin-v2 .main-content .kpi .table-link {
+    color: var(--c, var(--ui-primary)) !important;
 }
 .owner-admin-v2 .main-content .kpi .sp polyline {
-    stroke: var(--c) !important;
+    stroke: var(--c, var(--ui-primary)) !important;
     filter: none !important;
 }
-.owner-admin-v2 .main-content .metric-foot {
+.owner-admin-v2 .main-content .kpi .metric-foot {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1300,34 +1306,10 @@ body.owner-shell.owner-admin-v2 {
     font-weight: 750;
 }
 .owner-admin-v2 .main-content .kpi-link:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--c) 35%, transparent) !important;
+    outline: 3px solid color-mix(in srgb, var(--c, var(--ui-primary)) 28%, transparent) !important;
     outline-offset: 3px;
 }
-.owner-admin-v2 .main-content .owner-chart-grid line {
-    stroke: #e2e8f0 !important;
-}
-.owner-admin-v2 .main-content .owner-range-handle line {
-    stroke: #64748b !important;
-}
-.owner-admin-v2 .main-content .owner-range-handle circle {
-    fill: #315b88 !important;
-    stroke: #fff !important;
-    filter: none !important;
-}
-.owner-admin-v2 .main-content .owner-chart-legend,
-.owner-admin-v2 .main-content .owner-chart-labels,
-.owner-admin-v2 .main-content .owner-range-summary {
-    color: var(--ui-muted) !important;
-}
-@media (max-width: 760px) {
-    .owner-admin-v2 .main-content .kpi {
-        min-height: 148px;
-    }
-}
-
-
-/* Legacy dashboard subcomponents: translate dark/neon surfaces into the same white/navy UI. */
-.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day) {
+.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day,.card-empty) {
     border: 1px solid var(--ui-border) !important;
     border-radius: 12px;
     background: #fff !important;
@@ -1346,31 +1328,37 @@ body.owner-shell.owner-admin-v2 {
     box-shadow: inset 3px 0 0 #315b88 !important;
 }
 .owner-admin-v2 .main-content .tl.done { opacity: .72; }
+.owner-admin-v2 .main-content .at .ct {
+    border: 1px solid color-mix(in srgb, var(--c) 22%, #fff);
+    background: color-mix(in srgb, var(--c) 9%, #fff) !important;
+    color: var(--c) !important;
+}
 .owner-admin-v2 .main-content .tile {
-    border: 1px solid #dbe4ef;
-    background: #edf2f8 !important;
-    color: #243b5a !important;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-primary-soft) !important;
+    color: var(--ui-primary) !important;
 }
 .owner-admin-v2 .main-content .av2 {
-    border: 1px solid #dbe4ef;
-    background: #243b5a !important;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-primary) !important;
     color: #fff !important;
     box-shadow: none !important;
 }
 .owner-admin-v2 .main-content .go {
-    border: 1px solid #243b5a !important;
-    background: #243b5a !important;
+    border: 1px solid var(--ui-primary) !important;
+    background: var(--ui-primary) !important;
     color: #fff !important;
     box-shadow: none !important;
 }
 .owner-admin-v2 .main-content .go:hover {
-    background: #172b45 !important;
-    border-color: #172b45 !important;
+    background: var(--ui-primary-hover) !important;
+    border-color: var(--ui-primary-hover) !important;
 }
 .owner-admin-v2 .main-content .mb {
     border: 1px solid var(--ui-border-strong) !important;
     background: #fff !important;
-    color: #243b5a !important;
+    color: var(--ui-primary) !important;
+    box-shadow: none !important;
 }
 .owner-admin-v2 .main-content .mb:hover {
     border-color: #9aabc0 !important;
@@ -1378,12 +1366,12 @@ body.owner-shell.owner-admin-v2 {
 }
 .owner-admin-v2 .main-content .chip {
     border: 1px solid #d7e0ed;
-    background: #edf2f8 !important;
-    color: #243b5a !important;
+    background: var(--ui-primary-soft) !important;
+    color: var(--ui-primary) !important;
     box-shadow: none !important;
 }
-.owner-admin-v2 .main-content .owner-chart-legend i {
-    box-shadow: none !important;
+.owner-admin-v2 .main-content .owner-chart-grid line {
+    stroke: #e2e8f0 !important;
 }
 .owner-admin-v2 .main-content .owner-line-attendance {
     stroke: #315b88 !important;
@@ -1393,8 +1381,32 @@ body.owner-shell.owner-admin-v2 {
     stroke: #167653 !important;
     filter: none !important;
 }
-.owner-admin-v2 .main-content .owner-attention-list .at .ct {
-    border: 1px solid color-mix(in srgb, var(--c) 25%, #fff);
-    background: color-mix(in srgb, var(--c) 9%, #fff) !important;
-    color: var(--c) !important;
+.owner-admin-v2 .main-content .owner-range-handle line {
+    stroke: #64748b !important;
+}
+.owner-admin-v2 .main-content .owner-range-handle circle {
+    fill: #315b88 !important;
+    stroke: #fff !important;
+    filter: none !important;
+}
+.owner-admin-v2 .main-content :is(.owner-chart-legend,.owner-chart-labels,.owner-range-summary) {
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content .owner-chart-legend i { box-shadow: none !important; }
+.owner-admin-v2 .main-content .owner-monthly-sales .cy {
+    background: var(--c, #315b88) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content .owner-monthly-sales .cy::before {
+    background: color-mix(in srgb, var(--c, #315b88) 76%, #fff) !important;
+}
+.owner-admin-v2 .main-content :is(.go,.mb,.chip,.kpi-link,.at,.tl) {
+    -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 760px) {
+    .owner-admin-v2 .main-content .kpi { min-height: 148px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .owner-admin-v2 .main-content .kpi { transition: none; }
+    .owner-admin-v2 .main-content .kpi:hover { transform: none; }
 }
