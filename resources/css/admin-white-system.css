@@ -1649,3 +1649,100 @@ html:has(body.owner-admin-v2), body.owner-shell.owner-admin-v2 {
     .owner-admin-v2 .main-content *::before,
     .owner-admin-v2 .main-content *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+
+/* Page-specific KPI meaning for the learning workspace. */
+.owner-admin-v2 .main-content .owner-exams-page .owner-stat-card:nth-child(1),
+.owner-admin-v2 .main-content .owner-exam-details-page .owner-stat-card:nth-child(1),
+.owner-admin-v2 .main-content .owner-exam-details-page .owner-stat-card:nth-child(2) { --kpi-color: #2866a5; }
+.owner-admin-v2 .main-content .owner-exams-page .owner-stat-card:nth-child(2),
+.owner-admin-v2 .main-content .owner-exam-details-page .owner-stat-card:nth-child(3) { --kpi-color: #16804b; }
+.owner-admin-v2 .main-content .owner-exams-page .owner-stat-card:nth-child(3),
+.owner-admin-v2 .main-content .owner-exam-details-page .owner-stat-card:nth-child(4) { --kpi-color: #c17a0a; }
+
+.owner-admin-v2 .main-content .owner-classrooms-page .owner-stat-card:nth-child(1),
+.owner-admin-v2 .main-content .owner-classrooms-page .owner-stat-card:nth-child(3),
+.owner-admin-v2 .main-content .owner-classroom-details-page .owner-stat-card:nth-child(2),
+.owner-admin-v2 .main-content .owner-classroom-details-page .owner-stat-card:nth-child(3) { --kpi-color: #2866a5; }
+.owner-admin-v2 .main-content .owner-classrooms-page .owner-stat-card:nth-child(2),
+.owner-admin-v2 .main-content .owner-classroom-details-page .owner-stat-card:nth-child(1),
+.owner-admin-v2 .main-content .owner-classroom-details-page .owner-stat-card:nth-child(4),
+.owner-admin-v2 .main-content .owner-classroom-details-page .owner-stat-card:nth-child(5) { --kpi-color: #16804b; }
+.owner-admin-v2 .main-content .owner-classrooms-page .owner-stat-card:nth-child(4) { --kpi-color: #c17a0a; }
+
+.owner-admin-v2 .main-content .owner-assignments-page .owner-stat-card:nth-child(1) { --kpi-color: #2866a5; }
+.owner-admin-v2 .main-content .owner-assignments-page .owner-stat-card:nth-child(2) { --kpi-color: #16804b; }
+.owner-admin-v2 .main-content .owner-assignments-page .owner-stat-card:nth-child(3) { --kpi-color: #c17a0a; }
+
+.owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(1),
+.owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(5) { --kpi-color: #2866a5; }
+.owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(2) { --kpi-color: #16804b; }
+.owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(3) { --kpi-color: #c17a0a; }
+.owner-admin-v2 .main-content .owner-attendance-page .owner-stat-card:nth-child(4) { --kpi-color: #b4233c; }
+
+.owner-admin-v2 .main-content .course-stat.all { --kpi-color: #2866a5; }
+.owner-admin-v2 .main-content .course-stat.published { --kpi-color: #16804b; }
+.owner-admin-v2 .main-content .course-stat.free { --kpi-color: #c17a0a; }
+.owner-admin-v2 .main-content .course-status-badge.published {
+    border-color: #b9e2c9 !important; background: #edf8f1 !important; color: #12663c !important;
+}
+.owner-admin-v2 .main-content .course-status-badge.archived {
+    border-color: #d8dee7 !important; background: #f3f5f8 !important; color: #485465 !important;
+}
+.owner-admin-v2 .main-content .course-status-badge.draft {
+    border-color: #f2d18b !important; background: #fff6df !important; color: #7b4a05 !important;
+}
+
+/* Existing utility-colored state chips are normalized to the same semantic palette. */
+.owner-admin-v2 .main-content [class~="bg-emerald-50"],
+.owner-admin-v2 .main-content [class~="bg-green-50"] {
+    border-color: #b9e2c9 !important;
+    background: #edf8f1 !important;
+    color: #12663c !important;
+}
+.owner-admin-v2 .main-content [class~="bg-amber-50"],
+.owner-admin-v2 .main-content [class~="bg-yellow-50"],
+.owner-admin-v2 .main-content [class~="bg-orange-50"] {
+    border-color: #f2d18b !important;
+    background: #fff6df !important;
+    color: #7b4a05 !important;
+}
+.owner-admin-v2 .main-content [class~="bg-rose-50"],
+.owner-admin-v2 .main-content [class~="bg-red-50"] {
+    border-color: #efbdc6 !important;
+    background: #fff0f2 !important;
+    color: #9f2038 !important;
+}
+.owner-admin-v2 .main-content [class~="bg-sky-50"],
+.owner-admin-v2 .main-content [class~="bg-blue-50"],
+.owner-admin-v2 .main-content [class~="bg-indigo-50"] {
+    border-color: #c8dcf2 !important;
+    background: #eff6ff !important;
+    color: #1e568c !important;
+}
+.owner-admin-v2 .main-content [class~="bg-slate-100"] {
+    border-color: #dce2e9 !important;
+    background: #f3f5f8 !important;
+    color: #485465 !important;
+}
+
+/* Prevent nested component text from inheriting a mismatched dark-theme foreground. */
+.owner-admin-v2 .main-content :is(
+    .dashboard-panel,.owner-panel,.panel-card,.owner-form-shell,.owner-form-card,
+    .owner-form-section,.owner-people-tab-panel,.owner-classroom-card,
+    .owner-classroom-summary,.owner-product-card,.owner-resource-card,
+    .owner-session-card,.owner-calendar-section,.owner-schedule-list,
+    .owner-exam-section,.course-section-card,.owner-detail-card,.owner-show-card
+) {
+    color: #171b22 !important;
+}
+.owner-admin-v2 .main-content :is(
+    .dashboard-panel,.owner-panel,.panel-card,.owner-form-shell,.owner-form-card,
+    .owner-form-section,.owner-people-tab-panel,.owner-classroom-card,
+    .owner-classroom-summary,.owner-product-card,.owner-resource-card,
+    .owner-session-card,.owner-calendar-section,.owner-schedule-list,
+    .owner-exam-section,.course-section-card,.owner-detail-card,.owner-show-card
+) :is(p,li,dt,dd,figcaption) { color: #252b33; }
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.panel-card,.owner-form-shell,.owner-form-card) :is(h1,h2,h3,h4) {
+    color: #1d3553 !important;
+}
