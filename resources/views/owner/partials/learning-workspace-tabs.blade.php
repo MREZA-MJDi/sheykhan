@@ -16,15 +16,15 @@
 <section class="mb-5 overflow-hidden rounded-2xl border border-violet-100 bg-gradient-to-l from-violet-50 via-white to-indigo-50 p-4 sm:p-5" style="--learning-accent:#6d55c7">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <p class="text-[11px] font-black tracking-wide text-violet-700">فضای کاری آموزش</p>
-            <h2 class="mt-1 text-lg font-black text-slate-900">مدیریت مسیر یادگیری</h2>
-            <p class="mt-1 text-xs leading-6 text-slate-600">دوره، کلاس، جلسه آنلاین، ارزیابی و محتوای آموزشی در یک نوار کاری مشترک؛ دسترسی هر شیت بر اساس مجوز حساب کنترل می‌شود.</p>
+            <p class="text-[11px] font-black tracking-wide text-violet-700">بخش آموزش</p>
+            <h2 class="mt-1 text-lg font-black text-slate-900">همه کارهای آموزشی در یک جا</h2>
+            <p class="mt-1 text-xs leading-6 text-slate-600">از این قسمت می‌توانی دوره‌ها، کلاس‌ها، برنامه جلسات، تکالیف و آزمون‌ها را مدیریت کنی.</p>
         </div>
         @if($learningAcademy)
             <span class="inline-flex min-h-9 items-center rounded-xl border border-violet-100 bg-white/80 px-3 text-xs font-bold text-violet-800">{{ $learningAcademy->name }}</span>
         @endif
     </div>
-    <nav class="mt-4 flex flex-wrap gap-2" aria-label="شیت‌های فضای کاری آموزش">
+    <nav class="mt-4 flex flex-wrap gap-2" aria-label="شیت‌های بخش آموزش">
         @foreach($learningSheets as $sheet)
             @if(collect((array) $sheet['permission'])->contains(fn ($permission) => $learningUser?->hasPermission($permission)) && ($sheet['scope'] === 'global' || $learningAcademy))
                 <a href="{{ $sheet['scope'] === 'global' ? route($sheet['route']) : route($sheet['route'], array_merge([$learningAcademy], $sheet['query'] ?? [])) }}"
