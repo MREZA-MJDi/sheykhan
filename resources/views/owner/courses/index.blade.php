@@ -110,6 +110,7 @@
                                 @if(auth()->user()->hasPermission('courses.manage'))
 <a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn">ویرایش</a>
                                 @endif
+@if(auth()->user()->hasPermission('courses.manage'))
 @if($course->status === 'archived')
                                     <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
                                         @csrf @method('PATCH')
@@ -121,6 +122,7 @@
                                         <button type="submit" class="course-action-btn" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو</button>
                                     </form>
                                 @endif
+@endif
                             </div>
                         </td>
                     </tr>
@@ -172,6 +174,7 @@
                         @if(auth()->user()->hasPermission('courses.manage'))
 <a href="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.edit', ['course' => $course, 'modal' => 1]) }}" data-owner-modal-title="ویرایش دوره" class="course-action-btn justify-center">ویرایش</a>
                         @endif
+@if(auth()->user()->hasPermission('courses.manage'))
 @if($course->status === 'archived')
                             <form method="POST" action="{{ route('owner.courses.restore', $course) }}">
                                 @csrf @method('PATCH')
@@ -183,6 +186,7 @@
                                 <button type="submit" class="course-action-btn justify-center" data-confirm="دوره از دسترس دانش‌آموزان خارج و آرشیو شود؟ سوابق حفظ می‌شوند.">آرشیو</button>
                             </form>
                         @endif
+@endif
                     </div>
                 </article>
             @empty
