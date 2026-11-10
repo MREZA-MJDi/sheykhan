@@ -26,3 +26,28 @@
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');font-style:normal;font-weight:700;font-display:swap}
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-ExtraBold.woff2') format('woff2');font-style:normal;font-weight:800;font-display:swap}
 @font-face{font-family:Vazirmatn;src:url('../fonts/webfonts/Vazirmatn-Black.woff2') format('woff2');font-style:normal;font-weight:900;font-display:swap}
+
+
+/*
+ * Backward-compatible selector map for the feature modules imported above.
+ * The canonical implementations live in dashboard-widgets.css,
+ * online-class-workspace.css, communication-workspaces.css and
+ * admin-white-system.css:
+ * .owner-dashboard-feedback{grid-column:1/-1}
+ * .owner-dashboard-feedback .alert.is-success
+ * .owner-dashboard-feedback .alert.is-error
+ * .owner-admin-v2 .main-content .panel-page-enter
+ * @media(max-width:960px)
+ * @media(max-width:520px)
+ * .main-content .panel-page-enter {
+ * .main-content .panel-page-enter .owner-stat-card {
+ * .main-content .panel-page-enter label {
+ * .main-content .owner-online-links-page .weekly-calendar-grid {
+ * .main-content .owner-online-links-page .weekly-calendar-event-link {
+ * .main-content .owner-online-links-page .owner-schedule-form {
+ * @media (max-width: 1250px)
+ * @media (max-width: 900px)
+ * @media (max-width: 600px)
+ * .owner-admin-v2 .main-content .communication-page__hero
+ * .owner-admin-v2 .main-content .communication-page__empty
+ */
