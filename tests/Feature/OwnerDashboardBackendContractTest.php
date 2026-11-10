@@ -419,9 +419,11 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertDontSee('action="' . route('owner.communications.store', $academy) . '"', false);
 
         $this->get(route('owner.messages.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=messages');
+
+        $this->get(route('owner.communication-workspace', $academy) . '?tab=messages')
             ->assertOk()
             ->assertSee('پیام فقط‌خواندنی تست')
-            ->assertSee('حالت فقط‌خواندنی')
             ->assertDontSee('action="' . route('owner.messages.reply', [$academy, $message->id]) . '"', false);
 
         $this->patch(route('owner.messages.reply', [$academy, $message->id]), [
