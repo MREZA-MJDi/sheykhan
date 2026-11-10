@@ -1,7 +1,7 @@
 @extends('layouts.owner')
 
-@section('title', 'مرکز مدیریت SpotPlayer | شیخان')
-@section('header-title', 'مرکز مدیریت SpotPlayer')
+@section('title', 'ویدئوهای آموزشی | شیخان')
+@section('header-title', 'ویدئوهای آموزشی')
 
 @push('styles')
 <style>
@@ -130,7 +130,7 @@
     <header class="sp-hero">
         <div>
             <span class="sp-eyebrow">مرکز مدیریت پخش ویدئو</span>
-            <h1>SpotPlayer در شیخان</h1>
+            <h1>پخش ویدئوهای آموزشی</h1>
             <p>اتصال ناشر، نگاشت دوره‌ها و وضعیت واقعی لایسنس‌های دانش‌آموزان را از یک صفحه ببین. این صفحه از داده‌های ثبت‌شده در شیخان استفاده می‌کند؛ کلیدها و اطلاعات محرمانه هرگز در فهرست‌ها نمایش داده نمی‌شوند.</p>
         </div>
         <div class="sp-hero-actions">
