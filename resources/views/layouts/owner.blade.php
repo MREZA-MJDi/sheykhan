@@ -75,7 +75,6 @@
                 ['route' => 'owner.assignments.index', 'permission' => 'assignments.view', 'label' => 'تکالیف و تصحیح', 'icon' => 'doc', 'scope' => 'academy'],
                 ['route' => 'owner.exams.index', 'permission' => 'exams.view', 'label' => 'آزمون‌ها و نتایج', 'icon' => 'book', 'scope' => 'academy'],
                 ['route' => 'owner.schedules.index', 'permission' => 'live_classes.view', 'label' => 'برنامه و لینک کلاس آنلاین', 'icon' => 'link', 'scope' => 'academy'],
-                ['route' => 'owner.meetings.index', 'permission' => 'live_classes.view', 'label' => 'هماهنگی جلسات', 'icon' => 'users', 'scope' => 'academy'],
                 ['route' => 'owner.recordings.index', 'permission' => 'live_classes.view', 'label' => 'ضبط کلاس‌ها', 'icon' => 'video', 'scope' => 'academy'],
                 ['route' => 'owner.resources.index', 'permission' => 'resources.view', 'label' => 'منابع آموزشی', 'icon' => 'book', 'scope' => 'academy'],
             ],
