@@ -415,7 +415,7 @@ class OwnerDashboardBackendContractTest extends TestCase
 
         $this->get(route('owner.communication-workspace', $academy) . '?tab=announcements')
             ->assertOk()
-            ->assertSee('این حساب دسترسی مشاهده دارد')
+            ->assertSee('هنوز اطلاعیه‌ای ثبت نشده است.')
             ->assertDontSee('action="' . route('owner.communications.store', $academy) . '"', false);
 
         $this->get(route('owner.messages.index', $academy))
