@@ -51,6 +51,12 @@ $testAccounts = in_array($appEnvironment, ['local', 'testing'], true)
             'username' => '091779234175',
         ],
         [
+            'role' => 'متخصص SEO',
+            'role_key' => 'seo-specialist',
+            'name' => 'متخصص SEO',
+            'username' => $mobileForSeedKey('seo-specialist'),
+        ],
+        [
             'role' => 'مدرس',
             'role_key' => 'teacher',
             'name' => 'سمیه احمدی',
