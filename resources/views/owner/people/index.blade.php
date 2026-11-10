@@ -381,8 +381,15 @@
     <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-black text-emerald-700">عضو فعال</span>
     <span class="text-[10px] text-slate-400">افراد فعال آموزشگاه</span>
 </div>
-<div class="grid gap-4 xl:grid-cols-3">
-@foreach([['مدرس‌ها',$teachers,'active-teachers'],['دانش‌آموزان',$students,'students'],['والدین',$parents,'parents']] as [$title,$items,$directoryRole])
+<div class="owner-people-directory-tabs" data-owner-people-tabs data-initial-tab="{{ request('members_tab', 'students') }}">
+    <nav class="owner-people-directory-tabbar" role="tablist" aria-label="فهرست اعضای آموزشگاه">
+        <button type="button" role="tab" id="owner-members-students-tab" aria-controls="owner-members-students-panel" data-owner-tab-button="students" aria-selected="{{ request('members_tab', 'students') === 'students' ? 'true' : 'false' }}">دانش‌آموزان <span>{{ $students->total() }}</span></button>
+        <button type="button" role="tab" id="owner-members-parents-tab" aria-controls="owner-members-parents-panel" data-owner-tab-button="parents" aria-selected="{{ request('members_tab') === 'parents' ? 'true' : 'false' }}">اولیا <span>{{ $parents->total() }}</span></button>
+        <button type="button" role="tab" id="owner-members-teachers-tab" aria-controls="owner-members-teachers-panel" data-owner-tab-button="active-teachers" aria-selected="{{ request('members_tab') === 'active-teachers' ? 'true' : 'false' }}">مدرس‌ها <span>{{ $teachers->total() }}</span></button>
+        <button type="button" role="tab" id="owner-members-archived-tab" aria-controls="owner-members-archived-panel" data-owner-tab-button="archived-teachers" aria-selected="{{ request('members_tab') === 'archived-teachers' ? 'true' : 'false' }}">مدرس‌های آرشیوشده <span>{{ $archivedTeachers->total() }}</span></button>
+    </nav>
+@foreach([['دانش‌آموزان',$students,'students'],['اولیا',$parents,'parents'],['مدرس‌ها',$teachers,'active-teachers']] as [$title,$items,$directoryRole])
+<section class="owner-people-directory-tabpanel" id="owner-members-{{ $directoryRole }}-panel" role="tabpanel" aria-labelledby="owner-members-{{ $directoryRole }}-tab" data-owner-tab-panel="{{ $directoryRole }}" @if(request('members_tab', 'students') !== $directoryRole) hidden @endif>
 <section class="dashboard-panel p-5" data-owner-people-directory data-directory-role="{{ $directoryRole }}" data-directory-url="{{ route('owner.people.data', ['academy' => $academy, 'role' => $directoryRole]) }}">
     <div class="flex items-center justify-between gap-3">
         <h2 class="font-black">{{ $title }}</h2>
@@ -448,8 +455,8 @@
     @endif
 </section>
 @endforeach
-</div>
 
+<section class="owner-people-directory-tabpanel" id="owner-members-archived-teachers-panel" role="tabpanel" aria-labelledby="owner-members-archived-tab" data-owner-tab-panel="archived-teachers" @if(request('members_tab', 'students') !== 'archived-teachers') hidden @endif>
 <section class="dashboard-panel p-5" data-owner-people-directory data-directory-role="archived-teachers" data-directory-url="{{ route('owner.people.data', ['academy' => $academy, 'role' => 'archived-teachers']) }}">
     <div class="flex items-center justify-between gap-3">
         <div>
@@ -504,7 +511,9 @@
         <div data-directory-server-pagination class="mt-4 border-t border-slate-100 pt-3 text-xs">{{ $archivedTeachers->withQueryString()->links() }}</div>
     @endif
 </section>
+</section>
 
+</div>
     </div>
 </div>
 </div>
