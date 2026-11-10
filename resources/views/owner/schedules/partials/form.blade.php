@@ -44,7 +44,7 @@
     </label>
     <label class="grid gap-1 sm:col-span-2">
         <span class="text-xs font-bold">لینک ورود <small class="font-normal text-slate-400">(لینک واقعی اتاق Skyroom الزامی است)</small></span>
-        <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url', $schedule?->meeting_url) }}" maxlength="2000" autocomplete="url" dir="ltr" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="https://www.skyroom.online/ch/...">
+        <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url', $schedule?->provider === 'Skyroom' ? $schedule?->meeting_url : '') }}" maxlength="2000" autocomplete="url" dir="ltr" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="https://www.skyroom.online/ch/...">
         @error('meeting_url')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
     </label>
     @if($errors->any() && old('form_modal') === $formModal)
