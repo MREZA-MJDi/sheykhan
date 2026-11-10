@@ -232,6 +232,7 @@
     </div>
     <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}?modal=1" class="mt-5 grid gap-3 sm:grid-cols-2" data-confirm="حساب والد ساخته یا به دانش‌آموز متصل شود؟">
         @csrf
+        <input type="hidden" name="form_modal" value="parent">
         <div class="owner-student-picker sm:col-span-2" data-student-picker data-options-url="{{ route('owner.people.student-options',$academy) }}">
             <label for="owner-parent-student-search" class="mb-1 block text-xs font-bold">اول دانش‌آموز را انتخاب کن</label>
             <input id="owner-parent-student-search" type="search" data-student-search value="{{ old('student_label') }}" autocomplete="off" aria-autocomplete="list" aria-controls="owner-parent-student-results" placeholder="نام، موبایل یا کد ملی را جست‌وجو کن…" class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
