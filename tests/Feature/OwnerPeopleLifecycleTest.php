@@ -151,7 +151,11 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('owner-create-teacher-dialog', false)
             ->assertSee('owner-assign-class-dialog', false)
             ->assertSee('owner-enroll-student-dialog', false)
-            ->assertSee('data-owner-modal-open', false);
+            ->assertSee('data-owner-modal-open', false)
+            ->assertSee('data-owner-people-directory-tabs', false)
+            ->assertSee('data-owner-directory-tab="archived-teachers"', false)
+            ->assertSee('data-owner-directory-panel="students"', false)
+            ->assertSee('data-owner-directory-panel="parents"', false);
     }
 
     public function test_people_workspace_stays_available_when_academic_grade_schema_is_missing(): void
