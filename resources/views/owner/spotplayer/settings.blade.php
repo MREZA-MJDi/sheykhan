@@ -218,7 +218,7 @@
                         <div class="sp-mini"><span>درخواست در حال صدور</span><strong>{{ $persianNumber($issuingCount) }}</strong></div>
                         <div class="sp-mini"><span>درخواست‌های ناموفق قطعی</span><strong>{{ $persianNumber($failedCount) }}</strong></div>
                     </div>
-                    <p class="sp-help mt-3">این آمار از رکوردهای داخلی شیخان خوانده می‌شود؛ شمارندهٔ آنلاین دستگاه‌ها یا فهرست زندهٔ پنل شرکت ارائه‌دهنده سرویس نیست.</p>
+                    <p class="sp-help mt-3">این آمار از اطلاعات ثبت‌شده در شیخان نمایش داده می‌شود؛ تعداد دستگاه‌های آنلاین یا فهرست زنده پنل شرکت ارائه‌دهنده نیست.</p>
                 </div>
             </article>
         </div>
@@ -270,7 +270,7 @@
     <section id="sp-licenses" class="sp-card sp-section">
         <div class="sp-card-head">
             <div><h2>مجوزهای پخش صادرشده در شیخان</h2><p>فقط داده‌های داخلی ذخیره‌شده نمایش داده می‌شود؛ کلید دسترسی در این صفحه نمایش داده نمی‌شود.</p></div>
-            <span class="sp-pill">{{ $persianNumber($licenseStats['total']) }} رکورد</span>
+            <span class="sp-pill">{{ $persianNumber($licenseStats['total']) }} مجوز ثبت‌شده</span>
         </div>
         @if($licenseRecords->isNotEmpty())
             <div class="sp-table-wrap">
