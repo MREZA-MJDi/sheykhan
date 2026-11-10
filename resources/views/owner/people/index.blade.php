@@ -39,17 +39,35 @@
 </section>
 @endif
 
-<div class="owner-people-tabs" data-owner-people-tabs data-initial-tab="{{ $activePeopleTab }}">
-    <nav class="owner-people-tabbar" role="tablist" aria-label="مدیریت اعضای آموزشگاه">
-        <button type="button" role="tab" id="owner-people-management-tab" aria-controls="owner-people-management-panel" data-owner-tab-button="management" aria-selected="{{ $activePeopleTab === 'management' ? 'true' : 'false' }}">
-            <span class="owner-people-tab-icon">☷</span><span>اعضا و عملیات</span>
-        </button>
-        <button type="button" role="tab" id="owner-people-create-student-tab" aria-controls="owner-people-create-student-panel" data-owner-tab-button="create-student" aria-selected="{{ $activePeopleTab === 'create-student' ? 'true' : 'false' }}">
-            <span class="owner-people-tab-icon">＋</span><span>ایجاد دانش‌آموز</span>
-        </button>
-    </nav>
+<div class="owner-people-tabs owner-people-workspace-panel">
+    <header class="owner-people-actionbar">
+        <div><strong>عملیات اعضا</strong><span>ثبت حساب و اتصال اعضا در پنجره شناور انجام می‌شود.</span></div>
+        <div class="owner-people-actionbar__buttons">
+            @if(auth()->user()->hasPermission('onboarding.manage'))
+                <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-student-create-modal">＋ دانش‌آموز جدید</button>
+            @endif
+            @if(auth()->user()->hasPermission('parents.manage'))
+                <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-parent-create-modal">＋ والد جدید</button>
+            @endif
+            @if(auth()->user()->hasPermission('teachers.manage'))
+                <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-teacher-create-modal">＋ مدرس جدید</button>
+                <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-class-teacher-modal">اختصاص مدرس کلاس</button>
+            @endif
+            @if(auth()->user()->hasPermission('enrollments.manage'))
+                <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-enrollment-modal">＋ ثبت‌نام</button>
+            @endif
+            @if(!empty($academicGradesAvailable) && !empty($studentOnboardingAvailable) && !empty($studentOnboardingHistoryAvailable))
+                <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-legacy-student-modal">ورود دانش‌آموز قدیمی</button>
+            @endif
+        </div>
+    </header>
 
-    <section class="owner-people-tab-panel owner-student-create-panel" id="owner-people-create-student-panel" role="tabpanel" aria-labelledby="owner-people-create-student-tab" data-owner-tab-panel="create-student" @if($activePeopleTab !== 'create-student') hidden @endif>
+    <dialog class="owner-floating-modal" id="owner-student-create-modal" aria-labelledby="owner-student-create-title" @if(session('temporary_student_password') || ($errors->any() && request('tab') === 'create-student')) data-owner-modal-open-on-load @endif>
+        <header class="owner-floating-modal__header">
+            <div><span class="owner-record-modal-kicker">حساب جدید</span><h2 id="owner-student-create-title">ساخت حساب دانش‌آموز</h2></div>
+            <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+        </header>
+        <div class="owner-floating-modal__body">
         <header class="owner-student-create-head">
             <div><span>حساب جدید</span><h2>ساخت حساب دانش‌آموز</h2><p>اطلاعات اصلی را وارد کن؛ کد دانش‌آموز و رمز اولیه را سامانه می‌سازد.</p></div>
             <span class="owner-student-create-badge">رمز یک‌بار نمایش داده می‌شود</span>
@@ -89,9 +107,10 @@
             </footer>
             @if($grades->isEmpty())<p class="owner-student-no-grades">پایه فعالی در سامانه تعریف نشده است.</p>@endif
         </form>
-    </section>
+        </div>
+    </dialog>
 
-    <div class="owner-people-tab-panel" id="owner-people-management-panel" role="tabpanel" aria-labelledby="owner-people-management-tab" data-owner-tab-panel="management" @if($activePeopleTab !== 'management') hidden @endif>
+    <div class="owner-people-management-content">
 
 
 <section class="dashboard-panel p-5 sm:p-7">
