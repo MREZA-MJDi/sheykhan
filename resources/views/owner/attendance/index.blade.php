@@ -47,6 +47,7 @@
 
     <section class="dashboard-panel p-5 sm:p-6">
         <form method="GET" action="{{ route('owner.attendance.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <input type="hidden" name="sheet" value="{{ $sheet }}">
             <label class="grid gap-1"><span class="text-xs font-bold">نام یا ایمیل دانش‌آموز</span><input name="q" value="{{ $filters['q'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="جست‌وجو..."></label>
             <label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select name="classroom_id" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">همه کلاس‌ها</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
             <label class="grid gap-1"><span class="text-xs font-bold">تاریخ</span><input type="date" name="attendance_date" value="{{ $filters['attendance_date'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"></label>
