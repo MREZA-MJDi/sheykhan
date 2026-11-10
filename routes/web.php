@@ -374,23 +374,33 @@ Route::middleware(['auth','active','role:parent'])->prefix('parent')->name('pare
     Route::get('/resources/{resource}/view', [ParentResourceController::class, 'view'])->whereNumber('resource')->name('resources.view');
 });
 
-Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'])
-    ->prefix('owner')
-    ->name('owner.')
+Route::middleware(['auth', 'active', 'role:seo-specialist', 'permission:seo.manage'])
+    ->prefix('seo')
+    ->name('seo.')
     ->group(function () {
-        // Public website content and page-level controls are restricted to the dedicated SEO role.
-        // Academy operations (members, classes, courses, commerce, messaging and finance) stay owner-scoped.
-        Route::get('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'edit'])->name('academy.banners.edit');
-        Route::patch('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'update'])->middleware('throttle:10,1')->name('academy.banners.update');
-        Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->name('website.index');
-        Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->name('website.hero.edit');
-        Route::patch('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'update'])->middleware('throttle:10,1')->name('website.hero.update');
+        // A dedicated SEO workspace: its URLs and route names are independent
+        // from academy-owner operations and never live under /owner.
+        Route::get('/', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('index');
 
-        Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->name('content.index');
-        Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->name('content.create');
-        Route::post('/content', [\App\Http\Controllers\Owner\ContentController::class, 'store'])->middleware('throttle:10,1')->name('content.store');
-        Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->whereNumber('content')->name('content.edit');
-        Route::patch('/content/{content}', [\App\Http\Controllers\Owner\ContentController::class, 'update'])->middleware('throttle:10,1')->name('content.update');
+        Route::get('/keywords/template', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'template'])->name('keywords.template');
+        Route::get('/keywords/export', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'export'])->name('keywords.export');
+        Route::post('/keywords/import', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'import'])->middleware('throttle:10,1')->name('keywords.import');
+        Route::get('/keywords', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'index'])->name('keywords.index');
+        Route::get('/keywords/create', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'create'])->name('keywords.create');
+        Route::post('/keywords', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'store'])->middleware('throttle:30,1')->name('keywords.store');
+        Route::get('/keywords/{keyword}/edit', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'edit'])->whereNumber('keyword')->name('keywords.edit');
+        Route::patch('/keywords/{keyword}', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'update'])->whereNumber('keyword')->name('keywords.update');
+        Route::post('/keywords/{keyword}/rankings', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'storeRanking'])->whereNumber('keyword')->middleware('throttle:60,1')->name('keywords.rankings.store');
+        Route::delete('/keywords/{keyword}', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'destroy'])->whereNumber('keyword')->name('keywords.destroy');
+
+        Route::get('/pages/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])
+            ->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])
+            ->whereNumber('id')
+            ->name('pages.edit');
+        Route::patch('/pages/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])
+            ->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])
+            ->whereNumber('id')
+            ->name('pages.update');
 
         Route::get('/blog', [\App\Http\Controllers\Owner\BlogController::class, 'index'])->name('blog.index');
         Route::get('/blog/create', [\App\Http\Controllers\Owner\BlogController::class, 'create'])->name('blog.create');
@@ -399,26 +409,23 @@ Route::middleware(['auth','active','role:seo-specialist','permission:seo.manage'
         Route::patch('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'update'])->middleware('throttle:10,1')->name('blog.update');
         Route::delete('/blog/{post}', [\App\Http\Controllers\Owner\BlogController::class, 'destroy'])->middleware('throttle:5,1')->name('blog.destroy');
 
+        Route::get('/content', [\App\Http\Controllers\Owner\ContentController::class, 'index'])->name('content.index');
+        Route::get('/content/create', [\App\Http\Controllers\Owner\ContentController::class, 'create'])->name('content.create');
+        Route::post('/content', [\App\Http\Controllers\Owner\ContentController::class, 'store'])->middleware('throttle:10,1')->name('content.store');
+        Route::get('/content/{content}/edit', [\App\Http\Controllers\Owner\ContentController::class, 'edit'])->whereNumber('content')->name('content.edit');
+        Route::patch('/content/{content}', [\App\Http\Controllers\Owner\ContentController::class, 'update'])->middleware('throttle:10,1')->name('content.update');
+
+        Route::get('/website', \App\Http\Controllers\Owner\WebsiteController::class)->name('website.index');
+        Route::get('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'edit'])->name('website.hero.edit');
+        Route::patch('/website/hero', [\App\Http\Controllers\Owner\HomeHeroController::class, 'update'])->middleware('throttle:10,1')->name('website.hero.update');
+        Route::get('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'edit'])->name('academy.banners.edit');
+        Route::patch('/academy/{academy}/home-banners', [\App\Http\Controllers\Owner\HomeBannerController::class, 'update'])->middleware('throttle:10,1')->name('academy.banners.update');
+
         Route::get('/academy/{academy}/showcase', [\App\Http\Controllers\Owner\ShowcaseController::class, 'index'])->name('showcase.index');
         Route::post('/academy/{academy}/achievements', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeAchievement'])->middleware('throttle:10,1')->name('achievements.store');
         Route::patch('/academy/{academy}/achievements/{achievement}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawAchievement'])->name('achievements.withdraw');
         Route::post('/academy/{academy}/testimonials', [\App\Http\Controllers\Owner\ShowcaseController::class, 'storeTestimonial'])->middleware('throttle:10,1')->name('testimonials.store');
         Route::patch('/academy/{academy}/testimonials/{testimonial}/withdraw', [\App\Http\Controllers\Owner\ShowcaseController::class, 'withdrawTestimonial'])->name('testimonials.withdraw');
-
-        // SEO is permission-scoped so a dedicated specialist does not need academy-owner access.
-        Route::get('/seo', [\App\Http\Controllers\Owner\SeoController::class, 'index'])->name('seo.index');
-        Route::get('/seo/keywords/template', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'template'])->name('seo.keywords.template');
-        Route::get('/seo/keywords/export', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'export'])->name('seo.keywords.export');
-        Route::post('/seo/keywords/import', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'import'])->middleware('throttle:10,1')->name('seo.keywords.import');
-        Route::get('/seo/keywords', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'index'])->name('seo.keywords.index');
-        Route::get('/seo/keywords/create', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'create'])->name('seo.keywords.create');
-        Route::post('/seo/keywords', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'store'])->middleware('throttle:30,1')->name('seo.keywords.store');
-        Route::get('/seo/keywords/{keyword}/edit', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'edit'])->whereNumber('keyword')->name('seo.keywords.edit');
-        Route::patch('/seo/keywords/{keyword}', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'update'])->whereNumber('keyword')->name('seo.keywords.update');
-        Route::post('/seo/keywords/{keyword}/rankings', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'storeRanking'])->whereNumber('keyword')->middleware('throttle:60,1')->name('seo.keywords.rankings.store');
-        Route::delete('/seo/keywords/{keyword}', [\App\Http\Controllers\Owner\SeoKeywordController::class, 'destroy'])->whereNumber('keyword')->name('seo.keywords.destroy');
-        Route::get('/seo/{type}/{id}/edit', [\App\Http\Controllers\Owner\SeoController::class, 'edit'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.edit');
-        Route::patch('/seo/{type}/{id}', [\App\Http\Controllers\Owner\SeoController::class, 'update'])->whereIn('type', ['academy', 'course', 'content', 'blog', 'product', 'teacher'])->whereNumber('id')->name('seo.update');
     });
 
 Route::middleware(['auth', 'active'])
