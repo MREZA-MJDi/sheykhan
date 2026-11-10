@@ -3454,3 +3454,38 @@ body.owner-admin-unified .main-content :is(.badge,.status-badge){border-radius:9
 @media(prefers-color-scheme:dark){
  body.owner-admin-unified:not([data-theme=light]){background:#f2f4f9!important;color:#16204a!important;color-scheme:light}
 }
+
+
+/* Compact desktop navigation and explicit theme switch. */
+.owner-admin-unified .sidebar-collapse{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border:1px solid #ffffff26;border-radius:9px;background:#ffffff12;color:#fff;cursor:pointer}
+.owner-admin-unified .theme-toggle{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--oa-line);border-radius:10px;background:#f1f3fa;color:#26377f;cursor:pointer;font-size:18px}
+body.owner-admin-unified.admin-sidebar-collapsed .app{grid-template-columns:76px minmax(0,1fr)}
+body.owner-admin-unified.admin-sidebar-collapsed .admin-sidebar-brand{justify-content:center;padding-inline:0}
+body.owner-admin-unified.admin-sidebar-collapsed .admin-sidebar-brand>div,
+body.owner-admin-unified.admin-sidebar-collapsed .nav-group .gh span:not(:first-child),
+body.owner-admin-unified.admin-sidebar-collapsed .nav-group .gh em,
+body.owner-admin-unified.admin-sidebar-collapsed .ni>span:last-child,
+body.owner-admin-unified.admin-sidebar-collapsed .side-foot a,
+body.owner-admin-unified.admin-sidebar-collapsed .side-foot form{display:none}
+body.owner-admin-unified.admin-sidebar-collapsed .nav-group .gh{justify-content:center}
+body.owner-admin-unified.admin-sidebar-collapsed .ni{justify-content:center;padding:8px}
+body.owner-admin-unified.admin-sidebar-collapsed .nav-icon{width:34px;height:34px}
+body.owner-admin-unified[data-theme=dark]{--oa-bg:#0d1230;--oa-card:#161d44;--oa-ink:#eef0fb;--oa-muted:#99a3cf;--oa-line:#262f62;--oa-primary:#8fa2ff;--oa-primary-soft:#232d66;background:#0d1230!important;color:#eef0fb!important;color-scheme:dark}
+body.owner-admin-unified[data-theme=dark] .top,
+body.owner-admin-unified[data-theme=dark] .admin-kpi,
+body.owner-admin-unified[data-theme=dark] .admin-panel,
+body.owner-admin-unified[data-theme=dark] .main-content :is(.dashboard-panel,.owner-panel,.owner-stat-card,.owner-form-shell,.owner-form-card,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.owner-calendar-section,.owner-exam-section){background:#161d44!important;color:#eef0fb!important;border-color:#262f62!important}
+body.owner-admin-unified[data-theme=dark] .main-content :is(h1,h2,h3,h4,strong,b),
+body.owner-admin-unified[data-theme=dark] .admin-kpi strong,
+body.owner-admin-unified[data-theme=dark] .admin-panel-head h2,
+body.owner-admin-unified[data-theme=dark] .admin-list-row strong{color:#eef0fb}
+body.owner-admin-unified[data-theme=dark] .main-content :is(p,small,label),
+body.owner-admin-unified[data-theme=dark] .admin-kpi span,
+body.owner-admin-unified[data-theme=dark] .admin-kpi small,
+body.owner-admin-unified[data-theme=dark] .admin-panel-head p,
+body.owner-admin-unified[data-theme=dark] .admin-list-row small{color:#99a3cf}
+body.owner-admin-unified[data-theme=dark] .main-content :is(input:not([type=checkbox]):not([type=radio]),select,textarea){background:#101638!important;color:#eef0fb!important;border-color:#262f62!important}
+body.owner-admin-unified[data-theme=dark] .main-content a:not(.go):not(.mb):not(.tab):not(.ni):not(.fd):not(.owner-primary-btn){color:#aebcff}
+body.owner-admin-unified[data-theme=dark] .admin-search input{background:#101638;color:#eef0fb;border-color:#262f62}
+body.owner-admin-unified[data-theme=dark] .theme-toggle{background:#232d66;color:#eef0fb;border-color:#3b4786}
+@media(max-width:960px){body.owner-admin-unified.admin-sidebar-collapsed .app{grid-template-columns:minmax(0,1fr)}body.owner-admin-unified.admin-sidebar-collapsed .side{width:auto}}
