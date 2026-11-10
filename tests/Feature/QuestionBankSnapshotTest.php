@@ -57,6 +57,7 @@ final class QuestionBankSnapshotTest extends TestCase
         app(ExamQuestionWriter::class)->storeBankQuestions($exam, collect([$bankQuestion]));
 
         $snapshot = $exam->questions()->firstOrFail();
+        $this->assertSame($bankQuestion->id, $snapshot->source_bank_question_id);
         $this->assertSame('دو به‌علاوه دو؟', $snapshot->question);
         $this->assertSame(['سه', 'چهار', 'پنج', 'شش'], $snapshot->options);
         $this->assertSame('چهار', $snapshot->correct_answer);
