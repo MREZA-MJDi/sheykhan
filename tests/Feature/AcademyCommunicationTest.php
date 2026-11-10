@@ -43,6 +43,16 @@ class AcademyCommunicationTest extends TestCase
             'subject' => 'اطلاعیه شروع ترم',
         ]);
 
+        $this->actingAs($w['owner'])
+            ->get(route('owner.communications.index', [
+                $w['academy'],
+                'category' => 'announcement',
+                'audience' => 'all_parents',
+                'q' => 'شروع ترم',
+            ]))
+            ->assertOk()
+            ->assertSee('اطلاعیه شروع ترم');
+
         $this->actingAs($w['parent'])->get(route('parent.messages.index'))
             ->assertOk()->assertSee('اطلاعیه شروع ترم');
 
@@ -108,6 +118,15 @@ class AcademyCommunicationTest extends TestCase
             'subject' => 'تغییر ساعت کلاس',
             'body' => 'این هفته کلاس نیم ساعت زودتر برگزار می‌شود.',
         ])->assertRedirect(route('teacher.communications.index'));
+
+        $this->actingAs($w['teacher'])
+            ->get(route('teacher.communications.index', [
+                'category' => 'schedule',
+                'audience' => 'classroom_parents',
+                'q' => 'تغییر ساعت',
+            ]))
+            ->assertOk()
+            ->assertSee('تغییر ساعت کلاس');
 
         $this->actingAs($w['parent'])->get(route('parent.messages.index'))
             ->assertOk()->assertSee('تغییر ساعت کلاس');
