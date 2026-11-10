@@ -10,8 +10,6 @@ final class OwnerFinanceService
 {
     public function index(User $owner, array $filters = []): array
     {
-        app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'finance.view');
-
         $academies = app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'finance.view');
         $academyIds = $academies->pluck('id');
         $sheet = in_array($filters['sheet'] ?? 'transactions', ['transactions', 'debts'], true)
@@ -75,6 +73,7 @@ final class OwnerFinanceService
             : null;
 
         return [
+            'academy' => $academies->first(),
             'sheet' => $sheet,
             'filters' => $filters,
             'transactions' => $transactions,
