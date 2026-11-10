@@ -4,7 +4,7 @@
         ['key' => 'report', 'label' => 'غیبت‌ها و گزارش کلاسی', 'icon' => '▥'],
     ];
 @endphp
-<section class="rounded-2xl border border-teal-100 bg-gradient-to-l from-teal-50 via-white to-cyan-50 p-4 sm:p-5" aria-label="فضای کاری حضور و غیاب">
+<section class="owner-workspace-tabs rounded-2xl border border-teal-100 bg-gradient-to-l from-teal-50 via-white to-cyan-50 p-4 sm:p-5" aria-label="فضای کاری حضور و غیاب">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div><p class="text-[11px] font-black text-teal-700">فضای کاری حضور و غیاب</p><h2 class="mt-1 text-base font-black text-slate-900">پیگیری وضعیت کلاس‌ها</h2><p class="mt-1 text-xs leading-6 text-slate-600">ثبت اصلاحات، مرور سوابق و گزارش‌گیری با فیلترهای یکسان</p></div>
         <span class="rounded-xl border border-teal-100 bg-white px-3 py-2 text-xs font-bold text-teal-800">{{ $academy->name }}</span>
