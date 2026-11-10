@@ -14,9 +14,9 @@
 
     const openStatic = (dialog, trigger = null) => {
         if (!dialog || typeof dialog.showModal !== 'function') return;
-        dialog.dataset.ownerModalPreviousFocus = trigger?.id || '';
+        dialog._ownerModalReturnFocus = trigger || document.activeElement;
         if (!dialog.open) dialog.showModal();
-        const focusTarget = dialog.querySelector('[autofocus], input:not([type="hidden"]), select, textarea, button');
+        const focusTarget = dialog.querySelector('[autofocus], input:not([type="hidden"]), select, textarea, button:not([data-owner-modal-close])');
         focusTarget?.focus({ preventScroll: true });
     };
 
@@ -58,6 +58,7 @@
         loading.className = 'owner-modal-loading';
         loading.textContent = 'در حال آماده‌سازی فرم…';
         body.append(loading);
+        dialog._ownerModalReturnFocus = remoteTrigger;
         dialog.showModal();
 
         try {
@@ -175,8 +176,11 @@
     document.addEventListener('close', (event) => {
         const dialog = event.target;
         if (!(dialog instanceof HTMLDialogElement) || !dialog.classList.contains('owner-floating-modal')) return;
-        const previousId = dialog.dataset.ownerModalPreviousFocus;
-        if (previousId) document.getElementById(previousId)?.focus({ preventScroll: true });
+        const returnFocus = dialog._ownerModalReturnFocus;
+        if (returnFocus instanceof HTMLElement && returnFocus.isConnected) {
+            returnFocus.focus({ preventScroll: true });
+        }
+        dialog._ownerModalReturnFocus = null;
     }, true);
 
     const reopen = document.querySelector('[data-owner-record-modal-reopen-url]');
