@@ -37,6 +37,10 @@ final class OwnerFinanceService
             ? FinancialTransaction::query()
                 ->whereIn('academy_id', $academyIds)
                 ->with(['academy:id,name', 'user:id,name', 'enrollment.course:id,title'])
+                ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+                ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
+                ->when($filters['from'] ?? null, fn ($query, $date) => $query->whereDate('occurred_at', '>=', $date))
+                ->when($filters['to'] ?? null, fn ($query, $date) => $query->whereDate('occurred_at', '<=', $date))
                 ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
                     $term = trim((string) $filters['q']);
                     $query->where(function ($nested) use ($term): void {
@@ -46,9 +50,11 @@ final class OwnerFinanceService
                             ->orWhereHas('enrollment.course', fn ($course) => $course->where('title', 'like', '%' . $term . '%'));
                     });
                 })
-                ->latest('occurred_at')
-                ->latest('id')
-                ->paginate(25)
+                ->when(($filters['sort'] ?? 'recent') === 'oldest', fn ($query) => $query->orderBy('occurred_at')->orderBy('id'))
+                ->when(($filters['sort'] ?? 'recent') === 'amount_desc', fn ($query) => $query->orderByDesc('amount')->orderByDesc('id'))
+                ->when(($filters['sort'] ?? 'recent') === 'amount_asc', fn ($query) => $query->orderBy('amount')->orderBy('id'))
+                ->when(! in_array(($filters['sort'] ?? 'recent'), ['oldest', 'amount_desc', 'amount_asc'], true), fn ($query) => $query->latest('occurred_at')->latest('id'))
+                ->paginate(25, ['*'], 'transactions_page')
                 ->withQueryString()
             : null;
 
@@ -67,8 +73,12 @@ final class OwnerFinanceService
                         ->whereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%')->orWhere('mobile', 'like', '%' . $term . '%'))
                         ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $term . '%')));
                 })
-                ->orderByDesc('id')
-                ->paginate(25)
+                ->when(($filters['sort'] ?? 'recent') === 'oldest', fn ($query) => $query->orderBy('created_at')->orderBy('id'))
+                ->when(($filters['sort'] ?? 'recent') === 'balance_desc', fn ($query) => $query->orderByRaw('(price_amount - paid_amount) DESC')->orderByDesc('id'))
+                ->when(($filters['sort'] ?? 'recent') === 'balance_asc', fn ($query) => $query->orderByRaw('(price_amount - paid_amount) ASC')->orderBy('id'))
+                ->when(($filters['sort'] ?? 'recent') === 'name', fn ($query) => $query->orderBy(User::query()->select('name')->whereColumn('users.id', 'course_enrollments.student_id'))->orderByDesc('id'))
+                ->when(! in_array(($filters['sort'] ?? 'recent'), ['oldest', 'balance_desc', 'balance_asc', 'name'], true), fn ($query) => $query->orderByDesc('id'))
+                ->paginate(25, ['*'], 'debts_page')
                 ->withQueryString()
             : null;
 
