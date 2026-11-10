@@ -39,7 +39,7 @@
 </section>
 @endif
 
-<div class="owner-people-tabs" data-owner-people-tabs data-initial-tab="{{ $activePeopleTab }}">
+<div class="owner-people-tabs" data-owner-people-tabs data-query-param="tab" data-initial-tab="{{ $activePeopleTab }}">
     <nav class="owner-people-tabbar" role="tablist" aria-label="مدیریت اعضای آموزشگاه">
         <button type="button" role="tab" id="owner-people-management-tab" aria-controls="owner-people-management-panel" data-owner-tab-button="management" aria-selected="{{ $activePeopleTab === 'management' ? 'true' : 'false' }}">
             <span class="owner-people-tab-icon">☷</span><span>اعضا و عملیات</span>
