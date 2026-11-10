@@ -51,6 +51,27 @@
         </form>
     </section>
 
+    <form method="GET" class="dashboard-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_180px_180px_auto_auto] sm:items-end" role="search" aria-label="فیلتر پیام‌های مستقیم">
+        <label class="grid gap-1 text-xs font-bold">جست‌وجو
+            <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm" placeholder="موضوع، متن، مخاطب یا دانش‌آموز">
+        </label>
+        <label class="grid gap-1 text-xs font-bold">جهت پیام
+            <select name="direction" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                <option value="">همه پیام‌ها</option>
+                <option value="incoming" @selected(($filters['direction'] ?? '') === 'incoming')>دریافتی از والد</option>
+                <option value="outgoing" @selected(($filters['direction'] ?? '') === 'outgoing')>ارسال‌شده توسط من</option>
+            </select>
+        </label>
+        <label class="grid gap-1 text-xs font-bold">وضعیت
+            <select name="status" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="sent" @selected(($filters['status'] ?? '') === 'sent')>ارسال‌شده / در انتظار پاسخ</option>
+                <option value="responded" @selected(($filters['status'] ?? '') === 'responded')>پاسخ‌داده‌شده</option>
+            </select>
+        </label>
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
+        <a href="{{ route('teacher.direct-messages.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">پاک‌کردن</a>
+    </form>
     <section class="communication-page__message-list space-y-4">
         <h2 class="text-xl font-black">پیام‌های ارسال‌شده</h2>
         @forelse($messages as $message)
