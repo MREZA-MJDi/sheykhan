@@ -28,18 +28,27 @@ class SeoSpecialistAccessTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
 
         $password = (string) config('role_access.test_password');
+        $seoAccount = collect(config('role_access.test_accounts', []))
+            ->firstWhere('role_key', 'seo-specialist');
+        $this->assertIsArray($seoAccount);
+
         $seoRole = Role::query()->where('slug', 'seo-specialist')->firstOrFail();
         $user = User::factory()->create([
             'name' => 'متخصص SEO تست',
             'email' => 'seo@sheykhan.com',
-            'mobile' => '09120000077',
+            'mobile' => $seoAccount['username'],
             'password' => $password,
             'status' => 'active',
         ]);
         $user->roles()->attach($seoRole->id);
 
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee($seoAccount['username'])
+            ->assertSee('متخصص SEO');
+
         $this->post(route('login.store'), [
-            'mobile' => '09120000077',
+            'mobile' => $seoAccount['username'],
             'password' => $password,
         ])->assertRedirect(route('seo.index'));
 
