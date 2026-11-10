@@ -14,6 +14,12 @@ final class ParentMessageController extends Controller
     {
         $teacher = $request->user();
 
+        $filters = $request->validate([
+            'status' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['open', 'in_review', 'responded', 'closed'])],
+            'category' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['question', 'suggestion', 'complaint', 'other'])],
+            'q' => ['nullable', 'string', 'max:120'],
+        ]);
+
         $messages = ParentMessage::query()
             ->where(function ($scope) use ($teacher): void {
                 $scope->whereHas('student.classroomsAsStudent', fn ($classrooms) => $classrooms
@@ -25,11 +31,22 @@ final class ParentMessageController extends Controller
                         ->whereHas('course.teachers', fn ($teachers) => $teachers->whereKey($teacher->id)));
             })
             ->with(['academy:id,name', 'parent:id,name', 'student:id,name', 'responder:id,name'])
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category', $category))
+            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                $term = trim((string) $filters['q']);
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('parent', fn ($parent) => $parent->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%'));
+                });
+            })
             ->latest()
             ->paginate(20)
             ->withQueryString();
 
-        return view('teacher.messages.index', compact('messages'));
+        return view('teacher.messages.index', compact('messages', 'filters'));
     }
 
     public function reply(Request $request, ParentMessage $message): RedirectResponse
