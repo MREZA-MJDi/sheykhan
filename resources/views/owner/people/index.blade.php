@@ -206,6 +206,7 @@
 </section>
 </div>
     </section>
+    </section>
     <section class="owner-people-tab-panel" role="tabpanel" data-owner-tab-panel="create-accounts">
         <header class="owner-people-actionbar">
             <div><strong>ساخت اعضای جدید</strong><span>فرم‌های ثبت والد و مدرس در پنجرهٔ شناور باز می‌شوند.</span></div>
