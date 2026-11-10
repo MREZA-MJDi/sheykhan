@@ -517,6 +517,8 @@
     </div>
 </div>
 </div>
+</div>
+</div>
 
 <dialog class="owner-person-preview-dialog" data-owner-person-preview-dialog aria-labelledby="owner-person-preview-title">
     <div class="owner-person-preview-dialog__inner">
