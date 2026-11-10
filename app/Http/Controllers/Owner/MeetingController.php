@@ -14,9 +14,15 @@ use Illuminate\View\View;
 
 final class MeetingController extends Controller
 {
-    public function index(Academy $academy, OwnerMeetingService $meetings): View
+    public function index(Academy $academy, OwnerMeetingService $meetings): RedirectResponse
     {
-        return view('owner.meetings.index', $meetings->index(request()->user(), $academy));
+        abort_unless(
+            request()->user()->hasRole('academy-owner')
+                && (int) $academy->owner_id === (int) request()->user()->id,
+            404
+        );
+
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'meetings']);
     }
 
     public function store(
