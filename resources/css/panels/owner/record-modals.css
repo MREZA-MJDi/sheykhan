@@ -372,3 +372,14 @@ dialog[data-owner-record-modal]::backdrop {
 @media (max-width: 820px) {
     .owner-sidebar-tools { display: none; }
 }
+
+.owner-modal-subtitle {
+    margin: 4px 0 0;
+    color: var(--oa-muted, #667091);
+    font-size: 11px;
+    line-height: 1.8;
+}
+.owner-record-modal-body .course-form-shell,
+.owner-floating-modal__body .course-form-shell {
+    max-width: 100%;
+}
