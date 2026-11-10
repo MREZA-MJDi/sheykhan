@@ -1,10 +1,12 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 
 @section('title', 'ساخت تکلیف | شیخان')
 @section('header-title', 'ساخت تکلیف')
 
 @section('content')
+@php($modalMode = request()->boolean('modal'))
 <div class="space-y-6 panel-page-enter">
+@unless($modalMode)
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
@@ -13,6 +15,7 @@
         </div>
         <a href="{{ route('owner.assignments.index', $academy) }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به فهرست ←</a>
     </header>
+@endunless
 
     @if($classrooms->isEmpty())
         <section class="dashboard-panel p-6">
@@ -24,7 +27,7 @@
         </section>
     @else
         <section class="dashboard-panel p-5 sm:p-7">
-            <form method="POST" action="{{ route('owner.assignments.store', $academy) }}" enctype="multipart/form-data" class="grid gap-4 md:grid-cols-2">
+            <form method="POST" action="{{ route('owner.assignments.store', $academy) . ($modalMode ? '?modal=1' : '') }}" enctype="multipart/form-data" class="grid gap-4 md:grid-cols-2">
                 @csrf
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">کلاس</span>
