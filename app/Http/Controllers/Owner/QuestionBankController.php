@@ -94,10 +94,10 @@ final class QuestionBankController extends Controller
             array_map('trim', preg_split('/\\R/u', (string) ($data['options_text'] ?? '')) ?: []),
             static fn ($value) => $value !== ''
         ));
-        $answers = array_values(array_filter(
+        $answers = array_values(array_unique(array_filter(
             array_map('trim', preg_split('/\\R/u', (string) ($data['correct_answers_text'] ?? '')) ?: []),
             static fn ($value) => $value !== ''
-        ));
+        )));
         if (count($options) !== count(array_unique($options))) {
             throw \Illuminate\Validation\ValidationException::withMessages(['options_text' => 'گزینه‌های تکراری مجاز نیستند.']);
         }
@@ -123,10 +123,10 @@ final class QuestionBankController extends Controller
                     $validator->errors()->add('options_text', 'برای سؤال تک‌گزینه‌ای دقیقاً چهار گزینه لازم است.');
                 }
                 if ($answers === [] || array_diff($answers, $options) !== []) {
-                    $validator->errors()->add('correct_answers', 'پاسخ صحیح باید از بین گزینه‌های همین سؤال انتخاب شود.');
+                    $validator->errors()->add('correct_answers_text', 'پاسخ صحیح باید از بین گزینه‌های همین سؤال انتخاب شود.');
                 }
                 if ($data['type'] === 'single' && count($answers) !== 1) {
-                    $validator->errors()->add('correct_answers', 'برای سؤال تک‌گزینه‌ای دقیقاً یک پاسخ صحیح لازم است.');
+                    $validator->errors()->add('correct_answers_text', 'برای سؤال تک‌گزینه‌ای دقیقاً یک پاسخ صحیح لازم است.');
                 }
             })->validate();
             $data['options'] = $options;
