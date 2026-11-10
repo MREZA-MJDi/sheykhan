@@ -48,7 +48,7 @@ class CommunicationPageStyleCoverageTest extends TestCase
         $this->assertStringContainsString('.owner-admin-v2 .main-content .communication-page__empty', $css);
         $this->assertStringContainsString('owner.admin.partials.learning-workspace-tabs', $page);
         $this->assertStringContainsString('owner-workspace-tabs', $workspace);
-        $this->assertStringContainsString('dashboard-panel', $workspace);
+        $this->assertStringContainsString('dashboard-panel', $page);
         $this->assertFileDoesNotExist(dirname(__DIR__, 2) . '/resources/views/components/communication/academy-messages-workspace.blade.php');
     }
 }
