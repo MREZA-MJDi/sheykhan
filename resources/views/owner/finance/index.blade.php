@@ -5,11 +5,12 @@
 <div class="space-y-6 panel-page-enter">
     @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'transactions'])
     <div><span class="text-xs font-black text-[var(--panel-primary)]">گزارش مالی</span><h1 class="mt-1 text-2xl font-black">جریان مالی آموزشگاه</h1><p class="mt-2 text-sm leading-7 text-slate-500">این صفحه فقط گزارش می‌دهد؛ ledger اصلی فقط از جریان پرداخت معتبر تغذیه می‌شود.</p></div>
-    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <article class="owner-stat-card"><span>دریافت</span><strong>{{ \App\Support\PersianUi::number($stats['income']) }}</strong><small>تومان</small></article>
         <article class="owner-stat-card"><span>بازپرداخت</span><strong>{{ \App\Support\PersianUi::number($stats['refunds']) }}</strong><small>تومان</small></article>
         <article class="owner-stat-card"><span>خالص</span><strong>{{ \App\Support\PersianUi::number($stats['net']) }}</strong><small>تومان</small></article>
         <article class="owner-stat-card"><span>تراکنش قطعی</span><strong>{{ \App\Support\PersianUi::digits($stats['completed']) }}</strong><small>ثبت‌شده</small></article>
+        <article class="owner-stat-card"><span>بدهی شهریه</span><strong>{{ \App\Support\PersianUi::number($debtSummary['amount'] ?? 0) }}</strong><small>{{ \App\Support\PersianUi::digits($debtSummary['count'] ?? 0) }} ثبت‌نام با مانده · تومان</small></article>
     </section>
     <section class="dashboard-panel owner-panel">
         <div class="owner-panel-head"><div><h2>تراکنش‌ها</h2><p>فقط آموزشگاه‌های متعلق به این Owner</p></div></div>
