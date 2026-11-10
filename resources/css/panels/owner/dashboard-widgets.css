@@ -653,7 +653,7 @@
 .owner-admin-v2 .main-content .panel-page-enter details {
     border-color: rgba(119,136,190,.23) !important;
     border-radius: 13px !important;
-    background: rgba(9,14,39,.78) !important;
+    background:#fff!important;
 }
 .owner-admin-v2 .main-content .panel-page-enter summary {
     padding: 3px 0;
@@ -668,10 +668,10 @@
     overflow: hidden;
     border: 1px solid rgba(119,136,190,.16);
     border-radius: 13px;
-    background: rgba(9,14,39,.42);
+    background:#fff;
 }
 .owner-admin-v2 .main-content .panel-page-enter thead {
-    background: rgba(34,211,238,.065) !important;
+    background:#eef3f8!important;
 }
 .owner-admin-v2 .main-content .panel-page-enter :is(th, td) {
     padding: 12px 14px;
