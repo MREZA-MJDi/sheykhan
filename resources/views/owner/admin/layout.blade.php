@@ -29,6 +29,7 @@ $groups=[
  ['route'=>'owner.classrooms.index','label'=>'کلاس‌ها','icon'=>'▦','permission'=>'classrooms.view','scope'=>'academy'],
  ['route'=>'owner.attendance.index','label'=>'حضور و غیاب','icon'=>'✓','permission'=>'attendance.view','scope'=>'academy'],
  ['route'=>'owner.assignments.index','label'=>'تکالیف','icon'=>'✎','permission'=>'assignments.view','scope'=>'academy'],
+ ['route'=>'owner.communications.index','label'=>'پیام‌ها و اطلاعیه‌ها','icon'=>'✉','permission'=>'parents.view','scope'=>'academy'],
  ['route'=>'owner.schedules.index','label'=>'برنامه کلاس‌ها','icon'=>'◷','permission'=>'live_classes.view','scope'=>'academy'],
  ['route'=>'owner.exams.index','label'=>'آزمون‌ها','icon'=>'★','permission'=>'exams.view','scope'=>'academy'],
  ['route'=>'owner.recordings.index','label'=>'فیلم کلاس‌ها','icon'=>'▷','permission'=>'live_classes.view','scope'=>'academy'],
