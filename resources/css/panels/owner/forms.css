@@ -141,7 +141,7 @@
     min-width: 0;
     border: 1px solid rgba(119,136,190,.2);
     border-radius: 13px;
-    background: rgba(9,14,39,.5);
+    background:#fff;
     padding: 14px;
 }
 .owner-admin-v2 .main-content .owner-exam-builder-page button[type=submit] {
