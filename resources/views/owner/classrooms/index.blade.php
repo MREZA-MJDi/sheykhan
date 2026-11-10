@@ -24,11 +24,13 @@
         </div>
 
         @if(auth()->user()->hasPermission('classrooms.manage'))
-            <a href="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url=
-        @endif"{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ساخت کلاس جدید"
-           class="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white shadow-sm">
-            + ساخت کلاس جدید
-        </a>
+            <a href="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}"
+               data-owner-modal-url="{{ route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]) }}"
+               data-owner-modal-title="ساخت کلاس جدید"
+               class="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-xs font-black text-white shadow-sm">
+                + ساخت کلاس جدید
+            </a>
+        @endif
     </div>
 
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
