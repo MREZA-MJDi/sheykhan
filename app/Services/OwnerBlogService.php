@@ -162,6 +162,8 @@ final class OwnerBlogService
                 app(MediaService::class)->detach($media, $post);
             }
 
+            // SEO metadata is a separate polymorphic record and must not be orphaned.
+            $post->seoMeta()->delete();
             $post->delete();
         });
 
