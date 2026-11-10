@@ -155,11 +155,11 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
             'resources/js/parent.js',
             'resources/js/student.js',
             'resources/views/owner/admin/assets/admin.js',
-            'resources/js/seo-dashboard.js',
+            'resources/views/owner/admin/assets/seo-dashboard.js',
         ] as $entry) {
             $source = file_get_contents(resource_path(str_replace('resources/', '', $entry)));
             $this->assertIsString($source);
-            if ($entry === 'resources/views/owner/admin/assets/admin.js') {
+            if (str_contains($entry, 'resources/views/owner/admin/assets/')) {
                 $this->assertStringContainsString("from '../../../../js/panel-runtime.js'", $source, $entry);
             } else {
                 $this->assertStringContainsString("from './panel-runtime.js'", $source, $entry);
@@ -207,22 +207,22 @@ class StudentTeacherDashboardDesignSystemTest extends TestCase
     public function test_owner_and_seo_keep_their_own_shared_interactions_and_styles(): void
     {
         $ownerScript = file_get_contents(resource_path('views/owner/admin/assets/admin.js'));
-        $seoScript = file_get_contents(resource_path('js/seo-dashboard.js'));
+        $seoScript = file_get_contents(resource_path('views/owner/admin/assets/seo-dashboard.js'));
         $sharedScript = file_get_contents(resource_path('views/owner/admin/assets/js/admin-common.js'));
         $ownerCss = file_get_contents(resource_path('views/owner/admin/assets/admin.css'));
-        $seoCss = file_get_contents(resource_path('css/seo-dashboard.css'));
+        $seoCss = file_get_contents(resource_path('views/owner/admin/assets/seo-dashboard.css'));
         $ownerLayout = file_get_contents(resource_path('views/owner/admin/layout.blade.php'));
         $seoLayout = file_get_contents(resource_path('views/layouts/seo-specialist.blade.php'));
         foreach ([$ownerScript,$seoScript,$sharedScript,$ownerCss,$seoCss,$ownerLayout,$seoLayout] as $source) $this->assertIsString($source);
         $this->assertStringContainsString("import './js/admin-common.js';", $ownerScript);
-        $this->assertStringContainsString("import '../views/owner/admin/assets/js/admin-common.js';", $seoScript);
+        $this->assertStringContainsString("import './js/admin-common.js';", $seoScript);
         $this->assertStringContainsString("import '../../../../../js/shared/file-preview.js';", $sharedScript);
         $this->assertStringNotContainsString('assessment-builder', $sharedScript);
         $this->assertStringContainsString("import './js/owner/exam-builder.js';", $ownerScript);
         $this->assertStringContainsString("import './js/owner/workspace-tabs.js';", $ownerScript);
         $this->assertStringContainsString("@import '../../../../css/panels/shared/calendar.css';", $ownerCss);
         $this->assertStringContainsString("@import '../../../../css/panels/shared/components.css';", $ownerCss);
-        $this->assertStringContainsString("import './panels/seo/admin.css';", $seoCss);
+        $this->assertStringContainsString("import './seo-admin.css';", $seoCss);
         $this->assertFileDoesNotExist(resource_path('css/owner-admin-shared.css'));
         $this->assertStringContainsString("@include('owner.admin.partials.dashboard-icons')", $ownerLayout);
         $this->assertStringContainsString("@include('owner.admin.partials.topbar')", $seoLayout);
