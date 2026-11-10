@@ -5,6 +5,7 @@
 
 @section('content')
 <div class="website-center page-enter space-y-6">
+    @include('owner.partials.public-site-workspace-tabs')
     <section class="website-center-hero">
         <div>
             <span class="website-kicker">کنترل حضور عمومی</span>
