@@ -164,7 +164,7 @@
 
         {{-- KPI band: one whole card is one destination, as in dashboard.zip. --}}
         @if($canViewPeople)
-            <a class="card kpi c3 kpi-link" href="{{ route('owner.people.index', $firstAcademy) }}" style="--c:#315b88" aria-label="مشاهده اعضا؛ {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز فعال">
+            <a class="card kpi c3 kpi-link" href="{{ route('owner.people.index', $firstAcademy) }}" data-tone="blue" aria-label="مشاهده اعضا؛ {{ \App\Support\PersianUi::digits($students) }} دانش‌آموز فعال">
                 <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>دانش‌آموزان فعال</div>
                 <b>{{ \App\Support\PersianUi::digits($students) }} <small>نفر</small></b>
                 <div class="dl">عضویت‌های جدید در ۷ روز اخیر</div>
@@ -177,7 +177,7 @@
         @endif
 
         @if($canViewAttendance && $firstAcademy)
-            <a class="card kpi c3 kpi-link" href="{{ route('owner.attendance.index', $firstAcademy) }}" style="--c:#167653" aria-label="مشاهده حضور و غیاب؛ نرخ حضور {{ $periodCaption }}">
+            <a class="card kpi c3 kpi-link" href="{{ route('owner.attendance.index', $firstAcademy) }}" data-tone="green" aria-label="مشاهده حضور و غیاب؛ نرخ حضور {{ $periodCaption }}">
                 <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-checksq"/></svg>حضور {{ $periodCaption }}</div>
                 <b>{{ $attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate) }}{{ $attendanceRate === null ? '' : '٪' }}</b>
                 <div class="dl">نرخ حضور روزانه در ۷ روز اخیر</div>
@@ -190,7 +190,7 @@
         @endif
 
         @if($canViewFinance)
-            <a class="card kpi c3 kpi-link" href="{{ route('owner.finance.index') }}" style="--c:#b7791f" aria-label="مشاهده مالی؛ خالص تراکنش‌های تکمیل‌شده {{ $periodCaption }}">
+            <a class="card kpi c3 kpi-link" href="{{ route('owner.finance.index') }}" data-tone="orange" aria-label="مشاهده مالی؛ خالص تراکنش‌های تکمیل‌شده {{ $periodCaption }}">
                 <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg>خالص تراکنش‌ها · {{ $periodCaption }}</div>
                 <b>{{ \App\Support\PersianUi::number($sales) }} <small>تومان</small></b>
                 <div class="dl">خالص روزانه در ۷ روز اخیر</div>
@@ -203,7 +203,7 @@
         @endif
 
         @if($canViewAssignments || $canViewClassrooms)
-            <a class="card kpi c3 kpi-link" href="{{ $attentionRoute }}" style="--c:#b4233c" aria-label="مشاهده موارد نیازمند پیگیری؛ {{ \App\Support\PersianUi::digits($attentionCount) }} مورد">
+            <a class="card kpi c3 kpi-link" href="{{ $attentionRoute }}" data-tone="red" aria-label="مشاهده موارد نیازمند پیگیری؛ {{ \App\Support\PersianUi::digits($attentionCount) }} مورد">
                 <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>نیازمند پیگیری</div>
                 <b>{{ \App\Support\PersianUi::digits($attentionCount) }} <small>مورد</small></b>
                 <div class="dl">ارسال‌های بررسی‌نشده در ۷ روز اخیر</div>
