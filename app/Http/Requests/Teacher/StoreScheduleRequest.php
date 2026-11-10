@@ -21,15 +21,9 @@ class StoreScheduleRequest extends FormRequest
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
             'room' => ['nullable', 'string', 'max:255'],
-            'provider' => ['required', Rule::in([
-                MeetingLinkService::JITSI,
-                MeetingLinkService::GOOGLE_MEET,
-                MeetingLinkService::ZOOM,
-                MeetingLinkService::OTHER,
-            ])],
+            'provider' => ['required', Rule::in([MeetingLinkService::SKYROOM])],
             'meeting_url' => [
-                'nullable',
-                Rule::requiredIf(fn (): bool => $this->input('provider') !== MeetingLinkService::JITSI),
+                'required',
                 'url',
                 'max:2000',
                 function (string $attribute, mixed $value, \Closure $fail): void {
@@ -53,7 +47,7 @@ class StoreScheduleRequest extends FormRequest
         return [
             'provider.required' => 'سرویس جلسه را انتخاب کن.',
             'provider.in' => 'سرویس جلسه انتخاب‌شده معتبر نیست.',
-            'meeting_url.required' => 'برای این سرویس باید لینک جلسهٔ ساخته‌شده را وارد کنی.',
+            'meeting_url.required' => 'لینک اتاق واقعی Skyroom را وارد کن.',
             'meeting_url.url' => 'لینک جلسه معتبر نیست.',
         ];
     }
