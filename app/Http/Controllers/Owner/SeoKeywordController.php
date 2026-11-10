@@ -28,7 +28,7 @@ final class SeoKeywordController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        return view('seo.keywords.index', [
+        return view('owner.seo.keywords.index', [
             'keywords' => $keywords,
             'filters' => $request->only(['q', 'status', 'intent', 'priority', 'cluster']),
             'clusters' => SeoKeyword::query()->whereNotNull('cluster')->where('cluster', '<>', '')
@@ -50,7 +50,7 @@ final class SeoKeywordController extends Controller
     {
         $this->authorizeSeoSpecialist();
 
-        return view('seo.keywords.form', [
+        return view('owner.seo.keywords.form', [
             'keyword' => new SeoKeyword([
                 'intent' => 'informational',
                 'priority' => 'medium',
@@ -98,7 +98,7 @@ final class SeoKeywordController extends Controller
         $this->authorizeSeoSpecialist();
         $keyword->load(['rankings' => fn ($query) => $query->limit(12)]);
 
-        return view('seo.keywords.form', [
+        return view('owner.seo.keywords.form', [
             'keyword' => $keyword,
             'rankings' => $keyword->rankings,
             'intentLabels' => $this->intentLabels(),
