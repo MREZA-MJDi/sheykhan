@@ -112,7 +112,7 @@
     <div class="owner-people-management-content">
 
 
-<dialog class="owner-floating-modal" id="owner-parent-create-modal" aria-labelledby="owner-parent-create-title" @if(session('temporary_parent_password') || (old('form_modal') === 'parent' && $errors->any())) data-owner-modal-open-on-load @endif>
+<dialog class="owner-floating-modal" id="owner-parent-create-modal" aria-labelledby="owner-parent-create-title" @if(old('form_modal') === 'parent' && $errors->any()) data-owner-modal-open-on-load @endif>
     <header class="owner-floating-modal__header">
         <div><span class="owner-record-modal-kicker">حساب جدید</span><h2 id="owner-parent-create-title">ساخت حساب والد</h2></div>
         <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
@@ -187,7 +187,7 @@
     </div>
 </dialog>
 <div class="owner-people-operation-dialogs">
-<dialog class="owner-floating-modal" id="owner-teacher-create-modal" aria-labelledby="owner-teacher-create-modal-title" @if(session('temporary_teacher_password') || (old('form_modal') === 'teacher' && $errors->any())) data-owner-modal-open-on-load @endif>
+<dialog class="owner-floating-modal" id="owner-teacher-create-modal" aria-labelledby="owner-teacher-create-modal-title" @if(old('form_modal') === 'teacher' && $errors->any()) data-owner-modal-open-on-load @endif>
     <header class="owner-floating-modal__header">
         <div><span class="owner-record-modal-kicker">مدیریت اعضا</span><h2 id="owner-teacher-create-modal-title">ساخت حساب مدرس</h2></div>
         <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
@@ -385,7 +385,7 @@
         <button type="button" role="tab" id="owner-members-students-tab" aria-controls="owner-members-students-panel" data-owner-tab-button="students" aria-selected="{{ request('members_tab', 'students') === 'students' ? 'true' : 'false' }}">دانش‌آموزان <span>{{ $students->total() }}</span></button>
         <button type="button" role="tab" id="owner-members-parents-tab" aria-controls="owner-members-parents-panel" data-owner-tab-button="parents" aria-selected="{{ request('members_tab') === 'parents' ? 'true' : 'false' }}">اولیا <span>{{ $parents->total() }}</span></button>
         <button type="button" role="tab" id="owner-members-active-teachers-tab" aria-controls="owner-members-active-teachers-panel" data-owner-tab-button="active-teachers" aria-selected="{{ request('members_tab') === 'active-teachers' ? 'true' : 'false' }}">مدرس‌ها <span>{{ $teachers->total() }}</span></button>
-        <button type="button" role="tab" id="owner-members-archived-tab" aria-controls="owner-members-archived-panel" data-owner-tab-button="archived-teachers" aria-selected="{{ request('members_tab') === 'archived-teachers' ? 'true' : 'false' }}">مدرس‌های آرشیوشده <span>{{ $archivedTeachers->total() }}</span></button>
+        <button type="button" role="tab" id="owner-members-archived-tab" aria-controls="owner-members-archived-teachers-panel" data-owner-tab-button="archived-teachers" aria-selected="{{ request('members_tab') === 'archived-teachers' ? 'true' : 'false' }}">مدرس‌های آرشیوشده <span>{{ $archivedTeachers->total() }}</span></button>
     </nav>
 @foreach([['دانش‌آموزان',$students,'students'],['اولیا',$parents,'parents'],['مدرس‌ها',$teachers,'active-teachers']] as [$title,$items,$directoryRole])
 <section class="owner-people-directory-tabpanel" id="owner-members-{{ $directoryRole }}-panel" role="tabpanel" aria-labelledby="owner-members-{{ $directoryRole === 'active-teachers' ? 'active-teachers' : $directoryRole }}-tab" data-owner-tab-panel="{{ $directoryRole }}" @if(request('members_tab', 'students') !== $directoryRole) hidden @endif>
