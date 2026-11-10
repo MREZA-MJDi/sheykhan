@@ -14,9 +14,7 @@
     padding: clamp(14px, 1.8vw, 24px);
     border: 1px solid rgba(119,136,190,.22);
     border-radius: 20px;
-    background:
-        radial-gradient(ellipse at 100% 0%, rgba(139,61,255,.09), transparent 36%),
-        linear-gradient(145deg, rgba(26,32,80,.92), rgba(14,18,48,.96));
+    background:#fff;
     box-shadow: 0 14px 30px rgba(3,6,24,.16);
 }
 .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-header {
@@ -319,9 +317,7 @@
 .owner-admin-v2 .main-content .owner-online-links-page .owner-session-card {
     border-color: rgba(119,136,190,.22);
     border-radius: 18px;
-    background:
-        radial-gradient(ellipse at 100% 0%, rgba(34,211,238,.05), transparent 45%),
-        linear-gradient(145deg, rgba(26,32,80,.9), rgba(14,18,48,.96));
+    background:#fff;
     box-shadow: 0 10px 25px rgba(3,6,24,.14);
 }
 .owner-admin-v2 .main-content .owner-online-links-page .owner-session-heading {
