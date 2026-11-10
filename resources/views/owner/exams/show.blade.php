@@ -13,7 +13,7 @@
             <p class="mt-2 text-sm leading-7 text-slate-500">{{ $exam->course?->title }} · {{ $exam->classroom?->title ?: 'همه کلاس‌های دوره' }} · مدرس: {{ $exam->teacher?->name ?: '—' }}</p>
         </div>
         @if(auth()->user()->hasPermission('exams.manage') && (int) $exam->attempts_count === 0)
-            <a href="{{ route('owner.exams.edit', [$academy, $exam->id]) }}" class="inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">ویرایش مشخصات و سؤال‌ها</a>
+            <a href="{{ route('owner.exams.edit', ['academy' => $academy, 'exam' => $exam->id, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.exams.edit', ['academy' => $academy, 'exam' => $exam->id, 'modal' => 1]) }}" data-owner-modal-title="ویرایش آزمون" class="inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">ویرایش مشخصات و سؤال‌ها</a>
         @endif
         <span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold">{{ ['draft' => 'پیش‌نویس', 'published' => 'منتشرشده', 'closed' => 'بسته‌شده'][$exam->status] ?? $exam->status }}</span>
     </header>
