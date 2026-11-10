@@ -155,7 +155,8 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('data-owner-people-directory-tabs', false)
             ->assertSee('data-owner-directory-tab="archived-teachers"', false)
             ->assertSee('data-owner-directory-panel="students"', false)
-            ->assertSee('data-owner-directory-panel="parents"', false);
+            ->assertSee('data-owner-directory-panel="parents"', false)
+            ->assertSee('owner-legacy-onboarding-details', false);
     }
 
     public function test_invalid_parent_creation_returns_to_the_page_with_the_parent_modal_open(): void
