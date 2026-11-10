@@ -1,3 +1,5 @@
+import './owner/dashboard-shell.js';
+import './owner/dashboard-range-chart.js';
 import './shared/persian-calendar.js';
 import './shared/persian-money.js';
 import './owner-admin-common.js';
@@ -9,7 +11,4 @@ export { closePanelMenu };
 
 bootPanelRuntime();
 
-/* Academy-owner single JS entry: owner interactions, exam editor, calendar and Persian input helpers. */
-
-import './owner/dashboard-shell.js';
-import './owner/dashboard-range-chart.js';
+/* Academy-owner single JS entry: imports page-scoped interactions and shared input helpers. */
