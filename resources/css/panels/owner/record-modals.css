@@ -154,3 +154,146 @@ dialog[data-owner-record-modal]::backdrop {
     .owner-floating-modal,
     dialog[data-owner-record-modal] { scroll-behavior: auto; }
 }
+
+
+/* Owner people workspace: role-separated lists and a compact CRUD action bar. */
+.owner-people-workspace-panel {
+    display: grid;
+    gap: 18px;
+    width: 100%;
+    min-width: 0;
+}
+.owner-people-actionbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 18px;
+    border: 1px solid var(--oa-border, #e3e7f1);
+    border-radius: 16px;
+    background: var(--oa-surface, #fff);
+}
+.owner-people-actionbar > div:first-child {
+    display: grid;
+    gap: 3px;
+    min-width: 180px;
+}
+.owner-people-actionbar > div:first-child strong {
+    color: var(--oa-text, #16204a);
+    font-size: 14px;
+    font-weight: 900;
+}
+.owner-people-actionbar > div:first-child span {
+    color: var(--oa-muted, #667091);
+    font-size: 11px;
+}
+.owner-people-actionbar__buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.owner-people-directory-tabs {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+.owner-people-directory-tabbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    min-width: 0;
+    padding: 6px;
+    border: 1px solid var(--oa-border, #e3e7f1);
+    border-radius: 14px;
+    background: var(--oa-surface, #fff);
+}
+.owner-people-directory-tabbar [role="tab"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 8px 13px;
+    color: var(--oa-muted, #667091);
+    background: transparent;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 850;
+    cursor: pointer;
+}
+.owner-people-directory-tabbar [role="tab"] span {
+    display: inline-grid;
+    min-width: 22px;
+    height: 22px;
+    place-items: center;
+    padding: 0 6px;
+    border-radius: 20px;
+    background: var(--oa-bg, #f2f4f9);
+    color: var(--oa-muted, #667091);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+}
+.owner-people-directory-tabbar [role="tab"][aria-selected="true"] {
+    border-color: color-mix(in srgb, var(--oa-accent, #1f2f7a) 18%, transparent);
+    color: var(--oa-accent, #1f2f7a);
+    background: var(--oa-surface-2, #f8f9fd);
+}
+.owner-people-directory-tabbar [role="tab"][aria-selected="true"] span {
+    background: var(--oa-accent, #1f2f7a);
+    color: #fff;
+}
+.owner-people-directory-tabpanel {
+    min-width: 0;
+}
+.owner-people-directory-tabpanel[hidden] { display: none !important; }
+.owner-people-directory-tabpanel > [data-owner-people-directory] {
+    width: 100%;
+    min-width: 0;
+}
+.owner-people-directory-tabpanel [data-directory-controls] {
+    grid-template-columns: minmax(180px, 1.6fr) repeat(3, minmax(105px, .7fr)) auto;
+    align-items: end;
+}
+.owner-people-directory-tabpanel [data-directory-results] {
+    min-width: 0;
+}
+.owner-people-directory-tabpanel [data-directory-pagination] {
+    align-items: center;
+}
+.owner-people-operation-dialogs { display: none; }
+.owner-people-management-content { display: grid; gap: 18px; }
+@media (max-width: 760px) {
+    .owner-people-actionbar {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 14px;
+    }
+    .owner-people-actionbar__buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .owner-people-actionbar__buttons .owner-modal-trigger { width: 100%; }
+    .owner-people-directory-tabbar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .owner-people-directory-tabbar [role="tab"] { width: 100%; }
+    .owner-people-directory-tabpanel [data-directory-controls] {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .owner-people-directory-tabpanel [data-directory-controls] label:first-child {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 420px) {
+    .owner-people-actionbar__buttons { grid-template-columns: minmax(0, 1fr); }
+    .owner-people-directory-tabbar { grid-template-columns: minmax(0, 1fr); }
+    .owner-people-directory-tabpanel [data-directory-controls] { grid-template-columns: minmax(0, 1fr); }
+    .owner-people-directory-tabpanel [data-directory-controls] label:first-child { grid-column: auto; }
+}
