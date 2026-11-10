@@ -7,8 +7,6 @@ use App\Models\Academy;
 use App\Models\ParentMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
 
 final class ParentMessageController extends Controller
 {
@@ -21,7 +19,7 @@ final class ParentMessageController extends Controller
 
     public function reply(Request $request, Academy $academy, int $message): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy);
+        $this->authorizeAcademy($request, $academy, manage: true);
 
         $data = $request->validate([
             'status' => ['required', 'string', 'in:in_review,responded,closed'],
@@ -45,12 +43,15 @@ final class ParentMessageController extends Controller
             ->with('success', 'وضعیت و پاسخ پیام ذخیره شد.');
     }
 
-    private function authorizeAcademy(Request $request, Academy $academy): void
+    private function authorizeAcademy(Request $request, Academy $academy, bool $manage = false): void
     {
+        $user = $request->user();
+
         abort_unless(
-            $request->user()->hasRole('academy-owner')
-            && $request->user()->hasPermission('parents.view')
-            && (int) $academy->owner_id === (int) $request->user()->id,
+            $user
+                && $user->hasRole('academy-owner')
+                && $user->hasPermission($manage ? 'parents.manage' : 'parents.view')
+                && (int) $academy->owner_id === (int) $user->id,
             404
         );
     }
