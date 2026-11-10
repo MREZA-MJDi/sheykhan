@@ -76,6 +76,7 @@ final class OwnerAccessIsolationTest extends TestCase
             'owner.messages.index',
             'owner.counseling.index',
             'owner.exams.index',
+            'owner.question-bank.index',
             'owner.recordings.index',
             'owner.teacher-payments.index',
         ];
