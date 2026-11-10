@@ -9,7 +9,7 @@
             <h1>مقالات سایت</h1>
             <p>از این بخش مقاله‌های عمومی شیخان را ایجاد، ویرایش و منتشر کن. تغییرات پس از ذخیره در وب‌سایت اعمال می‌شوند.</p>
         </div>
-        <a href="{{ route('owner.blog.create') }}" class="owner-primary-btn">+ مقاله جدید</a>
+        <a href="{{ route('seo.blog.create') }}" class="owner-primary-btn">+ مقاله جدید</a>
     </header>
 
     <section class="owner-blog-stats" aria-label="آمار مقالات">
@@ -38,15 +38,15 @@
                     </div>
                     <span class="owner-pill {{ $post->status==='published'?'success':'' }}">{{ $post->status==='published'?'منتشرشده':'پیش‌نویس' }}</span>
                     <div class="owner-blog-actions">
-                        <a class="course-action-btn primary" href="{{ route('owner.blog.edit',$post) }}">ویرایش</a>
-                        <form method="POST" action="{{ route('owner.blog.destroy',$post) }}" onsubmit="return confirm('این مقاله برای همیشه حذف شود؟')">
+                        <a class="course-action-btn primary" href="{{ route('seo.blog.edit',$post) }}">ویرایش</a>
+                        <form method="POST" action="{{ route('seo.blog.destroy',$post) }}" onsubmit="return confirm('این مقاله برای همیشه حذف شود؟')">
                             @csrf @method('DELETE')
                             <button class="course-action-btn danger" type="submit">حذف</button>
                         </form>
                     </div>
                 </article>
             @empty
-                <div class="owner-empty"><strong>هنوز مقاله‌ای ثبت نشده است.</strong><p>اولین مقاله را بساز و تصویر شاخص آن را همین‌جا بارگذاری کن.</p><a class="owner-primary-btn" href="{{ route('owner.blog.create') }}">ایجاد اولین مقاله</a></div>
+                <div class="owner-empty"><strong>هنوز مقاله‌ای ثبت نشده است.</strong><p>اولین مقاله را بساز و تصویر شاخص آن را همین‌جا بارگذاری کن.</p><a class="owner-primary-btn" href="{{ route('seo.blog.create') }}">ایجاد اولین مقاله</a></div>
             @endforelse
         </div>
         <div class="mt-4">{{ $posts->links() }}</div>
