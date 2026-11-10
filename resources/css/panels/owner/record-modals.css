@@ -383,3 +383,83 @@ dialog[data-owner-record-modal]::backdrop {
 .owner-floating-modal__body .course-form-shell {
     max-width: 100%;
 }
+
+
+/* Keep the less-frequent legacy migration workflow available without crowding member operations. */
+.owner-legacy-onboarding-details {
+    min-width: 0;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid var(--oa-border, #e3e7f1);
+    border-radius: 18px;
+    background: var(--oa-surface, #fff);
+}
+.owner-legacy-onboarding-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    min-height: 66px;
+    padding: 14px 18px;
+    color: var(--oa-text, #16204a);
+    cursor: pointer;
+    list-style: none;
+}
+.owner-legacy-onboarding-summary::-webkit-details-marker { display: none; }
+.owner-legacy-onboarding-summary::marker { content: ""; }
+.owner-legacy-onboarding-summary > span:first-child {
+    display: grid;
+    gap: 4px;
+}
+.owner-legacy-onboarding-summary strong {
+    font-size: 13px;
+    font-weight: 900;
+}
+.owner-legacy-onboarding-summary small {
+    color: var(--oa-muted, #667091);
+    font-size: 10px;
+    line-height: 1.7;
+}
+.owner-legacy-onboarding-summary__meta {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 9px;
+    color: var(--oa-muted, #667091);
+    font-size: 10px;
+    font-weight: 800;
+}
+.owner-legacy-onboarding-summary__meta span {
+    display: inline-grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--oa-bg, #f2f4f9);
+    font-size: 17px;
+    transition: transform .18s ease;
+}
+.owner-legacy-onboarding-details[open] .owner-legacy-onboarding-summary {
+    border-bottom: 1px solid var(--oa-border, #e3e7f1);
+}
+.owner-legacy-onboarding-details[open] .owner-legacy-onboarding-summary__meta span {
+    transform: rotate(180deg);
+}
+.owner-legacy-onboarding-summary:focus-visible {
+    outline: 3px solid var(--panel-focus, #f2a81d);
+    outline-offset: -3px;
+}
+.owner-legacy-onboarding-body {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+}
+@media (max-width: 640px) {
+    .owner-legacy-onboarding-summary {
+        align-items: flex-start;
+        padding: 13px;
+    }
+    .owner-legacy-onboarding-summary__meta { gap: 4px; }
+    .owner-legacy-onboarding-summary__meta { font-size: 9px; }
+    .owner-legacy-onboarding-body { padding: 10px; }
+}
