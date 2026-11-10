@@ -411,6 +411,9 @@ class OwnerDashboardBackendContractTest extends TestCase
             ->assertSee('href="' . route('owner.communications.index', $academy) . '"', false);
 
         $this->get(route('owner.communications.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', $academy) . '?tab=announcements');
+
+        $this->get(route('owner.communication-workspace', $academy) . '?tab=announcements')
             ->assertOk()
             ->assertSee('این حساب دسترسی مشاهده دارد')
             ->assertDontSee('action="' . route('owner.communications.store', $academy) . '"', false);
