@@ -40,9 +40,15 @@ final class TeacherPaymentController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        $summaryRow = TeacherPayment::query()
+            ->where('academy_id', $academy->id)
+            ->selectRaw("COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) AS paid")
+            ->selectRaw("COALESCE(SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END), 0) AS pending")
+            ->first();
+
         $summary = [
-            'paid' => TeacherPayment::query()->where('academy_id', $academy->id)->where('status', 'paid')->sum('amount'),
-            'pending' => TeacherPayment::query()->where('academy_id', $academy->id)->where('status', 'pending')->sum('amount'),
+            'paid' => (int) ($summaryRow->paid ?? 0),
+            'pending' => (int) ($summaryRow->pending ?? 0),
         ];
 
         return view('owner.teacher-payments.index', compact('academy', 'hasActiveTeachers', 'canManagePayments', 'filterTeachers', 'formTeachers', 'payments', 'summary'));
