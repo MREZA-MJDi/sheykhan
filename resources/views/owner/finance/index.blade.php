@@ -3,7 +3,7 @@
 @section('header-title','مالی')
 @section('content')
 <div class="space-y-6 panel-page-enter">
-    @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'transactions'])
+    @include('owner.partials.finance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
     <div><span class="text-xs font-black text-[var(--panel-primary)]">گزارش مالی</span><h1 class="mt-1 text-2xl font-black">جریان مالی آموزشگاه</h1><p class="mt-2 text-sm leading-7 text-slate-500">این صفحه فقط گزارش می‌دهد؛ ledger اصلی فقط از جریان پرداخت معتبر تغذیه می‌شود.</p></div>
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <article class="owner-stat-card"><span>دریافت</span><strong>{{ \App\Support\PersianUi::number($stats['income']) }}</strong><small>تومان</small></article>
@@ -12,8 +12,15 @@
         <article class="owner-stat-card"><span>تراکنش قطعی</span><strong>{{ \App\Support\PersianUi::digits($stats['completed']) }}</strong><small>ثبت‌شده</small></article>
         <article class="owner-stat-card"><span>بدهی شهریه</span><strong>{{ \App\Support\PersianUi::number($debtSummary['amount'] ?? 0) }}</strong><small>{{ \App\Support\PersianUi::digits($debtSummary['count'] ?? 0) }} ثبت‌نام با مانده · تومان</small></article>
     </section>
+    <form method="GET" action="{{ route('owner.finance.index') }}" class="dashboard-panel flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
+        <input type="hidden" name="sheet" value="{{ $sheet }}">
+        <label class="grid flex-1 gap-1 text-xs font-bold"><span>{{ $sheet === 'debts' ? 'جست‌وجوی هنرجو یا دوره' : 'جست‌وجوی کاربر، دوره یا شناسه تراکنش' }}</span><input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 px-3 text-sm"></label>
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">جست‌وجو</button>
+        <a href="{{ route('owner.finance.index', ['sheet' => $sheet]) }}" class="min-h-10 rounded-xl border border-slate-200 px-4 py-3 text-center text-xs font-bold">پاک‌کردن</a>
+    </form>
     <section class="dashboard-panel owner-panel">
-        <div class="owner-panel-head"><div><h2>تراکنش‌ها</h2><p>فقط آموزشگاه‌های متعلق به این Owner</p></div></div>
+        <div class="owner-panel-head"><div><h2>{{ $sheet === 'debts' ? 'شهریه‌های دارای مانده' : 'تراکنش‌ها' }}</h2><p>{{ $sheet === 'debts' ? 'فقط ثبت‌نام‌های فعال دوره‌های همین آموزشگاه' : 'فقط آموزشگاه‌های متعلق به این Owner' }}</p></div></div>
+        @if($sheet === 'transactions')
         <div class="mt-4 overflow-x-auto"><table class="w-full min-w-[720px] text-right"><thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">زمان</th><th class="px-4 py-3">آموزشگاه</th><th class="px-4 py-3">کاربر</th><th class="px-4 py-3">دوره</th><th class="px-4 py-3">نوع</th><th class="px-4 py-3">مبلغ</th></tr></thead><tbody class="divide-y divide-slate-100">
         @forelse($transactions as $tx)
             <tr><td class="px-4 py-3 text-xs">{{ \App\Support\PersianUi::dateTime($tx->occurred_at) }}</td><td class="px-4 py-3 text-xs font-bold">{{ $tx->academy?->name }}</td><td class="px-4 py-3 text-xs">{{ $tx->user?->name ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->enrollment?->course?->title ?: '—' }}</td><td class="px-4 py-3 text-xs">{{ $tx->type === 'refund' ? 'بازپرداخت' : 'دریافت' }}</td><td class="px-4 py-3 text-xs font-black">{{ \App\Support\PersianUi::number($tx->amount) }} تومان</td></tr>
@@ -22,6 +29,28 @@
         @endforelse
         </tbody></table></div>
         <div class="mt-4">{{ $transactions->links() }}</div>
+        @else
+            <div class="mt-4 overflow-x-auto">
+                <table class="w-full min-w-[760px] text-right">
+                    <thead class="bg-slate-50 text-xs text-slate-500"><tr><th class="px-4 py-3">هنرجو</th><th class="px-4 py-3">دوره / کلاس</th><th class="px-4 py-3">شهریه</th><th class="px-4 py-3">پرداخت‌شده</th><th class="px-4 py-3">مانده</th></tr></thead>
+                    <tbody class="divide-y divide-slate-100">
+                    @forelse($debts as $debt)
+                        @php($remaining = max(0, (float) $debt->price_amount - (float) $debt->paid_amount))
+                        <tr>
+                            <td class="px-4 py-3 text-xs font-bold">{{ $debt->student?->name ?: 'هنرجوی نامشخص' }}<span class="mt-1 block text-slate-500">{{ $debt->student?->mobile }}</span></td>
+                            <td class="px-4 py-3 text-xs">{{ $debt->course?->title ?: '—' }}<span class="mt-1 block text-slate-500">{{ $debt->classroom?->title ?: 'بدون کلاس مشخص' }}</span></td>
+                            <td class="px-4 py-3 text-xs">{{ \App\Support\PersianUi::number($debt->price_amount) }} تومان</td>
+                            <td class="px-4 py-3 text-xs">{{ \App\Support\PersianUi::number($debt->paid_amount) }} تومان</td>
+                            <td class="px-4 py-3 text-xs font-black text-amber-700">{{ \App\Support\PersianUi::number($remaining) }} تومان</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5" class="px-4 py-12 text-center text-sm text-slate-500">ثبت‌نام فعالی با مانده شهریه پیدا نشد.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">{{ $debts->links() }}</div>
+        @endif
     </section>
 </div>
 @endsection
