@@ -14,12 +14,12 @@ final class ContentController extends Controller
 {
     public function index(OwnerContentService $content): View
     {
-        return view('seo.content.index', $content->index(request()->user()));
+        return view('owner.content.index', $content->index(request()->user()));
     }
 
     public function create(OwnerContentService $content): View
     {
-        return view('seo.content.form', [
+        return view('owner.content.form', [
             'content' => new AcademyContent(['status' => 'draft', 'type' => 'article']),
             ...$content->formData(request()->user()),
         ]);
@@ -36,7 +36,7 @@ final class ContentController extends Controller
     {
         $item = $service->owned(request()->user(), $content)->load(['academy:id,name','category:id,title,academy_id']);
 
-        return view('seo.content.form', [
+        return view('owner.content.form', [
             'content' => $item,
             ...$service->formData(request()->user(), $item),
         ]);
