@@ -17,7 +17,7 @@ final class CounselingRequestController extends Controller
     {
         $workspace->authorizeAcademy($request->user(), $academy, 'parents.view');
 
-        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'counseling']);
+        return redirect()->route('owner.communication-workspace', array_merge($request->query(), ['academy' => $academy, 'tab' => 'counseling']));
     }
 
     public function update(Request $request, Academy $academy, int $counselingRequest, OwnerWorkspaceService $workspace): RedirectResponse
