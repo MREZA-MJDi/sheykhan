@@ -176,6 +176,8 @@ class RoleMobileNavigationRouteContractTest extends TestCase
         foreach ([
             'owner.resources.index',
             'seo.showcase.index',
+            'seo.academy.banners.edit',
+            'seo.academy.banners.edit',
             'owner.products.index',
             'owner.orders.index',
             'owner.legal-documents.index',
