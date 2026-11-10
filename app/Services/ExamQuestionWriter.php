@@ -7,6 +7,20 @@ use App\Models\Exam;
 final class ExamQuestionWriter
 {
     /** @param array<int, array<string, mixed>> $questions */
+    public function storeBankQuestions(Exam $exam, Collection $bankQuestions): void
+    {
+        $this->storeQuestions($exam, $bankQuestions->values()->map(fn ($question): array => [
+            'type' => $question->type,
+            'question' => $question->question,
+            'options' => $question->options ?? [],
+            'correct_answer' => in_array($question->type, ['multiple', 'checkbox'], true)
+                ? ($question->correct_answers ?? [])
+                : ($question->correct_answers[0] ?? null),
+            'expected_answer' => $question->expected_answer,
+            'score' => $question->default_score,
+        ])->all());
+    }
+
     public function storeQuestions(Exam $exam, array $questions): void
     {
         foreach (array_values($questions) as $index => $question) {
