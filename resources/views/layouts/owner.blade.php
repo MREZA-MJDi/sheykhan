@@ -213,42 +213,6 @@
                             <?php } ?>
 
                             <?php if ($showSiteGroup) { ?>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.seo.index') }}"
-                                   <?php if (request()->routeIs('owner.seo.index','owner.seo.edit','owner.seo.update')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="ممیزی SEO">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>ممیزی SEO</span>
-                                </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.seo.keywords.index') }}"
-                                   <?php if (request()->routeIs('owner.seo.keywords.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="کلمات کلیدی">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span>کلمات کلیدی</span>
-                                </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.website.index') }}"
-                                   <?php if (request()->routeIs('owner.website.index')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="مرکز سایت">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>مرکز سایت و بنرها</span>
-                                </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.website.hero.edit') }}"
-                                   <?php if (request()->routeIs('owner.website.hero.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="اسلایدر صفحه اصلی">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-mega"/></svg><span>اسلایدر صفحه اصلی</span>
-                                </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.content.index') }}"
-                                   <?php if (request()->routeIs('owner.content.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="محتوای عمومی">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>محتوای عمومی</span>
-                                </a>
-                                <a class="ni" style="--c:{{ $navGroup['color'] }}"
-                                   href="{{ route('owner.blog.index') }}"
-                                   <?php if (request()->routeIs('owner.blog.*')) echo 'aria-current="page"'; ?>
-                                   data-nav-label="بلاگ و مقالات">
-                                    <svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span>بلاگ و مقالات</span>
-                                </a>
                                 <?php foreach ($websiteAcademies as $websiteAcademy) { ?>
                                     <a class="ni" style="--c:{{ $navGroup['color'] }}"
                                        href="{{ route('owner.academy.banners.edit', $websiteAcademy) }}"
