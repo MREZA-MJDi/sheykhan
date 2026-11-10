@@ -1324,3 +1324,77 @@ body.owner-shell.owner-admin-v2 {
         min-height: 148px;
     }
 }
+
+
+/* Legacy dashboard subcomponents: translate dark/neon surfaces into the same white/navy UI. */
+.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day) {
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 12px;
+    background: #fff !important;
+    color: var(--ui-text) !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day) :is(b,strong,span,p) {
+    color: var(--ui-text);
+}
+.owner-admin-v2 .main-content :is(.ckr,.lr,.tl,.at,.mc,.day) small {
+    color: var(--ui-muted) !important;
+}
+.owner-admin-v2 .main-content .tl.live {
+    border-color: #b8c9dd !important;
+    background: #edf3f9 !important;
+    box-shadow: inset 3px 0 0 #315b88 !important;
+}
+.owner-admin-v2 .main-content .tl.done { opacity: .72; }
+.owner-admin-v2 .main-content .tile {
+    border: 1px solid #dbe4ef;
+    background: #edf2f8 !important;
+    color: #243b5a !important;
+}
+.owner-admin-v2 .main-content .av2 {
+    border: 1px solid #dbe4ef;
+    background: #243b5a !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content .go {
+    border: 1px solid #243b5a !important;
+    background: #243b5a !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content .go:hover {
+    background: #172b45 !important;
+    border-color: #172b45 !important;
+}
+.owner-admin-v2 .main-content .mb {
+    border: 1px solid var(--ui-border-strong) !important;
+    background: #fff !important;
+    color: #243b5a !important;
+}
+.owner-admin-v2 .main-content .mb:hover {
+    border-color: #9aabc0 !important;
+    background: #f3f6fa !important;
+}
+.owner-admin-v2 .main-content .chip {
+    border: 1px solid #d7e0ed;
+    background: #edf2f8 !important;
+    color: #243b5a !important;
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content .owner-chart-legend i {
+    box-shadow: none !important;
+}
+.owner-admin-v2 .main-content .owner-line-attendance {
+    stroke: #315b88 !important;
+    filter: none !important;
+}
+.owner-admin-v2 .main-content .owner-line-students {
+    stroke: #167653 !important;
+    filter: none !important;
+}
+.owner-admin-v2 .main-content .owner-attention-list .at .ct {
+    border: 1px solid color-mix(in srgb, var(--c) 25%, #fff);
+    background: color-mix(in srgb, var(--c) 9%, #fff) !important;
+    color: var(--c) !important;
+}
