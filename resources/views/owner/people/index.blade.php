@@ -448,6 +448,7 @@
         </div>
     @endif
 </section>
+</section>
 @endforeach
 
 <section class="owner-people-directory-tabpanel" id="owner-members-archived-teachers-panel" role="tabpanel" aria-labelledby="owner-members-archived-tab" data-owner-tab-panel="archived-teachers" @if(request('members_tab', 'students') !== 'archived-teachers') hidden @endif>
