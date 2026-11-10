@@ -3,6 +3,7 @@
     $financeAcademy = $academy ?? null;
     $financeSheets = [
         ['key' => 'transactions', 'label' => 'تراکنش‌ها و گردش مالی', 'permission' => 'finance.view', 'route' => 'owner.finance.index', 'scope' => 'global'],
+        ['key' => 'debts', 'label' => 'شهریه و بدهی‌ها', 'permission' => 'finance.view', 'route' => 'owner.finance.index', 'scope' => 'global', 'query' => ['sheet' => 'debts']],
         ['key' => 'orders', 'label' => 'پرداخت سفارش‌ها و رسیدها', 'permission' => 'orders.view', 'route' => 'owner.orders.index', 'scope' => 'academy'],
         ['key' => 'teacher-payments', 'label' => 'تسویه مدرس‌ها', 'permission' => 'teacher_payments.view', 'route' => 'owner.teacher-payments.index', 'scope' => 'academy'],
     ];
@@ -15,7 +16,7 @@
     <nav class="mt-4 flex flex-wrap gap-2" aria-label="شیت‌های فضای کاری مالی">
         @foreach($financeSheets as $sheet)
             @if($financeUser?->hasPermission($sheet['permission']) && ($sheet['scope'] === 'global' || $financeAcademy))
-                <a href="{{ $sheet['scope'] === 'global' ? route($sheet['route']) : route($sheet['route'], $financeAcademy) }}"
+                <a href="{{ $sheet['scope'] === 'global' ? route($sheet['route'], $sheet['query'] ?? []) : route($sheet['route'], $financeAcademy) }}"
                    @if(($activeSheet ?? null) === $sheet['key']) aria-current="page" @endif
                    class="inline-flex min-h-10 items-center rounded-xl px-4 text-xs font-black transition {{ ($activeSheet ?? null) === $sheet['key'] ? 'bg-emerald-700 text-white shadow-sm' : 'border border-emerald-100 bg-white text-slate-700 hover:border-emerald-300 hover:text-emerald-800' }}">{{ $sheet['label'] }}</a>
             @endif
