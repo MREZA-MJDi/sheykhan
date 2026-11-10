@@ -16,7 +16,14 @@ final class OwnerBlogService
         $baseQuery = BlogPost::query();
 
         $posts = (clone $baseQuery)
-            ->with([\n                'category:id,name',\n                'media' => fn ($query) => $query\n                    ->where('visibility', 'public')\n                    ->where('status', 'active')\n                    ->wherePivot('collection', 'cover')\n                    ->orderByPivot('sort_order'),\n            ])
+            ->with([
+                'category:id,name',
+                'media' => fn ($query) => $query
+                    ->where('visibility', 'public')
+                    ->where('status', 'active')
+                    ->wherePivot('collection', 'cover')
+                    ->orderByPivot('sort_order'),
+            ])
             ->latest('updated_at')
             ->paginate(20)
             ->withQueryString();
