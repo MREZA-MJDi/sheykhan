@@ -25,6 +25,8 @@ class StoreExamRequest extends FormRequest
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'attempts_allowed' => ['sometimes', 'integer', 'min:1', 'max:255'],
             'status' => ['sometimes', Rule::in(['draft', 'published', 'closed'])],
+            'bank_question_ids' => ['nullable', 'array', 'max:100'],
+            'bank_question_ids.*' => ['required', 'integer', 'distinct', 'exists:question_bank_items,id'],
             'questions' => ['nullable', 'array', 'max:100'],
             'questions.*.type' => ['required_with:questions', Rule::in(['text', 'single', 'multiple', 'checkbox'])],
             'questions.*.question' => ['required_with:questions', 'string', 'max:5000'],
