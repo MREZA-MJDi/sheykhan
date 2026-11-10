@@ -146,7 +146,12 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('بخشی از امکانات ورود دانش‌آموز قدیمی موقتاً غیرفعال است')
             ->assertSee('ساخت حساب مدرس')
             ->assertSee('سوابق ورود دانش‌آموز')
-            ->assertSee('موقتاً غیرفعال');
+            ->assertSee('موقتاً غیرفعال')
+            ->assertSee('owner-create-parent-dialog', false)
+            ->assertSee('owner-create-teacher-dialog', false)
+            ->assertSee('owner-assign-class-dialog', false)
+            ->assertSee('owner-enroll-student-dialog', false)
+            ->assertSee('data-owner-modal-open', false);
     }
 
     public function test_people_workspace_stays_available_when_academic_grade_schema_is_missing(): void
