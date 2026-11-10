@@ -7,7 +7,7 @@
 @vite(['resources/views/owner/admin/assets/admin.css','resources/views/owner/admin/assets/admin.js'])
 @stack('styles')
 </head>
-<body class="owner-shell owner-admin-v2 owner-admin-unified">
+<body class="owner-shell owner-admin-v2 owner-admin-unified" data-theme="light">
 @php
 $ownerUser=auth()->user();
 $isSeoOnlyUser=$ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUser->hasRole('academy-owner');
@@ -75,10 +75,10 @@ $groups=[
 @empty <p class="em">مورد فوری تازه‌ای برای نمایش ثبت نشده است.</p> @endforelse
 </div>
 </div>
-<div class="av" title="{{ $ownerUser?->name }}">{{ $ownerInitial }}</div>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="تغییر پوسته" aria-pressed="false">◐</button><div class="av" title="{{ $ownerUser?->name }}">{{ $ownerInitial }}</div>
 </header>
 <aside class="side admin-sidebar" id="side" aria-label="منوی مدیریت">
-<div class="admin-sidebar-brand"><span class="admin-brand-mark">ش</span><div><strong>آکادمی شیخان</strong><small>{{ $isSeoOnlyUser ? 'پنل متخصص SEO' : 'پنل ادمین / منشی' }}</small></div></div>
+<div class="admin-sidebar-brand"><span class="admin-brand-mark">ش</span><div><strong>آکادمی شیخان</strong><small>{{ $isSeoOnlyUser ? 'پنل متخصص SEO' : 'پنل ادمین / منشی' }}</small></div><button class="sidebar-collapse" id="collapseSidebar" type="button" aria-label="جمع کردن منو" aria-pressed="false">⇔</button></div>
 <nav id="nv" aria-label="منوی اصلی">
 @foreach($groups as $group)
 @php
