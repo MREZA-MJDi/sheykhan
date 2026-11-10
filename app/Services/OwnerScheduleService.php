@@ -132,7 +132,7 @@ final class OwnerScheduleService
                 ->firstOrFail();
 
             $conflict = $lockedClassroom->schedules()
-                ->whereKeyNot($lockedSchedule->id)
+                ->where('id', '!=', $lockedSchedule->id)
                 ->where('weekday', (int) $data['weekday'])
                 ->where('start_time', '<', $data['end_time'])
                 ->where('end_time', '>', $data['start_time'])
