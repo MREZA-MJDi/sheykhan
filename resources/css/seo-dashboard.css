@@ -1,9 +1,9 @@
 /* SEO workspace entry: shared admin foundations plus SEO-specific Tailwind sources. */
 @import 'tailwindcss' source(none);
 @import './panels/shared/workspace-polish.css';
-@import './panels/owner/calendar.css';
+@import './panels/seo/calendar.css';
 @import './panels/owner/record-modals.css';
-@import './panels/owner/components.css';
+@import './panels/seo/components.css';
 @import './panels/seo/admin.css';
 
 @source '../../resources/views/owner';
