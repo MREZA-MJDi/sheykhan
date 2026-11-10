@@ -144,7 +144,7 @@
                     $visibleGlobalLinks = collect($navGroup['links'])
                         ->filter(fn ($link) => $link['scope'] === 'global' && $hasNavPermission($link['permission']));
                     $visibleAcademyLinks = collect($navGroup['links'])
-                        ->filter(fn ($link) => $link['scope'] === 'academy' && $ownerUser?->hasPermission($link['permission']));
+                        ->filter(fn ($link) => $link['scope'] === 'academy' && $hasNavPermission($link['permission']));
                     $showSiteGroup = $navGroup['key'] === 'more' && $canManagePublicSite;
                     $showNavGroup = (
                         ! $isSeoOnlyUser
@@ -182,7 +182,7 @@
                                             <svg class="ic" aria-hidden="true"><use href="#i-{{ $navLink['icon'] }}"/></svg>
                                             <span>{{ $navLink['label'] }}</span>
                                         </a>
-                                    <?php } elseif ($navLink['scope'] === 'academy' && $ownerUser?->hasPermission($navLink['permission'])) { ?>
+                                    <?php } elseif ($navLink['scope'] === 'academy' && $hasNavPermission($navLink['permission'])) { ?>
                                         <?php foreach ($academies as $academy) { ?>
                                             <?php
                                                 $navRoutePattern = str_contains($navLink['route'], '.index')
