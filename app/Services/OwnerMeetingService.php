@@ -6,6 +6,7 @@ use App\Models\Academy;
 use App\Models\AcademyMeeting;
 use App\Models\Classroom;
 use App\Models\User;
+use App\Services\OwnerWorkspaceService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -14,7 +15,7 @@ final class OwnerMeetingService
 {
     public function index(User $owner, Academy $academy): array
     {
-        $this->authorizeAcademy($owner, $academy);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.view');
 
         $targets = $owner->hasPermission('live_classes.manage')
             ? DB::table('classroom_student as classroom_membership')
@@ -66,8 +67,7 @@ final class OwnerMeetingService
 
     public function create(User $owner, Academy $academy, array $data): AcademyMeeting
     {
-        $this->authorizeAcademy($owner, $academy);
-        abort_unless($owner->hasPermission('live_classes.manage'), 403);
+        $this->authorizeAcademy($owner, $academy, 'live_classes.manage');
 
         $target = explode(':', (string) ($data['meeting_target'] ?? ''));
         if (count($target) !== 3 || count(array_filter($target, static fn ($part) => ctype_digit($part))) !== 3) {
@@ -188,11 +188,8 @@ final class OwnerMeetingService
         $meeting->update(['status' => $status]);
     }
 
-    private function authorizeAcademy(User $owner, Academy $academy): void
+    private function authorizeAcademy(User $owner, Academy $academy, ?string $permission = null): void
     {
-        abort_unless(
-            $owner->hasRole('academy-owner') && (int) $academy->owner_id === (int) $owner->id,
-            403
-        );
+        app(OwnerWorkspaceService::class)->authorizeAcademy($owner, $academy, $permission);
     }
 }
