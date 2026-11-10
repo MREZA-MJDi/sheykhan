@@ -53,6 +53,20 @@ final class ManageSeoSpecialistAccess extends Command
             return self::FAILURE;
         }
 
+        $conflictingRoles = $user->roles()
+            ->where('slug', '<>', 'seo-specialist')
+            ->pluck('name');
+
+        if ($conflictingRoles->isNotEmpty()) {
+            $this->error(
+                'SEO access requires a dedicated account. This user already has another role: '
+                . $conflictingRoles->implode(', ')
+                . '. No roles or permissions were changed.'
+            );
+
+            return self::FAILURE;
+        }
+
         $dashboardPermission = Permission::query()->firstOrCreate(
             ['name' => 'dashboard.view'],
             ['label' => 'مشاهده داشبورد', 'group' => 'dashboard']
