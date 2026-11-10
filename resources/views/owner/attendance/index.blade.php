@@ -20,11 +20,6 @@
         <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a>
     </header>
 
-    @if($sheet === 'report') aria-current="page" @endif
-           class="inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-bold {{ $sheet === 'report' ? 'bg-[var(--panel-primary)] text-white' : 'border border-[var(--panel-border)] text-[var(--panel-text)] hover:bg-[var(--panel-bg)]' }}">
-            گزارش خلاصه
-        </a>
-    </nav>
 
     @if($sheet === 'report')
         <section class="grid gap-3 grid-cols-2 xl:grid-cols-5" aria-label="گزارش وضعیت حضور و غیاب">
