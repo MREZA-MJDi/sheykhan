@@ -60,7 +60,6 @@
             ['route' => 'owner.products.index', 'label' => 'محصولات و منابع فروش', 'permission' => 'products.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.orders.index', 'label' => 'سفارش‌ها و رسیدها', 'permission' => 'orders.view', 'icon' => '▤', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.courses.index', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'icon' => '▣', 'primary' => false],
-            ['route' => 'owner.academy.banners.edit', 'label' => 'بنرهای سایت', 'permission' => 'academy.view', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
             ['route' => 'owner.finance.index', 'label' => 'مالی و پرداخت‌ها', 'permission' => 'finance.view', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.legal-documents.index', 'label' => 'اسناد حقوقی و کپی‌رایت', 'permission' => 'legal.manage', 'icon' => '▤', 'primary' => false],
             ['route' => 'owner.reports.index', 'label' => 'عملکرد و گزارش', 'permission' => 'reports.view', 'icon' => '↗', 'primary' => false],
@@ -83,13 +82,14 @@
 
     if ($seoOnly) {
         $items = [
-            ['route' => 'owner.seo.index', 'label' => 'ممیزی SEO صفحات', 'permission' => 'seo.manage', 'icon' => '⌕', 'primary' => true],
-            ['route' => 'owner.seo.keywords.index', 'label' => 'کلمات کلیدی و رتبه', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => true],
-            ['route' => 'owner.website.index', 'label' => 'مرکز سایت و بنرها', 'permission' => 'seo.manage', 'icon' => '⌂', 'primary' => true],
-            ['route' => 'owner.website.hero.edit', 'label' => 'مدیریت Hero', 'permission' => 'seo.manage', 'icon' => '▧', 'primary' => false],
-            ['route' => 'owner.content.index', 'label' => 'محتوای عمومی صفحات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
-            ['route' => 'owner.blog.index', 'label' => 'بلاگ و مقالات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
-            ['route' => 'owner.showcase.index', 'label' => 'افتخارآفرینان و رضایتمندی', 'permission' => 'seo.manage', 'icon' => '◎', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'seo.index', 'label' => 'ممیزی SEO صفحات', 'permission' => 'seo.manage', 'icon' => '⌕', 'primary' => true],
+            ['route' => 'seo.keywords.index', 'label' => 'کلمات کلیدی و رتبه', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => true],
+            ['route' => 'seo.website.index', 'label' => 'مرکز سایت و بنرها', 'permission' => 'seo.manage', 'icon' => '⌂', 'primary' => true],
+            ['route' => 'seo.academy.banners.edit', 'label' => 'بنرهای آموزشگاه', 'permission' => 'seo.manage', 'icon' => '▣', 'primary' => false, 'requiresAcademy' => true],
+            ['route' => 'seo.website.hero.edit', 'label' => 'مدیریت Hero', 'permission' => 'seo.manage', 'icon' => '▧', 'primary' => false],
+            ['route' => 'seo.content.index', 'label' => 'محتوای عمومی صفحات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
+            ['route' => 'seo.blog.index', 'label' => 'بلاگ و مقالات', 'permission' => 'seo.manage', 'icon' => '▤', 'primary' => false],
+            ['route' => 'seo.showcase.index', 'label' => 'افتخارآفرینان و رضایتمندی', 'permission' => 'seo.manage', 'icon' => '◎', 'primary' => false, 'requiresAcademy' => true],
         ];
     }
 
@@ -112,8 +112,8 @@
         'owner.assignments.index', 'owner.schedules.index', 'owner.meetings.index',
         'owner.messages.index', 'owner.communications.index', 'owner.counseling.index',
         'owner.exams.index', 'owner.recordings.index', 'owner.teacher-payments.index',
-        'owner.resources.index', 'owner.showcase.index', 'owner.products.index', 'owner.orders.index',
-        'owner.academy.banners.edit', 'owner.academy.edit',
+        'owner.resources.index', 'owner.products.index', 'owner.orders.index',
+        'seo.academy.banners.edit', 'seo.showcase.index', 'owner.academy.edit',
     ];
 
     $visibleItems = collect($items)
