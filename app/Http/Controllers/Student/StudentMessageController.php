@@ -20,6 +20,11 @@ final class StudentMessageController extends Controller
     public function index(Request $request): View
     {
         $student = $request->user();
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+            'status' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['open', 'responded', 'closed'])],
+        ]);
+        $term = trim((string) ($filters['q'] ?? ''));
 
         $studentAcademyIds = $student->academies()
             ->where('academies.status', 'active')
@@ -32,6 +37,16 @@ final class StudentMessageController extends Controller
             ->where('audience', 'student')
             ->where('recipient_id', $student->id)
             ->where('student_id', $student->id)
+            ->when($term !== '', function ($query) use ($term): void {
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('sender', fn ($sender) => $sender->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('academy', fn ($academy) => $academy->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $term . '%'))
+                        ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['sender:id,name', 'academy:id,name', 'classroom:id,title', 'course:id,title'])
             ->latest()
             ->paginate(10, ['*'], 'academy_messages_page')
@@ -40,6 +55,15 @@ final class StudentMessageController extends Controller
         $teacherMessages = TeacherDirectMessage::query()
             ->where('recipient_type', 'student')
             ->where('recipient_id', $student->id)
+            ->when($term !== '', function ($query) use ($term): void {
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('teacher', fn ($teacher) => $teacher->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $term . '%'))
+                        ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['teacher:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title'])
             ->latest()
             ->paginate(10, ['*'], 'teacher_messages_page')
@@ -47,6 +71,16 @@ final class StudentMessageController extends Controller
 
         $messages = StudentMessage::query()
             ->where('student_id', $student->id)
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when($term !== '', function ($query) use ($term): void {
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('teacher', fn ($teacher) => $teacher->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('course', fn ($course) => $course->where('title', 'like', '%' . $term . '%'))
+                        ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $term . '%'));
+                });
+            })
             ->with([
                 'teacher:id,name',
                 'course:id,title',
@@ -62,6 +96,7 @@ final class StudentMessageController extends Controller
             'contactableTargets' => $this->contactableTargets($student),
             'academyMessages' => $academyMessages,
             'teacherMessages' => $teacherMessages,
+            'filters' => $filters,
         ]);
     }
 
