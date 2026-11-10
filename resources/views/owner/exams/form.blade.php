@@ -8,9 +8,9 @@
     @include('owner.partials.learning-workspace-tabs', ['academy' => $academy, 'activeSheet' => 'exams'])
     <header class="owner-exam-head">
         <div>
-            <span class="text-xs font-black text-[var(--panel-primary)]">ارزیابی آموزشی · کارتابل ادمین / منشی</span>
+            <span class="text-xs font-black text-[var(--panel-primary)]">آزمون‌های آموزشگاه</span>
             <h1>{{ $exam->exists ? 'ویرایش آزمون' : 'ساخت آزمون برای یک دوره' }}</h1>
-            <p>آزمون به دوره‌ی همین آموزشگاه متصل می‌شود. برای حفظ نتایج، پس از اولین تلاش دانش‌آموز امکان تغییر سؤال‌ها بسته می‌شود.</p>
+            <p>این آزمون برای هنرجویان یک دوره ساخته می‌شود. بعد از اینکه هنرجویی در آزمون شرکت کرد، سؤال‌ها قابل تغییر نیستند تا نتیجه‌ها درست باقی بمانند.</p>
         </div>
         <a href="{{ route('owner.exams.index', $academy) }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به آزمون‌ها ←</a>
     </header>
@@ -32,7 +32,7 @@
         @endif
             <section class="owner-exam-section">
                 <h2>مشخصات و محدوده آزمون</h2>
-                <p>دوره و کلاس به‌صورت سمت سرور بررسی می‌شوند؛ شناسه‌ی متعلق به آموزشگاه دیگر پذیرفته نمی‌شود.</p>
+                <p>فقط دوره و کلاسی را انتخاب کن که متعلق به همین آموزشگاه باشد.</p>
                 <div class="owner-exam-grid">
                     <label class="owner-exam-field">
                         <span>دوره</span>
@@ -46,7 +46,7 @@
                                     <option value="{{ old('course_id') }}" selected>دورهٔ انتخاب‌شده از فرم قبلی</option>
                                 @endif
                             </select>
-                            <p data-academy-option-status class="owner-exam-help">برای سبک ماندن فرم، فهرست کامل بارگذاری نمی‌شود؛ حداقل دو حرف از نام دوره را جست‌وجو کن.</p>
+                            <p data-academy-option-status class="owner-exam-help">برای پیدا کردن دوره، دست‌کم دو حرف از نام آن را بنویس.</p>
                             <button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ دورهٔ بعدی</button>
                         </div>
                         <small class="owner-exam-help">فقط دوره‌های همین آموزشگاه که مدرس تخصیص‌یافته دارند قابل انتخاب‌اند.</small>
@@ -64,7 +64,7 @@
                                     <option value="{{ old('classroom_id') }}" selected>کلاس انتخاب‌شده از فرم قبلی</option>
                                 @endif
                             </select>
-                            <p data-academy-option-status class="owner-exam-help">ابتدا دوره را انتخاب کن؛ سپس کلاس مرتبط را جست‌وجو کن.</p>
+                            <p data-academy-option-status class="owner-exam-help">اول دوره را انتخاب کن؛ بعد نام کلاس را جست‌وجو کن.</p>
                             <button type="button" data-academy-option-more hidden class="text-xs font-bold">نمایش ۲۰ کلاس بعدی</button>
                         </div>
                         <small class="owner-exam-help">با انتخاب کلاس، آزمون به همان گروه محدود می‌شود؛ خالی گذاشتن آن دامنهٔ دوره را نگه می‌دارد.</small>
@@ -93,10 +93,10 @@
             </section>
 
             <section class="owner-exam-section">
-                <h2>افزودن از بانک سؤال</h2>
-                <p>سؤال‌های انتخابی به شکل نسخه‌ی مستقل به آزمون اضافه می‌شوند؛ تغییر بعدی بانک روی این آزمون یا نتیجه‌های قبلی اثر ندارد.</p>
+                <h2>انتخاب سؤال‌های آماده</h2>
+                <p>سؤال‌هایی را که می‌خواهی در این آزمون باشند انتخاب کن. این سؤال‌ها در آزمون ذخیره می‌شوند و تغییر بعدی فهرست سؤال‌ها، آزمون قبلی را عوض نمی‌کند.</p>
                 @if(($bankQuestions ?? collect())->isEmpty())
-                    <p class="owner-exam-help">بانک سؤال هنوز مورد فعالی ندارد. ابتدا سؤال‌ها را در <a class="font-black text-[var(--panel-primary)]" href="{{ route('owner.question-bank.index', $academy) }}">بانک سؤال</a> ثبت کن.</p>
+                    <p class="owner-exam-help">هنوز سؤالی برای انتخاب وجود ندارد. اول سؤال‌ها را در <a class="font-black text-[var(--panel-primary)]" href="{{ route('owner.question-bank.index', $academy) }}">بانک سؤال</a> ثبت کن.</p>
                 @else
                     <div class="mt-3 grid gap-2 sm:grid-cols-2">
                         @foreach($bankQuestions as $bankQuestion)
@@ -112,15 +112,15 @@
             <section class="owner-exam-section">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h2>سؤال‌های آزمون</h2>
-                        <p>سؤال تشریحی برای تصحیح دستی است؛ سؤال تک‌گزینه‌ای و چندپاسخی با پاسخ صحیح ثبت می‌شوند.</p>
-                        <p class="mt-2 text-xs leading-6 text-slate-500">برای سؤال گزینه‌ای، هر گزینه را در یک خط بنویسید و پاسخ صحیح را از بین همان گزینه‌ها انتخاب کنید.</p>
+                        <h2>نوشتن سؤال‌های آزمون</h2>
+                        <p>پاسخ سؤال تشریحی را مدرس بررسی می‌کند. برای سؤال‌های گزینه‌ای، پاسخ درست را مشخص کن.</p>
+                        <p class="mt-2 text-xs leading-6 text-slate-500">برای سؤال گزینه‌ای، هر گزینه را در یک خط بنویس و پاسخ درست را از بین همان گزینه‌ها انتخاب کن.</p>
                     </div>
                     <button type="button" data-exam-add-question class="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-black text-white">+ افزودن سؤال</button>
                 </div>
                 <div class="owner-exam-summary" aria-live="polite">
-                    <span>تعداد سؤال: <strong data-exam-question-count>۰</strong></span>
-                    <span>مجموع نمره: <strong data-exam-total-score>۰</strong></span>
+                    <span>تعداد سؤال‌ها: <strong data-exam-question-count>۰</strong></span>
+                    <span>نمره کل آزمون: <strong data-exam-total-score>۰</strong></span>
                 </div>
                 <div class="owner-exam-questions" data-exam-questions></div>
                 <template data-exam-question-template>
@@ -157,12 +157,12 @@
                                 <textarea data-name="options_text" rows="4" placeholder="گزینه اول&#10;گزینه دوم&#10;گزینه سوم"></textarea>
                             </label>
                             <label class="owner-exam-field owner-exam-field-wide" data-question-reference>
-                                <span>پاسخ مرجع برای تصحیح دستی</span>
+                                <span>نمونه پاسخ برای راهنمایی مدرس</span>
                                 <textarea data-name="expected_answer" rows="3" placeholder="پاسخ مورد انتظار مدرس برای سؤال تشریحی..."></textarea>
                             </label>
                             <div class="owner-exam-answer-space" data-answer-space-preview>
-                                <strong>فضای پاسخ دانش‌آموز</strong>
-                                <span>پاسخ تشریحی در برگهٔ دانش‌آموز با فضای کافی برای نوشتن نمایش داده می‌شود.</span>
+                                <strong>محل پاسخ هنرجو</strong>
+                                <span>هنرجو هنگام آزمون فضای کافی برای نوشتن پاسخ خواهد داشت.</span>
                             </div>
                             <div class="owner-exam-answer-key owner-exam-field-wide" data-question-correct>
                                 <strong data-correct-answer-label>پاسخ صحیح</strong>
