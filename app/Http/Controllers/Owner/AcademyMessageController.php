@@ -16,7 +16,26 @@ final class AcademyMessageController extends Controller
     public function index(Academy $academy, Request $request): View
     {
         $this->authorizeAcademy($request, $academy);
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+            'category' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['announcement', 'academic', 'schedule', 'important', 'other'])],
+            'audience' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['all_parents', 'classroom_parents', 'teacher_class_parents', 'parent', 'student'])],
+        ]);
+
         $messages = AcademyMessage::query()->where('academy_id', $academy->id)
+            ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category', $category))
+            ->when($filters['audience'] ?? null, fn ($query, $audience) => $query->where('audience', $audience))
+            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                $term = trim((string) $filters['q']);
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('sender', fn ($sender) => $sender->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('recipient', fn ($recipient) => $recipient->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('classroom', fn ($classroom) => $classroom->where('title', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['sender:id,name', 'recipient:id,name', 'student:id,name', 'classroom:id,title'])
             ->latest()->paginate(12)->withQueryString();
 
@@ -28,6 +47,7 @@ final class AcademyMessageController extends Controller
             'backRoute' => route('owner.dashboard'),
             'canManage' => $request->user()->hasPermission('parents.manage'),
             'messages' => $messages,
+            'filters' => $filters,
         ]);
     }
 
