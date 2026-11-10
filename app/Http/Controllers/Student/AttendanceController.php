@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Services\AttendanceMetricsService;
+use App\Services\StudentAccessService;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
@@ -11,9 +12,7 @@ class AttendanceController extends Controller
     public function index(AttendanceMetricsService $metrics): View
     {
         $student = request()->user();
-        $classroomIds = $student->classroomsAsStudent()
-            ->wherePivot('status', 'active')
-            ->pluck('classrooms.id');
+        $classroomIds = app(StudentAccessService::class)->enrolledClassroomIdsQuery($student);
 
         $attendance = \App\Models\Attendance::query()
             ->where('student_id', $student->id)

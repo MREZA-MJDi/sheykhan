@@ -63,6 +63,28 @@ final class StudentDashboardService
                         ->where('student_enrollment.status', '=', 'active');
                 })
                 ->join('courses as enrolled_courses', 'enrolled_courses.id', '=', 'student_enrollment.course_id')
+                ->where('enrolled_courses.status', 'published')
+                ->whereNotNull('enrolled_courses.published_at')
+                ->where('enrolled_courses.published_at', '<=', now())
+                ->whereColumn('student_classroom.academy_id', 'enrolled_courses.academy_id')
+                ->where(function ($entitlement): void {
+                    $entitlement->where('enrolled_courses.access_type', 'free')
+                        ->orWhere(function ($paid): void {
+                            $paid->where('student_enrollment.payment_status', 'paid')
+                                ->where('student_enrollment.paid_amount', '>', 0)
+                                ->where(function ($amount): void {
+                                    $amount->whereNull('student_enrollment.price_amount')
+                                        ->orWhereColumn('student_enrollment.paid_amount', '>=', 'student_enrollment.price_amount');
+                                })
+                                ->whereExists(function ($transaction): void {
+                                    $transaction->selectRaw('1')
+                                        ->from('financial_transactions')
+                                        ->whereColumn('financial_transactions.enrollment_id', 'student_enrollment.id')
+                                        ->where('financial_transactions.status', 'completed')
+                                        ->where('financial_transactions.amount', '>', 0);
+                                });
+                        });
+                })
                 ->join('users as teachers', 'teachers.id', '=', 'teaching_assignment.teacher_id')
                 ->join('academy_user as teacher_membership', function ($join): void {
                     $join->on('teacher_membership.academy_id', '=', 'enrolled_courses.academy_id')
@@ -691,6 +713,29 @@ final class StudentDashboardService
                         ->on('student_enrollment.course_id', '=', 'student_classroom.course_id')
                         ->where('student_enrollment.student_id', '=', $student->id)
                         ->where('student_enrollment.status', '=', 'active');
+                })
+                ->join('courses as enrolled_courses', 'enrolled_courses.id', '=', 'student_enrollment.course_id')
+                ->where('enrolled_courses.status', 'published')
+                ->whereNotNull('enrolled_courses.published_at')
+                ->where('enrolled_courses.published_at', '<=', now())
+                ->whereColumn('student_classroom.academy_id', 'enrolled_courses.academy_id')
+                ->where(function ($entitlement): void {
+                    $entitlement->where('enrolled_courses.access_type', 'free')
+                        ->orWhere(function ($paid): void {
+                            $paid->where('student_enrollment.payment_status', 'paid')
+                                ->where('student_enrollment.paid_amount', '>', 0)
+                                ->where(function ($amount): void {
+                                    $amount->whereNull('student_enrollment.price_amount')
+                                        ->orWhereColumn('student_enrollment.paid_amount', '>=', 'student_enrollment.price_amount');
+                                })
+                                ->whereExists(function ($transaction): void {
+                                    $transaction->selectRaw('1')
+                                        ->from('financial_transactions')
+                                        ->whereColumn('financial_transactions.enrollment_id', 'student_enrollment.id')
+                                        ->where('financial_transactions.status', 'completed')
+                                        ->where('financial_transactions.amount', '>', 0);
+                                });
+                        });
                 })
                 ->whereColumn('student_classroom.course_id', $assessmentTable . '.course_id')
                 ->whereColumn('teaching_assignment.teacher_id', $assessmentTable . '.teacher_id')

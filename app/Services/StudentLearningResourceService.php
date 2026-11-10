@@ -17,11 +17,9 @@ final class StudentLearningResourceService
             ->wherePivot('status', 'active')
             ->pluck('academies.id');
 
-        $courseIds = app(StudentAccessService::class)->enrolledCourseIds($student);
-
-        $classroomIds = $student->classroomsAsStudent()
-            ->wherePivot('status', 'active')
-            ->pluck('classrooms.id');
+        $access = app(StudentAccessService::class);
+        $courseIds = $access->enrolledCourseIds($student);
+        $classroomIds = $access->enrolledClassroomIdsQuery($student);
 
         return LearningResource::query()
             ->with([
@@ -135,15 +133,12 @@ final class StudentLearningResourceService
             if (
                 !$classroomCourse
                 || !$classroomCourse->isPublished()
-                || !$student->classroomsAsStudent()
-                    ->whereKey($resource->classroom_id)
-                    ->wherePivot('status', 'active')
-                    ->exists()
+                || !app(StudentAccessService::class)->classroom($student, (int) $resource->classroom_id)
             ) {
                 return false;
             }
 
-            return app(StudentAccessService::class)->course($student, $classroomCourse);
+            return true;
         }
 
         if ($lessonCourse) {

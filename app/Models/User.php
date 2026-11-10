@@ -134,6 +134,11 @@ class User extends Authenticatable
         return $this->hasMany(LessonNote::class, 'user_id');
     }
 
+    public function personalNotes(): HasMany
+    {
+        return $this->hasMany(StudentPersonalNote::class, 'student_id');
+    }
+
     public function assignmentSubmissions(): HasMany
     {
         return $this->hasMany(AssignmentSubmission::class, 'student_id');

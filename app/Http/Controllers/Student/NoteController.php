@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\SaveLessonNoteRequest;
 use App\Models\Lesson;
 use App\Models\LessonNote;
+use App\Models\StudentPersonalNote;
+use App\Http\Requests\Student\StoreStudentPersonalNoteRequest;
 use App\Services\StudentAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -23,7 +25,15 @@ class NoteController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('student.notes.index', ['notes' => $notes]);
+        $personalNotes = $student->personalNotes()
+            ->latest('updated_at')
+            ->paginate(20, ['*'], 'personal_notes_page')
+            ->withQueryString();
+
+        return view('student.notes.index', [
+            'notes' => $notes,
+            'personalNotes' => $personalNotes,
+        ]);
     }
 
     public function store(
@@ -39,6 +49,24 @@ class NoteController extends Controller
         );
 
         return redirect()->route('student.lessons.show', $lesson)->with('success', 'یادداشت شما ذخیره شد.');
+    }
+
+    public function storePersonal(StoreStudentPersonalNoteRequest $request): RedirectResponse
+    {
+        $request->user()->personalNotes()->create([
+            'content' => trim($request->validated('content')),
+        ]);
+
+        return redirect()->route('student.notes.index')->with('success', 'یادداشت شخصی ذخیره شد.');
+    }
+
+    public function destroyPersonal(StudentPersonalNote $note): RedirectResponse
+    {
+        abort_unless((int) $note->student_id === (int) request()->user()->id, 404);
+
+        $note->delete();
+
+        return redirect()->route('student.notes.index')->with('success', 'یادداشت شخصی حذف شد.');
     }
 
     public function destroy(LessonNote $note): RedirectResponse
