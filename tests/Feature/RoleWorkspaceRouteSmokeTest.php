@@ -63,14 +63,14 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
         $academy = $owner->ownedAcademies()->where('status', 'active')->orderBy('id')->firstOrFail();
 
         $publicRoutes = [
-            ['owner.academy.banners.edit', [$academy]],
-            ['owner.website.index', []],
-            ['owner.website.hero.edit', []],
-            ['owner.content.index', []],
-            ['owner.content.create', []],
-            ['owner.blog.index', []],
-            ['owner.blog.create', []],
-            ['owner.showcase.index', [$academy]],
+            ['seo.academy.banners.edit', [$academy]],
+            ['seo.website.index', []],
+            ['seo.website.hero.edit', []],
+            ['seo.content.index', []],
+            ['seo.content.create', []],
+            ['seo.blog.index', []],
+            ['seo.blog.create', []],
+            ['seo.showcase.index', [$academy]],
         ];
 
         foreach ($publicRoutes as [$routeName, $parameters]) {
@@ -180,8 +180,8 @@ class RoleWorkspaceRouteSmokeTest extends TestCase
         $specialist->roles()->attach($role->id);
 
         foreach ([
-            'owner.seo.index',
-            'owner.seo.keywords.index',
+            'seo.index',
+            'seo.keywords.index',
         ] as $routeName) {
             $this->actingAs($specialist)
                 ->get(route($routeName))
