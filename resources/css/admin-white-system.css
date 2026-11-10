@@ -315,3 +315,34 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content .sp-kpi-blue{background:#2866a5!important}
 .owner-admin-v2 .main-content .sp-kpi-orange{background:#c47a12!important}
 .owner-admin-v2 .main-content .sp-kpi :is(strong,b,span,small,p){color:#fff!important}
+
+
+/* Dashboard content cards stay white; only explicit KPI cards are filled with color. */
+.owner-admin-v2 .main-content .card:not(.kpi){
+  min-width:0;border:1px solid var(--ui-border)!important;border-radius:var(--ui-radius);
+  background:#fff!important;color:var(--ui-text)!important;box-shadow:var(--ui-shadow)!important;
+}
+.owner-admin-v2 .main-content .card:not(.kpi) :is(h1,h2,h3,h4,strong,b){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content .card:not(.kpi) :is(p,small,li,span,figcaption){color:var(--ui-muted)}
+.owner-admin-v2 .main-content .card:not(.kpi) .card-title p{color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content .card:not(.kpi) .card-title .ic{color:var(--ui-primary)}
+.owner-admin-v2 .main-content .card:not(.kpi) .card-empty{border-color:var(--ui-border);background:var(--ui-surface-soft);color:var(--ui-muted)}
+.owner-admin-v2 .main-content .ph{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;min-width:0}
+.owner-admin-v2 .main-content .ph :is(h1,h2,h3){color:var(--ui-heading)!important}
+.owner-admin-v2 .side .tm{padding:14px 10px;border-top:1px solid var(--ui-border);color:var(--ui-text)}
+.owner-admin-v2 .side .tm :is(b,small){color:var(--ui-text)!important}
+.owner-admin-v2 .side .tm .timer-empty{color:var(--ui-muted)!important}
+.owner-admin-v2 .side .tm svg text{fill:var(--ui-heading)!important}
+.owner-admin-v2 .side .tm svg circle{stroke:var(--ui-border-strong)}
+.owner-admin-v2 .side .tm svg #rg{stroke:var(--ui-primary)!important;filter:none!important}
+.owner-admin-v2 .side .gh i{background:var(--ui-primary)!important;box-shadow:none!important}
+.owner-admin-v2 .side .bd{background:var(--ui-primary)!important;color:#fff!important;box-shadow:none!important}
+.owner-admin-v2 .main-content :is(.ckr[data-s],.tl.done){opacity:1!important}
+.owner-admin-v2 .main-content :is(.trk,.heat i,.metric-bars .bar .trk){box-shadow:none}
+.owner-admin-v2 .main-content .fill{background:var(--ui-primary)}
+.owner-admin-v2 .main-content .ckr[data-s=ok] .cb[data-v=ok]{background:var(--ui-success);border-color:var(--ui-success);color:#fff;box-shadow:none}
+.owner-admin-v2 .main-content .ckr[data-s=no] .cb[data-v=no]{background:var(--ui-danger);border-color:var(--ui-danger);color:#fff;box-shadow:none}
+.owner-admin-v2 .main-content .tl.live{border-color:#edb9c2!important;background:var(--ui-danger-soft)!important}
+.owner-admin-v2 .main-content .tl.live :is(b,strong,span,small){color:#9f1d34!important}
+.owner-admin-v2 .main-content .at .ct{color:#fff!important}
+.owner-admin-v2 .main-content .ev{color:#fff!important}
