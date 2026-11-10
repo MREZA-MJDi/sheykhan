@@ -1,8 +1,8 @@
 /* Academy-owner panel: one standalone CSS entry for dashboard, admin sections and owner-side SEO pages. */
 
 @import 'tailwindcss' source(none);
-@import './panels/owner/calendar.css';
-@import './panels/owner/components.css';
+@import './panels/shared/calendar.css';
+@import './panels/shared/components.css';
 @import './spotplayer.css';
 @source '../../resources/views/owner';
 @source '../../resources/views/components';
