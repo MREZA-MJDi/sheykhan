@@ -17,7 +17,7 @@ final class AttendanceController extends Controller
 {
     public function index(Academy $academy, Request $request, OwnerWorkspaceService $workspace): View
     {
-        $workspace->authorizeAcademy($request->user(), $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'attendance.view');
 
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
@@ -61,20 +61,24 @@ final class AttendanceController extends Controller
              SUM(CASE WHEN status = 'excused' THEN 1 ELSE 0 END) AS excused_count"
         )->first();
 
-        $attendances = $query
-            ->orderByDesc('attendance_date')
-            ->orderBy('classroom_id')
-            ->orderBy('student_id')
-            ->paginate(25)
-            ->withQueryString();
+        $sheet = in_array($request->query('sheet', 'history'), ['history', 'report'], true)
+            ? (string) $request->query('sheet', 'history')
+            : 'history';
+
+        // The report sheet needs only aggregate data; avoid loading a second
+        // paginated collection and its eager-loaded student/class relations.
+        $attendances = $sheet === 'history'
+            ? $query
+                ->orderByDesc('attendance_date')
+                ->orderBy('classroom_id')
+                ->orderBy('student_id')
+                ->paginate(25)
+                ->withQueryString()
+            : null;
 
         $classrooms = $academy->classrooms()
             ->orderBy('title')
             ->get(['id', 'title', 'course_id']);
-
-        $sheet = in_array($request->query('sheet', 'history'), ['history', 'report'], true)
-            ? (string) $request->query('sheet', 'history')
-            : 'history';
 
         return view('owner.attendance.index', compact('academy', 'filters', 'summary', 'attendances', 'classrooms', 'sheet'));
     }
