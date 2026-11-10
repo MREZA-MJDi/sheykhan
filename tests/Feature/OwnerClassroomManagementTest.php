@@ -420,18 +420,16 @@ class OwnerClassroomManagementTest extends TestCase
     {
         [$owner, $academy, $course, $teacher] = $this->workspace();
 
-        $liveView = Permission::create([
-            'name' => 'live_classes.view',
+        $liveView = Permission::firstOrCreate(['name' => 'live_classes.view'], [
             'label' => 'View online classes',
             'group' => 'live_classes',
         ]);
-        $liveManage = Permission::create([
-            'name' => 'live_classes.manage',
+        $liveManage = Permission::firstOrCreate(['name' => 'live_classes.manage'], [
             'label' => 'Manage online classes',
             'group' => 'live_classes',
         ]);
         $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
-        $ownerRole->permissions()->attach([$liveView->id, $liveManage->id]);
+        $ownerRole->permissions()->syncWithoutDetaching([$liveView->id, $liveManage->id]);
 
         $classroom = Classroom::create([
             'academy_id' => $academy->id,
