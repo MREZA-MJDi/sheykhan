@@ -48,7 +48,7 @@ final class OwnerMobileNavigationScopeTest extends TestCase
         $this->assertIsString($html);
         $this->assertSame(
             1,
-            preg_match('/<aside\\s+class="side card"\\s+id="side".*?<\\/aside>/s', $html, $matches),
+            preg_match('/<aside\\s+class="side admin-sidebar"\\s+id="side".*?<\\/aside>/s', $html, $matches),
             'The independent owner sidebar should be rendered exactly once.'
         );
 
