@@ -85,8 +85,8 @@
     <section class="dashboard-panel owner-panel seo-performance-panel" aria-labelledby="seo-performance-title">
         <div class="owner-panel-head">
             <div>
-                <h2 id="seo-performance-title">عملکرد واقعی در Google Search Console</h2>
-                <p>آمار جست‌وجوی ارگانیک ثبت‌شده برای صفحات سایت؛ نه تخمین یا رتبه‌سازی داخلی.</p>
+                <h2 id="seo-performance-title">آمار واقعی نمایش سایت در گوگل</h2>
+                <p>آمار واقعی دیده‌شدن صفحه‌های سایت در جست‌وجوی گوگل؛ نه عددهای حدسی.</p>
             </div>
             @if($searchConsole['last_synced_at'])
                 <span class="seo-result-count">آخرین دریافت: {{ \Illuminate\Support\Carbon::parse($searchConsole['last_synced_at'])->format('Y-m-d H:i') }}</span>
@@ -104,17 +104,17 @@
                 <article><span>نرخ کلیک (CTR)</span><strong>{{ number_format(($searchConsole['ctr'] ?? 0) * 100, 2) }}٪</strong></article>
                 <article><span>میانگین جایگاه</span><strong>{{ $searchConsole['average_position'] !== null ? number_format($searchConsole['average_position'], 1) : '—' }}</strong></article>
             </div>
-            <p class="seo-performance-footnote">میانگین جایگاه، میانگین وزنی داده‌های Search Console است. بعضی عبارت‌ها یا ردیف‌ها ممکن است به‌دلیل محدودیت‌های خود Google در گزارش API نمایش داده نشوند.</p>
+            <p class="seo-performance-footnote">میانگین رتبه از گزارش رسمی گوگل محاسبه می‌شود. ممکن است گوگل بعضی عبارت‌ها یا ردیف‌ها را در گزارش خود نشان ندهد.</p>
         @elseif($searchConsole['configured'])
             <div class="seo-connection-state is-pending">
                 <strong>تنظیمات اتصال وارد شده؛ هنوز داده‌ای دریافت نشده است.</strong>
-                <p>پس از اجرای همگام‌سازی، آمار واقعی در همین بخش و کنار هر صفحه نمایش داده می‌شود. property باید در Search Console تأیید شده باشد.</p>
+                <p>پس از اجرای همگام‌سازی، آمار واقعی در همین بخش و کنار هر صفحه نمایش داده می‌شود. نشانی سایت باید در ابزار گزارش گوگل تأیید شده باشد.</p>
                 <code dir="ltr">php artisan sheykhan:seo-search-console-sync --days=28</code>
             </div>
         @else
             <div class="seo-connection-state">
                 <strong>اتصال Search Console هنوز راه‌اندازی نشده است.</strong>
-                <p>برای گزارش کلیک، نمایش، CTR و میانگین جایگاه، ابتدا property سایت را در Google Search Console تأیید و OAuth فقط‌خواندنی را در تنظیمات خصوصی سرور وارد کن.</p>
+                <p>برای دیدن تعداد کلیک، دفعات نمایش، نرخ کلیک و میانگین رتبه، ابتدا مالکیت نشانی سایت را در ابزار گزارش گوگل تأیید کن و دسترسی امنِ فقط‌خواندنی را در تنظیمات سرور فعال کن.</p>
                 <code dir="ltr">GOOGLE_SEARCH_CONSOLE_SITE_URL</code>
                 <code dir="ltr">GOOGLE_SEARCH_CONSOLE_CLIENT_ID</code>
                 <code dir="ltr">GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET</code>
@@ -128,7 +128,7 @@
         <section class="seo-duplicate-summary" role="status" aria-labelledby="seo-duplicate-title">
             <div>
                 <strong id="seo-duplicate-title">صفحات با متادیتای تکراری</strong>
-                <p>در چند صفحه، عنوان، توضیحات یا نشانی Canonical مشابه/یکسان پیدا شده است. از فیلتر «نیازمند اقدام» استفاده کن و جزئیات هر صفحه را باز کن.</p>
+                <p>در چند صفحه، عنوان، توضیحات یا نشانی اصلی یکسان پیدا شده است. از فیلتر «نیازمند اقدام» استفاده کن و جزئیات هر صفحه را باز کن.</p>
             </div>
             <a href="{{ route('owner.seo.index', ['status' => 'attention']) }}">مشاهده صفحات نیازمند اقدام</a>
         </section>
@@ -138,7 +138,7 @@
         <div class="owner-panel-head">
             <div>
                 <h2>صفحات سایت</h2>
-                <p>صفحه را پیدا کن، دلیل هشدار را بخوان و همان‌جا تنظیماتش را اصلاح کن.</p>
+                <p>صفحه موردنظر را پیدا کن، دلیل هشدار را بخوان و تنظیماتش را اصلاح کن.</p>
             </div>
             <span class="seo-result-count">{{ number_format($items->total()) }} نتیجه</span>
         </div>
@@ -146,7 +146,7 @@
         <form method="GET" action="{{ route('owner.seo.index') }}" class="seo-page-filters">
             <label class="seo-filter-search">
                 <span>جست‌وجوی عنوان یا نشانی</span>
-                <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="نام دوره، مقاله، محصول یا URL..." autocomplete="off">
+                <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="نام دوره، مقاله، محصول یا نشانی صفحه..." autocomplete="off">
             </label>
             <label>
                 <span>نوع صفحه</span>
