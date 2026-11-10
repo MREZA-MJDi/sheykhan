@@ -1,16 +1,19 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 @section('title', 'ویرایش منبع آموزشی | شیخان')
 @section('header-title', 'ویرایش منبع آموزشی')
 @section('content')
+@php($modalMode = request()->boolean('modal'))
 <div class="owner-form-shell space-y-6">
-    <header class="owner-form-head">
+    @unless($modalMode)
+<header class="owner-form-head">
         <div><span>کتابخانه داخلی</span><h1>ویرایش: {{ $resource->title }}</h1><p>تغییر عنوان، ارتباط درسی، زمان انتشار یا فایل بدون بازکردن دسترسی عمومی انجام می‌شود.</p></div>
         <a href="{{ route('owner.resources.index', $academy) }}">بازگشت به منابع</a>
     </header>
+@endunless
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.update', [$academy, $resource]) }}" class="owner-form-grid">
+    <form method="POST" enctype="multipart/form-data" action="{{ route('owner.resources.update', [$academy, $resource]) . ($modalMode ? '?modal=1' : '') }}" class="owner-form-grid">
         @csrf @method('PATCH')
         <section class="owner-form-section space-y-4">
             <h2>مشخصات منبع</h2>
