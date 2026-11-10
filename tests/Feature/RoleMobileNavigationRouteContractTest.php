@@ -141,7 +141,7 @@ class RoleMobileNavigationRouteContractTest extends TestCase
             'route(\'owner.showcase.index\', $websiteAcademy)',
             'route(\'owner.products.index\', $academy)',
             'route(\'owner.orders.index\', $academy)',
-            "route('owner.legal-documents.index')",
+            "'route'=>'owner.legal-documents.index'",
         ] as $destination) {
             $this->assertStringContainsString($destination, $sidebar, 'Desktop owner sidebar missing ' . $destination);
         }
