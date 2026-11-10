@@ -161,6 +161,40 @@
                 <button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
             </form>
         </section>
+        @if($canManageMeetings)
+            <section class="dashboard-panel p-4 sm:p-5">
+                <h2 class="text-base font-black">ثبت جلسه جدید</h2>
+                <p class="mt-1 text-sm leading-7 text-[var(--panel-muted)]">برای جلوگیری از فهرست‌های طولانی، ابتدا نام دانش‌آموز، ولی یا کلاس را جست‌وجو کن؛ حداکثر ۲۰ ارتباط معتبر نمایش داده می‌شود.</p>
+                <form method="GET" action="{{ $baseUrl }}" class="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                    <input type="hidden" name="tab" value="meetings">
+                    <label class="grid gap-1 text-xs font-bold">جست‌وجوی مخاطب<input name="target_q" value="{{ $targetQuery ?? '' }}" minlength="2" placeholder="حداقل دو حرف از نام یا عنوان کلاس" class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
+                    <button class="min-h-11 rounded-xl border border-[var(--panel-border)] px-4 text-sm font-bold">جست‌وجوی مخاطب</button>
+                </form>
+                @if(($targetQuery ?? '') !== '' && mb_strlen($targetQuery) < 2)
+                    <p class="mt-2 text-xs text-amber-700">برای جست‌وجو حداقل دو حرف وارد کن.</p>
+                @elseif(isset($meetingTargets) && $meetingTargets->isNotEmpty())
+                    <form method="POST" action="{{ route('owner.meetings.store', $academy) }}" class="mt-4 grid gap-3 md:grid-cols-2">
+                        @csrf
+                        <label class="grid gap-1 text-xs font-bold md:col-span-2">کلاس، دانش‌آموز و ولی
+                            <select name="meeting_target" required class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm">
+                                <option value="">انتخاب ارتباط</option>
+                                @foreach($meetingTargets as $target)
+                                    <option value="{{ $target->classroom_id }}:{{ $target->student_id }}:{{ $target->parent_id }}" @selected(old('meeting_target') === $target->classroom_id.':'.$target->student_id.':'.$target->parent_id)>{{ $target->classroom_title }} — {{ $target->student_name }} — ولی: {{ $target->parent_name }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <label class="grid gap-1 text-xs font-bold md:col-span-2">عنوان جلسه<input name="title" value="{{ old('title') }}" required maxlength="255" placeholder="مثلاً: بررسی روند تحصیلی" class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
+                        <label class="grid gap-1 text-xs font-bold">زمان شروع<input type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}" min="{{ now()->format('Y-m-d\\TH:i') }}" required class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
+                        <label class="grid gap-1 text-xs font-bold">زمان پایان (اختیاری)<input type="datetime-local" name="scheduled_end_at" value="{{ old('scheduled_end_at') }}" class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
+                        <label class="grid gap-1 text-xs font-bold md:col-span-2">پیام برای خانواده (اختیاری)<textarea name="message" rows="2" maxlength="1500" class="rounded-xl border border-[var(--panel-border)] px-3 py-2 text-sm">{{ old('message') }}</textarea></label>
+                        <button class="min-h-11 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white md:col-span-2">ثبت جلسه و اطلاع‌رسانی</button>
+                    </form>
+                    <div class="mt-3 text-sm">{{ $meetingTargets->links('components.navigation.pagination') }}</div>
+                @elseif(($targetQuery ?? '') !== '')
+                    <p class="mt-3 rounded-xl bg-[var(--panel-bg)] p-4 text-sm">مخاطب فعالی با این عبارت پیدا نشد. نام دیگری را امتحان کن.</p>
+                @endif
+            </section>
+        @endif
         <section class="space-y-3">
             @forelse($items as $item)
                 <article class="dashboard-panel p-4 sm:p-5">
