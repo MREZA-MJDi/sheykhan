@@ -3,6 +3,19 @@
 :where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) :is(a,button,input,select,textarea,[role="button"],[tabindex]):focus-visible{outline:2px solid var(--workspace-focus-color);outline-offset:3px}
 :where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) :is(.dashboard-panel,.teacher-workspace-card,.teacher-workspace-stat,.parent-child,.card,.ui-stat,.home-course-card,.home-banner-card,.home-path-card){min-width:0}
 :where(.owner-shell,.teacher-panel,.student-shell,.parent-shell,.sheykhan-site) :is(input,select,textarea){max-width:100%}
+
+/* Owner member cards remain usable in three-column and tablet layouts. */
+.owner-people-workspace [data-directory-controls] {
+    grid-template-columns: minmax(0, 1fr) !important;
+}
+.owner-people-workspace [data-directory-controls] > label:first-child {
+    grid-column: 1 / -1;
+}
+@media (min-width: 520px) {
+    .owner-people-workspace [data-directory-controls] {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
 @media(max-width:767px){
  .teacher-workspace-table-wrap{max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
  .teacher-workspace-table{min-width:640px}
