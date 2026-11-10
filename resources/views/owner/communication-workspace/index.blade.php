@@ -186,7 +186,7 @@
                                 @endforeach
                             </select>
                         </label>
-                        <label class="grid gap-1 text-xs font-bold md:col-span-2">عنوان جلسه<input name="title" value="{{ old('title') }}" required maxlength="255" placeholder="مثلاً: بررسی روند تحصیلی" class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
+                        <label class="grid gap-1 text-xs font-bold md:col-span-2">عنوان جلسه<input name="title" value="{{ old('title') }}" required maxlength="255" placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده" class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
                         <label class="grid gap-1 text-xs font-bold">زمان شروع<input type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}" min="{{ now()->format('Y-m-d\\TH:i') }}" required class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
                         <label class="grid gap-1 text-xs font-bold">زمان پایان (اختیاری)<input type="datetime-local" name="scheduled_end_at" value="{{ old('scheduled_end_at') }}" class="min-h-11 rounded-xl border border-[var(--panel-border)] px-3 text-sm"></label>
                         <label class="grid gap-1 text-xs font-bold md:col-span-2">پیام برای خانواده (اختیاری)<textarea name="message" rows="2" maxlength="1500" class="rounded-xl border border-[var(--panel-border)] px-3 py-2 text-sm">{{ old('message') }}</textarea></label>
