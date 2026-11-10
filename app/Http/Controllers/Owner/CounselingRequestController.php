@@ -16,10 +16,25 @@ final class CounselingRequestController extends Controller
     {
         $this->authorizeAcademy($request, $academy);
 
+        $filters = $request->validate([
+            'status' => ['nullable', 'string', Rule::in(['requested', 'proposed', 'scheduled', 'completed', 'declined', 'cancelled'])],
+            'q' => ['nullable', 'string', 'max:120'],
+        ]);
+
         $requests = ParentCounselingRequest::query()
             ->where('academy_id', $academy->id)
             ->with(['parent:id,name,mobile', 'student:id,name', 'handler:id,name', 'proposer:id,name'])
-            ->orderByRaw("CASE WHEN status = 'requested' THEN 0 WHEN status = 'scheduled' THEN 1 ELSE 2 END")
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when(filled($filters['q'] ?? null), function ($query) use ($filters): void {
+                $term = trim((string) $filters['q']);
+                $query->where(function ($nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('details', 'like', '%' . $term . '%')
+                        ->orWhereHas('parent', fn ($parent) => $parent->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn ($student) => $student->where('name', 'like', '%' . $term . '%'));
+                });
+            })
+            ->orderByRaw("CASE WHEN status = 'requested' THEN 0 WHEN status = 'proposed' THEN 1 WHEN status = 'scheduled' THEN 2 ELSE 3 END")
             ->latest()
             ->paginate(20)
             ->withQueryString();
@@ -31,7 +46,7 @@ final class CounselingRequestController extends Controller
             'completed' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'completed')->count(),
         ];
 
-        return view('owner.counseling.index', compact('academy', 'requests', 'stats'));
+        return view('owner.counseling.index', compact('academy', 'requests', 'stats', 'filters'));
     }
 
     public function update(Request $request, Academy $academy, int $counselingRequest): RedirectResponse
