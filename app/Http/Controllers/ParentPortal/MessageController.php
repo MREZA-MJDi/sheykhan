@@ -19,6 +19,11 @@ final class MessageController extends Controller
     public function index(Request $request, ParentPortalService $portal): View
     {
         $parent = $request->user();
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+        ]);
+        $term = trim((string) ($filters['q'] ?? ''));
+
         $parentAcademyIds = $parent->academies()
             ->where('academies.status', 'active')
             ->wherePivot('role', 'parent')
@@ -82,6 +87,15 @@ final class MessageController extends Controller
                             });
                     });
             })
+            ->when($term !== '', function (Builder $query) use ($term): void {
+                $query->where(function (Builder $nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('sender', fn (Builder $sender) => $sender->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn (Builder $student) => $student->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('academy', fn (Builder $academy) => $academy->where('name', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['sender:id,name', 'recipient:id,name', 'student:id,name', 'academy:id,name', 'classroom:id,title', 'course:id,title'])
             ->latest()
             ->paginate(10, ['*'], 'academy_messages_page')
@@ -90,6 +104,14 @@ final class MessageController extends Controller
         $teacherMessages = TeacherDirectMessage::query()
             ->where('recipient_type', 'parent')
             ->where('recipient_id', $request->user()->id)
+            ->when($term !== '', function (Builder $query) use ($term): void {
+                $query->where(function (Builder $nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('teacher', fn (Builder $teacher) => $teacher->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn (Builder $student) => $student->where('name', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['teacher:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title'])
             ->latest()
             ->paginate(10, ['*'], 'teacher_messages_page')
@@ -97,6 +119,14 @@ final class MessageController extends Controller
 
         $messages = ParentMessage::query()
             ->where('parent_id', $request->user()->id)
+            ->when($term !== '', function (Builder $query) use ($term): void {
+                $query->where(function (Builder $nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('student', fn (Builder $student) => $student->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('academy', fn (Builder $academy) => $academy->where('name', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['student:id,name', 'academy:id,name', 'responder:id,name'])
             ->orderByDesc('created_at')
             ->orderByDesc('id')
@@ -106,6 +136,14 @@ final class MessageController extends Controller
         $outgoingTeacherMessages = TeacherDirectMessage::query()
             ->where('sender_type', 'parent')
             ->where('sender_id', $request->user()->id)
+            ->when($term !== '', function (Builder $query) use ($term): void {
+                $query->where(function (Builder $nested) use ($term): void {
+                    $nested->where('subject', 'like', '%' . $term . '%')
+                        ->orWhere('body', 'like', '%' . $term . '%')
+                        ->orWhereHas('teacher', fn (Builder $teacher) => $teacher->where('name', 'like', '%' . $term . '%'))
+                        ->orWhereHas('student', fn (Builder $student) => $student->where('name', 'like', '%' . $term . '%'));
+                });
+            })
             ->with(['teacher:id,name', 'student:id,name', 'course:id,title', 'classroom:id,title', 'responder:id,name'])
             ->latest()
             ->paginate(10, ['*'], 'outgoing_teacher_messages_page')
@@ -118,6 +156,7 @@ final class MessageController extends Controller
             'teacherTargets' => $portal->contactableTeacherTargets($request->user()),
             'teacherMessages' => $teacherMessages,
             'outgoingTeacherMessages' => $outgoingTeacherMessages,
+            'filters' => $filters,
         ]);
     }
 
