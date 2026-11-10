@@ -193,6 +193,7 @@
                         ویرایش
                     </a>
                     @endif
+@if(auth()->user()->hasPermission('classrooms.manage'))
 @if($classroom->status === 'archived')
                         <form method="POST" action="{{ route('owner.classrooms.restore', [$academy, $classroom]) }}">
                             @csrf @method('PATCH')
@@ -204,6 +205,7 @@
                             <button type="submit" data-confirm="کلاس آرشیو شود؟ دانش‌آموزان و سوابق حذف نمی‌شوند." class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[10px] font-black text-amber-900">آرشیو کلاس</button>
                         </form>
                     @endif
+@endif
                 </div>
             </article>
         @empty
