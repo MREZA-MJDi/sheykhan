@@ -1,5 +1,5 @@
 @if($canViewReports)
-            <section class="card c12" aria-labelledby="teacher-report-title" style="--c:#8b3dff">
+            <section class="card c12" aria-labelledby="teacher-report-title" style="--c:#26377f">
                 <div class="card-title">
                     <div><h2 id="teacher-report-title"><span class="section-icon"><svg class="ic"><use href="#i-chart"/></svg></span>عملکرد مدرس‌ها</h2><p>حداکثر ۸ مدرس بر اساس تعداد دانش‌آموزان فعال؛ میانگین پیشرفت و بررسی‌های معوق از محاسبات بک‌اند.</p></div>
                     <a class="table-link" href="{{ route('owner.reports.index') }}">گزارش کامل ←</a>
@@ -15,7 +15,7 @@
                                 <td>{{ \App\Support\PersianUi::digits($teacher->student_count) }}</td>
                                 <td>
                                     <span class="row-value">{{ \App\Support\PersianUi::digits(round((float)$teacher->progress_average,1)) }}٪</span>
-                                    <div class="trk"><span class="fill" style="--c:#8b3dff;width:{{ min(100,max(0,(float)$teacher->progress_average)) }}%"></span></div>
+                                    <div class="trk"><span class="fill" style="--c:#26377f;width:{{ min(100,max(0,(float)$teacher->progress_average)) }}%"></span></div>
                                 </td>
                                 <td>{{ \App\Support\PersianUi::digits($teacher->pending_reviews) }}</td>
                                 @if($canViewFinance)<td>{{ \App\Support\PersianUi::number($teacher->sales) }}</td>@endif
@@ -30,16 +30,16 @@
         @endif
 
         @if($canViewCourses)
-            <section class="card c6" aria-labelledby="recent-courses-title" style="--c:#22d3ee">
+            <section class="card c6" aria-labelledby="recent-courses-title" style="--c:#0e9f8e">
                 <div class="card-title">
                     <div><h2 id="recent-courses-title"><span class="section-icon"><svg class="ic"><use href="#i-book"/></svg></span>آخرین دوره‌ها</h2><p>شش دوره‌ای که به‌تازگی ثبت شده‌اند.</p></div>
                     <a class="table-link" href="{{ route('owner.courses.index') }}">همه دوره‌ها ←</a>
                 </div>
                 @forelse($recentCourses as $course)
-                    <div class="at" style="--c:{{ $course->status === 'published' ? '#2ee6a6' : '#ff9a1f' }}">
+                    <div class="at" style="--c:{{ $course->status === 'published' ? '#0e9f8e' : '#ff9a1f' }}">
                         <span class="tile"><svg class="ic"><use href="#i-book"/></svg></span>
                         <span class="gx"><b>{{ $course->title }}</b><small>{{ $course->academy?->name ?? 'بدون آموزشگاه' }} · {{ \App\Support\PersianUi::digits($course->active_students_count) }} دانش‌آموز فعال</small></span>
-                        <span class="pl" style="--c:{{ $course->status === 'published' ? '#2ee6a6' : '#ff9a1f' }}">{{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : $course->status) }}</span>
+                        <span class="pl" style="--c:{{ $course->status === 'published' ? '#0e9f8e' : '#ff9a1f' }}">{{ $course->status === 'published' ? 'منتشرشده' : ($course->status === 'draft' ? 'پیش‌نویس' : $course->status) }}</span>
                         <a class="table-link" href="{{ route('owner.courses.show', $course) }}">بازبینی</a>
                     </div>
                 @empty
