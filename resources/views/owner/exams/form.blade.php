@@ -93,6 +93,23 @@
             </section>
 
             <section class="owner-exam-section">
+                <h2>افزودن از بانک سؤال</h2>
+                <p>سؤال‌های انتخابی به شکل نسخه‌ی مستقل به آزمون اضافه می‌شوند؛ تغییر بعدی بانک روی این آزمون یا نتیجه‌های قبلی اثر ندارد.</p>
+                @if(($bankQuestions ?? collect())->isEmpty())
+                    <p class="owner-exam-help">بانک سؤال هنوز مورد فعالی ندارد. ابتدا سؤال‌ها را در <a class="font-black text-[var(--panel-primary)]" href="{{ route('owner.question-bank.index', $academy) }}">بانک سؤال</a> ثبت کن.</p>
+                @else
+                    <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                        @foreach($bankQuestions as $bankQuestion)
+                            <label class="flex items-start gap-2 rounded-xl border border-slate-200 p-3 text-sm">
+                                <input type="checkbox" name="bank_question_ids[]" value="{{ $bankQuestion->id }}" class="mt-1">
+                                <span><strong class="block">{{ $bankQuestion->question }}</strong><small class="text-slate-500">{{ $bankQuestion->topic ?: 'بدون موضوع' }} · {{ $bankQuestion->default_score }} امتیاز</small></span>
+                            </label>
+                        @endforeach
+                    </div>
+                @endif
+            </section>
+
+            <section class="owner-exam-section">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <h2>سؤال‌های آزمون</h2>
