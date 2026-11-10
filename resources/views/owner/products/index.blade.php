@@ -86,11 +86,13 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    @if($product->status !== 'published')
+                    @if(auth()->user()->hasPermission('products.manage'))
+@if($product->status !== 'published')
                         <form method="POST" action="{{ route('owner.products.publish', [$academy, $product]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-emerald-200 px-3 py-2 text-xs font-bold text-emerald-800">انتشار</button></form>
                     @else
                         <form method="POST" action="{{ route('owner.products.archive', [$academy, $product]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-800">خروج از فروش</button></form>
                     @endif
+@endif
                 </div>
             </article>
         @empty
