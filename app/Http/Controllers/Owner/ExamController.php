@@ -80,10 +80,10 @@ final class ExamController extends Controller
         $payload = $request->safe()->except(['course_id', 'questions']);
         $payload['classroom_id'] = $classroomId ?: null;
         $payload['teacher_id'] = $teacher->id;
-        $exam = DB::transaction(function () use ($course, $payload, $request, $questionWriter): Exam {
+        $exam = DB::transaction(function () use ($course, $academy, $payload, $request, $questionWriter): Exam {
             $exam = $course->exams()->create($payload);
             $questionWriter->storeQuestions($exam, $request->validated('questions', []));
-            $bankQuestions = $course->academy->questionBankItems()
+            $bankQuestions = $academy->questionBankItems()
                 ->where('status', 'active')
                 ->whereIn('id', $request->validated('bank_question_ids', []))
                 ->get();
