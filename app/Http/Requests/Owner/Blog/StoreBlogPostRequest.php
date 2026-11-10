@@ -25,7 +25,7 @@ final class StoreBlogPostRequest extends FormRequest
             'content'=>['required','string'],
             'status'=>['sometimes',Rule::in(['draft','published'])],
             'published_at'=>['nullable','date'],
-            'cover_image'=>['nullable','file','max:10240','mimes:jpg,jpeg,png,webp'],
+            'cover_image'=>['nullable','image','max:10240','mimes:jpg,jpeg,png,webp'],
         ];
     }
 }
