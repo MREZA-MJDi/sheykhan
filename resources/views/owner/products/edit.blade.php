@@ -40,15 +40,17 @@
         <aside class="owner-form-side space-y-4">
             <section class="owner-form-section space-y-4">
                 <h2>تصویر و فایل فروش</h2>
-                @if($cover)
-                    <figure class="space-y-2">
-                        <img src="{{ $cover->visibility === 'public' ? $cover->url() : route('media.view', $cover) }}" alt="جلد فعلی {{ $product->title }}" class="w-full rounded-xl border border-slate-200 object-cover" style="aspect-ratio:4/3" loading="lazy">
-                        <figcaption class="text-xs text-slate-500">جلد فعلی. انتخاب تصویر تازه آن را جایگزین می‌کند.</figcaption>
-                    </figure>
-                @else
-                    <p class="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">برای این محصول جلدی ثبت نشده است.</p>
-                @endif
-                <label><span>جایگزینی تصویر جلد (اختیاری)</span><input type="file" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input data-max-size-mb="10" data-allowed-extensions="jpg,jpeg,png,webp"><small class="owner-field-help">حداکثر ۱۰ مگابایت؛ تصویر قبلی پس از ذخیره موفق جایگزین می‌شود.</small></label>
+                <section class="owner-cover-editor" data-owner-cover-editor data-preview-ratio="1.333333" style="--owner-cover-ratio: 4 / 3;">
+                    <div class="owner-cover-preview">
+                        @if($cover)
+                            <img src="{{ $cover->visibility === 'public' ? $cover->url() : route('media.view', $cover) }}" alt="جلد فعلی {{ $product->title }}" class="w-full rounded-xl border border-slate-200 object-cover" style="aspect-ratio:4/3" loading="lazy">
+                        @else
+                            <div data-owner-cover-empty>برای این محصول جلدی ثبت نشده است.</div>
+                        @endif
+                    </div>
+                    <label><span>جایگزینی تصویر جلد (اختیاری)</span><input type="file" name="cover_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-owner-cover-input data-max-size-mb="10" data-allowed-extensions="jpg,jpeg,png,webp"><small class="owner-field-help">حداکثر ۱۰ مگابایت؛ تصویر قبلی پس از ذخیره موفق جایگزین می‌شود.</small></label>
+                    <span class="owner-image-feedback" data-owner-cover-feedback role="status" aria-live="polite">تصویر فعلی حفظ می‌شود؛ با انتخاب تصویر تازه، پیش‌نمایش جدید در همین کادر نمایش داده خواهد شد.</span>
+                </section>
                 <label><span>جایگزینی PDF اصلی (اختیاری)</span><input type="file" name="pdf_file" accept=".pdf,application/pdf"><small class="owner-field-help">حداکثر ۵۰ مگابایت؛ فایل جدید خصوصی نگهداری می‌شود.</small></label>
                 <label><span>نسخهٔ فایل جدید</span><input name="version" maxlength="32" value="{{ old('version', '1.1') }}"></label>
                 <div class="rounded-xl border border-slate-200 p-3 text-sm">
