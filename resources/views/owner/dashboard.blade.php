@@ -147,7 +147,7 @@
 @include('owner.dashboard.partials.activity')
 @include('owner.dashboard.partials.upcoming')
 
-@if($canViewPeople || $canViewAttendance || $canViewClassrooms || $canViewReports || $canViewCourses || $canViewLegal)
+@if($canViewPeople || $canViewAttendance || $canViewClassrooms || $canViewReports || $canViewCourses || $canViewLegal || $canViewExams || $canViewFinance)
     <details class="c12 group overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
             <span class="min-w-0">
@@ -166,7 +166,7 @@
     </details>
 @endif
 
-@if(!$canViewAcademy && !$canViewPeople && !$canViewClassrooms && !$canViewCourses && !$canViewAttendance && !$canViewFinance && !$canViewReports && !$canViewAssignments && !$canViewMeetings && !$canViewParents && !$canViewExams && !$canViewResources && !$canViewProducts && !$canViewOrders && !$canViewTeacherPayments && !$canViewLegal)
+@if(!$canViewPeople && !$canViewClassrooms && !$canViewCourses && !$canViewAttendance && !$canViewFinance && !$canViewReports && !$canViewAssignments && !$canViewMeetings && !$canViewOrders && !$canViewExams && !$canViewLegal)
             <section class="card c12"><div class="card-empty">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های مجاز این کارتابل برای این حساب فعال نیست.</div></section>
         @endif
 
