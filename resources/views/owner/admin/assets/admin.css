@@ -135,7 +135,7 @@ h2{margin:0 0 14px;font-size:14px;display:flex;align-items:center;gap:8px}
 .mr{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
 .seg{display:flex;gap:4px;flex-wrap:wrap}
 .seg button{background:var(--in);border:0;color:var(--mu);padding:7px 13px;border-radius:8px;font-size:12px;cursor:pointer}
-.seg button.p{background:var(--ok);color:#04202a}.seg button.l{background:#ff9a1f;color:#04202a}.seg button.a{background:var(--pk);color:#fff}
+.seg button.p{background:var(--ok);color:#04202a}.seg button.l{background:#f2a81d;color:#04202a}.seg button.a{background:var(--pk);color:#fff}
 .ts{margin-bottom:12px}
 .tsc{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
