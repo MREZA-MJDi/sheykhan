@@ -124,6 +124,32 @@
         </section>
     @endif
 
+    <form method="GET" class="dashboard-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_190px_190px_auto_auto] sm:items-end" role="search" aria-label="فیلتر اطلاعیه‌های مدرس">
+        <label class="grid gap-1 text-xs font-bold">جست‌وجو
+            <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3 text-sm" placeholder="عنوان، متن، گیرنده، فرزند یا کلاس">
+        </label>
+        <label class="grid gap-1 text-xs font-bold">نوع پیام
+            <select name="category" class="min-h-10 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3 text-sm">
+                <option value="">همه انواع پیام</option>
+                <option value="announcement" @selected(($filters['category'] ?? '') === 'announcement')>اطلاعیه</option>
+                <option value="academic" @selected(($filters['category'] ?? '') === 'academic')>آموزشی</option>
+                <option value="schedule" @selected(($filters['category'] ?? '') === 'schedule')>زمان‌بندی</option>
+                <option value="important" @selected(($filters['category'] ?? '') === 'important')>مهم</option>
+                <option value="other" @selected(($filters['category'] ?? '') === 'other')>سایر</option>
+            </select>
+        </label>
+        <label class="grid gap-1 text-xs font-bold">مخاطب
+            <select name="audience" class="min-h-10 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-3 text-sm">
+                <option value="">همه مخاطب‌ها</option>
+                <option value="teacher_class_parents" @selected(($filters['audience'] ?? '') === 'teacher_class_parents')>همه خانواده‌های کلاس‌های من</option>
+                <option value="classroom_parents" @selected(($filters['audience'] ?? '') === 'classroom_parents')>خانواده‌های یک کلاس</option>
+                <option value="parent" @selected(($filters['audience'] ?? '') === 'parent')>ولی مشخص</option>
+                <option value="student" @selected(($filters['audience'] ?? '') === 'student')>دانش‌آموز مشخص</option>
+            </select>
+        </label>
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
+        <a href="{{ route('teacher.communications.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--panel-border)] bg-[var(--panel-surface)] px-4 text-sm font-bold">پاک‌کردن</a>
+    </form>
     <section class="space-y-4">
         <div class="flex items-end justify-between gap-3">
             <div><span class="text-xs font-black text-[var(--panel-accent)]">سوابق</span><h2 class="mt-1 text-xl font-black text-[var(--panel-text)]">پیام‌های ارسال‌شده</h2></div>
