@@ -133,7 +133,9 @@
                                 <p class="mt-1 max-w-md text-xs leading-6 text-[var(--color-text-muted)]">
                                     اولین دوره را بساز؛ بعد از آن می‌توانی محتوا، رسانه، مدرس و وضعیت انتشارش را مدیریت کنی.
                                 </p>
-                                <a href="{{ route('owner.courses.create') }}" class="course-primary-btn mt-4">ساخت اولین دوره</a>
+                                @if(auth()->user()->hasPermission('courses.manage'))
+                                <a href="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-title="ساخت دوره جدید" class="course-primary-btn mt-4">ساخت اولین دوره</a>
+                            @endif
                             </div>
                         </td>
                     </tr>
@@ -188,7 +190,9 @@
                     <div class="course-empty-icon">+</div>
                     <div class="text-sm font-black">هنوز دوره‌ای ساخته نشده است</div>
                     <p class="mt-1 max-w-md text-xs leading-6 text-[var(--color-text-muted)]">اولین دوره را بساز و ادامه مسیر را از همین‌جا مدیریت کن.</p>
-                    <a href="{{ route('owner.courses.create') }}" class="course-primary-btn mt-4">ساخت اولین دوره</a>
+                    @if(auth()->user()->hasPermission('courses.manage'))
+                                <a href="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-url="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-title="ساخت دوره جدید" class="course-primary-btn mt-4">ساخت اولین دوره</a>
+                            @endif
                 </div>
             @endforelse
         </div>
