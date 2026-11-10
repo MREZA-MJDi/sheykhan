@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Academy;
 use App\Models\Assignment;
 use App\Models\Classroom;
+use App\Models\ClassSchedule;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Permission;
@@ -373,6 +374,137 @@ class OwnerClassroomManagementTest extends TestCase
             ['snapshot' => 'fresh-report'],
             $cache->rememberReport($owner, fn () => ['snapshot' => 'fresh-report'])
         );
+    }
+
+    public function test_classroom_create_and_edit_forms_can_render_inside_floating_modal(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.index', $academy))
+            ->assertOk()
+            ->assertSee('data-owner-modal-url', false)
+            ->assertSee('data-owner-modal-title="ساخت کلاس جدید"', false);
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.create', ['academy' => $academy, 'modal' => 1]))
+            ->assertOk()
+            ->assertDontSee('<!doctype html>', false)
+            ->assertSee('name="title"', false)
+            ->assertSee('name="course_id"', false);
+
+        $response = $this->actingAs($owner)
+            ->post(route('owner.classrooms.store', ['academy' => $academy, 'modal' => 1]), [
+                'course_id' => $course->id,
+                'teacher_ids' => [$teacher->id],
+                'title' => 'کلاس ثبت‌شده در مودال',
+                'capacity' => 20,
+                'status' => 'active',
+            ]);
+
+        $classroom = Classroom::query()->where('title', 'کلاس ثبت‌شده در مودال')->firstOrFail();
+
+        $response
+            ->assertRedirect(route('owner.classrooms.index', $academy))
+            ->assertSessionHas('success');
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.edit', ['academy' => $academy, 'classroom' => $classroom, 'modal' => 1]))
+            ->assertOk()
+            ->assertDontSee('<!doctype html>', false)
+            ->assertSee('name="title"', false)
+            ->assertSee('کلاس ثبت‌شده در مودال');
+    }
+
+    public function test_owner_can_update_weekly_schedule_in_modal_and_overlaps_are_rejected(): void
+    {
+        [$owner, $academy, $course, $teacher] = $this->workspace();
+
+        $liveView = Permission::create([
+            'name' => 'live_classes.view',
+            'label' => 'View online classes',
+            'group' => 'live_classes',
+        ]);
+        $liveManage = Permission::create([
+            'name' => 'live_classes.manage',
+            'label' => 'Manage online classes',
+            'group' => 'live_classes',
+        ]);
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+        $ownerRole->permissions()->attach([$liveView->id, $liveManage->id]);
+
+        $classroom = Classroom::create([
+            'academy_id' => $academy->id,
+            'course_id' => $course->id,
+            'title' => 'کلاس برنامه هفتگی',
+            'code' => 'SCHEDULE-UI',
+            'capacity' => 20,
+            'status' => 'active',
+        ]);
+        $classroom->teachers()->attach($teacher->id);
+
+        $schedule = $classroom->schedules()->create([
+            'weekday' => 6,
+            'start_time' => '09:00:00',
+            'end_time' => '10:00:00',
+            'room' => 'اتاق اول',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-Test-Room',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.schedules.index', $academy))
+            ->assertOk()
+            ->assertSee('owner-schedule-create-' . $classroom->id, false)
+            ->assertSee('owner-schedule-edit-' . $schedule->id, false)
+            ->assertSee('data-owner-modal-open', false);
+
+        $this->actingAs($owner)
+            ->patch(route('owner.schedules.update', [
+                'academy' => $academy,
+                'classroom' => $classroom,
+                'schedule' => $schedule,
+            ]) . '?modal=1', [
+                'weekday' => 6,
+                'start_time' => '10:00',
+                'end_time' => '11:00',
+                'room' => 'اتاق دوم',
+                'provider' => 'Jitsi',
+                'meeting_url' => '',
+                'form_modal' => 'schedule-edit-' . $schedule->id,
+            ])
+            ->assertRedirect(route('owner.schedules.index', $academy))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('class_schedules', [
+            'id' => $schedule->id,
+            'start_time' => '10:00:00',
+            'end_time' => '11:00:00',
+            'room' => 'اتاق دوم',
+        ]);
+
+        $classroom->schedules()->create([
+            'weekday' => 6,
+            'start_time' => '12:00:00',
+            'end_time' => '13:00:00',
+            'provider' => 'Jitsi',
+            'meeting_url' => 'https://meet.jit.si/Sheykhan-Conflict-Room',
+        ]);
+
+        $this->actingAs($owner)
+            ->patch(route('owner.schedules.update', [
+                'academy' => $academy,
+                'classroom' => $classroom,
+                'schedule' => $schedule,
+            ]), [
+                'weekday' => 6,
+                'start_time' => '12:30',
+                'end_time' => '13:30',
+                'room' => null,
+                'provider' => 'Jitsi',
+                'meeting_url' => '',
+            ])
+            ->assertSessionHasErrors('start_time');
     }
 
     private function workspace(): array
