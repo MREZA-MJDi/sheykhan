@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -83,6 +84,30 @@ class SeoSpecialistAccessTest extends TestCase
             ->get(route('seo.website.index'))
             ->assertOk()
             ->assertSee('ظاهر و محتوای قابل‌دیدن آموزشگاه را از یکجا مدیریت کن.');
+    }
+
+    public function test_seo_blog_uses_dedicated_seo_route_and_not_owner_url(): void
+    {
+        [$specialist] = $this->makeSeoWorkspace();
+
+        $url = route('seo.blog.index');
+        $this->assertStringContainsString('/seo/blog', $url);
+        $this->assertStringNotContainsString('/owner/', $url);
+
+        $this->actingAs($specialist)
+            ->get($url)
+            ->assertOk();
+    }
+
+    public function test_seo_dashboard_does_not_fail_when_search_console_snapshot_table_is_missing(): void
+    {
+        [$specialist] = $this->makeSeoWorkspace();
+        Schema::dropIfExists('seo_performance_snapshots');
+
+        $this->actingAs($specialist)
+            ->get(route('seo.index'))
+            ->assertOk()
+            ->assertSee('جدول ذخیرهٔ آمار SEO هنوز آماده نیست.');
     }
 
     public function test_seo_page_inventory_filters_by_type_status_and_search_term(): void
