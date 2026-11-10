@@ -13,7 +13,7 @@ $ownerUser=auth()->user();
 $isSeoOnlyUser=$ownerUser && $ownerUser->hasRole('seo-specialist') && ! $ownerUser->hasRole('academy-owner');
 $canManagePublicSite=$ownerUser && $ownerUser->hasRole('seo-specialist') && $ownerUser->hasPermission('seo.manage');
 $academies=$ownerUser && $ownerUser->hasRole('academy-owner') ? (isset($academies) ? collect($academies) : $ownerUser->ownedAcademies()->where('status','active')->orderBy('name')->get(['id','name','slug','owner_id'])) : collect();
-$websiteAcademies=$canManagePublicSite ? ($isSeoOnlyUser ? \App\\Models\\Academy::query()->where('status','active')->orderBy('name')->get(['id','name','slug']) : $academies) : collect();
+$websiteAcademies=$canManagePublicSite ? ($isSeoOnlyUser ? \App\Models\Academy::query()->where('status','active')->orderBy('name')->get(['id','name','slug']) : $academies) : collect();
 $ownerHomeRoute=$isSeoOnlyUser ? 'owner.seo.index' : 'owner.dashboard';
 $pageHeading=trim($__env->yieldContent('header-title')) ?: 'مدیریت آموزشگاه';
 $period=in_array($period ?? request()->query('period','month'),['today','week','month'],true) ? ($period ?? request()->query('period','month')) : 'month';
@@ -21,7 +21,7 @@ $notifications=collect($notifications ?? []);
 $ownerInitial=mb_substr(trim((string)($ownerUser?->name ?? 'ش')),0,1);
 $hasPermission=static function($permission) use($ownerUser):bool { foreach((array)$permission as $item){if($ownerUser?->hasPermission($item)) return true;} return false; };
 $routeAcademy=request()->route('academy');
-$routeAcademyId=$routeAcademy instanceof \App\\Models\\Academy ? (int)$routeAcademy->getKey() : (int)($routeAcademy ?? 0);
+$routeAcademyId=$routeAcademy instanceof \App\Models\Academy ? (int)$routeAcademy->getKey() : (int)($routeAcademy ?? 0);
 $groups=[
  ['title'=>'مرکز کنترل','links'=>[['route'=>'owner.dashboard','label'=>'داشبورد اصلی','icon'=>'⌂','permission'=>'dashboard.view','scope'=>'global']]],
  ['title'=>'آموزشگاه','links'=>[
@@ -66,7 +66,7 @@ $groups=[
 @endif
 <label class="admin-search"><span>⌕</span><input id="adminSearch" type="search" placeholder="جستجو در منو…" autocomplete="off"></label>
 <div class="nt">
-<button class="bell" id="bell" type="button" aria-label="اعلان‌ها" aria-expanded="false" aria-controls="pop">♧<b>{{ $notifications->count() ? \App\\Support\\PersianUi::digits($notifications->count()) : '' }}</b></button>
+<button class="bell" id="bell" type="button" aria-label="اعلان‌ها" aria-expanded="false" aria-controls="pop">♧<b>{{ $notifications->count() ? \App\Support\PersianUi::digits($notifications->count()) : '' }}</b></button>
 <div class="pop" id="pop" hidden>
 <strong>موارد نیازمند پیگیری</strong>
 @forelse($notifications as $notification)
@@ -81,8 +81,8 @@ $groups=[
 <nav id="nv" aria-label="منوی اصلی">
 @foreach($groups as $group)
 @php
-$visibleGlobal=collect($group['links'])->filter(fn($link)=>$link['scope']==='global' && $hasPermission($link['permission']) && \Illuminate\\Support\\Facades\\Route::has($link['route']));
-$visibleAcademy=collect($group['links'])->filter(fn($link)=>$link['scope']==='academy' && $hasPermission($link['permission']) && \Illuminate\\Support\\Facades\\Route::has($link['route']));
+$visibleGlobal=collect($group['links'])->filter(fn($link)=>$link['scope']==='global' && $hasPermission($link['permission']) && ($group['title'] !== 'محتوا و سایت' || $canManagePublicSite) && \Illuminate\Support\Facades\Route::has($link['route']));
+$visibleAcademy=collect($group['links'])->filter(fn($link)=>$link['scope']==='academy' && $hasPermission($link['permission']) && \Illuminate\Support\Facades\Route::has($link['route']));
 $showGroup=(!$isSeoOnlyUser && ($visibleGlobal->isNotEmpty() || ($academies->isNotEmpty() && $visibleAcademy->isNotEmpty()))) || ($group['title']==='محتوا و سایت' && $canManagePublicSite && $isSeoOnlyUser);
 @endphp
 @if($showGroup)
@@ -101,7 +101,7 @@ $showGroup=(!$isSeoOnlyUser && ($visibleGlobal->isNotEmpty() || ($academies->isN
 @endif
 @if($group['title']==='محتوا و سایت' && $canManagePublicSite)
 @foreach([['owner.blog.index','مقاله‌ها'],['owner.content.index','محتوای آموزشی'],['owner.website.index','صفحات و بنرها'],['owner.seo.index','نمایش سایت در گوگل']] as [$routeName,$label])
-@if(\Illuminate\\Support\\Facades\\Route::has($routeName))<a class="ni" href="{{ route($routeName) }}" data-nav-label="{{ $label }}"><span class="nav-icon">↗</span><span>{{ $label }}</span></a>@endif
+@if(\Illuminate\Support\Facades\Route::has($routeName))<a class="ni" href="{{ route($routeName) }}" data-nav-label="{{ $label }}"><span class="nav-icon">↗</span><span>{{ $label }}</span></a>@endif
 @endforeach
 @endif
 </div></details>
