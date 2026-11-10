@@ -144,8 +144,30 @@
 
 
         @include('owner.dashboard.partials.overview')
-@include('owner.dashboard.partials.analytics')
 @include('owner.dashboard.partials.activity')
-@include('owner.dashboard.partials.reports')
+@include('owner.dashboard.partials.upcoming')
+
+@if($canViewPeople || $canViewAttendance || $canViewClassrooms || $canViewReports || $canViewCourses || $canViewLegal)
+    <details class="c12 group overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
+            <span class="min-w-0">
+                <strong class="block text-sm font-black text-slate-800 dark:text-slate-100">گزارش‌ها و آمار تکمیلی</strong>
+                <small class="mt-1 block text-xs leading-6 text-slate-500">نمودار حضور، رشد دانش‌آموزان، وضعیت دوره‌ها، عملکرد مدرس‌ها و مجوز محتوا</small>
+            </span>
+            <span class="flex shrink-0 items-center gap-2 text-xs font-bold text-slate-500">
+                <span>در صورت نیاز باز کن</span>
+                <span aria-hidden="true" class="text-lg transition-transform group-open:rotate-180">⌄</span>
+            </span>
+        </summary>
+        <div class="grid grid-cols-12 gap-4 border-t border-slate-100 p-4 dark:border-slate-700">
+            @include('owner.dashboard.partials.analytics')
+            @include('owner.dashboard.partials.reports')
+        </div>
+    </details>
+@endif
+
+@if(!$canViewAcademy && !$canViewPeople && !$canViewClassrooms && !$canViewCourses && !$canViewAttendance && !$canViewFinance && !$canViewReports && !$canViewAssignments && !$canViewMeetings && !$canViewParents && !$canViewExams && !$canViewResources && !$canViewProducts && !$canViewOrders && !$canViewTeacherPayments && !$canViewLegal)
+            <section class="card c12"><div class="card-empty">برای نمایش شاخص‌ها، دسترسی مشاهده به بخش‌های مجاز این کارتابل برای این حساب فعال نیست.</div></section>
+        @endif
 
 @endsection
