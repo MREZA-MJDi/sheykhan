@@ -20,6 +20,7 @@ final class ProductController extends Controller
             ->with([
                 'category:id,name,slug',
                 'media' => fn ($query) => $query
+                    ->wherePivot('collection', 'cover')
                     ->where('visibility', 'public')
                     ->where('status', 'active')
                     ->orderByPivot('sort_order'),
