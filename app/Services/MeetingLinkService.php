@@ -7,15 +7,15 @@ use Illuminate\Support\Str;
 
 final class MeetingLinkService
 {
+    public const SKYROOM = 'Skyroom';
     public const JITSI = 'Jitsi';
     public const GOOGLE_MEET = 'Google Meet';
     public const ZOOM = 'Zoom';
     public const OTHER = 'سایر';
 
     /**
-     * Resolve a provider URL without pretending that external providers can be
-     * provisioned without their APIs. Jitsi rooms need no account/API; Google
-     * Meet and Zoom URLs must first be created in their respective services.
+     * Resolve a real Skyroom room URL. Legacy provider validation remains
+     * available for already-scheduled sessions; new forms accept Skyroom only.
      */
     public function resolve(string $provider, ?string $meetingUrl): string
     {
@@ -68,6 +68,9 @@ final class MeetingLinkService
         }
 
         return match ($provider) {
+            self::SKYROOM => in_array($host, ['www.skyroom.online', 'skyroom.online'], true)
+                && count(explode('/', $path)) >= 3
+                && str_starts_with($path, 'ch/'),
             self::JITSI => $host === 'meet.jit.si',
             self::GOOGLE_MEET => $host === 'meet.google.com',
             self::ZOOM => $host === 'zoom.us' || str_ends_with($host, '.zoom.us'),
@@ -79,6 +82,7 @@ final class MeetingLinkService
     public function validationMessage(string $provider): string
     {
         return match ($provider) {
+            self::SKYROOM => 'لینک باید از اتاق واقعی اسکای‌روم و با الگوی https://www.skyroom.online/ch/نام‌کاربری/اتاق باشد.',
             self::JITSI => 'برای Jitsi باید لینک https://meet.jit.si باشد؛ در صورت خالی بودن، شیخان لینک یکتا می‌سازد.',
             self::GOOGLE_MEET => 'لینک باید از دامنه رسمی https://meet.google.com باشد. ابتدا جلسه را در Google Meet بساز و لینک آن را اینجا قرار بده.',
             self::ZOOM => 'لینک باید از دامنه رسمی Zoom باشد. ابتدا جلسه را در Zoom بساز و لینک ورود آن را اینجا قرار بده.',
