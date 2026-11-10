@@ -22,7 +22,7 @@
     @endunless
 
     <form method="POST"
-          action="{{ $classroom->exists ? route('owner.classrooms.update', [$academy, $classroom]) : route('owner.classrooms.store', $academy) }}"
+          action="{{ ($classroom->exists ? route('owner.classrooms.update', [$academy, $classroom]) : route('owner.classrooms.store', $academy)) . ($modalMode ? '?modal=1' : '') }}"
           class="space-y-5" data-owner-classroom-form>
         @csrf
         @if($classroom->exists)
