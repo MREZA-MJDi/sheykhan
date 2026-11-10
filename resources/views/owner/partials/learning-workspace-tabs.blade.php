@@ -4,7 +4,9 @@
     $learningSheets = [
         ['key' => 'courses', 'label' => 'دوره‌ها', 'permission' => 'courses.view', 'route' => 'owner.courses.index', 'scope' => 'global', 'icon' => '▤'],
         ['key' => 'classrooms', 'label' => 'کلاس‌ها', 'permission' => 'classrooms.view', 'route' => 'owner.classrooms.index', 'scope' => 'academy', 'icon' => '▦'],
-        ['key' => 'schedules', 'label' => 'کلاس آنلاین', 'permission' => 'live_classes.view', 'route' => 'owner.schedules.index', 'scope' => 'academy', 'icon' => '◷'],
+        ['key' => 'schedules', 'label' => 'برنامه هفتگی', 'permission' => 'live_classes.view', 'route' => 'owner.schedules.index', 'scope' => 'academy', 'icon' => '◷'],
+        ['key' => 'meetings', 'label' => 'جلسات آنلاین', 'permission' => 'live_classes.view', 'route' => 'owner.communication-workspace', 'scope' => 'academy', 'query' => ['tab' => 'meetings'], 'icon' => '↗'],
+        ['key' => 'allocations', 'label' => 'تخصیص مدرس و هنرجو', 'permission' => ['teachers.manage', 'enrollments.manage'], 'route' => 'owner.people.index', 'scope' => 'academy', 'query' => ['tab' => 'management', 'sheet' => 'operations'], 'icon' => '⇄'],
         ['key' => 'assignments', 'label' => 'تکالیف و تصحیح', 'permission' => 'assignments.view', 'route' => 'owner.assignments.index', 'scope' => 'academy', 'icon' => '✓'],
         ['key' => 'exams', 'label' => 'آزمون و نتایج', 'permission' => 'exams.view', 'route' => 'owner.exams.index', 'scope' => 'academy', 'icon' => '✎'],
         ['key' => 'recordings', 'label' => 'ضبط جلسات', 'permission' => 'live_classes.view', 'route' => 'owner.recordings.index', 'scope' => 'academy', 'icon' => '▣'],
@@ -24,8 +26,8 @@
     </div>
     <nav class="mt-4 flex flex-wrap gap-2" aria-label="شیت‌های فضای کاری آموزش">
         @foreach($learningSheets as $sheet)
-            @if($learningUser?->hasPermission($sheet['permission']) && ($sheet['scope'] === 'global' || $learningAcademy))
-                <a href="{{ $sheet['scope'] === 'global' ? route($sheet['route']) : route($sheet['route'], $learningAcademy) }}"
+            @if(collect((array) $sheet['permission'])->contains(fn ($permission) => $learningUser?->hasPermission($permission)) && ($sheet['scope'] === 'global' || $learningAcademy))
+                <a href="{{ $sheet['scope'] === 'global' ? route($sheet['route']) : route($sheet['route'], array_merge([$learningAcademy], $sheet['query'] ?? [])) }}"
                    @if(($activeSheet ?? null) === $sheet['key']) aria-current="page" @endif
                    class="inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-xs font-black transition {{ ($activeSheet ?? null) === $sheet['key'] ? 'bg-violet-700 text-white shadow-sm' : 'border border-violet-100 bg-white text-slate-700 hover:border-violet-300 hover:text-violet-800' }}">
                     <span aria-hidden="true">{{ $sheet['icon'] }}</span>{{ $sheet['label'] }}
