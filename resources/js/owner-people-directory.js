@@ -228,11 +228,13 @@
 })();
 
 
-/* Academy-scoped student suggestions: mobile, full name and privacy-safe national ID. */
+/* Academy-scoped student picker: small server pages, safe rendering and keyboard access. */
 (() => {
     'use strict';
-    document.querySelectorAll('[data-student-picker]').forEach((root) => {
+
+    document.querySelectorAll('[data-student-picker]').forEach((root, rootIndex) => {
         if (root.dataset.studentPickerBound === 'true') return;
+
         const endpoint = root.dataset.optionsUrl;
         const input = root.querySelector('[data-student-search]');
         const idInput = root.querySelector('[data-student-id]');
@@ -240,101 +242,186 @@
         const results = root.querySelector('[data-student-results]');
         const status = root.querySelector('[data-student-status]');
         const more = root.querySelector('[data-student-more]');
+        const selection = root.querySelector('[data-student-selection]');
+        const selectedName = root.querySelector('[data-student-selected-name]');
+        const selectedMobile = root.querySelector('[data-student-selected-mobile]');
+        const clearButton = root.querySelector('[data-student-clear]');
+        const browseOnOpen = root.dataset.studentInitialBrowse === 'true';
+
         if (!endpoint || !input || !idInput || !labelInput || !results || !status || !more) return;
 
+        const minimumSearchLength = 2;
         let timer = 0;
         let page = 1;
         let lastPage = 1;
         let sequence = 0;
         let activeRequest = null;
 
+        if (!results.id) results.id = 'student-picker-results-' + (rootIndex + 1);
+
+        const setStatus = (message) => { status.textContent = message; };
+
         const clearSelection = () => {
             idInput.value = '';
             labelInput.value = '';
+            if (selection) selection.hidden = true;
+            if (selectedName) selectedName.textContent = '';
+            if (selectedMobile) selectedMobile.textContent = '';
         };
+
         const clearResults = () => {
             results.replaceChildren();
+            results.hidden = true;
             more.hidden = true;
             more.disabled = false;
             page = 1;
             lastPage = 1;
+            input.setAttribute('aria-expanded', 'false');
         };
+
+        const chooseStudent = (student) => {
+            idInput.value = String(student.id);
+            labelInput.value = String(student.name || '');
+            input.value = String(student.name || '');
+            if (selectedName) selectedName.textContent = String(student.name || 'بدون نام');
+            if (selectedMobile) {
+                selectedMobile.textContent = student.mobile ? String(student.mobile) : 'شماره موبایل ثبت نشده';
+                selectedMobile.dir = 'ltr';
+            }
+            if (selection) selection.hidden = false;
+            clearResults();
+            setStatus('دانش‌آموز انتخاب شد. برای تغییر، عبارت دیگری جست‌وجو کن یا «تغییر انتخاب» را بزن.');
+        };
+
+        const createEmptyState = (message) => {
+            const empty = document.createElement('div');
+            empty.className = 'owner-student-picker__empty';
+            empty.textContent = message;
+            return empty;
+        };
+
+        const moveOptionFocus = (current, direction) => {
+            const options = Array.from(results.querySelectorAll('[role="option"]'));
+            if (!options.length) return;
+            const index = options.indexOf(current);
+            const next = Math.max(0, Math.min(options.length - 1, index + direction));
+            options[next]?.focus();
+        };
+
         const renderOption = (student) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 text-start transition hover:border-indigo-300 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500';
+            button.className = 'owner-student-picker__option';
             button.setAttribute('role', 'option');
-            button.setAttribute('aria-selected', 'false');
+            button.setAttribute('aria-selected', String(String(student.id) === idInput.value));
+            button.setAttribute('aria-label', 'انتخاب ' + String(student.name || 'دانش‌آموز'));
+            button.id = results.id + '-option-' + String(student.id);
+
             const copy = document.createElement('span');
-            copy.className = 'min-w-0';
+            copy.className = 'owner-student-picker__option-copy';
+
             const name = document.createElement('strong');
-            name.className = 'block truncate text-xs text-slate-800';
+            name.className = 'owner-student-picker__option-name';
             name.textContent = String(student.name || 'بدون نام');
             copy.append(name);
-            if (student.mobile) {
-                const mobile = document.createElement('small');
-                mobile.className = 'mt-1 block text-[11px] text-slate-500';
-                mobile.dir = 'ltr';
-                mobile.textContent = String(student.mobile);
-                copy.append(mobile);
-            }
-            const choose = document.createElement('span');
-            choose.className = 'shrink-0 text-[10px] font-bold text-indigo-700';
-            choose.textContent = 'انتخاب';
-            button.append(copy, choose);
-            button.addEventListener('click', () => {
-                idInput.value = String(student.id);
-                labelInput.value = String(student.name || '');
-                input.value = String(student.name || '');
-                results.replaceChildren();
-                more.hidden = true;
-                status.textContent = 'دانش‌آموز انتخاب شد: ' + String(student.name || '') + (student.mobile ? ' — ' + String(student.mobile) : '');
+
+            const meta = document.createElement('span');
+            meta.className = 'owner-student-picker__option-meta';
+            meta.dir = 'ltr';
+            meta.textContent = String(student.mobile || 'شماره موبایل ثبت نشده');
+            copy.append(meta);
+
+            const action = document.createElement('span');
+            action.className = 'owner-student-picker__option-action';
+            action.textContent = 'انتخاب';
+            button.append(copy, action);
+            button.addEventListener('click', () => chooseStudent(student));
+            button.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    moveOptionFocus(button, 1);
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    const options = Array.from(results.querySelectorAll('[role="option"]'));
+                    if (options[0] === button) input.focus();
+                    else moveOptionFocus(button, -1);
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    clearResults();
+                    input.focus();
+                }
             });
             results.append(button);
         };
 
-        const load = async (append = false) => {
+        const load = async (append = false, browse = false) => {
             const term = input.value.trim();
-            if (term.length < 2) {
+            const canBrowse = browse || (browseOnOpen && term.length === 0);
+
+            if (term.length < minimumSearchLength && !canBrowse) {
                 clearResults();
-                status.textContent = 'برای جست‌وجو حداقل دو نویسه از نام، موبایل یا ۱۰ رقم کد ملی وارد کن.';
+                setStatus('برای جست‌وجو حداقل دو نویسه از نام یا شماره موبایل وارد کن.');
                 return;
             }
+
             if (activeRequest) activeRequest.abort();
-            activeRequest = new AbortController();
+
+            const controller = new AbortController();
+            activeRequest = controller;
             const requestSequence = ++sequence;
             const requestedPage = append ? page + 1 : 1;
+
             more.disabled = true;
-            status.textContent = append ? 'در حال دریافت پیشنهادهای بعدی…' : 'در حال جست‌وجوی دانش‌آموزان…';
+            if (!append) results.hidden = false;
+            input.setAttribute('aria-expanded', 'true');
+            setStatus(append ? 'در حال دریافت صفحه بعدی…' : 'در حال دریافت دانش‌آموزان فعال…');
+
             const url = new URL(endpoint, window.location.origin);
-            url.searchParams.set('q', term);
+            if (term.length >= minimumSearchLength) url.searchParams.set('q', term);
+            else url.searchParams.delete('q');
             url.searchParams.set('page', String(requestedPage));
+            if (canBrowse) url.searchParams.set('browse', '1');
+
             try {
                 const response = await fetch(url, {
+                    method: 'GET',
                     credentials: 'same-origin',
                     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    signal: activeRequest.signal,
+                    signal: controller.signal,
                 });
-                if (!response.ok) throw new Error('student-suggestions-failed');
+
+                if (!response.ok) throw new Error('student-picker-request-failed');
+
                 const payload = await response.json();
                 if (requestSequence !== sequence) return;
+
                 const records = Array.isArray(payload.data) ? payload.data : [];
                 const meta = payload.meta || {};
+
                 if (!append) results.replaceChildren();
-                records.forEach(renderOption);
-                page = Number(meta.current_page || requestedPage);
+                if (records.length) records.forEach(renderOption);
+                else if (!append) {
+                    results.append(createEmptyState(term.length >= minimumSearchLength
+                        ? 'دانش‌آموزی با این مشخصات در فهرست فعال این آموزشگاه پیدا نشد.'
+                        : 'هنوز دانش‌آموز فعالی برای نمایش وجود ندارد.'));
+                }
+
+                page = Math.max(1, Number(meta.current_page || requestedPage));
                 lastPage = Math.max(1, Number(meta.last_page || 1));
+                const total = Math.max(0, Number(meta.total || 0));
                 more.hidden = page >= lastPage;
                 more.disabled = false;
-                const shown = results.querySelectorAll('[role=option]').length;
-                status.textContent = shown
-                    ? shown + ' پیشنهاد از ' + Number(meta.total || shown) + ' دانش‌آموز نمایش داده شد؛ برای انتخاب روی نام بزن.'
-                    : 'دانش‌آموزی با این مشخصات پیدا نشد. عبارت دیگری را امتحان کن.';
+                more.textContent = 'نمایش صفحه بعد (' + (page + 1) + ' از ' + lastPage + ')';
+
+                const shown = results.querySelectorAll('[role="option"]').length;
+                setStatus(shown
+                    ? 'نمایش ' + shown + ' نفر از ' + total + ' دانش‌آموز فعال؛ برای انتخاب روی نام بزن.'
+                    : 'موردی برای نمایش پیدا نشد. عبارت جست‌وجو را تغییر بده.');
             } catch (error) {
                 if (error?.name === 'AbortError' || requestSequence !== sequence) return;
                 more.disabled = false;
                 more.hidden = true;
-                status.textContent = 'جست‌وجو انجام نشد؛ اتصال را بررسی کن و دوباره تلاش کن.';
+                setStatus('فهرست دانش‌آموزان بارگذاری نشد. اتصال را بررسی کن و دوباره تلاش کن.');
             } finally {
                 if (requestSequence === sequence) activeRequest = null;
             }
@@ -346,15 +433,49 @@
             sequence++;
             clearSelection();
             clearResults();
+
             const term = input.value.trim();
-            status.textContent = term.length < 2
-                ? 'برای جست‌وجو حداقل دو نویسه از نام، موبایل یا ۱۰ رقم کد ملی وارد کن.'
-                : 'جست‌وجو به‌زودی آغاز می‌شود…';
-            if (term.length >= 2) timer = window.setTimeout(() => load(false), 250);
+            setStatus(term.length < minimumSearchLength
+                ? 'برای جست‌وجو حداقل دو نویسه از نام یا شماره موبایل وارد کن.'
+                : 'جست‌وجو به‌زودی آغاز می‌شود…');
+
+            if (term.length >= minimumSearchLength) {
+                timer = window.setTimeout(() => load(false), 250);
+            }
         });
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowDown' && !results.hidden) {
+                const firstOption = results.querySelector('[role="option"]');
+                if (firstOption) {
+                    event.preventDefault();
+                    firstOption.focus();
+                }
+            } else if (event.key === 'Escape' && !results.hidden) {
+                clearResults();
+            }
+        });
+
         more.addEventListener('click', () => {
-            if (page < lastPage) load(true);
+            if (page < lastPage) {
+                load(true, browseOnOpen && input.value.trim().length < minimumSearchLength);
+            }
         });
+
+        clearButton?.addEventListener('click', () => {
+            clearSelection();
+            input.value = '';
+            input.focus();
+            if (browseOnOpen) load(false, true);
+            else {
+                clearResults();
+                setStatus('برای انتخاب دانش‌آموز، نام یا شماره موبایل را جست‌وجو کن.');
+            }
+        });
+
         root.dataset.studentPickerBound = 'true';
+
+        if (input.value.trim().length >= minimumSearchLength) load(false);
+        else if (browseOnOpen) load(false, true);
     });
 })();
