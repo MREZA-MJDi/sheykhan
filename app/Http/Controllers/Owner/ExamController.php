@@ -42,7 +42,11 @@ final class ExamController extends Controller
         $stats = [
             'all' => Exam::query()->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))->count(),
             'published' => Exam::query()->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))->where('status', 'published')->count(),
-            'attempts' => Exam::query()->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))->withCount('attempts')->get()->sum('attempts_count'),
+            'attempts' => (int) DB::table('exam_attempts')
+                ->join('exams', 'exams.id', '=', 'exam_attempts.exam_id')
+                ->join('courses', 'courses.id', '=', 'exams.course_id')
+                ->where('courses.academy_id', $academy->id)
+                ->count('exam_attempts.id'),
         ];
         return view('owner.exams.index', compact('academy', 'exams', 'filters', 'stats'));
     }
