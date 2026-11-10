@@ -21,7 +21,7 @@ final class CounselingRequestController extends Controller
 
     public function update(Request $request, Academy $academy, int $counselingRequest): RedirectResponse
     {
-        $this->authorizeAcademy($request, $academy);
+        $this->authorizeAcademy($request, $academy, manage: true);
 
         $data = $request->validate([
             'status' => ['required', 'string', 'in:scheduled,completed,declined,cancelled'],
@@ -47,11 +47,11 @@ final class CounselingRequestController extends Controller
             ->with('success', 'وضعیت درخواست مشاوره ذخیره شد.');
     }
 
-    private function authorizeAcademy(Request $request, Academy $academy): void
+    private function authorizeAcademy(Request $request, Academy $academy, bool $manage = false): void
     {
         abort_unless(
             $request->user()->hasRole('academy-owner')
-            && $request->user()->hasPermission('parents.view')
+            && $request->user()->hasPermission($manage ? 'parents.manage' : 'parents.view')
             && (int) $academy->owner_id === (int) $request->user()->id,
             404
         );
