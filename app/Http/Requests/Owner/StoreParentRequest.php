@@ -5,6 +5,8 @@ namespace App\Http\Requests\Owner;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Support\MobileNumber;
+use App\Models\Academy;
+use Illuminate\Validation\Validator;
 
 final class StoreParentRequest extends FormRequest
 {
@@ -34,6 +36,31 @@ final class StoreParentRequest extends FormRequest
             'mobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'relation' => ['required', 'string', Rule::in(['مادر', 'پدر', 'سرپرست', 'سایر'])],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $academy = $this->route('academy');
+            if (! $academy instanceof Academy || ! $this->filled('student_id') || $validator->errors()->has('student_id')) {
+                return;
+            }
+
+            $isActiveAcademyStudent = $academy->users()
+                ->wherePivot('role', 'student')
+                ->wherePivot('status', 'active')
+                ->where('users.status', 'active')
+                ->whereHas('roles', fn ($roles) => $roles->where('roles.slug', 'student'))
+                ->where('users.id', (int) $this->input('student_id'))
+                ->exists();
+
+            if (! $isActiveAcademyStudent) {
+                $validator->errors()->add(
+                    'student_id',
+                    'دانش‌آموز انتخاب‌شده فعال نیست یا به این آموزشگاه تعلق ندارد؛ دوباره از فهرست انتخاب کن.'
+                );
+            }
+        });
     }
 
     public function messages(): array
