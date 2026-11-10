@@ -323,7 +323,7 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
   background:#fff!important;color:var(--ui-text)!important;box-shadow:var(--ui-shadow)!important;
 }
 .owner-admin-v2 .main-content .card:not(.kpi) :is(h1,h2,h3,h4,strong,b){color:var(--ui-heading)!important}
-.owner-admin-v2 .main-content .card:not(.kpi) :is(p,small,li,span,figcaption){color:var(--ui-muted)}
+.owner-admin-v2 .main-content .card:not(.kpi) :is(p,small,li,figcaption){color:var(--ui-muted)}
 .owner-admin-v2 .main-content .card:not(.kpi) .card-title p{color:var(--ui-muted)!important}
 .owner-admin-v2 .main-content .card:not(.kpi) .card-title .ic{color:var(--ui-primary)}
 .owner-admin-v2 .main-content .card:not(.kpi) .card-empty{border-color:var(--ui-border);background:var(--ui-surface-soft);color:var(--ui-muted)}
@@ -346,3 +346,20 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content .tl.live :is(b,strong,span,small){color:#9f1d34!important}
 .owner-admin-v2 .main-content .at .ct{color:#fff!important}
 .owner-admin-v2 .main-content .ev{color:#fff!important}
+
+/* Predictable page container and section rhythm across every list, detail and form screen. */
+.owner-admin-v2 .main-content>:is(.panel-page-enter,.course-page,.owner-workspace-page,.owner-page,.owner-form-page,.owner-detail-page){
+  grid-column:1/-1;width:100%;max-width:1500px;min-width:0;margin-inline:auto;
+}
+.owner-admin-v2 .main-content :is(.panel-page-enter,.course-page,.owner-workspace-page,.owner-page,.owner-form-page,.owner-detail-page)>:not([hidden]){
+  margin-block:0!important;min-width:0;
+}
+.owner-admin-v2 .main-content :is(.owner-page-section,.owner-workspace-section,.owner-detail-section){
+  min-width:0;padding:16px;border:1px solid var(--ui-border);border-radius:var(--ui-radius);background:#fff;box-shadow:var(--ui-shadow);
+}
+.owner-admin-v2 .main-content :is(.owner-page-section-head,.owner-section-head,.owner-workspace-section-head){
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px;
+}
+.owner-admin-v2 .main-content :is(.owner-page-section-head h2,.owner-section-head h2,.owner-workspace-section-head h2){
+  margin:0;color:var(--ui-heading)!important;font-size:15px;font-weight:850;
+}
