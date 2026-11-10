@@ -32,7 +32,7 @@ class OwnerMeetingWorkflowTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('owner.meetings.store', $academy), $payload)
-            ->assertRedirect(route('owner.meetings.index', $academy))
+            ->assertRedirect(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('academy_meetings', [
@@ -46,7 +46,7 @@ class OwnerMeetingWorkflowTest extends TestCase
         ]);
 
         $this->actingAs($owner)
-            ->get(route('owner.meetings.index', $academy))
+            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
             ->assertOk()
             ->assertSee($payload['title'])
             ->assertSee($payload['message'])
@@ -130,7 +130,7 @@ class OwnerMeetingWorkflowTest extends TestCase
         [$owner, $academy] = $this->workspace();
 
         $this->actingAs($owner)
-            ->get(route('owner.meetings.index', $academy))
+            ->get(route('owner.communication-workspace', [$academy, 'tab' => 'meetings']))
             ->assertOk()
             ->assertDontSee('value="هماهنگی با آقای سبحانی"', false)
             ->assertSee('placeholder="مثلاً: بررسی روند تحصیلی و هماهنگی با خانواده"', false);
