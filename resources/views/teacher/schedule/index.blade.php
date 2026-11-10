@@ -51,17 +51,13 @@
             <label class="teacher-workspace-field">
                 <span>سرویس جلسه</span>
                 <select name="provider" data-meeting-provider required>
-                    <option value="">انتخاب سرویس</option>
-                    <option value="Jitsi" @selected(old('provider') === 'Jitsi')>Jitsi · ساخت خودکار لینک</option>
-                    <option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option>
-                    <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
-                    <option value="سایر" @selected(old('provider') === 'سایر')>سایر سرویس‌ها</option>
+                    <option value="Skyroom" selected>Skyroom · اسکای‌روم</option>
                 </select>
             </label>
             <label class="teacher-workspace-field" style="grid-column:1/-1">
                 <span>لینک اتاق تکرارشونده</span>
-                <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url') }}" placeholder="ابتدا سرویس را انتخاب کن" autocomplete="url" aria-describedby="weekly-meeting-link-help">
-                <small id="weekly-meeting-link-help" data-meeting-provider-help role="status" aria-live="polite">این لینک برای هر هفتهٔ همین بازه زمانی ثابت می‌ماند.</small>
+                <input type="url" name="meeting_url" data-meeting-url value="{{ old('meeting_url') }}" placeholder="https://www.skyroom.online/ch/..." autocomplete="url" required maxlength="2000" dir="ltr" aria-describedby="weekly-meeting-link-help">
+                <small id="weekly-meeting-link-help" data-meeting-provider-help role="status" aria-live="polite">لینک اتاق Skyroom برای هر هفتهٔ همین بازه زمانی ثابت می‌ماند.</small>
             </label>
             <div class="teacher-workspace-actions" style="grid-column:1/-1;justify-content:flex-end">
                 <button type="submit" class="teacher-workspace-btn primary">افزودن به برنامه</button>
