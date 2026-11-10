@@ -20,14 +20,7 @@
         <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a>
     </header>
 
-    <nav class="dashboard-panel flex flex-wrap gap-2 p-3" aria-label="بخش‌های حضور و غیاب">
-        <a href="{{ route('owner.attendance.index', ['academy' => $academy->id, ...request()->except('page', 'sheet'), 'sheet' => 'history']) }}"
-           @if($sheet === 'history') aria-current="page" @endif
-           class="inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-bold {{ $sheet === 'history' ? 'bg-[var(--panel-primary)] text-white' : 'border border-[var(--panel-border)] text-[var(--panel-text)] hover:bg-[var(--panel-bg)]' }}">
-            سوابق و اصلاح رکوردها
-        </a>
-        <a href="{{ route('owner.attendance.index', ['academy' => $academy->id, ...request()->except('page', 'sheet'), 'sheet' => 'report']) }}"
-           @if($sheet === 'report') aria-current="page" @endif
+    @if($sheet === 'report') aria-current="page" @endif
            class="inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-bold {{ $sheet === 'report' ? 'bg-[var(--panel-primary)] text-white' : 'border border-[var(--panel-border)] text-[var(--panel-text)] hover:bg-[var(--panel-bg)]' }}">
             گزارش خلاصه
         </a>
