@@ -99,7 +99,7 @@
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->course?->title ?? 'آموزشگاه' }} @if($resource->classroom) · {{ $resource->classroom->title }} @endif @if($resource->lesson) · {{ $resource->lesson->title }} @endif</p>
                         <p class="mt-1 text-xs text-slate-500">{{ $resource->media?->original_name }} · فقط مشاهدهٔ احرازشده · {{ $resource->release_at?->format('Y-m-d H:i') ?? 'بدون تأخیر انتشار' }}</p>
                         <div class="mt-2 flex flex-wrap gap-3">
-                            @if(auth()->user()->hasPermission('resources.manage'))@if(auth()->user()->hasPermission('resources.manage'))
+                            @if(auth()->user()->hasPermission('resources.manage'))
 <a class="text-xs font-bold text-[var(--color-primary-600)]" href="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.resources.edit', ['academy' => $academy, 'resource' => $resource, 'modal' => 1]) }}" data-owner-modal-title="ویرایش منبع">ویرایش منبع</a>@endif
                             @endif
 @if($resource->status === 'active')
