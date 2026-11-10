@@ -9,14 +9,14 @@
             <h1>افتخارآفرینان و تجربه خانواده‌ها</h1>
             <p>برای انتشار هر نام یا فایل رسانه‌ای، سابقه رضایت باید ثبت شود. موارد پیش‌نویس از صفحه عمومی مخفی می‌مانند.</p>
         </div>
-        <a href="{{ route('owner.seo.index') }}">مرکز SEO</a>
+        <a href="{{ route('seo.index') }}">مرکز SEO</a>
     </header>
 
     @if(session('success'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
     <div class="grid gap-6 xl:grid-cols-2">
-        <form method="POST" enctype="multipart/form-data" action="{{ route('owner.achievements.store', $academy) }}" class="owner-form-section space-y-4">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('seo.achievements.store', $academy) }}" class="owner-form-section space-y-4">
             @csrf
             <div><h2>ثبت افتخارآفرین</h2><p class="mt-1 text-xs leading-6 text-slate-500">نام و نام مدرسه فقط بعد از ثبت تأیید رضایت اولیا قابل انتشار است.</p></div>
             <label><span>نام و نام خانوادگی نمایشی</span><input name="display_name" value="{{ old('display_name') }}" maxlength="160" required></label>
@@ -46,7 +46,7 @@
             <button type="submit" class="owner-primary-btn w-full">ذخیره افتخارآفرین</button>
         </form>
 
-        <form method="POST" enctype="multipart/form-data" action="{{ route('owner.testimonials.store', $academy) }}" class="owner-form-section space-y-4">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('seo.testimonials.store', $academy) }}" class="owner-form-section space-y-4">
             @csrf
             <div><h2>ثبت تجربه والد یا دانش‌آموز</h2><p class="mt-1 text-xs leading-6 text-slate-500">اسکرین‌شات، فایل صوتی و کلیپ ویدئویی قابل ثبت است. فایل‌ها تا انتشار، خصوصی می‌مانند.</p></div>
             <label><span>نام نمایشی</span><input name="display_name" value="{{ old('display_name') }}" maxlength="160" required></label>
@@ -80,7 +80,7 @@
             @forelse($achievements as $item)
                 <article class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 p-4">
                     <div><strong>{{ $item->display_name }}</strong><p class="mt-1 text-xs text-slate-500">{{ $item->school_name }} · {{ $item->title }} · {{ $item->status }}</p><p class="mt-1 text-xs text-slate-500">رضایت: {{ $item->publication_consent_reference ?: 'ثبت نشده' }}</p></div>
-                    @if($item->status === 'published')<form method="POST" action="{{ route('owner.achievements.withdraw', [$academy, $item]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">حذف از نمایش</button></form>@endif
+                    @if($item->status === 'published')<form method="POST" action="{{ route('seo.achievements.withdraw', [$academy, $item]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">حذف از نمایش</button></form>@endif
                 </article>
             @empty<p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز موردی ثبت نشده است.</p>@endforelse
             @if($achievements->hasPages())
@@ -95,7 +95,7 @@
             @forelse($testimonials as $item)
                 <article class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 p-4">
                     <div><strong>{{ $item->display_name }}</strong><p class="mt-1 text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($item->content_text, 150) }} · {{ $item->status }}</p><p class="mt-1 text-xs text-slate-500">رسانه: {{ $item->media->count() }} · رضایت: {{ $item->publication_consent_reference ?: 'ثبت نشده' }}</p></div>
-                    @if($item->status === 'approved')<form method="POST" action="{{ route('owner.testimonials.withdraw', [$academy, $item]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">حذف از نمایش</button></form>@endif
+                    @if($item->status === 'approved')<form method="POST" action="{{ route('seo.testimonials.withdraw', [$academy, $item]) }}">@csrf @method('PATCH')<button class="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">حذف از نمایش</button></form>@endif
                 </article>
             @empty<p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">هنوز موردی ثبت نشده است.</p>@endforelse
             @if($testimonials->hasPages())
