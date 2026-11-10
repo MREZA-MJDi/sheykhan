@@ -6,5 +6,6 @@
                 @if($errors->any())<div class="alert is-error" role="alert"><strong>اطلاعات فرم نیاز به اصلاح دارد.</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
             </section>
         @endif
+        @include('owner.partials.admin-learning-tabs')
         @yield('content')
     </main>
