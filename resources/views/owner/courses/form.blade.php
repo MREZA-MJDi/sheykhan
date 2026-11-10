@@ -1,10 +1,12 @@
-@extends('layouts.owner')
+@extends(request()->boolean('modal') ? 'layouts.owner-modal' : 'layouts.owner')
 
 @section('title',($course->exists?'ویرایش دوره':'ساخت دوره').' | شیخان')
 @section('header-title',$course->exists?'ویرایش دوره':'ساخت دوره')
 
 @section('content')
+@php($modalMode = request()->boolean('modal'))
 <div class="course-page panel-page-enter space-y-6">
+    @unless($modalMode)
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
             <p class="text-xs font-black text-[var(--color-brand-600)]">{{ $course->exists ? 'مدیریت دوره' : 'راه‌اندازی دوره' }}</p>
@@ -15,8 +17,9 @@
         </div>
         <a href="{{ route('owner.courses.index') }}" class="course-secondary-btn">بازگشت به دوره‌ها</a>
     </div>
+    @endunless
 
-    @if($course->exists)
+    @if($course->exists && !$modalMode)
         <div class="course-info-strip">
             <span class="course-info-strip-dot"></span>
             <div>
