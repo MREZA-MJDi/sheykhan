@@ -11,6 +11,8 @@
         <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-500">زمان پیشنهادی خودت را ثبت کن. زمان قطعی و توضیحات آموزشگاه پس از بررسی اینجا نمایش داده می‌شود.</p>
     </header>
 
+    @include('parent.partials.communications-nav')
+
     <section class="parent-panel dashboard-panel p-5 sm:p-7">
         <h2 class="text-lg font-black">درخواست جدید</h2>
         @if($contactableChildren->isEmpty())
