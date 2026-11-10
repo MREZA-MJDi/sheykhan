@@ -398,7 +398,7 @@ class OwnerPeopleLifecycleTest extends TestCase
                 'academy' => $foreignAcademy,
                 'role' => 'students',
             ]))
-            ->assertForbidden();
+            ->assertNotFound();
     }
 
     public function test_active_member_rosters_exclude_inactive_user_accounts(): void
