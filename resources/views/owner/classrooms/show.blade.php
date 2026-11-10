@@ -4,7 +4,7 @@
 @section('header-title', 'جزئیات کلاس')
 
 @section('content')
-@include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'classrooms', 'academy' => $academy])
+@include('owner.admin.partials.learning-workspace-tabs', ['activeSheet' => 'classrooms', 'academy' => $academy])
 @php
     $statusLabels = [
         'running' => 'در حال برگزاری',
