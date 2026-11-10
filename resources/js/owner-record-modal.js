@@ -69,6 +69,7 @@
             const html = await response.text();
             body.innerHTML = html;
             if (window.Alpine?.initTree) window.Alpine.initTree(body);
+            window.dispatchEvent(new CustomEvent('owner:modal:mounted', { detail: { root: body, dialog } }));
             body.querySelector('input:not([type="hidden"]), select, textarea, button')?.focus({ preventScroll: true });
         } catch {
             dialog.close();
