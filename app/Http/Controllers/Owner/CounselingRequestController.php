@@ -12,26 +12,11 @@ use Illuminate\Validation\Rule;
 
 final class CounselingRequestController extends Controller
 {
-    public function index(Academy $academy, Request $request): View
+    public function index(Academy $academy, Request $request): RedirectResponse
     {
         $this->authorizeAcademy($request, $academy);
 
-        $requests = ParentCounselingRequest::query()
-            ->where('academy_id', $academy->id)
-            ->with(['parent:id,name,mobile', 'student:id,name', 'handler:id,name', 'proposer:id,name'])
-            ->orderByRaw("CASE WHEN status = 'requested' THEN 0 WHEN status = 'scheduled' THEN 1 ELSE 2 END")
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
-
-        $stats = [
-            'requested' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'requested')->count(),
-            'proposed' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'proposed')->count(),
-            'scheduled' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'scheduled')->count(),
-            'completed' => ParentCounselingRequest::query()->where('academy_id', $academy->id)->where('status', 'completed')->count(),
-        ];
-
-        return view('owner.counseling.index', compact('academy', 'requests', 'stats'));
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'counseling']);
     }
 
     public function update(Request $request, Academy $academy, int $counselingRequest): RedirectResponse
