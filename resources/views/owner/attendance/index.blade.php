@@ -13,11 +13,11 @@
     @include('owner.partials.attendance-workspace-tabs', ['academy' => $academy, 'activeSheet' => $sheet])
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="text-xs font-black text-[var(--panel-primary)]">کارتابل ادمین / منشی</p>
+            <p class="text-xs font-black text-[var(--panel-primary)]">مدیریت حضور و غیاب</p>
             <h1 class="mt-1 text-2xl font-black">{{ $academy->name }}</h1>
             <p class="mt-2 text-sm leading-7 text-slate-500">فهرست صفحه‌بندی‌شدهٔ رکوردهای حضور و غیاب همین آموزشگاه؛ با جست‌وجوی دانش‌آموز، کلاس، تاریخ و وضعیت.</p>
         </div>
-        <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به کارتابل ←</a>
+        <a href="{{ route('owner.dashboard') }}" class="text-xs font-black text-[var(--panel-primary)]">بازگشت به داشبورد ←</a>
     </header>
 
 
@@ -29,7 +29,7 @@
         </section>
         <section class="dashboard-panel p-5 sm:p-6">
             <h2 class="text-base font-black">دامنهٔ گزارش</h2>
-            <p class="mt-2 text-sm leading-7 text-slate-500">این گزارش از همان فیلترهای تاریخ، کلاس، وضعیت و جست‌وجوی انتخاب‌شده استفاده می‌کند. برای بررسی جزئیات هر رکورد، به شیت «سوابق و اصلاح رکوردها» برو.</p>
+            <p class="mt-2 text-sm leading-7 text-slate-500">این گزارش از همان فیلترهای تاریخ، کلاس، وضعیت و جست‌وجوی انتخاب‌شده استفاده می‌کند. برای بررسی جزئیات هر رکورد، به بخش «سوابق حضور و غیاب» برو.</p>
             <a href="{{ route('owner.attendance.index', ['academy' => $academy->id, ...request()->except('page', 'sheet'), 'sheet' => 'history']) }}" class="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">مشاهده رکوردهای گزارش</a>
         </section>
     @endif
