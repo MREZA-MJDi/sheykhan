@@ -73,7 +73,7 @@ final class ParentMessageController extends Controller
             'responded_at' => $data['status'] === 'responded' ? now() : $record->responded_at,
         ])->save();
 
-        return redirect()->route('owner.messages.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'messages'])
             ->with('success', 'وضعیت و پاسخ پیام ذخیره شد.');
     }
 
