@@ -32,8 +32,18 @@
                 <a href="{{ route('owner.people.index', $academy) }}" class="mt-2 inline-block font-black text-[var(--panel-primary)]">رفتن به مدیریت اعضا ←</a>
             </div>
         @else
-            <form method="POST" action="{{ route('owner.meetings.store', $academy) }}" class="mt-5 grid gap-4 md:grid-cols-2">
+            <div class="mt-5 flex justify-end">
+                <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-meeting-create-modal">＋ ثبت جلسه جدید</button>
+            </div>
+            <dialog class="owner-floating-modal" id="owner-meeting-create-modal" aria-labelledby="owner-meeting-create-title" @if(old('form_modal') === 'meeting' && $errors->any()) data-owner-modal-open-on-load @endif>
+                <header class="owner-floating-modal__header">
+                    <div><span class="owner-record-modal-kicker">هماهنگی با خانواده</span><h2 id="owner-meeting-create-title">ثبت جلسه هماهنگی</h2></div>
+                    <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن">×</button>
+                </header>
+                <div class="owner-floating-modal__body">
+            <form method="POST" action="{{ route('owner.meetings.store', $academy) }}" class="grid gap-4 md:grid-cols-2">
                 @csrf
+                <input type="hidden" name="form_modal" value="meeting">
                 <label class="grid gap-1 md:col-span-2">
                     <span class="text-xs font-bold">کلاس، دانش‌آموز و ولی</span>
                     <select name="meeting_target" required class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm">
@@ -84,6 +94,8 @@
 
                 <button type="submit" class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white md:col-span-2">ثبت جلسه و اطلاع‌رسانی به هر دو نفر</button>
             </form>
+                </div>
+            </dialog>
         @endif
     </section>
 
