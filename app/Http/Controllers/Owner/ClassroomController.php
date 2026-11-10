@@ -18,18 +18,29 @@ class ClassroomController extends Controller
     {
         $classrooms = $service->index(request()->user(), $academy);
         $summary = $service->indexSummary(request()->user(), $academy);
-        $courses = $academy->courses()->orderBy('title')->get(['courses.id', 'courses.title']);
+        $selectedCourseId = filter_var(request()->query('course_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: null;
+        $courses = $selectedCourseId
+            ? $academy->courses()->whereKey($selectedCourseId)->get(['courses.id', 'courses.title'])
+            : collect();
 
         return view('owner.classrooms.index', compact('academy', 'classrooms', 'summary', 'courses'));
     }
 
     public function create(Academy $academy, OwnerClassroomService $service): View
     {
+        $selectedCourseId = request()->old('course_id');
+        $selectedTeacherIds = (array) request()->old('teacher_ids', []);
+
         return view('owner.classrooms.form', [
             'academy' => $academy,
             'classroom' => new Classroom(['status' => 'active', 'code' => app(ClassroomCodeGenerator::class)->generate()]),
-            ...$service->formData(request()->user(), $academy),
-            'selectedTeacherIds' => [],
+            ...$service->formData(
+                request()->user(),
+                $academy,
+                $selectedCourseId ? (int) $selectedCourseId : null,
+                $selectedTeacherIds,
+            ),
+            'selectedTeacherIds' => array_map('intval', $selectedTeacherIds),
         ]);
     }
 
@@ -72,11 +83,20 @@ class ClassroomController extends Controller
         $item = Classroom::query()->findOrFail($classroom);
         abort_if((int) $item->academy_id !== (int) $academy->id, 404);
 
+        $item->load('teachers:id,name');
+        $selectedCourseId = request()->old('course_id', $item->course_id);
+        $selectedTeacherIds = (array) request()->old('teacher_ids', $item->teachers->pluck('id')->all());
+
         return view('owner.classrooms.form', [
             'academy' => $academy,
-            'classroom' => $item->load('teachers:id,name'),
-            ...$service->formData(request()->user(), $academy),
-            'selectedTeacherIds' => $item->teachers->pluck('id')->all(),
+            'classroom' => $item,
+            ...$service->formData(
+                request()->user(),
+                $academy,
+                $selectedCourseId ? (int) $selectedCourseId : null,
+                $selectedTeacherIds,
+            ),
+            'selectedTeacherIds' => array_map('intval', $selectedTeacherIds),
         ]);
     }
 

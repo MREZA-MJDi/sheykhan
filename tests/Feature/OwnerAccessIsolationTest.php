@@ -36,6 +36,15 @@ final class OwnerAccessIsolationTest extends TestCase
 
             $this->assertStringContainsString('auth', $middleware, $identity . ' must require authentication.');
             $this->assertStringContainsString('active', $middleware, $identity . ' must require an active account.');
+            if ($route->getName() === 'owner.form-options') {
+                $controller = file_get_contents(app_path('Http/Controllers/Owner/AcademyFormOptionsController.php'));
+                $this->assertIsString($controller);
+                $this->assertStringContainsString('canManageAcademy($request->user(), $academy)', $controller, $identity . ' must enforce academy ownership.');
+                $this->assertStringContainsString('hasPermission($requiredPermission)', $controller, $identity . ' must enforce the requested resource permission.');
+
+                continue;
+            }
+
             $this->assertStringContainsString('permission', $middleware, $identity . ' must be permission-gated.');
         }
     }

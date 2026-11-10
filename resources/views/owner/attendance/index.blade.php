@@ -38,7 +38,26 @@
         <form method="GET" action="{{ route('owner.attendance.index', $academy) }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <input type="hidden" name="sheet" value="{{ $sheet }}">
             <label class="grid gap-1"><span class="text-xs font-bold">نام یا ایمیل دانش‌آموز</span><input name="q" value="{{ $filters['q'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm" placeholder="جست‌وجو..."></label>
-            <label class="grid gap-1"><span class="text-xs font-bold">کلاس</span><select name="classroom_id" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">همه کلاس‌ها</option>@foreach($classrooms as $classroom)<option value="{{ $classroom->id }}" @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>@endforeach</select></label>
+            <x-academy-option-picker
+                id="owner-attendance-classroom"
+                label="جست‌وجوی کلاس"
+                name="classroom_id"
+                type="attendance-classrooms"
+                endpoint="{{ route('owner.form-options', $academy) }}"
+                empty-label="همه کلاس‌ها"
+                search-placeholder="نام کلاس را بنویس…"
+                status-text="برای فیلتر بر اساس کلاس، نام آن را جست‌وجو کن."
+                more-label="کلاس‌های بیشتر"
+                select-label="انتخاب کلاس برای فیلتر حضور و غیاب"
+                wrapper-class="grid gap-2"
+                label-class="text-xs font-bold"
+                status-class="text-[10px] text-slate-500"
+                more-class="w-fit rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-bold">
+                @foreach($classrooms as $classroom)
+                    <option value="{{ $classroom->id }}"
+                        @selected((string)($filters['classroom_id'] ?? '') === (string)$classroom->id)>{{ $classroom->title }}</option>
+                @endforeach
+            </x-academy-option-picker>
             <label class="grid gap-1"><span class="text-xs font-bold">تاریخ</span><input type="date" name="attendance_date" value="{{ $filters['attendance_date'] ?? '' }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"></label>
             <label class="grid gap-1"><span class="text-xs font-bold">وضعیت</span><select name="status" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><option value="">همه وضعیت‌ها</option>@foreach($statusLabels as $status => $label)<option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $label }}</option>@endforeach</select></label>
             <div class="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-4"><button class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">اعمال فیلتر</button><a href="{{ route('owner.attendance.index', $academy) }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">پاک‌کردن فیلترها</a><span class="text-xs text-slate-500">{{ \App\Support\PersianUi::digits($sheet === 'history' ? $attendances->total() : ($summary->total ?? 0)) }} رکورد منطبق</span></div>

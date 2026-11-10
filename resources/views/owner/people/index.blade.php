@@ -177,7 +177,11 @@
             <div class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-500">مدرس آرشیوشده‌ای وجود ندارد.</div>
         @endforelse
     </div>
-    <button type="button" data-directory-more hidden class="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold">نمایش نتایج بعدی</button>
+    <nav data-directory-pagination hidden class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3" aria-label="صفحه‌بندی مدرس‌های آرشیوشده">
+        <button type="button" data-directory-prev disabled class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold disabled:opacity-40">قبلی</button>
+        <span data-directory-page-info class="text-[10px] text-slate-500" aria-live="polite">صفحه ۱</span>
+        <button type="button" data-directory-next disabled class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold disabled:opacity-40">بعدی</button>
+    </nav>
     @if($archivedTeachers->hasPages())
         <div data-directory-server-pagination class="mt-4 border-t border-slate-100 pt-3 text-xs">{{ $archivedTeachers->withQueryString()->links() }}</div>
     @endif

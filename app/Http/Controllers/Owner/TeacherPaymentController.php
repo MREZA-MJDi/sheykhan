@@ -17,12 +17,21 @@ final class TeacherPaymentController extends Controller
     {
         $this->authorizeAcademy($request, $academy, 'teacher_payments.view');
 
-        $teachers = $academy->users()
+        $activeTeachers = fn () => $academy->users()
             ->wherePivot('role', 'teacher')
             ->wherePivot('status', 'active')
-            ->where('users.status', 'active')
-            ->orderBy('users.name')
-            ->get(['users.id', 'users.name', 'users.email']);
+            ->where('users.status', 'active');
+
+        $canManagePayments = $request->user()->hasPermission('teacher_payments.manage');
+        $hasActiveTeachers = $canManagePayments && $activeTeachers()->exists();
+        $filterTeacherId = $request->integer('teacher_id');
+        $filterTeachers = $filterTeacherId > 0
+            ? $activeTeachers()->whereKey($filterTeacherId)->get(['users.id', 'users.name', 'users.email'])
+            : collect();
+        $formTeacherId = $canManagePayments ? (int) $request->old('teacher_id', 0) : 0;
+        $formTeachers = $formTeacherId > 0
+            ? $activeTeachers()->whereKey($formTeacherId)->get(['users.id', 'users.name', 'users.email'])
+            : collect();
 
         $payments = TeacherPayment::query()
             ->where('academy_id', $academy->id)
@@ -32,12 +41,18 @@ final class TeacherPaymentController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        $summaryRow = TeacherPayment::query()
+            ->where('academy_id', $academy->id)
+            ->selectRaw("COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) AS paid")
+            ->selectRaw("COALESCE(SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END), 0) AS pending")
+            ->first();
+
         $summary = [
-            'paid' => TeacherPayment::query()->where('academy_id', $academy->id)->where('status', 'paid')->sum('amount'),
-            'pending' => TeacherPayment::query()->where('academy_id', $academy->id)->where('status', 'pending')->sum('amount'),
+            'paid' => (int) ($summaryRow->paid ?? 0),
+            'pending' => (int) ($summaryRow->pending ?? 0),
         ];
 
-        return view('owner.teacher-payments.index', compact('academy', 'teachers', 'payments', 'summary'));
+        return view('owner.teacher-payments.index', compact('academy', 'hasActiveTeachers', 'canManagePayments', 'filterTeachers', 'formTeachers', 'payments', 'summary'));
     }
 
     public function store(Request $request, Academy $academy): RedirectResponse
