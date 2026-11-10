@@ -1,3 +1,13 @@
+import '../../../../../js/owner/dashboard-range-chart.js';
+import '../../../../../js/shared/persian-calendar.js';
+import '../../../../../js/shared/persian-money.js';
+import '../../../../../js/owner-admin-common.js';
+import '../../../../../js/owner/workspace-tabs.js';
+import '../../../../../js/owner/exam-builder.js';
+import '../../../../../js/owner/academy-form-options.js';
+import { bootPanelRuntime } from '../../../../../js/panel-runtime.js';
+bootPanelRuntime();
+
 (() => {
 'use strict';
 const side=document.getElementById('side'),burger=document.getElementById('burger');
