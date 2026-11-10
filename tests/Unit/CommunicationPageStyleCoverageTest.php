@@ -40,7 +40,7 @@ class CommunicationPageStyleCoverageTest extends TestCase
 
     public function test_owner_communication_presentation_is_owned_by_owner_stylesheet_and_partial(): void
     {
-        $css = $this->source('resources/css/owner-dashboard-v2.css');
+        $css = $this->source('resources/views/owner/admin/assets/admin.css');
         $page = $this->source('resources/views/owner/communications/index.blade.php');
         $workspace = $this->source('resources/views/owner/communications/partials/messages-workspace.blade.php');
 
