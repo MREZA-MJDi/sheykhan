@@ -22,7 +22,7 @@
         return \App\Support\PersianUi::money($amount);
     };
 @endphp
-@include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => $workspaceAcademy ?? null])
+@include('owner.admin.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => $workspaceAcademy ?? null])
 <div class="course-page panel-page-enter space-y-4">
     <div class="course-page-heading">
         <div>
