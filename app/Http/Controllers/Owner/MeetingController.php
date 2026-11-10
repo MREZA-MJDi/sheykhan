@@ -48,7 +48,7 @@ final class MeetingController extends Controller
 
         $meetings->changeStatus($request->user(), $academy, $meeting, $data['status'], $data['scheduled_at'] ?? null, $data['scheduled_end_at'] ?? null);
 
-        return redirect()->route('owner.meetings.index', $academy)
+        return redirect()->route('owner.communication-workspace', [$academy, 'tab' => 'meetings'])
             ->with('success', 'وضعیت جلسه به‌روزرسانی شد.');
     }
 }
