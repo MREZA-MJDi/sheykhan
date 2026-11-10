@@ -33,7 +33,7 @@ final class BlogController extends Controller
         return redirect()->route('owner.blog.edit',$post)->with('success','مقاله به‌روزرسانی شد.');
     }
     
-    public function destroy(\\Illuminate\\Http\\Request $request, BlogPost $post, OwnerBlogService $blog): RedirectResponse
+    public function destroy(\Illuminate\Http\Request $request, BlogPost $post, OwnerBlogService $blog): RedirectResponse
     {
         $blog->delete($request->user(), $post);
 
