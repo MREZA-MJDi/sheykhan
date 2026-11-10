@@ -56,6 +56,10 @@ final class OwnerAssignmentService
             ->paginate(15)
             ->withQueryString();
 
+        $classrooms = $academy->classrooms()
+            ->orderBy('title')
+            ->get(['id', 'title', 'status']);
+
         $stats = [
             'total' => (int) Assignment::query()
                 ->whereHas('course', fn ($course) => $course->where('academy_id', $academy->id))
@@ -73,7 +77,7 @@ final class OwnerAssignmentService
                 ->count(),
         ];
 
-        return compact('academy', 'assignments', 'stats', 'filters');
+        return compact('academy', 'assignments', 'classrooms', 'stats', 'filters');
     }
 
     public function formData(User $owner, Academy $academy): array
