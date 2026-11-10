@@ -25,6 +25,7 @@ class PeopleController extends Controller
 {
     public function index(Academy $academy, OwnerWorkspaceService $workspace): View
     {
+        $workspace->authorizeAcademy(request()->user(), $academy, 'academy.view');
         $people = $workspace->people(request()->user(), $academy);
 
         return view('owner.people.index', [
@@ -39,7 +40,7 @@ class PeopleController extends Controller
      */
     public function lookupOptions(Request $request, Academy $academy, string $type, OwnerWorkspaceService $workspace): JsonResponse
     {
-        $workspace->authorizeAcademy($request->user(), $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'academy.view');
 
         abort_unless(in_array($type, ['teachers', 'courses', 'classrooms'], true), 404);
 
@@ -104,7 +105,7 @@ class PeopleController extends Controller
 
     public function studentOptions(Request $request, Academy $academy, OwnerWorkspaceService $workspace): JsonResponse
     {
-        $workspace->authorizeAcademy($request->user(), $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'academy.view');
 
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
@@ -158,7 +159,7 @@ class PeopleController extends Controller
         StudentOnboardingService $onboarding,
         OwnerWorkspaceService $workspace,
     ): RedirectResponse {
-        $workspace->authorizeAcademy($request->user(), $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'onboarding.manage');
 
         $record = $onboarding->onboard(
             $request->user(),
@@ -177,7 +178,7 @@ class PeopleController extends Controller
         StudentAccountService $students,
         OwnerWorkspaceService $workspace,
     ): RedirectResponse {
-        $workspace->authorizeAcademy($request->user(), $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'onboarding.manage');
 
         $result = $students->create($request->user(), $academy, $request->validated());
 
@@ -195,6 +196,7 @@ class PeopleController extends Controller
         Academy $academy,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
+        $workspace->authorizeAcademy($request->user(), $academy, 'teachers.manage');
         $result = $workspace->createTeacher($request->user(), $academy, $request->validated());
 
         return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.')
@@ -209,7 +211,7 @@ class PeopleController extends Controller
         ParentOnboardingService $onboarding,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
-        $workspace->authorizeAcademy($request->user(), $academy);
+        $workspace->authorizeAcademy($request->user(), $academy, 'parents.manage');
 
         $result = $onboarding->createOrLink($academy, $request->validated());
 
@@ -234,6 +236,7 @@ class PeopleController extends Controller
         User $teacher,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
+        $workspace->authorizeAcademy(request()->user(), $academy, 'teachers.manage');
         $workspace->archiveTeacher(request()->user(), $academy, $teacher);
 
         return back()->with('success', 'عضویت مدرس آرشیو شد؛ سابقه و پروفایل او حفظ شد.');
@@ -244,6 +247,7 @@ class PeopleController extends Controller
         User $teacher,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
+        $workspace->authorizeAcademy(request()->user(), $academy, 'teachers.manage');
         $workspace->restoreTeacher(request()->user(), $academy, $teacher);
 
         return back()->with('success', 'عضویت مدرس دوباره فعال شد.');
@@ -255,6 +259,7 @@ class PeopleController extends Controller
         User $teacher,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
+        $workspace->authorizeAcademy($request->user(), $academy, 'teachers.manage');
         $workspace->updateTeacherPublicVisibility(
             $request->user(),
             $academy,
@@ -275,6 +280,7 @@ class PeopleController extends Controller
         Academy $academy,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
+        $workspace->authorizeAcademy($request->user(), $academy, 'teachers.manage');
         $workspace->assignTeacher(
             $request->user(),
             $academy,
@@ -290,6 +296,7 @@ class PeopleController extends Controller
         Academy $academy,
         OwnerWorkspaceService $workspace
     ): RedirectResponse {
+        $workspace->authorizeAcademy($request->user(), $academy, 'teachers.manage');
         $workspace->assignTeacherToClass(
             $request->user(),
             $academy,
