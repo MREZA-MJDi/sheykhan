@@ -15,7 +15,22 @@
     <form method="GET" action="{{ route('owner.finance.index') }}" class="dashboard-panel flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
         <input type="hidden" name="sheet" value="{{ $sheet }}">
         <label class="grid flex-1 gap-1 text-xs font-bold"><span>{{ $sheet === 'debts' ? 'جست‌وجوی هنرجو یا دوره' : 'جست‌وجوی کاربر، دوره یا شناسه تراکنش' }}</span><input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 px-3 text-sm"></label>
-        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">جست‌وجو</button>
+        @if($sheet === 'transactions')
+            <select name="status" aria-label="وضعیت تراکنش" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs"><option value="">همه وضعیت‌ها</option><option value="completed" @selected(($filters['status'] ?? '') === 'completed')>قطعی</option><option value="pending" @selected(($filters['status'] ?? '') === 'pending')>در انتظار</option><option value="failed" @selected(($filters['status'] ?? '') === 'failed')>ناموفق</option><option value="refunded" @selected(($filters['status'] ?? '') === 'refunded')>بازپرداخت‌شده</option></select>
+            <select name="type" aria-label="نوع تراکنش" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs"><option value="">همه نوع‌ها</option><option value="enrollment_payment" @selected(($filters['type'] ?? '') === 'enrollment_payment')>دریافت شهریه</option><option value="refund" @selected(($filters['type'] ?? '') === 'refund')>بازپرداخت</option></select>
+        @endif
+        <select name="sort" aria-label="مرتب‌سازی" class="min-h-10 rounded-xl border border-slate-200 px-3 text-xs">
+            @if($sheet === 'debts')
+                <option value="recent">جدیدترین</option><option value="oldest" @selected(($filters['sort'] ?? '') === 'oldest')>قدیمی‌ترین</option><option value="balance_desc" @selected(($filters['sort'] ?? '') === 'balance_desc')>بیشترین بدهی</option><option value="balance_asc" @selected(($filters['sort'] ?? '') === 'balance_asc')>کمترین بدهی</option><option value="name" @selected(($filters['sort'] ?? '') === 'name')>نام هنرجو</option>
+            @else
+                <option value="recent">جدیدترین</option><option value="oldest" @selected(($filters['sort'] ?? '') === 'oldest')>قدیمی‌ترین</option><option value="amount_desc" @selected(($filters['sort'] ?? '') === 'amount_desc')>بیشترین مبلغ</option><option value="amount_asc" @selected(($filters['sort'] ?? '') === 'amount_asc')>کمترین مبلغ</option>
+            @endif
+        </select>
+        @if($sheet === 'transactions')
+            <label class="grid gap-1 text-[10px] font-bold">از تاریخ<input type="date" name="from" value="{{ $filters['from'] ?? '' }}" class="min-h-10 rounded-xl border border-slate-200 px-2 text-xs"></label>
+            <label class="grid gap-1 text-[10px] font-bold">تا تاریخ<input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="min-h-10 rounded-xl border border-slate-200 px-2 text-xs"></label>
+        @endif
+        <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-xs font-black text-white">اعمال فیلتر</button>
         <a href="{{ route('owner.finance.index', ['sheet' => $sheet]) }}" class="min-h-10 rounded-xl border border-slate-200 px-4 py-3 text-center text-xs font-bold">پاک‌کردن</a>
     </form>
     <section class="dashboard-panel owner-panel">
