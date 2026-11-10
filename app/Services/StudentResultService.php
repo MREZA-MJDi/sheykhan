@@ -16,7 +16,6 @@ final class StudentResultService
         $assignmentResults = DB::table('assignment_submissions as submissions')
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
             ->whereIn('assignments.course_id', $courseIds)
-            ->where('assignments.status', 'published')
             ->where('submissions.student_id', $student->id)
             ->whereNotNull('submissions.graded_at');
 
@@ -52,7 +51,7 @@ final class StudentResultService
             ->fromSub($assignmentResults->unionAll($examResults), 'student_results')
             ->orderByDesc('occurred_at')
             ->orderByDesc('result_id')
-            ->paginate($perPage)
+            ->paginate(max(1, min($perPage, 100)))
             ->withQueryString();
     }
 
@@ -77,6 +76,29 @@ final class StudentResultService
                         ->on('student_enrollment.course_id', '=', 'student_classroom.course_id')
                         ->where('student_enrollment.student_id', '=', $student->id)
                         ->where('student_enrollment.status', '=', 'active');
+                })
+                ->join('courses as enrolled_courses', 'enrolled_courses.id', '=', 'student_enrollment.course_id')
+                ->where('enrolled_courses.status', 'published')
+                ->whereNotNull('enrolled_courses.published_at')
+                ->where('enrolled_courses.published_at', '<=', now())
+                ->whereColumn('student_classroom.academy_id', 'enrolled_courses.academy_id')
+                ->where(function ($entitlement): void {
+                    $entitlement->where('enrolled_courses.access_type', 'free')
+                        ->orWhere(function ($paid): void {
+                            $paid->where('student_enrollment.payment_status', 'paid')
+                                ->where('student_enrollment.paid_amount', '>', 0)
+                                ->where(function ($amount): void {
+                                    $amount->whereNull('student_enrollment.price_amount')
+                                        ->orWhereColumn('student_enrollment.paid_amount', '>=', 'student_enrollment.price_amount');
+                                })
+                                ->whereExists(function ($transaction): void {
+                                    $transaction->selectRaw('1')
+                                        ->from('financial_transactions')
+                                        ->whereColumn('financial_transactions.enrollment_id', 'student_enrollment.id')
+                                        ->where('financial_transactions.status', 'completed')
+                                        ->where('financial_transactions.amount', '>', 0);
+                                });
+                        });
                 })
                 ->whereColumn('student_classroom.course_id', $assessmentTable . '.course_id')
                 ->whereColumn('teaching_assignment.teacher_id', $assessmentTable . '.teacher_id')
