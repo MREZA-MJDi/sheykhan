@@ -112,6 +112,12 @@ class SeoSpecialistAccessTest extends TestCase
     {
         [$specialist] = $this->makeSeoWorkspace();
 
+        $this->actingAs($specialist)
+            ->get(route('seo.blog.index'))
+            ->assertOk()
+            ->assertSee('بلاگ و مقالات')
+            ->assertSee('محتوای عمومی');
+
         foreach ([
             'seo.keywords.index',
             'seo.keywords.create',
