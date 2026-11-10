@@ -16,10 +16,8 @@ final class OwnerReportService
     {
         app(OwnerWorkspaceService::class)->authorizeOwnedAcademies($owner, 'reports.view');
 
-        $academies = $owner->ownedAcademies()
-            ->where('status', 'active')
-            ->orderBy('name')
-            ->get();
+        $academies = app(OwnerWorkspaceService::class)
+            ->authorizeOwnedAcademies($owner, 'reports.view');
 
         if ($academies->isEmpty()) {
             return $this->empty($owner);
