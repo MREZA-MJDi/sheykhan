@@ -2611,3 +2611,68 @@ body.owner-admin-v2 {
     }
 }
 
+/* Shared navigation strip for learning, finance, attendance, reports and site content. */
+.owner-admin-v2 .main-content .owner-workspace-tabs {
+    display: grid;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px solid rgba(119,136,190,.2) !important;
+    border-radius: 16px;
+    background: var(--oa-surface-2, #111737) !important;
+    background-image: none !important;
+    box-shadow: none;
+    color: var(--oa-text, #e8ecff) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs :is(p,span,h2) {
+    color: var(--oa-text, #e8ecff) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs p {
+    color: var(--oa-muted, #aab3d7) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 8px 13px;
+    border: 1px solid rgba(119,136,190,.24) !important;
+    border-radius: 10px;
+    background: rgba(9,14,39,.55) !important;
+    color: var(--oa-muted, #aab3d7) !important;
+    font-size: .78rem;
+    font-weight: 750;
+    line-height: 1.7;
+    white-space: normal;
+    text-align: center;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav a:hover {
+    border-color: rgba(34,211,238,.55) !important;
+    color: var(--oa-text, #e8ecff) !important;
+}
+.owner-admin-v2 .main-content .owner-workspace-tabs nav a[aria-current=page] {
+    border-color: rgba(34,211,238,.45) !important;
+    background: rgba(34,211,238,.14) !important;
+    color: #a5f3fc !important;
+}
+@media(max-width:767px) {
+    .owner-admin-v2 .main-content .owner-workspace-tabs {
+        padding: 14px;
+    }
+    .owner-admin-v2 .main-content .owner-workspace-tabs nav {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+    .owner-admin-v2 .main-content .owner-workspace-tabs nav a {
+        min-width: 0;
+        padding-inline: 8px;
+    }
+}
+
