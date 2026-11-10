@@ -343,7 +343,7 @@
 .owner-admin-v2 .main-content .website-hero-editor-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .owner-admin-v2 .main-content .website-hero-editor-section-head h2{margin:0;color:var(--oa-text);font-size:14px}
 .owner-admin-v2 .main-content .website-hero-editor-section-head p{margin:3px 0;color:var(--oa-muted);font-size:11px}
-.owner-admin-v2 .main-content .website-hero-check{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(31,47,122,.2);border-radius:9px;background:#121936}
+.owner-admin-v2 .main-content .website-hero-check{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(31,47,122,.2);border-radius:9px;background:#f8f9fd}
 .owner-admin-v2 .main-content .website-hero-check input{accent-color:var(--oa-accent)}
 .owner-admin-v2 .main-content .website-hero-check strong{display:block;color:var(--oa-text);font-size:11px}
 .owner-admin-v2 .main-content .website-hero-check small{display:block;color:var(--oa-muted);font-size:10px}
