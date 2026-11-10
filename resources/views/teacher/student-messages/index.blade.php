@@ -21,6 +21,21 @@
             </div>
         </header>
 
+        <form method="GET" class="dashboard-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_220px_auto_auto] sm:items-end" role="search" aria-label="فیلتر مکاتبات دانش‌آموزان">
+            <label class="grid gap-1 text-xs font-bold">جست‌وجو
+                <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="120" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm" placeholder="موضوع، متن، نام دانش‌آموز یا دوره">
+            </label>
+            <label class="grid gap-1 text-xs font-bold">وضعیت
+                <select name="status" class="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="open" @selected(($filters['status'] ?? '') === 'open')>در انتظار پاسخ</option>
+                    <option value="responded" @selected(($filters['status'] ?? '') === 'responded')>پاسخ داده شده</option>
+                    <option value="closed" @selected(($filters['status'] ?? '') === 'closed')>بسته شده</option>
+                </select>
+            </label>
+            <button class="min-h-10 rounded-xl bg-[var(--panel-primary)] px-4 text-sm font-black text-white">اعمال فیلتر</button>
+            <a href="{{ route('teacher.student-messages.index') }}" class="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold">پاک‌کردن</a>
+        </form>
         <section class="communication-page__message-list space-y-4" aria-label="فهرست پیام‌های دانش‌آموزان">
             @forelse($messages as $message)
                 <article class="communication-page__message rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
