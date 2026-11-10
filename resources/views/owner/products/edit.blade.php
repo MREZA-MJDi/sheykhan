@@ -15,7 +15,7 @@
         <section class="owner-form-section space-y-4">
             <h2>اطلاعات محصول</h2>
             <label><span>عنوان</span><input name="title" value="{{ old('title', $product->title) }}" maxlength="255" required></label>
-            <label><span>نامک</span><input name="slug" value="{{ old('slug', $product->slug) }}" maxlength="255" required><small class="owner-field-help">برای تغییر نشانی عمومی محصول استفاده می‌شود.</small></label>
+            <label><span>نشانی کوتاه محصول</span><input name="slug" value="{{ old('slug', $product->slug) }}" maxlength="255" required><small class="owner-field-help">با تغییر این مقدار، نشانی صفحه محصول هم تغییر می‌کند.</small></label>
             <label><span>زیرعنوان</span><input name="subtitle" value="{{ old('subtitle', $product->subtitle) }}" maxlength="255"></label>
             <label><span>شرح</span><textarea name="description" rows="5" maxlength="12000">{{ old('description', $product->description) }}</textarea></label>
             <div class="owner-form-two">
