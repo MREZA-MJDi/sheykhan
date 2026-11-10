@@ -573,7 +573,7 @@
     min-height:42px;
     border:1px solid rgba(31,47,122,.25);
     border-radius:10px;
-    background:#101832;
+    background:#ffffff;
     color:var(--oa-text);
     font:inherit;
 }
@@ -588,7 +588,7 @@
 .owner-admin-v2 .owner-people-workspace [data-directory-results]>div{
     min-width:0;
     border:1px solid rgba(31,47,122,.14);
-    background:#101832;
+    background:#ffffff;
     color:var(--oa-text);
 }
 .owner-admin-v2 .owner-people-workspace [data-directory-status],
