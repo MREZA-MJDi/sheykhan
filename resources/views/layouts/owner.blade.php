@@ -109,7 +109,9 @@
         if (
             $candidateGroup['key'] === 'site'
             && request()->routeIs(
-                'owner.seo.*',
+                'seo.index',
+                'seo.pages.*',
+                'seo.keywords.*',
                 'seo.website.*',
                 'seo.content.*',
                 'seo.blog.*',
