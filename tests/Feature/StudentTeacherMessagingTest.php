@@ -120,6 +120,16 @@ class StudentTeacherMessagingTest extends TestCase
             ->assertOk()
             ->assertSee('پیام‌های من')
             ->assertSee('ابتدا صورت سؤال را به دو بخش تقسیم کن و هر بخش را جدا حل کن.');
+
+        $this->actingAs($student)
+            ->get(route('student.messages.index', ['status' => 'closed', 'q' => 'سؤال درباره تکلیف']))
+            ->assertOk()
+            ->assertSee('سؤال درباره تکلیف هفته');
+
+        $this->actingAs($student)
+            ->get(route('student.messages.index', ['status' => 'open']))
+            ->assertOk()
+            ->assertDontSee('سؤال درباره تکلیف هفته');
     }
 
     public function test_student_cannot_message_a_teacher_of_another_classroom_group_in_the_same_course(): void
