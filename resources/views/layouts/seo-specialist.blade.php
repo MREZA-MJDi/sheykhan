@@ -61,11 +61,11 @@
     <aside class="side card" id="side" aria-label="منوی مدیریت">
         <nav id="nv" aria-label="منوی اصلی">
             @if(!$isSeoOnlyUser && $ownerUser?->hasPermission('dashboard.view'))
-                <div class="nav-group"><button class="gh" type="button" data-group-toggle aria-expanded="true" style="--c:#22d3ee"><i aria-hidden="true"></i><span>مرکز کنترل</span><em>−</em></button><div class="nav-group-items"><a class="ni" href="{{ route('seo.index') }}" @if(request()->routeIs('seo.index')) aria-current="page" @endif data-nav-label="داشبورد"><svg class="ic"><use href="#i-home"/></svg><span>داشبورد</span></a></div></div>
+                <div class="nav-group"><button class="gh" type="button" data-group-toggle aria-expanded="true"><i aria-hidden="true"></i><span>مرکز کنترل</span><em>−</em></button><div class="nav-group-items"><a class="ni" href="{{ route('seo.index') }}" @if(request()->routeIs('seo.index')) aria-current="page" @endif data-nav-label="داشبورد"><svg class="ic"><use href="#i-home"/></svg><span>داشبورد</span></a></div></div>
             @endif
             @if($canManagePublicSite)
                 <div class="nav-group">
-                    <button class="gh" type="button" data-group-toggle aria-expanded="true" style="--c:#22d3ee"><i aria-hidden="true"></i><span>سایت و SEO</span><em>−</em></button>
+                    <button class="gh" type="button" data-group-toggle aria-expanded="true"><i aria-hidden="true"></i><span>سایت و SEO</span><em>−</em></button>
                     <div class="nav-group-items">
                         <a class="ni" href="{{ route('seo.index') }}" @if(request()->routeIs('seo.index','seo.pages.edit','seo.pages.update')) aria-current="page" @endif data-nav-label="ممیزی SEO"><svg class="ic"><use href="#i-chart"/></svg><span>ممیزی SEO</span></a>
                         <a class="ni" href="{{ route('seo.keywords.index') }}" @if(request()->routeIs('seo.keywords.*')) aria-current="page" @endif data-nav-label="کلمات کلیدی"><svg class="ic"><use href="#i-search"/></svg><span>کلمات کلیدی</span></a>
@@ -83,7 +83,7 @@
 
             @foreach($academies as $academy)
                 <div class="nav-group">
-                    <button class="gh" type="button" data-group-toggle aria-expanded="true" style="--c:{{ $loop->even ? '#ff1f6b' : '#22d3ee' }}"><i aria-hidden="true"></i><span>{{ $academy->name }}</span><em>−</em></button>
+                    <button class="gh" type="button" data-group-toggle aria-expanded="true"><i aria-hidden="true"></i><span>{{ $academy->name }}</span><em>−</em></button>
                     <div class="nav-group-items">
                         @foreach($scopedLinks as [$routeName,$permission,$label,$icon])
                             @if($ownerUser?->hasPermission($permission))
@@ -95,7 +95,7 @@
             @endforeach
             @if(!$isSeoOnlyUser)
                 <div class="nav-group">
-                    <button class="gh" type="button" data-group-toggle aria-expanded="true" style="--c:#8b3dff"><i aria-hidden="true"></i><span>آموزش و گزارش</span><em>−</em></button>
+                    <button class="gh" type="button" data-group-toggle aria-expanded="true"><i aria-hidden="true"></i><span>آموزش و گزارش</span><em>−</em></button>
                     <div class="nav-group-items">
                         @foreach($globalLinks as [$routeName,$permission,$label,$icon])
                             @if($ownerUser?->hasPermission($permission))
