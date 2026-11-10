@@ -55,6 +55,11 @@ class ClassroomController extends Controller
             $request->validated()
         );
 
+        if ($request->boolean('modal')) {
+            return redirect()->route('owner.classrooms.index', $academy)
+                ->with('success', 'کلاس با موفقیت ساخته شد.');
+        }
+
         return redirect()
             ->route('owner.classrooms.show', [$academy, $classroom])
             ->with('success', 'کلاس با موفقیت ساخته شد.');
@@ -114,6 +119,11 @@ class ClassroomController extends Controller
             $item,
             $request->validated()
         );
+
+        if ($request->boolean('modal')) {
+            return redirect()->route('owner.classrooms.index', $academy)
+                ->with('success', 'اطلاعات کلاس به‌روزرسانی شد.');
+        }
 
         return redirect()
             ->route('owner.classrooms.show', [$academy, $item])
