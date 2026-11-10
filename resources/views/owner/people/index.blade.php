@@ -96,15 +96,15 @@
 <section class="owner-people-actionbar" aria-label="عملیات مدیریت اعضا">
     <div><strong>عملیات اعضای آموزشگاه</strong><span>فرم‌های ساخت حساب، ثبت‌نام و تخصیص کلاس در پنجره‌های جداگانه باز می‌شوند.</span></div>
     <div class="owner-people-actionbar__buttons">
-        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-create-parent-dialog">＋ ساخت والد</button>
-        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-create-teacher-dialog">＋ ساخت مدرس</button>
+        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-parent-create-modal">＋ ساخت والد</button>
+        <button type="button" class="owner-modal-trigger owner-modal-trigger--primary" data-owner-modal-open="owner-teacher-create-modal">＋ ساخت مدرس</button>
         <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-assign-class-dialog">اختصاص مدرس به کلاس</button>
-        <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-enroll-student-dialog">ثبت‌نام دانش‌آموز</button>
+        <button type="button" class="owner-modal-trigger" data-owner-modal-open="owner-enrollment-modal">ثبت‌نام دانش‌آموز</button>
         <a class="owner-modal-trigger" href="{{ route('owner.people.index', $academy) }}?tab=create-student">＋ ایجاد حساب دانش‌آموز</a>
     </div>
 </section>
 
-<dialog id="owner-create-parent-dialog" class="owner-floating-modal" aria-labelledby="owner-create-parent-title" @if(old('_form_context') === 'create-parent') data-owner-modal-open-on-load @endif>
+<dialog id="owner-parent-create-modal" class="owner-floating-modal" aria-labelledby="owner-create-parent-title" @if(old('_form_context') === 'create-parent') data-owner-modal-open-on-load @endif>
     <header class="owner-record-modal-header">
         <div><span class="owner-record-modal-kicker">افزودن عضو</span><h2 id="owner-create-parent-title">ساخت حساب والد و اتصال به دانش‌آموز</h2><p class="owner-modal-subtitle">اگر حساب والد فعال باشد، همان حساب متصل می‌شود و رمز آن تغییر نمی‌کند؛ در غیر این صورت رمز موقت یک‌باره ساخته می‌شود.</p></div>
         <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن پنجره">×</button>
@@ -174,7 +174,7 @@
     </div>
 </dialog>
 
-<dialog id="owner-create-teacher-dialog" class="owner-floating-modal" aria-labelledby="owner-create-teacher-title" @if(old('_form_context') === 'create-teacher') data-owner-modal-open-on-load @endif>
+<dialog id="owner-teacher-create-modal" class="owner-floating-modal" aria-labelledby="owner-create-teacher-title" @if(old('_form_context') === 'create-teacher') data-owner-modal-open-on-load @endif>
     <header class="owner-record-modal-header">
         <div><span class="owner-record-modal-kicker">افزودن عضو</span><h2 id="owner-create-teacher-title">ساخت حساب مدرس</h2><p class="owner-modal-subtitle">حساب، نقش، پروفایل و عضویت آموزشگاه در یک تراکنش ثبت می‌شود.</p></div>
         <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن پنجره">×</button>
@@ -210,7 +210,7 @@
     </div>
 </dialog>
 
-<dialog id="owner-enroll-student-dialog" class="owner-floating-modal" aria-labelledby="owner-enroll-student-title" @if(old('_form_context') === 'enroll-student') data-owner-modal-open-on-load @endif>
+<dialog id="owner-enrollment-modal" class="owner-floating-modal" aria-labelledby="owner-enroll-student-title" @if(old('_form_context') === 'enroll-student') data-owner-modal-open-on-load @endif>
     <header class="owner-record-modal-header">
         <div><span class="owner-record-modal-kicker">ثبت‌نام و دسترسی</span><h2 id="owner-enroll-student-title">ثبت‌نام دانش‌آموز</h2><p class="owner-modal-subtitle">دانش‌آموز، دوره و کلاس مرتبط را انتخاب کن؛ ظرفیت، تکراری‌بودن ثبت‌نام و مبلغ در سرور کنترل می‌شود.</p></div>
         <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن پنجره">×</button>
@@ -377,7 +377,7 @@
     <nav class="owner-people-directory-tabbar" role="tablist" aria-label="فهرست اعضای آموزشگاه">
         @foreach($directoryTabs as [$title, $items, $directoryRole])
             <button type="button" role="tab" id="owner-directory-tab-{{ $directoryRole }}"
-                aria-controls="owner-directory-panel-{{ $directoryRole }}"
+                aria-controls="owner-members-{{ $directoryRole }}-panel"
                 aria-selected="{{ $loop->first ? 'true' : 'false' }}"
                 tabindex="{{ $loop->first ? '0' : '-1' }}"
                 data-owner-directory-tab="{{ $directoryRole }}">
@@ -385,7 +385,7 @@
             </button>
         @endforeach
         <button type="button" role="tab" id="owner-directory-tab-archived-teachers"
-            aria-controls="owner-directory-panel-archived-teachers" aria-selected="false" tabindex="-1"
+            aria-controls="owner-members-archived-teachers-panel" aria-selected="false" tabindex="-1"
             data-owner-directory-tab="archived-teachers">
             مدرس‌های آرشیوشده <span>{{ \App\Support\PersianUi::digits($archivedTeachers->total()) }}</span>
         </button>
@@ -393,7 +393,7 @@
 
     <div class="owner-people-directory-panels">
         @foreach($directoryTabs as [$title, $items, $directoryRole])
-            <section id="owner-directory-panel-{{ $directoryRole }}" role="tabpanel"
+            <section id="owner-members-{{ $directoryRole }}-panel" role="tabpanel"
                 aria-labelledby="owner-directory-tab-{{ $directoryRole }}"
                 data-owner-directory-panel="{{ $directoryRole }}" @if(!$loop->first) hidden @endif>
                 <section class="dashboard-panel p-5" data-owner-people-directory data-directory-role="{{ $directoryRole }}"
@@ -462,7 +462,7 @@
             </section>
         @endforeach
 
-        <section id="owner-directory-panel-archived-teachers" role="tabpanel"
+        <section id="owner-members-archived-teachers-panel" role="tabpanel"
             aria-labelledby="owner-directory-tab-archived-teachers" data-owner-directory-panel="archived-teachers" hidden>
             <section class="dashboard-panel p-5" data-owner-people-directory data-directory-role="archived-teachers"
                 data-directory-url="{{ route('owner.people.data', ['academy' => $academy, 'role' => 'archived-teachers']) }}">
