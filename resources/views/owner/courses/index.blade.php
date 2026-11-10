@@ -14,8 +14,10 @@
             </p>
         </div>
         @if(auth()->user()->hasPermission('courses.manage'))
-            <a href="{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-url=
-        @endif"{{ route('owner.courses.create', ['modal' => 1]) }}" data-owner-modal-title="ساخت دوره جدید" class="course-primary-btn">+ ساخت دوره جدید</a>
+            <a href="{{ route('owner.courses.create', ['modal' => 1]) }}"
+               data-owner-modal-url="{{ route('owner.courses.create', ['modal' => 1]) }}"
+               data-owner-modal-title="ساخت دوره جدید" class="course-primary-btn">+ ساخت دوره جدید</a>
+        @endif
     </div>
 
     <section class="grid gap-3 sm:grid-cols-3" aria-label="آمار دوره‌ها">
