@@ -17,7 +17,7 @@
             <p class="mt-2 text-sm leading-7 text-slate-500">تکلیف را به کلاس فعال دارای مدرس متصل کن، فایل راهنما را بارگذاری کن و پاسخ‌های ثبت‌شده را تصحیح کن.</p>
         </div>
         <div class="flex flex-wrap gap-2">
-            <a href="{{ route('owner.assignments.create', $academy) }}" class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">+ تکلیف جدید</a>
+            <a href="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ثبت تکلیف جدید" class="rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">+ تکلیف جدید</a>
             <a href="{{ route('owner.dashboard') }}" class="rounded-xl border border-slate-200 px-4 py-3 text-xs font-black text-slate-600">بازگشت به کارتابل</a>
         </div>
     </header>
@@ -104,7 +104,7 @@
                 <div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center">
                     <strong class="block text-sm font-black">تکلیفی با این شرایط پیدا نشد.</strong>
                     <p class="mt-2 text-xs leading-6 text-slate-500">فیلترها را پاک کن یا برای یکی از کلاس‌های دارای مدرس، تکلیف جدید بساز.</p>
-                    <a href="{{ route('owner.assignments.create', $academy) }}" class="mt-4 inline-block rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ساخت تکلیف</a>
+                    <a href="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-url="{{ route('owner.assignments.create', ['academy' => $academy, 'modal' => 1]) }}" data-owner-modal-title="ثبت تکلیف جدید" class="mt-4 inline-block rounded-xl bg-[var(--panel-primary)] px-4 py-3 text-xs font-black text-white">ساخت تکلیف</a>
                 </div>
             @endforelse
         </div>
