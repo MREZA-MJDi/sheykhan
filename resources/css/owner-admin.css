@@ -5084,3 +5084,11 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
     .owner-admin-v2 .weekly-calendar-day { min-height: 0; }
     .owner-admin-v2 .owner-people-workspace [data-directory-controls] { grid-template-columns: 1fr; }
 }
+
+.owner-admin-v2 .owner-people-actions {
+    display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 9px;
+    min-width: 0; padding: 12px; border: 1px solid #e9ebf3; border-radius: 15px; background: #fff;
+}
+.owner-admin-v2 .owner-people-create-trigger { min-width: 150px; }
+.owner-admin-v2 .owner-people-workspace > .owner-people-tabs > .owner-people-tabbar { position: sticky; top: 8px; z-index: 5; }
+.owner-admin-v2 .owner-people-workspace .owner-people-tab-panel { min-width: 0; }
