@@ -54,7 +54,22 @@ class SeoBlogCoverUploadTest extends TestCase
         ]);
         Storage::disk('local')->assertExists($firstMedia->path);
 
+        // A published cover must be visible on both public blog surfaces, not
+        // merely stored and downloadable from the media endpoint.
+        $publicCoverUrl = route('media.public', $firstMedia);
+
         $this->get(route('media.public', $firstMedia))->assertOk();
+
+        $this->get(route('blog.index'))
+            ->assertOk()
+            ->assertSee('راهنمای انتخاب کلاس')
+            ->assertSee($publicCoverUrl, false);
+
+        $this->get(route('blog.show', 'class-selection-guide'))
+            ->assertOk()
+            ->assertSee('راهنمای انتخاب کلاس')
+            ->assertSee('متن کامل مقاله برای آزمایش بارگذاری تصویر شاخص.')
+            ->assertSee($publicCoverUrl, false);
 
         $this->actingAs($specialist)
             ->patch(route('seo.blog.update', $post), [
