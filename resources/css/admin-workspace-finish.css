@@ -24,3 +24,11 @@
 .owner-admin-v2 .main-content :is(.owner-filter-bar,.owner-page-toolbar,.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters){background:#f7f9fc!important;border-color:var(--ui-border)!important}
 .owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi){border-radius:15px!important}
 @media(max-width:760px){.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi){min-height:112px;padding:13px}.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-form-card,.owner-form-section){padding:14px!important}}
+
+.owner-shell.owner-admin-v2{background:var(--ui-page)!important}
+.owner-admin-v2 .app{background:var(--ui-page)!important}
+.owner-admin-v2 .top,.owner-admin-v2 .side.card{border-color:var(--ui-border)!important;background:#fff!important;box-shadow:0 5px 18px rgba(16,24,40,.045)!important}
+.owner-admin-v2 .main-content{align-content:start}
+.owner-admin-v2 .main-content :is(.owner-page-intro,.owner-workspace-header,.owner-page-header,.panel-page-enter>header:first-child){border-color:var(--ui-border)!important;background:#fff!important;box-shadow:0 5px 18px rgba(16,24,40,.045)!important}
+.owner-admin-v2 .main-content :is(.owner-page-intro,.owner-workspace-header,.owner-page-header,.panel-page-enter>header:first-child) :is(h1,h2,h3,strong){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content :is(.owner-page-intro,.owner-workspace-header,.owner-page-header,.panel-page-enter>header:first-child) :is(p,small){color:var(--ui-muted)!important}
