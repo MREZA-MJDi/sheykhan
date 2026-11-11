@@ -953,4 +953,20 @@ class TeacherWorkspaceFlowTest extends TestCase
     }
 
 
+
+    public function test_active_teacher_can_open_dashboard_without_redundant_dashboard_permission(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $dashboardPermission = Permission::query()->where('name', 'dashboard.view')->firstOrFail();
+        Role::query()->where('slug', 'teacher')->firstOrFail()
+            ->permissions()->detach($dashboardPermission->id);
+        $teacher->unsetRelation('roles');
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk();
+    }
+
 }
