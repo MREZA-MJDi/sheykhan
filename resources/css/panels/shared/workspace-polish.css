@@ -29,3 +29,63 @@
   scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important
  }
 }
+
+/* Final shared panel polish: consistent surfaces and controls without changing role layouts. */
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) {
+    --workspace-surface: #fff;
+    --workspace-surface-soft: #f7f9fc;
+    --workspace-border: #e5eaf1;
+    --workspace-text: #182230;
+    --workspace-muted: #667085;
+    --workspace-radius: 16px;
+    --workspace-shadow: 0 8px 24px rgba(16, 24, 40, .045);
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(.dashboard-panel,.teacher-workspace-card,.teacher-workspace-stat,.parent-child,.ui-stat,.role-card,.workspace-card) {
+    min-width: 0;
+    border: 1px solid var(--workspace-border);
+    border-radius: var(--workspace-radius);
+    background: var(--workspace-surface);
+    box-shadow: var(--workspace-shadow);
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea) {
+    min-height: 42px;
+    max-width: 100%;
+    border: 1px solid var(--workspace-border);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--workspace-text);
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(input,select,textarea):focus {
+    border-color: var(--workspace-focus-color);
+    outline: 0;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-focus-color) 14%, transparent);
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(table) {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(th) {
+    color: var(--workspace-muted);
+    font-size: .75rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(td) {
+    border-color: var(--workspace-border);
+    color: var(--workspace-text);
+    vertical-align: middle;
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(button,a) {
+    -webkit-tap-highlight-color: transparent;
+}
+:where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(button:not([class]),input[type=submit]) {
+    min-height: 40px;
+    border-radius: 10px;
+}
+@media (max-width: 767px) {
+    :where(.owner-shell,.teacher-panel,.student-shell,.parent-shell) :is(.dashboard-panel,.teacher-workspace-card,.teacher-workspace-stat,.parent-child,.ui-stat,.role-card,.workspace-card) {
+        border-radius: 14px;
+    }
+}
