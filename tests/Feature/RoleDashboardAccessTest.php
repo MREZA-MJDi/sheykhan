@@ -53,6 +53,7 @@ class RoleDashboardAccessTest extends TestCase
             'role_access.test_password' => $configuredPassword,
         ]);
 
+        $this->seed(\\Database\\Seeders\\RolePermissionSeeder::class);
         $this->seed(\\Database\\Seeders\\TeacherDemoAccountsSeeder::class);
 
         $teacher = User::query()
