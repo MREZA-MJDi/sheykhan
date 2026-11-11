@@ -584,3 +584,74 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi) { border-top: 3px solid color-mix(in srgb, var(--ui-primary) 72%, var(--ui-navy)); }
 .owner-admin-v2 .main-content :is(.owner-page-intro,.owner-workspace-header,.owner-page-header) :is(.eyebrow,.kicker,.owner-page-kicker) { color: var(--ui-primary); }
 @media (prefers-reduced-motion: reduce) { .owner-admin-v2 .nav-group .ni { transition: none; } }
+
+
+/* Final owner + SEO panel finish: calm surfaces, predictable controls, and responsive data views. */
+.owner-admin-v2 {
+  --oa-radius: 15px;
+  --oa-shadow: 0 8px 24px rgba(22,38,58,.045);
+  --oa-focus: color-mix(in srgb, var(--ui-primary) 18%, transparent);
+}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-form-section,.seo-keyword-tools,.seo-keyword-list-panel,.seo-keyword-history,.website-center-card,.website-hero-card,.owner-seo-stat) {
+  border-color: var(--ui-border);
+  border-radius: var(--oa-radius);
+  box-shadow: var(--oa-shadow);
+}
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]),select,textarea) {
+  min-height: 42px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ui-text);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.owner-admin-v2 .main-content :is(input,select,textarea):focus {
+  border-color: var(--ui-primary);
+  outline: 0;
+  box-shadow: 0 0 0 3px var(--oa-focus);
+}
+.owner-admin-v2 .main-content :is(button,a).course-primary-btn,
+.owner-admin-v2 .main-content :is(button,a).owner-primary-btn,
+.owner-admin-v2 .main-content :is(button,a).website-open-btn.primary {
+  min-height: 40px;
+  border-radius: 10px;
+  font-weight: 800;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.owner-admin-v2 .main-content :is(button,a).course-primary-btn:hover,
+.owner-admin-v2 .main-content :is(button,a).owner-primary-btn:hover,
+.owner-admin-v2 .main-content :is(button,a).website-open-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--ui-primary) 18%, transparent);
+}
+.owner-admin-v2 .main-content :is(table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.owner-admin-v2 .main-content :is(th) {
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.owner-admin-v2 .main-content :is(td,th) {
+  border-color: var(--ui-border);
+}
+.owner-admin-v2 .main-content :is(.owner-panel-head,.owner-form-head,.seo-console-hero) {
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .owner-admin-v2 .main-content :is(.owner-form-grid,.owner-form-two,.seo-keyword-filters) {
+    grid-template-columns: minmax(0,1fr);
+  }
+  .owner-admin-v2 .main-content :is(.owner-seo-hero,.website-center-hero,.website-hero-editor-head,.seo-console-hero,.owner-form-head) {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .owner-admin-v2 .main-content :is(.owner-seo-row,.owner-content-row,.website-banner-mini) {
+    grid-template-columns: minmax(0,1fr);
+    gap: 7px;
+  }
+}
