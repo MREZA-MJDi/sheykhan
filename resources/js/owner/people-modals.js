@@ -68,6 +68,28 @@
         }
     });
 
+
+    const studentPanel = document.querySelector('[data-owner-tab-panel="create-student"]');
+    const studentTab = document.querySelector('[data-owner-tab-button="create-student"]');
+    if (studentPanel && forms.length) {
+        const introTarget = document.querySelector('.owner-people-workspace > div:first-child');
+        const oneTimeCredentials = studentPanel.querySelector('.owner-student-credentials');
+        const validationNotice = studentPanel.querySelector('.owner-student-create-errors');
+        if (oneTimeCredentials && introTarget) introTarget.after(oneTimeCredentials);
+        if (validationNotice && introTarget) introTarget.after(validationNotice);
+        studentPanel.hidden = true;
+        if (studentTab) studentTab.hidden = true;
+        const outerNav = studentTab?.closest('nav');
+        if (outerNav && !outerNav.querySelector('[role="tab"]:not([hidden])')) outerNav.hidden = true;
+    }
+
+    const createAccountsTab = document.querySelector('[data-owner-tab-button="create-accounts"]');
+    const createAccountsPanel = document.querySelector('[data-owner-tab-panel="create-accounts"]');
+    if (createAccountsTab && forms.length) {
+        createAccountsTab.hidden = true;
+        if (createAccountsPanel) createAccountsPanel.hidden = true;
+    }
+
     document.querySelectorAll('form[data-owner-schedule-create]').forEach((form) => {
         const title = form.dataset.ownerScheduleTitle || 'افزودن زمان هفتگی';
         const trigger = document.createElement('button');
