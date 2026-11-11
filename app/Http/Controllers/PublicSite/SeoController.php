@@ -40,21 +40,35 @@ final class SeoController extends Controller
             ->whereHas('roles', fn ($query) => $query->where('slug', 'teacher'))
             ->whereHas('teacherProfile', fn ($query) => $query->where('is_verified', true)->where('is_public', true))
             ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
+            ->with('seoMeta')
             ->get(['id', 'updated_at'])
-            ->each(fn (User $teacher) => $urls->push([
-                'loc' => route('teachers.show', $teacher),
-                'lastmod' => $teacher->updated_at,
-            ]));
+            ->each(function (User $teacher) use ($urls): void {
+                $location = $this->canonicalSitemapLocation(
+                    $teacher->seoMeta?->canonical_url,
+                    route('teachers.show', $teacher),
+                );
+
+                if ($location !== null) {
+                    $urls->push(['loc' => $location, 'lastmod' => $teacher->updated_at]);
+                }
+            });
 
         Course::query()
             ->published()
             ->whereHas('academy', fn ($query) => $query->where('status', 'active'))
             ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
+            ->with('seoMeta')
             ->get(['id', 'slug', 'updated_at'])
-            ->each(fn (Course $course) => $urls->push([
-                'loc' => route('courses.show', $course),
-                'lastmod' => $course->updated_at,
-            ]));
+            ->each(function (Course $course) use ($urls): void {
+                $location = $this->canonicalSitemapLocation(
+                    $course->seoMeta?->canonical_url,
+                    route('courses.show', $course),
+                );
+
+                if ($location !== null) {
+                    $urls->push(['loc' => $location, 'lastmod' => $course->updated_at]);
+                }
+            });
 
         AcademyContent::query()
             ->where('status', 'published')
@@ -74,17 +88,21 @@ final class SeoController extends Controller
                     });
             })
             ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
-            ->with('academy:id,slug')
+            ->with(['academy:id,slug', 'seoMeta'])
             ->get(['id', 'academy_id', 'slug', 'updated_at'])
             ->each(function (AcademyContent $content) use (&$urls): void {
                 if (!$content->academy) {
                     return;
                 }
 
-                $urls->push([
-                    'loc' => route('academy.content.show', [$content->academy, $content]),
-                    'lastmod' => $content->updated_at,
-                ]);
+                $location = $this->canonicalSitemapLocation(
+                    $content->seoMeta?->canonical_url,
+                    route('academy.content.show', [$content->academy, $content]),
+                );
+
+                if ($location !== null) {
+                    $urls->push(['loc' => $location, 'lastmod' => $content->updated_at]);
+                }
             });
 
         Product::query()
@@ -93,22 +111,38 @@ final class SeoController extends Controller
             ->where('published_at', '<=', now())
             ->whereHas('category', fn ($query) => $query->where('is_active', true))
             ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
+            ->with('seoMeta')
             ->get(['id', 'slug', 'updated_at'])
-            ->each(fn (Product $product) => $urls->push([
-                'loc' => route('store.product.show', $product),
-                'lastmod' => $product->updated_at,
-            ]));
+            ->each(function (Product $product) use ($urls): void {
+                $location = $this->canonicalSitemapLocation(
+                    $product->seoMeta?->canonical_url,
+                    route('store.product.show', $product),
+                );
+
+                if ($location !== null) {
+                    $urls->push(['loc' => $location, 'lastmod' => $product->updated_at]);
+                }
+            });
 
         BlogPost::query()
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->whereDoesntHave('seoMeta', fn ($query) => $query->where('robots', 'like', 'noindex%'))
+            ->with('seoMeta')
             ->get(['id', 'slug', 'updated_at'])
-            ->each(fn (BlogPost $post) => $urls->push([
-                'loc' => route('blog.show', $post->slug),
-                'lastmod' => $post->updated_at,
-            ]));
+            ->each(function (BlogPost $post) use ($urls): void {
+                $location = $this->canonicalSitemapLocation(
+                    $post->seoMeta?->canonical_url,
+                    route('blog.show', $post->slug),
+                );
+
+                if ($location !== null) {
+                    $urls->push(['loc' => $location, 'lastmod' => $post->updated_at]);
+                }
+            });
+
+            $urls = $urls->unique('loc')->values();
 
             return view('seo.sitemap', ['urls' => $urls])->render();
         });
@@ -118,4 +152,28 @@ final class SeoController extends Controller
             'Cache-Control' => 'public, max-age=1800',
         ]);
     }
+    /**
+     * Sitemap entries must agree with canonical signals. External canonical
+     * targets are deliberately omitted: a sitemap must not advertise a URL
+     * that tells search engines a different host is authoritative.
+     */
+    private function canonicalSitemapLocation(?string $canonical, string $fallback): ?string
+    {
+        if (blank($canonical)) {
+            return $fallback;
+        }
+
+        $canonical = trim($canonical);
+        $canonicalHost = parse_url($canonical, PHP_URL_HOST);
+        $siteHost = parse_url(url('/'), PHP_URL_HOST);
+
+        if (! is_string($canonicalHost)
+            || ! is_string($siteHost)
+            || ! hash_equals(mb_strtolower($siteHost), mb_strtolower($canonicalHost))) {
+            return null;
+        }
+
+        return $canonical;
+    }
+
 }
