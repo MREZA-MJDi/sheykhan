@@ -64,7 +64,7 @@
                 @if(auth()->user()->hasPermission('live_classes.manage'))
                 <div class="owner-schedule-editor mt-5 border-t border-slate-100 pt-5">
                     <div class="owner-section-heading"><div><h3>افزودن زمان / لینک</h3><p>برای هر روز و بازهٔ زمانی یک ورودی جدا بساز. سرویس و لینک باید متعلق به همان جلسه باشند.</p></div></div>
-                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="owner-schedule-form mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-meeting-provider-form>
+                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="owner-schedule-form mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-owner-schedule-create data-owner-schedule-title="افزودن زمان هفتگی · {{ $classroom->title }}" data-meeting-provider-form>
                         @csrf
                         <label class="grid gap-1">
                             <span class="text-xs font-bold">روز هفته</span>
