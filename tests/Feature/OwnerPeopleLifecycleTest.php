@@ -473,6 +473,9 @@ class OwnerPeopleLifecycleTest extends TestCase
             ->assertSee('data-owner-tab-panel="directory"', false)
             ->assertSee('data-owner-tab-panel="create-accounts"', false)
             ->assertSee('data-owner-tab-panel="operations"', false)
+            ->assertSee('data-owner-people-create="student"', false)
+            ->assertSee('data-owner-people-create="parent"', false)
+            ->assertSee('data-owner-people-create="teacher"', false)
             ->assertSee('data-initial-tab="operations"', false);
     }
 
