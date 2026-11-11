@@ -96,7 +96,7 @@
           }));
       @endphp
       @if(count($visibleItems))
-        <div class="side-group-label">{{ $group['label'] }}</div>
+        <div class="side-group-label" data-nav-category="{{ $loop->index }}">{{ $group['label'] }}</div>
         @foreach($visibleItems as $item)
           @php
               $active = false;
@@ -122,7 +122,7 @@
                   }
               }
           @endphp
-          <a class="nv {{ $active ? 'on' : '' }}" href="{{ route($item['route']) }}{{ $item['anchor'] ?? '' }}" @if($active) aria-current="page" @endif>
+          <a class="nv {{ $active ? 'on' : '' }}" data-nav-category="{{ $loop->parent->index }}" href="{{ route($item['route']) }}{{ $item['anchor'] ?? '' }}" @if($active) aria-current="page" @endif>
             <i aria-hidden="true">{{ $item['icon'] }}</i><span>{{ $item['label'] }}</span>
           </a>
         @endforeach
