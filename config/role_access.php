@@ -10,7 +10,10 @@ $mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
 // Keep the quick-login directory aligned with the idempotent demo-account seeders.
 // The persisted mobile is resolved by email at login-page render time, so legacy
 // numbers remain usable without shipping environment-specific stale phone numbers.
-$demoPassword = (string) env('SEED_USER_PASSWORD', 'password');
+$isLocalEnvironment = in_array((string) env('APP_ENV', 'production'), ['local', 'testing'], true);
+$demoPassword = (string) env('SEED_USER_PASSWORD', $isLocalEnvironment ? 'password' : '');
+$showDemoAccounts = $demoPassword !== ''
+    && (bool) env('SHOW_DEMO_ACCOUNTS', $isLocalEnvironment || $demoPassword !== '');
 
 $testAccounts = [
     [
@@ -62,7 +65,7 @@ return [
     ],
 
     // This value is shared by seeders and the quick-login UI; never duplicate it.
-    'show_test_accounts' => (bool) env('SHOW_DEMO_ACCOUNTS', true),
+    'show_test_accounts' => $showDemoAccounts,
     'seed_password' => $demoPassword,
     'test_password' => $demoPassword,
     'test_accounts' => $testAccounts,
