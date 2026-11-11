@@ -155,4 +155,35 @@ class TeacherWorkspaceRedesignTest extends TestCase
             ->assertOk()
             ->assertSee('فضای کاری مدرس');
     }
+
+    public function test_teacher_quick_login_uses_the_persisted_mobile_and_reaches_the_dashboard(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        // Simulate a demo account whose mobile was changed before this fix.
+        $persistedMobile = '09125551234';
+        $configuredMobile = (string) collect(config('role_access.test_accounts'))
+            ->firstWhere('role_key', 'teacher')['username'];
+
+        $teacher->forceFill(['mobile' => $persistedMobile])->save();
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee($persistedMobile)
+            ->assertDontSee($configuredMobile);
+
+        $this->post(route('login.store'), [
+            'mobile' => $persistedMobile,
+            'password' => (string) config('role_access.test_password'),
+        ])->assertRedirect(route('teacher.dashboard'));
+
+        $this->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee('فضای کاری مدرس');
+    }
+
 }
