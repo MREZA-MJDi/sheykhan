@@ -1,4 +1,5 @@
 @php($navItems = \App\Support\StudentNav::items())
+@php($studentNavCategory = -1)
 <aside class="side">
   <div class="me">
     <div class="av">
@@ -15,9 +16,10 @@
   <nav class="nav" aria-label="منوی دانش‌آموز">
     @foreach ($navItems as $item)
       @if (isset($item['group']))
-        <h6>{{ $item['group'] }}</h6>
+        @php($studentNavCategory++)
+        <h6 data-nav-category="{{ $studentNavCategory }}">{{ $item['group'] }}</h6>
       @else
-        <a href="{{ route($item['route']) }}"
+        <a data-nav-category="{{ $studentNavCategory }}" href="{{ route($item['route']) }}"
            @class(['on' => request()->routeIs(...(array) $item['active'])])
            @if (request()->routeIs(...(array) $item['active'])) aria-current="page" @endif>
           <svg class="i" aria-hidden="true"><use href="#{{ $item['icon'] }}"/></svg>
