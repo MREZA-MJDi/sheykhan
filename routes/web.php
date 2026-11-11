@@ -236,7 +236,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
 
 Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/spotplayer', [\App\Http\Controllers\Teacher\SpotPlayerController::class, 'index'])->middleware('permission:courses.view')->name('spotplayer.index');
-    Route::get('/dashboard', TeacherDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/dashboard', TeacherDashboard::class)->name('dashboard');
     Route::get('/profile', [TeacherProfileController::class, 'edit'])->middleware('permission:profile.view')->name('profile.edit');
     Route::patch('/profile', [TeacherProfileController::class, 'update'])->middleware(['permission:profile.manage','throttle:10,1'])->name('profile.update');
     Route::get('/courses', [TeacherCourseController::class, 'index'])->middleware('permission:courses.view')->name('courses.index');
@@ -312,7 +312,7 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
 });
 
 Route::middleware(['auth','active','role:student'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/dashboard', StudentDashboard::class)->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/dashboard', StudentDashboard::class)->name('dashboard');
 
     Route::get('/messages', [StudentMessageController::class, 'index'])->middleware('permission:student_messages.view')->name('messages.index');
     Route::post('/messages', [StudentMessageController::class, 'store'])->middleware(['permission:student_messages.manage','throttle:student-messages'])->name('messages.store');
