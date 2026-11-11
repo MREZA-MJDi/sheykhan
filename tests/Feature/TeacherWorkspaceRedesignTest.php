@@ -114,4 +114,45 @@ class TeacherWorkspaceRedesignTest extends TestCase
             ->assertSee('کلاس آنلاین')
             ->assertSee('دوره‌ها و درس‌ها');
     }
+
+
+    public function test_production_teacher_quick_login_matches_the_seeded_teacher_account(): void
+    {
+        $previousEnvironment = getenv('APP_ENV');
+
+        try {
+            putenv('APP_ENV=production');
+            $productionConfig = require config_path('role_access.php');
+        } finally {
+            if ($previousEnvironment === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previousEnvironment);
+            }
+        }
+
+        $teacherAccount = collect($productionConfig['test_accounts'])
+            ->firstWhere('role_key', 'teacher');
+
+        $seededMobile = '0912' . str_pad(
+            (string) (abs(crc32('teacher-math')) % 10000000),
+            7,
+            '0',
+            STR_PAD_LEFT,
+        );
+
+        $this->assertSame($seededMobile, $teacherAccount['username']);
+
+        $this->seed();
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        $this->assertSame($seededMobile, $teacher->mobile);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee('فضای کاری مدرس');
+    }
 }
