@@ -45,6 +45,32 @@ class SeoBlogCoverUploadTest extends TestCase
         $firstMedia = $post->media()->wherePivot('collection', 'cover')->firstOrFail();
 
         $this->assertSame('public', $firstMedia->visibility);
+
+        // An article may also have inline/other media. Public blog cards must
+        // always resolve the explicitly designated cover collection.
+        $inlinePath = 'blog/inline/inline-image.png';
+        Storage::disk('local')->put($inlinePath, 'inline-image');
+        $inlineMedia = Media::create([
+            'uploaded_by' => $specialist->id,
+            'disk' => 'local',
+            'path' => $inlinePath,
+            'original_name' => 'inline-image.png',
+            'file_name' => 'inline-image.png',
+            'mime_type' => 'image/png',
+            'extension' => 'png',
+            'size' => 12,
+            'checksum' => hash('sha256', 'inline-image'),
+            'visibility' => 'public',
+            'collection' => 'inline',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+        $post->media()->attach($inlineMedia->id, [
+            'collection' => 'inline',
+            'sort_order' => -10,
+            'is_featured' => false,
+        ]);
+
         $this->assertDatabaseHas('media_attachments', [
             'media_id' => $firstMedia->id,
             'mediable_type' => $post->getMorphClass(),
@@ -60,16 +86,20 @@ class SeoBlogCoverUploadTest extends TestCase
 
         $this->get(route('media.public', $firstMedia))->assertOk();
 
+        $inlineUrl = route('media.public', $inlineMedia);
+
         $this->get(route('blog.index'))
             ->assertOk()
             ->assertSee('راهنمای انتخاب کلاس')
-            ->assertSee($publicCoverUrl, false);
+            ->assertSee($publicCoverUrl, false)
+            ->assertDontSee($inlineUrl, false);
 
         $this->get(route('blog.show', 'class-selection-guide'))
             ->assertOk()
             ->assertSee('راهنمای انتخاب کلاس')
             ->assertSee('متن کامل مقاله برای آزمایش بارگذاری تصویر شاخص.')
-            ->assertSee($publicCoverUrl, false);
+            ->assertSee($publicCoverUrl, false)
+            ->assertDontSee($inlineUrl, false);
 
         $this->actingAs($specialist)
             ->patch(route('seo.blog.update', $post), [
