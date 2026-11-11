@@ -28,7 +28,12 @@ class Media extends Model
             return null;
         }
 
-        if ($this->disk === 'local') {
+        // Every local filesystem disk must use the application media endpoint.
+        // A direct /storage URL depends on a manually-created public symlink and
+        // can silently break public images after deployment or disk changes.
+        $driver = config("filesystems.disks.{$this->disk}.driver");
+
+        if ($driver === 'local') {
             return route('media.public', $this);
         }
 
