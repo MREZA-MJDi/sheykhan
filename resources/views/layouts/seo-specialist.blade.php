@@ -12,12 +12,12 @@
 <body class="owner-shell owner-admin-v2 seo-specialist-shell">
 @php
     $seoUser = auth()->user();
-    $seoAcademies = \\App\\Models\\Academy::query()
+    $seoAcademies = \App\Models\Academy::query()
         ->where('status', 'active')
         ->orderBy('name')
         ->get(['id', 'name', 'slug']);
     $seoRouteAcademy = request()->route('academy');
-    $seoRouteAcademyId = $seoRouteAcademy instanceof \\App\\Models\\Academy
+    $seoRouteAcademyId = $seoRouteAcademy instanceof \App\Models\Academy
         ? (int) $seoRouteAcademy->getKey()
         : (int) ($seoRouteAcademy ?? 0);
     $seoNavGroups = [
