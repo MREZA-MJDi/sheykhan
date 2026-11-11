@@ -65,6 +65,7 @@ class WeeklyScheduleCalendarTest extends TestCase
             ->assertSee('owner-calendar-section', false)
             ->assertSee('owner-schedule-list', false)
             ->assertSee('owner-schedule-form', false)
+            ->assertSee('data-owner-schedule-create', false)
             ->assertSee('data-weekly-calendar', false)
             ->assertSee('برنامهٔ کلاس‌ها در یک نگاه', false)
             ->assertSee('برنامه هفتگی', false)
