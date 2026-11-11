@@ -963,3 +963,47 @@
   .parent-dashboard .parent-child-stat span { font-size: 10.5px; }
   .parent-dashboard .parent-row-title { font-size: 12px; }
 }
+
+
+/* Parent sidebar category accents: the same burgundy/navy brand pair with quiet semantic tints. */
+.parent-shell {
+    --brand-primary: #7b2c42;
+    --brand-secondary: #24364f;
+}
+.parent-shell .parent-sidebar .role-sidebar-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--color-text-muted);
+}
+.parent-shell .parent-sidebar .role-sidebar-label::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: var(--parent-nav-accent, var(--brand-primary));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--parent-nav-accent, var(--brand-primary)) 13%, transparent);
+}
+.parent-shell .parent-sidebar [data-nav-category="family"] { --parent-nav-accent: var(--brand-primary); }
+.parent-shell .parent-sidebar [data-nav-category="communication"] { --parent-nav-accent: #16806f; }
+.parent-shell .parent-sidebar [data-nav-category="access"] { --parent-nav-accent: #2866a5; }
+.parent-shell .parent-sidebar .role-nav-link[data-nav-category] {
+    border-inline-start: 3px solid transparent;
+    transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+.parent-shell .parent-sidebar .role-nav-link[data-nav-category]:hover {
+    color: var(--parent-nav-accent);
+    background: color-mix(in srgb, var(--parent-nav-accent) 7%, white);
+}
+.parent-shell .parent-sidebar .role-nav-link[data-nav-category].is-active {
+    color: var(--parent-nav-accent);
+    border-inline-start-color: var(--parent-nav-accent);
+    background: color-mix(in srgb, var(--parent-nav-accent) 10%, white);
+}
+.parent-shell .parent-sidebar .role-nav-link[data-nav-category] .role-nav-icon {
+    color: var(--parent-nav-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+    .parent-shell .parent-sidebar .role-nav-link { transition: none; }
+}
