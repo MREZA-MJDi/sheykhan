@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="color-scheme" content="light">
     <title>@yield('title', 'مرکز مدیریت SEO | شیخان')</title>
-    @vite(['resources/css/seo-dashboard.css', 'resources/css/admin-white-system.css', 'resources/js/seo-dashboard.js'])
+    @vite(['resources/css/seo-dashboard.css', 'resources/css/admin-white-system.css', 'resources/css/seo-workspace-shell.css', 'resources/js/seo-dashboard.js'])
     @stack('styles')
 </head>
 <body class="owner-shell owner-admin-v2 seo-specialist-shell">
@@ -50,7 +50,7 @@
     <aside class="seo-sidebar" id="seo-side" aria-label="ناوبری مرکز SEO">
         <a class="seo-brand" href="{{ route('seo.index') }}">
             <span class="seo-brand-mark" aria-hidden="true">ش</span>
-            <span><strong>شیخان</strong><small>SEO WORKSPACE</small></span>
+            <span><strong>آکادمی شیخان</strong><small>SEO WORKSPACE</small></span>
         </a>
         <div class="seo-sidebar-label">فضای کاری</div>
         <nav class="seo-navigation" aria-label="منوی اصلی">
