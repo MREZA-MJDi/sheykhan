@@ -126,6 +126,33 @@ class SeoBlogCoverUploadTest extends TestCase
         $this->get(route('media.public', $coverMedia))->assertOk();
     }
 
+    public function test_public_disk_images_use_the_application_media_route_without_storage_symlink(): void
+    {
+        Storage::fake('public');
+        $specialist = $this->makeSeoSpecialist();
+        $path = 'blog/covers/public-disk-cover.png';
+        Storage::disk('public')->put($path, 'public-image');
+
+        $media = Media::create([
+            'uploaded_by' => $specialist->id,
+            'disk' => 'public',
+            'path' => $path,
+            'original_name' => 'public-disk-cover.png',
+            'file_name' => 'public-disk-cover.png',
+            'mime_type' => 'image/png',
+            'extension' => 'png',
+            'size' => 12,
+            'checksum' => hash('sha256', 'public-image'),
+            'visibility' => 'public',
+            'collection' => 'cover',
+            'metadata' => [],
+            'status' => 'active',
+        ]);
+
+        $this->assertSame(route('media.public', $media), $media->url());
+        $this->get(route('media.public', $media))->assertOk();
+    }
+
     private function makeSeoSpecialist(): User
     {
         $role = Role::query()->create([
