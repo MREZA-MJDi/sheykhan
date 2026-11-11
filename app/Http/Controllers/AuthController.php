@@ -55,7 +55,7 @@ class AuthController extends Controller
                     // Show credentials only if the password still authenticates this persisted user.
                     try {
                         return Hash::check((string) $testPassword, (string) $user->getAuthPassword());
-                    } catch (\\Throwable) {
+                    } catch (\Throwable) {
                         return false;
                     }
                 })
