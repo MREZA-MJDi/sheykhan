@@ -369,7 +369,37 @@ class SeoSpecialistAccessTest extends TestCase
             'published_at' => now()->subDay(),
         ]);
 
-        return [$specialist, $course];
+        return [$specialist, $course, $academy];
+    }
+
+    public function test_every_seo_workspace_screen_renders_with_the_dedicated_shell(): void
+    {
+        [$specialist, $course, $academy] = $this->makeSeoWorkspace();
+
+        $screens = [
+            ['seo.index', []],
+            ['seo.keywords.index', []],
+            ['seo.keywords.create', []],
+            ['seo.blog.index', []],
+            ['seo.blog.create', []],
+            ['seo.content.index', []],
+            ['seo.content.create', []],
+            ['seo.website.index', []],
+            ['seo.website.hero.edit', []],
+            ['seo.academy.banners.edit', [$academy]],
+            ['seo.showcase.index', [$academy]],
+            ['seo.pages.edit', ['course', $course->id]],
+        ];
+
+        foreach ($screens as [$routeName, $parameters]) {
+            $this->actingAs($specialist)
+                ->get(route($routeName, $parameters))
+                ->assertOk()
+                ->assertSee('seo-app', false)
+                ->assertSee('seo-sidebar', false)
+                ->assertSee('seo-main', false)
+                ->assertDontSee('کارتابل ادمین / منشی');
+        }
     }
 
     public function test_seo_workspace_loads_hero_and_banner_editor_runtime(): void
