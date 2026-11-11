@@ -20,6 +20,51 @@ class OwnerPeopleLifecycleTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_owner_can_create_teacher_with_public_profile_avatar(): void
+    {
+        Storage::fake('local');
+        [$owner, $academy] = $this->makeWorkspace();
+
+        $response = $this->actingAs($owner)
+            ->post(route('owner.people.store-teacher', $academy), [
+                '_form_context' => 'create-teacher',
+                'first_name' => 'مدرس',
+                'last_name' => 'جدید',
+                'mobile' => '09125551234',
+                'specialization' => 'ریاضی',
+                'experience_years' => 5,
+                'is_public' => '1',
+                'avatar' => UploadedFile::fake()->image('teacher.webp')->size(300),
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $teacher = User::query()->where('mobile', '09125551234')->firstOrFail();
+        $profile = $teacher->teacherProfile()->firstOrFail();
+
+        $this->assertTrue($profile->is_public);
+        $this->assertDatabaseHas('media', [
+            'visibility' => 'public',
+            'collection' => 'teacher-avatar',
+            'status' => 'active',
+            'uploaded_by' => $owner->id,
+        ]);
+        $this->assertDatabaseHas('media_attachments', [
+            'mediable_type' => $profile->getMorphClass(),
+            'mediable_id' => $profile->id,
+        ]);
+
+        $this->get(route('teachers.index'))
+            ->assertOk()
+            ->assertSee('مدرس جدید');
+
+        $this->get(route('teachers.show', $teacher))
+            ->assertOk()
+            ->assertSee('مدرس جدید')
+            ->assertSee('teacher-profile-avatar', false);
+    }
+
     public function test_owner_can_archive_and_restore_teacher_without_deleting_history(): void
     {
         [$owner, $academy, $teacher] = $this->makeWorkspace();
