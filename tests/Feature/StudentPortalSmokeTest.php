@@ -141,4 +141,20 @@ class StudentPortalSmokeTest extends TestCase
             ->assertSee($exam->title);
     }
 
+
+    public function test_active_student_can_open_dashboard_without_redundant_dashboard_permission(): void
+    {
+        $this->seed();
+
+        $student = User::query()->where('email', 'student.armin@sheykhan.test')->firstOrFail();
+        $dashboardPermission = Permission::query()->where('name', 'dashboard.view')->firstOrFail();
+        Role::query()->where('slug', 'student')->firstOrFail()
+            ->permissions()->detach($dashboardPermission->id);
+        $student->unsetRelation('roles');
+
+        $this->actingAs($student)
+            ->get(route('student.dashboard'))
+            ->assertOk();
+    }
+
 }
