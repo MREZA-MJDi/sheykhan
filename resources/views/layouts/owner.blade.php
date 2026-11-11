@@ -285,6 +285,20 @@
     @include('owner.partials.admin-main')
     @include('owner.partials.admin-command-palette')
 </div>
+
+{{-- Shared floating CRUD modal host. Remote owner forms are loaded into this shell. --}}
+<dialog class="owner-floating-modal" data-owner-record-modal aria-labelledby="owner-record-modal-title">
+    <header class="owner-record-modal-header">
+        <div>
+            <span class="owner-record-modal-kicker">مدیریت آموزشگاه</span>
+            <h2 id="owner-record-modal-title" data-owner-record-modal-title>فرم مدیریت</h2>
+        </div>
+        <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن پنجره">×</button>
+    </header>
+    <div class="owner-record-modal-body" data-owner-record-modal-body aria-live="polite">
+        <p class="owner-modal-loading">فرم پس از انتخاب عملیات نمایش داده می‌شود.</p>
+    </div>
+</dialog>
 @stack('scripts')
 </body>
 </html>
