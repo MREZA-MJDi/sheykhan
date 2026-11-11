@@ -53,14 +53,14 @@ class RoleDashboardAccessTest extends TestCase
             'role_access.test_password' => $configuredPassword,
         ]);
 
-        $this->seed(\\Database\\Seeders\\RolePermissionSeeder::class);
-        $this->seed(\\Database\\Seeders\\TeacherDemoAccountsSeeder::class);
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $this->seed(\Database\Seeders\TeacherDemoAccountsSeeder::class);
 
         $teacher = User::query()
             ->where('email', 'teacher.math@sheykhan.test')
             ->firstOrFail();
 
-        $this->assertTrue(\\Illuminate\\Support\\Facades\\Hash::check(
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check(
             $configuredPassword,
             (string) $teacher->getAuthPassword(),
         ));
