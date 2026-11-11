@@ -347,3 +347,20 @@ dialog::backdrop{background:rgba(20,35,55,.55)}dialog h3{margin-bottom:8px}dialo
   line-height: 1.8;
 }
 
+
+
+/* Student navigation uses the same Sheykhan burgundy/navy brand pair and calm category tints. */
+.student-shell { --brand-primary: #7b2c42; --brand-secondary: #24364f; --student-nav-accent: var(--brand-primary); }
+.student-shell .nav h6 { display: flex; align-items: center; gap: 8px; }
+.student-shell .nav h6::before { content: ""; width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--student-nav-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--student-nav-accent) 14%, transparent); }
+.student-shell .nav :is(h6[data-nav-category="0"],a[data-nav-category="0"]) { --student-nav-accent: var(--brand-primary); }
+.student-shell .nav :is(h6[data-nav-category="1"],a[data-nav-category="1"]) { --student-nav-accent: #2866a5; }
+.student-shell .nav :is(h6[data-nav-category="2"],a[data-nav-category="2"]) { --student-nav-accent: #16806f; }
+.student-shell .nav :is(h6[data-nav-category="3"],a[data-nav-category="3"]) { --student-nav-accent: #6b55a5; }
+.student-shell .nav :is(h6[data-nav-category="4"],a[data-nav-category="4"]) { --student-nav-accent: var(--brand-secondary); }
+.student-shell .nav a[data-nav-category] .i { color: var(--student-nav-accent); }
+.student-shell .nav a[data-nav-category]:hover { background: color-mix(in srgb, var(--student-nav-accent) 16%, transparent); color: #fff; }
+.student-shell .nav a[data-nav-category].on { background: color-mix(in srgb, var(--student-nav-accent) 20%, #fff); color: var(--brand-secondary); box-shadow: inset -3px 0 0 var(--student-nav-accent); }
+.student-shell .nav a[data-nav-category].on .i { color: var(--student-nav-accent); }
+.student-shell :is(.st,.stat-card,.student-stat-card) { border-top: 3px solid color-mix(in srgb, var(--brand-primary) 72%, var(--brand-secondary)); }
+@media (prefers-reduced-motion: reduce) { .student-shell .nav a { transition: none; } }
