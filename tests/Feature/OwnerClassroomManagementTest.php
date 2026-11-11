@@ -311,6 +311,20 @@ class OwnerClassroomManagementTest extends TestCase
                 && $classrooms->first()->code === 'PAG-003');
     }
 
+    public function test_owner_classroom_index_renders_the_shared_floating_modal_host(): void
+    {
+        [$owner, $academy] = $this->workspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.index', $academy))
+            ->assertOk()
+            ->assertSee('data-owner-record-modal', false)
+            ->assertSee('data-owner-record-modal-body', false)
+            ->assertSee('owner-record-modal-header', false)
+            ->assertSee('data-owner-modal-url', false)
+            ->assertSee('ساخت کلاس جدید');
+    }
+
     public function test_owner_classroom_detail_paginates_the_entire_active_roster(): void
     {
         [$owner, $academy, $course, $teacher] = $this->workspace();
