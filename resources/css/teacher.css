@@ -355,3 +355,20 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .teacher-roster-preview{display:inline-flex;align-items:center;flex:0 0 auto;direction:rtl;padding-inline-start:5px}
 .teacher-roster-avatar{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;overflow:hidden;margin-inline-start:-6px;border:2px solid var(--sf);border-radius:50%;background:var(--pl);color:var(--pri);font-size:10px;font-weight:900;box-shadow:0 2px 5px rgba(35,42,77,.12)}
 .teacher-roster-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+
+
+/* Shared two-tone Sheykhan brand with restrained category accents in the teacher sidebar. */
+.teacher-panel { --brand-primary: #7b2c42; --brand-secondary: #24364f; --nav-accent: var(--brand-primary); }
+.teacher-panel .side-group-label { position: relative; display: flex; align-items: center; gap: 8px; padding-inline: 13px; }
+.teacher-panel .side-group-label::before { content: ""; width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--nav-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--nav-accent) 12%, transparent); }
+.teacher-panel .side-group-label[data-nav-category="0"], .teacher-panel .nv[data-nav-category="0"] { --nav-accent: var(--brand-primary); }
+.teacher-panel .side-group-label[data-nav-category="1"], .teacher-panel .nv[data-nav-category="1"] { --nav-accent: #2866a5; }
+.teacher-panel .side-group-label[data-nav-category="2"], .teacher-panel .nv[data-nav-category="2"] { --nav-accent: #16806f; }
+.teacher-panel .side-group-label[data-nav-category="3"], .teacher-panel .nv[data-nav-category="3"] { --nav-accent: #6b55a5; }
+.teacher-panel .side-group-label[data-nav-category="4"], .teacher-panel .nv[data-nav-category="4"] { --nav-accent: var(--brand-secondary); }
+.teacher-panel .nv[data-nav-category] i { display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 9px; color: var(--nav-accent); background: color-mix(in srgb, var(--nav-accent) 10%, var(--sf)); font-size: 15px; }
+.teacher-panel .nv[data-nav-category]:hover { color: var(--nav-accent); background: color-mix(in srgb, var(--nav-accent) 7%, var(--sf)); }
+.teacher-panel .nv[data-nav-category].on { color: var(--nav-accent); background: color-mix(in srgb, var(--nav-accent) 12%, var(--sf)); box-shadow: inset -3px 0 0 var(--nav-accent); }
+.teacher-panel .nv[data-nav-category].on i { color: var(--nav-accent); background: color-mix(in srgb, var(--nav-accent) 16%, var(--sf)); }
+.teacher-panel :is(.teacher-workspace-stat,.teacher-stat-card) { border-inline-start: 3px solid color-mix(in srgb, var(--brand-primary) 72%, var(--brand-secondary)); }
+@media (prefers-reduced-motion: reduce) { .teacher-panel .nv { transition: none; } }
