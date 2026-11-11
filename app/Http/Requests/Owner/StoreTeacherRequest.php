@@ -33,6 +33,7 @@ class StoreTeacherRequest extends FormRequest
             'specialization' => ['nullable', 'string', 'max:255'],
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:80'],
             'is_public' => ['sometimes', 'boolean'],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 
