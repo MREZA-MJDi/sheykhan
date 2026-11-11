@@ -54,7 +54,7 @@ $testAccounts = [
 ];
 
 return [
-    'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', 'seo.demo@sheykhan.test'),
+    'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', 'seo@sheykhan.com'),
 
     'dashboard_routes' => [
         'seo-specialist' => 'seo.index',
