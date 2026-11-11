@@ -60,7 +60,7 @@ $testAccounts = in_array($appEnvironment, ['local', 'testing'], true)
             'role' => 'مدرس',
             'role_key' => 'teacher',
             'name' => 'سمیه احمدی',
-            'username' => '091193581267',
+            'username' => '09123581267',
         ],
         [
             'role' => 'دانش‌آموز',
