@@ -66,4 +66,47 @@
             dialog.showModal();
         }
     });
+
+    document.querySelectorAll('form[data-owner-schedule-create]').forEach((form) => {
+        const title = form.dataset.ownerScheduleTitle || 'افزودن زمان هفتگی';
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'owner-people-create-trigger owner-schedule-create-trigger';
+        trigger.textContent = '＋ افزودن زمان هفتگی';
+        trigger.setAttribute('aria-haspopup', 'dialog');
+
+        const dialog = document.createElement('dialog');
+        dialog.className = 'owner-people-create-dialog owner-schedule-create-dialog';
+        dialog.setAttribute('aria-label', title);
+
+        const header = document.createElement('header');
+        header.className = 'owner-people-create-dialog__head';
+        const heading = document.createElement('strong');
+        heading.textContent = title;
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'owner-people-create-dialog__close';
+        close.textContent = '×';
+        close.setAttribute('aria-label', 'بستن پنجره');
+        close.addEventListener('click', () => dialog.close());
+        header.append(heading, close);
+
+        const body = document.createElement('div');
+        body.className = 'owner-people-create-dialog__body';
+        body.append(form);
+        dialog.append(header, body);
+        document.body.append(dialog);
+
+        const editor = form.closest('.owner-schedule-editor');
+        editor?.insertBefore(trigger, editor.firstChild);
+        trigger.addEventListener('click', () => {
+            if (!dialog.open) dialog.showModal();
+            form.querySelector('select, input')?.focus({ preventScroll: true });
+        });
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) dialog.close();
+        });
+        if (form.querySelector('[role="alert"]')) dialog.showModal();
+    });
+
 })();
