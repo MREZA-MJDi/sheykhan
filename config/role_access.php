@@ -13,7 +13,7 @@ $mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
 $isLocalEnvironment = in_array((string) env('APP_ENV', 'production'), ['local', 'testing'], true);
 $demoPassword = (string) env('SEED_USER_PASSWORD', $isLocalEnvironment ? 'password' : '');
 $showDemoAccounts = $demoPassword !== ''
-    && (bool) env('SHOW_DEMO_ACCOUNTS', $isLocalEnvironment || $demoPassword !== '');
+    && (bool) env('SHOW_TEST_ACCOUNTS', env('SHOW_DEMO_ACCOUNTS', $isLocalEnvironment || $demoPassword !== ''));
 
 $testAccounts = [
     [
@@ -27,7 +27,7 @@ $testAccounts = [
         'role' => 'متخصص SEO',
         'role_key' => 'seo-specialist',
         'name' => 'متخصص SEO',
-        'email' => 'seo.demo@sheykhan.test',
+        'email' => env('SEO_SPECIALIST_EMAIL', 'seo.demo@sheykhan.test'),
         'username' => $mobileForSeedKey('seo-specialist'),
     ],
     [
