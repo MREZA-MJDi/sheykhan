@@ -101,7 +101,7 @@ class RoleDashboardAccessTest extends TestCase
             ['teacher.math@sheykhan.test', 'teacher.dashboard'],
             ['student.armin@sheykhan.test', 'student.dashboard'],
             ['parent.armin@sheykhan.test', 'parent.dashboard'],
-            ['seo.demo@sheykhan.test', 'seo.index'],
+            [(string) config('role_access.seo_specialist_email'), 'seo.index'],
         ];
 
         foreach ($panels as [$email, $ownRoute]) {
