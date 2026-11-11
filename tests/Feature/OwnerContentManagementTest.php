@@ -93,6 +93,11 @@ class OwnerContentManagementTest extends TestCase
             'collection' => 'cover',
             'is_featured' => 1,
         ]);
+
+        $cover = $content->media()->wherePivot('collection', 'cover')->firstOrFail();
+        Storage::disk('local')->assertExists($cover->path);
+        $this->get(route('media.public', $cover))->assertOk();
+
     }
 
     public function test_seo_specialist_can_edit_public_content_across_active_academies(): void
