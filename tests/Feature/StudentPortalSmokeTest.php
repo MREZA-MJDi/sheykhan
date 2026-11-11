@@ -7,6 +7,8 @@ use App\Models\Course;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\User;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
