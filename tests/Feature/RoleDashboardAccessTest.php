@@ -45,6 +45,26 @@ class RoleDashboardAccessTest extends TestCase
         }
     }
 
+    public function test_demo_seeders_use_the_same_configured_password_as_quick_login(): void
+    {
+        $configuredPassword = 'Configured-Demo-Password-2026';
+        config([
+            'role_access.seed_password' => $configuredPassword,
+            'role_access.test_password' => $configuredPassword,
+        ]);
+
+        $this->seed(\\Database\\Seeders\\TeacherDemoAccountsSeeder::class);
+
+        $teacher = User::query()
+            ->where('email', 'teacher.math@sheykhan.test')
+            ->firstOrFail();
+
+        $this->assertTrue(\\Illuminate\\Support\\Facades\\Hash::check(
+            $configuredPassword,
+            (string) $teacher->getAuthPassword(),
+        ));
+    }
+
     public function test_every_quick_login_account_authenticates_and_reaches_its_own_dashboard(): void
     {
         $this->seed();
