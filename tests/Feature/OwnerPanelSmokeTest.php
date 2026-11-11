@@ -11,6 +11,12 @@ class OwnerPanelSmokeTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
     public function test_primary_owner_panel_sections_do_not_return_server_errors(): void
     {
         $this->seed();
