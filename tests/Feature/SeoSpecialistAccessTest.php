@@ -267,6 +267,36 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertDontSee($url, false);
     }
 
+    public function test_sitemap_uses_same_host_canonical_and_omits_external_canonical_targets(): void
+    {
+        [, $course] = $this->makeSeoWorkspace();
+        $originalUrl = route('courses.show', $course);
+        $canonicalUrl = url('/canonical-seo-course');
+
+        SeoMeta::updateOrCreate(
+            ['seoable_type' => $course->getMorphClass(), 'seoable_id' => $course->id],
+            ['robots' => 'index,follow', 'canonical_url' => $canonicalUrl],
+        );
+        Cache::flush();
+
+        $this->get(route('seo.sitemap'))
+            ->assertOk()
+            ->assertSee($canonicalUrl, false)
+            ->assertDontSee($originalUrl, false);
+
+        SeoMeta::query()
+            ->where('seoable_type', $course->getMorphClass())
+            ->where('seoable_id', $course->id)
+            ->update(['canonical_url' => 'https://external.example/canonical']);
+
+        Cache::flush();
+
+        $this->get(route('seo.sitemap'))
+            ->assertOk()
+            ->assertDontSee('https://external.example/canonical', false)
+            ->assertDontSee($originalUrl, false);
+    }
+
     public function test_robots_txt_is_dynamic_and_references_the_real_sitemap_route(): void
     {
         $this->get(route('seo.robots'))
