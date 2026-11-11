@@ -180,12 +180,19 @@
         <button type="button" class="owner-modal-close" data-owner-modal-close aria-label="بستن پنجره">×</button>
     </header>
     <div class="owner-floating-modal__body">
-        <form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="grid gap-3">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('owner.people.store-teacher',$academy) }}" class="grid gap-3">
             @csrf
             <input type="hidden" name="_form_context" value="create-teacher">
 <label class="grid gap-1"><span class="text-xs font-bold">نام</span><input name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('first_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">نام خانوادگی</span><input name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('last_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">شماره موبایل</span><input name="mobile" type="tel" inputmode="tel" dir="ltr" value="{{ old('mobile') }}" maxlength="11" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">شماره موبایل یکتا؛ شناسه ورود مدرس خواهد بود.</small>@error('mobile')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
+<div class="grid gap-2">
+<label for="owner-teacher-avatar" class="text-xs font-bold">تصویر پروفایل مدرس <span class="font-normal text-slate-500">اختیاری · JPG، PNG یا WebP تا ۲ مگابایت</span></label>
+<div class="flex items-center gap-3 rounded-xl border border-slate-200 p-3">
+<div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100"><img id="owner-teacher-avatar-preview" alt="پیش‌نمایش تصویر مدرس" class="hidden h-full w-full object-cover"><span id="owner-teacher-avatar-placeholder" class="flex h-full items-center justify-center text-2xl text-slate-400" aria-hidden="true">＋</span></div>
+<div class="min-w-0 flex-1"><input id="owner-teacher-avatar" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" class="block w-full text-xs" data-teacher-avatar-input><p class="mt-1 text-xs text-slate-500">تصویر در کارت مدرس و صفحه عمومی پروفایل نمایش داده می‌شود.</p>@error('avatar')<p role="alert" class="text-xs font-semibold text-rose-600">{{ $message }}</p>@enderror</div>
+</div></div>
+<label class="flex items-start gap-2 rounded-xl border border-slate-200 p-3 text-xs"><input type="checkbox" name="is_public" value="1" @checked(old('is_public', '1')) class="mt-0.5 rounded"><span><strong class="block">نمایش در وب‌سایت عمومی</strong><span class="text-slate-500">مدرس در فهرست مدرس‌ها و صفحه پروفایل عمومی نمایش داده شود.</span></span></label>
 <p class="text-xs text-slate-500">رمز اولیه به‌صورت تصادفی ساخته می‌شود و باید در اولین ورود تغییر کند.</p>
 <label class="grid gap-1"><span class="text-xs font-bold">تخصص</span><input name="specialization" value="{{ old('specialization') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">حوزه تخصصی اصلی مدرس، مانند ریاضی، فیزیک یا زبان.</small>@error('specialization')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">سابقه (سال)</span><input name="experience_years" type="number" min="0" max="80" value="{{ old('experience_years') }}" class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">سابقهٔ تدریس را به سال و در بازهٔ صفر تا ۸۰ وارد کن.</small>@error('experience_years')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
@@ -553,6 +560,30 @@
 </dialog>
 @push('scripts')
     @vite(['resources/js/owner-people-directory.js'])
+@endpush
+
+
+@push('scripts')
+<script>
+document.addEventListener('change', function (event) {
+    const input = event.target.closest('[data-teacher-avatar-input]');
+    if (!input) return;
+    const file = input.files && input.files[0];
+    const preview = document.getElementById('owner-teacher-avatar-preview');
+    const placeholder = document.getElementById('owner-teacher-avatar-placeholder');
+    if (!preview || !placeholder) return;
+    if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+        input.value = '';
+        preview.removeAttribute('src');
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => { preview.src = reader.result; preview.classList.remove('hidden'); placeholder.classList.add('hidden'); };
+    reader.readAsDataURL(file);
+});
+</script>
 @endpush
 
 @endsection
