@@ -62,7 +62,7 @@ class OwnerPeopleLifecycleTest extends TestCase
         $this->get(route('teachers.show', $teacher))
             ->assertOk()
             ->assertSee('مدرس جدید')
-            ->assertSee('teacher-profile-avatar', false);
+            ->assertSee('alt="مدرس جدید"', false);
     }
 
     public function test_owner_can_archive_and_restore_teacher_without_deleting_history(): void
