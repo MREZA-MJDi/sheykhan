@@ -157,8 +157,7 @@ final class OwnerSeoService
             config('services.google_search_console.refresh_token'),
         ])->every(fn ($value): bool => filled($value));
 
-        $endDate = now()->subDays(3)->toDateString();
-        $startDate = now()->subDays(30)->toDateString();
+        [$startDate, $endDate] = $this->searchConsoleDateRange();
 
         $emptySummary = [
             'configured' => $configured,
@@ -230,6 +229,22 @@ final class OwnerSeoService
         ];
     }
 
+    /**
+     * Search Console date dimensions are evaluated in Pacific Time, regardless
+     * of the application's local timezone.
+     *
+     * @return array{0:string,1:string}
+     */
+    private function searchConsoleDateRange(): array
+    {
+        $pacificNow = CarbonImmutable::now('America/Los_Angeles');
+
+        return [
+            $pacificNow->subDays(30)->toDateString(),
+            $pacificNow->subDays(3)->toDateString(),
+        ];
+    }
+
     private function normalizePageUrlForHash(string $url): string
     {
         if ($url === '') {
@@ -274,8 +289,7 @@ final class OwnerSeoService
         }
 
 
-        $startDate = now()->subDays(30)->toDateString();
-        $endDate = now()->subDays(3)->toDateString();
+        [$startDate, $endDate] = $this->searchConsoleDateRange();
 
         return DB::table('seo_performance_snapshots')
             ->where('dimension', 'query')
