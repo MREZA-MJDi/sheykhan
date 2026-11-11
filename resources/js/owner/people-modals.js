@@ -3,7 +3,8 @@
     'use strict';
 
     const forms = document.querySelectorAll('form[data-owner-people-create]');
-    if (!forms.length) return;
+    const scheduleForms = document.querySelectorAll('form[data-owner-schedule-create]');
+    if (!forms.length && !scheduleForms.length) return;
 
     const workspace = document.querySelector('.owner-people-workspace');
     const actions = document.createElement('div');
