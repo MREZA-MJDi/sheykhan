@@ -316,4 +316,51 @@ class OwnerHomeHeroManagementTest extends TestCase
 
         return [$owner, $academy, $seo];
     }
+
+    public function test_seo_specialist_can_upload_a_public_academy_banner_and_render_it_on_homepage(): void
+    {
+        Storage::fake('local');
+        Cache::flush();
+        [$owner, $academy, $seo] = $this->workspace();
+
+        $this->actingAs($seo)
+            ->patch(route('seo.academy.banners.update', $academy), [
+                'banners' => [
+                    1 => [
+                        'image' => UploadedFile::fake()->image('academy-banner.webp', 1600, 700),
+                        'title' => 'بنر آزمایشی آکادمی',
+                        'description' => 'توضیح بنر عمومی',
+                        'cta_label' => 'مشاهده دوره‌ها',
+                        'cta_url' => '/courses',
+                        'crop_x' => 38,
+                        'crop_y' => 62,
+                        'is_active' => true,
+                    ],
+                ],
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $banner = HomeBanner::query()
+            ->where('academy_id', $academy->id)
+            ->where('slot', 1)
+            ->firstOrFail();
+        $media = $banner->media()->firstOrFail();
+
+        $this->assertTrue($banner->is_active);
+        $this->assertSame('بنر آزمایشی آکادمی', $banner->title);
+        $this->assertSame(38, (int) $banner->crop_x);
+        $this->assertSame(62, (int) $banner->crop_y);
+        $this->assertSame('public', $media->visibility);
+        Storage::disk('local')->assertExists($media->path);
+
+        $this->get(route('media.public', $media))->assertOk();
+
+        Cache::flush();
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee(route('media.public', $media), false)
+            ->assertSee('بنر آزمایشی آکادمی');
+    }
+
 }
