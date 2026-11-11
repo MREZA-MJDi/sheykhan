@@ -1,0 +1,2 @@
+/* Loaded after the shared admin stylesheet so SEO's isolated tokens win. */
+@import './panels/seo/shell.css';
