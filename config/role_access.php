@@ -28,6 +28,7 @@ $testAccounts = in_array($appEnvironment, ['local', 'testing'], true)
             'role' => 'مدرس',
             'role_key' => 'teacher',
             'name' => 'سمیه احمدی',
+            'email' => 'teacher.math@sheykhan.test',
             'username' => $mobileForSeedKey('teacher-math'),
         ],
         [
@@ -60,6 +61,7 @@ $testAccounts = in_array($appEnvironment, ['local', 'testing'], true)
             'role' => 'مدرس',
             'role_key' => 'teacher',
             'name' => 'سمیه احمدی',
+            'email' => 'teacher.math@sheykhan.test',
             'username' => '09123581267',
         ],
         [
