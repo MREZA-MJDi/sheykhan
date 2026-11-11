@@ -72,7 +72,7 @@
             <div class="owner-student-create-errors" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>
         @endif
 
-        <form method="POST" action="{{ route('owner.people.store-student', $academy) }}?tab=create-student" class="owner-student-create-form" autocomplete="off">
+        <form method="POST" action="{{ route('owner.people.store-student', $academy) }}?tab=create-student" class="owner-student-create-form" data-owner-people-create="student" data-owner-people-create-title="ساخت حساب دانش‌آموز" autocomplete="off">
             @csrf
             <div class="owner-student-form-field"><label for="new-student-first-name">نام</label><input id="new-student-first-name" name="first_name" value="{{ old('first_name') }}" minlength="2" maxlength="100" required autocomplete="given-name" placeholder="آرش">@error('first_name')<small>{{ $message }}</small>@enderror</div>
             <div class="owner-student-form-field"><label for="new-student-last-name">نام خانوادگی</label><input id="new-student-last-name" name="last_name" value="{{ old('last_name') }}" minlength="2" maxlength="120" required autocomplete="family-name" placeholder="محمدی">@error('last_name')<small>{{ $message }}</small>@enderror</div>
@@ -194,7 +194,7 @@
         <h2 class="text-base font-black">ثبت اولیا و اتصال به دانش‌آموز</h2>
         <p class="mt-1 max-w-3xl text-xs leading-6 text-slate-500">اگر این والد قبلاً در سامانه ثبت شده باشد، حسابش به دانش‌آموز وصل می‌شود. در غیر این صورت حساب تازه ساخته می‌شود و رمز اولیه نمایش داده خواهد شد.</p>
     </div>
-    <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}" class="mt-5 grid gap-3 sm:grid-cols-2" data-confirm="حساب والد ساخته یا به دانش‌آموز متصل شود؟">
+    <form method="POST" action="{{ route('owner.people.store-parent', $academy) }}" class="mt-5 grid gap-3 sm:grid-cols-2" data-owner-people-create="parent" data-owner-people-create-title="ثبت اولیا و اتصال به دانش‌آموز" data-confirm="حساب والد ساخته یا به دانش‌آموز متصل شود؟">
         @csrf
         <div class="owner-student-picker sm:col-span-2" data-student-picker data-options-url="{{ route('owner.people.student-options',$academy) }}">
             <label for="owner-parent-student-search" class="mb-1 block text-xs font-bold">اول دانش‌آموز را انتخاب کن</label>
@@ -234,7 +234,7 @@
     </form>
 </section>
 <div class="grid gap-5 xl:grid-cols-3">
-<section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-confirm="حساب مدرس ساخته شود؟">@csrf
+<section class="dashboard-panel p-5 sm:p-7"><div><h2 class="text-base font-black">ساخت حساب مدرس</h2><p class="mt-1 text-xs text-slate-500">حساب، نقش، پروفایل و membership در یک transaction.</p></div><form method="POST" action="{{ route('owner.people.store-teacher',$academy) }}" class="mt-5 grid gap-3" data-owner-people-create="teacher" data-owner-people-create-title="ساخت حساب مدرس" data-confirm="حساب مدرس ساخته شود؟">@csrf
 <label class="grid gap-1"><span class="text-xs font-bold">نام</span><input name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('first_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">نام خانوادگی</span><input name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" class="rounded-xl border border-slate-200 px-3 py-3 text-sm">@error('last_name')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
 <label class="grid gap-1"><span class="text-xs font-bold">شماره موبایل</span><input name="mobile" type="tel" inputmode="tel" dir="ltr" value="{{ old('mobile') }}" maxlength="11" required class="rounded-xl border border-slate-200 px-3 py-3 text-sm"><small class="owner-field-help">شماره موبایل یکتا؛ شناسه ورود مدرس خواهد بود.</small>@error('mobile')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror</label>
