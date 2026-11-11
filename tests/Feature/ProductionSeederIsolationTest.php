@@ -19,7 +19,7 @@ class ProductionSeederIsolationTest extends TestCase
 
             foreach ([
                 'owner@sheykhan.test',
-                'seo.demo@sheykhan.test',
+                (string) config('role_access.seo_specialist_email'),
                 'teacher.math@sheykhan.test',
                 'student.armin@sheykhan.test',
                 'parent.armin@sheykhan.test',
