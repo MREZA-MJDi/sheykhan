@@ -1,6 +1,6 @@
 <aside class="role-sidebar parent-sidebar">
     <div class="role-sidebar-brand">
-        <a data-nav-category="family" href="{{ route('parent.dashboard') }}" class="role-brand">
+        <a href="{{ route('parent.dashboard') }}" class="role-brand">
             <span class="role-brand-mark">ش</span>
             <span>
                 <strong>شیخان</strong>
@@ -61,7 +61,7 @@
     </nav>
 
     <div class="role-sidebar-footer">
-        <a data-nav-category="access" href="{{ route('home') }}" class="role-footer-link">مشاهده سایت</a>
+        <a href="{{ route('home') }}" class="role-footer-link">مشاهده سایت</a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="role-footer-link role-logout">خروج</button>
