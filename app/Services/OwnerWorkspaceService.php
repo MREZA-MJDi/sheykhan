@@ -8,6 +8,7 @@ use App\Models\StudentOnboarding;
 use App\Models\Role;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use App\Services\MediaService;
 use App\Support\MobileNumber;
 use Illuminate\Support\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -271,7 +272,7 @@ final class OwnerWorkspaceService
         ];
     }
 
-    public function createTeacher(User $owner, Academy $academy, array $data): array
+    public function createTeacher(User $owner, Academy $academy, array $data, ?MediaService $mediaService = null): array
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);
 
@@ -279,7 +280,7 @@ final class OwnerWorkspaceService
         $temporaryPassword = \Illuminate\Support\Str::password(16, true, true, true, false);
 
         try {
-            return DB::transaction(function () use ($academy, $data, $mobile, $temporaryPassword): array {
+            return DB::transaction(function () use ($academy, $data, $mobile, $temporaryPassword, $owner, $mediaService): array {
                 $teacher = User::create([
                     'name' => trim((string) $data['name']),
                     'email' => null,
@@ -303,11 +304,26 @@ final class OwnerWorkspaceService
                     'education' => null,
                     'experience_years' => $data['experience_years'] ?? 0,
                     'is_verified' => true,
+                    'is_public' => (bool) ($data['is_public'] ?? true),
                 ]);
+
+                if (($data['avatar'] ?? null) instanceof \Illuminate\Http\UploadedFile) {
+                    abort_unless($mediaService, 500, 'سرویس رسانه در دسترس نیست.');
+                    $mediaService->upload($data['avatar'], $teacher->teacherProfile, [
+                        'disk' => config('filesystems.default', 'public'),
+                        'directory' => 'teachers/avatars',
+                        'collection' => 'teacher-avatar',
+                        'visibility' => 'public',
+                        'uploaded_by' => $owner->id,
+                        'is_featured' => true,
+                    ]);
+                }
 
                 $academy->users()->syncWithoutDetaching([
                     $teacher->id => ['role' => 'teacher', 'status' => 'active', 'joined_at' => now()],
                 ]);
+
+                app(\App\Services\TeacherDirectoryService::class)->clearPublicCache();
 
                 return ['teacher' => $teacher, 'temporary_password' => $temporaryPassword];
             });
