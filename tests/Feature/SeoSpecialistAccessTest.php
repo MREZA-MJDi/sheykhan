@@ -371,4 +371,14 @@ class SeoSpecialistAccessTest extends TestCase
 
         return [$specialist, $course];
     }
+
+    public function test_seo_workspace_loads_hero_and_banner_editor_runtime(): void
+    {
+        $entrypoint = file_get_contents(resource_path('js/seo-dashboard.js'));
+        $layout = file_get_contents(resource_path('views/layouts/seo-specialist.blade.php'));
+
+        $this->assertStringContainsString("import './owner/seo-site-editors.js';", $entrypoint);
+        $this->assertStringContainsString("resources/js/seo-dashboard.js", $layout);
+    }
+
 }
