@@ -13,6 +13,7 @@ use App\Http\Requests\Owner\UpdateTeacherVisibilityRequest;
 use App\Models\Academy;
 use App\Models\User;
 use App\Services\OwnerWorkspaceService;
+use App\Services\MediaService;
 use App\Services\ParentOnboardingService;
 use App\Services\StudentOnboardingService;
 use App\Services\StudentAccountService;
@@ -134,9 +135,10 @@ class PeopleController extends Controller
     public function storeTeacher(
         StoreTeacherRequest $request,
         Academy $academy,
-        OwnerWorkspaceService $workspace
+        OwnerWorkspaceService $workspace,
+        MediaService $mediaService
     ): RedirectResponse {
-        $result = $workspace->createTeacher($request->user(), $academy, $request->validated());
+        $result = $workspace->createTeacher($request->user(), $academy, $request->validated(), $mediaService);
 
         return back()->with('success', 'حساب مدرس ساخته شد و به آموزشگاه اضافه شد.')
             ->with('temporary_teacher_mobile', $result['teacher']->mobile)
