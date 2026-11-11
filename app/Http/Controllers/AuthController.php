@@ -27,34 +27,51 @@ class AuthController extends Controller
         $testAccounts = collect();
 
         if ($showTestAccounts && $configuredAccounts->isNotEmpty()) {
-            $usersByEmail = User::query()
-                ->whereIn('mobile', $configuredAccounts->pluck('username')->all())
+            $users = User::query()
+                ->where(function ($query) use ($configuredAccounts): void {
+                    $query->whereIn('mobile', $configuredAccounts->pluck('username')->filter()->all());
+
+                    $emails = $configuredAccounts->pluck('email')->filter()->all();
+                    if ($emails !== []) {
+                        $query->orWhereIn('email', $emails);
+                    }
+                })
                 ->where('status', 'active')
                 ->with('roles:id,slug')
-                ->get(['id', 'name', 'mobile', 'password'])
-                ->keyBy('mobile');
+                ->get(['id', 'name', 'email', 'mobile', 'password']);
 
             $testAccounts = $configuredAccounts
-                ->filter(function (array $account) use ($usersByEmail, $testPassword): bool {
-                    $user = $usersByEmail->get($account['username']);
-                    if ($user === null || ! $user->roles->contains('slug', $account['role_key'])) {
+                ->filter(function (array $account) use ($users, $testPassword): bool {
+                    $user = isset($account['email'])
+                        ? $users->firstWhere('email', $account['email'])
+                        : $users->firstWhere('mobile', $account['username']);
+
+                    if ($user === null
+                        || ! $user->roles->contains('slug', $account['role_key'])
+                        || blank($user->mobile)) {
                         return false;
                     }
 
                     // Show credentials only if the password still authenticates this persisted user.
                     try {
                         return Hash::check((string) $testPassword, (string) $user->getAuthPassword());
-                    } catch (\Throwable) {
+                    } catch (\\Throwable) {
                         return false;
                     }
                 })
-                ->map(function (array $account) use ($usersByEmail): array {
-                    $account['name'] = $usersByEmail->get($account['username'])->name;
+                ->map(function (array $account) use ($users): array {
+                    $user = isset($account['email'])
+                        ? $users->firstWhere('email', $account['email'])
+                        : $users->firstWhere('mobile', $account['username']);
+
+                    // Demo users may retain a legacy mobile number after an earlier seed.
+                    // Always show the persisted login identifier, never a stale configured one.
+                    $account['username'] = $user->mobile;
+                    $account['name'] = $user->name;
 
                     return $account;
                 })
                 ->values();
-        }
 
         return view('auth.login', [
             'testAccounts' => $testAccounts,
