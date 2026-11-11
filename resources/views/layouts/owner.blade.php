@@ -159,7 +159,7 @@
                 ?>
 
                 <?php if ($showNavGroup) { ?>
-                    <div class="nav-group">
+                    <div class="nav-group" data-nav-category="{{ $navGroup['key'] }}">
                         <button class="gh" type="button" data-group-toggle
                             aria-controls="owner-nav-group-{{ $navGroup['key'] }}"
                             aria-expanded="{{ $isNavGroupExpanded ? 'true' : 'false' }}"
