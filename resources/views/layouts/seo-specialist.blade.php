@@ -50,7 +50,7 @@
     <aside class="seo-sidebar" id="seo-side" aria-label="ناوبری مرکز SEO">
         <a class="seo-brand" href="{{ route('seo.index') }}">
             <span class="seo-brand-mark" aria-hidden="true">ش</span>
-            <span><strong>آکادمی شیخان</strong><small>SEO WORKSPACE</small></span>
+            <span><strong>آکادمی شیخان</strong><small>SEO و محتوای عمومی</small></span>
         </a>
         <div class="seo-sidebar-label">فضای کاری</div>
         <nav class="seo-navigation" aria-label="منوی اصلی">
