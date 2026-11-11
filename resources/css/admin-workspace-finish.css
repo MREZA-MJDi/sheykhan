@@ -1,0 +1,26 @@
+/* Final contrast and component normalization for the academy-owner admin workspace. */
+.owner-admin-v2{--ui-page:#f5f7fb;--ui-bg:#f5f7fb;--ui-surface:#fff;--ui-surface-soft:#f7f9fc;--ui-border:#e4e9f0;--ui-border-strong:#cbd5e1;--ui-text:#1d2939;--ui-muted:#667085;--ui-heading:#172b45;--ui-primary:#7b2c42;--ui-primary-hover:#632336}
+.owner-admin-v2 .main-content{color:var(--ui-text)!important}
+.owner-admin-v2 .main-content :is(h1,h2,h3,h4,h5){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content :is(p,li,dt,dd,label,legend,figcaption,small,td,th){text-shadow:none}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.panel-card,.owner-form-shell,.owner-form-card,.owner-form-section,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.owner-session-card,.owner-calendar-section,.owner-schedule-list,.owner-exam-section,.course-section-card,.owner-detail-card,.owner-show-card,.communication-page__card,.communication-page__message,.owner-blog-list-panel,.seo-keyword-tools,.seo-keyword-list-panel,.seo-keyword-history){background:#fff!important;color:var(--ui-text)!important;border:1px solid var(--ui-border)!important;box-shadow:0 5px 18px rgba(16,24,40,.045)!important}
+.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.panel-card,.owner-form-card,.owner-form-section,.owner-people-tab-panel,.owner-classroom-card,.owner-classroom-summary,.owner-product-card,.owner-resource-card,.owner-session-card,.owner-calendar-section,.owner-schedule-list,.owner-exam-section,.course-section-card,.owner-detail-card,.owner-show-card,.communication-page__card,.communication-page__message) :is(h1,h2,h3,h4,strong,b){color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content :is(.owner-panel-head p,.owner-field-help,.owner-form-section label small,.owner-form-section .hint,.owner-empty p,.empty-state p,.owner-blog-copy small,.owner-blog-copy p){color:var(--ui-muted)!important}
+.owner-admin-v2 .main-content :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]):not([type=submit]):not([type=button]),select,textarea){background:#fff!important;color:var(--ui-text)!important;border:1px solid var(--ui-border-strong)!important;border-radius:10px}
+.owner-admin-v2 .main-content :is(input,select,textarea)::placeholder{color:#98a2b3!important;opacity:1}
+.owner-admin-v2 .main-content :is(input,select,textarea):focus{border-color:var(--ui-primary)!important;outline:0;box-shadow:0 0 0 3px rgba(123,44,66,.12)!important}
+.owner-admin-v2 .main-content :is(table){color:var(--ui-text)}
+.owner-admin-v2 .main-content :is(th){background:#f7f9fc;color:#526174!important;font-weight:800}
+.owner-admin-v2 .main-content :is(td){color:var(--ui-text)!important}
+.owner-admin-v2 .main-content :is(tbody tr:hover){background:#fafbfd}
+.owner-admin-v2 .main-content :is(.badge,.pill,.status-badge,.owner-pill,.owner-status,.course-status,.tag){text-shadow:none}
+.owner-admin-v2 .main-content :is(.alert,.notice,.empty-state,.owner-empty){border-radius:12px}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi){color:#fff!important}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi) :is(span,strong,b,small,p,i){color:#fff!important}
+.owner-admin-v2 .main-content :is(.owner-primary-btn,.course-primary-btn,.btn-primary){background:var(--ui-primary)!important;border-color:var(--ui-primary)!important;color:#fff!important}
+.owner-admin-v2 .main-content :is(.owner-secondary-btn,.course-secondary-btn,.btn-secondary){background:#fff!important;border:1px solid var(--ui-border-strong)!important;color:var(--ui-heading)!important}
+.owner-admin-v2 .main-content :is(.owner-danger-btn,.btn-danger){background:#fff5f6!important;border:1px solid #f0c5cd!important;color:#a1263d!important}
+.owner-admin-v2 .main-content :is(a:not([class]),.owner-text-link){color:#7b2c42}
+.owner-admin-v2 .main-content :is(.owner-filter-bar,.owner-page-toolbar,.owner-classroom-filters,.owner-people-filter,.owner-resource-filters,.owner-product-filters){background:#f7f9fc!important;border-color:var(--ui-border)!important}
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi){border-radius:15px!important}
+@media(max-width:760px){.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi){min-height:112px;padding:13px}.owner-admin-v2 .main-content :is(.dashboard-panel,.owner-panel,.owner-form-card,.owner-form-section){padding:14px!important}}
