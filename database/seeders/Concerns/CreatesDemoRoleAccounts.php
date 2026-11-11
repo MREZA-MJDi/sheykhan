@@ -35,10 +35,16 @@ trait CreatesDemoRoleAccounts
             $user->restore();
         }
 
-        // Demo identities are deliberately reset to the documented shared password.
-        // No name, mobile, status, profile, or other existing account data is overwritten.
-        if (! Hash::check('password', (string) $user->getAuthPassword())) {
-            $user->forceFill(['password' => 'password'])->save();
+        // Seeders and the quick-login panel must always share one configured password.
+        // Keep this idempotent and never overwrite profile or account identity fields.
+        $seedPassword = (string) config('role_access.seed_password', 'password');
+
+        if (blank($seedPassword)) {
+            throw new \\RuntimeException('Set SEED_USER_PASSWORD before seeding demo accounts.');
+        }
+
+        if (! Hash::check($seedPassword, (string) $user->getAuthPassword())) {
+            $user->forceFill(['password' => $seedPassword])->save();
         }
 
         $role = Role::query()->where('slug', $roleSlug)->firstOrFail();
