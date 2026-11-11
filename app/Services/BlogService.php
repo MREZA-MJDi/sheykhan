@@ -56,6 +56,7 @@ class BlogService
                 'media' => fn ($query) => $query
                     ->where('visibility', 'public')
                     ->where('status', 'active')
+                    ->wherePivot('collection', 'cover')
                     ->orderByPivot('sort_order'),
             ]);
     }
