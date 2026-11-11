@@ -3,7 +3,6 @@
 @import 'tailwindcss' source(none);
 @import './panels/shared/calendar.css';
 @import './panels/shared/components.css';
-@import './panels/owner/admin.css';
 @import './spotplayer.css';
 @import './admin-white-system.css';
 @import './panels/owner/admin.css';
