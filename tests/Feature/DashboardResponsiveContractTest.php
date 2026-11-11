@@ -82,11 +82,13 @@ class DashboardResponsiveContractTest extends TestCase
         $ownerLayout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
         $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
         $studentSidebar = file_get_contents(resource_path('views/student/partials/sidebar.blade.php'));
+        $parentSidebar = file_get_contents(resource_path('views/components/navigation/parent-sidebar.blade.php'));
+        $parentCss = file_get_contents(resource_path('css/parent.css'));
         $ownerCss = file_get_contents(resource_path('css/admin-white-system.css'));
         $teacherCss = file_get_contents(resource_path('css/teacher.css'));
         $studentCss = file_get_contents(resource_path('css/student.css'));
 
-        foreach ([$ownerLayout, $teacherLayout, $studentSidebar, $ownerCss, $teacherCss, $studentCss] as $asset) {
+        foreach ([$ownerLayout, $teacherLayout, $studentSidebar, $parentSidebar, $ownerCss, $teacherCss, $studentCss, $parentCss] as $asset) {
             $this->assertIsString($asset);
         }
 
@@ -96,5 +98,7 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('--nav-learning', $ownerCss);
         $this->assertStringContainsString('--brand-secondary: #24364f', $teacherCss);
         $this->assertStringContainsString('--brand-primary: #7b2c42', $studentCss);
+        $this->assertStringContainsString('data-nav-category="communication"', $parentSidebar);
+        $this->assertStringContainsString('--parent-nav-accent', $parentCss);
     }
 }
