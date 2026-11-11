@@ -541,3 +541,31 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 @media (max-width: 600px) {
  .owner-admin-v2 .main-content .owner-online-links-page .weekly-calendar-grid{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Category-aware navigation: the brand burgundy/navy pair anchors a restrained, accessible accent system. */
+.owner-admin-v2 {
+  --nav-control: #7b2c42;
+  --nav-people: #2866a5;
+  --nav-communications: #16806f;
+  --nav-learning: #6b55a5;
+  --nav-finance: #9a650d;
+  --nav-site: #3e7186;
+  --nav-settings: #526174;
+}
+.owner-admin-v2 .nav-group { --nav-accent: var(--nav-control); }
+.owner-admin-v2 .nav-group[data-nav-category="people"] { --nav-accent: var(--nav-people); }
+.owner-admin-v2 .nav-group[data-nav-category="communications"] { --nav-accent: var(--nav-communications); }
+.owner-admin-v2 .nav-group[data-nav-category="learning"] { --nav-accent: var(--nav-learning); }
+.owner-admin-v2 .nav-group[data-nav-category="finance"] { --nav-accent: var(--nav-finance); }
+.owner-admin-v2 .nav-group[data-nav-category="site"] { --nav-accent: var(--nav-site); }
+.owner-admin-v2 .nav-group[data-nav-category="settings"] { --nav-accent: var(--nav-settings); }
+.owner-admin-v2 .nav-group .gh { color: color-mix(in srgb, var(--nav-accent) 82%, var(--ui-heading)); }
+.owner-admin-v2 .nav-group .gh i { background: var(--nav-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--nav-accent) 12%, white); }
+.owner-admin-v2 .nav-group .ni .ic { stroke: var(--nav-accent); }
+.owner-admin-v2 .nav-group .ni:hover { background: color-mix(in srgb, var(--nav-accent) 7%, white); color: var(--nav-accent); }
+.owner-admin-v2 .nav-group .ni[aria-current="page"] { color: var(--nav-accent); background: color-mix(in srgb, var(--nav-accent) 10%, white); box-shadow: inset -3px 0 0 var(--nav-accent); }
+.owner-admin-v2 .nav-group .ni[aria-current="page"] .ic { stroke: var(--nav-accent); }
+.owner-admin-v2 .main-content :is(.owner-stat-card,.course-stat,.card.kpi) { border-top: 3px solid color-mix(in srgb, var(--ui-primary) 72%, var(--ui-navy)); }
+.owner-admin-v2 .main-content :is(.owner-page-intro,.owner-workspace-header,.owner-page-header) :is(.eyebrow,.kicker,.owner-page-kicker) { color: var(--ui-primary); }
+@media (prefers-reduced-motion: reduce) { .owner-admin-v2 .nav-group .ni { transition: none; } }
