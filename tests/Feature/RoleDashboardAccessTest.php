@@ -45,6 +45,60 @@ class RoleDashboardAccessTest extends TestCase
         }
     }
 
+    public function test_every_quick_login_account_authenticates_and_reaches_its_own_dashboard(): void
+    {
+        $this->seed();
+
+        foreach (config('role_access.test_accounts', []) as $account) {
+            $user = User::query()
+                ->where('email', $account['email'])
+                ->firstOrFail();
+
+            $this->get(route('login'))
+                ->assertOk()
+                ->assertSee($user->mobile)
+                ->assertSee($account['role']);
+
+            $this->post(route('login.store'), [
+                'mobile' => $user->mobile,
+                'password' => (string) config('role_access.test_password'),
+            ])->assertRedirect(route(config('role_access.dashboard_routes')[$account['role_key']]));
+
+            $this->get(route(config('role_access.dashboard_routes')[$account['role_key']]))
+                ->assertOk();
+
+            $this->post(route('logout'))->assertRedirect(route('home'));
+        }
+    }
+
+    public function test_each_panel_rejects_users_from_other_roles(): void
+    {
+        $this->seed();
+
+        $panels = [
+            ['owner@sheykhan.test', 'owner.dashboard'],
+            ['teacher.math@sheykhan.test', 'teacher.dashboard'],
+            ['student.armin@sheykhan.test', 'student.dashboard'],
+            ['parent.armin@sheykhan.test', 'parent.dashboard'],
+            ['seo.demo@sheykhan.test', 'seo.index'],
+        ];
+
+        foreach ($panels as [$email, $ownRoute]) {
+            $user = User::query()->where('email', $email)->firstOrFail();
+
+            foreach ($panels as [$otherEmail, $otherRoute]) {
+                if ($email === $otherEmail) {
+                    continue;
+                }
+
+                $otherUser = User::query()->where('email', $otherEmail)->firstOrFail();
+
+                $this->actingAs($user)->get(route($otherRoute))->assertForbidden();
+                $this->actingAs($otherUser)->get(route($ownRoute))->assertForbidden();
+            }
+        }
+    }
+
     public function test_student_cannot_open_teacher_or_owner_dashboards(): void
     {
         $this->seed();
