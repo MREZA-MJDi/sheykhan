@@ -1,6 +1,5 @@
 <?php
 
-$appEnvironment = (string) env('APP_ENV', 'production');
 $mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
     (string) (abs(crc32($key)) % 10000000),
     7,
@@ -8,75 +7,48 @@ $mobileForSeedKey = static fn (string $key): string => '0912' . str_pad(
     STR_PAD_LEFT
 );
 
-// Tests and local development seed accounts with deterministic fixture mobiles.
-// Production uses the persisted demo users' real mobile numbers.
-$testAccounts = in_array($appEnvironment, ['local', 'testing'], true)
-    ? [
-        [
-            'role' => 'مدیر آموزشگاه',
-            'role_key' => 'academy-owner',
-            'name' => 'مدیر آموزشگاه',
-            'username' => $mobileForSeedKey('owner'),
-        ],
-        [
-            'role' => 'متخصص SEO',
-            'role_key' => 'seo-specialist',
-            'name' => 'متخصص SEO',
-            'username' => $mobileForSeedKey('seo-specialist'),
-        ],
-        [
-            'role' => 'مدرس',
-            'role_key' => 'teacher',
-            'name' => 'سمیه احمدی',
-            'email' => 'teacher.math@sheykhan.test',
-            'username' => $mobileForSeedKey('teacher-math'),
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'آرین محمدی',
-            'username' => $mobileForSeedKey('student-SH-1001'),
-        ],
-        [
-            'role' => 'والد',
-            'role_key' => 'parent',
-            'name' => 'مریم محمدی',
-            'username' => $mobileForSeedKey('parent-0'),
-        ],
-    ]
-    : [
-        [
-            'role' => 'مدیر آموزشگاه',
-            'role_key' => 'academy-owner',
-            'name' => 'مدیر آموزشگاه',
-            'username' => '091779234175',
-        ],
-        [
-            'role' => 'متخصص SEO',
-            'role_key' => 'seo-specialist',
-            'name' => 'متخصص SEO',
-            'username' => $mobileForSeedKey('seo-specialist'),
-        ],
-        [
-            'role' => 'مدرس',
-            'role_key' => 'teacher',
-            'name' => 'سمیه احمدی',
-            'email' => 'teacher.math@sheykhan.test',
-            'username' => '09123581267',
-        ],
-        [
-            'role' => 'دانش‌آموز',
-            'role_key' => 'student',
-            'name' => 'آرین محمدی',
-            'username' => '091866242658',
-        ],
-        [
-            'role' => 'والد',
-            'role_key' => 'parent',
-            'name' => 'مریم محمدی',
-            'username' => '091207448926',
-        ],
-    ];
+// Keep the quick-login directory aligned with the idempotent demo-account seeders.
+// The persisted mobile is resolved by email at login-page render time, so legacy
+// numbers remain usable without shipping environment-specific stale phone numbers.
+$demoPassword = (string) env('SEED_USER_PASSWORD', 'password');
+
+$testAccounts = [
+    [
+        'role' => 'مدیر آموزشگاه',
+        'role_key' => 'academy-owner',
+        'name' => 'مدیر آموزشگاه',
+        'email' => 'owner@sheykhan.test',
+        'username' => $mobileForSeedKey('owner'),
+    ],
+    [
+        'role' => 'متخصص SEO',
+        'role_key' => 'seo-specialist',
+        'name' => 'متخصص SEO',
+        'email' => 'seo.demo@sheykhan.test',
+        'username' => $mobileForSeedKey('seo-specialist'),
+    ],
+    [
+        'role' => 'مدرس',
+        'role_key' => 'teacher',
+        'name' => 'سمیه احمدی',
+        'email' => 'teacher.math@sheykhan.test',
+        'username' => $mobileForSeedKey('teacher-math'),
+    ],
+    [
+        'role' => 'دانش‌آموز',
+        'role_key' => 'student',
+        'name' => 'آرین محمدی',
+        'email' => 'student.armin@sheykhan.test',
+        'username' => $mobileForSeedKey('student-armin'),
+    ],
+    [
+        'role' => 'والد',
+        'role_key' => 'parent',
+        'name' => 'مریم محمدی',
+        'email' => 'parent.armin@sheykhan.test',
+        'username' => $mobileForSeedKey('parent-armin'),
+    ],
+];
 
 return [
     'seo_specialist_email' => env('SEO_SPECIALIST_EMAIL', 'seo@sheykhan.com'),
@@ -89,10 +61,9 @@ return [
         'parent' => 'parent.dashboard',
     ],
 
-    // Demo credentials are intentionally available in every environment.
-    'show_test_accounts' => true,
-    'seed_password' => 'password',
-    'test_password' => 'password',
-
+    // This value is shared by seeders and the quick-login UI; never duplicate it.
+    'show_test_accounts' => (bool) env('SHOW_DEMO_ACCOUNTS', true),
+    'seed_password' => $demoPassword,
+    'test_password' => $demoPassword,
     'test_accounts' => $testAccounts,
 ];
