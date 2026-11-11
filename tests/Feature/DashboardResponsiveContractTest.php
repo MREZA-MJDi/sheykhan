@@ -76,4 +76,25 @@ class DashboardResponsiveContractTest extends TestCase
         $this->assertStringContainsString('padding:clamp(8px,2vw,24px)', $studentCss);
         $this->assertStringContainsString('.fab{bottom:84px;left:14px}', $teacherCss);
     }
+
+    public function test_dashboard_sidebars_expose_accessible_category_color_hooks(): void
+    {
+        $ownerLayout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
+        $teacherLayout = file_get_contents(resource_path('views/layouts/teacher.blade.php'));
+        $studentSidebar = file_get_contents(resource_path('views/student/partials/sidebar.blade.php'));
+        $ownerCss = file_get_contents(resource_path('css/admin-white-system.css'));
+        $teacherCss = file_get_contents(resource_path('css/teacher.css'));
+        $studentCss = file_get_contents(resource_path('css/student.css'));
+
+        foreach ([$ownerLayout, $teacherLayout, $studentSidebar, $ownerCss, $teacherCss, $studentCss] as $asset) {
+            $this->assertIsString($asset);
+        }
+
+        $this->assertStringContainsString('data-nav-category="{{ $navGroup[\'key\'] }}"', $ownerLayout);
+        $this->assertStringContainsString('data-nav-category="{{ $loop->parent->index }}"', $teacherLayout);
+        $this->assertStringContainsString('data-nav-category="{{ $studentNavCategory }}"', $studentSidebar);
+        $this->assertStringContainsString('--nav-learning', $ownerCss);
+        $this->assertStringContainsString('--brand-secondary: #24364f', $teacherCss);
+        $this->assertStringContainsString('--brand-primary: #7b2c42', $studentCss);
+    }
 }
