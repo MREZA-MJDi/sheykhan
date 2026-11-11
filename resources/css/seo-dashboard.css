@@ -5,7 +5,6 @@
 @import './panels/owner/record-modals.css';
 @import './panels/seo/components.css';
 @import './panels/seo/admin.css';
-@import './panels/seo/shell.css';
 
 @source '../../resources/views/owner';
 @source '../../resources/views/seo';
