@@ -72,6 +72,7 @@ class AuthController extends Controller
                     return $account;
                 })
                 ->values();
+        }
 
         return view('auth.login', [
             'testAccounts' => $testAccounts,
