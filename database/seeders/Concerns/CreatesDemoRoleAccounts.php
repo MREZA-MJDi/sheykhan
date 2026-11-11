@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\Seeders\Concerns;
+namespace Database\\Seeders\\Concerns;
 
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\\Models\\Role;
+use App\\Models\\User;
+use Illuminate\\Support\\Facades\\Hash;
 
 trait CreatesDemoRoleAccounts
 {
@@ -21,13 +21,19 @@ trait CreatesDemoRoleAccounts
             STR_PAD_LEFT,
         );
 
+        $seedPassword = (string) config('role_access.seed_password', 'password');
+
+        if (blank($seedPassword)) {
+            throw new \\RuntimeException('Set SEED_USER_PASSWORD before seeding demo accounts.');
+        }
+
         $user = User::withTrashed()->firstOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
                 'mobile' => $mobile,
                 'status' => 'active',
-                'password' => 'password',
+                'password' => $seedPassword,
             ],
         );
 
@@ -35,14 +41,8 @@ trait CreatesDemoRoleAccounts
             $user->restore();
         }
 
-        // Seeders and the quick-login panel must always share one configured password.
-        // Keep this idempotent and never overwrite profile or account identity fields.
-        $seedPassword = (string) config('role_access.seed_password', 'password');
-
-        if (blank($seedPassword)) {
-            throw new \\RuntimeException('Set SEED_USER_PASSWORD before seeding demo accounts.');
-        }
-
+        // Keep existing identity/profile data intact while syncing the documented
+        // demo password with the same value shown by the quick-login panel.
         if (! Hash::check($seedPassword, (string) $user->getAuthPassword())) {
             $user->forceFill(['password' => $seedPassword])->save();
         }
@@ -53,7 +53,7 @@ trait CreatesDemoRoleAccounts
         if (! $hasAnyRole) {
             $user->roles()->attach($role->id);
         } elseif (! $user->roles()->whereKey($role->id)->exists()) {
-            throw new \RuntimeException(
+            throw new \\RuntimeException(
                 "Demo account {$email} already belongs to another role; refusing to change its access."
             );
         }
