@@ -6,6 +6,7 @@
     if (!forms.length) return;
 
     forms.forEach((form) => {
+        const originalParent = form.parentElement;
         const kind = form.dataset.ownerPeopleCreate;
         const title = form.dataset.ownerPeopleCreateTitle || 'ایجاد عضو';
         const trigger = document.createElement('button');
@@ -15,6 +16,8 @@
             : kind === 'parent' ? '＋ ثبت اولیا'
                 : '＋ ساخت حساب مدرس';
         trigger.setAttribute('aria-haspopup', 'dialog');
+
+        originalParent?.insertBefore(trigger, form);
 
         const dialog = document.createElement('dialog');
         dialog.className = 'owner-people-create-dialog';
@@ -41,7 +44,6 @@
         dialog.append(header, body);
         document.body.append(dialog);
 
-        form.parentElement?.insertBefore(trigger, form);
         trigger.addEventListener('click', () => {
             if (!dialog.open) dialog.showModal();
             const focusTarget = form.querySelector('input:not([type="hidden"]), select, textarea');
