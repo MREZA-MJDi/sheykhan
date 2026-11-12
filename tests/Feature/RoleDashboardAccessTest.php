@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Support\MobileNumber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -61,7 +62,7 @@ class RoleDashboardAccessTest extends TestCase
             ->firstOrFail();
         $staleOwner = User::factory()->create([
             'email' => 'owner@sheykhan.test',
-            'mobile' => '09120000001',
+            'mobile' => '091779234175',
             'status' => 'inactive',
             'password' => 'Previous-Demo-Password-2025',
         ]);
@@ -71,11 +72,25 @@ class RoleDashboardAccessTest extends TestCase
         // the same account synchronizer as the explicit demo seeder.
         $this->seed();
 
+        $repairedOwner = User::query()
+            ->where('email', 'owner@sheykhan.test')
+            ->firstOrFail();
+
+        $this->assertTrue(
+            MobileNumber::valid(MobileNumber::normalize($repairedOwner->mobile)),
+            'Legacy malformed demo mobile must be repaired to a valid Iranian mobile.',
+        );
+        $this->assertNotSame('091779234175', $repairedOwner->mobile);
+
         foreach (config('role_access.test_accounts', []) as $account) {
             $user = User::query()
                 ->where('email', $account['email'])
                 ->firstOrFail();
 
+            $this->assertTrue(
+                MobileNumber::valid(MobileNumber::normalize($user->mobile)),
+                $account['email'] . ' must have a valid login mobile',
+            );
             $this->assertSame('active', $user->status, $account['email'] . ' must be active');
             $this->assertTrue($user->hasRole($account['role_key']), $account['email'] . ' must keep its expected role');
             $this->assertTrue(
