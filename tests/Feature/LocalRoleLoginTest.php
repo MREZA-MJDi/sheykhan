@@ -53,6 +53,35 @@ class LocalRoleLoginTest extends TestCase
         }
     }
 
+    public function test_production_can_render_synced_demo_credentials_when_explicitly_enabled(): void
+    {
+        $previousEnvironment = $this->app['env'];
+        $password = 'Production-Demo-Only-2026!';
+
+        config([
+            'role_access.seed_password' => $password,
+            'role_access.test_password' => $password,
+        ]);
+        $this->seed();
+
+        try {
+            $this->app['env'] = 'production';
+            config([
+                'role_access.show_test_accounts' => true,
+                'role_access.test_password' => $password,
+            ]);
+
+            $this->get(route('login'))
+                ->assertOk()
+                ->assertSee('ورود سریع به نقش‌های سامانه')
+                ->assertSee($password)
+                ->assertSee(User::query()->where('email', 'owner@sheykhan.test')->value('mobile'))
+                ->assertSee('data-test-login-fill', false);
+        } finally {
+            $this->app['env'] = $previousEnvironment;
+        }
+    }
+
     public function test_only_active_accounts_with_the_expected_role_are_listed(): void
     {
         $this->seed();
