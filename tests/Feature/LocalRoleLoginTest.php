@@ -103,7 +103,7 @@ class LocalRoleLoginTest extends TestCase
         $this->get(route('login'))
             ->assertOk()
             ->assertDontSee(User::query()->where('email', 'owner@sheykhan.test')->value('mobile'))
-            ->assertSee('حساب فعالی برای نمایش پیدا نشد');
+            ->assertSee('حساب نمایشی با رمز تنظیم‌شده همگام نیست.');
     }
 
     public function test_demo_credentials_are_not_rendered_outside_local_and_testing(): void
