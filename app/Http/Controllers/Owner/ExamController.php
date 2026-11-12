@@ -13,6 +13,7 @@ use App\Services\TeacherAssessmentService;
 use App\Models\User;
 use App\Services\ExamQuestionWriter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -268,7 +269,7 @@ final class ExamController extends Controller
             ->firstOrFail();
     }
 
-    private function assignableCourses(Academy $academy): Builder
+    private function assignableCourses(Academy $academy): HasMany
     {
         return $academy->courses()->whereHas('teachers');
     }
