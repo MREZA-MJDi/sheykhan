@@ -24,14 +24,7 @@ class DatabaseSeeder extends Seeder
         // private password. Never abort a production seed when the secret is absent.
         // Each role seeder remains idempotent and independent when enabled.
         if (filled(config('role_access.seed_password'))) {
-            $this->call([
-                AcademyOwnerDemoAccountSeeder::class,
-                SeoSpecialistDemoAccountSeeder::class,
-                TeacherDemoAccountsSeeder::class,
-                StudentDemoAccountsSeeder::class,
-                ParentDemoAccountsSeeder::class,
-                AcademyFoundationSeeder::class,
-            ]);
+            $this->call(DemoAccountsSeeder::class);
         }
 
         // Legacy identities are imported only with explicit private-environment opt-in.
