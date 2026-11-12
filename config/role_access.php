@@ -16,8 +16,10 @@ $configuredDemoPassword = env('SEED_USER_PASSWORD');
 $demoPassword = filled($configuredDemoPassword)
     ? (string) $configuredDemoPassword
     : ($isLocalEnvironment ? 'password' : '');
+// Either documented switch enables the demo directory. This avoids a stale
+// SHOW_TEST_ACCOUNTS=false value silently overriding SHOW_DEMO_ACCOUNTS=true.
 $showDemoAccounts = $demoPassword !== ''
-    && (bool) env('SHOW_TEST_ACCOUNTS', env('SHOW_DEMO_ACCOUNTS', $isLocalEnvironment));
+    && (bool) (env('SHOW_DEMO_ACCOUNTS', false) || env('SHOW_TEST_ACCOUNTS', $isLocalEnvironment));
 
 $testAccounts = [
     [
