@@ -55,8 +55,8 @@ class RoleDashboardAccessTest extends TestCase
         ]);
 
         // Simulate an existing owner left behind by an older deployment.
-        $this->seed(\\Database\\Seeders\\RolePermissionSeeder::class);
-        $ownerRole = \\App\\Models\\Role::query()
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+        $ownerRole = \App\Models\Role::query()
             ->where('slug', 'academy-owner')
             ->firstOrFail();
         $staleOwner = User::factory()->create([
@@ -79,7 +79,7 @@ class RoleDashboardAccessTest extends TestCase
             $this->assertSame('active', $user->status, $account['email'] . ' must be active');
             $this->assertTrue($user->hasRole($account['role_key']), $account['email'] . ' must keep its expected role');
             $this->assertTrue(
-                \\Illuminate\\Support\\Facades\\Hash::check($configuredPassword, (string) $user->getAuthPassword()),
+                \Illuminate\Support\Facades\Hash::check($configuredPassword, (string) $user->getAuthPassword()),
                 $account['email'] . ' must match the password displayed by quick login',
             );
         }
