@@ -4,6 +4,7 @@ namespace Database\Seeders\Concerns;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Support\MobileNumber;
 use Illuminate\Support\Facades\Hash;
 
 trait CreatesDemoRoleAccounts
@@ -52,6 +53,13 @@ trait CreatesDemoRoleAccounts
             $updates['status'] = 'active';
         }
 
+        // Older demo seeds accidentally persisted 12-digit mobiles. Such values
+        // are displayed on login but rejected by the Iranian mobile validator.
+        // Repair only malformed demo identifiers; preserve valid existing numbers.
+        if (! MobileNumber::valid(MobileNumber::normalize($user->mobile))) {
+            $updates['mobile'] = $this->availableDemoMobile($mobileKey, $user->getKey());
+        }
+
         if ($updates !== []) {
             $user->forceFill($updates)->save();
         }
@@ -74,7 +82,7 @@ trait CreatesDemoRoleAccounts
      * Generate a stable demo mobile number, probing only when another account
      * (including a soft-deleted one) already owns the preferred number.
      */
-    private function availableDemoMobile(string $mobileKey): string
+    private function availableDemoMobile(string $mobileKey, int|string|null $ignoreUserId = null): string
     {
         $base = abs(crc32($mobileKey)) % 10000000;
 
@@ -82,7 +90,13 @@ trait CreatesDemoRoleAccounts
             $tail = ($base + $attempt) % 10000000;
             $candidate = '0912' . str_pad((string) $tail, 7, '0', STR_PAD_LEFT);
 
-            if (! User::withTrashed()->where('mobile', $candidate)->exists()) {
+            $query = User::withTrashed()->where('mobile', $candidate);
+
+            if ($ignoreUserId !== null) {
+                $query->whereKeyNot($ignoreUserId);
+            }
+
+            if (! $query->exists()) {
                 return $candidate;
             }
         }
