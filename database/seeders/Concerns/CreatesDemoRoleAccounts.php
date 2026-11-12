@@ -41,9 +41,19 @@ trait CreatesDemoRoleAccounts
         }
 
         // Keep existing identity/profile data intact while syncing the documented
-        // demo password with the same value shown by the quick-login panel.
+        // demo password and active status with the quick-login panel.
+        $updates = [];
+
         if (! Hash::check($seedPassword, (string) $user->getAuthPassword())) {
-            $user->forceFill(['password' => $seedPassword])->save();
+            $updates['password'] = $seedPassword;
+        }
+
+        if ($user->status !== 'active') {
+            $updates['status'] = 'active';
+        }
+
+        if ($updates !== []) {
+            $user->forceFill($updates)->save();
         }
 
         $role = Role::query()->where('slug', $roleSlug)->firstOrFail();
