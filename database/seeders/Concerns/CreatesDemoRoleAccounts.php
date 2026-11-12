@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\\Seeders\\Concerns;
+namespace Database\Seeders\Concerns;
 
-use App\\Models\\Role;
-use App\\Models\\User;
-use Illuminate\\Support\\Facades\\Hash;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 trait CreatesDemoRoleAccounts
 {
@@ -17,7 +17,7 @@ trait CreatesDemoRoleAccounts
         $seedPassword = (string) config('role_access.seed_password', 'password');
 
         if (blank($seedPassword)) {
-            throw new \\RuntimeException('Set SEED_USER_PASSWORD before seeding demo accounts.');
+            throw new \RuntimeException('Set SEED_USER_PASSWORD before seeding demo accounts.');
         }
 
         // Resolve by the stable identity first. Existing demo accounts keep their
@@ -52,7 +52,7 @@ trait CreatesDemoRoleAccounts
         if (! $hasAnyRole) {
             $user->roles()->attach($role->id);
         } elseif (! $user->roles()->whereKey($role->id)->exists()) {
-            throw new \\RuntimeException(
+            throw new \RuntimeException(
                 "Demo account {$email} already belongs to another role; refusing to change its access."
             );
         }
@@ -77,6 +77,6 @@ trait CreatesDemoRoleAccounts
             }
         }
 
-        throw new \\RuntimeException('Unable to allocate a unique mobile number for a demo account.');
+        throw new \RuntimeException('Unable to allocate a unique mobile number for a demo account.');
     }
 }
