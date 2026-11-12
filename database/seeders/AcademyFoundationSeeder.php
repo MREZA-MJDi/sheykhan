@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 
 class AcademyFoundationSeeder extends Seeder
 {
+    use CreatesDemoRoleAccounts;
+
     public function run(): void
     {
         // Keep each demo teacher and student as a separate login so course scopes are visible.
@@ -161,32 +163,7 @@ class AcademyFoundationSeeder extends Seeder
         }
     }
 
-    private function user(string $email,string $name,string $key,string $roleSlug): User
+    private function user(string $email, string $name, string $key, string $roleSlug): User
     {
-        // Keep the documented demo credentials usable even when the user
-        // already existed from an earlier seed with an old password/status.
-        $seedPassword = config('role_access.seed_password');
-        if (blank($seedPassword) && ! app()->environment(['local', 'testing'])) {
-            throw new \RuntimeException(
-                'Set SEED_USER_PASSWORD before seeding demo accounts outside local/testing environments.'
-            );
-        }
-        $seedPassword = $seedPassword ?: 'Sheykhan@12345';
-
-        $user = User::withTrashed()->firstOrCreate(
-            ['email' => $email],
-            [
-                'name' => $name,
-                'mobile' => '0912' . str_pad((string) (abs(crc32($key)) % 10000000), 7, '0', STR_PAD_LEFT),
-                'status' => 'active',
-                'password' => $seedPassword,
-                'deleted_at' => null,
-            ],
-        );
-
-        $user->roles()->syncWithoutDetaching([
-            Role::where('slug', $roleSlug)->value('id'),
-        ]);
-        return $user;
-    }
-}
+        return $this->createDemoRoleAccount($email, $name, $key, $roleSlug);
+    }}
