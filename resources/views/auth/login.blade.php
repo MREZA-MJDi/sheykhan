@@ -201,7 +201,8 @@
         </div>
     @empty
         <div class="mt-3 rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-xs text-[var(--color-text-muted)]">
-            حساب فعالی برای نمایش پیدا نشد. وجود حساب و نقش آن را در دیتابیس بررسی کن.
+            حساب نمایشی با رمز تنظیم‌شده همگام نیست. روی سرور ابتدا تنظیمات را تازه‌سازی و سپس حساب‌های نمایشی را همگام کن:
+            <code dir="ltr" class="mt-2 block select-all text-[11px]">php artisan config:clear && php artisan config:cache && php artisan db:seed --class=DemoAccountsSeeder --force</code>
         </div>
     @endforelse
 
