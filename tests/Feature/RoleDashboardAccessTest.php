@@ -45,25 +45,49 @@ class RoleDashboardAccessTest extends TestCase
         }
     }
 
-    public function test_demo_seeders_use_the_same_configured_password_as_quick_login(): void
+    public function test_demo_seeders_sync_one_configured_password_for_all_quick_login_roles(): void
     {
         $configuredPassword = 'Configured-Demo-Password-2026';
         config([
             'role_access.seed_password' => $configuredPassword,
             'role_access.test_password' => $configuredPassword,
+            'role_access.show_test_accounts' => true,
         ]);
 
-        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
-        $this->seed(\Database\Seeders\TeacherDemoAccountsSeeder::class);
-
-        $teacher = User::query()
-            ->where('email', 'teacher.math@sheykhan.test')
+        // Simulate an existing owner left behind by an older deployment.
+        $this->seed(\\Database\\Seeders\\RolePermissionSeeder::class);
+        $ownerRole = \\App\\Models\\Role::query()
+            ->where('slug', 'academy-owner')
             ->firstOrFail();
+        $staleOwner = User::factory()->create([
+            'email' => 'owner@sheykhan.test',
+            'mobile' => '09120000001',
+            'status' => 'inactive',
+            'password' => 'Previous-Demo-Password-2025',
+        ]);
+        $staleOwner->roles()->attach($ownerRole->id);
 
-        $this->assertTrue(\Illuminate\Support\Facades\Hash::check(
-            $configuredPassword,
-            (string) $teacher->getAuthPassword(),
-        ));
+        // DatabaseSeeder's testing path runs TestFixtureSeeder, which must use
+        // the same account synchronizer as the explicit demo seeder.
+        $this->seed();
+
+        foreach (config('role_access.test_accounts', []) as $account) {
+            $user = User::query()
+                ->where('email', $account['email'])
+                ->firstOrFail();
+
+            $this->assertSame('active', $user->status, $account['email'] . ' must be active');
+            $this->assertTrue($user->hasRole($account['role_key']), $account['email'] . ' must keep its expected role');
+            $this->assertTrue(
+                \\Illuminate\\Support\\Facades\\Hash::check($configuredPassword, (string) $user->getAuthPassword()),
+                $account['email'] . ' must match the password displayed by quick login',
+            );
+        }
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee($configuredPassword)
+            ->assertSee('ورود سریع به نقش‌های سامانه');
     }
 
     public function test_every_quick_login_account_authenticates_and_reaches_its_own_dashboard(): void
