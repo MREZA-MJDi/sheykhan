@@ -4,12 +4,11 @@ namespace Database\Seeders;
 use App\Models\Academy;
 use App\Models\AcademicGrade;
 use App\Models\ParentProfile;
-use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use Database\Seeders\Concerns\CreatesDemoRoleAccounts;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class AcademyFoundationSeeder extends Seeder
 {
@@ -166,4 +165,6 @@ class AcademyFoundationSeeder extends Seeder
     private function user(string $email, string $name, string $key, string $roleSlug): User
     {
         return $this->createDemoRoleAccount($email, $name, $key, $roleSlug);
-    }}
+    }
+}
+
