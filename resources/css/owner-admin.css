@@ -1760,16 +1760,16 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 
 /* Owner dashboard: operational workspace, scoped to the dashboard route only. */
 .owner-admin-v2.owner-dashboard-live {
-    --dash-ink:#17243a;
-    --dash-muted:#66758a;
-    --dash-line:#e5eaf1;
+    --dash-ink:#17224b;
+    --dash-muted:#65718f;
+    --dash-line:#e4e8f4;
     --dash-surface:#ffffff;
-    --dash-canvas:#f4f7fb;
-    --dash-blue:#2866c7;
-    --dash-teal:#0f9b91;
-    --dash-violet:#7557d8;
-    --dash-amber:#c27a16;
-    --dash-red:#c44758;
+    --dash-canvas:#f4f5fb;
+    --dash-blue:#293d98;
+    --dash-teal:#16836b;
+    --dash-violet:#6576cf;
+    --dash-amber:#d49a2e;
+    --dash-red:#c74d60;
     background:var(--dash-canvas);
 }
 .owner-admin-v2.owner-dashboard-live .main-content {
@@ -1790,8 +1790,8 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
     border:1px solid #263e60;
     border-radius:22px;
     background:
-      radial-gradient(circle at 8% 10%,rgba(56,189,180,.25),transparent 230px),
-      linear-gradient(120deg,#172d4b 0%,#234d70 62%,#176e77 100%);
+      radial-gradient(circle at 8% 10%,rgba(237,184,78,.20),transparent 230px),
+      linear-gradient(120deg,#172451 0%,#263a91 62%,#5265bd 100%);
     box-shadow:0 16px 38px rgba(25,53,85,.12);
     color:#fff;
 }
@@ -1806,7 +1806,7 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
 .owner-admin-v2.owner-dashboard-live .ph .chip {
     display:inline-flex;align-items:center;min-height:26px;padding:4px 10px;
     border:1px solid rgba(255,255,255,.22);border-radius:999px;
-    background:rgba(255,255,255,.1);color:#d7fff7;font-size:10px;font-weight:850;
+    background:rgba(255,255,255,.1);color:#ffe4a7;font-size:10px;font-weight:850;
 }
 .owner-admin-v2.owner-dashboard-live .ph h1 {
     margin:10px 0 4px;color:#fff!important;font-size:clamp(23px,2.6vw,34px);
@@ -1824,7 +1824,7 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
     text-decoration:none;backdrop-filter:blur(8px);transition:transform .18s ease,background .18s ease;
 }
 .owner-admin-v2.owner-dashboard-live .ph .act a.go {
-    border-color:#b7f4e7;background:#d9fff4;color:#125d57!important;
+    border-color:#b7f4e7;background:#fff;color:#293d98!important;border-color:#f4d88d;
 }
 .owner-admin-v2.owner-dashboard-live .ph .act a:hover {transform:translateY(-2px);background:rgba(255,255,255,.2)}
 .owner-admin-v2.owner-dashboard-live .main-content > .card,
@@ -1864,7 +1864,7 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
     display:flex;align-items:center;gap:8px;color:var(--dash-muted)!important;font-size:10px;font-weight:850;
 }
 .owner-admin-v2.owner-dashboard-live .main-content .card.kpi .kpi-head .ic {
-    width:30px;height:30px;padding:7px;border-radius:9px;background:#edf4ff;color:var(--kpi-accent);
+    width:30px;height:30px;padding:7px;border-radius:9px;background:#eef0ff;color:var(--kpi-accent);
 }
 .owner-admin-v2.owner-dashboard-live .main-content .card.kpi > b {
     color:var(--dash-ink)!important;font-size:clamp(22px,2.4vw,30px);font-weight:950;line-height:1.3;
@@ -1911,7 +1911,7 @@ body.owner-shell.owner-admin-v2{margin:0;min-height:100vh;padding:0;background:#
     background:#f8fafc;color:#78869a!important;text-align:center;font-size:10px;line-height:1.9;
 }
 .owner-admin-v2.owner-dashboard-live .main-content .owner-dashboard-start {
-    border-inline-start:4px solid var(--dash-teal)!important;background:#f6fffc!important;
+    border-inline-start:4px solid var(--dash-teal)!important;background:#f2faf7!important;
 }
 .owner-admin-v2.owner-dashboard-live .main-content > details > summary {color:var(--dash-ink)}
 .owner-admin-v2.owner-dashboard-live .main-content > details > summary strong {color:var(--dash-ink)!important}
