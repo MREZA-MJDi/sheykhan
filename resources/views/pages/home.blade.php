@@ -4,10 +4,6 @@
 @section('description', 'کلاس‌های هدفمند، مدرس‌های همراه و مسیر آموزشی روشن؛ همه‌چیز برای قدم بعدی یادگیری آماده است.')
 
 @section('content')
-    @php
-        $featuredCourseCards = collect($courseCards ?? [])->take(3);
-        $homePosts = collect($latestPosts ?? [])->take(3);
-    @endphp
     <div class="sh-home-page">
         <section class="sh-home-hero" aria-labelledby="sh-home-title">
             <div class="sh-home-hero__copy">
@@ -51,7 +47,7 @@
                 <a class="sh-text-link" href="{{ route('courses.index') }}">همه دوره‌ها <span>←</span></a>
             </div>
             <div class="sh-course-grid">
-                @forelse($featuredCourseCards as $course)
+                @forelse($courseCards as $course)
                     <article class="sh-course-card">
                         <div class="sh-course-card__art sh-course-card__art--{{ $loop->iteration % 3 }}{{ filled($course['image'] ?? null) ? ' has-image' : '' }}">
                             @if(filled($course['image'] ?? null))
@@ -95,7 +91,7 @@
             <a class="sh-button sh-button--light" href="{{ auth()->check() ? route('dashboard') : route('login') }}">ورود به فضای یادگیری <span>←</span></a>
         </section>
 
-        @if($homePosts->isNotEmpty())
+        @if($latestPosts->isNotEmpty())
             <section class="sh-home-section sh-home-articles" id="articles" aria-labelledby="sh-articles-title">
                 <div class="sh-section-head">
                     <div>
@@ -106,7 +102,7 @@
                     <a class="sh-text-link" href="{{ route('blog.index') }}">همه مقاله‌ها <span>←</span></a>
                 </div>
                 <div class="sh-article-grid">
-                    @foreach($homePosts as $post)
+                    @foreach($latestPosts as $post)
                         <article class="sh-article-card">
                             @if($post->media->isNotEmpty())
                                 <a class="sh-article-card__image" href="{{ route('blog.show', $post->slug) }}">
