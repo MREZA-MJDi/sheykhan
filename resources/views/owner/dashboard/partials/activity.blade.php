@@ -44,17 +44,34 @@
             </section>
         @endif
 
-        @if($canViewResources && $canViewPeople)
+        @if(($canViewResources || $canViewMeetings) && $canViewPeople)
             <section class="card c4 owner-learning-activity" aria-labelledby="learning-activity-title" style="--c:#0d9488">
                 <div class="card-title">
                     <div>
-                        <h2 id="learning-activity-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span>آخرین فعالیت آموزشی</h2>
-                        <p>دانش‌آموزانی که جزوه یا منبع آموزشی را باز کرده‌اند.</p>
+                        <h2 id="learning-activity-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span>رفت‌وآمد آموزشی دانش‌آموزان</h2>
+                        <p>باز کردن جزوه‌ها و اقدام برای ورود به کلاس‌های آنلاین.</p>
                     </div>
-                    @if($canViewOrders && $firstAcademy)
-                        <a class="table-link" href="{{ route('owner.protected-file-views.index', $firstAcademy) }}">گزارش کامل ←</a>
-                    @endif
+                    <div class="owner-learning-activity-links">
+                        @if($canViewOrders && $firstAcademy)
+                            <a class="table-link" href="{{ route('owner.protected-file-views.index', $firstAcademy) }}">گزارش فایل‌ها ←</a>
+                        @endif
+                        @if($canViewMeetings && $firstAcademy)
+                            <a class="table-link" href="{{ route('owner.schedules.index', $firstAcademy) }}">برنامه کلاس‌ها ←</a>
+                        @endif
+                    </div>
                 </div>
+                @forelse($recentClassJoinRequests as $event)
+                    <div class="lr owner-learning-activity-row" style="--c:#2875b9">
+                        <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-video"/></svg></i>
+                        <span class="gx">
+                            <b>{{ $event->actor?->name ?? 'دانش‌آموز' }}</b>
+                            <small>{{ $event->subject?->title ?? $event->subject?->classroom?->title ?? 'کلاس آنلاین' }}</small>
+                            <small class="owner-learning-activity-action">برای ورود به اتاق اقدام کرد · حضور قطعی محسوب نمی‌شود</small>
+                        </span>
+                        <span class="row-value">{{ \App\Support\PersianUi::dateTime($event->created_at) }}</span>
+                    </div>
+                @empty
+                @endforelse
                 @forelse($recentLearningViews as $view)
                     <div class="lr owner-learning-activity-row" style="--c:#0d9488">
                         <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></i>
@@ -66,8 +83,11 @@
                         <span class="row-value">{{ \App\Support\PersianUi::dateTime($view->viewed_at) }}</span>
                     </div>
                 @empty
-                    <div class="card-empty">هنوز رویداد باز کردن جزوه‌ای برای نمایش ثبت نشده است.</div>
                 @endforelse
+                @if($recentClassJoinRequests->isEmpty() && $recentLearningViews->isEmpty())
+                    <div class="card-empty">هنوز رویداد آموزشی تازه‌ای برای نمایش ثبت نشده است.</div>
+                @endif
+                <p class="owner-learning-activity-note">درخواست ورود به کلاس ثبت می‌شود؛ حضور واقعی فقط با تأیید سرویس کلاس یا ثبت حضور و غیاب مشخص خواهد شد.</p>
             </section>
         @endif
 
