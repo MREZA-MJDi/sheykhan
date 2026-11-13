@@ -163,6 +163,34 @@ class DashboardController extends Controller
                 ->get();
         }
 
+        $joinActivities = $data['recentClassJoinRequests']->map(static function (AuditLog $event): object {
+            return (object) [
+                'student_name' => $event->actor?->name ?? 'دانش‌آموز',
+                'detail' => $event->subject?->title ?? $event->subject?->classroom?->title ?? 'کلاس آنلاین',
+                'action_label' => 'برای ورود به اتاق اقدام کرد · حضور قطعی محسوب نمی‌شود',
+                'occurred_at' => $event->created_at,
+                'icon' => 'video',
+                'accent' => '#5265bd',
+            ];
+        });
+
+        $resourceActivities = $data['recentLearningViews']->map(static function (ProtectedLearningMediaView $view): object {
+            return (object) [
+                'student_name' => $view->user?->name ?? 'دانش‌آموز',
+                'detail' => $view->resource?->title ?? $view->media?->original_name ?? 'منبع آموزشی',
+                'action_label' => 'برای مشاهده جزوه اقدام کرد',
+                'occurred_at' => $view->viewed_at,
+                'icon' => 'file',
+                'accent' => '#16836b',
+            ];
+        });
+
+        $data['recentLearningActivities'] = $joinActivities
+            ->concat($resourceActivities)
+            ->sortByDesc(static fn (object $activity): int => $activity->occurred_at?->timestamp ?? 0)
+            ->take(8)
+            ->values();
+
         return view('owner.dashboard', $data);
     }
 }
