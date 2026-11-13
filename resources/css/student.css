@@ -717,3 +717,11 @@ dialog::backdrop{background:rgba(20,35,55,.55)}dialog h3{margin-bottom:8px}dialo
 .student-dashboard-live .student-weekly-day strong {color:var(--text);font-size:10px}
 .student-dashboard-live .student-weekly-day small {color:var(--muted);font-size:9px}
 @media(max-width:560px){.student-dashboard-live .student-weekly-bars{gap:5px;padding-inline:7px}}
+
+
+.student-dashboard-live .student-results-actions {display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.student-dashboard-live .student-class-item__body h3 {margin:0 0 3px}
+.student-dashboard-live .student-class-item__body p {margin:0;line-height:1.85}
+.student-dashboard-live .student-course-progress__item {color:var(--text);text-decoration:none;transition:transform .16s ease,border-color .16s ease}
+.student-dashboard-live .student-course-progress__item:hover {transform:translateY(-1px);border-color:rgba(63,142,156,.48)}
+@media(prefers-reduced-motion:reduce){.student-dashboard-live .student-course-progress__item{transition:none}}
