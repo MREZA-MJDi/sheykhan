@@ -10,7 +10,7 @@
     @stack('head')
     @stack('styles')
 </head>
-<body class="student-shell">
+<body class="student-shell @yield('body-class')">
 @php
     $studentShellUser = auth()->user();
     $studentShellUser?->loadMissing([
