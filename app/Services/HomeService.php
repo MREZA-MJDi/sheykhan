@@ -2,38 +2,24 @@
 
 namespace App\Services;
 
-class HomeService
+/**
+ * The public homepage intentionally loads only the content it renders.
+ * Operational dashboards, store inventory, hero campaigns and platform
+ * statistics have their own pages and should not add queries to this route.
+ */
+final class HomeService
 {
     public function __construct(
         private readonly CourseCatalogService $courses,
-        private readonly LiveClassService $liveClasses,
-        private readonly TeacherDirectoryService $teachers,
         private readonly BlogService $blog,
-        private readonly PlatformStatsService $stats,
-        private readonly ProductCatalogService $products,
-        private readonly AcademyContentService $academyContent,
-        private readonly AchievementService $achievements,
-        private readonly TestimonialService $testimonials,
-        private readonly HomeBannerService $banners,
-        private readonly HomeHeroService $hero,
     ) {
     }
 
     public function getData(): array
     {
         return [
-            'courseCards' => $this->courses->featuredCards(),
-            'liveClassCards' => $this->liveClasses->upcomingCards(),
-            'teacherCards' => $this->teachers->featuredCards(),
-            'stats' => $this->stats->overview(),
-            'latestPosts' => $this->blog->latest(),
-            'storeCategories' => $this->products->categories(),
-            'productCards' => $this->products->featuredCards(),
-            'academyContentGroups' => $this->academyContent->featuredGroups(),
-            'achievementCards' => $this->achievements->featured(),
-            'testimonialCards' => $this->testimonials->featured(),
-            'homeHeroSlides' => $this->hero->slides(),
-            'homeBanners' => $this->banners->featured(),
+            'courseCards' => $this->courses->featuredCards(3),
+            'latestPosts' => $this->blog->latest(3),
         ];
     }
 }
