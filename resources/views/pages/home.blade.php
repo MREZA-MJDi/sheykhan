@@ -13,6 +13,8 @@
 {{-- Full-bleed hero uses the independent HomeHeroSlide source. --}}
     @include('pages.home.partials.hero')
 
+    @include('pages.home.partials.free-challenge')
+
 
     {{-- Academy story: permanent, honest value proposition even before dynamic catalog content is published. --}}
     <section id="academy-story" class="home-section home-academy-story" aria-labelledby="home-academy-story-title">
@@ -311,63 +313,6 @@
         </div>
     </section>
 
-
-    {{-- Why Sheykhan --}}
-    <section id="learning-experience" class="home-section home-dark">
-        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-10 max-w-[1600px]">
-            <div class="home-why">
-                <div class="home-why-copy">
-                    <span>چرا شیخان؟</span>
-                    <h2>یک پلتفرم؛<br><em>چهار تجربه آموزشی.</em></h2>
-                    <p>
-                        دانش‌آموز، مدرس، والد و آموزشگاه هرکدام محیط مخصوص خودشان را دارند،
-                        اما همه در یک مسیر آموزشی به هم متصل‌اند.
-                    </p>
-                </div>
-                <div class="home-role-grid home-feature-grid">
-                    <article class="home-feature-card" data-feature-index="01">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><path d="M4 12.5 16 6l12 6.5L16 19 4 12.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 16v6.2c4.3 3.4 9.7 3.4 14 0V16M28 13v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۱</b><span>LEARN</span></div>
-                        <strong>دانش‌آموز</strong>
-                        <p>دوره، کلاس، تکلیف، آزمون و پیشرفت در یک فضای شخصی.</p>
-                        <span class="home-feature-card__note">کارتابل یادگیری <i aria-hidden="true">↗</i></span>
-                    </article>
-                    <article class="home-feature-card" data-feature-index="02">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5.5" width="22" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M11 26.5h10M16 20.5v6M9 10h8m-8 4h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۲</b><span>TEACH</span></div>
-                        <strong>مدرس</strong>
-                        <p>مدیریت کلاس، حضور و غیاب، تکلیف، آزمون و تصحیح.</p>
-                        <span class="home-feature-card__note">فضای تدریس <i aria-hidden="true">↗</i></span>
-                    </article>
-                    <article class="home-feature-card" data-feature-index="03">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><circle cx="12" cy="11" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="23" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 26c.7-5 3.1-7.6 7.5-7.6s6.8 2.6 7.5 7.6M20 20c3.9-.3 6.1 1.7 7 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۳</b><span>FOLLOW</span></div>
-                        <strong>والد</strong>
-                        <p>دیدی روشن‌تر از مسیر آموزشی و عملکرد فرزند.</p>
-                        <span class="home-feature-card__note">نمای پیگیری <i aria-hidden="true">↗</i></span>
-                    </article>
-                    <article class="home-feature-card" data-feature-index="04">
-                        <span class="home-feature-card__icon" aria-hidden="true">
-                            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="5" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="18" y="18" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/></svg>
-                        </span>
-                        <div class="home-feature-card__code"><b>۰۴</b><span>MANAGE</span></div>
-                        <strong>آموزشگاه</strong>
-                        <p>مدیریت افراد، کلاس‌ها، محتوا، دوره‌ها و گزارش‌ها.</p>
-                        <span class="home-feature-card__note">مرکز مدیریت <i aria-hidden="true">↗</i></span>
-                    </article>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    @include('pages.home.partials.platform-model')
 
     {{-- Teachers: an empty directory still offers a clear next step. --}}
     <section id="teachers-section" class="home-section">
