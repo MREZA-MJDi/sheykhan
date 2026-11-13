@@ -100,6 +100,52 @@
   </div>
 </section>
 
+<div class="row student-dashboard-learning-feed">
+  <section class="card" aria-labelledby="student-results-preview-title">
+    <div class="chead">
+      <h2 id="student-results-preview-title">آخرین نتیجه‌ها</h2>
+      <a class="pill" href="{{ route('student.results.index') }}">کارنامه کامل</a>
+    </div>
+    @forelse($recentResults as $result)
+      <a class="trk" href="{{ route('student.results.index') }}">
+        <div class="th {{ $result->type === 'exam' ? 'violet' : 'blue' }}">
+          <svg class="i" aria-hidden="true"><use href="#{{ $result->type === 'exam' ? 'i-exam' : 'i-task' }}"/></svg>
+        </div>
+        <div>
+          <b>{{ $result->title }}</b>
+          <span>{{ $result->status_label }} · {{ $result->occurred_at ? \\App\\Support\\PersianUi::date($result->occurred_at) : '—' }}</span>
+        </div>
+        @if($result->score !== null)
+          <x-tag :tone="$result->is_provisional ?? false ? 'a' : 'g'">{{ \\App\\Support\\PersianUi::number($result->score, 1) }}</x-tag>
+        @else
+          <x-tag tone="b">در انتظار نمره</x-tag>
+        @endif
+      </a>
+    @empty
+      <x-empty icon="i-chart" text="هنوز نتیجه‌ای برای نمایش ثبت نشده است." :href="route('student.results.index')" action="مشاهده کارنامه" />
+    @endforelse
+  </section>
+
+  <section class="card" aria-labelledby="student-resources-preview-title">
+    <div class="chead">
+      <h2 id="student-resources-preview-title">جزوه‌ها و منابع تازه</h2>
+      <a class="pill" href="{{ route('student.resources.index') }}">همه منابع</a>
+    </div>
+    @forelse($resources as $resource)
+      <a class="trk" href="{{ route('student.resources.index') }}">
+        <div class="th mint"><svg class="i" aria-hidden="true"><use href="#i-file"/></svg></div>
+        <div>
+          <b>{{ $resource->title }}</b>
+          <span>{{ $resource->course?->title ?? $resource->academy?->name ?? 'منبع آموزشی' }}</span>
+        </div>
+        <span class="pill">مشاهده</span>
+      </a>
+    @empty
+      <x-empty icon="i-file" text="هنوز منبع آموزشی تازه‌ای برایت منتشر نشده است." :href="route('student.resources.index')" action="رفتن به منابع" />
+    @endforelse
+  </section>
+</div>
+
 <section class="card student-dashboard-contact">
   <div class="chead">
     <div>
