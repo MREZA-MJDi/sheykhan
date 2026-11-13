@@ -3,13 +3,16 @@
 namespace App\Services;
 
 /**
- * The public homepage intentionally loads only the content it renders.
- * Operational dashboards, store inventory, hero campaigns and platform
- * statistics have their own pages and should not add queries to this route.
+ * The public homepage loads only the content it actually renders:
+ * fixed hero copy, managed visual highlights/banners, featured courses and
+ * the latest articles. Operational dashboards and store inventory stay off
+ * this request path.
  */
 final class HomeService
 {
     public function __construct(
+        private readonly HomeHeroService $hero,
+        private readonly HomeBannerService $banners,
         private readonly CourseCatalogService $courses,
         private readonly BlogService $blog,
     ) {
@@ -18,6 +21,8 @@ final class HomeService
     public function getData(): array
     {
         return [
+            'homeHeroSlides' => $this->hero->slides(),
+            'homeBanners' => $this->banners->featured(3),
             'courseCards' => $this->courses->featuredCards(3),
             'latestPosts' => $this->blog->latest(3),
         ];
