@@ -5565,3 +5565,14 @@ a.home-academy-item:hover { transform:translateX(-2px); border-color:#d8d2fc; ba
 .home-free-challenge__decor .is-square {border-color:#5265bd;background:#eff0ff}
 @media(max-width:760px){.home-free-challenge{margin-top:14px}}
 @media(max-width:580px){.sh-home-page{width:calc(100% - 24px);margin-top:12px}}
+
+
+.sh-home-page a:focus-visible,
+.home-free-challenge__option:focus-visible,
+.home-free-challenge__next:focus-visible {
+  outline:3px solid #edbd58;outline-offset:3px;
+}
+@media(prefers-reduced-motion:reduce) {
+  .sh-home-page *,
+  .home-free-challenge * {scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
