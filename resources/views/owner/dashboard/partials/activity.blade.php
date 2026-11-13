@@ -78,7 +78,7 @@
                         <span class="gx">
                             <b>{{ $view->user?->name ?? 'دانش‌آموز' }}</b>
                             <small>{{ $view->resource?->title ?? $view->media?->original_name ?? 'منبع آموزشی' }}</small>
-                            <small class="owner-learning-activity-action">جزوه را باز کرد</small>
+                            <small class="owner-learning-activity-action">برای مشاهده جزوه اقدام کرد</small>
                         </span>
                         <span class="row-value">{{ \App\Support\PersianUi::dateTime($view->viewed_at) }}</span>
                     </div>
