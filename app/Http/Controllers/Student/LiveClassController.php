@@ -266,7 +266,7 @@ class LiveClassController extends Controller
             'subject_id' => $subject->getKey(),
             'new_values' => $context,
             'ip_address' => request()->ip(),
-            'user_agent' => mb_substr((string) request()->userAgent(), 0, 1000),
+            'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
         ]);
     }
 }
