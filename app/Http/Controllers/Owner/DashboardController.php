@@ -72,6 +72,28 @@ class DashboardController extends Controller
         // Do not cache recent login events with the KPI aggregate; owners need this to refresh promptly.
         $academyIds = $data['academies']->pluck('id')->map(fn ($id) => (int) $id)->all();
         $data['recentStudentLogins'] = collect();
+        $data['recentLearningViews'] = collect();
+
+        if ($academyIds !== [] && $owner->hasPermission('resources.view') && Schema::hasTable('protected_learning_media_views')) {
+            $activeStudentIds = DB::table('academy_user')
+                ->whereIn('academy_id', $academyIds)
+                ->where('role', 'student')
+                ->where('status', 'active')
+                ->select('user_id')
+                ->distinct();
+
+            // Only the initial open event is shown; page-by-page viewer events would
+            // overwhelm a manager's feed and do not represent separate study actions.
+            $data['recentLearningViews'] = ProtectedLearningMediaView::query()
+                ->whereIn('academy_id', $academyIds)
+                ->whereIn('user_id', $activeStudentIds)
+                ->where('event_type', 'open')
+                ->with(['user:id,name', 'media:id,original_name', 'resource:id,title'])
+                ->orderByDesc('viewed_at')
+                ->orderByDesc('id')
+                ->limit(5)
+                ->get();
+        }
 
         if ($academyIds !== [] && $owner->hasPermission('academy.view') && Schema::hasTable('audit_logs')) {
             $activeStudentIds = DB::table('academy_user')
