@@ -9,16 +9,18 @@ final class LearningExperienceUiContractTest extends TestCase
     public function test_owner_dashboard_has_a_scoped_operational_design(): void
     {
         $view = file_get_contents(resource_path('views/owner/dashboard.blade.php'));
+        $overview = file_get_contents(resource_path('views/owner/dashboard/partials/overview.blade.php'));
         $layout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
         $styles = file_get_contents(resource_path('css/owner-admin.css'));
 
         $this->assertIsString($view);
+        $this->assertIsString($overview);
         $this->assertIsString($layout);
         $this->assertIsString($styles);
         $this->assertStringContainsString("owner-dashboard-live", $view);
         $this->assertStringContainsString("@yield('body-class')", $layout);
         $this->assertStringContainsString('.owner-admin-v2.owner-dashboard-live', $styles);
-        $this->assertStringContainsString('.owner-dashboard-kpi', $view);
+        $this->assertStringContainsString('owner-dashboard-kpi', $overview);
         $this->assertStringContainsString('.owner-dashboard-shortcuts', $styles);
     }
 
