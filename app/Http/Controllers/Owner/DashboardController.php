@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\ClassSchedule;
+use App\Models\LiveClass;
 use App\Models\ProtectedLearningMediaView;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -74,6 +76,7 @@ class DashboardController extends Controller
         $academyIds = $data['academies']->pluck('id')->map(fn ($id) => (int) $id)->all();
         $data['recentStudentLogins'] = collect();
         $data['recentLearningViews'] = collect();
+        $data['recentClassJoinRequests'] = collect();
 
         if ($academyIds !== [] && $owner->hasPermission('resources.view') && Schema::hasTable('protected_learning_media_views')) {
             // Correlate the viewer with an active student membership in the same
@@ -91,6 +94,52 @@ class DashboardController extends Controller
                 ->where('event_type', 'open')
                 ->with(['user:id,name', 'media:id,original_name', 'resource:id,title'])
                 ->orderByDesc('viewed_at')
+                ->orderByDesc('id')
+                ->limit(5)
+                ->get();
+        }
+
+        if (
+            $academyIds !== []
+            && $owner->hasPermission('academy.view')
+            && $owner->hasPermission('live_classes.view')
+            && Schema::hasTable('audit_logs')
+        ) {
+            $activeStudentIds = DB::table('academy_user')
+                ->whereIn('academy_id', $academyIds)
+                ->where('role', 'student')
+                ->where('status', 'active')
+                ->select('user_id')
+                ->distinct();
+
+            $academyLiveClassIds = DB::table('live_classes')
+                ->join('courses', 'courses.id', '=', 'live_classes.course_id')
+                ->whereIn('courses.academy_id', $academyIds)
+                ->select('live_classes.id');
+
+            $academyScheduleIds = DB::table('class_schedules')
+                ->join('classrooms', 'classrooms.id', '=', 'class_schedules.classroom_id')
+                ->whereIn('classrooms.academy_id', $academyIds)
+                ->select('class_schedules.id');
+
+            $data['recentClassJoinRequests'] = AuditLog::query()
+                ->whereIn('actor_id', $activeStudentIds)
+                ->whereIn('action', ['live_class_join_requested', 'weekly_schedule_join_requested'])
+                ->where(function ($subjects) use ($academyLiveClassIds, $academyScheduleIds): void {
+                    $subjects
+                        ->where(function ($liveClasses) use ($academyLiveClassIds): void {
+                            $liveClasses
+                                ->where('subject_type', LiveClass::class)
+                                ->whereIn('subject_id', $academyLiveClassIds);
+                        })
+                        ->orWhere(function ($schedules) use ($academyScheduleIds): void {
+                            $schedules
+                                ->where('subject_type', ClassSchedule::class)
+                                ->whereIn('subject_id', $academyScheduleIds);
+                        });
+                })
+                ->with(['actor:id,name', 'subject'])
+                ->orderByDesc('created_at')
                 ->orderByDesc('id')
                 ->limit(5)
                 ->get();
