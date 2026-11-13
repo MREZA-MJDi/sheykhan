@@ -387,16 +387,17 @@ dialog::backdrop{background:rgba(20,35,55,.55)}dialog h3{margin-bottom:8px}dialo
 .student-dashboard-live .side .me p,
 .student-dashboard-live .side .me small {color:#b8c9dc}
 .student-dashboard-live .nav {gap:5px}
-.student-dashboard-live .nav button {
+.student-dashboard-live .nav h6 {margin:14px 8px 5px;color:#8198b2;font-size:9px;font-weight:850}
+.student-dashboard-live .nav :is(a,button) {
   min-height:43px;padding:10px 12px;border:1px solid transparent;border-radius:10px;
   color:#c7d5e5;font-size:12px;font-weight:700;
 }
-.student-dashboard-live .nav button.on {
+.student-dashboard-live .nav :is(a,button).on {
   border-color:rgba(93,214,205,.25);
   background:linear-gradient(90deg,rgba(26,166,159,.23),rgba(42,113,169,.22));
   color:#fff;box-shadow:inset -3px 0 #5dd6cd;
 }
-.student-dashboard-live .nav button:hover {background:rgba(255,255,255,.08);color:#fff}
+.student-dashboard-live .nav :is(a,button):hover {background:rgba(255,255,255,.08);color:#fff}
 .student-dashboard-live .prem {
   border:1px solid rgba(255,255,255,.1);border-radius:13px;background:rgba(255,255,255,.06);
   box-shadow:none;
