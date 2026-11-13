@@ -23,6 +23,7 @@
                                 src="{{ $slide['image'] }}"
                                 data-home-hero-image
                                 data-desktop-src="{{ $slide['image'] }}"
+                                @if(filled($slide['fallbackImage'] ?? null)) data-fallback-src="{{ $slide['fallbackImage'] }}" @endif
                                 alt=""
                                 loading="lazy"
                                 decoding="async"
