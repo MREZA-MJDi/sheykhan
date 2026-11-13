@@ -113,10 +113,10 @@
         </div>
         <div>
           <b>{{ $result->title }}</b>
-          <span>{{ $result->status_label }} · {{ $result->occurred_at ? \\App\\Support\\PersianUi::date($result->occurred_at) : '—' }}</span>
+          <span>{{ $result->status_label }} · {{ $result->occurred_at ? \App\Support\PersianUi::date($result->occurred_at) : '—' }}</span>
         </div>
         @if($result->score !== null)
-          <x-tag :tone="$result->is_provisional ?? false ? 'a' : 'g'">{{ \\App\\Support\\PersianUi::number($result->score, 1) }}</x-tag>
+          <x-tag :tone="($result->is_provisional ?? false) ? 'a' : 'g'">{{ \App\Support\PersianUi::number($result->score, 1) }}</x-tag>
         @else
           <x-tag tone="b">در انتظار نمره</x-tag>
         @endif
