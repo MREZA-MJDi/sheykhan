@@ -92,7 +92,7 @@
     @foreach($studyWeek as $day)
       @php($minutes = max(0, (int) ($day['minutes'] ?? 0)))
       <div class="student-weekly-day" title="{{ $day['weekday'] ?? '' }}: {{ \App\Support\PersianUi::digits($minutes) }} دقیقه">
-        <span class="student-weekly-bar-track"><i style="height: {{ min(100, max(4, ($minutes / $maxStudyMinutes) * 100)) }}%"></i></span>
+        <span class="student-weekly-bar-track"><i class="{{ $minutes > 0 ? '' : 'is-empty' }}" style="height: {{ $minutes > 0 ? min(100, max(6, ($minutes / $maxStudyMinutes) * 100)) : 0 }}%"></i></span>
         <strong>{{ $day['weekday'] ?? '' }}</strong>
         <small>{{ $day['label'] ?? '' }}</small>
       </div>
