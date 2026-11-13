@@ -36,7 +36,7 @@
                         <div class="metric-caption">پرونده‌های فعال در آموزشگاه</div>
                     </a>
                     <a class="card kpi owner-dashboard-kpi owner-dashboard-core-stat" style="--kpi-accent:#16836b" href="{{ route('owner.people.index', $firstAcademy) }}">
-                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>مدرسان فعال</div>
+                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>مدرسان فعال</div>
                         <b>{{ \App\Support\PersianUi::digits($teachers) }}</b>
                         <div class="metric-caption">مدرسان متصل به آموزشگاه</div>
                     </a>
