@@ -44,6 +44,33 @@
             </section>
         @endif
 
+        @if($canViewResources && $canViewPeople)
+            <section class="card c4 owner-learning-activity" aria-labelledby="learning-activity-title" style="--c:#0d9488">
+                <div class="card-title">
+                    <div>
+                        <h2 id="learning-activity-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span>آخرین فعالیت آموزشی</h2>
+                        <p>دانش‌آموزانی که جزوه یا منبع آموزشی را باز کرده‌اند.</p>
+                    </div>
+                    @if($canViewOrders && $firstAcademy)
+                        <a class="table-link" href="{{ route('owner.protected-file-views.index', $firstAcademy) }}">گزارش کامل ←</a>
+                    @endif
+                </div>
+                @forelse($recentLearningViews as $view)
+                    <div class="lr owner-learning-activity-row" style="--c:#0d9488">
+                        <i class="tile"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></i>
+                        <span class="gx">
+                            <b>{{ $view->user?->name ?? 'دانش‌آموز' }}</b>
+                            <small>{{ $view->resource?->title ?? $view->media?->original_name ?? 'منبع آموزشی' }}</small>
+                            <small class="owner-learning-activity-action">جزوه را باز کرد</small>
+                        </span>
+                        <span class="row-value">{{ \App\Support\PersianUi::dateTime($view->viewed_at) }}</span>
+                    </div>
+                @empty
+                    <div class="card-empty">هنوز رویداد باز کردن جزوه‌ای برای نمایش ثبت نشده است.</div>
+                @endforelse
+            </section>
+        @endif
+
         <section class="card c4 owner-dashboard-shortcuts" aria-labelledby="shortcut-title" style="--c:#22d3ee">
             <div class="card-title">
                 <div><h2 id="shortcut-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>میان‌بر</h2><p>دسترسی مستقیم به کارهای روزمره.</p></div>
