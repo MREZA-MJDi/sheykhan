@@ -37,6 +37,9 @@
             <div><span>03</span><strong>دیدن پیشرفت</strong><small>نتیجه تمرین و تلاش خودت را دنبال کن.</small></div>
         </section>
 
+        @include('pages.home.partials.highlights')
+        @include('pages.home.partials.banners')
+
         <section class="sh-home-section" id="courses" aria-labelledby="sh-courses-title">
             <div class="sh-section-head">
                 <div>
