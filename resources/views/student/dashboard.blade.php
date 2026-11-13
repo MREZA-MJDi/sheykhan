@@ -153,7 +153,7 @@
       <h2 id="student-results-preview-title">آخرین نتیجه‌ها</h2>
       <div class="student-results-actions">
         @if($upcomingExamCount > 0)
-          <a class="pill" href="{{ route('student.exams.index') }}">{{ \\App\\Support\\PersianUi::digits($upcomingExamCount) }} آزمون پیش‌رو</a>
+          <a class="pill" href="{{ route('student.exams.index') }}">{{ \App\Support\PersianUi::digits($upcomingExamCount) }} آزمون پیش‌رو</a>
         @endif
         <a class="pill" href="{{ route('student.results.index') }}">کارنامه کامل</a>
       </div>
@@ -206,7 +206,7 @@
     @forelse ($todayClasses as $class)
       <div class="trk student-class-item">
         <div class="th student-class-item__icon {{ $class->status === 'live' ? 'mint' : 'blue' }}"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
-        <div>
+        <div class="student-class-item__body">
           <b>{{ $class->title }}</b>
           <span>{{ $class->course_title }} · {{ $class->teacher_name ?: 'مدرس دوره' }} · {{ \App\Support\PersianUi::time($class->scheduled_at) }}</span>
         </div>
