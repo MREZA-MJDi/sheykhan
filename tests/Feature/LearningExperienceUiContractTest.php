@@ -25,10 +25,11 @@ final class LearningExperienceUiContractTest extends TestCase
     public function test_owner_dashboard_shows_real_student_resource_open_events(): void
     {
         $controller = file_get_contents(app_path('Http/Controllers/Owner/DashboardController.php'));
+        $joinController = file_get_contents(app_path('Http/Controllers/Student/LiveClassController.php'));
         $model = file_get_contents(app_path('Models/ProtectedLearningMediaView.php'));
         $partial = file_get_contents(resource_path('views/owner/dashboard/partials/activity.blade.php'));
 
-        foreach ([$controller, $model, $partial] as $source) {
+        foreach ([$controller, $joinController, $model, $partial] as $source) {
             $this->assertIsString($source);
         }
 
@@ -39,7 +40,8 @@ final class LearningExperienceUiContractTest extends TestCase
         $this->assertStringContainsString('جزوه را باز کرد', $partial);
         $this->assertStringContainsString('recentClassJoinRequests', $partial);
         $this->assertStringContainsString('برای ورود به اتاق اقدام کرد', $partial);
-        $this->assertStringContainsString('live_class_join_requested', $controller);
+        $this->assertStringContainsString('live_class_join_requested', $joinController);
+        $this->assertStringContainsString('weekly_schedule_join_requested', $joinController);
     }
 
     public function test_student_dashboard_uses_real_weekly_activity_and_learning_data(): void
