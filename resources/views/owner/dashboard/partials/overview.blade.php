@@ -43,9 +43,9 @@
                 @endif
                 @if($canViewClassrooms)
                     <a class="card kpi owner-dashboard-kpi owner-dashboard-core-stat" style="--kpi-accent:#d49a2e" href="{{ route('owner.classrooms.index', $firstAcademy) }}">
-                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>کلاس‌های فعال</div>
+                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>کلاس‌های ثبت‌شده</div>
                         <b>{{ \App\Support\PersianUi::digits($classroomCount) }}</b>
-                        <div class="metric-caption">کلاس‌های تعریف‌شده در آموزشگاه</div>
+                        <div class="metric-caption">کلاس‌های موجود در آموزشگاه</div>
                     </a>
                 @endif
                 @if($canViewCourses)
