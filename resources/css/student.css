@@ -573,3 +573,4 @@ dialog::backdrop{background:rgba(20,35,55,.55)}dialog h3{margin-bottom:8px}dialo
 @media(prefers-reduced-motion:reduce) {
   .student-dashboard-live .stats .st,.student-dashboard-live .hero .btn {transition:none}
 }
+.student-dashboard-live .student-weekly-bar-track i.is-empty {min-height:0;background:transparent}
