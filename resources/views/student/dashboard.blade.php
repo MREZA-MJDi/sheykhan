@@ -98,8 +98,8 @@
       <a class="student-announcement" href="{{ route('student.messages.index') }}">
         <span class="student-announcement__icon"><svg class="i" aria-hidden="true"><use href="#i-bell"/></svg></span>
         <span class="student-announcement__copy">
-          <strong>{{ $announcement->subject }}</strong>
-          <span>{{ $announcement->excerpt }}</span>
+          <h3>{{ $announcement->subject }}</h3>
+          <p>{{ $announcement->excerpt }}</p>
           <time datetime="{{ $announcement->published_at?->toIso8601String() }}">{{ \App\Support\PersianUi::dateTime($announcement->published_at) }}</time>
         </span>
       </a>
@@ -150,8 +150,9 @@
 <div class="row student-dashboard-primary">
   <section class="card" id="classes">
     <div class="chead"><h2>کلاس‌های امروز</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه کلاس‌ها</a></div>
+    <div class="student-class-list">
     @forelse ($todayClasses as $class)
-      <div class="trk student-class-item">
+      <div class="student-class-item">
         <div class="th student-class-item__icon {{ $class->status === 'live' ? 'mint' : 'blue' }}"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
         <div class="student-class-item__body">
           <b>{{ $class->title }}</b>
@@ -168,22 +169,30 @@
     @empty
       <x-empty icon="i-video" text="برای امروز کلاسی برنامه‌ریزی نشده است." :href="route('student.live-classes.index')" action="دیدن برنامه هفتگی" />
     @endforelse
+    </div>
   </section>
 
   <section class="card" id="homework">
     <div class="chead"><h2>مهلت‌های نزدیک</h2><a class="pill" href="{{ route('student.assignments.index') }}">همه تکالیف</a></div>
+    <div class="student-homework-list">
     @forelse ($deadlines as $assignment)
-      <a class="trk" href="{{ route('student.assignments.show', $assignment->id) }}">
-        <div class="th amber"><svg class="i" aria-hidden="true"><use href="#i-task"/></svg></div>
-        <div>
-          <b>{{ $assignment->title }}</b>
-          <span>{{ $assignment->course_title ?: 'دوره فعال' }}</span>
+      <a class="student-homework-item" href="{{ route('student.assignments.show', $assignment->id) }}">
+        <div class="student-homework-item__head">
+          <div>
+            <h3>{{ $assignment->title }}</h3>
+            <p class="student-homework-item__description">{{ $assignment->course_title ?: 'دوره فعال' }}</p>
+          </div>
+          <x-due :at="$assignment->due_at" />
         </div>
-        <x-due :at="$assignment->due_at" />
+        <div class="student-homework-item__footer">
+          <span class="mu">برای ثبت پاسخ و پیگیری وضعیت تکلیف</span>
+          <span class="btn s">بررسی تکلیف</span>
+        </div>
       </a>
     @empty
       <x-empty icon="i-task" text="تکلیف ارسال‌نشده‌ای با مهلت نزدیک نداری." :href="route('student.assignments.index')" action="مشاهده تکالیف" />
     @endforelse
+    </div>
   </section>
 </div>
 
