@@ -577,6 +577,10 @@ final class StudentDashboardService
                     });
         }
 
+        $attendanceMetrics = $student->hasPermission('attendance.view.own')
+            ? app(AttendanceMetricsService::class)->forStudent($student)
+            : ['attendance_percent' => null, 'measured_sessions' => 0];
+
         $overallProgress = (float) ($progress->isEmpty() ? 0 : $progress->avg());
 
         $completedLessonsCount = (int) $lessonStats->sum('completed_lessons');
@@ -589,6 +593,8 @@ final class StudentDashboardService
             'courses' => $courses,
             'teachers' => $teachers,
             'overallProgress' => round($overallProgress),
+            'attendanceRate' => $attendanceMetrics['attendance_percent'],
+            'attendanceCount' => $attendanceMetrics['measured_sessions'],
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
             'dueTomorrowCount' => $dueTomorrowCount,
