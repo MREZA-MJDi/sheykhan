@@ -111,7 +111,11 @@
 <div class="stats student-dashboard-stats" aria-label="خلاصه وضعیت آموزشی">
   <x-stat color="blue" icon="i-video" label="کلاس‌های امروز" :value="\App\Support\PersianUi::digits($todayLiveClassCount)" hint="جلسه‌های برنامه‌ریزی‌شده و در حال برگزاری" :href="route('student.live-classes.index')" />
   <x-stat color="red" icon="i-task" label="تکالیف باز" :value="\App\Support\PersianUi::digits($pendingAssignments)" hint="{{ \App\Support\PersianUi::digits($dueTomorrowCount) }} مورد تا فردا" :href="route('student.assignments.index')" />
-  <x-stat color="amber" icon="i-checksq" label="نرخ حضور" :value="$attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate).'٪'" hint="{{ \App\Support\PersianUi::digits($attendanceCount) }} جلسه اندازه‌گیری‌شده" :href="route('student.growth')" />
+  @can('attendance.view.own')
+    <x-stat color="amber" icon="i-checksq" label="نرخ حضور" :value="$attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate).'٪'" hint="{{ \App\Support\PersianUi::digits($attendanceCount) }} جلسه اندازه‌گیری‌شده" :href="route('student.growth')" />
+  @else
+    <x-stat color="amber" icon="i-exam" label="آزمون پیش‌رو" :value="\App\Support\PersianUi::digits($upcomingExamCount)" hint="{{ $nextExamDate ? 'نزدیک‌ترین آزمون: '.\App\Support\PersianUi::date($nextExamDate) : 'هنوز آزمون زمان‌دار اعلام نشده' }}" :href="route('student.exams.index')" />
+  @endcan
   <x-stat color="mint" icon="i-chart" label="نتایج اخیر" :value="\App\Support\PersianUi::digits($recentResults->count())" hint="نمره‌های ثبت‌شده برای تو" :href="route('student.results.index')" />
 </div>
 
