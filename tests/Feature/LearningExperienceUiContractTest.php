@@ -37,6 +37,9 @@ final class LearningExperienceUiContractTest extends TestCase
         $this->assertStringContainsString("where('event_type', 'open')", $controller);
         $this->assertStringContainsString("belongsTo(LearningResource::class, 'learning_resource_id')", $model);
         $this->assertStringContainsString('جزوه را باز کرد', $partial);
+        $this->assertStringContainsString('recentClassJoinRequests', $partial);
+        $this->assertStringContainsString('برای ورود به اتاق اقدام کرد', $partial);
+        $this->assertStringContainsString('live_class_join_requested', $controller);
     }
 
     public function test_student_dashboard_uses_real_weekly_activity_and_learning_data(): void
