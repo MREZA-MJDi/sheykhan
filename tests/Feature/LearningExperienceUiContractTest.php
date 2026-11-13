@@ -62,7 +62,10 @@ final class LearningExperienceUiContractTest extends TestCase
         $this->assertStringContainsString('student-weekly-bars', $view);
         $this->assertStringContainsString("'studyWeek' =>", $service);
         $this->assertStringContainsString('student-dashboard-weekly', $styles);
-        $this->assertStringContainsString('student-dashboard-learning-feed', $view);
+        $this->assertStringContainsString('student-dashboard-secondary', $view);
+        $this->assertStringContainsString("'attendanceRate' =>", $service);
+        $this->assertStringContainsString('student-welcome', $view);
+        $this->assertStringContainsString('student-next-step', $view);
         $this->assertStringNotContainsString('روند ماهانه هنوز ثبت نشده', $view);
     }
 
@@ -78,6 +81,11 @@ final class LearningExperienceUiContractTest extends TestCase
         }
 
         $this->assertStringContainsString('pages.home.partials.free-challenge', $view);
+        $this->assertStringContainsString('sh-home-hero', $view);
+        $this->assertStringContainsString('sh-home-intro', $view);
+        $this->assertStringContainsString('sh-course-grid', $view);
+        $this->assertStringContainsString('sh-home-journey', $view);
+        $this->assertStringContainsString('sh-article-grid', $view);
         $this->assertStringContainsString('data-free-challenge', $challenge);
         $this->assertStringContainsString('no form submit or page reload', $runtime);
         $this->assertStringContainsString('home-free-challenge__option', $styles);
