@@ -5403,3 +5403,69 @@ a.home-academy-item:hover { transform:translateX(-2px); border-color:#d8d2fc; ba
     .sheykhan-site .home-path-card { min-height: 0; }
 }
 
+
+/* Public home: compact interactive learning challenge, no external runtime. */
+.home-free-challenge {padding-block:clamp(34px,5vw,72px);background:#f3f7fc}
+.home-free-challenge__shell {
+  display:grid;grid-template-columns:minmax(0,.9fr) minmax(320px,1.1fr);gap:clamp(22px,4vw,54px);
+  align-items:center;max-width:1240px;margin-inline:auto;padding:clamp(22px,4vw,42px);
+  border:1px solid #dfe8f2;border-radius:24px;
+  background:radial-gradient(circle at 7% 10%,rgba(42,166,160,.10),transparent 230px),#fff;
+  box-shadow:0 18px 46px rgba(35,61,94,.07);
+}
+.home-free-challenge__copy {min-width:0}
+.home-free-challenge__eyebrow {
+  display:inline-flex;align-items:center;gap:8px;color:#168a83;font-size:11px;font-weight:900;
+}
+.home-free-challenge__eyebrow i {width:8px;height:8px;border-radius:50%;background:#28b4a5;box-shadow:0 0 0 5px rgba(40,180,165,.12)}
+.home-free-challenge__copy h2 {margin:13px 0 8px;color:#1c2b43;font-size:clamp(25px,3vw,38px);font-weight:950;line-height:1.55}
+.home-free-challenge__copy h2 em {color:#168f89;font-style:normal}
+.home-free-challenge__copy p {max-width:480px;margin:0;color:#65758b;font-size:13px;line-height:2.1}
+.home-free-challenge__decor {display:flex;align-items:center;gap:13px;margin-top:25px}
+.home-free-challenge__decor span {display:block;width:24px;height:24px;border:5px solid #d6e9f1}
+.home-free-challenge__decor .is-circle {border-color:#55b9ae;border-radius:50%;background:#e4f7f2}
+.home-free-challenge__decor .is-triangle {width:0;height:0;border:0;border-right:14px solid transparent;border-bottom:25px solid #f2bd54;border-left:14px solid transparent}
+.home-free-challenge__decor .is-square {border-color:#7b70d7;border-radius:5px;background:#efedff;transform:rotate(12deg)}
+.home-free-challenge__game {
+  min-width:0;padding:clamp(17px,2.4vw,25px);border:1px solid #dfe8f0;border-radius:18px;
+  background:linear-gradient(145deg,#fbfdff,#f2f7fb);box-shadow:0 12px 28px rgba(32,57,87,.06)
+}
+.home-free-challenge__game-head {display:flex;align-items:center;justify-content:space-between;gap:10px;color:#168b84;font-size:10px;font-weight:900}
+.home-free-challenge__game-head span:last-child {padding:5px 9px;border-radius:999px;background:#e7f5f3;color:#387c79;font-variant-numeric:tabular-nums}
+.home-free-challenge__prompt {margin:16px 0 12px;color:#1f2e45;font-size:15px;font-weight:900;line-height:1.9}
+.home-free-challenge__sequence {
+  display:flex;align-items:center;justify-content:center;min-height:66px;margin-bottom:14px;
+  border:1px dashed #d3e0eb;border-radius:12px;background:#fff;color:#2b4660;
+  font-size:clamp(19px,2.2vw,26px);font-weight:950;letter-spacing:.06em;text-align:center
+}
+.home-free-challenge__options {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.home-free-challenge__option {
+  display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:8px;
+  border:1px solid #dbe5ee;border-radius:10px;background:#fff;color:#34475e;
+  font:inherit;font-size:12px;font-weight:850;cursor:pointer;transition:border-color .16s ease,background .16s ease,transform .16s ease
+}
+.home-free-challenge__option:hover:not(:disabled) {transform:translateY(-1px);border-color:#65bcb2;background:#f2fbf9}
+.home-free-challenge__option:focus-visible,.home-free-challenge__next:focus-visible {outline:3px solid rgba(34,153,145,.3);outline-offset:2px}
+.home-free-challenge__option.is-correct {border-color:#3ba886;background:#e8f8f1;color:#176a50}
+.home-free-challenge__option.is-wrong {border-color:#d87983;background:#fff0f1;color:#a83b49}
+.home-free-challenge__option:disabled {cursor:default;opacity:1}
+.home-free-challenge__feedback {min-height:26px;margin:12px 0 0;color:#65758b;font-size:11px;line-height:1.8}
+.home-free-challenge__feedback.is-correct {color:#167451;font-weight:850}
+.home-free-challenge__feedback.is-wrong {color:#a83b49;font-weight:850}
+.home-free-challenge__next {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;margin-top:5px;padding:8px 13px;
+  border:0;border-radius:9px;background:#176f78;color:#fff;font:inherit;font-size:11px;font-weight:900;cursor:pointer
+}
+.home-free-challenge__next[hidden] {display:none}
+@media(max-width:760px) {
+  .home-free-challenge__shell {grid-template-columns:minmax(0,1fr);gap:20px;padding:20px;border-radius:18px}
+  .home-free-challenge__copy p {font-size:12px}
+}
+@media(max-width:420px) {
+  .home-free-challenge__options {grid-template-columns:1fr}
+  .home-free-challenge__option {min-height:40px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .home-free-challenge__option {transition:none}
+  .home-free-challenge__option:hover:not(:disabled) {transform:none}
+}
