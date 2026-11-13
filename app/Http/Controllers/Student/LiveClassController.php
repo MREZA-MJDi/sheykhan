@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\LiveClass;
 use App\Models\ClassSchedule;
 use App\Services\StudentAccessService;
@@ -223,15 +224,49 @@ class LiveClassController extends Controller
 
     public function join(LiveClass $liveClass, StudentAccessService $access): RedirectResponse
     {
-        abort_unless($access->canJoinLiveClass(request()->user(), $liveClass), 404);
+        $student = request()->user();
+        abort_unless($access->canJoinLiveClass($student, $liveClass), 404);
+
+        $this->recordJoinAttempt('live_class_join_requested', $liveClass, [
+            'course_id' => (int) $liveClass->course_id,
+            'classroom_id' => $liveClass->classroom_id ? (int) $liveClass->classroom_id : null,
+            'provider' => $liveClass->provider,
+        ]);
 
         return redirect()->away($liveClass->meeting_url);
     }
 
     public function joinSchedule(ClassSchedule $schedule, StudentAccessService $access): RedirectResponse
     {
-        abort_unless($access->canJoinClassSchedule(request()->user(), $schedule), 404);
+        $student = request()->user();
+        abort_unless($access->canJoinClassSchedule($student, $schedule), 404);
+
+        $this->recordJoinAttempt('weekly_schedule_join_requested', $schedule, [
+            'classroom_id' => (int) $schedule->classroom_id,
+            'weekday' => (int) $schedule->weekday,
+            'provider' => $schedule->provider,
+        ]);
 
         return redirect()->away($schedule->meeting_url);
+    }
+
+    /**
+     * This records a verified, authorized request to open the external room.
+     * It is deliberately not called attendance: the external provider must
+     * confirm actual participant presence separately.
+     */
+    private function recordJoinAttempt(string $action, \Illuminate\Database\Eloquent\Model $subject, array $context): void
+    {
+        $student = request()->user();
+
+        AuditLog::query()->create([
+            'actor_id' => $student->id,
+            'action' => $action,
+            'subject_type' => $subject::class,
+            'subject_id' => $subject->getKey(),
+            'new_values' => $context,
+            'ip_address' => request()->ip(),
+            'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+        ]);
     }
 }

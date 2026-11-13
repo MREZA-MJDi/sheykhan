@@ -2,38 +2,29 @@
 
 namespace App\Services;
 
-class HomeService
+/**
+ * The public homepage loads only the content it actually renders:
+ * fixed hero copy, managed visual highlights/banners, featured courses and
+ * the latest articles. Operational dashboards and store inventory stay off
+ * this request path.
+ */
+final class HomeService
 {
     public function __construct(
-        private readonly CourseCatalogService $courses,
-        private readonly LiveClassService $liveClasses,
-        private readonly TeacherDirectoryService $teachers,
-        private readonly BlogService $blog,
-        private readonly PlatformStatsService $stats,
-        private readonly ProductCatalogService $products,
-        private readonly AcademyContentService $academyContent,
-        private readonly AchievementService $achievements,
-        private readonly TestimonialService $testimonials,
-        private readonly HomeBannerService $banners,
         private readonly HomeHeroService $hero,
+        private readonly HomeBannerService $banners,
+        private readonly CourseCatalogService $courses,
+        private readonly BlogService $blog,
     ) {
     }
 
     public function getData(): array
     {
         return [
-            'courseCards' => $this->courses->featuredCards(),
-            'liveClassCards' => $this->liveClasses->upcomingCards(),
-            'teacherCards' => $this->teachers->featuredCards(),
-            'stats' => $this->stats->overview(),
-            'latestPosts' => $this->blog->latest(),
-            'storeCategories' => $this->products->categories(),
-            'productCards' => $this->products->featuredCards(),
-            'academyContentGroups' => $this->academyContent->featuredGroups(),
-            'achievementCards' => $this->achievements->featured(),
-            'testimonialCards' => $this->testimonials->featured(),
             'homeHeroSlides' => $this->hero->slides(),
-            'homeBanners' => $this->banners->featured(),
+            'homeBanners' => $this->banners->featured(3),
+            'courseCards' => $this->courses->featuredCards(3),
+            'latestPosts' => $this->blog->latest(3),
         ];
     }
 }

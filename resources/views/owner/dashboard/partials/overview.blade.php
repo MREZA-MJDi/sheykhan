@@ -27,6 +27,44 @@
             </section>
         @endif
 
+        @if($firstAcademy && ($canViewPeople || $canViewClassrooms || $canViewCourses || $canViewMeetings))
+            <section class="owner-dashboard-core-stats c12" aria-label="خلاصه آموزشگاه">
+                @if($canViewPeople)
+                    <a class="card kpi owner-dashboard-kpi owner-dashboard-core-stat" style="--kpi-accent:#5265bd" href="{{ route('owner.people.index', $firstAcademy) }}">
+                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>دانش‌آموزان فعال</div>
+                        <b>{{ \App\Support\PersianUi::digits($students) }}</b>
+                        <div class="metric-caption">پرونده‌های فعال در آموزشگاه</div>
+                    </a>
+                    <a class="card kpi owner-dashboard-kpi owner-dashboard-core-stat" style="--kpi-accent:#16836b" href="{{ route('owner.people.index', $firstAcademy) }}">
+                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>مدرسان فعال</div>
+                        <b>{{ \App\Support\PersianUi::digits($teachers) }}</b>
+                        <div class="metric-caption">مدرسان متصل به آموزشگاه</div>
+                    </a>
+                @endif
+                @if($canViewClassrooms)
+                    <a class="card kpi owner-dashboard-kpi owner-dashboard-core-stat" style="--kpi-accent:#d49a2e" href="{{ route('owner.classrooms.index', $firstAcademy) }}">
+                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>کلاس‌های ثبت‌شده</div>
+                        <b>{{ \App\Support\PersianUi::digits($classroomCount) }}</b>
+                        <div class="metric-caption">کلاس‌های موجود در آموزشگاه</div>
+                    </a>
+                @endif
+                @if($canViewCourses)
+                    <a class="card kpi owner-dashboard-kpi owner-dashboard-core-stat" style="--kpi-accent:#7557c7" href="{{ route('owner.courses.index') }}">
+                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>دوره‌های منتشرشده</div>
+                        <b>{{ \App\Support\PersianUi::digits($publishedCourseCount) }}</b>
+                        <div class="metric-caption">از {{ \App\Support\PersianUi::digits($courseCount) }} دوره ثبت‌شده</div>
+                    </a>
+                @endif
+                @if($canViewMeetings)
+                    <a class="card kpi owner-dashboard-kpi owner-dashboard-core-stat" style="--kpi-accent:#c74d60" href="{{ route('owner.schedules.index', $firstAcademy) }}">
+                        <div class="kpi-head"><svg class="ic" aria-hidden="true"><use href="#i-video"/></svg>کلاس‌های در حال اجرا</div>
+                        <b>{{ \App\Support\PersianUi::digits($liveNowCount) }}</b>
+                        <div class="metric-caption">جلسه‌های آنلاین فعال در همین لحظه</div>
+                    </a>
+                @endif
+            </section>
+        @endif
+
         {{-- سه شاخص عملیاتی؛ بدون نمودار تزئینی و توضیح فنی. --}}
         @if($canViewAttendance && $firstAcademy)
             <a class="card kpi c4 kpi-link owner-dashboard-kpi" href="{{ route('owner.attendance.index', $firstAcademy) }}" aria-label="مشاهده غیبت‌ها؛ {{ \App\Support\PersianUi::digits($absentCount) }} مورد">

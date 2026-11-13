@@ -10,12 +10,13 @@ final class MeetingLinkService
     public const JITSI = 'Jitsi';
     public const GOOGLE_MEET = 'Google Meet';
     public const ZOOM = 'Zoom';
+    public const SKYROOM = 'Skyroom';
     public const OTHER = 'سایر';
 
     /**
      * Resolve a provider URL without pretending that external providers can be
      * provisioned without their APIs. Jitsi rooms need no account/API; Google
-     * Meet and Zoom URLs must first be created in their respective services.
+     * Meet, Zoom and Skyroom use a real invitation URL created by the provider.
      */
     public function resolve(string $provider, ?string $meetingUrl): string
     {
@@ -71,6 +72,8 @@ final class MeetingLinkService
             self::JITSI => $host === 'meet.jit.si',
             self::GOOGLE_MEET => $host === 'meet.google.com',
             self::ZOOM => $host === 'zoom.us' || str_ends_with($host, '.zoom.us'),
+            self::SKYROOM => in_array($host, ['skyroom.online', 'www.skyroom.online'], true)
+                && preg_match('~^ch/[^/]+/[^/]+(?:/.*)?$~i', $path) === 1,
             self::OTHER => true,
             default => false,
         };
@@ -82,6 +85,7 @@ final class MeetingLinkService
             self::JITSI => 'برای Jitsi باید لینک https://meet.jit.si باشد؛ در صورت خالی بودن، شیخان لینک یکتا می‌سازد.',
             self::GOOGLE_MEET => 'لینک باید از دامنه رسمی https://meet.google.com باشد. ابتدا جلسه را در Google Meet بساز و لینک آن را اینجا قرار بده.',
             self::ZOOM => 'لینک باید از دامنه رسمی Zoom باشد. ابتدا جلسه را در Zoom بساز و لینک ورود آن را اینجا قرار بده.',
+            self::SKYROOM => 'لینک باید از اتاق واقعی Skyroom با قالب https://www.skyroom.online/ch/نام‌کاربری/نام‌اتاق باشد.',
             self::OTHER => 'لینک سرویس دیگر باید یک آدرس HTTPS معتبر باشد.',
             default => 'سرویس جلسه معتبر نیست.',
         };

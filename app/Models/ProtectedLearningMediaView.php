@@ -40,4 +40,9 @@ final class ProtectedLearningMediaView extends Model
     {
         return $this->belongsTo(Media::class);
     }
+
+    public function resource(): BelongsTo
+    {
+        return $this->belongsTo(LearningResource::class, 'learning_resource_id');
+    }
 }

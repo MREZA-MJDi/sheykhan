@@ -20,7 +20,7 @@
     </header>
 
     <section class="owner-info-banner rounded-2xl border border-sky-100 bg-sky-50 p-4 text-xs leading-7 text-sky-900" aria-label="راهنمای لینک جلسه">
-        لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet و Zoom باید لینک دعوت واقعی را از همان سرویس وارد کنی؛ شیخان لینک ساختگی تولید نمی‌کند.
+لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet، Zoom و Skyroom لینک واقعی اتاق را از همان سرویس وارد کن؛ شیخان لینک ساختگی تولید نمی‌کند. برای Skyroom، لینک اتاق باید از نوع skyroom.online/ch/... باشد.
     </section>
 
     <section class="owner-calendar-section" aria-label="تقویم هفتگی کلاس‌ها">
@@ -64,7 +64,7 @@
                 @if(auth()->user()->hasPermission('live_classes.manage'))
                 <div class="owner-schedule-editor mt-5 border-t border-slate-100 pt-5">
                     <div class="owner-section-heading"><div><h3>افزودن زمان / لینک</h3><p>برای هر روز و بازهٔ زمانی یک ورودی جدا بساز. سرویس و لینک باید متعلق به همان جلسه باشند.</p></div></div>
-                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="owner-schedule-form mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-meeting-provider-form>
+                    <form method="POST" action="{{ route('owner.schedules.store', [$academy, $classroom]) }}" class="owner-schedule-form mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-owner-schedule-create data-owner-schedule-title="افزودن زمان هفتگی · {{ $classroom->title }}" data-meeting-provider-form>
                         @csrf
                         <label class="grid gap-1">
                             <span class="text-xs font-bold">روز هفته</span>
@@ -84,6 +84,7 @@
                                 <option value="Jitsi" @selected(old('provider', 'Jitsi') === 'Jitsi')>Jitsi · خودکار</option>
                                 <option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option>
                                 <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
+                                <option value="Skyroom" @selected(old('provider') === 'Skyroom')>Skyroom · لینک اتاق</option>
                                 <option value="سایر" @selected(old('provider') === 'سایر')>سایر سرویس‌ها</option>
                             </select>
                             @error('provider')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror

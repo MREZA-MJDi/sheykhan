@@ -25,6 +25,7 @@ final class StoreOwnerScheduleRequest extends FormRequest
                 MeetingLinkService::JITSI,
                 MeetingLinkService::GOOGLE_MEET,
                 MeetingLinkService::ZOOM,
+                MeetingLinkService::SKYROOM,
                 MeetingLinkService::OTHER,
             ])],
             'meeting_url' => [

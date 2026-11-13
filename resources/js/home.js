@@ -59,6 +59,92 @@ if (!window.__sheykhanAlpineBooted) {
 
         if (!root) return;
 
+        // Free micro-challenge: local answer feedback, no form submit or page reload.
+        const challenge = root.querySelector('[data-free-challenge]');
+        if (challenge) {
+            const questions = [
+                {
+                    prompt: 'عدد بعدی در این الگو کدام است؟',
+                    sequence: '۲  ·  ۶  ·  ۱۲  ·  ۲۰  ·  ؟',
+                    answer: '۳۰',
+                    options: ['۲۸', '۳۰', '۳۲'],
+                    explanation: 'در هر مرحله ۲، ۴، ۶ و سپس ۸ واحد اضافه می‌شود.'
+                },
+                {
+                    prompt: 'کدام شکل باید جای علامت سؤال قرار بگیرد؟',
+                    sequence: '●  ▲  ●  ▲  ؟',
+                    answer: '● دایره',
+                    options: ['■ مربع', '● دایره', '▲ مثلث'],
+                    explanation: 'الگو یکی‌درمیان دایره و مثلث است؛ پس نوبت دایره می‌رسد.'
+                },
+                {
+                    prompt: 'اگر رنگ‌ها یکی‌درمیان تکرار شوند، رنگ بعدی چیست؟',
+                    sequence: 'آبی  ·  سبز  ·  آبی  ·  سبز  ·  ؟',
+                    answer: 'آبی',
+                    options: ['قرمز', 'سبز', 'آبی'],
+                    explanation: 'توالی آبی و سبز به‌صورت یکی‌درمیان تکرار می‌شود.'
+                }
+            ];
+            const prompt = challenge.querySelector('[data-challenge-prompt]');
+            const sequence = challenge.querySelector('[data-challenge-sequence]');
+            const options = challenge.querySelector('[data-challenge-options]');
+            const feedback = challenge.querySelector('[data-challenge-feedback]');
+            const nextButton = challenge.querySelector('[data-challenge-next]');
+            const counter = challenge.querySelector('[data-challenge-index]');
+            let questionIndex = Math.floor(Math.random() * questions.length);
+            let answered = false;
+            const challengeNumberFormat = new Intl.NumberFormat('fa-IR');
+
+            const renderQuestion = () => {
+                const question = questions[questionIndex];
+                answered = false;
+                if (prompt) prompt.textContent = question.prompt;
+                if (sequence) sequence.textContent = question.sequence;
+                if (counter) counter.textContent = `${challengeNumberFormat.format(questionIndex + 1)} از ${challengeNumberFormat.format(questions.length)}`;
+                if (feedback) {
+                    feedback.textContent = 'یکی از گزینه‌ها را انتخاب کن.';
+                    feedback.classList.remove('is-correct', 'is-wrong');
+                }
+                if (nextButton) {
+                    nextButton.hidden = true;
+                    nextButton.textContent = questionIndex === questions.length - 1 ? 'شروع دوباره' : 'چالش بعدی ←';
+                }
+                if (!options) return;
+                options.replaceChildren();
+                question.options.forEach((label) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'home-free-challenge__option';
+                    button.textContent = label;
+                    button.addEventListener('click', () => {
+                        if (answered) return;
+                        answered = true;
+                        const correct = label === question.answer;
+                        options.querySelectorAll('button').forEach((option) => {
+                            option.disabled = true;
+                            if (option.textContent === question.answer) option.classList.add('is-correct');
+                            else if (option === button && !correct) option.classList.add('is-wrong');
+                        });
+                        if (feedback) {
+                            feedback.textContent = correct
+                                ? `آفرین! پاسخ درست است. ${question.explanation}`
+                                : `این بار نه؛ پاسخ درست «${question.answer}» است. ${question.explanation}`;
+                            feedback.classList.toggle('is-correct', correct);
+                            feedback.classList.toggle('is-wrong', !correct);
+                        }
+                        if (nextButton) nextButton.hidden = false;
+                    });
+                    options.append(button);
+                });
+            };
+
+            nextButton?.addEventListener('click', () => {
+                questionIndex = (questionIndex + 1) % questions.length;
+                renderQuestion();
+            });
+            renderQuestion();
+        }
+
         // Lightweight homepage hero carousel: no plugin, no page-wide polling.
         const hero = root.querySelector('[data-home-hero]');
         if (hero) {

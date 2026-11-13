@@ -2,6 +2,7 @@
 
 @section('title', 'داشبورد آکادمی شیخان')
 @section('header-title', 'داشبورد')
+@section('body-class', 'owner-dashboard-live')
 @section('content')
 @php
     $ownerUser = auth()->user();

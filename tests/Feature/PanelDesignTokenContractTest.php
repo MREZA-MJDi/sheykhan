@@ -11,16 +11,26 @@ class PanelDesignTokenContractTest extends TestCase
         $entries = [
             'parent' => 'parent.css',
             'student' => 'student.css',
-            'owner' => 'owner-dashboard-v2.css',
+            'owner' => 'owner-admin.css',
             'seo' => 'seo-dashboard.css',
         ];
 
         foreach ($entries as $role => $entry) {
             $source = file_get_contents(resource_path('css/' . $entry));
+            $this->assertIsString($source);
+
+            if ($role === 'owner') {
+                $this->assertStringContainsString('.weekly-calendar', $source);
+                $this->assertStringContainsString('.owner-floating-modal', $source);
+                $this->assertStringContainsString('.owner-people-create-dialog', $source);
+                $this->assertStringNotContainsString("@import './panels/owner/admin.css';", $source);
+                $this->assertStringNotContainsString('owner-dashboard-v2.css', $source);
+                continue;
+            }
+
             $calendar = file_get_contents(resource_path('css/panels/' . $role . '/calendar.css'));
             $components = file_get_contents(resource_path('css/panels/' . $role . '/components.css'));
-
-            foreach ([$source, $calendar, $components] as $css) {
+            foreach ([$calendar, $components] as $css) {
                 $this->assertIsString($css);
             }
 
