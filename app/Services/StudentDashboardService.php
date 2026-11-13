@@ -594,7 +594,7 @@ final class StudentDashboardService
             'teachers' => $teachers,
             'overallProgress' => round($overallProgress),
             'attendanceRate' => $attendanceMetrics['attendance_percent'],
-            'attendanceCount' => $attendanceMetrics['measured_sessions'],
+
             'activeCourseCount' => $activeCourseCount,
             'pendingAssignments' => $pendingAssignments,
             'dueTomorrowCount' => $dueTomorrowCount,
