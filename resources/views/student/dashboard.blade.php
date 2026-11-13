@@ -72,23 +72,31 @@
   <x-stat color="mint" icon="i-rocket" label="پیشرفت دوره‌ها" :value="\App\Support\PersianUi::digits($overallProgress)" hint="{{ \App\Support\PersianUi::digits($completedLessonsCount) }} از {{ \App\Support\PersianUi::digits($totalLessonsCount) }} درس تکمیل شده" :href="route('student.growth')" />
 </div>
 
-<section class="card student-dashboard-monthly-growth" aria-labelledby="student-monthly-growth-title">
+<section class="card student-dashboard-weekly" aria-labelledby="student-weekly-title">
+  @php
+    $studyWeek = collect($studyWeek ?? []);
+    $maxStudyMinutes = max(1, (int) $studyWeek->max('minutes'));
+  @endphp
   <div class="chead">
     <div>
-      <h2 id="student-monthly-growth-title">رشد این ماه</h2>
-      <p class="muted small">برای نمایش تغییر نسبت به ماه قبل، سامانه باید تاریخچهٔ ماهانهٔ پیشرفت را ذخیره کند.</p>
+      <h2 id="student-weekly-title">ریتم یادگیری این هفته</h2>
+      <p class="muted small">زمان تماشای درس‌های دوره‌های خودت در هفت روز گذشته</p>
     </div>
-    <span class="pill">روند ماهانه هنوز ثبت نشده</span>
+    <span class="pill">{{ \\App\\Support\\PersianUi::digits($studyStreak ?? 0) }} روز پیوسته</span>
   </div>
-  <div class="student-monthly-growth__body">
-    <div class="student-monthly-growth__change">
-      <strong>—</strong>
-      <span>تغییر نسبت به ماه گذشته</span>
-    </div>
-    <div class="student-monthly-growth__current">
-      <strong>{{ \App\Support\PersianUi::digits($overallProgress) }}٪</strong>
-      <span>پیشرفت فعلی دوره‌ها</span>
-    </div>
+  <div class="student-weekly-summary">
+    <strong>{{ \\App\\Support\\PersianUi::digits($studyMinutesLast7Days ?? 0) }} <small>دقیقه</small></strong>
+    <span>یادگیری ثبت‌شده در هفت روز گذشته</span>
+  </div>
+  <div class="student-weekly-bars" role="img" aria-label="نمودار زمان مطالعه در هفت روز گذشته">
+    @foreach($studyWeek as $day)
+      @php($minutes = max(0, (int) ($day['minutes'] ?? 0)))
+      <div class="student-weekly-day" title="{{ $day['weekday'] ?? '' }}: {{ \\App\\Support\\PersianUi::digits($minutes) }} دقیقه">
+        <span class="student-weekly-bar-track"><i style="height: {{ min(100, max(4, ($minutes / $maxStudyMinutes) * 100)) }}%"></i></span>
+        <strong>{{ $day['weekday'] ?? '' }}</strong>
+        <small>{{ $day['label'] ?? '' }}</small>
+      </div>
+    @endforeach
   </div>
 </section>
 
