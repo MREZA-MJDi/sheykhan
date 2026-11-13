@@ -112,7 +112,7 @@
   <x-stat color="blue" icon="i-video" label="کلاس‌های امروز" :value="\App\Support\PersianUi::digits($todayLiveClassCount)" hint="جلسه‌های برنامه‌ریزی‌شده و در حال برگزاری" :href="route('student.live-classes.index')" />
   <x-stat color="red" icon="i-task" label="تکالیف باز" :value="\App\Support\PersianUi::digits($pendingAssignments)" hint="{{ \App\Support\PersianUi::digits($dueTomorrowCount) }} مورد تا فردا" :href="route('student.assignments.index')" />
   @can('attendance.view.own')
-    <x-stat color="amber" icon="i-checksq" label="نرخ حضور" :value="$attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate).'٪'" hint="{{ \App\Support\PersianUi::digits($attendanceCount) }} جلسه اندازه‌گیری‌شده" :href="route('student.growth')" />
+    <x-stat color="amber" icon="i-checksq" label="نرخ حضور" :value="$attendanceRate === null ? '—' : \App\Support\PersianUi::digits($attendanceRate).'٪'" :hint="$attendanceRate === null ? 'هنوز سابقه کافی ثبت نشده' : 'بر اساس حضور و غیاب ثبت‌شده'" :href="route('student.growth')" />
   @else
     <x-stat color="amber" icon="i-exam" label="آزمون پیش‌رو" :value="\App\Support\PersianUi::digits($upcomingExamCount)" hint="{{ $nextExamDate ? 'نزدیک‌ترین آزمون: '.\App\Support\PersianUi::date($nextExamDate) : 'هنوز آزمون زمان‌دار اعلام نشده' }}" :href="route('student.exams.index')" />
   @endcan
