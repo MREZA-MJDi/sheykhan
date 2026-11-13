@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\ProtectedLearningMediaView;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -75,18 +76,18 @@ class DashboardController extends Controller
         $data['recentLearningViews'] = collect();
 
         if ($academyIds !== [] && $owner->hasPermission('resources.view') && Schema::hasTable('protected_learning_media_views')) {
-            $activeStudentIds = DB::table('academy_user')
-                ->whereIn('academy_id', $academyIds)
-                ->where('role', 'student')
-                ->where('status', 'active')
-                ->select('user_id')
-                ->distinct();
-
-            // Only the initial open event is shown; page-by-page viewer events would
-            // overwhelm a manager's feed and do not represent separate study actions.
+            // Correlate the viewer with an active student membership in the same
+            // academy as the resource event; a membership in another academy is not enough.
             $data['recentLearningViews'] = ProtectedLearningMediaView::query()
                 ->whereIn('academy_id', $academyIds)
-                ->whereIn('user_id', $activeStudentIds)
+                ->whereExists(function ($membership): void {
+                    $membership->selectRaw('1')
+                        ->from('academy_user as student_membership')
+                        ->whereColumn('student_membership.user_id', 'protected_learning_media_views.user_id')
+                        ->whereColumn('student_membership.academy_id', 'protected_learning_media_views.academy_id')
+                        ->where('student_membership.role', 'student')
+                        ->where('student_membership.status', 'active');
+                })
                 ->where('event_type', 'open')
                 ->with(['user:id,name', 'media:id,original_name', 'resource:id,title'])
                 ->orderByDesc('viewed_at')
