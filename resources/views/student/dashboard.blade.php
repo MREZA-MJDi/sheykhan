@@ -82,16 +82,16 @@
       <h2 id="student-weekly-title">ریتم یادگیری این هفته</h2>
       <p class="muted small">زمان تماشای درس‌های دوره‌های خودت در هفت روز گذشته</p>
     </div>
-    <span class="pill">{{ \\App\\Support\\PersianUi::digits($studyStreak ?? 0) }} روز پیوسته</span>
+    <span class="pill">{{ \App\Support\PersianUi::digits($studyStreak ?? 0) }} روز پیوسته</span>
   </div>
   <div class="student-weekly-summary">
-    <strong>{{ \\App\\Support\\PersianUi::digits($studyMinutesLast7Days ?? 0) }} <small>دقیقه</small></strong>
+    <strong>{{ \App\Support\PersianUi::digits($studyMinutesLast7Days ?? 0) }} <small>دقیقه</small></strong>
     <span>یادگیری ثبت‌شده در هفت روز گذشته</span>
   </div>
   <div class="student-weekly-bars" role="img" aria-label="نمودار زمان مطالعه در هفت روز گذشته">
     @foreach($studyWeek as $day)
       @php($minutes = max(0, (int) ($day['minutes'] ?? 0)))
-      <div class="student-weekly-day" title="{{ $day['weekday'] ?? '' }}: {{ \\App\\Support\\PersianUi::digits($minutes) }} دقیقه">
+      <div class="student-weekly-day" title="{{ $day['weekday'] ?? '' }}: {{ \App\Support\PersianUi::digits($minutes) }} دقیقه">
         <span class="student-weekly-bar-track"><i style="height: {{ min(100, max(4, ($minutes / $maxStudyMinutes) * 100)) }}%"></i></span>
         <strong>{{ $day['weekday'] ?? '' }}</strong>
         <small>{{ $day['label'] ?? '' }}</small>
