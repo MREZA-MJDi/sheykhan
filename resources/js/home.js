@@ -93,13 +93,14 @@ if (!window.__sheykhanAlpineBooted) {
             const counter = challenge.querySelector('[data-challenge-index]');
             let questionIndex = Math.floor(Math.random() * questions.length);
             let answered = false;
+            const challengeNumberFormat = new Intl.NumberFormat('fa-IR');
 
             const renderQuestion = () => {
                 const question = questions[questionIndex];
                 answered = false;
                 if (prompt) prompt.textContent = question.prompt;
                 if (sequence) sequence.textContent = question.sequence;
-                if (counter) counter.textContent = `${numberFormat.format(questionIndex + 1)} از ${numberFormat.format(questions.length)}`;
+                if (counter) counter.textContent = `${challengeNumberFormat.format(questionIndex + 1)} از ${challengeNumberFormat.format(questions.length)}`;
                 if (feedback) {
                     feedback.textContent = 'یکی از گزینه‌ها را انتخاب کن.';
                     feedback.classList.remove('is-correct', 'is-wrong');
