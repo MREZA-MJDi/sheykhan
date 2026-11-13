@@ -20,7 +20,7 @@
     </header>
 
     <section class="owner-info-banner rounded-2xl border border-sky-100 bg-sky-50 p-4 text-xs leading-7 text-sky-900" aria-label="راهنمای لینک جلسه">
-        لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet و Zoom باید لینک دعوت واقعی را از همان سرویس وارد کنی؛ شیخان لینک ساختگی تولید نمی‌کند.
+لینک Jitsi در صورت خالی بودن خودکار ساخته می‌شود. برای Google Meet، Zoom و Skyroom لینک واقعی اتاق را از همان سرویس وارد کن؛ شیخان لینک ساختگی تولید نمی‌کند. برای Skyroom، لینک اتاق باید از نوع skyroom.online/ch/... باشد.
     </section>
 
     <section class="owner-calendar-section" aria-label="تقویم هفتگی کلاس‌ها">
@@ -84,6 +84,7 @@
                                 <option value="Jitsi" @selected(old('provider', 'Jitsi') === 'Jitsi')>Jitsi · خودکار</option>
                                 <option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option>
                                 <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
+                                <option value="Skyroom" @selected(old('provider') === 'Skyroom')>Skyroom · لینک اتاق</option>
                                 <option value="سایر" @selected(old('provider') === 'سایر')>سایر سرویس‌ها</option>
                             </select>
                             @error('provider')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
