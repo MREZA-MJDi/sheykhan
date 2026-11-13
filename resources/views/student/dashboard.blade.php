@@ -1,6 +1,7 @@
 @extends('layouts.student')
 @section('title', 'خانه یادگیری')
 @section('heading', 'مرکز یادگیری')
+@section('body-class', 'student-dashboard-live')
 
 @section('content')
 @php
