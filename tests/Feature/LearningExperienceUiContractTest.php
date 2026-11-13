@@ -10,17 +10,23 @@ final class LearningExperienceUiContractTest extends TestCase
     {
         $view = file_get_contents(resource_path('views/owner/dashboard.blade.php'));
         $overview = file_get_contents(resource_path('views/owner/dashboard/partials/overview.blade.php'));
+        $activity = file_get_contents(resource_path('views/owner/dashboard/partials/activity.blade.php'));
         $layout = file_get_contents(resource_path('views/layouts/owner.blade.php'));
         $styles = file_get_contents(resource_path('css/owner-admin.css'));
 
         $this->assertIsString($view);
         $this->assertIsString($overview);
+        $this->assertIsString($activity);
         $this->assertIsString($layout);
         $this->assertIsString($styles);
         $this->assertStringContainsString("owner-dashboard-live", $view);
         $this->assertStringContainsString("@yield('body-class')", $layout);
         $this->assertStringContainsString('.owner-admin-v2.owner-dashboard-live', $styles);
         $this->assertStringContainsString('owner-dashboard-kpi', $overview);
+        $this->assertStringContainsString('owner-dashboard-core-stats', $overview);
+        $this->assertStringContainsString('owner-shortcut-groups', $activity);
+        $this->assertStringContainsString('owner.counseling.index', $activity);
+        $this->assertStringContainsString('owner.recordings.index', $activity);
         $this->assertStringContainsString('.owner-dashboard-shortcuts', $styles);
     }
 
