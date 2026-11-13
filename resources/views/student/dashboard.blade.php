@@ -148,10 +148,15 @@
 </section>
 
 <div class="row student-dashboard-secondary">
-  <section class="card" aria-labelledby="student-results-preview-title">
+  <section class="card" id="results" aria-labelledby="student-results-preview-title">
     <div class="chead">
       <h2 id="student-results-preview-title">آخرین نتیجه‌ها</h2>
-      <a class="pill" href="{{ route('student.results.index') }}">کارنامه کامل</a>
+      <div class="student-results-actions">
+        @if($upcomingExamCount > 0)
+          <a class="pill" href="{{ route('student.exams.index') }}">{{ \\App\\Support\\PersianUi::digits($upcomingExamCount) }} آزمون پیش‌رو</a>
+        @endif
+        <a class="pill" href="{{ route('student.results.index') }}">کارنامه کامل</a>
+      </div>
     </div>
     @forelse($recentResults as $result)
       <a class="trk" href="{{ route('student.results.index') }}">
@@ -173,7 +178,7 @@
     @endforelse
   </section>
 
-  <section class="card" aria-labelledby="student-resources-preview-title">
+  <section class="card" id="resources" aria-labelledby="student-resources-preview-title">
     <div class="chead">
       <h2 id="student-resources-preview-title">جزوه‌ها و منابع تازه</h2>
       <a class="pill" href="{{ route('student.resources.index') }}">همه منابع</a>
@@ -199,8 +204,8 @@
   <section class="card" id="classes">
     <div class="chead"><h2>کلاس‌های امروز</h2><a class="pill" href="{{ route('student.live-classes.index') }}">همه کلاس‌ها</a></div>
     @forelse ($todayClasses as $class)
-      <div class="trk">
-        <div class="th {{ $class->status === 'live' ? 'mint' : 'blue' }}"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
+      <div class="trk student-class-item">
+        <div class="th student-class-item__icon {{ $class->status === 'live' ? 'mint' : 'blue' }}"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
         <div>
           <b>{{ $class->title }}</b>
           <span>{{ $class->course_title }} · {{ $class->teacher_name ?: 'مدرس دوره' }} · {{ \App\Support\PersianUi::time($class->scheduled_at) }}</span>
