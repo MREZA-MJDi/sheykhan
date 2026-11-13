@@ -155,8 +155,8 @@
       <div class="student-class-item">
         <div class="th student-class-item__icon {{ $class->status === 'live' ? 'mint' : 'blue' }}"><svg class="i" aria-hidden="true"><use href="#i-video"/></svg></div>
         <div class="student-class-item__body">
-          <b>{{ $class->title }}</b>
-          <span>{{ $class->course_title }} · {{ $class->teacher_name ?: 'مدرس دوره' }} · {{ \App\Support\PersianUi::time($class->scheduled_at) }}</span>
+          <h3>{{ $class->title }}</h3>
+          <p>{{ $class->course_title }} · {{ $class->teacher_name ?: 'مدرس دوره' }} · {{ \App\Support\PersianUi::time($class->scheduled_at) }}</p>
         </div>
         @if ($class->can_join)
           <a class="pl" href="{{ route('student.live-classes.join', $class->id) }}" aria-label="ورود امن به کلاس"><svg class="i"><use href="#i-play"/></svg></a>
