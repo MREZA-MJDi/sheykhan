@@ -95,9 +95,10 @@
                     <option value="Jitsi" @selected(old('provider') === 'Jitsi')>Jitsi</option>
                     <option value="Google Meet" @selected(old('provider') === 'Google Meet')>Google Meet</option>
                     <option value="Zoom" @selected(old('provider') === 'Zoom')>Zoom</option>
+                    <option value="Skyroom" @selected(old('provider') === 'Skyroom')>Skyroom</option>
                     <option value="سایر" @selected(old('provider') === 'سایر')>سایر</option>
                 </select>
-                <em>Jitsi لینک یکتا را بلافاصله می‌سازد؛ Google Meet و Zoom به لینک واقعی ساخته‌شده در همان سرویس نیاز دارند.</em>
+                <em>Jitsi لینک یکتا می‌سازد؛ برای Google Meet، Zoom و Skyroom لینک واقعی اتاق را از همان سرویس وارد کن.</em>
             </label>
             <label>
                 <span>لینک ورود دانش‌آموزان</span>
