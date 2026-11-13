@@ -91,19 +91,59 @@
             </section>
         @endif
 
-        <section class="card c4 owner-dashboard-shortcuts" aria-labelledby="shortcut-title" style="--c:#22d3ee">
+        <section class="card c12 owner-dashboard-shortcuts" aria-labelledby="shortcut-title" style="--c:#5265bd">
             <div class="card-title">
-                <div><h2 id="shortcut-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>میان‌بر</h2><p>دسترسی مستقیم به کارهای روزمره.</p></div>
+                <div><h2 id="shortcut-title"><span class="section-icon"><svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>دسترسی سریع به کارهای آموزشگاه</h2><p>هر بخش را از اینجا مستقیم باز کن؛ دسترسی‌ها مطابق نقش و مجوز حساب تو نمایش داده می‌شوند.</p></div>
             </div>
-            <div class="act owner-shortcuts">
-                @if($canViewAttendance && $firstAcademy)<a class="go sm" href="{{ route('owner.attendance.index', $firstAcademy) }}">ثبت حضور</a>@endif
-                @if($canViewClassrooms && $firstAcademy)<a class="go sm" href="{{ route('owner.classrooms.index', $firstAcademy) }}">کلاس‌ها</a>@endif
-                @if($canViewPeople && $firstAcademy)<a class="go sm" href="{{ route('owner.people.index', $firstAcademy) }}">مدیریت اعضا</a>@endif
-                @if($canViewCourses)<a class="go sm" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
-                @if($ownerUser?->hasPermission('courses.manage'))<a class="go sm" href="{{ route('owner.spotplayer.edit') }}">اتصال SpotPlayer</a>@endif
-                @if($canViewOrders && $firstAcademy)<a class="go sm" href="{{ route('owner.protected-file-views.index', $firstAcademy) }}">گزارش مشاهده فایل‌ها</a>@endif
-                @if($canViewAssignments && $firstAcademy)<a class="go sm" href="{{ route('owner.assignments.index', $firstAcademy) }}">تکالیف</a>@endif
-                @if($canViewReports)<a class="go sm" href="{{ route('owner.reports.index') }}">گزارش‌ها</a>@endif
+            <div class="owner-shortcut-groups">
+                @if($canViewCourses || $canViewClassrooms || $canViewAssignments || $canViewExams || $canViewMeetings)
+                    <div class="owner-shortcut-group owner-shortcut-group--learning">
+                        <h3>آموزش و ارزیابی</h3>
+                        <div class="act owner-shortcuts">
+                            @if($canViewCourses)<a class="go sm owner-shortcut owner-shortcut--learning" href="{{ route('owner.courses.index') }}">دوره‌ها</a>@endif
+                            @if($canViewClassrooms && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--learning" href="{{ route('owner.classrooms.index', $firstAcademy) }}">کلاس‌ها و گروه‌ها</a>@endif
+                            @if($canViewMeetings && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--learning" href="{{ route('owner.schedules.index', $firstAcademy) }}">برنامه هفتگی</a>@endif
+                            @if($canViewAssignments && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--learning" href="{{ route('owner.assignments.index', $firstAcademy) }}">تکالیف</a>@endif
+                            @if($canViewExams && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--learning" href="{{ route('owner.exams.index', $firstAcademy) }}">آزمون‌ها</a>@endif
+                        </div>
+                    </div>
+                @endif
+
+                @if($canViewParents || $canViewMeetings)
+                    <div class="owner-shortcut-group owner-shortcut-group--people">
+                        <h3>ارتباط و جلسات</h3>
+                        <div class="act owner-shortcuts">
+                            @if($firstAcademy && ($canViewParents || $canViewMeetings))<a class="go sm owner-shortcut owner-shortcut--communication" href="{{ route('owner.communication-workspace', $firstAcademy) }}">پیام‌ها و ارتباطات</a>@endif
+                            @if($canViewParents && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--communication" href="{{ route('owner.communications.index', $firstAcademy) }}">پیام اولیا</a>@endif
+                            @if($canViewParents && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--communication" href="{{ route('owner.counseling.index', $firstAcademy) }}">جلسات مشاوره</a>@endif
+                            @if($canViewMeetings && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--communication" href="{{ route('owner.meetings.index', $firstAcademy) }}">جلسات اولیا</a>@endif
+                        </div>
+                    </div>
+                @endif
+
+                @if($canViewResources || $canViewMeetings || $canViewOrders || $ownerUser?->hasPermission('courses.manage'))
+                    <div class="owner-shortcut-group owner-shortcut-group--media">
+                        <h3>منابع و رسانه</h3>
+                        <div class="act owner-shortcuts">
+                            @if($canViewResources && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--media" href="{{ route('owner.resources.index', $firstAcademy) }}">جزوه‌ها و منابع</a>@endif
+                            @if($canViewMeetings && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--media" href="{{ route('owner.recordings.index', $firstAcademy) }}">فیلم کلاس‌ها</a>@endif
+                            @if($canViewOrders && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--media" href="{{ route('owner.protected-file-views.index', $firstAcademy) }}">گزارش مشاهده فایل‌ها</a>@endif
+                            @if($ownerUser?->hasPermission('courses.manage'))<a class="go sm owner-shortcut owner-shortcut--media" href="{{ route('owner.spotplayer.edit') }}">اتصال پخش ویدئو</a>@endif
+                        </div>
+                    </div>
+                @endif
+
+                @if($canViewPeople || $canViewAttendance || $canViewReports || $canViewFinance || $canViewTeacherPayments)
+                    <div class="owner-shortcut-group owner-shortcut-group--management">
+                        <h3>اعضا و مدیریت</h3>
+                        <div class="act owner-shortcuts">
+                            @if($canViewPeople && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--management" href="{{ route('owner.people.index', $firstAcademy) }}">دانش‌آموزان و مدرسان</a>@endif
+                            @if($canViewAttendance && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--management" href="{{ route('owner.attendance.index', $firstAcademy) }}">حضور و غیاب</a>@endif
+                            @if($canViewReports)<a class="go sm owner-shortcut owner-shortcut--management" href="{{ route('owner.reports.index') }}">گزارش‌های مدیریتی</a>@endif
+                            @if($canViewFinance)<a class="go sm owner-shortcut owner-shortcut--management" href="{{ route('owner.finance.index') }}">مالی و پرداخت‌ها</a>@endif
+                            @if($canViewTeacherPayments && $firstAcademy)<a class="go sm owner-shortcut owner-shortcut--management" href="{{ route('owner.teacher-payments.index', $firstAcademy) }}">پرداخت مدرس‌ها</a>@endif
+                        </div>
+                    </div>
+                @endif
             </div>
-            <small>برای پیدا کردن سایر صفحه‌ها از جستجوی منوی بالای صفحه استفاده کن.</small>
         </section>
