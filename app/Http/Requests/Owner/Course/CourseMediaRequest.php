@@ -28,7 +28,7 @@ class CourseMediaRequest extends FormRequest
                 'required',
                 'file',
                 ...($isCover ? ['image'] : []),
-                'max:' . (($isCover || $isTrailer) ? 204800 : $this->maxSizeKilobytes()),
+                'max:' . ($isCover ? 10240 : ($isTrailer ? 204800 : $this->maxSizeKilobytes())),
                 $isCover
                     ? 'mimes:jpg,jpeg,png,webp'
                     : ($isTrailer ? 'mimes:mp4,webm,mov' : 'mimes:jpg,jpeg,png,webp,pdf,zip'),
