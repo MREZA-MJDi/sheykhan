@@ -121,6 +121,115 @@
         </aside>
     </section>
 
+    @if($canManageCourse && auth()->user()->hasPermission('lessons.manage'))
+        <section class="panel-card space-y-5 p-5 sm:p-7">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-black">مدیریت فصل‌ها و ویدئوهای دوره</h2>
+                    <p class="mt-1 text-xs leading-6 text-[var(--color-text-muted)]">فصل‌ها و درس‌ها را همین‌جا بساز، ویرایش یا حذف کن. ویدئوی اصلی پس از خرید از مسیر امن SpotPlayer پخش می‌شود؛ فقط درس‌هایی که «رایگان» علامت می‌زنی پیش‌نمایش عمومی دارند.</p>
+                </div>
+                <span class="course-mini-badge">ویرایش زندهٔ ساختار دوره</span>
+            </div>
+
+            <form method="POST" action="{{ route('owner.courses.sections.store', $course) }}" class="grid gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background-soft)] p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
+                @csrf
+                <label class="grid gap-1 text-xs font-bold">
+                    <span>عنوان فصل جدید</span>
+                    <input name="title" required maxlength="255" class="course-input" placeholder="مثلاً فصل اول: مبانی و مفاهیم">
+                </label>
+                <label class="grid gap-1 text-xs font-bold">
+                    <span>توضیح فصل</span>
+                    <input name="description" maxlength="2000" class="course-input" placeholder="موضوع‌ها و هدف این فصل">
+                </label>
+                <button type="submit" class="course-primary-btn">افزودن فصل</button>
+            </form>
+
+            <div class="grid gap-4">
+                @forelse($course->sections as $section)
+                    <article class="rounded-2xl border border-[var(--color-border)] p-4 sm:p-5">
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <h3 class="text-sm font-black">{{ $section->title }}</h3>
+                                <p class="mt-1 text-[11px] text-[var(--color-text-muted)]">{{ \App\Support\PersianUi::digits($section->lessons->count()) }} درس · ترتیب {{ \App\Support\PersianUi::digits($section->sort_order) }}</p>
+                            </div>
+                            @if($section->lessons->isEmpty())
+                                <form method="POST" action="{{ route('owner.courses.sections.destroy', [$course, $section]) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" data-confirm="این فصل خالی حذف شود؟" class="course-action-btn danger">حذف فصل خالی</button>
+                                </form>
+                            @endif
+                        </div>
+
+                        <form method="POST" action="{{ route('owner.courses.sections.update', [$course, $section]) }}" class="grid gap-3 border-b border-[var(--color-border)] pb-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_6rem_auto] md:items-end">
+                            @csrf
+                            @method('PATCH')
+                            <label class="grid gap-1 text-[11px] font-bold"><span>نام فصل</span><input name="title" value="{{ $section->title }}" required maxlength="255" class="course-input"></label>
+                            <label class="grid gap-1 text-[11px] font-bold"><span>توضیحات</span><input name="description" value="{{ $section->description }}" maxlength="2000" class="course-input"></label>
+                            <label class="grid gap-1 text-[11px] font-bold"><span>ترتیب</span><input name="sort_order" type="number" min="1" max="9999" value="{{ $section->sort_order }}" required class="course-input"></label>
+                            <button type="submit" class="course-action-btn primary">ذخیره فصل</button>
+                        </form>
+
+                        <form method="POST" action="{{ route('owner.courses.lessons.store', [$course, $section]) }}" class="mt-4 grid gap-3 rounded-xl bg-[var(--color-background-soft)] p-4 md:grid-cols-2">
+                            @csrf
+                            <div class="md:col-span-2">
+                                <strong class="text-xs font-black">افزودن درس به {{ $section->title }}</strong>
+                                <p class="mt-1 text-[10px] leading-5 text-[var(--color-text-muted)]">برای درس ویدئویی، ویدئوی کامل را در دورهٔ متناظر SpotPlayer قرار بده و این درس را به‌عنوان سرفصل قابل مشاهده ثبت کن.</p>
+                            </div>
+                            <label class="grid gap-1 text-[11px] font-bold"><span>عنوان درس</span><input name="title" required maxlength="255" class="course-input" placeholder="مثلاً جلسه اول: آشنایی با موضوع"></label>
+                            <label class="grid gap-1 text-[11px] font-bold"><span>شناسهٔ درس (Slug)</span><input name="slug" required maxlength="255" pattern="[A-Za-z0-9_-]+" dir="ltr" class="course-input" placeholder="chapter-one-lesson-1"></label>
+                            <label class="grid gap-1 text-[11px] font-bold"><span>نوع محتوا</span><select name="type" required class="course-input"><option value="video">ویدئوی SpotPlayer</option><option value="text">متن</option><option value="file">فایل</option><option value="quiz">آزمونک</option><option value="live">جلسه زنده</option></select></label>
+                            <label class="grid gap-1 text-[11px] font-bold"><span>مدت (ثانیه)</span><input name="duration_seconds" type="number" min="0" max="86400" value="0" class="course-input"></label>
+                            <label class="grid gap-1 text-[11px] font-bold md:col-span-2"><span>خلاصهٔ درس</span><input name="summary" maxlength="500" class="course-input" placeholder="توضیح کوتاه برای دانش‌آموز"></label>
+                            <label class="flex items-center gap-2 text-[11px] font-bold"><input type="checkbox" name="is_free" value="1"> این درس پیش‌نمایش رایگان باشد</label>
+                            <label class="grid gap-1 text-[11px] font-bold"><span>وضعیت</span><select name="status" class="course-input"><option value="draft">پیش‌نویس</option><option value="published">منتشرشده</option></select></label>
+                            <label class="grid gap-1 text-[11px] font-bold md:col-span-2"><span>محتوای متنی (اختیاری)</span><textarea name="content" rows="2" maxlength="30000" class="course-input" placeholder="یادداشت یا متن کمکی درس"></textarea></label>
+                            <div class="md:col-span-2 flex justify-end"><button type="submit" class="course-action-btn primary">افزودن درس</button></div>
+                        </form>
+
+                        <div class="mt-4 grid gap-2">
+                            @forelse($section->lessons as $lesson)
+                                <details class="rounded-xl border border-[var(--color-border)] bg-white p-3">
+                                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
+                                        <span class="min-w-0 truncate text-xs font-bold">{{ $lesson->title }}</span>
+                                        <span class="shrink-0 text-[10px] text-[var(--color-text-muted)]">{{ $lesson->is_free ? 'پیش‌نمایش رایگان' : 'قفل تا خرید' }} · {{ $lesson->status === 'published' ? 'منتشر' : ($lesson->status === 'archived' ? 'آرشیو' : 'پیش‌نویس') }}</span>
+                                    </summary>
+                                    <form method="POST" action="{{ route('owner.courses.lessons.update', [$course, $section, $lesson]) }}" class="mt-3 grid gap-3 border-t border-[var(--color-border)] pt-3 md:grid-cols-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <label class="grid gap-1 text-[11px] font-bold"><span>عنوان</span><input name="title" value="{{ $lesson->title }}" required maxlength="255" class="course-input"></label>
+                                        <label class="grid gap-1 text-[11px] font-bold"><span>شناسهٔ درس</span><input name="slug" value="{{ $lesson->slug }}" required maxlength="255" pattern="[A-Za-z0-9_-]+" dir="ltr" class="course-input"></label>
+                                        <label class="grid gap-1 text-[11px] font-bold"><span>نوع</span><select name="type" class="course-input">@foreach(['video'=>'ویدئوی SpotPlayer','text'=>'متن','file'=>'فایل','quiz'=>'آزمونک','live'=>'جلسه زنده'] as $type=>$label)<option value="{{ $type }}" @selected($lesson->type === $type)>{{ $label }}</option>@endforeach</select></label>
+                                        <label class="grid gap-1 text-[11px] font-bold"><span>مدت (ثانیه)</span><input name="duration_seconds" type="number" min="0" max="86400" value="{{ $lesson->duration_seconds }}" class="course-input"></label>
+                                        <label class="grid gap-1 text-[11px] font-bold md:col-span-2"><span>خلاصه</span><input name="summary" value="{{ $lesson->summary }}" maxlength="500" class="course-input"></label>
+                                        <label class="flex items-center gap-2 text-[11px] font-bold"><input type="checkbox" name="is_free" value="1" @checked($lesson->is_free)> پیش‌نمایش رایگان</label>
+                                        <label class="grid gap-1 text-[11px] font-bold"><span>وضعیت</span><select name="status" class="course-input"><option value="draft" @selected($lesson->status === 'draft')>پیش‌نویس</option><option value="published" @selected($lesson->status === 'published')>منتشرشده</option><option value="archived" @selected($lesson->status === 'archived')>آرشیو</option></select></label>
+                                        <label class="grid gap-1 text-[11px] font-bold md:col-span-2"><span>محتوای متنی (اختیاری)</span><textarea name="content" rows="2" maxlength="30000" class="course-input">{{ $lesson->content }}</textarea></label>
+                                        <label class="grid gap-1 text-[11px] font-bold"><span>ترتیب</span><input name="sort_order" type="number" min="1" max="9999" value="{{ $lesson->sort_order }}" required class="course-input"></label>
+                                        <div class="flex flex-wrap items-end justify-end gap-2 md:col-span-2">
+                                            <button type="submit" class="course-action-btn primary">ذخیره درس</button>
+                                        </div>
+                                    </form>
+                                    @if($lesson->status === 'draft')
+                                        <form method="POST" action="{{ route('owner.courses.lessons.destroy', [$course, $section, $lesson]) }}" class="mt-2 flex justify-end">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" data-confirm="حذف این درس پیش‌نویس؟ حذف فقط وقتی ممکن است که سابقهٔ پیشرفت یا منبع آموزشی نداشته باشد." class="course-action-btn danger">حذف درس پیش‌نویس</button>
+                                        </form>
+                                    @endif
+                                </details>
+                            @empty
+                                <p class="rounded-xl border border-dashed border-[var(--color-border)] p-4 text-xs text-[var(--color-text-muted)]">هنوز درسی در این فصل ثبت نشده است.</p>
+                            @endforelse
+                        </div>
+                    </article>
+                @empty
+                    <div class="rounded-2xl border border-dashed border-[var(--color-border)] p-6 text-center text-xs text-[var(--color-text-muted)]">برای شروع، فصل اول را از فرم بالا بساز.</div>
+                @endforelse
+            </div>
+        </section>
+    @endif
+
     <section class="grid gap-5 lg:grid-cols-2">
         <section class="panel-card p-5 sm:p-6">
             <div>
