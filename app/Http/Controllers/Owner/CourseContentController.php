@@ -118,7 +118,7 @@ final class CourseContentController extends Controller
         $data['duration_seconds'] = (int) ($data['duration_seconds'] ?? 0);
         $data['is_free'] = (bool) ($data['is_free'] ?? false);
         $data['published_at'] = $data['status'] === 'published' ? now() : null;
-        $data['sort_order'] = (int) ($data['sort_order'] ?? ($sectionItem->lessons()->max('sort_order') + 1));
+        $data['sort_order'] = (int) ($data['sort_order'] ?? (((int) $sectionItem->lessons()->max('sort_order')) + 1));
 
         $sectionItem->lessons()->create($data);
 
