@@ -117,8 +117,14 @@ class MediaPolicy
                 return true;
             }
 
-            if ($model instanceof Course && !str_starts_with((string) $media->mime_type, 'image/')) {
-                return true;
+            if ($model instanceof Course) {
+                $isPublicCourseTrailer = $attachment->collection === 'course-trailer'
+                    && $media->visibility === 'public'
+                    && str_starts_with((string) $media->mime_type, 'video/');
+
+                if (! $isPublicCourseTrailer && ! str_starts_with((string) $media->mime_type, 'image/')) {
+                    return true;
+                }
             }
         }
 
