@@ -73,10 +73,30 @@
         ],
         [
             'key' => 'learning',
-            'title' => 'آموزش',
+            'title' => 'دوره‌ها',
             'color' => '#8b3dff',
             'links' => [
-                ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'مرکز آموزش', 'icon' => 'book', 'scope' => 'global'],
+                ['route' => 'owner.courses.index', 'permission' => 'courses.view', 'label' => 'مدیریت دوره‌ها', 'icon' => 'book', 'scope' => 'global'],
+            ],
+        ],
+        [
+            'key' => 'classes',
+            'title' => 'کلاس‌ها و جلسات',
+            'color' => '#0891b2',
+            'links' => [
+                ['route' => 'owner.classrooms.index', 'permission' => 'classrooms.view', 'label' => 'کلاس‌های آموزشی', 'icon' => 'users', 'scope' => 'academy'],
+                ['route' => 'owner.schedules.index', 'permission' => 'live_classes.view', 'label' => 'برنامه و زمان‌بندی', 'icon' => 'calendar', 'scope' => 'academy'],
+                ['route' => 'owner.recordings.index', 'permission' => 'live_classes.view', 'label' => 'ضبط جلسات', 'icon' => 'video', 'scope' => 'academy'],
+                ['route' => 'owner.meetings.index', 'permission' => 'live_classes.view', 'label' => 'جلسات آنلاین', 'icon' => 'video', 'scope' => 'academy'],
+            ],
+        ],
+        [
+            'key' => 'store',
+            'title' => 'فروشگاه',
+            'color' => '#d97706',
+            'links' => [
+                ['route' => 'owner.products.index', 'permission' => 'products.view', 'label' => 'محصولات و کتاب‌ها', 'icon' => 'package', 'scope' => 'academy'],
+                ['route' => 'owner.orders.index', 'permission' => 'orders.view', 'label' => 'سفارش‌های فروشگاه', 'icon' => 'shopping-bag', 'scope' => 'academy'],
             ],
         ],
         [
@@ -109,8 +129,10 @@
     ];
 
     $currentOwnerNavGroupKey = match (true) {
-        request()->routeIs('owner.classrooms.*', 'owner.assignments.*', 'owner.exams.*', 'owner.question-bank.*', 'owner.schedules.*', 'owner.meetings.*', 'owner.recordings.*', 'owner.resources.*', 'owner.courses.*') => 'learning',
-        request()->routeIs('owner.finance.*', 'owner.teacher-payments.*', 'owner.orders.*') => 'finance',
+        request()->routeIs('owner.courses.*') => 'learning',
+        request()->routeIs('owner.classrooms.*', 'owner.assignments.*', 'owner.exams.*', 'owner.question-bank.*', 'owner.schedules.*', 'owner.meetings.*', 'owner.recordings.*', 'owner.resources.*') => 'classes',
+        request()->routeIs('owner.products.*', 'owner.orders.*') => 'store',
+        request()->routeIs('owner.finance.*', 'owner.teacher-payments.*') => 'finance',
         request()->routeIs('owner.attendance.*') => 'attendance',
         request()->routeIs('owner.reports.*') => 'reports',
         request()->routeIs('owner.people.*', 'owner.communication-workspace', 'owner.communications.*', 'owner.messages.*', 'owner.counseling.*') => 'people',
@@ -122,24 +144,31 @@
         }
         if (
             $candidateGroup['key'] === 'learning'
-            && request()->routeIs(
-                'owner.courses.*',
-                'owner.classrooms.*',
-                'owner.schedules.*',
-                'owner.assignments.*',
-                'owner.exams.*',
-                'owner.question-bank.*',
-                'owner.recordings.*',
-                'owner.resources.*'
-            )
+            && request()->routeIs('owner.courses.*')
         ) {
             $currentOwnerNavGroupKey = 'learning';
             break;
         }
 
         if (
+            $candidateGroup['key'] === 'classes'
+            && request()->routeIs('owner.classrooms.*', 'owner.schedules.*', 'owner.assignments.*', 'owner.exams.*', 'owner.question-bank.*', 'owner.meetings.*', 'owner.recordings.*', 'owner.resources.*')
+        ) {
+            $currentOwnerNavGroupKey = 'classes';
+            break;
+        }
+
+        if (
+            $candidateGroup['key'] === 'store'
+            && request()->routeIs('owner.products.*', 'owner.orders.*')
+        ) {
+            $currentOwnerNavGroupKey = 'store';
+            break;
+        }
+
+        if (
             $candidateGroup['key'] === 'finance'
-            && request()->routeIs('owner.finance.*', 'owner.orders.*', 'owner.teacher-payments.*')
+            && request()->routeIs('owner.finance.*', 'owner.teacher-payments.*')
         ) {
             $currentOwnerNavGroupKey = 'finance';
             break;
