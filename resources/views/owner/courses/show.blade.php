@@ -23,6 +23,13 @@
         <div class="flex flex-wrap gap-2">
             <a href="{{ route('owner.courses.edit',$course) }}" class="course-primary-btn">ویرایش دوره</a>
             <a href="{{ route('owner.courses.index') }}" class="course-secondary-btn">بازگشت</a>
+            @if($canPermanentlyDeleteCourse)
+                <form method="POST" action="{{ route('owner.courses.destroy', $course) }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" data-confirm="این دورهٔ آرشیوشده و بدون سابقه به‌طور دائمی حذف شود؟" class="course-action-btn danger">حذف دائمی دورهٔ خالی</button>
+                </form>
+            @endif
         </div>
     </div>
 
