@@ -67,9 +67,21 @@ class ClassroomController extends Controller
     ): View {
         $item = Classroom::query()->findOrFail($classroom);
 
+        $canPermanentlyDeleteClassroom = $item->status === 'archived'
+            && $item->students()->doesntExist()
+            && $item->schedules()->doesntExist()
+            && $item->attendance()->doesntExist()
+            && $item->assignments()->doesntExist()
+            && $item->exams()->doesntExist()
+            && $item->liveClasses()->doesntExist()
+            && $item->enrollments()->doesntExist();
+
         return view(
             'owner.classrooms.show',
-            $service->show(request()->user(), $academy, $item) + ['academy' => $academy]
+            $service->show(request()->user(), $academy, $item) + [
+                'academy' => $academy,
+                'canPermanentlyDeleteClassroom' => $canPermanentlyDeleteClassroom,
+            ]
         );
     }
 
