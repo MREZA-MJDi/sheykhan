@@ -35,8 +35,8 @@ class CourseController extends Controller
     {
         $course = $service->create($request->user(), $request->validated());
 
-        return redirect()->route('owner.courses.show', $course)
-            ->with('success', 'دوره با موفقیت ساخته شد.');
+        return redirect()->route('owner.courses.edit', $course)
+            ->with('success', 'دوره ساخته شد. حالا کاور عمومی و تریلر را در همین صفحه اضافه کن.');
     }
 
     public function show(Course $course, CourseManagementService $service, OwnerLearningAnalyticsService $analytics): View
@@ -77,6 +77,7 @@ class CourseController extends Controller
         return view('owner.courses.show', [
             'course' => $course,
             'averageProgress' => round((float) $averageProgress, 1),
+            'canManageCourse' => $service->canManage(request()->user(), $course),
         ]);
     }
 
