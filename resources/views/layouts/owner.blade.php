@@ -95,8 +95,8 @@
             'title' => 'فروشگاه',
             'color' => '#d97706',
             'links' => [
-                ['route' => 'owner.products.index', 'permission' => 'products.view', 'label' => 'محصولات و کتاب‌ها', 'icon' => 'package', 'scope' => 'academy'],
-                ['route' => 'owner.orders.index', 'permission' => 'orders.view', 'label' => 'سفارش‌های فروشگاه', 'icon' => 'shopping-bag', 'scope' => 'academy'],
+                ['route' => 'owner.products.index', 'permission' => 'products.view', 'label' => 'محصولات و کتاب‌ها', 'icon' => 'tag', 'scope' => 'academy'],
+                ['route' => 'owner.orders.index', 'permission' => 'orders.view', 'label' => 'سفارش‌های فروشگاه', 'icon' => 'receipt', 'scope' => 'academy'],
             ],
         ],
         [
