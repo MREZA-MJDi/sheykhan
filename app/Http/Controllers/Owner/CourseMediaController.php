@@ -23,17 +23,35 @@ class CourseMediaController extends Controller
         abort_unless($courses->canManage($request->user(), $course), 403);
 
         try {
-            $media->upload(
+            $collection = $request->string('collection')->toString() ?: 'course-assets';
+            $uploaded = $media->upload(
                 $request->file('media'),
                 $course,
                 [
                     'disk' => 'local',
                     'directory' => 'courses/' . $course->id,
-                    'collection' => $request->string('collection')->toString() ?: 'course-assets',
-                    'visibility' => $request->string('collection')->toString() === 'course-cover' ? 'public' : 'private',
-                    'sort_order' => $request->string('collection')->toString() === 'course-cover' ? 0 : 10,
+                    'collection' => $collection,
+                    'visibility' => in_array($collection, ['course-cover', 'course-trailer'], true) ? 'public' : 'private',
+                    'sort_order' => $collection === 'course-cover' ? 0 : ($collection === 'course-trailer' ? 1 : 10),
                 ],
             );
+
+            // Keep a single current public teaser. Upload succeeds before an older
+            // trailer is detached, so a failed upload never removes the active one.
+            if ($collection === 'course-trailer') {
+                $previousTrailers = $course->media()
+                    ->wherePivot('collection', 'course-trailer')
+                    ->where('media.id', '!=', $uploaded->id)
+                    ->get();
+
+                foreach ($previousTrailers as $previousTrailer) {
+                    $media->detach($previousTrailer, $course);
+
+                    if ($previousTrailer->attachments()->doesntExist()) {
+                        $media->delete($previousTrailer);
+                    }
+                }
+            }
         } catch (Throwable $exception) {
             Log::error('Owner course media upload failed', [
                 'course_id' => $course->id,

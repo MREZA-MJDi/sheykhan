@@ -67,9 +67,21 @@ class ClassroomController extends Controller
     ): View {
         $item = Classroom::query()->findOrFail($classroom);
 
+        $canPermanentlyDeleteClassroom = $item->status === 'archived'
+            && $item->students()->doesntExist()
+            && $item->schedules()->doesntExist()
+            && $item->attendance()->doesntExist()
+            && $item->assignments()->doesntExist()
+            && $item->exams()->doesntExist()
+            && $item->liveClasses()->doesntExist()
+            && $item->enrollments()->doesntExist();
+
         return view(
             'owner.classrooms.show',
-            $service->show(request()->user(), $academy, $item) + ['academy' => $academy]
+            $service->show(request()->user(), $academy, $item) + [
+                'academy' => $academy,
+                'canPermanentlyDeleteClassroom' => $canPermanentlyDeleteClassroom,
+            ]
         );
     }
 
@@ -127,6 +139,18 @@ class ClassroomController extends Controller
 
         return redirect()->route('owner.classrooms.index', ['academy' => $academy, 'status' => 'archived'])
             ->with('success', 'کلاس آرشیو شد؛ دانش‌آموزان، حضور و غیاب و سوابق آموزشی حفظ شده‌اند.');
+    }
+
+    public function destroy(Academy $academy, int $classroom, OwnerClassroomService $service): RedirectResponse
+    {
+        $item = Classroom::query()
+            ->where('academy_id', $academy->id)
+            ->findOrFail($classroom);
+
+        $service->destroy(request()->user(), $academy, $item);
+
+        return redirect()->route('owner.classrooms.index', $academy)
+            ->with('success', 'کلاس خالی حذف شد.');
     }
 
     public function restore(Academy $academy, int $classroom, OwnerClassroomService $service): RedirectResponse

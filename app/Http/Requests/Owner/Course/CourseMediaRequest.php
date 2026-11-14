@@ -19,26 +19,32 @@ class CourseMediaRequest extends FormRequest
 
     public function rules(): array
     {
-        $isCover = $this->input('collection') === 'course-cover';
+        $collection = (string) $this->input('collection');
+        $isCover = $collection === 'course-cover';
+        $isTrailer = $collection === 'course-trailer';
 
         return [
             'media' => [
                 'required',
                 'file',
                 ...($isCover ? ['image'] : []),
-                'max:' . ($isCover ? 10240 : $this->maxSizeKilobytes()),
-                $isCover ? 'mimes:jpg,jpeg,png,webp' : 'mimes:jpg,jpeg,png,webp,pdf,zip',
+                'max:' . ($isCover ? 10240 : ($isTrailer ? 204800 : $this->maxSizeKilobytes())),
+                $isCover
+                    ? 'mimes:jpg,jpeg,png,webp'
+                    : ($isTrailer ? 'mimes:mp4,webm,mov' : 'mimes:jpg,jpeg,png,webp,pdf,zip'),
             ],
-            'collection' => ['nullable', 'string', 'in:course-assets,course-cover'],
+            'collection' => ['required', 'string', 'in:course-assets,course-cover,course-trailer'],
         ];
     }
+
     public function messages(): array
     {
         return [
             'media.required' => 'انتخاب فایل الزامی است.',
             'media.file' => 'فایل انتخاب‌شده معتبر نیست.',
-            'media.max' => 'حجم فایل برای این نوع محتوا نباید بیشتر از ' . $this->maxSizeMegabytes() . ' مگابایت باشد.',
-            'media.mimes' => 'برای فایل‌های این بخش از JPG، PNG، WebP، PDF یا ZIP استفاده کن؛ ویدئو باید در SpotPlayer بارگذاری شود.',
+            'media.max' => 'حجم فایل برای این بخش نباید بیشتر از ' . $this->maxSizeMegabytes() . ' مگابایت باشد.',
+            'media.mimes' => 'برای کاور JPG، PNG یا WebP و برای تریلر MP4، WebM یا MOV انتخاب کن. ویدئوهای کامل درس باید در SpotPlayer بارگذاری شوند.',
+            'collection.in' => 'نوع رسانهٔ انتخاب‌شده معتبر نیست.',
         ];
     }
 
@@ -53,6 +59,7 @@ class CourseMediaRequest extends FormRequest
             'jpg', 'jpeg', 'png', 'webp' => 10,
             'pdf' => 50,
             'zip' => 200,
+            'mp4', 'webm', 'mov' => 200,
             default => 10,
         };
     }

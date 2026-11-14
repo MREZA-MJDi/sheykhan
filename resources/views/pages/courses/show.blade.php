@@ -5,7 +5,8 @@
 
 @section('content')
     @php
-        $heroMedia = $course->media->first();
+        $heroMedia = $course->media->first(fn ($media) => $media->pivot?->collection === 'course-cover');
+        $trailerMedia = $course->media->first(fn ($media) => $media->pivot?->collection === 'course-trailer');
         $teacher = $course->teachers->first();
 
         $lessonCount = $course->sections->sum(function ($section) {
@@ -370,6 +371,22 @@
                         </div>
                     </aside>
                 </div>
+
+                @if($trailerMedia?->url())
+                    <section class="mt-10 overflow-hidden rounded-[1.5rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_8px_30px_rgba(15,23,42,.04)]" aria-labelledby="course-trailer-title">
+                        <div class="border-b border-[var(--color-border)] px-5 py-4 sm:px-7">
+                            <span class="text-xs font-black tracking-[.1em] text-[var(--color-primary-600)]">معرفی ویدئویی</span>
+                            <h2 id="course-trailer-title" class="mt-1 text-lg font-black text-[var(--color-text)]">تریلر این دوره</h2>
+                            <p class="mt-1 text-xs leading-6 text-[var(--color-text-muted)]">پیش از ثبت‌نام، بخشی از فضای آموزشی دوره را تماشا کن.</p>
+                        </div>
+                        <div class="p-4 sm:p-6">
+                            <video controls playsinline preload="metadata" class="aspect-video max-h-[560px] w-full rounded-2xl bg-slate-950" @if($heroMedia?->url()) poster="{{ $heroMedia->url() }}" @endif>
+                                <source src="{{ $trailerMedia->url() }}" type="{{ $trailerMedia->mime_type }}">
+                                مرورگر شما از پخش این ویدئو پشتیبانی نمی‌کند.
+                            </video>
+                        </div>
+                    </section>
+                @endif
 
                 {{-- Curriculum --}}
                 <section

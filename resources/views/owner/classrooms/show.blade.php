@@ -47,6 +47,15 @@
                class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700">
                 بازگشت به کلاس‌ها
             </a>
+            @if($canPermanentlyDeleteClassroom)
+                <form method="POST" action="{{ route('owner.classrooms.destroy', [$academy, $classroom]) }}">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" data-confirm="این کلاس آرشیوشده و بدون سابقه به‌طور دائمی حذف شود؟" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-black text-rose-700">
+                        حذف دائمی کلاس خالی
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 

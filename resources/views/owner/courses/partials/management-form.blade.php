@@ -438,6 +438,58 @@
                 </div>
             </div>
         </section>
+        @php
+            $publicCourseTrailer = $course->media->first(fn ($media) => $media->pivot?->collection === 'course-trailer' && $media->visibility === 'public' && str_starts_with((string) $media->mime_type, 'video/'));
+        @endphp
+        <section class="panel-card space-y-4 p-5 sm:p-7">
+            <div class="course-section-heading compact">
+                <div class="course-step">۵</div>
+                <div>
+                    <span>معرفی ویدئویی</span>
+                    <h2>تریلر عمومی دوره</h2>
+                    <p>این ویدئو برای معرفی دوره در صفحهٔ عمومی قابل مشاهده است؛ ویدئوهای کامل فصل‌ها را در پنل SpotPlayer بارگذاری کن تا فقط خریدارها به آن‌ها دسترسی داشته باشند.</p>
+                </div>
+            </div>
+            <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-start">
+                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="space-y-3 rounded-2xl border border-slate-200 p-4" data-upload-form data-max-bytes="209715200">
+                    @csrf
+                    <input type="hidden" name="collection" value="course-trailer">
+                    <label class="course-file-input">
+                        <span>انتخاب ویدئوی تریلر</span>
+                        <input type="file" name="media" required accept="video/mp4,video/webm,video/quicktime">
+                    </label>
+                    <p class="text-xs leading-6 text-slate-500">MP4، WebM یا MOV · حداکثر ۲۰۰ مگابایت · فقط تریلر کوتاه و عمومی</p>
+                    <div class="course-upload-preview" data-upload-preview hidden>
+                        <div class="course-upload-preview-media">
+                            <video data-preview-video controls preload="metadata" hidden></video>
+                            <div data-preview-generic class="course-preview-generic" hidden>VIDEO</div>
+                        </div>
+                        <div class="min-w-0"><strong data-preview-name class="block truncate text-xs font-black"></strong><span data-preview-size class="mt-1 block text-[9px] text-slate-500"></span></div>
+                    </div>
+                    <p class="course-upload-status" data-upload-message aria-live="polite"></p>
+                    <button type="submit" class="course-action-btn primary">ذخیره و جایگزینی تریلر</button>
+                </form>
+                <div class="space-y-2">
+                    <span class="text-xs font-black text-slate-700">پیش‌نمایش تریلر ذخیره‌شده</span>
+                    @if($publicCourseTrailer)
+                        <video controls playsinline preload="metadata" class="aspect-video w-full rounded-2xl bg-slate-950">
+                            <source src="{{ $publicCourseTrailer->url() }}" type="{{ $publicCourseTrailer->mime_type }}">
+                        </video>
+                        <div class="flex items-center justify-between gap-2 text-[10px] text-slate-500">
+                            <span class="truncate">{{ $publicCourseTrailer->original_name }}</span>
+                            <span>{{ number_format($publicCourseTrailer->size / 1024 / 1024, 1) }} MB</span>
+                        </div>
+                        <form method="POST" action="{{ route($routePrefix.'.media.destroy',[$course,$publicCourseTrailer]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" data-confirm="تریلر عمومی حذف شود؟" class="course-action-btn danger">حذف تریلر</button>
+                        </form>
+                    @else
+                        <div class="flex aspect-video items-center justify-center rounded-2xl bg-slate-100 text-xs text-slate-500">هنوز تریلری ثبت نشده است.</div>
+                    @endif
+                </div>
+            </div>
+        </section>
         <section class="panel-card p-5 sm:p-7" data-media-uploader>
             <div class="course-media-head">
                 <div>
@@ -461,7 +513,7 @@
                     <input type="hidden" name="collection" value="course-assets">
                     <label class="course-file-input">
                         <span>انتخاب فایل</span>
-                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.mov,.zip">
+                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.zip">
                     </label>
 
                     <div class="course-upload-preview" data-upload-preview hidden>
@@ -490,7 +542,7 @@
             </div>
 
             <div class="mt-6 grid gap-3">
-                @forelse($course->media as $media)
+                @forelse($course->media->filter(fn ($media) => $media->pivot?->collection === 'course-assets') as $media)
                     <div class="course-media-row">
                         <div class="min-w-0">
                             <div class="truncate text-sm font-bold">{{ $media->original_name }}</div>

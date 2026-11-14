@@ -307,6 +307,48 @@ final class OwnerClassroomService
         }, 3);
     }
 
+    /**
+     * Permanently remove only an archived, empty classroom. Any roster,
+     * attendance, schedule, enrollment or teaching activity keeps the record
+     * available for audit; those classes must be archived instead.
+     */
+    public function destroy(User $owner, Academy $academy, Classroom $classroom): void
+    {
+        abort_unless($this->canManageAcademy($owner, $academy), 403);
+        abort_if((int) $classroom->academy_id !== (int) $academy->id, 404);
+
+        DB::transaction(function () use ($academy, $classroom): void {
+            $locked = Classroom::query()
+                ->whereKey($classroom->id)
+                ->where('academy_id', $academy->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($locked->status !== 'archived') {
+                throw ValidationException::withMessages([
+                    'classroom' => 'برای حذف دائمی، ابتدا کلاس را آرشیو کن.',
+                ]);
+            }
+
+            $hasHistory = $locked->students()->exists()
+                || $locked->schedules()->exists()
+                || $locked->attendance()->exists()
+                || $locked->assignments()->exists()
+                || $locked->exams()->exists()
+                || $locked->liveClasses()->exists()
+                || $locked->enrollments()->exists();
+
+            if ($hasHistory) {
+                throw ValidationException::withMessages([
+                    'classroom' => 'این کلاس سابقهٔ دانش‌آموز، حضور و غیاب، برنامه یا جلسه دارد؛ حذف دائمی مجاز نیست و باید در آرشیو بماند.',
+                ]);
+            }
+
+            $locked->teachers()->detach();
+            $locked->delete();
+        }, 3);
+    }
+
     public function show(User $owner, Academy $academy, Classroom $classroom): array
     {
         abort_unless($this->canManageAcademy($owner, $academy), 403);

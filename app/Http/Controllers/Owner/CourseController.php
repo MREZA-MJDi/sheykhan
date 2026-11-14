@@ -9,7 +9,11 @@ use App\Models\Course;
 use App\Services\CourseManagementService;
 use App\Services\OwnerLearningAnalyticsService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use App\Services\MediaService;
 
 class CourseController extends Controller
 {
@@ -35,8 +39,8 @@ class CourseController extends Controller
     {
         $course = $service->create($request->user(), $request->validated());
 
-        return redirect()->route('owner.courses.show', $course)
-            ->with('success', 'دوره با موفقیت ساخته شد.');
+        return redirect()->route('owner.courses.edit', $course)
+            ->with('success', 'دوره ساخته شد. حالا کاور عمومی و تریلر را در همین صفحه اضافه کن.');
     }
 
     public function show(Course $course, CourseManagementService $service, OwnerLearningAnalyticsService $analytics): View
@@ -74,9 +78,21 @@ class CourseController extends Controller
 
         $averageProgress = (float) ($analytics->courseProgress([$course->id])->get($course->id) ?? 0);
 
+        $canPermanentlyDeleteCourse = $course->status === 'archived'
+            && $course->enrollments()->doesntExist()
+            && $course->sections()->doesntExist()
+            && $course->classrooms()->doesntExist()
+            && $course->assignments()->doesntExist()
+            && $course->exams()->doesntExist()
+            && $course->liveClasses()->doesntExist()
+            && $course->learningResources()->doesntExist()
+            && $course->spotplayerLicenses()->doesntExist();
+
         return view('owner.courses.show', [
             'course' => $course,
             'averageProgress' => round((float) $averageProgress, 1),
+            'canManageCourse' => $service->canManage(request()->user(), $course),
+            'canPermanentlyDeleteCourse' => $canPermanentlyDeleteCourse,
         ]);
     }
 
@@ -107,6 +123,73 @@ class CourseController extends Controller
 
         return redirect()->route('owner.courses.index')
             ->with('success', 'دوره از فهرست فعال خارج شد؛ سوابق ثبت‌نام و آموزشی حفظ شده‌اند.');
+    }
+
+    /**
+     * Hard-delete only an archived course that has never accumulated learning,
+     * financial, classroom or provider history. Everything else remains archived.
+     */
+    public function destroy(
+        Request $request,
+        Course $course,
+        CourseManagementService $service,
+        MediaService $media,
+    ): RedirectResponse {
+        abort_unless($service->canManage($request->user(), $course), 403);
+
+        if ($course->status !== 'archived') {
+            throw ValidationException::withMessages([
+                'course' => 'برای حذف دائمی، ابتدا دوره را آرشیو کن.',
+            ]);
+        }
+
+        $files = collect();
+
+        DB::transaction(function () use ($request, $course, $service, $media, &$files): void {
+            $locked = Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
+
+            abort_unless($service->canManage($request->user(), $locked), 403);
+
+            $hasHistory = $locked->enrollments()->exists()
+                || $locked->sections()->exists()
+                || $locked->classrooms()->exists()
+                || $locked->assignments()->exists()
+                || $locked->exams()->exists()
+                || $locked->liveClasses()->exists()
+                || $locked->learningResources()->exists()
+                || $locked->spotplayerLicenses()->exists();
+
+            if ($locked->status !== 'archived' || $hasHistory) {
+                throw ValidationException::withMessages([
+                    'course' => 'این دوره سابقهٔ آموزشی، ثبت‌نام، کلاس یا لایسنس دارد؛ حذف دائمی مجاز نیست و باید آرشیو بماند.',
+                ]);
+            }
+
+            $files = $locked->media()->get();
+            foreach ($files as $file) {
+                $media->detach($file, $locked);
+            }
+
+            $locked->teachers()->detach();
+            $locked->grades()->detach();
+
+            if (method_exists($locked, 'seoMeta')) {
+                $locked->seoMeta()->delete();
+            }
+
+            $locked->delete();
+        }, 3);
+
+        foreach ($files->unique('id') as $file) {
+            if ($file->attachments()->doesntExist()) {
+                $media->delete($file);
+            }
+        }
+
+        app(\App\Services\CourseCatalogService::class)->clearPublicCache();
+
+        return redirect()->route('owner.courses.index')
+            ->with('success', 'دورهٔ خالی و آرشیوشده به‌طور دائمی حذف شد.');
     }
 
     public function restore(Course $course, CourseManagementService $service): RedirectResponse
