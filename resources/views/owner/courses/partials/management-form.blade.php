@@ -513,7 +513,7 @@
                     <input type="hidden" name="collection" value="course-assets">
                     <label class="course-file-input">
                         <span>انتخاب فایل</span>
-                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.mov,.zip">
+                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.zip">
                     </label>
 
                     <div class="course-upload-preview" data-upload-preview hidden>
