@@ -129,6 +129,18 @@ class ClassroomController extends Controller
             ->with('success', 'کلاس آرشیو شد؛ دانش‌آموزان، حضور و غیاب و سوابق آموزشی حفظ شده‌اند.');
     }
 
+    public function destroy(Academy $academy, int $classroom, OwnerClassroomService $service): RedirectResponse
+    {
+        $item = Classroom::query()
+            ->where('academy_id', $academy->id)
+            ->findOrFail($classroom);
+
+        $service->destroy(request()->user(), $academy, $item);
+
+        return redirect()->route('owner.classrooms.index', $academy)
+            ->with('success', 'کلاس خالی حذف شد.');
+    }
+
     public function restore(Academy $academy, int $classroom, OwnerClassroomService $service): RedirectResponse
     {
         $item = Classroom::query()->findOrFail($classroom);
