@@ -70,6 +70,34 @@ class LearningSeeder extends Seeder
                     'completed_at'=>$i===0?now()->subDays(2):null,'last_watched_at'=>now()->subDays($i+1)
                 ]);
             }
+            $secondSection=CourseSection::firstOrCreate(
+                ['course_id'=>$course->id,'sort_order'=>2],
+                ['title'=>'بخش دوم: تمرین و تسلط','description'=>'جلسه‌های تکمیلی، حل مسئله و مرور آموخته‌ها.']
+            );
+            $secondLessonTitles = match ($d['grade']) {
+                '7' => ['عبارت‌های جبری و الگوها','معادله‌های ساده و کاربردی','نسبت و تناسب در مسئله‌ها','هندسه و اندازه‌گیری','مرور جامع و آزمون فصل'],
+                '8' => ['ساختار ماده و ذرات','نیرو و حرکت در زندگی روزمره','انرژی و تبدیل‌های آن','آزمایش و تحلیل داده‌ها','مرور جامع و آزمون فصل'],
+                default => ['الگوهای استدلال منطقی','حل مسئله‌های چندمرحله‌ای','تحلیل الگو و رابطه','مدیریت زمان در آزمون','مرور جامع و آزمون شبیه‌ساز'],
+            };
+            foreach ($secondLessonTitles as $i => $title) {
+                Lesson::firstOrCreate(
+                    [
+                        'course_section_id'=>$secondSection->id,
+                        'slug'=>$d['slug'].'-lesson-'.($i+5),
+                    ],
+                    [
+                        'title'=>$title,
+                        'type'=>'video',
+                        'summary'=>'درس تکمیلی این فصل همراه با مثال، تمرین و جمع‌بندی نکته‌های مهم.',
+                        'content'=>'این جلسه برای تکمیل مسیر یادگیری طراحی شده است. ویدئوی واقعی باید در دورهٔ متناظر ناشر SpotPlayer بارگذاری و پیش از انتشار برای حساب دانش‌آموز آزمایشی بررسی شود.',
+                        'duration_seconds'=>1500+($i*240),
+                        'is_free'=>false,
+                        'status'=>'published',
+                        'published_at'=>now()->subDays(10-$i),
+                        'sort_order'=>$i+1,
+                    ]
+                );
+            }
             $courses->push($course->fresh(['sections.lessons']));
         }
 
