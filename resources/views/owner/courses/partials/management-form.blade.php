@@ -450,7 +450,7 @@
                         </div>
                     </div>
                     <div class="course-upload-specs mt-4">
-                        <span><b>ویدیو:</b> حداکثر ۵۰۰ مگابایت</span>
+                        <span><b>ویدئو MP4/WebM:</b> حداکثر ۵۱۲ مگابایت</span>
                         <span><b>ZIP:</b> حداکثر ۲۰۰ مگابایت</span>
                         <span><b>PDF:</b> حداکثر ۵۰ مگابایت</span>
                     </div>
@@ -461,7 +461,7 @@
                     <input type="hidden" name="collection" value="course-assets">
                     <label class="course-file-input">
                         <span>انتخاب فایل</span>
-                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.mov,.zip">
+                        <input type="file" name="media" required accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,.webm,.zip">
                     </label>
 
                     <div class="course-upload-preview" data-upload-preview hidden>
