@@ -109,13 +109,14 @@ const bind=form=>{
             restore();
             const validationMessage=Object.values(payload.errors||{}).flat().find(Boolean);
             const retryAfter=xhr.getResponseHeader('Retry-After');
-            const message=payload.message||validationMessage||(
-                xhr.status===419?'نشست منقضی شده است؛ صفحه را تازه‌سازی کنید.':
-                xhr.status===413?'حجم فایل از محدودیت سرور یا PHP بیشتر است.':
-                xhr.status===422?'فایل انتخاب‌شده معتبر نیست؛ فرمت و حجم آن را بررسی کنید.':
-                xhr.status===429?'تعداد درخواست‌ها بیش از حد مجاز است؛ '+(retryAfter?'پس از '+fa(retryAfter)+' ثانیه دوباره تلاش کنید.':'کمی بعد دوباره تلاش کنید.'):
-                'ارسال فایل انجام نشد؛ دوباره تلاش کنید.'
-            );
+            const message=xhr.status===429
+                ? 'تعداد درخواست‌های آپلود بیش از حد مجاز شده است؛ '+(retryAfter?'پس از '+fa(retryAfter)+' ثانیه دوباره تلاش کنید.':'کمی بعد دوباره تلاش کنید.')
+                : (payload.message||validationMessage||(
+                    xhr.status===419?'نشست منقضی شده است؛ صفحه را تازه‌سازی کنید.':
+                    xhr.status===413?'حجم فایل از محدودیت سرور یا PHP بیشتر است.':
+                    xhr.status===422?'فایل انتخاب‌شده معتبر نیست؛ فرمت و حجم آن را بررسی کنید.':
+                    'ارسال فایل انجام نشد؛ دوباره تلاش کنید.'
+                ));
             fail(panel,message);paint(panel,0,'ارسال ناموفق بود');
         });
         xhr.addEventListener('error',()=>{restore();fail(panel,'ارتباط با سرور قطع شد؛ فایل‌ها ثبت نشده‌اند. دوباره تلاش کنید.');paint(panel,0,'ارتباط قطع شد');});
