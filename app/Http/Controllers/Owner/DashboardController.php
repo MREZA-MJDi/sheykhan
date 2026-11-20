@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Notifications\TeacherLessonSubmittedForReview;
 use App\Models\ClassSchedule;
+use App\Models\Course;
 use App\Models\LiveClass;
 use App\Models\ProtectedLearningMediaView;
 use App\Models\User;
@@ -82,12 +83,26 @@ class DashboardController extends Controller
                 ->limit(10)
                 ->get();
 
+            $academyIdsForReviews = $data['academies']->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $notificationCourseIds = $reviewNotifications
+                ->map(fn ($notification) => (int) data_get($notification->data, 'course_id', 0))
+                ->filter()
+                ->unique()
+                ->values();
+
+            $visibleCourseIds = Course::query()
+                ->whereIn('id', $notificationCourseIds)
+                ->whereIn('academy_id', $academyIdsForReviews)
+                ->pluck('id')
+                ->mapWithKeys(fn ($id) => [(int) $id => true])
+                ->all();
+
             foreach ($reviewNotifications as $notification) {
                 $lessonTitle = (string) data_get($notification->data, 'lesson_title', 'درس آموزشی');
                 $courseTitle = (string) data_get($notification->data, 'course_title', 'دوره آموزشی');
                 $courseId = (int) data_get($notification->data, 'course_id', 0);
 
-                if ($courseId < 1) {
+                if ($courseId < 1 || ! isset($visibleCourseIds[$courseId])) {
                     continue;
                 }
 
