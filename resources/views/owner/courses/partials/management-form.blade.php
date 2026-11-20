@@ -1,5 +1,11 @@
 @php
     $isEdit = $course->exists;
+    $publicCourseCover = $course->exists
+        ? $course->media
+            ->filter(fn ($media) => $media->collection === 'course-cover' && $media->visibility === 'public')
+            ->sortByDesc('id')
+            ->first()
+        : null;
     $currentAccess = old('access_type',$course->access_type ?: 'paid');
     $currentStatus = old('status',$course->status ?: 'draft');
     $oldSlugWasProvided = old('slug') !== null && old('slug') !== '';
