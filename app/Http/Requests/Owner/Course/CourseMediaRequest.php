@@ -19,20 +19,33 @@ class CourseMediaRequest extends FormRequest
 
     public function rules(): array
     {
-        $isCover = $this->input('collection') === 'course-cover';
         $extension = strtolower((string) $this->file('media')?->getClientOriginalExtension());
+
+        return [
+            'media' => self::mediaRules($this->input('collection'), $extension),
+            'collection' => ['nullable', 'string', 'in:course-assets,course-cover'],
+        ];
+    }
+
+    /**
+     * Keep ordinary multipart uploads and finalized chunked uploads on the
+     * exact same server-side validation contract.
+     *
+     * @return array<int, string>
+     */
+    public static function mediaRules(?string $collection, ?string $extension): array
+    {
+        $extension = strtolower((string) $extension);
+        $isCover = $collection === 'course-cover';
         $isVideo = in_array($extension, ['mp4', 'webm'], true);
 
         $fileRules = match (true) {
             $isCover => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             $isVideo => ['mimes:mp4,webm', 'mimetypes:video/mp4,video/webm', 'max:524288'],
-            default => ['mimes:jpg,jpeg,png,webp,pdf,zip', 'max:' . ($this->maxSizeKilobytes())],
+            default => ['mimes:jpg,jpeg,png,webp,pdf,zip', 'max:' . self::maxSizeKilobytesFor($extension)],
         };
 
-        return [
-            'media' => ['required', 'file', ...$fileRules],
-            'collection' => ['nullable', 'string', 'in:course-assets,course-cover'],
-        ];
+        return ['required', 'file', ...$fileRules];
     }
 
     public function messages(): array
@@ -47,12 +60,26 @@ class CourseMediaRequest extends FormRequest
 
     private function maxSizeKilobytes(): int
     {
-        return $this->maxSizeMegabytes() * 1024;
+        return self::maxSizeKilobytesFor(
+            strtolower((string) $this->file('media')?->getClientOriginalExtension())
+        );
+    }
+
+    private static function maxSizeKilobytesFor(string $extension): int
+    {
+        return self::maxSizeMegabytesFor($extension) * 1024;
     }
 
     private function maxSizeMegabytes(): int
     {
-        return match (strtolower((string) $this->file('media')?->getClientOriginalExtension())) {
+        return self::maxSizeMegabytesFor(
+            strtolower((string) $this->file('media')?->getClientOriginalExtension())
+        );
+    }
+
+    private static function maxSizeMegabytesFor(string $extension): int
+    {
+        return match ($extension) {
             'jpg', 'jpeg', 'png', 'webp' => 10,
             'mp4', 'webm' => 512,
             'pdf' => 50,
