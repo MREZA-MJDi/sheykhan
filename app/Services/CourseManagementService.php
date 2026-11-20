@@ -120,19 +120,25 @@ final class CourseManagementService
         $academy = $this->resolveAcademy($user, (int) $data['academy_id']);
 
         return DB::transaction(function () use ($user, $academy, $data): Course {
+            // A teacher's new course is always a draft for owner review. A user
+            // who owns this academy keeps the owner publishing workflow.
+            $isTeacherSubmission = $user->hasRole('teacher')
+                && ! ($user->hasRole('academy-owner') && (int) $academy->owner_id === (int) $user->id);
+            $status = $isTeacherSubmission ? 'draft' : ($data['status'] ?? 'draft');
+
             $course = $academy->courses()->create([
                 'created_by' => $user->id,
                 'title' => $data['title'],
                 'slug' => $this->uniqueSlug($academy, $data['title'], $data['slug'] ?? null),
                 'level' => $data['level'] ?? null,
-                'status' => $data['status'] ?? 'draft',
+                'status' => $status,
                 'access_type' => $data['access_type'],
                 'short_description' => $data['short_description'] ?? null,
                 'description' => $data['description'] ?? null,
                 'spotplayer_course_id' => $data['spotplayer_course_id'] ?? null,
                 'duration_minutes' => $data['duration_minutes'] ?? 0,
                 'price' => $data['access_type'] === 'free' ? 0 : $data['price'],
-                'published_at' => ($data['status'] ?? 'draft') === 'published'
+                'published_at' => $status === 'published'
                     ? ($data['published_at'] ?? now())
                     : null,
             ]);
@@ -182,7 +188,12 @@ final class CourseManagementService
 
         return DB::transaction(function () use ($user, $course, $academy, $data): Course {
             $accessType = $data['access_type'] ?? $course->access_type;
-            $status = $data['status'] ?? $course->status;
+            $isAcademyOwner = $user->hasRole('academy-owner')
+                && (int) $academy->owner_id === (int) $user->id;
+            $isTeacherSubmission = $user->hasRole('teacher') && ! $isAcademyOwner;
+            $status = $isTeacherSubmission
+                ? $course->status
+                : ($data['status'] ?? $course->status);
 
             $course->update([
                 'academy_id' => $course->academy_id,
@@ -206,7 +217,7 @@ final class CourseManagementService
                     ? 0
                     : ($data['price'] ?? $course->price),
                 'published_at' => $status === 'published'
-                    ? ($data['published_at'] ?? $course->published_at ?? now())
+                    ? ($isTeacherSubmission ? $course->published_at : ($data['published_at'] ?? $course->published_at ?? now()))
                     : null,
             ]);
 
