@@ -23,6 +23,9 @@ final class CourseMediaUploadService
         bool $allowPublicCover,
     ): RedirectResponse|JsonResponse {
         $collection = $request->string('collection')->toString() ?: 'course-assets';
+        $allowPublicCover = $allowPublicCover
+            && $request->routeIs('owner.*')
+            && app(\App\Services\CourseManagementService::class)->isAcademyOwner($request->user(), $course);
 
         try {
             $this->storeUploaded(
