@@ -44,7 +44,6 @@ class UpdateCourseRequest extends FormRequest
                     ->ignore($course?->id),
             ],
             'level' => ['nullable', 'string', 'max:100'],
-            'status' => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
             'access_type' => ['sometimes', Rule::in(['free', 'paid'])],
             'short_description' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
@@ -57,7 +56,6 @@ class UpdateCourseRequest extends FormRequest
                     ['min:0.01']
                 ),
             ],
-            'published_at' => ['nullable', 'date'],
             'spotplayer_course_id' => ['sometimes', 'nullable', 'string', 'max:120', 'regex:/^[A-Za-z0-9_-]+$/'],
         ];
     }
