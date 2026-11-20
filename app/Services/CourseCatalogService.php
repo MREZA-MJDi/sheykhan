@@ -134,6 +134,7 @@ class CourseCatalogService
     {
         return \App\Models\Media::query()
             ->where('status', 'active')
+            ->where('visibility', 'private')
             ->where('mime_type', 'like', 'video/%')
             ->whereIn('extension', ['mp4', 'webm'])
             ->whereHas('attachments', fn ($query) => $query
