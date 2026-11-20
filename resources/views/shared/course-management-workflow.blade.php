@@ -6,7 +6,7 @@
     $videoLessonCount = $sections->flatMap(fn ($section) => $section->lessons)->where('type', 'video')->count();
     $classCreateUrl = $course->exists
         ? ($isOwnerWorkflow
-            ? route('owner.classrooms.create', $course->academy)
+            ? route('owner.classrooms.create', ['academy' => $course->academy, 'course_id' => $course->id])
             : route('teacher.classrooms.create', ['course_id' => $course->id]))
         : null;
 @endphp
