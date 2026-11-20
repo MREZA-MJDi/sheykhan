@@ -26,17 +26,19 @@ const render = form => {
 const paint=(panel,pct,message)=>{
     const value=Math.max(0,Math.min(100,Math.round(pct)));
     const bar=panel.querySelector('[data-upload-progress-bar]'),track=panel.querySelector('[data-upload-progress-track]');
-    const percent=panel.querySelector('[data-upload-progress-percent]'),status=panel.querySelector('[data-upload-progress-message]');
+    const percent=panel.querySelector('[data-upload-progress-percent], [data-upload-percent]'),status=panel.querySelector('[data-upload-progress-message], [data-upload-message]');
     if(bar)bar.style.width=value+'%';if(track)track.setAttribute('aria-valuenow',String(value));
     if(percent)percent.textContent=fa(value)+'٪';if(status)status.textContent=message;
 };
 const fail=(panel,message)=>{
-    const error=panel.querySelector('[data-upload-progress-error]'),status=panel.querySelector('[data-upload-progress-status]');
-    if(error){error.textContent=message;error.hidden=false;}if(status)status.hidden=true;
+    const error=panel.querySelector('[data-upload-progress-error]'),status=panel.querySelector('[data-upload-progress-status], [data-upload-message]');
+    if(error){error.textContent=message;error.hidden=false;}if(status){status.textContent=message;status.hidden=false;status.classList.add('text-rose-600');}
 };
 const ensurePanel=form=>{
     let panel=form.querySelector('[data-upload-progress-ui]');
     if(panel)return panel;
+    panel=form.querySelector('[data-upload-progress]');
+    if(panel){panel.dataset.uploadProgressUi='true';return panel;}
     panel=document.createElement('section');
     panel.dataset.uploadProgressUi='true';
     panel.hidden=true;
@@ -82,7 +84,7 @@ const bind=form=>{
         const startedAt=performance.now();
         const eta=panel.querySelector('[data-upload-progress-eta]');
         const xhr=new XMLHttpRequest();xhr.open((form.method||'POST').toUpperCase(),form.action,true);xhr.withCredentials=true;
-        xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');xhr.setRequestHeader('Accept','text/html,application/xhtml+xml');
+        xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');xhr.setRequestHeader('Accept','application/json');
         const csrf=document.querySelector('meta[name=csrf-token]')?.content;if(csrf)xhr.setRequestHeader('X-CSRF-TOKEN',csrf);
         xhr.upload.addEventListener('progress',e=>{
             if(!e.lengthComputable||e.total<=0)return;
@@ -95,12 +97,29 @@ const bind=form=>{
             }else if(eta){eta.textContent=p>=100?'ارسال فایل تمام شد؛ پردازش سرور ادامه دارد.':'';}
         });
         xhr.addEventListener('load',()=>{
-            if(xhr.status>=200&&xhr.status<400){paint(panel,100,'ارسال کامل شد؛ در حال بازگشت به صفحه…');window.location.assign(xhr.responseURL||form.action);return;}
-            restore();fail(panel,xhr.status===419?'نشست منقضی شده است؛ صفحه را تازه‌سازی کنید.':xhr.status===413?'حجم فایل از محدودیت سرور بیشتر است.':xhr.status===422?'اطلاعات یا فایل انتخاب‌شده معتبر نیست؛ خطاهای فرم را بررسی کنید.':'ارسال فایل انجام نشد؛ دوباره تلاش کنید.');paint(panel,0,'ارسال ناموفق بود');
+            let payload={};
+            try{payload=JSON.parse(xhr.responseText||'{}');}catch{}
+            if(xhr.status>=200&&xhr.status<300){
+                paint(panel,100,'ارسال کامل شد؛ در حال بازگشت به صفحه…');
+                if(payload.redirect_url){window.location.assign(payload.redirect_url);}
+                else{window.location.reload();}
+                return;
+            }
+            restore();
+            const validationMessage=Object.values(payload.errors||{}).flat().find(Boolean);
+            const retryAfter=xhr.getResponseHeader('Retry-After');
+            const message=payload.message||validationMessage||(
+                xhr.status===419?'نشست منقضی شده است؛ صفحه را تازه‌سازی کنید.':
+                xhr.status===413?'حجم فایل از محدودیت سرور یا PHP بیشتر است.':
+                xhr.status===422?'فایل انتخاب‌شده معتبر نیست؛ فرمت و حجم آن را بررسی کنید.':
+                xhr.status===429?'تعداد درخواست‌ها بیش از حد مجاز است؛ '+(retryAfter?'پس از '+fa(retryAfter)+' ثانیه دوباره تلاش کنید.':'کمی بعد دوباره تلاش کنید.'):
+                'ارسال فایل انجام نشد؛ دوباره تلاش کنید.'
+            );
+            fail(panel,message);paint(panel,0,'ارسال ناموفق بود');
         });
         xhr.addEventListener('error',()=>{restore();fail(panel,'ارتباط با سرور قطع شد؛ فایل‌ها ثبت نشده‌اند. دوباره تلاش کنید.');paint(panel,0,'ارتباط قطع شد');});
         xhr.addEventListener('abort',()=>{restore();fail(panel,'ارسال فایل لغو شد.');paint(panel,0,'ارسال لغو شد');});
         xhr.send(new FormData(form));
     });
 };
-export function bootFileUploadProgress(root=document){root.querySelectorAll('form').forEach(form=>{if(form.dataset.uploadProgress==='off'||form.hasAttribute('data-custom-upload')||form.closest('[data-media-uploader]'))return;if(form.querySelector('input[type=file]'))bind(form);});}
+export function bootFileUploadProgress(root=document){root.querySelectorAll('form').forEach(form=>{if(form.dataset.uploadProgress==='off'||form.hasAttribute('data-custom-upload'))return;if(form.querySelector('input[type=file]'))bind(form);});}
