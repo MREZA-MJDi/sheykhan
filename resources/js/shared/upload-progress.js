@@ -7,6 +7,28 @@ const sizeLabel = bytes => {
 const fa = value => String(value).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
 const previewUrls = new WeakMap();
 const getFiles = form => Array.from(form.querySelectorAll('input[type=file]')).flatMap(input=>Array.from(input.files||[]));
+const validateUploadFile=(form,file)=>{
+    const extension=(file.name.split('.').pop()||'').toLowerCase();
+    const maxByExtension={
+        jpg:10*1024*1024,jpeg:10*1024*1024,png:10*1024*1024,webp:10*1024*1024,
+        pdf:50*1024*1024,zip:200*1024*1024,mp4:512*1024*1024,webm:512*1024*1024,
+    };
+    const extensionLimit=maxByExtension[extension];
+    if(!extensionLimit)return 'فرمت فایل پشتیبانی نمی‌شود.';
+    const input=form.querySelector('input[type=file]');
+    const accepted=(input?.accept||'').split(',').map(value=>value.trim().toLowerCase()).filter(Boolean);
+    const mimeFallback={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',pdf:'application/pdf',zip:'application/zip',mp4:'video/mp4',webm:'video/webm'};
+    const mime=(file.type||mimeFallback[extension]||'').toLowerCase();
+    const acceptedByInput=!accepted.length||accepted.some(value=>
+        value==='.'+extension||value===mime||(value.endsWith('/*')&&mime.startsWith(value.slice(0,-1)))
+    );
+    if(!acceptedByInput)return 'این نوع فایل در این بخش مجاز نیست.';
+    const configuredLimit=Number(form.dataset.maxBytes||0);
+    const maxBytes=configuredLimit>0?Math.min(configuredLimit,extensionLimit):extensionLimit;
+    if(file.size>maxBytes)return 'حجم این فایل نباید بیشتر از '+sizeLabel(maxBytes)+' باشد.';
+    if(file.size<1)return 'فایل خالی است؛ یک فایل معتبر انتخاب کن.';
+    return null;
+};
 const render = form => {
     const panel=form.querySelector('[data-upload-progress-ui]');
     const list=panel?.querySelector('[data-upload-file-list]'),summary=panel?.querySelector('[data-upload-summary]');
@@ -47,6 +69,11 @@ const render = form => {
     if(summary)summary.textContent=fa(files.length)+' فایل انتخاب شده · مجموع '+sizeLabel(total);
 
     const file=files[0];
+    const validationMessage=validateUploadFile(form,file);
+    if(validationMessage){
+        const error=panel?.querySelector('[data-upload-progress-error]');
+        if(error){error.textContent=validationMessage;error.hidden=false;}
+    }
     if(preview){
         preview.hidden=false;
         if(previewName)previewName.textContent=file.name;
@@ -131,9 +158,8 @@ const uploadChunks=async(form,panel)=>{
     const files=getFiles(form);
     if(files.length!==1)throw new Error('برای آپلود تکه‌ای، هر بار فقط یک فایل انتخاب کن.');
     const file=files[0];
-    const maxBytes=Number(form.dataset.maxBytes||0);
-    if(maxBytes>0&&file.size>maxBytes)throw new Error('حجم فایل نباید بیشتر از '+sizeLabel(maxBytes)+' باشد.');
-    if(file.size<1)throw new Error('فایل خالی است؛ یک فایل معتبر انتخاب کن.');
+    const validationMessage=validateUploadFile(form,file);
+    if(validationMessage)throw new Error(validationMessage);
     const chunkBytes=5*1024*1024;
     const totalChunks=Math.ceil(file.size/chunkBytes);
     const collection=form.querySelector('[name=collection]')?.value||'course-assets';
