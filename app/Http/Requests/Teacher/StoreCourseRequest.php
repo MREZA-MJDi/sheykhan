@@ -34,7 +34,6 @@ class StoreCourseRequest extends FormRequest
                 Rule::unique('courses', 'slug')->where(fn ($query) => $query->where('academy_id', $academyId)),
             ],
             'level' => ['nullable', 'string', 'max:100'],
-            'status' => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
             'access_type' => ['required', Rule::in(['free', 'paid'])],
             'short_description' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
@@ -44,7 +43,6 @@ class StoreCourseRequest extends FormRequest
                 'nullable', 'numeric', 'min:0', 'max:999999999999.99',
                 Rule::when($this->input('access_type') === 'paid', ['min:0.01']),
             ],
-            'published_at' => ['nullable', 'date'],
             'spotplayer_course_id' => ['sometimes', 'nullable', 'string', 'max:120', 'regex:/^[A-Za-z0-9_-]+$/'],
         ];
     }

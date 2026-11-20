@@ -4,6 +4,11 @@
 @section('header-title','بازبینی دوره')
 
 @section('content')
+@php
+    $pendingReviewLessons = $course->sections
+        ->flatMap(fn ($section) => $section->lessons)
+        ->where('status', 'draft');
+@endphp
 @include('owner.partials.learning-workspace-tabs', ['activeSheet' => 'courses', 'academy' => $course->academy])
 <div class="course-page panel-page-enter space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -34,6 +39,16 @@
         </div>
         <span class="course-readiness-tag">{{ $course->isFree() ? 'رایگان' : 'پولی' }}</span>
     </div>
+
+    @if($pendingReviewLessons->isNotEmpty())
+        <section class="panel-card border border-amber-200 bg-amber-50 p-5" aria-label="درس‌های در انتظار تأیید">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <strong class="text-sm font-black text-amber-950">درس‌های نیازمند بازبینی</strong>
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-amber-900">{{ \App\Support\PersianUi::digits($pendingReviewLessons->count()) }} مورد</span>
+            </div>
+            <p class="mt-2 text-xs leading-7 text-amber-900">مدرس محتوا را ارسال کرده است. این درس‌ها و فایل‌های متصل تا زمان تأیید شما برای دانش‌آموزان منتشر نمی‌شوند.</p>
+        </section>
+    @endif
 
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="خلاصه دوره">
         @foreach([
@@ -74,9 +89,22 @@
                         </div>
                         <div class="mt-3 grid gap-2">
                             @forelse($section->lessons as $lesson)
-                                <div class="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2.5">
-                                    <span class="min-w-0 truncate text-xs font-semibold">{{ $lesson->title }}</span>
-                                    <span class="shrink-0 text-[9px] {{ $lesson->status==='published'?'text-[var(--color-success-700)]':'text-[var(--color-text-muted)]' }}">{{ $lesson->status==='published'?'منتشر':'پیش‌نویس' }}</span>
+                                <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white px-3 py-2.5">
+                                    <div class="min-w-0">
+                                        <span class="block truncate text-xs font-semibold">{{ $lesson->title }}</span>
+                                        <span class="mt-1 block text-[9px] {{ $lesson->status==='published'?'text-[var(--color-success-700)]':'text-amber-700' }}">
+                                            {{ match($lesson->status) { 'published' => 'منتشرشده', 'archived' => 'آرشیوشده', default => 'در انتظار بازبینی مالک' } }}
+                                        </span>
+                                    </div>
+                                    @if($lesson->status === 'draft' && $course->status !== 'archived')
+                                        <form method="POST" action="{{ route('owner.courses.lessons.publish', [$course, $lesson]) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="course-primary-btn" data-confirm="این درس و منابع خصوصی متصل به آن برای دانش‌آموزان مجاز منتشر شوند؟">
+                                                تأیید و انتشار
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             @empty
                                 <div class="text-xs text-[var(--color-text-muted)]">درسی در این بخش ثبت نشده است.</div>

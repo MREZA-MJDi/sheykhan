@@ -23,8 +23,6 @@ class StoreLessonRequest extends FormRequest
             'content' => ['nullable', 'string'],
             'duration_seconds' => ['sometimes', 'integer', 'min:0'],
             'is_free' => ['sometimes', 'boolean'],
-            'status' => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
-            'published_at' => ['nullable', 'date'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
         ];
     }

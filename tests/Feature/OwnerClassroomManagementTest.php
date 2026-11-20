@@ -375,6 +375,23 @@ class OwnerClassroomManagementTest extends TestCase
         );
     }
 
+
+
+    public function test_owner_class_creation_from_course_workflow_preselects_that_course(): void
+    {
+        [$owner, $academy, $course] = $this->workspace();
+
+        $this->actingAs($owner)
+            ->get(route('owner.classrooms.create', [
+                'academy' => $academy,
+                'course_id' => $course->id,
+            ]))
+            ->assertOk()
+            ->assertSee('name="course_id"', false)
+            ->assertSee('value="' . $course->id . '"', false)
+            ->assertSee($course->title);
+    }
+
     private function workspace(): array
     {
         $owner = User::factory()->create(['email' => 'owner-' . Str::random(8) . '@test.local']);

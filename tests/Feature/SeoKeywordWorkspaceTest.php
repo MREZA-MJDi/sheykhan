@@ -28,9 +28,10 @@ class SeoKeywordWorkspaceTest extends TestCase
         $this->actingAs($specialist)
             ->get(route('owner.seo.keywords.index'))
             ->assertOk()
-            ->assertSee('مرکز کلمات کلیدی')
-            ->assertSee('ورود و خروج دسته‌ای')
-            ->assertSee('رتبهٔ زنده');
+            ->assertSee('عبارت‌هایی که مردم جست‌وجو می‌کنند')
+            ->assertSee('افزودن یا دریافت چند عبارت با هم')
+            ->assertSee('بدون رتبهٔ مشاهده‌شده')
+            ->assertSee('سرویس رتبه‌گیری ندارد');
     }
 
     public function test_keyword_can_be_created_and_a_manual_position_is_saved_as_history(): void

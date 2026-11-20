@@ -5,10 +5,12 @@ use App\Http\Controllers\ForcePasswordChangeController;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\CourseMediaChunkController;
 use App\Http\Controllers\Owner\AcademyController as OwnerAcademyController;
 use App\Http\Controllers\Owner\ClassroomController as OwnerClassroomController;
 use App\Http\Controllers\Owner\CourseController as OwnerCourseController;
 use App\Http\Controllers\Owner\CourseMediaController as OwnerCourseMediaController;
+use App\Http\Controllers\Owner\CourseLessonReviewController as OwnerCourseLessonReviewController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
 use App\Http\Controllers\Owner\AttendanceController as OwnerAttendanceController;
 use App\Http\Controllers\Owner\MeetingController as OwnerMeetingController;
@@ -22,6 +24,7 @@ use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\ParentPortal\ResourceController as ParentResourceController;
 use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
+use App\Http\Controllers\PublicSite\CourseVideoController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
 use App\Http\Controllers\PublicSite\ProductController;
@@ -94,6 +97,9 @@ Route::get('/media/{media}/public', [MediaController::class, 'servePublic'])->na
 Route::middleware(['auth','active'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/courses/{course}/videos/{media}/stream', [CourseVideoController::class, 'stream'])
+        ->whereNumber(['course', 'media'])
+        ->name('courses.videos.stream');
     Route::get('/media/{media}/view', [MediaController::class, 'view'])
         ->middleware('permission:media.view')
         ->name('media.view');
@@ -178,7 +184,12 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::patch('/courses/{course}', [OwnerCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
     Route::patch('/courses/{course}/archive', [OwnerCourseController::class, 'archive'])->middleware('permission:courses.manage')->name('courses.archive');
     Route::patch('/courses/{course}/restore', [OwnerCourseController::class, 'restore'])->middleware('permission:courses.manage')->name('courses.restore');
+    Route::patch('/courses/{course}/lessons/{lesson}/publish', [OwnerCourseLessonReviewController::class, 'publish'])->middleware('permission:courses.manage')->name('courses.lessons.publish');
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
+    Route::post('/courses/{course}/media/chunks', [CourseMediaChunkController::class, 'store'])->middleware(['permission:media.upload','throttle:180,1'])->name('courses.media.chunks.store');
+    Route::get('/courses/{course}/media/chunks/{uploadId}', [CourseMediaChunkController::class, 'status'])->whereUuid('uploadId')->middleware(['permission:media.upload','throttle:120,1'])->name('courses.media.chunks.status');
+    Route::post('/courses/{course}/media/chunks/{uploadId}/complete', [CourseMediaChunkController::class, 'complete'])->whereUuid('uploadId')->middleware(['permission:media.upload','throttle:10,1'])->name('courses.media.chunks.complete');
+    Route::delete('/courses/{course}/media/chunks/{uploadId}', [CourseMediaChunkController::class, 'abort'])->whereUuid('uploadId')->middleware(['permission:media.upload','throttle:10,1'])->name('courses.media.chunks.abort');
     Route::delete('/courses/{course}/media/{media}', [OwnerCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/academy/{academy}/communications-workspace', \App\Http\Controllers\Owner\CommunicationWorkspaceController::class)->middleware('permission:parents.view,live_classes.view')->name('communication-workspace');
     Route::get('/academy/{academy}/communications', [\App\Http\Controllers\Owner\AcademyMessageController::class, 'index'])->middleware('permission:parents.view')->withoutScopedBindings()->name('communications.index');
@@ -253,6 +264,10 @@ Route::middleware(['auth','active','role:teacher','active-teacher'])->prefix('te
     Route::patch('/courses/{course}/archive', [TeacherCourseController::class, 'archive'])->middleware('permission:courses.manage')->name('courses.archive');
     Route::patch('/courses/{course}/restore', [TeacherCourseController::class, 'restore'])->middleware('permission:courses.manage')->name('courses.restore');
     Route::post('/courses/{course}/media', [TeacherCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
+    Route::post('/courses/{course}/media/chunks', [CourseMediaChunkController::class, 'store'])->middleware(['permission:media.upload','throttle:180,1'])->name('courses.media.chunks.store');
+    Route::get('/courses/{course}/media/chunks/{uploadId}', [CourseMediaChunkController::class, 'status'])->whereUuid('uploadId')->middleware(['permission:media.upload','throttle:120,1'])->name('courses.media.chunks.status');
+    Route::post('/courses/{course}/media/chunks/{uploadId}/complete', [CourseMediaChunkController::class, 'complete'])->whereUuid('uploadId')->middleware(['permission:media.upload','throttle:10,1'])->name('courses.media.chunks.complete');
+    Route::delete('/courses/{course}/media/chunks/{uploadId}', [CourseMediaChunkController::class, 'abort'])->whereUuid('uploadId')->middleware(['permission:media.upload','throttle:10,1'])->name('courses.media.chunks.abort');
     Route::delete('/courses/{course}/media/{media}', [TeacherCourseMediaController::class, 'destroy'])->middleware('permission:media.manage')->name('courses.media.destroy');
     Route::get('/courses/{course}/progress', CourseLearningProgressController::class)->middleware('permission:courses.view')->name('courses.progress');
     Route::get('/courses/{course}/content', [TeacherLessonController::class, 'index'])->middleware('permission:lessons.view')->name('courses.content');

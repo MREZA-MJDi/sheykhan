@@ -80,7 +80,7 @@ export function initializeTabs(root, options = {}) {
 
 export function guardFormOnce(form, options = {}) {
     if (!(form instanceof HTMLFormElement) || boundForms.has(form)) return false;
-    if (form.matches('[data-upload-progress]')) return false;
+    if (form.matches('[data-upload-progress]') || form.querySelector('input[type="file"]')) return false;
 
     const pendingText = options.pendingText || '';
     const submitControls = () => Array.from(form.querySelectorAll(

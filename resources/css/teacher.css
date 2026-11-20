@@ -422,3 +422,114 @@ aside.side{width:235px;flex:0 0 235px;padding:22px 14px;display:flex;flex-direct
 .teacher-lookup-picker [aria-invalid="true"]{
   border-color:#dc2626;
 }
+
+
+/* Profile photo editing stays inside the teacher's edit-profile form. */
+.teacher-profile-avatar-editor{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    min-width:0;
+    padding:20px;
+    border:1px solid var(--ln);
+    border-radius:20px;
+    background:var(--sf);
+}
+.teacher-profile-avatar-editor .teacher-profile-avatar{
+    width:112px;
+    height:112px;
+    flex:0 0 112px;
+    overflow:hidden;
+    display:grid;
+    place-items:center;
+    border:1px solid var(--ln);
+    border-radius:50%;
+    background:var(--pl);
+    color:var(--pri);
+    font-size:32px;
+    font-weight:900;
+}
+.teacher-profile-avatar-editor .teacher-profile-avatar img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+.teacher-profile-avatar-content{
+    display:grid;
+    gap:10px;
+    min-width:0;
+}
+.teacher-profile-avatar-content h2{
+    margin:2px 0 4px;
+    color:var(--tx);
+    font-size:17px;
+    font-weight:800;
+}
+.teacher-profile-avatar-content p{
+    margin:0;
+    color:var(--mu);
+    font-size:12px;
+    line-height:1.9;
+}
+.teacher-profile-avatar-controls{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+.teacher-profile-avatar-pick{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
+    overflow:hidden;
+    padding:8px 15px;
+    border:1px solid color-mix(in srgb,var(--pri) 22%,var(--ln));
+    border-radius:11px;
+    background:var(--pl);
+    color:var(--pri);
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+    transition:background .15s,border-color .15s;
+}
+.teacher-profile-avatar-pick:hover{
+    background:color-mix(in srgb,var(--pri) 9%,var(--pl));
+    border-color:var(--pri);
+}
+.teacher-profile-avatar-pick:focus-within{
+    outline:2px solid var(--pri);
+    outline-offset:3px;
+}
+.teacher-profile-avatar-pick input{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:0;
+    cursor:pointer;
+}
+.teacher-profile-avatar-controls small,
+.teacher-profile-avatar-feedback{
+    color:var(--mu);
+    font-size:11px;
+    line-height:1.8;
+}
+.teacher-profile-avatar-feedback:empty{display:none}
+@media(max-width:560px){
+    .teacher-profile-avatar-editor{
+        align-items:flex-start;
+        gap:14px;
+        padding:15px;
+    }
+    .teacher-profile-avatar-editor .teacher-profile-avatar{
+        width:76px;
+        height:76px;
+        flex-basis:76px;
+        font-size:24px;
+    }
+    .teacher-profile-avatar-content h2{font-size:15px}
+    .teacher-profile-avatar-controls{align-items:flex-start;flex-direction:column;gap:6px}
+}

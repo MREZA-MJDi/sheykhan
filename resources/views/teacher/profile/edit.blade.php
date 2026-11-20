@@ -25,7 +25,7 @@
         @csrf @method('PATCH')
 
         <section class="teacher-profile-editor">
-            <div class="teacher-profile-editor-hero">
+            <section class="teacher-profile-avatar-editor" aria-labelledby="teacher-avatar-title">
                 <div class="teacher-profile-avatar" data-teacher-preview-container="avatar">
                     @if($avatar)
                         <img src="{{ $avatar->visibility === 'public' ? $avatar->url() : route('media.view',$avatar) }}" alt="{{ $teacher->name }}">
@@ -33,28 +33,29 @@
                         <span>{{ mb_substr(trim($teacher->name),0,1) }}</span>
                     @endif
                 </div>
-                <div class="teacher-profile-editor-copy">
-                    <span class="teacher-workspace-kicker">تصویر پروفایل</span>
-                    <h2>{{ $teacher->name }}</h2>
-                    <p>یک تصویر واضح و حرفه‌ای انتخاب کن؛ این تصویر در صفحه معرفی عمومی مدرس نمایش داده می‌شود.</p>
-                    <label class="teacher-upload-btn">
-                        انتخاب تصویر
-                        <input
-                            type="file"
-                            name="avatar"
-                            accept="image/jpeg,image/png,image/webp,image/avif"
-                            data-teacher-preview-input="avatar"
-                            data-max-size-mb="3"
-                            aria-describedby="teacher-avatar-help teacher-avatar-feedback"
-                        >
-                    </label>
-                    <small id="teacher-avatar-help">
-                        JPG، PNG، WEBP یا AVIF · حداکثر ۳ مگابایت.
-                        این تصویر به‌عنوان آواتار شما در فهرست مدرس‌ها و صفحه معرفی عمومی نمایش داده می‌شود.
-                    </small>
-                    <span id="teacher-avatar-feedback" data-teacher-preview-feedback="avatar" class="mt-2 block text-xs leading-6 text-[var(--color-primary-600)]" role="status" aria-live="polite"></span>
+                <div class="teacher-profile-avatar-content">
+                    <div>
+                        <span class="teacher-workspace-kicker">تصویر حساب کاربری</span>
+                        <h2 id="teacher-avatar-title">تصویر پروفایل</h2>
+                        <p>این تصویر کنار نام شما در پنل و در صفحه معرفی عمومی مدرس نمایش داده می‌شود.</p>
+                    </div>
+                    <div class="teacher-profile-avatar-controls">
+                        <label class="teacher-profile-avatar-pick">
+                            <input
+                                type="file"
+                                name="avatar"
+                                accept="image/jpeg,image/png,image/webp,image/avif"
+                                data-teacher-preview-input="avatar"
+                                data-max-size-mb="3"
+                                aria-describedby="teacher-avatar-help teacher-avatar-feedback"
+                            >
+                            <span>انتخاب تصویر جدید</span>
+                        </label>
+                        <small id="teacher-avatar-help">JPG، PNG، WEBP یا AVIF · حداکثر ۳ مگابایت</small>
+                    </div>
+                    <span id="teacher-avatar-feedback" data-teacher-preview-feedback="avatar" class="teacher-profile-avatar-feedback" role="status" aria-live="polite"></span>
                 </div>
-            </div>
+            </section>
 
             <section class="teacher-cover-editor" aria-labelledby="teacher-cover-title">
                 <div class="teacher-cover-editor-copy">

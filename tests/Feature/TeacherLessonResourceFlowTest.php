@@ -7,6 +7,7 @@ use App\Models\LearningResource;
 use App\Models\Lesson;
 use App\Models\Media;
 use App\Models\User;
+use App\Notifications\TeacherLessonSubmittedForReview;
 use Database\Seeders\Support\SeedMedia;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -17,7 +18,7 @@ class TeacherLessonResourceFlowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teacher_upload_creates_student_resource_for_the_same_lesson_scope(): void
+    public function test_teacher_upload_creates_private_pending_resource_and_notifies_course_owner(): void
     {
         Storage::fake('local');
         $this->seed();
@@ -40,17 +41,32 @@ class TeacherLessonResourceFlowTest extends TestCase
 
         $this->assertSame($course->id, $resource->course_id);
         $this->assertFalse($resource->downloadable);
-        $this->assertSame('active', $resource->status);
+        $this->assertSame('draft', $resource->status);
+        $this->assertNull($resource->release_at);
+        $this->assertSame('draft', $lesson->fresh()->status);
+
+        $owner = $course->academy->owner;
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_type' => User::class,
+            'notifiable_id' => $owner->id,
+            'type' => TeacherLessonSubmittedForReview::class,
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('درس نیازمند تأیید')
+            ->assertSee($lesson->title);
 
         $this->actingAs($student)
             ->get(route('student.resources.index'))
             ->assertOk()
-            ->assertSee('منابع منتشرشده برای تو');
+            ->assertDontSee('lesson-handout.pdf');
 
+        // Draft resources are intentionally undiscoverable to students.
         $this->actingAs($student)
             ->get(route('student.resources.download', $resource))
-            ->assertForbidden()
-            ->assertSee('فایل‌های آموزشی محافظت‌شده');
+            ->assertNotFound();
 
         $this->assertDatabaseHas('media', [
             'id' => $resource->media_id,
@@ -65,7 +81,7 @@ class TeacherLessonResourceFlowTest extends TestCase
         ]);
     }
 
-    public function test_publishing_a_lesson_releases_its_existing_resources(): void
+    public function test_teacher_cannot_publish_lesson_until_owner_approves_and_resources_release(): void
     {
         $this->seed();
 
@@ -106,8 +122,32 @@ class TeacherLessonResourceFlowTest extends TestCase
 
         $resource->refresh();
 
+        $this->assertSame('draft', $resource->status);
+        $this->assertNull($resource->release_at);
+        $this->assertSame('draft', $lesson->fresh()->status);
+
+        $owner = $course->academy->owner;
+
+        $this->actingAs($owner)
+            ->get(route('owner.courses.show', $course))
+            ->assertOk()
+            ->assertSee('درس‌های نیازمند بازبینی')
+            ->assertSee(route('owner.courses.lessons.publish', [$course, $lesson]), false);
+
+        $this->actingAs($owner)
+            ->patch(route('owner.courses.lessons.publish', [$course, $lesson]))
+            ->assertRedirect();
+
+        $resource->refresh();
         $this->assertSame('active', $resource->status);
         $this->assertNotNull($resource->release_at);
         $this->assertTrue($resource->release_at->isPast());
+        $this->assertSame('published', $lesson->fresh()->status);
+
+        $notification = $owner->notifications()
+            ->where('type', TeacherLessonSubmittedForReview::class)
+            ->firstOrFail();
+
+        $this->assertNotNull($notification->read_at);
     }
 }

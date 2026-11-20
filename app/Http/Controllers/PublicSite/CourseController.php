@@ -38,6 +38,12 @@ class CourseController extends Controller
         // media should only be hydrated for the learner's own account.
         $canAccessContent = $hasCourseEntitlement && ! $parentCourseEntitlement;
 
+        // Only free-course videos use the authenticated native player. Paid course
+        // videos keep their existing protected SpotPlayer delivery path.
+        $courseVideos = $request->user()?->status === 'active' && $course->isFree()
+            ? $service->videosFor($course)
+            : collect();
+
         if ($canAccessContent) {
             $course->load([
                 'sections.lessons.media' => fn ($query) => $query
@@ -51,6 +57,7 @@ class CourseController extends Controller
             'course' => $course,
             'canAccessContent' => $canAccessContent,
             'parentCourseEntitlement' => $parentCourseEntitlement,
+            'courseVideos' => $courseVideos,
             'requiresPayment' => $course->requiresPayment(),
             'seoMeta' => $course->seoMeta,
         ]);

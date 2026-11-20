@@ -7,7 +7,9 @@ use App\Http\Requests\Owner\Course\CourseMediaRequest;
 use App\Models\Course;
 use App\Models\Media;
 use App\Services\CourseManagementService;
+use App\Services\CourseMediaUploadService;
 use App\Services\MediaService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 class CourseMediaController extends Controller
@@ -15,23 +17,9 @@ class CourseMediaController extends Controller
     public function store(
         CourseMediaRequest $request,
         Course $course,
-        CourseManagementService $courses,
-        MediaService $media,
-    ): RedirectResponse {
-        abort_unless($courses->canManage($request->user(), $course), 403);
-
-        $media->upload(
-            $request->file('media'),
-            $course,
-            [
-                'disk' => 'local',
-                'directory' => 'courses/' . $course->id,
-                'collection' => $request->string('collection')->toString() ?: 'course-assets',
-                'visibility' => 'private',
-            ],
-        );
-
-        return back()->with('success', 'فایل با موفقیت آپلود شد.');
+        CourseMediaUploadService $uploads,
+    ): RedirectResponse|JsonResponse {
+        return $uploads->handle($request, $course, false);
     }
 
     public function destroy(
@@ -41,6 +29,8 @@ class CourseMediaController extends Controller
         MediaService $mediaService,
     ): RedirectResponse {
         abort_unless($courses->canManage(request()->user(), $course), 403);
+
+        abort_if($media->collection === 'course-cover', 403);
 
         $attached = $media->attachments()
             ->where('mediable_type', Course::class)

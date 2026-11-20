@@ -1,7 +1,7 @@
 @php
     $isEdit = $course->exists;
     $currentAccess = old('access_type',$course->access_type ?: 'paid');
-    $currentStatus = old('status',$course->status ?: 'draft');
+    $currentStatus = $course->exists ? ($course->status ?: 'draft') : 'draft';
     $oldSlugWasProvided = old('slug') !== null && old('slug') !== '';
     $initialPrice = old('price', $course->price !== null ? (string) $course->price : '');
     $initialPublishedAt = old(
@@ -208,12 +208,19 @@
     }"
     class="course-form-shell space-y-6"
 >
+    <nav class="grid grid-cols-2 gap-2 rounded-2xl border border-[var(--color-border)] bg-white p-2 sm:grid-cols-5" aria-label="مراحل مدیریت دوره">
+        <a href="#course-step-basics" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-brand-600)] text-white">۱</span><span>اطلاعات پایه</span></a>
+        <a href="#course-step-media" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۲</span><span>تصویر و فایل‌ها</span></a>
+        <a href="#course-step-classrooms" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۳</span><span>کلاس‌ها</span></a>
+        <a href="#course-step-lessons" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۴</span><span>درس و ویدئو</span></a>
+        <a href="#course-step-publish" class="col-span-2 flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)] sm:col-span-1"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۵</span><span>بازبینی و انتشار</span></a>
+    </nav>
     <form method="POST" action="{{ $action }}" class="space-y-6" @submit="syncPrice(); if (!syncPublishedAt()) $event.preventDefault()">
         @csrf
         @if($method !== 'POST') @method($method) @endif
 
         <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-            <section class="panel-card p-5 sm:p-7">
+            <section id="course-step-basics" class="scroll-mt-6 panel-card p-5 sm:p-7">
                 <div class="course-section-heading">
                     <div class="course-step">۱</div>
                     <div>
@@ -343,9 +350,9 @@
                     </div>
                 </section>
 
-                <section class="panel-card p-5">
+                <section id="course-step-publish" class="scroll-mt-6 panel-card p-5">
                     <div class="course-section-heading compact">
-                        <div class="course-step">۳</div>
+                        <div class="course-step">۵</div>
                         <div><span>انتشار</span><h2>چه زمانی دیده شود؟</h2></div>
                     </div>
 
@@ -359,29 +366,9 @@
                         </div>
                     </div>
 
-                    <label class="course-field mt-5">
-                        <span class="course-label">وضعیت <b>*</b></span>
-                        <select name="status" x-model="status" class="course-input">
-                            <option value="draft">پیش‌نویس</option>
-                            <option value="published">منتشرشده</option>
-                            <option value="archived">آرشیو</option>
-                        </select>
-                        @error('status')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
-                    </label>
-
-                    <div x-show="status === 'published'" x-cloak class="mt-5">
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="course-label">تاریخ انتشار <small>شمسی</small></span>
-                            <button type="button" class="course-date-now" @click="setNow()">همین الان</button>
-                        </div>
-                        <div class="mt-2 grid gap-2 sm:grid-cols-[1fr_7.5rem]">
-                            <input type="text" data-jalali-visible-date x-model="publishedDate" dir="ltr" inputmode="numeric" maxlength="10" placeholder="۱۴۰۵/۰۷/۰۲" class="course-input text-left" aria-label="تاریخ انتشار شمسی">
-                            <input type="text" x-model="publishedTime" dir="ltr" inputmode="numeric" maxlength="5" placeholder="۱۸:۳۰" class="course-input text-left" aria-label="ساعت انتشار">
-                        </div>
-                        <input x-ref="publishedAt" type="hidden" name="published_at" value="{{ $initialPublishedAt }}">
-                        <span class="course-help">تاریخ را شمسی وارد کن؛ سیستم مقدار استاندارد میلادی را برای ذخیره‌سازی تبدیل می‌کند. برای انتشار فوری، «همین الان» را بزن.</span>
-                        <p x-show="dateError" x-text="dateError" class="course-inline-error"></p>
-                        @error('published_at')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
+                    <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-7 text-amber-900" role="note">
+                        <strong>انتشار با تأیید مالک آموزشگاه انجام می‌شود.</strong>
+                        <p class="mt-1">ذخیره این فرم فقط اطلاعات دوره را ثبت یا به‌روزرسانی می‌کند. مدرس نمی‌تواند دوره را مستقیماً منتشر یا آرشیو کند؛ وضعیت انتشار توسط مالک آموزشگاه مدیریت می‌شود.</p>
                     </div>
                 </section>
 
@@ -394,11 +381,11 @@
     </form>
 
     @if($isEdit)
-        <section class="panel-card p-5 sm:p-7" data-media-uploader>
+        <section id="course-step-media" class="scroll-mt-6 panel-card p-5 sm:p-7" data-media-uploader>
             <div class="course-media-head">
                 <div>
                     <div class="course-section-heading compact">
-                        <div class="course-step">۴</div>
+                        <div class="course-step">۲</div>
                         <div>
                             <span>رسانه</span>
                             <h2>فایل‌های خصوصی دوره</h2>
@@ -412,7 +399,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="course-upload-box" data-upload-form data-max-bytes="524288000">
+                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="course-upload-box" data-upload-form data-max-bytes="524288000" data-chunk-upload="true" data-chunk-url="{{ route($routePrefix.'.media.chunks.store', $course) }}" data-chunk-status-url="{{ route($routePrefix.'.media.chunks.status', ['course' => $course, 'uploadId' => 'UPLOAD_ID']) }}" data-chunk-complete-url="{{ route($routePrefix.'.media.chunks.complete', ['course' => $course, 'uploadId' => 'UPLOAD_ID']) }}">
                     @csrf
                     <input type="hidden" name="collection" value="course-assets">
                     <label class="course-file-input">
@@ -435,15 +422,18 @@
                         </div>
                     </div>
 
-                    <div class="course-upload-progress" data-upload-progress hidden>
+                    <section class="course-upload-progress" data-upload-progress-ui hidden aria-live="polite">
                         <div class="course-upload-progress-head">
-                            <span>در حال آپلود</span>
-                            <strong data-upload-percent>۰٪</strong>
+                            <span data-upload-progress-message>در انتظار ارسال فایل…</span>
+                            <strong data-upload-progress-percent data-upload-percent>۰٪</strong>
                         </div>
-                        <div class="course-progress-track"><span data-upload-progress-bar></span></div>
-                    </div>
-
-                    <p class="course-upload-status" data-upload-message aria-live="polite"></p>
+                        <div class="course-progress-track" data-upload-progress-track role="progressbar" aria-label="پیشرفت بارگذاری فایل" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span data-upload-progress-bar></span></div>
+                        <p class="course-upload-status" data-upload-message data-upload-progress-status aria-live="polite"></p>
+                        <p data-upload-progress-eta class="mt-1 text-[10px] text-slate-500" aria-live="polite"></p>
+                        <p data-upload-summary class="mt-1 text-[10px] text-slate-500"></p>
+                        <ul data-upload-file-list class="mt-2 grid gap-1 text-xs" role="list"></ul>
+                        <p data-upload-progress-error hidden class="mt-2 text-xs font-semibold text-rose-600" role="alert"></p>
+                    </section>
                     <button type="submit" class="course-action-btn primary">آپلود فایل</button>
                 </form>
             </div>
@@ -479,4 +469,6 @@
             </div>
         </section>
     @endif
+
+    @include('shared.course-management-workflow', ['course' => $course, 'routePrefix' => $routePrefix])
 </div>

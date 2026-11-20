@@ -7,42 +7,34 @@ use App\Http\Requests\Teacher\Lesson\StoreCourseSectionRequest;
 use App\Http\Requests\Teacher\Lesson\StoreLessonRequest;
 use App\Http\Requests\Teacher\Lesson\UpdateLessonRequest;
 use App\Models\Course;
-use App\Models\CourseSection;
 use App\Models\LearningResource;
-use App\Services\MediaService;
-use Illuminate\Support\Facades\DB;
 use App\Models\Lesson;
+use App\Services\LessonReviewNotificationService;
+use App\Services\MediaService;
+use App\Services\TeacherAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class LessonController extends Controller
 {
-    public function index(Course $course): View
+    public function index(Course $course, TeacherAccessService $teachers): View
     {
-        abort_unless(
-            $course->teachers()->whereKey(request()->user()->id)->exists()
-                && $course->academy?->status === 'active',
-            403
-        );
+        abort_unless($teachers->canTeachCourse(request()->user(), $course), 403);
 
-        $course->load([
-            'sections.lessons.media',
-        ]);
+        $course->load(['sections.lessons.media']);
 
         return view('teacher.courses.content', compact('course'));
     }
 
     public function storeSection(
         StoreCourseSectionRequest $request,
-        Course $course
+        Course $course,
+        TeacherAccessService $teachers,
     ): RedirectResponse {
-        abort_unless(
-            $course->teachers()->whereKey($request->user()->id)->exists()
-                && $course->academy?->status === 'active',
-            403
-        );
+        abort_unless($teachers->canTeachCourse($request->user(), $course), 403);
 
         $nextOrder = ((int) $course->sections()->max('sort_order')) + 1;
 
@@ -55,9 +47,12 @@ class LessonController extends Controller
         return back()->with('success', 'سرفصل با موفقیت ساخته شد.');
     }
 
-    public function store(StoreLessonRequest $request): RedirectResponse
-    {
-        $section = request()->user()
+    public function store(
+        StoreLessonRequest $request,
+        TeacherAccessService $teachers,
+        LessonReviewNotificationService $notifications,
+    ): RedirectResponse {
+        $section = $request->user()
             ->taughtCourses()
             ->whereHas('sections', fn ($query) => $query->whereKey($request->validated('course_section_id')))
             ->firstOrFail()
@@ -65,79 +60,75 @@ class LessonController extends Controller
             ->whereKey($request->validated('course_section_id'))
             ->firstOrFail();
 
+        $course = $section->course()->with('academy.owner')->firstOrFail();
+        abort_unless($teachers->canTeachCourse($request->user(), $course), 403);
+
         $data = $request->validated();
-        $data['published_at'] = ($data['status'] ?? 'draft') === 'published'
-            ? ($data['published_at'] ?? now())
-            : null;
+        $data['status'] = 'draft';
+        $data['published_at'] = null;
 
-        $section->lessons()->create($data);
+        $lesson = $section->lessons()->create($data);
+        $notifications->notifyOwner($request->user(), $course, $lesson);
 
-        return back()->with('success', 'درس با موفقیت اضافه شد.');
+        return back()->with('success', 'درس ذخیره شد و برای بازبینی و تأیید مالک آموزشگاه ارسال شد.');
     }
 
     public function update(
         UpdateLessonRequest $request,
-        Lesson $lesson
+        Lesson $lesson,
+        TeacherAccessService $teachers,
+        LessonReviewNotificationService $notifications,
     ): RedirectResponse {
-        $course = $lesson->section->course;
+        $lesson->loadMissing('section.course.academy.owner');
+        $course = $lesson->section?->course;
 
-        abort_unless(
-            $course->teachers()->whereKey($request->user()->id)->exists(),
-            403
-        );
+        abort_unless($course && $teachers->canTeachCourse($request->user(), $course), 403);
 
         $data = $request->validated();
-        $data['published_at'] = ($data['status'] ?? $lesson->status) === 'published'
-            ? ($data['published_at'] ?? $lesson->published_at ?? now())
-            : null;
+        $requestedSectionId = (int) ($data['course_section_id'] ?? $lesson->course_section_id);
+        $targetSection = $course->sections()->whereKey($requestedSectionId)->firstOrFail();
+
+        $data['course_section_id'] = $targetSection->id;
+        $data['status'] = 'draft';
+        $data['published_at'] = null;
 
         DB::transaction(function () use ($lesson, $data): void {
-            $lesson->update($data);
+            $locked = Lesson::query()->whereKey($lesson->id)->lockForUpdate()->firstOrFail();
+            $locked->update($data);
 
-            if ($lesson->status === 'published') {
-                LearningResource::query()
-                    ->where('lesson_id', $lesson->id)
-                    ->whereNull('release_at')
-                    ->update(['release_at' => now()]);
+            LearningResource::query()
+                ->where('lesson_id', $locked->id)
+                ->update([
+                    'status' => 'draft',
+                    'release_at' => null,
+                ]);
+        }, 3);
 
-                LearningResource::query()
-                    ->where('lesson_id', $lesson->id)
-                    ->update(['status' => 'active']);
-            } else {
-                LearningResource::query()
-                    ->where('lesson_id', $lesson->id)
-                    ->update(['status' => 'draft']);
-            }
-        });
+        $notifications->notifyOwner($request->user(), $course, $lesson->fresh());
 
-        return back()->with('success', 'درس به‌روزرسانی شد.');
+        return back()->with('success', 'تغییرات درس برای بازبینی و تأیید مالک آموزشگاه ارسال شد.');
     }
 
-    public function destroy(Request $request, Lesson $lesson, MediaService $media): RedirectResponse
-    {
+    public function destroy(
+        Request $request,
+        Lesson $lesson,
+        MediaService $media,
+        TeacherAccessService $teachers,
+    ): RedirectResponse {
         $course = $lesson->section()->with('course')->firstOrFail()->course;
-
-        abort_unless(
-            $course->teachers()->whereKey($request->user()->id)->exists()
-                && $course->academy?->status === 'active',
-            403
-        );
+        abort_unless($teachers->canTeachCourse($request->user(), $course), 403);
 
         $files = collect();
 
-        DB::transaction(function () use ($request, $lesson, $media, &$files): void {
+        DB::transaction(function () use ($request, $lesson, $media, $teachers, &$files): void {
             $locked = Lesson::query()->whereKey($lesson->id)->lockForUpdate()->firstOrFail();
             $course = $locked->section()->with('course')->firstOrFail()->course;
 
-            abort_unless(
-                $course->teachers()->whereKey($request->user()->id)->exists()
-                    && $course->academy?->status === 'active',
-                403
-            );
+            abort_unless($teachers->canTeachCourse($request->user(), $course), 403);
 
             if ($locked->status !== 'draft') {
                 throw ValidationException::withMessages([
-                    'lesson' => 'برای حذف درس منتشرشده، ابتدا آن را از انتشار خارج کن.',
+                    'lesson' => 'برای حذف درس منتشرشده، ابتدا باید درخواست خارج‌کردن آن از انتشار توسط مالک تأیید شود.',
                 ]);
             }
 
@@ -148,6 +139,7 @@ class LessonController extends Controller
             }
 
             $files = $locked->media()->get();
+
             foreach ($files as $file) {
                 $media->detach($file, $locked);
             }

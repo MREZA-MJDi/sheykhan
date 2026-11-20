@@ -23,9 +23,22 @@ class ClassroomController extends Controller
 
     public function create(TeacherWorkspaceService $workspace): View
     {
+        $classroom = new Classroom([
+            'code' => app(ClassroomCodeGenerator::class)->generate(),
+        ]);
+
+        // A course workflow link can preselect its real course without
+        // trusting an arbitrary course_id; the same teacher ownership rule
+        // used by the store action is applied here.
+        if ($courseId = request()->integer('course_id')) {
+            $course = $workspace->courseOwnedBy(request()->user(), $courseId);
+            $classroom->course_id = $course->id;
+            $classroom->setRelation('course', $course);
+        }
+
         return view('teacher.classrooms.form', [
             'courses' => collect(),
-            'classroom' => new Classroom(['code' => app(ClassroomCodeGenerator::class)->generate()]),
+            'classroom' => $classroom,
         ]);
     }
 

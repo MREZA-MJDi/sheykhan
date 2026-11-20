@@ -1,3 +1,4 @@
+import { bootFileUploadProgress } from './shared/upload-progress.js';
 import './owner/dashboard-shell.js';
 import './owner/dashboard-range-chart.js';
 import './shared/persian-calendar.js';
@@ -11,5 +12,6 @@ import { bootPanelRuntime, closePanelMenu } from './panel-runtime.js';
 export { closePanelMenu };
 
 bootPanelRuntime();
+document.addEventListener('DOMContentLoaded', () => bootFileUploadProgress());
 
 /* Academy-owner single JS entry: imports page-scoped interactions and shared input helpers. */

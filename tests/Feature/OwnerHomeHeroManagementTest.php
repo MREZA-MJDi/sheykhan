@@ -28,7 +28,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         config(['filesystems.default' => 'local']);
     }
 
-    public function test_seo_specialist_can_manage_multiple_independent_hero_slides_and_public_home_uses_them(): void
+    public function test_seo_specialist_can_manage_independent_hero_slides_without_changing_the_current_public_homepage(): void
     {
         Storage::fake('local');
         Cache::flush();
@@ -90,14 +90,14 @@ class OwnerHomeHeroManagementTest extends TestCase
 
         Cache::flush();
         $response = $this->get(route('home'))->assertOk();
-        $response->assertSee(route('media.public', $slides[0]->media), false)
-            ->assertSee(route('media.public', $slides[0]->mobileMedia), false)
-            ->assertSee(route('media.public', $slides[1]->media), false)
-            ->assertSee('data-home-hero-mobile-source', false)
-            ->assertSee('--hero-crop-x: 24%', false)
-            ->assertSee('--hero-mobile-crop-y: 35%', false)
-            ->assertSee('Hero slide first')
-            ->assertSee('Hero slide second');
+        $response->assertSee('class="sh-home-hero"', false)
+            ->assertSee('یادگیری را به')
+            ->assertDontSee('data-home-hero-slide', false)
+            ->assertDontSee(route('media.public', $slides[0]->media), false)
+            ->assertDontSee(route('media.public', $slides[0]->mobileMedia), false)
+            ->assertDontSee(route('media.public', $slides[1]->media), false)
+            ->assertDontSee('Hero slide first')
+            ->assertDontSee('Hero slide second');
     }
 
     public function test_replacing_or_removing_a_slide_cleans_up_only_unused_hero_uploads(): void
@@ -150,7 +150,7 @@ class OwnerHomeHeroManagementTest extends TestCase
         $this->assertDatabaseMissing('media', ['path' => $replacementPath]);
     }
 
-    public function test_homepage_renders_hero_slides_and_academy_banners_as_separate_sections(): void
+    public function test_seo_managed_hero_and_banner_records_do_not_replace_the_current_public_homepage(): void
     {
         Storage::fake('local');
         Cache::flush();
@@ -206,17 +206,17 @@ class OwnerHomeHeroManagementTest extends TestCase
         Cache::flush();
         $response = $this->actingAs($owner)->get(route('home'))->assertOk();
         $html = $response->getContent();
-        $bannerGridPosition = strpos($html, 'class="home-banner-grid"');
 
-        $this->assertNotFalse($bannerGridPosition, 'The independent Banner section should render.');
-        $heroMarkup = substr($html, 0, $bannerGridPosition);
-        $bannerMarkup = substr($html, $bannerGridPosition);
-
-        $this->assertStringContainsString('data-home-hero-slide', $heroMarkup);
-        $this->assertStringContainsString(route('media.public', $heroMedia), $heroMarkup);
-        $this->assertStringNotContainsString('بنر مستقل شیخان', $heroMarkup);
-        $this->assertStringContainsString('بنر مستقل شیخان', $bannerMarkup);
-        $this->assertStringContainsString(route('media.public', $bannerMedia), $bannerMarkup);
+        // The current public homepage intentionally keeps its fixed visual
+        // hero. Saving website-control records must not silently replace it.
+        $this->assertStringContainsString('class="sh-home-hero"', $html);
+        $this->assertStringContainsString('یادگیری را به', $html);
+        $this->assertStringNotContainsString('data-home-hero-slide', $html);
+        $this->assertStringNotContainsString(route('media.public', $heroMedia), $html);
+        $this->assertStringNotContainsString('Independent Hero Title', $html);
+        $this->assertStringNotContainsString('home-banner-grid', $html);
+        $this->assertStringNotContainsString('بنر مستقل شیخان', $html);
+        $this->assertStringNotContainsString(route('media.public', $bannerMedia), $html);
     }
 
     public function test_home_hero_rejects_protocol_relative_cta_urls(): void
