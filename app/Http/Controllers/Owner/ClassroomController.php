@@ -28,7 +28,7 @@ class ClassroomController extends Controller
 
     public function create(Academy $academy, OwnerClassroomService $service): View
     {
-        $selectedCourseId = request()->old('course_id');
+        $selectedCourseId = request()->old('course_id', request()->integer('course_id') ?: null);
         $selectedTeacherIds = (array) request()->old('teacher_ids', []);
 
         return view('owner.classrooms.form', [
