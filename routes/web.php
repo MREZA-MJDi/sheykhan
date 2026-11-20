@@ -22,6 +22,7 @@ use App\Http\Controllers\ParentPortal\DashboardController as ParentDashboard;
 use App\Http\Controllers\ParentPortal\ResourceController as ParentResourceController;
 use App\Http\Controllers\PublicSite\BlogController;
 use App\Http\Controllers\PublicSite\CourseController;
+use App\Http\Controllers\PublicSite\CourseVideoController;
 use App\Http\Controllers\PublicSite\TeacherController;
 use App\Http\Controllers\PublicSite\StoreController;
 use App\Http\Controllers\PublicSite\ProductController;
