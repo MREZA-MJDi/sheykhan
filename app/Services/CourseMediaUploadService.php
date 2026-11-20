@@ -79,7 +79,7 @@ final class CourseMediaUploadService
     ): Media {
         $isCover = $collection === 'course-cover';
 
-        return $this->media->upload(
+        $uploaded = $this->media->upload(
             $file,
             $course,
             [
@@ -91,5 +91,25 @@ final class CourseMediaUploadService
                 'uploaded_by' => $uploadedBy,
             ],
         );
+
+        if ($isCover && $allowPublicCover) {
+            // Replace the previous public cover only after the new file and
+            // attachment have been stored successfully; a failed upload must
+            // never leave the course without its current image.
+            $previousCovers = $course->media()
+                ->wherePivot('collection', 'course-cover')
+                ->where('media.id', '!=', $uploaded->id)
+                ->get();
+
+            foreach ($previousCovers as $previousCover) {
+                $this->media->detach($previousCover, $course);
+
+                if ($previousCover->attachments()->doesntExist()) {
+                    $this->media->delete($previousCover);
+                }
+            }
+        }
+
+        return $uploaded;
     }
 }
