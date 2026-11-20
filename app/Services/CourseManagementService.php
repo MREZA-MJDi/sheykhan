@@ -239,7 +239,7 @@ final class CourseManagementService
      */
     public function archive(User $user, Course $course): void
     {
-        abort_unless($this->isAcademyOwner($user, $course), 403);
+        abort_unless($user->hasPermission('courses.manage') && $this->isAcademyOwner($user, $course), 403);
 
         DB::transaction(function () use ($course): void {
             $locked = Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
@@ -266,7 +266,7 @@ final class CourseManagementService
     /** Restore an archived course as a draft; never republish it silently. */
     public function restoreArchived(User $user, Course $course): void
     {
-        abort_unless($this->isAcademyOwner($user, $course), 403);
+        abort_unless($user->hasPermission('courses.manage') && $this->isAcademyOwner($user, $course), 403);
 
         if ($course->status !== 'archived') {
             return;
