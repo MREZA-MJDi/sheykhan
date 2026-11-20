@@ -123,7 +123,7 @@ final class CourseManagementService
             // A teacher's new course is always a draft for owner review. A user
             // who owns this academy keeps the owner publishing workflow.
             $isTeacherSubmission = $user->hasRole('teacher')
-                && ! $this->isAcademyOwner($user, $course);
+                && ! ($user->hasRole('academy-owner') && (int) $academy->owner_id === (int) $user->id);
             $status = $isTeacherSubmission ? 'draft' : ($data['status'] ?? 'draft');
 
             $course = $academy->courses()->create([
