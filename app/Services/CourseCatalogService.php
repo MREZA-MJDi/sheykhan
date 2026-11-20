@@ -135,6 +135,7 @@ class CourseCatalogService
         return \App\Models\Media::query()
             ->where('status', 'active')
             ->where('mime_type', 'like', 'video/%')
+            ->whereIn('extension', ['mp4', 'webm'])
             ->whereHas('attachments', fn ($query) => $query
                 ->where('mediable_type', Course::class)
                 ->where('mediable_id', $course->id)
