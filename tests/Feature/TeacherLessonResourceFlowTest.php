@@ -52,6 +52,12 @@ class TeacherLessonResourceFlowTest extends TestCase
             'type' => TeacherLessonSubmittedForReview::class,
         ]);
 
+        $this->actingAs($owner)
+            ->get(route('owner.dashboard'))
+            ->assertOk()
+            ->assertSee('درس نیازمند تأیید')
+            ->assertSee('lesson-handout.pdf');
+
         $this->actingAs($student)
             ->get(route('student.resources.index'))
             ->assertOk()
@@ -121,6 +127,12 @@ class TeacherLessonResourceFlowTest extends TestCase
         $this->assertSame('draft', $lesson->fresh()->status);
 
         $owner = $course->academy->owner;
+
+        $this->actingAs($owner)
+            ->get(route('owner.courses.show', $course))
+            ->assertOk()
+            ->assertSee('درس‌های نیازمند بازبینی')
+            ->assertSee(route('owner.courses.lessons.publish', [$course, $lesson]), false);
 
         $this->actingAs($owner)
             ->patch(route('owner.courses.lessons.publish', [$course, $lesson]))
