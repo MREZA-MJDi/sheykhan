@@ -11,29 +11,7 @@
         : null;
 @endphp
 
-<nav class="grid grid-cols-2 gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 sm:grid-cols-5"
-     aria-label="مراحل مدیریت دوره">
-    <a href="#course-step-basics" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]">
-        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-brand-600)] text-white">۱</span>
-        <span>اطلاعات پایه</span>
-    </a>
-    <a href="#course-step-media" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]">
-        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۲</span>
-        <span>تصویر و فایل‌ها</span>
-    </a>
-    <a href="#course-step-classrooms" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]">
-        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۳</span>
-        <span>کلاس‌ها</span>
-    </a>
-    <a href="#course-step-lessons" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]">
-        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۴</span>
-        <span>درس و ویدئو</span>
-    </a>
-    <a href="#course-step-publish" class="col-span-2 flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)] sm:col-span-1">
-        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۵</span>
-        <span>بازبینی و انتشار</span>
-    </a>
-</nav>
+
 
 @if (! $course->exists)
     <section id="course-step-media" class="scroll-mt-6 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background-soft)] p-5">
