@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const maxBytes = Number(input.dataset.maxSizeMb || (kind === 'avatar' ? 3 : 5)) * 1024 * 1024;
                 const looksLikeImage = file.type.startsWith('image/')
-                    || /\\.(jpe?g|png|webp|avif)$/i.test(file.name);
+                    || /\.(jpe?g|png|webp|avif)$/i.test(file.name);
 
                 if (!looksLikeImage || file.size > maxBytes) {
                     input.value = '';
@@ -485,7 +485,7 @@ document.querySelectorAll('[data-teacher-preview]').forEach((input) => {
             const chip = document.createElement('span');
             chip.className = 'chip';
             chip.textContent = file.name + ' · ' + String(Math.max(1, Math.ceil(file.size / 1024)))
-                .replace(/\\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[digit]) + ' KB';
+                .replace(/\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[digit]) + ' KB';
 
             if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
                 const link = document.createElement('a');
