@@ -44,7 +44,7 @@
         <section class="panel-card border border-amber-200 bg-amber-50 p-5" aria-label="درس‌های در انتظار تأیید">
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <strong class="text-sm font-black text-amber-950">درس‌های نیازمند بازبینی</strong>
-                <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-amber-900">{{ \\App\\Support\\PersianUi::digits($pendingReviewLessons->count()) }} مورد</span>
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-amber-900">{{ \App\Support\PersianUi::digits($pendingReviewLessons->count()) }} مورد</span>
             </div>
             <p class="mt-2 text-xs leading-7 text-amber-900">مدرس محتوا را ارسال کرده است. این درس‌ها و فایل‌های متصل تا زمان تأیید شما برای دانش‌آموزان منتشر نمی‌شوند.</p>
         </section>
