@@ -456,7 +456,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="course-upload-box" data-upload-form data-max-bytes="524288000">
+                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="course-upload-box" data-upload-form data-max-bytes="536870912">
                     @csrf
                     <input type="hidden" name="collection" value="course-assets">
                     <label class="course-file-input">
