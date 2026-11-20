@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Media;
 use App\Services\CourseCatalogService;
+use App\Services\CourseAccessService;
 use App\Services\CourseVideoStreamService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -17,6 +18,7 @@ final class CourseVideoController extends Controller
         Course $course,
         Media $media,
         CourseCatalogService $catalog,
+        CourseAccessService $access,
         CourseVideoStreamService $stream,
     ): StreamedResponse {
         $course = $catalog->findPublished($course);
@@ -40,8 +42,12 @@ final class CourseVideoController extends Controller
         $user = $request->user();
         abort_unless($user && $user->status === 'active', 403);
 
-        // This endpoint is deliberately limited to free courses. Paid-course
-        // video delivery remains on the protected SpotPlayer workflow.
+        // Keep free-course byte-range playback, but require the same active
+        // enrollment, academy membership, teacher assignment or owner access
+        // already enforced by the rest of the learning workspace.
+        abort_unless($access->canAccess($user, $course), 403);
+
+        // Paid-course video delivery remains on the protected SpotPlayer workflow.
         abort_unless($course->isFree(), 403);
 
         return $stream->stream($media, $request);
