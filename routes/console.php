@@ -9,6 +9,11 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 
+Schedule::command('course-media-uploads:prune --force')
+    ->hourly()
+    ->withoutOverlapping()
+    ->description('Remove expired resumable course-media upload chunks');
+
 Schedule::command('sheykhan:seo-search-console-sync --days=28')
     ->dailyAt('04:20')
     ->withoutOverlapping()
