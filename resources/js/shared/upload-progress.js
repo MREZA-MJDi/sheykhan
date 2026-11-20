@@ -28,7 +28,7 @@ const paint=(panel,pct,message)=>{
     const bar=panel.querySelector('[data-upload-progress-bar]'),track=panel.querySelector('[data-upload-progress-track]');
     const percent=panel.querySelector('[data-upload-progress-percent], [data-upload-percent]'),status=panel.querySelector('[data-upload-progress-message], [data-upload-message]');
     if(bar)bar.style.width=value+'%';if(track)track.setAttribute('aria-valuenow',String(value));
-    if(percent)percent.textContent=fa(value)+'٪';if(status)status.textContent=message;
+    if(percent)percent.textContent=fa(value)+'٪';if(status){status.textContent=message;status.classList.remove('text-rose-600');}
 };
 const fail=(panel,message)=>{
     const error=panel.querySelector('[data-upload-progress-error]'),status=panel.querySelector('[data-upload-progress-status], [data-upload-message]');
@@ -67,6 +67,7 @@ const bind=form=>{
     form.addEventListener('change',event=>{
         if(event.target instanceof HTMLInputElement&&event.target.type==='file'){
             const error=panel.querySelector('[data-upload-progress-error]');if(error){error.hidden=true;error.textContent='';}
+            const status=panel.querySelector('[data-upload-message]');if(status){status.textContent='';status.classList.remove('text-rose-600');}
             render(form);
         }
     });
