@@ -59,7 +59,7 @@
                             <strong class="teacher-workspace-item-title">{{ $lesson->title }}</strong>
                             <div class="teacher-workspace-item-meta">
                                 <span>{{ match($lesson->type) { 'video' => 'ویدیویی', 'text' => 'متنی', 'file' => 'فایلی', 'quiz' => 'کوئیز', 'live' => 'جلسه زنده', default => 'نوع نامشخص' } }}</span>
-                                <span>{{ $lesson->status === 'published' ? 'منتشرشده' : 'پیش‌نویس' }}</span>
+                                <span>{{ $lesson->status === 'published' ? 'منتشرشده' : 'در انتظار تأیید مالک' }}</span>
                                 <span>{{ App\Support\PersianUi::digits((int)($lesson->duration_seconds ?? 0)) }} ثانیه</span>
                                 @if($lesson->media->isNotEmpty())<span>{{ App\Support\PersianUi::digits($lesson->media->count()) }} فایل</span>@endif
                             </div>
@@ -101,7 +101,7 @@
             <label class="teacher-workspace-field"><span>Slug</span><input name="slug" value="{{ old('slug') }}" dir="ltr"></label>
             <label class="teacher-workspace-field" style="grid-column:1/-1"><span>خلاصه</span><input name="summary" value="{{ old('summary') }}"></label>
             <label class="teacher-workspace-field" style="grid-column:1/-1"><span>محتوا</span><textarea name="content" rows="6">{{ old('content') }}</textarea></label>
-            <label class="teacher-workspace-field"><span>وضعیت</span><select name="status"><option value="draft">پیش‌نویس</option><option value="published">منتشرشده</option></select></label>
+            <div class="teacher-workspace-field" role="note" style="grid-column:1/-1"><span>انتشار درس</span><p class="text-xs leading-7 text-[var(--color-text-secondary)]">پس از ذخیره، درس به‌صورت پیش‌نویس باقی می‌ماند و برای مالک آموزشگاه اعلان بازبینی ارسال می‌شود. فقط مالک می‌تواند آن را برای دانش‌آموزان منتشر کند.</p></div>
             <label class="teacher-workspace-field" style="display:flex;align-items:center;gap:8px"><input type="checkbox" name="is_free" value="1"><span>این درس رایگان باشد</span></label>
             <div style="grid-column:1/-1;display:flex;justify-content:flex-end"><button type="submit" class="teacher-workspace-btn primary">افزودن درس</button></div>
         </form>
