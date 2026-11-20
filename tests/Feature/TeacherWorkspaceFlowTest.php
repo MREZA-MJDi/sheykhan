@@ -1015,4 +1015,25 @@ class TeacherWorkspaceFlowTest extends TestCase
             ->assertSee('value="' . $course->id . '"', false);
     }
 
+
+    public function test_teacher_cannot_archive_or_restore_course_even_through_dedicated_routes(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->patch(route('teacher.courses.archive', $course))
+            ->assertForbidden();
+
+        $course->forceFill(['status' => 'archived', 'published_at' => null])->save();
+
+        $this->actingAs($teacher)
+            ->patch(route('teacher.courses.restore', $course))
+            ->assertForbidden();
+
+        $this->assertSame('archived', $course->fresh()->status);
+    }
+
 }
