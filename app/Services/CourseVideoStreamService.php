@@ -36,7 +36,11 @@ final class CourseVideoStreamService
 
         $headers = [
             'Content-Type' => $media->mime_type ?: 'application/octet-stream',
-            'Content-Disposition' => 'inline; filename="' . $this->safeFilename($media->original_name) . '"',
+            'Content-Disposition' => HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_INLINE,
+                $this->safeFilename($media->original_name),
+                'course-video.mp4',
+            ),
             'Content-Length' => (string) $length,
             'Accept-Ranges' => 'bytes',
             'Cache-Control' => 'private, no-store, max-age=0',
