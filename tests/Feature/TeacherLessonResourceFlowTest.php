@@ -56,7 +56,7 @@ class TeacherLessonResourceFlowTest extends TestCase
             ->get(route('owner.dashboard'))
             ->assertOk()
             ->assertSee('درس نیازمند تأیید')
-            ->assertSee('lesson-handout.pdf');
+            ->assertSee($lesson->title);
 
         $this->actingAs($student)
             ->get(route('student.resources.index'))
