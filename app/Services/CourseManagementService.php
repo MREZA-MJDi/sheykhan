@@ -370,7 +370,7 @@ final class CourseManagementService
     }
 
 
-    private function isAcademyOwner(User $user, Course $course): bool
+    public function isAcademyOwner(User $user, Course $course): bool
     {
         $course->loadMissing('academy');
 
