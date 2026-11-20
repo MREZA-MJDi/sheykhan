@@ -7,11 +7,10 @@ use App\Http\Requests\Owner\Course\CourseMediaRequest;
 use App\Models\Course;
 use App\Models\Media;
 use App\Services\CourseManagementService;
+use App\Services\CourseMediaUploadService;
 use App\Services\MediaService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
-use Throwable;
+use Illuminate\Http\RedirectResponse;
 
 class CourseMediaController extends Controller
 {
@@ -19,45 +18,11 @@ class CourseMediaController extends Controller
         CourseMediaRequest $request,
         Course $course,
         CourseManagementService $courses,
-        MediaService $media,
+        CourseMediaUploadService $uploads,
     ): RedirectResponse|JsonResponse {
         abort_unless($courses->canManage($request->user(), $course), 403);
 
-        try {
-            $media->upload(
-                $request->file('media'),
-                $course,
-                [
-                    'disk' => 'local',
-                    'directory' => 'courses/' . $course->id,
-                    'collection' => $request->string('collection')->toString() ?: 'course-assets',
-                    'visibility' => 'private',
-                ],
-            );
-        } catch (Throwable $exception) {
-            Log::error('Teacher course media upload failed', [
-                'course_id' => $course->id,
-                'user_id' => $request->user()->id,
-                'exception' => $exception,
-            ]);
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'ذخیره فایل در سرور انجام نشد. تنظیمات فضای ذخیره‌سازی و گزارش خطا را بررسی کنید.',
-                ], 500);
-            }
-
-            return back()->with('error', 'آپلود فایل انجام نشد. دوباره تلاش کنید.');
-        }
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'فایل با موفقیت آپلود شد.',
-                'redirect_url' => route('teacher.courses.edit', $course),
-            ]);
-        }
-
-        return back()->with('success', 'فایل با موفقیت آپلود شد.');
+        return $uploads->handle($request, $course, false);
     }
 
     public function destroy(
