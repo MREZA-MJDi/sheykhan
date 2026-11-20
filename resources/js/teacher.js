@@ -17,6 +17,7 @@ import {
     persianDigits,
     jalaliToGregorian,
     jalaliDaysInMonth,
+    gregorianToJalali,
 } from './shared/persian-calendar-core.mjs';
 
 const fa = persianDigits;
@@ -133,8 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const raw = element.getAttribute('data-jalali-date');
         const match = raw && raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (!match) return;
-        const converted = g2j(Number(match[1]), Number(match[2]), Number(match[3]));
-        element.textContent = fa(converted[0]) + ' ' + MN[converted[1] - 1] + ' ' + fa(converted[2]);
+        const converted = gregorianToJalali(Number(match[1]), Number(match[2]), Number(match[3]));
+        if (!converted) return;
+        element.textContent = fa(converted.year) + ' ' + MONTH_NAMES[converted.month - 1] + ' ' + fa(converted.day);
     });
 
     document.addEventListener('click', (event) => {
@@ -399,26 +401,105 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const side=document.getElementById('side'), overlay=document.getElementById('teacher-overlay');
-  const menuTrigger=document.querySelector('[data-teacher-menu-open]');
-  const toggleMenu=(open)=>{side?.classList.toggle('open',!!open);overlay?.classList.toggle('open',!!open);overlay?.setAttribute('aria-hidden',String(!open));document.body.classList.toggle('teacher-menu-open',!!open);if(open)side?.querySelector('a.nv,button.nv')?.focus();else menuTrigger?.focus();};
-  document.querySelectorAll('[data-teacher-menu-open]').forEach(x=>x.addEventListener('click',()=>toggleMenu(true)));
-  document.querySelectorAll('[data-teacher-menu-close]').forEach(x=>x.addEventListener('click',()=>toggleMenu(false)));
-  overlay?.addEventListener('click',()=>toggleMenu(false));
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false);});
-  document.querySelectorAll('[data-teacher-preview]').forEach(input=>input.addEventListener('change',()=>{
-    const target=document.querySelector(input.dataset.teacherPreview); if(!target)return; target.replaceChildren();
-    [...(input.files||[])].forEach(file=>{
-      const chip=document.createElement('span');chip.className='chip';
-      chip.textContent=file.name+' · '+String(Math.max(1,Math.ceil(file.size/1024))).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d])+' KB';
-      if(file.type==='application/pdf'||file.type.startsWith('image/')){
-        const a=document.createElement('a'),url=URL.createObjectURL(file);a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='پیش‌نمایش';
-        a.addEventListener('click',()=>setTimeout(()=>URL.revokeObjectURL(url),60000),{once:true});chip.append(' · ',a);
-      }
-      target.appendChild(chip);
+function bootTeacherNavigation() {
+    const side = document.getElementById('side');
+    const overlay = document.getElementById('teacher-overlay');
+    if (!side) return;
+
+    const menuTriggers = Array.from(document.querySelectorAll('[data-teacher-menu-open]'));
+    const isMobileMenu = () => window.matchMedia('(max-width: 860px)').matches;
+
+    const setMenuOpen = (requestedOpen, restoreFocus = false) => {
+        const open = Boolean(requestedOpen) && isMobileMenu();
+
+        side.classList.toggle('open', open);
+        overlay?.classList.toggle('open', open);
+        overlay?.setAttribute('aria-hidden', String(!open));
+        document.body.classList.toggle('teacher-menu-open', open);
+
+        menuTriggers.forEach((trigger) => {
+            trigger.setAttribute('aria-controls', 'side');
+            trigger.setAttribute('aria-expanded', String(open));
+        });
+
+        if (open) {
+            side.querySelector('a.nv[href], button.nv')?.focus({ preventScroll: true });
+        } else if (restoreFocus) {
+            menuTriggers.find((trigger) => trigger.getClientRects().length > 0 && !trigger.disabled)
+                ?.focus({ preventScroll: true });
+        }
+    };
+
+    menuTriggers.forEach((trigger) => {
+        trigger.setAttribute('aria-controls', 'side');
+        trigger.setAttribute('aria-expanded', 'false');
     });
-  }));
+    overlay?.setAttribute('aria-hidden', 'true');
+
+    // Delegate clicks so both the header button and the mobile bottom-bar button
+    // use the same handler, including when the navigation is initialized late.
+    document.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const openTrigger = target?.closest('[data-teacher-menu-open]');
+
+        if (openTrigger) {
+            setMenuOpen(!side.classList.contains('open'));
+            return;
+        }
+
+        if (target?.closest('[data-teacher-menu-close]')) {
+            setMenuOpen(false, true);
+            return;
+        }
+
+        const navigationLink = target?.closest('#side a.nv[href]');
+        if (navigationLink && side.classList.contains('open') && isMobileMenu()) {
+            setMenuOpen(false);
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && side.classList.contains('open')) {
+            setMenuOpen(false, true);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (!isMobileMenu()) setMenuOpen(false);
+    }, { passive: true });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootTeacherNavigation, { once: true });
+} else {
+    bootTeacherNavigation();
+}
+
+document.querySelectorAll('[data-teacher-preview]').forEach((input) => {
+    input.addEventListener('change', () => {
+        const target = document.querySelector(input.dataset.teacherPreview);
+        if (!target) return;
+
+        target.replaceChildren();
+        [...(input.files || [])].forEach((file) => {
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.textContent = file.name + ' · ' + String(Math.max(1, Math.ceil(file.size / 1024)))
+                .replace(/\\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[digit]) + ' KB';
+
+            if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(file);
+                link.href = url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'پیش‌نمایش';
+                link.addEventListener('click', () => setTimeout(() => URL.revokeObjectURL(url), 60000), { once: true });
+                chip.append(' · ', link);
+            }
+            target.appendChild(chip);
+        });
+    });
 });
 
 /* Teacher form selectors use server-side search instead of loading whole rosters. */
