@@ -17,11 +17,8 @@ class CourseMediaController extends Controller
     public function store(
         CourseMediaRequest $request,
         Course $course,
-        CourseManagementService $courses,
         CourseMediaUploadService $uploads,
     ): RedirectResponse|JsonResponse {
-        abort_unless($courses->canManage($request->user(), $course), 403);
-
         return $uploads->handle($request, $course, false);
     }
 
