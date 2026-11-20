@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Academy;
 use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\Media;
 use App\Models\Permission;
 use App\Models\Role;
@@ -171,4 +172,72 @@ class CourseMediaChunkUploadTest extends TestCase
 
         return [$owner, $course];
     }
+
+    public function test_private_video_stream_requires_the_viewers_real_course_entitlement(): void
+    {
+        Storage::fake('local');
+        $this->seed();
+
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+        $course->forceFill([
+            'status' => 'published',
+            'access_type' => 'free',
+            'published_at' => now()->subMinute(),
+        ])->save();
+
+        $student = User::factory()->create([
+            'email' => 'stream-without-enrollment-' . Str::random(8) . '@test.local',
+            'status' => 'active',
+        ]);
+        $studentRole = Role::query()->where('slug', 'student')->firstOrFail();
+        $student->roles()->attach($studentRole->id);
+        $course->academy->users()->attach($student->id, [
+            'role' => 'student',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+
+        $path = 'courses/' . $course->id . '/lesson-video.mp4';
+        Storage::disk('local')->put($path, '0123456789');
+
+        $media = Media::create([
+            'uploaded_by' => $course->created_by,
+            'disk' => 'local',
+            'path' => $path,
+            'original_name' => 'lesson-video.mp4',
+            'file_name' => 'lesson-video.mp4',
+            'mime_type' => 'video/mp4',
+            'extension' => 'mp4',
+            'size' => 10,
+            'visibility' => 'private',
+            'collection' => 'course-assets',
+            'status' => 'active',
+        ]);
+        $course->media()->attach($media->id, [
+            'collection' => 'course-assets',
+            'sort_order' => 0,
+            'is_featured' => false,
+        ]);
+
+        $streamUrl = route('courses.videos.stream', [$course, $media]);
+
+        $this->actingAs($student)
+            ->get($streamUrl)
+            ->assertForbidden();
+
+        // A valid active enrollment in the same academy unlocks the same
+        // byte-range endpoint; the change does not remove normal playback.
+        CourseEnrollment::create([
+            'course_id' => $course->id,
+            'student_id' => $student->id,
+            'status' => 'active',
+            'paid_amount' => 0,
+            'started_at' => now(),
+        ]);
+
+        $this->actingAs($student)
+            ->get($streamUrl)
+            ->assertOk();
+    }
+
 }
