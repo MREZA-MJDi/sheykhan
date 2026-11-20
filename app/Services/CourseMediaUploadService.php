@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Http\Requests\Owner\Course\CourseMediaRequest;
 use App\Models\Course;
+use App\Models\Media;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -21,19 +23,14 @@ final class CourseMediaUploadService
         bool $allowPublicCover,
     ): RedirectResponse|JsonResponse {
         $collection = $request->string('collection')->toString() ?: 'course-assets';
-        $isCover = $collection === 'course-cover';
 
         try {
-            $this->media->upload(
-                $request->file('media'),
+            $this->storeUploaded(
                 $course,
-                [
-                    'disk' => 'local',
-                    'directory' => 'courses/' . $course->id,
-                    'collection' => $collection,
-                    'visibility' => $allowPublicCover && $isCover ? 'public' : 'private',
-                    'sort_order' => $isCover ? 0 : 10,
-                ],
+                $request->file('media'),
+                $collection,
+                $allowPublicCover,
+                (int) $request->user()->id,
             );
         } catch (Throwable $exception) {
             Log::error('Course media upload failed', [
@@ -63,5 +60,33 @@ final class CourseMediaUploadService
         }
 
         return back()->with('success', 'فایل با موفقیت آپلود شد.');
+    }
+
+    /**
+     * Store a validated file from either the standard multipart form or the
+     * resumable chunk assembler. Visibility remains role-aware: only owners
+     * can publish the course cover; all other course media stays private.
+     */
+    public function storeUploaded(
+        Course $course,
+        UploadedFile $file,
+        string $collection,
+        bool $allowPublicCover,
+        int $uploadedBy,
+    ): Media {
+        $isCover = $collection === 'course-cover';
+
+        return $this->media->upload(
+            $file,
+            $course,
+            [
+                'disk' => 'local',
+                'directory' => 'courses/' . $course->id,
+                'collection' => $collection,
+                'visibility' => $allowPublicCover && $isCover ? 'public' : 'private',
+                'sort_order' => $isCover ? 0 : 10,
+                'uploaded_by' => $uploadedBy,
+            ],
+        );
     }
 }
