@@ -41,6 +41,11 @@ final class CourseLessonReviewController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            $locked->loadMissing('section');
+            abort_unless(
+                $locked->section && (int) $locked->section->course_id === (int) $course->id,
+                404,
+            );
             abort_if($locked->status === 'archived', 409);
 
             $locked->forceFill([
