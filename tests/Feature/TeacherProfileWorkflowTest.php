@@ -142,4 +142,25 @@ class TeacherProfileWorkflowTest extends TestCase
             ->assertSee('name="notification_preferences[parent_messages]"', false);
     }
 
+
+    public function test_teacher_avatar_upload_is_only_exposed_on_the_edit_profile_page(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.dashboard'))
+            ->assertOk()
+            ->assertSee(route('teacher.profile.edit'), false)
+            ->assertDontSee('name="avatar"', false);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.profile.edit'))
+            ->assertOk()
+            ->assertSee('teacher-profile-avatar-editor', false)
+            ->assertSee('name="avatar"', false)
+            ->assertSee('data-teacher-preview-input="avatar"', false);
+    }
+
 }
