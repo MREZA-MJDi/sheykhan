@@ -43,6 +43,11 @@ class CourseController extends Controller
             'course' => $course->load([
                 'academy',
                 'media' => fn ($query) => $query->orderByPivot('sort_order'),
+                'classrooms' => fn ($query) => $query
+                    ->whereHas('teachers', fn ($teachers) => $teachers->whereKey(request()->user()->id))
+                    ->withCount(['students as active_students_count' => fn ($students) => $students->wherePivot('status', 'active')])
+                    ->orderBy('title'),
+                'sections.lessons.media',
             ]),
             'academies' => $service->teacherAccessibleAcademies(request()->user()),
         ]);
