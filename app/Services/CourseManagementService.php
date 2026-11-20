@@ -105,7 +105,7 @@ final class CourseManagementService
             return false;
         }
 
-        if ($course->academy?->owner_id === $user->id && $user->hasRole('academy-owner')) {
+        if ($this->isAcademyOwner($user, $course)) {
             return true;
         }
 
@@ -123,7 +123,7 @@ final class CourseManagementService
             // A teacher's new course is always a draft for owner review. A user
             // who owns this academy keeps the owner publishing workflow.
             $isTeacherSubmission = $user->hasRole('teacher')
-                && ! ($user->hasRole('academy-owner') && (int) $academy->owner_id === (int) $user->id);
+                && ! $this->isAcademyOwner($user, $course);
             $status = $isTeacherSubmission ? 'draft' : ($data['status'] ?? 'draft');
 
             $course = $academy->courses()->create([
@@ -188,8 +188,7 @@ final class CourseManagementService
 
         return DB::transaction(function () use ($user, $course, $academy, $data): Course {
             $accessType = $data['access_type'] ?? $course->access_type;
-            $isAcademyOwner = $user->hasRole('academy-owner')
-                && (int) $academy->owner_id === (int) $user->id;
+            $isAcademyOwner = $this->isAcademyOwner($user, $course);
             $isTeacherSubmission = $user->hasRole('teacher') && ! $isAcademyOwner;
             $status = $isTeacherSubmission
                 ? $course->status
@@ -240,7 +239,7 @@ final class CourseManagementService
      */
     public function archive(User $user, Course $course): void
     {
-        abort_unless($this->canManage($user, $course), 403);
+        abort_unless($this->isAcademyOwner($user, $course), 403);
 
         DB::transaction(function () use ($course): void {
             $locked = Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
@@ -267,7 +266,7 @@ final class CourseManagementService
     /** Restore an archived course as a draft; never republish it silently. */
     public function restoreArchived(User $user, Course $course): void
     {
-        abort_unless($this->canManage($user, $course), 403);
+        abort_unless($this->isAcademyOwner($user, $course), 403);
 
         if ($course->status !== 'archived') {
             return;
@@ -368,6 +367,15 @@ final class CourseManagementService
             ->with('academy:id,name')
             ->latest()
             ->get();
+    }
+
+
+    private function isAcademyOwner(User $user, Course $course): bool
+    {
+        $course->loadMissing('academy');
+
+        return $user->hasRole('academy-owner')
+            && (int) $course->academy?->owner_id === (int) $user->id;
     }
 
     private function isActiveTeacherMember(User $user, int $academyId): bool
