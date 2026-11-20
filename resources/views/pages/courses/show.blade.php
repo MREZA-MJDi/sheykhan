@@ -371,6 +371,45 @@
                     </aside>
                 </div>
 
+                @if(($courseVideos ?? collect())->isNotEmpty())
+                    <section class="mt-14 sm:mt-16" aria-labelledby="course-videos-title">
+                        <div class="max-w-3xl">
+                            <span class="text-xs font-black text-[var(--color-primary-600)]">ویدئوهای آموزشی</span>
+                            <h2 id="course-videos-title" class="mt-2 text-2xl font-black tracking-tight text-[var(--color-text)] sm:text-3xl">
+                                ویدئوهای این دوره
+                            </h2>
+                            <p class="mt-3 text-sm leading-7 text-[var(--color-text-secondary)]">
+                                پخش آنلاین ویدئوها در همین صفحه انجام می‌شود.
+                            </p>
+                        </div>
+
+                        <div class="mt-7 grid gap-6 lg:grid-cols-2">
+                            @foreach($courseVideos as $video)
+                                <article class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_8px_28px_rgba(15,23,42,.06)]">
+                                    <div class="aspect-video bg-black">
+                                        <video
+                                            class="h-full w-full"
+                                            controls
+                                            playsinline
+                                            preload="metadata"
+                                            aria-label="پخش ویدئوی {{ $video->original_name }}"
+                                        >
+                                            <source
+                                                src="{{ route('courses.videos.stream', [$course, $video]) }}"
+                                                type="{{ $video->mime_type }}"
+                                            >
+                                            مرورگر شما از پخش این ویدئو پشتیبانی نمی‌کند.
+                                        </video>
+                                    </div>
+                                    <div class="px-4 py-3">
+                                        <h3 class="truncate text-sm font-bold text-[var(--color-text)]">{{ $video->original_name }}</h3>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
                 {{-- Curriculum --}}
                 <section
                     class="mt-14 sm:mt-16"
