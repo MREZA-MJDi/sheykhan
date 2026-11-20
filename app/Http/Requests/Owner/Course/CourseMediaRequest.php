@@ -12,9 +12,18 @@ class CourseMediaRequest extends FormRequest
         /** @var Course|null $course */
         $course = $this->route('course');
 
-        return $course
-            && $this->user()
-            && app(\App\Services\CourseManagementService::class)->canManage($this->user(), $course);
+        if (! $course || ! $this->user()) {
+            return false;
+        }
+
+        $courses = app(\App\Services\CourseManagementService::class);
+
+        if (! $courses->canManage($this->user(), $course)) {
+            return false;
+        }
+
+        return $this->input('collection') !== 'course-cover'
+            || ($this->routeIs('owner.*') && $courses->isAcademyOwner($this->user(), $course));
     }
 
     public function rules(): array
