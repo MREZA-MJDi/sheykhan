@@ -59,7 +59,7 @@
                             <strong class="teacher-workspace-item-title">{{ $lesson->title }}</strong>
                             <div class="teacher-workspace-item-meta">
                                 <span>{{ match($lesson->type) { 'video' => 'ویدیویی', 'text' => 'متنی', 'file' => 'فایلی', 'quiz' => 'کوئیز', 'live' => 'جلسه زنده', default => 'نوع نامشخص' } }}</span>
-                                <span>{{ $lesson->status === 'published' ? 'منتشرشده' : 'در انتظار تأیید مالک' }}</span>
+                                <span>{{ match($lesson->status) { 'published' => 'منتشرشده', 'archived' => 'آرشیوشده', default => 'در انتظار تأیید مالک' } }}</span>
                                 <span>{{ App\Support\PersianUi::digits((int)($lesson->duration_seconds ?? 0)) }} ثانیه</span>
                                 @if($lesson->media->isNotEmpty())<span>{{ App\Support\PersianUi::digits($lesson->media->count()) }} فایل</span>@endif
                             </div>
