@@ -81,7 +81,7 @@ class CourseMediaChunkUploadTest extends TestCase
             ->postJson($completeUrl)
             ->assertOk()
             ->assertJsonPath('message', 'فایل با موفقیت دریافت و ذخیره شد.')
-            ->assertJsonPath('media_id', fn ($id) => is_int($id) || ctype_digit((string) $id));
+            ->assertJsonStructure(['media_id', 'redirect_url']);
 
         $media = Media::query()
             ->where('original_name', 'course-handout.pdf')
