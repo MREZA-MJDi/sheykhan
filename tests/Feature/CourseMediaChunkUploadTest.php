@@ -258,4 +258,77 @@ class CourseMediaChunkUploadTest extends TestCase
         Storage::disk('local')->assertMissing($directory . '/chunks/000000.part');
     }
 
+
+    public function test_role_on_another_academy_cannot_publish_or_delete_this_courses_cover(): void
+    {
+        Storage::fake('local');
+
+        [$academyOwner, $course] = $this->ownerWorkspace();
+        $ownerRole = Role::query()->where('slug', 'academy-owner')->firstOrFail();
+        $teacherRole = Role::query()->firstOrCreate(
+            ['slug' => 'teacher'],
+            ['name' => 'مدرس', 'description' => 'Teacher'],
+        );
+        $mediaManage = Permission::query()->firstOrCreate(
+            ['name' => 'media.manage'],
+            ['label' => 'media.manage', 'group' => 'media'],
+        );
+        $ownerRole->permissions()->syncWithoutDetaching([$mediaManage->id]);
+
+        $crossAcademyUser = User::factory()->create([
+            'email' => 'cross-owner-teacher-' . Str::random(8) . '@test.local',
+        ]);
+        $crossAcademyUser->roles()->attach([$ownerRole->id, $teacherRole->id]);
+
+        Academy::create([
+            'owner_id' => $crossAcademyUser->id,
+            'name' => 'آموزشگاه دیگر',
+            'slug' => 'other-academy-' . Str::random(8),
+            'status' => 'active',
+        ]);
+
+        $course->academy->users()->attach($crossAcademyUser->id, [
+            'role' => 'teacher',
+            'status' => 'active',
+            'joined_at' => now(),
+        ]);
+        $course->teachers()->attach($crossAcademyUser->id, ['is_primary' => false]);
+
+        $this->actingAs($crossAcademyUser)
+            ->post(route('owner.courses.media.store', $course), [
+                'collection' => 'course-cover',
+                'media' => UploadedFile::fake()->image('cover.jpg'),
+            ])
+            ->assertForbidden();
+
+        $media = Media::create([
+            'uploaded_by' => $academyOwner->id,
+            'disk' => 'local',
+            'path' => 'courses/' . $course->id . '/public-cover.jpg',
+            'original_name' => 'public-cover.jpg',
+            'file_name' => 'public-cover.jpg',
+            'mime_type' => 'image/jpeg',
+            'extension' => 'jpg',
+            'size' => 1,
+            'visibility' => 'public',
+            'collection' => 'course-cover',
+            'status' => 'active',
+        ]);
+        $course->media()->attach($media->id, [
+            'collection' => 'course-cover',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($crossAcademyUser)
+            ->delete(route('teacher.courses.media.destroy', [$course, $media]))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('media', [
+            'id' => $media->id,
+            'visibility' => 'public',
+            'collection' => 'course-cover',
+        ]);
+    }
+
 }
