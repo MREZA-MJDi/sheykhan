@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Notifications\TeacherLessonSubmittedForReview;
 use App\Models\ClassSchedule;
 use App\Models\LiveClass;
 use App\Models\ProtectedLearningMediaView;
@@ -70,6 +71,33 @@ class DashboardController extends Controller
                 'url' => route('owner.classrooms.index', $firstAcademy),
                 'color' => '#22d3ee',
             ];
+        }
+
+        // Keep teacher lesson-review alerts in the existing owner bell menu.
+        // Notifications are delivered only to the owner of the course academy.
+        if ($owner->hasPermission('courses.view') && Schema::hasTable('notifications')) {
+            $reviewNotifications = $owner->unreadNotifications()
+                ->where('type', TeacherLessonSubmittedForReview::class)
+                ->latest()
+                ->limit(10)
+                ->get();
+
+            foreach ($reviewNotifications as $notification) {
+                $lessonTitle = (string) data_get($notification->data, 'lesson_title', 'درس آموزشی');
+                $courseTitle = (string) data_get($notification->data, 'course_title', 'دوره آموزشی');
+                $courseId = (int) data_get($notification->data, 'course_id', 0);
+
+                if ($courseId < 1) {
+                    continue;
+                }
+
+                $data['notifications'][] = [
+                    'title' => 'درس نیازمند تأیید',
+                    'detail' => '«' . $lessonTitle . '» در دوره «' . $courseTitle . '» منتظر بازبینی شماست.',
+                    'url' => route('owner.courses.show', $courseId),
+                    'color' => '#d97706',
+                ];
+            }
         }
 
         // Do not cache recent login events with the KPI aggregate; owners need this to refresh promptly.
