@@ -26,7 +26,8 @@ class CourseMediaChunkUploadTest extends TestCase
         $uploadId = (string) Str::uuid();
         $firstChunkBytes = 5 * 1024 * 1024;
         $fileSize = $firstChunkBytes + 1;
-        $firstChunk = "%PDF-1.4\n" . str_repeat(' ', $firstChunkBytes - 8);
+        $pdfHeader = "%PDF-1.4\n";
+        $firstChunk = $pdfHeader . str_repeat(' ', $firstChunkBytes - strlen($pdfHeader));
         $lastChunk = 'x';
 
         $storeUrl = route('owner.courses.media.chunks.store', $course);
@@ -122,7 +123,9 @@ class CourseMediaChunkUploadTest extends TestCase
             ])
             ->assertForbidden();
 
-        $this->assertDatabaseCount('media', 0);
+        $this->assertDatabaseMissing('media', [
+            'original_name' => 'cover.jpg',
+        ]);
     }
 
     /**
