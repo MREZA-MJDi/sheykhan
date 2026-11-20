@@ -10,6 +10,7 @@ use App\Http\Controllers\Owner\AcademyController as OwnerAcademyController;
 use App\Http\Controllers\Owner\ClassroomController as OwnerClassroomController;
 use App\Http\Controllers\Owner\CourseController as OwnerCourseController;
 use App\Http\Controllers\Owner\CourseMediaController as OwnerCourseMediaController;
+use App\Http\Controllers\Owner\CourseLessonReviewController as OwnerCourseLessonReviewController;
 use App\Http\Controllers\Owner\DashboardController as OwnerDashboard;
 use App\Http\Controllers\Owner\AttendanceController as OwnerAttendanceController;
 use App\Http\Controllers\Owner\MeetingController as OwnerMeetingController;
@@ -183,6 +184,7 @@ Route::middleware(['auth','active','role:academy-owner','owner.cache.invalidate'
     Route::patch('/courses/{course}', [OwnerCourseController::class, 'update'])->middleware('permission:courses.manage')->name('courses.update');
     Route::patch('/courses/{course}/archive', [OwnerCourseController::class, 'archive'])->middleware('permission:courses.manage')->name('courses.archive');
     Route::patch('/courses/{course}/restore', [OwnerCourseController::class, 'restore'])->middleware('permission:courses.manage')->name('courses.restore');
+    Route::patch('/courses/{course}/lessons/{lesson}/publish', [OwnerCourseLessonReviewController::class, 'publish'])->middleware('permission:courses.manage')->name('courses.lessons.publish');
     Route::post('/courses/{course}/media', [OwnerCourseMediaController::class, 'store'])->middleware('permission:media.upload')->name('courses.media.store');
     Route::post('/courses/{course}/media/chunks', [CourseMediaChunkController::class, 'store'])->middleware(['permission:media.upload','throttle:180,1'])->name('courses.media.chunks.store');
     Route::get('/courses/{course}/media/chunks/{uploadId}', [CourseMediaChunkController::class, 'status'])->whereUuid('uploadId')->middleware(['permission:media.upload','throttle:120,1'])->name('courses.media.chunks.status');
