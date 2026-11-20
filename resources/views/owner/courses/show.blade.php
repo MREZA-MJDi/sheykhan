@@ -93,7 +93,7 @@
                                     <div class="min-w-0">
                                         <span class="block truncate text-xs font-semibold">{{ $lesson->title }}</span>
                                         <span class="mt-1 block text-[9px] {{ $lesson->status==='published'?'text-[var(--color-success-700)]':'text-amber-700' }}">
-                                            {{ $lesson->status==='published' ? 'منتشرشده' : 'در انتظار بازبینی مالک' }}
+                                            {{ match($lesson->status) { 'published' => 'منتشرشده', 'archived' => 'آرشیوشده', default => 'در انتظار بازبینی مالک' } }}
                                         </span>
                                     </div>
                                     @if($lesson->status === 'draft' && $course->status !== 'archived')
