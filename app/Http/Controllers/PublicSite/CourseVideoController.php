@@ -18,7 +18,6 @@ final class CourseVideoController extends Controller
         Course $course,
         Media $media,
         CourseCatalogService $catalog,
-        CourseAccessService $access,
         CourseVideoStreamService $stream,
     ): StreamedResponse {
         $course = $catalog->findPublished($course);
@@ -41,11 +40,9 @@ final class CourseVideoController extends Controller
         $user = $request->user();
         abort_unless($user && $user->status === 'active', 403);
 
-        // Free-course videos are available to every active signed-in account.
-        // Paid-course access remains subject to the existing enrollment policy.
-        if (! $course->isFree()) {
-            abort_unless(! $user->hasRole('parent') && $access->canAccess($user, $course), 403);
-        }
+        // This endpoint is deliberately limited to free courses. Paid-course
+        // video delivery remains on the protected SpotPlayer workflow.
+        abort_unless($course->isFree(), 403);
 
         return $stream->stream($media, $request);
     }
