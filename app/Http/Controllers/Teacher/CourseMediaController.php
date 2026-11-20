@@ -9,6 +9,9 @@ use App\Models\Media;
 use App\Services\CourseManagementService;
 use App\Services\MediaService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class CourseMediaController extends Controller
 {
