@@ -412,7 +412,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="course-upload-box" data-upload-form data-max-bytes="524288000">
+                <form method="POST" action="{{ route($routePrefix.'.media.store',$course) }}" enctype="multipart/form-data" class="course-upload-box" data-upload-form data-max-bytes="524288000" data-chunk-upload="true" data-chunk-url="{{ route($routePrefix.'.media.chunks.store', $course) }}" data-chunk-status-url="{{ route($routePrefix.'.media.chunks.status', ['course' => $course, 'uploadId' => 'UPLOAD_ID']) }}" data-chunk-complete-url="{{ route($routePrefix.'.media.chunks.complete', ['course' => $course, 'uploadId' => 'UPLOAD_ID']) }}">
                     @csrf
                     <input type="hidden" name="collection" value="course-assets">
                     <label class="course-file-input">
@@ -435,15 +435,18 @@
                         </div>
                     </div>
 
-                    <div class="course-upload-progress" data-upload-progress hidden>
+                    <section class="course-upload-progress" data-upload-progress-ui hidden aria-live="polite">
                         <div class="course-upload-progress-head">
-                            <span>در حال آپلود</span>
-                            <strong data-upload-percent>۰٪</strong>
+                            <span data-upload-progress-message>در انتظار ارسال فایل…</span>
+                            <strong data-upload-progress-percent data-upload-percent>۰٪</strong>
                         </div>
-                        <div class="course-progress-track"><span data-upload-progress-bar></span></div>
-                    </div>
-
-                    <p class="course-upload-status" data-upload-message aria-live="polite"></p>
+                        <div class="course-progress-track" data-upload-progress-track role="progressbar" aria-label="پیشرفت بارگذاری فایل" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span data-upload-progress-bar></span></div>
+                        <p class="course-upload-status" data-upload-message data-upload-progress-status aria-live="polite"></p>
+                        <p data-upload-progress-eta class="mt-1 text-[10px] text-slate-500" aria-live="polite"></p>
+                        <p data-upload-summary class="mt-1 text-[10px] text-slate-500"></p>
+                        <ul data-upload-file-list class="mt-2 grid gap-1 text-xs" role="list"></ul>
+                        <p data-upload-progress-error hidden class="mt-2 text-xs font-semibold text-rose-600" role="alert"></p>
+                    </section>
                     <button type="submit" class="course-action-btn primary">آپلود فایل</button>
                 </form>
             </div>
