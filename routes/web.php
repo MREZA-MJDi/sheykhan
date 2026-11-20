@@ -94,6 +94,9 @@ Route::get('/media/{media}/public', [MediaController::class, 'servePublic'])->na
 Route::middleware(['auth','active'])->group(function () {
     Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/courses/{course}/videos/{media}/stream', [CourseVideoController::class, 'stream'])
+        ->whereNumber(['course', 'media'])
+        ->name('courses.videos.stream');
     Route::get('/media/{media}/view', [MediaController::class, 'view'])
         ->middleware('permission:media.view')
         ->name('media.view');
