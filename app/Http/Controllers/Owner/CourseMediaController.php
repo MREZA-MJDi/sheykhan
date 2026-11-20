@@ -19,7 +19,7 @@ class CourseMediaController extends Controller
         Course $course,
         CourseManagementService $courses,
         MediaService $media,
-    ): RedirectResponse {
+    ): RedirectResponse|JsonResponse {
         abort_unless($courses->canManage($request->user(), $course), 403);
 
         try {
@@ -43,8 +43,8 @@ class CourseMediaController extends Controller
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => 'آپلود فایل انجام نشد. فایل را بررسی و دوباره تلاش کنید.',
-                ], 422);
+                    'message' => 'ذخیره فایل در سرور انجام نشد. تنظیمات فضای ذخیره‌سازی و گزارش خطا را بررسی کنید.',
+                ], 500);
             }
 
             return back()->with('error', 'آپلود فایل انجام نشد. فایل را بررسی و دوباره تلاش کنید.');
@@ -53,6 +53,7 @@ class CourseMediaController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'فایل با موفقیت آپلود شد.',
+                'redirect_url' => route('owner.courses.edit', $course),
             ]);
         }
 
