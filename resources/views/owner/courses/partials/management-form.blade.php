@@ -208,12 +208,19 @@
     }"
     class="course-form-shell space-y-6"
 >
+    <nav class="grid grid-cols-2 gap-2 rounded-2xl border border-[var(--color-border)] bg-white p-2 sm:grid-cols-5" aria-label="مراحل مدیریت دوره">
+        <a href="#course-step-basics" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-brand-600)] text-white">۱</span><span>اطلاعات پایه</span></a>
+        <a href="#course-step-media" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۲</span><span>تصویر و فایل‌ها</span></a>
+        <a href="#course-step-classrooms" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۳</span><span>کلاس‌ها</span></a>
+        <a href="#course-step-lessons" class="flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)]"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۴</span><span>درس و ویدئو</span></a>
+        <a href="#course-step-publish" class="col-span-2 flex min-h-12 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-[var(--color-text)] transition hover:bg-[var(--color-background-soft)] sm:col-span-1"><span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--color-background-soft)]">۵</span><span>بازبینی و انتشار</span></a>
+    </nav>
     <form method="POST" action="{{ $action }}" class="space-y-6" @submit="syncPrice(); if (!syncPublishedAt()) $event.preventDefault()">
         @csrf
         @if($method !== 'POST') @method($method) @endif
 
         <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-            <section class="panel-card p-5 sm:p-7">
+            <section id="course-step-basics" class="scroll-mt-6 panel-card p-5 sm:p-7">
                 <div class="course-section-heading">
                     <div class="course-step">۱</div>
                     <div>
@@ -338,9 +345,9 @@
                     </div>
                 </section>
 
-                <section class="panel-card p-5">
+                <section id="course-step-publish" class="scroll-mt-6 panel-card p-5">
                     <div class="course-section-heading compact">
-                        <div class="course-step">۳</div>
+                        <div class="course-step">۲</div>
                         <div><span>انتشار</span><h2>چه زمانی دیده شود؟</h2></div>
                     </div>
 
@@ -392,9 +399,9 @@
         @php
             $publicCourseCover = $course->media->first(fn ($media) => $media->pivot?->collection === 'course-cover' && $media->visibility === 'public' && str_starts_with((string) $media->mime_type, 'image/'));
         @endphp
-        <section class="panel-card space-y-4 p-5 sm:p-7">
+        <section id="course-step-media" class="scroll-mt-6 panel-card space-y-4 p-5 sm:p-7">
             <div class="course-section-heading compact">
-                <div class="course-step">۴</div>
+                <div class="course-step">۲</div>
                 <div>
                     <span>تصویر عمومی</span>
                     <h2>کاور کارت دوره</h2>
@@ -438,7 +445,7 @@
                 </div>
             </div>
         </section>
-        <section class="panel-card p-5 sm:p-7" data-media-uploader>
+        <section id="course-step-private-files" class="scroll-mt-6 panel-card p-5 sm:p-7" data-media-uploader>
             <div class="course-media-head">
                 <div>
                     <div class="course-section-heading compact">
@@ -523,4 +530,6 @@
             </div>
         </section>
     @endif
+
+    @include('shared.course-management-workflow', ['course' => $course, 'routePrefix' => $routePrefix])
 </div>
