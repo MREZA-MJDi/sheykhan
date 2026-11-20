@@ -1,7 +1,7 @@
 @php
     $isEdit = $course->exists;
     $currentAccess = old('access_type',$course->access_type ?: 'paid');
-    $currentStatus = old('status',$course->status ?: 'draft');
+    $currentStatus = $course->exists ? ($course->status ?: 'draft') : 'draft';
     $oldSlugWasProvided = old('slug') !== null && old('slug') !== '';
     $initialPrice = old('price', $course->price !== null ? (string) $course->price : '');
     $initialPublishedAt = old(
@@ -359,29 +359,9 @@
                         </div>
                     </div>
 
-                    <label class="course-field mt-5">
-                        <span class="course-label">وضعیت <b>*</b></span>
-                        <select name="status" x-model="status" class="course-input">
-                            <option value="draft">پیش‌نویس</option>
-                            <option value="published">منتشرشده</option>
-                            <option value="archived">آرشیو</option>
-                        </select>
-                        @error('status')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
-                    </label>
-
-                    <div x-show="status === 'published'" x-cloak class="mt-5">
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="course-label">تاریخ انتشار <small>شمسی</small></span>
-                            <button type="button" class="course-date-now" @click="setNow()">همین الان</button>
-                        </div>
-                        <div class="mt-2 grid gap-2 sm:grid-cols-[1fr_7.5rem]">
-                            <input type="text" data-jalali-visible-date x-model="publishedDate" dir="ltr" inputmode="numeric" maxlength="10" placeholder="۱۴۰۵/۰۷/۰۲" class="course-input text-left" aria-label="تاریخ انتشار شمسی">
-                            <input type="text" x-model="publishedTime" dir="ltr" inputmode="numeric" maxlength="5" placeholder="۱۸:۳۰" class="course-input text-left" aria-label="ساعت انتشار">
-                        </div>
-                        <input x-ref="publishedAt" type="hidden" name="published_at" value="{{ $initialPublishedAt }}">
-                        <span class="course-help">تاریخ را شمسی وارد کن؛ سیستم مقدار استاندارد میلادی را برای ذخیره‌سازی تبدیل می‌کند. برای انتشار فوری، «همین الان» را بزن.</span>
-                        <p x-show="dateError" x-text="dateError" class="course-inline-error"></p>
-                        @error('published_at')<p role="alert" class="text-xs font-semibold text-[var(--color-danger-600)]">{{ $message }}</p>@enderror
+                    <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-7 text-amber-900" role="note">
+                        <strong>انتشار با تأیید مالک آموزشگاه انجام می‌شود.</strong>
+                        <p class="mt-1">ذخیره این فرم فقط اطلاعات دوره را ثبت یا به‌روزرسانی می‌کند. مدرس نمی‌تواند دوره را مستقیماً منتشر یا آرشیو کند؛ وضعیت انتشار توسط مالک آموزشگاه مدیریت می‌شود.</p>
                     </div>
                 </section>
 
