@@ -5,7 +5,6 @@ namespace App\Http\Controllers\PublicSite;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Media;
-use App\Services\CourseAccessService;
 use App\Services\CourseCatalogService;
 use App\Services\CourseVideoStreamService;
 use Illuminate\Http\Request;
