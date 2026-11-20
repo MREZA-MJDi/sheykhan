@@ -67,7 +67,7 @@ class SeoSpecialistAccessTest extends TestCase
             ->assertSee('توضیحات SEO اختصاصی تنظیم نشده')
             ->assertSee('robots.txt')
             ->assertSee('owner-admin-v2', false)
-            ->assertSee('سایت و SEO')
+            ->assertSee('سایت و نمایش در گوگل')
             ->assertSee('آکادمی شیخان')
             ->assertSee('SEO و محتوای عمومی')
             ->assertDontSee('role-sidebar owner-sidebar', false)
