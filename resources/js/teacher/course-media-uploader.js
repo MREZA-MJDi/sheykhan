@@ -3,7 +3,7 @@
 const size=(bytes)=>{const units=['بایت','کیلوبایت','مگابایت','گیگابایت'];let n=Math.max(0,Number(bytes)||0),i=0;while(n>=1024&&i<units.length-1){n/=1024;i++;}return new Intl.NumberFormat('fa-IR',{maximumFractionDigits:i?1:0}).format(n)+' '+units[i];};
 const maxBytes=(file)=>{const ext=(file.name.split('.').pop()||'').toLowerCase();const limits={jpg:10,jpeg:10,png:10,webp:10,pdf:50,zip:200,mp4:500,webm:500,mov:500};return (limits[ext]||10)*1024*1024;};
 document.querySelectorAll('[data-media-uploader]').forEach((wrapper)=>{
- const form=wrapper.querySelector('form[data-upload-form]');if(!form||form.dataset.teacherUploaderBound==='1')return;form.dataset.teacherUploaderBound='1';
+ const form=wrapper.querySelector('form[data-upload-form]');if(!form||form.dataset.teacherUploaderBound==='1'||form.dataset.chunkUpload==='true')return;form.dataset.teacherUploaderBound='1';
  const input=form.querySelector('input[type=file]'),preview=wrapper.querySelector('[data-upload-preview]'),image=wrapper.querySelector('[data-preview-image]'),video=wrapper.querySelector('[data-preview-video]'),generic=wrapper.querySelector('[data-preview-generic]'),name=wrapper.querySelector('[data-preview-name]'),sizeLabel=wrapper.querySelector('[data-preview-size]'),progress=wrapper.querySelector('.course-upload-progress'),bar=wrapper.querySelector('[data-upload-progress-bar]'),percent=wrapper.querySelector('[data-upload-percent]'),message=wrapper.querySelector('[data-upload-message]'),submit=form.querySelector('[type=submit]');
  let objectUrl=null;
  const showError=(text)=>{if(message){message.textContent=text;message.classList.add('is-error');}};
