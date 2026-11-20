@@ -40,7 +40,7 @@ class CourseController extends Controller
 
         // Only free-course videos use the authenticated native player. Paid course
         // videos keep their existing protected SpotPlayer delivery path.
-        $courseVideos = $request->user() && $course->isFree()
+        $courseVideos = $request->user()?->status === 'active' && $course->isFree()
             ? $service->videosFor($course)
             : collect();
 
