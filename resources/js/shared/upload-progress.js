@@ -5,13 +5,36 @@ const sizeLabel = bytes => {
     return new Intl.NumberFormat('fa-IR',{maximumFractionDigits:unit?1:0}).format(value)+' '+units[unit];
 };
 const fa = value => String(value).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+const previewUrls = new WeakMap();
 const getFiles = form => Array.from(form.querySelectorAll('input[type=file]')).flatMap(input=>Array.from(input.files||[]));
 const render = form => {
-    const panel=form.querySelector('[data-upload-progress-ui]'); if(!panel)return;
-    const list=panel.querySelector('[data-upload-file-list]'),summary=panel.querySelector('[data-upload-summary]');
-    const files=getFiles(form); list?.replaceChildren();
-    if(!files.length){panel.hidden=true;return;}
-    panel.hidden=false; let total=0;
+    const panel=form.querySelector('[data-upload-progress-ui]');
+    const list=panel?.querySelector('[data-upload-file-list]'),summary=panel?.querySelector('[data-upload-summary]');
+    const input=form.querySelector('input[type=file]');
+    const files=getFiles(form);
+    list?.replaceChildren();
+
+    const previousUrl=previewUrls.get(form);
+    if(previousUrl){URL.revokeObjectURL(previousUrl);previewUrls.delete(form);}
+
+    const preview=form.querySelector('[data-upload-preview]');
+    const image=preview?.querySelector('[data-preview-image]');
+    const video=preview?.querySelector('[data-preview-video]');
+    const generic=preview?.querySelector('[data-preview-generic]');
+    const previewName=preview?.querySelector('[data-preview-name]');
+    const previewSize=preview?.querySelector('[data-preview-size]');
+
+    if(!files.length){
+        if(panel)panel.hidden=true;
+        if(preview)preview.hidden=true;
+        if(image){image.hidden=true;image.removeAttribute('src');}
+        if(video){video.pause?.();video.hidden=true;video.removeAttribute('src');}
+        if(generic)generic.hidden=true;
+        return;
+    }
+
+    if(panel)panel.hidden=false;
+    let total=0;
     files.forEach(file=>{
         total+=file.size;
         const row=document.createElement('div');row.dataset.uploadFileRow='true';row.setAttribute('role','listitem');
@@ -22,6 +45,29 @@ const render = form => {
         copy.append(name,size);row.append(icon,copy);list?.append(row);
     });
     if(summary)summary.textContent=fa(files.length)+' فایل انتخاب شده · مجموع '+sizeLabel(total);
+
+    const file=files[0];
+    if(preview){
+        preview.hidden=false;
+        if(previewName)previewName.textContent=file.name;
+        if(previewSize)previewSize.textContent=sizeLabel(file.size);
+        if(image){image.hidden=true;image.removeAttribute('src');}
+        if(video){video.pause?.();video.hidden=true;video.removeAttribute('src');}
+        if(generic)generic.hidden=true;
+
+        if(file.type.startsWith('image/')&&image){
+            const url=URL.createObjectURL(file);
+            previewUrls.set(form,url);
+            image.src=url;image.hidden=false;
+            image.onload=()=>{if(previewUrls.get(form)===url){URL.revokeObjectURL(url);previewUrls.delete(form);}};
+        }else if(file.type.startsWith('video/')&&video&&file.size<=100*1024*1024){
+            const url=URL.createObjectURL(file);
+            previewUrls.set(form,url);
+            video.src=url;video.hidden=false;video.preload='metadata';
+        }else if(generic){
+            generic.hidden=false;
+        }
+    }
 };
 const paint=(panel,pct,message)=>{
     const value=Math.max(0,Math.min(100,Math.round(pct)));
@@ -85,6 +131,9 @@ const uploadChunks=async(form,panel)=>{
     const files=getFiles(form);
     if(files.length!==1)throw new Error('برای آپلود تکه‌ای، هر بار فقط یک فایل انتخاب کن.');
     const file=files[0];
+    const maxBytes=Number(form.dataset.maxBytes||0);
+    if(maxBytes>0&&file.size>maxBytes)throw new Error('حجم فایل نباید بیشتر از '+sizeLabel(maxBytes)+' باشد.');
+    if(file.size<1)throw new Error('فایل خالی است؛ یک فایل معتبر انتخاب کن.');
     const chunkBytes=5*1024*1024;
     const totalChunks=Math.ceil(file.size/chunkBytes);
     const collection=form.querySelector('[name=collection]')?.value||'course-assets';
