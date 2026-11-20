@@ -20,7 +20,7 @@ class CourseMediaChunkUploadRequest extends FormRequest
         }
 
         return $this->input('collection') !== 'course-cover'
-            || ($this->routeIs('owner.*') && $user->hasRole('academy-owner'));
+            || ($this->routeIs('owner.*') && app(CourseManagementService::class)->isAcademyOwner($user, $course));
     }
 
     public function rules(): array
