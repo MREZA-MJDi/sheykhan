@@ -23,7 +23,7 @@ final class CourseVideoController extends Controller
 
         abort_unless(
             $media->status === 'active'
-            && str_starts_with(strtolower((string) $media->mime_type), 'video/')
+            && in_array(strtolower((string) $media->mime_type), ['video/mp4', 'video/webm'], true)
             && in_array(strtolower((string) $media->extension), ['mp4', 'webm'], true),
             404
         );
