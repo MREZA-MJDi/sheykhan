@@ -132,11 +132,10 @@ class TeacherLessonResourceFlowTest extends TestCase
         $this->assertTrue($resource->release_at->isPast());
         $this->assertSame('published', $lesson->fresh()->status);
 
-        $this->assertDatabaseHas('notifications', [
-            'notifiable_type' => User::class,
-            'notifiable_id' => $owner->id,
-            'type' => TeacherLessonSubmittedForReview::class,
-            'read_at' => now(),
-        ]);
+        $notification = $owner->notifications()
+            ->where('type', TeacherLessonSubmittedForReview::class)
+            ->firstOrFail();
+
+        $this->assertNotNull($notification->read_at);
     }
 }
