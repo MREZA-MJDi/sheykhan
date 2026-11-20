@@ -81,8 +81,12 @@ class CourseVideoStreamServiceTest extends TestCase
     private function responseBody($response): string
     {
         ob_start();
+        ob_start();
         $response->sendContent();
 
-        return (string) ob_get_clean();
+        $inner = (string) ob_get_clean();
+        $outer = (string) ob_get_clean();
+
+        return $outer . $inner;
     }
 }
