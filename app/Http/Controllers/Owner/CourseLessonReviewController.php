@@ -41,6 +41,8 @@ final class CourseLessonReviewController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            abort_if($locked->status === 'archived', 409);
+
             $locked->forceFill([
                 'status' => 'published',
                 'published_at' => now(),
