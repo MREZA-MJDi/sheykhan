@@ -240,4 +240,22 @@ class CourseMediaChunkUploadTest extends TestCase
             ->assertOk();
     }
 
+
+    public function test_expired_resumable_upload_chunks_are_pruned_by_the_scheduled_command(): void
+    {
+        Storage::fake('local');
+        $directory = 'course-upload-chunks/9/12/' . Str::uuid();
+
+        Storage::disk('local')->put($directory . '/metadata.json', json_encode([
+            'expires_at' => now()->subMinute()->timestamp,
+        ], JSON_THROW_ON_ERROR));
+        Storage::disk('local')->put($directory . '/chunks/000000.part', 'partial');
+
+        $this->artisan('course-media-uploads:prune --force')
+            ->assertExitCode(0);
+
+        Storage::disk('local')->assertMissing($directory . '/metadata.json');
+        Storage::disk('local')->assertMissing($directory . '/chunks/000000.part');
+    }
+
 }
