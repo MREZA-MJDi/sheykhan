@@ -37,7 +37,7 @@ final class CourseMediaChunkController extends Controller
     ): JsonResponse {
         $this->authorizeCourse($request, $course, $courses);
         $result = $uploads->status($request->user(), $course, $uploadId);
-        $this->authorizeCollection($request, (string) $result['collection']);
+        $this->authorizeCollection($request, $course, (string) $result['collection'], $courses);
 
         return response()->json($result);
     }
@@ -53,13 +53,13 @@ final class CourseMediaChunkController extends Controller
 
         try {
             $status = $uploads->status($request->user(), $course, $uploadId);
-            $this->authorizeCollection($request, (string) $status['collection']);
+            $this->authorizeCollection($request, $course, (string) $status['collection'], $courses);
 
             $media = $uploads->complete(
                 $request->user(),
                 $course,
                 $uploadId,
-                $this->allowPublicCover($request),
+                $this->allowPublicCover($request, $course, $courses),
             );
         } catch (Throwable $exception) {
             Log::error('Chunked course media upload finalization failed', [
@@ -91,6 +91,8 @@ final class CourseMediaChunkController extends Controller
         CourseMediaChunkUploadService $uploads,
     ): JsonResponse {
         $this->authorizeCourse($request, $course, $courses);
+        $status = $uploads->status($request->user(), $course, $uploadId);
+        $this->authorizeCollection($request, $course, (string) $status['collection'], $courses);
         $uploads->abort($request->user(), $course, $uploadId);
 
         return response()->json(['message' => 'آپلود نیمه‌تمام پاک شد.']);
@@ -101,17 +103,24 @@ final class CourseMediaChunkController extends Controller
         abort_unless($request->user() && $courses->canManage($request->user(), $course), 403);
     }
 
-    private function authorizeCollection(Request $request, string $collection): void
-    {
+    private function authorizeCollection(
+        Request $request,
+        Course $course,
+        string $collection,
+        CourseManagementService $courses,
+    ): void {
         abort_if(
             $collection === 'course-cover'
-                && (! $request->routeIs('owner.*') || ! $request->user()->hasRole('academy-owner')),
+                && (! $request->routeIs('owner.*') || ! $courses->isAcademyOwner($request->user(), $course)),
             403,
         );
     }
 
-    private function allowPublicCover(Request $request): bool
-    {
-        return $request->routeIs('owner.*') && $request->user()->hasRole('academy-owner');
+    private function allowPublicCover(
+        Request $request,
+        Course $course,
+        CourseManagementService $courses,
+    ): bool {
+        return $request->routeIs('owner.*') && $courses->isAcademyOwner($request->user(), $course);
     }
 }
