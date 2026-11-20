@@ -38,11 +38,11 @@ class CourseController extends Controller
         // media should only be hydrated for the learner's own account.
         $canAccessContent = $hasCourseEntitlement && ! $parentCourseEntitlement;
 
-        // Free-course videos are intentionally available to every active signed-in
-        // account; paid-course content continues to use the normal entitlement check.
-        $canViewCourseVideos = $request->user()
-            && ($course->isFree() || $canAccessContent);
-        $courseVideos = $canViewCourseVideos ? $service->videosFor($course) : collect();
+        // Only free-course videos use the authenticated native player. Paid course
+        // videos keep their existing protected SpotPlayer delivery path.
+        $courseVideos = $request->user() && $course->isFree()
+            ? $service->videosFor($course)
+            : collect();
 
         if ($canAccessContent) {
             $course->load([
