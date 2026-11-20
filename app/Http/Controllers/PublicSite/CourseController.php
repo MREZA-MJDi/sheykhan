@@ -38,6 +38,12 @@ class CourseController extends Controller
         // media should only be hydrated for the learner's own account.
         $canAccessContent = $hasCourseEntitlement && ! $parentCourseEntitlement;
 
+        // Free-course videos are intentionally available to every active signed-in
+        // account; paid-course content continues to use the normal entitlement check.
+        $canViewCourseVideos = $request->user()
+            && ($course->isFree() || $canAccessContent);
+        $courseVideos = $canViewCourseVideos ? $service->videosFor($course) : collect();
+
         if ($canAccessContent) {
             $course->load([
                 'sections.lessons.media' => fn ($query) => $query
@@ -51,6 +57,7 @@ class CourseController extends Controller
             'course' => $course,
             'canAccessContent' => $canAccessContent,
             'parentCourseEntitlement' => $parentCourseEntitlement,
+            'courseVideos' => $courseVideos,
             'requiresPayment' => $course->requiresPayment(),
             'seoMeta' => $course->seoMeta,
         ]);
