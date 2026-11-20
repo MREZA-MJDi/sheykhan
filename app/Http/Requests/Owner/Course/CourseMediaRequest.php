@@ -13,7 +13,7 @@ class CourseMediaRequest extends FormRequest
         $course = $this->route('course');
 
         return $course
-            && $this->user()?->hasPermission('media.upload')
+            && $this->user()
             && app(\App\Services\CourseManagementService::class)->canManage($this->user(), $course);
     }
 
