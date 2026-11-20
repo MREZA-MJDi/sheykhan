@@ -952,4 +952,67 @@ class TeacherWorkspaceFlowTest extends TestCase
     }
 
 
+
+    public function test_teacher_course_submission_cannot_publish_or_archive_itself(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $academy = Academy::query()->where('slug', 'sheykhan-academy')->firstOrFail();
+        $service = app(CourseManagementService::class);
+
+        $course = $service->create($teacher, [
+            'academy_id' => $academy->id,
+            'title' => 'دوره نیازمند تأیید مالک',
+            'slug' => 'teacher-pending-owner-approval',
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+            'access_type' => 'free',
+            'price' => 0,
+        ]);
+
+        $this->assertSame('draft', $course->status);
+        $this->assertNull($course->published_at);
+
+        $updated = $service->update($teacher, $course, [
+            'status' => 'published',
+            'published_at' => now()->subMinute(),
+        ]);
+
+        $this->assertSame('draft', $updated->status);
+        $this->assertNull($updated->published_at);
+
+        $archived = $service->update($teacher, $course, [
+            'status' => 'archived',
+        ]);
+
+        $this->assertSame('draft', $archived->status);
+        $this->assertNull($archived->published_at);
+    }
+
+    public function test_teacher_course_edit_screen_connects_all_five_steps_to_real_workflows(): void
+    {
+        $this->seed();
+
+        $teacher = User::query()->where('email', 'teacher.math@sheykhan.test')->firstOrFail();
+        $course = Course::query()->where('slug', 'math-foundation-7')->firstOrFail();
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.courses.edit', $course))
+            ->assertOk()
+            ->assertSee('id="course-step-basics"', false)
+            ->assertSee('id="course-step-media"', false)
+            ->assertSee('id="course-step-classrooms"', false)
+            ->assertSee('id="course-step-lessons"', false)
+            ->assertSee('id="course-step-publish"', false)
+            ->assertSee(route('teacher.courses.content', $course), false)
+            ->assertSee(route('teacher.classrooms.create', ['course_id' => $course->id]), false);
+
+        $this->actingAs($teacher)
+            ->get(route('teacher.classrooms.create', ['course_id' => $course->id]))
+            ->assertOk()
+            ->assertSee('name="course_id"', false)
+            ->assertSee('value="' . $course->id . '"', false);
+    }
+
 }
