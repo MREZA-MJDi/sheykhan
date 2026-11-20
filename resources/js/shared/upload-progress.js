@@ -60,6 +60,97 @@ const ensurePanel=form=>{
     form.append(panel);
     return panel;
 };
+
+const xhrRequest=(method,url,body,onProgress)=>{
+    return new Promise((resolve,reject)=>{
+        const xhr=new XMLHttpRequest();
+        xhr.open(method,url,true);
+        xhr.withCredentials=true;
+        xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+        xhr.setRequestHeader('Accept','application/json');
+        const csrf=document.querySelector('meta[name=csrf-token]')?.content;
+        if(csrf)xhr.setRequestHeader('X-CSRF-TOKEN',csrf);
+        if(onProgress)xhr.upload.addEventListener('progress',onProgress);
+        xhr.addEventListener('load',()=>{
+            let payload={};
+            try{payload=JSON.parse(xhr.responseText||'{}');}catch{}
+            resolve({status:xhr.status,payload,xhr});
+        });
+        xhr.addEventListener('error',()=>reject(new Error('ارتباط با سرور قطع شد؛ بخش‌های دریافت‌شده برای ادامه آپلود نگهداری می‌شوند.')));
+        xhr.addEventListener('abort',()=>reject(new Error('ارسال فایل لغو شد؛ می‌توانی با انتخاب دوباره همان فایل ادامه بدهی.')));
+        xhr.send(body||null);
+    });
+};
+const uploadChunks=async(form,panel)=>{
+    const files=getFiles(form);
+    if(files.length!==1)throw new Error('برای آپلود تکه‌ای، هر بار فقط یک فایل انتخاب کن.');
+    const file=files[0];
+    const chunkBytes=5*1024*1024;
+    const totalChunks=Math.ceil(file.size/chunkBytes);
+    const collection=form.querySelector('[name=collection]')?.value||'course-assets';
+    const uploadUrl=form.dataset.chunkUrl;
+    const statusTemplate=form.dataset.chunkStatusUrl;
+    const completeTemplate=form.dataset.chunkCompleteUrl;
+    if(!uploadUrl||!statusTemplate||!completeTemplate)throw new Error('مسیر ادامه آپلود در فرم تنظیم نشده است.');
+    const storageKey='sheykhan-course-upload:'+form.action+':'+collection+':'+file.name+':'+file.size+':'+file.lastModified;
+    const makeId=()=>window.crypto?.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16);});
+    const byId=template=>template.replace('UPLOAD_ID',encodeURIComponent(uploadId));
+    let uploadId=null;
+    try{uploadId=sessionStorage.getItem(storageKey);}catch{}
+    if(!uploadId){uploadId=makeId();try{sessionStorage.setItem(storageKey,uploadId);}catch{}}
+    let status=await xhrRequest('GET',byId(statusTemplate),null);
+    if(status.status===404||status.status===410||status.status===409){
+        uploadId=makeId();
+        try{sessionStorage.setItem(storageKey,uploadId);}catch{}
+        status={status:404,payload:{}};
+    }else if(status.status<200||status.status>=300){
+        throw new Error(status.payload.message||'وضعیت آپلود قابل بازیابی نیست؛ دوباره تلاش کن.');
+    }
+    const received=new Set(Array.isArray(status.payload.received_chunks)?status.payload.received_chunks.map(Number):[]);
+    let sentBytes=0;
+    received.forEach(index=>{
+        if(index>=0&&index<totalChunks)sentBytes+=Math.min(chunkBytes,file.size-index*chunkBytes);
+    });
+    paint(panel,file.size?sentBytes/file.size*100:0,received.size?'ادامه آپلود از بخش باقی‌مانده…':'شروع آپلود تکه‌ای…');
+    const eta=panel.querySelector('[data-upload-progress-eta]');
+    if(eta)eta.textContent='بخش‌های تکمیل‌شده برای همین فایل قابل بازیابی هستند.';
+    for(let index=0;index<totalChunks;index++){
+        if(received.has(index))continue;
+        const start=index*chunkBytes;
+        const end=Math.min(file.size,start+chunkBytes);
+        const part=file.slice(start,end);
+        const body=new FormData();
+        body.append('upload_id',uploadId);
+        body.append('chunk_index',String(index));
+        body.append('total_chunks',String(totalChunks));
+        body.append('file_name',file.name);
+        body.append('file_size',String(file.size));
+        body.append('mime_type',file.type||'application/octet-stream');
+        body.append('collection',collection);
+        body.append('chunk',part,file.name+'.part');
+        const response=await xhrRequest('POST',uploadUrl,body,event=>{
+            const completed=sentBytes+(event.lengthComputable?Math.min(event.loaded,part.size):0);
+            paint(panel,file.size?completed/file.size*100:0,'در حال ارسال بخش '+fa(index+1)+' از '+fa(totalChunks)+'…');
+        });
+        if(response.status<200||response.status>=300){
+            const message=response.payload.message||Object.values(response.payload.errors||{}).flat().find(Boolean);
+            throw new Error(message||'بخشی از فایل ارسال نشد؛ دوباره تلاش کن.');
+        }
+        sentBytes+=part.size;
+        paint(panel,file.size?sentBytes/file.size*100:100,'بخش '+fa(index+1)+' از '+fa(totalChunks)+' دریافت شد.');
+    }
+    paint(panel,100,'همه بخش‌ها دریافت شدند؛ فایل در حال یکپارچه‌سازی و اعتبارسنجی است…');
+    const completed=await xhrRequest('POST',byId(completeTemplate),new FormData());
+    if(completed.status<200||completed.status>=300){
+        const message=completed.payload.message||Object.values(completed.payload.errors||{}).flat().find(Boolean);
+        throw new Error(message||'تکمیل فایل انجام نشد؛ می‌توانی بدون ارسال دوباره بخش‌ها تلاش کنی.');
+    }
+    try{sessionStorage.removeItem(storageKey);}catch{}
+    paint(panel,100,'فایل با موفقیت ذخیره شد؛ صفحه در حال به‌روزرسانی است…');
+    if(completed.payload.redirect_url)window.location.assign(completed.payload.redirect_url);
+    else window.location.reload();
+};
+
 const bind=form=>{
     if(form.dataset.uploadProgressBound==='true')return;
     const panel=ensurePanel(form);if(!panel)return;
@@ -72,6 +163,19 @@ const bind=form=>{
         }
     });
     form.addEventListener('submit',event=>{
+        if(form.dataset.chunkUpload==='true'){
+            if(!getFiles(form).length)return;
+            event.preventDefault();
+            if(form.dataset.uploading==='true')return;
+            form.dataset.uploading='true';form.setAttribute('aria-busy','true');
+            const status=panel.querySelector('[data-upload-progress-status]'),error=panel.querySelector('[data-upload-progress-error]');
+            if(status)status.hidden=false;if(error){error.hidden=true;error.textContent='';}
+            const buttons=Array.from(form.querySelectorAll('button[type=submit],input[type=submit]'));
+            buttons.forEach(button=>{button.dataset.wasDisabled=button.disabled?'1':'0';button.disabled=true;button.setAttribute('aria-busy','true');});
+            const restore=()=>{form.dataset.uploading='false';form.removeAttribute('aria-busy');buttons.forEach(button=>{button.disabled=button.dataset.wasDisabled==='1';button.removeAttribute('aria-busy');delete button.dataset.wasDisabled;});};
+            uploadChunks(form,panel).catch(exception=>{restore();fail(panel,exception?.message||'آپلود انجام نشد؛ همان فایل را دوباره انتخاب کن تا از بخش‌های قبلی ادامه پیدا کند.');paint(panel,0,'آپلود متوقف شد؛ امکان ادامه وجود دارد.');});
+            return;
+        }
         if(!getFiles(form).length)return;
         if(form.dataset.uploading==='true'){event.preventDefault();return;}
         const probe=new XMLHttpRequest();if(!probe.upload)return;
