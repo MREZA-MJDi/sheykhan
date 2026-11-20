@@ -63,10 +63,10 @@ class TeacherLessonResourceFlowTest extends TestCase
             ->assertOk()
             ->assertDontSee('lesson-handout.pdf');
 
+        // Draft resources are intentionally undiscoverable to students.
         $this->actingAs($student)
             ->get(route('student.resources.download', $resource))
-            ->assertForbidden()
-            ->assertSee('فایل‌های آموزشی محافظت‌شده');
+            ->assertNotFound();
 
         $this->assertDatabaseHas('media', [
             'id' => $resource->media_id,
