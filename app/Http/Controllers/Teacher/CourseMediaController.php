@@ -30,6 +30,8 @@ class CourseMediaController extends Controller
     ): RedirectResponse {
         abort_unless($courses->canManage(request()->user(), $course), 403);
 
+        abort_if($media->collection === 'course-cover', 403);
+
         $attached = $media->attachments()
             ->where('mediable_type', Course::class)
             ->where('mediable_id', $course->id)
