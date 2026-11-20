@@ -331,4 +331,50 @@ class CourseMediaChunkUploadTest extends TestCase
         ]);
     }
 
+
+    public function test_owner_cover_upload_replaces_old_public_cover_without_leaving_stale_attachments(): void
+    {
+        Storage::fake('local');
+
+        [$owner, $course] = $this->ownerWorkspace();
+        $oldPath = 'courses/' . $course->id . '/old-cover.jpg';
+        Storage::disk('local')->put($oldPath, 'old-cover');
+
+        $oldCover = Media::create([
+            'uploaded_by' => $owner->id,
+            'disk' => 'local',
+            'path' => $oldPath,
+            'original_name' => 'old-cover.jpg',
+            'file_name' => 'old-cover.jpg',
+            'mime_type' => 'image/jpeg',
+            'extension' => 'jpg',
+            'size' => 10,
+            'visibility' => 'public',
+            'collection' => 'course-cover',
+            'status' => 'active',
+        ]);
+        $course->media()->attach($oldCover->id, [
+            'collection' => 'course-cover',
+            'sort_order' => 0,
+            'is_featured' => true,
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('owner.courses.media.store', $course), [
+                'collection' => 'course-cover',
+                'media' => UploadedFile::fake()->image('new-cover.jpg'),
+            ])
+            ->assertRedirect();
+
+        $covers = $course->fresh()->media()
+            ->wherePivot('collection', 'course-cover')
+            ->get();
+
+        $this->assertCount(1, $covers);
+        $this->assertSame('new-cover.jpg', $covers->first()->original_name);
+        $this->assertSame('public', $covers->first()->visibility);
+        $this->assertDatabaseMissing('media', ['id' => $oldCover->id]);
+        Storage::disk('local')->assertMissing($oldPath);
+    }
+
 }
